@@ -1,13 +1,13 @@
 import app from '../../forum/app';
-import UserPage, {IUserPageAttrs} from './UserPage';
+import UserPage, { IUserPageAttrs } from './UserPage';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';
 import Link from '../../common/components/Link';
 import Placeholder from '../../common/components/Placeholder';
 import CommentPost from './CommentPost';
-import Post from "../../common/models/Post";
-import type Mithril from "mithril";
-import User from "../../common/models/User";
+import Post from '../../common/models/Post';
+import type Mithril from 'mithril';
+import User from '../../common/models/User';
 
 /**
  * The `PostsUserPage` component shows a user's activity feed inside of their

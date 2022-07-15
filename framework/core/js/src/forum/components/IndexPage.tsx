@@ -1,5 +1,5 @@
 import app from '../../forum/app';
-import Page, {IPageAttrs} from '../../common/components/Page';
+import Page, { IPageAttrs } from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import DiscussionList from './DiscussionList';
@@ -11,9 +11,9 @@ import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
 import LinkButton from '../../common/components/LinkButton';
 import SelectDropdown from '../../common/components/SelectDropdown';
-import Discussion from "../../common/models/Discussion";
-import extractText from "../../common/utils/extractText";
-import type Mithril from "mithril";
+import Discussion from '../../common/models/Discussion';
+import extractText from '../../common/utils/extractText';
+import type Mithril from 'mithril';
 
 export interface IIndexPageAttrs extends IPageAttrs {}
 

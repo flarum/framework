@@ -1,8 +1,8 @@
-import UserPage, {IUserPageAttrs} from './UserPage';
+import UserPage, { IUserPageAttrs } from './UserPage';
 import DiscussionList from './DiscussionList';
 import DiscussionListState from '../states/DiscussionListState';
-import type Mithril from "mithril";
-import User from "../../common/models/User";
+import type Mithril from 'mithril';
+import User from '../../common/models/User';
 
 /**
  * The `DiscussionsUserPage` component shows a discussion list inside of a user

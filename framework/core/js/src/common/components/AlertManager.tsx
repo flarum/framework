@@ -1,6 +1,6 @@
-import Component, {ComponentAttrs} from '../Component';
-import AlertManagerState from "../states/AlertManagerState";
-import Mithril from "mithril";
+import Component, { ComponentAttrs } from '../Component';
+import AlertManagerState from '../states/AlertManagerState';
+import Mithril from 'mithril';
 
 export interface IAlertManagerAttrs extends ComponentAttrs {
   state: AlertManagerState;
@@ -22,18 +22,20 @@ export default class AlertManager<CustomAttrs extends IAlertManagerAttrs = IAler
 
     return (
       <div class="AlertManager">
-        {Object.keys(activeAlerts).map(Number).map((key) => {
-          const alert = activeAlerts[key];
-          const urgent = alert.attrs.type === 'error';
+        {Object.keys(activeAlerts)
+          .map(Number)
+          .map((key) => {
+            const alert = activeAlerts[key];
+            const urgent = alert.attrs.type === 'error';
 
-          return (
-            <div class="AlertManager-alert" role="alert" aria-live={urgent ? 'assertive' : 'polite'}>
-              <alert.componentClass {...alert.attrs} ondismiss={this.state.dismiss.bind(this.state, key)}>
-                {alert.children}
-              </alert.componentClass>
-            </div>
-          );
-        })}
+            return (
+              <div class="AlertManager-alert" role="alert" aria-live={urgent ? 'assertive' : 'polite'}>
+                <alert.componentClass {...alert.attrs} ondismiss={this.state.dismiss.bind(this.state, key)}>
+                  {alert.children}
+                </alert.componentClass>
+              </div>
+            );
+          })}
       </div>
     );
   }

@@ -1,5 +1,5 @@
 import app from '../../forum/app';
-import Page, {IPageAttrs} from '../../common/components/Page';
+import Page, { IPageAttrs } from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import UserCard from './UserCard';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
@@ -8,8 +8,8 @@ import LinkButton from '../../common/components/LinkButton';
 import Separator from '../../common/components/Separator';
 import listItems from '../../common/helpers/listItems';
 import AffixedSidebar from './AffixedSidebar';
-import User from "../../common/models/User";
-import Mithril from "mithril";
+import User from '../../common/models/User';
+import Mithril from 'mithril';
 
 export interface IUserPageAttrs extends IPageAttrs {}
 
