@@ -4,19 +4,18 @@ import Alert, { AlertAttrs } from '../components/Alert';
  * Returned by `AlertManagerState.show`. Used to dismiss alerts.
  */
 export declare type AlertIdentifier = number;
+export declare type AlertArray = {
+    [id: AlertIdentifier]: AlertState;
+};
 export interface AlertState {
     componentClass: typeof Alert;
     attrs: AlertAttrs;
     children: Mithril.Children;
 }
 export default class AlertManagerState {
-    protected activeAlerts: {
-        [id: number]: AlertState;
-    };
-    protected alertId: number;
-    getActiveAlerts(): {
-        [id: number]: AlertState;
-    };
+    protected activeAlerts: AlertArray;
+    protected alertId: AlertIdentifier;
+    getActiveAlerts(): AlertArray;
     /**
      * Show an Alert in the alerts area.
      *

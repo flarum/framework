@@ -1,3 +1,7 @@
+import UserPage, { IUserPageAttrs } from './UserPage';
+import type Post from '../../common/models/Post';
+import type Mithril from 'mithril';
+import type User from '../../common/models/User';
 /**
  * The `PostsUserPage` component shows a user's activity feed inside of their
  * profile.
@@ -5,34 +9,27 @@
 export default class PostsUserPage extends UserPage {
     /**
      * Whether or not the activity feed is currently loading.
-     *
-     * @type {Boolean}
      */
-    loading: boolean | undefined;
+    loading: boolean;
     /**
      * Whether or not there are any more activity items that can be loaded.
-     *
-     * @type {Boolean}
      */
-    moreResults: boolean | undefined;
+    moreResults: boolean;
     /**
      * The Post models in the feed.
-     *
-     * @type {Post[]}
      */
-    posts: Post[] | undefined;
+    posts: Post[];
     /**
      * The number of activity items to load per request.
-     *
-     * @type {number}
      */
-    loadLimit: number | undefined;
+    loadLimit: number;
+    oninit(vnode: Mithril.Vnode<IUserPageAttrs, this>): void;
     content(): JSX.Element;
     /**
      * Initialize the component with a user, and trigger the loading of their
      * activity feed.
      */
-    show(user: any): void;
+    show(user: User): void;
     /**
      * Clear and reload the user's activity feed.
      */
@@ -40,21 +37,15 @@ export default class PostsUserPage extends UserPage {
     /**
      * Load a new page of the user's activity feed.
      *
-     * @param {number} [offset] The position to start getting results from.
-     * @return {Promise<import('../../common/models/Post').default[]>}
      * @protected
      */
-    protected loadResults(offset?: number | undefined): Promise<import('../../common/models/Post').default[]>;
+    loadResults(offset?: number): Promise<import("../../common/Store").ApiResponsePlural<Post>>;
     /**
      * Load the next page of results.
      */
     loadMore(): void;
     /**
      * Parse results and append them to the activity feed.
-     *
-     * @param {import('../../common/models/Post').default[]} results
-     * @return {import('../../common/models/Post').default[]}
      */
-    parseResults(results: import('../../common/models/Post').default[]): import('../../common/models/Post').default[];
+    parseResults(results: Post[]): Post[];
 }
-import UserPage from "./UserPage";

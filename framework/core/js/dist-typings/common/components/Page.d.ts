@@ -9,7 +9,7 @@ export interface IPageAttrs {
  *
  * @abstract
  */
-export default abstract class Page<CustomAttrs extends IPageAttrs = IPageAttrs> extends Component<CustomAttrs> {
+export default abstract class Page<CustomAttrs extends IPageAttrs = IPageAttrs, CustomState = undefined> extends Component<CustomAttrs, CustomState> {
     /**
      * A class name to apply to the body while the route is active.
      */
