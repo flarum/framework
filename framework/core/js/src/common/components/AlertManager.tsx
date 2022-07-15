@@ -1,6 +1,6 @@
 import Component, { ComponentAttrs } from '../Component';
 import AlertManagerState from '../states/AlertManagerState';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 
 export interface IAlertManagerAttrs extends ComponentAttrs {
   state: AlertManagerState;
