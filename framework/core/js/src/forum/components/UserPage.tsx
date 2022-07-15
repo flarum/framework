@@ -8,8 +8,8 @@ import LinkButton from '../../common/components/LinkButton';
 import Separator from '../../common/components/Separator';
 import listItems from '../../common/helpers/listItems';
 import AffixedSidebar from './AffixedSidebar';
-import User from '../../common/models/User';
-import Mithril from 'mithril';
+import type User from '../../common/models/User';
+import type Mithril from 'mithril';
 
 export interface IUserPageAttrs extends IPageAttrs {}
 
