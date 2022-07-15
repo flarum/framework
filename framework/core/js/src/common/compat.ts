@@ -1,3 +1,4 @@
+// @ts-expect-error We need to explicitly use the prefix to distinguish between the extend folder.
 import * as extend from './extend.ts';
 import Session from './Session';
 import Store from './Store';

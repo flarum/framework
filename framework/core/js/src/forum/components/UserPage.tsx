@@ -1,5 +1,5 @@
 import app from '../../forum/app';
-import Page from '../../common/components/Page';
+import Page, { IPageAttrs } from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import UserCard from './UserCard';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
@@ -8,6 +8,10 @@ import LinkButton from '../../common/components/LinkButton';
 import Separator from '../../common/components/Separator';
 import listItems from '../../common/helpers/listItems';
 import AffixedSidebar from './AffixedSidebar';
+import type User from '../../common/models/User';
+import type Mithril from 'mithril';
+
+export interface IUserPageAttrs extends IPageAttrs {}
 
 /**
  * The `UserPage` component shows a user's profile. It can be extended to show
@@ -16,24 +20,20 @@ import AffixedSidebar from './AffixedSidebar';
  *
  * @abstract
  */
-export default class UserPage extends Page {
-  oninit(vnode) {
-    super.oninit(vnode);
+export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttrs, CustomState = undefined> extends Page<CustomAttrs, CustomState> {
+  /**
+   * The user this page is for.
+   */
+  user: User | null = null;
 
-    /**
-     * The user this page is for.
-     *
-     * @type {User}
-     */
-    this.user = null;
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
+    super.oninit(vnode);
 
     this.bodyClass = 'App--user';
   }
 
   /**
    * Base view template for the user page.
-   *
-   * @return {import('mithril').Children}
    */
   view() {
     return (
@@ -64,19 +64,16 @@ export default class UserPage extends Page {
 
   /**
    * Get the content to display in the user page.
-   *
-   * @return {import('mithril').Children}
    */
-  content() {}
+  content(): Mithril.Children | void {}
 
   /**
    * Initialize the component with a user, and trigger the loading of their
    * activity feed.
    *
-   * @param {import('../../common/models/User').default} user
    * @protected
    */
-  show(user) {
+  show(user: User): void {
     this.user = user;
 
     app.current.set('user', user);
@@ -89,10 +86,8 @@ export default class UserPage extends Page {
   /**
    * Given a username, load the user's profile from the store, or make a request
    * if we don't have it yet. Then initialize the profile page with that user.
-   *
-   * @param {string} username
    */
-  loadUser(username) {
+  loadUser(username: string) {
     const lowercaseUsername = username.toLowerCase();
 
     // Load the preloaded user object, if any, into the global app store
@@ -100,25 +95,25 @@ export default class UserPage extends Page {
     // instead of the parsed models
     app.preloadedApiDocument();
 
-    app.store.all('users').some((user) => {
+    app.store.all<User>('users').some((user) => {
       if ((user.username().toLowerCase() === lowercaseUsername || user.id() === username) && user.joinTime()) {
         this.show(user);
         return true;
       }
+
+      return false;
     });
 
     if (!this.user) {
-      app.store.find('users', username, { bySlug: true }).then(this.show.bind(this));
+      app.store.find<User>('users', username, { bySlug: true }).then(this.show.bind(this));
     }
   }
 
   /**
    * Build an item list for the content of the sidebar.
-   *
-   * @return {ItemList<import('mithril').Children>}
    */
   sidebarItems() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
 
     items.add(
       'nav',
@@ -132,12 +127,10 @@ export default class UserPage extends Page {
 
   /**
    * Build an item list for the navigation in the sidebar.
-   *
-   * @return {ItemList<import('mithril').Children>}
    */
   navItems() {
-    const items = new ItemList();
-    const user = this.user;
+    const items = new ItemList<Mithril.Children>();
+    const user = this.user!;
 
     items.add(
       'posts',

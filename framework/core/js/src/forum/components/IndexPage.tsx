@@ -1,5 +1,5 @@
 import app from '../../forum/app';
-import Page from '../../common/components/Page';
+import Page, { IPageAttrs } from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import DiscussionList from './DiscussionList';
@@ -11,15 +11,21 @@ import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
 import LinkButton from '../../common/components/LinkButton';
 import SelectDropdown from '../../common/components/SelectDropdown';
+import extractText from '../../common/utils/extractText';
+import type Mithril from 'mithril';
+import type Discussion from '../../common/models/Discussion';
+
+export interface IIndexPageAttrs extends IPageAttrs {}
 
 /**
  * The `IndexPage` component displays the index page, including the welcome
  * hero, the sidebar, and the discussion list.
  */
-export default class IndexPage extends Page {
+export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageAttrs, CustomState = {}> extends Page<CustomAttrs, CustomState> {
   static providesInitialSearch = true;
+  lastDiscussion?: Discussion;
 
-  oninit(vnode) {
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
     // If the user is returning from a discussion page, then take note of which
@@ -37,9 +43,9 @@ export default class IndexPage extends Page {
       app.discussions.clear();
     }
 
-    app.discussions.refreshParams(app.search.params(), m.route.param('page'));
+    app.discussions.refreshParams(app.search.params(), Number(m.route.param('page')));
 
-    app.history.push('index', app.translator.trans('core.forum.header.back_to_index_tooltip'));
+    app.history.push('index', extractText(app.translator.trans('core.forum.header.back_to_index_tooltip')));
 
     this.bodyClass = 'App--index';
     this.scrollTopOnCreate = false;
@@ -68,11 +74,11 @@ export default class IndexPage extends Page {
   }
 
   setTitle() {
-    app.setTitle(app.translator.trans('core.forum.index.meta_title_text'));
+    app.setTitle(extractText(app.translator.trans('core.forum.index.meta_title_text')));
     app.setTitleCount(0);
   }
 
-  oncreate(vnode) {
+  oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.oncreate(vnode);
 
     this.setTitle();
@@ -80,11 +86,11 @@ export default class IndexPage extends Page {
     // Work out the difference between the height of this hero and that of the
     // previous hero. Maintain the same scroll position relative to the bottom
     // of the hero so that the sidebar doesn't jump around.
-    const oldHeroHeight = app.cache.heroHeight;
+    const oldHeroHeight = app.cache.heroHeight as number;
     const heroHeight = (app.cache.heroHeight = this.$('.Hero').outerHeight() || 0);
-    const scrollTop = app.cache.scrollTop;
+    const scrollTop = app.cache.scrollTop as number;
 
-    $('#app').css('min-height', $(window).height() + heroHeight);
+    $('#app').css('min-height', ($(window).height() || 0) + heroHeight);
 
     // Let browser handle scrolling on page reload.
     if (app.previous.type == null) return;
@@ -104,10 +110,11 @@ export default class IndexPage extends Page {
       const $discussion = this.$(`li[data-id="${this.lastDiscussion.id()}"] .DiscussionListItem`);
 
       if ($discussion.length) {
-        const indexTop = $('#header').outerHeight();
-        const indexBottom = $(window).height();
-        const discussionTop = $discussion.offset().top;
-        const discussionBottom = discussionTop + $discussion.outerHeight();
+        const indexTop = $('#header').outerHeight() || 0;
+        const indexBottom = $(window).height() || 0;
+        const discussionOffset = $discussion.offset();
+        const discussionTop = (discussionOffset && discussionOffset.top) || 0;
+        const discussionBottom = discussionTop + ($discussion.outerHeight() || 0);
 
         if (discussionTop < scrollTop + indexTop || discussionBottom > scrollTop + indexBottom) {
           $(window).scrollTop(discussionTop - indexTop);
@@ -116,7 +123,7 @@ export default class IndexPage extends Page {
     }
   }
 
-  onbeforeremove(vnode) {
+  onbeforeremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.onbeforeremove(vnode);
 
     // Save the scroll position so we can restore it when we return to the
@@ -124,7 +131,7 @@ export default class IndexPage extends Page {
     app.cache.scrollTop = $(window).scrollTop();
   }
 
-  onremove(vnode) {
+  onremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.onremove(vnode);
 
     $('#app').css('min-height', '');
@@ -132,8 +139,6 @@ export default class IndexPage extends Page {
 
   /**
    * Get the component to display as the hero.
-   *
-   * @return {import('mithril').Children}
    */
   hero() {
     return WelcomeHero.component();
@@ -143,11 +148,9 @@ export default class IndexPage extends Page {
    * Build an item list for the sidebar of the index page. By default this is a
    * "New Discussion" button, and then a DropdownSelect component containing a
    * list of navigation items.
-   *
-   * @return {ItemList<import('mithril').Children>}
    */
   sidebarItems() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
     const canStartDiscussion = app.forum.attribute('canStartDiscussion') || !app.session.user;
 
     items.add(
@@ -176,7 +179,7 @@ export default class IndexPage extends Page {
           className: 'App-titleControl',
           accessibleToggleLabel: app.translator.trans('core.forum.index.toggle_sidenav_dropdown_accessible_label'),
         },
-        this.navItems(this).toArray()
+        this.navItems().toArray()
       )
     );
 
@@ -186,11 +189,9 @@ export default class IndexPage extends Page {
   /**
    * Build an item list for the navigation in the sidebar of the index page. By
    * default this is just the 'All Discussions' link.
-   *
-   * @return {ItemList<import('mithril').Children>}
    */
   navItems() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
     const params = app.search.stickyParams();
 
     items.add(
@@ -212,14 +213,12 @@ export default class IndexPage extends Page {
    * Build an item list for the part of the toolbar which is concerned with how
    * the results are displayed. By default this is just a select box to change
    * the way discussions are sorted.
-   *
-   * @return {ItemList<import('mithril').Children>}
    */
   viewItems() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
     const sortMap = app.discussions.sortMap();
 
-    const sortOptions = Object.keys(sortMap).reduce((acc, sortId) => {
+    const sortOptions = Object.keys(sortMap).reduce((acc: any, sortId) => {
       acc[sortId] = app.translator.trans(`core.forum.index_sort.${sortId}_button`);
       return acc;
     }, {});
@@ -254,11 +253,9 @@ export default class IndexPage extends Page {
   /**
    * Build an item list for the part of the toolbar which is about taking action
    * on the results. By default this is just a "mark all as read" button.
-   *
-   * @return {ItemList<import('mithril').Children>}
    */
   actionItems() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
 
     items.add(
       'refresh',
@@ -269,7 +266,7 @@ export default class IndexPage extends Page {
         onclick: () => {
           app.discussions.refresh();
           if (app.session.user) {
-            app.store.find('users', app.session.user.id());
+            app.store.find('users', app.session.user.id()!);
             m.redraw();
           }
         },
@@ -293,10 +290,8 @@ export default class IndexPage extends Page {
 
   /**
    * Open the composer for a new discussion or prompt the user to login.
-   *
-   * @return {Promise<void>}
    */
-  newDiscussionAction() {
+  newDiscussionAction(): Promise<unknown> {
     return new Promise((resolve, reject) => {
       if (app.session.user) {
         app.composer.load(DiscussionComposer, { user: app.session.user });
@@ -315,10 +310,10 @@ export default class IndexPage extends Page {
    * Mark all discussions as read.
    */
   markAllAsRead() {
-    const confirmation = confirm(app.translator.trans('core.forum.index.mark_all_as_read_confirmation'));
+    const confirmation = confirm(extractText(app.translator.trans('core.forum.index.mark_all_as_read_confirmation')));
 
     if (confirmation) {
-      app.session.user.save({ markedAllAsReadAt: new Date() });
+      app.session.user?.save({ markedAllAsReadAt: new Date() });
     }
   }
 }

@@ -1,46 +1,41 @@
 import app from '../../forum/app';
-import UserPage from './UserPage';
+import UserPage, { IUserPageAttrs } from './UserPage';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';
 import Link from '../../common/components/Link';
 import Placeholder from '../../common/components/Placeholder';
 import CommentPost from './CommentPost';
+import type Post from '../../common/models/Post';
+import type Mithril from 'mithril';
+import type User from '../../common/models/User';
 
 /**
  * The `PostsUserPage` component shows a user's activity feed inside of their
  * profile.
  */
 export default class PostsUserPage extends UserPage {
-  oninit(vnode) {
+  /**
+   * Whether or not the activity feed is currently loading.
+   */
+  loading: boolean = true;
+
+  /**
+   * Whether or not there are any more activity items that can be loaded.
+   */
+  moreResults: boolean = false;
+
+  /**
+   * The Post models in the feed.
+   */
+  posts: Post[] = [];
+
+  /**
+   * The number of activity items to load per request.
+   */
+  loadLimit: number = 20;
+
+  oninit(vnode: Mithril.Vnode<IUserPageAttrs, this>) {
     super.oninit(vnode);
-
-    /**
-     * Whether or not the activity feed is currently loading.
-     *
-     * @type {Boolean}
-     */
-    this.loading = true;
-
-    /**
-     * Whether or not there are any more activity items that can be loaded.
-     *
-     * @type {Boolean}
-     */
-    this.moreResults = false;
-
-    /**
-     * The Post models in the feed.
-     *
-     * @type {Post[]}
-     */
-    this.posts = [];
-
-    /**
-     * The number of activity items to load per request.
-     *
-     * @type {number}
-     */
-    this.loadLimit = 20;
 
     this.loadUser(m.route.param('username'));
   }
@@ -92,7 +87,7 @@ export default class PostsUserPage extends UserPage {
    * Initialize the component with a user, and trigger the loading of their
    * activity feed.
    */
-  show(user) {
+  show(user: User): void {
     super.show(user);
 
     this.refresh();
@@ -113,14 +108,12 @@ export default class PostsUserPage extends UserPage {
   /**
    * Load a new page of the user's activity feed.
    *
-   * @param {number} [offset] The position to start getting results from.
-   * @return {Promise<import('../../common/models/Post').default[]>}
    * @protected
    */
-  loadResults(offset) {
-    return app.store.find('posts', {
+  loadResults(offset = 0) {
+    return app.store.find<Post[]>('posts', {
       filter: {
-        author: this.user.username(),
+        author: this.user!.username(),
         type: 'comment',
       },
       page: { offset, limit: this.loadLimit },
@@ -138,11 +131,8 @@ export default class PostsUserPage extends UserPage {
 
   /**
    * Parse results and append them to the activity feed.
-   *
-   * @param {import('../../common/models/Post').default[]} results
-   * @return {import('../../common/models/Post').default[]}
    */
-  parseResults(results) {
+  parseResults(results: Post[]): Post[] {
     this.loading = false;
 
     this.posts.push(...results);
