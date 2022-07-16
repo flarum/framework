@@ -88,11 +88,13 @@ export default class AppearancePage extends AdminPage {
           type: 'color-preview',
           setting: 'theme_primary_color',
           placeholder: '#aaaaaa',
+          ariaLabel: app.translator.trans('core.admin.appearance.colors_primary_label'),
         })}
         {this.buildSettingComponent({
           type: 'color-preview',
           setting: 'theme_secondary_color',
           placeholder: '#aaaaaa',
+          ariaLabel: app.translator.trans('core.admin.appearance.colors_secondary_label'),
         })}
       </div>,
       70
