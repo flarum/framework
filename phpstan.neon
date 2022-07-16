@@ -1,0 +1,13 @@
+includes:
+  - php-packages/phpstan/extension.neon
+
+parameters:
+	level: 4
+	paths:
+	  - framework/core/src
+	ignoreErrors:
+		- '#PHPDoc tag @var#'
+	excludePaths:
+		- *.blade.php
+	checkMissingIterableValueType: false
+	databaseMigrationsPath: ['framework/core/migrations']
