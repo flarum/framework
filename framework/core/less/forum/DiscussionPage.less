@@ -25,15 +25,15 @@
 @media @tablet-up {
   .DiscussionPage-nav {
     float: right;
+    position: sticky;
+    top: var(--header-height);
+    padding-top: 32px;
 
     &, > ul {
       width: 150px;
     }
+    
     > ul {
-      position: fixed;
-      margin-top: 30px;
-      z-index: 1;
-
       > li {
         margin-bottom: 10px;
       }
