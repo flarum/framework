@@ -41,7 +41,7 @@ use Illuminate\Support\Arr;
  * @property \Carbon\Carbon $deleted_at
  * @property \Flarum\User\User|null $user
  * @property \Flarum\User\User|null $fromUser
- * @property \Flarum\Database\AbstractModel|null $subject
+ * @property \Flarum\Database\AbstractModel|\Flarum\Post\Post|\Flarum\Discussion\Discussion|null $subject
  */
 class Notification extends AbstractModel
 {
@@ -209,7 +209,7 @@ class Notification extends AbstractModel
      */
     public function scopeMatchingBlueprint(Builder $query, BlueprintInterface $blueprint)
     {
-        return $query->where(static::getBlueprintAttributes($blueprint));
+        return $query->where(self::getBlueprintAttributes($blueprint));
     }
 
     /**
@@ -220,7 +220,7 @@ class Notification extends AbstractModel
      */
     public static function notify(array $recipients, BlueprintInterface $blueprint)
     {
-        $attributes = static::getBlueprintAttributes($blueprint);
+        $attributes = self::getBlueprintAttributes($blueprint);
         $now = Carbon::now()->toDateTimeString();
 
         static::insert(

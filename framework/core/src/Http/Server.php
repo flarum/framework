@@ -11,6 +11,7 @@ namespace Flarum\Http;
 
 use Flarum\Foundation\ErrorHandling\LogReporter;
 use Flarum\Foundation\SiteInterface;
+use Illuminate\Contracts\Container\Container;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequest;
 use Laminas\Diactoros\ServerRequestFactory;
@@ -50,7 +51,7 @@ class Server
      * We catch all exceptions happening during this process and format them to
      * prevent exposure of sensitive information.
      *
-     * @return \Psr\Http\Server\RequestHandlerInterface
+     * @return \Psr\Http\Server\RequestHandlerInterface|void
      */
     private function safelyBootAndGetHandler()
     {
@@ -80,7 +81,9 @@ class Server
      */
     private function cleanBootExceptionLog(Throwable $error)
     {
-        if (app()->has('flarum.config') && app('flarum.config')->inDebugMode()) {
+        $container = resolve(Container::class);
+
+        if ($container->has('flarum.config') && resolve('flarum.config')->inDebugMode()) {
             // If the application booted far enough for the config to be available, we will check for debug mode
             // Since the config is loaded very early, it is very likely to be available from the container
             $message = $error->getMessage();
@@ -96,12 +99,12 @@ class Server
 <pre>$error</pre>
 ERROR;
             exit(1);
-        } elseif (app()->has(LoggerInterface::class)) {
+        } elseif ($container->has(LoggerInterface::class)) {
             // If the application booted far enough for the logger to be available, we will log the error there
             // Considering most boot errors are related to database or extensions, the logger should already be loaded
             // We check for LoggerInterface binding because it's a constructor dependency of LogReporter,
             // then instantiate LogReporter through the container for automatic dependency injection
-            app(LogReporter::class)->report($error);
+            resolve(LogReporter::class)->report($error);
 
             echo 'Flarum encountered a boot error. Details have been logged to the Flarum log file.';
             exit(1);

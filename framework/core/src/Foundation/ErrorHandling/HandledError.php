@@ -28,7 +28,7 @@ class HandledError
 
     public static function unknown(Throwable $error)
     {
-        return new static($error, 'unknown', 500);
+        return new self($error, 'unknown', 500);
     }
 
     public function __construct(Throwable $error, $type, $statusCode)

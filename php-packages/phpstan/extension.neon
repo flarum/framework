@@ -1,3 +1,11 @@
 includes:
     - vendor/phpstan/phpstan-php-parser/extension.neon
     - larastan-extension.neon
+    - phpstan-baseline.neon
+
+parameters:
+  stubFiles:
+    - stubs/Illuminate/Contracts/Container/Container.stub
+    - stubs/Illuminate/Queue/ListenerOptions.stub
+    - stubs/Illuminate/Support/ServiceProvider.stub
+    - stubs/Illuminate/Filesystem/Filesystem.stub

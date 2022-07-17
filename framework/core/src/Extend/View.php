@@ -65,7 +65,7 @@ class View implements ExtenderInterface, LifecycleInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $container->resolving(Factory::class, function (Factory $view) {
+        $container->resolving(Factory::class, function (\Illuminate\View\Factory $view) {
             foreach ($this->namespaces as $namespace => $hints) {
                 $view->addNamespace($namespace, $hints);
             }

@@ -15,6 +15,7 @@ use Flarum\Foundation\Application;
 use Flarum\Foundation\Config;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Queue\Queue;
+use Illuminate\Database\Connection;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Str;
 use PDO;
@@ -39,14 +40,18 @@ class InfoCommand extends AbstractCommand
     protected $settings;
 
     /**
-     * @var ConnectionInterface
+     * @var Connection
      */
     protected $db;
+
     /**
      * @var Queue
      */
     private $queue;
 
+    /**
+     * @param Connection $db
+     */
     public function __construct(
         ExtensionManager $extensions,
         Config $config,

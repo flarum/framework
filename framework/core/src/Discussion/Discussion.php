@@ -23,6 +23,7 @@ use Flarum\Post\MergeableInterface;
 use Flarum\Post\Post;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 /**
@@ -83,7 +84,7 @@ class Discussion extends AbstractModel
     /**
      * The user for which the state relationship should be loaded.
      *
-     * @var User
+     * @var User|null
      */
     protected static $stateUser;
 
@@ -395,11 +396,8 @@ class Discussion extends AbstractModel
      * relation), then the static `$stateUser` property is used.
      *
      * @see Discussion::setStateUser()
-     *
-     * @param User|null $user
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function state(User $user = null)
+    public function state(User $user = null): HasOne
     {
         $user = $user ?: static::$stateUser;
 
@@ -409,12 +407,10 @@ class Discussion extends AbstractModel
     /**
      * Get the state model for a user, or instantiate a new one if it does not
      * exist.
-     *
-     * @param User $user
-     * @return \Flarum\Discussion\UserState
      */
-    public function stateFor(User $user)
+    public function stateFor(User $user): UserState
     {
+        /** @var UserState|null $state */
         $state = $this->state($user)->first();
 
         if (! $state) {
@@ -428,8 +424,6 @@ class Discussion extends AbstractModel
 
     /**
      * Set the user for which the state relationship should be loaded.
-     *
-     * @param User $user
      */
     public static function setStateUser(User $user)
     {
@@ -440,10 +434,8 @@ class Discussion extends AbstractModel
      * Set the discussion title.
      *
      * This automatically creates a matching slug for the discussion.
-     *
-     * @param string $title
      */
-    protected function setTitleAttribute($title)
+    protected function setTitleAttribute(string $title)
     {
         $this->attributes['title'] = $title;
         $this->slug = Str::slug(

@@ -109,7 +109,7 @@ class User extends AbstractModel
     /**
      * The access gate.
      *
-     * @var Gate
+     * @var Access\Gate
      */
     protected static $gate;
 
@@ -172,7 +172,7 @@ class User extends AbstractModel
     }
 
     /**
-     * @param Gate $gate
+     * @param Access\Gate $gate
      */
     public static function setGate($gate)
     {
@@ -311,14 +311,16 @@ class User extends AbstractModel
     /**
      * Get the URL of the user's avatar.
      *
-     * @todo Allow different storage locations to be used
      * @param string|null $value
      * @return string
      */
     public function getAvatarUrlAttribute(string $value = null)
     {
         if ($value && strpos($value, '://') === false) {
-            return resolve(Factory::class)->disk('flarum-avatars')->url($value);
+            /** @var \Illuminate\Contracts\Filesystem\Cloud $disk */
+            $disk = resolve(Factory::class)->disk('flarum-avatars');
+
+            return $disk->url($value);
         }
 
         return $value;
@@ -410,15 +412,6 @@ class User extends AbstractModel
         return false;
     }
 
-    private function checkForDeprecatedPermissions($permission)
-    {
-        foreach (['viewDiscussions', 'viewUserList'] as $deprecated) {
-            if (strpos($permission, $deprecated) !== false) {
-                trigger_error('The `viewDiscussions` and `viewUserList` permissions have been renamed to `viewForum` and `searchUsers` respectively. Please use those instead.', E_USER_DEPRECATED);
-            }
-        }
-    }
-
     /**
      * Get the notification types that should be alerted to this user, according
      * to their preferences.
@@ -479,7 +472,7 @@ class User extends AbstractModel
      * Get the values of all registered preferences for this user, by
      * transforming their stored preferences and merging them with the defaults.
      *
-     * @param string $value
+     * @param string|null $value
      * @return array
      */
     public function getPreferencesAttribute($value)
@@ -676,7 +669,7 @@ class User extends AbstractModel
     /**
      * Define the relationship with the user's read discussions.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<Discussion>
      */
     public function read()
     {
@@ -825,7 +818,7 @@ class User extends AbstractModel
      * Register a callback that processes a user's list of groups.
      *
      * @param callable $callback
-     * @return array $groupIds
+     * @return void
      *
      * @internal
      */

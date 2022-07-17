@@ -35,12 +35,12 @@ class LessCompiler extends RevisionCompiler
     protected $customFunctions = [];
 
     /**
-     * @var Collection
+     * @var Collection|null
      */
     protected $lessImportOverrides;
 
     /**
-     * @var Collection
+     * @var Collection|null
      */
     protected $fileSourceOverrides;
 

@@ -11,6 +11,7 @@ namespace Flarum\Database;
 
 use Exception;
 use Flarum\Extension\Extension;
+use Illuminate\Database\Connection;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\MySqlConnection;
 use Illuminate\Filesystem\Filesystem;
@@ -39,11 +40,12 @@ class Migrator
     /**
      * The output interface implementation.
      *
-     * @var OutputInterface
+     * @var OutputInterface|null
      */
     protected $output;
+
     /**
-     * @var ConnectionInterface|MySqlConnection
+     * @var Connection|MySqlConnection
      */
     protected $connection;
 
@@ -51,7 +53,7 @@ class Migrator
      * Create a new migrator instance.
      *
      * @param  MigrationRepositoryInterface  $repository
-     * @param  ConnectionInterface           $connection
+     * @param  Connection           $connection
      * @param  Filesystem                    $files
      */
     public function __construct(
@@ -245,6 +247,8 @@ class Migrator
         if ($this->files->exists($migration)) {
             return $this->files->getRequire($migration);
         }
+
+        return [];
     }
 
     /**

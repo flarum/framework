@@ -22,10 +22,6 @@ class DiscussionPolicy extends AbstractPolicy
      */
     protected $settings;
 
-    /**
-     * @param SettingsRepositoryInterface $settings
-     * @param Dispatcher $events
-     */
     public function __construct(SettingsRepositoryInterface $settings)
     {
         $this->settings = $settings;
@@ -34,7 +30,7 @@ class DiscussionPolicy extends AbstractPolicy
     /**
      * @param User $actor
      * @param string $ability
-     * @return bool|null
+     * @return string|void
      */
     public function can(User $actor, $ability)
     {

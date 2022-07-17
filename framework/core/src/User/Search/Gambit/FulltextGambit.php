@@ -50,5 +50,7 @@ class FulltextGambit implements GambitInterface
                 'id',
                 $this->getUserSearchSubQuery($searchValue)
             );
+
+        return true;
     }
 }

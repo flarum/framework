@@ -15,6 +15,7 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
+use Illuminate\Contracts\Filesystem\Filesystem;
 
 class ForumSerializer extends AbstractSerializer
 {
@@ -39,7 +40,7 @@ class ForumSerializer extends AbstractSerializer
     protected $url;
 
     /**
-     * @var Cloud
+     * @var Filesystem
      */
     protected $assetsFilesystem;
 
@@ -62,7 +63,7 @@ class ForumSerializer extends AbstractSerializer
      */
     public function getId($model)
     {
-        return 1;
+        return '1';
     }
 
     /**
@@ -132,6 +133,9 @@ class ForumSerializer extends AbstractSerializer
 
     public function getAssetUrl($assetPath): string
     {
-        return $this->assetsFilesystem->url($assetPath);
+        /** @var Cloud $assetsFilesystem */
+        $assetsFilesystem = $this->assetsFilesystem;
+
+        return $assetsFilesystem->url($assetPath);
     }
 }

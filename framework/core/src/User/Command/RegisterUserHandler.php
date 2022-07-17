@@ -54,12 +54,6 @@ class RegisterUserHandler
      */
     protected $imageManager;
 
-    /**
-     * @param Dispatcher $events
-     * @param SettingsRepositoryInterface $settings
-     * @param UserValidator $validator
-     * @param AvatarUploader $avatarUploader
-     */
     public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings, UserValidator $userValidator, AvatarUploader $avatarUploader, Factory $validator, ImageManager $imageManager)
     {
         $this->events = $events;

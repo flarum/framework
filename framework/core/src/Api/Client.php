@@ -26,12 +26,12 @@ class Client
     protected $pipe;
 
     /**
-     * @var User
+     * @var User|null
      */
     protected $actor;
 
     /**
-     * @var ServerRequestInterface
+     * @var ServerRequestInterface|null
      */
     protected $parent;
 
@@ -45,9 +45,6 @@ class Client
      */
     protected $body = [];
 
-    /**
-     * @param Container $container
-     */
     public function __construct(MiddlewarePipeInterface $pipe)
     {
         $this->pipe = $pipe;

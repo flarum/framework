@@ -20,6 +20,8 @@ use LogicException;
  * Adds the ability for custom relations to be added to a model during runtime.
  * These relations behave in the same way that you would expect; they can be
  * queried, eager loaded, and accessed as an attribute.
+ *
+ * @property-read int|null $id
  */
 abstract class AbstractModel extends Eloquent
 {
@@ -82,7 +84,7 @@ abstract class AbstractModel extends Eloquent
     /**
      * {@inheritdoc}
      */
-    public function __construct(array $attributes = [])
+    final public function __construct(array $attributes = [])
     {
         $this->attributes = [];
 

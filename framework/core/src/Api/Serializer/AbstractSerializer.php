@@ -42,12 +42,12 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     protected static $container;
 
     /**
-     * @var callable[]
+     * @var array<string, callable[]>
      */
     protected static $attributeMutators = [];
 
     /**
-     * @var array
+     * @var array<string, array<string, callable>>
      */
     protected static $customRelations = [];
 
@@ -189,7 +189,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
      * @param string|Closure|\Tobscure\JsonApi\SerializerInterface $serializer
      * @param string|null $relation
      * @param bool $many
-     * @return Relationship
+     * @return Relationship|null
      */
     protected function buildRelationship($model, $serializer, $relation = null, $many = false)
     {
@@ -210,6 +210,8 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
 
             return new Relationship($element);
         }
+
+        return null;
     }
 
     /**

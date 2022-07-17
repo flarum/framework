@@ -1,0 +1,4 @@
+parameters:
+	ignoreErrors:
+#	  Remove with larastan 2.0
+		- "#Relation '[A-z_-]+' is not found in [A-z\_]+ model.#"

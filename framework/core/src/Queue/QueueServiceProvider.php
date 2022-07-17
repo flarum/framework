@@ -90,7 +90,12 @@ class QueueServiceProvider extends AbstractServiceProvider
         // Bind a simple cache manager that returns the cache store.
         $this->container->singleton('cache', function (Container $container) {
             return new class($container) implements CacheFactory {
-                public function __construct($container)
+                /**
+                 * @var Container $container
+                 */
+                private $container;
+
+                public function __construct(Container $container)
                 {
                     $this->container = $container;
                 }

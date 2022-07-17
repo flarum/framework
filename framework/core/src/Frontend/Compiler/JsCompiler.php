@@ -49,10 +49,13 @@ class JsCompiler extends RevisionCompiler
             $line += substr_count($content, "\n") + 1;
         }
 
+        /** @var \Illuminate\Contracts\Filesystem\Cloud $assetsDir */
+        $assetsDir = $this->assetsDir;
+
         // Add a comment to the end of our file to point to the sourcemap
         // we just constructed. We will then store the JS file and the map
         // in our asset directory.
-        $output[] = '//# sourceMappingURL='.$this->assetsDir->url($mapFile);
+        $output[] = '//# sourceMappingURL='.$assetsDir->url($mapFile);
 
         $this->assetsDir->put($file, implode("\n", $output));
         $this->assetsDir->put($mapFile, json_encode($map, JSON_UNESCAPED_SLASHES));
@@ -72,7 +75,7 @@ class JsCompiler extends RevisionCompiler
     {
         parent::delete($file);
 
-        if ($this->assetsDir->has($mapFile = $file.'.map')) {
+        if ($this->assetsDir->exists($mapFile = $file.'.map')) {
             $this->assetsDir->delete($mapFile);
         }
     }

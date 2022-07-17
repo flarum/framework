@@ -26,9 +26,6 @@ class GambitManager
      */
     protected $fulltextGambit;
 
-    /**
-     * @param GambitInterface $gambit
-     */
     public function __construct(GambitInterface $fulltextGambit)
     {
         $this->fulltextGambit = $fulltextGambit;

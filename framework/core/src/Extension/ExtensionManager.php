@@ -333,13 +333,13 @@ class ExtensionManager
      * Runs the database migrations to reset the database to its old state.
      *
      * @param Extension $extension
-     * @return array Notes from the migrator.
+     * @return void
      *
      * @internal
      */
     public function migrateDown(Extension $extension)
     {
-        return $this->migrate($extension, 'down');
+        $this->migrate($extension, 'down');
     }
 
     /**
