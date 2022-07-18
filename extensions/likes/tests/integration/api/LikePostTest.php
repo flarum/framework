@@ -48,7 +48,10 @@ class LikePostTest extends TestCase
                 ['user_id' => 3, 'group_id' => 5]
             ]
         ]);
+    }
 
+    protected function rewriteDefaultPermissionsAfterBoot()
+    {
         $this->database()->table('group_permission')->where('permission', 'discussion.likePosts')->delete();
         $this->database()->table('group_permission')->insert(['permission' => 'discussion.likePosts', 'group_id' => 5]);
     }
@@ -57,8 +60,14 @@ class LikePostTest extends TestCase
      * @dataProvider allowedUsersToLike
      * @test
      */
-    public function can_like_a_post_if_allowed(int $postId, ?int $authenticatedAs, string $message)
+    public function can_like_a_post_if_allowed(int $postId, ?int $authenticatedAs, string $message, bool $canLikeOwnPost = null)
     {
+        if (! is_null($canLikeOwnPost)) {
+            $this->setting('flarum-likes.like_own_post', $canLikeOwnPost);
+        }
+
+        $this->rewriteDefaultPermissionsAfterBoot();
+
         $response = $this->sendLikeRequest($postId, $authenticatedAs);
 
         $post = CommentPost::query()->find($postId);
@@ -71,8 +80,14 @@ class LikePostTest extends TestCase
      * @dataProvider unallowedUsersToLike
      * @test
      */
-    public function cannot_like_a_post_if_not_allowed(int $postId, ?int $authenticatedAs, string $message)
+    public function cannot_like_a_post_if_not_allowed(int $postId, ?int $authenticatedAs, string $message, bool $canLikeOwnPost = null)
     {
+        if (! is_null($canLikeOwnPost)) {
+            $this->setting('flarum-likes.like_own_post', $canLikeOwnPost);
+        }
+
+        $this->rewriteDefaultPermissionsAfterBoot();
+
         $response = $this->sendLikeRequest($postId, $authenticatedAs);
 
         $post = CommentPost::query()->find($postId);
@@ -85,8 +100,14 @@ class LikePostTest extends TestCase
      * @dataProvider allowedUsersToLike
      * @test
      */
-    public function can_dislike_a_post_if_liked_and_allowed(int $postId, ?int $authenticatedAs, string $message)
+    public function can_dislike_a_post_if_liked_and_allowed(int $postId, ?int $authenticatedAs, string $message, bool $canLikeOwnPost = null)
     {
+        if (! is_null($canLikeOwnPost)) {
+            $this->setting('flarum-likes.like_own_post', $canLikeOwnPost);
+        }
+
+        $this->rewriteDefaultPermissionsAfterBoot();
+
         $this->sendLikeRequest($postId, $authenticatedAs);
         $response = $this->sendLikeRequest($postId, $authenticatedAs, false);
 
@@ -101,7 +122,7 @@ class LikePostTest extends TestCase
         return [
             [1, 1, 'Admin can like any post'],
             [1, 3, 'User with permission can like other posts'],
-            [6, 3, 'User with permission can like own post']
+            [5, 3, 'User with permission can like own post by default'],
         ];
     }
 
@@ -109,7 +130,9 @@ class LikePostTest extends TestCase
     {
         return [
             [1, null, 'Guest cannot like any post'],
-            [1, 2, 'User without permission cannot like any post']
+            [1, 2, 'User without permission cannot like any post'],
+            [5, 3, 'User with permission cannot like own post if setting off', false],
+            [6, 1, 'Admin cannot like own post if setting off', false],
         ];
     }
 
