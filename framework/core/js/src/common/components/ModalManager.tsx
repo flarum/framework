@@ -177,7 +177,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     this.activeDialogElement.classList.add('out');
   }
 
-  protected handleEscPress(e: KeyboardEvent): any {
+  protected handleEscPress(e: KeyboardEvent): void {
     if (!this.attrs.state.modal) return;
 
     const dismissibleState = this.attrs.state.modal.componentClass.dismissibleOptions;
@@ -191,7 +191,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     }
   }
 
-  protected handlePossibleBackdropClick(e: MouseEvent): any {
+  protected handlePossibleBackdropClick(e: MouseEvent): void {
     if (!this.attrs.state.modal || !this.attrs.state.modal.componentClass.dismissibleOptions.viaBackdropClick) return;
 
     // If click wasn't on backdrop, exit early
