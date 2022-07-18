@@ -414,7 +414,12 @@ export default class Application {
       onHomepage || !this.title
         ? extractText(app.translator.trans('core.lib.meta_titles.without_page_title', params))
         : extractText(app.translator.trans('core.lib.meta_titles.with_page_title', params));
-    document.title = count + title;
+
+    const tempEl = document.createElement('div');
+    tempEl.innerHTML = title;
+    const decodedTitle = tempEl.innerText;
+
+    document.title = count + decodedTitle;
   }
 
   protected transformRequestOptions<ResponseType>(flarumOptions: FlarumRequestOptions<ResponseType>): InternalFlarumRequestOptions<ResponseType> {
