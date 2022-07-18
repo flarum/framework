@@ -17,7 +17,7 @@ use Flarum\Post\Post;
 use Flarum\Post\RegisteredTypesScope;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
-use Illuminate\Contracts\Cache\Repository as CacheRespository;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -45,11 +45,11 @@ class ShowStatisticsData implements RequestHandlerInterface
     protected $settings;
 
     /**
-     * @var CacheRespository
+     * @var CacheRepository
      */
     protected $cache;
 
-    public function __construct(SettingsRepositoryInterface $settings, CacheRespository $cache)
+    public function __construct(SettingsRepositoryInterface $settings, CacheRepository $cache)
     {
         $this->settings = $settings;
         $this->cache = $cache;
