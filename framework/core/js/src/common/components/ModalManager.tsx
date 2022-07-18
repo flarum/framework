@@ -123,21 +123,14 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
    * Get current active dialog
    */
   private get activeDialogElement(): HTMLElement {
-    return document.body.querySelector(`.ModalManager[data-modal-key="${this?.attrs?.state?.modal?.key}"] .Modal`) as HTMLElement;
+    return document.body.querySelector(`.ModalManager[data-modal-key="${this.attrs.state.modal?.key}"] .Modal`) as HTMLElement;
   }
 
   /**
    * Get current active dialog
    */
   private get activeDialogManagerElement(): HTMLElement {
-    return document.body.querySelector(`.ModalManager[data-modal-key="${this?.attrs?.state?.modal?.key}"]`) as HTMLElement;
-  }
-
-  /**
-   * Get backdrop element of active dialog
-   */
-  private get activeBackdropElement(): HTMLElement {
-    return document.body.querySelector(`.ModalManager[data-modal-key="${this?.attrs?.state?.modal?.key}"] .backdrop`) as HTMLElement;
+    return document.body.querySelector(`.ModalManager[data-modal-key="${this.attrs.state.modal?.key}"]`) as HTMLElement;
   }
 
   animateShow(readyCallback: () => void = () => {}): void {
