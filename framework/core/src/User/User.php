@@ -449,10 +449,10 @@ class User extends AbstractModel
      */
     protected function getUnreadNotifications()
     {
-        static $cached = null;
+        static $cached = [];
 
-        if (is_null($cached)) {
-            $cached = $this->notifications()
+        if (! isset($cached[$this->id])) {
+            $cached[$this->id] = $this->notifications()
                 ->whereIn('type', $this->getAlertableNotificationTypes())
                 ->whereNull('read_at')
                 ->where('is_deleted', false)
@@ -460,7 +460,7 @@ class User extends AbstractModel
                 ->get();
         }
 
-        return $cached;
+        return $cached[$this->id];
     }
 
     /**
