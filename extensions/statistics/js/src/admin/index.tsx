@@ -3,12 +3,13 @@ import { extend } from 'flarum/common/extend';
 
 import DashboardPage from 'flarum/admin/components/DashboardPage';
 
-import StatisticsWidget from './components/StatisticsWidget';
-import ItemList from 'flarum/common/utils/ItemList';
-import type Mithril from 'mithril';
+import MiniStatisticsWidget from './components/MiniStatisticsWidget';
+import StatisticsPage from './components/StatisticsPage';
 
 app.initializers.add('flarum-statistics', () => {
-  extend(DashboardPage.prototype, 'availableWidgets', function (widgets: ItemList<Mithril.Children>) {
-    widgets.add('statistics', <StatisticsWidget />, 20);
+  extend(DashboardPage.prototype, 'availableWidgets', function (widgets) {
+    widgets.add('statistics', <MiniStatisticsWidget />, 20);
   });
+
+  app.extensionData.for('flarum-statistics').registerPage(StatisticsPage);
 });
