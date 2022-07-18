@@ -14,25 +14,27 @@
   margin: 10px;
   max-width: 600px;
 
-  + .backdrop {
-    background: var(--overlay-bg);
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    opacity: 0;
-    transition: opacity 0.2s ease-out;
-    z-index: 1;
-    pointer-events: none;
-  }
+  pointer-events: auto;
 
   &.in {
     transform: scale(1);
+  }
+}
 
-    + .backdrop {
-      opacity: 1;
-    }
+.Modal-backdrop {
+  background: var(--overlay-bg);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+  z-index: 1;
+  z-index: ~"calc(var(--zindex-modal) - 1)";
+
+  &[data-showing] {
+    opacity: 1;
   }
 }
 
@@ -46,41 +48,7 @@
   -webkit-overflow-scrolling: touch;
   overflow-x: hidden;
   overflow-y: auto;
-
-  // This mess of data attribute selectors ensures that the backdrop correctly
-  // transitions when modals are stacked.
-  //
-  // When a modal is stacked on top of another, the original backdrop is
-  // immediately hidden, and the new backdrop is immediately shown. Same with
-  // removing a stacked modal: the topmost backdrop is immediately hidden,
-  // and the next backdrop is shown.
-  //
-  // This prevents flashes of backdrops being shown/hidden as multiple
-  // transitions occur simultaneously.
-  &[data-visibility-state="entered-underneath"] {
-    .backdrop {
-      opacity: 0;
-      transition: none;
-    }
-
-    + .ModalManager[data-visibility-state="entering"] {
-      .backdrop {
-        transition: none;
-      }
-    }
-  }
-
-  &[data-visibility-state="entered"] {
-    .backdrop {
-      transition: none;
-    }
-
-    + .ModalManager[data-visibility-state="exiting"] {
-      .backdrop {
-        transition: none;
-      }
-    }
-  }
+  pointer-events: none;
 }
 
 // Actual modal

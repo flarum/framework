@@ -29,36 +29,45 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
   protected keyUpListener: null | ((e: KeyboardEvent) => void) = null;
 
   view(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): Mithril.Children {
-    return this.attrs.state.modalList.map((modal, i) => {
-      const Tag = modal?.componentClass;
+    return (
+      <>
+        {this.attrs.state.modalList.map((modal, i) => {
+          const Tag = modal?.componentClass;
 
-      return (
-        <div
-          key={modal.key}
-          class="ModalManager modal"
-          data-modal-key={modal.key}
-          data-modal-number={i}
-          role="dialog"
-          aria-modal="true"
-          style={{ '--modal-number': i }}
-          data-visibility-state={modal.animationState}
-          aria-hidden={this.attrs.state.modal !== modal && 'true'}
-          onclick={this.handlePossibleBackdropClick.bind(this)}
-        >
-          {!!Tag && (
-            <Tag
+          return (
+            <div
               key={modal.key}
-              {...modal.attrs}
-              animateShow={this.animateShow.bind(this)}
-              animateHide={this.animateHide.bind(this)}
-              state={this.attrs.state}
-            />
-          )}
+              class="ModalManager modal"
+              data-modal-key={modal.key}
+              data-modal-number={i}
+              role="dialog"
+              aria-modal="true"
+              style={{ '--modal-number': i }}
+              aria-hidden={this.attrs.state.modal !== modal && 'true'}
+            >
+              {!!Tag && (
+                <Tag
+                  key={modal.key}
+                  {...modal.attrs}
+                  animateShow={this.animateShow.bind(this)}
+                  animateHide={this.animateHide.bind(this)}
+                  state={this.attrs.state}
+                />
+              )}
+            </div>
+          );
+        })}
 
-          <div class="backdrop" key={`backdrop-${modal.key}`} />
-        </div>
-      );
-    });
+        {this.attrs.state.backdropShown && (
+          <div
+            class="Modal-backdrop backdrop"
+            onclick={this.handlePossibleBackdropClick.bind(this)}
+            ontransitionend={this.onBackdropTransitionEnd.bind(this)}
+            data-showing={!!this.attrs.state.modalList.length}
+          />
+        )}
+      </>
+    );
   }
 
   oncreate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void {
@@ -139,9 +148,6 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     this.activeDialogElement.addEventListener(
       'transitionend',
       () => {
-        this.attrs.state.modal!.animationState = 'entered';
-        m.redraw();
-
         readyCallback();
       },
       { once: true }
@@ -167,12 +173,6 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
 
     this.activeDialogElement.addEventListener('transitionend', afterModalClosedCallback, { once: true });
 
-    this.attrs.state.modal!.animationState = 'exiting';
-
-    // Update animation state of next modal on the stack
-    const thisModalIndex = parseInt(this.activeDialogManagerElement.getAttribute('data-modal-number')!);
-    thisModalIndex >= 1 && (this.attrs.state.modalList[thisModalIndex - 1].animationState = 'entered');
-
     this.activeDialogElement.classList.remove('in');
     this.activeDialogElement.classList.add('out');
   }
@@ -194,9 +194,18 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
   protected handlePossibleBackdropClick(e: MouseEvent): void {
     if (!this.attrs.state.modal || !this.attrs.state.modal.componentClass.dismissibleOptions.viaBackdropClick) return;
 
-    // If click wasn't on backdrop, exit early
-    if (e.target !== this.activeDialogManagerElement) return;
-
     this.animateHide();
+  }
+
+  protected onBackdropTransitionEnd(e: TransitionEvent) {
+    if (e.propertyName === 'opacity') {
+      const backdrop = e.currentTarget as HTMLDivElement;
+
+      if (backdrop.getAttribute('data-showing') === null) {
+        // Backdrop is fading out
+        this.attrs.state.backdropShown = false;
+        m.redraw();
+      }
+    }
   }
 }

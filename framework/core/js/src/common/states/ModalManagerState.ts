@@ -14,7 +14,6 @@ type ModalItem = {
   componentClass: UnsafeModalClass;
   attrs?: Record<string, unknown>;
   key: number;
-  animationState: 'entering' | 'entered' | 'entered-underneath' | 'exiting';
 };
 
 /**
@@ -32,6 +31,11 @@ export default class ModalManagerState {
    * @internal
    */
   modalList: ModalItem[] = [];
+
+  /**
+   * @internal
+   */
+  backdropShown: boolean = false;
 
   /**
    * Used to force re-initialization of modals if a modal
@@ -65,20 +69,30 @@ export default class ModalManagerState {
       throw new Error(invalidModalWarning);
     }
 
-    // Set current modal
-    this.modal = { componentClass, attrs, key: this.key++, animationState: 'entering' };
-
-    // We want to stack this modal
-    if (stackModal) {
-      // Remember previously opened modal and add new modal to the modal list
-      this.modalList.forEach((m) => (m.animationState = 'entered-underneath'));
-      this.modalList.push(this.modal);
-    } else {
-      // Override last modals
-      this.modalList = [this.modal];
-    }
-
+    this.backdropShown = true;
     m.redraw.sync();
+
+    // Me use RAF here, since we need to wait for the backdrop to be added to the DOM before
+    // actually adding the modal to the modal list.
+    //
+    // This is because we use RAF inside the ModalManager onupdate lifecycle hook, and if we
+    // skip this RAF call, the hook will attempt to add a focus trap as well as lock scroll
+    // onto the newly added modal before it's in the DOM, creating an extra scrollbar.
+    requestAnimationFrame(() => {
+      // Set current modal
+      this.modal = { componentClass, attrs, key: this.key++ };
+
+      // We want to stack this modal
+      if (stackModal) {
+        // Remember previously opened modal and add new modal to the modal list
+        this.modalList.push(this.modal);
+      } else {
+        // Override last modals
+        this.modalList = [this.modal];
+      }
+
+      m.redraw();
+    });
   }
 
   /**
