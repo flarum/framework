@@ -115,7 +115,7 @@ class ShowStatisticsData implements RequestHandlerInterface
         $results = $query
             ->selectRaw(
                 'DATE_FORMAT(
-                    @date := DATE_ADD(' . $column . ', INTERVAL ? SECOND), -- convert to user timezone
+                    @date := DATE_ADD('.$column.', INTERVAL ? SECOND), -- convert to user timezone
                     IF(@date > ?, \'%Y-%m-%d %H:00:00\', \'%Y-%m-%d\') -- if within the last 24 hours, group by hour
                 ) as time_group',
                 [$offset, new DateTime('-25 hours')]
