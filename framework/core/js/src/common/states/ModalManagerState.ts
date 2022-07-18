@@ -72,8 +72,8 @@ export default class ModalManagerState {
     this.backdropShown = true;
     m.redraw.sync();
 
-    // Me use RAF here, since we need to wait for the backdrop to be added to the DOM before
-    // actually adding the modal to the modal list.
+    // We use requestAnimationFrame here, since we need to wait for the backdrop to be added
+    // to the DOM before actually adding the modal to the modal list.
     //
     // This is because we use RAF inside the ModalManager onupdate lifecycle hook, and if we
     // skip this RAF call, the hook will attempt to add a focus trap as well as lock scroll
