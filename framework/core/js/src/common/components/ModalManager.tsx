@@ -26,6 +26,8 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
   // Keep track if there's an modal closing
   protected modalClosing: boolean = false;
 
+  protected keyUpListener: null | ((e: KeyboardEvent) => void) = null;
+
   view(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): Mithril.Children {
     return this.attrs.state.modalList.map((modal, i) => {
       const Tag = modal?.componentClass;
@@ -62,12 +64,15 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
   oncreate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void {
     super.oncreate(vnode);
 
-    // Register keyup
-    document.body.addEventListener('keyup', this.handleEscPress.bind(this));
+    this.keyUpListener = this.handleEscPress.bind(this);
+    document.body.addEventListener('keyup', this.keyUpListener);
   }
 
   onbeforeremove(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void {
-    document.body.removeEventListener('keyup', this.handleEscPress);
+    super.onbeforeremove(vnode);
+
+    this.keyUpListener && document.body.removeEventListener('keyup', this.keyUpListener);
+    this.keyUpListener = null;
   }
 
   onupdate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void {
