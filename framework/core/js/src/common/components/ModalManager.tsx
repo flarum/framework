@@ -41,6 +41,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
           style={{ '--modal-number': i }}
           data-visibility-state={modal.animationState}
           aria-hidden={this.attrs.state.modal !== modal && 'true'}
+          onclick={this.handlePossibleBackdropClick.bind(this)}
         >
           {!!Tag && (
             <Tag
@@ -52,7 +53,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
             />
           )}
 
-          <div class="backdrop" key={`backdrop-${modal.key}`} onclick={this.handleBackdropClick.bind(this)} />
+          <div class="backdrop" key={`backdrop-${modal.key}`} />
         </div>
       );
     });
@@ -102,7 +103,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
           this.focusTrap = createFocusTrap(this.activeDialogElement as HTMLElement, { allowOutsideClick: true });
           this.focusTrap!.activate?.();
 
-          disableBodyScroll(this.activeDialogElement, { reserveScrollBarGap: true });
+          disableBodyScroll(this.activeDialogManagerElement!, { reserveScrollBarGap: true });
         }
 
         // Update key of current opened modal
@@ -117,14 +118,21 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
    * Get current active dialog
    */
   private get activeDialogElement(): HTMLElement {
-    return document.body.querySelector(`div[data-modal-key="${this?.attrs?.state?.modal?.key}"] .Modal`) as HTMLElement;
+    return document.body.querySelector(`.ModalManager[data-modal-key="${this?.attrs?.state?.modal?.key}"] .Modal`) as HTMLElement;
+  }
+
+  /**
+   * Get current active dialog
+   */
+  private get activeDialogManagerElement(): HTMLElement {
+    return document.body.querySelector(`.ModalManager[data-modal-key="${this?.attrs?.state?.modal?.key}"]`) as HTMLElement;
   }
 
   /**
    * Get backdrop element of active dialog
    */
   private get activeBackdropElement(): HTMLElement {
-    return document.body.querySelector(`div[data-modal-key="${this?.attrs?.state?.modal?.key}"] .backdrop`) as HTMLElement;
+    return document.body.querySelector(`.ModalManager[data-modal-key="${this?.attrs?.state?.modal?.key}"] .backdrop`) as HTMLElement;
   }
 
   animateShow(readyCallback: () => void = () => {}): void {
@@ -164,7 +172,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     this.attrs.state.modal!.animationState = 'exiting';
 
     // Update animation state of next modal on the stack
-    const thisModalIndex = parseInt(this.activeDialogElement.parentElement?.getAttribute('data-modal-number')!);
+    const thisModalIndex = parseInt(this.activeDialogManagerElement.getAttribute('data-modal-number')!);
     thisModalIndex >= 1 && (this.attrs.state.modalList[thisModalIndex - 1].animationState = 'entered');
 
     this.activeDialogElement.classList.remove('in');
@@ -185,15 +193,12 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     }
   }
 
-  protected handleBackdropClick(this: this): any {
-    if (!this.attrs.state.modal) return;
+  protected handlePossibleBackdropClick(e: MouseEvent): any {
+    if (!this.attrs.state.modal || !this.attrs.state.modal.componentClass.dismissibleOptions.viaBackdropClick) return;
 
-    const dismissibleState = this.attrs.state.modal.componentClass.dismissibleOptions;
+    // If click wasn't on backdrop, exit early
+    if (e.target !== this.activeDialogManagerElement) return;
 
-    // Close the dialog if the backdrop was clicked
-    // Check if closing via backdrop click is enabled
-    if (dismissibleState.viaBackdropClick) {
-      this.animateHide();
-    }
+    this.animateHide();
   }
 }
