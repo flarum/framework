@@ -439,7 +439,7 @@ class User extends AbstractModel
      */
     public function getUnreadNotificationCount()
     {
-        return $this->queryUnreadNotifications()->count();
+        return $this->unreadNotifications()->count();
     }
 
     /**
@@ -447,7 +447,7 @@ class User extends AbstractModel
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    protected function queryUnreadNotifications()
+    protected function unreadNotifications()
     {
         return $this->notifications()
             ->whereIn('type', $this->getAlertableNotificationTypes())
@@ -463,7 +463,7 @@ class User extends AbstractModel
      */
     protected function getUnreadNotifications()
     {
-        return $this->queryUnreadNotifications()->get();
+        return $this->unreadNotifications()->get();
     }
 
     /**
@@ -473,7 +473,7 @@ class User extends AbstractModel
      */
     public function getNewNotificationCount()
     {
-        return $this->queryUnreadNotifications()
+        return $this->unreadNotifications()
             ->where('created_at', '>', $this->read_notifications_at)
             ->count();
     }
