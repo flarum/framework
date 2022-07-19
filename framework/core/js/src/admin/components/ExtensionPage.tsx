@@ -140,7 +140,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
           {settings ? (
             <div className="Form">
               {settings.map(this.buildSettingComponent.bind(this))}
-              <div className="Form-group">{this.submitButton(vnode)}</div>
+              <div className="Form-group">{this.submitButton()}</div>
             </div>
           ) : (
             <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_settings')}</h3>

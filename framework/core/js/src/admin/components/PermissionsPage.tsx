@@ -20,8 +20,8 @@ export default class PermissionsPage extends AdminPage {
     return [
       <div className="PermissionsPage-groups">
         {app.store
-          .all('groups')
-          .filter((group) => [Group.GUEST_ID, Group.MEMBER_ID].indexOf(group.id()) === -1)
+          .all<Group>('groups')
+          .filter((group) => [Group.GUEST_ID, Group.MEMBER_ID].indexOf(group.id()!) === -1)
           .map((group) => (
             <button className="Button Group" onclick={() => app.modal.show(EditGroupModal, { group })}>
               {GroupBadge.component({

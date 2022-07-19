@@ -4,12 +4,30 @@ import Button from '../../common/components/Button';
 import Alert from '../../common/components/Alert';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import AdminPage from './AdminPage';
+import type { IPageAttrs } from '../../common/components/Page';
+import type { AlertIdentifier } from '../../common/states/AlertManagerState';
+import type Mithril from 'mithril';
+import type { SaveSubmitEvent } from './AdminPage';
 
-export default class MailPage extends AdminPage {
-  oninit(vnode) {
+export interface MailSettings {
+  data: {
+    attributes: {
+      fields: Record<string, any>;
+      sending: boolean;
+      errors: any[];
+    };
+  };
+}
+
+export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends AdminPage<CustomAttrs> {
+  sendingTest = false;
+  status?: { sending: boolean; errors: any };
+  driverFields?: Record<string, any>;
+  testEmailSuccessAlert?: AlertIdentifier;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
-    this.sendingTest = false;
     this.refresh();
   }
 
@@ -28,14 +46,14 @@ export default class MailPage extends AdminPage {
     this.status = { sending: false, errors: {} };
 
     app
-      .request({
+      .request<MailSettings>({
         method: 'GET',
         url: app.forum.attribute('apiUrl') + '/mail/settings',
       })
       .then((response) => {
-        this.driverFields = response['data']['attributes']['fields'];
-        this.status.sending = response['data']['attributes']['sending'];
-        this.status.errors = response['data']['attributes']['errors'];
+        this.driverFields = response.data.attributes.fields;
+        this.status!.sending = response.data.attributes.sending;
+        this.status!.errors = response.data.attributes.errors;
 
         this.loading = false;
         m.redraw();
@@ -47,7 +65,7 @@ export default class MailPage extends AdminPage {
       return <LoadingIndicator />;
     }
 
-    const fields = this.driverFields[this.setting('mail_driver')()];
+    const fields = this.driverFields![this.setting('mail_driver')()];
     const fieldKeys = Object.keys(fields);
 
     return (
@@ -60,10 +78,10 @@ export default class MailPage extends AdminPage {
         {this.buildSettingComponent({
           type: 'select',
           setting: 'mail_driver',
-          options: Object.keys(this.driverFields).reduce((memo, val) => ({ ...memo, [val]: val }), {}),
+          options: Object.keys(this.driverFields!).reduce((memo, val) => ({ ...memo, [val]: val }), {}),
           label: app.translator.trans('core.admin.email.driver_heading'),
         })}
-        {this.status.sending ||
+        {this.status!.sending ||
           Alert.component(
             {
               dismissible: false,
@@ -84,7 +102,7 @@ export default class MailPage extends AdminPage {
                     setting: field,
                     options: fieldInfo,
                   }),
-                  this.status.errors[field] && <p className="ValidationError">{this.status.errors[field]}</p>,
+                  this.status!.errors[field] && <p className="ValidationError">{this.status!.errors[field]}</p>,
                 ];
               })}
             </div>
@@ -93,7 +111,7 @@ export default class MailPage extends AdminPage {
         {this.submitButton()}
 
         <FieldSet label={app.translator.trans('core.admin.email.send_test_mail_heading')} className="MailPage-MailSettings">
-          <div className="helpText">{app.translator.trans('core.admin.email.send_test_mail_text', { email: app.session.user.email() })}</div>
+          <div className="helpText">{app.translator.trans('core.admin.email.send_test_mail_text', { email: app.session.user!.email() })}</div>
           {Button.component(
             {
               className: 'Button Button--primary',
@@ -108,10 +126,11 @@ export default class MailPage extends AdminPage {
   }
 
   sendTestEmail() {
-    if (this.saving || this.sendingTest) return;
+    if (this.sendingTest) return;
 
     this.sendingTest = true;
-    app.alerts.dismiss(this.testEmailSuccessAlert);
+
+    if (this.testEmailSuccessAlert) app.alerts.dismiss(this.testEmailSuccessAlert);
 
     app
       .request({
@@ -129,7 +148,7 @@ export default class MailPage extends AdminPage {
       });
   }
 
-  saveSettings(e) {
-    super.saveSettings(e).then(this.refresh());
+  saveSettings(e: SaveSubmitEvent) {
+    return super.saveSettings(e).then(() => this.refresh());
   }
 }
