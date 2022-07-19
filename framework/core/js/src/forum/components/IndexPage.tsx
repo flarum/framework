@@ -43,7 +43,7 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
       app.discussions.clear();
     }
 
-    app.discussions.refreshParams(app.search.params(), Number(m.route.param('page')));
+    app.discussions.refreshParams(app.search.params(), (m.route.param('page') && Number(m.route.param('page'))) || 1);
 
     app.history.push('index', extractText(app.translator.trans('core.forum.header.back_to_index_tooltip')));
 
