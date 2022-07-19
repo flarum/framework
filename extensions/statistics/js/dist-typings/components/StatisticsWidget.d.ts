@@ -1,42 +1,41 @@
-export default class StatisticsWidget {
-    oninit(vnode: any): void;
-    entities: string[] | undefined;
-    periods: {
-        today: {
-            start: Date;
-            end: any;
-            step: number;
-        };
-        last_7_days: {
-            start: number;
-            end: Date;
-            step: number;
-        };
-        last_28_days: {
-            start: number;
-            end: Date;
-            step: number;
-        };
-        last_12_months: {
-            start: number;
-            end: Date;
-            step: number;
-        };
-    } | undefined;
-    selectedEntity: any;
-    selectedPeriod: any;
+import DashboardWidget, { IDashboardWidgetAttrs } from 'flarum/admin/components/DashboardWidget';
+import type Mithril from 'mithril';
+interface IPeriodDeclaration {
+    start: number;
+    end: number;
+    step: number;
+}
+export default class StatisticsWidget extends DashboardWidget {
+    entities: string[];
+    periods: undefined | Record<string, IPeriodDeclaration>;
+    chart: any;
+    timedData: any;
+    lifetimeData: any;
+    loadingLifetime: boolean;
+    loadingTimed: boolean;
+    selectedEntity: string;
+    selectedPeriod: undefined | string;
+    chartEntity?: string;
+    chartPeriod?: string;
+    oncreate(vnode: Mithril.VnodeDOM<IDashboardWidgetAttrs, this>): void;
+    loadLifetimeData(): Promise<void>;
+    loadTimedData(): Promise<void>;
     className(): string;
     content(): JSX.Element;
-    drawChart(vnode: any): void;
-    chart: any;
-    entity: any;
-    period: any;
-    changeEntity(entity: any): void;
-    changePeriod(period: any): void;
-    getTotalCount(entity: any): any;
-    getPeriodCount(entity: any, period: any): number;
-    getLastPeriod(thisPeriod: any): {
+    drawChart(vnode: Mithril.VnodeDOM<any, any>): void;
+    changeEntity(entity: string): void;
+    changePeriod(period: string): void;
+    getTotalCount(entity: string): number;
+    getPeriodCount(entity: string, period: {
         start: number;
-        end: any;
+        end: number;
+    }): number;
+    getLastPeriod(thisPeriod: {
+        start: number;
+        end: number;
+    }): {
+        start: number;
+        end: number;
     };
 }
+export {};
