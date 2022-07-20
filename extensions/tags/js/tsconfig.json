@@ -8,7 +8,6 @@
   "compilerOptions": {
     // This will output typings to `dist-typings`
     "declarationDir": "./dist-typings",
-    "baseUrl": ".",
     "paths": {
       "flarum/*": ["../vendor/flarum/core/js/dist-typings/*"],
       // TODO: remove after export registry system implemented
