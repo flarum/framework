@@ -27,7 +27,7 @@ class UserRepository
      * Find a user by ID, optionally making sure it is visible to a certain
      * user, or throw an exception.
      *
-     * @param int $id
+     * @param int|string $id
      * @param User|null $actor
      * @return User
      *

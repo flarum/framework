@@ -11,7 +11,6 @@ namespace Flarum\Api;
 
 use Flarum\Http\RequestUtil;
 use Flarum\User\User;
-use Illuminate\Contracts\Container\Container;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Diactoros\Uri;
 use Laminas\Stratigility\MiddlewarePipeInterface;

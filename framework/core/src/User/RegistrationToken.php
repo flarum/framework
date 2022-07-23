@@ -21,6 +21,8 @@ use Illuminate\Support\Str;
  * @property array $user_attributes
  * @property array $payload
  * @property \Carbon\Carbon $created_at
+ *
+ * @method static self validOrFail(string $token)
  */
 class RegistrationToken extends AbstractModel
 {
@@ -74,7 +76,7 @@ class RegistrationToken extends AbstractModel
     /**
      * Find the token with the given ID, and assert that it has not expired.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param \Illuminate\Database\Eloquent\Builder<self> $query
      * @param string $token
      *
      * @throws InvalidConfirmationTokenException

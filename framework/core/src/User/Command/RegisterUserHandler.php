@@ -85,6 +85,7 @@ class RegisterUserHandler
         // If a valid authentication token was provided as an attribute,
         // then we won't require the user to choose a password.
         if (isset($data['attributes']['token'])) {
+            /** @var RegistrationToken $token */
             $token = RegistrationToken::validOrFail($data['attributes']['token']);
 
             $password = $password ?: Str::random(20);

@@ -20,3 +20,6 @@ indent_size = 4
 
 [tsconfig.json]
 indent_size = 2
+
+[*.neon]
+indent_style = tab

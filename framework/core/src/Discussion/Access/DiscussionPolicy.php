@@ -13,7 +13,6 @@ use Flarum\Discussion\Discussion;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Access\AbstractPolicy;
 use Flarum\User\User;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class DiscussionPolicy extends AbstractPolicy
 {

@@ -9,3 +9,4 @@ parameters:
     - stubs/Illuminate/Queue/ListenerOptions.stub
     - stubs/Illuminate/Support/ServiceProvider.stub
     - stubs/Illuminate/Filesystem/Filesystem.stub
+    - stubs/Illuminate/Filesystem/FilesystemManager.stub

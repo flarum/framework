@@ -140,7 +140,7 @@ class Application
          * Use container inside flarum instead.
          */
         $this->container->instance('app', $this->container);
-       $this->container->alias('app', \Illuminate\Container\Container::class);
+        $this->container->alias('app', \Illuminate\Container\Container::class);
 
         $this->container->instance('container', $this->container);
         $this->container->alias('container', \Illuminate\Container\Container::class);

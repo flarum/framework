@@ -23,6 +23,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
     public function register()
     {
         $this->container->singleton(Manager::class, function (Container $container) {
+            /** @var \Illuminate\Container\Container $container */
             $manager = new Manager($container);
 
             $config = $container['flarum']->config('database');

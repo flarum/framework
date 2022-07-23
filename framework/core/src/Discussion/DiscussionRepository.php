@@ -28,7 +28,7 @@ class DiscussionRepository
      * Find a discussion by ID, optionally making sure it is visible to a
      * certain user, or throw an exception.
      *
-     * @param int $id
+     * @param int|string $id
      * @param User|null $user
      * @return \Flarum\Discussion\Discussion
      */

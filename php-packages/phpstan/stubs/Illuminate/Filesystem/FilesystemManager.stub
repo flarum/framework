@@ -1,0 +1,17 @@
+<?php
+
+namespace Illuminate\Filesystem;
+
+class FilesystemManager
+{
+    /**
+     * Create a new filesystem manager instance.
+     *
+     * @param  \Illuminate\Contracts\Container\Container  $app
+     * @return void
+     */
+    public function __construct($app)
+    {
+        $this->app = $app;
+    }
+}

@@ -12,7 +12,6 @@ namespace Flarum\Database;
 use Exception;
 use Flarum\Extension\Extension;
 use Illuminate\Database\Connection;
-use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\MySqlConnection;
 use Illuminate\Filesystem\Filesystem;
 use InvalidArgumentException;
@@ -45,20 +44,16 @@ class Migrator
     protected $output;
 
     /**
-     * @var Connection|MySqlConnection
+     * @var Connection
      */
     protected $connection;
 
     /**
      * Create a new migrator instance.
-     *
-     * @param  MigrationRepositoryInterface  $repository
-     * @param  Connection           $connection
-     * @param  Filesystem                    $files
      */
     public function __construct(
         MigrationRepositoryInterface $repository,
-        ConnectionInterface $connection,
+        Connection $connection,
         Filesystem $files
     ) {
         $this->files = $files;
@@ -78,7 +73,7 @@ class Migrator
      * Run the outstanding migrations at a given path.
      *
      * @param  string    $path
-     * @param  Extension $extension
+     * @param  Extension|null $extension
      * @return void
      */
     public function run($path, Extension $extension = null)
@@ -97,7 +92,7 @@ class Migrator
      *
      * @param  string    $path
      * @param  array     $migrations
-     * @param  Extension $extension
+     * @param  Extension|null $extension
      * @return void
      */
     public function runMigrationList($path, $migrations, Extension $extension = null)
@@ -124,8 +119,7 @@ class Migrator
      *
      * @param  string    $path
      * @param  string    $file
-     * @param  string    $path
-     * @param  Extension $extension
+     * @param  Extension|null $extension
      * @return void
      */
     protected function runUp($path, $file, Extension $extension = null)

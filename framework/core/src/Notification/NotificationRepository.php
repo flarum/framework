@@ -24,7 +24,8 @@ class NotificationRepository
      */
     public function findByUser(User $user, $limit = null, $offset = 0)
     {
-        $primaries = Notification::selectRaw('MAX(id) AS id')
+        $primaries = Notification::query()
+            ->selectRaw('MAX(id) AS id')
             ->selectRaw('SUM(read_at IS NULL) AS unread_count')
             ->where('user_id', $user->id)
             ->whereIn('type', $user->getAlertableNotificationTypes())
@@ -35,7 +36,8 @@ class NotificationRepository
             ->skip($offset)
             ->take($limit);
 
-        return Notification::select('notifications.*', 'p.unread_count')
+        return Notification::query()
+            ->select('notifications.*', 'p.unread_count')
             ->joinSub($primaries, 'p', 'notifications.id', '=', 'p.id')
             ->latest()
             ->get();

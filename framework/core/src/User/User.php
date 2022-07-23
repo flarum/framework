@@ -296,7 +296,7 @@ class User extends AbstractModel
     /**
      * Change the path of the user avatar.
      *
-     * @param string $path
+     * @param string|null $path
      * @return $this
      */
     public function changeAvatarPath($path)

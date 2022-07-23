@@ -16,7 +16,7 @@ if (! function_exists('resolve')) {
      * Resolve a service from the container.
      *
      * @template T
-     * @param class-string<T> $name
+     * @param string|class-string<T> $name
      * @param array $parameters
      * @return T|mixed
      */

@@ -16,7 +16,6 @@ use Flarum\Foundation\Config;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Database\Connection;
-use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Str;
 use PDO;
 use Symfony\Component\Console\Helper\Table;
@@ -49,14 +48,11 @@ class InfoCommand extends AbstractCommand
      */
     private $queue;
 
-    /**
-     * @param Connection $db
-     */
     public function __construct(
         ExtensionManager $extensions,
         Config $config,
         SettingsRepositoryInterface $settings,
-        ConnectionInterface $db,
+        Connection $db,
         Queue $queue
     ) {
         $this->extensions = $extensions;

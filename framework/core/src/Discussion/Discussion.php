@@ -225,7 +225,6 @@ class Discussion extends AbstractModel
      */
     public function refreshLastPost()
     {
-        /** @var Post $lastPost */
         if ($lastPost = $this->comments()->latest()->first()) {
             $this->setLastPost($lastPost);
         }
@@ -265,8 +264,9 @@ class Discussion extends AbstractModel
      * DiscussionRenamedPost, and delete if the title has been reverted
      * completely.)
      *
-     * @param \Flarum\Post\MergeableInterface $post The post to save.
-     * @return Post The resulting post. It may or may not be the same post as
+     * @template T of \Flarum\Post\MergeableInterface
+     * @param T $post The post to save.
+     * @return T The resulting post. It may or may not be the same post as
      *     was originally intended to be saved. It also may not exist, if the
      *     merge logic resulted in deletion.
      */
@@ -302,7 +302,7 @@ class Discussion extends AbstractModel
     /**
      * Define the relationship with the discussion's publicly-visible comments.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Post>
      */
     public function comments()
     {
