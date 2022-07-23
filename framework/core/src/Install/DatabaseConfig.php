@@ -46,7 +46,7 @@ class DatabaseConfig implements Arrayable
             'charset'   => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => $this->prefix,
-            'strict'    => 'InnoDB',
+            'strict'    => false,
             'engine'    => null,
             'prefix_indexes' => true
         ];
