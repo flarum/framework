@@ -140,7 +140,6 @@
     "require-dev": {
         "mockery/mockery": "^1.4",
         "phpunit/phpunit": "^9.0",
-        "phpstan/phpstan-php-parser": "^1.0",
         "phpstan/phpstan": "^1.2",
         "nunomaduro/larastan": "^1.0"
     },
@@ -179,5 +178,11 @@
                 "extension.neon"
             ]
         }
+    },
+    "scripts": {
+        "analyse:phpstan": "phpstan analyse"
+    },
+    "scripts-descriptions": {
+        "analyse:phpstan": "Run static analysis"
     }
 }

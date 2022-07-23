@@ -9,6 +9,12 @@ on:
         default: true
         required: false
 
+      enable_phpstan:
+        description: "Enable PHPStan Static Analysis?"
+        type: boolean
+        default: false
+        required: false
+
       backend_directory:
         description: The directory of the project where backend code is located. This should contain a `composer.json` file, and is generally the root directory of the repo.
         type: string
@@ -110,3 +116,33 @@ jobs:
         working-directory: ${{ inputs.backend_directory }}
         env:
           COMPOSER_PROCESS_TIMEOUT: 600
+
+  phpstan:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php: ${{ fromJSON(inputs.php_versions) }}
+
+    name: 'PHPStan PHP ${{ matrix.php }}'
+
+    if: inputs.enable_phpstan
+
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: xdebug
+          extensions: curl, dom, gd, json, mbstring, openssl, pdo_mysql, tokenizer, zip
+          tools: phpunit, composer:v2
+          ini-values: ${{ inputs.php_ini_values }}
+
+      - name: Install Composer dependencies
+        run: composer install
+        working-directory: ${{ inputs.backend_directory }}
+
+      - name: Run PHPStan
+        run: composer analyse:phpstan
