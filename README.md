@@ -1,4 +1,6 @@
-<p align="center"><img src="https://flarum.org/assets/img/logo.png"></p>
+<p align="center">
+<a href="https://flarum.org/"><img src="https://flarum.org/assets/img/logo.png"></a>
+</p>
 
 <p align="center">
 <a href="https://github.com/flarum/core/actions?query=workflow%3ATests"><img src="https://github.com/flarum/core/workflows/Tests/badge.svg" alt="PHP Tests"></a>
