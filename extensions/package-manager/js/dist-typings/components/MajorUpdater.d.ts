@@ -1,5 +1,5 @@
+import type Mithril from 'mithril';
 import Component, { ComponentAttrs } from 'flarum/common/Component';
-import Mithril from 'mithril';
 import { UpdatedPackage, UpdateState } from './Updater';
 interface MajorUpdaterAttrs extends ComponentAttrs {
     coreUpdate: UpdatedPackage;

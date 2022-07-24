@@ -1,6 +1,6 @@
 import Mithril from 'mithril';
-import Component from 'flarum/common/Component';
-import { Extension } from './ExtensionItem';
+import Component, { ComponentAttrs } from 'flarum/common/Component';
+import { Extension } from 'flarum/admin/AdminApplication';
 export declare type UpdatedPackage = {
     name: string;
     version: string;
@@ -30,12 +30,14 @@ export declare type LastUpdateRun = {
 } & {
     limitedPackages: () => string[];
 };
-export default class Updater<Attrs> extends Component<Attrs> {
+interface UpdaterAttrs extends ComponentAttrs {
+}
+export default class Updater extends Component<UpdaterAttrs> {
     isLoading: string | null;
     packageUpdates: Record<string, UpdatedPackage>;
     lastUpdateCheck: LastUpdateCheck;
     get lastUpdateRun(): LastUpdateRun;
-    oninit(vnode: Mithril.Vnode<Attrs, this>): void;
+    oninit(vnode: Mithril.Vnode<UpdaterAttrs, this>): void;
     view(): (JSX.Element | null)[];
     getExtensionUpdates(): Extension[];
     getCoreUpdate(): UpdatedPackage | undefined;
