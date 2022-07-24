@@ -4,6 +4,7 @@ import ExtensionData from './utils/ExtensionData';
 import IHistory from '../common/IHistory';
 export declare type Extension = {
     id: string;
+    name: string;
     version: string;
     description?: string;
     icon?: {

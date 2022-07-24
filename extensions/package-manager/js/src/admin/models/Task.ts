@@ -1,5 +1,5 @@
 import Model from 'flarum/common/Model';
-import prettyBytes from "pretty-bytes";
+import prettyBytes from 'pretty-bytes';
 
 export type TaskOperations =
   | 'extension_install'
@@ -45,6 +45,6 @@ export default class Task extends Model {
   }
 
   peakMemoryUsed() {
-    return prettyBytes(Model.attribute<number>('peakMemoryUsed').call(this)*1024);
+    return prettyBytes(Model.attribute<number>('peakMemoryUsed').call(this) * 1024);
   }
 }

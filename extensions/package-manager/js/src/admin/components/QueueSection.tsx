@@ -126,9 +126,7 @@ export default class QueueSection extends Component<{}> {
       'memoryUsed',
       {
         label: extractText(app.translator.trans('flarum-package-manager.admin.sections.queue.columns.peak_memory_used')),
-        content: (task) => (
-          <span>{task.peakMemoryUsed()}</span>
-        ),
+        content: (task) => <span>{task.peakMemoryUsed()}</span>,
       },
       60
     );

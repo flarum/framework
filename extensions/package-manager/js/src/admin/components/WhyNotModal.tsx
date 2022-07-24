@@ -7,9 +7,9 @@ import errorHandler from '../utils/errorHandler';
 
 type WhyNotResponse = {
   data: {
-    reason: string
-  }
-}
+    reason: string;
+  };
+};
 
 export interface WhyNotModalAttrs extends IInternalModalAttrs {
   package: string;
