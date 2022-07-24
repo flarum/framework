@@ -1,15 +1,18 @@
+import type Mithril from 'mithril';
 import app from 'flarum/admin/app';
 import Component, { ComponentAttrs } from 'flarum/common/Component';
-import Mithril from 'mithril';
 import Button from 'flarum/common/components/Button';
 import Tooltip from 'flarum/common/components/Tooltip';
-import { UpdatedPackage, UpdateState } from './Updater';
 import LoadingModal from 'flarum/admin/components/LoadingModal';
-import errorHandler from '../utils/errorHandler';
 import Alert from 'flarum/common/components/Alert';
-import WhyNotModal from './WhyNotModal';
 import RequestError from 'flarum/common/utils/RequestError';
-import ExtensionItem, { Extension } from './ExtensionItem';
+
+import { UpdatedPackage, UpdateState } from './Updater';
+import errorHandler from '../utils/errorHandler';
+import WhyNotModal from './WhyNotModal';
+import ExtensionItem from './ExtensionItem';
+import { AsyncBackendResponse } from '../shims';
+import jumpToQueue from '../utils/jumpToQueue';
 
 interface MajorUpdaterAttrs extends ComponentAttrs {
   coreUpdate: UpdatedPackage;
@@ -84,7 +87,7 @@ export default class MajorUpdater<T extends MajorUpdaterAttrs = MajorUpdaterAttr
     app.modal.show(LoadingModal);
 
     app
-      .request({
+      .request<AsyncBackendResponse | null>({
         method: 'POST',
         url: `${app.forum.attribute('apiUrl')}/package-manager/major-update`,
         body: {
@@ -92,9 +95,13 @@ export default class MajorUpdater<T extends MajorUpdaterAttrs = MajorUpdaterAttr
         },
         errorHandler,
       })
-      .then(() => {
-        app.alerts.show({ type: 'success' }, app.translator.trans('flarum-package-manager.admin.update_successful'));
-        window.location.reload();
+      .then((response) => {
+        if (response?.processing) {
+          jumpToQueue();
+        } else {
+          app.alerts.show({ type: 'success' }, app.translator.trans('flarum-package-manager.admin.update_successful'));
+          window.location.reload();
+        }
       })
       .catch((e: RequestError) => {
         app.modal.close();

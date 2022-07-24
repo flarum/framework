@@ -37,8 +37,6 @@ class SetupComposer
         if (file_exists($composerLock)) {
             unlink($composerLock);
         }
-
-        echo 'composer.json created with testing packages directory.';
     }
 
     private function getConfig(): array

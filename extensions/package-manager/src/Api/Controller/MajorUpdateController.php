@@ -9,11 +9,12 @@
 
 namespace Flarum\PackageManager\Api\Controller;
 
-use Flarum\Bus\Dispatcher;
 use Flarum\Http\RequestUtil;
 use Flarum\PackageManager\Command\MajorUpdate;
+use Flarum\PackageManager\Job\Dispatcher;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -35,10 +36,12 @@ class MajorUpdateController implements RequestHandlerInterface
         $actor = RequestUtil::getActor($request);
         $dryRun = (bool) (int) Arr::get($request->getParsedBody(), 'data.dryRun', 0);
 
-        $this->bus->dispatch(
+        $response = $this->bus->dispatch(
             new MajorUpdate($actor, $dryRun)
         );
 
-        return new EmptyResponse(200);
+        return $response->queueJobs
+            ? new JsonResponse(['processing' => true], 202)
+            : new EmptyResponse(201);
     }
 }

@@ -9,10 +9,16 @@
 
 namespace Flarum\PackageManager\Command;
 
+use Flarum\PackageManager\Task\Task;
 use Flarum\User\User;
 
-class UpdateExtension
+class UpdateExtension implements BusinessCommandInterface
 {
+    /**
+     * @var Task
+     */
+    public $task = null;
+
     /**
      * @var User
      */
@@ -27,5 +33,10 @@ class UpdateExtension
     {
         $this->actor = $actor;
         $this->extensionId = $extensionId;
+    }
+
+    public function getOperationName(): string
+    {
+        return Task::EXTENSION_UPDATE;
     }
 }

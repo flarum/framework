@@ -77,7 +77,8 @@ class UpdateExtensionHandler
         }
 
         $output = $this->composer->run(
-            new StringInput("require $extension->name:*")
+            new StringInput("require $extension->name:*"),
+            $command->task ?? null
         );
 
         if ($output->getExitCode() !== 0) {
@@ -87,7 +88,5 @@ class UpdateExtensionHandler
         $this->events->dispatch(
             new Updated($command->actor, $extension)
         );
-
-        return true;
     }
 }

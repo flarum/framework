@@ -74,7 +74,8 @@ class RequireExtensionHandler
         }
 
         $output = $this->composer->run(
-            new StringInput("require $packageName")
+            new StringInput("require $packageName"),
+            $command->task ?? null
         );
 
         if ($output->getExitCode() !== 0) {

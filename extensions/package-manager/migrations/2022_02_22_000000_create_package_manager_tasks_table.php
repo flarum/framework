@@ -11,16 +11,18 @@ use Flarum\Database\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
 return Migration::createTable(
-    'generic_tasks',
+    'package_manager_tasks',
     function (Blueprint $table) {
         $table->increments('id');
         $table->string('status', 50)->nullable();
-        $table->string('command', 50);
-        $table->string('command_class')->nullable();
+        $table->string('operation', 50);
+        $table->string('command', 50)->nullable();
         $table->string('package', 100)->nullable();
         $table->mediumText('output');
-        $table->dateTime('created_at');
-        $table->dateTime('started_at')->nullable();
-        $table->dateTime('finished_at')->nullable();
+        $table->timestamp('created_at');
+        $table->timestamp('started_at')->nullable();
+        $table->timestamp('finished_at')->nullable();
+        // Saved in KB
+        $table->unsignedMediumInteger('peak_memory_used')->nullable();
     }
 );

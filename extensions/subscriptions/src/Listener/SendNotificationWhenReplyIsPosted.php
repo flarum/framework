@@ -27,6 +27,12 @@ class SendNotificationWhenReplyIsPosted
 
     public function handle(Posted $event)
     {
+        $discussion = $event->post->discussion;
+
+        /** @var \Psr\Log\LoggerInterface $log */
+        $log = resolve('log');
+        $log->info("running subscriptions send notification when reply is posted listener. last_post_number: $discussion->last_post_number");
+
         $this->queue->push(
             new SendReplyNotification($event->post, $event->post->discussion->last_post_number)
         );

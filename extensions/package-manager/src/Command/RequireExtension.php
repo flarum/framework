@@ -9,10 +9,16 @@
 
 namespace Flarum\PackageManager\Command;
 
+use Flarum\PackageManager\Task\Task;
 use Flarum\User\User;
 
-class RequireExtension
+class RequireExtension implements BusinessCommandInterface
 {
+    /**
+     * @var Task
+     */
+    public $task = null;
+
     /**
      * @var User
      */
@@ -27,5 +33,10 @@ class RequireExtension
     {
         $this->actor = $actor;
         $this->package = $package;
+    }
+
+    public function getOperationName(): string
+    {
+        return Task::EXTENSION_INSTALL;
     }
 }
