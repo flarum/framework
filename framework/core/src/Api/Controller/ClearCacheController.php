@@ -38,11 +38,15 @@ class ClearCacheController extends AbstractDeleteController
     {
         RequestUtil::getActor($request)->assertAdmin();
 
-        $this->command->run(
+        $exitCode = $this->command->run(
             new ArrayInput([]),
             new NullOutput()
         );
 
-        return new EmptyResponse(204);
+        if ($exitCode === 0) {
+            return new EmptyResponse(204);
+        }
+
+        throw new \Exception('Clear cache command failed.');
     }
 }
