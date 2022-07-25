@@ -9,11 +9,10 @@
 
 namespace Flarum\Post;
 
-use DateTime;
 use Flarum\Formatter\Formatter;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Http\RequestUtil;
 use Flarum\Post\Access\ScopePostVisibility;
+use Illuminate\Contracts\Container\Container;
 
 class PostServiceProvider extends AbstractServiceProvider
 {
@@ -22,22 +21,8 @@ class PostServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->extend('flarum.api.throttlers', function ($throttlers) {
-            $throttlers['postTimeout'] = function ($request) {
-                if (! in_array($request->getAttribute('routeName'), ['discussions.create', 'posts.create'])) {
-                    return;
-                }
-
-                $actor = RequestUtil::getActor($request);
-
-                if ($actor->can('postWithoutThrottle')) {
-                    return false;
-                }
-
-                if (Post::where('user_id', $actor->id)->where('created_at', '>=', new DateTime('-10 seconds'))->exists()) {
-                    return true;
-                }
-            };
+        $this->container->extend('flarum.api.throttlers', function (array $throttlers, Container $container) {
+            $throttlers['postTimeout'] = $container->make(PostCreationThrottler::class);
 
             return $throttlers;
         });
