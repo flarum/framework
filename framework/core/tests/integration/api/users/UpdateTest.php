@@ -180,7 +180,7 @@ class UpdateTest extends TestCase
             );
 
             // We don't want to delay tests too long.
-            EmailChangeThrottler::$timeout = 15;
+            EmailChangeThrottler::$timeout = 5;
             sleep(EmailChangeThrottler::$timeout+1);
         }
 
