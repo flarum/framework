@@ -14,6 +14,10 @@ use Flarum\Http\RequestUtil;
 use Flarum\User\EmailToken;
 use Psr\Http\Message\ServerRequestInterface;
 
+/**
+ * Unactivated users can request a confirmation email,
+ * this throttler applies a timeout of 5 minutes between confirmation requests.
+ */
 class EmailActivationThrottler
 {
     public static $timeout = 300;

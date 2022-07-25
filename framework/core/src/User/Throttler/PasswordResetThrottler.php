@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\User\Throttler;
 
 use Carbon\Carbon;
@@ -8,6 +15,11 @@ use Flarum\User\PasswordToken;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 
+/**
+ * Logged-in users can request password reset email,
+ * this throttler applies a timeout of 5 minutes between password resets.
+ * This does not apply to guests requesting password resets.
+ */
 class PasswordResetThrottler
 {
     public static $timeout = 300;

@@ -15,6 +15,10 @@ use Flarum\User\EmailToken;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 
+/**
+ * Users can request an email change,
+ * this throttler applies a timeout of 5 minutes between requests.
+ */
 class EmailChangeThrottler
 {
     public static $timeout = 300;
