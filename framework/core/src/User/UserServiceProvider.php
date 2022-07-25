@@ -24,6 +24,7 @@ use Flarum\User\DisplayName\UsernameDriver;
 use Flarum\User\Event\EmailChangeRequested;
 use Flarum\User\Event\Registered;
 use Flarum\User\Event\Saving;
+use Flarum\User\Throttler\EmailChangeThrottler;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
@@ -50,6 +51,12 @@ class UserServiceProvider extends AbstractServiceProvider
                 Post::class => [PostPolicy::class],
                 User::class => [Access\UserPolicy::class],
             ];
+        });
+
+        $this->container->extend('flarum.api.throttlers', function (array $throttlers, Container $container) {
+            $throttlers['emailChangeTimeout'] = $container->make(EmailChangeThrottler::class);
+
+            return $throttlers;
         });
     }
 
