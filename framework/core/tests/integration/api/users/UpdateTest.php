@@ -162,7 +162,7 @@ class UpdateTest extends TestCase
      */
     public function users_can_request_email_change_in_moderate_intervals()
     {
-        for ($i=0; $i<2; $i++) {
+        for ($i = 0; $i < 2; $i++) {
             $response = $this->send(
                 $this->request('PATCH', '/api/users/3', [
                     'authenticatedAs' => 3,
@@ -181,7 +181,7 @@ class UpdateTest extends TestCase
 
             // We don't want to delay tests too long.
             EmailChangeThrottler::$timeout = 5;
-            sleep(EmailChangeThrottler::$timeout+1);
+            sleep(EmailChangeThrottler::$timeout + 1);
         }
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -192,7 +192,7 @@ class UpdateTest extends TestCase
      */
     public function users_cant_request_email_change_too_fast()
     {
-        for ($i=0; $i<2; $i++) {
+        for ($i = 0; $i < 2; $i++) {
             $response = $this->send(
                 $this->request('PATCH', '/api/users/3', [
                     'authenticatedAs' => 3,

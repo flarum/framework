@@ -36,7 +36,7 @@ class SendActivationEmailTest extends TestCase
     /** @test */
     public function users_can_send_confirmation_emails_in_moderate_intervals()
     {
-        for ($i=0; $i<2; $i++) {
+        for ($i = 0; $i < 2; $i++) {
             $response = $this->send(
                 $this->request('POST', '/api/users/3/send-confirmation', [
                     'authenticatedAs' => 3,
@@ -45,7 +45,7 @@ class SendActivationEmailTest extends TestCase
 
             // We don't want to delay tests too long.
             EmailActivationThrottler::$timeout = 5;
-            sleep(EmailActivationThrottler::$timeout+1);
+            sleep(EmailActivationThrottler::$timeout + 1);
         }
 
         $this->assertEquals(204, $response->getStatusCode());
@@ -54,7 +54,7 @@ class SendActivationEmailTest extends TestCase
     /** @test */
     public function users_cant_send_confirmation_emails_too_fast()
     {
-        for ($i=0; $i<2; $i++) {
+        for ($i = 0; $i < 2; $i++) {
             $response = $this->send(
                 $this->request('POST', '/api/users/3/send-confirmation', [
                     'authenticatedAs' => 3,

@@ -11,7 +11,6 @@ namespace Flarum\Tests\integration\api\users;
 
 use Carbon\Carbon;
 use Flarum\Testing\integration\TestCase;
-use Flarum\User\Throttler\EmailActivationThrottler;
 use Flarum\User\Throttler\PasswordResetThrottler;
 
 class SendPasswordResetEmailTest extends TestCase
@@ -37,7 +36,7 @@ class SendPasswordResetEmailTest extends TestCase
     /** @test */
     public function users_can_send_password_reset_emails_in_moderate_intervals()
     {
-        for ($i=0; $i<2; $i++) {
+        for ($i = 0; $i < 2; $i++) {
             $response = $this->send(
                 $this->request('POST', '/api/forgot', [
                     'authenticatedAs' => 3,
@@ -49,7 +48,7 @@ class SendPasswordResetEmailTest extends TestCase
 
             // We don't want to delay tests too long.
             PasswordResetThrottler::$timeout = 5;
-            sleep(PasswordResetThrottler::$timeout+1);
+            sleep(PasswordResetThrottler::$timeout + 1);
         }
 
         $this->assertEquals(204, $response->getStatusCode());
@@ -58,7 +57,7 @@ class SendPasswordResetEmailTest extends TestCase
     /** @test */
     public function users_cant_send_confirmation_emails_too_fast()
     {
-        for ($i=0; $i<2; $i++) {
+        for ($i = 0; $i < 2; $i++) {
             $response = $this->send(
                 $this->request('POST', '/api/forgot', [
                     'authenticatedAs' => 3,
