@@ -39,6 +39,9 @@ class ErrorServiceProvider extends AbstractServiceProvider
                 // 405 Method Not Allowed
                 'method_not_allowed' => 405,
 
+                // 409 Conflict
+                'io_error' => 409,
+
                 // 429 Too Many Requests
                 'too_many_requests' => 429,
             ];
