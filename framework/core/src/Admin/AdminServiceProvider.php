@@ -21,7 +21,6 @@ use Flarum\Frontend\AddLocaleAssets;
 use Flarum\Frontend\AddTranslations;
 use Flarum\Frontend\Asset\Css;
 use Flarum\Frontend\Asset\Js;
-use Flarum\Frontend\Asset\Type;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Http\Middleware as HttpMiddleware;
@@ -105,7 +104,7 @@ class AdminServiceProvider extends AbstractServiceProvider
                 ->ofType('css')
                 ->first()
                 ->addSource(function (SourceCollector $sources) {
-                    $sources->addFile(__DIR__ . '/../../less/admin.less');
+                    $sources->addFile(__DIR__.'/../../less/admin.less');
                 });
 
             /** @var LocaleManager $locales */

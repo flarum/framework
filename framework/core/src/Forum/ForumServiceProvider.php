@@ -22,7 +22,6 @@ use Flarum\Frontend\AddLocaleAssets;
 use Flarum\Frontend\AddTranslations;
 use Flarum\Frontend\Asset\Css;
 use Flarum\Frontend\Asset\Js;
-use Flarum\Frontend\Asset\Type;
 use Flarum\Frontend\Assets;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\RecompileFrontendAssets;

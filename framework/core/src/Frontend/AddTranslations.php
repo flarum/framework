@@ -43,7 +43,8 @@ class AddTranslations
         return $this;
     }
 
-    public function getSources(SourceCollector $sources, string $locale) {
+    public function getSources(SourceCollector $sources, string $locale)
+    {
         $sources->addString(function () use ($locale) {
             $translations = $this->getTranslations($locale);
 
