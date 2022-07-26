@@ -92,7 +92,7 @@ class ForumSerializer extends AbstractSerializer
             'canViewForum' => $this->actor->can('viewForum'),
             'canStartDiscussion' => $this->actor->can('startDiscussion'),
             'canSearchUsers' => $this->actor->can('searchUsers'),
-            'assetsBaseUrl' => $this->assetsFilesystem->url(''),
+            'assetsBaseUrl' => rtrim($this->assetsFilesystem->url(''), '/'),
         ];
 
         if ($this->actor->can('administrate')) {
