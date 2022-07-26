@@ -25,7 +25,7 @@ class QueueRestarter
      * @var Container
      */
     protected $container;
-    
+
     /**
      * @var RestartCommand
      */
