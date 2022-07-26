@@ -11,11 +11,13 @@ namespace Flarum\Frontend;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Paths;
+use Flarum\Frontend\Asset\Css;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Driver\BasicTitleDriver;
 use Flarum\Frontend\Driver\TitleDriverInterface;
 use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
+use Flarum\Locale\LocaleManager;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\View\Factory as ViewFactory;
@@ -40,8 +42,14 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     $paths->vendor.'/components/font-awesome/less' => ''
                 ]);
 
-                $assets->css([$this, 'addBaseCss']);
-                $assets->localeCss([$this, 'addBaseCss']);
+                $assets->addAsset((new Css("$name.css", null))->addSource([$this, 'addBaseCss']));
+
+                /** @var LocaleManager $locales */
+                $locales = $container[LocaleManager::class];
+
+                foreach ($locales->getLocales() as $locale => $_) {
+                    $assets->addAsset((new Css("$name-$locale.css", $locale))->addSource([$this, 'addBaseCss']));
+                }
 
                 return $assets;
             };

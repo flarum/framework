@@ -9,10 +9,10 @@
 
 namespace Flarum\Frontend;
 
-use Flarum\Frontend\Compiler\CompilerInterface;
+use Flarum\Frontend\Asset\AssetCollection;
+use Flarum\Frontend\Asset\Type;
 use Flarum\Frontend\Compiler\JsCompiler;
 use Flarum\Frontend\Compiler\LessCompiler;
-use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Illuminate\Contracts\Filesystem\Filesystem;
 
 /**
@@ -66,6 +66,10 @@ class Assets
      * @var array
      */
     protected $customFunctions = [];
+    /**
+     * @var array|Type[]
+     */
+    protected array $assets = [];
 
     public function __construct(string $name, Filesystem $assetsDir, string $cacheDir = null, array $lessImportDirs = null, array $customFunctions = [])
     {
@@ -76,85 +80,26 @@ class Assets
         $this->customFunctions = $customFunctions;
     }
 
-    public function js($sources)
+    public function addAsset(Type $asset): static
     {
-        $this->addSources('js', $sources);
+        $this->assets[$asset->getFilename()] = $asset;
 
         return $this;
     }
 
-    public function css($callback)
+    public function getAssets(): AssetCollection
     {
-        $this->addSources('css', $callback);
-
-        return $this;
+        return AssetCollection::make($this->assets)
+            ->each(function (Type $asset) {
+                $asset->setCompiler(
+                    $asset->getCompilerClass() === JsCompiler::class
+                        ? $this->makeJsCompiler($asset->getFilename())
+                        : $this->makeLessCompiler($asset->getFilename())
+                );
+            });
     }
 
-    public function localeJs($callback)
-    {
-        $this->addSources('localeJs', $callback);
-
-        return $this;
-    }
-
-    public function localeCss($callback)
-    {
-        $this->addSources('localeCss', $callback);
-
-        return $this;
-    }
-
-    private function addSources($type, $callback)
-    {
-        $this->sources[$type][] = $callback;
-    }
-
-    private function populate(CompilerInterface $compiler, string $type, string $locale = null)
-    {
-        $compiler->addSources(function (SourceCollector $sources) use ($type, $locale) {
-            foreach ($this->sources[$type] as $callback) {
-                $callback($sources, $locale);
-            }
-        });
-    }
-
-    public function makeJs(): JsCompiler
-    {
-        $compiler = $this->makeJsCompiler($this->name.'.js');
-
-        $this->populate($compiler, 'js');
-
-        return $compiler;
-    }
-
-    public function makeCss(): LessCompiler
-    {
-        $compiler = $this->makeLessCompiler($this->name.'.css');
-
-        $this->populate($compiler, 'css');
-
-        return $compiler;
-    }
-
-    public function makeLocaleJs(string $locale): JsCompiler
-    {
-        $compiler = $this->makeJsCompiler($this->name.'-'.$locale.'.js');
-
-        $this->populate($compiler, 'localeJs', $locale);
-
-        return $compiler;
-    }
-
-    public function makeLocaleCss(string $locale): LessCompiler
-    {
-        $compiler = $this->makeLessCompiler($this->name.'-'.$locale.'.css');
-
-        $this->populate($compiler, 'localeCss', $locale);
-
-        return $compiler;
-    }
-
-    protected function makeJsCompiler(string $filename)
+    protected function makeJsCompiler(string $filename): JsCompiler
     {
         return new JsCompiler($this->assetsDir, $filename);
     }

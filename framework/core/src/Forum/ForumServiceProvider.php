@@ -20,6 +20,9 @@ use Flarum\Foundation\ErrorHandling\WhoopsFormatter;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Frontend\AddLocaleAssets;
 use Flarum\Frontend\AddTranslations;
+use Flarum\Frontend\Asset\Css;
+use Flarum\Frontend\Asset\Js;
+use Flarum\Frontend\Asset\Type;
 use Flarum\Frontend\Assets;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\RecompileFrontendAssets;
@@ -106,22 +109,44 @@ class ForumServiceProvider extends AbstractServiceProvider
             /** @var Assets $assets */
             $assets = $container->make('flarum.assets.factory')('forum');
 
-            $assets->js(function (SourceCollector $sources) use ($container) {
+            $assets->addAsset((new Js('forum.js'))->addSource(function (SourceCollector $sources) use ($container) {
                 $sources->addFile(__DIR__.'/../../js/dist/forum.js');
                 $sources->addString(function () use ($container) {
                     return $container->make(Formatter::class)->getJs();
                 });
-            });
+            }));
 
-            $assets->css(function (SourceCollector $sources) use ($container) {
+            $assets->getAssets()->ofType('css')->first()->addSource(function (SourceCollector $sources) use ($container) {
                 $sources->addFile(__DIR__.'/../../less/forum.less');
                 $sources->addString(function () use ($container) {
                     return $container->make(SettingsRepositoryInterface::class)->get('custom_less', '');
                 });
             });
 
-            $container->make(AddTranslations::class)->forFrontend('forum')->to($assets);
-            $container->make(AddLocaleAssets::class)->to($assets);
+            /** @var LocaleManager $locales */
+            $locales = $container[LocaleManager::class];
+
+            /** @var AddLocaleAssets $addLocaleAssets */
+            $addLocaleAssets = $container->make(AddLocaleAssets::class);
+
+            foreach ($locales->getLocales() as $locale => $_) {
+                $localeJs = new Js("forum-$locale.js", $locale);
+                $localeJs
+                    ->addSource([$container->make(AddTranslations::class)->forFrontend('forum'), 'getSources'])
+                    ->addSource(function (SourceCollector $collector) use ($addLocaleAssets, $locale) {
+                        $addLocaleAssets->getLocaleJs($collector, $locale);
+                    });
+
+                $assets->addAsset($localeJs);
+
+                $localeCss = new Css("forum-$locale.css", $locale);
+                $localeCss
+                    ->addSource(function (SourceCollector $collector) use ($addLocaleAssets, $locale) {
+                        $addLocaleAssets->getLocaleCss($collector, $locale);
+                    });
+
+                $assets->addAsset($localeCss);
+            }
 
             return $assets;
         });

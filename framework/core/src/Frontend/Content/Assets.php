@@ -10,6 +10,9 @@
 namespace Flarum\Frontend\Content;
 
 use Flarum\Foundation\Config;
+use Flarum\Frontend\Asset\Css;
+use Flarum\Frontend\Asset\Js;
+use Flarum\Frontend\Asset\Type;
 use Flarum\Frontend\Compiler\CompilerInterface;
 use Flarum\Frontend\Document;
 use Illuminate\Contracts\Container\Container;
@@ -74,9 +77,21 @@ class Assets
      */
     protected function assembleCompilers(?string $locale): array
     {
+        $assets = $this->assets->getAssets();
+
         return [
-            'js' => [$this->assets->makeJs(), $this->assets->makeLocaleJs($locale)],
-            'css' => [$this->assets->makeCss(), $this->assets->makeLocaleCss($locale)]
+            'js' => $assets
+                ->ofType('js')
+                ->map(function (Type $asset) {
+                    return $asset->getCompiler();
+                })
+                ->toArray(),
+            'css' => $assets
+                ->ofType('css')
+                ->map(function (Type $asset) {
+                    return $asset->getCompiler();
+                })
+                ->toArray(),
         ];
     }
 

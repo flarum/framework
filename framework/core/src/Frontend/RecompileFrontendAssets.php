@@ -9,6 +9,7 @@
 
 namespace Flarum\Frontend;
 
+use Flarum\Frontend\Asset\Type;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 
@@ -53,19 +54,15 @@ class RecompileFrontendAssets
 
     protected function flushCss()
     {
-        $this->assets->makeCss()->flush();
-
-        foreach ($this->locales->getLocales() as $locale => $name) {
-            $this->assets->makeLocaleCss($locale)->flush();
-        }
+        $this->assets->getAssets()->ofType('css')->each(function (Type $asset) {
+            $asset->getCompiler()->commit();
+        });
     }
 
     protected function flushJs()
     {
-        $this->assets->makeJs()->flush();
-
-        foreach ($this->locales->getLocales() as $locale => $name) {
-            $this->assets->makeLocaleJs($locale)->flush();
-        }
+        $this->assets->getAssets()->ofType('js')->each(function (Type $asset) {
+            $asset->getCompiler()->commit();
+        });
     }
 }

@@ -43,15 +43,17 @@ class AddTranslations
         return $this;
     }
 
+    public function getSources(SourceCollector $sources, string $locale) {
+        $sources->addString(function () use ($locale) {
+            $translations = $this->getTranslations($locale);
+
+            return 'flarum.core.app.translator.addTranslations('.json_encode($translations).')';
+        });
+    }
+
     public function to(Assets $assets)
     {
-        $assets->localeJs(function (SourceCollector $sources, string $locale) {
-            $sources->addString(function () use ($locale) {
-                $translations = $this->getTranslations($locale);
-
-                return 'flarum.core.app.translator.addTranslations('.json_encode($translations).')';
-            });
-        });
+        $assets->localeJs([$this, 'getSources']);
     }
 
     private function getTranslations(string $locale)

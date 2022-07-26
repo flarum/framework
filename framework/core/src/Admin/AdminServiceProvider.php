@@ -19,6 +19,9 @@ use Flarum\Foundation\ErrorHandling\WhoopsFormatter;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Frontend\AddLocaleAssets;
 use Flarum\Frontend\AddTranslations;
+use Flarum\Frontend\Asset\Css;
+use Flarum\Frontend\Asset\Js;
+use Flarum\Frontend\Asset\Type;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Http\Middleware as HttpMiddleware;
@@ -94,16 +97,41 @@ class AdminServiceProvider extends AbstractServiceProvider
             /** @var \Flarum\Frontend\Assets $assets */
             $assets = $container->make('flarum.assets.factory')('admin');
 
-            $assets->js(function (SourceCollector $sources) {
+            $assets->addAsset((new Js('admin.js'))->addSource(function (SourceCollector $sources) {
                 $sources->addFile(__DIR__.'/../../js/dist/admin.js');
-            });
+            }));
 
-            $assets->css(function (SourceCollector $sources) {
-                $sources->addFile(__DIR__.'/../../less/admin.less');
-            });
+            $assets->getAssets()
+                ->ofType('css')
+                ->first()
+                ->addSource(function (SourceCollector $sources) {
+                    $sources->addFile(__DIR__ . '/../../less/admin.less');
+                });
 
-            $container->make(AddTranslations::class)->forFrontend('admin')->to($assets);
-            $container->make(AddLocaleAssets::class)->to($assets);
+            /** @var LocaleManager $locales */
+            $locales = $container[LocaleManager::class];
+
+            /** @var AddLocaleAssets $addLocaleAssets */
+            $addLocaleAssets = $container->make(AddLocaleAssets::class);
+
+            foreach ($locales->getLocales() as $locale => $_) {
+                $localeJs = new Js("admin-$locale.js", $locale);
+                $localeJs
+                    ->addSource([$container->make(AddTranslations::class)->forFrontend('admin'), 'getSources'])
+                    ->addSource(function (SourceCollector $collector) use ($addLocaleAssets, $locale) {
+                        $addLocaleAssets->getLocaleJs($collector, $locale);
+                    });
+
+                $assets->addAsset($localeJs);
+
+                $localeCss = new Css("admin-$locale.css", $locale);
+                $localeCss
+                    ->addSource(function (SourceCollector $collector) use ($addLocaleAssets, $locale) {
+                        $addLocaleAssets->getLocaleCss($collector, $locale);
+                    });
+
+                $assets->addAsset($localeCss);
+            }
 
             return $assets;
         });

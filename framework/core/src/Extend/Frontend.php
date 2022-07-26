@@ -189,7 +189,7 @@ class Frontend implements ExtenderInterface
 
         $container->resolving($abstract, function (Assets $assets) use ($moduleName) {
             if ($this->js) {
-                $assets->js(function (SourceCollector $sources) use ($moduleName) {
+                $assets->getAssets()->ofType('js')->first()->addSource(function (SourceCollector $sources) use ($moduleName) {
                     $sources->addString(function () {
                         return 'var module={};';
                     });
@@ -201,7 +201,7 @@ class Frontend implements ExtenderInterface
             }
 
             if ($this->css) {
-                $assets->css(function (SourceCollector $sources) use ($moduleName) {
+                $assets->getAssets()->ofType('css')->first()->addSource(function (SourceCollector $sources) use ($moduleName) {
                     foreach ($this->css as $path) {
                         $sources->addFile($path, $moduleName);
                     }
