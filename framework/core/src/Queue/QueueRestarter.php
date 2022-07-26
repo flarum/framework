@@ -21,6 +21,22 @@ use Symfony\Component\Console\Output\NullOutput;
 
 class QueueRestarter
 {
+    /**
+     * @var Container
+     */
+    protected $container;
+    
+    /**
+     * @var RestartCommand
+     */
+    protected $command;
+
+    public function __construct(Container $container, RestartCommand $command)
+    {
+        $this->container = $container;
+        $this->command = $command;
+    }
+
     public function subscribe(Dispatcher $events)
     {
         $events->listen([
@@ -31,14 +47,9 @@ class QueueRestarter
 
     public function restart()
     {
-        /** @var Container $container */
-        $container = resolve(Container::class);
-        /** @var RestartCommand $command */
-        $command = resolve(RestartCommand::class);
+        $this->command->setLaravel($this->container);
 
-        $command->setLaravel($container);
-
-        $command->run(
+        $this->command->run(
             new ArrayInput([]),
             new NullOutput
         );
