@@ -11,6 +11,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Foundation\Console\AssetsPublishCommand;
 use Flarum\Foundation\Console\CacheClearCommand;
+use Flarum\Foundation\IOException;
 use Flarum\Http\RequestUtil;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ServerRequestInterface;
@@ -40,6 +41,7 @@ class ClearCacheController extends AbstractDeleteController
 
     /**
      * {@inheritdoc}
+     * @throws IOException|\Flarum\User\Exception\PermissionDeniedException
      */
     protected function delete(ServerRequestInterface $request)
     {
@@ -51,7 +53,7 @@ class ClearCacheController extends AbstractDeleteController
         );
 
         if ($exitCode !== 0) {
-            throw new \Exception('Clearing cache failed. Try running `php flarum cache:clear` from the command line to see more info.');
+            throw new IOException();
         }
 
         $exitCode = $this->assetsPublishCommand->run(
@@ -60,7 +62,7 @@ class ClearCacheController extends AbstractDeleteController
         );
 
         if ($exitCode !== 0) {
-            throw new \Exception('Asset publishing failed. Try running `php flarum assets:publish` from the command line to see more info.');
+            throw new IOException();
         }
 
         return new EmptyResponse(204);
