@@ -60,7 +60,7 @@ export default class StatusWidget extends DashboardWidget {
       .catch((e) => {
         if (e.status === 409) {
           app.alerts.clear();
-          app.alerts.show({ type: 'error' }, app.translator.trans('core.admin.dashboard.io_error_message'))
+          app.alerts.show({ type: 'error' }, app.translator.trans('core.admin.dashboard.io_error_message'));
         }
 
         app.modal.close();
