@@ -14,11 +14,10 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class TokensClearer
 {
-    public function subscribe(Dispatcher $events): array
+    public function subscribe(Dispatcher $events): void
     {
-        return [
-            PasswordChanged::class => 'clearPasswordTokens',
-        ];
+        $events->listen(PasswordChanged::class, [$this, 'clearPasswordTokens']);
+        $events->listen(PasswordChanged::class, [$this, 'clearEmailTokens']);
     }
 
     /**
@@ -27,5 +26,13 @@ class TokensClearer
     public function clearPasswordTokens($event): void
     {
         PasswordToken::query()->where('user_id', $event->user->id)->delete();
+    }
+
+    /**
+     * @param PasswordChanged $event
+     */
+    public function clearEmailTokens($event): void
+    {
+        EmailToken::query()->where('user_id', $event->user->id)->delete();
     }
 }
