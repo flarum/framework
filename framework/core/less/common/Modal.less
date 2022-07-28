@@ -30,8 +30,7 @@
   bottom: 0;
   opacity: 0;
   transition: opacity 0.2s ease-out;
-  z-index: 1;
-  z-index: ~"calc(var(--zindex-modal) - 1)";
+  z-index: ~"calc(var(--zindex-modal) + var(--modal-count)) - 2";
 
   &[data-showing] {
     opacity: 1;
