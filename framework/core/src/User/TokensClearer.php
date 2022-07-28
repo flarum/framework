@@ -23,11 +23,11 @@ class TokensClearer
     }
 
     /**
-     * @param PasswordChanged $event
+     * @param PasswordChanged|EmailChanged $event
      */
     public function clearPasswordTokens($event): void
     {
-        PasswordToken::query()->where('user_id', $event->user->id)->delete();
+        $event->user->passwordTokens()->delete();
     }
 
     /**
@@ -35,6 +35,6 @@ class TokensClearer
      */
     public function clearEmailTokens($event): void
     {
-        EmailToken::query()->where('user_id', $event->user->id)->delete();
+        $event->user->emailTokens()->delete();
     }
 }
