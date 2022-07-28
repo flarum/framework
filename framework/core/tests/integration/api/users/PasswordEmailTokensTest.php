@@ -85,4 +85,49 @@ class PasswordEmailTokensTest extends TestCase
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertEquals(0, PasswordToken::query()->where('user_id', 2)->count());
     }
+
+    /** @test */
+    public function email_tokens_are_generated_when_requesting_email_change()
+    {
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/2', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'email' => 'new-normal@machine.local'
+                        ]
+                    ],
+                    'meta' => [
+                        'password' => 'too-obscure'
+                    ]
+                ]
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(1, EmailToken::query()->where('user_id', 2)->count());
+    }
+
+    /** @test */
+    public function email_tokens_are_deleted_when_confirming_email()
+    {
+        $this->app();
+
+        EmailToken::generate('new-normal2@machine.local', 2)->save();
+        EmailToken::generate('new-normal3@machine.local', 2)->save();
+        $token = EmailToken::generate('new-normal@machine.local', 2);
+        $token->save();
+
+        $response = $this->send(
+            $this->requestWithCsrfToken(
+                $this->request('POST', '/confirm/'.$token->token, [
+                    'authenticatedAs' => 2
+                ])
+            )
+        );
+
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals(0, EmailToken::query()->where('user_id', 2)->count());
+    }
 }
