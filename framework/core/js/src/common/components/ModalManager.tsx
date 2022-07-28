@@ -64,7 +64,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
             onclick={this.handlePossibleBackdropClick.bind(this)}
             ontransitionend={this.onBackdropTransitionEnd.bind(this)}
             data-showing={!!this.attrs.state.modalList.length}
-            style={{'--modal-count': this.attrs.state.modalList.length}}
+            style={{ '--modal-count': this.attrs.state.modalList.length }}
           />
         )}
       </>
