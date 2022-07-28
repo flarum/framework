@@ -169,4 +169,27 @@ class PasswordEmailTokensTest extends TestCase
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertEquals(0, EmailToken::query()->where('user_id', 2)->count());
     }
+
+    /** @test */
+    public function password_tokens_are_deleted_when_confirming_email()
+    {
+        $this->app();
+
+        PasswordToken::generate(2)->save();
+        PasswordToken::generate(2)->save();
+
+        $token = EmailToken::generate('new-normal@machine.local', 2);
+        $token->save();
+
+        $response = $this->send(
+            $this->requestWithCsrfToken(
+                $this->request('POST', '/confirm/'.$token->token, [
+                    'authenticatedAs' => 2
+                ])
+            )
+        );
+
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals(0, PasswordToken::query()->where('user_id', 2)->count());
+    }
 }
