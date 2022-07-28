@@ -12,6 +12,7 @@ namespace Flarum\Tags\Command;
 use Flarum\Tags\Event\Creating;
 use Flarum\Tags\Tag;
 use Flarum\Tags\TagValidator;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
 class CreateTagHandler
@@ -22,11 +23,18 @@ class CreateTagHandler
     protected $validator;
 
     /**
-     * @param TagValidator $validator
+     * @var Dispatcher
      */
-    public function __construct(TagValidator $validator)
+    protected $events;
+
+    /**
+     * @param TagValidator $validator
+     * @param Dispatcher $events
+     */
+    public function __construct(TagValidator $validator, Dispatcher $events)
     {
         $this->validator = $validator;
+        $this->events = $events;
     }
 
     /**
@@ -65,7 +73,7 @@ class CreateTagHandler
             }
         }
 
-        event(new Creating($tag, $actor, $data));
+        $this->events->dispatch(new Creating($tag, $actor, $data));
 
         $this->validator->assertValid($tag->getAttributes());
 
