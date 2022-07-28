@@ -12,6 +12,7 @@ namespace Flarum\Tags\Command;
 use Flarum\Tags\Event\Saving;
 use Flarum\Tags\TagRepository;
 use Flarum\Tags\TagValidator;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
 class EditTagHandler
@@ -27,13 +28,20 @@ class EditTagHandler
     protected $validator;
 
     /**
+     * @var Dispatcher
+     */
+    protected $events;
+
+    /**
      * @param TagRepository $tags
      * @param TagValidator $validator
+     * @param Dispatcher $events
      */
-    public function __construct(TagRepository $tags, TagValidator $validator)
+    public function __construct(TagRepository $tags, TagValidator $validator, Dispatcher $events)
     {
         $this->tags = $tags;
         $this->validator = $validator;
+        $this->events = $events;
     }
 
     /**
@@ -80,7 +88,7 @@ class EditTagHandler
             $tag->is_restricted = (bool) $attributes['isRestricted'];
         }
 
-        event(new Saving($tag, $actor, $data));
+        $this->events->dispatch(new Saving($tag, $actor, $data));
 
         $this->validator->assertValid($tag->getDirty());
 
