@@ -9,6 +9,7 @@
 
 namespace Flarum\User;
 
+use Flarum\User\Event\EmailChanged;
 use Flarum\User\Event\PasswordChanged;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -18,6 +19,7 @@ class TokensClearer
     {
         $events->listen(PasswordChanged::class, [$this, 'clearPasswordTokens']);
         $events->listen(PasswordChanged::class, [$this, 'clearEmailTokens']);
+        $events->listen(EmailChanged::class, [$this, 'clearPasswordTokens']);
     }
 
     /**
