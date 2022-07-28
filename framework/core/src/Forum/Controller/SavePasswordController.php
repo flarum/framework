@@ -89,6 +89,7 @@ class SavePasswordController implements RequestHandlerInterface
         } catch (ValidationException $e) {
             $request->getAttribute('session')->put('errors', new MessageBag($e->errors()));
 
+            // @todo: must return a 422 instead, look into renderable exceptions.
             return new RedirectResponse($this->url->to('forum')->route('resetPassword', ['token' => $token->token]));
         }
 

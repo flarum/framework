@@ -14,6 +14,7 @@ use Dflydev\FigCookies\SetCookie;
 use Illuminate\Support\Str;
 use Laminas\Diactoros\CallbackStream;
 use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
@@ -65,5 +66,16 @@ trait BuildsHttpRequests
         );
 
         return $req->withCookieParams($cookies);
+    }
+
+    protected function requestWithCsrfToken(ServerRequestInterface $request): ServerRequestInterface
+    {
+        $initial = $this->send(
+            $this->request('GET', '/')
+        );
+
+        $token = $initial->getHeaderLine('X-CSRF-Token');
+
+        return $this->requestWithCookiesFrom($request->withHeader('X-CSRF-Token', $token), $initial);
     }
 }
