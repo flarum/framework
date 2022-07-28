@@ -98,8 +98,6 @@ class SavePasswordController implements RequestHandlerInterface
 
         $this->dispatchEventsFor($token->user);
 
-        $token->delete();
-
         $session = $request->getAttribute('session');
         $accessToken = SessionAccessToken::generate($token->user->id);
         $this->authenticator->logIn($session, $accessToken);
