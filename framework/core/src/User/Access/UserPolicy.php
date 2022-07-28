@@ -39,4 +39,15 @@ class UserPolicy extends AbstractPolicy
             return $this->allow();
         }
     }
+
+    /**
+     * @param User $actor
+     * @param User $user
+     */
+    public function delete(User $actor, User $user)
+    {
+        if ($user->id === $actor->id) {
+            return $this->deny();
+        }
+    }
 }
