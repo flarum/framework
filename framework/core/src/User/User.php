@@ -474,7 +474,7 @@ class User extends AbstractModel
     public function getNewNotificationCount()
     {
         return $this->unreadNotifications()
-            ->where('created_at', '>', $this->read_notifications_at)
+            ->where('created_at', '>', $this->read_notifications_at ?? 0)
             ->count();
     }
 
