@@ -8,16 +8,6 @@ on:
         type: boolean
         default: false
         required: false
-      enable_prettier:
-        description: "Enable Prettier?"
-        type: boolean
-        default: true
-        required: false
-      enable_typescript:
-        description: "Enable TypeScript?"
-        type: boolean
-        default: true
-        required: false
 
       backend_directory:
         description: The directory of the project where backend code is located. This should contain a `composer.json` file, and is generally the root directory of the repo.
@@ -61,66 +51,9 @@ env:
   cache_dependency_path: ${{ inputs.cache_dependency_path || format(inputs.js_package_manager == 'yarn' && '{0}/yarn.lock' || '{0}/package-lock.json', inputs.frontend_directory) }}
 
 jobs:
-  bundlewatch:
-    name: Bundlewatch
+  build:
+    name: Build
     runs-on: ubuntu-latest
-    if: inputs.enable_bundlewatch
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: Set up Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ inputs.node_version }}
-          cache: ${{ inputs.js_package_manager }}
-          cache-dependency-path: ${{ env.cache_dependency_path }}
-
-      - name: Build production assets
-        uses: flarum/action-build@2
-        with:
-          github_token: ${{ secrets.github_token }}
-          build_script: build
-          package_manager: ${{ inputs.js_package_manager }}
-          js_path: ${{ inputs.frontend_directory }}
-          do_not_commit: true
-
-      - name: Check bundle size change
-        run: node_modules/.bin/bundlewatch --config .bundlewatch.config.json
-        working-directory: ${{ inputs.frontend_directory }}
-        env:
-          BUNDLEWATCH_GITHUB_TOKEN: ${{ secrets.bundlewatch_github_token }}
-          CI_COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
-
-  prettier:
-    name: Prettier
-    runs-on: ubuntu-latest
-    if: inputs.enable_prettier
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: Set up Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ inputs.node_version }}
-          cache: ${{ inputs.js_package_manager }}
-          cache-dependency-path: ${{ env.cache_dependency_path }}
-
-      - name: Install JS dependencies
-        run: ${{ env.ci_script }}
-        working-directory: ${{ inputs.frontend_directory }}
-
-      - name: Check JS formatting
-        run: ${{ inputs.js_package_manager }} run format-check
-        working-directory: ${{ inputs.frontend_directory }}
-
-  typecheck:
-    name: Typecheck
-    runs-on: ubuntu-latest
-    if: inputs.enable_typescript
 
     steps:
       - name: Check out code
@@ -149,72 +82,23 @@ jobs:
         run: ${{ env.ci_script }}
         working-directory: ${{ inputs.frontend_directory }}
 
-      - name: Typecheck
-        run: ${{ inputs.js_package_manager }} run check-typings
-        working-directory: ${{ inputs.frontend_directory }}
-
-  type-coverage:
-    name: Type Coverage
-    runs-on: ubuntu-latest
-    if: inputs.enable_typescript
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: Set up Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ inputs.node_version }}
-          cache: ${{ inputs.js_package_manager }}
-          cache-dependency-path: ${{ env.cache_dependency_path }}
-
-      - name: Install JS dependencies
-        run: ${{ env.ci_script }}
-        working-directory: ${{ inputs.frontend_directory }}
-
-      - name: Check type coverage
-        run: ${{ inputs.js_package_manager }} run check-typings-coverage
-        working-directory: ${{ inputs.frontend_directory }}
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    if: "always() && !contains(needs.*.result, 'failed') && !contains(needs.*.result, 'cancelled')"
-    needs: [bundlewatch, prettier, typecheck, type-coverage]
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: Set up Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ inputs.node_version }}
-          cache: ${{ inputs.js_package_manager }}
-          cache-dependency-path: ${{ env.cache_dependency_path }}
-
-      # Our action will install npm/yarn, cd into `${{ inputs.frontend_directory }}`, build dist JS and typings,
-      # then commit and upload any changes iff we are on the main branch and have just pushed.
       - name: Build production JS
-        if: inputs.enable_typescript
-        uses: flarum/action-build@2
+        uses: flarum/action-build@3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           build_script: build
+          build_typings_script: build-typings
+          format_script: format
+          check_typings_script: check-typings
+          type_coverage_script: check-typings-coverage
           package_manager: ${{ inputs.js_package_manager }}
-          typings_script: build-typings
           js_path: ${{ inputs.frontend_directory }}
           do_not_commit: ${{ github.ref != format('refs/heads/{0}', inputs.main_git_branch) || github.event_name != 'push' }}
 
-      # Our action will install npm/yarn, cd into `${{ inputs.frontend_directory }}`, build dist JS and typings,
-      # then commit and upload any changes iff we are on the main branch and have just pushed.
-      - name: Build production JS
-        if: "! inputs.enable_typescript"
-        uses: flarum/action-build@2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          build_script: build
-          package_manager: ${{ inputs.js_package_manager }}
-          js_path: ${{ inputs.frontend_directory }}
-          do_not_commit: ${{ github.ref != format('refs/heads/{0}', inputs.main_git_branch) || github.event_name != 'push' }}
+      - name: Check bundle size change
+        if: ${{ inputs.enable_bundlewatch }}
+        run: node_modules/.bin/bundlewatch --config .bundlewatch.config.json
+        working-directory: ${{ inputs.frontend_directory }}
+        env:
+          BUNDLEWATCH_GITHUB_TOKEN: ${{ secrets.bundlewatch_github_token }}
+          CI_COMMIT_SHA: ${{ github.event.pull_request.head.sha }}

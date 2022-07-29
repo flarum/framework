@@ -1,4 +1,4 @@
-name: Flags JS
+name: Framework JS
 
 on: [workflow_dispatch, push, pull_request]
 
@@ -6,12 +6,8 @@ jobs:
   run:
     uses: ./.github/workflows/REUSABLE_frontend.yml
     with:
-      enable_bundlewatch: false
-      enable_prettier: true
-      enable_typescript: true
-
-      frontend_directory: ./extensions/flags/js
-      backend_directory: ./extensions/flags
+      frontend_directory: ./
+      backend_directory: ./
       js_package_manager: yarn
       cache_dependency_path: ./yarn.lock
       main_git_branch: main
