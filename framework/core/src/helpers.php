@@ -16,6 +16,7 @@ if (! function_exists('resolve')) {
      * Resolve a service from the container.
      *
      * @template T
+     *
      * @param  class-string<T>|string  $name
      * @param  array  $parameters
      * @return T|mixed
@@ -35,7 +36,7 @@ if (! function_exists('app')) {
      * @deprecated perpetually.
      *
      * @param  string  $make
-     * @param  array   $parameters
+     * @param  array  $parameters
      * @return mixed|\Illuminate\Container\Container
      */
     function app($make = null, $parameters = [])

@@ -24,7 +24,7 @@ class UrlGenerator
     protected $app;
 
     /**
-     * @param Application $app
+     * @param  Application  $app
      */
     public function __construct(Application $app)
     {
@@ -34,9 +34,9 @@ class UrlGenerator
     /**
      * Register a named route collection for URL generation.
      *
-     * @param string $key
-     * @param RouteCollection $routes
-     * @param string $prefix
+     * @param  string  $key
+     * @param  RouteCollection  $routes
+     * @param  string  $prefix
      * @return static
      */
     public function addCollection($key, RouteCollection $routes, $prefix = null)
@@ -52,7 +52,7 @@ class UrlGenerator
     /**
      * Retrieve an URL generator instance for the given named route collection.
      *
-     * @param string $collection
+     * @param  string  $collection
      * @return RouteCollectionUrlGenerator
      */
     public function to($collection)

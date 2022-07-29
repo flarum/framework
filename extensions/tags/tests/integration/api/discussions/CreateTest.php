@@ -20,7 +20,7 @@ class CreateTest extends TestCase
     use RetrievesRepresentativeTags;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -39,7 +39,7 @@ class CreateTest extends TestCase
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'tag8.startDiscussion'],
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'tag11.viewForum'],
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'tag11.startDiscussion'],
-            ]
+            ],
         ]);
     }
 
@@ -57,7 +57,7 @@ class CreateTest extends TestCase
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -79,7 +79,7 @@ class CreateTest extends TestCase
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -95,7 +95,7 @@ class CreateTest extends TestCase
         $this->prepareDatabase([
             'group_permission' => [
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'bypassTagCounts'],
-            ]
+            ],
         ]);
 
         $response = $this->send(
@@ -107,7 +107,7 @@ class CreateTest extends TestCase
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -132,10 +132,10 @@ class CreateTest extends TestCase
                         'relationships' => [
                             'tags' => [
                                 'data' => [
-                                    ['type' => 'tags', 'id' => 1]
-                                ]
-                            ]
-                        ]
+                                    ['type' => 'tags', 'id' => 1],
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ])
@@ -161,10 +161,10 @@ class CreateTest extends TestCase
                         'relationships' => [
                             'tags' => [
                                 'data' => [
-                                    ['type' => 'tags', 'id' => 5]
-                                ]
-                            ]
-                        ]
+                                    ['type' => 'tags', 'id' => 5],
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ])
@@ -181,7 +181,7 @@ class CreateTest extends TestCase
         $this->prepareDatabase([
             'group_permission' => [
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'bypassTagCounts'],
-            ]
+            ],
         ]);
 
         $response = $this->send(
@@ -196,10 +196,10 @@ class CreateTest extends TestCase
                         'relationships' => [
                             'tags' => [
                                 'data' => [
-                                    ['type' => 'tags', 'id' => 5]
-                                ]
-                            ]
-                        ]
+                                    ['type' => 'tags', 'id' => 5],
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ])
@@ -226,10 +226,10 @@ class CreateTest extends TestCase
                             'tags' => [
                                 'data' => [
                                     ['type' => 'tags', 'id' => 1],
-                                    ['type' => 'tags', 'id' => 11]
-                                ]
-                            ]
-                        ]
+                                    ['type' => 'tags', 'id' => 11],
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ])
@@ -255,10 +255,10 @@ class CreateTest extends TestCase
                         'relationships' => [
                             'tags' => [
                                 'data' => [
-                                    ['type' => 'tags', 'id' => 4]
-                                ]
-                            ]
-                        ]
+                                    ['type' => 'tags', 'id' => 4],
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ])
@@ -285,10 +285,10 @@ class CreateTest extends TestCase
                             'tags' => [
                                 'data' => [
                                     ['type' => 'tags', 'id' => 2],
-                                    ['type' => 'tags', 'id' => 3]
-                                ]
-                            ]
-                        ]
+                                    ['type' => 'tags', 'id' => 3],
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ])
@@ -314,10 +314,10 @@ class CreateTest extends TestCase
                         'relationships' => [
                             'tags' => [
                                 'data' => [
-                                    ['type' => 'tags', 'id' => 11]
-                                ]
-                            ]
-                        ]
+                                    ['type' => 'tags', 'id' => 11],
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ])

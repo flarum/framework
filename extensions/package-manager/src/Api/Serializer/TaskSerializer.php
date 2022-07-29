@@ -23,7 +23,8 @@ class TaskSerializer extends AbstractSerializer
     /**
      * {@inheritdoc}
      *
-     * @param Task $model
+     * @param  Task  $model
+     *
      * @throws InvalidArgumentException
      */
     protected function getDefaultAttributes($model)

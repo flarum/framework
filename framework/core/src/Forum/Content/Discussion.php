@@ -35,9 +35,9 @@ class Discussion
     protected $view;
 
     /**
-     * @param Client $api
-     * @param UrlGenerator $url
-     * @param Factory $view
+     * @param  Client  $api
+     * @param  UrlGenerator  $url
+     * @param  Factory  $view
      */
     public function __construct(Client $api, UrlGenerator $url, Factory $view)
     {
@@ -58,8 +58,8 @@ class Discussion
             'page' => [
                 'near' => $near,
                 'offset' => ($page - 1) * 20,
-                'limit' => 20
-            ]
+                'limit' => 20,
+            ],
         ];
 
         $apiDocument = $this->getApiDocument($request, $id, $params);

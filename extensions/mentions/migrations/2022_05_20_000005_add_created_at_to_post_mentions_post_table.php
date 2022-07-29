@@ -26,5 +26,5 @@ return [
         $schema->table('post_mentions_post', function (Blueprint $table) {
             $table->dropColumn('created_at');
         });
-    }
+    },
 ];

@@ -31,14 +31,14 @@ class SuspendUserTest extends TestCase
                 ['id' => 3, 'username' => 'acme', 'email' => 'acme@machine.local', 'is_email_confirmed' => 1],
             ],
             'groups' => [
-                ['id' => 5, 'name_singular' => 'Acme', 'name_plural' => 'Acme', 'is_hidden' => 0]
+                ['id' => 5, 'name_singular' => 'Acme', 'name_plural' => 'Acme', 'is_hidden' => 0],
             ],
             'group_user' => [
-                ['user_id' => 3, 'group_id' => 5]
+                ['user_id' => 3, 'group_id' => 5],
             ],
             'group_permission' => [
-                ['permission' => 'user.suspend', 'group_id' => 5]
-            ]
+                ['permission' => 'user.suspend', 'group_id' => 5],
+            ],
         ]);
     }
 
@@ -95,9 +95,9 @@ class SuspendUserTest extends TestCase
                             'suspendedUntil' => Carbon::now()->addDay(),
                             'suspendReason' => 'Suspended for acme reasons.',
                             'suspendMessage' => 'You have been suspended.',
-                        ]
-                    ]
-                ]
+                        ],
+                    ],
+                ],
             ])
         );
     }

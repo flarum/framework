@@ -15,7 +15,7 @@ use RuntimeException;
 class Site
 {
     /**
-     * @param array $paths
+     * @param  array  $paths
      * @return SiteInterface
      */
     public static function fromPaths(array $paths)

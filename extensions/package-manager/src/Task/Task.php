@@ -30,20 +30,30 @@ class Task extends AbstractModel
      * Statuses (@todo use an enum with php8.1).
      */
     public const PENDING = 'pending';
+
     public const RUNNING = 'running';
+
     public const FAILURE = 'failure';
+
     public const SUCCESS = 'success';
 
     /**
      * Operations (@todo use an enum with php8.1).
      */
     public const EXTENSION_INSTALL = 'extension_install';
+
     public const EXTENSION_REMOVE = 'extension_remove';
+
     public const EXTENSION_UPDATE = 'extension_update';
+
     public const UPDATE_GLOBAL = 'update_global';
+
     public const UPDATE_MINOR = 'update_minor';
+
     public const UPDATE_MAJOR = 'update_major';
+
     public const UPDATE_CHECK = 'update_check';
+
     public const WHY_NOT = 'why_not';
 
     public const UPDATED_AT = null;

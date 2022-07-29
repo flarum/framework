@@ -19,7 +19,7 @@ class ShowTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -38,7 +38,7 @@ class ShowTest extends TestCase
             ],
             'users' => [
                 $this->normalUser(),
-            ]
+            ],
         ]);
     }
 
@@ -67,7 +67,7 @@ class ShowTest extends TestCase
             $this->request('GET', '/api/discussions/1-fdsafdsajfsakf', [
                 'authenticatedAs' => 2,
             ])->withQueryParams([
-                'bySlug' => true
+                'bySlug' => true,
             ])
         );
 

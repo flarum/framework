@@ -51,7 +51,7 @@ class CookieFactory
     protected $samesite;
 
     /**
-     * @param Config $config
+     * @param  Config  $config
      */
     public function __construct(Config $config)
     {
@@ -74,7 +74,7 @@ class CookieFactory
      *
      * @param  string  $name
      * @param  string  $value
-     * @param  int     $maxAge
+     * @param  int  $maxAge
      * @return \Dflydev\FigCookies\SetCookie
      */
     public function make(string $name, string $value = null, int $maxAge = null): SetCookie
@@ -105,7 +105,7 @@ class CookieFactory
     /**
      * Make an expired cookie instance.
      *
-     * @param string $name
+     * @param  string  $name
      * @return \Dflydev\FigCookies\SetCookie
      */
     public function expire(string $name): SetCookie
@@ -116,7 +116,7 @@ class CookieFactory
     /**
      * Get a cookie name.
      *
-     * @param string $name
+     * @param  string  $name
      * @return string
      */
     public function getName(string $name): string

@@ -26,7 +26,7 @@ class PostRepository
     }
 
     /**
-     * @param User|null $user
+     * @param  User|null  $user
      * @return Builder
      */
     protected function queryVisibleTo(User $user = null)
@@ -44,8 +44,8 @@ class PostRepository
      * Find a post by ID, optionally making sure it is visible to a certain
      * user, or throw an exception.
      *
-     * @param int $id
-     * @param \Flarum\User\User $actor
+     * @param  int  $id
+     * @param  \Flarum\User\User  $actor
      * @return \Flarum\Post\Post
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
@@ -59,11 +59,11 @@ class PostRepository
      * Find posts that match certain conditions, optionally making sure they
      * are visible to a certain user, and/or using other criteria.
      *
-     * @param array $where
-     * @param \Flarum\User\User|null $actor
-     * @param array $sort
-     * @param int $count
-     * @param int $start
+     * @param  array  $where
+     * @param  \Flarum\User\User|null  $actor
+     * @param  array  $sort
+     * @param  int  $count
+     * @param  int  $start
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function findWhere(array $where = [], User $actor = null, $sort = [], $count = null, $start = 0)
@@ -84,8 +84,8 @@ class PostRepository
      * Filter a list of post IDs to only include posts that are visible to a
      * certain user.
      *
-     * @param array $ids
-     * @param User $actor
+     * @param  array  $ids
+     * @param  User  $actor
      * @return array
      */
     public function filterVisibleIds(array $ids, User $actor)
@@ -98,9 +98,9 @@ class PostRepository
      * is. If the post with that number does not exist, the index of the
      * closest post to it will be returned.
      *
-     * @param int $discussionId
-     * @param int $number
-     * @param \Flarum\User\User|null $actor
+     * @param  int  $discussionId
+     * @param  int  $number
+     * @param  \Flarum\User\User|null  $actor
      * @return int
      */
     public function getIndexForNumber($discussionId, $number, User $actor = null)
@@ -124,8 +124,8 @@ class PostRepository
     }
 
     /**
-     * @param array $ids
-     * @param User|null $actor
+     * @param  array  $ids
+     * @param  User|null  $actor
      * @return Builder
      */
     protected function queryIds(array $ids, User $actor = null)

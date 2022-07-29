@@ -16,7 +16,7 @@ use Flarum\Testing\integration\TestCase;
 class LocalesTest extends TestCase
 {
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {

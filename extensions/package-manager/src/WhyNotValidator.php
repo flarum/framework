@@ -18,6 +18,6 @@ class WhyNotValidator extends AbstractValidator
      */
     protected $rules = [
         'package' => ['required', 'string', 'regex:'.RequirePackageValidator::PACKAGE_NAME_REGEX],
-        'version' => ['sometimes', 'string', 'regex:/(?:\*|[A-z0-9.-]+)/i']
+        'version' => ['sometimes', 'string', 'regex:/(?:\*|[A-z0-9.-]+)/i'],
     ];
 }

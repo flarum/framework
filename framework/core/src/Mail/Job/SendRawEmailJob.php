@@ -16,7 +16,9 @@ use Illuminate\Mail\Message;
 class SendRawEmailJob extends AbstractJob
 {
     private $email;
+
     private $subject;
+
     private $body;
 
     public function __construct(string $email, string $subject, string $body)

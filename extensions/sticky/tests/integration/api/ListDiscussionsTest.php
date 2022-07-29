@@ -41,14 +41,14 @@ class ListDiscussionsTest extends TestCase
                 ['discussion_id' => 3, 'user_id' => 3, 'last_read_post_number' => 1],
             ],
             'tags' => [
-                ['id' => 1, 'slug' => 'general', 'position' => 0, 'parent_id' => null]
+                ['id' => 1, 'slug' => 'general', 'position' => 0, 'parent_id' => null],
             ],
             'discussion_tag' => [
                 ['discussion_id' => 1, 'tag_id' => 1],
                 ['discussion_id' => 2, 'tag_id' => 1],
                 ['discussion_id' => 3, 'tag_id' => 1],
                 ['discussion_id' => 4, 'tag_id' => 1],
-            ]
+            ],
         ]);
     }
 
@@ -71,7 +71,7 @@ class ListDiscussionsTest extends TestCase
     {
         $response = $this->send(
             $this->request('GET', '/api/discussions', [
-                'authenticatedAs' => 2
+                'authenticatedAs' => 2,
             ])
         );
 
@@ -87,7 +87,7 @@ class ListDiscussionsTest extends TestCase
     {
         $response = $this->send(
             $this->request('GET', '/api/discussions', [
-                'authenticatedAs' => 3
+                'authenticatedAs' => 3,
             ])
         );
 
@@ -103,11 +103,11 @@ class ListDiscussionsTest extends TestCase
     {
         $response = $this->send(
             $this->request('GET', '/api/discussions', [
-                'authenticatedAs' => 3
+                'authenticatedAs' => 3,
             ])->withQueryParams([
                 'filter' => [
-                    'tag' => 'general'
-                ]
+                    'tag' => 'general',
+                ],
             ])
         );
 

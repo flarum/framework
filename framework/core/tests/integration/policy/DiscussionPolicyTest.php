@@ -24,7 +24,7 @@ class DiscussionPolicyTest extends TestCase
     use DispatchEventsTrait;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -42,7 +42,7 @@ class DiscussionPolicyTest extends TestCase
             ],
             'users' => [
                 $this->normalUser(),
-            ]
+            ],
         ]);
     }
 

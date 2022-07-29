@@ -46,14 +46,14 @@ trait InteractsWithUnapprovedContent
                 ['id' => 11, 'discussion_id' => 7, 'user_id' => 4, 'type' => 'comment', 'content' => '<t><p>Text</p></t>', 'is_private' => 1, 'is_approved' => 0, 'number' => 5],
             ],
             'groups' => [
-                ['id' => 4, 'name_singular' => 'Acme', 'name_plural' => 'Acme', 'is_hidden' => 0]
+                ['id' => 4, 'name_singular' => 'Acme', 'name_plural' => 'Acme', 'is_hidden' => 0],
             ],
             'group_user' => [
-                ['user_id' => 3, 'group_id' => 4]
+                ['user_id' => 3, 'group_id' => 4],
             ],
             'group_permission' => [
-                ['permission' => 'discussion.approvePosts', 'group_id' => 4]
-            ]
+                ['permission' => 'discussion.approvePosts', 'group_id' => 4],
+            ],
         ]);
     }
 

@@ -29,8 +29,8 @@ class User
     protected $url;
 
     /**
-     * @param Client $api
-     * @param UrlGenerator $url
+     * @param  Client  $api
+     * @param  UrlGenerator  $url
      */
     public function __construct(Client $api, UrlGenerator $url)
     {

@@ -33,6 +33,7 @@ class BasicPostSerializer extends AbstractSerializer
         $this->log = $log;
         $this->translator = $translator;
     }
+
     /**
      * {@inheritdoc}
      */
@@ -41,7 +42,8 @@ class BasicPostSerializer extends AbstractSerializer
     /**
      * {@inheritdoc}
      *
-     * @param \Flarum\Post\Post $post
+     * @param  \Flarum\Post\Post  $post
+     *
      * @throws InvalidArgumentException
      */
     protected function getDefaultAttributes($post)
@@ -53,9 +55,9 @@ class BasicPostSerializer extends AbstractSerializer
         }
 
         $attributes = [
-            'number'      => (int) $post->number,
-            'createdAt'   => $this->formatDate($post->created_at),
-            'contentType' => $post->type
+            'number' => (int) $post->number,
+            'createdAt' => $this->formatDate($post->created_at),
+            'contentType' => $post->type,
         ];
 
         if ($post instanceof CommentPost) {

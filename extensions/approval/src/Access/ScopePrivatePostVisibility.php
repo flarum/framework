@@ -17,8 +17,8 @@ use Illuminate\Database\Eloquent\Builder;
 class ScopePrivatePostVisibility
 {
     /**
-     * @param Builder $query
-     * @param User $actor
+     * @param  Builder  $query
+     * @param  User  $actor
      */
     public function __invoke(User $actor, Builder $query)
     {

@@ -36,8 +36,8 @@ class UpdateServiceProvider extends AbstractServiceProvider
     }
 
     /**
-     * @param RouteCollection     $routes
-     * @param RouteHandlerFactory $route
+     * @param  RouteCollection  $routes
+     * @param  RouteHandlerFactory  $route
      */
     protected function populateRoutes(RouteCollection $routes, RouteHandlerFactory $route)
     {

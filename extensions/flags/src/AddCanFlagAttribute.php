@@ -22,7 +22,7 @@ class AddCanFlagAttribute
     protected $settings;
 
     /**
-     * @param SettingsRepositoryInterface $settings
+     * @param  SettingsRepositoryInterface  $settings
      */
     public function __construct(SettingsRepositoryInterface $settings)
     {

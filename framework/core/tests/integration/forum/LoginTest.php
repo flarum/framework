@@ -19,7 +19,7 @@ class LoginTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -29,8 +29,8 @@ class LoginTest extends TestCase
 
         $this->prepareDatabase([
             'users' => [
-                $this->normalUser()
-            ]
+                $this->normalUser(),
+            ],
         ]);
     }
 
@@ -41,7 +41,7 @@ class LoginTest extends TestCase
     {
         $response = $this->send(
             $this->request('POST', '/login', [
-                'json' => []
+                'json' => [],
             ])
         );
 
@@ -57,8 +57,8 @@ class LoginTest extends TestCase
             $this->request('POST', '/login', [
                 'json' => [
                     'identification' => 'normal',
-                    'password' => 'incorrect'
-                ]
+                    'password' => 'incorrect',
+                ],
             ])
         );
 
@@ -74,8 +74,8 @@ class LoginTest extends TestCase
             $this->request('POST', '/login', [
                 'json' => [
                     'identification' => 'normal',
-                    'password' => 'too-obscure'
-                ]
+                    'password' => 'too-obscure',
+                ],
             ])
         );
 

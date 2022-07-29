@@ -29,7 +29,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     use UsesTmpDir;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function tearDown(): void
     {
@@ -245,9 +245,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      * integration tests. It provides options for all features repeatedly being
      * used in those tests.
      *
-     * @param string $method
-     * @param string $path
-     * @param array $options
+     * @param  string  $method
+     * @param  string  $path
+     * @param  array  $options
      *   An array of optional request properties.
      *   Currently supported:
      *   - "json" should point to a JSON-serializable object that will be

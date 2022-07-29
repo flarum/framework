@@ -30,7 +30,7 @@ class MajorUpdateTest extends TestCase
             'require' => [
                 'flarum/core' => '^0.1.0-beta.15',
                 'flarum/tags' => '^0.1.0-beta.15',
-                'flarum/dummy-incompatible-extension' => '^1.0.0'
+                'flarum/dummy-incompatible-extension' => '^1.0.0',
             ],
             'minimum-stability' => 'beta',
         ]);
@@ -55,7 +55,7 @@ class MajorUpdateTest extends TestCase
             'require' => [
                 'flarum/core' => '^0.1.0-beta.15',
                 'flarum/tags' => '^0.1.0-beta.15',
-                'flarum/dummy-compatible-extension' => '^1.0.0'
+                'flarum/dummy-compatible-extension' => '^1.0.0',
             ],
             'minimum-stability' => 'beta',
         ]);
@@ -123,7 +123,7 @@ class MajorUpdateTest extends TestCase
         $this->assertEquals([
             'flarum/dummy-incompatible-extension-a',
             'flarum/dummy-incompatible-extension-b',
-            'flarum/dummy-incompatible-extension-c'
+            'flarum/dummy-incompatible-extension-c',
         ], $this->errorDetails($response)['incompatible_extensions']);
     }
 }

@@ -52,11 +52,11 @@ class LogOutController implements RequestHandlerInterface
     protected $url;
 
     /**
-     * @param Dispatcher $events
-     * @param SessionAuthenticator $authenticator
-     * @param Rememberer $rememberer
-     * @param Factory $view
-     * @param UrlGenerator $url
+     * @param  Dispatcher  $events
+     * @param  SessionAuthenticator  $authenticator
+     * @param  Rememberer  $rememberer
+     * @param  Factory  $view
+     * @param  UrlGenerator  $url
      */
     public function __construct(
         Dispatcher $events,
@@ -73,8 +73,9 @@ class LogOutController implements RequestHandlerInterface
     }
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return ResponseInterface
+     *
      * @throws TokenMismatchException
      */
     public function handle(Request $request): ResponseInterface

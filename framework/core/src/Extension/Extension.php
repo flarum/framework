@@ -55,6 +55,7 @@ class Extension implements Arrayable
      * Unique Id of the extension.
      *
      * @info    Identical to the directory in the extensions directory.
+     *
      * @example flarum-suspend
      *
      * @var string
@@ -105,8 +106,8 @@ class Extension implements Arrayable
     protected $version;
 
     /**
-     * @param       $path
-     * @param array $composerJson
+     * @param    $path
+     * @param  array  $composerJson
      */
     public function __construct($path, $composerJson)
     {
@@ -175,7 +176,7 @@ class Extension implements Arrayable
     }
 
     /**
-     * @param bool $installed
+     * @param  bool  $installed
      * @return Extension
      *
      * @internal
@@ -196,7 +197,7 @@ class Extension implements Arrayable
     }
 
     /**
-     * @param string $version
+     * @param  string  $version
      * @return Extension
      *
      * @internal
@@ -211,10 +212,10 @@ class Extension implements Arrayable
     /**
      * Get the list of flarum extensions that this extension depends on.
      *
-     * @param array $extensionSet: An associative array where keys are the composer package names
+     * @param  array  $extensionSet: An associative array where keys are the composer package names
      *                             of installed extensions. Used to figure out which dependencies
      *                             are flarum extensions.
-     * @param array $enabledIds:   An associative array where keys are the composer package names
+     * @param  array  $enabledIds:   An associative array where keys are the composer package names
      *                             of enabled extensions. Used to figure out optional dependencies.
      *
      * @internal
@@ -512,15 +513,15 @@ class Extension implements Arrayable
     public function toArray()
     {
         return (array) array_merge([
-            'id'                     => $this->getId(),
-            'version'                => $this->getVersion(),
-            'path'                   => $this->getPath(),
-            'icon'                   => $this->getIcon(),
-            'hasAssets'              => $this->hasAssets(),
-            'hasMigrations'          => $this->hasMigrations(),
+            'id' => $this->getId(),
+            'version' => $this->getVersion(),
+            'path' => $this->getPath(),
+            'icon' => $this->getIcon(),
+            'hasAssets' => $this->hasAssets(),
+            'hasMigrations' => $this->hasMigrations(),
             'extensionDependencyIds' => $this->getExtensionDependencyIds(),
-            'optionalDependencyIds'  => $this->getOptionalDependencyIds(),
-            'links'                  => $this->getLinks(),
+            'optionalDependencyIds' => $this->getOptionalDependencyIds(),
+            'links' => $this->getLinks(),
         ], $this->composerJson);
     }
 

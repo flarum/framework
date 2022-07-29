@@ -20,5 +20,5 @@ return [
         $connection = $schema->getConnection();
         $prefix = $connection->getTablePrefix();
         $connection->statement('ALTER TABLE '.$prefix.'discussions DROP INDEX title');
-    }
+    },
 ];

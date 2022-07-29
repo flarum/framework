@@ -25,7 +25,7 @@ class Restored
     public $actor;
 
     /**
-     * @param \Flarum\Post\CommentPost $post
+     * @param  \Flarum\Post\CommentPost  $post
      */
     public function __construct(CommentPost $post, User $actor = null)
     {

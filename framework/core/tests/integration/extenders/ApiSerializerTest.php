@@ -29,7 +29,7 @@ class ApiSerializerTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -37,7 +37,7 @@ class ApiSerializerTest extends TestCase
 
         $this->prepareDatabase([
             'users' => [
-                $this->normalUser()
+                $this->normalUser(),
             ],
             'discussions' => [
                 ['id' => 1, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
@@ -77,7 +77,7 @@ class ApiSerializerTest extends TestCase
             (new Extend\ApiSerializer(ForumSerializer::class))
                 ->attributes(function () {
                     return [
-                        'customAttribute' => true
+                        'customAttribute' => true,
                     ];
                 })
         );
@@ -127,7 +127,7 @@ class ApiSerializerTest extends TestCase
             (new Extend\ApiSerializer(BasicUserSerializer::class))
                 ->attributes(function () {
                     return [
-                        'customAttribute' => true
+                        'customAttribute' => true,
                     ];
                 })
         );
@@ -154,13 +154,13 @@ class ApiSerializerTest extends TestCase
             (new Extend\ApiSerializer(BasicUserSerializer::class))
                 ->attributes(function () {
                     return [
-                        'customAttribute' => 'initialValue'
+                        'customAttribute' => 'initialValue',
                     ];
                 }),
             (new Extend\ApiSerializer(UserSerializer::class))
                 ->attributes(function () {
                     return [
-                        'customAttribute' => 'newValue'
+                        'customAttribute' => 'newValue',
                     ];
                 })
         );
@@ -514,7 +514,7 @@ class CustomAttributesInvokableClass
     public function __invoke()
     {
         return [
-            'customAttributeFromInvokable' => true
+            'customAttributeFromInvokable' => true,
         ];
     }
 }

@@ -42,6 +42,7 @@ class InfoCommand extends AbstractCommand
      * @var ConnectionInterface
      */
     protected $db;
+
     /**
      * @var Queue
      */
@@ -108,7 +109,7 @@ class InfoCommand extends AbstractCommand
         $table = (new Table($this->output))
             ->setHeaders([
                 ['Flarum Extensions'],
-                ['ID', 'Version', 'Commit']
+                ['ID', 'Version', 'Commit'],
             ])->setStyle(
                 (new TableStyle)->setCellHeaderFormat('<info>%s</info>')
             );
@@ -117,7 +118,7 @@ class InfoCommand extends AbstractCommand
             $table->addRow([
                 $extension->getId(),
                 $extension->getVersion(),
-                $this->findPackageVersion($extension->getPath())
+                $this->findPackageVersion($extension->getPath()),
             ]);
         }
 

@@ -30,9 +30,9 @@ class DiscussionWasTagged
     public $oldTags;
 
     /**
-     * @param Discussion $discussion
-     * @param User $actor
-     * @param \Flarum\Tags\Tag[] $oldTags
+     * @param  Discussion  $discussion
+     * @param  User  $actor
+     * @param  \Flarum\Tags\Tag[]  $oldTags
      */
     public function __construct(Discussion $discussion, User $actor, array $oldTags)
     {

@@ -36,7 +36,7 @@ class PushNewPost
         } else {
             // Retrieve private channels, used for each user.
             $response = $this->pusher->get_channels([
-                'filter_by_prefix' => 'private-user'
+                'filter_by_prefix' => 'private-user',
             ]);
 
             if (! $response) {
@@ -58,7 +58,7 @@ class PushNewPost
             $this->pusher->trigger($channels, 'newPost', [
                 'postId' => $event->post->id,
                 'discussionId' => $event->post->discussion->id,
-                'tagIds' => $tags ? $tags->pluck('id') : null
+                'tagIds' => $tags ? $tags->pluck('id') : null,
             ]);
         }
     }

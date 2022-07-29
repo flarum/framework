@@ -25,7 +25,7 @@ class DeleteGroupHandler
     protected $groups;
 
     /**
-     * @param GroupRepository $groups
+     * @param  GroupRepository  $groups
      */
     public function __construct(Dispatcher $events, GroupRepository $groups)
     {
@@ -34,8 +34,9 @@ class DeleteGroupHandler
     }
 
     /**
-     * @param DeleteGroup $command
+     * @param  DeleteGroup  $command
      * @return \Flarum\Group\Group
+     *
      * @throws PermissionDeniedException
      */
     public function handle(DeleteGroup $command)

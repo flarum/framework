@@ -310,7 +310,7 @@ class Document implements Renderable
     }
 
     /**
-     * @param array $forumApiDocument
+     * @param  array  $forumApiDocument
      */
     public function setForumApiDocument(array $forumApiDocument)
     {

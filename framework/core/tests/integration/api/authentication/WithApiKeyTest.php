@@ -19,7 +19,7 @@ class WithApiKeyTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -32,7 +32,7 @@ class WithApiKeyTest extends TestCase
             'api_keys' => [
                 ['key' => 'mastertoken', 'user_id' => null, 'created_at' => Carbon::now()->toDateTimeString()],
                 ['key' => 'personaltoken', 'user_id' => 2, 'created_at' => Carbon::now()->toDateTimeString()],
-            ]
+            ],
         ]);
     }
 

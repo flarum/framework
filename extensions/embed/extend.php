@@ -28,5 +28,5 @@ return [
 
     (new Extend\Frontend('embed'))
         ->js(__DIR__.'/js/dist/forum.js')
-        ->css(__DIR__.'/less/forum.less')
+        ->css(__DIR__.'/less/forum.less'),
 ];

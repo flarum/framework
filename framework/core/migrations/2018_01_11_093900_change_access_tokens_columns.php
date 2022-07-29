@@ -39,5 +39,5 @@ return [
             $table->dropColumn('created_at');
             $table->integer('user_id')->change();
         });
-    }
+    },
 ];

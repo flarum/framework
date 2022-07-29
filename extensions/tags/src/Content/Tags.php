@@ -52,12 +52,12 @@ class Tags
     protected $url;
 
     /**
-     * @param Client $api
-     * @param Factory $view
-     * @param TagRepository $tags
-     * @param TranslatorInterface $translator
-     * @param SettingsRepositoryInterface $settings
-     * @param UrlGenerator $url
+     * @param  Client  $api
+     * @param  Factory  $view
+     * @param  TagRepository  $tags
+     * @param  TranslatorInterface  $translator
+     * @param  SettingsRepositoryInterface  $settings
+     * @param  UrlGenerator  $url
      */
     public function __construct(
         Client $api,
@@ -103,7 +103,7 @@ class Tags
     private function getTagsDocument(Request $request)
     {
         return json_decode($this->api->withParentRequest($request)->withQueryParams([
-            'include' => 'children,lastPostedDiscussion,parent'
+            'include' => 'children,lastPostedDiscussion,parent',
         ])->get('/tags')->getBody(), true);
     }
 }

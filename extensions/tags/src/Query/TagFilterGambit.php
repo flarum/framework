@@ -24,7 +24,7 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
     protected $tags;
 
     /**
-     * @param TagRepository $tags
+     * @param  TagRepository  $tags
      */
     public function __construct(TagRepository $tags)
     {

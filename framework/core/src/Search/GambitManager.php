@@ -27,7 +27,7 @@ class GambitManager
     protected $fulltextGambit;
 
     /**
-     * @param GambitInterface $gambit
+     * @param  GambitInterface  $gambit
      */
     public function __construct(GambitInterface $fulltextGambit)
     {
@@ -37,7 +37,7 @@ class GambitManager
     /**
      * Add a gambit.
      *
-     * @param GambitInterface $gambit
+     * @param  GambitInterface  $gambit
      */
     public function add(GambitInterface $gambit)
     {
@@ -47,8 +47,8 @@ class GambitManager
     /**
      * Apply gambits to a search, given a search query.
      *
-     * @param SearchState $search
-     * @param string $query
+     * @param  SearchState  $search
+     * @param  string  $query
      */
     public function apply(SearchState $search, $query)
     {
@@ -62,7 +62,7 @@ class GambitManager
     /**
      * Explode a search query into an array of bits.
      *
-     * @param string $query
+     * @param  string  $query
      * @return array
      */
     protected function explode($query)
@@ -71,8 +71,8 @@ class GambitManager
     }
 
     /**
-     * @param SearchState $search
-     * @param string $query
+     * @param  SearchState  $search
+     * @param  string  $query
      * @return string
      */
     protected function applyGambits(SearchState $search, $query)
@@ -103,8 +103,8 @@ class GambitManager
     }
 
     /**
-     * @param SearchState $search
-     * @param string $query
+     * @param  SearchState  $search
+     * @param  string  $query
      */
     protected function applyFulltext(SearchState $search, $query)
     {

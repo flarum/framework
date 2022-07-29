@@ -15,8 +15,8 @@ use Flarum\User\User;
 class GroupPolicy extends AbstractPolicy
 {
     /**
-     * @param User $actor
-     * @param string $ability
+     * @param  User  $actor
+     * @param  string  $ability
      * @return bool|null
      */
     public function can(User $actor, $ability)

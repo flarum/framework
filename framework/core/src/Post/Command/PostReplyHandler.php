@@ -39,10 +39,10 @@ class PostReplyHandler
     protected $validator;
 
     /**
-     * @param Dispatcher $events
-     * @param DiscussionRepository $discussions
-     * @param \Flarum\Notification\NotificationSyncer $notifications
-     * @param PostValidator $validator
+     * @param  Dispatcher  $events
+     * @param  DiscussionRepository  $discussions
+     * @param  \Flarum\Notification\NotificationSyncer  $notifications
+     * @param  PostValidator  $validator
      */
     public function __construct(
         Dispatcher $events,
@@ -57,8 +57,9 @@ class PostReplyHandler
     }
 
     /**
-     * @param PostReply $command
+     * @param  PostReply  $command
      * @return CommentPost
+     *
      * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(PostReply $command)

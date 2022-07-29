@@ -51,8 +51,8 @@ class Registration
     }
 
     /**
-     * @param string $key
-     * @param mixed $value
+     * @param  string  $key
+     * @param  mixed  $value
      * @return $this
      */
     public function provide(string $key, $value): self
@@ -63,7 +63,7 @@ class Registration
     }
 
     /**
-     * @param string $email
+     * @param  string  $email
      * @return $this
      */
     public function provideTrustedEmail(string $email): self
@@ -72,7 +72,7 @@ class Registration
     }
 
     /**
-     * @param string $url
+     * @param  string  $url
      * @return $this
      */
     public function provideAvatar(string $url): self
@@ -81,8 +81,8 @@ class Registration
     }
 
     /**
-     * @param string $key
-     * @param mixed $value
+     * @param  string  $key
+     * @param  mixed  $value
      * @return $this
      */
     public function suggest(string $key, $value): self
@@ -93,7 +93,7 @@ class Registration
     }
 
     /**
-     * @param string $username
+     * @param  string  $username
      * @return $this
      */
     public function suggestUsername(string $username): self
@@ -104,7 +104,7 @@ class Registration
     }
 
     /**
-     * @param string $email
+     * @param  string  $email
      * @return $this
      */
     public function suggestEmail(string $email): self
@@ -113,7 +113,7 @@ class Registration
     }
 
     /**
-     * @param mixed $payload
+     * @param  mixed  $payload
      * @return $this
      */
     public function setPayload($payload): self

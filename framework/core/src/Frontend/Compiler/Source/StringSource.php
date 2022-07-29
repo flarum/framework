@@ -22,7 +22,7 @@ class StringSource implements SourceInterface
     private $content;
 
     /**
-     * @param callable $callback
+     * @param  callable  $callback
      */
     public function __construct(callable $callback)
     {

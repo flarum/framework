@@ -42,5 +42,5 @@ return [
             $table->dropForeign(['edited_user_id']);
             $table->dropForeign(['hidden_user_id']);
         });
-    }
+    },
 ];

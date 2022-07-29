@@ -20,7 +20,7 @@ class AccessTokenLifecycleTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {

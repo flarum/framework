@@ -21,7 +21,9 @@ use Throwable;
 class HandledError
 {
     private $error;
+
     private $type;
+
     private $statusCode;
 
     private $details = [];

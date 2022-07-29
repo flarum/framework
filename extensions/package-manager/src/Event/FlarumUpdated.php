@@ -14,7 +14,9 @@ use Flarum\User\User;
 class FlarumUpdated
 {
     public const GLOBAL = 'global';
+
     public const MINOR = 'minor';
+
     public const MAJOR = 'major';
 
     /**

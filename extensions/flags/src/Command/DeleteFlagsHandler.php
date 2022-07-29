@@ -28,8 +28,8 @@ class DeleteFlagsHandler
     protected $events;
 
     /**
-     * @param PostRepository $posts
-     * @param Dispatcher $events
+     * @param  PostRepository  $posts
+     * @param  Dispatcher  $events
      */
     public function __construct(PostRepository $posts, Dispatcher $events)
     {
@@ -38,7 +38,7 @@ class DeleteFlagsHandler
     }
 
     /**
-     * @param DeleteFlags $command
+     * @param  DeleteFlags  $command
      * @return Flag
      */
     public function handle(DeleteFlags $command)

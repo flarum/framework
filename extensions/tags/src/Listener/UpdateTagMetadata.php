@@ -26,7 +26,7 @@ use Illuminate\Support\Arr;
 class UpdateTagMetadata
 {
     /**
-     * @param Dispatcher $events
+     * @param  Dispatcher  $events
      */
     public function subscribe(Dispatcher $events)
     {
@@ -43,7 +43,7 @@ class UpdateTagMetadata
     }
 
     /**
-     * @param Started $event
+     * @param  Started  $event
      */
     public function whenDiscussionIsStarted(Started $event)
     {
@@ -51,7 +51,7 @@ class UpdateTagMetadata
     }
 
     /**
-     * @param DiscussionWasTagged $event
+     * @param  DiscussionWasTagged  $event
      */
     public function whenDiscussionWasTagged(DiscussionWasTagged $event)
     {
@@ -62,7 +62,7 @@ class UpdateTagMetadata
     }
 
     /**
-     * @param Deleted $event
+     * @param  Deleted  $event
      */
     public function whenDiscussionIsDeleted(Deleted $event)
     {
@@ -72,7 +72,7 @@ class UpdateTagMetadata
     }
 
     /**
-     * @param Hidden $event
+     * @param  Hidden  $event
      */
     public function whenDiscussionIsHidden(Hidden $event)
     {
@@ -80,7 +80,7 @@ class UpdateTagMetadata
     }
 
     /**
-     * @param Restored $event
+     * @param  Restored  $event
      */
     public function whenDiscussionIsRestored(Restored $event)
     {
@@ -88,7 +88,7 @@ class UpdateTagMetadata
     }
 
     /**
-     * @param Posted $event
+     * @param  Posted  $event
      */
     public function whenPostIsPosted(Posted $event)
     {
@@ -96,7 +96,7 @@ class UpdateTagMetadata
     }
 
     /**
-     * @param PostDeleted $event
+     * @param  PostDeleted  $event
      */
     public function whenPostIsDeleted(PostDeleted $event)
     {
@@ -106,7 +106,7 @@ class UpdateTagMetadata
     }
 
     /**
-     * @param PostHidden $event
+     * @param  PostHidden  $event
      */
     public function whenPostIsHidden(PostHidden $event)
     {
@@ -114,7 +114,7 @@ class UpdateTagMetadata
     }
 
     /**
-     * @param PostRestored $event
+     * @param  PostRestored  $event
      */
     public function whenPostIsRestored(PostRestored $event)
     {
@@ -122,10 +122,10 @@ class UpdateTagMetadata
     }
 
     /**
-     * @param \Flarum\Discussion\Discussion $discussion
-     * @param int $delta
-     * @param Tag[]|null $tags
-     * @param Post $post: This is only used when a post has been hidden
+     * @param  \Flarum\Discussion\Discussion  $discussion
+     * @param  int  $delta
+     * @param  Tag[]|null  $tags
+     * @param  Post  $post: This is only used when a post has been hidden
      */
     protected function updateTags(Discussion $discussion, $delta = 0, $tags = null, $post = null)
     {

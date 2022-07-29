@@ -22,7 +22,7 @@ class TagPolicyTest extends TestCase
     use RetrievesRepresentativeTags;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -38,7 +38,7 @@ class TagPolicyTest extends TestCase
             'group_permission' => [
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'tag6.arbitraryAbility!'],
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'tag8.arbitraryAbility!'],
-            ]
+            ],
         ]);
     }
 
@@ -87,8 +87,8 @@ class TagPolicyTest extends TestCase
     {
         $this->prepareDatabase([
             'group_permission' => [
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'arbitraryAbility!']
-            ]
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'arbitraryAbility!'],
+            ],
         ]);
 
         $this->app();

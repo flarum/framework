@@ -36,9 +36,9 @@ class Deleting
     public $data;
 
     /**
-     * @param \Flarum\Post\Post $post
-     * @param User $actor
-     * @param array $data
+     * @param  \Flarum\Post\Post  $post
+     * @param  User  $actor
+     * @param  array  $data
      */
     public function __construct(Post $post, User $actor, array $data)
     {

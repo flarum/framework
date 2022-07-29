@@ -19,7 +19,7 @@ trait EventGeneratorTrait
     /**
      * Raise a new event.
      *
-     * @param mixed $event
+     * @param  mixed  $event
      */
     public function raise($event)
     {

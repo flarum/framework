@@ -34,9 +34,9 @@ class EditUserHandler
     protected $validator;
 
     /**
-     * @param Dispatcher $events
-     * @param \Flarum\User\UserRepository $users
-     * @param UserValidator $validator
+     * @param  Dispatcher  $events
+     * @param  \Flarum\User\UserRepository  $users
+     * @param  UserValidator  $validator
      */
     public function __construct(Dispatcher $events, UserRepository $users, UserValidator $validator)
     {
@@ -46,8 +46,9 @@ class EditUserHandler
     }
 
     /**
-     * @param EditUser $command
+     * @param  EditUser  $command
      * @return User
+     *
      * @throws \Flarum\User\Exception\PermissionDeniedException
      * @throws ValidationException
      */

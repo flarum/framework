@@ -25,7 +25,7 @@ class ModelVisibilityTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -43,7 +43,7 @@ class ModelVisibilityTest extends TestCase
             ],
             'users' => [
                 $this->normalUser(),
-            ]
+            ],
         ]);
     }
 

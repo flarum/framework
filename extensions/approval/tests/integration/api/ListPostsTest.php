@@ -39,8 +39,8 @@ class ListPostsTest extends TestCase
                 ->request('GET', '/api/posts', compact('authenticatedAs'))
                 ->withQueryParams([
                     'filter' => [
-                        'discussion' => 7
-                    ]
+                        'discussion' => 7,
+                    ],
                 ])
         );
 
@@ -61,8 +61,8 @@ class ListPostsTest extends TestCase
                 ->request('GET', '/api/posts', compact('authenticatedAs'))
                 ->withQueryParams([
                     'filter' => [
-                        'discussion' => 7
-                    ]
+                        'discussion' => 7,
+                    ],
                 ])
         );
 

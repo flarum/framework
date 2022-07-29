@@ -35,9 +35,9 @@ class RegisterController implements RequestHandlerInterface
     protected $rememberer;
 
     /**
-     * @param Client $api
-     * @param SessionAuthenticator $authenticator
-     * @param Rememberer $rememberer
+     * @param  Client  $api
+     * @param  SessionAuthenticator  $authenticator
+     * @param  Rememberer  $rememberer
      */
     public function __construct(Client $api, SessionAuthenticator $authenticator, Rememberer $rememberer)
     {

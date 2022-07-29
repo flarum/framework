@@ -28,8 +28,8 @@ class DeleteAvatar
     public $actor;
 
     /**
-     * @param int $userId The ID of the user to delete the avatar of.
-     * @param User $actor The user performing the action.
+     * @param  int  $userId The ID of the user to delete the avatar of.
+     * @param  User  $actor The user performing the action.
      */
     public function __construct($userId, User $actor)
     {

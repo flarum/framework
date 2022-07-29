@@ -37,11 +37,11 @@ class HttpServiceProvider extends AbstractServiceProvider
         $this->container->singleton('flarum.http.slugDrivers', function () {
             return [
                 Discussion::class => [
-                    'default' => IdWithTransliteratedSlugDriver::class
+                    'default' => IdWithTransliteratedSlugDriver::class,
                 ],
                 User::class => [
                     'default' => UsernameSlugDriver::class,
-                    'id' => IdSlugDriver::class
+                    'id' => IdSlugDriver::class,
                 ],
             ];
         });
@@ -79,7 +79,7 @@ class HttpServiceProvider extends AbstractServiceProvider
         $models = [
             DeveloperAccessToken::class,
             RememberAccessToken::class,
-            SessionAccessToken::class
+            SessionAccessToken::class,
         ];
 
         foreach ($models as $model) {

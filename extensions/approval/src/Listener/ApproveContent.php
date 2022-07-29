@@ -15,7 +15,7 @@ use Flarum\Post\Event\Saving;
 class ApproveContent
 {
     /**
-     * @param Saving $event
+     * @param  Saving  $event
      */
     public static function approvePost(Saving $event)
     {
@@ -38,7 +38,7 @@ class ApproveContent
     }
 
     /**
-     * @param PostWasApproved $event
+     * @param  PostWasApproved  $event
      */
     public static function approveDiscussion(PostWasApproved $event)
     {

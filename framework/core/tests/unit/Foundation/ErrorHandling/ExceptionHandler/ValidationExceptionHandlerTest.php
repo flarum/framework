@@ -18,7 +18,7 @@ class ValidationExceptionHandlerTest extends TestCase
     private $handler;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -37,12 +37,12 @@ class ValidationExceptionHandlerTest extends TestCase
         $this->assertEquals([
             [
                 'detail' => 'Attribute error',
-                'source' => ['pointer' => '/data/attributes/foo']
+                'source' => ['pointer' => '/data/attributes/foo'],
             ],
             [
                 'detail' => 'Relationship error',
-                'source' => ['pointer' => '/data/relationships/bar']
-            ]
+                'source' => ['pointer' => '/data/relationships/bar'],
+            ],
         ], $error->getDetails());
     }
 }

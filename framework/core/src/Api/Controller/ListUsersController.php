@@ -38,7 +38,7 @@ class ListUsersController extends AbstractListController
         'commentCount',
         'discussionCount',
         'lastSeenAt',
-        'joinedAt'
+        'joinedAt',
     ];
 
     /**
@@ -57,9 +57,9 @@ class ListUsersController extends AbstractListController
     protected $url;
 
     /**
-     * @param UserFilterer $filterer
-     * @param UserSearcher $searcher
-     * @param UrlGenerator $url
+     * @param  UserFilterer  $filterer
+     * @param  UserSearcher  $searcher
+     * @param  UrlGenerator  $url
      */
     public function __construct(UserFilterer $filterer, UserSearcher $searcher, UrlGenerator $url)
     {

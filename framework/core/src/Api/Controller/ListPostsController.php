@@ -35,7 +35,7 @@ class ListPostsController extends AbstractListController
         'user.groups',
         'editedUser',
         'hiddenUser',
-        'discussion'
+        'discussion',
     ];
 
     /**
@@ -59,9 +59,9 @@ class ListPostsController extends AbstractListController
     protected $url;
 
     /**
-     * @param PostFilterer $filterer
-     * @param PostRepository $posts
-     * @param UrlGenerator $url
+     * @param  PostFilterer  $filterer
+     * @param  PostRepository  $posts
+     * @param  UrlGenerator  $url
      */
     public function __construct(PostFilterer $filterer, PostRepository $posts, UrlGenerator $url)
     {

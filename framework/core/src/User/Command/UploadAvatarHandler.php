@@ -42,10 +42,10 @@ class UploadAvatarHandler
     protected $imageManager;
 
     /**
-     * @param Dispatcher $events
-     * @param UserRepository $users
-     * @param AvatarUploader $uploader
-     * @param AvatarValidator $validator
+     * @param  Dispatcher  $events
+     * @param  UserRepository  $users
+     * @param  AvatarUploader  $uploader
+     * @param  AvatarValidator  $validator
      */
     public function __construct(Dispatcher $events, UserRepository $users, AvatarUploader $uploader, AvatarValidator $validator, ImageManager $imageManager)
     {
@@ -57,8 +57,9 @@ class UploadAvatarHandler
     }
 
     /**
-     * @param UploadAvatar $command
+     * @param  UploadAvatar  $command
      * @return \Flarum\User\User
+     *
      * @throws \Flarum\User\Exception\PermissionDeniedException
      * @throws \Flarum\Foundation\ValidationException
      */

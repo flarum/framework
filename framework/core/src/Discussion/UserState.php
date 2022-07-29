@@ -50,7 +50,7 @@ class UserState extends AbstractModel
      * Mark the discussion as being read up to a certain point. Raises the
      * DiscussionWasRead event.
      *
-     * @param int $number
+     * @param  int  $number
      * @return $this
      */
     public function read($number)
@@ -88,7 +88,7 @@ class UserState extends AbstractModel
     /**
      * Set the keys for a save update query.
      *
-     * @param Builder $query
+     * @param  Builder  $query
      * @return Builder
      */
     protected function setKeysForSaveQuery($query)

@@ -30,9 +30,9 @@ class Renamed
     public $actor;
 
     /**
-     * @param \Flarum\Discussion\Discussion $discussion
-     * @param User $actor
-     * @param string $oldTitle
+     * @param  \Flarum\Discussion\Discussion  $discussion
+     * @param  User  $actor
+     * @param  string  $oldTitle
      */
     public function __construct(Discussion $discussion, $oldTitle, User $actor = null)
     {

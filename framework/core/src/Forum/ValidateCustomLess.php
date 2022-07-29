@@ -108,7 +108,7 @@ class ValidateCustomLess
     }
 
     /**
-     * @param Saved|Saving $event
+     * @param  Saved|Saving  $event
      * @return bool
      */
     protected function hasDirtyCustomLessSettings($event): bool

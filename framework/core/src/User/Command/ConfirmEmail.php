@@ -19,7 +19,7 @@ class ConfirmEmail
     public $token;
 
     /**
-     * @param string $token The email confirmation token.
+     * @param  string  $token The email confirmation token.
      */
     public function __construct($token)
     {

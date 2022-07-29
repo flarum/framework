@@ -45,7 +45,7 @@ class RouteCollectionTest extends TestCase
         $this->assertEquals('/custom/something/something_else/anything_else', $collection->getPath('custom', [
             'route' => 'something',
             'has' => 'something_else',
-            'parameters' => 'anything_else'
+            'parameters' => 'anything_else',
         ]));
     }
 
@@ -57,7 +57,7 @@ class RouteCollectionTest extends TestCase
         $collection->addRoute('GET', '/custom/{route}[/{has}]', 'custom', '');
 
         $this->assertEquals('/custom/something', $collection->getPath('custom', [
-            'route' => 'something'
+            'route' => 'something',
         ]));
     }
 
@@ -70,7 +70,7 @@ class RouteCollectionTest extends TestCase
 
         $this->assertEquals('/custom/something/something_else', $collection->getPath('custom', [
             'route' => 'something',
-            'has' => 'something_else'
+            'has' => 'something_else',
         ]));
     }
 }

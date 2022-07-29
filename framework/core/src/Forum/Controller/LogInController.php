@@ -50,10 +50,10 @@ class LogInController implements RequestHandlerInterface
     protected $rememberer;
 
     /**
-     * @param \Flarum\User\UserRepository $users
-     * @param Client $apiClient
-     * @param SessionAuthenticator $authenticator
-     * @param Rememberer $rememberer
+     * @param  \Flarum\User\UserRepository  $users
+     * @param  Client  $apiClient
+     * @param  SessionAuthenticator  $authenticator
+     * @param  Rememberer  $rememberer
      */
     public function __construct(UserRepository $users, Client $apiClient, SessionAuthenticator $authenticator, Dispatcher $events, Rememberer $rememberer)
     {

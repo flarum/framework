@@ -16,13 +16,14 @@ use Illuminate\Contracts\Container\Container;
 class Auth implements ExtenderInterface
 {
     private $addPasswordCheckers = [];
+
     private $removePasswordCheckers = [];
 
     /**
      * Add a new password checker.
      *
-     * @param string $identifier: Unique identifier for password checker.
-     * @param callable|string $callback: A closure or invokable class that contains the logic of the password checker.
+     * @param  string  $identifier: Unique identifier for password checker.
+     * @param  callable|string  $callback: A closure or invokable class that contains the logic of the password checker.
      *
      * The callable should accept:
      * - $user: An instance of the User model.
@@ -35,7 +36,6 @@ class Auth implements ExtenderInterface
      *           password checkers can run.
      * - `false` if the given password is invalid, and no other checkers should be considered.
      *            Evaluation will be immediately halted if any checkers return `false`.
-     *
      * @return self
      */
     public function addPasswordChecker(string $identifier, $callback): self
@@ -48,7 +48,7 @@ class Auth implements ExtenderInterface
     /**
      * Remove a password checker.
      *
-     * @param string $identifier: The unique identifier of the password checker to remove.
+     * @param  string  $identifier: The unique identifier of the password checker to remove.
      * @return self
      */
     public function removePasswordChecker(string $identifier): self

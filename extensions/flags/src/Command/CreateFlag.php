@@ -28,8 +28,8 @@ class CreateFlag
     public $data;
 
     /**
-     * @param User $actor The user performing the action.
-     * @param array $data The attributes of the new flag.
+     * @param  User  $actor The user performing the action.
+     * @param  array  $data The attributes of the new flag.
      */
     public function __construct(User $actor, array $data)
     {

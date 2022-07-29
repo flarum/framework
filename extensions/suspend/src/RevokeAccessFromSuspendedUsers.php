@@ -16,8 +16,8 @@ use Flarum\User\User;
 class RevokeAccessFromSuspendedUsers
 {
     /**
-     * @param User $user
-     * @param array $groupIds
+     * @param  User  $user
+     * @param  array  $groupIds
      */
     public function __invoke(User $user, array $groupIds)
     {

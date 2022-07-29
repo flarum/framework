@@ -29,7 +29,7 @@ class Assets
         'js' => [],
         'css' => [],
         'localeJs' => [],
-        'localeCss' => []
+        'localeCss' => [],
     ];
 
     /**

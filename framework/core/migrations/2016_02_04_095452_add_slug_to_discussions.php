@@ -21,7 +21,7 @@ return [
         $schema->getConnection()->table('discussions')->chunkById(100, function ($discussions) use ($schema) {
             foreach ($discussions as $discussion) {
                 $schema->getConnection()->table('discussions')->where('id', $discussion->id)->update([
-                    'slug' => Str::slug($discussion->title)
+                    'slug' => Str::slug($discussion->title),
                 ]);
             }
         });
@@ -31,5 +31,5 @@ return [
         $schema->table('discussions', function (Blueprint $table) {
             $table->dropColumn('slug');
         });
-    }
+    },
 ];

@@ -21,7 +21,7 @@ class ShowTest extends TestCase
     use RetrievesRepresentativeTags;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -36,8 +36,8 @@ class ShowTest extends TestCase
             ],
             'group_permission' => [
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'tag8.viewForum'],
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag11.viewForum']
-            ]
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag11.viewForum'],
+            ],
         ]);
     }
 
@@ -51,7 +51,7 @@ class ShowTest extends TestCase
             $this->request('GET', '/api/tags/primary-2-child-2', [
                 'authenticatedAs' => 2,
             ])->withQueryParams([
-                'include' => $include
+                'include' => $include,
             ])
         );
 

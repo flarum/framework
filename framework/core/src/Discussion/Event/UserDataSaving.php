@@ -19,7 +19,7 @@ class UserDataSaving
     public $state;
 
     /**
-     * @param \Flarum\Discussion\UserState $state
+     * @param  \Flarum\Discussion\UserState  $state
      */
     public function __construct(UserState $state)
     {

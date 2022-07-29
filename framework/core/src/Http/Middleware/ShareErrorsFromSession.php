@@ -29,7 +29,7 @@ class ShareErrorsFromSession implements Middleware
     protected $view;
 
     /**
-     * @param ViewFactory $view
+     * @param  ViewFactory  $view
      */
     public function __construct(ViewFactory $view)
     {

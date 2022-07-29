@@ -25,7 +25,7 @@ class UnreadFilterGambit extends AbstractRegexGambit implements FilterInterface
     protected $discussions;
 
     /**
-     * @param \Flarum\Discussion\DiscussionRepository $discussions
+     * @param  \Flarum\Discussion\DiscussionRepository  $discussions
      */
     public function __construct(DiscussionRepository $discussions)
     {

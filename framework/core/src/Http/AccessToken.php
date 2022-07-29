@@ -59,6 +59,7 @@ class AccessToken extends AbstractModel
     /**
      * How long this access token should be valid from the time of last activity.
      * This value will be used in the validity and expiration checks.
+     *
      * @var int Lifetime in seconds. Zero means it will never expire.
      */
     protected static $lifetime = 0;
@@ -72,7 +73,7 @@ class AccessToken extends AbstractModel
     /**
      * Generate an access token for the specified user.
      *
-     * @param int $userId
+     * @param  int  $userId
      * @return static
      */
     public static function generate($userId)
@@ -96,7 +97,8 @@ class AccessToken extends AbstractModel
     /**
      * Update the time of last usage of a token.
      * If a request object is provided, the IP address and User Agent will also be logged.
-     * @param ServerRequestInterface|null $request
+     *
+     * @param  ServerRequestInterface|null  $request
      * @return bool
      */
     public function touch(ServerRequestInterface $request = null)
@@ -137,8 +139,9 @@ class AccessToken extends AbstractModel
     /**
      * Filters which tokens are valid at the given date for this particular token type.
      * Uses the static::$lifetime value by default, can be overridden by children classes.
-     * @param Builder $query
-     * @param Carbon $date
+     *
+     * @param  Builder  $query
+     * @param  Carbon  $date
      */
     protected static function scopeValid(Builder $query, Carbon $date)
     {
@@ -150,8 +153,9 @@ class AccessToken extends AbstractModel
     /**
      * Filters which tokens are expired at the given date and ready for garbage collection.
      * Uses the static::$lifetime value by default, can be overridden by children classes.
-     * @param Builder $query
-     * @param Carbon $date
+     *
+     * @param  Builder  $query
+     * @param  Carbon  $date
      */
     protected static function scopeExpired(Builder $query, Carbon $date)
     {
@@ -164,7 +168,8 @@ class AccessToken extends AbstractModel
 
     /**
      * Shortcut to find a valid token.
-     * @param string $token Token as sent by the user. We allow non-string values like null so we can directly feed any value from a request.
+     *
+     * @param  string  $token Token as sent by the user. We allow non-string values like null so we can directly feed any value from a request.
      * @return AccessToken|null
      */
     public static function findValid($token): ?AccessToken
@@ -174,8 +179,9 @@ class AccessToken extends AbstractModel
 
     /**
      * This query scope is intended to be used on the base AccessToken object to query for valid tokens of any type.
-     * @param Builder $query
-     * @param Carbon|null $date
+     *
+     * @param  Builder  $query
+     * @param  Carbon|null  $date
      */
     public function scopeWhereValid(Builder $query, Carbon $date = null)
     {
@@ -195,8 +201,9 @@ class AccessToken extends AbstractModel
 
     /**
      * This query scope is intended to be used on the base AccessToken object to query for expired tokens of any type.
-     * @param Builder $query
-     * @param Carbon|null $date
+     *
+     * @param  Builder  $query
+     * @param  Carbon|null  $date
      */
     public function scopeWhereExpired(Builder $query, Carbon $date = null)
     {
@@ -217,8 +224,8 @@ class AccessToken extends AbstractModel
     /**
      * Create a new model instance according to the access token type.
      *
-     * @param array $attributes
-     * @param string|null $connection
+     * @param  array  $attributes
+     * @param  string|null  $connection
      * @return static|object
      */
     public function newFromBuilder($attributes = [], $connection = null)
@@ -254,8 +261,8 @@ class AccessToken extends AbstractModel
     /**
      * Set the model for the given access token type.
      *
-     * @param string $type The access token type.
-     * @param string $model The class name of the model for that type.
+     * @param  string  $type The access token type.
+     * @param  string  $model The class name of the model for that type.
      * @return void
      */
     public static function setModel(string $type, string $model)

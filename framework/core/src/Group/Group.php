@@ -76,11 +76,11 @@ class Group extends AbstractModel
     /**
      * Create a new group.
      *
-     * @param string $nameSingular
-     * @param string $namePlural
-     * @param string $color
-     * @param string $icon
-     * @param bool   $isHidden
+     * @param  string  $nameSingular
+     * @param  string  $namePlural
+     * @param  string  $color
+     * @param  string  $icon
+     * @param  bool  $isHidden
      * @return static
      */
     public static function build($nameSingular, $namePlural, $color = null, $icon = null, bool $isHidden = false): self
@@ -101,8 +101,8 @@ class Group extends AbstractModel
     /**
      * Rename the group.
      *
-     * @param string $nameSingular
-     * @param string $namePlural
+     * @param  string  $nameSingular
+     * @param  string  $namePlural
      * @return $this
      */
     public function rename($nameSingular, $namePlural)
@@ -138,7 +138,7 @@ class Group extends AbstractModel
     /**
      * Check whether the group has a certain permission.
      *
-     * @param string $permission
+     * @param  string  $permission
      * @return bool
      */
     public function hasPermission($permission)

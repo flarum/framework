@@ -36,9 +36,9 @@ class Saving
     public $data;
 
     /**
-     * @param Group $group The group that will be saved.
-     * @param User $actor The user who is performing the action.
-     * @param array $data The attributes to update on the group.
+     * @param  Group  $group The group that will be saved.
+     * @param  User  $actor The user who is performing the action.
+     * @param  array  $data The attributes to update on the group.
      */
     public function __construct(Group $group, User $actor, array $data)
     {

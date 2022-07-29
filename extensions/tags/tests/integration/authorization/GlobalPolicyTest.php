@@ -21,7 +21,7 @@ class GlobalPolicyTest extends TestCase
     use RetrievesRepresentativeTags;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -33,7 +33,7 @@ class GlobalPolicyTest extends TestCase
             'tags' => $this->tags(),
             'users' => [
                 $this->normalUser(),
-            ]
+            ],
         ]);
     }
 
@@ -55,7 +55,7 @@ class GlobalPolicyTest extends TestCase
         $this->prepareDatabase([
             'group_permission' => [
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'tag6.startDiscussion'],
-            ]
+            ],
         ]);
 
         $this->database()->table('group_permission')->where('permission', 'startDiscussion')->delete();
@@ -71,7 +71,7 @@ class GlobalPolicyTest extends TestCase
         $this->prepareDatabase([
             'group_permission' => [
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'tag8.startDiscussion'],
-            ]
+            ],
         ]);
 
         $this->database()->table('group_permission')->where('permission', 'startDiscussion')->delete();
@@ -87,7 +87,7 @@ class GlobalPolicyTest extends TestCase
         $this->prepareDatabase([
             'group_permission' => [
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'tag11.startDiscussion'],
-            ]
+            ],
         ]);
 
         $this->database()->table('group_permission')->where('permission', 'startDiscussion')->delete();
@@ -103,7 +103,7 @@ class GlobalPolicyTest extends TestCase
         $this->prepareDatabase([
             'group_permission' => [
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'tag11.startDiscussion'],
-            ]
+            ],
         ]);
 
         $this->setting('flarum-tags.min_primary_tags', 0);
@@ -122,7 +122,7 @@ class GlobalPolicyTest extends TestCase
         $this->prepareDatabase([
             'group_permission' => [
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'bypassTagCounts'],
-            ]
+            ],
         ]);
 
         $this->database()->table('group_permission')->where('permission', 'startDiscussion')->delete();
@@ -138,7 +138,7 @@ class GlobalPolicyTest extends TestCase
         $this->prepareDatabase([
             'group_permission' => [
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'bypassTagCounts'],
-            ]
+            ],
         ]);
 
         $this->app();

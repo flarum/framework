@@ -18,8 +18,8 @@ class RegisteredTypesScope implements Scope
     /**
      * Apply the scope to a given Eloquent query builder.
      *
-     * @param Builder $builder
-     * @param Model $post
+     * @param  Builder  $builder
+     * @param  Model  $post
      */
     public function apply(Builder $builder, Model $post)
     {

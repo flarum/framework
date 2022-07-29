@@ -34,7 +34,7 @@ class OrderTagsController implements RequestHandlerInterface
 
         Tag::query()->update([
             'position' => null,
-            'parent_id' => null
+            'parent_id' => null,
         ]);
 
         foreach ($order as $i => $parent) {
@@ -46,7 +46,7 @@ class OrderTagsController implements RequestHandlerInterface
                 foreach ($parent['children'] as $j => $childId) {
                     Tag::where('id', $childId)->update([
                         'position' => $j,
-                        'parent_id' => $parentId
+                        'parent_id' => $parentId,
                     ]);
                 }
             }

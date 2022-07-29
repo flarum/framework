@@ -44,9 +44,8 @@ class EmailToken extends AbstractModel
     /**
      * Generate an email token for the specified user.
      *
-     * @param string $email
-     * @param int $userId
-     *
+     * @param  string  $email
+     * @param  int  $userId
      * @return static
      */
     public static function generate($email, $userId)
@@ -74,9 +73,10 @@ class EmailToken extends AbstractModel
     /**
      * Find the token with the given ID, and assert that it has not expired.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $id
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  string  $id
      * @return static
+     *
      * @throws InvalidConfirmationTokenException
      */
     public function scopeValidOrFail($query, $id)

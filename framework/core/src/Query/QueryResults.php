@@ -24,8 +24,8 @@ class QueryResults
     protected $areMoreResults;
 
     /**
-     * @param Collection $results
-     * @param bool $areMoreResults
+     * @param  Collection  $results
+     * @param  bool  $areMoreResults
      */
     public function __construct(Collection $results, $areMoreResults)
     {

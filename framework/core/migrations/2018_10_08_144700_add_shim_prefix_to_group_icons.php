@@ -21,12 +21,12 @@ return [
             $schema->getConnection()->table('groups')
                 ->where('id', $group->id)
                 ->update([
-                    'icon' => 'fas fa-'.$group->icon
+                    'icon' => 'fas fa-'.$group->icon,
                 ]);
         }
     },
 
     'down' => function (Builder $schema) {
         //
-    }
+    },
 ];

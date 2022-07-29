@@ -22,7 +22,9 @@ use Throwable;
 class Registry
 {
     private $statusMap;
+
     private $classMap;
+
     private $handlerMap;
 
     public function __construct(array $statusMap, array $classMap, array $handlerMap)
@@ -41,7 +43,7 @@ class Registry
      *
      * Even for unknown exceptions, a generic fallback will always be returned.
      *
-     * @param Throwable $error
+     * @param  Throwable  $error
      * @return HandledError
      */
     public function handle(Throwable $error): HandledError

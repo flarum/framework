@@ -16,8 +16,11 @@ use Illuminate\Contracts\Container\Container;
 class ErrorHandling implements ExtenderInterface
 {
     private $statuses = [];
+
     private $types = [];
+
     private $handlers = [];
+
     private $reporters = [];
 
     /**
@@ -30,8 +33,8 @@ class ErrorHandling implements ExtenderInterface
      * explicitly defined by using the {@see type} method (useful for exception
      * classes not under your control).
      *
-     * @param string $errorType: Type of the error.
-     * @param int $httpStatus: The status code for this error.
+     * @param  string  $errorType: Type of the error.
+     * @param  int  $httpStatus: The status code for this error.
      * @return self
      */
     public function status(string $errorType, int $httpStatus): self
@@ -50,8 +53,8 @@ class ErrorHandling implements ExtenderInterface
      * third-party exceptions, e.g. when integrating another package that
      * already defines its own exception classes.
      *
-     * @param string $exceptionClass: The ::class attribute of the exception class.
-     * @param string $errorType: Type of the error.
+     * @param  string  $exceptionClass: The ::class attribute of the exception class.
+     * @param  string  $errorType: Type of the error.
      * @return self
      */
     public function type(string $exceptionClass, string $errorType): self
@@ -75,8 +78,8 @@ class ErrorHandling implements ExtenderInterface
      * Besides the usual type and HTTP status code, such an object can also
      * contain "details" - arbitrary data with more context for to the error.
      *
-     * @param string $exceptionClass: The ::class attribute of the exception class.
-     * @param string $errorType: The ::class attribute of the handler class.
+     * @param  string  $exceptionClass: The ::class attribute of the exception class.
+     * @param  string  $errorType: The ::class attribute of the handler class.
      * @return self
      */
     public function handler(string $exceptionClass, string $handlerClass): self
@@ -98,7 +101,7 @@ class ErrorHandling implements ExtenderInterface
      * When passing in a reporter class, make sure that it implements the
      * {@see \Flarum\Foundation\ErrorHandling\Reporter} interface.
      *
-     * @param string $reporterClass: The ::class attribute of the reporter class.
+     * @param  string  $reporterClass: The ::class attribute of the reporter class.
      * @return self
      */
     public function reporter(string $reporterClass): self

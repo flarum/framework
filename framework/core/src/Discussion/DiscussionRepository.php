@@ -28,8 +28,8 @@ class DiscussionRepository
      * Find a discussion by ID, optionally making sure it is visible to a
      * certain user, or throw an exception.
      *
-     * @param int $id
-     * @param User $user
+     * @param  int  $id
+     * @param  User  $user
      * @return \Flarum\Discussion\Discussion
      */
     public function findOrFail($id, User $user = null)
@@ -44,7 +44,7 @@ class DiscussionRepository
      *
      * @deprecated 1.3 Use `getReadIdsQuery` instead
      *
-     * @param User $user
+     * @param  User  $user
      * @return array
      */
     public function getReadIds(User $user)
@@ -56,7 +56,7 @@ class DiscussionRepository
     /**
      * Get a query containing the IDs of discussions which a user has read completely.
      *
-     * @param User $user
+     * @param  User  $user
      * @return Builder
      */
     public function getReadIdsQuery(User $user): Builder
@@ -70,8 +70,8 @@ class DiscussionRepository
     /**
      * Scope a query to only include records that are visible to a user.
      *
-     * @param Builder $query
-     * @param User $user
+     * @param  Builder  $query
+     * @param  User  $user
      * @return Builder
      */
     protected function scopeVisibleTo(Builder $query, User $user = null)

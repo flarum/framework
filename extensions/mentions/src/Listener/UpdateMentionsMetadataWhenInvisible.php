@@ -22,7 +22,7 @@ class UpdateMentionsMetadataWhenInvisible
     protected $notifications;
 
     /**
-     * @param NotificationSyncer $notifications
+     * @param  NotificationSyncer  $notifications
      */
     public function __construct(NotificationSyncer $notifications)
     {
@@ -30,7 +30,7 @@ class UpdateMentionsMetadataWhenInvisible
     }
 
     /**
-     * @param Deleted|Hidden $event
+     * @param  Deleted|Hidden  $event
      */
     public function handle($event)
     {

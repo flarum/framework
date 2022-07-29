@@ -16,8 +16,11 @@ use Psr\Http\Message\ResponseInterface;
 class Akismet
 {
     private $apiKey;
+
     private $apiUrl;
+
     private $flarumVersion;
+
     private $extensionVersion;
 
     private $params = [];
@@ -43,6 +46,7 @@ class Akismet
 
     /**
      * @param  string  $type  e.g. comment-check, submit-spam or submit-ham;
+     *
      * @throws GuzzleException
      */
     protected function sendRequest(string $type): ResponseInterface
@@ -50,7 +54,7 @@ class Akismet
         $client = new Client();
 
         return $client->request('POST', "$this->apiUrl/$type", [
-            'headers'     => [
+            'headers' => [
                 'User-Agent' => "Flarum/$this->flarumVersion | Akismet/$this->extensionVersion",
             ],
             'form_params' => $this->params,

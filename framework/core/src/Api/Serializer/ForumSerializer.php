@@ -44,10 +44,10 @@ class ForumSerializer extends AbstractSerializer
     protected $assetsFilesystem;
 
     /**
-     * @param Config $config
-     * @param Factory $filesystemFactory
-     * @param SettingsRepositoryInterface $settings
-     * @param UrlGenerator $url
+     * @param  Config  $config
+     * @param  Factory  $filesystemFactory
+     * @param  SettingsRepositoryInterface  $settings
+     * @param  UrlGenerator  $url
      */
     public function __construct(Config $config, Factory $filesystemFactory, SettingsRepositoryInterface $settings, UrlGenerator $url)
     {
@@ -88,7 +88,7 @@ class ForumSerializer extends AbstractSerializer
             'headerHtml' => $this->settings->get('custom_header'),
             'footerHtml' => $this->settings->get('custom_footer'),
             'allowSignUp' => (bool) $this->settings->get('allow_sign_up'),
-            'defaultRoute'  => $this->settings->get('default_route'),
+            'defaultRoute' => $this->settings->get('default_route'),
             'canViewForum' => $this->actor->can('viewForum'),
             'canStartDiscussion' => $this->actor->can('startDiscussion'),
             'canSearchUsers' => $this->actor->can('searchUsers'),

@@ -64,7 +64,8 @@ class Pipeline
     }
 
     /**
-     * @param callable $factory
+     * @param  callable  $factory
+     *
      * @throws StepFailed
      */
     private function runStep(callable $factory)

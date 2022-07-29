@@ -65,7 +65,7 @@ class User extends AbstractModel
         'joined_at',
         'last_seen_at',
         'marked_all_as_read_at',
-        'read_notifications_at'
+        'read_notifications_at',
     ];
 
     /**
@@ -152,9 +152,9 @@ class User extends AbstractModel
     /**
      * Register a new user.
      *
-     * @param string $username
-     * @param string $email
-     * @param string $password
+     * @param  string  $username
+     * @param  string  $email
+     * @param  string  $password
      * @return static
      */
     public static function register($username, $email, $password)
@@ -172,7 +172,7 @@ class User extends AbstractModel
     }
 
     /**
-     * @param Gate $gate
+     * @param  Gate  $gate
      */
     public static function setGate($gate)
     {
@@ -182,7 +182,7 @@ class User extends AbstractModel
     /**
      * Set the display name driver.
      *
-     * @param DriverInterface $driver
+     * @param  DriverInterface  $driver
      */
     public static function setDisplayNameDriver(DriverInterface $driver)
     {
@@ -197,7 +197,7 @@ class User extends AbstractModel
     /**
      * Rename the user.
      *
-     * @param string $username
+     * @param  string  $username
      * @return $this
      */
     public function rename($username)
@@ -215,7 +215,7 @@ class User extends AbstractModel
     /**
      * Change the user's email.
      *
-     * @param string $email
+     * @param  string  $email
      * @return $this
      */
     public function changeEmail($email)
@@ -232,7 +232,7 @@ class User extends AbstractModel
     /**
      * Request that the user's email be changed.
      *
-     * @param string $email
+     * @param  string  $email
      * @return $this
      */
     public function requestEmailChange($email)
@@ -247,7 +247,7 @@ class User extends AbstractModel
     /**
      * Change the user's password.
      *
-     * @param string $password
+     * @param  string  $password
      * @return $this
      */
     public function changePassword($password)
@@ -262,7 +262,7 @@ class User extends AbstractModel
     /**
      * Set the password attribute, storing it as a hash.
      *
-     * @param string $value
+     * @param  string  $value
      */
     public function setPasswordAttribute($value)
     {
@@ -296,7 +296,7 @@ class User extends AbstractModel
     /**
      * Change the path of the user avatar.
      *
-     * @param string $path
+     * @param  string  $path
      * @return $this
      */
     public function changeAvatarPath($path)
@@ -312,7 +312,8 @@ class User extends AbstractModel
      * Get the URL of the user's avatar.
      *
      * @todo Allow different storage locations to be used
-     * @param string|null $value
+     *
+     * @param  string|null  $value
      * @return string
      */
     public function getAvatarUrlAttribute(string $value = null)
@@ -337,7 +338,7 @@ class User extends AbstractModel
     /**
      * Check if a given password matches the user's password.
      *
-     * @param string $password
+     * @param  string  $password
      * @return bool
      */
     public function checkPassword(string $password)
@@ -376,7 +377,7 @@ class User extends AbstractModel
     /**
      * Check whether the user has a certain permission based on their groups.
      *
-     * @param string $permission
+     * @param  string  $permission
      * @return bool
      */
     public function hasPermission($permission)
@@ -392,7 +393,7 @@ class User extends AbstractModel
      * Check whether the user has a permission that is like the given string,
      * based on their groups.
      *
-     * @param string $match
+     * @param  string  $match
      * @return bool
      */
     public function hasPermissionLike($match)
@@ -482,7 +483,7 @@ class User extends AbstractModel
      * Get the values of all registered preferences for this user, by
      * transforming their stored preferences and merging them with the defaults.
      *
-     * @param string $value
+     * @param  string  $value
      * @return array
      */
     public function getPreferencesAttribute($value)
@@ -499,7 +500,7 @@ class User extends AbstractModel
     /**
      * Encode an array of preferences for storage in the database.
      *
-     * @param mixed $value
+     * @param  mixed  $value
      */
     public function setPreferencesAttribute($value)
     {
@@ -510,7 +511,7 @@ class User extends AbstractModel
      * Check whether or not the user should receive an alert for a notification
      * type.
      *
-     * @param string $type
+     * @param  string  $type
      * @return bool
      */
     public function shouldAlert($type)
@@ -522,7 +523,7 @@ class User extends AbstractModel
      * Check whether or not the user should receive an email for a notification
      * type.
      *
-     * @param string $type
+     * @param  string  $type
      * @return bool
      */
     public function shouldEmail($type)
@@ -533,8 +534,8 @@ class User extends AbstractModel
     /**
      * Get the value of a preference for this user.
      *
-     * @param string $key
-     * @param mixed $default
+     * @param  string  $key
+     * @param  mixed  $default
      * @return mixed
      */
     public function getPreference($key, $default = null)
@@ -545,8 +546,8 @@ class User extends AbstractModel
     /**
      * Set the value of a preference for this user.
      *
-     * @param string $key
-     * @param mixed $value
+     * @param  string  $key
+     * @param  mixed  $value
      * @return $this
      */
     public function setPreference($key, $value)
@@ -610,7 +611,8 @@ class User extends AbstractModel
      * request / operation without a change in permissions (or using another
      * user account) is pointless.
      *
-     * @param bool $condition
+     * @param  bool  $condition
+     *
      * @throws PermissionDeniedException
      */
     public function assertPermission($condition)
@@ -637,8 +639,9 @@ class User extends AbstractModel
     }
 
     /**
-     * @param string $ability
-     * @param mixed $arguments
+     * @param  string  $ability
+     * @param  mixed  $arguments
+     *
      * @throws PermissionDeniedException
      */
     public function assertCan($ability, $arguments = null)
@@ -779,8 +782,8 @@ class User extends AbstractModel
     }
 
     /**
-     * @param string $ability
-     * @param array|mixed $arguments
+     * @param  string  $ability
+     * @param  array|mixed  $arguments
      * @return bool
      */
     public function can($ability, $arguments = null)
@@ -789,8 +792,8 @@ class User extends AbstractModel
     }
 
     /**
-     * @param string $ability
-     * @param array|mixed $arguments
+     * @param  string  $ability
+     * @param  array|mixed  $arguments
      * @return bool
      */
     public function cannot($ability, $arguments = null)
@@ -801,7 +804,7 @@ class User extends AbstractModel
     /**
      * Set the hasher with which to hash passwords.
      *
-     * @param Hasher $hasher
+     * @param  Hasher  $hasher
      *
      * @internal
      */
@@ -813,9 +816,9 @@ class User extends AbstractModel
     /**
      * Register a preference with a transformer and a default value.
      *
-     * @param string $key
-     * @param callable $transformer
-     * @param mixed $default
+     * @param  string  $key
+     * @param  callable  $transformer
+     * @param  mixed  $default
      *
      * @internal
      */
@@ -827,7 +830,7 @@ class User extends AbstractModel
     /**
      * Register a callback that processes a user's list of groups.
      *
-     * @param callable $callback
+     * @param  callable  $callback
      * @return array $groupIds
      *
      * @internal
@@ -841,8 +844,8 @@ class User extends AbstractModel
      * Get the key for a preference which flags whether or not the user will
      * receive a notification for $type via $method.
      *
-     * @param string $type
-     * @param string $method
+     * @param  string  $type
+     * @param  string  $method
      * @return string
      */
     public static function getNotificationPreferenceKey($type, $method)

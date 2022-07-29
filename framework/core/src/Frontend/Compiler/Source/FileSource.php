@@ -27,7 +27,7 @@ class FileSource implements SourceInterface
     protected $extensionId;
 
     /**
-     * @param string $path
+     * @param  string  $path
      */
     public function __construct(string $path, ?string $extensionId = null)
     {

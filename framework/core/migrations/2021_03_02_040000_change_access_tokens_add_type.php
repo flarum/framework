@@ -39,5 +39,5 @@ return [
             $table->dropColumn('type');
             $table->integer('lifetime_seconds');
         });
-    }
+    },
 ];

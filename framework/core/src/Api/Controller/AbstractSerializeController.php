@@ -137,8 +137,8 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * Get the data to be serialized and assigned to the response document.
      *
-     * @param ServerRequestInterface $request
-     * @param Document $document
+     * @param  ServerRequestInterface  $request
+     * @param  Document  $document
      * @return mixed
      */
     abstract protected function data(ServerRequestInterface $request, Document $document);
@@ -146,8 +146,8 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * Create a PHP JSON-API Element for output in the document.
      *
-     * @param mixed $data
-     * @param SerializerInterface $serializer
+     * @param  mixed  $data
+     * @param  SerializerInterface  $serializer
      * @return \Tobscure\JsonApi\ElementInterface
      */
     abstract protected function createElement($data, SerializerInterface $serializer);
@@ -247,8 +247,9 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * @param  ServerRequestInterface  $request
      * @return array
+     *
      * @throws \Tobscure\JsonApi\Exception\InvalidParameterException
      */
     protected function extractInclude(ServerRequestInterface $request)
@@ -259,7 +260,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * @param  ServerRequestInterface  $request
      * @return array
      */
     protected function extractFields(ServerRequestInterface $request)
@@ -268,8 +269,9 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * @param  ServerRequestInterface  $request
      * @return array|null
+     *
      * @throws \Tobscure\JsonApi\Exception\InvalidParameterException
      */
     protected function extractSort(ServerRequestInterface $request)
@@ -278,8 +280,9 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * @param  ServerRequestInterface  $request
      * @return int
+     *
      * @throws \Tobscure\JsonApi\Exception\InvalidParameterException
      */
     protected function extractOffset(ServerRequestInterface $request)
@@ -288,7 +291,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * @param  ServerRequestInterface  $request
      * @return int
      */
     protected function extractLimit(ServerRequestInterface $request)
@@ -297,7 +300,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * @param  ServerRequestInterface  $request
      * @return array
      */
     protected function extractFilter(ServerRequestInterface $request)
@@ -306,7 +309,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * @param  ServerRequestInterface  $request
      * @return Parameters
      */
     protected function buildParameters(ServerRequestInterface $request)
@@ -322,7 +325,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * Set the serializer that will serialize data for the endpoint.
      *
-     * @param string $serializer
+     * @param  string  $serializer
      */
     public function setSerializer(string $serializer)
     {
@@ -332,7 +335,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * Include the given relationship by default.
      *
-     * @param string|array $name
+     * @param  string|array  $name
      */
     public function addInclude($name)
     {
@@ -342,7 +345,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * Don't include the given relationship by default.
      *
-     * @param string|array $name
+     * @param  string|array  $name
      */
     public function removeInclude($name)
     {
@@ -352,7 +355,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * Make the given relationship available for inclusion.
      *
-     * @param string|array $name
+     * @param  string|array  $name
      */
     public function addOptionalInclude($name)
     {
@@ -362,7 +365,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * Don't allow the given relationship to be included.
      *
-     * @param string|array $name
+     * @param  string|array  $name
      */
     public function removeOptionalInclude($name)
     {
@@ -372,7 +375,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * Set the default number of results.
      *
-     * @param int $limit
+     * @param  int  $limit
      */
     public function setLimit(int $limit)
     {
@@ -382,7 +385,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * Set the maximum number of results.
      *
-     * @param int $max
+     * @param  int  $max
      */
     public function setMaxLimit(int $max)
     {
@@ -392,7 +395,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * Allow sorting results by the given field.
      *
-     * @param string|array $field
+     * @param  string|array  $field
      */
     public function addSortField($field)
     {
@@ -402,7 +405,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * Disallow sorting results by the given field.
      *
-     * @param string|array $field
+     * @param  string|array  $field
      */
     public function removeSortField($field)
     {
@@ -412,7 +415,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * Set the default sort order for the results.
      *
-     * @param array $sort
+     * @param  array  $sort
      */
     public function setSort(array $sort)
     {
@@ -428,7 +431,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     }
 
     /**
-     * @param Container $container
+     * @param  Container  $container
      *
      * @internal
      */
@@ -438,8 +441,8 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     }
 
     /**
-     * @param string $controllerClass
-     * @param callable $callback
+     * @param  string  $controllerClass
+     * @param  callable  $callback
      *
      * @internal
      */
@@ -453,8 +456,8 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     }
 
     /**
-     * @param string $controllerClass
-     * @param callable $callback
+     * @param  string  $controllerClass
+     * @param  callable  $callback
      *
      * @internal
      */

@@ -35,9 +35,9 @@ class ReadDiscussion
     public $lastReadPostNumber;
 
     /**
-     * @param int $discussionId The ID of the discussion to mark as read.
-     * @param User $actor The user to mark the discussion as read for.
-     * @param int $lastReadPostNumber The number of the post to mark as read.
+     * @param  int  $discussionId The ID of the discussion to mark as read.
+     * @param  User  $actor The user to mark the discussion as read for.
+     * @param  int  $lastReadPostNumber The number of the post to mark as read.
      */
     public function __construct($discussionId, User $actor, $lastReadPostNumber)
     {

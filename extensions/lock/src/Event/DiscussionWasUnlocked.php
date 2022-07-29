@@ -25,8 +25,8 @@ class DiscussionWasUnlocked
     public $user;
 
     /**
-     * @param Discussion $discussion
-     * @param User $user
+     * @param  Discussion  $discussion
+     * @param  User  $user
      */
     public function __construct(Discussion $discussion, User $user)
     {

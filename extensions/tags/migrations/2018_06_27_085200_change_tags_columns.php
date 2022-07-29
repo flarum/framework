@@ -33,5 +33,5 @@ return [
             $table->renameColumn('last_posted_at', 'last_time');
             $table->renameColumn('last_posted_discussion_id', 'last_discussion_id');
         });
-    }
+    },
 ];

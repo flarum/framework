@@ -158,7 +158,8 @@ final class Macro implements MethodReflection
     public function getParameters(): array
     {
         return array_map(function (ReflectionParameter $reflection): ParameterReflection {
-            return new class($reflection) implements ParameterReflection {
+            return new class($reflection) implements ParameterReflection
+            {
                 /**
                  * @var ReflectionParameter
                  */
@@ -235,7 +236,7 @@ final class Macro implements MethodReflection
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getVariants(): array
     {

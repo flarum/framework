@@ -22,6 +22,7 @@ use InvalidArgumentException;
 class FilesystemManager extends LaravelFilesystemManager
 {
     protected $diskLocalConfig = [];
+
     protected $drivers = [];
 
     public function __construct(Container $app, array $diskLocalConfig, array $drivers)
@@ -33,7 +34,7 @@ class FilesystemManager extends LaravelFilesystemManager
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function resolve($name, $config = null): Filesystem
     {

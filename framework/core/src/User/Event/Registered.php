@@ -24,8 +24,8 @@ class Registered
     public $actor;
 
     /**
-     * @param User $user
-     * @param User $actor
+     * @param  User  $user
+     * @param  User  $actor
      */
     public function __construct(User $user, User $actor = null)
     {

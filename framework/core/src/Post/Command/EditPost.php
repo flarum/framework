@@ -35,9 +35,9 @@ class EditPost
     public $data;
 
     /**
-     * @param int $postId The ID of the post to edit.
-     * @param User $actor The user performing the action.
-     * @param array $data The attributes to update on the post.
+     * @param  int  $postId The ID of the post to edit.
+     * @param  User  $actor The user performing the action.
+     * @param  array  $data The attributes to update on the post.
      */
     public function __construct($postId, User $actor, array $data)
     {

@@ -16,20 +16,20 @@ use Illuminate\Contracts\Events\Dispatcher;
 class Event implements ExtenderInterface
 {
     private $listeners = [];
+
     private $subscribers = [];
 
     /**
      * Add a listener to a domain event dispatched by flarum or a flarum extension.
      *
-     * @param string $event: Name of the event, can be the ::class attribute of the event class.
-     * @param callable|string $listener
+     * @param  string  $event: Name of the event, can be the ::class attribute of the event class.
+     * @param  callable|string  $listener
      *
      * The listener can either be:
      *  - A callback function that accepts an instance of the event as a parameter.
      *  - The ::class attribute of a class with a public `handle` method, which accepts an instance of the event as a parameter.
      *  - An array, where the first argument is an object or class name, and the second argument is the method on the
      *    first argument that should be executed as the listener.
-     *
      * @return self
      */
     public function listen(string $event, $listener): self
@@ -46,7 +46,7 @@ class Event implements ExtenderInterface
      *
      * @see https://laravel.com/docs/8.x/events#writing-event-subscribers
      *
-     * @param string $subscriber: The ::class attribute of the subscriber class.
+     * @param  string  $subscriber: The ::class attribute of the subscriber class.
      * @return self
      */
     public function subscribe(string $subscriber): self

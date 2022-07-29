@@ -17,9 +17,9 @@ use Illuminate\Support\Str;
 class ScopeDiscussionVisibilityForAbility
 {
     /**
-     * @param User $actor
-     * @param Builder $query
-     * @param string $ability
+     * @param  User  $actor
+     * @param  Builder  $query
+     * @param  string  $ability
      */
     public function __invoke(User $actor, Builder $query, $ability)
     {

@@ -52,8 +52,8 @@ class NotificationSyncer
      * visible to anyone else. If it is being made visible for the first time,
      * attempt to send the user an email.
      *
-     * @param \Flarum\Notification\Blueprint\BlueprintInterface $blueprint
-     * @param User[] $users
+     * @param  \Flarum\Notification\Blueprint\BlueprintInterface  $blueprint
+     * @param  User[]  $users
      * @return void
      */
     public function sync(Blueprint\BlueprintInterface $blueprint, array $users)
@@ -114,7 +114,7 @@ class NotificationSyncer
     /**
      * Delete a notification for all users.
      *
-     * @param \Flarum\Notification\Blueprint\BlueprintInterface $blueprint
+     * @param  \Flarum\Notification\Blueprint\BlueprintInterface  $blueprint
      * @return void
      */
     public function delete(BlueprintInterface $blueprint)
@@ -125,7 +125,7 @@ class NotificationSyncer
     /**
      * Restore a notification for all users.
      *
-     * @param BlueprintInterface $blueprint
+     * @param  BlueprintInterface  $blueprint
      * @return void
      */
     public function restore(BlueprintInterface $blueprint)
@@ -137,7 +137,7 @@ class NotificationSyncer
      * Limit notifications to one per user for the entire duration of the given
      * callback.
      *
-     * @param callable $callback
+     * @param  callable  $callback
      * @return void
      */
     public function onePerUser(callable $callback)
@@ -153,8 +153,8 @@ class NotificationSyncer
     /**
      * Set the deleted status of a list of notification records.
      *
-     * @param int[] $ids
-     * @param bool $isDeleted
+     * @param  int[]  $ids
+     * @param  bool  $isDeleted
      */
     protected function setDeleted(array $ids, $isDeleted)
     {
@@ -164,8 +164,8 @@ class NotificationSyncer
     /**
      * Adds a notification driver to the list.
      *
-     * @param string $driverName
-     * @param NotificationDriverInterface $driver
+     * @param  string  $driverName
+     * @param  NotificationDriverInterface  $driver
      *
      * @internal
      */
@@ -183,7 +183,7 @@ class NotificationSyncer
     }
 
     /**
-     * @param callable|string $callback
+     * @param  callable|string  $callback
      *
      * @internal
      */

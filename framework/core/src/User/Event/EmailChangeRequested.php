@@ -28,8 +28,8 @@ class EmailChangeRequested
     public $email;
 
     /**
-     * @param User $user The user who requested the email change.
-     * @param string $email The email they requested to change to.
+     * @param  User  $user The user who requested the email change.
+     * @param  string  $email The email they requested to change to.
      */
     public function __construct(User $user, $email)
     {

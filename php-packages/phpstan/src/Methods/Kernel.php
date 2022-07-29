@@ -29,6 +29,7 @@ final class Kernel
      * @var PhpMethodReflectionFactory
      */
     private $methodReflectionFactory;
+
     /**
      * @var ReflectionProvider
      */

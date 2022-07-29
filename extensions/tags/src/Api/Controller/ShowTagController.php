@@ -28,7 +28,7 @@ class ShowTagController extends AbstractShowController
         'parent',
         'parent.children',
         'parent.children.parent',
-        'state'
+        'state',
     ];
 
     /**

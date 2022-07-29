@@ -20,7 +20,7 @@ class AbstractPolicyTest extends TestCase
     private $policy;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -29,7 +29,7 @@ class AbstractPolicyTest extends TestCase
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function tearDown(): void
     {

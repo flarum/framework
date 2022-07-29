@@ -17,10 +17,11 @@ use Mockery as m;
 class DatabaseSettingsRepositoryTest extends TestCase
 {
     private $connection;
+
     private $repository;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {

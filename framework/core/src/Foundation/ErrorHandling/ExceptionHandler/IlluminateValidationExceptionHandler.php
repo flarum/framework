@@ -30,7 +30,7 @@ class IlluminateValidationExceptionHandler
         return array_map(function ($field, $messages) {
             return [
                 'detail' => implode("\n", $messages),
-                'source' => ['pointer' => "/data/attributes/$field"]
+                'source' => ['pointer' => "/data/attributes/$field"],
             ];
         }, array_keys($errors), $errors);
     }

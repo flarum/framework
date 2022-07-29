@@ -36,14 +36,14 @@ class FilesystemServiceProvider extends AbstractServiceProvider
             return [
                 'flarum-assets' => function (Paths $paths, UrlGenerator $url) {
                     return [
-                        'root'   => "$paths->public/assets",
-                        'url'    => $url->to('forum')->path('assets')
+                        'root' => "$paths->public/assets",
+                        'url' => $url->to('forum')->path('assets'),
                     ];
                 },
                 'flarum-avatars' => function (Paths $paths, UrlGenerator $url) {
                     return [
-                        'root'   => "$paths->public/assets/avatars",
-                        'url'    => $url->to('forum')->path('assets/avatars')
+                        'root' => "$paths->public/assets/avatars",
+                        'url' => $url->to('forum')->path('assets/avatars'),
                     ];
                 },
             ];
@@ -84,7 +84,7 @@ class FilesystemServiceProvider extends AbstractServiceProvider
             }
 
             return new ImageManager([
-                'driver' => $driver
+                'driver' => $driver,
             ]);
         });
     }

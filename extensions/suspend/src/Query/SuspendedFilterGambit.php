@@ -26,7 +26,7 @@ class SuspendedFilterGambit extends AbstractRegexGambit implements FilterInterfa
     protected $users;
 
     /**
-     * @param \Flarum\User\UserRepository $users
+     * @param  \Flarum\User\UserRepository  $users
      */
     public function __construct(UserRepository $users)
     {

@@ -26,8 +26,8 @@ class GenerateDumpCommand extends AbstractCommand
     protected $paths;
 
     /**
-     * @param Connection $connection
-     * @param Paths $paths
+     * @param  Connection  $connection
+     * @param  Paths  $paths
      */
     public function __construct(Connection $connection, Paths $paths)
     {

@@ -23,7 +23,7 @@ class ConfigureMentions
     protected $url;
 
     /**
-     * @param UrlGenerator $url
+     * @param  UrlGenerator  $url
      */
     public function __construct(UrlGenerator $url)
     {
@@ -64,7 +64,6 @@ class ConfigureMentions
 
     /**
      * @param $tag
-     *
      * @return bool
      */
     public static function addUserId($tag)

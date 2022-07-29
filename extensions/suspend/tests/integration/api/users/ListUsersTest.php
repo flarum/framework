@@ -32,7 +32,7 @@ class ListUsersTest extends TestCase
                 ['id' => 4, 'username' => 'SuspendedDonny3', 'email' => 'acme3@machine.local', 'is_email_confirmed' => 1, 'suspended_until' => Carbon::now()->subDay(), 'suspend_reason' => 'acme', 'suspend_message' => 'acme'],
                 ['id' => 5, 'username' => 'SuspendedDonny4', 'email' => 'acme4@machine.local', 'is_email_confirmed' => 1, 'suspended_until' => Carbon::now()->addDay(), 'suspend_reason' => 'acme', 'suspend_message' => 'acme'],
                 ['id' => 6, 'username' => 'Acme', 'email' => 'acme5@machine.local', 'is_email_confirmed' => 1],
-            ]
+            ],
         ]);
     }
 

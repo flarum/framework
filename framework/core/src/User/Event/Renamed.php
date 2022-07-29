@@ -29,9 +29,9 @@ class Renamed
     public $actor;
 
     /**
-     * @param User $user
-     * @param string $oldUsername
-     * @param User $actor
+     * @param  User  $user
+     * @param  string  $oldUsername
+     * @param  User  $actor
      */
     public function __construct(User $user, string $oldUsername, User $actor = null)
     {

@@ -23,8 +23,8 @@ class DiscussionPolicy extends AbstractPolicy
     protected $settings;
 
     /**
-     * @param SettingsRepositoryInterface $settings
-     * @param Dispatcher $events
+     * @param  SettingsRepositoryInterface  $settings
+     * @param  Dispatcher  $events
      */
     public function __construct(SettingsRepositoryInterface $settings)
     {
@@ -32,8 +32,8 @@ class DiscussionPolicy extends AbstractPolicy
     }
 
     /**
-     * @param User $actor
-     * @param string $ability
+     * @param  User  $actor
+     * @param  string  $ability
      * @return bool|null
      */
     public function can(User $actor, $ability)
@@ -44,8 +44,8 @@ class DiscussionPolicy extends AbstractPolicy
     }
 
     /**
-     * @param User $actor
-     * @param \Flarum\Discussion\Discussion $discussion
+     * @param  User  $actor
+     * @param  \Flarum\Discussion\Discussion  $discussion
      * @return bool|null
      */
     public function rename(User $actor, Discussion $discussion)
@@ -62,8 +62,8 @@ class DiscussionPolicy extends AbstractPolicy
     }
 
     /**
-     * @param User $actor
-     * @param \Flarum\Discussion\Discussion $discussion
+     * @param  User  $actor
+     * @param  \Flarum\Discussion\Discussion  $discussion
      * @return bool|null
      */
     public function hide(User $actor, Discussion $discussion)

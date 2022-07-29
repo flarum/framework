@@ -49,5 +49,5 @@ return [
         foreach ($rows as $row) {
             $db->table('group_permission')->where($row)->delete();
         }
-    }
+    },
 ];

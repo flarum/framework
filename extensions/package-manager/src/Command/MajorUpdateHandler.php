@@ -41,10 +41,10 @@ class MajorUpdateHandler
     protected $composerJson;
 
     /**
-     * @param ComposerAdapter $composer
-     * @param LastUpdateCheck $lastUpdateCheck
-     * @param Dispatcher $events
-     * @param ComposerJson $composerJson
+     * @param  ComposerAdapter  $composer
+     * @param  LastUpdateCheck  $lastUpdateCheck
+     * @param  Dispatcher  $events
+     * @param  ComposerJson  $composerJson
      */
     public function __construct(ComposerAdapter $composer, LastUpdateCheck $lastUpdateCheck, Dispatcher $events, ComposerJson $composerJson)
     {

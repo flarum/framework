@@ -22,6 +22,7 @@ class ValidatePost
      * @var Akismet
      */
     protected $akismet;
+
     /**
      * @var SettingsRepositoryInterface
      */

@@ -28,7 +28,7 @@ class CheckForUpdatesTest extends TestCase
             'require' => [
                 'flarum/core' => '^1.0.0',
                 'flarum/tags' => '1.0.0',
-            ]
+            ],
         ]);
 
         $response = $this->send(

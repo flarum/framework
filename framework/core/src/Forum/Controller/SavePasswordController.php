@@ -50,10 +50,10 @@ class SavePasswordController implements RequestHandlerInterface
     protected $validatorFactory;
 
     /**
-     * @param UrlGenerator $url
-     * @param SessionAuthenticator $authenticator
-     * @param UserValidator $validator
-     * @param Factory $validatorFactory
+     * @param  UrlGenerator  $url
+     * @param  SessionAuthenticator  $authenticator
+     * @param  UserValidator  $validator
+     * @param  Factory  $validatorFactory
      */
     public function __construct(UrlGenerator $url, SessionAuthenticator $authenticator, UserValidator $validator, Factory $validatorFactory, Dispatcher $events)
     {
@@ -65,7 +65,7 @@ class SavePasswordController implements RequestHandlerInterface
     }
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return ResponseInterface
      */
     public function handle(Request $request): ResponseInterface

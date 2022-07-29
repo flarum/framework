@@ -26,8 +26,8 @@ class UserPolicy extends AbstractPolicy
     }
 
     /**
-     * @param User $actor
-     * @param User $user
+     * @param  User  $actor
+     * @param  User  $user
      * @return bool|null
      */
     public function editNickname(User $actor, User $user)

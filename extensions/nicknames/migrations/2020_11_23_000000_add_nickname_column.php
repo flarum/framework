@@ -22,5 +22,5 @@ return [
         $schema->table('users', function (Blueprint $table) {
             $table->dropColumn('nickname');
         });
-    }
+    },
 ];

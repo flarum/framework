@@ -25,21 +25,21 @@ class TagSerializer extends AbstractSerializer
     protected function getDefaultAttributes($tag)
     {
         $attributes = [
-            'name'               => $tag->name,
-            'description'        => $tag->description,
-            'slug'               => $tag->slug,
-            'color'              => $tag->color,
-            'backgroundUrl'      => $tag->background_path,
-            'backgroundMode'     => $tag->background_mode,
-            'icon'               => $tag->icon,
-            'discussionCount'    => (int) $tag->discussion_count,
-            'position'           => $tag->position === null ? null : (int) $tag->position,
-            'defaultSort'        => $tag->default_sort,
-            'isChild'            => (bool) $tag->parent_id,
-            'isHidden'           => (bool) $tag->is_hidden,
-            'lastPostedAt'       => $this->formatDate($tag->last_posted_at),
+            'name' => $tag->name,
+            'description' => $tag->description,
+            'slug' => $tag->slug,
+            'color' => $tag->color,
+            'backgroundUrl' => $tag->background_path,
+            'backgroundMode' => $tag->background_mode,
+            'icon' => $tag->icon,
+            'discussionCount' => (int) $tag->discussion_count,
+            'position' => $tag->position === null ? null : (int) $tag->position,
+            'defaultSort' => $tag->default_sort,
+            'isChild' => (bool) $tag->parent_id,
+            'isHidden' => (bool) $tag->is_hidden,
+            'lastPostedAt' => $this->formatDate($tag->last_posted_at),
             'canStartDiscussion' => $this->actor->can('startDiscussion', $tag),
-            'canAddToDiscussion' => $this->actor->can('addToDiscussion', $tag)
+            'canAddToDiscussion' => $this->actor->can('addToDiscussion', $tag),
         ];
 
         if ($this->actor->isAdmin()) {

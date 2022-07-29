@@ -271,27 +271,27 @@ class GroupSearchTest extends TestCase
                     'id' => 5,
                     'name_singular' => 'test1 user',
                     'name_plural' => 'test1 users',
-                    'is_hidden' => false
+                    'is_hidden' => false,
                 ],
                 [
                     'id' => 6,
                     'name_singular' => 'test2 user',
                     'name_plural' => 'test2 users',
-                    'is_hidden' => false
-                ]
+                    'is_hidden' => false,
+                ],
             ],
             'group_user' => [
                 [
                     'user_id' => 4,
-                    'group_id' => 4
+                    'group_id' => 4,
                 ],
                 [
                     'user_id' => 5,
-                    'group_id' => 5
+                    'group_id' => 5,
                 ],
                 [
                     'user_id' => 6,
-                    'group_id' => 6
+                    'group_id' => 6,
                 ],
             ],
         ]);
@@ -314,14 +314,14 @@ class GroupSearchTest extends TestCase
                     'id' => 99,
                     'name_singular' => 'hidden user',
                     'name_plural' => 'hidden users',
-                    'is_hidden' => true
+                    'is_hidden' => true,
                 ],
             ],
             'group_user' => [
                 [
                     'user_id' => 3,
-                    'group_id' => 99
-                ]
+                    'group_id' => 99,
+                ],
             ],
         ]);
     }

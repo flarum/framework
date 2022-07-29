@@ -29,7 +29,7 @@ abstract class AbstractDeleteController implements RequestHandlerInterface
     /**
      * Delete the resource.
      *
-     * @param ServerRequestInterface $request
+     * @param  ServerRequestInterface  $request
      */
     abstract protected function delete(ServerRequestInterface $request);
 }

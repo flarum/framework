@@ -16,10 +16,11 @@ use Illuminate\Contracts\Container\Container;
 class Validator implements ExtenderInterface
 {
     private $configurationCallbacks = [];
+
     private $validator;
 
     /**
-     * @param string $validatorClass: The ::class attribute of the validator you are modifying.
+     * @param  string  $validatorClass: The ::class attribute of the validator you are modifying.
      *                                The validator should inherit from \Flarum\Foundation\AbstractValidator.
      */
     public function __construct(string $validatorClass)
@@ -31,14 +32,13 @@ class Validator implements ExtenderInterface
      * Configure the validator. This is often used to adjust validation rules, but can be
      * used to make other changes to the validator as well.
      *
-     * @param callable $callback
+     * @param  callable  $callback
      *
      * The callback can be a closure or invokable class, and should accept:
      * - \Flarum\Foundation\AbstractValidator $flarumValidator: The Flarum validator wrapper
      * - \Illuminate\Validation\Validator $validator: The Laravel validator instance
      *
      * The callback should return void.
-     *
      * @return self
      */
     public function configure($callback): self

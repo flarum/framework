@@ -25,6 +25,7 @@ interface Step
      * wrong that should result in the entire installation being reverted.
      *
      * @return void
+     *
      * @throws StepFailed
      */
     public function run();

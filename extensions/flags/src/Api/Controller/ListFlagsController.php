@@ -30,7 +30,7 @@ class ListFlagsController extends AbstractListController
         'user',
         'post',
         'post.user',
-        'post.discussion'
+        'post.discussion',
     ];
 
     /**

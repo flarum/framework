@@ -19,7 +19,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 class UserMetadataUpdater
 {
     /**
-     * @param Dispatcher $events
+     * @param  Dispatcher  $events
      */
     public function subscribe(Dispatcher $events)
     {
@@ -30,7 +30,7 @@ class UserMetadataUpdater
     }
 
     /**
-     * @param \Flarum\Post\Event\Posted $event
+     * @param  \Flarum\Post\Event\Posted  $event
      */
     public function whenPostWasPosted(Posted $event)
     {
@@ -38,7 +38,7 @@ class UserMetadataUpdater
     }
 
     /**
-     * @param \Flarum\Post\Event\Deleted $event
+     * @param  \Flarum\Post\Event\Deleted  $event
      */
     public function whenPostWasDeleted(PostDeleted $event)
     {
@@ -46,7 +46,7 @@ class UserMetadataUpdater
     }
 
     /**
-     * @param \Flarum\Discussion\Event\Started $event
+     * @param  \Flarum\Discussion\Event\Started  $event
      */
     public function whenDiscussionWasStarted(Started $event)
     {
@@ -54,7 +54,7 @@ class UserMetadataUpdater
     }
 
     /**
-     * @param \Flarum\Discussion\Event\Deleted $event
+     * @param  \Flarum\Discussion\Event\Deleted  $event
      */
     public function whenDiscussionWasDeleted(DiscussionDeleted $event)
     {
@@ -63,7 +63,7 @@ class UserMetadataUpdater
     }
 
     /**
-     * @param \Flarum\User\User $user
+     * @param  \Flarum\User\User  $user
      */
     private function updateCommentsCount(?User $user)
     {

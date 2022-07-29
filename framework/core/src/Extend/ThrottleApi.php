@@ -16,13 +16,14 @@ use Illuminate\Contracts\Container\Container;
 class ThrottleApi implements ExtenderInterface
 {
     private $setThrottlers = [];
+
     private $removeThrottlers = [];
 
     /**
      * Add a new throttler (or override one with the same name).
      *
-     * @param string $name: The name of the throttler.
-     * @param string|callable $callback
+     * @param  string  $name: The name of the throttler.
+     * @param  string|callable  $callback
      *
      * The callable can be a closure or invokable class, and should accept:
      *   - $request: The current `\Psr\Http\Message\ServerRequestInterface` request object.
@@ -35,7 +36,6 @@ class ThrottleApi implements ExtenderInterface
      *   - `false`: This marks the request as NOT to be throttled. It overrides all other throttlers
      *   - `true`: This marks the request as to be throttled.
      *  All other outputs will be ignored.
-     *
      * @return self
      */
     public function set(string $name, $callback): self
@@ -48,7 +48,7 @@ class ThrottleApi implements ExtenderInterface
     /**
      * Remove a throttler registered with this name.
      *
-     * @param string $name: The name of the throttler to remove.
+     * @param  string  $name: The name of the throttler to remove.
      * @return self
      */
     public function remove(string $name): self

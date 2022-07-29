@@ -17,6 +17,7 @@ class Suspended
      * @var User
      */
     public $user;
+
     /**
      * @var User
      */

@@ -19,7 +19,7 @@ class Disabled
     public $extension;
 
     /**
-     * @param Extension $extension
+     * @param  Extension  $extension
      */
     public function __construct(Extension $extension)
     {

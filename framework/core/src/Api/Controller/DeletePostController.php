@@ -23,7 +23,7 @@ class DeletePostController extends AbstractDeleteController
     protected $bus;
 
     /**
-     * @param Dispatcher $bus
+     * @param  Dispatcher  $bus
      */
     public function __construct(Dispatcher $bus)
     {

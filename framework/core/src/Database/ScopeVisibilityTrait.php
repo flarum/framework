@@ -35,8 +35,8 @@ trait ScopeVisibilityTrait
     /**
      * Scope a query to only include records that are visible to a user.
      *
-     * @param Builder $query
-     * @param User $actor
+     * @param  Builder  $query
+     * @param  User  $actor
      */
     public function scopeWhereVisibleTo(Builder $query, User $actor, string $ability = 'view')
     {

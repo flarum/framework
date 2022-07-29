@@ -20,7 +20,7 @@ class SourceCollector
     protected $sources = [];
 
     /**
-     * @param string $file
+     * @param  string  $file
      * @return $this
      */
     public function addFile(string $file, string $extensionId = null)
@@ -31,7 +31,7 @@ class SourceCollector
     }
 
     /**
-     * @param callable $callback
+     * @param  callable  $callback
      * @return $this
      */
     public function addString(callable $callback)

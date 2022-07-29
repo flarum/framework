@@ -24,8 +24,8 @@ class DeletePostHandler
     protected $posts;
 
     /**
-     * @param Dispatcher $events
-     * @param \Flarum\Post\PostRepository $posts
+     * @param  Dispatcher  $events
+     * @param  \Flarum\Post\PostRepository  $posts
      */
     public function __construct(Dispatcher $events, PostRepository $posts)
     {
@@ -34,8 +34,9 @@ class DeletePostHandler
     }
 
     /**
-     * @param DeletePost $command
+     * @param  DeletePost  $command
      * @return \Flarum\Post\Post
+     *
      * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(DeletePost $command)

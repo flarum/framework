@@ -19,7 +19,7 @@ class UpdateTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -43,7 +43,7 @@ class UpdateTest extends TestCase
                     'email' => 'normal3@machine.local',
                     'is_email_confirmed' => 1,
                     'last_seen_at' => Carbon::now()->subHour(),
-                ]
+                ],
             ],
         ]);
     }
@@ -121,11 +121,11 @@ class UpdateTest extends TestCase
                     'data' => [
                         'attributes' => [
                             'email' => 'someOtherEmail@example.com',
-                        ]
+                        ],
                     ],
                     'meta' => [
-                        'password' => 'notTheRightPassword!'
-                    ]
+                        'password' => 'notTheRightPassword!',
+                    ],
                 ],
             ])
         );
@@ -145,11 +145,11 @@ class UpdateTest extends TestCase
                     'data' => [
                         'attributes' => [
                             'email' => 'someOtherEmail@example.com',
-                        ]
+                        ],
                     ],
                     'meta' => [
-                        'password' => 'too-obscure'
-                    ]
+                        'password' => 'too-obscure',
+                    ],
                 ],
             ])
         );
@@ -169,7 +169,7 @@ class UpdateTest extends TestCase
                         'attributes' => [
                             'username' => 'iCantChangeThis',
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -188,10 +188,10 @@ class UpdateTest extends TestCase
                     'data' => [
                         'attributes' => [
                             'preferences' => [
-                                'something' => 'else'
-                            ]
+                                'something' => 'else',
+                            ],
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -211,11 +211,11 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'groups' => [
                                 'data' => [
-                                    ['id' => 1, 'type' => 'group']
-                                ]
-                            ]
+                                    ['id' => 1, 'type' => 'group'],
+                                ],
+                            ],
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -233,9 +233,9 @@ class UpdateTest extends TestCase
                 'json' => [
                     'data' => [
                         'attributes' => [
-                            'markedAllAsReadAt' => Carbon::now()
+                            'markedAllAsReadAt' => Carbon::now(),
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -253,9 +253,9 @@ class UpdateTest extends TestCase
                 'json' => [
                     'data' => [
                         'attributes' => [
-                            'isEmailConfirmed' => true
+                            'isEmailConfirmed' => true,
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -290,11 +290,11 @@ class UpdateTest extends TestCase
                     'data' => [
                         'attributes' => [
                             'email' => 'someOtherEmail@example.com',
-                        ]
+                        ],
                     ],
                     'meta' => [
-                        'password' => 'too-obscure'
-                    ]
+                        'password' => 'too-obscure',
+                    ],
                 ],
             ])
         );
@@ -314,7 +314,7 @@ class UpdateTest extends TestCase
                         'attributes' => [
                             'username' => 'iCantChangeThis',
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -334,11 +334,11 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'groups' => [
                                 'data' => [
-                                    ['id' => 1, 'type' => 'group']
-                                ]
-                            ]
+                                    ['id' => 1, 'type' => 'group'],
+                                ],
+                            ],
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -356,9 +356,9 @@ class UpdateTest extends TestCase
                 'json' => [
                     'data' => [
                         'attributes' => [
-                            'isEmailConfirmed' => true
+                            'isEmailConfirmed' => true,
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -395,8 +395,8 @@ class UpdateTest extends TestCase
                     'data' => [
                         'attributes' => [
                             'email' => 'someOtherEmail@example.com',
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
             ])
         );
@@ -417,7 +417,7 @@ class UpdateTest extends TestCase
                         'attributes' => [
                             'username' => 'iCanChangeThis',
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -437,8 +437,8 @@ class UpdateTest extends TestCase
                     'data' => [
                         'attributes' => [
                             'email' => 'someOtherEmail@example.com',
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
             ])
         );
@@ -459,7 +459,7 @@ class UpdateTest extends TestCase
                         'attributes' => [
                             'username' => 'iCanChangeThis',
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -480,11 +480,11 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'groups' => [
                                 'data' => [
-                                    ['id' => 4, 'type' => 'group']
-                                ]
-                            ]
+                                    ['id' => 4, 'type' => 'group'],
+                                ],
+                            ],
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -504,10 +504,10 @@ class UpdateTest extends TestCase
                     'data' => [
                         'relationships' => [
                             'groups' => [
-                                'data' => []
-                            ]
+                                'data' => [],
+                            ],
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -528,11 +528,11 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'groups' => [
                                 'data' => [
-                                    ['id' => 1, 'type' => 'group']
-                                ]
-                            ]
+                                    ['id' => 1, 'type' => 'group'],
+                                ],
+                            ],
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -553,11 +553,11 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'groups' => [
                                 'data' => [
-                                    ['id' => 1, 'type' => 'group']
-                                ]
-                            ]
+                                    ['id' => 1, 'type' => 'group'],
+                                ],
+                            ],
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -576,9 +576,9 @@ class UpdateTest extends TestCase
                 'json' => [
                     'data' => [
                         'attributes' => [
-                            'isEmailConfirmed' => true
+                            'isEmailConfirmed' => true,
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -597,10 +597,10 @@ class UpdateTest extends TestCase
                     'data' => [
                         'attributes' => [
                             'preferences' => [
-                                'something' => 'else'
-                            ]
+                                'something' => 'else',
+                            ],
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -618,9 +618,9 @@ class UpdateTest extends TestCase
                 'json' => [
                     'data' => [
                         'attributes' => [
-                            'markedAllAsReadAt' => Carbon::now()
+                            'markedAllAsReadAt' => Carbon::now(),
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -638,9 +638,9 @@ class UpdateTest extends TestCase
                 'json' => [
                     'data' => [
                         'attributes' => [
-                            'isEmailConfirmed' => true
+                            'isEmailConfirmed' => true,
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -660,10 +660,10 @@ class UpdateTest extends TestCase
                     'data' => [
                         'relationships' => [
                             'groups' => [
-                                'data' => []
-                            ]
+                                'data' => [],
+                            ],
                         ],
-                    ]
+                    ],
                 ],
             ])
         );

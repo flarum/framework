@@ -10,5 +10,5 @@
 use Flarum\Database\Migration;
 
 return Migration::addColumns('users', [
-    'suspended_until' => ['dateTime', 'nullable' => true]
+    'suspended_until' => ['dateTime', 'nullable' => true],
 ]);

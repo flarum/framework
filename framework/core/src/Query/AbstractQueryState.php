@@ -30,8 +30,8 @@ abstract class AbstractQueryState
     protected $defaultSort = [];
 
     /**
-     * @param Builder $query
-     * @param User $actor
+     * @param  Builder  $query
+     * @param  User  $actor
      */
     public function __construct(Builder $query, User $actor, $defaultSort = [])
     {
@@ -74,7 +74,7 @@ abstract class AbstractQueryState
      * Set the default sort order for the search. This will only be applied if
      * a sort order has not been specified in the search criteria.
      *
-     * @param mixed $defaultSort An array of sort-order pairs, where the column
+     * @param  mixed  $defaultSort An array of sort-order pairs, where the column
      *     is the key, and the order is the value. The order may be 'asc',
      *     'desc', or an array of IDs to order by.
      *     Alternatively, a callable may be used.

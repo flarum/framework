@@ -41,8 +41,8 @@ class EmailNotificationDriver implements NotificationDriverInterface
     /**
      * Mail a notification to a list of users.
      *
-     * @param MailableInterface $blueprint
-     * @param User[] $recipients
+     * @param  MailableInterface  $blueprint
+     * @param  User[]  $recipients
      */
     protected function mailNotifications(MailableInterface $blueprint, array $recipients)
     {

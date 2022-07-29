@@ -40,10 +40,10 @@ class CommentPost extends Post
     /**
      * Create a new instance in reply to a discussion.
      *
-     * @param int $discussionId
-     * @param string $content
-     * @param int $userId
-     * @param string $ipAddress
+     * @param  int  $discussionId
+     * @param  string  $content
+     * @param  int  $userId
+     * @param  string  $ipAddress
      * @return static
      */
     public static function reply($discussionId, $content, $userId, $ipAddress)
@@ -67,8 +67,8 @@ class CommentPost extends Post
     /**
      * Revise the post's content.
      *
-     * @param string $content
-     * @param User $actor
+     * @param  string  $content
+     * @param  User  $actor
      * @return $this
      */
     public function revise($content, User $actor)
@@ -88,7 +88,7 @@ class CommentPost extends Post
     /**
      * Hide the post.
      *
-     * @param User $actor
+     * @param  User  $actor
      * @return $this
      */
     public function hide(User $actor = null)
@@ -123,7 +123,7 @@ class CommentPost extends Post
     /**
      * Unparse the parsed content.
      *
-     * @param string $value
+     * @param  string  $value
      * @return string
      */
     public function getContentAttribute($value)
@@ -144,7 +144,7 @@ class CommentPost extends Post
     /**
      * Parse the content before it is saved to the database.
      *
-     * @param string $value
+     * @param  string  $value
      */
     public function setContentAttribute($value)
     {
@@ -154,7 +154,7 @@ class CommentPost extends Post
     /**
      * Set the parsed/raw content.
      *
-     * @param string $value
+     * @param  string  $value
      */
     public function setParsedContentAttribute($value)
     {
@@ -164,7 +164,7 @@ class CommentPost extends Post
     /**
      * Get the content rendered as HTML.
      *
-     * @param ServerRequestInterface $request
+     * @param  ServerRequestInterface  $request
      * @return string
      */
     public function formatContent(ServerRequestInterface $request = null)
@@ -185,7 +185,7 @@ class CommentPost extends Post
     /**
      * Set the text formatter instance.
      *
-     * @param \Flarum\Formatter\Formatter $formatter
+     * @param  \Flarum\Formatter\Formatter  $formatter
      */
     public static function setFormatter(Formatter $formatter)
     {

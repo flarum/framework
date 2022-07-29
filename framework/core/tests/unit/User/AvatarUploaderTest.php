@@ -22,12 +22,15 @@ use Mockery as m;
 class AvatarUploaderTest extends TestCase
 {
     private $dispatcher;
+
     private $filesystem;
+
     private $filesystemFactory;
+
     private $uploader;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {

@@ -53,12 +53,12 @@ class RequestPasswordResetHandler
     protected $validatorFactory;
 
     /**
-     * @param UserRepository $users
-     * @param SettingsRepositoryInterface $settings
-     * @param Queue $queue
-     * @param UrlGenerator $url
-     * @param TranslatorInterface $translator
-     * @param Factory $validatorFactory
+     * @param  UserRepository  $users
+     * @param  SettingsRepositoryInterface  $settings
+     * @param  Queue  $queue
+     * @param  UrlGenerator  $url
+     * @param  TranslatorInterface  $translator
+     * @param  Factory  $validatorFactory
      */
     public function __construct(
         UserRepository $users,
@@ -77,8 +77,9 @@ class RequestPasswordResetHandler
     }
 
     /**
-     * @param RequestPasswordReset $command
+     * @param  RequestPasswordReset  $command
      * @return \Flarum\User\User
+     *
      * @throws ModelNotFoundException
      */
     public function handle(RequestPasswordReset $command)

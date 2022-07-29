@@ -48,8 +48,8 @@ abstract class UploadImageController extends ShowForumController
     protected $filenamePrefix = '';
 
     /**
-     * @param SettingsRepositoryInterface $settings
-     * @param Factory $filesystemFactory
+     * @param  SettingsRepositoryInterface  $settings
+     * @param  Factory  $filesystemFactory
      */
     public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory)
     {
@@ -82,7 +82,7 @@ abstract class UploadImageController extends ShowForumController
     }
 
     /**
-     * @param UploadedFileInterface $file
+     * @param  UploadedFileInterface  $file
      * @return Image
      */
     abstract protected function makeImage(UploadedFileInterface $file): Image;

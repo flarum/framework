@@ -21,7 +21,7 @@ class ReadAllNotifications
     public $actor;
 
     /**
-     * @param User $actor The user performing the action.
+     * @param  User  $actor The user performing the action.
      */
     public function __construct(User $actor)
     {

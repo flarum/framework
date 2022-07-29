@@ -31,8 +31,8 @@ class UpdateController implements RequestHandlerInterface
     protected $config;
 
     /**
-     * @param MigrateCommand $command
-     * @param Config $config
+     * @param  MigrateCommand  $command
+     * @param  Config  $config
      */
     public function __construct(MigrateCommand $command, Config $config)
     {
@@ -41,7 +41,7 @@ class UpdateController implements RequestHandlerInterface
     }
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return ResponseInterface
      */
     public function handle(Request $request): ResponseInterface

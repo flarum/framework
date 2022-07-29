@@ -31,7 +31,7 @@ class QueueFactory implements Factory
      * Expects a callback that will be called to instantiate the queue adapter,
      * once requested by the application.
      *
-     * @param callable $factory
+     * @param  callable  $factory
      */
     public function __construct(callable $factory)
     {
@@ -41,7 +41,7 @@ class QueueFactory implements Factory
     /**
      * Resolve a queue connection instance.
      *
-     * @param string $name
+     * @param  string  $name
      * @return \Illuminate\Contracts\Queue\Queue
      */
     public function connection($name = null)

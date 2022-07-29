@@ -17,7 +17,7 @@ class ShowTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -63,7 +63,7 @@ class ShowTest extends TestCase
             $this->request('GET', '/api/users/normal', [
                 'authenticatedAs' => 1,
             ])->withQueryParams([
-                'bySlug' => true
+                'bySlug' => true,
             ])
         );
 
@@ -89,7 +89,7 @@ class ShowTest extends TestCase
     {
         $response = $this->send(
             $this->request('GET', '/api/users/normal')->withQueryParams([
-                'bySlug' => true
+                'bySlug' => true,
             ])
         );
 
@@ -119,7 +119,7 @@ class ShowTest extends TestCase
 
         $response = $this->send(
             $this->request('GET', '/api/users/normal')->withQueryParams([
-                'bySlug' => true
+                'bySlug' => true,
             ])
         );
 
@@ -149,7 +149,7 @@ class ShowTest extends TestCase
             $this->request('GET', '/api/users/normal', [
                 'authenticatedAs' => 2,
             ])->withQueryParams([
-                'bySlug' => true
+                'bySlug' => true,
             ])
         );
 
@@ -179,7 +179,7 @@ class ShowTest extends TestCase
             $this->request('GET', '/api/users/admin', [
                 'authenticatedAs' => 2,
             ])->withQueryParams([
-                'bySlug' => true
+                'bySlug' => true,
             ])
         );
 
@@ -197,7 +197,7 @@ class ShowTest extends TestCase
             $this->request('GET', '/api/users/admin', [
                 'authenticatedAs' => 2,
             ])->withQueryParams([
-                'bySlug' => true
+                'bySlug' => true,
             ])
         );
 

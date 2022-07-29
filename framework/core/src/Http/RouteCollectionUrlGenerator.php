@@ -25,8 +25,8 @@ class RouteCollectionUrlGenerator
     protected $routes;
 
     /**
-     * @param string $baseUrl
-     * @param RouteCollection $routes
+     * @param  string  $baseUrl
+     * @param  RouteCollection  $routes
      */
     public function __construct($baseUrl, RouteCollection $routes)
     {
@@ -37,8 +37,8 @@ class RouteCollectionUrlGenerator
     /**
      * Generate a URL to a named route.
      *
-     * @param string $name
-     * @param array $parameters
+     * @param  string  $name
+     * @param  array  $parameters
      * @return string
      */
     public function route($name, $parameters = [])
@@ -52,7 +52,7 @@ class RouteCollectionUrlGenerator
     /**
      * Generate a URL to a path.
      *
-     * @param string $path
+     * @param  string  $path
      * @return string
      */
     public function path($path)

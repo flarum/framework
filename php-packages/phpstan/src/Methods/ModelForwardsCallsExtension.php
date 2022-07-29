@@ -95,7 +95,8 @@ final class ModelForwardsCallsExtension implements MethodsClassReflectionExtensi
         if (in_array($methodName, ['increment', 'decrement'], true)) {
             $methodReflection = $classReflection->getNativeMethod($methodName);
 
-            return new class($classReflection, $methodName, $methodReflection) implements MethodReflection {
+            return new class($classReflection, $methodName, $methodReflection) implements MethodReflection
+            {
                 /** @var ClassReflection */
                 private $classReflection;
 
@@ -112,7 +113,7 @@ final class ModelForwardsCallsExtension implements MethodsClassReflectionExtensi
                     $this->methodReflection = $methodReflection;
                 }
 
-                public function getDeclaringClass(): \PHPStan\Reflection\ClassReflection
+                public function getDeclaringClass(): ClassReflection
                 {
                     return $this->classReflection;
                 }
@@ -152,7 +153,7 @@ final class ModelForwardsCallsExtension implements MethodsClassReflectionExtensi
                     return $this->methodReflection->getVariants();
                 }
 
-                public function isDeprecated(): \PHPStan\TrinaryLogic
+                public function isDeprecated(): TrinaryLogic
                 {
                     return TrinaryLogic::createNo();
                 }
@@ -162,22 +163,22 @@ final class ModelForwardsCallsExtension implements MethodsClassReflectionExtensi
                     return null;
                 }
 
-                public function isFinal(): \PHPStan\TrinaryLogic
+                public function isFinal(): TrinaryLogic
                 {
                     return TrinaryLogic::createNo();
                 }
 
-                public function isInternal(): \PHPStan\TrinaryLogic
+                public function isInternal(): TrinaryLogic
                 {
                     return TrinaryLogic::createNo();
                 }
 
-                public function getThrowType(): ?\PHPStan\Type\Type
+                public function getThrowType(): ?Type
                 {
                     return null;
                 }
 
-                public function hasSideEffects(): \PHPStan\TrinaryLogic
+                public function hasSideEffects(): TrinaryLogic
                 {
                     return TrinaryLogic::createYes();
                 }

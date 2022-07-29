@@ -21,5 +21,5 @@ return [
         $schema->table('posts', function (Blueprint $table) {
             $table->dropIndex(['type']);
         });
-    }
+    },
 ];

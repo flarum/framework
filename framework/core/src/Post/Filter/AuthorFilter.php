@@ -21,7 +21,7 @@ class AuthorFilter implements FilterInterface
     protected $users;
 
     /**
-     * @param \Flarum\User\UserRepository $users
+     * @param  \Flarum\User\UserRepository  $users
      */
     public function __construct(UserRepository $users)
     {

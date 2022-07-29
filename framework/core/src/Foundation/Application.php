@@ -75,8 +75,8 @@ class Application
     /**
      * Create a new Flarum application instance.
      *
-     * @param Container $container
-     * @param Paths $paths
+     * @param  Container  $container
+     * @param  Paths  $paths
      */
     public function __construct(Container $container, Paths $paths)
     {
@@ -89,8 +89,8 @@ class Application
     }
 
     /**
-     * @param string $key
-     * @param mixed $default
+     * @param  string  $key
+     * @param  mixed  $default
      * @return mixed
      */
     public function config($key, $default = null)
@@ -113,7 +113,7 @@ class Application
     /**
      * Get the URL to the Flarum installation.
      *
-     * @param string $path
+     * @param  string  $path
      * @return string
      */
     public function url($path = null)
@@ -163,9 +163,9 @@ class Application
     /**
      * Register a service provider with the application.
      *
-     * @param ServiceProvider|string $provider
-     * @param array $options
-     * @param bool $force
+     * @param  ServiceProvider|string  $provider
+     * @param  array  $options
+     * @param  bool  $force
      * @return ServiceProvider
      */
     public function register($provider, $options = [], $force = false)
@@ -205,7 +205,7 @@ class Application
     /**
      * Get the registered service provider instance if it exists.
      *
-     * @param ServiceProvider|string $provider
+     * @param  ServiceProvider|string  $provider
      * @return ServiceProvider|null
      */
     public function getProvider($provider)
@@ -220,7 +220,7 @@ class Application
     /**
      * Resolve a service provider instance from the class name.
      *
-     * @param string $provider
+     * @param  string  $provider
      * @return ServiceProvider
      */
     public function resolveProviderClass($provider)
@@ -231,7 +231,7 @@ class Application
     /**
      * Mark the given provider as registered.
      *
-     * @param ServiceProvider $provider
+     * @param  ServiceProvider  $provider
      * @return void
      */
     protected function markAsRegistered($provider)
@@ -281,7 +281,7 @@ class Application
     /**
      * Boot the given service provider.
      *
-     * @param ServiceProvider $provider
+     * @param  ServiceProvider  $provider
      * @return mixed
      */
     protected function bootProvider(ServiceProvider $provider)
@@ -294,7 +294,7 @@ class Application
     /**
      * Register a new boot listener.
      *
-     * @param mixed $callback
+     * @param  mixed  $callback
      * @return void
      */
     public function booting($callback)
@@ -305,7 +305,7 @@ class Application
     /**
      * Register a new "booted" listener.
      *
-     * @param mixed $callback
+     * @param  mixed  $callback
      * @return void
      */
     public function booted($callback)
@@ -320,7 +320,7 @@ class Application
     /**
      * Call the booting callbacks for the application.
      *
-     * @param array $callbacks
+     * @param  array  $callbacks
      * @return void
      */
     protected function fireAppCallbacks(array $callbacks)
@@ -336,22 +336,22 @@ class Application
     public function registerCoreContainerAliases()
     {
         $aliases = [
-            'app'                  => [\Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class,  \Psr\Container\ContainerInterface::class],
-            'blade.compiler'       => [\Illuminate\View\Compilers\BladeCompiler::class],
-            'cache'                => [\Illuminate\Cache\CacheManager::class, \Illuminate\Contracts\Cache\Factory::class],
-            'cache.store'          => [\Illuminate\Cache\Repository::class, \Illuminate\Contracts\Cache\Repository::class],
-            'config'               => [\Illuminate\Config\Repository::class, \Illuminate\Contracts\Config\Repository::class],
-            'db'                   => [\Illuminate\Database\DatabaseManager::class],
-            'db.connection'        => [\Illuminate\Database\Connection::class, \Illuminate\Database\ConnectionInterface::class],
-            'events'               => [\Illuminate\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
-            'files'                => [\Illuminate\Filesystem\Filesystem::class],
-            'filesystem'           => [\Illuminate\Filesystem\FilesystemManager::class, \Illuminate\Contracts\Filesystem\Factory::class],
-            'filesystem.disk'      => [\Illuminate\Contracts\Filesystem\Filesystem::class],
-            'filesystem.cloud'     => [\Illuminate\Contracts\Filesystem\Cloud::class],
-            'hash'                 => [\Illuminate\Contracts\Hashing\Hasher::class],
-            'mailer'               => [\Illuminate\Mail\Mailer::class, \Illuminate\Contracts\Mail\Mailer::class, \Illuminate\Contracts\Mail\MailQueue::class],
-            'validator'            => [\Illuminate\Validation\Factory::class, \Illuminate\Contracts\Validation\Factory::class],
-            'view'                 => [\Illuminate\View\Factory::class, \Illuminate\Contracts\View\Factory::class],
+            'app' => [\Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class,  \Psr\Container\ContainerInterface::class],
+            'blade.compiler' => [\Illuminate\View\Compilers\BladeCompiler::class],
+            'cache' => [\Illuminate\Cache\CacheManager::class, \Illuminate\Contracts\Cache\Factory::class],
+            'cache.store' => [\Illuminate\Cache\Repository::class, \Illuminate\Contracts\Cache\Repository::class],
+            'config' => [\Illuminate\Config\Repository::class, \Illuminate\Contracts\Config\Repository::class],
+            'db' => [\Illuminate\Database\DatabaseManager::class],
+            'db.connection' => [\Illuminate\Database\Connection::class, \Illuminate\Database\ConnectionInterface::class],
+            'events' => [\Illuminate\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
+            'files' => [\Illuminate\Filesystem\Filesystem::class],
+            'filesystem' => [\Illuminate\Filesystem\FilesystemManager::class, \Illuminate\Contracts\Filesystem\Factory::class],
+            'filesystem.disk' => [\Illuminate\Contracts\Filesystem\Filesystem::class],
+            'filesystem.cloud' => [\Illuminate\Contracts\Filesystem\Cloud::class],
+            'hash' => [\Illuminate\Contracts\Hashing\Hasher::class],
+            'mailer' => [\Illuminate\Mail\Mailer::class, \Illuminate\Contracts\Mail\Mailer::class, \Illuminate\Contracts\Mail\MailQueue::class],
+            'validator' => [\Illuminate\Validation\Factory::class, \Illuminate\Contracts\Validation\Factory::class],
+            'view' => [\Illuminate\View\Factory::class, \Illuminate\Contracts\View\Factory::class],
         ];
 
         foreach ($aliases as $key => $aliases) {

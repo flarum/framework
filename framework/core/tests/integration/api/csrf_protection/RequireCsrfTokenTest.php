@@ -17,7 +17,7 @@ class RequireCsrfTokenTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -26,7 +26,7 @@ class RequireCsrfTokenTest extends TestCase
         $this->prepareDatabase([
             'api_keys' => [
                 ['user_id' => 1, 'key' => 'superadmin'],
-            ]
+            ],
         ]);
 
         $this->setting('csrf_test', 1);

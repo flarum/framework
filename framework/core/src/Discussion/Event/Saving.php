@@ -36,9 +36,9 @@ class Saving
     public $data;
 
     /**
-     * @param \Flarum\Discussion\Discussion $discussion
-     * @param User $actor
-     * @param array $data
+     * @param  \Flarum\Discussion\Discussion  $discussion
+     * @param  User  $actor
+     * @param  array  $data
      */
     public function __construct(Discussion $discussion, User $actor, array $data = [])
     {

@@ -28,8 +28,8 @@ class CreateTagHandler
     protected $events;
 
     /**
-     * @param TagValidator $validator
-     * @param Dispatcher $events
+     * @param  TagValidator  $validator
+     * @param  Dispatcher  $events
      */
     public function __construct(TagValidator $validator, Dispatcher $events)
     {
@@ -38,7 +38,7 @@ class CreateTagHandler
     }
 
     /**
-     * @param CreateTag $command
+     * @param  CreateTag  $command
      * @return Tag
      */
     public function handle(CreateTag $command)

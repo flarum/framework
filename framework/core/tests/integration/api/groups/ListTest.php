@@ -18,7 +18,7 @@ class ListTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -215,7 +215,7 @@ class ListTest extends TestCase
             'name_plural' => 'Ninjas',
             'color' => null,
             'icon' => 'fas fa-wrench',
-            'is_hidden' => 1
+            'is_hidden' => 1,
         ];
     }
 }

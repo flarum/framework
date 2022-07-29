@@ -46,7 +46,7 @@ class Client
     protected $body = [];
 
     /**
-     * @param Container $container
+     * @param  Container  $container
      */
     public function __construct(MiddlewarePipeInterface $pipe)
     {
@@ -118,8 +118,8 @@ class Client
     /**
      * Execute the given API action class, pass the input and return its response.
      *
-     * @param string $method
-     * @param string $path
+     * @param  string  $method
+     * @param  string  $path
      * @return ResponseInterface
      *
      * @internal

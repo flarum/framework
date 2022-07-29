@@ -17,7 +17,7 @@ class Saving
     public $settings;
 
     /**
-     * @param array $settings
+     * @param  array  $settings
      */
     public function __construct(array &$settings)
     {

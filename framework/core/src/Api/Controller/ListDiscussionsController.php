@@ -33,7 +33,7 @@ class ListDiscussionsController extends AbstractListController
         'user',
         'lastPostedUser',
         'mostRelevantPost',
-        'mostRelevantPost.user'
+        'mostRelevantPost.user',
     ];
 
     /**
@@ -41,7 +41,7 @@ class ListDiscussionsController extends AbstractListController
      */
     public $optionalInclude = [
         'firstPost',
-        'lastPost'
+        'lastPost',
     ];
 
     /**
@@ -70,9 +70,9 @@ class ListDiscussionsController extends AbstractListController
     protected $url;
 
     /**
-     * @param DiscussionFilterer $filterer
-     * @param DiscussionSearcher $searcher
-     * @param UrlGenerator $url
+     * @param  DiscussionFilterer  $filterer
+     * @param  DiscussionSearcher  $searcher
+     * @param  UrlGenerator  $url
      */
     public function __construct(DiscussionFilterer $filterer, DiscussionSearcher $searcher, UrlGenerator $url)
     {

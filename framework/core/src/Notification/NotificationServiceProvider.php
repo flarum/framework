@@ -29,7 +29,7 @@ class NotificationServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.notification.blueprints', function () {
             return [
-                DiscussionRenamedBlueprint::class => ['alert']
+                DiscussionRenamedBlueprint::class => ['alert'],
             ];
         });
     }

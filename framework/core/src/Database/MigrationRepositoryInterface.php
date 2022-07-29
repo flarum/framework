@@ -14,7 +14,7 @@ interface MigrationRepositoryInterface
     /**
      * Get the ran migrations for the given extension.
      *
-     * @param string $extension
+     * @param  string  $extension
      * @return array
      */
     public function getRan($extension = null);
@@ -22,8 +22,8 @@ interface MigrationRepositoryInterface
     /**
      * Log that a migration was run.
      *
-     * @param string $file
-     * @param string $extension
+     * @param  string  $file
+     * @param  string  $extension
      * @return void
      */
     public function log($file, $extension = null);
@@ -31,8 +31,8 @@ interface MigrationRepositoryInterface
     /**
      * Remove a migration from the log.
      *
-     * @param string $file
-     * @param string $extension
+     * @param  string  $file
+     * @param  string  $extension
      * @return void
      */
     public function delete($file, $extension = null);

@@ -28,8 +28,8 @@ class RegisterUser
     public $data;
 
     /**
-     * @param User $actor The user performing the action.
-     * @param array $data The attributes of the new user.
+     * @param  User  $actor The user performing the action.
+     * @param  array  $data The attributes of the new user.
      */
     public function __construct(User $actor, array $data)
     {

@@ -18,7 +18,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 abstract class AbstractHtmlController implements RequestHandlerInterface
 {
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return HtmlResponse
      */
     public function handle(Request $request): ResponseInterface
@@ -33,7 +33,7 @@ abstract class AbstractHtmlController implements RequestHandlerInterface
     }
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return string|Renderable
      */
     abstract protected function render(Request $request);

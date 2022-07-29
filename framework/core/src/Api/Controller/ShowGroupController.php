@@ -29,7 +29,7 @@ class ShowGroupController extends AbstractShowController
     public $serializer = GroupSerializer::class;
 
     /**
-     * @param \Flarum\Group\GroupRepository $groups
+     * @param  \Flarum\Group\GroupRepository  $groups
      */
     public function __construct(GroupRepository $groups)
     {

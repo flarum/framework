@@ -28,7 +28,7 @@ class InstallCommand extends AbstractCommand
     protected $dataSource;
 
     /**
-     * @param Installation $installation
+     * @param  Installation  $installation
      */
     public function __construct(Installation $installation)
     {

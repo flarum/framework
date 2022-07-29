@@ -29,7 +29,7 @@ class DependentExtensionsExceptionHandler
             [
                 'extension' => $e->extension->getTitle(),
                 'extensions' => ExtensionManager::pluckTitles($e->dependent_extensions),
-            ]
+            ],
         ];
     }
 }

@@ -36,9 +36,9 @@ class DeletePost
     public $data;
 
     /**
-     * @param int $postId The ID of the post to delete.
-     * @param User $actor The user performing the action.
-     * @param array $data Any other user input associated with the action. This
+     * @param  int  $postId The ID of the post to delete.
+     * @param  User  $actor The user performing the action.
+     * @param  array  $data Any other user input associated with the action. This
      *     is unused by default, but may be used by extensions.
      */
     public function __construct($postId, User $actor, array $data = [])

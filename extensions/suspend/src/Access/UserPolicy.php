@@ -15,8 +15,8 @@ use Flarum\User\User;
 class UserPolicy extends AbstractPolicy
 {
     /**
-     * @param User $actor
-     * @param User $user
+     * @param  User  $actor
+     * @param  User  $user
      * @return bool|null
      */
     public function suspend(User $actor, User $user)

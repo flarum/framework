@@ -22,7 +22,7 @@ class Rememberer
     protected $cookie;
 
     /**
-     * @param CookieFactory $cookie
+     * @param  CookieFactory  $cookie
      */
     public function __construct(CookieFactory $cookie)
     {
@@ -31,8 +31,9 @@ class Rememberer
 
     /**
      * Sets the remember cookie on a response.
-     * @param ResponseInterface $response
-     * @param RememberAccessToken $token The remember token to set on the response.
+     *
+     * @param  ResponseInterface  $response
+     * @param  RememberAccessToken  $token The remember token to set on the response.
      * @return ResponseInterface
      */
     public function remember(ResponseInterface $response, RememberAccessToken $token)

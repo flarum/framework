@@ -22,9 +22,9 @@ class DiscussionFilterer extends AbstractFilterer
     protected $discussions;
 
     /**
-     * @param DiscussionRepository $discussions
-     * @param array $filters
-     * @param array $filterMutators
+     * @param  DiscussionRepository  $discussions
+     * @param  array  $filters
+     * @param  array  $filterMutators
      */
     public function __construct(DiscussionRepository $discussions, array $filters, array $filterMutators)
     {

@@ -44,9 +44,10 @@ class InstallController implements RequestHandlerInterface
 
     /**
      * InstallController constructor.
-     * @param Installation $installation
-     * @param SessionAuthenticator $authenticator
-     * @param Rememberer $rememberer
+     *
+     * @param  Installation  $installation
+     * @param  SessionAuthenticator  $authenticator
+     * @param  Rememberer  $rememberer
      */
     public function __construct(Installation $installation, SessionAuthenticator $authenticator, Rememberer $rememberer)
     {
@@ -56,7 +57,7 @@ class InstallController implements RequestHandlerInterface
     }
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return ResponseInterface
      */
     public function handle(Request $request): ResponseInterface
@@ -105,7 +106,7 @@ class InstallController implements RequestHandlerInterface
         $port = 3306;
 
         if (Str::contains($host, ':')) {
-            list($host, $port) = explode(':', $host, 2);
+            [$host, $port] = explode(':', $host, 2);
         }
 
         return new DatabaseConfig(
@@ -120,8 +121,9 @@ class InstallController implements RequestHandlerInterface
     }
 
     /**
-     * @param array $input
+     * @param  array  $input
      * @return AdminUser
+     *
      * @throws ValidationFailed
      */
     private function makeAdminUser(array $input): AdminUser

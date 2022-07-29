@@ -160,7 +160,7 @@ class ExtensionManager
     /**
      * Loads an Extension with all information.
      *
-     * @param string $name
+     * @param  string  $name
      * @return Extension|null
      */
     public function getExtension($name)
@@ -171,7 +171,7 @@ class ExtensionManager
     /**
      * Enables the extension.
      *
-     * @param string $name
+     * @param  string  $name
      *
      * @internal
      */
@@ -213,7 +213,7 @@ class ExtensionManager
     /**
      * Disables an extension.
      *
-     * @param string $name
+     * @param  string  $name
      *
      * @internal
      */
@@ -251,7 +251,8 @@ class ExtensionManager
     /**
      * Uninstalls an extension.
      *
-     * @param string $name
+     * @param  string  $name
+     *
      * @internal
      */
     public function uninstall($name)
@@ -272,7 +273,7 @@ class ExtensionManager
     /**
      * Copy the assets from an extension's assets directory into public view.
      *
-     * @param Extension $extension
+     * @param  Extension  $extension
      */
     protected function publishAssets(Extension $extension)
     {
@@ -282,7 +283,7 @@ class ExtensionManager
     /**
      * Delete an extension's assets from public view.
      *
-     * @param Extension $extension
+     * @param  Extension  $extension
      */
     protected function unpublishAssets(Extension $extension)
     {
@@ -292,8 +293,8 @@ class ExtensionManager
     /**
      * Get the path to an extension's published asset.
      *
-     * @param Extension $extension
-     * @param string    $path
+     * @param  Extension  $extension
+     * @param  string  $path
      * @return string
      */
     public function getAsset(Extension $extension, $path)
@@ -314,8 +315,8 @@ class ExtensionManager
     /**
      * Runs the database migrations for the extension.
      *
-     * @param Extension $extension
-     * @param string $direction
+     * @param  Extension  $extension
+     * @param  string  $direction
      * @return void
      *
      * @internal
@@ -332,7 +333,7 @@ class ExtensionManager
     /**
      * Runs the database migrations to reset the database to its old state.
      *
-     * @param Extension $extension
+     * @param  Extension  $extension
      * @return array Notes from the migrator.
      *
      * @internal
@@ -374,7 +375,7 @@ class ExtensionManager
     /**
      * Call on all enabled extensions to extend the Flarum application.
      *
-     * @param Container $container
+     * @param  Container  $container
      */
     public function extend(Container $container)
     {
@@ -396,7 +397,7 @@ class ExtensionManager
     /**
      * Persist the currently enabled extensions.
      *
-     * @param array $enabledExtensions
+     * @param  array  $enabledExtensions
      */
     protected function setEnabledExtensions(array $enabledExtensions)
     {
@@ -425,7 +426,7 @@ class ExtensionManager
     /**
      * Returns the titles of the extensions passed.
      *
-     * @param array $exts
+     * @param  array  $exts
      * @return string[]
      */
     public static function pluckTitles(array $exts)
@@ -439,8 +440,7 @@ class ExtensionManager
      * Sort a list of extensions so that they are properly resolved in respect to order.
      * Effectively just topological sorting.
      *
-     * @param Extension[] $extensionList
-     *
+     * @param  Extension[]  $extensionList
      * @return array with 2 keys: 'valid' points to an ordered array of \Flarum\Extension\Extension
      *                            'missingDependencies' points to an associative array of extensions that could not be resolved due
      *                                to missing dependencies, in the format extension id => array of missing dependency IDs.
@@ -527,7 +527,7 @@ class ExtensionManager
         return [
             'valid' => $validExtensions,
             'missingDependencies' => $missingDependencies,
-            'circularDependencies' => $circularDependencies
+            'circularDependencies' => $circularDependencies,
         ];
     }
 }

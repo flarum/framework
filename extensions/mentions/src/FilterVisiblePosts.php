@@ -24,7 +24,7 @@ class FilterVisiblePosts
     protected $posts;
 
     /**
-     * @param PostRepository $posts
+     * @param  PostRepository  $posts
      */
     public function __construct(PostRepository $posts)
     {
@@ -39,8 +39,8 @@ class FilterVisiblePosts
      * additional posts so that the user can't see any posts which they don't
      * have access to.
      *
-     * @param Controller\AbstractSerializeController $controller
-     * @param mixed $data
+     * @param  Controller\AbstractSerializeController  $controller
+     * @param  mixed  $data
      */
     public function __invoke(Controller\AbstractSerializeController $controller, $data, ServerRequestInterface $request)
     {
@@ -55,7 +55,7 @@ class FilterVisiblePosts
             || $controller instanceof Controller\UpdatePostController) {
             $relations = [
                 'mentionsUsers', 'mentionsPosts', 'mentionsPosts.user', 'mentionedBy',
-                'mentionedBy.mentionsPosts', 'mentionedBy.mentionsPosts.user', 'mentionedBy.mentionsUsers'
+                'mentionedBy.mentionsPosts', 'mentionedBy.mentionsPosts.user', 'mentionedBy.mentionsUsers',
             ];
 
             $posts = [$data];

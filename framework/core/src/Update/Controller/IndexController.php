@@ -21,7 +21,7 @@ class IndexController extends AbstractHtmlController
     protected $view;
 
     /**
-     * @param Factory $view
+     * @param  Factory  $view
      */
     public function __construct(Factory $view)
     {
@@ -29,7 +29,7 @@ class IndexController extends AbstractHtmlController
     }
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function render(Request $request)

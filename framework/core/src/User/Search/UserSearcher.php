@@ -29,10 +29,10 @@ class UserSearcher extends AbstractSearcher
     protected $users;
 
     /**
-     * @param UserRepository $users
-     * @param Dispatcher $events
-     * @param GambitManager $gambits
-     * @param array $searchMutators
+     * @param  UserRepository  $users
+     * @param  Dispatcher  $events
+     * @param  GambitManager  $gambits
+     * @param  array  $searchMutators
      */
     public function __construct(UserRepository $users, Dispatcher $events, GambitManager $gambits, array $searchMutators)
     {

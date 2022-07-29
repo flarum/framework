@@ -48,5 +48,5 @@ return [
             $table->dropForeign(['first_post_id']);
             $table->dropForeign(['last_post_id']);
         });
-    }
+    },
 ];

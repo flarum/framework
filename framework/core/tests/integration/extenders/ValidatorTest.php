@@ -23,8 +23,8 @@ class ValidatorTest extends TestCase
             $validator->setRules([
                 'password' => [
                     'required',
-                    'min:20'
-                ]
+                    'min:20',
+                ],
             ] + $validator->getRules());
         }));
     }
@@ -90,8 +90,8 @@ class CustomValidatorClass
         $validator->setRules([
             'password' => [
                 'required',
-                'min:20'
-            ]
+                'min:20',
+            ],
         ] + $validator->getRules());
     }
 }

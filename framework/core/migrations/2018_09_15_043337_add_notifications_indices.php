@@ -21,5 +21,5 @@ return [
         $schema->table('notifications', function (Blueprint $table) {
             $table->dropIndex(['user_id']);
         });
-    }
+    },
 ];

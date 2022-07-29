@@ -21,7 +21,7 @@ class SendNotificationWhenUserIsSuspended
     protected $notifications;
 
     /**
-     * @param NotificationSyncer $notifications
+     * @param  NotificationSyncer  $notifications
      */
     public function __construct(NotificationSyncer $notifications)
     {

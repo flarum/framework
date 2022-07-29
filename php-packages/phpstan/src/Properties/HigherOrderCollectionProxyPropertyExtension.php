@@ -42,7 +42,8 @@ final class HigherOrderCollectionProxyPropertyExtension implements PropertiesCla
 
         $returnType = HigherOrderCollectionProxyHelper::determineReturnType($methodType->getValue(), $modelType, $propertyType);
 
-        return new class($classReflection, $returnType) implements PropertyReflection {
+        return new class($classReflection, $returnType) implements PropertyReflection
+        {
             /** @var ClassReflection */
             private $classReflection;
 
@@ -55,7 +56,7 @@ final class HigherOrderCollectionProxyPropertyExtension implements PropertiesCla
                 $this->returnType = $returnType;
             }
 
-            public function getDeclaringClass(): \PHPStan\Reflection\ClassReflection
+            public function getDeclaringClass(): ClassReflection
             {
                 return $this->classReflection;
             }
@@ -105,7 +106,7 @@ final class HigherOrderCollectionProxyPropertyExtension implements PropertiesCla
                 return false;
             }
 
-            public function isDeprecated(): \PHPStan\TrinaryLogic
+            public function isDeprecated(): TrinaryLogic
             {
                 return TrinaryLogic::createNo();
             }
@@ -115,7 +116,7 @@ final class HigherOrderCollectionProxyPropertyExtension implements PropertiesCla
                 return null;
             }
 
-            public function isInternal(): \PHPStan\TrinaryLogic
+            public function isInternal(): TrinaryLogic
             {
                 return TrinaryLogic::createNo();
             }

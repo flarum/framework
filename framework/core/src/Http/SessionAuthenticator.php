@@ -14,8 +14,8 @@ use Illuminate\Contracts\Session\Session;
 class SessionAuthenticator
 {
     /**
-     * @param Session $session
-     * @param AccessToken $token
+     * @param  Session  $session
+     * @param  AccessToken  $token
      */
     public function logIn(Session $session, AccessToken $token)
     {
@@ -24,7 +24,7 @@ class SessionAuthenticator
     }
 
     /**
-     * @param Session $session
+     * @param  Session  $session
      */
     public function logOut(Session $session)
     {

@@ -36,9 +36,9 @@ class DeleteTag
     public $data;
 
     /**
-     * @param int $tagId The ID of the tag to delete.
-     * @param User $actor The user performing the action.
-     * @param array $data Any other tag input associated with the action. This
+     * @param  int  $tagId The ID of the tag to delete.
+     * @param  User  $actor The user performing the action.
+     * @param  array  $data Any other tag input associated with the action. This
      *     is unused by default, but may be used by extensions.
      */
     public function __construct($tagId, User $actor, array $data = [])

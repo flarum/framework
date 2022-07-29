@@ -11,5 +11,5 @@ use Flarum\Database\Migration;
 use Flarum\Group\Group;
 
 return Migration::addPermissions([
-    'discussion.lock' => Group::MODERATOR_ID
+    'discussion.lock' => Group::MODERATOR_ID,
 ]);

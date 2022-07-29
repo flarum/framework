@@ -33,7 +33,7 @@ class RegistrationToken extends AbstractModel
 
     protected $casts = [
         'user_attributes' => 'array',
-        'payload' => 'array'
+        'payload' => 'array',
     ];
 
     /**
@@ -51,10 +51,10 @@ class RegistrationToken extends AbstractModel
     /**
      * Generate an auth token for the specified user.
      *
-     * @param string $provider
-     * @param string $identifier
-     * @param array $attributes
-     * @param array $payload
+     * @param  string  $provider
+     * @param  string  $identifier
+     * @param  array  $attributes
+     * @param  array  $payload
      * @return static
      */
     public static function generate(string $provider, string $identifier, array $attributes, array $payload)
@@ -74,12 +74,11 @@ class RegistrationToken extends AbstractModel
     /**
      * Find the token with the given ID, and assert that it has not expired.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $token
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  string  $token
+     * @return RegistrationToken
      *
      * @throws InvalidConfirmationTokenException
-     *
-     * @return RegistrationToken
      */
     public function scopeValidOrFail($query, string $token)
     {

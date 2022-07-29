@@ -71,7 +71,7 @@ final class ModelExtension implements DynamicStaticMethodReturnTypeExtension
 
         $returnType = ParametersAcceptorSelector::selectSingle($method->getVariants())->getReturnType();
 
-        return (count(array_intersect([EloquentBuilder::class, QueryBuilder::class, Collection::class], $returnType->getReferencedClasses()))) > 0;
+        return count(array_intersect([EloquentBuilder::class, QueryBuilder::class, Collection::class], $returnType->getReferencedClasses())) > 0;
     }
 
     /**

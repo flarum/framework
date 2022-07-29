@@ -30,5 +30,5 @@ return [
         $schema->table('posts', function (Blueprint $table) {
             $table->dropForeign(['discussion_id']);
         });
-    }
+    },
 ];

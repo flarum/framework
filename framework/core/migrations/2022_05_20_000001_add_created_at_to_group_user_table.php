@@ -26,5 +26,5 @@ return [
         $schema->table('group_user', function (Blueprint $table) {
             $table->dropColumn('created_at');
         });
-    }
+    },
 ];

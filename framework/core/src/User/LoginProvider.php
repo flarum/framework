@@ -41,8 +41,8 @@ class LoginProvider extends AbstractModel
     /**
      * Get the user associated with the provider so that they can be logged in.
      *
-     * @param string $provider
-     * @param string $identifier
+     * @param  string  $provider
+     * @param  string  $identifier
      * @return User|null
      */
     public static function logIn(string $provider, string $identifier): ?User

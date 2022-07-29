@@ -77,7 +77,7 @@ class Discussion extends AbstractModel
      * @var array
      */
     protected $casts = [
-        'is_private' => 'boolean'
+        'is_private' => 'boolean',
     ];
 
     /**
@@ -114,8 +114,8 @@ class Discussion extends AbstractModel
     /**
      * Start a new discussion. Raises the DiscussionWasStarted event.
      *
-     * @param string $title
-     * @param User $user
+     * @param  string  $title
+     * @param  User  $user
      * @return static
      */
     public static function start($title, User $user)
@@ -136,7 +136,7 @@ class Discussion extends AbstractModel
     /**
      * Rename the discussion. Raises the DiscussionWasRenamed event.
      *
-     * @param string $title
+     * @param  string  $title
      * @return $this
      */
     public function rename($title)
@@ -154,7 +154,7 @@ class Discussion extends AbstractModel
     /**
      * Hide the discussion.
      *
-     * @param User $actor
+     * @param  User  $actor
      * @return $this
      */
     public function hide(User $actor = null)
@@ -189,7 +189,7 @@ class Discussion extends AbstractModel
     /**
      * Set the discussion's first post details.
      *
-     * @param Post $post
+     * @param  Post  $post
      * @return $this
      */
     public function setFirstPost(Post $post)
@@ -204,7 +204,7 @@ class Discussion extends AbstractModel
     /**
      * Set the discussion's last post details.
      *
-     * @param Post $post
+     * @param  Post  $post
      * @return $this
      */
     public function setLastPost(Post $post)
@@ -264,7 +264,7 @@ class Discussion extends AbstractModel
      * DiscussionRenamedPost, and delete if the title has been reverted
      * completely.)
      *
-     * @param \Flarum\Post\MergeableInterface $post The post to save.
+     * @param  \Flarum\Post\MergeableInterface  $post The post to save.
      * @return Post The resulting post. It may or may not be the same post as
      *     was originally intended to be saved. It also may not exist, if the
      *     merge logic resulted in deletion.
@@ -396,7 +396,7 @@ class Discussion extends AbstractModel
      *
      * @see Discussion::setStateUser()
      *
-     * @param User|null $user
+     * @param  User|null  $user
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function state(User $user = null)
@@ -410,7 +410,7 @@ class Discussion extends AbstractModel
      * Get the state model for a user, or instantiate a new one if it does not
      * exist.
      *
-     * @param User $user
+     * @param  User  $user
      * @return \Flarum\Discussion\UserState
      */
     public function stateFor(User $user)
@@ -429,7 +429,7 @@ class Discussion extends AbstractModel
     /**
      * Set the user for which the state relationship should be loaded.
      *
-     * @param User $user
+     * @param  User  $user
      */
     public static function setStateUser(User $user)
     {
@@ -441,7 +441,7 @@ class Discussion extends AbstractModel
      *
      * This automatically creates a matching slug for the discussion.
      *
-     * @param string $title
+     * @param  string  $title
      */
     protected function setTitleAttribute($title)
     {

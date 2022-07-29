@@ -11,5 +11,5 @@ use Flarum\Database\Migration;
 use Flarum\Group\Group;
 
 return Migration::addPermissions([
-    'discussion.likePosts' => Group::MEMBER_ID
+    'discussion.likePosts' => Group::MEMBER_ID,
 ]);

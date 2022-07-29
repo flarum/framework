@@ -10,5 +10,5 @@
 use Flarum\Database\Migration;
 
 return Migration::addColumns('discussions', [
-    'is_locked' => ['boolean', 'default' => 0]
+    'is_locked' => ['boolean', 'default' => 0],
 ]);

@@ -17,23 +17,37 @@ use Illuminate\Contracts\Container\Container;
 class ApiController implements ExtenderInterface
 {
     private $controllerClass;
+
     private $beforeDataCallbacks = [];
+
     private $beforeSerializationCallbacks = [];
+
     private $serializer;
+
     private $addIncludes = [];
+
     private $removeIncludes = [];
+
     private $addOptionalIncludes = [];
+
     private $removeOptionalIncludes = [];
+
     private $limit;
+
     private $maxLimit;
+
     private $addSortFields = [];
+
     private $removeSortFields = [];
+
     private $sort;
+
     private $load = [];
+
     private $loadCallables = [];
 
     /**
-     * @param string $controllerClass: The ::class attribute of the controller you are modifying.
+     * @param  string  $controllerClass: The ::class attribute of the controller you are modifying.
      *                                This controller should extend from \Flarum\Api\Controller\AbstractSerializeController.
      */
     public function __construct(string $controllerClass)
@@ -42,11 +56,10 @@ class ApiController implements ExtenderInterface
     }
 
     /**
-     * @param callable|string $callback
+     * @param  callable|string  $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
-     *
      * @return self
      */
     public function prepareDataQuery($callback): self
@@ -57,7 +70,7 @@ class ApiController implements ExtenderInterface
     }
 
     /**
-     * @param callable|string $callback
+     * @param  callable|string  $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
@@ -68,7 +81,6 @@ class ApiController implements ExtenderInterface
      * The callable should return:
      * - An array of additional data to merge with the existing array.
      *   Or a modified $data array.
-     *
      * @return self
      */
     public function prepareDataForSerialization($callback): self
@@ -81,15 +93,14 @@ class ApiController implements ExtenderInterface
     /**
      * Set the serializer that will serialize data for the endpoint.
      *
-     * @param string $serializerClass: The ::class attribute of the serializer.
-     * @param callable|string|null $callback
+     * @param  string  $serializerClass: The ::class attribute of the serializer.
+     * @param  callable|string|null  $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
      * - A boolean value to determine if this applies.
-     *
      * @return self
      */
     public function setSerializer(string $serializerClass, $callback = null): self
@@ -102,15 +113,14 @@ class ApiController implements ExtenderInterface
     /**
      * Include the given relationship by default.
      *
-     * @param string|array $name: The name of the relation.
-     * @param callable|string|null $callback
+     * @param  string|array  $name: The name of the relation.
+     * @param  callable|string|null  $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
      * - A boolean value to determine if this applies.
-     *
      * @return self
      */
     public function addInclude($name, $callback = null): self
@@ -123,15 +133,14 @@ class ApiController implements ExtenderInterface
     /**
      * Don't include the given relationship by default.
      *
-     * @param string|array $name: The name of the relation.
-     * @param callable|string|null $callback
+     * @param  string|array  $name: The name of the relation.
+     * @param  callable|string|null  $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
      * - A boolean value to determine if this applies.
-     *
      * @return self
      */
     public function removeInclude($name, $callback = null): self
@@ -144,15 +153,14 @@ class ApiController implements ExtenderInterface
     /**
      * Make the given relationship available for inclusion.
      *
-     * @param string|array $name: The name of the relation.
-     * @param callable|string|null $callback
+     * @param  string|array  $name: The name of the relation.
+     * @param  callable|string|null  $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
      * - A boolean value to determine if this applies.
-     *
      * @return self
      */
     public function addOptionalInclude($name, $callback = null): self
@@ -165,15 +173,14 @@ class ApiController implements ExtenderInterface
     /**
      * Don't allow the given relationship to be included.
      *
-     * @param string|array $name: The name of the relation.
-     * @param callable|string|null $callback
+     * @param  string|array  $name: The name of the relation.
+     * @param  callable|string|null  $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
      * - A boolean value to determine if this applies.
-     *
      * @return self
      */
     public function removeOptionalInclude($name, $callback = null): self
@@ -186,15 +193,14 @@ class ApiController implements ExtenderInterface
     /**
      * Set the default number of results.
      *
-     * @param int $limit
-     * @param callable|string|null $callback
+     * @param  int  $limit
+     * @param  callable|string|null  $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
      * - A boolean value to determine if this applies.
-     *
      * @return self
      */
     public function setLimit(int $limit, $callback = null): self
@@ -207,15 +213,14 @@ class ApiController implements ExtenderInterface
     /**
      * Set the maximum number of results.
      *
-     * @param int $max
-     * @param callable|string|null $callback
+     * @param  int  $max
+     * @param  callable|string|null  $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
      * - A boolean value to determine if this applies.
-     *
      * @return self
      */
     public function setMaxLimit(int $max, $callback = null): self
@@ -228,15 +233,14 @@ class ApiController implements ExtenderInterface
     /**
      * Allow sorting results by the given field.
      *
-     * @param string|array $field
-     * @param callable|string|null $callback
+     * @param  string|array  $field
+     * @param  callable|string|null  $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
      * - A boolean value to determine if this applies.
-     *
      * @return self
      */
     public function addSortField($field, $callback = null): self
@@ -249,15 +253,14 @@ class ApiController implements ExtenderInterface
     /**
      * Disallow sorting results by the given field.
      *
-     * @param string|array $field
-     * @param callable|string|null $callback
+     * @param  string|array  $field
+     * @param  callable|string|null  $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
      * - A boolean value to determine if this applies.
-     *
      * @return self
      */
     public function removeSortField($field, $callback = null): self
@@ -270,15 +273,14 @@ class ApiController implements ExtenderInterface
     /**
      * Set the default sort order for the results.
      *
-     * @param array $sort
-     * @param callable|string|null $callback
+     * @param  array  $sort
+     * @param  callable|string|null  $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      *
      * The callable should return:
      * - A boolean value to determine if this applies.
-     *
      * @return self
      */
     public function setSort(array $sort, $callback = null): self
@@ -299,7 +301,7 @@ class ApiController implements ExtenderInterface
      * To force load the relationship, both levels have to be specified,
      * example: ['relation', 'relation.subRelation'].
      *
-     * @param string|string[] $relations
+     * @param  string|string[]  $relations
      * @return self
      */
     public function load($relations): self
@@ -312,14 +314,13 @@ class ApiController implements ExtenderInterface
     /**
      * Allows loading a relationship with additional query modification.
      *
-     * @param string $relation: Relationship name, see load method description.
-     * @param callable(\Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Relations\Relation, \Psr\Http\Message\ServerRequestInterface|null, array): void $callback
+     * @param  string  $relation: Relationship name, see load method description.
+     * @param  callable(\Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Relations\Relation, \Psr\Http\Message\ServerRequestInterface|null, array): void  $callback
      *
      * The callback to modify the query, should accept:
      * - \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Relations\Relation $query: A query object.
      * - \Psr\Http\Message\ServerRequestInterface|null $request: An instance of the request.
      * - array $relations: An array of relations that are to be loaded.
-     *
      * @return self
      */
     public function loadWhere(string $relation, callable $callback): self
@@ -400,9 +401,9 @@ class ApiController implements ExtenderInterface
     }
 
     /**
-     * @param callable|string|null $callback
-     * @param AbstractSerializeController $controller
-     * @param Container $container
+     * @param  callable|string|null  $callback
+     * @param  AbstractSerializeController  $controller
+     * @param  Container  $container
      * @return bool
      */
     private function isApplicable($callback, AbstractSerializeController $controller, Container $container)

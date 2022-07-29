@@ -29,5 +29,5 @@ return [
             $table->dropColumn('created_at');
             $table->dropColumn('updated_at');
         });
-    }
+    },
 ];

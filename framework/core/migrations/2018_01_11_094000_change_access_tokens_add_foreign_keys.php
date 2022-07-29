@@ -30,5 +30,5 @@ return [
         $schema->table('access_tokens', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
         });
-    }
+    },
 ];

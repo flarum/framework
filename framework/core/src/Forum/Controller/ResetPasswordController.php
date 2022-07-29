@@ -25,7 +25,7 @@ class ResetPasswordController extends AbstractHtmlController
     protected $view;
 
     /**
-     * @param Factory $view
+     * @param  Factory  $view
      */
     public function __construct(Factory $view)
     {
@@ -33,8 +33,9 @@ class ResetPasswordController extends AbstractHtmlController
     }
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return \Illuminate\Contracts\View\View
+     *
      * @throws \Flarum\User\Exception\InvalidConfirmationTokenException
      */
     public function render(Request $request)

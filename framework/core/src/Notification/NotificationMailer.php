@@ -33,9 +33,9 @@ class NotificationMailer
     protected $settings;
 
     /**
-     * @param Mailer $mailer
-     * @param TranslatorInterface $translator
-     * @param SettingsRepositoryInterface $settings
+     * @param  Mailer  $mailer
+     * @param  TranslatorInterface  $translator
+     * @param  SettingsRepositoryInterface  $settings
      */
     public function __construct(Mailer $mailer, TranslatorInterface $translator, SettingsRepositoryInterface $settings)
     {
@@ -45,8 +45,8 @@ class NotificationMailer
     }
 
     /**
-     * @param MailableInterface $blueprint
-     * @param User $user
+     * @param  MailableInterface  $blueprint
+     * @param  User  $user
      */
     public function send(MailableInterface $blueprint, User $user)
     {

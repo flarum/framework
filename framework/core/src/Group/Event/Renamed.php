@@ -25,8 +25,8 @@ class Renamed
     public $actor;
 
     /**
-     * @param \Flarum\Group\Group $group
-     * @param User $actor
+     * @param  \Flarum\Group\Group  $group
+     * @param  User  $actor
      */
     public function __construct(Group $group, User $actor = null)
     {

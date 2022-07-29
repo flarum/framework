@@ -11,5 +11,5 @@ use Flarum\Database\Migration;
 use Flarum\Group\Group;
 
 return Migration::addPermissions([
-    'user.editOwnNickname' => Group::MEMBER_ID
+    'user.editOwnNickname' => Group::MEMBER_ID,
 ]);

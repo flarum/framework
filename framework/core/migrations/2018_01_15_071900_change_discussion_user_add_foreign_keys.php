@@ -35,5 +35,5 @@ return [
             $table->dropForeign(['user_id']);
             $table->dropForeign(['discussion_id']);
         });
-    }
+    },
 ];

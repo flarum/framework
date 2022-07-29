@@ -21,7 +21,7 @@ class IlluminateValidationExceptionHandlerTest extends TestCase
     private $handler;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -39,8 +39,8 @@ class IlluminateValidationExceptionHandlerTest extends TestCase
         $this->assertEquals([
             [
                 'detail' => 'validation.required',
-                'source' => ['pointer' => '/data/attributes/foo']
-            ]
+                'source' => ['pointer' => '/data/attributes/foo'],
+            ],
         ], $error->getDetails());
     }
 

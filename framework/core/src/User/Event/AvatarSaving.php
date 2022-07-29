@@ -36,9 +36,9 @@ class AvatarSaving
     public $image;
 
     /**
-     * @param User $user The user whose avatar will be saved.
-     * @param User $actor The user performing the action.
-     * @param Image $image The image that will be saved.
+     * @param  User  $user The user whose avatar will be saved.
+     * @param  User  $actor The user performing the action.
+     * @param  Image  $image The image that will be saved.
      */
     public function __construct(User $user, User $actor, Image $image)
     {

@@ -39,5 +39,5 @@ return [
             $table->dropForeign(['user_id']);
             $table->dropForeign(['from_user_id']);
         });
-    }
+    },
 ];

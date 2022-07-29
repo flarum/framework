@@ -22,9 +22,9 @@ class UserFilterer extends AbstractFilterer
     protected $users;
 
     /**
-     * @param UserRepository $users
-     * @param array $filters
-     * @param array $filterMutators
+     * @param  UserRepository  $users
+     * @param  array  $filters
+     * @param  array  $filterMutators
      */
     public function __construct(UserRepository $users, array $filters, array $filterMutators)
     {

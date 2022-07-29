@@ -22,7 +22,7 @@ class ReadNotificationHandler
     protected $events;
 
     /**
-     * @param Dispatcher $events
+     * @param  Dispatcher  $events
      */
     public function __construct(Dispatcher $events)
     {
@@ -30,8 +30,9 @@ class ReadNotificationHandler
     }
 
     /**
-     * @param ReadNotification $command
+     * @param  ReadNotification  $command
      * @return \Flarum\Notification\Notification
+     *
      * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(ReadNotification $command)
@@ -45,7 +46,7 @@ class ReadNotificationHandler
         Notification::where([
             'user_id' => $actor->id,
             'type' => $notification->type,
-            'subject_id' => $notification->subject_id
+            'subject_id' => $notification->subject_id,
         ])
             ->update(['read_at' => Carbon::now()]);
 

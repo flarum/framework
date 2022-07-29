@@ -37,11 +37,11 @@ return [
             'name' => 'General',
             'slug' => 'general',
             'color' => '#888',
-            'position' => '0'
+            'position' => '0',
         ]);
     },
 
     'down' => function (Builder $schema) {
         $schema->drop('tags');
-    }
+    },
 ];

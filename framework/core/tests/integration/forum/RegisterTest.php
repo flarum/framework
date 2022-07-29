@@ -16,7 +16,7 @@ use Flarum\User\User;
 class RegisterTest extends TestCase
 {
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -74,7 +74,7 @@ class RegisterTest extends TestCase
                     'username' => 'test',
                     'password' => 'too-obscure',
                     'email' => 'test@machine.local',
-                ]
+                ],
             ])
         );
 

@@ -60,7 +60,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     }
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      */
     public function setRequest(Request $request)
     {
@@ -104,13 +104,13 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     /**
      * Get the default set of serialized attributes for a model.
      *
-     * @param object|array $model
+     * @param  object|array  $model
      * @return array
      */
     abstract protected function getDefaultAttributes($model);
 
     /**
-     * @param DateTime|null $date
+     * @param  DateTime|null  $date
      * @return string|null
      */
     public function formatDate(DateTime $date = null)
@@ -135,8 +135,8 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     /**
      * Get a custom relationship.
      *
-     * @param mixed $model
-     * @param string $name
+     * @param  mixed  $model
+     * @param  string  $name
      * @return Relationship|null
      */
     protected function getCustomRelationship($model, $name)
@@ -161,9 +161,9 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     /**
      * Get a relationship builder for a has-one relationship.
      *
-     * @param mixed $model
-     * @param string|Closure|\Tobscure\JsonApi\SerializerInterface $serializer
-     * @param string|Closure|null $relation
+     * @param  mixed  $model
+     * @param  string|Closure|\Tobscure\JsonApi\SerializerInterface  $serializer
+     * @param  string|Closure|null  $relation
      * @return Relationship
      */
     public function hasOne($model, $serializer, $relation = null)
@@ -174,9 +174,9 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     /**
      * Get a relationship builder for a has-many relationship.
      *
-     * @param mixed $model
-     * @param string|Closure|\Tobscure\JsonApi\SerializerInterface $serializer
-     * @param string|null $relation
+     * @param  mixed  $model
+     * @param  string|Closure|\Tobscure\JsonApi\SerializerInterface  $serializer
+     * @param  string|null  $relation
      * @return Relationship
      */
     public function hasMany($model, $serializer, $relation = null)
@@ -185,16 +185,16 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     }
 
     /**
-     * @param mixed $model
-     * @param string|Closure|\Tobscure\JsonApi\SerializerInterface $serializer
-     * @param string|null $relation
-     * @param bool $many
+     * @param  mixed  $model
+     * @param  string|Closure|\Tobscure\JsonApi\SerializerInterface  $serializer
+     * @param  string|null  $relation
+     * @param  bool  $many
      * @return Relationship
      */
     protected function buildRelationship($model, $serializer, $relation = null, $many = false)
     {
         if (is_null($relation)) {
-            list(, , $caller) = debug_backtrace(false, 3);
+            [, , $caller] = debug_backtrace(false, 3);
 
             $relation = $caller['function'];
         }
@@ -213,8 +213,8 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     }
 
     /**
-     * @param mixed $model
-     * @param string $relation
+     * @param  mixed  $model
+     * @param  string  $relation
      * @return mixed
      */
     protected function getRelationshipData($model, $relation)
@@ -227,10 +227,11 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     }
 
     /**
-     * @param mixed $serializer
-     * @param mixed $model
-     * @param mixed $data
+     * @param  mixed  $serializer
+     * @param  mixed  $model
+     * @param  mixed  $data
      * @return SerializerInterface
+     *
      * @throws InvalidArgumentException
      */
     protected function resolveSerializer($serializer, $model, $data)
@@ -252,7 +253,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     }
 
     /**
-     * @param string $class
+     * @param  string  $class
      * @return object
      */
     protected function resolveSerializerClass($class)
@@ -273,7 +274,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     }
 
     /**
-     * @param Container $container
+     * @param  Container  $container
      *
      * @internal
      */
@@ -283,8 +284,8 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     }
 
     /**
-     * @param string $serializerClass
-     * @param callable $callback
+     * @param  string  $serializerClass
+     * @param  callable  $callback
      *
      * @internal
      */
@@ -298,9 +299,9 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     }
 
     /**
-     * @param string $serializerClass
-     * @param string $relation
-     * @param callable $callback
+     * @param  string  $serializerClass
+     * @param  string  $relation
+     * @param  callable  $callback
      *
      * @internal
      */

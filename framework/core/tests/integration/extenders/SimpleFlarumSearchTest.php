@@ -52,7 +52,7 @@ class SimpleFlarumSearchTest extends TestCase
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function tearDown(): void
     {

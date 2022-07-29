@@ -37,7 +37,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 );
 
                 $assets->setLessImportDirs([
-                    $paths->vendor.'/components/font-awesome/less' => ''
+                    $paths->vendor.'/components/font-awesome/less' => '',
                 ]);
 
                 $assets->css([$this, 'addBaseCss']);
@@ -69,13 +69,13 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     foreach ($document->css as $url) {
                         $css_preloads[] = [
                             'href' => $url,
-                            'as' => 'style'
+                            'as' => 'style',
                         ];
                     }
                     foreach ($document->js as $url) {
                         $css_preloads[] = [
                             'href' => $url,
-                            'as' => 'script'
+                            'as' => 'script',
                         ];
                     }
 
@@ -101,13 +101,13 @@ class FrontendServiceProvider extends AbstractServiceProvider
                         'href' => $filesystem->url('fonts/fa-solid-900.woff2'),
                         'as' => 'font',
                         'type' => 'font/woff2',
-                        'crossorigin' => ''
+                        'crossorigin' => '',
                     ], [
                         'href' => $filesystem->url('fonts/fa-regular-400.woff2'),
                         'as' => 'font',
                         'type' => 'font/woff2',
-                        'crossorigin' => ''
-                    ]
+                        'crossorigin' => '',
+                    ],
                 ];
             }
         );
@@ -123,7 +123,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 return [
                     'is-extension-enabled' => function (\Less_Tree_Quoted $extensionId) use ($extensionsEnabled) {
                         return new \Less_Tree_Quoted('', in_array($extensionId->value, $extensionsEnabled) ? 'true' : 'false');
-                    }
+                    },
                 ];
             }
         );
@@ -136,19 +136,19 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.less.config', function (Container $container) {
             return [
-                'config-primary-color'   => [
+                'config-primary-color' => [
                     'key' => 'theme_primary_color',
                 ],
                 'config-secondary-color' => [
                     'key' => 'theme_secondary_color',
                 ],
-                'config-dark-mode'       => [
+                'config-dark-mode' => [
                     'key' => 'theme_dark_mode',
                     'callback' => function ($value) {
                         return $value ? 'true' : 'false';
                     },
                 ],
-                'config-colored-header'  => [
+                'config-colored-header' => [
                     'key' => 'theme_colored_header',
                     'callback' => function ($value) {
                         return $value ? 'true' : 'false';
@@ -175,7 +175,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
         $views->share([
             'translator' => $container->make('translator'),
             'url' => $container->make(UrlGenerator::class),
-            'slugManager' => $container->make(SlugManager::class)
+            'slugManager' => $container->make(SlugManager::class),
         ]);
     }
 

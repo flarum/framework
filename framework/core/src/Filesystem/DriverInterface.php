@@ -27,11 +27,11 @@ interface DriverInterface
      * Otherwise, this driver won't work for public-facing disks
      * like `flarum-assets` or `flarum-avatars`.
      *
-     * @param string $diskName: The name of a disk this driver is being used for.
+     * @param  string  $diskName: The name of a disk this driver is being used for.
      *                   This is generally used to locate disk-specific settings.
-     * @param SettingsRepositoryInterface $settings: An instance of the Flarum settings repository.
-     * @param Config $config: An instance of the wrapper class around `config.php`.
-     * @param array $localConfig: The configuration array that would have been used
+     * @param  SettingsRepositoryInterface  $settings: An instance of the Flarum settings repository.
+     * @param  Config  $config: An instance of the wrapper class around `config.php`.
+     * @param  array  $localConfig: The configuration array that would have been used
      *                            if this disk were using the 'local' filesystem driver.
      *                            Some of these settings might be useful (e.g. visibility, )
      */

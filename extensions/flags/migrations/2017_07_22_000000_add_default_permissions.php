@@ -12,5 +12,5 @@ use Flarum\Group\Group;
 
 return Migration::addPermissions([
     'discussion.flagPosts' => Group::MEMBER_ID,
-    'discussion.viewFlags' => Group::MODERATOR_ID
+    'discussion.viewFlags' => Group::MODERATOR_ID,
 ]);

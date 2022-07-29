@@ -33,9 +33,9 @@ class EditGroupHandler
     protected $validator;
 
     /**
-     * @param Dispatcher $events
-     * @param GroupRepository $groups
-     * @param GroupValidator $validator
+     * @param  Dispatcher  $events
+     * @param  GroupRepository  $groups
+     * @param  GroupValidator  $validator
      */
     public function __construct(Dispatcher $events, GroupRepository $groups, GroupValidator $validator)
     {
@@ -45,8 +45,9 @@ class EditGroupHandler
     }
 
     /**
-     * @param EditGroup $command
+     * @param  EditGroup  $command
      * @return Group
+     *
      * @throws PermissionDeniedException
      */
     public function handle(EditGroup $command)

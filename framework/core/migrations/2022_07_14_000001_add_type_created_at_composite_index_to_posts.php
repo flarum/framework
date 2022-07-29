@@ -21,5 +21,5 @@ return [
         $schema->table('posts', function (Blueprint $table) {
             $table->index(['type', 'created_at']);
         });
-    }
+    },
 ];

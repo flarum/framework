@@ -33,7 +33,7 @@ class ShowForumController extends AbstractShowController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         return [
-            'groups' => Group::whereVisibleTo(RequestUtil::getActor($request))->get()
+            'groups' => Group::whereVisibleTo(RequestUtil::getActor($request))->get(),
         ];
     }
 }

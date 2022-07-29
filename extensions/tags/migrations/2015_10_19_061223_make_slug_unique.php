@@ -23,5 +23,5 @@ return [
             $table->string('slug', 255)->change();
             $table->dropUnique(['slug']);
         });
-    }
+    },
 ];

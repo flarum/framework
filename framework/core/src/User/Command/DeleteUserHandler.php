@@ -25,8 +25,8 @@ class DeleteUserHandler
     protected $users;
 
     /**
-     * @param Dispatcher $events
-     * @param UserRepository $users
+     * @param  Dispatcher  $events
+     * @param  UserRepository  $users
      */
     public function __construct(Dispatcher $events, UserRepository $users)
     {
@@ -35,8 +35,9 @@ class DeleteUserHandler
     }
 
     /**
-     * @param DeleteUser $command
+     * @param  DeleteUser  $command
      * @return \Flarum\User\User
+     *
      * @throws PermissionDeniedException
      */
     public function handle(DeleteUser $command)

@@ -17,8 +17,11 @@ use RuntimeException;
 class Theme implements ExtenderInterface
 {
     private $lessImportOverrides = [];
+
     private $fileSourceOverrides = [];
+
     private $customFunctions = [];
+
     private $lessVariables = [];
 
     /**
@@ -26,9 +29,9 @@ class Theme implements ExtenderInterface
      * For example, core's `forum.less` file imports a `forum/DiscussionListItem.less` file.
      * The contents of this file can be overriden with this method.
      *
-     * @param string $file : Relative path of the file to override, for example: `forum/Hero.less`
-     * @param string $newFilePath : Absolute path of the new file.
-     * @param string|null $extensionId : If overriding an extension file, specify its ID, for example: `flarum-tags`.
+     * @param  string  $file : Relative path of the file to override, for example: `forum/Hero.less`
+     * @param  string  $newFilePath : Absolute path of the new file.
+     * @param  string|null  $extensionId : If overriding an extension file, specify its ID, for example: `flarum-tags`.
      * @return self
      */
     public function overrideLessImport(string $file, string $newFilePath, string $extensionId = null): self
@@ -43,9 +46,9 @@ class Theme implements ExtenderInterface
      * For example `forum.less`, `admin.less`, `mixins.less` and `variables.less` are file sources,
      * and can therefore be overriden using this method.
      *
-     * @param string $file : Name of the file to override, for example: `admin.less`
-     * @param string $newFilePath : Absolute path of the new file.
-     * @param string|null $extensionId : If overriding an extension file, specify its ID, for example: `flarum-tags`.
+     * @param  string  $file : Name of the file to override, for example: `admin.less`
+     * @param  string  $newFilePath : Absolute path of the new file.
+     * @param  string|null  $extensionId : If overriding an extension file, specify its ID, for example: `flarum-tags`.
      * @return self
      */
     public function overrideFileSource(string $file, string $newFilePath, string $extensionId = null): self
@@ -70,8 +73,8 @@ class Theme implements ExtenderInterface
      *
      * @see https://leafo.net/lessphp/docs/#custom_functions
      *
-     * @param string $functionName Name of the function identifier.
-     * @param callable $callable The PHP function to run when the Less function is called.
+     * @param  string  $functionName Name of the function identifier.
+     * @param  callable  $callable The PHP function to run when the Less function is called.
      * @return self
      */
     public function addCustomLessFunction(string $functionName, callable $callable): self
@@ -124,9 +127,8 @@ class Theme implements ExtenderInterface
      *   })
      * ```
      *
-     * @param string $variableName Name of the variable identifier.
-     * @param callable $value The PHP function to run, which returns the value for the variable.
-     *
+     * @param  string  $variableName Name of the variable identifier.
+     * @param  callable  $value The PHP function to run, which returns the value for the variable.
      * @return self
      */
     public function addCustomLessVariable(string $variableName, callable $value): self

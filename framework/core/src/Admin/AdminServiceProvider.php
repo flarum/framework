@@ -151,7 +151,7 @@ class AdminServiceProvider extends AbstractServiceProvider
     }
 
     /**
-     * @param RouteCollection $routes
+     * @param  RouteCollection  $routes
      */
     protected function populateRoutes(RouteCollection $routes)
     {

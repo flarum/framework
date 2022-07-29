@@ -15,8 +15,8 @@ use Illuminate\Database\Eloquent\Builder;
 class ScopePrivateDiscussionVisibility
 {
     /**
-     * @param Builder $query
-     * @param User $actor
+     * @param  Builder  $query
+     * @param  User  $actor
      */
     public function __invoke(User $actor, Builder $query)
     {

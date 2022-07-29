@@ -16,7 +16,7 @@ interface Reporter
     /**
      * Report an error that Flarum was not able to handle to a backend.
      *
-     * @param Throwable $error
+     * @param  Throwable  $error
      * @return void
      */
     public function report(Throwable $error);

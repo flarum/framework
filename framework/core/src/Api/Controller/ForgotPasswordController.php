@@ -31,8 +31,8 @@ class ForgotPasswordController implements RequestHandlerInterface
     protected $bus;
 
     /**
-     * @param \Flarum\User\UserRepository $users
-     * @param Dispatcher $bus
+     * @param  \Flarum\User\UserRepository  $users
+     * @param  Dispatcher  $bus
      */
     public function __construct(UserRepository $users, Dispatcher $bus)
     {

@@ -38,7 +38,7 @@ class Frontend
     }
 
     /**
-     * @param callable $content
+     * @param  callable  $content
      */
     public function content(callable $content)
     {

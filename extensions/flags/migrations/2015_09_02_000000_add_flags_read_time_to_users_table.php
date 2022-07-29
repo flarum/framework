@@ -10,5 +10,5 @@
 use Flarum\Database\Migration;
 
 return Migration::addColumns('users', [
-    'flags_read_time' => ['dateTime', 'nullable' => true]
+    'flags_read_time' => ['dateTime', 'nullable' => true],
 ]);

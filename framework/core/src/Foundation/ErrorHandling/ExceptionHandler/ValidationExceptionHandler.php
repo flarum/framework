@@ -31,7 +31,7 @@ class ValidationExceptionHandler
         return array_map(function ($path, $detail) use ($pointer) {
             return [
                 'detail' => $detail,
-                'source' => ['pointer' => $pointer.'/'.$path]
+                'source' => ['pointer' => $pointer.'/'.$path],
             ];
         }, array_keys($messages), $messages);
     }

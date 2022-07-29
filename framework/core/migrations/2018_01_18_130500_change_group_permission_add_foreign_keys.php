@@ -30,5 +30,5 @@ return [
         $schema->table('group_permission', function (Blueprint $table) {
             $table->dropForeign(['group_id']);
         });
-    }
+    },
 ];

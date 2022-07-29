@@ -48,7 +48,7 @@ class MaintenanceModeHandler implements RequestHandlerInterface
         return new JsonResponse(
             (new Document)->setErrors([
                 'status' => '503',
-                'title' => self::MESSAGE
+                'title' => self::MESSAGE,
             ]),
             503,
             ['Content-Type' => 'application/vnd.api+json']

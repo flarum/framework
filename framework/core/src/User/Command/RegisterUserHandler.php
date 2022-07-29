@@ -44,6 +44,7 @@ class RegisterUserHandler
      * @var AvatarUploader
      */
     protected $avatarUploader;
+
     /**
      * @var Factory
      */
@@ -55,10 +56,10 @@ class RegisterUserHandler
     protected $imageManager;
 
     /**
-     * @param Dispatcher $events
-     * @param SettingsRepositoryInterface $settings
-     * @param UserValidator $validator
-     * @param AvatarUploader $avatarUploader
+     * @param  Dispatcher  $events
+     * @param  SettingsRepositoryInterface  $settings
+     * @param  UserValidator  $validator
+     * @param  AvatarUploader  $avatarUploader
      */
     public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings, UserValidator $userValidator, AvatarUploader $avatarUploader, Factory $validator, ImageManager $imageManager)
     {
@@ -71,8 +72,9 @@ class RegisterUserHandler
     }
 
     /**
-     * @param RegisterUser $command
+     * @param  RegisterUser  $command
      * @return User
+     *
      * @throws PermissionDeniedException if signup is closed and the actor is
      *     not an administrator.
      * @throws ValidationException
@@ -178,7 +180,7 @@ class RegisterUserHandler
         if ($token->provider && $token->identifier) {
             $user->loginProviders()->create([
                 'provider' => $token->provider,
-                'identifier' => $token->identifier
+                'identifier' => $token->identifier,
             ]);
         }
     }

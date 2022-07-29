@@ -17,8 +17,11 @@ use Illuminate\Contracts\Container\Container;
 class Formatter implements ExtenderInterface, LifecycleInterface
 {
     private $configurationCallbacks = [];
+
     private $parsingCallbacks = [];
+
     private $unparsingCallbacks = [];
+
     private $renderingCallbacks = [];
 
     /**
@@ -26,13 +29,12 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      * or otherwise change the formatter. Please see documentation for the s9e text formatter library for more
      * information on how to use this.
      *
-     * @param callable|string $callback
+     * @param  callable|string  $callback
      *
      * The callback can be a closure or invokable class, and should accept:
      * - \s9e\TextFormatter\Configurator $configurator
      *
      * The callable should return void.
-     *
      * @return self
      */
     public function configure($callback): self
@@ -46,7 +48,7 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      * Prepare the system for parsing. This can be used to modify the text that will be parsed, or to modify the parser.
      * Please note that the text to be parsed must be returned, regardless of whether it's changed.
      *
-     * @param callable|string $callback
+     * @param  callable|string  $callback
      *
      * The callback can be a closure or invokable class, and should accept:
      * - \s9e\TextFormatter\Parser $parser
@@ -55,7 +57,6 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      *
      * The callback should return:
      * - string $text: The text to be parsed.
-     *
      * @return self
      */
     public function parse($callback): self
@@ -69,7 +70,7 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      * Prepare the system for unparsing. This can be used to modify the text that was parsed.
      * Please note that the parsed text must be returned, regardless of whether it's changed.
      *
-     * @param callable|string $callback
+     * @param  callable|string  $callback
      *
      * The callback can be a closure or invokable class, and should accept:
      * - mixed $context
@@ -77,7 +78,6 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      *
      * The callback should return:
      * - string $xml: The text to be unparsed.
-     *
      * @return self
      */
     public function unparse($callback): self
@@ -91,7 +91,7 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      * Prepare the system for rendering. This can be used to modify the xml that will be rendered, or to modify the renderer.
      * Please note that the xml to be rendered must be returned, regardless of whether it's changed.
      *
-     * @param callable|string $callback
+     * @param  callable|string  $callback
      *
      * The callback can be a closure or invokable class, and should accept:
      * - \s9e\TextFormatter\Rendered $renderer
@@ -101,7 +101,6 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      *
      * The callback should return:
      * - string $xml: The xml to be rendered.
-     *
      * @return self
      */
     public function render($callback): self

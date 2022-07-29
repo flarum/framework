@@ -32,11 +32,13 @@ use Illuminate\Contracts\Container\Container;
 class ModelVisibility implements ExtenderInterface
 {
     private $modelClass;
+
     private $scopers = [];
+
     private $allScopers = [];
 
     /**
-     * @param string $modelClass: The ::class attribute of the model you are applying scopers to.
+     * @param  string  $modelClass: The ::class attribute of the model you are applying scopers to.
      *                           This model must extend from \Flarum\Database\AbstractModel,
      *                           and use \Flarum\Database\ScopeVisibilityTrait.
      */
@@ -52,15 +54,14 @@ class ModelVisibility implements ExtenderInterface
     /**
      * Add a scoper for a given ability.
      *
-     * @param callable|string $callback
-     * @param string $ability: Defaults to 'view'.
+     * @param  callable|string  $callback
+     * @param  string  $ability: Defaults to 'view'.
      *
      * The callback can be a closure or invokable class, and should accept:
      * - \Flarum\User\User $actor
      * - \Illuminate\Database\Eloquent\Builder $query
      *
      * The callback should return void.
-     *
      * @return self
      */
     public function scope($callback, string $ability = 'view'): self
@@ -73,7 +74,7 @@ class ModelVisibility implements ExtenderInterface
     /**
      * Add a scoper scoper that will always run for this model, regardless of requested ability.
      *
-     * @param callable|string $callback
+     * @param  callable|string  $callback
      *
      * The callback can be a closure or invokable class, and should accept:
      * - \Flarum\User\User $actor
@@ -81,7 +82,6 @@ class ModelVisibility implements ExtenderInterface
      * - string $ability
      *
      * The callback should return void.
-     *
      * @return self
      */
     public function scopeAll($callback): self

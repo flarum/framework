@@ -69,7 +69,7 @@ return [
     (new Extend\ApiController(Controller\ListDiscussionsController::class))
         ->load([
             'firstPost.mentionsUsers', 'firstPost.mentionsPosts', 'firstPost.mentionsPosts.user',
-            'lastPost.mentionsUsers', 'lastPost.mentionsPosts', 'lastPost.mentionsPosts.user'
+            'lastPost.mentionsUsers', 'lastPost.mentionsPosts', 'lastPost.mentionsPosts.user',
         ]),
 
     (new Extend\ApiController(Controller\ShowPostController::class))

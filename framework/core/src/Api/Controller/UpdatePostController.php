@@ -29,7 +29,7 @@ class UpdatePostController extends AbstractShowController
      */
     public $include = [
         'editedUser',
-        'discussion'
+        'discussion',
     ];
 
     /**
@@ -38,7 +38,7 @@ class UpdatePostController extends AbstractShowController
     protected $bus;
 
     /**
-     * @param Dispatcher $bus
+     * @param  Dispatcher  $bus
      */
     public function __construct(Dispatcher $bus)
     {

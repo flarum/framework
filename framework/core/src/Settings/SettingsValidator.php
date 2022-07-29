@@ -28,7 +28,7 @@ class SettingsValidator extends AbstractValidator
     /**
      * Make a new validator instance for this model.
      *
-     * @param array $attributes
+     * @param  array  $attributes
      * @return \Illuminate\Validation\Validator
      */
     protected function makeValidator(array $attributes)

@@ -76,7 +76,8 @@ class Server
      * There is always a risk for this to fail,
      * for example if the container bindings aren't present
      * or if there is a filesystem error.
-     * @param Throwable $error
+     *
+     * @param  Throwable  $error
      */
     private function cleanBootExceptionLog(Throwable $error)
     {
@@ -111,7 +112,9 @@ ERROR;
     /**
      * If the clean logging doesn't work, then we have a last opportunity.
      * Here we need to be extra careful not to include anything that might be sensitive on the page.
-     * @param Throwable $error
+     *
+     * @param  Throwable  $error
+     *
      * @throws Throwable
      */
     private function fallbackBootExceptionLog(Throwable $error)

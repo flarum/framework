@@ -42,8 +42,8 @@ class Gate
     protected $policies;
 
     /**
-     * @param Container $container
-     * @param array $policyClasses
+     * @param  Container  $container
+     * @param  array  $policyClasses
      */
     public function __construct(Container $container, array $policyClasses)
     {
@@ -54,9 +54,9 @@ class Gate
     /**
      * Determine if the given ability should be granted for the current user.
      *
-     * @param  User $actor
+     * @param  User  $actor
      * @param  string  $ability
-     * @param  string|AbstractModel $model
+     * @param  string|AbstractModel  $model
      * @return bool
      */
     public function allows(User $actor, string $ability, $model): bool

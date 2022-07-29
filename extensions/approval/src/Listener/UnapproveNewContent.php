@@ -17,7 +17,7 @@ use Flarum\Post\Event\Saving;
 class UnapproveNewContent
 {
     /**
-     * @param Saving $event
+     * @param  Saving  $event
      */
     public static function unapproveNewPosts(Saving $event)
     {
@@ -54,7 +54,7 @@ class UnapproveNewContent
     }
 
     /**
-     * @param Discussion|CommentPost $instance
+     * @param  Discussion|CommentPost  $instance
      * @return bool|null
      */
     public static function markUnapprovedContentAsPrivate($instance)

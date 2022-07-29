@@ -39,9 +39,9 @@ class CreateTokenController implements RequestHandlerInterface
     protected $events;
 
     /**
-     * @param UserRepository $users
-     * @param BusDispatcher $bus
-     * @param EventDispatcher $events
+     * @param  UserRepository  $users
+     * @param  BusDispatcher  $bus
+     * @param  EventDispatcher  $events
      */
     public function __construct(UserRepository $users, BusDispatcher $bus, EventDispatcher $events)
     {
@@ -77,7 +77,7 @@ class CreateTokenController implements RequestHandlerInterface
 
         return new JsonResponse([
             'token' => $token->token,
-            'userId' => $user->id
+            'userId' => $user->id,
         ]);
     }
 }

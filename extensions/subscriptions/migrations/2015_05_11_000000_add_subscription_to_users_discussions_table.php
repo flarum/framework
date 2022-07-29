@@ -10,5 +10,5 @@
 use Flarum\Database\Migration;
 
 return Migration::addColumns('discussion_user', [
-    'subscription' => ['enum', 'allowed' => ['follow', 'ignore'], 'nullable' => true]
+    'subscription' => ['enum', 'allowed' => ['follow', 'ignore'], 'nullable' => true],
 ]);

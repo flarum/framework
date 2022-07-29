@@ -22,9 +22,9 @@ class GroupFilterer extends AbstractFilterer
     protected $groups;
 
     /**
-     * @param GroupRepository $groups
-     * @param array $filters
-     * @param array $filterMutators
+     * @param  GroupRepository  $groups
+     * @param  array  $filters
+     * @param  array  $filterMutators
      */
     public function __construct(GroupRepository $groups, array $filters, array $filterMutators)
     {

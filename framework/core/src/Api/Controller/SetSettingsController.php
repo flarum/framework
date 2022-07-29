@@ -31,7 +31,7 @@ class SetSettingsController implements RequestHandlerInterface
     protected $dispatcher;
 
     /**
-     * @param SettingsRepositoryInterface $settings
+     * @param  SettingsRepositoryInterface  $settings
      */
     public function __construct(SettingsRepositoryInterface $settings, Dispatcher $dispatcher)
     {

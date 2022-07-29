@@ -23,7 +23,7 @@ class ConfirmEmailViewController extends AbstractHtmlController
     protected $view;
 
     /**
-     * @param Factory $view
+     * @param  Factory  $view
      */
     public function __construct(Factory $view)
     {
@@ -31,7 +31,7 @@ class ConfirmEmailViewController extends AbstractHtmlController
     }
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return \Illuminate\Contracts\View\View
      */
     public function render(Request $request)

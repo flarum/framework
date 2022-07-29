@@ -35,5 +35,5 @@ return [
             $table->dropForeign(['post_id']);
             $table->dropForeign(['mentions_post_id']);
         });
-    }
+    },
 ];

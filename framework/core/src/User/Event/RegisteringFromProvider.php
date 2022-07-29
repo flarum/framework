@@ -29,7 +29,7 @@ class RegisteringFromProvider
     public $payload;
 
     /**
-     * @param User $user
+     * @param  User  $user
      * @param $provider
      * @param $payload
      */

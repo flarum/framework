@@ -30,8 +30,8 @@ class CorePayload
     private $api;
 
     /**
-     * @param LocaleManager $locales
-     * @param Client $api
+     * @param  LocaleManager  $locales
+     * @param  Client  $api
      */
     public function __construct(LocaleManager $locales, Client $api)
     {
@@ -62,10 +62,10 @@ class CorePayload
             'resources' => $data,
             'session' => [
                 'userId' => $actor->id,
-                'csrfToken' => $request->getAttribute('session')->token()
+                'csrfToken' => $request->getAttribute('session')->token(),
             ],
             'locales' => $this->locales->getLocales(),
-            'locale' => $request->getAttribute('locale')
+            'locale' => $request->getAttribute('locale'),
         ];
     }
 

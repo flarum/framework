@@ -11,5 +11,5 @@ use Flarum\Database\Migration;
 use Flarum\Group\Group;
 
 return Migration::addPermissions([
-    'discussion.tag' => Group::MODERATOR_ID
+    'discussion.tag' => Group::MODERATOR_ID,
 ]);

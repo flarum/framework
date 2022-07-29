@@ -22,7 +22,7 @@ class UserMentionsTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -47,7 +47,7 @@ class UserMentionsTest extends TestCase
             ],
             'post_mentions_user' => [
                 ['post_id' => 4, 'mentions_user_id' => 4],
-                ['post_id' => 10, 'mentions_user_id' => 5]
+                ['post_id' => 10, 'mentions_user_id' => 5],
             ],
         ]);
 

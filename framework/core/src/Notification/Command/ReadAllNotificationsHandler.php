@@ -27,8 +27,8 @@ class ReadAllNotificationsHandler
     protected $events;
 
     /**
-     * @param NotificationRepository $notifications
-     * @param Dispatcher $events
+     * @param  NotificationRepository  $notifications
+     * @param  Dispatcher  $events
      */
     public function __construct(NotificationRepository $notifications, Dispatcher $events)
     {
@@ -37,7 +37,8 @@ class ReadAllNotificationsHandler
     }
 
     /**
-     * @param ReadAllNotifications $command
+     * @param  ReadAllNotifications  $command
+     *
      * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(ReadAllNotifications $command)

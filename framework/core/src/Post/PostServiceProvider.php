@@ -56,7 +56,7 @@ class PostServiceProvider extends AbstractServiceProvider
     {
         $models = [
             CommentPost::class,
-            DiscussionRenamedPost::class
+            DiscussionRenamedPost::class,
         ];
 
         foreach ($models as $model) {

@@ -24,7 +24,7 @@ class DiscussionVisibilityTest extends TestCase
     use RetrievesRepresentativeTags;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -44,7 +44,7 @@ class DiscussionVisibilityTest extends TestCase
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'tag13.arbitraryAbility'],
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'tag14.arbitraryAbility'],
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'arbitraryAbility'],
-                ['group_id' => Group::GUEST_ID, 'permission' => 'arbitraryAbility']
+                ['group_id' => Group::GUEST_ID, 'permission' => 'arbitraryAbility'],
             ],
             'discussions' => [
                 ['id' => 1, 'title' => 'no tags', 'user_id' => 1, 'comment_count' => 1],

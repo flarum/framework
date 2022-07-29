@@ -15,12 +15,15 @@ use Illuminate\Contracts\Container\Container;
 class SimpleFlarumSearch implements ExtenderInterface
 {
     private $fullTextGambit;
+
     private $gambits = [];
+
     private $searcher;
+
     private $searchMutators = [];
 
     /**
-     * @param string $searcherClass: The ::class attribute of the Searcher you are modifying.
+     * @param  string  $searcherClass: The ::class attribute of the Searcher you are modifying.
      *                               This searcher must extend \Flarum\Search\AbstractSearcher.
      */
     public function __construct(string $searcherClass)
@@ -31,7 +34,7 @@ class SimpleFlarumSearch implements ExtenderInterface
     /**
      * Add a gambit to this searcher. Gambits are used to filter search queries.
      *
-     * @param string $gambitClass: The ::class attribute of the gambit you are adding.
+     * @param  string  $gambitClass: The ::class attribute of the gambit you are adding.
      *                             This gambit must extend \Flarum\Search\AbstractRegexGambit
      * @return self
      */
@@ -45,7 +48,7 @@ class SimpleFlarumSearch implements ExtenderInterface
     /**
      * Set the full text gambit for this searcher. The full text gambit actually executes the search.
      *
-     * @param string $gambitClass: The ::class attribute of the full test gambit you are adding.
+     * @param  string  $gambitClass: The ::class attribute of the full test gambit you are adding.
      *                             This gambit must implement \Flarum\Search\GambitInterface
      * @return self
      */
@@ -59,14 +62,13 @@ class SimpleFlarumSearch implements ExtenderInterface
     /**
      * Add a callback through which to run all search queries after gambits have been applied.
      *
-     * @param callable|string $callback
+     * @param  callable|string  $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
      * - \Flarum\Search\SearchState $search
      * - \Flarum\Query\QueryCriteria $criteria
      *
      * The callback should return void.
-     *
      * @return self
      */
     public function addSearchMutator($callback): self

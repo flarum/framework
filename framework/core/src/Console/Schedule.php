@@ -17,7 +17,8 @@ class Schedule extends LaravelSchedule
 {
     public function dueEvents($container)
     {
-        return (new Collection($this->events))->filter->isDue(new class($container) {
+        return (new Collection($this->events))->filter->isDue(new class($container)
+        {
             public function __construct($container)
             {
                 $this->config = $container->make(Config::class);

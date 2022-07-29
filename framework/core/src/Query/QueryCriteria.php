@@ -50,9 +50,9 @@ class QueryCriteria
     public $sortIsDefault;
 
     /**
-     * @param User $actor The user performing the query.
-     * @param array $query The query params.
-     * @param array $sort An array of sort-order pairs, where the column is the
+     * @param  User  $actor The user performing the query.
+     * @param  array  $query The query params.
+     * @param  array  $sort An array of sort-order pairs, where the column is the
      *     key, and the order is the value. The order may be 'asc', 'desc', or
      *     an array of IDs to order by.
      */

@@ -27,11 +27,11 @@ trait UsesTmpDir
             '/storage/sessions',
             '/storage/views',
             '/vendor',
-            '/vendor/composer'
+            '/vendor/composer',
         ];
 
         $FILES_NEEDED = [
-            '/vendor/composer/installed.json' => '{}'
+            '/vendor/composer/installed.json' => '{}',
         ];
 
         $tmpDir = $this->tmpDir();

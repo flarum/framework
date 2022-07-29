@@ -33,7 +33,7 @@ class ResolveRoute implements Middleware
     /**
      * Create the middleware instance.
      *
-     * @param RouteCollection $routes
+     * @param  RouteCollection  $routes
      */
     public function __construct(RouteCollection $routes)
     {

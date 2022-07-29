@@ -25,8 +25,8 @@ class PostWasUnliked
     public $user;
 
     /**
-     * @param Post $post
-     * @param User $user
+     * @param  Post  $post
+     * @param  User  $user
      */
     public function __construct(Post $post, User $user)
     {

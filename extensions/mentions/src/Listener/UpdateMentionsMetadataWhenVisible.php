@@ -27,7 +27,7 @@ class UpdateMentionsMetadataWhenVisible
     protected $notifications;
 
     /**
-     * @param NotificationSyncer $notifications
+     * @param  NotificationSyncer  $notifications
      */
     public function __construct(NotificationSyncer $notifications)
     {
@@ -35,7 +35,7 @@ class UpdateMentionsMetadataWhenVisible
     }
 
     /**
-     * @param Posted|Restored|Revised $event
+     * @param  Posted|Restored|Revised  $event
      */
     public function handle($event)
     {

@@ -34,10 +34,11 @@ use Illuminate\Contracts\Container\Container;
 class ModelPrivate implements ExtenderInterface
 {
     private $modelClass;
+
     private $checkers = [];
 
     /**
-     * @param string $modelClass: The ::class attribute of the model you are applying private checkers to.
+     * @param  string  $modelClass: The ::class attribute of the model you are applying private checkers to.
      *                           This model must have a `is_private` field.
      */
     public function __construct(string $modelClass)
@@ -48,13 +49,12 @@ class ModelPrivate implements ExtenderInterface
     /**
      * Add a model privacy checker.
      *
-     * @param callable|string $callback
+     * @param  callable|string  $callback
      *
      * The callback can be a closure or invokable class, and should accept:
      * - \Flarum\Database\AbstractModel $instance: An instance of the model.
      *
      * It should return `true` if the model instance should be made private.
-     *
      * @return self
      */
     public function checker($callback): self

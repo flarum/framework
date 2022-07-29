@@ -11,5 +11,5 @@ use Flarum\Database\Migration;
 use Flarum\Group\Group;
 
 return Migration::addPermissions([
-    'user.suspend' => Group::MODERATOR_ID
+    'user.suspend' => Group::MODERATOR_ID,
 ]);

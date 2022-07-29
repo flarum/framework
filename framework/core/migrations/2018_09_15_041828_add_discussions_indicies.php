@@ -33,5 +33,5 @@ return [
             $table->dropIndex(['participant_count']);
             $table->dropIndex(['hidden_at']);
         });
-    }
+    },
 ];

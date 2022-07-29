@@ -19,7 +19,7 @@ class ListWithTagsTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -43,10 +43,10 @@ class ListWithTagsTest extends TestCase
                     'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', // BCrypt hash for "too-obscure"
                     'email' => 'normal2@machine.local',
                     'is_email_confirmed' => 1,
-                ]
+                ],
             ],
             'group_user' => [
-                ['group_id' => Group::MODERATOR_ID, 'user_id' => 3]
+                ['group_id' => Group::MODERATOR_ID, 'user_id' => 3],
             ],
             'group_permission' => [
                 ['group_id' => Group::MODERATOR_ID, 'permission' => 'discussion.viewFlags'],
@@ -91,7 +91,7 @@ class ListWithTagsTest extends TestCase
                 ['id' => 7, 'post_id' => 5, 'user_id' => 1],
                 ['id' => 8, 'post_id' => 6, 'user_id' => 1],
                 ['id' => 9, 'post_id' => 7, 'user_id' => 1],
-            ]
+            ],
         ]);
     }
 
@@ -102,7 +102,7 @@ class ListWithTagsTest extends TestCase
     {
         $response = $this->send(
             $this->request('GET', '/api/flags', [
-                'authenticatedAs' => 1
+                'authenticatedAs' => 1,
             ])
         );
 
@@ -121,7 +121,7 @@ class ListWithTagsTest extends TestCase
     {
         $response = $this->send(
             $this->request('GET', '/api/flags', [
-                'authenticatedAs' => 2
+                'authenticatedAs' => 2,
             ])
         );
 
@@ -140,7 +140,7 @@ class ListWithTagsTest extends TestCase
     {
         $response = $this->send(
             $this->request('GET', '/api/flags', [
-                'authenticatedAs' => 3
+                'authenticatedAs' => 3,
             ])
         );
 

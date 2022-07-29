@@ -117,7 +117,7 @@ abstract class AbstractModel extends Eloquent
      * Get an attribute from the model. If nothing is found, attempt to load
      * a custom relation method with this key.
      *
-     * @param string $key
+     * @param  string  $key
      * @return mixed
      */
     public function getAttribute($key)
@@ -143,7 +143,7 @@ abstract class AbstractModel extends Eloquent
     /**
      * Get a custom relation object.
      *
-     * @param string $name
+     * @param  string  $name
      * @return mixed
      */
     protected function getCustomRelation($name)
@@ -159,7 +159,7 @@ abstract class AbstractModel extends Eloquent
     /**
      * Register a callback to be run once after the model is saved.
      *
-     * @param callable $callback
+     * @param  callable  $callback
      * @return void
      */
     public function afterSave($callback)
@@ -170,7 +170,7 @@ abstract class AbstractModel extends Eloquent
     /**
      * Register a callback to be run once after the model is deleted.
      *
-     * @param callable $callback
+     * @param  callable  $callback
      * @return void
      */
     public function afterDelete($callback)

@@ -43,8 +43,8 @@ class RouteHandlerFactory
     }
 
     /**
-     * @param string $frontend
-     * @param string|callable|null $content
+     * @param  string  $frontend
+     * @param  string|callable|null  $content
      */
     public function toFrontend(string $frontend, $content = null): Closure
     {

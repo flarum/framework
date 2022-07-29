@@ -18,7 +18,7 @@ use Flarum\User\User;
 class CreatePostWhenDiscussionIsStickied
 {
     /**
-     * @param DiscussionWasStickied $event
+     * @param  DiscussionWasStickied  $event
      */
     public static function whenDiscussionWasStickied(DiscussionWasStickied $event)
     {
@@ -26,7 +26,7 @@ class CreatePostWhenDiscussionIsStickied
     }
 
     /**
-     * @param DiscussionWasUnstickied $event
+     * @param  DiscussionWasUnstickied  $event
      */
     public static function whenDiscussionWasUnstickied(DiscussionWasUnstickied $event)
     {
@@ -34,9 +34,9 @@ class CreatePostWhenDiscussionIsStickied
     }
 
     /**
-     * @param Discussion $discussion
-     * @param User $user
-     * @param bool $isSticky
+     * @param  Discussion  $discussion
+     * @param  User  $user
+     * @param  bool  $isSticky
      */
     protected static function stickyChanged(Discussion $discussion, User $user, $isSticky)
     {

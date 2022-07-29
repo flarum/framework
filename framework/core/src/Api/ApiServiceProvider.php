@@ -48,7 +48,7 @@ class ApiServiceProvider extends AbstractServiceProvider
                     if ($request->getAttribute('bypassThrottling')) {
                         return false;
                     }
-                }
+                },
             ];
         });
 
@@ -69,7 +69,7 @@ class ApiServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\SetLocale::class,
                 'flarum.api.route_resolver',
                 HttpMiddleware\CheckCsrfToken::class,
-                Middleware\ThrottleApi::class
+                Middleware\ThrottleApi::class,
             ];
         });
 
@@ -99,7 +99,7 @@ class ApiServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.api.notification_serializers', function () {
             return [
-                'discussionRenamed' => BasicDiscussionSerializer::class
+                'discussionRenamed' => BasicDiscussionSerializer::class,
             ];
         });
 
@@ -162,7 +162,7 @@ class ApiServiceProvider extends AbstractServiceProvider
     /**
      * Populate the API routes.
      *
-     * @param RouteCollection $routes
+     * @param  RouteCollection  $routes
      */
     protected function populateRoutes(RouteCollection $routes)
     {

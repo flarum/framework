@@ -38,11 +38,11 @@ abstract class AbstractSearcher
     abstract protected function getQuery(User $actor): Builder;
 
     /**
-     * @param QueryCriteria $criteria
-     * @param int|null $limit
-     * @param int $offset
-     *
+     * @param  QueryCriteria  $criteria
+     * @param  int|null  $limit
+     * @param  int  $offset
      * @return QueryResults
+     *
      * @throws InvalidArgumentException
      */
     public function search(QueryCriteria $criteria, $limit = null, $offset = 0): QueryResults

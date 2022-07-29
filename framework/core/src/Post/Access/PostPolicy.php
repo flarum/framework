@@ -23,7 +23,7 @@ class PostPolicy extends AbstractPolicy
     protected $settings;
 
     /**
-     * @param SettingsRepositoryInterface $settings
+     * @param  SettingsRepositoryInterface  $settings
      */
     public function __construct(SettingsRepositoryInterface $settings)
     {
@@ -31,9 +31,9 @@ class PostPolicy extends AbstractPolicy
     }
 
     /**
-     * @param User $actor
-     * @param string $ability
-     * @param \Flarum\Post\Post $post
+     * @param  User  $actor
+     * @param  string  $ability
+     * @param  \Flarum\Post\Post  $post
      * @return bool|null
      */
     public function can(User $actor, $ability, Post $post)
@@ -44,8 +44,8 @@ class PostPolicy extends AbstractPolicy
     }
 
     /**
-     * @param User $actor
-     * @param Post $post
+     * @param  User  $actor
+     * @param  Post  $post
      * @return bool|null
      */
     public function edit(User $actor, Post $post)
@@ -65,8 +65,8 @@ class PostPolicy extends AbstractPolicy
     }
 
     /**
-     * @param User $actor
-     * @param Post $post
+     * @param  User  $actor
+     * @param  Post  $post
      * @return bool|null
      */
     public function hide(User $actor, Post $post)

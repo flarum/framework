@@ -21,7 +21,7 @@ class ListTest extends TestCase
     use RetrievesRepresentativeTags;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -100,7 +100,7 @@ class ListTest extends TestCase
     {
         $response = $this->send(
             $this->request('GET', '/api/discussions', [
-                'authenticatedAs' => 1
+                'authenticatedAs' => 1,
             ])
         );
 
@@ -119,7 +119,7 @@ class ListTest extends TestCase
     {
         $response = $this->send(
             $this->request('GET', '/api/discussions', [
-                'authenticatedAs' => 2
+                'authenticatedAs' => 2,
             ])
         );
 
@@ -205,7 +205,7 @@ class ListTest extends TestCase
 
         if ($actorId) {
             $reqParams = [
-                'authenticatedAs' => $actorId
+                'authenticatedAs' => $actorId,
             ];
         }
 
@@ -230,7 +230,7 @@ class ListTest extends TestCase
 
         if ($actorId) {
             $reqParams = [
-                'authenticatedAs' => $actorId
+                'authenticatedAs' => $actorId,
             ];
         }
 

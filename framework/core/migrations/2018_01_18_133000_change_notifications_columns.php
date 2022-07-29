@@ -48,5 +48,5 @@ return [
         $schema->table('notifications', function (Blueprint $table) {
             $table->dropColumn('read_at');
         });
-    }
+    },
 ];

@@ -10,5 +10,5 @@
 use Flarum\Database\Migration;
 
 return Migration::addColumns('posts', [
-    'is_approved' => ['boolean', 'default' => 1]
+    'is_approved' => ['boolean', 'default' => 1],
 ]);

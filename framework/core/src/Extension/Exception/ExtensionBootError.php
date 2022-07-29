@@ -16,6 +16,7 @@ use Throwable;
 class ExtensionBootError extends Exception
 {
     public $extension;
+
     public $extender;
 
     public function __construct(Extension $extension, $extender, Throwable $previous = null)

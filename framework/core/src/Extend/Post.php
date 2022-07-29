@@ -21,7 +21,7 @@ class Post implements ExtenderInterface
      * Register a new post type. This is generally done for custom 'event posts',
      * such as those that appear when a discussion is renamed.
      *
-     * @param string $postType: The ::class attribute of the custom Post type that is being added.
+     * @param  string  $postType: The ::class attribute of the custom Post type that is being added.
      * @return self
      */
     public function type(string $postType): self

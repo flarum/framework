@@ -11,5 +11,5 @@ use Flarum\Database\Migration;
 
 return Migration::addColumns('users', [
     'suspend_reason' => ['text', 'nullable' => true],
-    'suspend_message' => ['text', 'nullable' => true]
+    'suspend_message' => ['text', 'nullable' => true],
 ]);

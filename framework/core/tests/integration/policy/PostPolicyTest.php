@@ -20,7 +20,7 @@ class PostPolicyTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -36,7 +36,7 @@ class PostPolicyTest extends TestCase
             ],
             'users' => [
                 $this->normalUser(),
-            ]
+            ],
         ]);
     }
 

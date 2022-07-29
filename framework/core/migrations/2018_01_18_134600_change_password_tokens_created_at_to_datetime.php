@@ -21,5 +21,5 @@ return [
         $connection = $schema->getConnection();
         $prefix = $connection->getTablePrefix();
         $connection->statement("ALTER TABLE {$prefix}password_tokens MODIFY created_at TIMESTAMP");
-    }
+    },
 ];

@@ -46,11 +46,11 @@ class Index
     protected $translator;
 
     /**
-     * @param Client $api
-     * @param Factory $view
-     * @param SettingsRepositoryInterface $settings
-     * @param UrlGenerator $url
-     * @param TranslatorInterface $translator
+     * @param  Client  $api
+     * @param  Factory  $view
+     * @param  SettingsRepositoryInterface  $settings
+     * @param  UrlGenerator  $url
+     * @param  TranslatorInterface  $translator
      */
     public function __construct(Client $api, Factory $view, SettingsRepositoryInterface $settings, UrlGenerator $url, TranslatorInterface $translator)
     {
@@ -75,7 +75,7 @@ class Index
         $params = [
             'sort' => $sort && isset($sortMap[$sort]) ? $sortMap[$sort] : '',
             'filter' => $filters,
-            'page' => ['offset' => ($page - 1) * 20, 'limit' => 20]
+            'page' => ['offset' => ($page - 1) * 20, 'limit' => 20],
         ];
 
         if ($q) {
@@ -99,8 +99,8 @@ class Index
     /**
      * Get the result of an API request to list discussions.
      *
-     * @param Request $request
-     * @param array $params
+     * @param  Request  $request
+     * @param  array  $params
      * @return object
      */
     protected function getApiDocument(Request $request, array $params)

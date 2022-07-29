@@ -17,7 +17,7 @@ class ExtensionReadmeSerializer extends AbstractSerializer
     protected function getDefaultAttributes($extension)
     {
         $attributes = [
-            'content' => $extension->getReadme()
+            'content' => $extension->getReadme(),
         ];
 
         return $attributes;

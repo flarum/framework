@@ -42,8 +42,8 @@ class ShowUserController extends AbstractShowController
     protected $users;
 
     /**
-     * @param SlugManager $slugManager
-     * @param UserRepository $users
+     * @param  SlugManager  $slugManager
+     * @param  UserRepository  $users
      */
     public function __construct(SlugManager $slugManager, UserRepository $users)
     {

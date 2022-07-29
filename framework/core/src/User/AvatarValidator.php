@@ -40,7 +40,7 @@ class AvatarValidator extends AbstractValidator
     /**
      * Throw an exception if a model is not valid.
      *
-     * @param array $attributes
+     * @param  array  $attributes
      */
     public function assertValid(array $attributes)
     {

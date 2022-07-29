@@ -120,6 +120,7 @@ class CustomListener
 class CustomSubscriber
 {
     protected $bootedAtConstruct;
+
     protected $translator;
 
     public function __construct(Application $app, TranslatorInterface $translator)

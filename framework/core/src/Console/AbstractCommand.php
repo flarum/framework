@@ -45,7 +45,7 @@ abstract class AbstractCommand extends Command
     /**
      * Did the user pass the given option?
      *
-     * @param string $name
+     * @param  string  $name
      * @return bool
      */
     protected function hasOption($name)
@@ -56,7 +56,7 @@ abstract class AbstractCommand extends Command
     /**
      * Send an info message to the user.
      *
-     * @param string $message
+     * @param  string  $message
      */
     protected function info($message)
     {
@@ -68,7 +68,7 @@ abstract class AbstractCommand extends Command
      *
      * If possible, this will send the message via STDERR.
      *
-     * @param string $message
+     * @param  string  $message
      */
     protected function error($message)
     {

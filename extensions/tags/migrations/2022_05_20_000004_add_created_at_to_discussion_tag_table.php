@@ -26,5 +26,5 @@ return [
         $schema->table('discussion_tag', function (Blueprint $table) {
             $table->dropColumn('created_at');
         });
-    }
+    },
 ];

@@ -31,7 +31,7 @@ class RemoveExtensionTest extends TestCase
     {
         $response = $this->send(
             $this->request('DELETE', '/api/package-manager/extensions/flarum-tags', [
-                'authenticatedAs' => 1
+                'authenticatedAs' => 1,
             ])
         );
 
@@ -46,7 +46,7 @@ class RemoveExtensionTest extends TestCase
     {
         $response = $this->send(
             $this->request('DELETE', '/api/package-manager/extensions/flarum-potato', [
-                'authenticatedAs' => 1
+                'authenticatedAs' => 1,
             ])
         );
 

@@ -20,9 +20,13 @@ use Symfony\Component\Yaml\Yaml;
 class FileDataProvider implements DataProviderInterface
 {
     protected $debug = false;
+
     protected $baseUrl = null;
+
     protected $databaseConfiguration = [];
+
     protected $adminUser = [];
+
     protected $settings = [];
 
     public function __construct(InputInterface $input)

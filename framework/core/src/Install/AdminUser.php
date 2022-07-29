@@ -15,7 +15,9 @@ use Illuminate\Hashing\BcryptHasher;
 class AdminUser
 {
     private $username;
+
     private $password;
+
     private $email;
 
     public function __construct($username, $password, $email)

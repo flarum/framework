@@ -14,9 +14,13 @@ use Flarum\User\User;
 abstract class AbstractPolicy
 {
     public const GLOBAL = 'GLOBAL';
+
     public const ALLOW = 'ALLOW';
+
     public const DENY = 'DENY';
+
     public const FORCE_ALLOW = 'FORCE_ALLOW';
+
     public const FORCE_DENY = 'FORCE_DENY';
 
     protected function allow()
@@ -40,8 +44,8 @@ abstract class AbstractPolicy
     }
 
     /**
-     * @param User $user
-     * @param string $ability
+     * @param  User  $user
+     * @param  string  $ability
      * @param $instance
      * @return string|void
      */
@@ -72,7 +76,7 @@ abstract class AbstractPolicy
      * WITH THIS:
      * `return SOME_BOOLEAN_LOGIC;
      *
-     * @param mixed $result
+     * @param  mixed  $result
      * @return string|void
      */
     public function sanitizeResult($result)

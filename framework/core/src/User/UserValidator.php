@@ -27,7 +27,7 @@ class UserValidator extends AbstractValidator
     }
 
     /**
-     * @param User $user
+     * @param  User  $user
      */
     public function setUser(User $user)
     {
@@ -47,17 +47,17 @@ class UserValidator extends AbstractValidator
                 'regex:/^[a-z0-9_-]+$/i',
                 'unique:users,username'.$idSuffix,
                 'min:3',
-                'max:30'
+                'max:30',
             ],
             'email' => [
                 'required',
                 'email:filter',
-                'unique:users,email'.$idSuffix
+                'unique:users,email'.$idSuffix,
             ],
             'password' => [
                 'required',
-                'min:8'
-            ]
+                'min:8',
+            ],
         ];
     }
 
@@ -67,7 +67,7 @@ class UserValidator extends AbstractValidator
     protected function getMessages()
     {
         return [
-            'username.regex' => $this->translator->trans('core.api.invalid_username_message')
+            'username.regex' => $this->translator->trans('core.api.invalid_username_message'),
         ];
     }
 }

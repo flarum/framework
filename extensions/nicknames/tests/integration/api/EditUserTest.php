@@ -19,7 +19,7 @@ class UpdateTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -64,7 +64,7 @@ class UpdateTest extends TestCase
         $this->prepareDatabase([
             'group_permission' => [
                 ['permission' => 'user.editOwnNickname', 'group_id' => 2],
-            ]
+            ],
         ]);
 
         $response = $this->send(

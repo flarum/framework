@@ -34,8 +34,8 @@ class UploadFaviconController extends UploadImageController
     protected $imageManager;
 
     /**
-     * @param SettingsRepositoryInterface $settings
-     * @param Factory $filesystemFactory
+     * @param  SettingsRepositoryInterface  $settings
+     * @param  Factory  $filesystemFactory
      */
     public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory, TranslatorInterface $translator, ImageManager $imageManager)
     {
@@ -58,7 +58,7 @@ class UploadFaviconController extends UploadImageController
                 'message' => strtr($this->translator->trans('validation.mimes'), [
                     ':attribute' => 'favicon',
                     ':values' => 'jpeg,png,gif,webp',
-                ])
+                ]),
             ]);
         }
 

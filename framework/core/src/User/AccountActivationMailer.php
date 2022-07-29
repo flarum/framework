@@ -40,10 +40,10 @@ class AccountActivationMailer
     protected $translator;
 
     /**
-     * @param \Flarum\Settings\SettingsRepositoryInterface $settings
-     * @param Queue $queue
-     * @param UrlGenerator $url
-     * @param TranslatorInterface $translator
+     * @param  \Flarum\Settings\SettingsRepositoryInterface  $settings
+     * @param  Queue  $queue
+     * @param  UrlGenerator  $url
+     * @param  TranslatorInterface  $translator
      */
     public function __construct(SettingsRepositoryInterface $settings, Queue $queue, UrlGenerator $url, TranslatorInterface $translator)
     {

@@ -20,7 +20,7 @@ class UpdateTest extends TestCase
     use RetrievesRepresentativeTags;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -47,8 +47,8 @@ class UpdateTest extends TestCase
                 ['id' => 1, 'discussion_id' => 1, 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>Text</p></t>'],
             ],
             'discussion_tag' => [
-                ['discussion_id' => 1, 'tag_id' => 1]
-            ]
+                ['discussion_id' => 1, 'tag_id' => 1],
+            ],
         ]);
     }
 
@@ -65,10 +65,10 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'tags' => [
                                 'data' => [
-                                    ['type' => 'tags', 'id' => 2]
-                                ]
-                            ]
-                        ]
+                                    ['type' => 'tags', 'id' => 2],
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ])
@@ -92,10 +92,10 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'tags' => [
                                 'data' => [
-                                    ['type' => 'tags', 'id' => 2]
-                                ]
-                            ]
-                        ]
+                                    ['type' => 'tags', 'id' => 2],
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ])
@@ -118,10 +118,10 @@ class UpdateTest extends TestCase
                             'tags' => [
                                 'data' => [
                                     ['type' => 'tags', 'id' => 1],
-                                    ['type' => 'tags', 'id' => 2]
-                                ]
-                            ]
-                        ]
+                                    ['type' => 'tags', 'id' => 2],
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ])
@@ -146,10 +146,10 @@ class UpdateTest extends TestCase
                             'tags' => [
                                 'data' => [
                                     ['type' => 'tags', 'id' => 1],
-                                    ['type' => 'tags', 'id' => 2]
-                                ]
-                            ]
-                        ]
+                                    ['type' => 'tags', 'id' => 2],
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ])
@@ -173,10 +173,10 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'tags' => [
                                 'data' => [
-                                    ['type' => 'tags', 'id' => 5]
-                                ]
-                            ]
-                        ]
+                                    ['type' => 'tags', 'id' => 5],
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ])
@@ -201,10 +201,10 @@ class UpdateTest extends TestCase
                             'tags' => [
                                 'data' => [
                                     ['type' => 'tags', 'id' => 1],
-                                    ['type' => 'tags', 'id' => 11]
-                                ]
-                            ]
-                        ]
+                                    ['type' => 'tags', 'id' => 11],
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ])
@@ -232,10 +232,10 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'tags' => [
                                 'data' => [
-                                    ['type' => 'tags', 'id' => 4]
-                                ]
-                            ]
-                        ]
+                                    ['type' => 'tags', 'id' => 4],
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ])
@@ -260,10 +260,10 @@ class UpdateTest extends TestCase
                             'tags' => [
                                 'data' => [
                                     ['type' => 'tags', 'id' => 2],
-                                    ['type' => 'tags', 'id' => 3]
-                                ]
-                            ]
-                        ]
+                                    ['type' => 'tags', 'id' => 3],
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ])
@@ -287,10 +287,10 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'tags' => [
                                 'data' => [
-                                    ['type' => 'tags', 'id' => 11]
-                                ]
-                            ]
-                        ]
+                                    ['type' => 'tags', 'id' => 11],
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ])

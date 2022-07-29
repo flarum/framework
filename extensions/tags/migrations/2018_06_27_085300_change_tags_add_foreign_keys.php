@@ -41,5 +41,5 @@ return [
             $table->dropForeign(['last_posted_discussion_id']);
             $table->dropForeign(['last_posted_user_id']);
         });
-    }
+    },
 ];

@@ -23,14 +23,14 @@ use Illuminate\Support\Arr;
 class SearchServiceProvider extends AbstractServiceProvider
 {
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function register()
     {
         $this->container->singleton('flarum.simple_search.fulltext_gambits', function () {
             return [
                 DiscussionSearcher::class => DiscussionFulltextGambit::class,
-                UserSearcher::class => UserFulltextGambit::class
+                UserSearcher::class => UserFulltextGambit::class,
             ];
         });
 
@@ -45,7 +45,7 @@ class SearchServiceProvider extends AbstractServiceProvider
                 UserSearcher::class => [
                     UserQuery\EmailFilterGambit::class,
                     UserQuery\GroupFilterGambit::class,
-                ]
+                ],
             ];
         });
 

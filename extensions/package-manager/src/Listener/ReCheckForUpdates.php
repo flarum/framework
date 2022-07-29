@@ -22,6 +22,7 @@ class ReCheckForUpdates
      * @var LastUpdateRun
      */
     private $lastUpdateRun;
+
     /**
      * @var LastUpdateCheck
      */
@@ -40,7 +41,7 @@ class ReCheckForUpdates
     }
 
     /**
-     * @param FlarumUpdated|Updated $event
+     * @param  FlarumUpdated|Updated  $event
      */
     public function handle($event): void
     {

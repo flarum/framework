@@ -17,6 +17,7 @@ class RememberAccessToken extends AccessToken
 
     /**
      * Just a helper method so we can re-use the lifetime value which is protected.
+     *
      * @return int
      */
     public static function rememberCookieLifeTime(): int

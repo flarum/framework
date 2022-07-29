@@ -19,7 +19,7 @@ class CookieFactoryTest extends TestCase
     protected function factory(array $config = null): CookieFactory
     {
         $config = new Config(array_merge([
-            'url' => 'http://flarum.test'
+            'url' => 'http://flarum.test',
         ], $config ?? []));
 
         return new CookieFactory($config);
@@ -45,8 +45,8 @@ class CookieFactoryTest extends TestCase
                 'name' => 'australia',
                 'secure' => true,
                 'domain' => 'flarum.com',
-                'samesite' => 'none'
-            ]
+                'samesite' => 'none',
+            ],
         ])->make('test', 'australia');
 
         $this->assertEquals('australia_test', $cookie->getName());

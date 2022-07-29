@@ -21,5 +21,5 @@ return [
         $schema->table('settings', function (Blueprint $table) {
             $table->binary('value')->change();
         });
-    }
+    },
 ];

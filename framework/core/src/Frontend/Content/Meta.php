@@ -22,7 +22,7 @@ class Meta
     private $locales;
 
     /**
-     * @param LocaleManager $locales
+     * @param  LocaleManager  $locales
      */
     public function __construct(LocaleManager $locales)
     {
@@ -45,7 +45,7 @@ class Meta
         $meta = [
             'viewport' => 'width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1',
             'description' => Arr::get($forumApiDocument, 'data.attributes.description'),
-            'theme-color' => Arr::get($forumApiDocument, 'data.attributes.themePrimaryColor')
+            'theme-color' => Arr::get($forumApiDocument, 'data.attributes.themePrimaryColor'),
         ];
 
         return $meta;

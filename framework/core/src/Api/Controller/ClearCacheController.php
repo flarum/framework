@@ -31,7 +31,7 @@ class ClearCacheController extends AbstractDeleteController
     protected $assetsPublishCommand;
 
     /**
-     * @param CacheClearCommand $command
+     * @param  CacheClearCommand  $command
      */
     public function __construct(CacheClearCommand $command, AssetsPublishCommand $assetsPublishCommand)
     {
@@ -41,6 +41,7 @@ class ClearCacheController extends AbstractDeleteController
 
     /**
      * {@inheritdoc}
+     *
      * @throws IOException|\Flarum\User\Exception\PermissionDeniedException
      */
     protected function delete(ServerRequestInterface $request)

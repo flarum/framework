@@ -22,7 +22,7 @@ class UninstallExtensionController extends AbstractDeleteController
     protected $extensions;
 
     /**
-     * @param \Flarum\Extension\ExtensionManager $extensions
+     * @param  \Flarum\Extension\ExtensionManager  $extensions
      */
     public function __construct(ExtensionManager $extensions)
     {

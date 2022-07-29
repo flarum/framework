@@ -24,6 +24,7 @@ class RevisionCompiler implements CompilerInterface
      * @var Filesystem
      */
     protected $assetsDir;
+
     /**
      * @var VersionerInterface
      */
@@ -40,9 +41,9 @@ class RevisionCompiler implements CompilerInterface
     protected $sourcesCallbacks = [];
 
     /**
-     * @param Filesystem $assetsDir
-     * @param string $filename
-     * @param VersionerInterface|null $versioner @deprecated nullable will be removed at v2.0
+     * @param  Filesystem  $assetsDir
+     * @param  string  $filename
+     * @param  VersionerInterface|null  $versioner @deprecated nullable will be removed at v2.0
      */
     public function __construct(Filesystem $assetsDir, string $filename, VersionerInterface $versioner = null)
     {
@@ -128,8 +129,8 @@ class RevisionCompiler implements CompilerInterface
     }
 
     /**
-     * @param string $file
-     * @param SourceInterface[] $sources
+     * @param  string  $file
+     * @param  SourceInterface[]  $sources
      * @return bool true if the file was written, false if there was nothing to write
      */
     protected function save(string $file, array $sources): bool
@@ -144,7 +145,7 @@ class RevisionCompiler implements CompilerInterface
     }
 
     /**
-     * @param SourceInterface[] $sources
+     * @param  SourceInterface[]  $sources
      * @return string
      */
     protected function compile(array $sources): string
@@ -159,7 +160,7 @@ class RevisionCompiler implements CompilerInterface
     }
 
     /**
-     * @param string $string
+     * @param  string  $string
      * @return string
      */
     protected function format(string $string): string
@@ -168,7 +169,7 @@ class RevisionCompiler implements CompilerInterface
     }
 
     /**
-     * @param SourceInterface[] $sources
+     * @param  SourceInterface[]  $sources
      * @return string
      */
     protected function calculateRevision(array $sources): string
@@ -197,7 +198,7 @@ class RevisionCompiler implements CompilerInterface
     }
 
     /**
-     * @param string $file
+     * @param  string  $file
      */
     protected function delete(string $file)
     {

@@ -115,7 +115,9 @@ class ExtensionDependencyResolutionTest extends TestCase
 class FakeExtension
 {
     protected $id;
+
     protected $extensionDependencies;
+
     protected $optionalDependencies;
 
     public function __construct($id, $extensionDependencies, $optionalDependencies = [])

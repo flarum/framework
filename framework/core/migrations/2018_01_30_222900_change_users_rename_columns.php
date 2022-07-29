@@ -17,5 +17,5 @@ return Migration::renameColumns('users', [
     'comments_count' => 'comment_count',
     'read_time' => 'marked_all_as_read_at',
     'notifications_read_time' => 'read_notifications_at',
-    'avatar_path' => 'avatar_url'
+    'avatar_path' => 'avatar_url',
 ]);

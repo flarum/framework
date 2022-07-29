@@ -53,10 +53,10 @@ class DiscussionRenamedPost extends AbstractEventPost implements MergeableInterf
     /**
      * Create a new instance in reply to a discussion.
      *
-     * @param int $discussionId
-     * @param int $userId
-     * @param string $oldTitle
-     * @param string $newTitle
+     * @param  int  $discussionId
+     * @param  int  $userId
+     * @param  string  $oldTitle
+     * @param  string  $newTitle
      * @return static
      */
     public static function reply($discussionId, $userId, $oldTitle, $newTitle)
@@ -74,8 +74,8 @@ class DiscussionRenamedPost extends AbstractEventPost implements MergeableInterf
     /**
      * Build the content attribute.
      *
-     * @param string $oldTitle The old title of the discussion.
-     * @param string $newTitle The new title of the discussion.
+     * @param  string  $oldTitle The old title of the discussion.
+     * @param  string  $newTitle The new title of the discussion.
      * @return array
      */
     protected static function buildContent($oldTitle, $newTitle)

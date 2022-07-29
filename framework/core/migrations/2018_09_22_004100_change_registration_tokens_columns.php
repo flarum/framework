@@ -27,5 +27,5 @@ return [
 
             $table->string('payload', 150)->change();
         });
-    }
+    },
 ];

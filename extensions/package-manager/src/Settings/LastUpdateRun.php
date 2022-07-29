@@ -16,6 +16,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 class LastUpdateRun implements JsonSetting
 {
     public const SUCCESS = 'success';
+
     public const FAILURE = 'failure';
 
     /**

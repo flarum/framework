@@ -23,5 +23,5 @@ return [
         $schema->table('migrations', function (Blueprint $table) {
             $table->dropColumn('id');
         });
-    }
+    },
 ];

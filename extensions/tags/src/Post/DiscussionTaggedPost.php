@@ -50,10 +50,10 @@ class DiscussionTaggedPost extends AbstractEventPost implements MergeableInterfa
     /**
      * Create a new instance in reply to a discussion.
      *
-     * @param int $discussionId
-     * @param int $userId
-     * @param array $oldTagIds
-     * @param array $newTagIds
+     * @param  int  $discussionId
+     * @param  int  $userId
+     * @param  array  $oldTagIds
+     * @param  array  $newTagIds
      * @return static
      */
     public static function reply($discussionId, $userId, array $oldTagIds, array $newTagIds)
@@ -71,8 +71,8 @@ class DiscussionTaggedPost extends AbstractEventPost implements MergeableInterfa
     /**
      * Build the content attribute.
      *
-     * @param array $oldTagIds
-     * @param array $newTagIds
+     * @param  array  $oldTagIds
+     * @param  array  $newTagIds
      * @return array
      */
     public static function buildContent(array $oldTagIds, array $newTagIds)

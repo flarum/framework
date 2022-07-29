@@ -17,7 +17,7 @@ abstract class AbstractEventPost extends Post
     /**
      * Unserialize the content attribute from the database's JSON value.
      *
-     * @param string $value
+     * @param  string  $value
      * @return array
      */
     public function getContentAttribute($value)
@@ -28,7 +28,7 @@ abstract class AbstractEventPost extends Post
     /**
      * Serialize the content attribute to be stored in the database as JSON.
      *
-     * @param string $value
+     * @param  string  $value
      */
     public function setContentAttribute($value)
     {

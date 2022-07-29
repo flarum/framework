@@ -23,7 +23,7 @@ class NewPostBlueprint implements BlueprintInterface, MailableInterface
     public $post;
 
     /**
-     * @param Post $post
+     * @param  Post  $post
      */
     public function __construct(Post $post)
     {

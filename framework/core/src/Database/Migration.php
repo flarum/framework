@@ -34,7 +34,7 @@ abstract class Migration
             },
             'down' => function (Builder $schema) use ($name) {
                 $schema->drop($name);
-            }
+            },
         ];
     }
 
@@ -49,7 +49,7 @@ abstract class Migration
             },
             'down' => function (Builder $schema) use ($from, $to) {
                 $schema->rename($to, $from);
-            }
+            },
         ];
     }
 
@@ -71,7 +71,7 @@ abstract class Migration
                 $schema->table($tableName, function (Blueprint $table) use ($columnDefinitions) {
                     $table->dropColumn(array_keys($columnDefinitions));
                 });
-            }
+            },
         ];
     }
 
@@ -84,7 +84,7 @@ abstract class Migration
 
         return [
             'up' => $inverse['down'],
-            'down' => $inverse['up']
+            'down' => $inverse['up'],
         ];
     }
 
@@ -115,7 +115,7 @@ abstract class Migration
                         $table->renameColumn($from, $to);
                     }
                 });
-            }
+            },
         ];
     }
 
@@ -145,7 +145,7 @@ abstract class Migration
                 foreach (array_keys($defaults) as $key) {
                     $settings->delete($key);
                 }
-            }
+            },
         ];
     }
 
@@ -188,7 +188,7 @@ abstract class Migration
                 foreach ($rows as $row) {
                     $db->table('group_permission')->where($row)->delete();
                 }
-            }
+            },
         ];
     }
 }

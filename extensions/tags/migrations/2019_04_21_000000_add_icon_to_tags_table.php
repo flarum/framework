@@ -10,5 +10,5 @@
 use Flarum\Database\Migration;
 
 return Migration::addColumns('tags', [
-    'icon' => ['string', 'length' => 100, 'nullable' => true]
+    'icon' => ['string', 'length' => 100, 'nullable' => true],
 ]);

@@ -54,7 +54,7 @@ class ShowDiscussionController extends AbstractShowController
         'posts.user',
         'posts.user.groups',
         'posts.editedUser',
-        'posts.hiddenUser'
+        'posts.hiddenUser',
     ];
 
     /**
@@ -64,13 +64,13 @@ class ShowDiscussionController extends AbstractShowController
         'user',
         'lastPostedUser',
         'firstPost',
-        'lastPost'
+        'lastPost',
     ];
 
     /**
-     * @param \Flarum\Discussion\DiscussionRepository $discussions
-     * @param \Flarum\Post\PostRepository $posts
-     * @param \Flarum\Http\SlugManager $slugManager
+     * @param  \Flarum\Discussion\DiscussionRepository  $discussions
+     * @param  \Flarum\Post\PostRepository  $posts
+     * @param  \Flarum\Http\SlugManager  $slugManager
      */
     public function __construct(DiscussionRepository $discussions, PostRepository $posts, SlugManager $slugManager)
     {
@@ -108,9 +108,9 @@ class ShowDiscussionController extends AbstractShowController
     }
 
     /**
-     * @param Discussion $discussion
-     * @param ServerRequestInterface $request
-     * @param array $include
+     * @param  Discussion  $discussion
+     * @param  ServerRequestInterface  $request
+     * @param  array  $include
      */
     private function includePosts(Discussion $discussion, ServerRequestInterface $request, array $include)
     {
@@ -127,8 +127,8 @@ class ShowDiscussionController extends AbstractShowController
     }
 
     /**
-     * @param Discussion $discussion
-     * @param User $actor
+     * @param  Discussion  $discussion
+     * @param  User  $actor
      * @return array
      */
     private function loadPostIds(Discussion $discussion, User $actor)
@@ -137,7 +137,7 @@ class ShowDiscussionController extends AbstractShowController
     }
 
     /**
-     * @param array $include
+     * @param  array  $include
      * @return array
      */
     private function getPostRelationships(array $include)
@@ -155,9 +155,9 @@ class ShowDiscussionController extends AbstractShowController
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * @param  ServerRequestInterface  $request
      * @param Discussion$discussion
-     * @param int $limit
+     * @param  int  $limit
      * @return int
      */
     private function getPostsOffset(ServerRequestInterface $request, Discussion $discussion, $limit)
@@ -176,11 +176,11 @@ class ShowDiscussionController extends AbstractShowController
     }
 
     /**
-     * @param Discussion $discussion
-     * @param User $actor
-     * @param int $offset
-     * @param int $limit
-     * @param array $include
+     * @param  Discussion  $discussion
+     * @param  User  $actor
+     * @param  int  $offset
+     * @param  int  $limit
+     * @param  array  $include
      * @return mixed
      */
     private function loadPosts($discussion, $actor, $offset, $limit, array $include)

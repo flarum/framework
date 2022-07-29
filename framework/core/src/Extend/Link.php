@@ -19,6 +19,7 @@ use s9e\TextFormatter\Utils;
 class Link implements ExtenderInterface
 {
     protected $setRel = null;
+
     protected $setTarget = null;
 
     public function setRel(callable $callable): static

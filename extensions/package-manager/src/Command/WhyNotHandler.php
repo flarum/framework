@@ -49,7 +49,7 @@ class WhyNotHandler
 
         $this->validator->assertValid([
             'package' => $command->package,
-            'version' => $command->version
+            'version' => $command->version,
         ]);
 
         $output = $this->composer->run(

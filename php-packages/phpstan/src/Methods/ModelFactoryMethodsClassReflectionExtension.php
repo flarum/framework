@@ -63,7 +63,8 @@ class ModelFactoryMethodsClassReflectionExtension implements MethodsClassReflect
         ClassReflection $classReflection,
         string $methodName
     ): MethodReflection {
-        return new class($classReflection, $methodName) implements MethodReflection {
+        return new class($classReflection, $methodName) implements MethodReflection
+        {
             /** @var ClassReflection */
             private $classReflection;
 

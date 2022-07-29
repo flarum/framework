@@ -59,7 +59,7 @@ class Post extends AbstractModel
      * @var array
      */
     protected $casts = [
-        'is_private' => 'boolean'
+        'is_private' => 'boolean',
     ];
 
     /**
@@ -122,7 +122,7 @@ class Post extends AbstractModel
     /**
      * Determine whether or not this post is visible to the given user.
      *
-     * @param User $user
+     * @param  User  $user
      * @return bool
      */
     public function isVisibleTo(User $user)
@@ -174,7 +174,7 @@ class Post extends AbstractModel
      * Get all posts, regardless of their type, by removing the
      * `RegisteredTypesScope` global scope constraints applied on this model.
      *
-     * @param Builder $query
+     * @param  Builder  $query
      * @return Builder
      */
     public function scopeAllTypes(Builder $query)
@@ -185,8 +185,8 @@ class Post extends AbstractModel
     /**
      * Create a new model instance according to the post's type.
      *
-     * @param array $attributes
-     * @param string|null $connection
+     * @param  array  $attributes
+     * @param  string|null  $connection
      * @return static|object
      */
     public function newFromBuilder($attributes = [], $connection = null)
@@ -222,8 +222,8 @@ class Post extends AbstractModel
     /**
      * Set the model for the given post type.
      *
-     * @param string $type The post type.
-     * @param string $model The class name of the model for that type.
+     * @param  string  $type The post type.
+     * @param  string  $model The class name of the model for that type.
      * @return void
      *
      * @internal

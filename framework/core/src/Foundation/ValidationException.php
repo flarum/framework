@@ -14,6 +14,7 @@ use Exception;
 class ValidationException extends Exception
 {
     protected $attributes;
+
     protected $relationships;
 
     public function __construct(array $attributes, array $relationships = [])

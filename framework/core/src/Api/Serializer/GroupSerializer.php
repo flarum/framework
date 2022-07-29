@@ -26,7 +26,7 @@ class GroupSerializer extends AbstractSerializer
     private $translator;
 
     /**
-     * @param TranslatorInterface $translator
+     * @param  TranslatorInterface  $translator
      */
     public function __construct(TranslatorInterface $translator)
     {
@@ -36,7 +36,8 @@ class GroupSerializer extends AbstractSerializer
     /**
      * {@inheritdoc}
      *
-     * @param Group $group
+     * @param  Group  $group
+     *
      * @throws InvalidArgumentException
      */
     protected function getDefaultAttributes($group)
@@ -49,15 +50,15 @@ class GroupSerializer extends AbstractSerializer
 
         return [
             'nameSingular' => $this->translateGroupName($group->name_singular),
-            'namePlural'   => $this->translateGroupName($group->name_plural),
-            'color'        => $group->color,
-            'icon'         => $group->icon,
-            'isHidden'     => $group->is_hidden
+            'namePlural' => $this->translateGroupName($group->name_plural),
+            'color' => $group->color,
+            'icon' => $group->icon,
+            'isHidden' => $group->is_hidden,
         ];
     }
 
     /**
-     * @param string $name
+     * @param  string  $name
      * @return string
      */
     private function translateGroupName($name)

@@ -27,8 +27,8 @@ class PostWasApproved
     public $actor;
 
     /**
-     * @param Post $post
-     * @param User $actor
+     * @param  Post  $post
+     * @param  User  $actor
      */
     public function __construct(Post $post, User $actor)
     {

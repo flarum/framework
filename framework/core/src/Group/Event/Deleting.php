@@ -36,9 +36,9 @@ class Deleting
     public $data;
 
     /**
-     * @param Group $group The group that will be deleted.
-     * @param User $actor The user performing the action.
-     * @param array $data Any user input associated with the command.
+     * @param  Group  $group The group that will be deleted.
+     * @param  User  $actor The user performing the action.
+     * @param  array  $data Any user input associated with the command.
      */
     public function __construct(Group $group, User $actor, array $data)
     {

@@ -84,7 +84,7 @@ class UserServiceProvider extends AbstractServiceProvider
                     if ($container->make('hash')->check($password, $user->password)) {
                         return true;
                     }
-                }
+                },
             ];
         });
     }

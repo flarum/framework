@@ -26,8 +26,8 @@ abstract class AbstractFilterer
     protected $filterMutators;
 
     /**
-     * @param array $filters
-     * @param array $filterMutators
+     * @param  array  $filters
+     * @param  array  $filterMutators
      */
     public function __construct(array $filters, array $filterMutators)
     {
@@ -38,11 +38,11 @@ abstract class AbstractFilterer
     abstract protected function getQuery(User $actor): Builder;
 
     /**
-     * @param QueryCriteria $criteria
-     * @param mixed|null $limit
-     * @param int $offset
-     *
+     * @param  QueryCriteria  $criteria
+     * @param  mixed|null  $limit
+     * @param  int  $offset
      * @return QueryResults
+     *
      * @throws InvalidArgumentException
      */
     public function filter(QueryCriteria $criteria, int $limit = null, int $offset = 0): QueryResults

@@ -31,7 +31,7 @@ class ShowPostController extends AbstractShowController
         'user.groups',
         'editedUser',
         'hiddenUser',
-        'discussion'
+        'discussion',
     ];
 
     /**
@@ -40,7 +40,7 @@ class ShowPostController extends AbstractShowController
     protected $posts;
 
     /**
-     * @param \Flarum\Post\PostRepository $posts
+     * @param  \Flarum\Post\PostRepository  $posts
      */
     public function __construct(PostRepository $posts)
     {

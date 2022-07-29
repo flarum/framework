@@ -20,7 +20,7 @@ class Locales implements ExtenderInterface, LifecycleInterface
     private $directory;
 
     /**
-     * @param string $directory: Directory of the locale files.
+     * @param  string  $directory: Directory of the locale files.
      */
     public function __construct(string $directory)
     {

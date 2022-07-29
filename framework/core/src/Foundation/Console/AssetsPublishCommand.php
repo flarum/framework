@@ -28,8 +28,8 @@ class AssetsPublishCommand extends AbstractCommand
     protected $paths;
 
     /**
-     * @param Container $container
-     * @param Paths $paths
+     * @param  Container  $container
+     * @param  Paths  $paths
      */
     public function __construct(Container $container, Paths $paths)
     {

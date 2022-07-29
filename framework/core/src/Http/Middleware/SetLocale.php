@@ -25,7 +25,7 @@ class SetLocale implements Middleware
     protected $locales;
 
     /**
-     * @param LocaleManager $locales
+     * @param  LocaleManager  $locales
      */
     public function __construct(LocaleManager $locales)
     {

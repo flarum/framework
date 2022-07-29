@@ -29,5 +29,5 @@ return [
             $table->timestamp('created_at');
             $table->timestamp('expires_at');
         });
-    }
+    },
 ];

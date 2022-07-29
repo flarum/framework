@@ -17,7 +17,7 @@ class DiscussionValidator extends AbstractValidator
         'title' => [
             'required',
             'min:3',
-            'max:80'
-        ]
+            'max:80',
+        ],
     ];
 }

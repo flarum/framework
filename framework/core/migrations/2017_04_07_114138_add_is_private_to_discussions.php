@@ -10,5 +10,5 @@
 use Flarum\Database\Migration;
 
 return Migration::addColumns('discussions', [
-    'is_private' => ['boolean', 'default' => false]
+    'is_private' => ['boolean', 'default' => false],
 ]);

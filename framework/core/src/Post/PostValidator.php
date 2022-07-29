@@ -16,7 +16,7 @@ class PostValidator extends AbstractValidator
     protected $rules = [
         'content' => [
             'required',
-            'max:65535'
-        ]
+            'max:65535',
+        ],
     ];
 }

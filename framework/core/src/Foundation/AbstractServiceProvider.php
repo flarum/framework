@@ -16,6 +16,7 @@ abstract class AbstractServiceProvider extends ServiceProvider
 {
     /**
      * @deprecated perpetually, not removed because Laravel needs it.
+     *
      * @var Container
      */
     protected $app;
@@ -26,7 +27,7 @@ abstract class AbstractServiceProvider extends ServiceProvider
     protected $container;
 
     /**
-     * @param Container $container
+     * @param  Container  $container
      */
     public function __construct(Container $container)
     {

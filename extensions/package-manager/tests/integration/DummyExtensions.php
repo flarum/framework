@@ -23,7 +23,7 @@ trait DummyExtensions
             'name' => $name,
             'version' => '1.0.0',
             'require' => [
-                'flarum/core' => $coreVersions
+                'flarum/core' => $coreVersions,
             ],
         ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }

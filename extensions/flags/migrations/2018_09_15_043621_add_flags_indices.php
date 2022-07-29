@@ -21,5 +21,5 @@ return [
         $schema->table('flags', function (Blueprint $table) {
             $table->dropIndex(['created_at']);
         });
-    }
+    },
 ];

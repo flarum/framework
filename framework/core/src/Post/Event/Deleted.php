@@ -25,7 +25,7 @@ class Deleted
     public $actor;
 
     /**
-     * @param \Flarum\Post\Post $post
+     * @param  \Flarum\Post\Post  $post
      */
     public function __construct(Post $post, User $actor = null)
     {

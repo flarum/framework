@@ -47,8 +47,8 @@ class ListGroupsController extends AbstractListController
     protected $url;
 
     /**
-     * @param GroupFilterer $filterer
-     * @param UrlGenerator $url
+     * @param  GroupFilterer  $filterer
+     * @param  UrlGenerator  $url
      */
     public function __construct(GroupFilterer $filterer, UrlGenerator $url)
     {

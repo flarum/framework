@@ -35,9 +35,9 @@ class EditTag
     public $data;
 
     /**
-     * @param int $tagId The ID of the tag to edit.
-     * @param User $actor The user performing the action.
-     * @param array $data The attributes to update on the tag.
+     * @param  int  $tagId The ID of the tag to edit.
+     * @param  User  $actor The user performing the action.
+     * @param  array  $data The attributes to update on the tag.
      */
     public function __construct($tagId, User $actor, array $data)
     {

@@ -21,7 +21,7 @@ class DiscussionLockedBlueprint implements BlueprintInterface
     protected $post;
 
     /**
-     * @param DiscussionLockedPost $post
+     * @param  DiscussionLockedPost  $post
      */
     public function __construct(DiscussionLockedPost $post)
     {

@@ -26,8 +26,8 @@ class DeleteTagHandler
     protected $events;
 
     /**
-     * @param TagRepository $tags
-     * @param Dispatcher $events
+     * @param  TagRepository  $tags
+     * @param  Dispatcher  $events
      */
     public function __construct(TagRepository $tags, Dispatcher $events)
     {
@@ -36,8 +36,9 @@ class DeleteTagHandler
     }
 
     /**
-     * @param DeleteTag $command
+     * @param  DeleteTag  $command
      * @return \Flarum\Tags\Tag
+     *
      * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(DeleteTag $command)

@@ -30,7 +30,7 @@ class ListNotificationsController extends AbstractListController
     public $include = [
         'fromUser',
         'subject',
-        'subject.discussion'
+        'subject.discussion',
     ];
 
     /**
@@ -49,8 +49,8 @@ class ListNotificationsController extends AbstractListController
     protected $url;
 
     /**
-     * @param NotificationRepository $notifications
-     * @param UrlGenerator $url
+     * @param  NotificationRepository  $notifications
+     * @param  UrlGenerator  $url
      */
     public function __construct(NotificationRepository $notifications, UrlGenerator $url)
     {
@@ -106,7 +106,7 @@ class ListNotificationsController extends AbstractListController
     }
 
     /**
-     * @param \Flarum\Notification\Notification[] $notifications
+     * @param  \Flarum\Notification\Notification[]  $notifications
      */
     private function loadSubjectDiscussions(array $notifications)
     {

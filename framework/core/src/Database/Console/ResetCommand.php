@@ -21,7 +21,7 @@ class ResetCommand extends AbstractCommand
     protected $manager;
 
     /**
-     * @param ExtensionManager $manager
+     * @param  ExtensionManager  $manager
      */
     public function __construct(ExtensionManager $manager)
     {

@@ -42,7 +42,7 @@ class PasswordToken extends AbstractModel
     /**
      * Generate a password token for the specified user.
      *
-     * @param int $userId
+     * @param  int  $userId
      * @return static
      */
     public static function generate(int $userId)

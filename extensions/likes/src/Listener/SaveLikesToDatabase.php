@@ -17,7 +17,7 @@ use Flarum\Post\Event\Saving;
 class SaveLikesToDatabase
 {
     /**
-     * @param Saving $event
+     * @param  Saving  $event
      */
     public static function whenPostIsSaving(Saving $event)
     {
@@ -45,7 +45,7 @@ class SaveLikesToDatabase
     }
 
     /**
-     * @param Deleted $event
+     * @param  Deleted  $event
      */
     public static function whenPostIsDeleted(Deleted $event)
     {

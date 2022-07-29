@@ -25,7 +25,7 @@ class Deserializing
     public $settings;
 
     /**
-     * @param array $settings The settings array to be unserialized.
+     * @param  array  $settings The settings array to be unserialized.
      */
     public function __construct(&$settings)
     {

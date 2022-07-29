@@ -18,7 +18,7 @@ return [
             [Group::ADMINISTRATOR_ID, 'Admin', 'Admins', '#B72A2A', 'fas fa-wrench'],
             [Group::GUEST_ID, 'Guest', 'Guests', null, null],
             [Group::MEMBER_ID, 'Member', 'Members', null, null],
-            [Group::MODERATOR_ID, 'Mod', 'Mods', '#80349E', 'fas fa-bolt']
+            [Group::MODERATOR_ID, 'Mod', 'Mods', '#80349E', 'fas fa-bolt'],
         ];
 
         foreach ($groups as $group) {
@@ -32,5 +32,5 @@ return [
 
     'down' => function (Builder $schema) {
         // do nothing so as to preserve user data
-    }
+    },
 ];

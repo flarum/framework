@@ -44,10 +44,10 @@ class CreateFlagHandler
     protected $events;
 
     /**
-     * @param PostRepository $posts
-     * @param TranslatorInterface $translator
-     * @param SettingsRepositoryInterface $settings
-     * @param Dispatcher $events
+     * @param  PostRepository  $posts
+     * @param  TranslatorInterface  $translator
+     * @param  SettingsRepositoryInterface  $settings
+     * @param  Dispatcher  $events
      */
     public function __construct(PostRepository $posts, TranslatorInterface $translator, SettingsRepositoryInterface $settings, Dispatcher $events)
     {
@@ -58,8 +58,9 @@ class CreateFlagHandler
     }
 
     /**
-     * @param CreateFlag $command
+     * @param  CreateFlag  $command
      * @return Flag
+     *
      * @throws InvalidParameterException
      * @throws ValidationException
      */
@@ -83,7 +84,7 @@ class CreateFlagHandler
 
         if (Arr::get($data, 'attributes.reason') === null && Arr::get($data, 'attributes.reasonDetail') === '') {
             throw new ValidationException([
-                'message' => $this->translator->trans('flarum-flags.forum.flag_post.reason_missing_message')
+                'message' => $this->translator->trans('flarum-flags.forum.flag_post.reason_missing_message'),
             ]);
         }
 
@@ -91,7 +92,7 @@ class CreateFlagHandler
 
         $flag = Flag::firstOrNew([
             'post_id' => $post->id,
-            'user_id' => $actor->id
+            'user_id' => $actor->id,
         ]);
 
         $flag->post_id = $post->id;

@@ -19,6 +19,6 @@ class RequirePackageValidator extends AbstractValidator
      * {@inheritdoc}
      */
     protected $rules = [
-        'package' => ['required', 'string', 'regex:'.self::PACKAGE_NAME_REGEX]
+        'package' => ['required', 'string', 'regex:'.self::PACKAGE_NAME_REGEX],
     ];
 }

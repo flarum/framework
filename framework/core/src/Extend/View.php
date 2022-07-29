@@ -22,6 +22,7 @@ use Illuminate\Contracts\View\Factory;
 class View implements ExtenderInterface, LifecycleInterface
 {
     private $namespaces = [];
+
     private $prependNamespaces = [];
 
     /**
@@ -76,8 +77,9 @@ class View implements ExtenderInterface, LifecycleInterface
     }
 
     /**
-     * @param Container $container
-     * @param Extension $extension
+     * @param  Container  $container
+     * @param  Extension  $extension
+     *
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function onEnable(Container $container, Extension $extension)
@@ -87,8 +89,9 @@ class View implements ExtenderInterface, LifecycleInterface
     }
 
     /**
-     * @param Container $container
-     * @param Extension $extension
+     * @param  Container  $container
+     * @param  Extension  $extension
+     *
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function onDisable(Container $container, Extension $extension)

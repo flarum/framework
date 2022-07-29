@@ -17,10 +17,11 @@ use Mockery as m;
 class MemoryCacheSettingsRepositoryTest extends TestCase
 {
     private $baseRepository;
+
     private $repository;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {

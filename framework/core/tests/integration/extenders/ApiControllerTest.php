@@ -34,7 +34,7 @@ class ApiControllerTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -42,7 +42,7 @@ class ApiControllerTest extends TestCase
 
         $this->prepareDatabase([
             'users' => [
-                $this->normalUser()
+                $this->normalUser(),
             ],
             'discussions' => [
                 ['id' => 1, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
@@ -815,7 +815,8 @@ class ApiControllerTest extends TestCase
             (new Extend\Model(User::class))
                 ->hasOne('firstLevelRelation', Post::class, 'user_id'),
             (new Extend\ApiController(ListUsersController::class))
-                ->loadWhere('firstLevelRelation', function ($query, $request) {})
+                ->loadWhere('firstLevelRelation', function ($query, $request) {
+                })
                 ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
                     $users = $data;
 
@@ -846,7 +847,8 @@ class ApiControllerTest extends TestCase
                 ->belongsTo('secondLevelRelation', Discussion::class),
             (new Extend\ApiController(ListUsersController::class))
                 ->load('firstLevelRelation')
-                ->loadWhere('firstLevelRelation.secondLevelRelation', function ($query, $request) {})
+                ->loadWhere('firstLevelRelation.secondLevelRelation', function ($query, $request) {
+                })
                 ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
                     $users = $data;
 
@@ -876,7 +878,8 @@ class ApiControllerTest extends TestCase
             (new Extend\Model(Post::class))
                 ->belongsTo('secondLevelRelation', Discussion::class),
             (new Extend\ApiController(ListUsersController::class))
-                ->loadWhere('firstLevelRelation.secondLevelRelation', function ($query, $request) {})
+                ->loadWhere('firstLevelRelation.secondLevelRelation', function ($query, $request) {
+                })
                 ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
                     $users = $data;
 
@@ -906,8 +909,10 @@ class ApiControllerTest extends TestCase
             (new Extend\Model(Post::class))
                 ->belongsTo('secondLevelRelation', Discussion::class),
             (new Extend\ApiController(ListUsersController::class))
-                ->loadWhere('firstLevelRelation', function ($query, $request) {})
-                ->loadWhere('firstLevelRelation.secondLevelRelation', function ($query, $request) {})
+                ->loadWhere('firstLevelRelation', function ($query, $request) {
+                })
+                ->loadWhere('firstLevelRelation.secondLevelRelation', function ($query, $request) {
+                })
                 ->prepareDataForSerialization(function ($controller, $data) use (&$users) {
                     $users = $data;
 
@@ -930,7 +935,7 @@ class CustomDiscussionSerializer extends DiscussionSerializer
     protected function getDefaultAttributes($discussion)
     {
         return parent::getDefaultAttributes($discussion) + [
-            'customSerializer' => true
+            'customSerializer' => true,
         ];
     }
 }
@@ -940,7 +945,7 @@ class CustomDiscussionSerializer2 extends DiscussionSerializer
     protected function getDefaultAttributes($discussion)
     {
         return parent::getDefaultAttributes($discussion) + [
-            'customSerializer2' => true
+            'customSerializer2' => true,
         ];
     }
 }
@@ -950,7 +955,7 @@ class CustomUserSerializer extends UserSerializer
     protected function getDefaultAttributes($user)
     {
         return parent::getDefaultAttributes($user) + [
-            'customSerializer' => true
+            'customSerializer' => true,
         ];
     }
 }
@@ -960,7 +965,7 @@ class CustomPostSerializer extends PostSerializer
     protected function getDefaultAttributes($post)
     {
         return parent::getDefaultAttributes($post) + [
-            'customSerializer' => true
+            'customSerializer' => true,
         ];
     }
 }

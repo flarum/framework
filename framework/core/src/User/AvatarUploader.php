@@ -27,8 +27,8 @@ class AvatarUploader
     }
 
     /**
-     * @param User $user
-     * @param Image $image
+     * @param  User  $user
+     * @param  Image  $image
      */
     public function upload(User $user, Image $image)
     {
@@ -49,7 +49,8 @@ class AvatarUploader
     /**
      * Handle the removal of the old avatar file after a successful user save
      * We don't place this in remove() because otherwise we would call changeAvatarPath 2 times when uploading.
-     * @param User $user
+     *
+     * @param  User  $user
      */
     protected function removeFileAfterSave(User $user)
     {
@@ -68,7 +69,7 @@ class AvatarUploader
     }
 
     /**
-     * @param User $user
+     * @param  User  $user
      */
     public function remove(User $user)
     {

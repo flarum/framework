@@ -22,8 +22,8 @@ trait DispatchEventsTrait
     /**
      * Dispatch all events for an entity.
      *
-     * @param object $entity
-     * @param User $actor
+     * @param  object  $entity
+     * @param  User  $actor
      */
     public function dispatchEventsFor($entity, User $actor = null)
     {

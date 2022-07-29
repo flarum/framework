@@ -31,7 +31,7 @@ class CreateFlagController extends AbstractCreateController
     public $include = [
         'post',
         'post.flags',
-        'user'
+        'user',
     ];
 
     /**
@@ -40,7 +40,7 @@ class CreateFlagController extends AbstractCreateController
     protected $bus;
 
     /**
-     * @param Dispatcher $bus
+     * @param  Dispatcher  $bus
      */
     public function __construct(Dispatcher $bus)
     {

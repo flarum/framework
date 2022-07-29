@@ -43,11 +43,11 @@ class AdminPayload
     protected $db;
 
     /**
-     * @param Container $container
-     * @param SettingsRepositoryInterface $settings
-     * @param ExtensionManager $extensions
-     * @param ConnectionInterface $db
-     * @param Dispatcher $events
+     * @param  Container  $container
+     * @param  SettingsRepositoryInterface  $settings
+     * @param  ExtensionManager  $extensions
+     * @param  ConnectionInterface  $db
+     * @param  Dispatcher  $events
      */
     public function __construct(
         Container $container,
@@ -92,8 +92,8 @@ class AdminPayload
          */
         $document->payload['modelStatistics'] = [
             'users' => [
-                'total' => User::count()
-            ]
+                'total' => User::count(),
+            ],
         ];
     }
 }

@@ -51,7 +51,7 @@ class Tag extends AbstractModel
 
     protected $casts = [
         'is_hidden' => 'bool',
-        'is_restricted' => 'bool'
+        'is_restricted' => 'bool',
     ];
 
     public static function boot()
@@ -72,12 +72,12 @@ class Tag extends AbstractModel
     /**
      * Create a new tag.
      *
-     * @param string $name
-     * @param string $slug
-     * @param string $description
-     * @param string $color
-     * @param string $icon
-     * @param bool $isHidden
+     * @param  string  $name
+     * @param  string  $slug
+     * @param  string  $description
+     * @param  string  $color
+     * @param  string  $icon
+     * @param  bool  $isHidden
      * @return static
      */
     public static function build($name, $slug, $description, $color, $icon, $isHidden)
@@ -153,7 +153,7 @@ class Tag extends AbstractModel
      * Get the state model for a user, or instantiate a new one if it does not
      * exist.
      *
-     * @param User $user
+     * @param  User  $user
      * @return TagState
      */
     public function stateFor(User $user)
@@ -170,8 +170,8 @@ class Tag extends AbstractModel
     }
 
     /**
-     * @param Builder $query
-     * @param User $user
+     * @param  Builder  $query
+     * @param  User  $user
      * @return Builder
      */
     public function scopeWithStateFor(Builder $query, User $user)
@@ -179,7 +179,7 @@ class Tag extends AbstractModel
         return $query->with([
             'state' => function ($query) use ($user) {
                 $query->where('user_id', $user->id);
-            }
+            },
         ]);
     }
 

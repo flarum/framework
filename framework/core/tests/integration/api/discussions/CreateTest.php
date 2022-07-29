@@ -19,7 +19,7 @@ class CreateTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -28,7 +28,7 @@ class CreateTest extends TestCase
         $this->prepareDatabase([
             'users' => [
                 $this->normalUser(),
-            ]
+            ],
         ]);
     }
 
@@ -118,7 +118,7 @@ class CreateTest extends TestCase
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -150,7 +150,7 @@ class CreateTest extends TestCase
                             'title' => '我是一个土豆',
                             'content' => 'predetermined content for automated testing',
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -182,7 +182,7 @@ class CreateTest extends TestCase
                             'title' => '我是一个土豆',
                             'content' => 'predetermined content for automated testing',
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -209,7 +209,7 @@ class CreateTest extends TestCase
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -223,7 +223,7 @@ class CreateTest extends TestCase
                             'title' => 'test - too-obscure',
                             'content' => 'Second predetermined content for automated testing - too-obscure',
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -245,7 +245,7 @@ class CreateTest extends TestCase
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
                         ],
-                    ]
+                    ],
                 ],
             ])
         );
@@ -259,7 +259,7 @@ class CreateTest extends TestCase
                             'title' => 'test - too-obscure',
                             'content' => 'Second predetermined content for automated testing - too-obscure',
                         ],
-                    ]
+                    ],
                 ],
             ])
         );

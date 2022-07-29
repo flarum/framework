@@ -22,7 +22,7 @@ interface MergeableInterface
      * Save the model, given that it is going to appear immediately after the
      * passed model.
      *
-     * @param \Flarum\Post\Post|null $previous
+     * @param  \Flarum\Post\Post|null  $previous
      * @return Post The model resulting after the merge. If the merge is
      *     unsuccessful, this should be the current model instance. Otherwise,
      *     it should be the model that was merged into.

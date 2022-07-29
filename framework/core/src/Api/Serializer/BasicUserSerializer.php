@@ -33,7 +33,8 @@ class BasicUserSerializer extends AbstractSerializer
     /**
      * {@inheritdoc}
      *
-     * @param User $user
+     * @param  User  $user
+     *
      * @throws InvalidArgumentException
      */
     protected function getDefaultAttributes($user)
@@ -45,10 +46,10 @@ class BasicUserSerializer extends AbstractSerializer
         }
 
         return [
-            'username'    => $user->username,
+            'username' => $user->username,
             'displayName' => $user->display_name,
-            'avatarUrl'   => $user->avatar_url,
-            'slug'        => $this->slugManager->forResource(User::class)->toSlug($user)
+            'avatarUrl' => $user->avatar_url,
+            'slug' => $this->slugManager->forResource(User::class)->toSlug($user),
         ];
     }
 

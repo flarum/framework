@@ -35,9 +35,9 @@ class EditGroup
     public $data;
 
     /**
-     * @param int $groupId The ID of the group to edit.
-     * @param User $actor The user performing the action.
-     * @param array $data The attributes to update on the post.
+     * @param  int  $groupId The ID of the group to edit.
+     * @param  User  $actor The user performing the action.
+     * @param  array  $data The attributes to update on the post.
      */
     public function __construct($groupId, User $actor, array $data)
     {

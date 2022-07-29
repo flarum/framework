@@ -17,6 +17,7 @@ class Unsuspended
      * @var User
      */
     public $user;
+
     /**
      * @var User
      */

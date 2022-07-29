@@ -17,17 +17,21 @@ use Illuminate\Contracts\Container\Container;
 class Notification implements ExtenderInterface
 {
     private $blueprints = [];
+
     private $serializers = [];
+
     private $drivers = [];
+
     private $typesEnabledByDefault = [];
+
     private $beforeSendingCallbacks = [];
 
     /**
-     * @param string $blueprint: The ::class attribute of the blueprint class.
+     * @param  string  $blueprint: The ::class attribute of the blueprint class.
      *                          This blueprint should implement \Flarum\Notification\Blueprint\BlueprintInterface.
-     * @param string $serializer: The ::class attribute of the serializer class.
+     * @param  string  $serializer: The ::class attribute of the serializer class.
      *                           This serializer should extend from \Flarum\Api\Serializer\AbstractSerializer.
-     * @param string[] $driversEnabledByDefault: The names of the drivers enabled by default for this notification type.
+     * @param  string[]  $driversEnabledByDefault: The names of the drivers enabled by default for this notification type.
      *                                       (example: alert, email).
      * @return self
      */
@@ -40,10 +44,10 @@ class Notification implements ExtenderInterface
     }
 
     /**
-     * @param string $driverName: The name of the notification driver.
-     * @param string $driver: The ::class attribute of the driver class.
+     * @param  string  $driverName: The name of the notification driver.
+     * @param  string  $driver: The ::class attribute of the driver class.
      *                       This driver should implement \Flarum\Notification\Driver\NotificationDriverInterface.
-     * @param string[] $typesEnabledByDefault: The names of blueprint classes of types enabled by default for this driver.
+     * @param  string[]  $typesEnabledByDefault: The names of blueprint classes of types enabled by default for this driver.
      * @return self
      */
     public function driver(string $driverName, string $driver, array $typesEnabledByDefault = []): self
@@ -55,7 +59,7 @@ class Notification implements ExtenderInterface
     }
 
     /**
-     * @param callable|string $callback
+     * @param  callable|string  $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
      * - \Flarum\Notification\Blueprint\BlueprintInterface $blueprint
@@ -63,7 +67,6 @@ class Notification implements ExtenderInterface
      *
      * The callable should return an array of recipients.
      * - \Flarum\User\User[] $newRecipients
-     *
      * @return self
      */
     public function beforeSending($callback): self

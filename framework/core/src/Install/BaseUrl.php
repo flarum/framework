@@ -42,7 +42,7 @@ final class BaseUrl
      * This uses the given mailbox name and our already normalized host name to
      * construct an email address.
      *
-     * @param string $mailbox
+     * @param  string  $mailbox
      * @return string
      */
     public function toEmail(string $mailbox): string

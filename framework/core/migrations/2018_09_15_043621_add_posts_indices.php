@@ -25,5 +25,5 @@ return [
             $table->dropIndex(['discussion_id', 'created_at']);
             $table->dropIndex(['user_id', 'created_at']);
         });
-    }
+    },
 ];

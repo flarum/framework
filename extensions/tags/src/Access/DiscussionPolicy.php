@@ -23,7 +23,7 @@ class DiscussionPolicy extends AbstractPolicy
     protected $settings;
 
     /**
-     * @param SettingsRepositoryInterface $settings
+     * @param  SettingsRepositoryInterface  $settings
      */
     public function __construct(SettingsRepositoryInterface $settings)
     {
@@ -31,9 +31,9 @@ class DiscussionPolicy extends AbstractPolicy
     }
 
     /**
-     * @param User $actor
-     * @param string $ability
-     * @param Discussion $discussion
+     * @param  User  $actor
+     * @param  string  $ability
+     * @param  Discussion  $discussion
      * @return bool
      */
     public function can(User $actor, $ability, Discussion $discussion)
@@ -66,8 +66,8 @@ class DiscussionPolicy extends AbstractPolicy
      * This method checks, if the user is still allowed to edit the tags
      * based on the configuration item.
      *
-     * @param User $actor
-     * @param Discussion $discussion
+     * @param  User  $actor
+     * @param  Discussion  $discussion
      * @return bool
      */
     public function tag(User $actor, Discussion $discussion)

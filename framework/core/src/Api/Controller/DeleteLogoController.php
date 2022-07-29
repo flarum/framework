@@ -29,8 +29,8 @@ class DeleteLogoController extends AbstractDeleteController
     protected $uploadDir;
 
     /**
-     * @param SettingsRepositoryInterface $settings
-     * @param Factory $filesystemFactory
+     * @param  SettingsRepositoryInterface  $settings
+     * @param  Factory  $filesystemFactory
      */
     public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory)
     {

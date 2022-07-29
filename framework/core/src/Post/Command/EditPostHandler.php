@@ -32,9 +32,9 @@ class EditPostHandler
     protected $validator;
 
     /**
-     * @param Dispatcher $events
-     * @param PostRepository $posts
-     * @param \Flarum\Post\PostValidator $validator
+     * @param  Dispatcher  $events
+     * @param  PostRepository  $posts
+     * @param  \Flarum\Post\PostValidator  $validator
      */
     public function __construct(Dispatcher $events, PostRepository $posts, PostValidator $validator)
     {
@@ -44,8 +44,9 @@ class EditPostHandler
     }
 
     /**
-     * @param EditPost $command
+     * @param  EditPost  $command
      * @return \Flarum\Post\Post
+     *
      * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(EditPost $command)

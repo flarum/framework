@@ -36,9 +36,9 @@ class DeleteDiscussion
     public $data;
 
     /**
-     * @param int $discussionId The ID of the discussion to delete.
-     * @param User $actor The user performing the action.
-     * @param array $data Any other user input associated with the action. This
+     * @param  int  $discussionId The ID of the discussion to delete.
+     * @param  User  $actor The user performing the action.
+     * @param  array  $data Any other user input associated with the action. This
      *     is unused by default, but may be used by extensions.
      */
     public function __construct($discussionId, User $actor, array $data = [])

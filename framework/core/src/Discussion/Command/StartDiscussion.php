@@ -35,9 +35,9 @@ class StartDiscussion
     public $ipAddress;
 
     /**
-     * @param User   $actor The user authoring the discussion.
-     * @param array  $data  The discussion attributes.
-     * @param string $ipAddress The current ip address of the actor.
+     * @param  User  $actor The user authoring the discussion.
+     * @param  array  $data  The discussion attributes.
+     * @param  string  $ipAddress The current ip address of the actor.
      */
     public function __construct(User $actor, array $data, string $ipAddress)
     {

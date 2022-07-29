@@ -58,8 +58,8 @@ class EmailConfirmationMailer
     }
 
     /**
-     * @param User $user
-     * @param string $email
+     * @param  User  $user
+     * @param  string  $email
      * @return EmailToken
      */
     protected function generateToken(User $user, $email)
@@ -73,8 +73,8 @@ class EmailConfirmationMailer
     /**
      * Get the data that should be made available to email templates.
      *
-     * @param User $user
-     * @param string $email
+     * @param  User  $user
+     * @param  string  $email
      * @return array
      */
     protected function getEmailData(User $user, $email)
@@ -84,7 +84,7 @@ class EmailConfirmationMailer
         return [
             'username' => $user->display_name,
             'url' => $this->url->to('forum')->route('confirmEmail', ['token' => $token->token]),
-            'forum' => $this->settings->get('forum_title')
+            'forum' => $this->settings->get('forum_title'),
         ];
     }
 }

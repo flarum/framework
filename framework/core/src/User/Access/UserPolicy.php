@@ -14,8 +14,8 @@ use Flarum\User\User;
 class UserPolicy extends AbstractPolicy
 {
     /**
-     * @param User $actor
-     * @param string $ability
+     * @param  User  $actor
+     * @param  string  $ability
      * @return bool|null
      */
     public function can(User $actor, $ability)
@@ -26,8 +26,8 @@ class UserPolicy extends AbstractPolicy
     }
 
     /**
-     * @param User $actor
-     * @param User $user
+     * @param  User  $actor
+     * @param  User  $user
      */
     public function editCredentials(User $actor, User $user)
     {

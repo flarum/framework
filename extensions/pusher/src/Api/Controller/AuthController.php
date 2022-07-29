@@ -27,7 +27,7 @@ class AuthController implements RequestHandlerInterface
     protected $settings;
 
     /**
-     * @param SettingsRepositoryInterface $settings
+     * @param  SettingsRepositoryInterface  $settings
      */
     public function __construct(SettingsRepositoryInterface $settings)
     {
@@ -35,7 +35,7 @@ class AuthController implements RequestHandlerInterface
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * @param  ServerRequestInterface  $request
      * @return ResponseInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface

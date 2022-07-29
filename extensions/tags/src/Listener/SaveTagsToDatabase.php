@@ -36,9 +36,9 @@ class SaveTagsToDatabase
     protected $translator;
 
     /**
-     * @param SettingsRepositoryInterface $settings
-     * @param Factory $validator
-     * @param TranslatorInterface $translator
+     * @param  SettingsRepositoryInterface  $settings
+     * @param  Factory  $validator
+     * @param  TranslatorInterface  $translator
      */
     public function __construct(SettingsRepositoryInterface $settings, Factory $validator, TranslatorInterface $translator)
     {
@@ -48,7 +48,8 @@ class SaveTagsToDatabase
     }
 
     /**
-     * @param Saving $event
+     * @param  Saving  $event
+     *
      * @throws PermissionDeniedException
      * @throws ValidationException
      */
@@ -124,8 +125,9 @@ class SaveTagsToDatabase
     }
 
     /**
-     * @param string $type
-     * @param int $count
+     * @param  string  $type
+     * @param  int  $count
+     *
      * @throws ValidationException
      */
     protected function validateTagCount($type, $count)

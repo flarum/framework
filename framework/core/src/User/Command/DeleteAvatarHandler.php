@@ -30,9 +30,9 @@ class DeleteAvatarHandler
     protected $uploader;
 
     /**
-     * @param Dispatcher $events
-     * @param UserRepository $users
-     * @param AvatarUploader $uploader
+     * @param  Dispatcher  $events
+     * @param  UserRepository  $users
+     * @param  AvatarUploader  $uploader
      */
     public function __construct(Dispatcher $events, UserRepository $users, AvatarUploader $uploader)
     {
@@ -42,8 +42,9 @@ class DeleteAvatarHandler
     }
 
     /**
-     * @param DeleteAvatar $command
+     * @param  DeleteAvatar  $command
      * @return \Flarum\User\User
+     *
      * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(DeleteAvatar $command)

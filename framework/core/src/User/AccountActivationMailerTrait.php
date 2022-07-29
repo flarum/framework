@@ -14,8 +14,8 @@ use Flarum\Mail\Job\SendRawEmailJob;
 trait AccountActivationMailerTrait
 {
     /**
-     * @param User $user
-     * @param string $email
+     * @param  User  $user
+     * @param  string  $email
      * @return EmailToken
      */
     protected function generateToken(User $user, $email)
@@ -29,8 +29,8 @@ trait AccountActivationMailerTrait
     /**
      * Get the data that should be made available to email templates.
      *
-     * @param User $user
-     * @param EmailToken $token
+     * @param  User  $user
+     * @param  EmailToken  $token
      * @return array
      */
     protected function getEmailData(User $user, EmailToken $token)
@@ -38,13 +38,13 @@ trait AccountActivationMailerTrait
         return [
             'username' => $user->display_name,
             'url' => $this->url->to('forum')->route('confirmEmail', ['token' => $token->token]),
-            'forum' => $this->settings->get('forum_title')
+            'forum' => $this->settings->get('forum_title'),
         ];
     }
 
     /**
-     * @param User $user
-     * @param array $data
+     * @param  User  $user
+     * @param  array  $data
      */
     protected function sendConfirmationEmail(User $user, $data)
     {

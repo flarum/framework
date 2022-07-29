@@ -18,7 +18,7 @@ class CreateTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -30,7 +30,7 @@ class CreateTest extends TestCase
             ],
             'users' => [
                 $this->normalUser(),
-            ]
+            ],
         ]);
     }
 

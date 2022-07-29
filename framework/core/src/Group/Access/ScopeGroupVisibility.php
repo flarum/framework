@@ -15,8 +15,8 @@ use Illuminate\Database\Eloquent\Builder;
 class ScopeGroupVisibility
 {
     /**
-     * @param User $actor
-     * @param Builder $query
+     * @param  User  $actor
+     * @param  Builder  $query
      */
     public function __invoke(User $actor, $query)
     {

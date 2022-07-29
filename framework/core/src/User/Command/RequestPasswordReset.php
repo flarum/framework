@@ -19,7 +19,7 @@ class RequestPasswordReset
     public $email;
 
     /**
-     * @param string $email The email of the user to request a password reset for.
+     * @param  string  $email The email of the user to request a password reset for.
      */
     public function __construct($email)
     {

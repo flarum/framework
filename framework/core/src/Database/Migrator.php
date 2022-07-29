@@ -42,6 +42,7 @@ class Migrator
      * @var OutputInterface
      */
     protected $output;
+
     /**
      * @var ConnectionInterface|MySqlConnection
      */
@@ -51,8 +52,8 @@ class Migrator
      * Create a new migrator instance.
      *
      * @param  MigrationRepositoryInterface  $repository
-     * @param  ConnectionInterface           $connection
-     * @param  Filesystem                    $files
+     * @param  ConnectionInterface  $connection
+     * @param  Filesystem  $files
      */
     public function __construct(
         MigrationRepositoryInterface $repository,
@@ -75,8 +76,8 @@ class Migrator
     /**
      * Run the outstanding migrations at a given path.
      *
-     * @param  string    $path
-     * @param  Extension $extension
+     * @param  string  $path
+     * @param  Extension  $extension
      * @return void
      */
     public function run($path, Extension $extension = null)
@@ -93,9 +94,9 @@ class Migrator
     /**
      * Run an array of migrations.
      *
-     * @param  string    $path
-     * @param  array     $migrations
-     * @param  Extension $extension
+     * @param  string  $path
+     * @param  array  $migrations
+     * @param  Extension  $extension
      * @return void
      */
     public function runMigrationList($path, $migrations, Extension $extension = null)
@@ -120,10 +121,10 @@ class Migrator
     /**
      * Run "up" a migration instance.
      *
-     * @param  string    $path
-     * @param  string    $file
-     * @param  string    $path
-     * @param  Extension $extension
+     * @param  string  $path
+     * @param  string  $file
+     * @param  string  $path
+     * @param  Extension  $extension
      * @return void
      */
     protected function runUp($path, $file, Extension $extension = null)
@@ -143,8 +144,8 @@ class Migrator
     /**
      * Rolls all of the currently applied migrations back.
      *
-     * @param  string    $path
-     * @param  Extension $extension
+     * @param  string  $path
+     * @param  Extension  $extension
      * @return int
      */
     public function reset($path, Extension $extension = null)
@@ -169,10 +170,10 @@ class Migrator
     /**
      * Run "down" a migration instance.
      *
-     * @param  string    $path
-     * @param  string    $file
-     * @param  string    $path
-     * @param  Extension $extension
+     * @param  string  $path
+     * @param  string  $file
+     * @param  string  $path
+     * @param  Extension  $extension
      * @return void
      */
     protected function runDown($path, $file, Extension $extension = null)
@@ -192,8 +193,9 @@ class Migrator
     /**
      * Runs a closure migration based on the migrate direction.
      *
-     * @param        $migration
-     * @param string $direction
+     * @param    $migration
+     * @param  string  $direction
+     *
      * @throws Exception
      */
     protected function runClosureMigration($migration, $direction = 'up')
@@ -208,7 +210,7 @@ class Migrator
     /**
      * Get all of the migration files in a given path.
      *
-     * @param  string $path
+     * @param  string  $path
      * @return array
      */
     public function getMigrationFiles($path)
@@ -234,8 +236,8 @@ class Migrator
     /**
      * Resolve a migration instance from a file.
      *
-     * @param  string $path
-     * @param  string $file
+     * @param  string  $path
+     * @param  string  $file
      * @return array
      */
     public function resolve($path, $file)
@@ -250,7 +252,7 @@ class Migrator
     /**
      * Initialize the Flarum database from a schema dump.
      *
-     * @param string $path to the directory containing the dump.
+     * @param  string  $path to the directory containing the dump.
      */
     public function installFromSchema(string $path)
     {
@@ -286,7 +288,7 @@ class Migrator
     /**
      * Set the output implementation that should be used by the console.
      *
-     * @param OutputInterface $output
+     * @param  OutputInterface  $output
      * @return $this
      */
     public function setOutput(OutputInterface $output)
@@ -299,7 +301,7 @@ class Migrator
     /**
      * Write a note to the conosle's output.
      *
-     * @param string $message
+     * @param  string  $message
      * @return void
      */
     protected function note($message)

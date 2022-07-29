@@ -30,8 +30,8 @@ class CsrfTest extends TestCase
             $this->request('POST', '/api/users', [
                 'json' => [
                     'data' => [
-                        'attributes' => $this->testUser
-                    ]
+                        'attributes' => $this->testUser,
+                    ],
                 ],
             ])
         );
@@ -53,8 +53,8 @@ class CsrfTest extends TestCase
             $this->request('POST', '/api/users', [
                 'json' => [
                     'data' => [
-                        'attributes' => $this->testUser
-                    ]
+                        'attributes' => $this->testUser,
+                    ],
                 ],
             ])
         );

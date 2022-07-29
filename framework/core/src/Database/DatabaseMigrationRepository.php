@@ -30,8 +30,8 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
     /**
      * Create a new database migration repository instance.
      *
-     * @param  \Illuminate\Database\ConnectionInterface $connection
-     * @param  string                                   $table
+     * @param  \Illuminate\Database\ConnectionInterface  $connection
+     * @param  string  $table
      */
     public function __construct(ConnectionInterface $connection, $table)
     {
@@ -42,7 +42,7 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
     /**
      * Get the ran migrations.
      *
-     * @param string $extension
+     * @param  string  $extension
      * @return array
      */
     public function getRan($extension = null)
@@ -57,8 +57,8 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
     /**
      * Log that a migration was run.
      *
-     * @param string $file
-     * @param string $extension
+     * @param  string  $file
+     * @param  string  $extension
      * @return void
      */
     public function log($file, $extension = null)
@@ -71,8 +71,8 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
     /**
      * Remove a migration from the log.
      *
-     * @param string $file
-     * @param string $extension
+     * @param  string  $file
+     * @param  string  $extension
      * @return void
      */
     public function delete($file, $extension = null)

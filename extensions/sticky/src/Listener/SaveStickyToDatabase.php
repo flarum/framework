@@ -16,7 +16,7 @@ use Flarum\Sticky\Event\DiscussionWasUnstickied;
 class SaveStickyToDatabase
 {
     /**
-     * @param Saving $event
+     * @param  Saving  $event
      */
     public function handle(Saving $event)
     {

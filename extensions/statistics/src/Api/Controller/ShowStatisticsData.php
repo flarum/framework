@@ -57,7 +57,7 @@ class ShowStatisticsData implements RequestHandlerInterface
         $this->entities = [
             'users' => [User::query(), 'joined_at'],
             'discussions' => [Discussion::query(), 'created_at'],
-            'posts' => [Post::where('type', 'comment')->withoutGlobalScope(RegisteredTypesScope::class), 'created_at']
+            'posts' => [Post::where('type', 'comment')->withoutGlobalScope(RegisteredTypesScope::class), 'created_at'],
         ];
     }
 

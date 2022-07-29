@@ -41,5 +41,5 @@ return [
             $table->renameColumn('key', 'id');
             $table->primary('id');
         });
-    }
+    },
 ];

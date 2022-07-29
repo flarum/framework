@@ -33,8 +33,8 @@ class CacheClearCommand extends AbstractCommand
     protected $paths;
 
     /**
-     * @param Store $cache
-     * @param Paths $paths
+     * @param  Store  $cache
+     * @param  Paths  $paths
      */
     public function __construct(Store $cache, Dispatcher $events, Paths $paths)
     {

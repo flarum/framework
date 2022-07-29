@@ -85,7 +85,7 @@ class InstalledSite implements SiteInterface
     }
 
     /**
-     * @param \Flarum\Extend\ExtenderInterface[] $extenders
+     * @param  \Flarum\Extend\ExtenderInterface[]  $extenders
      * @return InstalledSite
      */
     public function extendWith(array $extenders): self
@@ -160,7 +160,7 @@ class InstalledSite implements SiteInterface
     {
         return new ConfigRepository([
             'app' => [
-                'timezone' => 'UTC'
+                'timezone' => 'UTC',
             ],
             'view' => [
                 'paths' => [],
@@ -169,8 +169,8 @@ class InstalledSite implements SiteInterface
             'session' => [
                 'lifetime' => 120,
                 'files' => $this->paths->storage.'/sessions',
-                'cookie' => 'session'
-            ]
+                'cookie' => 'session',
+            ],
         ]);
     }
 

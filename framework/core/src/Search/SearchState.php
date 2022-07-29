@@ -31,7 +31,7 @@ class SearchState extends AbstractQueryState
     /**
      * Add a gambit as being active in this search.
      *
-     * @param GambitInterface $gambit
+     * @param  GambitInterface  $gambit
      * @return void
      */
     public function addActiveGambit(GambitInterface $gambit)

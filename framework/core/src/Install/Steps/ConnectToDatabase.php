@@ -19,6 +19,7 @@ use RangeException;
 class ConnectToDatabase implements Step
 {
     private $dbConfig;
+
     private $store;
 
     public function __construct(DatabaseConfig $dbConfig, callable $store)

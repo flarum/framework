@@ -19,7 +19,7 @@ class CreateTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -79,7 +79,7 @@ class CreateTest extends TestCase
                             'name' => 'Dev Blog',
                             'slug' => 'dev-blog',
                             'description' => 'Follow Flarum development!',
-                            'color' => '#123456'
+                            'color' => '#123456',
                         ],
                     ],
                 ],

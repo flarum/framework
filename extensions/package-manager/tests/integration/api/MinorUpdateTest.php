@@ -38,8 +38,8 @@ class MinorUpdateTest extends TestCase
                 // the update handler must be able to set it to `*`.
                 'flarum/tags' => '1.0.3',
                 'flarum/lang-english' => '*',
-                'flarum/dummy-compatible-extension' => '^1.0.0'
-            ]
+                'flarum/dummy-compatible-extension' => '^1.0.0',
+            ],
         ]);
 
         $response = $this->send(
@@ -64,8 +64,8 @@ class MinorUpdateTest extends TestCase
                 'flarum/core' => '>=1.0.0 <=1.1.0',
                 'flarum/tags' => '1.0.3',
                 'flarum/lang-english' => '*',
-                'flarum/dummy-extension' => '^1.0.0'
-            ]
+                'flarum/dummy-extension' => '^1.0.0',
+            ],
         ]);
 
         $this->send(
@@ -91,7 +91,7 @@ class MinorUpdateTest extends TestCase
         $this->assertEquals([
             'flarum/core',
             'flarum/lang-english',
-            'flarum/tags'
+            'flarum/tags',
         ], $lastUpdateRun->for(FlarumUpdated::MINOR)->get()['limitedPackages']);
     }
 }

@@ -39,8 +39,8 @@ class Formatter
     protected $cacheDir;
 
     /**
-     * @param Repository $cache
-     * @param string $cacheDir
+     * @param  Repository  $cache
+     * @param  string  $cacheDir
      */
     public function __construct(Repository $cache, $cacheDir)
     {
@@ -83,8 +83,8 @@ class Formatter
     /**
      * Parse text.
      *
-     * @param string $text
-     * @param mixed $context
+     * @param  string  $text
+     * @param  mixed  $context
      * @return string
      */
     public function parse($text, $context = null)
@@ -101,9 +101,9 @@ class Formatter
     /**
      * Render parsed XML.
      *
-     * @param string $xml
-     * @param mixed|null $context
-     * @param ServerRequestInterface|null $request
+     * @param  string  $xml
+     * @param  mixed|null  $context
+     * @param  ServerRequestInterface|null  $request
      * @return string
      */
     public function render($xml, $context = null, ServerRequestInterface $request = null)
@@ -122,8 +122,8 @@ class Formatter
     /**
      * Unparse XML.
      *
-     * @param string $xml
-     * @param mixed $context
+     * @param  string  $xml
+     * @param  mixed  $context
      * @return string
      */
     public function unparse($xml, $context = null)
@@ -176,7 +176,7 @@ class Formatter
     }
 
     /**
-     * @param Configurator $configurator
+     * @param  Configurator  $configurator
      */
     protected function configureExternalLinks(Configurator $configurator)
     {
@@ -195,7 +195,7 @@ class Formatter
     /**
      * Get a TextFormatter component.
      *
-     * @param string $name "renderer" or "parser" or "js"
+     * @param  string  $name "renderer" or "parser" or "js"
      * @return mixed
      */
     protected function getComponent($name)
@@ -210,7 +210,7 @@ class Formatter
     /**
      * Get the parser.
      *
-     * @param mixed $context
+     * @param  mixed  $context
      * @return \s9e\TextFormatter\Parser
      */
     protected function getParser($context = null)

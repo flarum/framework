@@ -13,5 +13,5 @@ use Flarum\Group\Group;
 return Migration::addPermissions([
     'discussion.startWithoutApproval' => Group::MEMBER_ID,
     'discussion.replyWithoutApproval' => Group::MEMBER_ID,
-    'discussion.approvePosts' => Group::MODERATOR_ID
+    'discussion.approvePosts' => Group::MODERATOR_ID,
 ]);

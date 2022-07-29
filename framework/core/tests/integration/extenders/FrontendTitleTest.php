@@ -27,7 +27,7 @@ class FrontendTitleTest extends TestCase
                 $this->normalUser(),
             ],
             'discussions' => [
-                ['id' => 1, 'title' => 'Test Discussion', 'user_id' => 1, 'first_post_id' => 1]
+                ['id' => 1, 'title' => 'Test Discussion', 'user_id' => 1, 'first_post_id' => 1],
             ],
             'posts' => [
                 ['id' => 1, 'discussion_id' => 1, 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>can i haz potat?</p></t>'],

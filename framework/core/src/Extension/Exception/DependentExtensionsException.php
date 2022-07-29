@@ -20,6 +20,7 @@ use Flarum\Extension\ExtensionManager;
 class DependentExtensionsException extends Exception
 {
     public $extension;
+
     public $dependent_extensions;
 
     /**

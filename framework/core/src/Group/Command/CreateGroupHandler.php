@@ -26,8 +26,8 @@ class CreateGroupHandler
     protected $validator;
 
     /**
-     * @param Dispatcher $events
-     * @param \Flarum\Group\GroupValidator $validator
+     * @param  Dispatcher  $events
+     * @param  \Flarum\Group\GroupValidator  $validator
      */
     public function __construct(Dispatcher $events, GroupValidator $validator)
     {
@@ -36,8 +36,9 @@ class CreateGroupHandler
     }
 
     /**
-     * @param CreateGroup $command
+     * @param  CreateGroup  $command
      * @return \Flarum\Group\Group
+     *
      * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(CreateGroup $command)

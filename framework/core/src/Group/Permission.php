@@ -43,7 +43,7 @@ class Permission extends AbstractModel
     /**
      * Set the keys for a save update query.
      *
-     * @param Builder $query
+     * @param  Builder  $query
      * @return Builder
      */
     protected function setKeysForSaveQuery($query)

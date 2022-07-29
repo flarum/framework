@@ -22,7 +22,7 @@ class DeleteNotificationWhenPostIsHiddenOrDeleted
     protected $notifications;
 
     /**
-     * @param NotificationSyncer $notifications
+     * @param  NotificationSyncer  $notifications
      */
     public function __construct(NotificationSyncer $notifications)
     {
@@ -30,7 +30,7 @@ class DeleteNotificationWhenPostIsHiddenOrDeleted
     }
 
     /**
-     * @param Hidden|Deleted $event
+     * @param  Hidden|Deleted  $event
      */
     public function handle($event)
     {

@@ -15,6 +15,6 @@ class GroupValidator extends AbstractValidator
 {
     protected $rules = [
         'name_singular' => ['required'],
-        'name_plural' => ['required']
+        'name_plural' => ['required'],
     ];
 }

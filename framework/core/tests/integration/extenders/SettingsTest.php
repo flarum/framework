@@ -18,7 +18,7 @@ class SettingsTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -26,8 +26,8 @@ class SettingsTest extends TestCase
 
         $this->prepareDatabase([
             'users' => [
-                $this->normalUser()
-            ]
+                $this->normalUser(),
+            ],
         ]);
 
         $this->setting('custom-prefix.custom_setting', 'customValue');
@@ -271,7 +271,7 @@ class SettingsTest extends TestCase
         $response = $this->send($this->request('POST', '/api/settings', [
             'authenticatedAs' => 1,
             'json' => [
-                'custom-prefix.custom_setting2' => '@muralf'
+                'custom-prefix.custom_setting2' => '@muralf',
             ],
         ]));
 

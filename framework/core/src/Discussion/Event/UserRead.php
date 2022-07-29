@@ -19,7 +19,7 @@ class UserRead
     public $state;
 
     /**
-     * @param UserState $state
+     * @param  UserState  $state
      */
     public function __construct(UserState $state)
     {

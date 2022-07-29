@@ -22,7 +22,8 @@ class MailSettingsSerializer extends AbstractSerializer
     /**
      * {@inheritdoc}
      *
-     * @param array $settings
+     * @param  array  $settings
+     *
      * @throws InvalidArgumentException
      */
     protected function getDefaultAttributes($settings)

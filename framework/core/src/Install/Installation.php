@@ -19,9 +19,13 @@ class Installation
     private $paths;
 
     private $configPath;
+
     private $debug = false;
+
     private $baseUrl;
+
     private $customSettings = [];
+
     private $enabledExtensions = null;
 
     /** @var DatabaseConfig */

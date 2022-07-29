@@ -22,9 +22,9 @@ class PostFilterer extends AbstractFilterer
     protected $posts;
 
     /**
-     * @param PostRepository $posts
-     * @param array $filters
-     * @param array $filterMutators
+     * @param  PostRepository  $posts
+     * @param  array  $filters
+     * @param  array  $filterMutators
      */
     public function __construct(PostRepository $posts, array $filters, array $filterMutators)
     {

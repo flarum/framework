@@ -34,9 +34,9 @@ class StartDiscussionHandler
     protected $validator;
 
     /**
-     * @param EventDispatcher $events
-     * @param BusDispatcher $bus
-     * @param \Flarum\Discussion\DiscussionValidator $validator
+     * @param  EventDispatcher  $events
+     * @param  BusDispatcher  $bus
+     * @param  \Flarum\Discussion\DiscussionValidator  $validator
      */
     public function __construct(EventDispatcher $events, BusDispatcher $bus, DiscussionValidator $validator)
     {
@@ -46,8 +46,9 @@ class StartDiscussionHandler
     }
 
     /**
-     * @param StartDiscussion $command
+     * @param  StartDiscussion  $command
      * @return mixed
+     *
      * @throws Exception
      */
     public function handle(StartDiscussion $command)

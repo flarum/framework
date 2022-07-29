@@ -33,9 +33,9 @@ class EditTagHandler
     protected $events;
 
     /**
-     * @param TagRepository $tags
-     * @param TagValidator $validator
-     * @param Dispatcher $events
+     * @param  TagRepository  $tags
+     * @param  TagValidator  $validator
+     * @param  Dispatcher  $events
      */
     public function __construct(TagRepository $tags, TagValidator $validator, Dispatcher $events)
     {
@@ -45,8 +45,9 @@ class EditTagHandler
     }
 
     /**
-     * @param EditTag $command
+     * @param  EditTag  $command
      * @return \Flarum\Tags\Tag
+     *
      * @throws \Flarum\User\Exception\PermissionDeniedException
      */
     public function handle(EditTag $command)

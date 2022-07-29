@@ -28,8 +28,8 @@ class CreateGroup
     public $data;
 
     /**
-     * @param User $actor The user performing the action.
-     * @param array $data The attributes of the new group.
+     * @param  User  $actor The user performing the action.
+     * @param  array  $data The attributes of the new group.
      */
     public function __construct(User $actor, array $data)
     {

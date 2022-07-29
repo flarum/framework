@@ -35,9 +35,9 @@ class EditDiscussion
     public $data;
 
     /**
-     * @param int $discussionId The ID of the discussion to edit.
-     * @param \Flarum\User\User $actor The user performing the action.
-     * @param array $data The attributes to update on the discussion.
+     * @param  int  $discussionId The ID of the discussion to edit.
+     * @param  \Flarum\User\User  $actor The user performing the action.
+     * @param  array  $data The attributes to update on the discussion.
      */
     public function __construct($discussionId, User $actor, array $data)
     {

@@ -55,8 +55,8 @@ class SetupComposer
                 [
                     'type' => 'path',
                     'url' => realpath($this->tmpDir()).'/packages/*',
-                ]
-            ]
+                ],
+            ],
         ], $this->config ?? []);
     }
 }

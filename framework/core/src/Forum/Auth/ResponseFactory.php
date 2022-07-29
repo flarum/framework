@@ -26,7 +26,7 @@ class ResponseFactory
     protected $rememberer;
 
     /**
-     * @param Rememberer $rememberer
+     * @param  Rememberer  $rememberer
      */
     public function __construct(Rememberer $rememberer)
     {
@@ -57,7 +57,7 @@ class ResponseFactory
             $registration->getSuggested(),
             [
                 'token' => $token->token,
-                'provided' => array_keys($provided)
+                'provided' => array_keys($provided),
             ]
         ));
     }

@@ -19,5 +19,5 @@ return Migration::renameColumns('discussions', [
     'last_time' => 'last_posted_at',
     'last_user_id' => 'last_posted_user_id',
     'hide_time' => 'hidden_at',
-    'hide_user_id' => 'hidden_user_id'
+    'hide_user_id' => 'hidden_user_id',
 ]);

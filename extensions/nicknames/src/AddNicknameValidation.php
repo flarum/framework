@@ -45,7 +45,7 @@ class AddNicknameValidation
             },
             'min:'.$this->settings->get('flarum-nicknames.min'),
             'max:'.$this->settings->get('flarum-nicknames.max'),
-            'nullable'
+            'nullable',
         ];
 
         if ($this->settings->get('flarum-nicknames.unique')) {

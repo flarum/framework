@@ -23,8 +23,7 @@ interface MailableInterface
     /**
      * Get the subject line for a notification email.
      *
-     * @param TranslatorInterface $translator
-     *
+     * @param  TranslatorInterface  $translator
      * @return string
      */
     public function getEmailSubject(TranslatorInterface $translator);

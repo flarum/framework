@@ -20,7 +20,7 @@ class DiscussionRenamedBlueprint implements BlueprintInterface
     protected $post;
 
     /**
-     * @param DiscussionRenamedPost $post
+     * @param  DiscussionRenamedPost  $post
      */
     public function __construct(DiscussionRenamedPost $post)
     {

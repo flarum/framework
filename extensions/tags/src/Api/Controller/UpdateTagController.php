@@ -31,7 +31,7 @@ class UpdateTagController extends AbstractShowController
     protected $bus;
 
     /**
-     * @param Dispatcher $bus
+     * @param  Dispatcher  $bus
      */
     public function __construct(Dispatcher $bus)
     {

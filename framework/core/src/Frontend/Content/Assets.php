@@ -42,8 +42,9 @@ class Assets
     /**
      * Sets the frontend to generate assets for.
      *
-     * @param string $name frontend name
+     * @param  string  $name frontend name
      * @return $this
+     *
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function forFrontend(string $name): Assets
@@ -69,22 +70,22 @@ class Assets
     /**
      * Assembles JS and CSS compilers to be used to generate frontend assets.
      *
-     * @param string|null $locale
+     * @param  string|null  $locale
      * @return array[]
      */
     protected function assembleCompilers(?string $locale): array
     {
         return [
             'js' => [$this->assets->makeJs(), $this->assets->makeLocaleJs($locale)],
-            'css' => [$this->assets->makeCss(), $this->assets->makeLocaleCss($locale)]
+            'css' => [$this->assets->makeCss(), $this->assets->makeLocaleCss($locale)],
         ];
     }
 
     /**
      * Adds URLs of frontend JS and CSS to the {@link Document} class.
      *
-     * @param Document $document
-     * @param array $compilers
+     * @param  Document  $document
+     * @param  array  $compilers
      * @return void
      */
     protected function addAssetsToDocument(Document $document, array $compilers): void
@@ -96,7 +97,7 @@ class Assets
     /**
      * Force compilation of assets when in debug mode.
      *
-     * @param array $compilers
+     * @param  array  $compilers
      */
     protected function forceCommit(array $compilers): void
     {
@@ -109,7 +110,7 @@ class Assets
     /**
      * Maps provided {@link CompilerInterface}s to their URLs.
      *
-     * @param CompilerInterface[] $compilers
+     * @param  CompilerInterface[]  $compilers
      * @return string[]
      */
     protected function getUrls(array $compilers): array

@@ -56,7 +56,7 @@ class Translator extends BaseTranslator implements TranslatorContract
     }
 
     /**
-     * @param MessageCatalogueInterface $catalogue
+     * @param  MessageCatalogueInterface  $catalogue
      */
     private function parseCatalogue(MessageCatalogueInterface $catalogue)
     {
@@ -70,9 +70,9 @@ class Translator extends BaseTranslator implements TranslatorContract
     }
 
     /**
-     * @param MessageCatalogueInterface $catalogue
-     * @param string $id
-     * @param string $domain
+     * @param  MessageCatalogueInterface  $catalogue
+     * @param  string  $id
+     * @param  string  $domain
      * @return string
      */
     private function getTranslation(MessageCatalogueInterface $catalogue, $id, $domain)

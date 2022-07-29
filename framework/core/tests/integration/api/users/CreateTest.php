@@ -20,7 +20,7 @@ class CreateTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -90,7 +90,7 @@ class CreateTest extends TestCase
                                 'password' => 'too-obscure',
                                 'email' => 'test@machine.local',
                             ],
-                        ]
+                        ],
                     ],
                 ]
             )->withAttribute('bypassCsrfToken', true)
@@ -125,7 +125,7 @@ class CreateTest extends TestCase
                                 'email' => 'test@machine.local',
                                 'isEmailConfirmed' => 1,
                             ],
-                        ]
+                        ],
                     ],
                 ]
             )
@@ -160,7 +160,7 @@ class CreateTest extends TestCase
                                 'password' => 'too-obscure',
                                 'email' => 'test@machine.local',
                             ],
-                        ]
+                        ],
                     ],
                 ]
             )->withAttribute('bypassCsrfToken', true)
@@ -186,9 +186,9 @@ class CreateTest extends TestCase
                 'username' => 'test',
                 'email' => 'test@machine.local',
                 'is_email_confirmed' => 1,
-                'avatar_url' =>  'file://localhost/etc/passwd'
+                'avatar_url' => 'file://localhost/etc/passwd',
             ], []),
-            'scheme' => 'file'
+            'scheme' => 'file',
         ];
 
         $regTokens[] = [
@@ -196,9 +196,9 @@ class CreateTest extends TestCase
                 'username' => 'test',
                 'email' => 'test@machine.local',
                 'is_email_confirmed' => 1,
-                'avatar_url' => 'ftp://localhost/image.png'
+                'avatar_url' => 'ftp://localhost/image.png',
             ], []),
-            'scheme' => 'ftp'
+            'scheme' => 'ftp',
         ];
 
         // Test each reg token
@@ -216,7 +216,7 @@ class CreateTest extends TestCase
                                 'attributes' => [
                                     'token' => $regToken['token']->token,
                                 ],
-                            ]
+                            ],
                         ],
                     ]
                 )->withAttribute('bypassCsrfToken', true)
@@ -251,28 +251,28 @@ class CreateTest extends TestCase
             'username' => 'test',
             'email' => 'test@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  'https://127.0.0.1/image.png'
+            'avatar_url' => 'https://127.0.0.1/image.png',
         ], []);
 
         $regTokens[] = RegistrationToken::generate('flarum', '1', [
             'username' => 'test',
             'email' => 'test@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  'https://192.168.0.1/image.png'
+            'avatar_url' => 'https://192.168.0.1/image.png',
         ], []);
 
         $regTokens[] = RegistrationToken::generate('flarum', '1', [
             'username' => 'test',
             'email' => 'test@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  '../image.png'
+            'avatar_url' => '../image.png',
         ], []);
 
         $regTokens[] = RegistrationToken::generate('flarum', '1', [
             'username' => 'test',
             'email' => 'test@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  'image.png'
+            'avatar_url' => 'image.png',
         ], []);
 
         // Test each reg token
@@ -290,7 +290,7 @@ class CreateTest extends TestCase
                                 'attributes' => [
                                     'token' => $regToken->token,
                                 ],
-                            ]
+                            ],
                         ],
                     ]
                 )->withAttribute('bypassCsrfToken', true)
@@ -325,28 +325,28 @@ class CreateTest extends TestCase
             'username' => 'test1',
             'email' => 'test1@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  'https://via.placeholder.com/150.png'
+            'avatar_url' => 'https://via.placeholder.com/150.png',
         ], []);
 
         $regTokens[] = RegistrationToken::generate('flarum', '2', [
             'username' => 'test2',
             'email' => 'test2@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  'https://via.placeholder.com/150.jpg'
+            'avatar_url' => 'https://via.placeholder.com/150.jpg',
         ], []);
 
         $regTokens[] = RegistrationToken::generate('flarum', '3', [
             'username' => 'test3',
             'email' => 'test3@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  'https://via.placeholder.com/150.gif'
+            'avatar_url' => 'https://via.placeholder.com/150.gif',
         ], []);
 
         $regTokens[] = RegistrationToken::generate('flarum', '4', [
             'username' => 'test4',
             'email' => 'test4@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  'http://via.placeholder.com/150.png'
+            'avatar_url' => 'http://via.placeholder.com/150.png',
         ], []);
 
         /**
@@ -368,7 +368,7 @@ class CreateTest extends TestCase
                                 'attributes' => [
                                     'token' => $regToken->token,
                                 ],
-                            ]
+                            ],
                         ],
                     ]
                 )->withAttribute('bypassCsrfToken', true)

@@ -26,10 +26,10 @@ class FlagSerializer extends AbstractSerializer
     protected function getDefaultAttributes($flag)
     {
         return [
-            'type'         => $flag->type,
-            'reason'       => $flag->reason,
+            'type' => $flag->type,
+            'reason' => $flag->reason,
             'reasonDetail' => $flag->reason_detail,
-            'createdAt'    => $this->formatDate($flag->created_at),
+            'createdAt' => $this->formatDate($flag->created_at),
         ];
     }
 

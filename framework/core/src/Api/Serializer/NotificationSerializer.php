@@ -30,7 +30,8 @@ class NotificationSerializer extends AbstractSerializer
     /**
      * {@inheritdoc}
      *
-     * @param \Flarum\Notification\Notification $notification
+     * @param  \Flarum\Notification\Notification  $notification
+     *
      * @throws InvalidArgumentException
      */
     protected function getDefaultAttributes($notification)
@@ -43,14 +44,14 @@ class NotificationSerializer extends AbstractSerializer
 
         return [
             'contentType' => $notification->type,
-            'content'     => $notification->data,
-            'createdAt'   => $this->formatDate($notification->created_at),
-            'isRead'      => (bool) $notification->read_at
+            'content' => $notification->data,
+            'createdAt' => $this->formatDate($notification->created_at),
+            'isRead' => (bool) $notification->read_at,
         ];
     }
 
     /**
-     * @param Notification $notification
+     * @param  Notification  $notification
      * @return \Tobscure\JsonApi\Relationship
      */
     protected function user($notification)
@@ -59,7 +60,7 @@ class NotificationSerializer extends AbstractSerializer
     }
 
     /**
-     * @param Notification $notification
+     * @param  Notification  $notification
      * @return \Tobscure\JsonApi\Relationship
      */
     protected function fromUser($notification)
@@ -68,7 +69,7 @@ class NotificationSerializer extends AbstractSerializer
     }
 
     /**
-     * @param Notification $notification
+     * @param  Notification  $notification
      * @return \Tobscure\JsonApi\Relationship
      */
     protected function subject($notification)

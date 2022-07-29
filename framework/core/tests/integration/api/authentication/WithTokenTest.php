@@ -18,7 +18,7 @@ class WithTokenTest extends TestCase
     use RetrievesAuthorizedUsers;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function setUp(): void
     {
@@ -43,7 +43,7 @@ class WithTokenTest extends TestCase
                 [
                     'json' => [
                         'identification' => 'normal',
-                        'password' => 'too-obscure'
+                        'password' => 'too-obscure',
                     ],
                 ]
             )
@@ -75,7 +75,7 @@ class WithTokenTest extends TestCase
                 [
                     'json' => [
                         'identification' => 'normal',
-                        'password' => 'too-incorrect'
+                        'password' => 'too-incorrect',
                     ],
                 ]
             )

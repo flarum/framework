@@ -34,9 +34,9 @@ class FlagsWillBeDeleted
     public $data;
 
     /**
-     * @param Post $post
-     * @param User $actor
-     * @param array $data
+     * @param  Post  $post
+     * @param  User  $actor
+     * @param  array  $data
      */
     public function __construct(Post $post, User $actor, array $data = [])
     {

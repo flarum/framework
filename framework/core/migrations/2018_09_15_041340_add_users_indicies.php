@@ -27,5 +27,5 @@ return [
             $table->dropIndex(['discussion_count']);
             $table->dropIndex(['comment_count']);
         });
-    }
+    },
 ];

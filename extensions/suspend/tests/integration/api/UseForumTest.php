@@ -33,7 +33,7 @@ class UseForumTest extends TestCase
             ],
             'posts' => [
                 ['id' => 1, 'number' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'discussion_id' => 1, 'content' => '<t><p>Hello, world!</p></t>'],
-            ]
+            ],
         ]);
     }
 
@@ -47,7 +47,7 @@ class UseForumTest extends TestCase
                     'data' => [
                         'attributes' => [
                             'title' => 'Test post',
-                            'content' => '<t><p>Hello, world!</p></t>'
+                            'content' => '<t><p>Hello, world!</p></t>',
                         ],
                     ],
                 ],
@@ -66,7 +66,7 @@ class UseForumTest extends TestCase
                 'json' => [
                     'data' => [
                         'attributes' => [
-                            'content' => '<t><p>Hello, world!</p></t>'
+                            'content' => '<t><p>Hello, world!</p></t>',
                         ],
                         'relationships' => [
                             'discussion' => [

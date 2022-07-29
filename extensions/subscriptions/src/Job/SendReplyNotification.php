@@ -32,8 +32,8 @@ class SendReplyNotification implements ShouldQueue
     protected $lastPostNumber;
 
     /**
-     * @param Post $post
-     * @param int|null $lastPostNumber
+     * @param  Post  $post
+     * @param  int|null  $lastPostNumber
      */
     public function __construct(Post $post, $lastPostNumber)
     {

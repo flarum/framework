@@ -28,8 +28,8 @@ class GroupRepository
      * Find a user by ID, optionally making sure it is visible to a certain
      * user, or throw an exception.
      *
-     * @param int $id
-     * @param User $actor
+     * @param  int  $id
+     * @param  User  $actor
      * @return \Flarum\Group\Group
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
@@ -44,8 +44,8 @@ class GroupRepository
     /**
      * Scope a query to only include records that are visible to a user.
      *
-     * @param Builder $query
-     * @param User $actor
+     * @param  Builder  $query
+     * @param  User  $actor
      * @return Builder
      */
     protected function scopeVisibleTo(Builder $query, User $actor = null)

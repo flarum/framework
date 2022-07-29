@@ -26,5 +26,5 @@ return [
         $schema->table('group_permission', function (Blueprint $table) {
             $table->dropColumn('created_at');
         });
-    }
+    },
 ];

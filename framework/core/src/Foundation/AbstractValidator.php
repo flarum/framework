@@ -42,8 +42,8 @@ abstract class AbstractValidator
     protected $translator;
 
     /**
-     * @param Factory $validator
-     * @param TranslatorInterface $translator
+     * @param  Factory  $validator
+     * @param  TranslatorInterface  $translator
      */
     public function __construct(Factory $validator, TranslatorInterface $translator)
     {
@@ -54,7 +54,7 @@ abstract class AbstractValidator
     /**
      * Throw an exception if a model is not valid.
      *
-     * @param array $attributes
+     * @param  array  $attributes
      */
     public function assertValid(array $attributes)
     {
@@ -84,7 +84,7 @@ abstract class AbstractValidator
     /**
      * Make a new validator instance for this model.
      *
-     * @param array $attributes
+     * @param  array  $attributes
      * @return \Illuminate\Validation\Validator
      */
     protected function makeValidator(array $attributes)

@@ -26,7 +26,7 @@ class RememberFromCookie implements Middleware
     protected $cookie;
 
     /**
-     * @param CookieFactory $cookie
+     * @param  CookieFactory  $cookie
      */
     public function __construct(CookieFactory $cookie)
     {

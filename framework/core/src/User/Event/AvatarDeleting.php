@@ -28,8 +28,8 @@ class AvatarDeleting
     public $actor;
 
     /**
-     * @param User $user The user whose avatar will be deleted.
-     * @param User $actor The user performing the action.
+     * @param  User  $user The user whose avatar will be deleted.
+     * @param  User  $actor The user performing the action.
      */
     public function __construct(User $user, User $actor)
     {

@@ -25,7 +25,7 @@ class Hidden
     public $actor;
 
     /**
-     * @param CommentPost $post
+     * @param  CommentPost  $post
      */
     public function __construct(CommentPost $post, User $actor = null)
     {

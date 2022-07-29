@@ -32,5 +32,5 @@ return [
         $db->table('group_permission')
             ->where('permission', 'searchUsers')
             ->update(['permission' => 'viewUserList']);
-    }
+    },
 ];

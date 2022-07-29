@@ -21,5 +21,5 @@ return [
         $schema->table('discussions', function (Blueprint $table) {
             $table->dropIndex(['is_sticky', 'last_posted_at']);
         });
-    }
+    },
 ];

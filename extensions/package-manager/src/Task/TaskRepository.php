@@ -23,8 +23,8 @@ class TaskRepository
     }
 
     /**
-     * @param int $id
-     * @param User $actor
+     * @param  int  $id
+     * @param  User  $actor
      * @return Task
      */
     public function findOrFail($id, User $actor = null): Task

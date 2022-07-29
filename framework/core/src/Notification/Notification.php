@@ -76,7 +76,7 @@ class Notification extends AbstractModel
      * When getting the data attribute, unserialize the JSON stored in the
      * database into a plain array.
      *
-     * @param string $value
+     * @param  string  $value
      * @return mixed
      */
     public function getDataAttribute($value)
@@ -88,7 +88,7 @@ class Notification extends AbstractModel
      * When setting the data attribute, serialize it into JSON for storage in
      * the database.
      *
-     * @param mixed $value
+     * @param  mixed  $value
      */
     public function setDataAttribute($value)
     {
@@ -140,7 +140,7 @@ class Notification extends AbstractModel
      * Scope the query to include only notifications whose subjects are visible
      * to the given user.
      *
-     * @param Builder $query
+     * @param  Builder  $query
      * @return Builder
      */
     public function scopeWhereSubjectVisibleTo(Builder $query, User $actor)
@@ -173,8 +173,8 @@ class Notification extends AbstractModel
      * Scope the query to include only notifications that have the given
      * subject.
      *
-     * @param Builder $query
-     * @param object $model
+     * @param  Builder  $query
+     * @param  object  $model
      * @return Builder
      */
     public function scopeWhereSubject(Builder $query, $model)
@@ -187,8 +187,8 @@ class Notification extends AbstractModel
      * Scope the query to include only notification types that use the given
      * subject model.
      *
-     * @param Builder $query
-     * @param string $class
+     * @param  Builder  $query
+     * @param  string  $class
      * @return Builder
      */
     public function scopeWhereSubjectModel(Builder $query, string $class)
@@ -203,8 +203,8 @@ class Notification extends AbstractModel
     /**
      * Scope the query to find all records matching the given blueprint.
      *
-     * @param Builder $query
-     * @param BlueprintInterface $blueprint
+     * @param  Builder  $query
+     * @param  BlueprintInterface  $blueprint
      * @return Builder
      */
     public function scopeMatchingBlueprint(Builder $query, BlueprintInterface $blueprint)
@@ -215,8 +215,8 @@ class Notification extends AbstractModel
     /**
      * Send notifications to the given recipients.
      *
-     * @param User[] $recipients
-     * @param BlueprintInterface $blueprint
+     * @param  User[]  $recipients
+     * @param  BlueprintInterface  $blueprint
      */
     public static function notify(array $recipients, BlueprintInterface $blueprint)
     {
@@ -227,7 +227,7 @@ class Notification extends AbstractModel
             array_map(function (User $user) use ($attributes, $now) {
                 return $attributes + [
                     'user_id' => $user->id,
-                    'created_at' => $now
+                    'created_at' => $now,
                 ];
             }, $recipients)
         );
@@ -246,8 +246,8 @@ class Notification extends AbstractModel
     /**
      * Set the subject model for the given notification type.
      *
-     * @param string $type The notification type.
-     * @param string $subjectModel The class name of the subject model for that
+     * @param  string  $type The notification type.
+     * @param  string  $subjectModel The class name of the subject model for that
      *     type.
      * @return void
      */
@@ -262,7 +262,7 @@ class Notification extends AbstractModel
             'type' => $blueprint::getType(),
             'from_user_id' => ($fromUser = $blueprint->getFromUser()) ? $fromUser->id : null,
             'subject_id' => ($subject = $blueprint->getSubject()) ? $subject->id : null,
-            'data' => ($data = $blueprint->getData()) ? json_encode($data) : null
+            'data' => ($data = $blueprint->getData()) ? json_encode($data) : null,
         ];
     }
 }

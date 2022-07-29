@@ -19,9 +19,9 @@ trait ApplyQueryParametersTrait
     /**
      * Apply sort criteria to a discussion query.
      *
-     * @param AbstractQueryState $query
-     * @param array $sort
-     * @param bool $sortIsDefault
+     * @param  AbstractQueryState  $query
+     * @param  array  $sort
+     * @param  bool  $sortIsDefault
      */
     protected function applySort(AbstractQueryState $query, array $sort = null, bool $sortIsDefault = false)
     {
@@ -45,8 +45,8 @@ trait ApplyQueryParametersTrait
     }
 
     /**
-     * @param AbstractQueryState $query
-     * @param int $offset
+     * @param  AbstractQueryState  $query
+     * @param  int  $offset
      */
     protected function applyOffset(AbstractQueryState $query, $offset)
     {
@@ -56,8 +56,8 @@ trait ApplyQueryParametersTrait
     }
 
     /**
-     * @param AbstractQueryState $query
-     * @param int|null $limit
+     * @param  AbstractQueryState  $query
+     * @param  int|null  $limit
      */
     protected function applyLimit(AbstractQueryState $query, $limit)
     {

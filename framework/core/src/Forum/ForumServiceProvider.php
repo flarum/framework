@@ -74,7 +74,7 @@ class ForumServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\ShareErrorsFromSession::class,
                 HttpMiddleware\FlarumPromotionHeader::class,
                 HttpMiddleware\ReferrerPolicyHeader::class,
-                HttpMiddleware\ContentTypeOptionsHeader::class
+                HttpMiddleware\ContentTypeOptionsHeader::class,
             ];
         });
 
@@ -135,7 +135,7 @@ class ForumServiceProvider extends AbstractServiceProvider
                 'latest' => '-lastPostedAt',
                 'top' => '-commentCount',
                 'newest' => '-createdAt',
-                'oldest' => 'createdAt'
+                'oldest' => 'createdAt',
             ];
         });
     }
@@ -146,7 +146,7 @@ class ForumServiceProvider extends AbstractServiceProvider
 
         $view->share([
             'translator' => $container->make(TranslatorInterface::class),
-            'settings' => $container->make(SettingsRepositoryInterface::class)
+            'settings' => $container->make(SettingsRepositoryInterface::class),
         ]);
 
         $events->listen(
@@ -196,8 +196,8 @@ class ForumServiceProvider extends AbstractServiceProvider
     /**
      * Populate the forum client routes.
      *
-     * @param RouteCollection $routes
-     * @param Container       $container
+     * @param  RouteCollection  $routes
+     * @param  Container  $container
      */
     protected function populateRoutes(RouteCollection $routes, Container $container)
     {
@@ -210,8 +210,8 @@ class ForumServiceProvider extends AbstractServiceProvider
     /**
      * Determine the default route.
      *
-     * @param RouteCollection $routes
-     * @param Container       $container
+     * @param  RouteCollection  $routes
+     * @param  Container  $container
      */
     protected function setDefaultRoute(RouteCollection $routes, Container $container)
     {

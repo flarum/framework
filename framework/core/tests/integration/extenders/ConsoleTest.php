@@ -22,7 +22,7 @@ class ConsoleTest extends ConsoleTestCase
     public function custom_command_doesnt_exist_by_default()
     {
         $input = [
-            'command' => 'customTestCommand'
+            'command' => 'customTestCommand',
         ];
 
         $this->assertEquals('Command "customTestCommand" is not defined.', $this->runCommand($input));
@@ -39,7 +39,7 @@ class ConsoleTest extends ConsoleTestCase
         );
 
         $input = [
-            'command' => 'customTestCommand'
+            'command' => 'customTestCommand',
         ];
 
         $this->assertEquals('Custom Command.', $this->runCommand($input));
@@ -51,7 +51,7 @@ class ConsoleTest extends ConsoleTestCase
     public function scheduled_command_doesnt_exist_by_default()
     {
         $input = [
-            'command' => 'schedule:list'
+            'command' => 'schedule:list',
         ];
 
         $this->assertStringNotContainsString('cache:clear', $this->runCommand($input));
@@ -70,7 +70,7 @@ class ConsoleTest extends ConsoleTestCase
         );
 
         $input = [
-            'command' => 'schedule:list'
+            'command' => 'schedule:list',
         ];
 
         $this->assertStringContainsString('cache:clear', $this->runCommand($input));

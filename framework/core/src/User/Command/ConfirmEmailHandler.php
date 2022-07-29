@@ -24,7 +24,7 @@ class ConfirmEmailHandler
     protected $users;
 
     /**
-     * @param \Flarum\User\UserRepository $users
+     * @param  \Flarum\User\UserRepository  $users
      */
     public function __construct(Dispatcher $events, UserRepository $users)
     {
@@ -33,7 +33,7 @@ class ConfirmEmailHandler
     }
 
     /**
-     * @param ConfirmEmail $command
+     * @param  ConfirmEmail  $command
      * @return \Flarum\User\User
      */
     public function handle(ConfirmEmail $command)

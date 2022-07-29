@@ -21,5 +21,5 @@ return [
         $schema->table('discussions', function (Blueprint $table) {
             $table->integer('comment_count')->default(0)->change();
         });
-    }
+    },
 ];

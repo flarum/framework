@@ -29,7 +29,7 @@ class MissingDependenciesExceptionHandler
             [
                 'extension' => $e->extension->getTitle(),
                 'extensions' => ExtensionManager::pluckTitles($e->missing_dependencies),
-            ]
+            ],
         ];
     }
 }

@@ -35,5 +35,5 @@ return [
             $table->dropForeign(['user_id']);
             $table->dropForeign(['group_id']);
         });
-    }
+    },
 ];

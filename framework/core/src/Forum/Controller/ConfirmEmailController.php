@@ -38,9 +38,9 @@ class ConfirmEmailController implements RequestHandlerInterface
     protected $authenticator;
 
     /**
-     * @param Dispatcher $bus
-     * @param UrlGenerator $url
-     * @param SessionAuthenticator $authenticator
+     * @param  Dispatcher  $bus
+     * @param  UrlGenerator  $url
+     * @param  SessionAuthenticator  $authenticator
      */
     public function __construct(Dispatcher $bus, UrlGenerator $url, SessionAuthenticator $authenticator)
     {
@@ -50,7 +50,7 @@ class ConfirmEmailController implements RequestHandlerInterface
     }
 
     /**
-     * @param Request $request
+     * @param  Request  $request
      * @return ResponseInterface
      */
     public function handle(Request $request): ResponseInterface

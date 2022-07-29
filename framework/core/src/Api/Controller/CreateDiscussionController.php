@@ -34,7 +34,7 @@ class CreateDiscussionController extends AbstractCreateController
         'user',
         'lastPostedUser',
         'firstPost',
-        'lastPost'
+        'lastPost',
     ];
 
     /**
@@ -43,7 +43,7 @@ class CreateDiscussionController extends AbstractCreateController
     protected $bus;
 
     /**
-     * @param Dispatcher $bus
+     * @param  Dispatcher  $bus
      */
     public function __construct(Dispatcher $bus)
     {

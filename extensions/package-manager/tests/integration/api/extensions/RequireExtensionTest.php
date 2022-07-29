@@ -34,9 +34,9 @@ class RequireExtensionTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
-                        'package' => 'flarum/tags'
-                    ]
-                ]
+                        'package' => 'flarum/tags',
+                    ],
+                ],
             ])
         );
 
@@ -53,9 +53,9 @@ class RequireExtensionTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
-                        'package' => 'v17development/flarum-blog'
-                    ]
-                ]
+                        'package' => 'v17development/flarum-blog',
+                    ],
+                ],
             ])
         );
 
@@ -73,9 +73,9 @@ class RequireExtensionTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
-                        'package' => 'v17development/flarum-blog:0.4.0'
-                    ]
-                ]
+                        'package' => 'v17development/flarum-blog:0.4.0',
+                    ],
+                ],
             ])
         );
 
@@ -93,9 +93,9 @@ class RequireExtensionTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
-                        'package' => 'flarum/auth-github'
-                    ]
-                ]
+                        'package' => 'flarum/auth-github',
+                    ],
+                ],
             ])
         );
 
@@ -113,9 +113,9 @@ class RequireExtensionTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
-                        'package' => 'flarum/auth-github:0.1.0-beta.9'
-                    ]
-                ]
+                        'package' => 'flarum/auth-github:0.1.0-beta.9',
+                    ],
+                ],
             ])
         );
 
