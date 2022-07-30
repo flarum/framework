@@ -7,10 +7,6 @@ on:
         description: 'Version to release'
         required: true
         type: string
-      branch:
-        description: 'Branch of which to base release (default main)'
-        required: false
-        type: string
 
 jobs:
   run:
@@ -19,9 +15,11 @@ jobs:
         uses: actions/checkout@v3
       - name: Prepare release
         permissions:
-          issues: read
-          pull-requests: read|write
+          contents: read
+          issues: read|write
+          pull-requests: read
         uses: flarum/action-release@master
         env:
+          NEXT_TAG: ${{ inputs.version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPEN_COLLECTIVE_TOKEN: ${{ secrets.OPEN_COLLECTIVE_TOKEN }}
