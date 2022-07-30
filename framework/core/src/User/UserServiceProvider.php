@@ -119,6 +119,7 @@ class UserServiceProvider extends AbstractServiceProvider
         $events->listen(EmailChangeRequested::class, EmailConfirmationMailer::class);
 
         $events->subscribe(UserMetadataUpdater::class);
+        $events->subscribe(TokensClearer::class);
 
         User::registerPreference('discloseOnline', 'boolval', true);
         User::registerPreference('indexProfile', 'boolval', true);
