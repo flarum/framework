@@ -10,14 +10,15 @@ on:
 
 jobs:
   run:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Prepare release
-        permissions:
-          contents: read
-          issues: read|write
-          pull-requests: read
         uses: flarum/action-release@master
         env:
           NEXT_TAG: ${{ inputs.version }}
