@@ -1,0 +1,27 @@
+name: Akismet PHP
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release'
+        required: true
+        type: string
+      branch:
+        description: 'Branch of which to base release (default main)'
+        required: false
+        type: string
+
+jobs:
+  run:
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Prepare release
+        permissions:
+          issues: read
+          pull-requests: read|write
+        uses: flarum/action-release@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPEN_COLLECTIVE_TOKEN: ${{ secrets.OPEN_COLLECTIVE_TOKEN }}
