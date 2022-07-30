@@ -17,9 +17,8 @@ class TokensClearer
 {
     public function subscribe(Dispatcher $events): void
     {
-        $events->listen(PasswordChanged::class, [$this, 'clearPasswordTokens']);
+        $events->listen([PasswordChanged::class, EmailChanged::class], [$this, 'clearPasswordTokens']);
         $events->listen(PasswordChanged::class, [$this, 'clearEmailTokens']);
-        $events->listen(EmailChanged::class, [$this, 'clearPasswordTokens']);
     }
 
     /**
