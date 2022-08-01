@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.1](https://github.com/flarum/statistics/compare/v1.4.0...v1.4.1)
+
+### Changed
+- Rewrite to prevent admin dashboard long loading times on very large communities (https://github.com/flarum/framework/pull/3531)
+
+## [1.4.0](https://github.com/flarum/statistics/compare/v1.3.0...v1.4.0)
+
+No changes.
+
+## [1.3.0](https://github.com/flarum/statistics/compare/v1.2.0...v1.3.0)
+
+No changes.
+
 ## [1.2.0](https://github.com/flarum/statistics/compare/v1.1.0...v1.2.0)
 
 No changes.
