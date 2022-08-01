@@ -44,12 +44,8 @@ class SendReplyNotification implements ShouldQueue
         $this->lastPostNumber = $lastPostNumber;
     }
 
-    public function handle(NotificationSyncer $notifications)
+    public function handle(NotificationSyncer $notifications, SettingsRepositoryInterface $settings)
     {
-        /**
-         * @var SettingsRepositoryInterface
-         */
-        $settings = resolve(SettingsRepositoryInterface::class);
         $post = $this->post;
         $discussion = $post->discussion;
         $defaultNotifyCriteria = $settings->get('flarum-subscriptions.notification_criteria');
