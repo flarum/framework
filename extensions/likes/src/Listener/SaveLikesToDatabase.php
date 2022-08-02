@@ -57,7 +57,7 @@ class SaveLikesToDatabase
     /**
      * @param Deleted $event
      */
-    public static function whenPostIsDeleted(Deleted $event)
+    public function whenPostIsDeleted(Deleted $event)
     {
         $event->post->likes()->detach();
     }
