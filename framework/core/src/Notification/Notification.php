@@ -81,7 +81,7 @@ class Notification extends AbstractModel
      */
     public function getDataAttribute($value)
     {
-        return $value !== null 
+        return $value !== null
             ? json_decode($value, true)
             : null;
     }
