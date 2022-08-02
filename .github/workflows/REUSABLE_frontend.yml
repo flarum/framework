@@ -3,10 +3,46 @@ name: Flarum Frontend Jobs
 on:
   workflow_call:
     inputs:
+      build_script:
+        description: "Script to run for production build. Empty value to disable."
+        type: string
+        required: false
+        default: build
+      build_typings_script:
+        description: "Script to run for typings build. Empty value to disable."
+        type: string
+        required: false
+        default: build-typings
+      format_script:
+        description: "Script to run for code formatting. Empty value to disable."
+        type: string
+        required: false
+        default: format
+      check_typings_script:
+        description: "Script to run for tyiping check. Empty value to disable."
+        type: string
+        required: false
+        default: check-typings
+      type_coverage_script:
+        description: "Script to run for type coverage. Empty value to disable."
+        type: string
+        required: false
+        default: check-typings-coverage
+
       enable_bundlewatch:
         description: "Enable Bundlewatch?"
         type: boolean
         default: false
+        required: false
+      enable_prettier:
+        description: "Enable Prettier?"
+        type: boolean
+        default: true
+        required: false
+      enable_typescript:
+        description: "Enable TypeScript?"
+        type: boolean
+        default: true
         required: false
 
       backend_directory:
@@ -52,7 +88,7 @@ env:
 
 jobs:
   build:
-    name: Build
+    name: Checks & Build
     runs-on: ubuntu-latest
 
     steps:
@@ -82,15 +118,15 @@ jobs:
         run: ${{ env.ci_script }}
         working-directory: ${{ inputs.frontend_directory }}
 
-      - name: Build production JS
+      - name: JS Checks & Production Build
         uses: flarum/action-build@3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          build_script: build
-          build_typings_script: build-typings
-          format_script: format
-          check_typings_script: check-typings
-          type_coverage_script: check-typings-coverage
+          build_script: ${{ inputs.build_script }}
+          build_typings_script: ${{ inputs.build_typings_script }}
+          format_script: ${{ inputs.enable_prettier == true && inputs.format_script || '' }}
+          check_typings_script: ${{ inputs.enable_typescript == true && inputs.check_typings_script || '' }}
+          type_coverage_script: ${{ inputs.enable_typescript == true && inputs.type_coverage_script || '' }}
           package_manager: ${{ inputs.js_package_manager }}
           js_path: ${{ inputs.frontend_directory }}
           do_not_commit: ${{ github.ref != format('refs/heads/{0}', inputs.main_git_branch) || github.event_name != 'push' }}
