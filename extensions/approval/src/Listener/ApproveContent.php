@@ -23,7 +23,7 @@ class ApproveContent
         $events->listen(Saving::class, [$this, 'approvePost']);
         $events->listen(PostWasApproved::class, [$this, 'approveDiscussion']);
     }
-    
+
     /**
      * @param Saving $event
      */
