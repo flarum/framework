@@ -19,6 +19,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\ShowForumController::class)
     );
 
+    // List access tokens
+    $map->get(
+        '/access-tokens',
+        'access-tokens.index',
+        $route->toController(Controller\ListAccessTokensController::class)
+    );
+
     // Retrieve authentication token
     $map->post(
         '/token',

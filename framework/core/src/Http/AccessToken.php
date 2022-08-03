@@ -11,6 +11,7 @@ namespace Flarum\Http;
 
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
+use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
@@ -31,6 +32,8 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class AccessToken extends AbstractModel
 {
+    use ScopeVisibilityTrait;
+
     protected $table = 'access_tokens';
 
     protected $dates = [

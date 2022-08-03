@@ -12,6 +12,7 @@ namespace Flarum\Http;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\IdWithTransliteratedSlugDriver;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Http\Access\ScopeAccessTokenVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\IdSlugDriver;
 use Flarum\User\User;
@@ -72,6 +73,8 @@ class HttpServiceProvider extends AbstractServiceProvider
     public function boot()
     {
         $this->setAccessTokenTypes();
+
+        AccessToken::registerVisibilityScoper(new ScopeAccessTokenVisibility(), 'view');
     }
 
     protected function setAccessTokenTypes()
