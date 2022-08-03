@@ -444,6 +444,15 @@ core:
       discussions_heading: => core.ref.discussions
       users_heading: => core.ref.users
 
+    # These translations are used in the Security page.
+    security:
+      access_token_heading: User Tokens
+      browser_on_operating_system: "{browser} on {os}"
+      created: Created
+      last_activity: Last activity
+      revoke_access_token: Revoke
+      session_heading: Active Sessions
+
     # These translations are used in the Settings page.
     settings:
       account_heading: Account
@@ -481,6 +490,7 @@ core:
       posts_empty_text: It looks like there are no posts here.
       posts_link: => core.ref.posts
       posts_load_more_button: => core.ref.load_more
+      security_link: Security
       settings_link: => core.ref.settings
 
     # These translations are found on the user profile page (admin function).
