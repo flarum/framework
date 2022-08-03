@@ -17,7 +17,7 @@ on:
         description: "Script to run for code formatting. Empty value to disable."
         type: string
         required: false
-        default: format
+        default: format-check
       check_typings_script:
         description: "Script to run for tyiping check. Empty value to disable."
         type: string
