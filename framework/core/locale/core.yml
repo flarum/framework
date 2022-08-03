@@ -447,9 +447,11 @@ core:
     # These translations are used in the Security page.
     security:
       access_token_heading: User Tokens
+      current_active_session: Current Active Session
       browser_on_operating_system: "{browser} on {os}"
       created: Created
       last_activity: Last activity
+      log_out_session: => core.ref.log_out
       revoke_access_token: Revoke
       session_heading: Active Sessions
 

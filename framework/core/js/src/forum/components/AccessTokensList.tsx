@@ -10,36 +10,33 @@ import humanTime from "../../common/helpers/humanTime";
 import ItemList from "../../common/utils/ItemList";
 import DataSegment from "../../common/components/DataSegment";
 import extractText from "../../common/utils/extractText";
+import classList from "../../common/utils/classList";
 
 export interface IAccessTokensListAttrs extends ComponentAttrs {
+  tokens: AccessToken[];
+  type: 'session' | 'token';
   hideTokens?: boolean;
   icon?: string;
 }
 
 export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs = IAccessTokensListAttrs> extends Component<CustomAttrs> {
-  protected tokens: AccessToken[]|null = null;
-
-  oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
-    super.oncreate(vnode);
-
-    this.loadTokens();
-  }
-
   view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
-    if (this.tokens === null) {
+    if (this.attrs.tokens === null) {
       return <LoadingIndicator />;
     }
 
     return (
       <div className="AccessTokensList">
-        {this.tokens.map(this.tokenView.bind(this))}
+        {this.attrs.tokens.map(this.tokenView.bind(this))}
       </div>
     );
   }
 
   tokenView(token: AccessToken): Mithril.Children {
     return (
-      <div className="AccessTokensList-item">
+      <div className={classList('AccessTokensList-item', {
+        'AccessTokensList-item--active': token.isCurrent(),
+      })}>
         <div className="AccessTokensList-item-icon">{icon(this.attrs.icon || 'fas fa-key')}</div>
         <div className="AccessTokensList-item-info">
           {this.tokenInfoItems(token).toArray()}
@@ -58,10 +55,25 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
       os: ua.os.name
     }));
 
-    items.add(
-      'title',
-      <div className="AccessTokensList-item-title">{device}</div>
-    );
+    if (this.attrs.type === 'session') {
+      items.add(
+        'title',
+        <div className="AccessTokensList-item-title">
+          <span className="AccessTokensList-item-title-main">{device}</span>
+          {token.isCurrent() ? [
+            ' — ',
+            <span className="AccessTokensList-item-title-sub">{app.translator.trans('core.forum.security.current_active_session')}</span>
+          ] : null}
+        </div>
+      );
+    } else {
+      items.add(
+        'title',
+        <div className="AccessTokensList-item-title">
+          <span className="AccessTokensList-item-title-main">{token.title() || '/'}</span> — <span className="AccessTokensList-item-title-sub">{device}</span>
+        </div>
+      );
+    }
 
     items.add(
       'token',
@@ -82,7 +94,7 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
       <div className="AccessTokensList-item-lastActivityAt">
         <DataSegment
           label={app.translator.trans('core.forum.security.last_activity')}
-          value={<>{humanTime(token.lastActivityAt())} - {token.lastIpAddress()}</>} />
+          value={<>{humanTime(token.lastActivityAt())} — {token.lastIpAddress()}</>} />
       </div>
     );
 
@@ -92,22 +104,18 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
   tokenActionItems(token: AccessToken) {
     const items = new ItemList<Mithril.Children>();
 
+    const deleteKey = {
+      'session': 'log_out_session',
+      'token': 'revoke_access_token'
+    }[this.attrs.type];
+
     items.add(
       'revoke',
       <Button className="Button Button--danger">
-        {app.translator.trans('core.forum.security.revoke_access_token')}
+        {app.translator.trans(`core.forum.security.${deleteKey}`)}
       </Button>
     );
 
     return items;
-  }
-
-  loadTokens() {
-    return app.store
-      .find<AccessToken[]>('access-tokens')
-      .then(tokens => {
-        this.tokens = tokens;
-        m.redraw();
-      });
   }
 }

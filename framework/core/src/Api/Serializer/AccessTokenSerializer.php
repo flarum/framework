@@ -25,15 +25,23 @@ class AccessTokenSerializer extends AbstractSerializer
     {
         $session = $this->request->getAttribute('session');
 
-        return [
+        $attributes = [
             'token' => $token->token,
             'userId' => $token->user_id,
             'createdAt' => $this->formatDate($token->created_at),
             'lastActivityAt' => $this->formatDate($token->last_activity_at),
             'isCurrent' => $session && $session->get('access_token') === $token->token,
+            'isSessionToken' => in_array($token->type, ['session', 'session_remember'], true),
             'title' => $token->title,
             'lastIpAddress' => $token->last_ip_address,
             'lastUserAgent' => $token->last_user_agent,
         ];
+
+        // Unset hidden attributes (like the token value on session tokens)
+        foreach ($token->getHidden() as $name) {
+            unset($attributes[$name]);
+        }
+
+        return $attributes;
     }
 }

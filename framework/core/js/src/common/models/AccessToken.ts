@@ -25,8 +25,10 @@ export default class AccessToken extends Model {
   lastUserAgent() {
     return Model.attribute<string>('lastUserAgent').call(this);
   }
-
   isCurrent() {
     return Model.attribute<boolean>('isCurrent').call(this);
+  }
+  isSessionToken() {
+    return Model.attribute<boolean>('isSessionToken').call(this);
   }
 }

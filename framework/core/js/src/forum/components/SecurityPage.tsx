@@ -6,18 +6,24 @@ import listItems from '../../common/helpers/listItems';
 import type Mithril from "mithril";
 import extractText from "../../common/utils/extractText";
 import AccessTokensList from "./AccessTokensList";
+import AccessToken from "../../common/models/AccessToken";
+import LoadingIndicator from "../../common/components/LoadingIndicator";
 
 /**
  * The `SecurityPage` component displays the user's security control panel, in
  * the context of their user profile.
  */
 export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPageAttrs> extends UserPage<CustomAttrs> {
+  protected tokens: AccessToken[] | null = null;
+
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
     this.show(app.session.user!);
 
     app.setTitle(extractText(app.translator.trans('core.forum.security.title')));
+
+    this.loadTokens();
   }
 
   content() {
@@ -58,7 +64,11 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
 
     items.add(
       'accessTokenList',
-      <AccessTokensList icon="fas fa-key" />
+      this.tokens === null ? <LoadingIndicator /> : <AccessTokensList
+        type="token"
+        tokens={this.tokens.filter((token) => !token.isSessionToken())}
+        icon="fas fa-key"
+        hideTokens={false} />
     );
 
     return items;
@@ -72,9 +82,22 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
 
     items.add(
       'sessionsList',
-      <></>
+      this.tokens === null ? <LoadingIndicator /> : <AccessTokensList
+        type="session"
+        tokens={this.tokens.filter((token) => token.isSessionToken())}
+        icon="fas fa-laptop"
+        hideTokens={true} />
     );
 
     return items;
+  }
+
+  loadTokens() {
+    return app.store
+      .find<AccessToken[]>('access-tokens')
+      .then(tokens => {
+        this.tokens = tokens;
+        m.redraw();
+      });
   }
 }

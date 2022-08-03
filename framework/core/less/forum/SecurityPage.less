@@ -34,12 +34,20 @@
 
     &-title {
       font-weight: bold;
+
+      &-sub {
+        font-style: italic;
+      }
     }
 
     &-actions {
       display: flex;
       align-items: center;
       margin-left: auto;
+    }
+
+    &--active &-title-sub {
+      color: var(--alert-success-color);
     }
   }
 }
