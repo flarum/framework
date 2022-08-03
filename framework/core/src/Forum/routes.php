@@ -38,6 +38,12 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     );
 
     $map->get(
+        '/security',
+        'security',
+        $route->toForum(Content\AssertRegistered::class)
+    );
+
+    $map->get(
         '/notifications',
         'notifications',
         $route->toForum(Content\AssertRegistered::class)

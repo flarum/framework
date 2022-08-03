@@ -1,0 +1,45 @@
+.SecurityPage {
+  > ul, fieldset > ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  > ul > li {
+    margin-bottom: 25px;
+  }
+}
+
+.AccessTokensList {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+
+  &-item {
+    display: flex;
+    padding: 8px 8px 8px 0;
+    background-color: var(--control-bg);
+    color: var(--control-color);
+
+    &-icon {
+      --font-size: 1.6rem;
+      font-size: var(--font-size);
+      width: calc(~"var(--font-size) + 4rem");
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    &-title {
+      font-weight: bold;
+    }
+
+    &-actions {
+      display: flex;
+      align-items: center;
+      margin-left: auto;
+    }
+  }
+}

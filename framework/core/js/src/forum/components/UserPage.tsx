@@ -157,6 +157,13 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
         </LinkButton>,
         -100
       );
+      items.add(
+        'security',
+        <LinkButton href={app.route('security')} icon="fas fa-shield-alt">
+          {app.translator.trans('core.forum.user.security_link')}
+        </LinkButton>,
+        -100
+      );
     }
 
     return items;
