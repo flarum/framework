@@ -26,7 +26,8 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
-    this.tokens = this.attrs.tokens;
+    // Sort by current first.
+    this.tokens = this.attrs.tokens.sort((a, b) => b.isCurrent() ? 1 : -1);
   }
 
   view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
