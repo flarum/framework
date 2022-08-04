@@ -49,7 +49,9 @@ trait BuildsHttpRequests
             'type' => 'session'
         ]);
 
-        return $req->withAddedHeader('Authorization', "Token {$token}");
+        return $req
+            ->withAddedHeader('Authorization', "Token {$token}")
+            ->withAttribute('tests_token', $token);
     }
 
     protected function requestWithCookiesFrom(Request $req, Response $previous): Request

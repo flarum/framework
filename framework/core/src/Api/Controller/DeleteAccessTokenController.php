@@ -9,10 +9,10 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Foundation\ValidationException;
 use Flarum\Http\AccessToken;
 use Flarum\Http\RequestUtil;
 use Flarum\User\Exception\PermissionDeniedException;
+use Illuminate\Contracts\Session\Session;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
@@ -32,8 +32,11 @@ class DeleteAccessTokenController extends AbstractDeleteController
 
         $token = AccessToken::query()->findOrFail($id);
 
+        /** @var Session $session */
+        $session = $request->getAttribute('session');
+
         // Current session should only be terminated through logout.
-        if ($token->token === $request->getAttribute('session')->token()) {
+        if ($session && $token->token === $session->get('access_token')) {
             throw new PermissionDeniedException();
         }
 

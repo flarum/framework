@@ -17,8 +17,8 @@ class AccessTokenPolicy extends AbstractPolicy
 {
     public function revoke(User $actor, AccessToken $token)
     {
-        if ($token->user_id === $actor->id) {
-            return $this->allow();
-        }
+        // NOTE: even admins can't delete or view other user's tokens,
+        // that's why we deny otherwise.
+        return $token->user_id === $actor->id ? $this->allow() : $this->deny();
     }
 }
