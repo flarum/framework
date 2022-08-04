@@ -127,7 +127,8 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
       items.add(
         'toggleDisplay',
         <Button
-          className="Button"
+          className="Button Button--inverted"
+          icon={isHidden ? 'fas fa-eye' : 'fas fa-eye-slash'}
           onclick={() => {
             this.showingTokens[token.id()!] = isHidden;
             m.redraw();

@@ -453,10 +453,11 @@ core:
       hide_access_token: Hide Token
       last_activity: Last activity
       terminate_session: Terminate
+      title: => core.ref.security
       revoke_access_token: Revoke
       session_heading: Active Sessions
-      session_terminated: Session terminated.
-      show_access_token: Show Token
+      session_terminated: Session Terminated.
+      show_access_token: View Token
 
     # These translations are used in the Settings page.
     settings:
@@ -495,7 +496,7 @@ core:
       posts_empty_text: It looks like there are no posts here.
       posts_link: => core.ref.posts
       posts_load_more_button: => core.ref.load_more
-      security_link: Security
+      security_link: => core.ref.security
       settings_link: => core.ref.settings
 
     # These translations are found on the user profile page (admin function).
@@ -756,6 +757,7 @@ core:
     reset_your_password: Reset Your Password
     restore: Restore
     save_changes: Save Changes                   # Referenced by flarum-suspend.yml, flarum-tags.yml
+    security: Security
     settings: Settings
     sign_up: Sign Up
     some_others: "{count, plural, one {# other} other {# others}}"  # Referenced by flarum-likes.yml, flarum-mentions.yml
