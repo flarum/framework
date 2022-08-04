@@ -452,11 +452,12 @@ core:
       created: Created
       hide_access_token: Hide Token
       last_activity: Last activity
+      terminate_all_other_sessions: Terminate all other sessions
       terminate_session: Terminate
       title: => core.ref.security
       revoke_access_token: Revoke
       session_heading: Active Sessions
-      session_terminated: Session Terminated.
+      session_terminated: "{count, plural, one {Session terminated} other {Sessions terminated}}."
       show_access_token: View Token
 
     # These translations are used in the Settings page.

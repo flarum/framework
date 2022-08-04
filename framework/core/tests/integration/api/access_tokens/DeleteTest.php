@@ -11,6 +11,7 @@ namespace Flarum\Tests\integration\api\access_tokens;
 
 use Carbon\Carbon;
 use Flarum\Http\AccessToken;
+use Flarum\Http\RememberAccessToken;
 use Flarum\Http\SessionAccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -106,6 +107,26 @@ class DeleteTest extends TestCase
         $response = $this->send($request);
 
         $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function user_can_terminate_all_other_sessions()
+    {
+        $response = $this->send(
+            $this->request('DELETE', '/api/sessions', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertEquals(
+            1,
+            AccessToken::query()
+                ->where('type', SessionAccessToken::$type)
+                ->count()
+        );
     }
 
     public function canDeleteOwnTokensDataProvider(): array

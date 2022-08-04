@@ -40,6 +40,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\CreateTokenController::class)
     );
 
+    // Terminate all other sessions
+    $map->delete(
+        '/sessions',
+        'sessions.delete',
+        $route->toController(Controller\TerminateAllOtherSessionsController::class)
+    );
+
     // Send forgot password email
     $map->post(
         '/forgot',

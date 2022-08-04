@@ -160,7 +160,7 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
       this.tokens = this.tokens.filter((t) => t !== token);
       app.alerts.show(
         { type: 'success' },
-        app.translator.trans('core.forum.security.session_terminated')
+        app.translator.trans('core.forum.security.session_terminated', { count: 1 })
       );
       m.redraw();
     });
