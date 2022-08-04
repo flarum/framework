@@ -59,3 +59,28 @@
     }
   }
 }
+
+@media @phone {
+  .AccessTokensList {
+    gap: 8px;
+
+    &-item {
+      flex-wrap: wrap;
+
+      &-icon {
+        width: 100%;
+        justify-content: start;
+        padding: 8px;
+      }
+
+      &-actions {
+        width: 100%;
+
+        .Button {
+          width: 100%;
+          height: auto;
+        }
+      }
+    }
+  }
+}
