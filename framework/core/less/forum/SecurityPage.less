@@ -19,9 +19,12 @@
 
   &-item {
     display: flex;
-    padding: 8px 8px 8px 0;
     background-color: var(--control-bg);
     color: var(--control-color);
+
+    &-info {
+      padding: 8px;
+    }
 
     &-icon {
       --font-size: 1.6rem;
@@ -44,6 +47,11 @@
       display: flex;
       align-items: center;
       margin-left: auto;
+
+      .Button {
+        height: 100%;
+        border-radius: 0;
+      }
     }
 
     &--active &-title-sub {
