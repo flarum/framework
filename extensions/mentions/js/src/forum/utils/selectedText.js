@@ -4,7 +4,7 @@
 export default function selectedText(body) {
   const selection = window.getSelection();
 
-  if (selection?.rangeCount) {
+  if (!selection.isCollapsed) {
     const range = selection.getRangeAt(0);
     const parent = range.commonAncestorContainer;
 
