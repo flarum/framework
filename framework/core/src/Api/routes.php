@@ -26,6 +26,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\ListAccessTokensController::class)
     );
 
+    // List access tokens
+    $map->delete(
+        '/access-tokens/{id}',
+        'access-tokens.delete',
+        $route->toController(Controller\DeleteAccessTokenController::class)
+    );
+
     // Retrieve authentication token
     $map->post(
         '/token',
@@ -78,7 +85,7 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     $map->delete(
         '/users/{id}',
         'users.delete',
-        $route->toController(Controller\DeleteUserController::class)
+        $route->toController(Controller\DeleteAccessTokenController::class)
     );
 
     // Upload avatar

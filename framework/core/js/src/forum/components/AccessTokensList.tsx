@@ -20,14 +20,19 @@ export interface IAccessTokensListAttrs extends ComponentAttrs {
 }
 
 export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs = IAccessTokensListAttrs> extends Component<CustomAttrs> {
-  view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
-    if (this.attrs.tokens === null) {
-      return <LoadingIndicator />;
-    }
+  protected loading: Record<string, boolean | undefined> = {};
+  protected tokens!: AccessToken[];
 
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
+    super.oninit(vnode);
+
+    this.tokens = this.attrs.tokens;
+  }
+
+  view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
     return (
       <div className="AccessTokensList">
-        {this.attrs.tokens.map(this.tokenView.bind(this))}
+        {this.tokens.map(this.tokenView.bind(this))}
       </div>
     );
   }
@@ -70,7 +75,7 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
       items.add(
         'title',
         <div className="AccessTokensList-item-title">
-          <span className="AccessTokensList-item-title-main">{token.title() || '/'}</span> — <span className="AccessTokensList-item-title-sub">{device}</span>
+          <span className="AccessTokensList-item-title-main">{token.title() || '/'}</span>
         </div>
       );
     }
@@ -94,7 +99,12 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
       <div className="AccessTokensList-item-lastActivityAt">
         <DataSegment
           label={app.translator.trans('core.forum.security.last_activity')}
-          value={<>{humanTime(token.lastActivityAt())} — {token.lastIpAddress()}</>} />
+          value={[
+            humanTime(token.lastActivityAt()),
+            ' — ',
+            token.lastIpAddress(),
+            this.attrs.type === 'token' && [' — ', <span className="AccessTokensList-item-title-sub">{device}</span>]
+          ]} />
       </div>
     );
 
@@ -105,17 +115,35 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
     const items = new ItemList<Mithril.Children>();
 
     const deleteKey = {
-      'session': 'log_out_session',
+      'session': 'terminate_session',
       'token': 'revoke_access_token'
     }[this.attrs.type];
 
     items.add(
       'revoke',
-      <Button className="Button Button--danger">
+      <Button
+        className="Button Button--danger"
+        disabled={token.isCurrent()}
+        loading={!!this.loading[token.id()!]}
+        onclick={() => this.revoke(token)}>
         {app.translator.trans(`core.forum.security.${deleteKey}`)}
       </Button>
     );
 
     return items;
+  }
+
+  revoke(token: AccessToken) {
+    this.loading[token.id()!] = true;
+
+    return token.delete().then(() => {
+      this.loading[token.id()!] = false;
+      this.tokens = this.tokens.filter((t) => t !== token);
+      app.alerts.show(
+        { type: 'success' },
+        app.translator.trans('core.forum.security.session_terminated')
+      );
+      m.redraw();
+    });
   }
 }
