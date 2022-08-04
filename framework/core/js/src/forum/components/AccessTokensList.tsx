@@ -22,6 +22,7 @@ export interface IAccessTokensListAttrs extends ComponentAttrs {
 export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs = IAccessTokensListAttrs> extends Component<CustomAttrs> {
   protected loading: Record<string, boolean | undefined> = {};
   protected tokens!: AccessToken[];
+  protected showingTokens: Record<string, boolean | undefined> = {};
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
@@ -76,15 +77,14 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
       items.add(
         'title',
         <div className="AccessTokensList-item-title">
-          <span className="AccessTokensList-item-title-main">{token.title() || '/'}</span>
+          <span className="AccessTokensList-item-title-main">{[
+            token.title() || '/',
+            ' — ',
+            this.tokenValueDisplay(token),
+          ]}</span>
         </div>
       );
     }
-
-    items.add(
-      'token',
-      <div className="AccessTokensList-item-token">{token.token()}</div>
-    );
 
     items.add(
       'createdAt',
@@ -120,6 +120,23 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
       'token': 'revoke_access_token'
     }[this.attrs.type];
 
+    if (this.attrs.type === 'token') {
+      const isHidden = !this.showingTokens[token.id()!];
+      const displayKey = isHidden ? 'show_access_token' : 'hide_access_token';
+
+      items.add(
+        'toggleDisplay',
+        <Button
+          className="Button"
+          onclick={() => {
+            this.showingTokens[token.id()!] = isHidden;
+            m.redraw();
+          }}>
+          {app.translator.trans(`core.forum.security.${displayKey}`)}
+        </Button>
+      );
+    }
+
     items.add(
       'revoke',
       <Button
@@ -146,5 +163,9 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
       );
       m.redraw();
     });
+  }
+
+  tokenValueDisplay(token: AccessToken) {
+    return this.showingTokens[token.id()!] ? token.token() : token.token().replace(/./g, '*');
   }
 }
