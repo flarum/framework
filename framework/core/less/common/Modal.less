@@ -14,8 +14,6 @@
   margin: 10px;
   max-width: 600px;
 
-  pointer-events: auto;
-
   &.in {
     transform: scale(1);
   }
@@ -30,7 +28,7 @@
   bottom: 0;
   opacity: 0;
   transition: opacity 0.2s ease-out;
-  z-index: ~"calc(var(--zindex-modal) + var(--modal-count)) - 2";
+  z-index: ~"calc(var(--zindex-modal) + var(--modal-count) - 2)";
 
   &[data-showing] {
     opacity: 1;
@@ -47,7 +45,14 @@
   -webkit-overflow-scrolling: touch;
   overflow-x: hidden;
   overflow-y: auto;
-  pointer-events: none;
+
+  &-invisibleBackdrop {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
 }
 
 // Actual modal

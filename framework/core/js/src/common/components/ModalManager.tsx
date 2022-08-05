@@ -45,15 +45,20 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
               style={{ '--modal-number': i }}
               aria-hidden={this.attrs.state.modal !== modal && 'true'}
             >
-              {!!Tag && (
+              {!!Tag && [
                 <Tag
                   key={modal.key}
                   {...modal.attrs}
                   animateShow={this.animateShow.bind(this)}
                   animateHide={this.animateHide.bind(this)}
                   state={this.attrs.state}
-                />
-              )}
+                />,
+                /* This backdrop is invisible and used for outside clicks to close the modal. */
+                <div
+                  key={modal.key}
+                  className="ModalManager-invisibleBackdrop"
+                  onclick={this.handlePossibleBackdropClick.bind(this)} />
+              ]}
             </div>
           );
         })}
@@ -61,7 +66,6 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
         {this.attrs.state.backdropShown && (
           <div
             class="Modal-backdrop backdrop"
-            onclick={this.handlePossibleBackdropClick.bind(this)}
             ontransitionend={this.onBackdropTransitionEnd.bind(this)}
             data-showing={!!this.attrs.state.modalList.length}
             style={{ '--modal-count': this.attrs.state.modalList.length }}
@@ -192,7 +196,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     }
   }
 
-  protected handlePossibleBackdropClick(e: MouseEvent): void {
+  protected handlePossibleBackdropClick(e: MouseEvent | TouchEvent): void {
     if (!this.attrs.state.modal || !this.attrs.state.modal.componentClass.dismissibleOptions.viaBackdropClick) return;
 
     this.animateHide();
