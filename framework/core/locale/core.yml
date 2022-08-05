@@ -452,6 +452,7 @@ core:
       created: Created
       hide_access_token: Hide Token
       last_activity: Last activity
+      new_access_token: New Token
       terminate_all_other_sessions: Terminate all other sessions
       terminate_session: Terminate
       title: => core.ref.security

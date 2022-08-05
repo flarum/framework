@@ -9,6 +9,7 @@ import AccessTokensList from "./AccessTokensList";
 import AccessToken from "../../common/models/AccessToken";
 import LoadingIndicator from "../../common/components/LoadingIndicator";
 import Button from "../../common/components/Button";
+import NewAccessTokenModal from "./NewAccessTokenModal";
 
 /**
  * The `SecurityPage` component displays the user's security control panel, in
@@ -72,6 +73,13 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
         tokens={this.tokens.filter((token) => !token.isSessionToken())}
         icon="fas fa-key"
         hideTokens={false} />
+    );
+
+    items.add(
+      'newAccessToken',
+      <Button className="Button" onclick={() => app.modal.show(NewAccessTokenModal)}>
+        {app.translator.trans('core.forum.security.new_access_token')}
+      </Button>
     );
 
     return items;
