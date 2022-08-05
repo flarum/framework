@@ -196,7 +196,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     }
   }
 
-  protected handlePossibleBackdropClick(e: MouseEvent | TouchEvent): void {
+  protected handlePossibleBackdropClick(e: MouseEvent): void {
     if (!this.attrs.state.modal || !this.attrs.state.modal.componentClass.dismissibleOptions.viaBackdropClick) return;
 
     this.animateHide();
