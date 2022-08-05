@@ -325,21 +325,21 @@ class CreateTest extends TestCase
             'username' => 'test1',
             'email' => 'test1@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  'https://raw.githubusercontent.com/flarum/framework/main/framework/core/tests/integration/fixtures/assets/avatar.png'
+            'avatar_url' =>  'https://raw.githubusercontent.com/flarum/framework/sm/fix-avatar-url-in-tsts/framework/core/tests/integration/fixtures/assets/avatar.png'
         ], []);
 
         $regTokens[] = RegistrationToken::generate('flarum', '2', [
             'username' => 'test2',
             'email' => 'test2@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  'https://raw.githubusercontent.com/flarum/framework/main/framework/core/tests/integration/fixtures/assets/avatar.jpg'
+            'avatar_url' =>  'https://raw.githubusercontent.com/flarum/framework/sm/fix-avatar-url-in-tsts/framework/core/tests/integration/fixtures/assets/avatar.jpg'
         ], []);
 
         $regTokens[] = RegistrationToken::generate('flarum', '3', [
             'username' => 'test3',
             'email' => 'test3@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  'https://raw.githubusercontent.com/flarum/framework/main/framework/core/tests/integration/fixtures/assets/avatar.gif'
+            'avatar_url' =>  'https://raw.githubusercontent.com/flarum/framework/sm/fix-avatar-url-in-tsts/framework/core/tests/integration/fixtures/assets/avatar.gif'
         ], []);
 
         $regTokens[] = RegistrationToken::generate('flarum', '4', [
