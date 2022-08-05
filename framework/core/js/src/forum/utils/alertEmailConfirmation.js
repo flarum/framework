@@ -59,7 +59,7 @@ export default function alertEmailConfirmation(app) {
     }
   }
 
-  m.mount($('<div/>').insertBefore('#content')[0], {
+  m.mount($('<div class="Alert--emailConfirmation"/>').insertBefore('#content')[0], {
     view: () => (
       <ContainedAlert dismissible={false} controls={[<ResendButton />]}>
         {app.translator.trans('core.forum.user_email_confirmation.alert_message', { email: <strong>{user.email()}</strong> })}
