@@ -53,19 +53,19 @@ class RecompileFrontendAssets
 
     protected function flushCss()
     {
-        $this->assets->makeCss()->flush();
+        $this->assets->makeCss()->commit();
 
         foreach ($this->locales->getLocales() as $locale => $name) {
-            $this->assets->makeLocaleCss($locale)->flush();
+            $this->assets->makeLocaleCss($locale)->commit();
         }
     }
 
     protected function flushJs()
     {
-        $this->assets->makeJs()->flush();
+        $this->assets->makeJs()->commit();
 
         foreach ($this->locales->getLocales() as $locale => $name) {
-            $this->assets->makeLocaleJs($locale)->flush();
+            $this->assets->makeLocaleJs($locale)->commit();
         }
     }
 }
