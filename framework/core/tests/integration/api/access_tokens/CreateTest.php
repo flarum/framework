@@ -9,14 +9,8 @@
 
 namespace Flarum\Tests\integration\api\access_tokens;
 
-use Carbon\Carbon;
-use Flarum\Http\AccessToken;
-use Flarum\Http\RememberAccessToken;
-use Flarum\Http\SessionAccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Illuminate\Support\Arr;
-use Laminas\Diactoros\ServerRequest;
 
 class CreateTest extends TestCase
 {
@@ -54,7 +48,7 @@ class CreateTest extends TestCase
     public function user_can_create_developer_tokens(int $authenticatedAs)
     {
         $response = $this->send(
-            $this->request('POST', "/api/access-tokens", [
+            $this->request('POST', '/api/access-tokens', [
                 'authenticatedAs' => $authenticatedAs,
                 'json' => [
                     'data' => [
@@ -76,7 +70,7 @@ class CreateTest extends TestCase
     public function user_cannot_delete_other_users_tokens(int $authenticatedAs)
     {
         $response = $this->send(
-            $this->request('POST', "/api/access-tokens", [
+            $this->request('POST', '/api/access-tokens', [
                 'authenticatedAs' => $authenticatedAs,
                 'json' => [
                     'data' => [
@@ -97,7 +91,7 @@ class CreateTest extends TestCase
     public function user_cannot_create_token_without_title()
     {
         $response = $this->send(
-            $this->request('POST', "/api/access-tokens", [
+            $this->request('POST', '/api/access-tokens', [
                 'authenticatedAs' => 1,
             ])
         );

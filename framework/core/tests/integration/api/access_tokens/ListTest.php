@@ -14,7 +14,6 @@ use Flarum\Http\AccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
-use Laminas\Diactoros\ServerRequest;
 
 class ListTest extends TestCase
 {

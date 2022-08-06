@@ -124,7 +124,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
         }
 
         if (! $this->serializer) {
-            throw new InvalidArgumentException("Serializer required for controller: " . static::class);
+            throw new InvalidArgumentException('Serializer required for controller: '.static::class);
         }
 
         $serializer = static::$container->make($this->serializer);

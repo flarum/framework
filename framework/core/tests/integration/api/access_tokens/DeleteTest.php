@@ -11,12 +11,9 @@ namespace Flarum\Tests\integration\api\access_tokens;
 
 use Carbon\Carbon;
 use Flarum\Http\AccessToken;
-use Flarum\Http\RememberAccessToken;
 use Flarum\Http\SessionAccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Illuminate\Support\Arr;
-use Laminas\Diactoros\ServerRequest;
 
 class DeleteTest extends TestCase
 {
