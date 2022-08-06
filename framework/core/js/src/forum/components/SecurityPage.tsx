@@ -1,15 +1,15 @@
 import app from '../../forum/app';
-import UserPage, {IUserPageAttrs} from './UserPage';
+import UserPage, { IUserPageAttrs } from './UserPage';
 import ItemList from '../../common/utils/ItemList';
 import FieldSet from '../../common/components/FieldSet';
 import listItems from '../../common/helpers/listItems';
-import type Mithril from "mithril";
-import extractText from "../../common/utils/extractText";
-import AccessTokensList from "./AccessTokensList";
-import AccessToken from "../../common/models/AccessToken";
-import LoadingIndicator from "../../common/components/LoadingIndicator";
-import Button from "../../common/components/Button";
-import NewAccessTokenModal from "./NewAccessTokenModal";
+import type Mithril from 'mithril';
+import extractText from '../../common/utils/extractText';
+import AccessTokensList from './AccessTokensList';
+import AccessToken from '../../common/models/AccessToken';
+import LoadingIndicator from '../../common/components/LoadingIndicator';
+import Button from '../../common/components/Button';
+import NewAccessTokenModal from './NewAccessTokenModal';
 
 /**
  * The `SecurityPage` component displays the user's security control panel, in
@@ -46,7 +46,7 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
     ['developerTokens', 'sessions'].forEach((section) => {
       const sectionName = `${section}Items` as 'developerTokensItems' | 'sessionsItems';
       // Camel-case to snake-case
-      const sectionLocale = section.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+      const sectionLocale = section.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 
       items.add(
         section,
@@ -67,16 +67,21 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
 
     items.add(
       'accessTokenList',
-      this.tokens === null ? <LoadingIndicator /> : <AccessTokensList
-        key={this.tokens.length}
-        type="token"
-        ondelete={(token: AccessToken) => {
-          this.tokens = this.tokens!.filter((t) => t !== token);
-          m.redraw();
-        }}
-        tokens={this.tokens.filter((token) => !token.isSessionToken())}
-        icon="fas fa-key"
-        hideTokens={false} />
+      this.tokens === null ? (
+        <LoadingIndicator />
+      ) : (
+        <AccessTokensList
+          key={this.tokens.length}
+          type="token"
+          ondelete={(token: AccessToken) => {
+            this.tokens = this.tokens!.filter((t) => t !== token);
+            m.redraw();
+          }}
+          tokens={this.tokens.filter((token) => !token.isSessionToken())}
+          icon="fas fa-key"
+          hideTokens={false}
+        />
+      )
     );
 
     items.add(
@@ -84,12 +89,15 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
       <Button
         className="Button"
         disabled={!app.forum.attribute<boolean>('canCreateAccessToken')}
-        onclick={() => app.modal.show(NewAccessTokenModal, {
-          onsuccess: (token: AccessToken) => {
-            this.tokens?.push(token);
-            m.redraw();
-          },
-        })}>
+        onclick={() =>
+          app.modal.show(NewAccessTokenModal, {
+            onsuccess: (token: AccessToken) => {
+              this.tokens?.push(token);
+              m.redraw();
+            },
+          })
+        }
+      >
         {app.translator.trans('core.forum.security.new_access_token_button')}
       </Button>
     );
@@ -105,16 +113,21 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
 
     items.add(
       'sessionsList',
-      this.tokens === null ? <LoadingIndicator /> : <AccessTokensList
-        key={this.tokens.length}
-        type="session"
-        ondelete={(token: AccessToken) => {
-          this.tokens = this.tokens!.filter((t) => t !== token);
-          m.redraw();
-        }}
-        tokens={this.tokens.filter((token) => token.isSessionToken())}
-        icon="fas fa-laptop"
-        hideTokens={true} />
+      this.tokens === null ? (
+        <LoadingIndicator />
+      ) : (
+        <AccessTokensList
+          key={this.tokens.length}
+          type="session"
+          ondelete={(token: AccessToken) => {
+            this.tokens = this.tokens!.filter((t) => t !== token);
+            m.redraw();
+          }}
+          tokens={this.tokens.filter((token) => token.isSessionToken())}
+          icon="fas fa-laptop"
+          hideTokens={true}
+        />
+      )
     );
 
     items.add(
@@ -123,7 +136,8 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
         className="Button"
         onclick={this.terminateAllOtherSessions.bind(this)}
         loading={this.loading}
-        disabled={!this.tokens?.find((token) => token.isSessionToken() && !token.isCurrent())}>
+        disabled={!this.tokens?.find((token) => token.isSessionToken() && !token.isCurrent())}
+      >
         {app.translator.trans('core.forum.security.terminate_all_other_sessions')}
       </Button>
     );
@@ -132,28 +146,25 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
   }
 
   loadTokens() {
-    return app.store
-      .find<AccessToken[]>('access-tokens')
-      .then(tokens => {
-        this.tokens = tokens;
-        m.redraw();
-      });
+    return app.store.find<AccessToken[]>('access-tokens').then((tokens) => {
+      this.tokens = tokens;
+      m.redraw();
+    });
   }
 
   terminateAllOtherSessions() {
     this.loading = true;
 
-    return app.request({
-      method: 'DELETE',
-      url: app.forum.attribute('apiUrl') + '/sessions',
-    }).then(() => {
-      this.loading = false;
-      this.tokens = this.tokens!.filter((token) => !token.isSessionToken() || token.isCurrent());
-      app.alerts.show(
-        { type: 'success' },
-        app.translator.trans('core.forum.security.session_terminated', { count: 2 })
-      );
-      m.redraw();
-    });
+    return app
+      .request({
+        method: 'DELETE',
+        url: app.forum.attribute('apiUrl') + '/sessions',
+      })
+      .then(() => {
+        this.loading = false;
+        this.tokens = this.tokens!.filter((token) => !token.isSessionToken() || token.isCurrent());
+        app.alerts.show({ type: 'success' }, app.translator.trans('core.forum.security.session_terminated', { count: 2 }));
+        m.redraw();
+      });
   }
 }

@@ -1,4 +1,4 @@
-import Model from "../Model";
+import Model from '../Model';
 
 export default class AccessToken extends Model {
   token() {
@@ -8,7 +8,7 @@ export default class AccessToken extends Model {
     return Model.attribute<string>('userId').call(this);
   }
   title() {
-    return Model.attribute<string|null>('title').call(this);
+    return Model.attribute<string | null>('title').call(this);
   }
   type() {
     return Model.attribute<string>('type').call(this);

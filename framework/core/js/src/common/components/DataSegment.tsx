@@ -1,5 +1,5 @@
-import Component, {ComponentAttrs} from "../Component";
-import type Mithril from "mithril";
+import Component, { ComponentAttrs } from '../Component';
+import type Mithril from 'mithril';
 
 export interface IDataSegmentAttrs extends ComponentAttrs {
   label: Mithril.Children;

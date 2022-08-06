@@ -1,10 +1,10 @@
-import Modal, {IInternalModalAttrs} from "../../common/components/Modal";
-import Mithril from "mithril";
-import Button from "../../common/components/Button";
-import app from "../app";
-import AccessToken from "../../common/models/AccessToken";
-import Stream from "../../common/utils/Stream";
-import {SaveAttributes} from "../../common/Model";
+import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import Mithril from 'mithril';
+import Button from '../../common/components/Button';
+import app from '../app';
+import AccessToken from '../../common/models/AccessToken';
+import Stream from '../../common/utils/Stream';
+import { SaveAttributes } from '../../common/Model';
 
 export interface INewAccessTokenModalAttrs extends IInternalModalAttrs {
   onsuccess: (token: AccessToken) => void;
@@ -14,7 +14,7 @@ export default class NewAccessTokenModal<CustomAttrs extends INewAccessTokenModa
   protected titleInput = Stream('');
 
   className(): string {
-    return "Modal--small NewAccessTokenModal";
+    return 'Modal--small NewAccessTokenModal';
   }
 
   title(): Mithril.Children {
@@ -30,7 +30,8 @@ export default class NewAccessTokenModal<CustomAttrs extends INewAccessTokenModa
               type="text"
               className="FormControl"
               bidi={this.titleInput}
-              placeholder={app.translator.trans('core.forum.security.new_access_token_modal.title_placeholder')} />
+              placeholder={app.translator.trans('core.forum.security.new_access_token_modal.title_placeholder')}
+            />
           </div>
           <div className="Form-group">
             <Button className="Button Button--primary Button--block" type="submit" loading={this.loading}>

@@ -35,7 +35,7 @@ import type { ComponentAttrs } from './Component';
 import Model, { SavedModelData } from './Model';
 import fireApplicationError from './helpers/fireApplicationError';
 import IHistory from './IHistory';
-import AccessToken from "./models/AccessToken";
+import AccessToken from './models/AccessToken';
 
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 

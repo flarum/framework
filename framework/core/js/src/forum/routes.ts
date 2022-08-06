@@ -9,7 +9,7 @@ import DiscussionPageResolver from './resolvers/DiscussionPageResolver';
 import Discussion from '../common/models/Discussion';
 import type Post from '../common/models/Post';
 import type User from '../common/models/User';
-import SecurityPage from "./components/SecurityPage";
+import SecurityPage from './components/SecurityPage';
 
 /**
  * Helper functions to generate URLs to form pages.
