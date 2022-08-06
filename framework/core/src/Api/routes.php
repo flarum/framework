@@ -27,6 +27,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     );
 
     // List access tokens
+    $map->post(
+        '/access-tokens',
+        'access-tokens.create',
+        $route->toController(Controller\CreateAccessTokenController::class)
+    );
+
+    // List access tokens
     $map->delete(
         '/access-tokens/{id}',
         'access-tokens.delete',

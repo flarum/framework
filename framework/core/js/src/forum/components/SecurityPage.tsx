@@ -43,8 +43,8 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
   settingsItems() {
     const items = new ItemList<Mithril.Children>();
 
-    ['accessToken', 'session'].forEach((section) => {
-      const sectionName = `${section}Items` as 'accessTokenItems' | 'sessionItems';
+    ['developerTokens', 'sessions'].forEach((section) => {
+      const sectionName = `${section}Items` as 'developerTokensItems' | 'sessionsItems';
       // Camel-case to snake-case
       const sectionLocale = section.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
 
@@ -62,7 +62,7 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
   /**
    * Build an item list for the user's access accessToken settings.
    */
-  accessTokenItems() {
+  developerTokensItems() {
     const items = new ItemList<Mithril.Children>();
 
     items.add(
@@ -70,6 +70,10 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
       this.tokens === null ? <LoadingIndicator /> : <AccessTokensList
         key={this.tokens.length}
         type="token"
+        ondelete={(token: AccessToken) => {
+          this.tokens = this.tokens!.filter((t) => t !== token);
+          m.redraw();
+        }}
         tokens={this.tokens.filter((token) => !token.isSessionToken())}
         icon="fas fa-key"
         hideTokens={false} />
@@ -77,8 +81,16 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
 
     items.add(
       'newAccessToken',
-      <Button className="Button" onclick={() => app.modal.show(NewAccessTokenModal)}>
-        {app.translator.trans('core.forum.security.new_access_token')}
+      <Button
+        className="Button"
+        disabled={!app.forum.attribute<boolean>('canCreateAccessToken')}
+        onclick={() => app.modal.show(NewAccessTokenModal, {
+          onsuccess: (token: AccessToken) => {
+            this.tokens?.push(token);
+            m.redraw();
+          },
+        })}>
+        {app.translator.trans('core.forum.security.new_access_token_button')}
       </Button>
     );
 
@@ -88,7 +100,7 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
   /**
    * Build an item list for the user's access accessToken settings.
    */
-  sessionItems() {
+  sessionsItems() {
     const items = new ItemList<Mithril.Children>();
 
     items.add(
@@ -96,6 +108,10 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
       this.tokens === null ? <LoadingIndicator /> : <AccessTokensList
         key={this.tokens.length}
         type="session"
+        ondelete={(token: AccessToken) => {
+          this.tokens = this.tokens!.filter((t) => t !== token);
+          m.redraw();
+        }}
         tokens={this.tokens.filter((token) => token.isSessionToken())}
         icon="fas fa-laptop"
         hideTokens={true} />

@@ -176,6 +176,7 @@ core:
     permissions:
       allow_post_editing_label: Allow post editing
       allow_renaming_label: Allow renaming
+      create_access_token_label: Create access token
       create_heading: Create
       delete_discussions_forever_label: Delete discussions forever
       delete_discussions_label: Delete discussions
@@ -446,20 +447,25 @@ core:
 
     # These translations are used in the Security page.
     security:
-      access_token_heading: User Tokens
+      developer_tokens_heading: Developer Tokens
       current_active_session: Current Active Session
       browser_on_operating_system: "{browser} on {os}"
       created: Created
       hide_access_token: Hide Token
       last_activity: Last activity
-      new_access_token: New Token
+      never: Never
+      new_access_token_button: => core.ref.new_token
+      new_access_token_modal:
+        submit_button: Create Token
+        title: => core.ref.new_token
+        title_placeholder: Title
       terminate_all_other_sessions: Terminate all other sessions
       terminate_session: Terminate
       title: => core.ref.security
       revoke_access_token: Revoke
-      session_heading: Active Sessions
+      sessions_heading: Active Sessions
       session_terminated: "{count, plural, one {Session terminated} other {Sessions terminated}}."
-      show_access_token: View Token
+      show_access_token: View
 
     # These translations are used in the Settings page.
     settings:
@@ -747,6 +753,7 @@ core:
     log_in: Log In
     log_out: Log Out
     mark_all_as_read: Mark All as Read
+    new_token: New Token
     next_page: Next Page
     notifications: Notifications
     okay: OK                                     # Referenced by flarum-tags.yml

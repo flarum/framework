@@ -236,6 +236,16 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
       90
     );
 
+    items.add(
+      'createAccessToken',
+      {
+        icon: 'fas fa-key',
+        label: app.translator.trans('core.admin.permissions.create_access_token_label'),
+        permission: 'createAccessToken',
+      },
+      80
+    );
+
     items.merge(app.extensionData.getAllExtensionPermissions('start'));
 
     return items;

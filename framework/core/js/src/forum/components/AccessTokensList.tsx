@@ -1,7 +1,6 @@
 import Component, {ComponentAttrs} from "../../common/Component";
 import type Mithril from "mithril";
 import type AccessToken from "../../common/models/AccessToken";
-import LoadingIndicator from "../../common/components/LoadingIndicator";
 import app from "../app";
 import icon from "../../common/helpers/icon";
 import uaParser from "ua-parser-js";
@@ -17,6 +16,7 @@ export interface IAccessTokensListAttrs extends ComponentAttrs {
   type: 'session' | 'token';
   hideTokens?: boolean;
   icon?: string;
+  ondelete?: (token: AccessToken) => void;
 }
 
 export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs = IAccessTokensListAttrs> extends Component<CustomAttrs> {
@@ -100,12 +100,12 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
       <div className="AccessTokensList-item-lastActivityAt">
         <DataSegment
           label={app.translator.trans('core.forum.security.last_activity')}
-          value={[
+          value={token.lastActivityAt() ? ([
             humanTime(token.lastActivityAt()),
             ' — ',
             token.lastIpAddress(),
             this.attrs.type === 'token' && [' — ', <span className="AccessTokensList-item-title-sub">{device}</span>]
-          ]} />
+          ]) : app.translator.trans('core.forum.security.never')} />
       </div>
     );
 
@@ -157,7 +157,7 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
 
     return token.delete().then(() => {
       this.loading[token.id()!] = false;
-      this.tokens = this.tokens.filter((t) => t !== token);
+      this.attrs.ondelete && this.attrs.ondelete(token);
       app.alerts.show(
         { type: 'success' },
         app.translator.trans('core.forum.security.session_terminated', { count: 1 })
