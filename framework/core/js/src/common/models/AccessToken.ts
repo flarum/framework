@@ -2,7 +2,7 @@ import Model from '../Model';
 
 export default class AccessToken extends Model {
   token() {
-    return Model.attribute<string>('token').call(this);
+    return Model.attribute<string | undefined>('token').call(this);
   }
   userId() {
     return Model.attribute<string>('userId').call(this);

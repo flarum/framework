@@ -157,6 +157,6 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
   }
 
   tokenValueDisplay(token: AccessToken) {
-    return this.showingTokens[token.id()!] ? token.token() : token.token().replace(/./g, '*');
+    return this.showingTokens[token.id()!] ? token.token() : token.token()!.replace(/./g, '*');
   }
 }

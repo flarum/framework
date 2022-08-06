@@ -25,7 +25,7 @@ type ModdedChildren = ModdedChild | ModdedChildArray;
  */
 export type ModdedChildrenWithItemName = ModdedChildren & { itemName?: string };
 
-export function isVnode(item: ModdedChildren): item is Mithril.Vnode {
+function isVnode(item: ModdedChildren): item is Mithril.Vnode {
   return typeof item === 'object' && item !== null && 'tag' in item;
 }
 
