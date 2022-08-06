@@ -19,6 +19,10 @@ use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
+/**
+ * Not to be confused with the CreateTokenController,
+ * this controller is used by the actor to manually create a developer type access token.
+ */
 class CreateAccessTokenController extends AbstractCreateController
 {
     public $serializer = AccessTokenSerializer::class;
@@ -62,7 +66,7 @@ class CreateAccessTokenController extends AbstractCreateController
 
         $token->save();
 
-        // $this->events->dispatch(new DeveloperTokenCreated($token));
+        $this->events->dispatch(new DeveloperTokenCreated($token));
 
         return $token;
     }

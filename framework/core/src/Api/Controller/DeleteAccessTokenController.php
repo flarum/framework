@@ -40,7 +40,7 @@ class DeleteAccessTokenController extends AbstractDeleteController
             throw new PermissionDeniedException();
         }
 
-        // Don't give away the existance of the token.
+        // Don't give away the existence of the token.
         if ($actor->cannot('revoke', $token)) {
             throw new ModelNotFoundException();
         }
