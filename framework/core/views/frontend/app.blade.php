@@ -3,7 +3,7 @@
       @if ($language) lang="{{ $language }}" @endif>
     <head>
         <meta charset="utf-8">
-        <title>{{ $title }}</title>
+        <title>{!! $title !!}</title>
 
         {!! $head !!}
     </head>

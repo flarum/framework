@@ -60,7 +60,7 @@ export default class AdminNav extends Component {
   items() {
     const items = new ItemList();
 
-    items.add('category-core', <h4 className="ExtensionListTitle">{app.translator.trans('core.admin.nav.categories.core')}</h4>);
+    items.add('category-core', <h4 className="ExtensionListTitle">{app.translator.trans('core.admin.nav.categories.core')}</h4>, 120);
 
     items.add(
       'dashboard',

@@ -11,13 +11,23 @@ namespace Flarum\Approval\Listener;
 
 use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Post\Event\Saving;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class ApproveContent
 {
     /**
+     * @param Dispatcher $events
+     */
+    public function subscribe(Dispatcher $events)
+    {
+        $events->listen(Saving::class, [$this, 'approvePost']);
+        $events->listen(PostWasApproved::class, [$this, 'approveDiscussion']);
+    }
+
+    /**
      * @param Saving $event
      */
-    public static function approvePost(Saving $event)
+    public function approvePost(Saving $event)
     {
         $attributes = $event->data['attributes'];
         $post = $event->post;
@@ -40,7 +50,7 @@ class ApproveContent
     /**
      * @param PostWasApproved $event
      */
-    public static function approveDiscussion(PostWasApproved $event)
+    public function approveDiscussion(PostWasApproved $event)
     {
         $post = $event->post;
         $discussion = $post->discussion;

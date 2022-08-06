@@ -13,6 +13,7 @@ import type Mithril from 'mithril';
 import type Component from './Component';
 import type { ComponentAttrs } from './Component';
 import Model, { SavedModelData } from './Model';
+import IHistory from './IHistory';
 export declare type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 export declare type FlarumGenericRoute = RouteItem<any, any, any>;
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
@@ -177,6 +178,8 @@ export default class Application {
      * An object that manages the state of the navigation drawer.
      */
     drawer: Drawer;
+    history: IHistory | null;
+    pane: any;
     data: ApplicationData;
     private _title;
     private _titleCount;

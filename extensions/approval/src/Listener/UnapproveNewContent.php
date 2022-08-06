@@ -13,13 +13,22 @@ use Flarum\Discussion\Discussion;
 use Flarum\Flags\Flag;
 use Flarum\Post\CommentPost;
 use Flarum\Post\Event\Saving;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class UnapproveNewContent
 {
     /**
+     * @param Dispatcher $events
+     */
+    public function subscribe(Dispatcher $events)
+    {
+        $events->listen(Saving::class, [$this, 'unapproveNewPosts']);
+    }
+
+    /**
      * @param Saving $event
      */
-    public static function unapproveNewPosts(Saving $event)
+    public function unapproveNewPosts(Saving $event)
     {
         $post = $event->post;
 

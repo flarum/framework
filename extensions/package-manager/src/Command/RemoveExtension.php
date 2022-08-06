@@ -9,10 +9,16 @@
 
 namespace Flarum\PackageManager\Command;
 
+use Flarum\PackageManager\Task\Task;
 use Flarum\User\User;
 
-class RemoveExtension
+class RemoveExtension implements BusinessCommandInterface
 {
+    /**
+     * @var Task
+     */
+    public $task = null;
+
     /**
      * @var User
      */
@@ -27,5 +33,10 @@ class RemoveExtension
     {
         $this->actor = $actor;
         $this->extensionId = $extensionId;
+    }
+
+    public function getOperationName(): string
+    {
+        return Task::EXTENSION_REMOVE;
     }
 }

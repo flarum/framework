@@ -1,3 +1,11 @@
+import Component, { ComponentAttrs } from '../Component';
+import type Mithril from 'mithril';
+export interface ICheckboxAttrs extends ComponentAttrs {
+    state?: boolean;
+    loading?: boolean;
+    disabled?: boolean;
+    onchange: (checked: boolean, component: Checkbox<this>) => void;
+}
 /**
  * The `Checkbox` component defines a checkbox input.
  *
@@ -10,22 +18,14 @@
  * - `onchange` A callback to run when the checkbox is checked/unchecked.
  * - `children` A text label to display next to the checkbox.
  */
-export default class Checkbox extends Component<import("../Component").ComponentAttrs, undefined> {
-    constructor();
-    view(vnode: any): JSX.Element;
+export default class Checkbox<CustomAttrs extends ICheckboxAttrs = ICheckboxAttrs> extends Component<CustomAttrs> {
+    view(vnode: Mithril.Vnode<CustomAttrs, this>): JSX.Element;
     /**
      * Get the template for the checkbox's display (tick/cross icon).
-     *
-     * @return {import('mithril').Children}
-     * @protected
      */
-    protected getDisplay(): import('mithril').Children;
+    protected getDisplay(): Mithril.Children;
     /**
      * Run a callback when the state of the checkbox is changed.
-     *
-     * @param {boolean} checked
-     * @protected
      */
     protected onchange(checked: boolean): void;
 }
-import Component from "../Component";

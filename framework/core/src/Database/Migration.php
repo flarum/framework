@@ -39,6 +39,25 @@ abstract class Migration
     }
 
     /**
+     * Create a table if it doesn't already exist.
+     */
+    public static function createTableIfNotExists($name, callable $definition)
+    {
+        return [
+            'up' => function (Builder $schema) use ($name, $definition) {
+                if (! $schema->hasTable($name)) {
+                    $schema->create($name, function (Blueprint $table) use ($definition) {
+                        $definition($table);
+                    });
+                }
+            },
+            'down' => function (Builder $schema) use ($name) {
+                $schema->dropIfExists($name);
+            }
+        ];
+    }
+
+    /**
      * Rename a table.
      */
     public static function renameTable($from, $to)

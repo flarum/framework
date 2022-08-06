@@ -20,8 +20,7 @@
     ],
     "require": {
         "flarum/core": "^1.4",
-        "flarum/approval": "^1.2",
-        "guzzlehttp/guzzle": "^7.4"
+        "flarum/approval": "^1.2"
     },
     "autoload": {
         "psr-4": {

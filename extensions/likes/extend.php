@@ -7,16 +7,17 @@
  * LICENSE file that was distributed with this source code.
  */
 
+namespace Flarum\Likes;
+
 use Flarum\Api\Controller;
 use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Extend;
 use Flarum\Likes\Event\PostWasLiked;
 use Flarum\Likes\Event\PostWasUnliked;
-use Flarum\Likes\Listener;
 use Flarum\Likes\Notification\PostLikedBlueprint;
-use Flarum\Post\Event\Deleted;
-use Flarum\Post\Event\Saving;
+use Flarum\Likes\Query\LikedByFilter;
+use Flarum\Post\Filter\PostFilterer;
 use Flarum\Post\Post;
 use Flarum\User\User;
 
@@ -57,6 +58,14 @@ return [
     (new Extend\Event())
         ->listen(PostWasLiked::class, Listener\SendNotificationWhenPostIsLiked::class)
         ->listen(PostWasUnliked::class, Listener\SendNotificationWhenPostIsUnliked::class)
-        ->listen(Deleted::class, [Listener\SaveLikesToDatabase::class, 'whenPostIsDeleted'])
-        ->listen(Saving::class, [Listener\SaveLikesToDatabase::class, 'whenPostIsSaving']),
+        ->subscribe(Listener\SaveLikesToDatabase::class),
+
+    (new Extend\Filter(PostFilterer::class))
+        ->addFilter(LikedByFilter::class),
+
+    (new Extend\Settings())
+        ->default('flarum-likes.like_own_post', true),
+
+    (new Extend\Policy())
+        ->modelPolicy(Post::class, Access\LikePostPolicy::class),
 ];

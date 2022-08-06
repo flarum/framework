@@ -11,6 +11,10 @@ flarum-likes:
     permissions:
       like_posts_label: Like posts
 
+    settings:
+      like_own_posts_help: When enabled, subject to permission, users may 'like' their own posts on the forum. To prevent users placing a 'like' on their own posts, disable this setting.
+      like_own_posts_label: Users may like their own posts
+
   # Translations in this namespace are used by the forum user interface.
   forum:
 
@@ -35,3 +39,7 @@ flarum-likes:
     # These translations are used in the Settings page.
     settings:
       notify_post_liked_label: Someone likes one of my posts
+
+    # These translations are used in the User profile page.
+    user:
+      likes_link: Likes

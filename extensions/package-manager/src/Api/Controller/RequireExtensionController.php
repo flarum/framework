@@ -9,9 +9,9 @@
 
 namespace Flarum\PackageManager\Api\Controller;
 
-use Flarum\Bus\Dispatcher;
 use Flarum\Http\RequestUtil;
 use Flarum\PackageManager\Command\RequireExtension;
+use Flarum\PackageManager\Job\Dispatcher;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -35,10 +35,12 @@ class RequireExtensionController implements RequestHandlerInterface
         $actor = RequestUtil::getActor($request);
         $package = Arr::get($request->getParsedBody(), 'data.package');
 
-        $data = $this->bus->dispatch(
+        $response = $this->bus->dispatch(
             new RequireExtension($actor, $package)
         );
 
-        return new JsonResponse($data);
+        return $response->queueJobs
+            ? new JsonResponse(['processing' => true], 202)
+            : new JsonResponse($response->data);
     }
 }

@@ -34,6 +34,7 @@ import type Component from './Component';
 import type { ComponentAttrs } from './Component';
 import Model, { SavedModelData } from './Model';
 import fireApplicationError from './helpers/fireApplicationError';
+import IHistory from './IHistory';
 
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 
@@ -228,6 +229,9 @@ export default class Application {
    */
   drawer!: Drawer;
 
+  history: IHistory | null = null;
+  pane: any = null;
+
   data!: ApplicationData;
 
   private _title: string = '';
@@ -410,7 +414,12 @@ export default class Application {
       onHomepage || !this.title
         ? extractText(app.translator.trans('core.lib.meta_titles.without_page_title', params))
         : extractText(app.translator.trans('core.lib.meta_titles.with_page_title', params));
-    document.title = count + title;
+
+    const tempEl = document.createElement('div');
+    tempEl.innerHTML = title;
+    const decodedTitle = tempEl.innerText;
+
+    document.title = count + decodedTitle;
   }
 
   protected transformRequestOptions<ResponseType>(flarumOptions: FlarumRequestOptions<ResponseType>): InternalFlarumRequestOptions<ResponseType> {

@@ -159,7 +159,7 @@ class InfoCommand extends AbstractCommand
         // Lowercase the class name
         $queue = strtolower($queue);
         // Drop everything like queue SyncQueue, RedisQueue
-        $queue = str_replace('queue', null, $queue);
+        $queue = str_replace('queue', '', $queue);
 
         return $queue;
     }

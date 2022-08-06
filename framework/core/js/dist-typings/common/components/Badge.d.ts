@@ -1,3 +1,11 @@
+/// <reference types="mithril" />
+import Component, { ComponentAttrs } from '../Component';
+export interface IBadgeAttrs extends ComponentAttrs {
+    icon: string;
+    type?: string;
+    label?: string;
+    color?: string;
+}
 /**
  * The `Badge` component represents a user/discussion badge, indicating some
  * status (e.g. a discussion is stickied, a user is an admin).
@@ -11,8 +19,6 @@
  *
  * All other attrs will be assigned as attributes on the badge element.
  */
-export default class Badge extends Component<import("../Component").ComponentAttrs, undefined> {
-    constructor();
+export default class Badge<CustomAttrs extends IBadgeAttrs = IBadgeAttrs> extends Component<CustomAttrs> {
     view(): JSX.Element;
 }
-import Component from "../Component";

@@ -19,6 +19,8 @@ use Flarum\PackageManager\Exception\ExceptionHandler;
 use Flarum\PackageManager\Exception\MajorUpdateFailedException;
 use Flarum\PackageManager\Settings\LastUpdateCheck;
 use Flarum\PackageManager\Settings\LastUpdateRun;
+use Illuminate\Contracts\Queue\Queue;
+use Illuminate\Queue\SyncQueue;
 
 return [
     (new Extend\Routes('api'))
@@ -29,7 +31,8 @@ return [
         ->post('/package-manager/why-not', 'package-manager.why-not', Api\Controller\WhyNotController::class)
         ->post('/package-manager/minor-update', 'package-manager.minor-update', Api\Controller\MinorUpdateController::class)
         ->post('/package-manager/major-update', 'package-manager.major-update', Api\Controller\MajorUpdateController::class)
-        ->post('/package-manager/global-update', 'package-manager.global-update', Api\Controller\GlobalUpdateController::class),
+        ->post('/package-manager/global-update', 'package-manager.global-update', Api\Controller\GlobalUpdateController::class)
+        ->get('/package-manager-tasks', 'package-manager.tasks.index', Api\Controller\ListTasksController::class),
 
     (new Extend\Frontend('admin'))
         ->css(__DIR__.'/less/admin.less')
@@ -37,17 +40,20 @@ return [
         ->content(function (Document $document) {
             $paths = resolve(Paths::class);
 
-            $document->payload['isRequiredDirectoriesWritable'] = is_writable($paths->vendor)
+            $document->payload['flarum-package-manager.writable_dirs'] = is_writable($paths->vendor)
                 && is_writable($paths->storage.'/.composer')
                 && is_writable($paths->base.'/composer.json')
                 && is_writable($paths->base.'/composer.lock');
+
+            $document->payload['flarum-package-manager.using_sync_queue'] = resolve(Queue::class) instanceof SyncQueue;
         }),
 
     new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Settings())
         ->default(LastUpdateCheck::key(), json_encode(LastUpdateCheck::default()))
-        ->default(LastUpdateRun::key(), json_encode(LastUpdateRun::default())),
+        ->default(LastUpdateRun::key(), json_encode(LastUpdateRun::default()))
+        ->default('flarum-package-manager.queue_jobs', false),
 
     (new Extend\ServiceProvider)
         ->register(PackageManagerServiceProvider::class),

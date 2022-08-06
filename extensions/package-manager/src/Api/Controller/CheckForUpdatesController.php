@@ -11,7 +11,7 @@ namespace Flarum\PackageManager\Api\Controller;
 
 use Flarum\Http\RequestUtil;
 use Flarum\PackageManager\Command\CheckForUpdates;
-use Illuminate\Contracts\Bus\Dispatcher;
+use Flarum\PackageManager\Job\Dispatcher;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -29,14 +29,25 @@ class CheckForUpdatesController implements RequestHandlerInterface
         $this->bus = $bus;
     }
 
+    /**
+     * @throws \Flarum\User\Exception\PermissionDeniedException
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
 
-        $lastUpdateCheck = $this->bus->dispatch(
+        $actor->assertAdmin();
+
+        /**
+         * @TODO somewhere, if we're queuing, check that a similar composer command isn't already running,
+         * to avoid duplicate jobs.
+         */
+        $response = $this->bus->dispatch(
             new CheckForUpdates($actor)
         );
 
-        return new JsonResponse($lastUpdateCheck);
+        return $response->queueJobs
+            ? new JsonResponse(['processing' => true], 202)
+            : new JsonResponse($response->data);
     }
 }

@@ -1,16 +1,21 @@
 import type Mithril from 'mithril';
 import app from 'flarum/admin/app';
-import Component from 'flarum/common/Component';
+import Component, { ComponentAttrs } from 'flarum/common/Component';
 import Button from 'flarum/common/components/Button';
 import Stream from 'flarum/common/utils/Stream';
 import LoadingModal from 'flarum/admin/components/LoadingModal';
-import errorHandler from '../utils/errorHandler';
 
-export default class Installer<Attrs> extends Component<Attrs> {
+import errorHandler from '../utils/errorHandler';
+import jumpToQueue from '../utils/jumpToQueue';
+import { AsyncBackendResponse } from '../shims';
+
+interface InstallerAttrs extends ComponentAttrs {}
+
+export default class Installer extends Component<InstallerAttrs> {
   packageName!: Stream<string>;
   isLoading: boolean = false;
 
-  oninit(vnode: Mithril.Vnode<Attrs, this>): void {
+  oninit(vnode: Mithril.Vnode<InstallerAttrs, this>): void {
     super.oninit(vnode);
 
     this.packageName = Stream('');
@@ -18,7 +23,7 @@ export default class Installer<Attrs> extends Component<Attrs> {
 
   view(): Mithril.Children {
     return (
-      <div className="Form-group">
+      <div className="Form-group PackageManager-installer">
         <label htmlFor="install-extension">{app.translator.trans('flarum-package-manager.admin.extensions.install')}</label>
         <p className="helpText">
           {app.translator.trans('flarum-package-manager.admin.extensions.install_help', {
@@ -46,7 +51,7 @@ export default class Installer<Attrs> extends Component<Attrs> {
     app.modal.show(LoadingModal);
 
     app
-      .request<{ id: string }>({
+      .request<AsyncBackendResponse & { id: number }>({
         method: 'POST',
         url: `${app.forum.attribute('apiUrl')}/package-manager/extensions`,
         body: {
@@ -55,13 +60,17 @@ export default class Installer<Attrs> extends Component<Attrs> {
         errorHandler,
       })
       .then((response) => {
-        const extensionId = response.id;
-        app.alerts.show(
-          { type: 'success' },
-          app.translator.trans('flarum-package-manager.admin.extensions.successful_install', { extension: extensionId })
-        );
-        window.location.href = `${app.forum.attribute('adminUrl')}#/extension/${extensionId}`;
-        window.location.reload();
+        if (response.processing) {
+          jumpToQueue();
+        } else {
+          const extensionId = response.id;
+          app.alerts.show(
+            { type: 'success' },
+            app.translator.trans('flarum-package-manager.admin.extensions.successful_install', { extension: extensionId })
+          );
+          window.location.href = `${app.forum.attribute('adminUrl')}#/extension/${extensionId}`;
+          window.location.reload();
+        }
       })
       .finally(() => {
         this.isLoading = false;

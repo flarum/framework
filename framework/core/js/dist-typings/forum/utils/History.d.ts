@@ -1,8 +1,4 @@
-export interface HistoryEntry {
-    name: string;
-    title: string;
-    url: string;
-}
+import IHistory, { HistoryEntry } from '../../common/IHistory';
 /**
  * The `History` class keeps track and manages a stack of routes that the user
  * has navigated to in their session.
@@ -14,7 +10,7 @@ export interface HistoryEntry {
  * popping the history stack will still take them back to the discussion list
  * rather than the previous discussion.
  */
-export default class History {
+export default class History implements IHistory {
     /**
      * The stack of routes that have been navigated to.
      */

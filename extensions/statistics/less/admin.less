@@ -1,78 +1,113 @@
-.StatisticsWidget-table {
-  margin-top: -20px;
+.StatisticsPage {
+  margin-top: 38px;
 }
-.StatisticsWidget-labels {
-  float: left;
-  min-width: 130px;
-  padding-right: 10px;
-  padding-top: 45px;
-  font-size: 12px;
-  font-weight: bold;
-  color: @muted-color;
-}
-.StatisticsWidget-label {
-  padding-top: 8px;
-}
-.StatisticsWidget-entity {
-  float: left;
-  min-width: 130px;
-  padding: 15px 20px;
-  color: @text-color;
-  font-size: 20px;
 
-  &:hover {
-    background: mix(@control-bg, @body-bg, 50%);
-    text-decoration: none;
-  }
-  &.active {
-    border-top: 4px solid @primary-color;
-    padding-top: 15 - 4px;
-  }
-}
-.StatisticsWidget-change {
-  font-size: 11px;
-}
-.StatisticsWidget-change--up {
-  color: #00a502;
-}
-.StatisticsWidget-change--down {
-  color: #d0011b;
-}
-.StatisticsWidget-heading {
-  height: 30px;
-  padding-top: 5px;
-  margin: 0;
-  font-weight: bold;
-  text-transform: uppercase;
-  font-size: 12px;
-  color: @muted-color;
+.StatisticsWidget {
+  padding: 0;
 
-  .active & {
-    color: @primary-color;
+  &--mini {
+    padding-top: 20px;
   }
-}
-.StatisticsWidget-total,
-.StatisticsWidget-period,
-.StatisticsWidget-label {
-  height: 35px;
-}
-.StatisticsWidget-total {
-  font-weight: bold;
-}
-.StatisticsWidget-chart {
-  clear: left;
-  margin: -20px -10px;
-}
-.StatisticsWidget-chart .chart-container {
-  .dataset-0 {
-    opacity: 0.2;
+
+  &-title {
+    margin: 0 20px;
+    color: @muted-color;
   }
-  .chart-legend {
-    display: none;
+
+  &-entities {
+    display: flex;
+    align-items: flex-end;
+    margin: 0 20px;
+
+    & > :not(:last-child) {
+      margin-right: 10px;
+    }
   }
-  // Hide the "last period" data from the tooltip
-  .graph-svg-tip ul.data-point-list > li:first-child {
-    display: none;
+
+  &-labels {
+    padding-bottom: 15px;
+    min-width: 130px;
+    font-size: 12px;
+    font-weight: bold;
+    color: @muted-color;
+  }
+
+  &-label {
+    padding-top: 8px;
+  }
+
+  &-entity {
+    min-width: 130px;
+    padding: 15px 20px;
+    color: @text-color;
+    font-size: 20px;
+
+    .StatisticsWidget:not(.StatisticsWidget--mini) & {
+      cursor: pointer;
+
+      &:hover,
+      &:focus-visible {
+        background: mix(@control-bg, @body-bg, 50%);
+        text-decoration: none;
+      }
+
+      &.active {
+        border-top: 4px solid @primary-color;
+        padding-top: 11px;
+      }
+    }
+  }
+
+  &-change {
+    font-size: 11px;
+    &--up {
+      color: #00a502;
+    }
+    &--down {
+      color: #d0011b;
+    }
+  }
+
+  &-heading {
+    height: 30px;
+    padding-top: 5px;
+    margin: 0;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: @muted-color;
+
+    .active & {
+      color: @primary-color;
+    }
+  }
+
+  &-total,
+  &-period,
+  &-label {
+    height: 35px;
+  }
+
+  &-total {
+    font-weight: bold;
+  }
+
+  .chart-container {
+    .dataset-0 {
+      opacity: 0.2;
+    }
+    .chart-legend {
+      display: none;
+    }
+    // Hide the "last period" data from the tooltip
+    .graph-svg-tip ul.data-point-list > li:first-child {
+      display: none;
+    }
+  }
+
+  &-viewFull {
+    padding: 12px 16px;
+    text-align: center;
   }
 }
 
@@ -88,7 +123,8 @@
   'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
   'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 
-  .axis, .chart-label {
+  .axis,
+  .chart-label {
     fill: #555b51;
 
     line {
@@ -168,7 +204,7 @@
     position: absolute;
     height: 5px;
     margin: 0 0 0 -5px;
-    content: ' ';
+    content: " ";
     border: 5px solid transparent;
     border-top-color: rgba(0, 0, 0, 0.8);
   }

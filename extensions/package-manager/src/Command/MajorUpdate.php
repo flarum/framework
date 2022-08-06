@@ -9,10 +9,16 @@
 
 namespace Flarum\PackageManager\Command;
 
+use Flarum\PackageManager\Task\Task;
 use Flarum\User\User;
 
-class MajorUpdate
+class MajorUpdate implements BusinessCommandInterface
 {
+    /**
+     * @var Task
+     */
+    public $task = null;
+
     /**
      * @var \Flarum\User\User
      */
@@ -27,5 +33,10 @@ class MajorUpdate
     {
         $this->actor = $actor;
         $this->dryRun = $dryRun;
+    }
+
+    public function getOperationName(): string
+    {
+        return Task::UPDATE_MAJOR;
     }
 }

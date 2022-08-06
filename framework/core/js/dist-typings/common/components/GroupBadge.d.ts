@@ -1,4 +1,8 @@
-export default class GroupBadge extends Badge {
-    static initAttrs(attrs: any): void;
+import Badge, { IBadgeAttrs } from './Badge';
+import Group from '../models/Group';
+export interface IGroupAttrs extends IBadgeAttrs {
+    group?: Group;
 }
-import Badge from "./Badge";
+export default class GroupBadge<CustomAttrs extends IGroupAttrs = IGroupAttrs> extends Badge<CustomAttrs> {
+    static initAttrs(attrs: IGroupAttrs): void;
+}

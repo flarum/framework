@@ -11,6 +11,7 @@ namespace Flarum\Tags\Command;
 
 use Flarum\Tags\Event\Deleting;
 use Flarum\Tags\TagRepository;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class DeleteTagHandler
 {
@@ -20,11 +21,18 @@ class DeleteTagHandler
     protected $tags;
 
     /**
-     * @param TagRepository $tags
+     * @var Dispatcher
      */
-    public function __construct(TagRepository $tags)
+    protected $events;
+
+    /**
+     * @param TagRepository $tags
+     * @param Dispatcher $events
+     */
+    public function __construct(TagRepository $tags, Dispatcher $events)
     {
         $this->tags = $tags;
+        $this->events = $events;
     }
 
     /**
@@ -40,7 +48,7 @@ class DeleteTagHandler
 
         $actor->assertCan('delete', $tag);
 
-        event(new Deleting($tag, $actor));
+        $this->events->dispatch(new Deleting($tag, $actor));
 
         $tag->delete();
 

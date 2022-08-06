@@ -1,8 +1,10 @@
 import { AdminRoutes } from './routes';
 import Application, { ApplicationData } from '../common/Application';
 import ExtensionData from './utils/ExtensionData';
+import IHistory from '../common/IHistory';
 export declare type Extension = {
     id: string;
+    name: string;
     version: string;
     description?: string;
     icon?: {
@@ -40,12 +42,7 @@ export default class AdminApplication extends Application {
         theme: number;
         language: number;
     };
-    history: {
-        canGoBack: () => boolean;
-        getPrevious: () => void;
-        backUrl: () => string;
-        back: () => void;
-    };
+    history: IHistory;
     /**
      * Settings are serialized to the admin dashboard as strings.
      * Additional encoding/decoding is possible, but must take

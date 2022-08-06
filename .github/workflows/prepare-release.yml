@@ -1,0 +1,26 @@
+name: Prepare Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release'
+        required: true
+        type: string
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Prepare release
+        uses: flarum/action-release@master
+        env:
+          NEXT_TAG: ${{ inputs.version }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPEN_COLLECTIVE_TOKEN: ${{ secrets.OPEN_COLLECTIVE_TOKEN }}
