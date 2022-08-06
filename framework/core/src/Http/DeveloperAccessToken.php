@@ -9,9 +9,6 @@
 
 namespace Flarum\Http;
 
-/**
- * @inheritDoc
- */
 class DeveloperAccessToken extends AccessToken
 {
     public static $type = 'developer';

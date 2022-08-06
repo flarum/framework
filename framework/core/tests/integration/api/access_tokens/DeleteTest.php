@@ -11,6 +11,8 @@ namespace Flarum\Tests\integration\api\access_tokens;
 
 use Carbon\Carbon;
 use Flarum\Http\AccessToken;
+use Flarum\Http\DeveloperAccessToken;
+use Flarum\Http\RememberAccessToken;
 use Flarum\Http\SessionAccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -111,6 +113,51 @@ class DeleteTest extends TestCase
      */
     public function user_can_terminate_all_other_sessions()
     {
+        $responseWithSession = $this->send(
+            $this->requestWithCsrfToken(
+                $this->request('POST', '/login', [
+                    'json' => [
+                        'identification' => 'admin',
+                        'password' => 'password',
+                    ]
+                ])
+            )
+        );
+
+        $sessionToken = AccessToken::query()
+            ->where('user_id', 1)
+            ->where('type', SessionAccessToken::$type)
+            ->latest()
+            ->first();
+
+        $csrfToken = $responseWithSession->getHeaderLine('X-CSRF-Token');
+
+        $request = $this->requestWithCookiesFrom(
+            $this->request('DELETE', '/api/sessions')->withHeader('X-CSRF-Token', $csrfToken),
+            $responseWithSession
+        );
+
+        $response = $this->send($request);
+
+        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertEquals(
+            1, // It doesn't delete current session
+            AccessToken::query()
+                ->where('user_id', 1)
+                ->where(function ($query) {
+                    $query
+                        ->where('type', SessionAccessToken::$type)
+                        ->orWhere('type', RememberAccessToken::$type);
+                })
+                ->count()
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function terminting_all_other_sessions_does_not_delete_dev_tokens()
+    {
         $response = $this->send(
             $this->request('DELETE', '/api/sessions', [
                 'authenticatedAs' => 1,
@@ -121,7 +168,8 @@ class DeleteTest extends TestCase
         $this->assertEquals(
             1,
             AccessToken::query()
-                ->where('type', SessionAccessToken::$type)
+                ->where('user_id', 1)
+                ->where('type', DeveloperAccessToken::$type)
                 ->count()
         );
     }
