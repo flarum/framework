@@ -124,7 +124,7 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
 
     // Delete all notifications for the current user.
     $map->delete(
-        '/notifications/delete',
+        '/notifications',
         'notifications.deleteAll',
         $route->toController(Controller\DeleteAllNotificationsController::class)
     );

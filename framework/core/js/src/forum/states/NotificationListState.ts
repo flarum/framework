@@ -58,7 +58,7 @@ export default class NotificationListState extends PaginatedListState<Notificati
     this.pages = [];
 
     return app.request({
-      url: app.forum.attribute('apiUrl') + '/notifications/delete',
+      url: app.forum.attribute('apiUrl') + '/notifications',
       method: 'DELETE',
     });
   }
