@@ -1,8 +1,27 @@
 /// <reference path="../../@types/translator-icu-rich.d.ts" />
-export default class MailPage extends AdminPage<import("../../common/components/Page").IPageAttrs> {
-    constructor();
-    oninit(vnode: any): void;
-    sendingTest: boolean | undefined;
+import AdminPage from './AdminPage';
+import type { IPageAttrs } from '../../common/components/Page';
+import type { AlertIdentifier } from '../../common/states/AlertManagerState';
+import type Mithril from 'mithril';
+import type { SaveSubmitEvent } from './AdminPage';
+export interface MailSettings {
+    data: {
+        attributes: {
+            fields: Record<string, any>;
+            sending: boolean;
+            errors: any[];
+        };
+    };
+}
+export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends AdminPage<CustomAttrs> {
+    sendingTest: boolean;
+    status?: {
+        sending: boolean;
+        errors: any;
+    };
+    driverFields?: Record<string, any>;
+    testEmailSuccessAlert?: AlertIdentifier;
+    oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     headerInfo(): {
         className: string;
         icon: string;
@@ -10,14 +29,7 @@ export default class MailPage extends AdminPage<import("../../common/components/
         description: import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
     };
     refresh(): void;
-    status: {
-        sending: boolean;
-        errors: {};
-    } | undefined;
-    driverFields: any;
     content(): JSX.Element;
     sendTestEmail(): void;
-    testEmailSuccessAlert: number | undefined;
-    saveSettings(e: any): void;
+    saveSettings(e: SaveSubmitEvent): Promise<void>;
 }
-import AdminPage from "./AdminPage";
