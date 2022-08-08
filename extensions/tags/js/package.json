@@ -10,13 +10,13 @@
         "dev": "webpack --mode development --watch",
         "build": "webpack --mode production",
         "analyze": "cross-env ANALYZER=true yarn run build",
+        "format": "prettier --write src",
+        "format-check": "prettier --check src",
         "clean-typings": "npx rimraf dist-typings && mkdir dist-typings",
         "build-typings": "yarn run clean-typings && ([ -e src/@types ] && cp -r src/@types dist-typings/@types || true) && tsc && yarn run post-build-typings",
         "post-build-typings": "find dist-typings -type f -name '*.d.ts' -print0 | xargs -0 sed -i 's,../src/@types,@types,g'",
         "check-typings": "tsc --noEmit --emitDeclarationOnly false",
-        "check-typings-coverage": "typescript-coverage-report",
-        "format": "prettier --write src",
-        "format-check": "prettier --check src"
+        "check-typings-coverage": "typescript-coverage-report"
     },
     "devDependencies": {
         "flarum-tsconfig": "^1.0.2",
