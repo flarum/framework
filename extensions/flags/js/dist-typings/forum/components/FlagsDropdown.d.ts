@@ -3,5 +3,5 @@ export default class FlagsDropdown {
     getMenu(): JSX.Element;
     goToRoute(): void;
     getUnreadCount(): any;
-    getNewCount(): any;
+    getNewCount(): unknown;
 }

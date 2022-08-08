@@ -5,7 +5,7 @@ export default class QueueState {
     private limit;
     private offset;
     private total;
-    load(params?: ApiQueryParamsPlural): any;
+    load(params?: ApiQueryParamsPlural): Promise<import("flarum/common/Store").ApiResponsePlural<Task>>;
     getItems(): Task[] | null;
     getTotalPages(): number;
     pageNumber(): number;

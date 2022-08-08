@@ -9,6 +9,15 @@ export interface IInternalModalAttrs {
     animateShow: ModalManager['animateShow'];
     animateHide: ModalManager['animateHide'];
 }
+export interface IDismissibleOptions {
+    /**
+     * @deprecated Check specific individual attributes instead. Will be removed in Flarum 2.0.
+     */
+    isDismissible: boolean;
+    viaCloseButton: boolean;
+    viaEscKey: boolean;
+    viaBackdropClick: boolean;
+}
 /**
  * The `Modal` component displays a modal dialog, wrapped in a form. Subclasses
  * should implement the `className`, `title`, and `content` methods.
@@ -16,8 +25,25 @@ export interface IInternalModalAttrs {
 export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IInternalModalAttrs> extends Component<ModalAttrs> {
     /**
      * Determine whether or not the modal should be dismissible via an 'x' button.
+     *
+     * @deprecated Use the individual `isDismissibleVia...` attributes instead and remove references to this.
      */
     static readonly isDismissible: boolean;
+    /**
+     * Can the model be dismissed with a close button (X)?
+     *
+     * If `false`, no close button is shown.
+     */
+    protected static readonly isDismissibleViaCloseButton: boolean;
+    /**
+     * Can the modal be dismissed by pressing the Esc key on a keyboard?
+     */
+    protected static readonly isDismissibleViaEscKey: boolean;
+    /**
+     * Can the modal be dismissed via a click on the backdrop.
+     */
+    protected static readonly isDismissibleViaBackdropClick: boolean;
+    static get dismissibleOptions(): IDismissibleOptions;
     protected loading: boolean;
     /**
      * Attributes for an alert component to show below the header.
@@ -65,4 +91,5 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
      * the first relevant field involved in the error.
      */
     onerror(error: RequestError): void;
+    private get dismissibleOptions();
 }
