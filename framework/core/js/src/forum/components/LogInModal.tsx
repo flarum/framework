@@ -131,10 +131,8 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
         <a onclick={this.forgotPassword.bind(this)}>{app.translator.trans('core.forum.log_in.forgot_password_link')}</a>
       </p>,
 
-      app.forum.attribute('allowSignUp') ? (
+      app.forum.attribute<boolean>('allowSignUp') && (
         <p className="LogInModal-signUp">{app.translator.trans('core.forum.log_in.sign_up_text', { a: <a onclick={this.signUp.bind(this)} /> })}</p>
-      ) : (
-        ''
       ),
     ];
   }

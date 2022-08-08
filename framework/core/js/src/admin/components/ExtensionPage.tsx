@@ -79,7 +79,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
         <div className="container">
           <div className="ExtensionTitle">
             <span className="ExtensionIcon" style={this.extension.icon}>
-              {this.extension.icon ? icon(this.extension.icon.name) : ''}
+              {!!this.extension.icon && icon(this.extension.icon.name)}
             </span>
             <div className="ExtensionName">
               <h2>{this.extension.extra['flarum-extension'].title}</h2>

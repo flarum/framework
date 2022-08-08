@@ -3,6 +3,7 @@ import Component from '../Component';
 import Button from './Button';
 import LinkButton from './LinkButton';
 import type Mithril from 'mithril';
+import classList from '../utils/classList';
 
 /**
  * The `Navigation` component displays a set of navigation buttons. Typically
@@ -25,7 +26,7 @@ export default class Navigation extends Component {
 
     return (
       <div
-        className={'Navigation ButtonGroup ' + (this.attrs.className || '')}
+        class={classList('Navigation ButtonGroup', this.attrs.className)}
         onmouseenter={pane && pane.show.bind(pane)}
         onmouseleave={pane && pane.onmouseleave.bind(pane)}
       >
@@ -60,32 +61,36 @@ export default class Navigation extends Component {
   protected getPaneButton(): Mithril.Children {
     const { pane } = app;
 
-    if (!pane || !pane.active) return '';
+    if (!pane || !pane.active) return null;
 
-    return Button.component({
-      className: 'Button Button--icon Navigation-pin' + (pane.pinned ? ' active' : ''),
-      onclick: pane.togglePinned.bind(pane),
-      icon: 'fas fa-thumbtack',
-    });
+    return (
+      <Button
+        class={classList('Button Button--icon Navigation-pin', { active: pane.pinned })}
+        onclick={pane.togglePinned.bind(pane)}
+        icon="fas fa-thumbtack"
+      />
+    );
   }
 
   /**
    * Get the drawer toggle button.
    */
   protected getDrawerButton(): Mithril.Children {
-    if (!this.attrs.drawer) return '';
+    if (!this.attrs.drawer) return null;
 
     const { drawer } = app;
     const user = app.session.user;
 
-    return Button.component({
-      className: 'Button Button--icon Navigation-drawer' + (user && user.newNotificationCount() ? ' new' : ''),
-      onclick: (e: MouseEvent) => {
-        e.stopPropagation();
-        drawer.show();
-      },
-      icon: 'fas fa-bars',
-      'aria-label': app.translator.trans('core.lib.nav.drawer_button'),
-    });
+    return (
+      <Button
+        class={classList('Button Button--icon Navigation-drawer', { new: user?.newNotificationCount() })}
+        onclick={(e: MouseEvent) => {
+          e.stopPropagation();
+          drawer.show();
+        }}
+        icon="fas fa-bars"
+        aria-label={app.translator.trans('core.lib.nav.drawer_button')}
+      />
+    );
   }
 }

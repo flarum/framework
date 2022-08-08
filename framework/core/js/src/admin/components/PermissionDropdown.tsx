@@ -10,7 +10,7 @@ import Mithril from 'mithril';
 function badgeForId(id: string) {
   const group = app.store.getById('groups', id);
 
-  return group ? GroupBadge.component({ group, label: null }) : '';
+  return !!group && GroupBadge.component({ group, label: null });
 }
 
 function filterByRequiredPermissions(groupIds: string[], permission: string) {

@@ -127,7 +127,7 @@ export default function addMentionedByList() {
         <div className="Post-mentionedBy">
           <span className="Post-mentionedBy-summary">
             {icon('fas fa-reply')}
-            {app.translator.trans('flarum-mentions.forum.post.mentioned_by' + (repliers[0].user() === app.session.user ? '_self' : '') + '_text', {
+            {app.translator.trans(`flarum-mentions.forum.post.mentioned_by${repliers[0].user() === app.session.user ? '_self' : ''}_text`, {
               count: names.length,
               users: punctuateSeries(names),
             })}

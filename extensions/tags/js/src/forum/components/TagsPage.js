@@ -10,6 +10,7 @@ import classList from 'flarum/common/utils/classList';
 import tagIcon from '../../common/helpers/tagIcon';
 import tagLabel from '../../common/helpers/tagLabel';
 import sortTags from '../../common/utils/sortTags';
+import classList from '@flarum/core/src/common/utils/classList';
 
 export default class TagsPage extends Page {
   oninit(vnode) {
@@ -62,15 +63,13 @@ export default class TagsPage extends Page {
                 return (
                   <li className={classList('TagTile', { colored: tag.color() }, textContrastClass(tag.color()))} style={{ '--tag-bg': tag.color() }}>
                     <Link className="TagTile-info" href={app.route.tag(tag)}>
-                      {tag.icon() && tagIcon(tag, {}, { useColor: false })}
+                      {!!tag.icon() && tagIcon(tag, {}, { useColor: false })}
                       <h3 className="TagTile-name">{tag.name()}</h3>
                       <p className="TagTile-description">{tag.description()}</p>
-                      {children ? (
+                      {!!children && (
                         <div className="TagTile-children">
                           {children.map((child) => [<Link href={app.route.tag(child)}>{child.name()}</Link>, ' '])}
                         </div>
-                      ) : (
-                        ''
                       )}
                     </Link>
                     {lastPostedDiscussion ? (
@@ -89,7 +88,7 @@ export default class TagsPage extends Page {
               })}
             </ul>
 
-            {cloud.length ? <div className="TagCloud">{cloud.map((tag) => [tagLabel(tag, { link: true }), ' '])}</div> : ''}
+            {!!cloud.length && <div className="TagCloud">{cloud.map((tag) => [tagLabel(tag, { link: true }), ' '])}</div>}
           </div>
         </div>
       </div>

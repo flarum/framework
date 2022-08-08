@@ -98,7 +98,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
           )}
 
         <span
-          className={'Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic' + (isUnread ? '' : ' disabled')}
+          class={classList('Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic', { disabled: isUnread })}
           onclick={this.markAsRead.bind(this)}
         >
           {icon('fas fa-check')}

@@ -56,9 +56,9 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
             {scopes.map((scope) => (
               <th>
                 {scope.label}{' '}
-                {scope.onremove
-                  ? Button.component({ icon: 'fas fa-times', className: 'Button Button--text PermissionGrid-removeScope', onclick: scope.onremove })
-                  : ''}
+                {!!scope.onremove && (
+                  <Button icon="fas fa-times" className="Button Button--text PermissionGrid-removeScope" onclick={scope.onremove} />
+                )}
               </th>
             ))}
             <th>{this.scopeControlItems().toArray()}</th>

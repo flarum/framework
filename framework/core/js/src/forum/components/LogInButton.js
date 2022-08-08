@@ -1,5 +1,6 @@
 import app from '../../forum/app';
 import Button from '../../common/components/Button';
+import classList from '../../common/utils/classList';
 
 /**
  * The `LogInButton` component displays a social login button which will open
@@ -11,7 +12,7 @@ import Button from '../../common/components/Button';
  */
 export default class LogInButton extends Button {
   static initAttrs(attrs) {
-    attrs.className = (attrs.className || '') + ' LogInButton';
+    attrs.className = classList(attrs.className, 'LogInButton');
 
     attrs.onclick = function () {
       const width = 580;

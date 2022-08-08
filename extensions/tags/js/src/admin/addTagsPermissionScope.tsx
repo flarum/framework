@@ -54,7 +54,7 @@ export default function () {
           label: tagLabel(tag),
           onremove: () => tag.save({ isRestricted: false }),
           render: (item) => {
-            if ('setting' in item) return '';
+            if ('setting' in item) return null;
 
             if (
               item.permission === 'viewForum' ||
@@ -68,7 +68,7 @@ export default function () {
               });
             }
 
-            return '';
+            return null;
           },
         })
       );

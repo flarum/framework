@@ -76,12 +76,10 @@ export default function addPostMentionPreviews() {
             const discussion = post.discussion();
 
             m.render($preview[0], [
-              discussion !== parentPost.discussion() ? (
+              discussion !== parentPost.discussion() && (
                 <li>
                   <span className="PostMention-preview-discussion">{discussion.title()}</span>
                 </li>
-              ) : (
-                ''
               ),
               <li>{PostPreview.component({ post })}</li>,
             ]);

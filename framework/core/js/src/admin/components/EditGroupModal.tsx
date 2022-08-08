@@ -43,16 +43,12 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
   }
 
   title() {
-    return [
-      this.color() || this.icon()
-        ? Badge.component({
-            icon: this.icon(),
-            color: this.color(),
-          })
-        : '',
-      ' ',
-      this.namePlural() || app.translator.trans('core.admin.edit_group.title'),
-    ];
+    return (
+      <>
+        {!!(this.color() || this.icon()) && <Badge icon={this.icon()} color={this.color()} />}{' '}
+        {this.namePlural() || app.translator.trans('core.admin.edit_group.title')}
+      </>
+    );
   }
 
   content() {
@@ -63,8 +59,8 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
     );
   }
 
-  fields() {
-    const items = new ItemList();
+  fields(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
 
     items.add(
       'name',
@@ -124,12 +120,10 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
           },
           app.translator.trans('core.admin.edit_group.submit_button')
         )}
-        {this.group.exists && this.group.id() !== Group.ADMINISTRATOR_ID ? (
+        {this.group.exists && this.group.id() !== Group.ADMINISTRATOR_ID && (
           <button type="button" className="Button EditGroupModal-delete" onclick={this.deleteGroup.bind(this)}>
             {app.translator.trans('core.admin.edit_group.delete_button')}
           </button>
-        ) : (
-          ''
         )}
       </div>,
       -10

@@ -22,14 +22,12 @@ function tagItem(tag) {
           onclick: () => app.modal.show(EditTagModal, { model: tag }),
         })}
       </div>
-      {!tag.isChild() && tag.position() !== null ? (
+      {!tag.isChild() && tag.position() !== null && (
         <ol className="TagListItem-children TagList">
           {sortTags(app.store.all('tags'))
             .filter((child) => child.parent() === tag)
             .map(tagItem)}
         </ol>
-      ) : (
-        ''
       )}
     </li>
   );

@@ -95,17 +95,13 @@ export default class CommentPost extends Post {
     const post = this.attrs.post;
     const attrs = super.elementAttrs();
 
-    attrs.className =
-      (attrs.className || '') +
-      ' ' +
-      classList({
-        CommentPost: true,
-        'Post--renderFailed': post.renderFailed(),
-        'Post--hidden': post.isHidden(),
-        'Post--edited': post.isEdited(),
-        revealContent: this.revealContent,
-        editing: this.isEditing(),
-      });
+    attrs.className = classList(attrs.className, 'CommentPost', {
+      'Post--renderFailed': post.renderFailed(),
+      'Post--hidden': post.isHidden(),
+      'Post--edited': post.isEdited(),
+      revealContent: this.revealContent,
+      editing: this.isEditing(),
+    });
 
     if (this.isEditing()) attrs['aria-busy'] = 'true';
 

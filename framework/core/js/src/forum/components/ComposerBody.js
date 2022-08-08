@@ -50,7 +50,7 @@ export default class ComposerBody extends Component {
   view() {
     return (
       <ConfirmDocumentUnload when={this.hasChanges.bind(this)}>
-        <div className={'ComposerBody ' + (this.attrs.className || '')}>
+        <div class={classList('ComposerBody', this.attrs.className)}>
           {avatar(this.attrs.user, { className: 'ComposerBody-avatar' })}
           <div className="ComposerBody-content">
             <ul className="ComposerBody-header">{listItems(this.headerItems().toArray())}</ul>

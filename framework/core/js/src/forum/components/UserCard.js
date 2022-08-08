@@ -10,6 +10,7 @@ import Dropdown from '../../common/components/Dropdown';
 import Link from '../../common/components/Link';
 import AvatarEditor from './AvatarEditor';
 import listItems from '../../common/helpers/listItems';
+import classList from '../../common/utils/classList';
 
 /**
  * The `UserCard` component displays a user's profile card. This is used both on
@@ -31,22 +32,21 @@ export default class UserCard extends Component {
     const badges = user.badges().toArray();
 
     return (
-      <div className={'UserCard ' + (this.attrs.className || '')} style={color && { '--usercard-bg': color }}>
+      <div class={classList('UserCard', this.attrs.className)} style={color && { '--usercard-bg': color }}>
         <div className="darkenBackground">
           <div className="container">
-            {controls.length
-              ? Dropdown.component(
-                  {
-                    className: 'UserCard-controls App-primaryControl',
-                    menuClassName: 'Dropdown-menu--right',
-                    buttonClassName: this.attrs.controlsButtonClassName,
-                    label: app.translator.trans('core.forum.user_controls.button'),
-                    accessibleToggleLabel: app.translator.trans('core.forum.user_controls.toggle_dropdown_accessible_label'),
-                    icon: 'fas fa-ellipsis-v',
-                  },
-                  controls
-                )
-              : ''}
+            {!!controls.length &&
+              Dropdown.component(
+                {
+                  className: 'UserCard-controls App-primaryControl',
+                  menuClassName: 'Dropdown-menu--right',
+                  buttonClassName: this.attrs.controlsButtonClassName,
+                  label: app.translator.trans('core.forum.user_controls.button'),
+                  accessibleToggleLabel: app.translator.trans('core.forum.user_controls.toggle_dropdown_accessible_label'),
+                  icon: 'fas fa-ellipsis-v',
+                },
+                controls
+              )}
 
             <div className="UserCard-profile">
               <h1 className="UserCard-identity">
@@ -60,7 +60,7 @@ export default class UserCard extends Component {
                 )}
               </h1>
 
-              {badges.length ? <ul className="UserCard-badges badges">{listItems(badges)}</ul> : ''}
+              {!!badges.length && <ul className="UserCard-badges badges">{listItems(badges)}</ul>}
 
               <ul className="UserCard-info">{listItems(this.infoItems().toArray())}</ul>
             </div>
@@ -85,7 +85,7 @@ export default class UserCard extends Component {
 
       items.add(
         'lastSeen',
-        <span className={'UserCard-lastSeen' + (online ? ' online' : '')}>
+        <span class={classList('UserCard-lastSeen', { online })}>
           {online
             ? [icon('fas fa-circle'), ' ', app.translator.trans('core.forum.user.online_text')]
             : [icon('far fa-clock'), ' ', humanTime(lastSeenAt)]}
