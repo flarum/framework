@@ -6,6 +6,7 @@
     "dependencies": {
         "@askvortsov/rich-icu-message-formatter": "^0.2.4",
         "@ultraq/icu-message-formatter": "^0.12.0",
+        "body-scroll-lock": "^4.0.0-beta.0",
         "bootstrap": "^3.4.1",
         "clsx": "^1.1.1",
         "color-thief-browser": "^2.0.2",
@@ -21,6 +22,7 @@
     },
     "devDependencies": {
         "@flarum/prettier-config": "^1.0.0",
+        "@types/body-scroll-lock": "^3.1.0",
         "@types/jquery": "^3.5.10",
         "@types/mithril": "^2.0.8",
         "@types/punycode": "^2.1.0",
