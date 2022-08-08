@@ -12,6 +12,7 @@ export interface AvatarAttrs extends ComponentAttrs {}
  */
 export default function avatar(user: User | null, attrs: ComponentAttrs = {}): Mithril.Vnode {
   attrs.className = 'Avatar ' + (attrs.className || '');
+  attrs.loading ??= 'lazy';
   let content: string = '';
 
   // If the `title` attribute is set to null or false, we don't want to give the
