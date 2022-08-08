@@ -54,7 +54,7 @@ export default class UserCard extends Component {
                   [AvatarEditor.component({ user, className: 'UserCard-avatar' }), username(user)]
                 ) : (
                   <Link href={app.route.user(user)}>
-                    <div className="UserCard-avatar">{avatar(user)}</div>
+                    <div className="UserCard-avatar">{avatar(user, { loading: 'eager' })}</div>
                     {username(user)}
                   </Link>
                 )}
