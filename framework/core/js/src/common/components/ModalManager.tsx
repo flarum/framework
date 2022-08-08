@@ -54,10 +54,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
                   state={this.attrs.state}
                 />,
                 /* This backdrop is invisible and used for outside clicks to close the modal. */
-                <div
-                  key={modal.key}
-                  className="ModalManager-invisibleBackdrop"
-                  onclick={this.handlePossibleBackdropClick.bind(this)} />
+                <div key={modal.key} className="ModalManager-invisibleBackdrop" onclick={this.handlePossibleBackdropClick.bind(this)} />,
               ]}
             </div>
           );
