@@ -59,7 +59,7 @@ class Tag
         $queryParams = $request->getQueryParams();
         $actor = RequestUtil::getActor($request);
 
-        $slug = Arr::pull($queryParams, 'slug');
+        $slug = urldecode(Arr::pull($queryParams, 'slug'));
         $sort = Arr::pull($queryParams, 'sort');
         $q = Arr::pull($queryParams, 'q', '');
         $page = Arr::pull($queryParams, 'page', 1);

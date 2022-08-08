@@ -46,7 +46,7 @@ class ShowTagController extends AbstractShowController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $slug = Arr::get($request->getQueryParams(), 'slug');
+        $slug = urldecode(Arr::get($request->getQueryParams(), 'slug'));
         $actor = RequestUtil::getActor($request);
         $include = $this->extractInclude($request);
         $setParentOnChildren = false;
