@@ -40,12 +40,26 @@ class DiscussionMetadataUpdater
 
     public function whenPostWasDeleted(Deleted $event)
     {
+        // Store the last post id as this is being refreshed on removePost.
+        $lastPostId = $event->post->discussion->last_post_id ?? null;
+
         $this->removePost($event->post);
 
         $discussion = $event->post->discussion;
 
         if ($discussion && $discussion->posts()->count() === 0) {
             $discussion->delete();
+        }
+
+        // Check whether the deleted post was actually the last post.
+        if ($discussion && $lastPostId === $event->post->id) {
+            // Update the user states for all users that had read up to the post
+            // number of the last post of this discussion. This fixes the issue
+            // that new posts after deletion are auto marked as read.
+            UserState::query()
+                ->where('discussion_id', $discussion->id)
+                ->where('last_read_post_number', $event->post->number)
+                ->update(['last_read_post_number' => $discussion->lastPost->number]);
         }
     }
 
