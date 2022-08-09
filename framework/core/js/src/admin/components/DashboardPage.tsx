@@ -24,11 +24,7 @@ export default class DashboardPage extends AdminPage {
     const items = new ItemList<Children>();
 
     if (app.data.debugEnabled) {
-      items.add(
-        'debug-warning',
-        <DebugWarningWidget />,
-        100
-      );
+      items.add('debug-warning', <DebugWarningWidget />, 100);
     }
 
     items.add('status', <StatusWidget />, 30);
