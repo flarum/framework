@@ -47,6 +47,13 @@ class UserState extends AbstractModel
     protected $dates = ['last_read_at'];
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var string[]
+     */
+    protected $fillable = ['last_read_post_number'];
+
+    /**
      * Mark the discussion as being read up to a certain point. Raises the
      * DiscussionWasRead event.
      *
