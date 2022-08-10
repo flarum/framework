@@ -156,12 +156,14 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
   }
 
   loadTokens() {
-    return app.store.find<AccessToken[]>('access-tokens', {
-      filter: { user: this.user!.id()! }
-    }).then((tokens) => {
-      this.tokens = tokens;
-      m.redraw();
-    });
+    return app.store
+      .find<AccessToken[]>('access-tokens', {
+        filter: { user: this.user!.id()! },
+      })
+      .then((tokens) => {
+        this.tokens = tokens;
+        m.redraw();
+      });
   }
 
   terminateAllOtherSessions() {

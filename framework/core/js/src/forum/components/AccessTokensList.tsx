@@ -10,7 +10,7 @@ import ItemList from '../../common/utils/ItemList';
 import DataSegment from '../../common/components/DataSegment';
 import extractText from '../../common/utils/extractText';
 import classList from '../../common/utils/classList';
-import Placeholder from "../../common/components/Placeholder";
+import Placeholder from '../../common/components/Placeholder';
 
 export interface IAccessTokensListAttrs extends ComponentAttrs {
   tokens: AccessToken[];
@@ -35,9 +35,11 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
   view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
     return (
       <div className="AccessTokensList">
-        {this.tokens.length
-          ? this.tokens.map(this.tokenView.bind(this))
-          : <div className="AccessTokensList--empty">{app.translator.trans('core.forum.security.empty_text')}</div>}
+        {this.tokens.length ? (
+          this.tokens.map(this.tokenView.bind(this))
+        ) : (
+          <div className="AccessTokensList--empty">{app.translator.trans('core.forum.security.empty_text')}</div>
+        )}
       </div>
     );
   }
