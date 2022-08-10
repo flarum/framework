@@ -22,7 +22,13 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
-    this.loadUser(m.route.param('username'));
+    const routeUsername = m.route.param('username');
+
+    if (routeUsername !== app.session.user?.slug() && !app.forum.attribute<boolean>('canModerateAccessTokens')) {
+      m.route.set('/');
+    }
+
+    this.loadUser(routeUsername);
 
     app.setTitle(extractText(app.translator.trans('core.forum.security.title')));
 

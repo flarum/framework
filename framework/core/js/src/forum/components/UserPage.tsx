@@ -157,6 +157,13 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
         </LinkButton>,
         -100
       );
+    }
+
+    if (app.session.user!.id() === user.id() || app.forum.attribute<boolean>('canModerateAccessTokens')) {
+      if (app.session.user!.id() !== user.id()) {
+        items.add('separator', <Separator />, -90);
+      }
+
       items.add(
         'security',
         <LinkButton href={app.route('user.security', { username: user.slug() })} icon="fas fa-shield-alt">

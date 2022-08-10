@@ -47,7 +47,7 @@ class ListTest extends TestCase
                 ['user_id' => 4, 'group_id' => 100]
             ],
             'group_permission' => [
-                ['group_id' => 100, 'permission' => 'access-tokens.moderate']
+                ['group_id' => 100, 'permission' => 'moderateAccessTokens']
             ]
         ]);
     }
@@ -129,7 +129,7 @@ class ListTest extends TestCase
             // Admin can view his and others access tokens.
             [1, [1, 2, 3, 4, 5, 6]],
 
-            // User with access-tokens.moderate permission can view other users access tokens.
+            // User with moderateAccessTokens permission can view other users access tokens.
             [4, [1, 2, 3, 4, 5, 6]],
 
             // Normal users can only view their own.
@@ -147,7 +147,7 @@ class ListTest extends TestCase
             [1, 2, [null, null]],
             [1, 3, [null]],
 
-            // User with access-tokens.moderate permission can only see his own developer token value.
+            // User with moderateAccessTokens permission can only see his own developer token value.
             [4, null, [null, null, null, null, null, null]],
             [4, 1, [null, null, null]],
             [4, 2, [null, null]],
@@ -168,7 +168,7 @@ class ListTest extends TestCase
             [1, 3, [6]],
             [1, 4, []],
 
-            // User with access-tokens.moderate permission can use user filter.
+            // User with moderateAccessTokens permission can use user filter.
             [4, 1, [1, 2, 3]],
             [4, 2, [4, 5]],
             [4, 3, [6]],

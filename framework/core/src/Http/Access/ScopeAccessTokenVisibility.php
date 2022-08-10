@@ -22,7 +22,7 @@ class ScopeAccessTokenVisibility
     {
         if ($actor->isGuest()) {
             $query->whereRaw('FALSE');
-        } elseif (! $actor->hasPermission('access-tokens.moderate')) {
+        } elseif (! $actor->hasPermission('moderateAccessTokens')) {
             $query->where('user_id', $actor->id);
         }
     }

@@ -49,7 +49,7 @@ class DeleteTest extends TestCase
                 ['user_id' => 4, 'group_id' => 100]
             ],
             'group_permission' => [
-                ['group_id' => 100, 'permission' => 'access-tokens.moderate']
+                ['group_id' => 100, 'permission' => 'moderateAccessTokens']
             ]
         ]);
     }
@@ -190,7 +190,7 @@ class DeleteTest extends TestCase
             // Admin can delete any user tokens.
             [1, [1, 2, 3, 4, 5, 6]],
 
-            // User with access-tokens.moderate permission can delete any tokens.
+            // User with moderateAccessTokens permission can delete any tokens.
             [4, [1, 2, 3, 4, 5, 6]],
 
             // Normal users can only delete their own.

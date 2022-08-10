@@ -406,6 +406,16 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
       60
     );
 
+    items.add(
+      'moderateAccessTokens',
+      {
+        icon: 'fas fa-key',
+        label: app.translator.trans('core.admin.permissions.moderate_access_tokens_label'),
+        permission: 'moderateAccessTokens',
+      },
+      60
+    );
+
     items.merge(app.extensionData.getAllExtensionPermissions('moderate'));
 
     return items;
