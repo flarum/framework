@@ -31,7 +31,8 @@ class DeleteTest extends TestCase
         $this->prepareDatabase([
             'users' => [
                 $this->normalUser(),
-                ['id' => 3, 'username' => 'normal3', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'normal3@machine.local', 'is_email_confirmed' => 1]
+                ['id' => 3, 'username' => 'normal3', 'email' => 'normal3@machine.local', 'is_email_confirmed' => 1],
+                ['id' => 4, 'username' => 'normal4', 'email' => 'normal4@machine.local', 'is_email_confirmed' => 1],
             ],
             'access_tokens' => [
                 ['id' => 1, 'token' => 'a', 'user_id' => 1, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'session'],
@@ -41,14 +42,23 @@ class DeleteTest extends TestCase
                 ['id' => 5, 'token' => 'e', 'user_id' => 2, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'session'],
                 ['id' => 6, 'token' => 'f', 'user_id' => 3, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'developer'],
             ],
+            'groups' => [
+                ['id' => 100, 'name_singular' => 'test', 'name_plural' => 'test']
+            ],
+            'group_user' => [
+                ['user_id' => 4, 'group_id' => 100]
+            ],
+            'group_permission' => [
+                ['group_id' => 100, 'permission' => 'access-tokens.moderate']
+            ]
         ]);
     }
 
     /**
-     * @dataProvider canDeleteOwnTokensDataProvider
+     * @dataProvider canDeleteTokensDataProvider
      * @test
      */
-    public function user_can_delete_own_tokens(int $authenticatedAs, array $canDeleteIds)
+    public function user_can_delete_tokens(int $authenticatedAs, array $canDeleteIds)
     {
         foreach ($canDeleteIds as $id) {
             $response = $this->send(
@@ -60,10 +70,10 @@ class DeleteTest extends TestCase
     }
 
     /**
-     * @dataProvider cannotDeleteOtherUsersTokensDataProvider
+     * @dataProvider cannotDeleteTokensDataProvider
      * @test
      */
-    public function user_cannot_delete_other_users_tokens(int $authenticatedAs, array $canDeleteIds)
+    public function user_cannot_delete_tokens(int $authenticatedAs, array $canDeleteIds)
     {
         foreach ($canDeleteIds as $id) {
             $response = $this->send(
@@ -174,19 +184,25 @@ class DeleteTest extends TestCase
         );
     }
 
-    public function canDeleteOwnTokensDataProvider(): array
+    public function canDeleteTokensDataProvider(): array
     {
         return [
-            [1, [1, 2, 3]],
+            // Admin can delete any user tokens.
+            [1, [1, 2, 3, 4, 5, 6]],
+
+            // User with access-tokens.moderate permission can delete any tokens.
+            [4, [1, 2, 3, 4, 5, 6]],
+
+            // Normal users can only delete their own.
             [2, [4, 5]],
             [3, [6]],
         ];
     }
 
-    public function cannotDeleteOtherUsersTokensDataProvider(): array
+    public function cannotDeleteTokensDataProvider(): array
     {
         return [
-            [1, [6, 5]],
+            // Normal users cannot delete other users' tokens.
             [2, [1, 2]],
             [3, [1, 4]],
         ];
