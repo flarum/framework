@@ -91,7 +91,7 @@ class ListTest extends TestCase
         $data = Arr::get(json_decode($response->getBody()->getContents(), true), 'data');
 
         // There is always an additional null value to refer to the current session.
-        if (!$userId || $authenticatedAs === $userId) {
+        if (! $userId || $authenticatedAs === $userId) {
             $tokenValues[] = null;
         }
 
@@ -106,7 +106,7 @@ class ListTest extends TestCase
     public function user_needs_permissions_to_use_user_filter(int $authenticatedAs, int $userId, array $canViewIds)
     {
         $response = $this->send(
-            $request = $this->request('GET', "/api/access-tokens", compact('authenticatedAs'))
+            $request = $this->request('GET', '/api/access-tokens', compact('authenticatedAs'))
                 ->withQueryParams([
                     'filter' => ['user' => $userId]
                 ])

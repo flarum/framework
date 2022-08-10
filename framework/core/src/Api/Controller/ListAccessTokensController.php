@@ -10,7 +10,6 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\AccessTokenSerializer;
-use Flarum\Http\AccessToken;
 use Flarum\Http\Filter\AccessTokenFilterer;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
