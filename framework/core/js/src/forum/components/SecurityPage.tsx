@@ -153,6 +153,8 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
   }
 
   terminateAllOtherSessions() {
+    if (!confirm(extractText(app.translator.trans('core.forum.security.terminate_all_other_sessions_confirmation')))) return;
+
     this.loading = true;
 
     return app

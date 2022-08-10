@@ -459,13 +459,16 @@ core:
         submit_button: Create Token
         title: => core.ref.new_token
         title_placeholder: Title
-      terminate_all_other_sessions: Terminate all other sessions
-      terminate_session: Terminate
-      title: => core.ref.security
       revoke_access_token: Revoke
+      revoke_access_token_confirmation: => core.ref.generic_confirmation_message
       sessions_heading: Active Sessions
       session_terminated: "{count, plural, one {Session terminated} other {Sessions terminated}}."
       show_access_token: View
+      terminate_all_other_sessions: Terminate all other sessions
+      terminate_all_other_sessions_confirmation: => core.ref.generic_confirmation_message
+      terminate_session: Terminate
+      title: => core.ref.security
+      token_revoked: Token revoked.
 
     # These translations are used in the Settings page.
     settings:
@@ -746,6 +749,7 @@ core:
     edit_user: Edit User
     email: Email
     extensions: Extensions
+    generic_confirmation_message: "Are you sure you want to proceed? This action cannot be undone."
     icon: Icon
     icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the <code>fas fa-</code> prefix."
     load_more: Load More
