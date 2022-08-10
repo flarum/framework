@@ -35,7 +35,7 @@ export default function (app: ForumApplication) {
     'user.discussions': { path: '/u/:username/discussions', component: DiscussionsUserPage },
 
     settings: { path: '/settings', component: SettingsPage },
-    security: { path: '/security', component: SecurityPage },
+    'user.security': { path: '/u/:username/security', component: SecurityPage },
     notifications: { path: '/notifications', component: NotificationsPage },
   };
 }

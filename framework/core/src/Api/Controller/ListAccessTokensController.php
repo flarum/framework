@@ -11,8 +11,10 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\AccessTokenSerializer;
 use Flarum\Http\AccessToken;
+use Flarum\Http\Filter\AccessTokenFilterer;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
+use Flarum\Query\QueryCriteria;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -25,9 +27,15 @@ class ListAccessTokensController extends AbstractListController
      */
     protected $url;
 
-    public function __construct(UrlGenerator $url)
+    /**
+     * @var AccessTokenFilterer
+     */
+    protected $filterer;
+
+    public function __construct(UrlGenerator $url, AccessTokenFilterer $filterer)
     {
         $this->url = $url;
+        $this->filterer = $filterer;
     }
 
     /**
@@ -41,25 +49,18 @@ class ListAccessTokensController extends AbstractListController
 
         $offset = $this->extractOffset($request);
         $limit = $this->extractLimit($request);
+        $filter = $this->extractFilter($request);
 
-        $tokens = AccessToken::query()
-            ->whereVisibleTo($actor)
-            ->skip($offset)
-            ->take($limit + 1)
-            ->get();
-
-        if ($areMoreResults = ($limit > 0 && $tokens->count() > $limit)) {
-            $tokens->pop();
-        }
+        $tokens = $this->filterer->filter(new QueryCriteria($actor, $filter), $limit, $offset);
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('access-tokens.index'),
             $request->getQueryParams(),
             $offset,
             $limit,
-            $areMoreResults
+            $tokens->areMoreResults() ? null : 0
         );
 
-        return $tokens;
+        return $tokens->getResults();
     }
 }

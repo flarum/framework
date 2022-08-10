@@ -42,6 +42,11 @@ class AccessTokenSerializer extends AbstractSerializer
             unset($attributes[$name]);
         }
 
+        // Hide the token value to non-actors no matter who they are.
+        if (isset($attributes['token']) && $this->getActor()->id !== $token->user_id) {
+            unset($attributes['token']);
+        }
+
         return $attributes;
     }
 }

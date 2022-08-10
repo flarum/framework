@@ -10,6 +10,7 @@ import ItemList from '../../common/utils/ItemList';
 import DataSegment from '../../common/components/DataSegment';
 import extractText from '../../common/utils/extractText';
 import classList from '../../common/utils/classList';
+import Placeholder from "../../common/components/Placeholder";
 
 export interface IAccessTokensListAttrs extends ComponentAttrs {
   tokens: AccessToken[];
@@ -32,7 +33,13 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
   }
 
   view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
-    return <div className="AccessTokensList">{this.tokens.map(this.tokenView.bind(this))}</div>;
+    return (
+      <div className="AccessTokensList">
+        {this.tokens.length
+          ? this.tokens.map(this.tokenView.bind(this))
+          : <div className="AccessTokensList--empty">{app.translator.trans('core.forum.security.empty_text')}</div>}
+      </div>
+    );
   }
 
   tokenView(token: AccessToken): Mithril.Children {
@@ -74,7 +81,7 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
       items.add(
         'title',
         <div className="AccessTokensList-item-title">
-          <span className="AccessTokensList-item-title-main">{[token.title() || '/', ' — ', this.tokenValueDisplay(token)]}</span>
+          <span className="AccessTokensList-item-title-main">{[token.title() || '/', token.token() && [' — ', this.tokenValueDisplay(token)]]}</span>
         </div>
       );
     }

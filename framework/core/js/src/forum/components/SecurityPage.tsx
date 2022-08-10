@@ -22,7 +22,7 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
-    this.show(app.session.user!);
+    this.loadUser(m.route.param('username'));
 
     app.setTitle(extractText(app.translator.trans('core.forum.security.title')));
 
@@ -84,23 +84,25 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
       )
     );
 
-    items.add(
-      'newAccessToken',
-      <Button
-        className="Button"
-        disabled={!app.forum.attribute<boolean>('canCreateAccessToken')}
-        onclick={() =>
-          app.modal.show(NewAccessTokenModal, {
-            onsuccess: (token: AccessToken) => {
-              this.tokens?.push(token);
-              m.redraw();
-            },
-          })
-        }
-      >
-        {app.translator.trans('core.forum.security.new_access_token_button')}
-      </Button>
-    );
+    if (this.user!.id() === app.session.user!.id()) {
+      items.add(
+        'newAccessToken',
+        <Button
+          className="Button"
+          disabled={!app.forum.attribute<boolean>('canCreateAccessToken')}
+          onclick={() =>
+            app.modal.show(NewAccessTokenModal, {
+              onsuccess: (token: AccessToken) => {
+                this.tokens?.push(token);
+                m.redraw();
+              },
+            })
+          }
+        >
+          {app.translator.trans('core.forum.security.new_access_token_button')}
+        </Button>
+      );
+    }
 
     return items;
   }
@@ -130,23 +132,27 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
       )
     );
 
-    items.add(
-      'terminateAllOtherSessions',
-      <Button
-        className="Button"
-        onclick={this.terminateAllOtherSessions.bind(this)}
-        loading={this.loading}
-        disabled={!this.tokens?.find((token) => token.isSessionToken() && !token.isCurrent())}
-      >
-        {app.translator.trans('core.forum.security.terminate_all_other_sessions')}
-      </Button>
-    );
+    if (this.user!.id() === app.session.user!.id()) {
+      items.add(
+        'terminateAllOtherSessions',
+        <Button
+          className="Button"
+          onclick={this.terminateAllOtherSessions.bind(this)}
+          loading={this.loading}
+          disabled={!this.tokens?.find((token) => token.isSessionToken() && !token.isCurrent())}
+        >
+          {app.translator.trans('core.forum.security.terminate_all_other_sessions')}
+        </Button>
+      );
+    }
 
     return items;
   }
 
   loadTokens() {
-    return app.store.find<AccessToken[]>('access-tokens').then((tokens) => {
+    return app.store.find<AccessToken[]>('access-tokens', {
+      filter: { user: this.user!.id()! }
+    }).then((tokens) => {
       this.tokens = tokens;
       m.redraw();
     });

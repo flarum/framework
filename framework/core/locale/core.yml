@@ -459,6 +459,7 @@ core:
         submit_button: Create Token
         title: => core.ref.new_token
         title_placeholder: Title
+      empty_text: It looks like there is nothing to see here.
       revoke_access_token: Revoke
       revoke_access_token_confirmation: => core.ref.generic_confirmation_message
       sessions_heading: Active Sessions
