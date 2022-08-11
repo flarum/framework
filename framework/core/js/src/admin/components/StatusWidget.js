@@ -5,7 +5,6 @@ import ItemList from '../../common/utils/ItemList';
 import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
 import LoadingModal from './LoadingModal';
-import icon from '../../common/helpers/icon';
 import LinkButton from '../../common/components/LinkButton';
 
 export default class StatusWidget extends DashboardWidget {
