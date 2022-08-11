@@ -69,6 +69,8 @@ class AdminPayload
      * @param ConnectionInterface $db
      * @param Dispatcher $events
      * @param Config $config
+     * @param QueueRepository $queues
+     * @param Queue $queue
      */
     public function __construct(
         Container $container,
