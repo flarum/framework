@@ -64,7 +64,7 @@ core:
       detail: |
         When <code>debug</code> mode is active, Flarum will rebuild its <code>JavaScript</code> and <code>CSS</code> assets on every request, and could also potentially leak other information, such as database secrets, environment variables, etc.
 
-        It is highly recommended to disable <code>debug</code> in your <code>config.php</code> file in production.
+        It is highly recommended to disable <code>debug</code> in your <code>config.php</code> file in production. See <link>Flarum docs</link> for more information.
       label: Debug mode active
 
     # These translations are used in the Edit Custom CSS modal dialog.
