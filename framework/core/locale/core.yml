@@ -62,9 +62,9 @@ core:
     # These translations are usin in the debug warning widget.
     debug-warning:
       detail: |
-        When <code>debug</code> mode is active, Flarum will rebuild it's <code>js</code> and <code>less</code> assets on every request, and could also potentially leak other information, such as database secrets, environment variables, etc.
+        When <code>debug</code> mode is active, Flarum will rebuild its <code>JavaScript</code> and <code>CSS</code> assets on every request, and could also potentially leak other information, such as database secrets, environment variables, etc.
 
-        It is highly recommended to disable <code>debug</code> in your <code>config.php</code> file when debugging is not required.
+        It is highly recommended to disable <code>debug</code> in your <code>config.php</code> file in production.
       label: Debug mode active
 
     # These translations are used in the Edit Custom CSS modal dialog.
