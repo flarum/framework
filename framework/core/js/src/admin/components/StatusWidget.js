@@ -33,6 +33,8 @@ export default class StatusWidget extends DashboardWidget {
     items.add('version-flarum', [<strong>Flarum</strong>, <br />, app.forum.attribute('version')]);
     items.add('version-php', [<strong>PHP</strong>, <br />, app.data.phpVersion]);
     items.add('version-mysql', [<strong>MySQL</strong>, <br />, app.data.mysqlVersion]);
+    items.add('schedule-status', [<strong>Scheduler</strong>, <br />, app.data.schedulerStatus]);
+    items.add('queue-driver', [<strong>Queue Driver</strong>, <br />, app.data.queueDriver]);
 
     return items;
   }

@@ -13,6 +13,7 @@ use Flarum\Console\AbstractCommand;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Config;
+use Flarum\Queue\QueueRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Database\ConnectionInterface;
@@ -52,13 +53,15 @@ class InfoCommand extends AbstractCommand
         Config $config,
         SettingsRepositoryInterface $settings,
         ConnectionInterface $db,
-        Queue $queue
+        Queue $queue,
+        QueueRepository $queues
     ) {
         $this->extensions = $extensions;
         $this->config = $config;
         $this->settings = $settings;
         $this->db = $db;
         $this->queue = $queue;
+        $this->queues = $queues;
 
         parent::__construct();
     }
@@ -91,7 +94,7 @@ class InfoCommand extends AbstractCommand
 
         $this->output->writeln('<info>Base URL:</info> '.$this->config->url());
         $this->output->writeln('<info>Installation path:</info> '.getcwd());
-        $this->output->writeln('<info>Queue driver:</info> '.$this->identifyQueueDriver());
+        $this->output->writeln('<info>Queue driver:</info> '.$this->queues->identifyDriver($this->queue));
         $this->output->writeln('<info>Mail driver:</info> '.$this->settings->get('mail_driver', 'unknown'));
         $this->output->writeln('<info>Debug mode:</info> '.($this->config->inDebugMode() ? '<error>ON</error>' : 'off'));
 
@@ -148,20 +151,6 @@ class InfoCommand extends AbstractCommand
         }
 
         return $fallback;
-    }
-
-    private function identifyQueueDriver(): string
-    {
-        // Get class name
-        $queue = get_class($this->queue);
-        // Drop the namespace
-        $queue = Str::afterLast($queue, '\\');
-        // Lowercase the class name
-        $queue = strtolower($queue);
-        // Drop everything like queue SyncQueue, RedisQueue
-        $queue = str_replace('queue', '', $queue);
-
-        return $queue;
     }
 
     private function identifyDatabaseVersion(): string
