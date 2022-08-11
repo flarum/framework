@@ -22,7 +22,7 @@ class ScheduleRunCommand extends \Illuminate\Console\Scheduling\ScheduleRunComma
     protected $settings;
 
     /**
-     * {inheritdoc}.
+     * {@inheritdoc}
      */
     public function __construct(SettingsRepositoryInterface $settings)
     {
@@ -32,7 +32,7 @@ class ScheduleRunCommand extends \Illuminate\Console\Scheduling\ScheduleRunComma
     }
 
     /**
-     * {inheritdoc}.
+     * {@inheritdoc}
      */
     public function handle(Schedule $schedule, Dispatcher $dispatcher, ExceptionHandler $handler)
     {
