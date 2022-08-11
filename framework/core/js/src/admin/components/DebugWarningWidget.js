@@ -9,11 +9,7 @@ export default class DebugWarningWidget extends DashboardWidget {
 
   content() {
     return (
-      <Alert
-        type="warning"
-        dismissible={false}
-        title={app.translator.trans('core.admin.debug-warning.label')}
-        icon="fas fa-exclamation-triangle">
+      <Alert type="warning" dismissible={false} title={app.translator.trans('core.admin.debug-warning.label')} icon="fas fa-exclamation-triangle">
         {app.translator.trans('core.admin.debug-warning.detail')}
       </Alert>
     );
