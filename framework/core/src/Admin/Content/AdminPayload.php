@@ -134,7 +134,7 @@ class AdminPayload
         if (! $status) {
             return 'Never run';
         }
-        
+
         // If the schedule has not run in the last 5 minutes, mark it as inactive.
         return Carbon::parse($status) > Carbon::now()->subMinutes(5) ? 'Active' : 'Inactive';
     }

@@ -17,7 +17,6 @@ use Flarum\Queue\QueueRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Support\Str;
 use PDO;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableStyle;

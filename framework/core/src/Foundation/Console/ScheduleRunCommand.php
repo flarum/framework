@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Foundation\Console;
 
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -13,9 +20,9 @@ class ScheduleRunCommand extends \Illuminate\Console\Scheduling\ScheduleRunComma
      * @var SettingsRepositoryInterface
      */
     protected $settings;
-    
+
     /**
-     * {inheritdoc}
+     * {inheritdoc}.
      */
     public function __construct(SettingsRepositoryInterface $settings)
     {
@@ -23,9 +30,9 @@ class ScheduleRunCommand extends \Illuminate\Console\Scheduling\ScheduleRunComma
 
         $this->settings = $settings;
     }
-    
+
     /**
-     * {inheritdoc}
+     * {inheritdoc}.
      */
     public function handle(Schedule $schedule, Dispatcher $dispatcher, ExceptionHandler $handler)
     {
