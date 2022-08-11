@@ -5,10 +5,15 @@ import extract from '../utils/extract';
 import type Mithril from 'mithril';
 import classList from '../utils/classList';
 import app from '../app';
+import iconHelper from '../helpers/icon';
 
 export interface AlertAttrs extends ComponentAttrs {
   /** The type of alert this is. Will be used to give the alert a class name of `Alert--{type}`. */
   type?: string;
+  /** Title of the alert. Optional. */
+  title?: Mithril.Children;
+  /** Icon used next to the title. Optional. */
+  icon?: string;
   /** An array of controls to show in the alert. */
   controls?: Mithril.Children;
   /** Whether or not the alert can be dismissed. */
@@ -28,6 +33,8 @@ export default class Alert<T extends AlertAttrs = AlertAttrs> extends Component<
     const type = extract(attrs, 'type');
     attrs.className = classList('Alert', `Alert--${type}`, attrs.className);
 
+    const title = extract(attrs, 'title');
+    const icon = extract(attrs, 'icon');
     const content = extract(attrs, 'content') || vnode.children;
     const controls = (extract(attrs, 'controls') || []) as Mithril.Vnode[];
 
@@ -51,6 +58,12 @@ export default class Alert<T extends AlertAttrs = AlertAttrs> extends Component<
 
     return (
       <div {...attrs}>
+        {!!title && (
+          <div class="Alert-title">
+            {!!icon && <span class="Alert-title-icon">{iconHelper(icon)}</span>}
+            <span class="Alert-title-text">{title}</span>
+          </div>
+        )}
         <span class="Alert-body">{content}</span>
         <ul class="Alert-controls">{listItems(controls.concat(dismissControl))}</ul>
       </div>

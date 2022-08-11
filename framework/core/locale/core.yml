@@ -59,6 +59,14 @@ core:
       title: Dashboard
       tools_button: Tools
 
+    # These translations are usin in the debug warning widget.
+    debug-warning:
+      detail: |
+        When <code>debug</code> mode is active, Flarum will rebuild its <code>JavaScript</code> and <code>CSS</code> assets on every request, and could also potentially leak other information, such as database secrets, environment variables, etc.
+
+        It is highly recommended to disable <code>debug</code> in your <code>config.php</code> file in production. See <link>Flarum docs</link> for more information.
+      label: Debug mode active
+
     # These translations are used in the Edit Custom CSS modal dialog.
     edit_css:
       customize_text: "Customize your forum's appearance by adding your own Less/CSS code to be applied on top of Flarum's <a>default styles</a>."
