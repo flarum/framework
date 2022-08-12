@@ -88,7 +88,9 @@ jobs:
 
     name: 'PHP ${{ matrix.php }} / ${{ matrix.db }} ${{ matrix.prefixStr }}'
 
-    if: inputs.enable_backend_testing
+    if: >-
+      inputs.enable_backend_testing &&
+      ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')
 
     steps:
       - uses: actions/checkout@master
