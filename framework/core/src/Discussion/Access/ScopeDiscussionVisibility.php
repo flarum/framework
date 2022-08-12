@@ -54,6 +54,9 @@ class ScopeDiscussionVisibility
                     ->orWhere('discussions.user_id', $actor->id)
                     ->orWhere(function ($query) use ($actor) {
                         $query->whereVisibleTo($actor, 'editPosts');
+                    })
+                    ->orWhere(function ($query) use ($actor) {
+                        $query->whereVisibleTo($actor, 'viewPrivate');
                     });
             });
         }
