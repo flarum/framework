@@ -24,7 +24,7 @@ on:
         description: Versions of databases to test with. Should be array of strings encoded as JSON array
         type: string
         required: false
-        default: '["mysql:5.7", "mariadb"]'
+        default: '["mysql:5.7", "mysql:8.0.30", "mariadb"]'
 
       php_ini_values:
         description: PHP ini values
@@ -51,6 +51,8 @@ jobs:
           # Expands the matrix by naming DBs.
           - service: 'mysql:5.7'
             db: MySQL 5.7
+          - service: 'mysql:8.0.30'
+            db: MySQL 8.0
           - service: mariadb
             db: MariaDB
 
@@ -58,6 +60,11 @@ jobs:
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: 'mysql:5.7'
             db: MySQL 5.7
+            prefix: flarum_
+            prefixStr: (prefix)
+          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+            service: 'mysql:8.0.30'
+            db: MySQL 8.0
             prefix: flarum_
             prefixStr: (prefix)
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
