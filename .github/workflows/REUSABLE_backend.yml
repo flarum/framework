@@ -73,6 +73,13 @@ jobs:
             prefix: flarum_
             prefixStr: (prefix)
 
+        # To reduce number of actions, we exclude some PHP versions from running with some DB versions.
+        exclude:
+          - php: ${{ fromJSON(inputs.php_versions)[1] }}
+            service: 'mysql:8.0.30'
+          - php: ${{ fromJSON(inputs.php_versions)[2] }}
+            service: 'mysql:8.0.30'
+
     services:
       mysql:
         image: ${{ matrix.service }}
