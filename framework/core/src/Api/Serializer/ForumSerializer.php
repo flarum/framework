@@ -40,7 +40,7 @@ class ForumSerializer extends AbstractSerializer
     protected $url;
 
     /**
-     * @var Filesystem
+     * @var Cloud
      */
     protected $assetsFilesystem;
 
@@ -133,7 +133,6 @@ class ForumSerializer extends AbstractSerializer
 
     public function getAssetUrl($assetPath): string
     {
-        /** @var Cloud $assetsFilesystem */
         $assetsFilesystem = $this->assetsFilesystem;
 
         return $assetsFilesystem->url($assetPath);
