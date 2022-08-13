@@ -84,7 +84,7 @@ abstract class AbstractModel extends Eloquent
     /**
      * {@inheritdoc}
      */
-    final public function __construct(array $attributes = [])
+    public function __construct(array $attributes = [])
     {
         $this->attributes = [];
 

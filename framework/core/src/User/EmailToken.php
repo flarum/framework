@@ -76,12 +76,12 @@ class EmailToken extends AbstractModel
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param string $id
-     * @return self
+     * @return static
      * @throws InvalidConfirmationTokenException
      */
     public function scopeValidOrFail($query, $id)
     {
-        /** @var EmailToken|null $token */
+        /** @var static|null $token */
         $token = $query->find($id);
 
         if (! $token || $token->created_at->diffInDays() >= 1) {

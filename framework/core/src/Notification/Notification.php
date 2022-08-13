@@ -209,7 +209,7 @@ class Notification extends AbstractModel
      */
     public function scopeMatchingBlueprint(Builder $query, BlueprintInterface $blueprint)
     {
-        return $query->where(self::getBlueprintAttributes($blueprint));
+        return $query->where(static::getBlueprintAttributes($blueprint));
     }
 
     /**
@@ -220,7 +220,7 @@ class Notification extends AbstractModel
      */
     public static function notify(array $recipients, BlueprintInterface $blueprint)
     {
-        $attributes = self::getBlueprintAttributes($blueprint);
+        $attributes = static::getBlueprintAttributes($blueprint);
         $now = Carbon::now()->toDateTimeString();
 
         static::insert(
@@ -256,7 +256,7 @@ class Notification extends AbstractModel
         static::$subjectModels[$type] = $subjectModel;
     }
 
-    private static function getBlueprintAttributes(BlueprintInterface $blueprint): array
+    protected static function getBlueprintAttributes(BlueprintInterface $blueprint): array
     {
         return [
             'type' => $blueprint::getType(),
