@@ -140,7 +140,7 @@ class Migrator
      * Rolls all of the currently applied migrations back.
      *
      * @param  string    $path
-     * @param  Extension $extension
+     * @param  Extension|null $extension
      * @return int
      */
     public function reset($path, Extension $extension = null)

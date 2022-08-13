@@ -316,7 +316,7 @@ class ExtensionManager
      *
      * @param Extension $extension
      * @param string $direction
-     * @return void
+     * @return int
      *
      * @internal
      */
@@ -326,7 +326,7 @@ class ExtensionManager
             return $container->make(ConnectionInterface::class)->getSchemaBuilder();
         });
 
-        $extension->migrate($this->migrator, $direction);
+        return $extension->migrate($this->migrator, $direction);
     }
 
     /**
