@@ -317,7 +317,6 @@ class User extends AbstractModel
     public function getAvatarUrlAttribute(string $value = null)
     {
         if ($value && strpos($value, '://') === false) {
-            /** @var \Illuminate\Contracts\Filesystem\Cloud $disk */
             $disk = resolve(Factory::class)->disk('flarum-avatars');
 
             return $disk->url($value);

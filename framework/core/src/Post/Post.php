@@ -16,7 +16,7 @@ use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Notification\Notification;
 use Flarum\Post\Event\Deleted;
 use Flarum\User\User;
-use Illuminate\Database\Connection;
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Expression;
 
@@ -94,8 +94,8 @@ class Post extends AbstractModel
         static::creating(function (self $post) {
             $post->type = $post::$type;
 
-            /** @var Connection $db */
-            $db = static::getConnectionResolver();
+            $db = static::getConnectionResolver()->connection();
+
             $post->number = new Expression('('.
                 $db->table('posts', 'pn')
                     ->whereRaw($db->getTablePrefix().'pn.discussion_id = '.intval($post->discussion_id))

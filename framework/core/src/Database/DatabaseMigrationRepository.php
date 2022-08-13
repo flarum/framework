@@ -9,14 +9,14 @@
 
 namespace Flarum\Database;
 
-use Illuminate\Database\Connection;
+use Illuminate\Database\ConnectionInterface;
 
 class DatabaseMigrationRepository implements MigrationRepositoryInterface
 {
     /**
      * The name of the database connection to use.
      *
-     * @var Connection
+     * @var ConnectionInterface
      */
     protected $connection;
 
@@ -30,10 +30,10 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
     /**
      * Create a new database migration repository instance.
      *
-     * @param  Connection $connection
+     * @param  ConnectionInterface $connection
      * @param  string $table
      */
-    public function __construct(Connection $connection, $table)
+    public function __construct(ConnectionInterface $connection, $table)
     {
         $this->connection = $connection;
         $this->table = $table;

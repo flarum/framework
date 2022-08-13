@@ -11,7 +11,7 @@ namespace Flarum\Database;
 
 use Exception;
 use Flarum\Extension\Extension;
-use Illuminate\Database\Connection;
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\MySqlConnection;
 use Illuminate\Filesystem\Filesystem;
 use InvalidArgumentException;
@@ -44,7 +44,7 @@ class Migrator
     protected $output;
 
     /**
-     * @var Connection
+     * @var ConnectionInterface
      */
     protected $connection;
 
@@ -53,7 +53,7 @@ class Migrator
      */
     public function __construct(
         MigrationRepositoryInterface $repository,
-        Connection $connection,
+        ConnectionInterface $connection,
         Filesystem $files
     ) {
         $this->files = $files;

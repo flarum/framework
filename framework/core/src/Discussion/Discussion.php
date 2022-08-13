@@ -395,6 +395,9 @@ class Discussion extends AbstractModel
      * If no user is passed (i.e. in the case of eager loading the 'state'
      * relation), then the static `$stateUser` property is used.
      *
+     * @param User|null $user
+     * @return HasOne
+     *
      * @see Discussion::setStateUser()
      */
     public function state(User $user = null): HasOne

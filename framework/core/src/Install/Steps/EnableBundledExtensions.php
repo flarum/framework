@@ -14,7 +14,7 @@ use Flarum\Database\Migrator;
 use Flarum\Extension\Extension;
 use Flarum\Install\Step;
 use Flarum\Settings\DatabaseSettingsRepository;
-use Illuminate\Database\Connection;
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -41,7 +41,7 @@ class EnableBundledExtensions implements Step
     ];
 
     /**
-     * @var Connection
+     * @var ConnectionInterface
      */
     private $database;
 
@@ -65,7 +65,7 @@ class EnableBundledExtensions implements Step
      */
     private $migrator;
 
-    public function __construct(Connection $database, $vendorPath, $assetPath, $enabledExtensions = null)
+    public function __construct(ConnectionInterface $database, $vendorPath, $assetPath, $enabledExtensions = null)
     {
         $this->database = $database;
         $this->vendorPath = $vendorPath;

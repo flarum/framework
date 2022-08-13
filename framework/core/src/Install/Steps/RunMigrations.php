@@ -12,13 +12,13 @@ namespace Flarum\Install\Steps;
 use Flarum\Database\DatabaseMigrationRepository;
 use Flarum\Database\Migrator;
 use Flarum\Install\Step;
-use Illuminate\Database\Connection;
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Filesystem\Filesystem;
 
 class RunMigrations implements Step
 {
     /**
-     * @var Connection
+     * @var ConnectionInterface
      */
     private $database;
 
@@ -27,7 +27,7 @@ class RunMigrations implements Step
      */
     private $path;
 
-    public function __construct(Connection $database, $path)
+    public function __construct(ConnectionInterface $database, $path)
     {
         $this->database = $database;
         $this->path = $path;

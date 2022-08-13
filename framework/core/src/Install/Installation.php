@@ -36,7 +36,7 @@ class Installation
     // Could also be local variables in build(), but this way
     // access in closures is easier. :)
 
-    /** @var \Illuminate\Database\Connection */
+    /** @var \Illuminate\Database\ConnectionInterface */
     private $db;
 
     public function __construct(Paths $paths)
