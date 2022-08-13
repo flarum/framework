@@ -146,7 +146,9 @@ jobs:
 
     name: 'PHPStan PHP ${{ matrix.php }}'
 
-    if: inputs.enable_phpstan
+    if: >-
+      inputs.enable_phpstan &&
+      ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')
 
     steps:
       - uses: actions/checkout@master
