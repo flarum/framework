@@ -11,6 +11,8 @@ core:
     appearance:
       colored_header_label: Colored Header
       colors_heading: Colors
+      colors_primary_label: Primary Color
+      colors_secondary_label: Secondary Color
       colors_text: "Choose two colors to theme your forum with. The first will be used as a highlight color, while the second will be used to style background elements."
       custom_footer_heading: Custom Footer
       custom_footer_text: => core.ref.custom_footer_text
@@ -53,8 +55,17 @@ core:
     dashboard:
       clear_cache_button: Clear Cache
       description: Your forum at a glance.
+      io_error_message: "Could not write to filesystem. Check your filesystem permissions an try again. Or try running from the command line."
       title: Dashboard
       tools_button: Tools
+
+    # These translations are usin in the debug warning widget.
+    debug-warning:
+      detail: |
+        When <code>debug</code> mode is active, Flarum will rebuild its <code>JavaScript</code> and <code>CSS</code> assets on every request, and could also potentially leak other information, such as database secrets, environment variables, etc.
+
+        It is highly recommended to disable <code>debug</code> in your <code>config.php</code> file in production. See <link>Flarum docs</link> for more information.
+      label: Debug mode active
 
     # These translations are used in the Edit Custom CSS modal dialog.
     edit_css:
@@ -393,6 +404,8 @@ core:
 
     # These translations are used by the Notifications dropdown, a.k.a. "the bell".
     notifications:
+      delete_all_confirm: Are you sure you want to delete all notifications? This action is not reversable
+      delete_all_tooltip: Delete all notifications
       discussion_renamed_text: "{username} changed the title"
       empty_text: No Notifications
       mark_all_as_read_tooltip: => core.ref.mark_all_as_read

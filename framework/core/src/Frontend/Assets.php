@@ -156,12 +156,18 @@ class Assets
 
     protected function makeJsCompiler(string $filename)
     {
-        return new JsCompiler($this->assetsDir, $filename);
+        return resolve(JsCompiler::class, [
+            'assetsDir' => $this->assetsDir,
+            'filename' => $filename
+        ]);
     }
 
     protected function makeLessCompiler(string $filename): LessCompiler
     {
-        $compiler = new LessCompiler($this->assetsDir, $filename);
+        $compiler = resolve(LessCompiler::class, [
+            'assetsDir' => $this->assetsDir,
+            'filename' => $filename
+        ]);
 
         if ($this->cacheDir) {
             $compiler->setCacheDir($this->cacheDir.'/less');

@@ -51,7 +51,7 @@ class ReplyNotificationTest extends TestCase
         /** @var User $mainUser */
         $mainUser = User::query()->find(1);
 
-        $this->assertEquals(0, $this->getUnreadNotificationCount($mainUser));
+        $this->assertEquals(0, $mainUser->getUnreadNotificationCount());
 
         $this->send(
             $this->request('POST', '/api/posts', [
@@ -69,7 +69,7 @@ class ReplyNotificationTest extends TestCase
             ])
         );
 
-        $this->assertEquals(1, $this->getUnreadNotificationCount($mainUser));
+        $this->assertEquals(1, $mainUser->getUnreadNotificationCount());
     }
 
     /** @test */
@@ -108,7 +108,7 @@ class ReplyNotificationTest extends TestCase
             ])
         );
 
-        $this->assertEquals(0, $this->getUnreadNotificationCount($mainUser));
+        $this->assertEquals(0, $mainUser->getUnreadNotificationCount());
 
         $this->send(
             $this->request('POST', '/api/posts', [
@@ -126,17 +126,72 @@ class ReplyNotificationTest extends TestCase
             ])
         );
 
-        $this->assertEquals(1, $this->getUnreadNotificationCount($mainUser));
+        $this->assertEquals(1, $mainUser->getUnreadNotificationCount());
     }
 
-    /** @todo change after core no longer statically caches unread notification in the User class */
-    protected function getUnreadNotificationCount(User $user)
+    /**
+     * @dataProvider deleteLastPostsProvider
+     * @test
+     */
+    public function deleting_last_posts_then_posting_new_one_sends_reply_notification(array $postIds)
     {
-        return $user->notifications()
-            ->where('type', 'newPost')
-            ->whereNull('read_at')
-            ->where('is_deleted', false)
-            ->whereSubjectVisibleTo($user)
-            ->count();
+        $this->prepareDatabase([
+            'users' => [
+                ['id' => 3, 'username' => 'acme', 'email' => 'acme@machine.local', 'is_email_confirmed' => 1],
+            ],
+            'discussions' => [
+                ['id' => 3, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 5, 'last_post_number' => 5, 'last_post_id' => 10],
+            ],
+            'posts' => [
+                ['id' => 5, 'discussion_id' => 3, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 1],
+                ['id' => 6, 'discussion_id' => 3, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 2],
+                ['id' => 7, 'discussion_id' => 3, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 3],
+                ['id' => 8, 'discussion_id' => 3, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 4],
+                ['id' => 9, 'discussion_id' => 3, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 5],
+                ['id' => 10, 'discussion_id' => 3, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 6],
+            ],
+            'discussion_user' => [
+                ['discussion_id' => 3, 'user_id' => 2, 'last_read_post_number' => 6, 'subscription' => 'follow'],
+            ]
+        ]);
+
+        // Delete the last 3 posts.
+        foreach ($postIds as $postId) {
+            $this->send(
+                $this->request('DELETE', '/api/posts/'.$postId, ['authenticatedAs' => 1])
+            );
+        }
+
+        /** @var User $mainUser */
+        $mainUser = User::query()->find(2);
+
+        $this->assertEquals(0, $mainUser->getUnreadNotificationCount());
+
+        // Reply as another user
+        $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 3,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'content' => 'reply with predetermined content for automated testing - too-obscure',
+                        ],
+                        'relationships' => [
+                            'discussion' => ['data' => ['id' => 3]],
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(1, $mainUser->getUnreadNotificationCount());
+    }
+
+    public function deleteLastPostsProvider(): array
+    {
+        return [
+            [[10, 9, 8]],
+            [[8, 9, 10]]
+        ];
     }
 }

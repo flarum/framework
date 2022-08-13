@@ -1,11 +1,14 @@
 import type Mithril from 'mithril';
-import Component from 'flarum/common/Component';
+import Component, { ComponentAttrs } from 'flarum/common/Component';
 import Stream from 'flarum/common/utils/Stream';
-export default class Installer<Attrs> extends Component<Attrs> {
+interface InstallerAttrs extends ComponentAttrs {
+}
+export default class Installer extends Component<InstallerAttrs> {
     packageName: Stream<string>;
     isLoading: boolean;
-    oninit(vnode: Mithril.Vnode<Attrs, this>): void;
+    oninit(vnode: Mithril.Vnode<InstallerAttrs, this>): void;
     view(): Mithril.Children;
     data(): any;
     onsubmit(): void;
 }
+export {};

@@ -9,7 +9,9 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Foundation\Console\AssetsPublishCommand;
 use Flarum\Foundation\Console\CacheClearCommand;
+use Flarum\Foundation\IOException;
 use Flarum\Http\RequestUtil;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ServerRequestInterface;
@@ -24,24 +26,44 @@ class ClearCacheController extends AbstractDeleteController
     protected $command;
 
     /**
+     * @var AssetsPublishCommand
+     */
+    protected $assetsPublishCommand;
+
+    /**
      * @param CacheClearCommand $command
      */
-    public function __construct(CacheClearCommand $command)
+    public function __construct(CacheClearCommand $command, AssetsPublishCommand $assetsPublishCommand)
     {
         $this->command = $command;
+        $this->assetsPublishCommand = $assetsPublishCommand;
     }
 
     /**
      * {@inheritdoc}
+     * @throws IOException|\Flarum\User\Exception\PermissionDeniedException
      */
     protected function delete(ServerRequestInterface $request)
     {
         RequestUtil::getActor($request)->assertAdmin();
 
-        $this->command->run(
+        $exitCode = $this->command->run(
             new ArrayInput([]),
             new NullOutput()
         );
+
+        if ($exitCode !== 0) {
+            throw new IOException();
+        }
+
+        $exitCode = $this->assetsPublishCommand->run(
+            new ArrayInput([]),
+            new NullOutput()
+        );
+
+        if ($exitCode !== 0) {
+            throw new IOException();
+        }
 
         return new EmptyResponse(204);
     }

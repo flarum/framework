@@ -1,0 +1,16 @@
+name: Framework JS
+
+on: [workflow_dispatch, push, pull_request]
+
+jobs:
+  run:
+    uses: ./.github/workflows/REUSABLE_frontend.yml
+    with:
+      frontend_directory: ./
+      backend_directory: ./
+      js_package_manager: yarn
+      cache_dependency_path: ./yarn.lock
+      main_git_branch: main
+
+    secrets:
+      bundlewatch_github_token: ${{ secrets.BUNDLEWATCH_GITHUB_TOKEN }}

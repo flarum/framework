@@ -1,147 +1,19 @@
+@import "admin/Label";
+@import "admin/TaskOutputModal";
+@import "admin/QueueSection";
+@import "admin/ControlSection";
+
+.PackageManager-controlSection, .PackageManager-queueSection {
+  > .container {
+    padding-bottom: 0;
+  }
+}
+
 .FormControl-container {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 4px;
-}
-
-.ComposerFailureModal-output {
-  white-space: break-spaces;
-}
-
-.flarum-package-manager-Page .ExtensionPage-settings .Form-group:last-child {
-  display: none;
-}
-
-.PackageManager-lastUpdatedAt {
-  color: var(--control-color);
-
-  &-label {
-    font-weight: bold;
-  }
-}
-
-.PackageManager-updaterControls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  grid-area: controls;
-}
-
-.PackageManager-extensions {
-  &-grid {
-    --gap: 12px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, calc(~"100% / 3 - var(--gap)"));
-    gap: var(--gap);
-    margin-top: 16px;
-  }
-}
-
-.PackageManager-extension {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: var(--control-bg);
-  padding: 8px;
-  border-radius: var(--border-radius);
-
-  &-controls {
-    margin-left: auto;
-  }
-
-  &-icon {
-    --size: 40px;
-  }
-
-  &-name {
-    font-weight: bold;
-  }
-
-  &-version {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    &-latest {
-      border-radius: 30px;
-      padding: 0 6px;
-      font-weight: bold;
-
-      &--minor {
-        background-color: var(--alert-success-bg);
-        color: var(--alert-success-color);
-      }
-
-      &--major {
-        background-color: var(--alert-bg);
-        color: var(--alert-color);
-      }
-    }
-  }
-
-  &--core {
-    --bg-hover: darken(#e7672e, 5);
-    background-color: #e7672e;
-    color: #fff;
-    --button-color: #fff;
-    --button-bg-hover: var(--bg-hover);
-
-    .Button--danger {
-      color: #fff;
-      --button-bg-hover: var(--bg-hover);
-    }
-  }
-
-  &--core &-icon {
-    background-size: 100%;
-    background-color: transparent;
-    filter: grayscale(1) brightness(3.5);
-  }
-
-  &--danger {
-    background-color: var(--control-danger-bg);
-  }
-}
-
-.PackageManager-majorUpdate {
-  --space: 16px;
-  padding: var(--space);
-  display: grid;
-  grid-template-areas:
-    "title logo"
-    "helpText logo"
-    "controls logo"
-    "extensions extensions"
-    "failure failure";
-  grid-gap: 0 var(--space);
-  align-items: center;
-
-  > img {
-    grid-area: logo;
-  }
-
-  > label {
-    grid-area: title;
-  }
-
-  > .helpText {
-    grid-area: helpText;
-  }
-
-  &-failure {
-    --border-radius: 0;
-    grid-area: failure;
-    margin: calc(~"0px - var(--space)");
-    margin-top: var(--space);
-  }
-
-  &-incompatibleExtensions {
-    grid-area: extensions;
-    margin-top: var(--space);
-    padding-top: var(--space);
-    border-top: 1px solid var(--control-bg);
-  }
 }
 
 .Form-group--danger {
@@ -150,8 +22,8 @@
   background-color: transparent;
 }
 
-.WhyNotModal {
-  &-contents {
-    overflow-x: auto;
-  }
+// @TODO add to core
+.Checkbox--switch.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

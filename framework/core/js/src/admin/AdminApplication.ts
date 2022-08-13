@@ -9,6 +9,7 @@ import IHistory from '../common/IHistory';
 
 export type Extension = {
   id: string;
+  name: string;
   version: string;
   description?: string;
   icon?: {
@@ -37,6 +38,8 @@ export interface AdminApplicationData extends ApplicationData {
   extensions: Record<string, Extension>;
   settings: Record<string, string>;
   modelStatistics: Record<string, { total: number }>;
+  displayNameDrivers: string[];
+  slugDrivers: Record<string, string[]>;
 }
 
 export default class AdminApplication extends Application {

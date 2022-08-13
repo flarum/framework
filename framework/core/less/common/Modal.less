@@ -1,60 +1,58 @@
 // ------------------------------------
 // Modals
 
-// Kill the scroll on the body
-.modal-open {
-  overflow: hidden;
-}
+.Modal {
+  padding: 0;
+  border-radius: @border-radius;
 
-// Modal background
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: var(--zindex-modal-background);
-  background-color: var(--overlay-bg);
-  opacity: 0;
-  transition: opacity 0.2s;
+  transform: scale(0.9);
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out, top 0.2s ease-out;
+  z-index: 2;
+  position: relative;
+
+  width: auto;
+  margin: 10px;
+  max-width: 600px;
 
   &.in {
+    transform: scale(1);
+  }
+}
+
+.Modal-backdrop {
+  background: var(--overlay-bg);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+  z-index: ~"calc(var(--zindex-modal) + var(--modal-count) - 2)";
+
+  &[data-showing] {
     opacity: 1;
   }
 }
 
-// Container that the modal scrolls within
 .ModalManager {
-  display: none;
-  overflow: hidden;
   position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: var(--zindex-modal);
+  z-index: ~"calc(var(--zindex-modal) + var(--modal-number))";
   -webkit-overflow-scrolling: touch;
-
-  // When fading in the modal, animate it to slide down
-  .Modal {
-    transform: scale(0.9);
-    transition: transform 0.2s ease-out;
-  }
-  &.in .Modal {
-    transform: scale(1);
-  }
-}
-.modal-open .ModalManager {
   overflow-x: hidden;
   overflow-y: auto;
-}
 
-// Shell div to position the modal with bottom padding
-.Modal {
-  position: relative;
-  width: auto;
-  margin: 10px;
-  max-width: 600px;
+  &-invisibleBackdrop {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
 }
 
 // Actual modal
@@ -129,9 +127,6 @@
 }
 
 @media @phone {
-  .ModalManager.fade {
-    opacity: 1;
-  }
   .ModalManager {
     position: fixed;
     left: 0;
@@ -139,24 +134,28 @@
     bottom: 0;
     top: 0;
     overflow: auto;
-    transition: transform 0.2s ease-out;
-    transform: translate(0, 100vh);
 
-    &.in {
-      -webkit-transform: none !important;
-              transform: none !important;
-    }
     &:before {
       content: " ";
       .header-background();
       position: absolute;
+      z-index: 2;
     }
   }
   .Modal {
     max-width: 100%;
     margin: 0;
     -webkit-transform: none !important;
-            transform: none !important;
+    transform: none !important;
+    top: 100vh;
+
+    &.fade {
+      opacity: 1;
+    }
+
+    &.in {
+      top: 0;
+    }
   }
   .Modal-content {
     border-radius: 0;
@@ -174,19 +173,20 @@
 
 @media @tablet-up {
   .Modal {
+    border-radius: var(--border-radius);
+    box-shadow: 0 7px 15px var(--shadow-color);
+    width: 100%;
+    max-width: 600px;
     margin: 120px auto;
   }
   .Modal-close {
     position: absolute;
     right: 10px;
     top: 10px;
-    z-index: 1;
+    z-index: 2;
   }
   .Modal-content {
-
-    border: 0;
     border-radius: var(--border-radius);
-    box-shadow: 0 7px 15px var(--shadow-color);
   }
   .Modal--small {
     max-width: 375px;

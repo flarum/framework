@@ -6,20 +6,31 @@ interface IModalManagerAttrs {
     state: ModalManagerState;
 }
 /**
- * The `ModalManager` component manages a modal dialog. Only one modal dialog
- * can be shown at once; loading a new component into the ModalManager will
- * overwrite the previous one.
+ * The `ModalManager` component manages one or more modal dialogs. Stacking modals
+ * is supported. Multiple dialogs can be shown at once; loading a new component
+ * into the ModalManager will overwrite the previous one.
  */
 export default class ModalManager extends Component<IModalManagerAttrs> {
     protected focusTrap: FocusTrap | undefined;
-    /**
-     * Whether a modal is currently shown by this modal manager.
-     */
-    protected modalShown: boolean;
+    protected lastSetFocusTrap: number | undefined;
+    protected modalClosing: boolean;
+    protected keyUpListener: null | ((e: KeyboardEvent) => void);
     view(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): Mithril.Children;
     oncreate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void;
+    onbeforeremove(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void;
     onupdate(vnode: Mithril.VnodeDOM<IModalManagerAttrs, this>): void;
-    animateShow(readyCallback: () => void): void;
-    animateHide(): void;
+    /**
+     * Get current active dialog
+     */
+    private get activeDialogElement();
+    /**
+     * Get current active dialog
+     */
+    private get activeDialogManagerElement();
+    animateShow(readyCallback?: () => void): void;
+    animateHide(closedCallback?: () => void): void;
+    protected handleEscPress(e: KeyboardEvent): void;
+    protected handlePossibleBackdropClick(e: MouseEvent): void;
+    protected onBackdropTransitionEnd(e: TransitionEvent): void;
 }
 export {};

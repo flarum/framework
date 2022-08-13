@@ -4,6 +4,7 @@ import ExtensionData from './utils/ExtensionData';
 import IHistory from '../common/IHistory';
 export declare type Extension = {
     id: string;
+    name: string;
     version: string;
     description?: string;
     icon?: {
@@ -33,6 +34,8 @@ export interface AdminApplicationData extends ApplicationData {
     modelStatistics: Record<string, {
         total: number;
     }>;
+    displayNameDrivers: string[];
+    slugDrivers: Record<string, string[]>;
 }
 export default class AdminApplication extends Application {
     extensionData: ExtensionData;

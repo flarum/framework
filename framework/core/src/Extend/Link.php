@@ -21,14 +21,14 @@ class Link implements ExtenderInterface
     protected $setRel = null;
     protected $setTarget = null;
 
-    public function setRel(callable $callable): static
+    public function setRel(callable $callable)
     {
         $this->setRel = $callable;
 
         return $this;
     }
 
-    public function setTarget(callable $callable): static
+    public function setTarget(callable $callable)
     {
         $this->setTarget = $callable;
 

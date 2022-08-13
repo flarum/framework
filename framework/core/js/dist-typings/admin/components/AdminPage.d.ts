@@ -25,7 +25,7 @@ export interface AdminHeaderOptions {
 export declare type HTMLInputTypes = 'button' | 'checkbox' | 'color' | 'date' | 'datetime-local' | 'email' | 'file' | 'hidden' | 'image' | 'month' | 'number' | 'password' | 'radio' | 'range' | 'reset' | 'search' | 'submit' | 'tel' | 'text' | 'time' | 'url' | 'week';
 export interface CommonSettingsItemOptions extends Mithril.Attributes {
     setting: string;
-    label: Mithril.Children;
+    label?: Mithril.Children;
     help?: Mithril.Children;
     className?: string;
 }
@@ -87,6 +87,9 @@ export declare type SettingsComponentOptions = HTMLInputSettingsComponentOptions
 export declare type AdminHeaderAttrs = AdminHeaderOptions & Partial<Omit<Mithril.Attributes, 'class'>>;
 export declare type SettingValue = string;
 export declare type MutableSettings = Record<string, Stream<SettingValue>>;
+export declare type SaveSubmitEvent = SubmitEvent & {
+    redraw: boolean;
+};
 export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends Page<CustomAttrs> {
     settings: MutableSettings;
     loading: boolean;
@@ -100,7 +103,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
      *
      * Calls `this.saveSettings` when the button is clicked.
      */
-    submitButton(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children;
+    submitButton(): Mithril.Children;
     /**
      * Returns the Header component for this AdminPage.
      */
@@ -197,8 +200,6 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
     /**
      * Saves the modified settings to the database.
      */
-    saveSettings(e: SubmitEvent & {
-        redraw: boolean;
-    }): Promise<void>;
+    saveSettings(e: SaveSubmitEvent): Promise<void>;
 }
 export {};

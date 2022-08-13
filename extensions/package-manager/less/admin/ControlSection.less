@@ -1,0 +1,133 @@
+.PackageManager-lastUpdatedAt {
+  color: var(--control-color);
+
+  &-label {
+    font-weight: bold;
+  }
+}
+
+.PackageManager-updaterControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  grid-area: controls;
+}
+
+.PackageManager-extensions {
+  &-grid {
+    --gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, calc(~"100% / 3 - var(--gap)"));
+    gap: var(--gap);
+    margin-top: 16px;
+  }
+}
+
+.PackageManager-extension {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--control-bg);
+  padding: 8px;
+  border-radius: var(--border-radius);
+
+  &-controls {
+    margin-left: auto;
+  }
+
+  &-icon {
+    --size: 40px;
+  }
+
+  &-name {
+    font-weight: bold;
+  }
+
+  &-version {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &-latest {
+      text-transform: lowercase;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+    }
+  }
+
+  &--core {
+    --bg-hover: darken(#e7672e, 5);
+    background-color: #e7672e;
+    color: #fff;
+    --button-color: #fff;
+    --button-bg-hover: var(--bg-hover);
+
+    .Button--danger {
+      color: #fff;
+      --button-bg-hover: var(--bg-hover);
+    }
+  }
+
+  &--core &-icon {
+    background-size: 100%;
+    background-color: transparent;
+    filter: grayscale(1) brightness(3.5);
+  }
+
+  &--danger {
+    background-color: var(--control-danger-bg);
+  }
+}
+
+.PackageManager-majorUpdate {
+  --space: 16px;
+  padding: var(--space);
+  display: grid;
+  grid-template-areas:
+    "title logo"
+    "helpText logo"
+    "controls logo"
+    "extensions extensions"
+    "failure failure";
+  grid-gap: 0 var(--space);
+  align-items: center;
+
+  > img {
+    grid-area: logo;
+  }
+
+  > label {
+    grid-area: title;
+  }
+
+  > .helpText {
+    grid-area: helpText;
+  }
+
+  &-failure {
+    --border-radius: 0;
+    grid-area: failure;
+    margin: var(--space) calc(~"0px - var(--space)") calc(~"0px - var(--space)");
+  }
+
+  &-incompatibleExtensions {
+    grid-area: extensions;
+    margin-top: var(--space);
+    padding-top: var(--space);
+    border-top: 1px solid var(--control-bg);
+  }
+}
+
+.WhyNotModal {
+  &-contents {
+    overflow-x: auto;
+  }
+}
+
+.PackageManager-installer .FormControl-container {
+  max-width: 400px;
+
+  .FormControl {
+    width: 300px;
+  }
+}

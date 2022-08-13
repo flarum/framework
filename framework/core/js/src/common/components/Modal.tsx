@@ -8,6 +8,7 @@ import type ModalManagerState from '../states/ModalManagerState';
 import type RequestError from '../utils/RequestError';
 import type ModalManager from './ModalManager';
 import fireDebugWarning from '../helpers/fireDebugWarning';
+import classList from '../utils/classList';
 
 export interface IInternalModalAttrs {
   state: ModalManagerState;
@@ -15,15 +16,62 @@ export interface IInternalModalAttrs {
   animateHide: ModalManager['animateHide'];
 }
 
+export interface IDismissibleOptions {
+  /**
+   * @deprecated Check specific individual attributes instead. Will be removed in Flarum 2.0.
+   */
+  isDismissible: boolean;
+  viaCloseButton: boolean;
+  viaEscKey: boolean;
+  viaBackdropClick: boolean;
+}
+
 /**
  * The `Modal` component displays a modal dialog, wrapped in a form. Subclasses
  * should implement the `className`, `title`, and `content` methods.
  */
 export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IInternalModalAttrs> extends Component<ModalAttrs> {
+  // TODO: [Flarum 2.0] remove `isDismissible` static attribute
   /**
    * Determine whether or not the modal should be dismissible via an 'x' button.
+   *
+   * @deprecated Use the individual `isDismissibleVia...` attributes instead and remove references to this.
    */
   static readonly isDismissible: boolean = true;
+
+  /**
+   * Can the model be dismissed with a close button (X)?
+   *
+   * If `false`, no close button is shown.
+   */
+  protected static readonly isDismissibleViaCloseButton: boolean = true;
+  /**
+   * Can the modal be dismissed by pressing the Esc key on a keyboard?
+   */
+  protected static readonly isDismissibleViaEscKey: boolean = true;
+  /**
+   * Can the modal be dismissed via a click on the backdrop.
+   */
+  protected static readonly isDismissibleViaBackdropClick: boolean = true;
+
+  static get dismissibleOptions(): IDismissibleOptions {
+    // If someone sets this to `false`, provide the same behaviour as previous versions of Flarum.
+    if (!this.isDismissible) {
+      return {
+        isDismissible: false,
+        viaCloseButton: false,
+        viaEscKey: false,
+        viaBackdropClick: false,
+      };
+    }
+
+    return {
+      isDismissible: true,
+      viaCloseButton: this.isDismissibleViaCloseButton,
+      viaEscKey: this.isDismissibleViaEscKey,
+      viaBackdropClick: this.isDismissibleViaBackdropClick,
+    };
+  }
 
   protected loading: boolean = false;
 
@@ -70,7 +118,6 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
     // we've just opened up a new one, and accordingly,
     // we don't need to show a hide animation.
     if (!this.attrs.state.modal) {
-      this.attrs.animateHide();
       // Here, we ensure that the animation has time to complete.
       // See https://mithril.js.org/lifecycle-methods.html#onbeforeremove
       // Bootstrap's Modal.TRANSITION_DURATION is 300 ms.
@@ -87,16 +134,16 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
     }
 
     return (
-      <div className={'Modal modal-dialog ' + this.className()}>
+      <div className={classList('Modal modal-dialog fade', this.className())}>
         <div className="Modal-content">
-          {(this.constructor as typeof Modal).isDismissible && (
+          {this.dismissibleOptions.viaCloseButton && (
             <div className="Modal-close App-backControl">
-              {Button.component({
-                icon: 'fas fa-times',
-                onclick: () => this.hide(),
-                className: 'Button Button--icon Button--link',
-                'aria-label': app.translator.trans('core.lib.modal.close'),
-              })}
+              <Button
+                icon="fas fa-times"
+                onclick={() => this.hide()}
+                className="Button Button--icon Button--link"
+                aria-label={app.translator.trans('core.lib.modal.close')}
+              />
             </div>
           )}
 
@@ -149,7 +196,7 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
    * Hides the modal.
    */
   hide(): void {
-    this.attrs.state.close();
+    this.attrs.animateHide();
   }
 
   /**
@@ -174,5 +221,9 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
     } else {
       this.onready();
     }
+  }
+
+  private get dismissibleOptions(): IDismissibleOptions {
+    return (this.constructor as typeof Modal).dismissibleOptions;
   }
 }

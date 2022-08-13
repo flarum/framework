@@ -431,7 +431,21 @@ class User extends AbstractModel
      */
     public function getUnreadNotificationCount()
     {
-        return $this->getUnreadNotifications()->count();
+        return $this->unreadNotifications()->count();
+    }
+
+    /**
+     * Return query builder for all notifications that have not been read yet.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    protected function unreadNotifications()
+    {
+        return $this->notifications()
+            ->whereIn('type', $this->getAlertableNotificationTypes())
+            ->whereNull('read_at')
+            ->where('is_deleted', false)
+            ->whereSubjectVisibleTo($this);
     }
 
     /**
@@ -441,18 +455,7 @@ class User extends AbstractModel
      */
     protected function getUnreadNotifications()
     {
-        static $cached = [];
-
-        if (! isset($cached[$this->id])) {
-            $cached[$this->id] = $this->notifications()
-                ->whereIn('type', $this->getAlertableNotificationTypes())
-                ->whereNull('read_at')
-                ->where('is_deleted', false)
-                ->whereSubjectVisibleTo($this)
-                ->get();
-        }
-
-        return $cached[$this->id];
+        return $this->unreadNotifications()->get();
     }
 
     /**
@@ -462,9 +465,9 @@ class User extends AbstractModel
      */
     public function getNewNotificationCount()
     {
-        return $this->getUnreadNotifications()->filter(function ($notification) {
-            return $notification->created_at > $this->read_notifications_at ?: 0;
-        })->count();
+        return $this->unreadNotifications()
+            ->where('created_at', '>', $this->read_notifications_at ?? 0)
+            ->count();
     }
 
     /**
@@ -708,6 +711,16 @@ class User extends AbstractModel
     public function emailTokens()
     {
         return $this->hasMany(EmailToken::class);
+    }
+
+    /**
+     * Define the relationship with the user's email tokens.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function passwordTokens()
+    {
+        return $this->hasMany(PasswordToken::class);
     }
 
     /**

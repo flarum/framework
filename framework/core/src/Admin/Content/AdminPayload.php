@@ -10,6 +10,7 @@
 namespace Flarum\Admin\Content;
 
 use Flarum\Extension\ExtensionManager;
+use Flarum\Foundation\Config;
 use Flarum\Frontend\Document;
 use Flarum\Group\Permission;
 use Flarum\Settings\Event\Deserializing;
@@ -18,6 +19,7 @@ use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AdminPayload
@@ -43,6 +45,11 @@ class AdminPayload
     protected $db;
 
     /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
      * @var Dispatcher
      */
     protected $events;
@@ -53,19 +60,22 @@ class AdminPayload
      * @param ExtensionManager $extensions
      * @param ConnectionInterface $db
      * @param Dispatcher $events
+     * @param Config $config
      */
     public function __construct(
         Container $container,
         SettingsRepositoryInterface $settings,
         ExtensionManager $extensions,
         ConnectionInterface $db,
-        Dispatcher $events
+        Dispatcher $events,
+        Config $config
     ) {
         $this->container = $container;
         $this->settings = $settings;
         $this->extensions = $extensions;
         $this->db = $db;
         $this->events = $events;
+        $this->config = $config;
     }
 
     public function __invoke(Document $document, Request $request)
@@ -87,6 +97,7 @@ class AdminPayload
 
         $document->payload['phpVersion'] = PHP_VERSION;
         $document->payload['mysqlVersion'] = $this->db->selectOne('select version() as version')->version;
+        $document->payload['debugEnabled'] = Arr::get($this->config, 'debug');
 
         /**
          * Used in the admin user list. Implemented as this as it matches the API in flarum/statistics.

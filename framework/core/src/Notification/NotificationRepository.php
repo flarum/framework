@@ -56,4 +56,9 @@ class NotificationRepository
             ->whereNull('read_at')
             ->update(['read_at' => Carbon::now()]);
     }
+
+    public function deleteAll(User $user)
+    {
+        Notification::where('user_id', $user->id)->delete();
+    }
 }

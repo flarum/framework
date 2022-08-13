@@ -1,14 +1,21 @@
+import type Mithril from 'mithril';
 import app from 'flarum/admin/app';
-import Mithril from 'mithril';
 import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+
 import errorHandler from '../utils/errorHandler';
+
+type WhyNotResponse = {
+  data: {
+    reason: string;
+  };
+};
 
 export interface WhyNotModalAttrs extends IInternalModalAttrs {
   package: string;
 }
 
-export default class WhyNotModal<Attrs extends WhyNotModalAttrs = WhyNotModalAttrs> extends Modal<Attrs> {
+export default class WhyNotModal<CustomAttrs extends WhyNotModalAttrs = WhyNotModalAttrs> extends Modal<CustomAttrs> {
   loading: boolean = true;
   whyNot: string | null = null;
 
@@ -20,7 +27,7 @@ export default class WhyNotModal<Attrs extends WhyNotModalAttrs = WhyNotModalAtt
     return app.translator.trans('flarum-package-manager.admin.why_not_modal.title');
   }
 
-  oncreate(vnode: Mithril.VnodeDOM<Attrs, this>) {
+  oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.oncreate(vnode);
 
     this.requestWhyNot();
@@ -32,7 +39,7 @@ export default class WhyNotModal<Attrs extends WhyNotModalAttrs = WhyNotModalAtt
 
   requestWhyNot(): void {
     app
-      .request({
+      .request<WhyNotResponse>({
         method: 'POST',
         url: `${app.forum.attribute('apiUrl')}/package-manager/why-not`,
         body: {
@@ -42,9 +49,9 @@ export default class WhyNotModal<Attrs extends WhyNotModalAttrs = WhyNotModalAtt
         },
         errorHandler,
       })
-      .then((response: any) => {
+      .then((response) => {
         this.loading = false;
-        this.whyNot = response.data.whyNot;
+        this.whyNot = response.data.reason;
         m.redraw();
       });
   }

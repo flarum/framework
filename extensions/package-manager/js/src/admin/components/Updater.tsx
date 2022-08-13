@@ -1,14 +1,17 @@
 import Mithril from 'mithril';
 import app from 'flarum/admin/app';
-import Component from 'flarum/common/Component';
+import Component, { ComponentAttrs } from 'flarum/common/Component';
 import Button from 'flarum/common/components/Button';
 import humanTime from 'flarum/common/helpers/humanTime';
-import extractText from 'flarum/common/utils/extractText';
 import LoadingModal from 'flarum/admin/components/LoadingModal';
 import errorHandler from '../utils/errorHandler';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import MajorUpdater from './MajorUpdater';
-import ExtensionItem, { Extension } from './ExtensionItem';
+import ExtensionItem from './ExtensionItem';
+import extractText from 'flarum/common/utils/extractText';
+import jumpToQueue from '../utils/jumpToQueue';
+import { AsyncBackendResponse } from '../shims';
+import { Extension } from 'flarum/admin/AdminApplication';
 
 export type UpdatedPackage = {
   name: string;
@@ -44,7 +47,9 @@ export type LastUpdateRun = {
   limitedPackages: () => string[];
 };
 
-export default class Updater<Attrs> extends Component<Attrs> {
+interface UpdaterAttrs extends ComponentAttrs {}
+
+export default class Updater extends Component<UpdaterAttrs> {
   isLoading: string | null = null;
   packageUpdates: Record<string, UpdatedPackage> = {};
   lastUpdateCheck: LastUpdateCheck = JSON.parse(app.data.settings['flarum-package-manager.last_update_check']) as LastUpdateCheck;
@@ -60,7 +65,7 @@ export default class Updater<Attrs> extends Component<Attrs> {
     return lastUpdateRun;
   }
 
-  oninit(vnode: Mithril.Vnode<Attrs, this>) {
+  oninit(vnode: Mithril.Vnode<UpdaterAttrs, this>) {
     super.oninit(vnode);
   }
 
@@ -174,13 +179,17 @@ export default class Updater<Attrs> extends Component<Attrs> {
     this.isLoading = 'check';
 
     app
-      .request({
+      .request<AsyncBackendResponse | LastUpdateCheck>({
         method: 'POST',
         url: `${app.forum.attribute('apiUrl')}/package-manager/check-for-updates`,
         errorHandler,
       })
       .then((response) => {
-        this.lastUpdateCheck = response as LastUpdateCheck;
+        if ((response as AsyncBackendResponse).processing) {
+          jumpToQueue();
+        } else {
+          this.lastUpdateCheck = response as LastUpdateCheck;
+        }
       })
       .finally(() => {
         this.isLoading = null;
@@ -194,14 +203,18 @@ export default class Updater<Attrs> extends Component<Attrs> {
       this.isLoading = 'minor-update';
 
       app
-        .request({
+        .request<AsyncBackendResponse | null>({
           method: 'POST',
           url: `${app.forum.attribute('apiUrl')}/package-manager/minor-update`,
           errorHandler,
         })
-        .then(() => {
-          app.alerts.show({ type: 'success' }, app.translator.trans('flarum-package-manager.admin.update_successful'));
-          window.location.reload();
+        .then((response) => {
+          if (response?.processing) {
+            jumpToQueue();
+          } else {
+            app.alerts.show({ type: 'success' }, app.translator.trans('flarum-package-manager.admin.update_successful'));
+            window.location.reload();
+          }
         })
         .finally(() => {
           this.isLoading = null;
@@ -215,17 +228,23 @@ export default class Updater<Attrs> extends Component<Attrs> {
     this.isLoading = 'extension-update';
 
     app
-      .request({
+      .request<AsyncBackendResponse | null>({
         method: 'PATCH',
         url: `${app.forum.attribute('apiUrl')}/package-manager/extensions/${extension.id}`,
         errorHandler,
       })
-      .then(() => {
-        app.alerts.show(
-          { type: 'success' },
-          app.translator.trans('flarum-package-manager.admin.extensions.successful_update', { extension: extension.extra['flarum-extension'].title })
-        );
-        window.location.reload();
+      .then((response) => {
+        if (response?.processing) {
+          jumpToQueue();
+        } else {
+          app.alerts.show(
+            { type: 'success' },
+            app.translator.trans('flarum-package-manager.admin.extensions.successful_update', {
+              extension: extension.extra['flarum-extension'].title,
+            })
+          );
+          window.location.reload();
+        }
       })
       .finally(() => {
         this.isLoading = null;
@@ -238,14 +257,18 @@ export default class Updater<Attrs> extends Component<Attrs> {
     this.isLoading = 'global-update';
 
     app
-      .request({
+      .request<AsyncBackendResponse | null>({
         method: 'POST',
         url: `${app.forum.attribute('apiUrl')}/package-manager/global-update`,
         errorHandler,
       })
-      .then(() => {
-        app.alerts.show({ type: 'success' }, app.translator.trans('flarum-package-manager.admin.updater.global_update_successful'));
-        window.location.reload();
+      .then((response) => {
+        if (response?.processing) {
+          jumpToQueue();
+        } else {
+          app.alerts.show({ type: 'success' }, app.translator.trans('flarum-package-manager.admin.updater.global_update_successful'));
+          window.location.reload();
+        }
       })
       .finally(() => {
         this.isLoading = null;

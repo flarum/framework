@@ -9,10 +9,11 @@
 
 namespace Flarum\PackageManager\Api\Controller;
 
-use Flarum\Bus\Dispatcher;
 use Flarum\Http\RequestUtil;
 use Flarum\PackageManager\Command\MinorUpdate;
+use Flarum\PackageManager\Job\Dispatcher;
 use Laminas\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -36,10 +37,12 @@ class MinorUpdateController implements RequestHandlerInterface
     {
         $actor = RequestUtil::getActor($request);
 
-        $this->bus->dispatch(
+        $response = $this->bus->dispatch(
             new MinorUpdate($actor)
         );
 
-        return new EmptyResponse(200);
+        return $response->queueJobs
+            ? new JsonResponse(['processing' => true], 202)
+            : new EmptyResponse(201);
     }
 }

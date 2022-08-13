@@ -38,6 +38,45 @@ flarum-package-manager:
     minor_update_confirmation:
       content: This will also update any other extensions/packages with availabe updates.
 
+    sections:
+      control:
+        title: Manager
+      queue:
+        columns:
+          details: Details
+          elapsed_time: Completed in
+          peak_memory_used: Maximum Memory Used
+          operation: Operation
+          package: Package
+          status: Status
+        none: There are no tasks yet.
+        operations:
+          extension_install: Install extension
+          extension_remove: Remove extension
+          extension_update: Update extension
+          update_check: Check for updates
+          update_global: Update all software packages
+          update_major: Major update
+          update_minor: Minor update
+          why_not: Analyze why a package cannot be updated
+        output_modal:
+          command: Composer Command
+          output: Output
+        refresh: Refresh tasks list
+        statuses:
+          success: Success
+          failure: Failed
+          pending: Pending
+          running: Running
+        task_just_started: Task just started
+        title: Queue
+
+    settings:
+      queue_jobs: Run operations in the background queue
+      queue_jobs_help: >
+        You can read about a <a href='{basic_impl_link}'>basic queue</a> implementation or a <a href='{adv_impl_link}'>more advanced</a> one.
+        Make sure the PHP version used for the queue is {php_version}. Make sure <a href='{folder_perms_link}'>folder permissions</a> are correctly configured.
+
     updater:
       check_for_updates: Check for updates
       flarum: Flarum Core

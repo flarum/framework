@@ -167,5 +167,7 @@ class QueueServiceProvider extends AbstractServiceProvider
                 }
             }
         });
+
+        $events->subscribe(QueueRestarter::class);
     }
 }

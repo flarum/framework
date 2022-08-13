@@ -60,7 +60,7 @@ export type HTMLInputTypes =
 
 export interface CommonSettingsItemOptions extends Mithril.Attributes {
   setting: string;
-  label: Mithril.Children;
+  label?: Mithril.Children;
   help?: Mithril.Children;
   className?: string;
 }
@@ -137,6 +137,8 @@ export type AdminHeaderAttrs = AdminHeaderOptions & Partial<Omit<Mithril.Attribu
 export type SettingValue = string;
 export type MutableSettings = Record<string, Stream<SettingValue>>;
 
+export type SaveSubmitEvent = SubmitEvent & { redraw: boolean };
+
 export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends Page<CustomAttrs> {
   settings: MutableSettings = {};
   loading: boolean = false;
@@ -162,7 +164,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
    *
    * Calls `this.saveSettings` when the button is clicked.
    */
-  submitButton(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
+  submitButton(): Mithril.Children {
     return (
       <Button onclick={this.saveSettings.bind(this)} className="Button Button--primary" loading={this.loading} disabled={!this.isChanged()}>
         {app.translator.trans('core.admin.settings.submit_button')}
@@ -385,7 +387,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
   /**
    * Saves the modified settings to the database.
    */
-  saveSettings(e: SubmitEvent & { redraw: boolean }) {
+  saveSettings(e: SaveSubmitEvent) {
     e.preventDefault();
 
     app.alerts.clear();

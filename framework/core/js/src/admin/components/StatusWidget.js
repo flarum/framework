@@ -56,6 +56,14 @@ export default class StatusWidget extends DashboardWidget {
         method: 'DELETE',
         url: app.forum.attribute('apiUrl') + '/cache',
       })
-      .then(() => window.location.reload());
+      .then(() => window.location.reload())
+      .catch((e) => {
+        if (e.status === 409) {
+          app.alerts.clear();
+          app.alerts.show({ type: 'error' }, app.translator.trans('core.admin.dashboard.io_error_message'));
+        }
+
+        app.modal.close();
+      });
   }
 }

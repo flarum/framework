@@ -10,12 +10,10 @@
 use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Approval\Access;
-use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Approval\Listener;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Post\CommentPost;
-use Flarum\Post\Event\Saving;
 use Flarum\Post\Post;
 use Flarum\Tags\Tag;
 
@@ -50,9 +48,8 @@ return [
     new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Event())
-        ->listen(Saving::class, [Listener\ApproveContent::class, 'approvePost'])
-        ->listen(Saving::class, [Listener\UnapproveNewContent::class, 'unapproveNewPosts'])
-        ->listen(PostWasApproved::class, [Listener\ApproveContent::class, 'approveDiscussion']),
+        ->subscribe(Listener\ApproveContent::class)
+        ->subscribe(Listener\UnapproveNewContent::class),
 
     (new Extend\Policy())
         ->modelPolicy(Tag::class, Access\TagPolicy::class),

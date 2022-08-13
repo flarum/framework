@@ -25,12 +25,12 @@ on:
         description: Versions of PHP to test with. Should be array of strings encoded as JSON array
         type: string
         required: false
-        default: '["7.4", "8.0", "8.1"]'
+        default: '["7.3", "7.4", "8.0", "8.1"]'
       db_versions:
         description: Versions of databases to test with. Should be array of strings encoded as JSON array
         type: string
         required: false
-        default: '["mysql:5.7", "mariadb"]'
+        default: '["mysql:5.7", "mysql:8.0.30", "mariadb"]'
 
       php_ini_values:
         description: PHP ini values
@@ -50,23 +50,41 @@ jobs:
       matrix:
         php: ${{ fromJSON(inputs.php_versions) }}
         service: ${{ fromJSON(inputs.db_versions) }}
-        prefix: ['', flarum_]
+        prefix: ['']
 
+        # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstrategymatrixinclude
         include:
+          # Expands the matrix by naming DBs.
           - service: 'mysql:5.7'
-            db: MySQL
+            db: MySQL 5.7
+          - service: 'mysql:8.0.30'
+            db: MySQL 8.0
           - service: mariadb
             db: MariaDB
-          - prefix: flarum_
+
+          # Include Database prefix tests with only one PHP version.
+          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+            service: 'mysql:5.7'
+            db: MySQL 5.7
+            prefix: flarum_
+            prefixStr: (prefix)
+          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+            service: 'mysql:8.0.30'
+            db: MySQL 8.0
+            prefix: flarum_
+            prefixStr: (prefix)
+          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+            service: mariadb
+            db: MariaDB
+            prefix: flarum_
             prefixStr: (prefix)
 
+        # To reduce number of actions, we exclude some PHP versions from running with some DB versions.
         exclude:
-          - php: 8.0
-            service: 'mysql:5.7'
-            prefix: flarum_
-          - php: 8.0
-            service: mariadb
-            prefix: flarum_
+          - php: ${{ fromJSON(inputs.php_versions)[1] }}
+            service: 'mysql:8.0.30'
+          - php: ${{ fromJSON(inputs.php_versions)[2] }}
+            service: 'mysql:8.0.30'
 
     services:
       mysql:

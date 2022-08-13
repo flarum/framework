@@ -1,14 +1,15 @@
-import Mithril from 'mithril';
+/// <reference types="flarum/@types/translator-icu-rich" />
+import type Mithril from 'mithril';
 import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 export interface WhyNotModalAttrs extends IInternalModalAttrs {
     package: string;
 }
-export default class WhyNotModal<Attrs extends WhyNotModalAttrs = WhyNotModalAttrs> extends Modal<Attrs> {
+export default class WhyNotModal<CustomAttrs extends WhyNotModalAttrs = WhyNotModalAttrs> extends Modal<CustomAttrs> {
     loading: boolean;
     whyNot: string | null;
     className(): string;
-    title(): any;
-    oncreate(vnode: Mithril.VnodeDOM<Attrs, this>): void;
+    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
     content(): JSX.Element;
     requestWhyNot(): void;
 }
