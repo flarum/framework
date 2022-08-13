@@ -15,6 +15,7 @@ use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\Paths;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;
+use Illuminate\Container\Container as ContainerImplementation;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandling;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -52,7 +53,7 @@ class QueueServiceProvider extends AbstractServiceProvider
 
         // Extensions can override this binding if they want to make Flarum use
         // a different queuing backend.
-        $this->container->singleton('flarum.queue.connection', function (\Illuminate\Container\Container $container) {
+        $this->container->singleton('flarum.queue.connection', function (ContainerImplementation $container) {
             $queue = new SyncQueue;
             $queue->setContainer($container);
 
