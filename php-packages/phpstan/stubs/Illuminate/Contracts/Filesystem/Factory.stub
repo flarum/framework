@@ -8,7 +8,7 @@ interface Factory
      * Get a filesystem implementation.
      *
      * @param  string|null  $name
-     * @return \Illuminate\Contracts\Filesystem\Cloud
+     * @return Cloud
      */
     public function disk($name = null);
 }

@@ -13,3 +13,5 @@ parameters:
     # We're changing the disk return type from Filesystem to Cloud,
     # rather than hacking every bit of the codebase with a phpdoc @var.
     - stubs/Illuminate/Contracts/Filesystem/Factory.stub
+    - stubs/Illuminate/Contracts/Filesystem/Cloud.stub
+    - stubs/Illuminate/Contracts/Filesystem/Filesystem.stub
