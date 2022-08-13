@@ -26,7 +26,7 @@ class DeletedAll
 
     public function __construct(User $user, DateTime $timestamp)
     {
-        $this->user = $user;
+        $this->actor = $user;
         $this->timestamp = $timestamp;
     }
 }
