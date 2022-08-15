@@ -47,7 +47,7 @@ class AdminPayload
     /**
      * @var Dispatcher $events
      */
-    protected Dispatcher $events;
+    protected $events;
 
     /**
      * @var Config
