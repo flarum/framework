@@ -25,14 +25,14 @@ use Flarum\Subscriptions\Query\SubscriptionFilterGambit;
 
 return [
     (new Extend\Frontend('forum'))
-        ->js(__DIR__ . '/js/dist/forum.js')
-        ->css(__DIR__ . '/less/forum.less')
+        ->js(__DIR__.'/js/dist/forum.js')
+        ->css(__DIR__.'/less/forum.less')
         ->route('/following', 'following'),
 
-    new Extend\Locales(__DIR__ . '/locale'),
+    new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\View)
-        ->namespace('flarum-subscriptions', __DIR__ . '/views'),
+        ->namespace('flarum-subscriptions', __DIR__.'/views'),
 
     (new Extend\Notification())
         ->type(NewPostBlueprint::class, BasicDiscussionSerializer::class, ['alert', 'email']),
