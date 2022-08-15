@@ -23,6 +23,7 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Tobscure\JsonApi\Exception\InvalidParameterException;
 
 class ShowStatisticsData implements RequestHandlerInterface
 {
@@ -69,20 +70,20 @@ class ShowStatisticsData implements RequestHandlerInterface
         $actor->assertAdmin();
 
         $reportingPeriod = Arr::get($request->getQueryParams(), 'period');
+        $model = Arr::get($request->getQueryParams(), 'model');
 
-        return new JsonResponse($this->getResponse($reportingPeriod));
+        return new JsonResponse($this->getResponse($model, $reportingPeriod));
     }
 
-    private function getResponse(?string $period): array
+    private function getResponse(?string $model, ?string $period): array
     {
         if ($period === 'lifetime') {
             return $this->getLifetimeStatistics();
         }
 
-        return array_merge(
-            $this->getTimedStatistics(),
-            ['timezoneOffset' => $this->getUserTimezone()->getOffset(new DateTime)]
-        );
+        if (!Arr::exists($this->entities, $model)) throw new InvalidParameterException();
+
+        return $this->getTimedStatistics($model);
     }
 
     private function getLifetimeStatistics()
@@ -94,12 +95,10 @@ class ShowStatisticsData implements RequestHandlerInterface
         });
     }
 
-    private function getTimedStatistics()
+    private function getTimedStatistics(string $model)
     {
-        return $this->cache->remember('flarum-subscriptions.timed_stats', self::$lifetimeStatsCacheTtl, function () {
-            return array_map(function ($entity) {
-                return $this->getTimedCounts($entity[0], $entity[1]);
-            }, $this->entities);
+        return $this->cache->remember("flarum-subscriptions.timed_stats.$model", self::$lifetimeStatsCacheTtl, function () use ($model) {
+            return $this->getTimedCounts($this->entities[$model][0], $this->entities[$model][1]);;
         });
     }
 
