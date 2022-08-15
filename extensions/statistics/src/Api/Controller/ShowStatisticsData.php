@@ -81,7 +81,9 @@ class ShowStatisticsData implements RequestHandlerInterface
             return $this->getLifetimeStatistics();
         }
 
-        if (!Arr::exists($this->entities, $model)) throw new InvalidParameterException();
+        if (! Arr::exists($this->entities, $model)) {
+            throw new InvalidParameterException();
+        }
 
         return $this->getTimedStatistics($model);
     }
@@ -98,7 +100,7 @@ class ShowStatisticsData implements RequestHandlerInterface
     private function getTimedStatistics(string $model)
     {
         return $this->cache->remember("flarum-subscriptions.timed_stats.$model", self::$lifetimeStatsCacheTtl, function () use ($model) {
-            return $this->getTimedCounts($this->entities[$model][0], $this->entities[$model][1]);;
+            return $this->getTimedCounts($this->entities[$model][0], $this->entities[$model][1]);
         });
     }
 
@@ -107,7 +109,7 @@ class ShowStatisticsData implements RequestHandlerInterface
         $results = $query
             ->selectRaw(
                 'DATE_FORMAT(
-                    @date := ' . $column . ',
+                    @date := '.$column.',
                     IF(@date > ?, \'%Y-%m-%d %H:00:00\', \'%Y-%m-%d\') -- if within the last 24 hours, group by hour
                 ) as time_group',
                 [new DateTime('-25 hours')]
