@@ -25,17 +25,14 @@ use Flarum\Subscriptions\Query\SubscriptionFilterGambit;
 
 return [
     (new Extend\Frontend('forum'))
-        ->js(__DIR__.'/js/dist/forum.js')
-        ->css(__DIR__.'/less/forum.less')
+        ->js(__DIR__ . '/js/dist/forum.js')
+        ->css(__DIR__ . '/less/forum.less')
         ->route('/following', 'following'),
 
-    (new Extend\Frontend('admin'))
-        ->js(__DIR__.'/js/dist/admin.js'),
-
-    new Extend\Locales(__DIR__.'/locale'),
+    new Extend\Locales(__DIR__ . '/locale'),
 
     (new Extend\View)
-        ->namespace('flarum-subscriptions', __DIR__.'/views'),
+        ->namespace('flarum-subscriptions', __DIR__ . '/views'),
 
     (new Extend\Notification())
         ->type(NewPostBlueprint::class, BasicDiscussionSerializer::class, ['alert', 'email']),
@@ -65,12 +62,6 @@ return [
     (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
         ->addGambit(SubscriptionFilterGambit::class),
 
-    (new Extend\Settings())
-        ->default('flarum-subscriptions.notification_criteria', 'first_new')
-        ->default('flarum-subscriptions.enforce_notification_criteria', false)
-        ->serializeToForum('flarum-subscriptions.default_notification_criteria', 'flarum-subscriptions.notification_criteria')
-        ->serializeToForum('flarum-subscriptions.enforce_notification_criteria', 'flarum-subscriptions.enforce_notification_criteria', 'boolval'),
-
     (new Extend\User())
-        ->registerPreference('flarum-subscriptions.user_notification_criteria'),
+        ->registerPreference('flarum-subscriptions.notify_for_all_posts', 'boolval', false),
 ];

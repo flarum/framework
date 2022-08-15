@@ -3,24 +3,6 @@ flarum-subscriptions:
   # UNIQUE KEYS - The following keys are used in only one location each.
   ##
 
-  # Translations in this namespace are used by the admin user interface.
-  admin:
-    # These translations are displayed on the extension's settings page.
-    settings:
-      subscription_notification_criteria:
-        label: Default notification criteria
-        help: Determines under which conditions users will receive new post notifications.
-
-        options:
-          all_new: For all new posts, regardless of read status
-          first_new: For the first new post in a discussion, until it is read
-
-      enforce_subscription_notification_criteria:
-        label: Enforce notification criteria for all users
-        help: |
-          By default, users can change their own personal notification settings to differ from those above.
-          Enforcing the choice above will remove this option, and force the same choice for all users.
-
   # Translations in this namespace are used by the forum user interface.
   forum:
     # These translations are displayed as tooltips for discussion badges.
@@ -49,14 +31,7 @@ flarum-subscriptions:
     # These translations are used on the user preferences page
     user_preferences:
       heading: Discussion subscriptions
-
-      subscription_notification_criteria:
-        label: Followed discussion notification options
-        help: Determines when you'll be sent notifications for discussions you're following
-
-        options:
-          all_new: For any new posts
-          first_new: Only for the first new post, until I've read the discussion
+      notify_for_all_posts_label: Notify about every new post instead of only the last in a discussion
 
     # These translations are used in the Settings page.
     settings:

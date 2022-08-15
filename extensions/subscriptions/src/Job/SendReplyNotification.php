@@ -48,7 +48,6 @@ class SendReplyNotification implements ShouldQueue
     {
         $post = $this->post;
         $discussion = $post->discussion;
-        $defaultNotifyCriteria = $settings->get('flarum-subscriptions.notification_criteria');
 
         $basicUsersData = $discussion->readers()
             ->select('users.id', 'users.preferences', 'discussion_user.last_read_post_number')
@@ -59,22 +58,16 @@ class SendReplyNotification implements ShouldQueue
         $allUnreadUsers = [];
         $firstUnreadUsers = [];
 
-        $forced_criteria = $settings->get('flarum-subscriptions.enforce_notification_criteria');
-
         /**
          * @var \Flarum\User\User $user
          */
         foreach ($basicUsersData as $user) {
-            if ($forced_criteria) {
-                $criteria = $defaultNotifyCriteria;
-            } else {
-                $criteria = $user->getPreference('flarum-subscriptions.user_notification_criteria', $defaultNotifyCriteria);
-            }
+            $notifyForAll = $user->getPreference('flarum-subscriptions.notify_for_all_posts', false);
 
-            if ($criteria === 'first_new') {
-                $firstUnreadUsers[] = $user;
-            } else {
+            if ($notifyForAll) {
                 $allUnreadUsers[] = $user;
+            } else {
+                $firstUnreadUsers[] = $user;
             }
         }
 
