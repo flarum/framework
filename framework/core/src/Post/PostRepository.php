@@ -12,6 +12,8 @@ namespace Flarum\Post;
 use Flarum\Discussion\Discussion;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class PostRepository
 {
@@ -45,12 +47,11 @@ class PostRepository
      * user, or throw an exception.
      *
      * @param int $id
-     * @param \Flarum\User\User $actor
-     * @return \Flarum\Post\Post
+     * @param User|null $actor
+     * @return Builder|Collection|Model
      *
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function findOrFail($id, User $actor = null)
+    public function findOrFail(int $id, User $actor = null)
     {
         return $this->queryVisibleTo($actor)->findOrFail($id);
     }
