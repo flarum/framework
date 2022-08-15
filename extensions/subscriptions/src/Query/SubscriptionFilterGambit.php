@@ -43,7 +43,7 @@ class SubscriptionFilterGambit extends AbstractRegexGambit implements FilterInte
     protected function constrain(Builder $query, User $actor, string $subscriptionType, bool $negate)
     {
         $method = $negate ? 'whereNotIn' : 'whereIn';
-        $query->$method('id', function ($query) use ($actor, $subscriptionType) {
+        $query->$method('discussions.id', function ($query) use ($actor, $subscriptionType) {
             $query->select('discussion_id')
             ->from('discussion_user')
             ->where('user_id', $actor->id)
