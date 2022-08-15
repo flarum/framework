@@ -10,7 +10,6 @@
 namespace Flarum\Statistics\Api\Controller;
 
 use DateTime;
-use DateTimeZone;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\Post;
@@ -106,50 +105,26 @@ class ShowStatisticsData implements RequestHandlerInterface
 
     private function getTimedCounts(Builder $query, $column)
     {
-        // Calculate the offset between the server timezone (which is used for
-        // dates stored in the database) and the user's timezone (set via the
-        // settings table). We will use this to make sure we aggregate the
-        // daily/hourly statistics according to the user's timezone.
-        $offset = $this->getTimezoneOffset();
-
         $results = $query
             ->selectRaw(
                 'DATE_FORMAT(
-                    @date := DATE_ADD('.$column.', INTERVAL ? SECOND), -- convert to user timezone
+                    @date := ' . $column . ',
                     IF(@date > ?, \'%Y-%m-%d %H:00:00\', \'%Y-%m-%d\') -- if within the last 24 hours, group by hour
                 ) as time_group',
-                [$offset, new DateTime('-25 hours')]
+                [new DateTime('-25 hours')]
             )
             ->selectRaw('COUNT(id) as count')
             ->where($column, '>', new DateTime('-365 days'))
             ->groupBy('time_group')
             ->pluck('count', 'time_group');
 
-        // Now that we have the aggregated statistics, convert each time group
-        // into a UNIX timestamp.
-        $userTimezone = $this->getUserTimezone();
-
         $timed = [];
 
-        $results->each(function ($count, $time) use (&$timed, $userTimezone) {
-            $time = new DateTime($time, $userTimezone);
+        $results->each(function ($count, $time) use (&$timed) {
+            $time = new DateTime($time);
             $timed[$time->getTimestamp()] = (int) $count;
         });
 
         return $timed;
-    }
-
-    private function getTimezoneOffset()
-    {
-        $now = new DateTime;
-
-        $dataTimezone = new DateTimeZone(date_default_timezone_get());
-
-        return $this->getUserTimezone()->getOffset($now) - $dataTimezone->getOffset($now);
-    }
-
-    private function getUserTimezone()
-    {
-        return new DateTimeZone($this->settings->get('flarum-statistics.timezone', date_default_timezone_get()));
     }
 }

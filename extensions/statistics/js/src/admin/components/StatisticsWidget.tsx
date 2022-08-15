@@ -74,14 +74,9 @@ export default class StatisticsWidget extends DashboardWidget {
     this.timedData = data;
     this.loadingTimed = false;
 
-    // Create a Date object which represents the start of the day in the
-    // configured timezone. To do this we convert a UTC time into that timezone,
-    // reset to the first hour of the day, and then convert back into UTC time.
-    // We'll be working with seconds rather than milliseconds throughout too.
+    // Create a Date object which represents the start of the day.
     let todayDate = new Date();
-    todayDate.setTime(todayDate.getTime() + this.timedData.timezoneOffset * 1000);
     todayDate.setUTCHours(0, 0, 0, 0);
-    todayDate.setTime(todayDate.getTime() - this.timedData.timezoneOffset * 1000);
 
     const today = todayDate.getTime() / 1000;
 
@@ -186,7 +181,6 @@ export default class StatisticsWidget extends DashboardWidget {
       return;
     }
 
-    const offset = this.timedData.timezoneOffset;
     const period = this.periods![this.selectedPeriod!];
     const periodLength = period.end - period.start;
     const labels = [];
@@ -197,19 +191,18 @@ export default class StatisticsWidget extends DashboardWidget {
       let label;
 
       if (period.step < 86400) {
-        label = dayjs.unix(i + offset).format('h A');
+        label = dayjs.unix(i).format('h A');
       } else {
-        label = dayjs.unix(i + offset).format('D MMM');
+        label = dayjs.unix(i).format('D MMM');
 
         if (period.step > 86400) {
-          label += ' - ' + dayjs.unix(i + offset + period.step - 1).format('D MMM');
+          label += ' - ' + dayjs.unix(i + period.step - 1).format('D MMM');
         }
       }
 
       labels.push(label);
 
       thisPeriod.push(this.getPeriodCount(this.selectedEntity, { start: i, end: i + period.step }));
-
       lastPeriod.push(this.getPeriodCount(this.selectedEntity, { start: i - periodLength, end: i - periodLength + period.step }));
     }
 
