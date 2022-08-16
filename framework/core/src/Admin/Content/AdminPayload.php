@@ -45,7 +45,7 @@ class AdminPayload
     protected $db;
 
     /**
-     * @var Dispatcher $events
+     * @var Dispatcher
      */
     protected $events;
 
