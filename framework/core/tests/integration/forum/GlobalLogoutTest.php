@@ -74,7 +74,7 @@ class GlobalLogoutTest extends TestCase
             )
         );
 
-        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals(204, $response->getStatusCode());
 
         $this->assertEquals(0, AccessToken::query()->where('user_id', $authenticatedAs)->count());
         $this->assertEquals(0, EmailToken::query()->where('user_id', $authenticatedAs)->count());
