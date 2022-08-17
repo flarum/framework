@@ -478,6 +478,10 @@ core:
       current_active_session: Current Active Session
       developer_tokens_heading: Developer Tokens
       empty_text: It looks like there is nothing to see here.
+      global_logout:
+        heading: Global Logout
+        help_text: "Clears current cookie session, terminates all sessions, revokes developer tokens, and invalidates any email confirmation or password reset emails."
+        log_out_button: => core.ref.log_out
       hide_access_token: Hide Token
       last_activity: Last activity
       never: Never

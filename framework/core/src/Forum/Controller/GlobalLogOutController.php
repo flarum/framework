@@ -15,7 +15,7 @@ use Flarum\Http\SessionAuthenticator;
 use Flarum\Http\UrlGenerator;
 use Flarum\User\Event\LoggedOut;
 use Illuminate\Contracts\Events\Dispatcher;
-use Laminas\Diactoros\Response\RedirectResponse;
+use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -61,10 +61,6 @@ class GlobalLogOutController implements RequestHandlerInterface
 
         $actor->assertRegistered();
 
-        $response = new RedirectResponse(
-            $this->url->to('forum')->base()
-        );
-
         $this->authenticator->logOut($session);
 
         $actor->accessTokens()->delete();
@@ -73,6 +69,6 @@ class GlobalLogOutController implements RequestHandlerInterface
 
         $this->events->dispatch(new LoggedOut($actor));
 
-        return $this->rememberer->forget($response);
+        return $this->rememberer->forget(new EmptyResponse());
     }
 }

@@ -57,11 +57,29 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
 
       items.add(
         section,
-        <FieldSet className={`Security-${section}`} label={app.translator.trans(`core.forum.security.${sectionLocale}_heading`)}>
+        <FieldSet className={`UserSecurityPage-${section}`} label={app.translator.trans(`core.forum.security.${sectionLocale}_heading`)}>
           {this[sectionName]().toArray()}
         </FieldSet>
       );
     });
+
+    if (this.user!.id() === app.session.user!.id()) {
+      items.add(
+        'globalLogout',
+        <FieldSet className="SecurityPage-globalLogout" label={app.translator.trans('core.forum.security.global_logout.heading')}>
+          <span className="helpText">{app.translator.trans('core.forum.security.global_logout.help_text')}</span>
+          <Button
+            className="Button"
+            icon="fas fa-sign-out-alt"
+            onclick={this.globalLogout.bind(this)}
+            loading={this.loading === 'global_logout'}
+            disabled={this.loading === 'terminate_sessions'}
+          >
+            {app.translator.trans('core.forum.security.global_logout.log_out_button')}
+          </Button>
+        </FieldSet>
+      );
+    }
 
     return items;
   }
@@ -195,5 +213,16 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
         app.alerts.show({ type: 'error' }, app.translator.trans('core.forum.security.session_termination_failed'));
       })
       .finally(() => this.state.setLoading(false));
+  }
+
+  globalLogout() {
+    this.loading = 'global_logout';
+
+    return app
+      .request({
+        method: 'POST',
+        url: app.forum.attribute<string>('baseUrl') + '/global-logout',
+      })
+      .then(() => window.location.reload());
   }
 }
