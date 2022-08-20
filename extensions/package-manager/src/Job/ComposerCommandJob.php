@@ -12,6 +12,7 @@ namespace Flarum\PackageManager\Job;
 use Flarum\Bus\Dispatcher;
 use Flarum\PackageManager\Command\BusinessCommandInterface;
 use Flarum\Queue\AbstractJob;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Throwable;
 
 class ComposerCommandJob extends AbstractJob
@@ -61,5 +62,12 @@ class ComposerCommandJob extends AbstractJob
         $this->command->task->end(false);
 
         $this->fail($exception);
+    }
+
+    public function middleware()
+    {
+        return [
+            new WithoutOverlapping(),
+        ];
     }
 }

@@ -7,20 +7,21 @@ import LoadingModal from 'flarum/admin/components/LoadingModal';
 import Alert from 'flarum/common/components/Alert';
 import RequestError from 'flarum/common/utils/RequestError';
 
-import { UpdatedPackage, UpdateState } from './Updater';
+import { UpdatedPackage, UpdateState } from '../states/ControlSectionState';
 import errorHandler from '../utils/errorHandler';
 import WhyNotModal from './WhyNotModal';
 import ExtensionItem from './ExtensionItem';
 import { AsyncBackendResponse } from '../shims';
 import jumpToQueue from '../utils/jumpToQueue';
 
-interface MajorUpdaterAttrs extends ComponentAttrs {
+export interface MajorUpdaterAttrs extends ComponentAttrs {
   coreUpdate: UpdatedPackage;
   updateState: UpdateState;
 }
 
+export type MajorUpdaterLoadingTypes = 'major-update' | 'major-update-dry-run';
+
 export default class MajorUpdater<T extends MajorUpdaterAttrs = MajorUpdaterAttrs> extends Component<T> {
-  isLoading: string | null = null;
   updateState!: UpdateState;
 
   oninit(vnode: Mithril.Vnode<T, this>) {
@@ -29,7 +30,7 @@ export default class MajorUpdater<T extends MajorUpdaterAttrs = MajorUpdaterAttr
     this.updateState = this.attrs.updateState;
   }
 
-  view(vnode: Mithril.Vnode<T, this>): Mithril.Children {
+  view(): Mithril.Children {
     // @todo move Form-group--danger class to core for reuse
     return (
       <div className="Form-group Form-group--danger PackageManager-majorUpdate">
@@ -38,11 +39,21 @@ export default class MajorUpdater<T extends MajorUpdaterAttrs = MajorUpdaterAttr
         <p className="helpText">{app.translator.trans('flarum-package-manager.admin.major_updater.description')}</p>
         <div className="PackageManager-updaterControls">
           <Tooltip text={app.translator.trans('flarum-package-manager.admin.major_updater.dry_run_help')}>
-            <Button className="Button" icon="fas fa-vial" onclick={this.update.bind(this, true)}>
+            <Button
+              className="Button"
+              icon="fas fa-vial"
+              onclick={this.update.bind(this, true)}
+              disabled={app.packageManager.control.isLoadingOtherThan('major-update-dry-run')}
+            >
               {app.translator.trans('flarum-package-manager.admin.major_updater.dry_run')}
             </Button>
           </Tooltip>
-          <Button className="Button Button--danger" icon="fas fa-play" onclick={this.update.bind(this, false)}>
+          <Button
+            className="Button Button--danger"
+            icon="fas fa-play"
+            onclick={this.update.bind(this, false)}
+            disabled={app.packageManager.control.isLoadingOtherThan('major-update')}
+          >
             {app.translator.trans('flarum-package-manager.admin.major_updater.update')}
           </Button>
         </div>
@@ -83,7 +94,7 @@ export default class MajorUpdater<T extends MajorUpdaterAttrs = MajorUpdaterAttr
   }
 
   update(dryRun: boolean) {
-    this.isLoading = `update-${dryRun ? 'dry-run' : 'run'}`;
+    app.packageManager.control.setLoading(dryRun ? 'major-update-dry-run' : 'major-update');
     app.modal.show(LoadingModal);
 
     app
@@ -109,7 +120,7 @@ export default class MajorUpdater<T extends MajorUpdaterAttrs = MajorUpdaterAttr
         this.updateState.incompatibleExtensions = e.response?.errors?.pop()?.incompatible_extensions as string[];
       })
       .finally(() => {
-        this.isLoading = null;
+        app.packageManager.control.setLoading(null);
         m.redraw();
       });
   }
