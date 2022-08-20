@@ -9,7 +9,6 @@
 
 namespace Flarum\Tags\Tests\integration\api\discussions;
 
-use Flarum\Group\Group;
 use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;

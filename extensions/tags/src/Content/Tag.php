@@ -52,7 +52,7 @@ class Tag
         TagRepository $tags,
         TranslatorInterface $translator,
         SlugManager $slugger
-    ){
+    ) {
         $this->api = $api;
         $this->view = $view;
         $this->tags = $tags;
