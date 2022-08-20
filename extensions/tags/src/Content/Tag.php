@@ -12,6 +12,7 @@ namespace Flarum\Tags\Content;
 use Flarum\Api\Client;
 use Flarum\Frontend\Document;
 use Flarum\Http\RequestUtil;
+use Flarum\Http\SlugManager;
 use Flarum\Tags\TagRepository;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
@@ -41,17 +42,22 @@ class Tag
     protected $translator;
 
     /**
-     * @param Client $api
-     * @param Factory $view
-     * @param TagRepository $tags
-     * @param TranslatorInterface $translator
+     * @var SlugManager
      */
-    public function __construct(Client $api, Factory $view, TagRepository $tags, TranslatorInterface $translator)
-    {
+    protected $slugger;
+
+    public function __construct(
+        Client $api,
+        Factory $view,
+        TagRepository $tags,
+        TranslatorInterface $translator,
+        SlugManager $slugger
+    ){
         $this->api = $api;
         $this->view = $view;
         $this->tags = $tags;
         $this->translator = $translator;
+        $this->slugger = $slugger;
     }
 
     public function __invoke(Document $document, Request $request)
@@ -59,7 +65,7 @@ class Tag
         $queryParams = $request->getQueryParams();
         $actor = RequestUtil::getActor($request);
 
-        $slug = urldecode(Arr::pull($queryParams, 'slug'));
+        $slug = Arr::pull($queryParams, 'slug');
         $sort = Arr::pull($queryParams, 'sort');
         $q = Arr::pull($queryParams, 'q', '');
         $page = Arr::pull($queryParams, 'page', 1);
@@ -67,8 +73,7 @@ class Tag
 
         $sortMap = $this->getSortMap();
 
-        $tagId = $this->tags->getIdForSlug($slug);
-        $tag = $this->tags->findOrFail($tagId, $actor);
+        $tag = $this->slugger->forResource(Tag::class)->fromSlug($slug, $actor);
 
         $params = [
             'sort' => $sort && isset($sortMap[$sort]) ? $sortMap[$sort] : '',

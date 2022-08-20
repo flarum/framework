@@ -33,12 +33,25 @@ class ListTest extends TestCase
             'tags' => $this->tags(),
             'users' => [
                 $this->normalUser(),
+                [
+                    'id' => 3,
+                    'username' => 'normal3',
+                    'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', // BCrypt hash for "too-obscure"
+                    'email' => 'normal3@machine.local',
+                    'is_email_confirmed' => 1,
+                ]
+            ],
+            'groups' => [
+                ['id' => 100, 'name_singular' => 'acme', 'name_plural' => 'acme']
+            ],
+            'group_user' => [
+                ['group_id' => 100, 'user_id' => 2]
             ],
             'group_permission' => [
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag5.viewForum'],
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag8.viewForum'],
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag11.viewForum'],
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag13.viewForum'],
+                ['group_id' => 100, 'permission' => 'tag5.viewForum'],
+                ['group_id' => 100, 'permission' => 'tag8.viewForum'],
+                ['group_id' => 100, 'permission' => 'tag11.viewForum'],
+                ['group_id' => 100, 'permission' => 'tag13.viewForum'],
             ],
             'discussions' => [
                 ['id' => 1, 'title' => 'no tags', 'user_id' => 1, 'comment_count' => 1],
@@ -244,5 +257,53 @@ class ListTest extends TestCase
 
         $ids = Arr::pluck($data, 'id');
         $this->assertEqualsCanonicalizing($expectedDiscussions, $ids);
+    }
+
+    /**
+     * @dataProvider filterByTagsDataProvider
+     * @test
+     */
+    public function can_filter_by_authorized_tags(int $authenticatedAs, string $tags, array $expectedDiscussionIds)
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', compact('authenticatedAs'))
+                ->withQueryParams([
+                    'filter' => [
+                        'tag' => $tags
+                    ]
+                ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $data = json_decode($response->getBody()->getContents(), true)['data'];
+
+        $ids = Arr::pluck($data, 'id');
+        $this->assertEqualsCanonicalizing($expectedDiscussionIds, array_map('intval', $ids));
+    }
+
+    public function filterByTagsDataProvider(): array
+    {
+        return [
+            // Admin can filter by any tag.
+            [1, 'primary-1,primary-2', [2, 3, 4]],
+            [1, 'primary-1,primary-2,primary-restricted', [2, 3, 4, 5]],
+            [1, 'primary-2-restricted-child-1', [6]],
+            [1, 'untagged', [1]],
+
+            // Normal user can only filter by tags he has access to.
+            [3, 'primary-2-restricted-child-1', []],
+            [3, 'primary-1', [2]],
+            [3, 'primary-1,primary-2', [2]],
+            [3, 'untagged', [1]],
+
+            // Authorized User can only filter by tags he has access to.
+            [2, 'primary-2-restricted-child-1', []],
+            [2, 'primary-2-restricted-child-1,primary-restricted-child-restricted', []],
+            [2, 'primary-1', [2, 4]],
+            [2, 'primary-1,primary-2', [2, 3, 4]],
+            [2, 'secondary-restricted', [4]],
+            [2, 'untagged', [1]],
+        ];
     }
 }
