@@ -27,9 +27,11 @@ class Utf8SlugDriver implements SlugDriverInterface
 
     public function toSlug(AbstractModel $instance): string
     {
-        $title = preg_replace('![-\s]+!u', '-', $instance->title);
+        $slug = preg_replace('/[-\s]+/u', '-', $instance->title);
+        $slug = preg_replace('/[^\p{L}\p{N}\p{M}_-]+/u', '', $slug);
+        $slug = strtolower($slug);
 
-        return $instance->id.(trim($title) ? '-'.$title : '');
+        return $instance->id.(trim($slug) ? '-'.$slug : '');
     }
 
     public function fromSlug(string $slug, User $actor): AbstractModel
