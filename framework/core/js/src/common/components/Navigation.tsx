@@ -42,17 +42,19 @@ export default class Navigation extends Component {
     const { history } = app;
     const previous = history?.getPrevious();
 
-    return LinkButton.component({
-      className: 'Button Navigation-back Button--icon',
-      href: history?.backUrl(),
-      icon: 'fas fa-chevron-left',
-      'aria-label': previous?.title,
-      onclick: (e: MouseEvent) => {
-        if (e.shiftKey || e.ctrlKey || e.metaKey || e.button === 1) return;
-        e.preventDefault();
-        history?.back();
-      },
-    });
+    return (
+      <LinkButton
+        className="Button Navigation-back Button--icon"
+        href={history?.backUrl()}
+        icon="fas fa-chevron-left"
+        aria-label={previous?.title}
+        onclick={(e: MouseEvent) => {
+          if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;
+          e.preventDefault();
+          history?.back();
+        }}
+      />
+    );
   }
 
   /**

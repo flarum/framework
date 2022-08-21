@@ -126,24 +126,24 @@ export default class CommentPost extends Post {
 
     items.add(
       'user',
-      PostUser.component({
-        post,
-        cardVisible: this.cardVisible,
-        oncardshow: () => {
+      <PostUser
+        post={post}
+        cardVisible={this.cardVisible}
+        oncardshow={() => {
           this.cardVisible = true;
           m.redraw();
-        },
-        oncardhide: () => {
+        }}
+        oncardhide={() => {
           this.cardVisible = false;
           m.redraw();
-        },
-      }),
+        }}
+      />,
       100
     );
-    items.add('meta', PostMeta.component({ post }));
+    items.add('meta', <PostMeta post={post} />);
 
     if (post.isEdited() && !post.isHidden()) {
-      items.add('edited', PostEdited.component({ post }));
+      items.add('edited', <PostEdited post={post} />);
     }
 
     // If the post is hidden, add a button that allows toggling the visibility
@@ -151,11 +151,7 @@ export default class CommentPost extends Post {
     if (post.isHidden()) {
       items.add(
         'toggle',
-        Button.component({
-          className: 'Button Button--default Button--more',
-          icon: 'fas fa-ellipsis-h',
-          onclick: this.toggleContent.bind(this),
-        })
+        <Button className="Button Button--default Button--more" icon="fas fa-ellipsis-h" onclick={this.toggleContent.bind(this)} />
       );
     }
 

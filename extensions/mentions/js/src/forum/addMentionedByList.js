@@ -38,10 +38,7 @@ export default function addMentionedByList() {
           $preview[0],
           replies.map((reply) => (
             <li data-number={reply.number()}>
-              {PostPreview.component({
-                post: reply,
-                onclick: hidePreview.bind(this),
-              })}
+              <PostPreview post={reply} onclick={hidePreview.bind(this)} />
             </li>
           ))
         );

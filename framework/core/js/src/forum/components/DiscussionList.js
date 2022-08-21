@@ -28,18 +28,20 @@ export default class DiscussionList extends Component {
     if (isLoading) {
       loading = <LoadingIndicator />;
     } else if (state.hasNext()) {
-      loading = Button.component(
-        {
-          className: 'Button',
-          onclick: state.loadNext.bind(state),
-        },
-        app.translator.trans('core.forum.discussion_list.load_more_button')
+      loading = (
+        <Button className="Button" onclick={state.loadNext.bind(state)}>
+          {app.translator.trans('core.forum.discussion_list.load_more_button')}
+        </Button>
       );
     }
 
     if (state.isEmpty()) {
       const text = app.translator.trans('core.forum.discussion_list.empty_text');
-      return <div className="DiscussionList">{Placeholder.component({ text })}</div>;
+      return (
+        <div className="DiscussionList">
+          <Placeholder text={text} />
+        </div>
+      );
     }
 
     const pageSize = state.pageSize;

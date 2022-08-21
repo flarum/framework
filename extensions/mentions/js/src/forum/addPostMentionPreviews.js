@@ -81,7 +81,9 @@ export default function addPostMentionPreviews() {
                   <span className="PostMention-preview-discussion">{discussion.title()}</span>
                 </li>
               ),
-              <li>{PostPreview.component({ post })}</li>,
+              <li>
+                <PostPreview post={post} />
+              </li>,
             ]);
             positionPreview();
           };
@@ -90,7 +92,7 @@ export default function addPostMentionPreviews() {
           if (post && post.discussion()) {
             showPost(post);
           } else {
-            m.render($preview[0], LoadingIndicator.component());
+            m.render($preview[0], <LoadingIndicator />);
             app.store.find('posts', id).then(showPost);
             positionPreview();
           }

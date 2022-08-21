@@ -97,15 +97,9 @@ export default class TextEditor extends Component {
 
     items.add(
       'submit',
-      Button.component(
-        {
-          icon: 'fas fa-paper-plane',
-          className: 'Button Button--primary',
-          itemClassName: 'App-primaryControl',
-          onclick: this.onsubmit.bind(this),
-        },
-        this.attrs.submitLabel
-      )
+      <Button icon="fas fa-paper-plane" className="Button Button--primary" itemClassName="App-primaryControl" onclick={this.onsubmit.bind(this)}>
+        {this.attrs.submitLabel}
+      </Button>
     );
 
     if (this.attrs.preview) {

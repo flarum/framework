@@ -21,14 +21,9 @@ export default class ChangePasswordModal<CustomAttrs extends IInternalModalAttrs
         <div className="Form Form--centered">
           <p className="helpText">{app.translator.trans('core.forum.change_password.text')}</p>
           <div className="Form-group">
-            {Button.component(
-              {
-                className: 'Button Button--primary Button--block',
-                type: 'submit',
-                loading: this.loading,
-              },
-              app.translator.trans('core.forum.change_password.send_button')
-            )}
+            <Button className="Button Button--primary Button--block" type="submit" loading={this.loading}>
+              {app.translator.trans('core.forum.change_password.send_button')}
+            </Button>
           </div>
         </div>
       </div>

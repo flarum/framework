@@ -7,21 +7,20 @@ export default function () {
   extend(SettingsPage.prototype, 'notificationsItems', function (this: SettingsPage, items) {
     items.add(
       'followAfterReply',
-      Switch.component(
-        {
-          state: this.user.preferences().followAfterReply,
-          onchange: (value) => {
-            this.followAfterReplyLoading = true;
+      <Switch
+        state={this.user.preferences().followAfterReply}
+        onchange={(value) => {
+          this.followAfterReplyLoading = true;
 
-            this.user.savePreferences({ followAfterReply: value }).then(() => {
-              this.followAfterReplyLoading = false;
-              m.redraw();
-            });
-          },
-          loading: this.followAfterReplyLoading,
-        },
-        app.translator.trans('flarum-subscriptions.forum.settings.follow_after_reply_label')
-      )
+          this.user.savePreferences({ followAfterReply: value }).then(() => {
+            this.followAfterReplyLoading = false;
+            m.redraw();
+          });
+        }}
+        loading={this.followAfterReplyLoading}
+      >
+        {app.translator.trans('flarum-subscriptions.forum.settings.follow_after_reply_label')}
+      </Switch>
     );
 
     items.add(

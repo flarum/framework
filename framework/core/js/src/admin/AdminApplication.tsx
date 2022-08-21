@@ -96,11 +96,7 @@ export default class AdminApplication extends Application {
     super.mount();
 
     m.mount(document.getElementById('app-navigation')!, {
-      view: () =>
-        Navigation.component({
-          className: 'App-backControl',
-          drawer: true,
-        }),
+      view: () => <Navigation className="App-backControl" drawer />,
     });
     m.mount(document.getElementById('header-navigation')!, Navigation);
     m.mount(document.getElementById('header-primary')!, HeaderPrimary);
