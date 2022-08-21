@@ -29,10 +29,10 @@ class ListPostsTest extends TestCase
     }
 
     /**
-     * @dataProvider unallowedUsers
+     * @dataProvider userVisiblePostsDataProvider
      * @test
      */
-    public function can_only_see_approved_if_not_allowed_to_approve(?int $authenticatedAs)
+    public function can_only_see_approved_if_allowed(?int $authenticatedAs, array $visiblePostIds)
     {
         $response = $this->send(
             $this
@@ -47,28 +47,22 @@ class ListPostsTest extends TestCase
         $body = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEqualsCanonicalizing([7, 8, 10], Arr::pluck($body['data'], 'id'));
+        $this->assertEqualsCanonicalizing($visiblePostIds, Arr::pluck($body['data'], 'id'));
     }
 
-    /**
-     * @dataProvider allowedUsers
-     * @test
-     */
-    public function can_see_unapproved_if_allowed_to_approve(int $authenticatedAs)
+    public function userVisiblePostsDataProvider(): array
     {
-        $response = $this->send(
-            $this
-                ->request('GET', '/api/posts', compact('authenticatedAs'))
-                ->withQueryParams([
-                    'filter' => [
-                        'discussion' => 7
-                    ]
-                ])
-        );
+        return [
+            // Admin can view unapproved posts.
+            [1, [7, 8, 9, 10, 11, 12]],
 
-        $body = json_decode($response->getBody()->getContents(), true);
+            // User with approval perms can view unapproved posts.
+            [3, [7, 8, 9, 10, 11, 12]],
 
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEqualsCanonicalizing([7, 8, 9, 10, 11], Arr::pluck($body['data'], 'id'));
+            // Normal users cannot view unapproved posts unless being an author.
+            [null, [7, 8, 10]],
+            [2, [7, 8, 9, 10]],
+            [4, [7, 8, 10, 11, 12]],
+        ];
     }
 }

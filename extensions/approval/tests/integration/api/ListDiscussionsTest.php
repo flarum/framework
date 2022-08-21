@@ -29,10 +29,10 @@ class ListDiscussionsTest extends TestCase
     }
 
     /**
-     * @dataProvider unallowedUsers
+     * @dataProvider userVisibleDiscussionsDataProvider
      * @test
      */
-    public function can_only_see_approved_if_not_allowed_to_approve(?int $authenticatedAs)
+    public function can_only_see_approved_if_allowed(?int $authenticatedAs, array $visibleDiscussionIds)
     {
         $response = $this->send(
             $this->request('GET', '/api/discussions', compact('authenticatedAs'))
@@ -41,22 +41,17 @@ class ListDiscussionsTest extends TestCase
         $body = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEqualsCanonicalizing([1, 4, 5, 7], Arr::pluck($body['data'], 'id'));
+        $this->assertEqualsCanonicalizing($visibleDiscussionIds, Arr::pluck($body['data'], 'id'));
     }
 
-    /**
-     * @dataProvider allowedUsers
-     * @test
-     */
-    public function can_see_unapproved_if_allowed_to_approve(int $authenticatedAs)
+    public function userVisibleDiscussionsDataProvider(): array
     {
-        $response = $this->send(
-            $this->request('GET', '/api/discussions', compact('authenticatedAs'))
-        );
-
-        $body = json_decode($response->getBody()->getContents(), true);
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEqualsCanonicalizing([1, 2, 3, 4, 5, 6, 7], Arr::pluck($body['data'], 'id'));
+        return [
+            'admin can view unapproved discussions' => [1, [1, 2, 3, 4, 5, 6, 7, 8]],
+            'user with perms can view unapproved discussions' => [3, [1, 2, 3, 4, 5, 6, 7, 8]],
+            'guests cannot view unapproved discussions' => [null, [1, 4, 5, 7]],
+            'normal users cannot view unapproved discussions unless being an author 1' => [2, [1, 4, 5, 6, 7]],
+            'normal users cannot view unapproved discussions unless being an author 2' => [4, [1, 2, 3, 4, 5, 7, 8]],
+        ];
     }
 }
