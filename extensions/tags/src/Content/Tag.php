@@ -13,6 +13,7 @@ use Flarum\Api\Client;
 use Flarum\Frontend\Document;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\SlugManager;
+use Flarum\Tags\Tag as TagModel;
 use Flarum\Tags\TagRepository;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
@@ -73,7 +74,7 @@ class Tag
 
         $sortMap = $this->getSortMap();
 
-        $tag = $this->slugger->forResource(Tag::class)->fromSlug($slug, $actor);
+        $tag = $this->slugger->forResource(TagModel::class)->fromSlug($slug, $actor);
 
         $params = [
             'sort' => $sort && isset($sortMap[$sort]) ? $sortMap[$sort] : '',
