@@ -441,6 +441,7 @@ class Discussion extends AbstractModel
      *
      * This automatically creates a matching slug for the discussion.
      *
+     * @todo slug should be set by the slugger, drop slug column entirely?
      * @param string $title
      */
     protected function setTitleAttribute($title)
