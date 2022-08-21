@@ -126,7 +126,7 @@ export default class ForumApplication extends Application {
     // Route the home link back home when clicked. We do not want it to register
     // if the user is opening it in a new tab, however.
     document.getElementById('home-link')!.addEventListener('click', (e) => {
-      if (e.ctrlKey || e.metaKey || e.which === 2) return;
+      if (e.ctrlKey || e.metaKey || e.button === 1) return;
       e.preventDefault();
       app.history.home();
 

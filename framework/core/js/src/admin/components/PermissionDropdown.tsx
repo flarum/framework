@@ -1,18 +1,19 @@
 import app from '../../admin/app';
-import Dropdown from '../../common/components/Dropdown';
+import Dropdown, { IDropdownAttrs } from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
 import Group from '../../common/models/Group';
 import Badge from '../../common/components/Badge';
 import GroupBadge from '../../common/components/GroupBadge';
+import Mithril from 'mithril';
 
-function badgeForId(id) {
+function badgeForId(id: string) {
   const group = app.store.getById('groups', id);
 
   return group ? GroupBadge.component({ group, label: null }) : '';
 }
 
-function filterByRequiredPermissions(groupIds, permission) {
+function filterByRequiredPermissions(groupIds: string[], permission: string) {
   app.getRequiredPermissions(permission).forEach((required) => {
     const restrictToGroupIds = app.data.permissions[required] || [];
 
@@ -32,15 +33,19 @@ function filterByRequiredPermissions(groupIds, permission) {
   return groupIds;
 }
 
-export default class PermissionDropdown extends Dropdown {
-  static initAttrs(attrs) {
+export interface IPermissionDropdownAttrs extends IDropdownAttrs {
+  permission: string;
+}
+
+export default class PermissionDropdown<CustomAttrs extends IPermissionDropdownAttrs = IPermissionDropdownAttrs> extends Dropdown<CustomAttrs> {
+  static initAttrs(attrs: IPermissionDropdownAttrs) {
     super.initAttrs(attrs);
 
     attrs.className = 'PermissionDropdown';
     attrs.buttonClassName = 'Button Button--text';
   }
 
-  view(vnode) {
+  view(vnode: Mithril.Vnode<CustomAttrs, this>) {
     const children = [];
 
     let groupIds = app.data.permissions[this.attrs.permission] || [];
@@ -49,7 +54,7 @@ export default class PermissionDropdown extends Dropdown {
 
     const everyone = groupIds.indexOf(Group.GUEST_ID) !== -1;
     const members = groupIds.indexOf(Group.MEMBER_ID) !== -1;
-    const adminGroup = app.store.getById('groups', Group.ADMINISTRATOR_ID);
+    const adminGroup = app.store.getById<Group>('groups', Group.ADMINISTRATOR_ID)!;
 
     if (everyone) {
       this.attrs.label = Badge.component({ icon: 'fas fa-globe' });
@@ -89,40 +94,39 @@ export default class PermissionDropdown extends Dropdown {
           {
             icon: !everyone && !members ? 'fas fa-check' : true,
             disabled: !everyone && !members,
-            onclick: (e) => {
+            onclick: (e: MouseEvent) => {
               if (e.shiftKey) e.stopPropagation();
               this.save([]);
             },
           },
-          [badgeForId(adminGroup.id()), ' ', adminGroup.namePlural()]
+          [badgeForId(adminGroup.id()!), ' ', adminGroup.namePlural()]
         )
       );
 
-      [].push.apply(
-        children,
-        app.store
-          .all('groups')
-          .filter((group) => [Group.ADMINISTRATOR_ID, Group.GUEST_ID, Group.MEMBER_ID].indexOf(group.id()) === -1)
-          .map((group) =>
-            Button.component(
-              {
-                icon: groupIds.indexOf(group.id()) !== -1 ? 'fas fa-check' : true,
-                onclick: (e) => {
-                  if (e.shiftKey) e.stopPropagation();
-                  this.toggle(group.id());
-                },
-                disabled: this.isGroupDisabled(group.id()) && this.isGroupDisabled(Group.MEMBER_ID) && this.isGroupDisabled(Group.GUEST_ID),
+      const groupButtons = app.store
+        .all<Group>('groups')
+        .filter((group) => ![Group.ADMINISTRATOR_ID, Group.GUEST_ID, Group.MEMBER_ID].includes(group.id()!))
+        .map((group) =>
+          Button.component(
+            {
+              icon: groupIds.includes(group.id()!) ? 'fas fa-check' : true,
+              onclick: (e: MouseEvent) => {
+                if (e.shiftKey) e.stopPropagation();
+                this.toggle(group.id()!);
               },
-              [badgeForId(group.id()), ' ', group.namePlural()]
-            )
+              disabled: this.isGroupDisabled(group.id()!) && this.isGroupDisabled(Group.MEMBER_ID) && this.isGroupDisabled(Group.GUEST_ID),
+            },
+            [badgeForId(group.id()!), ' ', group.namePlural()]
           )
-      );
+        );
+
+      children.push(...groupButtons);
     }
 
     return super.view({ ...vnode, children });
   }
 
-  save(groupIds) {
+  save(groupIds: string[]) {
     const permission = this.attrs.permission;
 
     app.data.permissions[permission] = groupIds;
@@ -134,7 +138,7 @@ export default class PermissionDropdown extends Dropdown {
     });
   }
 
-  toggle(groupId) {
+  toggle(groupId: string) {
     const permission = this.attrs.permission;
 
     let groupIds = app.data.permissions[permission] || [];
@@ -151,7 +155,7 @@ export default class PermissionDropdown extends Dropdown {
     this.save(groupIds);
   }
 
-  isGroupDisabled(id) {
-    return filterByRequiredPermissions([id], this.attrs.permission).indexOf(id) === -1;
+  isGroupDisabled(id: string) {
+    return !filterByRequiredPermissions([id], this.attrs.permission).includes(id);
   }
 }

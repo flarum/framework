@@ -1,28 +1,32 @@
 import app from '../../forum/app';
 import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
-import Dropdown from '../../common/components/Dropdown';
+import Dropdown, { IDropdownAttrs } from '../../common/components/Dropdown';
 import LinkButton from '../../common/components/LinkButton';
 import Button from '../../common/components/Button';
 import ItemList from '../../common/utils/ItemList';
 import Separator from '../../common/components/Separator';
+import extractText from '../../common/utils/extractText';
+import type Mithril from 'mithril';
+
+export interface ISessionDropdownAttrs extends IDropdownAttrs {}
 
 /**
  * The `SessionDropdown` component shows a button with the current user's
  * avatar/name, with a dropdown of session controls.
  */
-export default class SessionDropdown extends Dropdown {
-  static initAttrs(attrs) {
+export default class SessionDropdown<CustomAttrs extends ISessionDropdownAttrs = ISessionDropdownAttrs> extends Dropdown<CustomAttrs> {
+  static initAttrs(attrs: ISessionDropdownAttrs) {
     super.initAttrs(attrs);
 
     attrs.className = 'SessionDropdown';
     attrs.buttonClassName = 'Button Button--user Button--flat';
     attrs.menuClassName = 'Dropdown-menu--right';
 
-    attrs.accessibleToggleLabel = app.translator.trans('core.forum.header.session_dropdown_accessible_label');
+    attrs.accessibleToggleLabel = extractText(app.translator.trans('core.forum.header.session_dropdown_accessible_label'));
   }
 
-  view(vnode) {
+  view(vnode: Mithril.Vnode<CustomAttrs, this>) {
     return super.view({ ...vnode, children: this.items().toArray() });
   }
 
@@ -34,12 +38,10 @@ export default class SessionDropdown extends Dropdown {
 
   /**
    * Build an item list for the contents of the dropdown menu.
-   *
-   * @return {ItemList<import('mithril').Children>}
    */
-  items() {
-    const items = new ItemList();
-    const user = app.session.user;
+  items(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+    const user = app.session.user!;
 
     items.add(
       'profile',

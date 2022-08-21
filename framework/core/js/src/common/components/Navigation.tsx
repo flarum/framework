@@ -47,7 +47,7 @@ export default class Navigation extends Component {
       icon: 'fas fa-chevron-left',
       'aria-label': previous?.title,
       onclick: (e: MouseEvent) => {
-        if (e.shiftKey || e.ctrlKey || e.metaKey || e.which === 2) return;
+        if (e.shiftKey || e.ctrlKey || e.metaKey || e.button === 1) return;
         e.preventDefault();
         history?.back();
       },
