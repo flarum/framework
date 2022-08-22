@@ -9,7 +9,7 @@ export default function addUserPreferences() {
   extend(SettingsPage.prototype, 'settingsItems', function (items) {
     items.add(
       'fof-subscriptions',
-      <FieldSet label={app.translator.trans('flarum-subscriptions.forum.user_preferences.heading')} className="Settings-subscriptions">
+      <FieldSet label={app.translator.trans('flarum-subscriptions.forum.settings.preferences_heading')} className="Settings-subscriptions">
         <Switch
           id="flarum_subscriptions__notify_for_all_posts"
           state={!!this.user!.preferences()?.['flarum-subscriptions.notify_for_all_posts']}
@@ -17,7 +17,7 @@ export default function addUserPreferences() {
             this.user!.savePreferences({ 'flarum-subscriptions.notify_for_all_posts': val });
           }}
         >
-          {app.translator.trans('flarum-subscriptions.forum.user_preferences.notify_for_all_posts_label')}
+          {app.translator.trans('flarum-subscriptions.forum.settings.notify_for_all_posts_label')}
         </Switch>
       </FieldSet>
     );
