@@ -10,26 +10,18 @@
 namespace Flarum\User;
 
 use Flarum\Foundation\Config;
-use Illuminate\Contracts\Container\Container;
 use Illuminate\Session\SessionManager as IlluminateSessionManager;
 use Illuminate\Session\Store;
 use SessionHandlerInterface;
 
 class SessionManager extends IlluminateSessionManager
 {
-    protected $flarumConfig;
-
-    public function __construct(Container $container, Config $flarumConfig)
-    {
-        parent::__construct($container);
-
-        $this->flarumConfig = $flarumConfig;
-    }
-
     public function handler(string $driver = null): SessionHandlerInterface
     {
+        $config = $this->container->make(Config::class);
+
         /** @var Store $driver */
-        $driver = parent::driver($driver ?? $this->flarumConfig['session.driver']);
+        $driver = parent::driver($driver ?? $config['session.driver']);
 
         return $driver->getHandler();
     }

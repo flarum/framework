@@ -27,10 +27,10 @@ class SessionServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->singleton('session', function (Container $container) {
-            $config = $container->make(Config::class);
-            $manager = new SessionManager($container, $config);
+            $manager = new SessionManager($container);
             $drivers = $container->make('flarum.session.drivers');
             $settings = $container->make(SettingsRepositoryInterface::class);
+            $config = $container->make(Config::class);
 
             /**
              * Default to the file driver already defined by Laravel.
