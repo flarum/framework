@@ -20,6 +20,7 @@ use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use PDO;
+use SessionHandlerInterface;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableStyle;
 
@@ -54,13 +55,19 @@ class InfoCommand extends AbstractCommand
      */
     private $session;
 
+    /**
+     * @var SessionHandlerInterface
+     */
+    private $sessionHandler;
+
     public function __construct(
         ExtensionManager $extensions,
         Config $config,
         SettingsRepositoryInterface $settings,
         ConnectionInterface $db,
         Queue $queue,
-        SessionManager $session
+        SessionManager $session,
+        SessionHandlerInterface $sessionHandler
     ) {
         $this->extensions = $extensions;
         $this->config = $config;
@@ -68,6 +75,7 @@ class InfoCommand extends AbstractCommand
         $this->db = $db;
         $this->queue = $queue;
         $this->session = $session;
+        $this->sessionHandler = $sessionHandler;
 
         parent::__construct();
     }
@@ -179,12 +187,26 @@ class InfoCommand extends AbstractCommand
         return $this->db->getPdo()->getAttribute(PDO::ATTR_SERVER_VERSION);
     }
 
+    /**
+     * Some extensions/packages might be overriding the session.handler binding.
+     * So we have to check if the driver used is configured or hardcoded.
+     */
     private function identifySessionDriver(): string
     {
         $defaultDriver = $this->session->getDefaultDriver();
         $driver = Arr::get($this->config, 'session.driver', $defaultDriver);
-        $this->session->driver($driver);
+        $this->session->handler($driver);
+        $configuredDriver = isset($this->session->getDrivers()[$driver]) ? $driver : $defaultDriver;
 
-        return isset($this->session->getDrivers()[$driver]) ? $driver : $defaultDriver;
+        // Get class name
+        $handlerName = get_class($this->sessionHandler);
+        // Drop the namespace
+        $handlerName = Str::afterLast($handlerName, '\\');
+        // Lowercase the class name
+        $handlerName = strtolower($handlerName);
+        // Drop everything like queue SyncQueue, RedisQueue
+        $handlerName = str_replace('sessionhandler', '', $handlerName);
+
+        return $configuredDriver !== $handlerName ? "$handlerName <comment>(code override, configured to <options=bold,underscore>$configuredDriver</>)</comment>" : $configuredDriver;
     }
 }
