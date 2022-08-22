@@ -71,7 +71,7 @@ class ReplyNotificationTest extends TestCase
 
         $this->assertEquals(0, $mainUser->getUnreadNotificationCount());
 
-        for ($i=0; $i<5; $i++) {
+        for ($i = 0; $i < 5; $i++) {
             $this->send(
                 $this->request('POST', '/api/posts', [
                     'authenticatedAs' => 4,
@@ -95,13 +95,10 @@ class ReplyNotificationTest extends TestCase
     public function replyingSendsNotificationsDataProvider(): array
     {
         return [
-            'admin receives a notification when another replies to a discussion they are following and caught up to'
-            => [1, 1, 1],
-            'user receives a notification when another replies to a discussion they are following and caught up to'
-            => [2, 1, 1],
+            'admin receives a notification when another replies to a discussion they are following and caught up to' => [1, 1, 1],
+            'user receives a notification when another replies to a discussion they are following and caught up to' => [2, 1, 1],
 
-            'user receives notification for every new post to a discussion they are following when preference is on'
-            => [3, 33, 5],
+            'user receives notification for every new post to a discussion they are following when preference is on' => [3, 33, 5],
         ];
     }
 
