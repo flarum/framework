@@ -14,8 +14,10 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Config;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\SessionManager;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use PDO;
 use Symfony\Component\Console\Helper\Table;
@@ -47,18 +49,25 @@ class InfoCommand extends AbstractCommand
      */
     private $queue;
 
+    /**
+     * @var SessionManager
+     */
+    private $session;
+
     public function __construct(
         ExtensionManager $extensions,
         Config $config,
         SettingsRepositoryInterface $settings,
         ConnectionInterface $db,
-        Queue $queue
+        Queue $queue,
+        SessionManager $session
     ) {
         $this->extensions = $extensions;
         $this->config = $config;
         $this->settings = $settings;
         $this->db = $db;
         $this->queue = $queue;
+        $this->session = $session;
 
         parent::__construct();
     }
@@ -92,6 +101,7 @@ class InfoCommand extends AbstractCommand
         $this->output->writeln('<info>Base URL:</info> '.$this->config->url());
         $this->output->writeln('<info>Installation path:</info> '.getcwd());
         $this->output->writeln('<info>Queue driver:</info> '.$this->identifyQueueDriver());
+        $this->output->writeln('<info>Session driver:</info> '.$this->identifySessionDriver());
         $this->output->writeln('<info>Mail driver:</info> '.$this->settings->get('mail_driver', 'unknown'));
         $this->output->writeln('<info>Debug mode:</info> '.($this->config->inDebugMode() ? '<error>ON</error>' : 'off'));
 
@@ -167,5 +177,14 @@ class InfoCommand extends AbstractCommand
     private function identifyDatabaseVersion(): string
     {
         return $this->db->getPdo()->getAttribute(PDO::ATTR_SERVER_VERSION);
+    }
+
+    private function identifySessionDriver(): string
+    {
+        $defaultDriver = $this->session->getDefaultDriver();
+        $driver = Arr::get($this->config, 'session.driver', $defaultDriver);
+        $this->session->driver($driver);
+
+        return isset($this->session->getDrivers()[$driver]) ? $driver : $defaultDriver;
     }
 }
