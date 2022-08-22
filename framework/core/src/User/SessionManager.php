@@ -12,6 +12,7 @@ namespace Flarum\User;
 use Flarum\Foundation\Config;
 use Illuminate\Session\SessionManager as IlluminateSessionManager;
 use Illuminate\Session\Store;
+use InvalidArgumentException;
 use SessionHandlerInterface;
 
 class SessionManager extends IlluminateSessionManager
@@ -21,8 +22,16 @@ class SessionManager extends IlluminateSessionManager
         $config = $this->container->make(Config::class);
 
         /** @var Store $driver */
-        $driver = parent::driver($driver ?? $config['session.driver']);
+        try {
+            $driverInstance = parent::driver($driver ?? $config['session.driver']);
+        } catch (InvalidArgumentException $e) {
+            if (! $driver) {
+                $driverInstance = parent::driver($this->getDefaultDriver());
+            } else {
+                throw $e;
+            }
+        }
 
-        return $driver->getHandler();
+        return $driverInstance->getHandler();
     }
 }

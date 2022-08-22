@@ -69,7 +69,7 @@ class SessionTest extends TestCase
     /**
      * @test
      */
-    public function uses_file_driver_if_driver_from_config_file_not_configured()
+    public function uses_default_driver_if_driver_from_config_file_not_configured()
     {
         $this->config('session.driver', null);
 
@@ -81,10 +81,8 @@ class SessionTest extends TestCase
     /**
      * @test
      */
-    public function throws_exception_if_configured_driver_from_config_file_unavailable()
+    public function uses_default_driver_if_configured_driver_from_config_file_unavailable()
     {
-        $this->expectException(InvalidArgumentException::class);
-
         $this->config('session.driver', 'nevergonnagiveyouup');
 
         $handler = $this->app()->getContainer()->make('session.handler');
