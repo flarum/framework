@@ -9,9 +9,15 @@
 
 namespace Flarum\Http\Filter;
 
+use Flarum\Api\Controller\ListAccessTokensController;
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
 
+/**
+ * Filters an access tokens request by the related user.
+ *
+ * @see ListAccessTokensController
+ */
 class UserFilter implements FilterInterface
 {
     /**
