@@ -6,6 +6,12 @@ export interface IDataSegmentAttrs extends ComponentAttrs {
   value: Mithril.Children;
 }
 
+/**
+ * A generic component for displaying a label and value inline.
+ * Created to avoid reinventing the wheel.
+ *
+ * `label: value`
+ */
 export default class DataSegment<CustomAttrs extends IDataSegmentAttrs = IDataSegmentAttrs> extends Component<CustomAttrs> {
   view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
     return (
