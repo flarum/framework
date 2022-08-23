@@ -179,7 +179,7 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
     });
   }
 
-  tokenValueDisplay(token: AccessToken) {
+  tokenValueDisplay(token: AccessToken): Mithril.Children {
     return <code className="AccessTokensList-item-token">{this.showingTokens[token.id()!] ? token.token() : Array(12).fill('*').join('')}</code>;
   }
 }
