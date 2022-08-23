@@ -465,7 +465,7 @@ core:
       revoke_access_token_confirmation: => core.ref.generic_confirmation_message
       sessions_heading: Active Sessions
       session_terminated: "{count, plural, one {Session terminated} other {Sessions terminated}}."
-      show_access_token: View
+      show_access_token: View Token
       terminate_all_other_sessions: Terminate all other sessions
       terminate_all_other_sessions_confirmation: => core.ref.generic_confirmation_message
       terminate_session: Terminate
