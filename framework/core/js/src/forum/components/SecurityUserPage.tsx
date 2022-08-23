@@ -10,6 +10,7 @@ import AccessToken from '../../common/models/AccessToken';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';
 import NewAccessTokenModal from './NewAccessTokenModal';
+import camelCaseToSnakeCase from "../../common/utils/camelCaseToSnakeCase";
 
 /**
  * The `SecurityUserPage` component displays the user's security control panel, in
@@ -51,8 +52,7 @@ export default class SecurityUserPage<CustomAttrs extends IUserPageAttrs = IUser
 
     ['developerTokens', 'sessions'].forEach((section) => {
       const sectionName = `${section}Items` as 'developerTokensItems' | 'sessionsItems';
-      // Camel-case to snake-case
-      const sectionLocale = section.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+      const sectionLocale = camelCaseToSnakeCase(section);
 
       items.add(
         section,
