@@ -149,9 +149,12 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
       </Button>
     );
 
-    // @TODO: tooltip doesn't work on disabled buttons
     if (token.isCurrent()) {
-      revokeButton = <Tooltip text={app.translator.trans('core.forum.security.cannot_terminate_current_session')}>{revokeButton}</Tooltip>;
+      revokeButton = (
+        <Tooltip text={app.translator.trans('core.forum.security.cannot_terminate_current_session')}>
+          <div tabindex="0">{revokeButton}</div>
+        </Tooltip>
+      );
     }
 
     items.add(
