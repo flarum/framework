@@ -28,7 +28,7 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
-    // Sort by current first.
+    // Show current token first.
     this.tokens = this.attrs.tokens.sort((a, b) => (b.isCurrent() ? 1 : -1));
   }
 
