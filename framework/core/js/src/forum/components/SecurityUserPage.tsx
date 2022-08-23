@@ -178,8 +178,12 @@ export default class SecurityUserPage<CustomAttrs extends IUserPageAttrs = IUser
       })
       .then(() => {
         this.loading = false;
+
+        // Count terminated sessions first.
+        const count = this.tokens!.filter((token) => token.isSessionToken() && !token.isCurrent());
+
         this.tokens = this.tokens!.filter((token) => !token.isSessionToken() || token.isCurrent());
-        app.alerts.show({ type: 'success' }, app.translator.trans('core.forum.security.session_terminated', { count: 2 }));
+        app.alerts.show({ type: 'success' }, app.translator.trans('core.forum.security.session_terminated', { count }));
         m.redraw();
       });
   }
