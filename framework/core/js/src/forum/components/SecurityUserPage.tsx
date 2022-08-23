@@ -10,7 +10,7 @@ import AccessToken from '../../common/models/AccessToken';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';
 import NewAccessTokenModal from './NewAccessTokenModal';
-import camelCaseToSnakeCase from "../../common/utils/camelCaseToSnakeCase";
+import camelCaseToSnakeCase from '../../common/utils/camelCaseToSnakeCase';
 
 /**
  * The `SecurityUserPage` component displays the user's security control panel, in

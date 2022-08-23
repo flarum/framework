@@ -10,7 +10,7 @@ import ItemList from '../../common/utils/ItemList';
 import DataSegment from '../../common/components/DataSegment';
 import extractText from '../../common/utils/extractText';
 import classList from '../../common/utils/classList';
-import Tooltip from "../../common/components/Tooltip";
+import Tooltip from '../../common/components/Tooltip';
 
 export interface IAccessTokensListAttrs extends ComponentAttrs {
   tokens: AccessToken[];
@@ -157,10 +157,7 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
       );
     }
 
-    items.add(
-      'revoke',
-      revokeButton
-    );
+    items.add('revoke', revokeButton);
 
     return items;
   }
