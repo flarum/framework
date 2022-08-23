@@ -9,7 +9,7 @@ import DiscussionPageResolver from './resolvers/DiscussionPageResolver';
 import Discussion from '../common/models/Discussion';
 import type Post from '../common/models/Post';
 import type User from '../common/models/User';
-import SecurityPage from './components/SecurityPage';
+import SecurityUserPage from './components/SecurityUserPage';
 
 /**
  * Helper functions to generate URLs to form pages.
@@ -35,7 +35,7 @@ export default function (app: ForumApplication) {
     'user.discussions': { path: '/u/:username/discussions', component: DiscussionsUserPage },
 
     settings: { path: '/settings', component: SettingsPage },
-    'user.security': { path: '/u/:username/security', component: SecurityPage },
+    'user.security': { path: '/u/:username/security', component: SecurityUserPage },
     notifications: { path: '/notifications', component: NotificationsPage },
   };
 }

@@ -12,10 +12,10 @@ import Button from '../../common/components/Button';
 import NewAccessTokenModal from './NewAccessTokenModal';
 
 /**
- * The `SecurityPage` component displays the user's security control panel, in
+ * The `SecurityUserPage` component displays the user's security control panel, in
  * the context of their user profile.
  */
-export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPageAttrs> extends UserPage<CustomAttrs> {
+export default class SecurityUserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttrs> extends UserPage<CustomAttrs> {
   protected tokens: AccessToken[] | null = null;
   protected loading: boolean = false;
 
@@ -37,7 +37,7 @@ export default class SecurityPage<CustomAttrs extends IUserPageAttrs = IUserPage
 
   content() {
     return (
-      <div className="SecurityPage">
+      <div className="SecurityUserPage">
         <ul>{listItems(this.settingsItems().toArray())}</ul>
       </div>
     );
