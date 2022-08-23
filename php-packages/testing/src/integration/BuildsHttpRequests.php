@@ -51,6 +51,7 @@ trait BuildsHttpRequests
 
         return $req
             ->withAddedHeader('Authorization', "Token {$token}")
+            // We save the token as an attribute so that we can retrieve it for test purposes.
             ->withAttribute('tests_token', $token);
     }
 
