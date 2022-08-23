@@ -10,7 +10,7 @@ import ItemList from '../../common/utils/ItemList';
 import DataSegment from '../../common/components/DataSegment';
 import extractText from '../../common/utils/extractText';
 import classList from '../../common/utils/classList';
-import Placeholder from '../../common/components/Placeholder';
+import Tooltip from "../../common/components/Tooltip";
 
 export interface IAccessTokensListAttrs extends ComponentAttrs {
   tokens: AccessToken[];
@@ -143,11 +143,20 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
       );
     }
 
-    items.add(
-      'revoke',
+    let revokeButton = (
       <Button className="Button Button--danger" disabled={token.isCurrent()} loading={!!this.loading[token.id()!]} onclick={() => this.revoke(token)}>
         {app.translator.trans(`core.forum.security.${deleteKey}`)}
       </Button>
+    );
+
+    // @TODO: tooltip doesn't work on disabled buttons
+    if (token.isCurrent()) {
+      revokeButton = <Tooltip text={app.translator.trans('core.forum.security.cannot_terminate_current_session')}>{revokeButton}</Tooltip>;
+    }
+
+    items.add(
+      'revoke',
+      revokeButton
     );
 
     return items;
