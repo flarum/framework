@@ -35,18 +35,17 @@ export default class UserCard extends Component {
       <div class={classList('UserCard', this.attrs.className)} style={color && { '--usercard-bg': color }}>
         <div className="darkenBackground">
           <div className="container">
-            {!!controls.length &&
-              Dropdown.component(
-                {
-                  className: 'UserCard-controls App-primaryControl',
-                  menuClassName: 'Dropdown-menu--right',
-                  buttonClassName: this.attrs.controlsButtonClassName,
-                  label: app.translator.trans('core.forum.user_controls.button'),
-                  accessibleToggleLabel: app.translator.trans('core.forum.user_controls.toggle_dropdown_accessible_label'),
-                  icon: 'fas fa-ellipsis-v',
-                },
-                controls
-              )}
+            {!!controls.length && (
+              <Dropdown
+                className="UserCard-controls App-primaryControl"
+                menuClassName="Dropdown-menu--right"
+                buttonClassName={this.attrs.controlsButtonClassName}
+                label={app.translator.trans('core.forum.user_controls.button')}
+                accessibleToggleLabel={app.translator.trans('core.forum.user_controls.toggle_dropdown_accessible_label')}
+                icon="fas fa-ellipsis-v">
+                {controls}
+              </Dropdown>
+            )}
 
             <div className="UserCard-profile">
               <h1 className="UserCard-identity">
