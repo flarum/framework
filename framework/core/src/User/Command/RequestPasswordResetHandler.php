@@ -17,7 +17,8 @@ use Flarum\User\UserRepository;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\ValidationException as IlluminateValidationException;
+use Flarum\Foundation\ValidationException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RequestPasswordResetHandler
@@ -91,13 +92,17 @@ class RequestPasswordResetHandler
         );
 
         if ($validation->fails()) {
-            throw new ValidationException($validation);
+            throw new IlluminateValidationException($validation);
         }
 
         $user = $this->users->findByEmail($email);
 
         if (! $user) {
-            throw new ModelNotFoundException;
+            throw new ValidationException([
+                'message' => strtr($this->translator->trans('validation.email'), [
+                    ':attribute' => $this->translator->trans('validation.attributes.email')
+                ])
+            ]);
         }
 
         $token = PasswordToken::generate($user->id);
