@@ -11,6 +11,8 @@ namespace Flarum\Tags\Api\Serializer;
 
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\DiscussionSerializer;
+use Flarum\Http\SlugManager;
+use Flarum\Tags\Tag;
 
 class TagSerializer extends AbstractSerializer
 {
@@ -20,14 +22,27 @@ class TagSerializer extends AbstractSerializer
     protected $type = 'tags';
 
     /**
-     * {@inheritdoc}
+     * @var SlugManager
+     */
+    protected $slugManager;
+
+    public function __construct(SlugManager $slugManager)
+    {
+        $this->slugManager = $slugManager;
+    }
+
+    /**
+     * Get the default set of serialized attributes for a model.
+     *
+     * @param Tag $tag
+     * @return array
      */
     protected function getDefaultAttributes($tag)
     {
         $attributes = [
             'name'               => $tag->name,
             'description'        => $tag->description,
-            'slug'               => $tag->slug,
+            'slug'               => $this->slugManager->forResource(Tag::class)->toSlug($tag),
             'color'              => $tag->color,
             'backgroundUrl'      => $tag->background_path,
             'backgroundMode'     => $tag->background_mode,
