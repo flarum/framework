@@ -67,7 +67,7 @@ class GlobalLogOutController implements RequestHandlerInterface
         $actor->emailTokens()->delete();
         $actor->passwordTokens()->delete();
 
-        $this->events->dispatch(new LoggedOut($actor));
+        $this->events->dispatch(new LoggedOut($actor, true));
 
         return $this->rememberer->forget(new EmptyResponse());
     }

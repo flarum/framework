@@ -108,7 +108,7 @@ class LogOutController implements RequestHandlerInterface
 
         $actor->accessTokens()->delete();
 
-        $this->events->dispatch(new LoggedOut($actor));
+        $this->events->dispatch(new LoggedOut($actor, false));
 
         return $this->rememberer->forget($response);
     }
