@@ -195,7 +195,7 @@ class InfoCommand extends AbstractCommand
     {
         $defaultDriver = $this->session->getDefaultDriver();
         $driver = Arr::get($this->config, 'session.driver', $defaultDriver);
-        $this->session->handler($driver);
+        $this->session->driver($driver);
         $configuredDriver = isset($this->session->getDrivers()[$driver]) ? $driver : $defaultDriver;
 
         // Get class name

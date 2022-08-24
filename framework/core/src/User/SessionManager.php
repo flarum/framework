@@ -12,32 +12,35 @@ namespace Flarum\User;
 use Flarum\Foundation\Config;
 use Illuminate\Session\SessionManager as IlluminateSessionManager;
 use Illuminate\Session\Store;
+use Illuminate\Support\Arr;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use SessionHandlerInterface;
 
 class SessionManager extends IlluminateSessionManager
 {
-    public function handler(string $driver = null): SessionHandlerInterface
+    /**
+     * Returns the configured session handler.
+     * Picks up the driver from `config.php` using the `session.driver` item.
+     * Falls back to the default driver if the configured one is not available,
+     *  and logs a critical error in that case.
+     */
+    public function handler(): SessionHandlerInterface
     {
         $config = $this->container->make(Config::class);
+        $driverName = Arr::get($config, 'session.driver');
 
-        /** @var Store $driver */
+        /** @var Store $driverInstance */
         try {
-            $driverInstance = parent::driver($driver ?? $config['session.driver']);
+            $driverInstance = parent::driver($driverName);
         } catch (InvalidArgumentException $e) {
-            if (! $driver) {
-                // If we're expecting the default driver, and it's not available,
-                // then we'll fall back to the default driver.
-                $driverInstance = parent::driver($this->getDefaultDriver());
+            $defaultDriverName = $this->getDefaultDriver();
+            $driverInstance = parent::driver($defaultDriverName);
 
-                // But we will log a critical error to the webmaster.
-                $this->container->make(LoggerInterface::class)->critical(
-                    'The default session driver is not available. Please check your configuration.'
-                );
-            } else {
-                throw $e;
-            }
+            // But we will log a critical error to the webmaster.
+            $this->container->make(LoggerInterface::class)->critical(
+                "The configured session driver [$driverName] is not available. Falling back to [$defaultDriverName]. Please check your configuration."
+            );
         }
 
         return $driverInstance->getHandler();

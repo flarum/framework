@@ -39,7 +39,7 @@ class SessionTest extends TestCase
     public function custom_driver_doesnt_exist_by_default()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->app()->getContainer()->make('session')->handler('flarum-acme');
+        $this->app()->getContainer()->make('session')->driver('flarum-acme');
     }
 
     /**
@@ -49,9 +49,9 @@ class SessionTest extends TestCase
     {
         $this->extend((new Extend\Session())->driver('flarum-acme', AcmeSessionDriver::class));
 
-        $handler = $this->app()->getContainer()->make('session')->handler('flarum-acme');
+        $driver = $this->app()->getContainer()->make('session')->driver('flarum-acme');
 
-        $this->assertEquals(NullSessionHandler::class, get_class($handler));
+        $this->assertEquals(NullSessionHandler::class, get_class($driver->getHandler()));
     }
 
     /**
@@ -61,9 +61,9 @@ class SessionTest extends TestCase
     {
         $this->extend((new Extend\Session())->driver('redis', AcmeSessionDriver::class));
 
-        $handler = $this->app()->getContainer()->make('session')->handler('redis');
+        $driver = $this->app()->getContainer()->make('session')->driver('redis');
 
-        $this->assertEquals(NullSessionHandler::class, get_class($handler));
+        $this->assertEquals(NullSessionHandler::class, get_class($driver->getHandler()));
     }
 
     /**
