@@ -9,12 +9,11 @@
 
 namespace Flarum\User\Command;
 
+use Flarum\Foundation\ValidationException;
 use Flarum\User\Job\RequestPasswordResetJob;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Contracts\Validation\Factory;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Flarum\Foundation\ValidationException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RequestPasswordResetHandler
