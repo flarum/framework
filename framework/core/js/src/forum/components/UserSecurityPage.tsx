@@ -72,8 +72,8 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
             className="Button"
             icon="fas fa-sign-out-alt"
             onclick={this.globalLogout.bind(this)}
-            loading={this.loading === 'global_logout'}
-            disabled={this.loading === 'terminate_sessions'}
+            loading={this.loadingGlobalLogout}
+            disabled={this.loadingTerminateSessions}
           >
             {app.translator.trans('core.forum.security.global_logout.log_out_button')}
           </Button>
@@ -207,7 +207,6 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
 
         app.alerts.show({ type: 'success' }, app.translator.trans('core.forum.security.session_terminated', { count }));
 
-        m.redraw();
       })
       .catch(() => {
         app.alerts.show({ type: 'error' }, app.translator.trans('core.forum.security.session_termination_failed'));
@@ -216,13 +215,17 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
   }
 
   globalLogout() {
-    this.loading = 'global_logout';
+    this.loadingGlobalLogout = true;
 
     return app
       .request({
         method: 'POST',
         url: app.forum.attribute<string>('baseUrl') + '/global-logout',
       })
-      .then(() => window.location.reload());
+      .then(() => window.location.reload())
+      .finally(() => {
+        this.loadingGlobalLogout = false;
+        m.redraw();
+      });
   }
 }
