@@ -83,6 +83,6 @@ class SendPasswordResetEmailTest extends TestCase
             ])
         );
 
-        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertEquals(204, $response->getStatusCode());
     }
 }
