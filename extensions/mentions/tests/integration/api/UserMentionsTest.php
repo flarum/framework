@@ -44,10 +44,11 @@ class UserMentionsTest extends TestCase
                 ['id' => 4, 'number' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><USERMENTION displayname="TobyFlarum___" id="4" username="toby">@tobyuuu</USERMENTION></r>'],
                 ['id' => 6, 'number' => 3, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 4, 'type' => 'comment', 'content' => '<r><USERMENTION displayname="i_am_a_deleted_user" id="2021" username="i_am_a_deleted_user">@"i_am_a_deleted_user"#2021</USERMENTION></r>'],
                 ['id' => 10, 'number' => 11, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 5, 'type' => 'comment', 'content' => '<r><USERMENTION displayname="Bad &quot;#p6 User" id="5">@"Bad "#p6 User"#5</USERMENTION></r>'],
+                ['id' => 11, 'number' => 12, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 50, 'type' => 'comment', 'content' => '<r><USERMENTION displayname="Bad &quot;#p6 User" id="5">@"Bad "#p6 User"#5</USERMENTION></r>'],
             ],
             'post_mentions_user' => [
                 ['post_id' => 4, 'mentions_user_id' => 4],
-                ['post_id' => 10, 'mentions_user_id' => 5]
+                ['post_id' => 10, 'mentions_user_id' => 5],
             ],
         ]);
 
@@ -430,6 +431,62 @@ class UserMentionsTest extends TestCase
         );
 
         $this->assertEquals(201, $response->getStatusCode());
+
+        $response = json_decode($response->getBody(), true);
+
+        $this->assertStringContainsString('Bad "#p6 User', $response['data']['attributes']['contentHtml']);
+        $this->assertEquals('@"Bad _ User"#5', $response['data']['attributes']['content']);
+        $this->assertStringContainsString('UserMention', $response['data']['attributes']['contentHtml']);
+        $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsUsers->find(5));
+    }
+
+    /**
+     * @test
+     */
+    public function editing_a_post_that_has_a_mention_works()
+    {
+        $response = $this->send(
+            $this->request('PATCH', '/api/posts/10', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'content' => '@"Bad _ User"#5',
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $response = json_decode($response->getBody(), true);
+
+        $this->assertStringContainsString('Bad "#p6 User', $response['data']['attributes']['contentHtml']);
+        $this->assertEquals('@"Bad _ User"#5', $response['data']['attributes']['content']);
+        $this->assertStringContainsString('UserMention', $response['data']['attributes']['contentHtml']);
+        $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsUsers->find(5));
+    }
+
+    /**
+     * @test
+     */
+    public function editing_a_post_with_deleted_author_that_has_a_mention_works()
+    {
+        $response = $this->send(
+            $this->request('PATCH', '/api/posts/11', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'content' => '@"Bad _ User"#5',
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
 
         $response = json_decode($response->getBody(), true);
 
