@@ -13,10 +13,10 @@ import NewAccessTokenModal from './NewAccessTokenModal';
 import camelCaseToSnakeCase from '../../common/utils/camelCaseToSnakeCase';
 
 /**
- * The `SecurityUserPage` component displays the user's security control panel, in
+ * The `UserSecurityPage` component displays the user's security control panel, in
  * the context of their user profile.
  */
-export default class SecurityUserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttrs> extends UserPage<CustomAttrs> {
+export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUserPageAttrs> extends UserPage<CustomAttrs> {
   protected tokens: AccessToken[] | null = null;
   protected loading: boolean = false;
 
@@ -38,7 +38,7 @@ export default class SecurityUserPage<CustomAttrs extends IUserPageAttrs = IUser
 
   content() {
     return (
-      <div className="SecurityUserPage">
+      <div className="UserSecurityPage">
         <ul>{listItems(this.settingsItems().toArray())}</ul>
       </div>
     );
