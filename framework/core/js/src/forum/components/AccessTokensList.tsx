@@ -186,18 +186,20 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
     return items;
   }
 
-  revoke(token: AccessToken) {
+  async revoke(token: AccessToken) {
     if (!confirm(extractText(app.translator.trans('core.forum.security.revoke_access_token_confirmation')))) return;
 
     this.loading[token.id()!] = true;
 
-    return token.delete().then(() => {
-      this.loading[token.id()!] = false;
-      this.attrs.ondelete && this.attrs.ondelete(token);
-      const key = this.attrs.type === 'session' ? 'session_terminated' : 'token_revoked';
-      app.alerts.show({ type: 'success' }, app.translator.trans(`core.forum.security.${key}`, { count: 1 }));
-      m.redraw();
-    });
+    await token.delete();
+
+    this.loading[token.id()!] = false;
+    this.attrs.ondelete?.(token);
+
+    const key = this.attrs.type === 'session' ? 'session_terminated' : 'token_revoked';
+
+    app.alerts.show({ type: 'success' }, app.translator.trans(`core.forum.security.${key}`, { count: 1 }));
+    m.redraw();
   }
 
   tokenValueDisplay(token: AccessToken): Mithril.Children {
