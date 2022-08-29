@@ -161,7 +161,7 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
 
     if (app.session.user!.id() === user.id() || app.forum.attribute<boolean>('canModerateAccessTokens')) {
       if (app.session.user!.id() !== user.id()) {
-        items.add('separator', <Separator />, -90);
+        items.add('security-separator', <Separator />, -90);
       }
 
       items.add(
