@@ -13,9 +13,12 @@
 .AccessTokensList {
   display: flex;
   flex-direction: column;
-  gap: 1px;
   border-radius: var(--border-radius);
   overflow: hidden;
+
+  > *:not(:first-child) {
+    margin-left: 1px;
+  }
 
   &-item {
     display: flex;
@@ -44,7 +47,10 @@
       display: flex;
       align-items: center;
       margin-left: auto;
-      gap: 8px;
+
+      > *:not(:first-child) {
+        margin-left: 8px;
+      }
     }
 
     &--active &-title-sub {
@@ -59,12 +65,17 @@
 
 @media @phone {
   .AccessTokensList {
-    gap: 8px;
+    > *:not(:first-child) {
+      margin-left: 8px;
+    }
 
     &-item {
       flex-wrap: wrap;
-      gap: 16px;
       padding: 16px;
+
+      > *:not(:first-child) {
+        margin-left: 16px;
+      }
 
       &-icon {
         width: 100%;
