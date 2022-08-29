@@ -51,11 +51,33 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
           'AccessTokensList-item--active': token.isCurrent(),
         })}
       >
-        <div className="AccessTokensList-item-icon">{icon(this.attrs.icon || 'fas fa-key')}</div>
-        <div className="AccessTokensList-item-info">{this.tokenInfoItems(token).toArray()}</div>
-        <div className="AccessTokensList-item-actions">{this.tokenActionItems(token).toArray()}</div>
+        {this.tokenViewItems(token).toArray()}
       </div>
     );
+  }
+
+  tokenViewItems(token: AccessToken): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add(
+      'icon',
+      <div className="AccessTokensList-item-icon">{icon(this.attrs.icon || 'fas fa-key')}</div>,
+      50,
+    );
+
+    items.add(
+      'info',
+      <div className="AccessTokensList-item-info">{this.tokenInfoItems(token).toArray()}</div>,
+      40,
+    );
+
+    items.add(
+      'actions',
+      <div className="AccessTokensList-item-actions">{this.tokenActionItems(token).toArray()}</div>,
+      30,
+    );
+
+    return items;
   }
 
   tokenInfoItems(token: AccessToken) {
