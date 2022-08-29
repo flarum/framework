@@ -548,6 +548,10 @@ core:
     dropdown:
       toggle_dropdown_accessible_label: Toggle dropdown menu
 
+    # These translations are used in the data segment component.
+    data_segment:
+      label: "{label}:"
+
     # These translations are used in the Edit User modal dialog (admin function).
     edit_user:
       activate_button: Activate User
