@@ -22,6 +22,8 @@ export default class NewAccessTokenModal<CustomAttrs extends INewAccessTokenModa
   }
 
   content(): Mithril.Children {
+    const titleLabel = app.translator.trans('core.forum.security.new_access_token_modal.title_placeholder');
+
     return (
       <div className="Modal-body">
         <div className="Form Form--centered">
@@ -30,7 +32,8 @@ export default class NewAccessTokenModal<CustomAttrs extends INewAccessTokenModa
               type="text"
               className="FormControl"
               bidi={this.titleInput}
-              placeholder={app.translator.trans('core.forum.security.new_access_token_modal.title_placeholder')}
+              placeholder={titleLabel}
+              aria-label={titleLabel}
             />
           </div>
           <div className="Form-group">
