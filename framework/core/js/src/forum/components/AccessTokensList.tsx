@@ -59,23 +59,11 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
   tokenViewItems(token: AccessToken): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
-    items.add(
-      'icon',
-      <div className="AccessTokensList-item-icon">{icon(this.attrs.icon || 'fas fa-key')}</div>,
-      50,
-    );
+    items.add('icon', <div className="AccessTokensList-item-icon">{icon(this.attrs.icon || 'fas fa-key')}</div>, 50);
 
-    items.add(
-      'info',
-      <div className="AccessTokensList-item-info">{this.tokenInfoItems(token).toArray()}</div>,
-      40,
-    );
+    items.add('info', <div className="AccessTokensList-item-info">{this.tokenInfoItems(token).toArray()}</div>, 40);
 
-    items.add(
-      'actions',
-      <div className="AccessTokensList-item-actions">{this.tokenActionItems(token).toArray()}</div>,
-      30,
-    );
+    items.add('actions', <div className="AccessTokensList-item-actions">{this.tokenActionItems(token).toArray()}</div>, 30);
 
     return items;
   }
@@ -123,15 +111,20 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
         <DataSegment
           label={app.translator.trans('core.forum.security.last_activity')}
           value={
-            token.lastActivityAt()
-              ? (
-                <>
-                  {humanTime(token.lastActivityAt())}
-                  {token.lastIpAddress() && ` — ${token.lastIpAddress()}`}
-                  {this.attrs.type === 'developer_token' && token.lastUserAgent() && <> — <span className="AccessTokensList-item-title-sub">{device}</span></>}
-                </>
-              )
-              : app.translator.trans('core.forum.security.never')
+            token.lastActivityAt() ? (
+              <>
+                {humanTime(token.lastActivityAt())}
+                {token.lastIpAddress() && ` — ${token.lastIpAddress()}`}
+                {this.attrs.type === 'developer_token' && token.lastUserAgent() && (
+                  <>
+                    {' '}
+                    — <span className="AccessTokensList-item-title-sub">{device}</span>
+                  </>
+                )}
+              </>
+            ) : (
+              app.translator.trans('core.forum.security.never')
+            )
           }
         />
       </div>

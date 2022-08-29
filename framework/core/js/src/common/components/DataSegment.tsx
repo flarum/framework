@@ -1,6 +1,6 @@
 import Component, { ComponentAttrs } from '../Component';
 import type Mithril from 'mithril';
-import app from "../app";
+import app from '../app';
 
 export interface IDataSegmentAttrs extends ComponentAttrs {
   label: Mithril.Children;
@@ -19,7 +19,7 @@ export default class DataSegment<CustomAttrs extends IDataSegmentAttrs = IDataSe
       <div className="DataSegment">
         <div className="DataSegment-label">
           {app.translator.trans('core.lib.data_segment.label', {
-            label: this.attrs.label
+            label: this.attrs.label,
           })}
         </div>
         <div className="DataSegment-value">{this.attrs.value}</div>

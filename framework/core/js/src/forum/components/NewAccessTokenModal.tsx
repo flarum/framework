@@ -28,13 +28,7 @@ export default class NewAccessTokenModal<CustomAttrs extends INewAccessTokenModa
       <div className="Modal-body">
         <div className="Form Form--centered">
           <div className="Form-group">
-            <input
-              type="text"
-              className="FormControl"
-              bidi={this.titleInput}
-              placeholder={titleLabel}
-              aria-label={titleLabel}
-            />
+            <input type="text" className="FormControl" bidi={this.titleInput} placeholder={titleLabel} aria-label={titleLabel} />
           </div>
           <div className="Form-group">
             <Button className="Button Button--primary Button--block" type="submit" loading={this.loading}>
