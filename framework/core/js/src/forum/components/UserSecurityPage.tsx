@@ -3,14 +3,14 @@ import UserPage, { IUserPageAttrs } from './UserPage';
 import ItemList from '../../common/utils/ItemList';
 import FieldSet from '../../common/components/FieldSet';
 import listItems from '../../common/helpers/listItems';
-import type Mithril from 'mithril';
 import extractText from '../../common/utils/extractText';
 import AccessTokensList from './AccessTokensList';
-import AccessToken from '../../common/models/AccessToken';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';
 import NewAccessTokenModal from './NewAccessTokenModal';
 import camelCaseToSnakeCase from '../../common/utils/camelCaseToSnakeCase';
+import type AccessToken from '../../common/models/AccessToken';
+import type Mithril from 'mithril';
 
 /**
  * The `UserSecurityPage` component displays the user's security control panel, in
