@@ -124,11 +124,13 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
           label={app.translator.trans('core.forum.security.last_activity')}
           value={
             token.lastActivityAt()
-              ? [
-                  humanTime(token.lastActivityAt()),
-                  token.lastIpAddress() && [' — ', token.lastIpAddress()],
-                  this.attrs.type === 'developer_token' && token.lastUserAgent() && [' — ', <span className="AccessTokensList-item-title-sub">{device}</span>],
-                ]
+              ? (
+                <>
+                  {humanTime(token.lastActivityAt())}
+                  {token.lastIpAddress() && ` — ${token.lastIpAddress()}`}
+                  {this.attrs.type === 'developer_token' && token.lastUserAgent() && <> — <span className="AccessTokensList-item-title-sub">{device}</span></>}
+                </>
+              )
               : app.translator.trans('core.forum.security.never')
           }
         />
