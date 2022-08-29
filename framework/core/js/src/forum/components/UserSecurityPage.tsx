@@ -11,6 +11,7 @@ import NewAccessTokenModal from './NewAccessTokenModal';
 import camelCaseToSnakeCase from '../../common/utils/camelCaseToSnakeCase';
 import type AccessToken from '../../common/models/AccessToken';
 import type Mithril from 'mithril';
+import Tooltip from "../../common/components/Tooltip";
 
 /**
  * The `UserSecurityPage` component displays the user's security control panel, in
@@ -139,17 +140,30 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
     );
 
     if (this.user!.id() === app.session.user!.id()) {
-      items.add(
-        'terminateAllOtherSessions',
+      const isDisabled = !this.tokens?.find((token) => token.isSessionToken() && !token.isCurrent());
+
+      let terminateAllOthersButton = (
         <Button
           className="Button"
           onclick={this.terminateAllOtherSessions.bind(this)}
           loading={this.loading}
-          disabled={!this.tokens?.find((token) => token.isSessionToken() && !token.isCurrent())}
+          disabled={isDisabled}
         >
           {app.translator.trans('core.forum.security.terminate_all_other_sessions')}
         </Button>
       );
+
+      if (isDisabled) {
+        terminateAllOthersButton = (
+          <Tooltip text={app.translator.trans('core.forum.security.cannot_terminate_current_session')}>
+            <span tabindex="0">
+              {terminateAllOthersButton}
+            </span>
+          </Tooltip>
+        );
+      }
+
+      items.add('terminateAllOtherSessions', terminateAllOthersButton);
     }
 
     return items;
