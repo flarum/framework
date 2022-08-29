@@ -1,10 +1,10 @@
-import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
-import Mithril from 'mithril';
-import Button from '../../common/components/Button';
 import app from '../app';
-import AccessToken from '../../common/models/AccessToken';
+import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import Button from '../../common/components/Button';
 import Stream from '../../common/utils/Stream';
-import { SaveAttributes } from '../../common/Model';
+import type AccessToken from '../../common/models/AccessToken';
+import type { SaveAttributes } from '../../common/Model';
+import type Mithril from 'mithril';
 
 export interface INewAccessTokenModalAttrs extends IInternalModalAttrs {
   onsuccess: (token: AccessToken) => void;
