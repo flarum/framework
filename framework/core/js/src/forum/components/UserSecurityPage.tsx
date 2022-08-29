@@ -78,7 +78,7 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
       ) : (
         <AccessTokensList
           key={this.tokens.length}
-          type="token"
+          type="developer_token"
           ondelete={(token: AccessToken) => {
             this.tokens = this.tokens!.filter((t) => t !== token);
             m.redraw();

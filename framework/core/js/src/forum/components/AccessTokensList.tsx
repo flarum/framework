@@ -14,7 +14,7 @@ import type AccessToken from '../../common/models/AccessToken';
 
 export interface IAccessTokensListAttrs extends ComponentAttrs {
   tokens: AccessToken[];
-  type: 'session' | 'token';
+  type: 'session' | 'developer_token';
   hideTokens?: boolean;
   icon?: string;
   ondelete?: (token: AccessToken) => void;
@@ -105,7 +105,7 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
               ? [
                   humanTime(token.lastActivityAt()),
                   token.lastIpAddress() && [' — ', token.lastIpAddress()],
-                  this.attrs.type === 'token' && token.lastUserAgent() && [' — ', <span className="AccessTokensList-item-title-sub">{device}</span>],
+                  this.attrs.type === 'developer_token' && token.lastUserAgent() && [' — ', <span className="AccessTokensList-item-title-sub">{device}</span>],
                 ]
               : app.translator.trans('core.forum.security.never')
           }
@@ -121,10 +121,10 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
 
     const deleteKey = {
       session: 'terminate_session',
-      token: 'revoke_access_token',
+      developer_token: 'revoke_access_token',
     }[this.attrs.type];
 
-    if (this.attrs.type === 'token') {
+    if (this.attrs.type === 'developer_token') {
       const isHidden = !this.showingTokens[token.id()!];
       const displayKey = isHidden ? 'show_access_token' : 'hide_access_token';
 
