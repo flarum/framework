@@ -1,7 +1,5 @@
-import Component, { ComponentAttrs } from '../../common/Component';
-import type Mithril from 'mithril';
-import type AccessToken from '../../common/models/AccessToken';
 import app from '../app';
+import Component, { ComponentAttrs } from '../../common/Component';
 import icon from '../../common/helpers/icon';
 import uaParser from 'ua-parser-js';
 import Button from '../../common/components/Button';
@@ -11,6 +9,8 @@ import DataSegment from '../../common/components/DataSegment';
 import extractText from '../../common/utils/extractText';
 import classList from '../../common/utils/classList';
 import Tooltip from '../../common/components/Tooltip';
+import type Mithril from 'mithril';
+import type AccessToken from '../../common/models/AccessToken';
 
 export interface IAccessTokensListAttrs extends ComponentAttrs {
   tokens: AccessToken[];
