@@ -32,7 +32,6 @@ flarum-subscriptions:
     settings:
       follow_after_reply_label: Automatically follow discussions that I reply to
       notify_for_all_posts_label: Notify about every new post instead of only the last in a discussion
-      preferences_heading: Discussion subscriptions
       notify_new_post_label: Someone posts in a discussion I'm following
 
     # These translations are used in the subscription menu displayed to the right of the post stream.
