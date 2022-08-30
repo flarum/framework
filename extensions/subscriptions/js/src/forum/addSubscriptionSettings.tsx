@@ -1,0 +1,43 @@
+import app from 'flarum/forum/app';
+import { extend } from 'flarum/common/extend';
+import SettingsPage from 'flarum/forum/components/SettingsPage';
+import Switch from 'flarum/common/components/Switch';
+import FieldSet from 'flarum/common/components/FieldSet';
+
+export default function () {
+  extend(SettingsPage.prototype, 'notificationsItems', function (this: SettingsPage, items) {
+    items.add(
+      'followAfterReply',
+      Switch.component(
+        {
+          state: this.user.preferences().followAfterReply,
+          onchange: (value) => {
+            this.followAfterReplyLoading = true;
+
+            this.user.savePreferences({ followAfterReply: value }).then(() => {
+              this.followAfterReplyLoading = false;
+              m.redraw();
+            });
+          },
+          loading: this.followAfterReplyLoading,
+        },
+        app.translator.trans('flarum-subscriptions.forum.settings.follow_after_reply_label')
+      )
+    );
+
+    items.add(
+      'fof-subscriptions__notify-for-all-posts',
+      <FieldSet label={app.translator.trans('flarum-subscriptions.forum.settings.preferences_heading')} className="Settings-subscriptions">
+        <Switch
+          id="flarum_subscriptions__notify_for_all_posts"
+          state={!!this.user!.preferences()?.['flarum-subscriptions.notify_for_all_posts']}
+          onchange={(val: boolean) => {
+            this.user!.savePreferences({ 'flarum-subscriptions.notify_for_all_posts': val });
+          }}
+        >
+          {app.translator.trans('flarum-subscriptions.forum.settings.notify_for_all_posts_label')}
+        </Switch>
+      </FieldSet>
+    );
+  });
+}
