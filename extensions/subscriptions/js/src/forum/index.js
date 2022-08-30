@@ -11,7 +11,6 @@ import addSubscriptionFilter from './addSubscriptionFilter';
 import addSubscriptionSettings from './addSubscriptionSettings';
 
 import NewPostNotification from './components/NewPostNotification';
-import addUserPreferences from './addUserPreferences';
 
 app.initializers.add('subscriptions', function () {
   app.routes.following = { path: '/following', component: IndexPage };
@@ -23,7 +22,6 @@ app.initializers.add('subscriptions', function () {
   addSubscriptionControls();
   addSubscriptionFilter();
   addSubscriptionSettings();
-  addUserPreferences();
 
   extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
     items.add('newPost', {
