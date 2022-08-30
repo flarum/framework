@@ -26,18 +26,16 @@ export default function () {
     );
 
     items.add(
-      'fof-subscriptions__notify-for-all-posts',
-      <FieldSet label={app.translator.trans('flarum-subscriptions.forum.settings.preferences_heading')} className="Settings-subscriptions">
-        <Switch
-          id="flarum_subscriptions__notify_for_all_posts"
-          state={!!this.user!.preferences()?.['flarum-subscriptions.notify_for_all_posts']}
-          onchange={(val: boolean) => {
-            this.user!.savePreferences({ 'flarum-subscriptions.notify_for_all_posts': val });
-          }}
-        >
-          {app.translator.trans('flarum-subscriptions.forum.settings.notify_for_all_posts_label')}
-        </Switch>
-      </FieldSet>
+      'notifyForAllPosts',
+      <Switch
+        id="flarum_subscriptions__notify_for_all_posts"
+        state={!!this.user!.preferences()?.['flarum-subscriptions.notify_for_all_posts']}
+        onchange={(val: boolean) => {
+          this.user!.savePreferences({ 'flarum-subscriptions.notify_for_all_posts': val });
+        }}
+      >
+        {app.translator.trans('flarum-subscriptions.forum.settings.notify_for_all_posts_label')}
+      </Switch>
     );
   });
 }
