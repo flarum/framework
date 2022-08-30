@@ -1,3 +1,5 @@
+import app from "flarum/common/app";
+
 export default function getSelectableTags(discussion) {
   let tags = app.store.all('tags');
 
