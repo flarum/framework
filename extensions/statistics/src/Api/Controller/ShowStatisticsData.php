@@ -9,6 +9,7 @@
 
 namespace Flarum\Statistics\Api\Controller;
 
+use Carbon\Carbon;
 use DateTime;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
@@ -69,16 +70,32 @@ class ShowStatisticsData implements RequestHandlerInterface
         // control panel.
         $actor->assertAdmin();
 
-        $reportingPeriod = Arr::get($request->getQueryParams(), 'period');
-        $model = Arr::get($request->getQueryParams(), 'model');
+        $query = $request->getQueryParams();
 
-        return new JsonResponse($this->getResponse($model, $reportingPeriod));
+        $reportingPeriod = Arr::get($query, 'period');
+        $model = Arr::get($query, 'model');
+        $customDateRange = Arr::get($query, 'dateRange');
+
+        return new JsonResponse($this->getResponse($model, $reportingPeriod, $customDateRange));
     }
 
-    private function getResponse(?string $model, ?string $period): array
+    private function getResponse(?string $model, ?string $period, ?array $customDateRange): array
     {
         if ($period === 'lifetime') {
             return $this->getLifetimeStatistics();
+        }
+
+        if ($period === 'custom') {
+            if (! $customDateRange) {
+                throw new InvalidParameterException('A custom date range must be specified');
+            }
+
+            // We use ms-based timestamp because this is what JS uses, so what the frontend will provide
+            $startRange = Carbon::createFromTimestampMsUTC($customDateRange['start'])->toDateTime();
+            $endRange = Carbon::createFromTimestampMsUTC($customDateRange['end'])->toDateTime();
+
+            // We can't really cache this
+            return $this->getTimedCounts($this->entities[$model][0], $this->entities[$model][1], $startRange, $endRange);
         }
 
         if (! Arr::exists($this->entities, $model)) {
@@ -104,7 +121,7 @@ class ShowStatisticsData implements RequestHandlerInterface
         });
     }
 
-    private function getTimedCounts(Builder $query, $column)
+    private function getTimedCounts(Builder $query, string $column, DateTime $startDate = new DateTime('-365 days'), DateTime $endDate = new DateTime())
     {
         $results = $query
             ->selectRaw(
@@ -115,7 +132,8 @@ class ShowStatisticsData implements RequestHandlerInterface
                 [new DateTime('-25 hours')]
             )
             ->selectRaw('COUNT(id) as count')
-            ->where($column, '>', new DateTime('-365 days'))
+            ->where($column, '>', $startDate)
+            ->where($column, '<', $endDate)
             ->groupBy('time_group')
             ->pluck('count', 'time_group');
 
