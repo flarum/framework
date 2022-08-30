@@ -85,21 +85,21 @@ class ShowStatisticsData implements RequestHandlerInterface
             return $this->getLifetimeStatistics();
         }
 
+        if (! Arr::exists($this->entities, $model)) {
+            throw new InvalidParameterException('A model must be specified');
+        }
+
         if ($period === 'custom') {
             if (! $customDateRange) {
                 throw new InvalidParameterException('A custom date range must be specified');
             }
 
-            // We use ms-based timestamp because this is what JS uses, so what the frontend will provide
-            $startRange = Carbon::createFromTimestampMsUTC($customDateRange['start'])->toDateTime();
-            $endRange = Carbon::createFromTimestampMsUTC($customDateRange['end'])->toDateTime();
+            // Seconds-based timestamps
+            $startRange = Carbon::createFromTimestampUTC($customDateRange['start'])->toDateTime();
+            $endRange = Carbon::createFromTimestampUTC($customDateRange['end'])->toDateTime();
 
             // We can't really cache this
             return $this->getTimedCounts($this->entities[$model][0], $this->entities[$model][1], $startRange, $endRange);
-        }
-
-        if (! Arr::exists($this->entities, $model)) {
-            throw new InvalidParameterException();
         }
 
         return $this->getTimedStatistics($model);
