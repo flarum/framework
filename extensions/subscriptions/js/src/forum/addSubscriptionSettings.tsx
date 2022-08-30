@@ -2,7 +2,6 @@ import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
 import SettingsPage from 'flarum/forum/components/SettingsPage';
 import Switch from 'flarum/common/components/Switch';
-import FieldSet from 'flarum/common/components/FieldSet';
 
 export default function () {
   extend(SettingsPage.prototype, 'notificationsItems', function (this: SettingsPage, items) {
