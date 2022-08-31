@@ -7,7 +7,7 @@ import type Mithril from 'mithril';
 
 export interface IDropdownAttrs extends ComponentAttrs {
   /** A class name to apply to the dropdown toggle button. */
-  buttonClassName: string;
+  buttonClassName?: string;
   /** A class name to apply to the dropdown menu. */
   menuClassName?: string;
   /** The name of an icon to show in the dropdown toggle button. */
