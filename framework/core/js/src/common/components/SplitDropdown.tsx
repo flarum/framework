@@ -2,7 +2,7 @@ import Dropdown, { IDropdownAttrs } from './Dropdown';
 import Button from './Button';
 import icon from '../helpers/icon';
 import Mithril from 'mithril';
-import classList from "../utils/classList";
+import classList from '../utils/classList';
 
 export interface ISplitDropdownAttrs extends IDropdownAttrs {}
 
