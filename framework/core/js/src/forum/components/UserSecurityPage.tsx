@@ -12,14 +12,14 @@ import camelCaseToSnakeCase from '../../common/utils/camelCaseToSnakeCase';
 import type AccessToken from '../../common/models/AccessToken';
 import type Mithril from 'mithril';
 import Tooltip from '../../common/components/Tooltip';
+import UserSecurityPageState from "../states/UserSecurityPageState";
 
 /**
  * The `UserSecurityPage` component displays the user's security control panel, in
  * the context of their user profile.
  */
-export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUserPageAttrs> extends UserPage<CustomAttrs> {
-  protected tokens: AccessToken[] | null = null;
-  protected loading: boolean = false;
+export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUserPageAttrs> extends UserPage<CustomAttrs, UserSecurityPageState> {
+  state = new UserSecurityPageState();
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
@@ -74,17 +74,16 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
 
     items.add(
       'accessTokenList',
-      this.tokens === null ? (
+      !this.state.hasLoadedTokens() ? (
         <LoadingIndicator />
       ) : (
         <AccessTokensList
-          key={this.tokens.length}
           type="developer_token"
           ondelete={(token: AccessToken) => {
-            this.tokens = this.tokens!.filter((t) => t !== token);
+            this.state.removeToken(token);
             m.redraw();
           }}
-          tokens={this.tokens.filter((token) => !token.isSessionToken())}
+          tokens={this.state.getDeveloperTokens()}
           icon="fas fa-key"
           hideTokens={false}
         />
@@ -100,7 +99,7 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
           onclick={() =>
             app.modal.show(NewAccessTokenModal, {
               onsuccess: (token: AccessToken) => {
-                this.tokens?.push(token);
+                this.state.pushToken(token);
                 m.redraw();
               },
             })
@@ -122,17 +121,16 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
 
     items.add(
       'sessionsList',
-      this.tokens === null ? (
+      !this.state.hasLoadedTokens() ? (
         <LoadingIndicator />
       ) : (
         <AccessTokensList
-          key={this.tokens.length}
           type="session"
           ondelete={(token: AccessToken) => {
-            this.tokens = this.tokens!.filter((t) => t !== token);
+            this.state.removeToken(token);
             m.redraw();
           }}
-          tokens={this.tokens.filter((token) => token.isSessionToken())}
+          tokens={this.state.getSessionTokens()}
           icon="fas fa-laptop"
           hideTokens={true}
         />
@@ -140,10 +138,10 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
     );
 
     if (this.user!.id() === app.session.user!.id()) {
-      const isDisabled = !this.tokens?.find((token) => token.isSessionToken() && !token.isCurrent());
+      const isDisabled = !this.state.hasOtherActiveSessions();
 
       let terminateAllOthersButton = (
-        <Button className="Button" onclick={this.terminateAllOtherSessions.bind(this)} loading={this.loading} disabled={isDisabled}>
+        <Button className="Button" onclick={this.terminateAllOtherSessions.bind(this)} loading={this.state.isLoading()} disabled={isDisabled}>
           {app.translator.trans('core.forum.security.terminate_all_other_sessions')}
         </Button>
       );
@@ -168,7 +166,7 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
         filter: { user: this.user!.id()! },
       })
       .then((tokens) => {
-        this.tokens = tokens;
+        this.state.setTokens(tokens);
         m.redraw();
       });
   }
@@ -176,7 +174,7 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
   terminateAllOtherSessions() {
     if (!confirm(extractText(app.translator.trans('core.forum.security.terminate_all_other_sessions_confirmation')))) return;
 
-    this.loading = true;
+    this.state.setLoading(true);
 
     return app
       .request({
@@ -184,12 +182,12 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
         url: app.forum.attribute('apiUrl') + '/sessions',
       })
       .then(() => {
-        this.loading = false;
+        this.state.setLoading(false);
 
         // Count terminated sessions first.
-        const count = this.tokens!.filter((token) => token.isSessionToken() && !token.isCurrent());
+        const count = this.state.getOtherSessionTokens().length;
 
-        this.tokens = this.tokens!.filter((token) => !token.isSessionToken() || token.isCurrent());
+        this.state.removeOtherSessionTokens();
         app.alerts.show({ type: 'success' }, app.translator.trans('core.forum.security.session_terminated', { count }));
         m.redraw();
       });

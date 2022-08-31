@@ -44,12 +44,13 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
     );
   }
 
-  tokenView(token: AccessToken): Mithril.Children {
+  tokenView(token: AccessToken, index: number): Mithril.Children {
     return (
       <div
         className={classList('AccessTokensList-item', {
           'AccessTokensList-item--active': token.isCurrent(),
         })}
+        key={index}
       >
         {this.tokenViewItems(token).toArray()}
       </div>
