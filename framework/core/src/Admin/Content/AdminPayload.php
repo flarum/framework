@@ -55,11 +55,6 @@ class AdminPayload
     protected $config;
 
     /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
      * @param Container $container
      * @param SettingsRepositoryInterface $settings
      * @param ExtensionManager $extensions
