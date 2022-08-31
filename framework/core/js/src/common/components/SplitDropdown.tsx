@@ -2,6 +2,7 @@ import Dropdown, { IDropdownAttrs } from './Dropdown';
 import Button from './Button';
 import icon from '../helpers/icon';
 import Mithril from 'mithril';
+import classList from "../utils/classList";
 
 export interface ISplitDropdownAttrs extends IDropdownAttrs {}
 
@@ -13,8 +14,8 @@ export default class SplitDropdown extends Dropdown {
   static initAttrs(attrs: ISplitDropdownAttrs) {
     super.initAttrs(attrs);
 
-    attrs.className += ' Dropdown--split';
-    attrs.menuClassName += ' Dropdown-menu--right';
+    attrs.className = classList(attrs.className, 'Dropdown--split');
+    attrs.menuClassName = classList(attrs.menuClassName, 'Dropdown-menu--right');
   }
 
   getButton(children: Mithril.ChildArray): Mithril.Vnode<any, any> {

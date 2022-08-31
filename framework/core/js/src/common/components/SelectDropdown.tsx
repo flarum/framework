@@ -2,6 +2,7 @@ import Dropdown, { IDropdownAttrs } from './Dropdown';
 import icon from '../helpers/icon';
 import Mithril from 'mithril';
 import extractText from '../utils/extractText';
+import classList from "../utils/classList";
 
 /**
  * Determines via a vnode is currently "active".
@@ -41,7 +42,7 @@ export default class SelectDropdown<CustomAttrs extends ISelectDropdownAttrs = I
 
     super.initAttrs(attrs);
 
-    attrs.className += ' Dropdown--select';
+    attrs.className = classList(attrs.className, 'Dropdown--select');
   }
 
   getButtonContent(children: Mithril.ChildArray): Mithril.ChildArray {
