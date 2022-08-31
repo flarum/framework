@@ -9,11 +9,12 @@ import errorHandler from '../utils/errorHandler';
 import jumpToQueue from '../utils/jumpToQueue';
 import { AsyncBackendResponse } from '../shims';
 
-interface InstallerAttrs extends ComponentAttrs {}
+export interface InstallerAttrs extends ComponentAttrs {}
+
+export type InstallerLoadingTypes = 'extension-install' | null;
 
 export default class Installer extends Component<InstallerAttrs> {
   packageName!: Stream<string>;
-  isLoading: boolean = false;
 
   oninit(vnode: Mithril.Vnode<InstallerAttrs, this>): void {
     super.oninit(vnode);
@@ -32,7 +33,13 @@ export default class Installer extends Component<InstallerAttrs> {
         </p>
         <div className="FormControl-container">
           <input className="FormControl" id="install-extension" placeholder="vendor/package-name" bidi={this.packageName} />
-          <Button className="Button" icon="fas fa-download" onclick={this.onsubmit.bind(this)} loading={this.isLoading}>
+          <Button
+            className="Button"
+            icon="fas fa-download"
+            onclick={this.onsubmit.bind(this)}
+            loading={app.packageManager.control.isLoading('extension-install')}
+            disabled={app.packageManager.control.isLoadingOtherThan('extension-install')}
+          >
             {app.translator.trans('flarum-package-manager.admin.extensions.proceed')}
           </Button>
         </div>
@@ -47,7 +54,7 @@ export default class Installer extends Component<InstallerAttrs> {
   }
 
   onsubmit(): void {
-    this.isLoading = true;
+    app.packageManager.control.setLoading('extension-install');
     app.modal.show(LoadingModal);
 
     app
@@ -73,7 +80,7 @@ export default class Installer extends Component<InstallerAttrs> {
         }
       })
       .finally(() => {
-        this.isLoading = false;
+        app.packageManager.control.setLoading(null);
         m.redraw();
       });
   }

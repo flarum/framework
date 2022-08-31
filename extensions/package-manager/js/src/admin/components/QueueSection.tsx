@@ -24,7 +24,7 @@ export default class QueueSection extends Component<{}> {
   oninit(vnode: Mithril.Vnode<{}, this>) {
     super.oninit(vnode);
 
-    app.packageManagerQueue.load();
+    app.packageManager.queue.load();
   }
 
   view() {
@@ -36,7 +36,7 @@ export default class QueueSection extends Component<{}> {
             <Button
               className="Button Button--icon"
               icon="fas fa-sync-alt"
-              onclick={() => app.packageManagerQueue.load()}
+              onclick={() => app.packageManager.queue.load()}
               aria-label={app.translator.trans('flarum-package-manager.admin.sections.queue.refresh')}
             />
           </div>
@@ -154,7 +154,7 @@ export default class QueueSection extends Component<{}> {
   }
 
   queueTable() {
-    const tasks = app.packageManagerQueue.getItems();
+    const tasks = app.packageManager.queue.getItems();
 
     if (!tasks) {
       return <LoadingIndicator />;
@@ -193,7 +193,7 @@ export default class QueueSection extends Component<{}> {
           </tbody>
         </table>
 
-        <Pagination list={app.packageManagerQueue} />
+        <Pagination list={app.packageManager.queue} />
       </>
     );
   }

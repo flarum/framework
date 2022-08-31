@@ -8,14 +8,14 @@ import SettingsPage from './components/SettingsPage';
 
 import Task from './models/Task';
 import jumpToQueue from './utils/jumpToQueue';
-import QueueState from './states/QueueState';
 import extractText from 'flarum/common/utils/extractText';
 import { AsyncBackendResponse } from './shims';
+import PackageManagerState from './states/PackageManagerState';
 
 app.initializers.add('flarum-package-manager', (app) => {
   app.store.models['package-manager-tasks'] = Task;
 
-  app.packageManagerQueue = new QueueState();
+  app.packageManager = new PackageManagerState();
 
   app.extensionData
     .for('flarum-package-manager')

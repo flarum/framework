@@ -1,278 +1,126 @@
-import Mithril from 'mithril';
 import app from 'flarum/admin/app';
 import Component, { ComponentAttrs } from 'flarum/common/Component';
 import Button from 'flarum/common/components/Button';
 import humanTime from 'flarum/common/helpers/humanTime';
-import LoadingModal from 'flarum/admin/components/LoadingModal';
-import errorHandler from '../utils/errorHandler';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import MajorUpdater from './MajorUpdater';
 import ExtensionItem from './ExtensionItem';
-import extractText from 'flarum/common/utils/extractText';
-import jumpToQueue from '../utils/jumpToQueue';
-import { AsyncBackendResponse } from '../shims';
 import { Extension } from 'flarum/admin/AdminApplication';
+import Alert from 'flarum/common/components/Alert';
+import ItemList from '@flarum/core/src/common/utils/ItemList';
 
-export type UpdatedPackage = {
-  name: string;
-  version: string;
-  latest: string;
-  'latest-minor': string | null;
-  'latest-major': string | null;
-  'latest-status': string;
-  description: string;
-};
+export interface IUpdaterAttrs extends ComponentAttrs {}
 
-export type ComposerUpdates = {
-  installed: UpdatedPackage[];
-};
+export type UpdaterLoadingTypes = 'check' | 'minor-update' | 'global-update' | 'extension-update' | null;
 
-export type LastUpdateCheck = {
-  checkedAt: Date | null;
-  updates: ComposerUpdates;
-};
-
-type UpdateType = 'major' | 'minor' | 'global';
-type UpdateStatus = 'success' | 'failure' | null;
-export type UpdateState = {
-  ranAt: Date | null;
-  status: UpdateStatus;
-  limitedPackages: string[];
-  incompatibleExtensions: string[];
-};
-
-export type LastUpdateRun = {
-  [key in UpdateType]: UpdateState;
-} & {
-  limitedPackages: () => string[];
-};
-
-interface UpdaterAttrs extends ComponentAttrs {}
-
-export default class Updater extends Component<UpdaterAttrs> {
-  isLoading: string | null = null;
-  packageUpdates: Record<string, UpdatedPackage> = {};
-  lastUpdateCheck: LastUpdateCheck = JSON.parse(app.data.settings['flarum-package-manager.last_update_check']) as LastUpdateCheck;
-  get lastUpdateRun(): LastUpdateRun {
-    const lastUpdateRun = JSON.parse(app.data.settings['flarum-package-manager.last_update_run']) as LastUpdateRun;
-
-    lastUpdateRun.limitedPackages = () => [
-      ...lastUpdateRun.major.limitedPackages,
-      ...lastUpdateRun.minor.limitedPackages,
-      ...lastUpdateRun.global.limitedPackages,
-    ];
-
-    return lastUpdateRun;
-  }
-
-  oninit(vnode: Mithril.Vnode<UpdaterAttrs, this>) {
-    super.oninit(vnode);
-  }
-
+export default class Updater extends Component<IUpdaterAttrs> {
   view() {
-    const extensions = this.getExtensionUpdates();
-    let coreUpdate: UpdatedPackage | undefined = this.getCoreUpdate();
-    let core: any;
-
-    if (coreUpdate) {
-      core = {
-        id: 'flarum-core',
-        name: 'flarum/core',
-        version: app.data.settings.version,
-        icon: {
-          backgroundImage: `url(${app.forum.attribute('baseUrl')}/assets/extensions/flarum-package-manager/flarum.svg`,
-        },
-        extra: {
-          'flarum-extension': {
-            title: app.translator.trans('flarum-package-manager.admin.updater.flarum'),
-          },
-        },
-      };
-    }
+    const core = app.packageManager.control.coreUpdate;
 
     return [
       <div className="Form-group">
         <label>{app.translator.trans('flarum-package-manager.admin.updater.updater_title')}</label>
         <p className="helpText">{app.translator.trans('flarum-package-manager.admin.updater.updater_help')}</p>
-        {this.lastUpdateCheck?.checkedAt && (
-          <p className="PackageManager-lastUpdatedAt">
-            <span className="PackageManager-lastUpdatedAt-label">
-              {app.translator.trans('flarum-package-manager.admin.updater.last_update_checked_at')}
-            </span>
-            <span className="PackageManager-lastUpdatedAt-value">{humanTime(this.lastUpdateCheck.checkedAt)}</span>
-          </p>
-        )}
-        <div className="PackageManager-updaterControls">
-          <Button
-            className="Button"
-            icon="fas fa-sync-alt"
-            onclick={this.checkForUpdates.bind(this)}
-            loading={this.isLoading === 'check'}
-            disabled={this.isLoading !== null && this.isLoading !== 'check'}
-          >
-            {app.translator.trans('flarum-package-manager.admin.updater.check_for_updates')}
-          </Button>
-          <Button
-            className="Button"
-            icon="fas fa-play"
-            onclick={this.updateGlobally.bind(this)}
-            loading={this.isLoading === 'global-update'}
-            disabled={this.isLoading !== null && this.isLoading !== 'global-update'}
-          >
-            {app.translator.trans('flarum-package-manager.admin.updater.run_global_update')}
-          </Button>
-        </div>
-        {this.isLoading !== null ? (
-          <div className="PackageManager-extensions">
-            <LoadingIndicator />
-          </div>
-        ) : extensions.length || core ? (
-          <div className="PackageManager-extensions">
-            <div className="PackageManager-extensions-grid">
-              {core ? (
-                <ExtensionItem
-                  extension={core}
-                  updates={coreUpdate}
-                  isCore={true}
-                  onClickUpdate={this.updateCoreMinor.bind(this)}
-                  whyNotWarning={this.lastUpdateRun.limitedPackages().includes('flarum/core')}
-                />
-              ) : null}
-              {extensions.map((extension: Extension) => (
-                <ExtensionItem
-                  extension={extension}
-                  updates={this.packageUpdates[extension.id]}
-                  onClickUpdate={this.updateExtension.bind(this, extension)}
-                  whyNotWarning={this.lastUpdateRun.limitedPackages().includes(extension.name)}
-                />
-              ))}
-            </div>
-          </div>
-        ) : null}
+        {this.lastUpdateCheckView()}
+        <div className="PackageManager-updaterControls">{this.controlItems().toArray()}</div>
+        {this.availableUpdatesView()}
       </div>,
-      coreUpdate && coreUpdate['latest-major'] ? <MajorUpdater coreUpdate={coreUpdate} updateState={this.lastUpdateRun.major} /> : null,
+      core && core.package['latest-major'] ? (
+        <MajorUpdater coreUpdate={core.package} updateState={app.packageManager.control.lastUpdateRun.major} />
+      ) : null,
     ];
   }
 
-  getExtensionUpdates(): Extension[] {
-    this.lastUpdateCheck?.updates?.installed?.filter((composerPackage: UpdatedPackage) => {
-      const id = composerPackage.name.replace('/', '-').replace(/(flarum-ext-)|(flarum-)/, '');
-
-      const extension = app.data.extensions[id];
-      const safeToUpdate = ['semver-safe-update', 'update-possible'].includes(composerPackage['latest-status']);
-
-      if (extension && safeToUpdate) {
-        this.packageUpdates[extension.id] = composerPackage;
-      }
-
-      return extension && safeToUpdate;
-    });
-
-    return (Object.values(app.data.extensions) as Extension[]).filter((extension: Extension) => this.packageUpdates[extension.id]);
+  lastUpdateCheckView() {
+    return (
+      (app.packageManager.control.lastUpdateCheck?.checkedAt && (
+        <p className="PackageManager-lastUpdatedAt">
+          <span className="PackageManager-lastUpdatedAt-label">
+            {app.translator.trans('flarum-package-manager.admin.updater.last_update_checked_at')}
+          </span>
+          <span className="PackageManager-lastUpdatedAt-value">{humanTime(app.packageManager.control.lastUpdateCheck.checkedAt)}</span>
+        </p>
+      )) ||
+      null
+    );
   }
 
-  getCoreUpdate(): UpdatedPackage | undefined {
-    return this.lastUpdateCheck?.updates?.installed?.filter((composerPackage: UpdatedPackage) => composerPackage.name === 'flarum/core').pop();
-  }
+  availableUpdatesView() {
+    const state = app.packageManager.control;
 
-  checkForUpdates() {
-    this.isLoading = 'check';
-
-    app
-      .request<AsyncBackendResponse | LastUpdateCheck>({
-        method: 'POST',
-        url: `${app.forum.attribute('apiUrl')}/package-manager/check-for-updates`,
-        errorHandler,
-      })
-      .then((response) => {
-        if ((response as AsyncBackendResponse).processing) {
-          jumpToQueue();
-        } else {
-          this.lastUpdateCheck = response as LastUpdateCheck;
-        }
-      })
-      .finally(() => {
-        this.isLoading = null;
-        m.redraw();
-      });
-  }
-
-  updateCoreMinor() {
-    if (confirm(extractText(app.translator.trans('flarum-package-manager.admin.minor_update_confirmation.content')))) {
-      app.modal.show(LoadingModal);
-      this.isLoading = 'minor-update';
-
-      app
-        .request<AsyncBackendResponse | null>({
-          method: 'POST',
-          url: `${app.forum.attribute('apiUrl')}/package-manager/minor-update`,
-          errorHandler,
-        })
-        .then((response) => {
-          if (response?.processing) {
-            jumpToQueue();
-          } else {
-            app.alerts.show({ type: 'success' }, app.translator.trans('flarum-package-manager.admin.update_successful'));
-            window.location.reload();
-          }
-        })
-        .finally(() => {
-          this.isLoading = null;
-          m.redraw();
-        });
+    if (app.packageManager.control.isLoading()) {
+      return (
+        <div className="PackageManager-extensions">
+          <LoadingIndicator />
+        </div>
+      );
     }
+
+    if (!(state.extensionUpdates.length || state.coreUpdate)) {
+      return (
+        <div className="PackageManager-extensions">
+          <Alert type="success" dismissible={false}>
+            {app.translator.trans('flarum-package-manager.admin.updater.up_to_date')}
+          </Alert>
+        </div>
+      );
+    }
+
+    return (
+      <div className="PackageManager-extensions">
+        <div className="PackageManager-extensions-grid">
+          {state.coreUpdate ? (
+            <ExtensionItem
+              extension={state.coreUpdate.extension}
+              updates={state.coreUpdate.package}
+              isCore={true}
+              onClickUpdate={() => state.updateCoreMinor()}
+              whyNotWarning={state.lastUpdateRun.limitedPackages().includes('flarum/core')}
+            />
+          ) : null}
+          {state.extensionUpdates.map((extension: Extension) => (
+            <ExtensionItem
+              extension={extension}
+              updates={state.packageUpdates[extension.id]}
+              onClickUpdate={() => state.updateExtension(extension)}
+              whyNotWarning={state.lastUpdateRun.limitedPackages().includes(extension.name)}
+            />
+          ))}
+        </div>
+      </div>
+    );
   }
 
-  updateExtension(extension: any) {
-    app.modal.show(LoadingModal);
-    this.isLoading = 'extension-update';
+  controlItems() {
+    const items = new ItemList();
 
-    app
-      .request<AsyncBackendResponse | null>({
-        method: 'PATCH',
-        url: `${app.forum.attribute('apiUrl')}/package-manager/extensions/${extension.id}`,
-        errorHandler,
-      })
-      .then((response) => {
-        if (response?.processing) {
-          jumpToQueue();
-        } else {
-          app.alerts.show(
-            { type: 'success' },
-            app.translator.trans('flarum-package-manager.admin.extensions.successful_update', {
-              extension: extension.extra['flarum-extension'].title,
-            })
-          );
-          window.location.reload();
-        }
-      })
-      .finally(() => {
-        this.isLoading = null;
-        m.redraw();
-      });
-  }
+    items.add(
+      'updateCheck',
+      <Button
+        className="Button"
+        icon="fas fa-sync-alt"
+        onclick={() => app.packageManager.control.checkForUpdates()}
+        loading={app.packageManager.control.isLoading('check')}
+        disabled={app.packageManager.control.isLoadingOtherThan('check')}
+      >
+        {app.translator.trans('flarum-package-manager.admin.updater.check_for_updates')}
+      </Button>,
+      100
+    );
 
-  updateGlobally() {
-    app.modal.show(LoadingModal);
-    this.isLoading = 'global-update';
+    items.add(
+      'globalUpdate',
+      <Button
+        className="Button"
+        icon="fas fa-play"
+        onclick={() => app.packageManager.control.updateGlobally()}
+        loading={app.packageManager.control.isLoading('global-update')}
+        disabled={app.packageManager.control.isLoadingOtherThan('global-update')}
+      >
+        {app.translator.trans('flarum-package-manager.admin.updater.run_global_update')}
+      </Button>
+    );
 
-    app
-      .request<AsyncBackendResponse | null>({
-        method: 'POST',
-        url: `${app.forum.attribute('apiUrl')}/package-manager/global-update`,
-        errorHandler,
-      })
-      .then((response) => {
-        if (response?.processing) {
-          jumpToQueue();
-        } else {
-          app.alerts.show({ type: 'success' }, app.translator.trans('flarum-package-manager.admin.updater.global_update_successful'));
-          window.location.reload();
-        }
-      })
-      .finally(() => {
-        this.isLoading = null;
-        m.redraw();
-      });
+    return items;
   }
 }

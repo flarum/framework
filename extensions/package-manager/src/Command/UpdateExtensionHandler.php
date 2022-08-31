@@ -10,6 +10,8 @@
 namespace Flarum\PackageManager\Command;
 
 use Flarum\Extension\ExtensionManager;
+use Flarum\Foundation\Paths;
+use Flarum\Foundation\ValidationException;
 use Flarum\PackageManager\Composer\ComposerAdapter;
 use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
 use Flarum\PackageManager\Exception\ExtensionNotInstalledException;
@@ -46,18 +48,25 @@ class UpdateExtensionHandler
      */
     protected $events;
 
+    /**
+     * @var Paths
+     */
+    protected $paths;
+
     public function __construct(
         ComposerAdapter $composer,
         ExtensionManager $extensions,
         UpdateExtensionValidator $validator,
         LastUpdateCheck $lastUpdateCheck,
-        Dispatcher $events
+        Dispatcher $events,
+        Paths $paths
     ) {
         $this->composer = $composer;
         $this->extensions = $extensions;
         $this->validator = $validator;
         $this->lastUpdateCheck = $lastUpdateCheck;
         $this->events = $events;
+        $this->paths = $paths;
     }
 
     /**
@@ -74,6 +83,17 @@ class UpdateExtensionHandler
 
         if (empty($extension)) {
             throw new ExtensionNotInstalledException($command->extensionId);
+        }
+
+        $rootComposer = json_decode(file_get_contents("{$this->paths->base}/composer.json"), true);
+
+        // If this was installed as a requirement for another extension,
+        // don't update it directly.
+        // @TODO communicate this in the UI.
+        if (! isset($rootComposer['require'][$extension->name]) && ! empty($extension->getExtensionDependencyIds())) {
+            throw new ValidationException([
+                'message' => "Cannot update $extension->name. It was installed as a requirement for other extensions: ".implode(', ', $extension->getExtensionDependencyIds()).'. Update those extensions instead.'
+            ]);
         }
 
         $output = $this->composer->run(
