@@ -17,7 +17,7 @@ export interface IDropdownAttrs extends ComponentAttrs {
   /** The label of the dropdown toggle button. Defaults to 'Controls'. */
   label: Mithril.Children;
   /** The label used to describe the dropdown toggle button to assistive readers. Defaults to 'Toggle dropdown menu'. */
-  accessibleToggleLabel: string;
+  accessibleToggleLabel?: string;
   /** An action to take when the dropdown is collapsed. */
   onhide?: () => void;
   /** An action to take when the dropdown is opened. */
