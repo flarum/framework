@@ -41,8 +41,7 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
     attrs.menuClassName = attrs.menuClassName || '';
     attrs.label = attrs.label || '';
     attrs.caretIcon = typeof attrs.caretIcon !== 'undefined' ? attrs.caretIcon : 'fas fa-caret-down';
-    attrs.accessibleToggleLabel =
-      attrs.accessibleToggleLabel || extractText(app.translator.trans('core.lib.dropdown.toggle_dropdown_accessible_label'));
+    attrs.accessibleToggleLabel ||= extractText(app.translator.trans('core.lib.dropdown.toggle_dropdown_accessible_label'));
   }
 
   view(vnode: Mithril.Vnode<CustomAttrs, this>) {
