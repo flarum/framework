@@ -6,6 +6,7 @@ import EditCustomFooterModal from './EditCustomFooterModal';
 import UploadImageButton from './UploadImageButton';
 import AdminPage from './AdminPage';
 import ItemList from '../../common/utils/ItemList';
+import type Mithril from 'mithril';
 
 export default class AppearancePage extends AdminPage {
   headerInfo() {
@@ -77,7 +78,7 @@ export default class AppearancePage extends AdminPage {
   }
 
   colorItems() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
 
     items.add('helpText', <div className="helpText">{app.translator.trans('core.admin.appearance.colors_text')}</div>, 80);
 
@@ -88,11 +89,13 @@ export default class AppearancePage extends AdminPage {
           type: 'color-preview',
           setting: 'theme_primary_color',
           placeholder: '#aaaaaa',
+          ariaLabel: app.translator.trans('core.admin.appearance.colors_primary_label'),
         })}
         {this.buildSettingComponent({
           type: 'color-preview',
           setting: 'theme_secondary_color',
           placeholder: '#aaaaaa',
+          ariaLabel: app.translator.trans('core.admin.appearance.colors_secondary_label'),
         })}
       </div>,
       70

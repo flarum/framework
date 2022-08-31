@@ -11,4 +11,8 @@ export default class NotificationListState extends PaginatedListState<Notificati
      * Mark all of the notifications as read.
      */
     markAllAsRead(): Promise<unknown> | undefined;
+    /**
+     * Delete all of the notifications for this user.
+     */
+    deleteAll(): Promise<unknown> | undefined;
 }

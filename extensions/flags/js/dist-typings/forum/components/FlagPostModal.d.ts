@@ -1,12 +1,15 @@
-export default class FlagPostModal {
+/// <reference types="flarum/@types/translator-icu-rich" />
+export default class FlagPostModal extends Modal<import("flarum/common/components/Modal").IInternalModalAttrs> {
+    constructor();
     oninit(vnode: any): void;
     success: boolean | undefined;
-    reason: any;
-    reasonDetail: any;
-    className(): string;
-    title(): any;
+    reason: Stream<string> | undefined;
+    reasonDetail: Stream<string> | undefined;
+    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
     content(): JSX.Element;
-    flagReasons(): any;
+    flagReasons(): ItemList<any>;
     onsubmit(e: any): void;
-    loading: boolean | undefined;
 }
+import Modal from "flarum/common/components/Modal";
+import Stream from "flarum/common/utils/Stream";
+import ItemList from "flarum/common/utils/ItemList";

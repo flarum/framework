@@ -6,6 +6,7 @@ import Link from '../../common/components/Link';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Discussion from '../../common/models/Discussion';
 import ItemList from '../../common/utils/ItemList';
+import Tooltip from '../../common/components/Tooltip';
 
 /**
  * The `NotificationList` component displays a list of the logged-in user's
@@ -34,13 +35,34 @@ export default class NotificationList extends Component {
 
     items.add(
       'mark_all_as_read',
-      <Button
-        className="Button Button--link"
-        icon="fas fa-check"
-        title={app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip')}
-        onclick={state.markAllAsRead.bind(state)}
-      />,
+      <Tooltip text={app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip')}>
+        <Button
+          className="Button Button--link"
+          data-container=".NotificationList"
+          icon="fas fa-check"
+          title={app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip')}
+          onclick={state.markAllAsRead.bind(state)}
+        />
+      </Tooltip>,
       70
+    );
+
+    items.add(
+      'delete_all',
+      <Tooltip text={app.translator.trans('core.forum.notifications.delete_all_tooltip')}>
+        <Button
+          className="Button Button--link"
+          data-container=".NotificationList"
+          icon="fas fa-trash-alt"
+          title={app.translator.trans('core.forum.notifications.delete_all_tooltip')}
+          onclick={() => {
+            if (confirm(app.translator.trans('core.forum.notifications.delete_all_confirm'))) {
+              state.deleteAll.call(state);
+            }
+          }}
+        />
+      </Tooltip>,
+      50
     );
 
     return items;

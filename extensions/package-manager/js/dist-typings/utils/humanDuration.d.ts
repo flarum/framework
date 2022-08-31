@@ -1,1 +1,1 @@
-export default function humanDuration(start: Date, end: Date): any;
+export default function humanDuration(start: Date, end: Date): string;

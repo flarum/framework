@@ -3,7 +3,6 @@ import 'expose-loader?exposes=m!mithril';
 import 'expose-loader?exposes=dayjs!dayjs';
 import 'bootstrap/js/affix';
 import 'bootstrap/js/dropdown';
-import 'bootstrap/js/modal';
 import 'bootstrap/js/tooltip';
 import 'bootstrap/js/transition';
 import 'jquery.hotkeys/jquery.hotkeys';

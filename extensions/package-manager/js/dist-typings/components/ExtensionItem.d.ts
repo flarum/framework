@@ -1,7 +1,7 @@
 import type Mithril from 'mithril';
 import Component, { ComponentAttrs } from 'flarum/common/Component';
 import { Extension } from 'flarum/admin/AdminApplication';
-import { UpdatedPackage } from './Updater';
+import { UpdatedPackage } from '../states/ControlSectionState';
 export interface ExtensionItemAttrs extends ComponentAttrs {
     extension: Extension;
     updates: UpdatedPackage;

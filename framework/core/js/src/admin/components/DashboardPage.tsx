@@ -4,6 +4,7 @@ import ExtensionsWidget from './ExtensionsWidget';
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
 import type { Children } from 'mithril';
+import DebugWarningWidget from './DebugWarningWidget';
 
 export default class DashboardPage extends AdminPage {
   headerInfo() {
@@ -21,6 +22,10 @@ export default class DashboardPage extends AdminPage {
 
   availableWidgets(): ItemList<Children> {
     const items = new ItemList<Children>();
+
+    if (app.data.debugEnabled) {
+      items.add('debug-warning', <DebugWarningWidget />, 100);
+    }
 
     items.add('status', <StatusWidget />, 30);
 

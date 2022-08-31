@@ -19,6 +19,7 @@ class DiscussionServiceProvider extends AbstractServiceProvider
     public function boot(Dispatcher $events)
     {
         $events->subscribe(DiscussionMetadataUpdater::class);
+        $events->subscribe(UserStateUpdater::class);
 
         $events->listen(
             Renamed::class,

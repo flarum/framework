@@ -1,6 +1,7 @@
 /// <reference path="../../@types/translator-icu-rich.d.ts" />
-export default class PermissionsPage extends AdminPage<import("../../common/components/Page").IPageAttrs> {
-    constructor();
+/// <reference types="mithril" />
+import AdminPage from './AdminPage';
+export default class PermissionsPage extends AdminPage {
     headerInfo(): {
         className: string;
         icon: string;
@@ -9,4 +10,3 @@ export default class PermissionsPage extends AdminPage<import("../../common/comp
     };
     content(): JSX.Element[];
 }
-import AdminPage from "./AdminPage";

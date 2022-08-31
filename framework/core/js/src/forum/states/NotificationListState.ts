@@ -46,4 +46,20 @@ export default class NotificationListState extends PaginatedListState<Notificati
       method: 'POST',
     });
   }
+
+  /**
+   * Delete all of the notifications for this user.
+   */
+  deleteAll() {
+    if (this.pages.length === 0) return;
+
+    app.session.user?.pushAttributes({ unreadNotificationCount: 0 });
+
+    this.pages = [];
+
+    return app.request({
+      url: app.forum.attribute('apiUrl') + '/notifications',
+      method: 'DELETE',
+    });
+  }
 }

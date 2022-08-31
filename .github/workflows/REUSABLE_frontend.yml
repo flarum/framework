@@ -3,6 +3,32 @@ name: Flarum Frontend Jobs
 on:
   workflow_call:
     inputs:
+      build_script:
+        description: "Script to run for production build. Empty value to disable."
+        type: string
+        required: false
+        default: build
+      build_typings_script:
+        description: "Script to run for typings build. Empty value to disable."
+        type: string
+        required: false
+        default: build-typings
+      format_script:
+        description: "Script to run for code formatting. Empty value to disable."
+        type: string
+        required: false
+        default: format-check
+      check_typings_script:
+        description: "Script to run for tyiping check. Empty value to disable."
+        type: string
+        required: false
+        default: check-typings
+      type_coverage_script:
+        description: "Script to run for type coverage. Empty value to disable."
+        type: string
+        required: false
+        default: check-typings-coverage
+
       enable_bundlewatch:
         description: "Enable Bundlewatch?"
         type: boolean
@@ -61,66 +87,12 @@ env:
   cache_dependency_path: ${{ inputs.cache_dependency_path || format(inputs.js_package_manager == 'yarn' && '{0}/yarn.lock' || '{0}/package-lock.json', inputs.frontend_directory) }}
 
 jobs:
-  bundlewatch:
-    name: Bundlewatch
+  build:
+    name: Checks & Build
     runs-on: ubuntu-latest
-    if: inputs.enable_bundlewatch
 
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: Set up Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ inputs.node_version }}
-          cache: ${{ inputs.js_package_manager }}
-          cache-dependency-path: ${{ env.cache_dependency_path }}
-
-      - name: Build production assets
-        uses: flarum/action-build@2
-        with:
-          github_token: ${{ secrets.github_token }}
-          build_script: build
-          package_manager: ${{ inputs.js_package_manager }}
-          js_path: ${{ inputs.frontend_directory }}
-          do_not_commit: true
-
-      - name: Check bundle size change
-        run: node_modules/.bin/bundlewatch --config .bundlewatch.config.json
-        working-directory: ${{ inputs.frontend_directory }}
-        env:
-          BUNDLEWATCH_GITHUB_TOKEN: ${{ secrets.bundlewatch_github_token }}
-          CI_COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
-
-  prettier:
-    name: Prettier
-    runs-on: ubuntu-latest
-    if: inputs.enable_prettier
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: Set up Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ inputs.node_version }}
-          cache: ${{ inputs.js_package_manager }}
-          cache-dependency-path: ${{ env.cache_dependency_path }}
-
-      - name: Install JS dependencies
-        run: ${{ env.ci_script }}
-        working-directory: ${{ inputs.frontend_directory }}
-
-      - name: Check JS formatting
-        run: ${{ inputs.js_package_manager }} run format-check
-        working-directory: ${{ inputs.frontend_directory }}
-
-  typecheck:
-    name: Typecheck
-    runs-on: ubuntu-latest
-    if: inputs.enable_typescript
+    if: >-
+      ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')
 
     steps:
       - name: Check out code
@@ -149,72 +121,23 @@ jobs:
         run: ${{ env.ci_script }}
         working-directory: ${{ inputs.frontend_directory }}
 
-      - name: Typecheck
-        run: ${{ inputs.js_package_manager }} run check-typings
-        working-directory: ${{ inputs.frontend_directory }}
-
-  type-coverage:
-    name: Type Coverage
-    runs-on: ubuntu-latest
-    if: inputs.enable_typescript
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: Set up Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ inputs.node_version }}
-          cache: ${{ inputs.js_package_manager }}
-          cache-dependency-path: ${{ env.cache_dependency_path }}
-
-      - name: Install JS dependencies
-        run: ${{ env.ci_script }}
-        working-directory: ${{ inputs.frontend_directory }}
-
-      - name: Check type coverage
-        run: ${{ inputs.js_package_manager }} run check-typings-coverage
-        working-directory: ${{ inputs.frontend_directory }}
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    if: "always() && !contains(needs.*.result, 'failed') && !contains(needs.*.result, 'cancelled')"
-    needs: [bundlewatch, prettier, typecheck, type-coverage]
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: Set up Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ inputs.node_version }}
-          cache: ${{ inputs.js_package_manager }}
-          cache-dependency-path: ${{ env.cache_dependency_path }}
-
-      # Our action will install npm/yarn, cd into `${{ inputs.frontend_directory }}`, build dist JS and typings,
-      # then commit and upload any changes iff we are on the main branch and have just pushed.
-      - name: Build production JS
-        if: inputs.enable_typescript
-        uses: flarum/action-build@2
+      - name: JS Checks & Production Build
+        uses: flarum/action-build@3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          build_script: build
-          package_manager: ${{ inputs.js_package_manager }}
-          typings_script: build-typings
-          js_path: ${{ inputs.frontend_directory }}
-          do_not_commit: ${{ github.ref != format('refs/heads/{0}', inputs.main_git_branch) || github.event_name != 'push' }}
-
-      # Our action will install npm/yarn, cd into `${{ inputs.frontend_directory }}`, build dist JS and typings,
-      # then commit and upload any changes iff we are on the main branch and have just pushed.
-      - name: Build production JS
-        if: "! inputs.enable_typescript"
-        uses: flarum/action-build@2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          build_script: build
+          build_script: ${{ inputs.build_script }}
+          build_typings_script: ${{ inputs.build_typings_script }}
+          format_script: ${{ inputs.enable_prettier == true && inputs.format_script || '' }}
+          check_typings_script: ${{ inputs.enable_typescript == true && inputs.check_typings_script || '' }}
+          type_coverage_script: ${{ inputs.enable_typescript == true && inputs.type_coverage_script || '' }}
           package_manager: ${{ inputs.js_package_manager }}
           js_path: ${{ inputs.frontend_directory }}
           do_not_commit: ${{ github.ref != format('refs/heads/{0}', inputs.main_git_branch) || github.event_name != 'push' }}
+
+      - name: Check bundle size change
+        if: ${{ inputs.enable_bundlewatch }}
+        run: node_modules/.bin/bundlewatch --config .bundlewatch.config.json
+        working-directory: ${{ inputs.frontend_directory }}
+        env:
+          BUNDLEWATCH_GITHUB_TOKEN: ${{ secrets.bundlewatch_github_token }}
+          CI_COMMIT_SHA: ${{ github.event.pull_request.head.sha }}

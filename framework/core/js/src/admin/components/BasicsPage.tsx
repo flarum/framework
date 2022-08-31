@@ -2,24 +2,27 @@ import app from '../../admin/app';
 import FieldSet from '../../common/components/FieldSet';
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
+import type { IPageAttrs } from '../../common/components/Page';
+import type Mithril from 'mithril';
 
-export default class BasicsPage extends AdminPage {
-  oninit(vnode) {
+export type HomePageItem = { path: string; label: Mithril.Children };
+
+export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends AdminPage<CustomAttrs> {
+  localeOptions: Record<string, string> = {};
+  displayNameOptions: Record<string, string> = {};
+  slugDriverOptions: Record<string, Record<string, string>> = {};
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
-    this.localeOptions = {};
-    const locales = app.data.locales;
-    for (const i in locales) {
-      this.localeOptions[i] = `${locales[i]} (${i})`;
-    }
+    Object.keys(app.data.locales).forEach((i) => {
+      this.localeOptions[i] = `${app.data.locales[i]} (${i})`;
+    });
 
-    this.displayNameOptions = {};
-    const displayNameDrivers = app.data.displayNameDrivers;
-    displayNameDrivers.forEach(function (identifier) {
+    app.data.displayNameDrivers.forEach((identifier) => {
       this.displayNameOptions[identifier] = identifier;
-    }, this);
+    });
 
-    this.slugDriverOptions = {};
     Object.keys(app.data.slugDrivers).forEach((model) => {
       this.slugDriverOptions[model] = {};
 
@@ -100,6 +103,7 @@ export default class BasicsPage extends AdminPage {
 
         {Object.keys(this.slugDriverOptions).map((model) => {
           const options = this.slugDriverOptions[model];
+
           if (Object.keys(options).length > 1) {
             return this.buildSettingComponent({
               type: 'select',
@@ -109,6 +113,8 @@ export default class BasicsPage extends AdminPage {
               help: app.translator.trans('core.admin.basics.slug_driver_text', { model }),
             });
           }
+
+          return null;
         })}
 
         {this.submitButton()}
@@ -119,11 +125,9 @@ export default class BasicsPage extends AdminPage {
   /**
    * Build a list of options for the default homepage. Each option must be an
    * object with `path` and `label` properties.
-   *
-   * @return {ItemList<{ path: string, label: import('mithril').Children }>}
    */
   homePageItems() {
-    const items = new ItemList();
+    const items = new ItemList<HomePageItem>();
 
     items.add('allDiscussions', {
       path: '/all',

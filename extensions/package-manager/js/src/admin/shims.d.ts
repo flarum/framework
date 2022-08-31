@@ -1,4 +1,4 @@
-import QueueState from './states/QueueState';
+import PackageManagerState from './states/PackageManagerState';
 
 export interface AsyncBackendResponse {
   processing: boolean;
@@ -6,6 +6,6 @@ export interface AsyncBackendResponse {
 
 declare module 'flarum/admin/AdminApplication' {
   export default interface AdminApplication {
-    packageManagerQueue: QueueState;
+    packageManager: PackageManagerState;
   }
 }

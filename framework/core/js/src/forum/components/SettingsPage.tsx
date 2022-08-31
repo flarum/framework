@@ -1,5 +1,5 @@
 import app from '../../forum/app';
-import UserPage from './UserPage';
+import UserPage, { IUserPageAttrs } from './UserPage';
 import ItemList from '../../common/utils/ItemList';
 import Switch from '../../common/components/Switch';
 import Button from '../../common/components/Button';
@@ -8,18 +8,22 @@ import NotificationGrid from './NotificationGrid';
 import ChangePasswordModal from './ChangePasswordModal';
 import ChangeEmailModal from './ChangeEmailModal';
 import listItems from '../../common/helpers/listItems';
+import extractText from '../../common/utils/extractText';
+import type Mithril from 'mithril';
 
 /**
  * The `SettingsPage` component displays the user's settings control panel, in
  * the context of their user profile.
  */
-export default class SettingsPage extends UserPage {
-  oninit(vnode) {
+export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPageAttrs> extends UserPage<CustomAttrs> {
+  discloseOnlineLoading?: boolean;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
-    this.show(app.session.user);
+    this.show(app.session.user!);
 
-    app.setTitle(app.translator.trans('core.forum.settings.title'));
+    app.setTitle(extractText(app.translator.trans('core.forum.settings.title')));
   }
 
   content() {
@@ -32,17 +36,17 @@ export default class SettingsPage extends UserPage {
 
   /**
    * Build an item list for the user's settings controls.
-   *
-   * @return {ItemList<import('mithril').Children>}
    */
   settingsItems() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
 
     ['account', 'notifications', 'privacy'].forEach((section) => {
+      const sectionItems = `${section}Items` as 'accountItems' | 'notificationsItems' | 'privacyItems';
+
       items.add(
         section,
         <FieldSet className={`Settings-${section}`} label={app.translator.trans(`core.forum.settings.${section}_heading`)}>
-          {this[`${section}Items`]().toArray()}
+          {this[sectionItems]().toArray()}
         </FieldSet>
       );
     });
@@ -52,11 +56,9 @@ export default class SettingsPage extends UserPage {
 
   /**
    * Build an item list for the user's account settings.
-   *
-   * @return {ItemList<import('mithril').Children>}
    */
   accountItems() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
 
     items.add(
       'changePassword',
@@ -77,11 +79,9 @@ export default class SettingsPage extends UserPage {
 
   /**
    * Build an item list for the user's notification settings.
-   *
-   * @return {ItemList<import('mithril').Children>}
    */
   notificationsItems() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
 
     items.add('notificationGrid', <NotificationGrid user={this.user} />);
 
@@ -90,20 +90,18 @@ export default class SettingsPage extends UserPage {
 
   /**
    * Build an item list for the user's privacy settings.
-   *
-   * @return {ItemList<import('mithril').Children>}
    */
   privacyItems() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
 
     items.add(
       'discloseOnline',
       <Switch
-        state={this.user.preferences().discloseOnline}
-        onchange={(value) => {
+        state={this.user!.preferences()?.discloseOnline}
+        onchange={(value: boolean) => {
           this.discloseOnlineLoading = true;
 
-          this.user.savePreferences({ discloseOnline: value }).then(() => {
+          this.user!.savePreferences({ discloseOnline: value }).then(() => {
             this.discloseOnlineLoading = false;
             m.redraw();
           });

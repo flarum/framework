@@ -7,7 +7,7 @@ import Tooltip from 'flarum/common/components/Tooltip';
 import Button from 'flarum/common/components/Button';
 import { Extension } from 'flarum/admin/AdminApplication';
 
-import { UpdatedPackage } from './Updater';
+import { UpdatedPackage } from '../states/ControlSectionState';
 import WhyNotModal from './WhyNotModal';
 import Label from './Label';
 
@@ -40,7 +40,7 @@ export default class ExtensionItem<Attrs extends ExtensionItemAttrs = ExtensionI
         <div className="PackageManager-extension-info">
           <div className="PackageManager-extension-name">{extension.extra['flarum-extension'].title}</div>
           <div className="PackageManager-extension-version">
-            <span className="PackageManager-extension-version-current">{this.version(extension.version)}</span>
+            <span className="PackageManager-extension-version-current">{this.version(updates['version'])}</span>
             {latestVersion ? (
               <Label className="PackageManager-extension-version-latest" type={updates['latest-minor'] ? 'success' : 'warning'}>
                 {this.version(latestVersion)}
