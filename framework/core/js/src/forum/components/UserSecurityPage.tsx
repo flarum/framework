@@ -12,7 +12,7 @@ import camelCaseToSnakeCase from '../../common/utils/camelCaseToSnakeCase';
 import type AccessToken from '../../common/models/AccessToken';
 import type Mithril from 'mithril';
 import Tooltip from '../../common/components/Tooltip';
-import UserSecurityPageState from "../states/UserSecurityPageState";
+import UserSecurityPageState from '../states/UserSecurityPageState';
 
 /**
  * The `UserSecurityPage` component displays the user's security control panel, in

@@ -1,4 +1,4 @@
-import AccessToken from "../../common/models/AccessToken";
+import AccessToken from '../../common/models/AccessToken';
 
 export default class UserSecurityPageState {
   protected tokens: AccessToken[] | null = null;
@@ -33,11 +33,11 @@ export default class UserSecurityPageState {
   }
 
   public getSessionTokens(): AccessToken[] {
-    return this.tokens?.filter(token => token.isSessionToken()).sort((a, b) => (b.isCurrent() ? 1 : -1)) || [];
+    return this.tokens?.filter((token) => token.isSessionToken()).sort((a, b) => (b.isCurrent() ? 1 : -1)) || [];
   }
 
   public getDeveloperTokens(): AccessToken[] | null {
-    return this.tokens?.filter(token => !token.isSessionToken()) || null;
+    return this.tokens?.filter((token) => !token.isSessionToken()) || null;
   }
 
   /**
