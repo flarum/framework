@@ -22,21 +22,13 @@ export interface IAccessTokensListAttrs extends ComponentAttrs {
 
 export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs = IAccessTokensListAttrs> extends Component<CustomAttrs> {
   protected loading: Record<string, boolean | undefined> = {};
-  protected tokens!: AccessToken[];
   protected showingTokens: Record<string, boolean | undefined> = {};
-
-  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
-    super.oninit(vnode);
-
-    // Show current token first.
-    this.tokens = this.attrs.tokens.sort((a, b) => (b.isCurrent() ? 1 : -1));
-  }
 
   view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
     return (
       <div className="AccessTokensList">
-        {this.tokens.length ? (
-          this.tokens.map(this.tokenView.bind(this))
+        {this.attrs.tokens.length ? (
+          this.attrs.tokens.map(this.tokenView.bind(this))
         ) : (
           <div className="AccessTokensList--empty">{app.translator.trans('core.forum.security.empty_text')}</div>
         )}
@@ -44,13 +36,13 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
     );
   }
 
-  tokenView(token: AccessToken, index: number): Mithril.Children {
+  tokenView(token: AccessToken): Mithril.Children {
     return (
       <div
         className={classList('AccessTokensList-item', {
           'AccessTokensList-item--active': token.isCurrent(),
         })}
-        key={index}
+        key={token.id()!}
       >
         {this.tokenViewItems(token).toArray()}
       </div>

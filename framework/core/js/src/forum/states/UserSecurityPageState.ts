@@ -32,8 +32,8 @@ export default class UserSecurityPageState {
     this.tokens = this.tokens!.filter((t) => t !== token);
   }
 
-  public getSessionTokens(): AccessToken[] | null {
-    return this.tokens?.filter(token => token.isSessionToken()) || null;
+  public getSessionTokens(): AccessToken[] {
+    return this.tokens?.filter(token => token.isSessionToken()).sort((a, b) => (b.isCurrent() ? 1 : -1)) || [];
   }
 
   public getDeveloperTokens(): AccessToken[] | null {
