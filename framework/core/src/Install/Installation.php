@@ -61,7 +61,7 @@ class Installation
 
     public function offlineMode($flag)
     {
-        $this->offlinee = $flag;
+        $this->offline = $flag;
 
         return $this;
     }
