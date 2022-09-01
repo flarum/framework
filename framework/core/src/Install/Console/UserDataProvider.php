@@ -41,6 +41,7 @@ class UserDataProvider implements DataProviderInterface
     {
         return $installation
             ->debugMode(false)
+            ->offlineMode(false)
             ->baseUrl($this->getBaseUrl())
             ->databaseConfig($this->getDatabaseConfiguration())
             ->adminUser($this->getAdminUser())

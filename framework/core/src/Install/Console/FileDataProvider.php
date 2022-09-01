@@ -20,6 +20,7 @@ use Symfony\Component\Yaml\Yaml;
 class FileDataProvider implements DataProviderInterface
 {
     protected $debug = false;
+    protected $offline = false;
     protected $baseUrl = null;
     protected $databaseConfiguration = [];
     protected $adminUser = [];
@@ -44,6 +45,7 @@ class FileDataProvider implements DataProviderInterface
 
             // Define configuration variables
             $this->debug = $configuration['debug'] ?? false;
+            $this->offline = $configuration['offline'] ?? false;
             $this->baseUrl = $configuration['baseUrl'] ?? 'http://flarum.localhost';
             $this->databaseConfiguration = $configuration['databaseConfiguration'] ?? [];
             $this->adminUser = $configuration['adminUser'] ?? [];
@@ -57,6 +59,7 @@ class FileDataProvider implements DataProviderInterface
     {
         return $installation
             ->debugMode($this->debug)
+            ->offlineMode($this->offline)
             ->baseUrl(BaseUrl::fromString($this->baseUrl))
             ->databaseConfig($this->getDatabaseConfiguration())
             ->adminUser($this->getAdminUser())

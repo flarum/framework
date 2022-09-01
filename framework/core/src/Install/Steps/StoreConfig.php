@@ -18,15 +18,18 @@ class StoreConfig implements Step, ReversibleStep
 {
     private $debugMode;
 
+    private $offlineMode;
+
     private $dbConfig;
 
     private $baseUrl;
 
     private $configFile;
 
-    public function __construct($debugMode, DatabaseConfig $dbConfig, BaseUrl $baseUrl, $configFile)
+    public function __construct($debugMode, $offlineMode, DatabaseConfig $dbConfig, BaseUrl $baseUrl, $configFile)
     {
         $this->debugMode = $debugMode;
+        $this->offlineMode = $offlineMode;
         $this->dbConfig = $dbConfig;
         $this->baseUrl = $baseUrl;
 
@@ -55,6 +58,7 @@ class StoreConfig implements Step, ReversibleStep
     {
         return [
             'debug'    => $this->debugMode,
+            'offline'    => $this->offlineMode,
             'database' => $this->dbConfig->toArray(),
             'url'      => (string) $this->baseUrl,
             'paths'    => $this->getPathsConfig(),

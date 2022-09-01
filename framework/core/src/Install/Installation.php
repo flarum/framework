@@ -20,6 +20,7 @@ class Installation
 
     private $configPath;
     private $debug = false;
+    private $offline = false;
     private $baseUrl;
     private $customSettings = [];
     private $enabledExtensions = null;
@@ -54,6 +55,13 @@ class Installation
     public function debugMode($flag)
     {
         $this->debug = $flag;
+
+        return $this;
+    }
+
+    public function offlineMode($flag)
+    {
+        $this->offlinee = $flag;
 
         return $this;
     }
@@ -137,6 +145,7 @@ class Installation
         $pipeline->pipe(function () {
             return new Steps\StoreConfig(
                 $this->debug,
+                $this->offline,
                 $this->dbConfig,
                 $this->baseUrl,
                 $this->getConfigPath()

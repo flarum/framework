@@ -117,6 +117,7 @@ class SetupScript
         $pipeline = $installation
             ->configPath('config.php')
             ->debugMode(true)
+            ->offlineMode(false)
             ->baseUrl(BaseUrl::fromString('http://localhost'))
             ->databaseConfig($this->dbConfig)
             ->adminUser(new AdminUser(
