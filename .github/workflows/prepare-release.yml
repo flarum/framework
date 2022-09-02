@@ -8,13 +8,8 @@ on:
         required: true
         type: string
 
-env:
-  PHP_VERSIONS: '["7.3", "7.4", "8.0", "8.1"]'
-  INSTALL_PACKAGES_INPUTS: '{ "flarum_version": "{0}", "php_versions": "{1}" }'
-
 jobs:
-  release:
-    name: Release Checklist
+  run:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -29,16 +24,3 @@ jobs:
           NEXT_TAG: ${{ inputs.version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPEN_COLLECTIVE_TOKEN: ${{ secrets.OPEN_COLLECTIVE_TOKEN }}
-
-  tarballs:
-    name: Build Installation Packages
-    runs-on: ubuntu-latest
-    needs: release
-    steps:
-      - name: Trigger build in flarum/installation-packages
-        uses: benc-uk/workflow-dispatch@v1
-        with:
-          workflow: Build Flarum Install Packages
-          repo: flarum/installation-packages
-          token: ${{ secrets.PACKAGES_BUILD_TOKEN }}
-          inputs: ${{ format(env.INSTALL_PACKAGES_INPUTS, inputs.version, env.PHP_VERSIONS) }}

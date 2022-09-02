@@ -1,0 +1,23 @@
+name: Build Install Packages
+
+on:
+  release:
+    types: [released]
+
+env:
+  VERSION: ${{ github.event.release.tag_name }}
+  PHP_VERSIONS: '["7.3", "7.4", "8.0", "8.1"]'
+  INSTALL_PACKAGES_INPUTS: '{ "flarum_version": "{0}", "php_versions": "{1}" }'
+
+jobs:
+  tarballs:
+    name: Build Installation Packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger build in flarum/installation-packages
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Build Flarum Install Packages
+          repo: flarum/installation-packages
+          token: ${{ secrets.PACKAGES_BUILD_TOKEN }}
+          inputs: ${{ format(env.INSTALL_PACKAGES_INPUTS, env.VERSION, env.PHP_VERSIONS) }}

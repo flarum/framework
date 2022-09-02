@@ -19,7 +19,7 @@ on:
         description: Versions of PHP to test with. Should be array of strings encoded as JSON array
         type: string
         required: false
-        # Keep PHP versions synced with prepare-release.yml
+        # Keep PHP versions synced with build-release-packages.yml
         default: '["7.3", "7.4", "8.0", "8.1"]'
       db_versions:
         description: Versions of databases to test with. Should be array of strings encoded as JSON array
