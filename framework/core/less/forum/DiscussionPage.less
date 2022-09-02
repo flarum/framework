@@ -23,16 +23,24 @@
   }
 }
 @media @tablet-up {
+  .DiscussionPage-discussion {
+    > .container {
+      display: grid;
+      grid-gap: 75px;
+      grid-template-columns: 1fr 150px;
+
+      &::before, &::after {
+        content: none;
+      }
+    }
+  }
+
   .DiscussionPage-nav {
-    float: right;
+    align-self: start;
     position: sticky;
     top: var(--header-height);
     padding-top: 32px;
     z-index: 1;
-
-    &, > ul {
-      width: 150px;
-    }
 
     > ul {
       > li {
@@ -53,7 +61,7 @@
   }
 
   .DiscussionPage-stream {
-    margin-right: 225px;
+    order: -1;
   }
 }
 
