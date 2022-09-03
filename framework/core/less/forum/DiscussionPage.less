@@ -28,6 +28,7 @@
       display: grid;
       grid-gap: 75px;
       grid-template-columns: 1fr 150px;
+      grid-template-areas: 'stream nav';
 
       &::before, &::after {
         content: none;
@@ -38,6 +39,7 @@
   .DiscussionPage-nav {
     align-self: start;
     position: sticky;
+    grid-area: nav;
     top: var(--header-height);
     padding-top: 32px;
     z-index: 1;
@@ -61,7 +63,7 @@
   }
 
   .DiscussionPage-stream {
-    order: -1;
+    grid-area: stream;
   }
 }
 
