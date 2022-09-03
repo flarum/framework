@@ -23,17 +23,27 @@
   }
 }
 @media @tablet-up {
+  .DiscussionPage-discussion {
+    > .container {
+      display: grid;
+      grid-gap: 75px;
+      grid-template-columns: 1fr 150px;
+      grid-template-areas: 'stream nav';
+
+      &::before, &::after {
+        content: none;
+      }
+    }
+  }
+
   .DiscussionPage-nav {
-    float: right;
+    align-self: start;
     position: sticky;
+    grid-area: nav;
     top: var(--header-height);
     padding-top: 32px;
     z-index: 1;
 
-    &, > ul {
-      width: 150px;
-    }
-    
     > ul {
       > li {
         margin-bottom: 10px;
@@ -51,11 +61,9 @@
       }
     }
   }
-}
 
-@media @tablet-up {
   .DiscussionPage-stream {
-    margin-right: 225px;
+    grid-area: stream;
   }
 }
 
