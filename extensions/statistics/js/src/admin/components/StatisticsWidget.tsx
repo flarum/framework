@@ -3,10 +3,14 @@ import app from 'flarum/admin/app';
 import SelectDropdown from 'flarum/common/components/SelectDropdown';
 import Button from 'flarum/common/components/Button';
 import abbreviateNumber from 'flarum/common/utils/abbreviateNumber';
+import extractText from 'flarum/common/utils/extractText';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+import Placeholder from 'flarum/common/components/Placeholder';
 import icon from 'flarum/common/helpers/icon';
 
 import DashboardWidget, { IDashboardWidgetAttrs } from 'flarum/admin/components/DashboardWidget';
+
+import StatisticsWidgetDateSelectionModal, { IDateSelection, IStatisticsWidgetDateSelectionModalAttrs } from './StatisticsWidgetDateSelectionModal';
 
 import type Mithril from 'mithril';
 
@@ -25,11 +29,20 @@ export default class StatisticsWidget extends DashboardWidget {
 
   chart: any;
 
+  customPeriod: IDateSelection | null = null;
+
   timedData: Record<string, undefined | any> = {};
   lifetimeData: any;
+  customPeriodData: Record<string, undefined | any> = {};
+
+  noData: boolean = false;
 
   loadingLifetime = true;
   loadingTimed: Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'> = this.entities.reduce((acc, curr) => {
+    acc[curr] = 'unloaded';
+    return acc;
+  }, {} as Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'>);
+  loadingCustom: Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'> = this.entities.reduce((acc, curr) => {
     acc[curr] = 'unloaded';
     return acc;
   }, {} as Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'>);
@@ -105,17 +118,74 @@ export default class StatisticsWidget extends DashboardWidget {
     m.redraw();
   }
 
+  async loadCustomRangeData(model: string): Promise<void> {
+    this.loadingCustom[model] = 'loading';
+    m.redraw();
+
+    // We clone so we can check that the same period is still selected
+    // once the HTTP request is complete and the data is to be displayed
+    const range = { ...this.customPeriod };
+    try {
+      const data = await app.request({
+        method: 'GET',
+        url: app.forum.attribute('apiUrl') + '/statistics',
+        params: {
+          period: 'custom',
+          model,
+          dateRange: {
+            start: range.start,
+            end: range.end,
+          },
+        },
+      });
+
+      if (JSON.stringify(range) !== JSON.stringify(this.customPeriod)) {
+        // The range this method was called with is no longer the selected.
+        // Bail out here.
+        return;
+      }
+
+      this.customPeriodData[model] = data;
+      this.loadingCustom[model] = 'loaded';
+
+      m.redraw();
+    } catch (e) {
+      if (JSON.stringify(range) !== JSON.stringify(this.customPeriod)) {
+        // The range this method was called with is no longer the selected.
+        // Bail out here.
+        return;
+      }
+
+      console.error(e);
+      this.loadingCustom[model] = 'fail';
+    }
+  }
+
   className() {
     return 'StatisticsWidget';
   }
 
   content() {
-    const loadingSelectedEntity = this.loadingTimed[this.selectedEntity] !== 'loaded';
+    const loadingSelectedEntity = (this.selectedPeriod === 'custom' ? this.loadingCustom : this.loadingTimed)[this.selectedEntity] !== 'loaded';
 
-    const thisPeriod = loadingSelectedEntity ? null : this.periods![this.selectedPeriod!];
+    const thisPeriod = loadingSelectedEntity
+      ? null
+      : this.selectedPeriod === 'custom'
+      ? {
+          start: this.customPeriod?.end!,
+          end: this.customPeriod?.end!,
+          step: 86400,
+        }
+      : this.periods![this.selectedPeriod!];
 
-    if (!this.timedData[this.selectedEntity] && this.loadingTimed[this.selectedEntity] === 'unloaded') {
-      this.loadTimedData(this.selectedEntity);
+    if (this.selectedPeriod === 'custom') {
+      if (!this.customPeriodData[this.selectedEntity] && this.loadingCustom[this.selectedEntity] === 'unloaded') {
+        this.loadCustomRangeData(this.selectedEntity);
+      }
+    } else {
+      if (!this.timedData[this.selectedEntity] && this.loadingTimed[this.selectedEntity] === 'unloaded') {
+        this.loadTimedData(this.selectedEntity);
+      }
     }
 
     return (
@@ -128,16 +198,56 @@ export default class StatisticsWidget extends DashboardWidget {
                 <LoadingIndicator size="small" display="inline" />
               ) : (
                 <SelectDropdown disabled={loadingSelectedEntity} buttonClassName="Button Button--text" caretIcon="fas fa-caret-down">
-                  {Object.keys(this.periods!).map((period) => (
-                    <Button
-                      key={period}
-                      active={period === this.selectedPeriod}
-                      onclick={this.changePeriod.bind(this, period)}
-                      icon={period === this.selectedPeriod ? 'fas fa-check' : true}
-                    >
-                      {app.translator.trans(`flarum-statistics.admin.statistics.${period}_label`)}
-                    </Button>
-                  ))}
+                  {Object.keys(this.periods!)
+                    .map((period) => (
+                      <Button
+                        key={period}
+                        active={period === this.selectedPeriod}
+                        onclick={this.changePeriod.bind(this, period)}
+                        icon={period === this.selectedPeriod ? 'fas fa-check' : true}
+                      >
+                        {app.translator.trans(`flarum-statistics.admin.statistics.${period}_label`)}
+                      </Button>
+                    ))
+                    .concat([
+                      <Button
+                        key="custom"
+                        active={this.selectedPeriod === 'custom'}
+                        onclick={() => {
+                          const attrs: IStatisticsWidgetDateSelectionModalAttrs = {
+                            onModalSubmit: (dates: IDateSelection) => {
+                              if (JSON.stringify(dates) === JSON.stringify(this.customPeriod)) {
+                                // If same period is selected, don't reload data
+                                return;
+                              }
+
+                              this.customPeriodData = {};
+                              Object.keys(this.loadingCustom).forEach((k) => (this.loadingCustom[k] = 'unloaded'));
+                              this.customPeriod = dates;
+                              this.changePeriod('custom');
+                            },
+                          } as any;
+
+                          // If we have a custom period set already,
+                          // let's prefill the modal with it
+                          if (this.customPeriod) {
+                            attrs.value = this.customPeriod;
+                          }
+
+                          app.modal.show(StatisticsWidgetDateSelectionModal as any, attrs as any);
+                        }}
+                        icon={this.selectedPeriod === 'custom' ? 'fas fa-check' : true}
+                      >
+                        {this.selectedPeriod === 'custom'
+                          ? extractText(
+                              app.translator.trans(`flarum-statistics.admin.statistics.custom_label_specified`, {
+                                fromDate: dayjs(this.customPeriod!.start! * 1000).format('DD MMM YYYY'),
+                                toDate: dayjs(this.customPeriod!.end! * 1000).format('DD MMM YYYY'),
+                              })
+                            )
+                          : app.translator.trans(`flarum-statistics.admin.statistics.custom_label`)}
+                      </Button>,
+                    ])}
                 </SelectDropdown>
               )}
             </div>
@@ -148,11 +258,14 @@ export default class StatisticsWidget extends DashboardWidget {
             const thisPeriodCount = loadingSelectedEntity
               ? app.translator.trans('flarum-statistics.admin.statistics.loading')
               : this.getPeriodCount(entity, thisPeriod!);
-            const lastPeriodCount = loadingSelectedEntity
-              ? app.translator.trans('flarum-statistics.admin.statistics.loading')
-              : this.getPeriodCount(entity, this.getLastPeriod(thisPeriod!));
+            const lastPeriodCount =
+              this.selectedPeriod === 'custom'
+                ? null
+                : loadingSelectedEntity
+                ? app.translator.trans('flarum-statistics.admin.statistics.loading')
+                : this.getPeriodCount(entity, this.getLastPeriod(thisPeriod!));
             const periodChange =
-              loadingSelectedEntity || lastPeriodCount === 0
+              loadingSelectedEntity || lastPeriodCount === 0 || lastPeriodCount === null
                 ? 0
                 : (((thisPeriodCount as number) - (lastPeriodCount as number)) / (lastPeriodCount as number)) * 100;
 
@@ -197,6 +310,8 @@ export default class StatisticsWidget extends DashboardWidget {
             />
           )}
         </>
+
+        {this.noData && <Placeholder text={app.translator.trans(`flarum-statistics.admin.statistics.no_data`)} />}
       </div>
     );
   }
@@ -206,7 +321,16 @@ export default class StatisticsWidget extends DashboardWidget {
       return;
     }
 
-    const period = this.periods![this.selectedPeriod!];
+    debugger;
+
+    const period =
+      this.selectedPeriod === 'custom'
+        ? {
+            start: this.customPeriod?.start!,
+            end: this.customPeriod?.end!,
+            step: 86400,
+          }
+        : this.periods![this.selectedPeriod!];
     const periodLength = period.end - period.start;
     const labels = [];
     const thisPeriod = [];
@@ -229,6 +353,15 @@ export default class StatisticsWidget extends DashboardWidget {
 
       thisPeriod.push(this.getPeriodCount(this.selectedEntity, { start: i, end: i + period.step }));
       lastPeriod.push(this.getPeriodCount(this.selectedEntity, { start: i - periodLength, end: i - periodLength + period.step }));
+    }
+
+    if (thisPeriod.length === 0) {
+      this.noData = true;
+      m.redraw();
+      return;
+    } else {
+      this.noData = false;
+      m.redraw();
     }
 
     const datasets = [{ values: lastPeriod }, { values: thisPeriod }];
@@ -275,7 +408,7 @@ export default class StatisticsWidget extends DashboardWidget {
   }
 
   getPeriodCount(entity: string, period: { start: number; end: number }) {
-    const timed: Record<string, number> = this.timedData[entity];
+    const timed: Record<string, number> = (this.selectedPeriod === 'custom' ? this.customPeriodData : this.timedData)[entity];
     let count = 0;
 
     for (const t in timed) {
