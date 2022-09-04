@@ -355,11 +355,11 @@ export default class StatisticsWidget extends DashboardWidget {
         label = dayjs.unix(i).utc().format('D MMM');
 
         if (period.step > 86400) {
-          // @ts-expect-error dayjs plugin typings not available
           label +=
             ' - ' +
             dayjs
               .unix(i + period.step - 1)
+              // @ts-expect-error dayjs plugin typings not available
               .utc()
               .format('D MMM');
         }
