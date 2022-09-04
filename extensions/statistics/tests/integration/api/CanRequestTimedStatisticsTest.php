@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Statistics\tests\integration\api;
 
 use Carbon\Carbon;
@@ -46,7 +53,7 @@ class CanRequestTimedStatisticsTest extends TestCase
         ];
     }
 
-    /** 
+    /**
      * @test
      */
     public function can_request_timed_stats()
@@ -55,14 +62,14 @@ class CanRequestTimedStatisticsTest extends TestCase
         $time->setTime(0, 0, 0, 0);
 
         $models = [
-            "users" => [
+            'users' => [
                 $time->copy()->getTimestamp() => 1,
                 $time->copy()->subDays(1)->getTimestamp() => 1,
-            ], "discussions" => [
+            ], 'discussions' => [
                 $time->copy()->getTimestamp() => 1,
                 $time->copy()->subDays(1)->getTimestamp() => 2,
                 $time->copy()->subDays(2)->getTimestamp() => 1,
-            ], "posts" => [
+            ], 'posts' => [
                 $time->copy()->getTimestamp() => 2,
                 $time->copy()->subDays(1)->getTimestamp() => 2,
                 $time->copy()->subDays(2)->getTimestamp() => 1,
