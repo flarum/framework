@@ -85,12 +85,12 @@ class ShowStatisticsData implements RequestHandlerInterface
             return $this->getLifetimeStatistics();
         }
 
-        if (! Arr::exists($this->entities, $model)) {
+        if (!Arr::exists($this->entities, $model)) {
             throw new InvalidParameterException('A model must be specified');
         }
 
         if ($period === 'custom') {
-            if (! $customDateRange) {
+            if (!$customDateRange) {
                 throw new InvalidParameterException('A custom date range must be specified');
             }
 
@@ -121,12 +121,20 @@ class ShowStatisticsData implements RequestHandlerInterface
         });
     }
 
-    private function getTimedCounts(Builder $query, string $column, DateTime $startDate = new DateTime('-365 days'), DateTime $endDate = new DateTime())
+    private function getTimedCounts(Builder $query, string $column, ?DateTime $startDate = null, ?DateTime $endDate = null)
     {
+        if (!isset($startDate)) {
+            $startDate = new DateTime('-365 days');
+        }
+
+        if (!isset($endDate)) {
+            $startDate = new DateTime();
+        }
+
         $results = $query
             ->selectRaw(
                 'DATE_FORMAT(
-                    @date := '.$column.',
+                    @date := ' . $column . ',
                     IF(@date > ?, \'%Y-%m-%d %H:00:00\', \'%Y-%m-%d\') -- if within the last 24 hours, group by hour
                 ) as time_group',
                 [new DateTime('-25 hours')]
