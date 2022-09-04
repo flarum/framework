@@ -133,7 +133,7 @@ class ShowStatisticsData implements RequestHandlerInterface
             )
             ->selectRaw('COUNT(id) as count')
             ->where($column, '>', $startDate)
-            ->where($column, '<', $endDate)
+            ->where($column, '<=', $endDate)
             ->groupBy('time_group')
             ->pluck('count', 'time_group');
 
