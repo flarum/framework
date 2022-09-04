@@ -86,7 +86,7 @@ export default class StatisticsWidgetDateSelectionModal extends Modal<IStatistic
     items.add(
       'date_end',
       <div class="Form-group">
-        <label htmlFor={this.state.ids.endDate}>{app.translator.trans('flarum-statistics.admin.date_selection_modal.start_date')}</label>
+        <label htmlFor={this.state.ids.endDate}>{app.translator.trans('flarum-statistics.admin.date_selection_modal.end_date')}</label>
         <input type="date" id={this.state.ids.endDate} value={this.state.inputs.endDateVal} onchange={this.updateState('endDateVal')} />
       </div>,
       80
