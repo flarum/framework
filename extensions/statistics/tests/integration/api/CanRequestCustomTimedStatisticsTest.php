@@ -17,7 +17,10 @@ class CanRequestCustomTimedStatisticsTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    protected Carbon $nowTime;
+    /**
+     * @var Carbon
+     */
+    protected $nowTime;
 
     protected function setUp(): void
     {
