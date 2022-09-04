@@ -51,7 +51,7 @@ export default class StatisticsWidgetDateSelectionModal extends Modal<IStatistic
     },
   };
 
-  oninit(vnode) {
+  oninit(vnode: Mithril.Vnode<IStatisticsWidgetDateSelectionModalAttrs, this>) {
     super.oninit(vnode);
 
     if (this.attrs.value) {
