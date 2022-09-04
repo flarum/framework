@@ -128,7 +128,7 @@ class ShowStatisticsData implements RequestHandlerInterface
         }
 
         if (! isset($endDate)) {
-            $startDate = new DateTime();
+            $endDate = new DateTime();
         }
 
         $results = $query
