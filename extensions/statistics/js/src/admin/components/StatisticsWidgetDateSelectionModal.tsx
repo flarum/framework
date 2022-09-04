@@ -6,6 +6,11 @@ import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Mithril from 'mithril';
 import Button from 'flarum/common/components/Button';
 
+import dayjsUtc from 'dayjs/plugin/utc';
+
+// @ts-expect-error dayjs plugin typings not available
+dayjs.extend(dayjsUtc);
+
 export interface IDateSelection {
   /**
    * Timestamp (seconds, not ms) for start date
@@ -51,8 +56,10 @@ export default class StatisticsWidgetDateSelectionModal extends Modal<IStatistic
 
     if (this.attrs.value) {
       this.state.inputs = {
-        startDateVal: dayjs(this.attrs.value.start * 1000).format('YYYY-MM-DD'),
-        endDateVal: dayjs(this.attrs.value.end * 1000).format('YYYY-MM-DD'),
+        // @ts-expect-error dayjs plugin typings not available
+        startDateVal: dayjs.utc(this.attrs.value.start * 1000).format('YYYY-MM-DD'),
+        // @ts-expect-error dayjs plugin typings not available
+        endDateVal: dayjs.utc(this.attrs.value.end * 1000).format('YYYY-MM-DD'),
       };
     }
   }
@@ -112,8 +119,18 @@ export default class StatisticsWidgetDateSelectionModal extends Modal<IStatistic
   submitData(): IDateSelection {
     // We force 'zulu' time (UTC)
     return {
-      start: Math.floor(new Date(this.state.inputs.startDateVal + 'Z').getTime() / 1000),
-      end: Math.floor(new Date(this.state.inputs.endDateVal + 'Z').getTime() / 1000),
+      // @ts-expect-error dayjs plugin typings not available
+      start: Math.floor(+dayjs.utc(this.state.inputs.startDateVal + 'Z') / 1000),
+      // Ensures that the end date is the end of the day
+      end: Math.floor(
+        +dayjs
+          // @ts-expect-error dayjs plugin typings not available
+          .utc(this.state.inputs.endDateVal + 'Z')
+          .hour(23)
+          .minute(59)
+          .second(59)
+          .millisecond(999) / 1000
+      ),
     };
   }
 
