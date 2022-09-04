@@ -120,7 +120,17 @@ export default class StatisticsWidgetDateSelectionModal extends Modal<IStatistic
   onsubmit(e: SubmitEvent): void {
     e.preventDefault();
 
-    this.attrs.onModalSubmit(this.submitData());
+    const data = this.submitData();
+
+    if (data.end < data.start) {
+      this.alertAttrs = {
+        type: 'error',
+        controls: app.translator.trans('flarum-statistics.admin.date_selection_modal.errors.end_before_start'),
+      };
+      return;
+    }
+
+    this.attrs.onModalSubmit(data);
     this.hide();
   }
 }

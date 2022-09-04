@@ -11,6 +11,8 @@ flarum-statistics:
         Pick a custom date range to display statistics for. Loading data may take
         multiple minutes on forums with a lot of activity.
       end_date: End date (inclusive)
+      errors:
+        end_before_start: The end date must be after the start date.
       start_date: Start date (inclusive)
       submit_button: Confirm date range
       title: Choose custom date range
