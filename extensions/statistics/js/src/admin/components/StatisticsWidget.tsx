@@ -14,12 +14,11 @@ import StatisticsWidgetDateSelectionModal, { IDateSelection, IStatisticsWidgetDa
 
 import type Mithril from 'mithril';
 
+import dayjs from 'dayjs';
 import dayjsUtc from 'dayjs/plugin/utc';
 import dayjsLocalizedFormat from 'dayjs/plugin/localizedFormat';
 
-// @ts-expect-error dayjs plugin typings not available
 dayjs.extend(dayjsUtc);
-// @ts-expect-error dayjs plugin typings not available
 dayjs.extend(dayjsLocalizedFormat);
 
 // @ts-expect-error No typings available
@@ -249,9 +248,7 @@ export default class StatisticsWidget extends DashboardWidget {
                         {this.selectedPeriod === 'custom'
                           ? extractText(
                               app.translator.trans(`flarum-statistics.admin.statistics.custom_label_specified`, {
-                                // @ts-expect-error dayjs plugin typings not available
                                 fromDate: dayjs.utc(this.customPeriod!.start! * 1000).format('ll'),
-                                // @ts-expect-error dayjs plugin typings not available
                                 toDate: dayjs.utc(this.customPeriod!.end! * 1000).format('ll'),
                               })
                             )
@@ -348,10 +345,8 @@ export default class StatisticsWidget extends DashboardWidget {
       let label;
 
       if (period.step < 86400) {
-        // @ts-expect-error dayjs plugin typings not available
         label = dayjs.unix(i).utc().format('h A');
       } else {
-        // @ts-expect-error dayjs plugin typings not available
         label = dayjs.unix(i).utc().format('D MMM');
 
         if (period.step > 86400) {
@@ -359,7 +354,6 @@ export default class StatisticsWidget extends DashboardWidget {
             ' - ' +
             dayjs
               .unix(i + period.step - 1)
-              // @ts-expect-error dayjs plugin typings not available
               .utc()
               .format('D MMM');
         }

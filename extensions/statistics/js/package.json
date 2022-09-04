@@ -4,7 +4,6 @@
     "version": "0.0.0",
     "prettier": "@flarum/prettier-config",
     "dependencies": {
-        "dayjs": "^1.11.5",
         "frappe-charts": "^1.6.2"
     },
     "devDependencies": {

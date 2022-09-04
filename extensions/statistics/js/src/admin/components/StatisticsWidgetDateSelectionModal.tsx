@@ -6,9 +6,9 @@ import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Mithril from 'mithril';
 import Button from 'flarum/common/components/Button';
 
+import dayjs from 'dayjs';
 import dayjsUtc from 'dayjs/plugin/utc';
 
-// @ts-expect-error dayjs plugin typings not available
 dayjs.extend(dayjsUtc);
 
 export interface IDateSelection {
@@ -56,9 +56,7 @@ export default class StatisticsWidgetDateSelectionModal extends Modal<IStatistic
 
     if (this.attrs.value) {
       this.state.inputs = {
-        // @ts-expect-error dayjs plugin typings not available
         startDateVal: dayjs.utc(this.attrs.value.start * 1000).format('YYYY-MM-DD'),
-        // @ts-expect-error dayjs plugin typings not available
         endDateVal: dayjs.utc(this.attrs.value.end * 1000).format('YYYY-MM-DD'),
       };
     }
@@ -119,12 +117,10 @@ export default class StatisticsWidgetDateSelectionModal extends Modal<IStatistic
   submitData(): IDateSelection {
     // We force 'zulu' time (UTC)
     return {
-      // @ts-expect-error dayjs plugin typings not available
       start: Math.floor(+dayjs.utc(this.state.inputs.startDateVal + 'Z') / 1000),
       // Ensures that the end date is the end of the day
       end: Math.floor(
         +dayjs
-          // @ts-expect-error dayjs plugin typings not available
           .utc(this.state.inputs.endDateVal + 'Z')
           .hour(23)
           .minute(59)
