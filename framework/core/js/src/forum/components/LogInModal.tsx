@@ -184,7 +184,7 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
   onerror(error: RequestError) {
     if (error.status === 401 && error.alert) {
       error.alert.content = app.translator.trans('core.forum.log_in.invalid_login_message');
-      this.password("");
+      this.password('');
     }
 
     super.onerror(error);
