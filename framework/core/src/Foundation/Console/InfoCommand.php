@@ -226,10 +226,14 @@ class InfoCommand extends AbstractCommand
         // Drop everything like sessionhandler FileSessionHandler, DatabaseSessionHandler ..etc
         $handlerName = str_replace('sessionhandler', '', $handlerName);
 
-        return $driver !== $handlerName
-            ? "$handlerName <comment>(Code override. Configured to <options=bold,underscore>$configuredDriver</>)</comment>"
-            : ($driver !== $configuredDriver
-                ? "$driver <comment>(Fallback default driver. Configured to invalid driver <options=bold,underscore>$configuredDriver</>)</comment>"
-                : $driver);
+        if ($driver !== $handlerName) {
+            return "$handlerName <comment>(Code override. Configured to <options=bold,underscore>$configuredDriver</>)</comment>";
+        }
+
+        if ($driver !== $configuredDriver) {
+            return "$driver <comment>(Fallback default driver. Configured to invalid driver <options=bold,underscore>$configuredDriver</>)</comment>";
+        }
+
+        return $driver;
     }
 }
