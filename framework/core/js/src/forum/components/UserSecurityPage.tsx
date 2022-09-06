@@ -66,14 +66,14 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
     if (this.user!.id() === app.session.user!.id()) {
       items.add(
         'globalLogout',
-        <FieldSet className="SecurityPage-globalLogout" label={app.translator.trans('core.forum.security.global_logout.heading')}>
+        <FieldSet className="UserSecurityPage-globalLogout" label={app.translator.trans('core.forum.security.global_logout.heading')}>
           <span className="helpText">{app.translator.trans('core.forum.security.global_logout.help_text')}</span>
           <Button
             className="Button"
             icon="fas fa-sign-out-alt"
             onclick={this.globalLogout.bind(this)}
-            loading={this.loadingGlobalLogout}
-            disabled={this.loadingTerminateSessions}
+            loading={this.state.loadingGlobalLogout}
+            disabled={this.state.loadingTerminateSessions}
           >
             {app.translator.trans('core.forum.security.global_logout.log_out_button')}
           </Button>
@@ -159,7 +159,12 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
       const isDisabled = !this.state.hasOtherActiveSessions();
 
       let terminateAllOthersButton = (
-        <Button className="Button" onclick={this.terminateAllOtherSessions.bind(this)} loading={this.state.isLoading()} disabled={isDisabled}>
+        <Button
+          className="Button"
+          onclick={this.terminateAllOtherSessions.bind(this)}
+          loading={this.state.loadingTerminateSessions}
+          disabled={this.state.loadingGlobalLogout || isDisabled}
+        >
           {app.translator.trans('core.forum.security.terminate_all_other_sessions')}
         </Button>
       );
@@ -192,7 +197,7 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
   terminateAllOtherSessions() {
     if (!confirm(extractText(app.translator.trans('core.forum.security.terminate_all_other_sessions_confirmation')))) return;
 
-    this.state.setLoading(true);
+    this.state.loadingTerminateSessions = true;
 
     return app
       .request({
@@ -206,16 +211,18 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
         this.state.removeOtherSessionTokens();
 
         app.alerts.show({ type: 'success' }, app.translator.trans('core.forum.security.session_terminated', { count }));
-
       })
       .catch(() => {
         app.alerts.show({ type: 'error' }, app.translator.trans('core.forum.security.session_termination_failed'));
       })
-      .finally(() => this.state.setLoading(false));
+      .finally(() => {
+        this.state.loadingTerminateSessions = false;
+        m.redraw();
+      });
   }
 
   globalLogout() {
-    this.loadingGlobalLogout = true;
+    this.state.loadingGlobalLogout = true;
 
     return app
       .request({
@@ -224,7 +231,7 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
       })
       .then(() => window.location.reload())
       .finally(() => {
-        this.loadingGlobalLogout = false;
+        this.state.loadingGlobalLogout = false;
         m.redraw();
       });
   }

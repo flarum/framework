@@ -2,18 +2,11 @@ import AccessToken from '../../common/models/AccessToken';
 
 export default class UserSecurityPageState {
   protected tokens: AccessToken[] | null = null;
-  protected loading: boolean = false;
-
-  public isLoading(): boolean {
-    return this.loading;
-  }
+  public loadingTerminateSessions: boolean = false;
+  public loadingGlobalLogout: boolean = false;
 
   public hasLoadedTokens(): boolean {
     return this.tokens !== null;
-  }
-
-  public setLoading(loading: boolean): void {
-    this.loading = loading;
   }
 
   public getTokens(): AccessToken[] | null {
