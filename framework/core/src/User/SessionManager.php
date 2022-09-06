@@ -39,7 +39,7 @@ class SessionManager extends IlluminateSessionManager
 
             // But we will log a critical error to the webmaster.
             $this->container->make(LoggerInterface::class)->critical(
-                "The configured session driver [$driverName] is not available. Falling back to [$defaultDriverName]. Please check your configuration."
+                "The configured session driver [$driverName] is not available. Falling back to default [$defaultDriverName]. Please check your configuration."
             );
         }
 
