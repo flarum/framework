@@ -1,8 +1,9 @@
 import Dropdown, { IDropdownAttrs } from './Dropdown';
 import icon from '../helpers/icon';
-import Mithril from 'mithril';
 import extractText from '../utils/extractText';
 import classList from '../utils/classList';
+import type Component from "../Component";
+import type Mithril from 'mithril';
 
 /**
  * Determines via a vnode is currently "active".
@@ -21,7 +22,7 @@ function isActive(vnode: Mithril.Children): boolean {
   if (typeof tag === 'string' && tag !== 'a' && tag !== 'button') return false;
 
   if (typeof tag === 'object' && 'initAttrs' in tag) {
-    (tag as any).initAttrs(vnode.attrs);
+    (tag as typeof Component).initAttrs(vnode.attrs);
   }
 
   return typeof tag === 'object' && 'isActive' in tag ? (tag as any).isActive(vnode.attrs) : vnode.attrs.active;
