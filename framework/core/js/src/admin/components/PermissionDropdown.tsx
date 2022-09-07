@@ -52,8 +52,8 @@ export default class PermissionDropdown<CustomAttrs extends IPermissionDropdownA
 
     groupIds = filterByRequiredPermissions(groupIds, this.attrs.permission);
 
-    const everyone = groupIds.indexOf(Group.GUEST_ID) !== -1;
-    const members = groupIds.indexOf(Group.MEMBER_ID) !== -1;
+    const everyone = groupIds.includes(Group.GUEST_ID);
+    const members = groupIds.includes(Group.MEMBER_ID);
     const adminGroup = app.store.getById<Group>('groups', Group.ADMINISTRATOR_ID)!;
 
     if (everyone) {
