@@ -2,7 +2,7 @@ import Dropdown, { IDropdownAttrs } from './Dropdown';
 import icon from '../helpers/icon';
 import extractText from '../utils/extractText';
 import classList from '../utils/classList';
-import type Component from "../Component";
+import type Component from '../Component';
 import type Mithril from 'mithril';
 
 /**
