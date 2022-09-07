@@ -59,7 +59,7 @@ class DiscussionRepository
      */
     public function getReadIdsQuery(User $user): Builder
     {
-        return Discussion::query()
+        return $this->query()
             ->leftJoin('discussion_user', 'discussion_user.discussion_id', '=', 'discussions.id')
             ->where('discussion_user.user_id', $user->id)
             ->whereColumn('last_read_post_number', '>=', 'last_post_number')

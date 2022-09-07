@@ -133,8 +133,6 @@ class ForumSerializer extends AbstractSerializer
 
     public function getAssetUrl($assetPath): string
     {
-        $assetsFilesystem = $this->assetsFilesystem;
-
-        return $assetsFilesystem->url($assetPath);
+        return $this->assetsFilesystem->url($assetPath);
     }
 }
