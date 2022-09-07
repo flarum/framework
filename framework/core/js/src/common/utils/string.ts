@@ -16,7 +16,8 @@ export function truncate(string: string, length: number, start: number = 0): str
 export function slug(string: string): string {
   return string
     .toLowerCase()
-    .replace(/[^a-z0-9]/gi, '-')
+    // Match non-word characters (take UTF8 into consideration) and replace with a dash.
+    .replace(/[^\p{L}\p{N}\p{M}]/giu, '-')
     .replace(/-+/g, '-')
     .replace(/-$|^-/g, '');
 }
