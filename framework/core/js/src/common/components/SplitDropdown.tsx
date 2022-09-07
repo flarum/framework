@@ -24,7 +24,7 @@ export default class SplitDropdown extends Dropdown {
     // the first child.
     const firstChild = this.getFirstChild(children);
     const buttonAttrs = Object.assign({}, firstChild?.attrs);
-    buttonAttrs.className = (buttonAttrs.className || '') + ' SplitDropdown-button Button ' + this.attrs.buttonClassName;
+    buttonAttrs.className = classList(buttonAttrs.className, 'SplitDropdown-button Button', this.attrs.buttonClassName);
 
     return (
       <>
