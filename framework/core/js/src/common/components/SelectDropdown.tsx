@@ -38,7 +38,7 @@ export interface ISelectDropdownAttrs extends IDropdownAttrs {
  */
 export default class SelectDropdown<CustomAttrs extends ISelectDropdownAttrs = ISelectDropdownAttrs> extends Dropdown<CustomAttrs> {
   static initAttrs(attrs: ISelectDropdownAttrs) {
-    attrs.caretIcon = typeof attrs.caretIcon !== 'undefined' ? attrs.caretIcon : 'fas fa-sort';
+    attrs.caretIcon ??= 'fas fa-sort';
 
     super.initAttrs(attrs);
 

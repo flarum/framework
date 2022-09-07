@@ -10,15 +10,14 @@ export interface INotificationsDropdown extends IDropdownAttrs {}
 
 export default class NotificationsDropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttrs> extends Dropdown<CustomAttrs> {
   static initAttrs(attrs: INotificationsDropdown) {
-    attrs.className = attrs.className || 'NotificationsDropdown';
-    attrs.buttonClassName = attrs.buttonClassName || 'Button Button--flat';
-    attrs.menuClassName = attrs.menuClassName || 'Dropdown-menu--right';
-    attrs.label = attrs.label || extractText(app.translator.trans('core.forum.notifications.tooltip'));
-    attrs.icon = attrs.icon || 'fas fa-bell';
+    attrs.className ||= 'NotificationsDropdown';
+    attrs.buttonClassName ||= 'Button Button--flat';
+    attrs.menuClassName ||= 'Dropdown-menu--right';
+    attrs.label ||= extractText(app.translator.trans('core.forum.notifications.tooltip'));
+    attrs.icon ||= 'fas fa-bell';
 
     // For best a11y support, both `title` and `aria-label` should be used
-    attrs.accessibleToggleLabel =
-      attrs.accessibleToggleLabel || extractText(app.translator.trans('core.forum.notifications.toggle_dropdown_accessible_label'));
+    attrs.accessibleToggleLabel ||= extractText(app.translator.trans('core.forum.notifications.toggle_dropdown_accessible_label'));
 
     super.initAttrs(attrs);
   }

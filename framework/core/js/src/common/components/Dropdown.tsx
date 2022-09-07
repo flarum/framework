@@ -36,11 +36,11 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
   protected showing = false;
 
   static initAttrs(attrs: IDropdownAttrs) {
-    attrs.className = attrs.className || '';
-    attrs.buttonClassName = attrs.buttonClassName || '';
-    attrs.menuClassName = attrs.menuClassName || '';
-    attrs.label = attrs.label || '';
-    attrs.caretIcon = typeof attrs.caretIcon !== 'undefined' ? attrs.caretIcon : 'fas fa-caret-down';
+    attrs.className ||= '';
+    attrs.buttonClassName ||= '';
+    attrs.menuClassName ||= '';
+    attrs.label ||= '';
+    attrs.caretIcon ??= 'fas fa-caret-down';
     attrs.accessibleToggleLabel ||= extractText(app.translator.trans('core.lib.dropdown.toggle_dropdown_accessible_label'));
   }
 
