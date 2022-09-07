@@ -86,10 +86,10 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
       const $menu = this.$('.Dropdown-menu');
       const isRight = $menu.hasClass('Dropdown-menu--right');
 
-      const top = $menu.offset()?.top || 0;
-      const height = $menu.height() || 0;
-      const windowSrollTop = $(window).scrollTop() || 0;
-      const windowHeight = $(window).height() || 0;
+      const top = $menu.offset()?.top ?? 0;
+      const height = $menu.height() ?? 0;
+      const windowSrollTop = $(window).scrollTop() ?? 0;
+      const windowHeight = $(window).height() ?? 0;
 
       $menu.removeClass('Dropdown-menu--top Dropdown-menu--right');
 
@@ -99,10 +99,10 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
         $menu.removeClass('Dropdown-menu--top');
       }
 
-      const left = $menu.offset()?.left || 0;
-      const width = $menu.width() || 0;
-      const windowScrollLeft = $(window).scrollLeft() || 0;
-      const windowWidth = $(window).width() || 0;
+      const left = $menu.offset()?.left ?? 0;
+      const width = $menu.width() ?? 0;
+      const windowScrollLeft = $(window).scrollLeft() ?? 0;
+      const windowWidth = $(window).width() ?? 0;
 
       $menu.toggleClass('Dropdown-menu--right', isRight || left + width > windowScrollLeft + windowWidth);
     });
