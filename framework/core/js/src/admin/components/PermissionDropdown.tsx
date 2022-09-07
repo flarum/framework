@@ -103,9 +103,12 @@ export default class PermissionDropdown<CustomAttrs extends IPermissionDropdownA
         )
       );
 
+      // These groups are defined above, appearing first in the list.
+      const excludedGroups = [Group.ADMINISTRATOR_ID, Group.GUEST_ID, Group.MEMBER_ID];
+
       const groupButtons = app.store
         .all<Group>('groups')
-        .filter((group) => ![Group.ADMINISTRATOR_ID, Group.GUEST_ID, Group.MEMBER_ID].includes(group.id()!))
+        .filter((group) => !excludedGroups.includes(group.id()!))
         .map((group) =>
           Button.component(
             {
