@@ -55,8 +55,17 @@ p {
   margin-left: auto;
   padding-left: 15px;
   padding-right: 15px;
-  width: var(--container-width);
   .clearfix();
+
+  @media @tablet {
+    width: @screen-tablet;
+  }
+  @media @desktop {
+    width: @screen-desktop;
+  }
+  @media @desktop-hd {
+    width: @screen-desktop-hd;
+  }
 }
 
 .containerNarrow {
