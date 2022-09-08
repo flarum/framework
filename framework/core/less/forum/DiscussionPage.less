@@ -25,9 +25,10 @@
 @media @tablet-up {
   .DiscussionPage-discussion {
     > .container {
+      --container-gap: 75px;
       display: grid;
-      grid-gap: 75px;
-      grid-template-columns: 1fr 150px;
+      grid-gap: var(--container-gap);
+      grid-template-columns: calc(~"var(--container-width) - 150px - var(--container-gap)") 150px;
       grid-template-areas: 'stream nav';
 
       &::before, &::after {
