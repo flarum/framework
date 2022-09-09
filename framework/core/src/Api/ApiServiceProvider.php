@@ -105,6 +105,7 @@ class ApiServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.api_client.exclude_middleware', function () {
             return [
+                'flarum.api.error_handler',
                 HttpMiddleware\InjectActorReference::class,
                 HttpMiddleware\ParseJsonBody::class,
                 Middleware\FakeHttpMethods::class,
