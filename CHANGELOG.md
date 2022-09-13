@@ -38,7 +38,6 @@
 - (statistics) split timed data into per-model XHR requests [#3601]
 - (tags) Replace event helper with event dispatcher [#3570]
 - Add `loading="lazy"` attribute for avatars [#3578]
-- Apply fixes from StyleCI ([bb64114](bb641144b6bc5c59798351459fbf8df8cbf6aec6))
 - Create CODEOWNERS ([6e48a03](6e48a0303e45bcf210e550ba3e0772bc8443a207))
 - MyISAM tables for extensions during installation" ([f128190](f128190f143398dd1262fd1379e634794daee4c1))
 - convert `AlertManager` `IndexPage` and `UserPage` components to TS [#3536]
