@@ -1,5 +1,84 @@
 # Changelog
 
+## [v1.5.0](https://github.com/flarum/framework/compare/v1.4.0...v1.5.0)
+### Fixed
+- (a11y) add accessible labels to notification grid options [#3520]
+- (a11y) present post streams as feeds [#3522]
+- (a11y) set `aria-busy` when editing a post stream item [#3521]
+- (compilation) versioner not inject into compilers [#3589]
+- (mentions) accessing `id` of null `user` relation [#3618]
+- (subscriptions) add missing table prefix for filter gambit [#3599]
+- (tags) use default index sortmap [#3615]
+- Move guzzle requirement to core [#3544]
+- MyISAM tables for extensions during installation ([75aaef7](75aaef7d76317bc8578eac1439fed8091c87213b), [f926c58](f926c58e0143fe75a4a4c2e93810970c5910afc8))
+- Set the translator locale to user preference for email notifications [#3525]
+- `$events` property declared dynamically [#3598]
+- core settings header has no priority ([33bf228](33bf2284c77863a1bb18d71d87b8516483056a74))
+- html entities shown raw in page title [#3542]
+- incorrect centring of deleted user avatars in notification list [#3569]
+- intellisense imports defaulting to absolute path from `src` folder [#3549]
+- minor backward compatible fix for php 8.1 in st_replace ([07b2f86](07b2f86dcc90a3ef17c8ee19a1a07e99a4b17360))
+- post query wildcard selection causes ambiguity [#3621]
+- potential static caching memory exhaustion [#3548]
+- prepare release workflow has invalid layout ([70e483d](70e483d1b185332910be9513fd06cc6342830d49))
+- remove deprecation warning for decoding null values ([590639f](590639f5f3e1fe883f28c41e1f175c2826b4b5f4))
+- replace `.fa()` mixin usage with `.fas()` [#3537]
+- return type hint static is php 8+ ([b01b75e](b01b75e36790d8026dd27ce59051d9581ad47940))
+- sticky nav content displays below post stream [#3575]
+- titles positioned wrongly with custom header height [#3550]
+- typo in error message ([1a189f4](1a189f492320071365286a8835bc49d5a9571753))
+- unread notifications are globally cached between users. [#3543]
+- update workflow name ([628c281](628c281c39855f01069ddc40b698d80d29fec870))
+- user has wrong discussion read status [#3591]
+### Changed
+- (approval, likes) use subscribers [#3577]
+- (package-manager) last tweaks before beta tag ([335c602](335c602cea3fbaee9ad7c32ceecaaf222e5d89a7))
+- (statistics) add release notes for 1.4.1 ([f4ace73](f4ace73a3c59434b8717efb2d83f50084f470fe4))
+- (statistics) rewrite for performance on very large communities [#3531]
+- (statistics) split timed data into per-model XHR requests [#3601]
+- (tags) Replace event helper with event dispatcher [#3570]
+- Add `loading="lazy"` attribute for avatars [#3578]
+- Apply fixes from StyleCI ([bb64114](bb641144b6bc5c59798351459fbf8df8cbf6aec6))
+- Create CODEOWNERS ([6e48a03](6e48a0303e45bcf210e550ba3e0772bc8443a207))
+- MyISAM tables for extensions during installation" ([f128190](f128190f143398dd1262fd1379e634794daee4c1))
+- convert `AlertManager` `IndexPage` and `UserPage` components to TS [#3536]
+- convert `Badge` `Checkbox` and `Navigation` components to TS [#3532]
+- convert core modals to TypeScript [#3515]
+- convert page components to TypeScript [#3538]
+- debug line slipped in while rebasing a PR [#3580]
+- don't pass password field between auth modals [#3626]
+- fix github issue templates ([d3e456a](d3e456a1bf42d13b7cd2542c371f392712247c09))
+- format code ([4954621](495462183bfb3b33046b293e6b1088ab225968df))
+- getting the release workflow in ([5530400](5530400b093b5fd07d670e5c92d8a7da96634cfe))
+- link logo at the top with the official website [#3552]
+- prevent running both `push` and `pull_request` actions at the same time [#3597]
+- refactor prefix matrix and add `MySQL 8.0` & `PHP 7.3` to workflows [#3595]
+- relying on a third-party for avatar URL tests is unreliable  [#3586]
+- require guzzle 6 or 7 ([46b3b7a](46b3b7a9527b935c3c52269aaad2010c75dcb6d8))
+- split FA imports into separate Less file for easy overriding [#3535]
+- unify JS actions into one (rewritten `flarum/action-build`) [#3573]
+- update version constant during cycle 22 ([d864405](d86440506dd37101e60adec591d4b017e7765ec6))
+- use `isCollapsed` instead of `rangeCount` [#3581]
+- use github issue template forms [#3526]
+### Added
+- (likes) Add likes tab to user profile [#3528]
+- (likes) Option to prevent users liking their own posts [#3534]
+- (modals) support stacking modals, remove bootstrap modals dependency [#3456]
+- (subscriptions) add option to send notifications when not caught up [#3503]
+- Add custom class for email confirmation alert [#3584]
+- Admin debug mode warning [#3590]
+- Delete all notifications [#3529]
+- Queue package manager commands [#3418]
+- Restart the queue worker after cache clearing, ext enable/disable, save settings [#3565]
+- add createTableIfNotExists migration helper [#3576]
+- add new workflow for generating release meta ([0901e59](0901e59a58a3e1f017762583a2adf419f7f34257))
+- clear password & email tokens when appropriate [#3567]
+- discussion UTF-8 slug driver [#3606]
+- expose assets base url to frontend forum model [#3566]
+- extender to add custom less variables [#3530]
+- publish assets on admin dashboard cache clear [#3564]
+- throttle email change, email confirmation, and password reset endpoints. [#3555]
+
 ## [1.4.0](https://github.com/flarum/framework/compare/v1.3.1...v1.4.0)
 
 ### Added
