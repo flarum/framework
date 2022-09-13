@@ -21,7 +21,7 @@ class Application
      *
      * @var string
      */
-    const VERSION = '1.5.0';
+    const VERSION = '1.6.0-dev';
 
     /**
      * The IoC container for the Flarum application.
