@@ -47,7 +47,7 @@ class EmailNotificationDriver implements NotificationDriverInterface
     protected function mailNotifications(MailableInterface $blueprint, array $recipients)
     {
         foreach ($recipients as $user) {
-            if ($user->shouldEmail($blueprint::getType())) {
+            if ($user->is_email_confirmed && $user->shouldEmail($blueprint::getType())) {
                 $this->queue->push(new SendEmailNotificationJob($blueprint, $user));
             }
         }
