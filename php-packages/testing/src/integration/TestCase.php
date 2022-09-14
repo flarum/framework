@@ -148,7 +148,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected function config(string $key, $value)
     {
-        $this->config[$key] = $value;
+        Arr::set($this->config, $key, $value);
     }
 
     /**

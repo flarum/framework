@@ -14,10 +14,14 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Config;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\SessionManager;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use PDO;
+use SessionHandlerInterface;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableStyle;
 
@@ -48,18 +52,32 @@ class InfoCommand extends AbstractCommand
      */
     private $queue;
 
+    /**
+     * @var SessionManager
+     */
+    private $session;
+
+    /**
+     * @var SessionHandlerInterface
+     */
+    private $sessionHandler;
+
     public function __construct(
         ExtensionManager $extensions,
         Config $config,
         SettingsRepositoryInterface $settings,
         ConnectionInterface $db,
-        Queue $queue
+        Queue $queue,
+        SessionManager $session,
+        SessionHandlerInterface $sessionHandler
     ) {
         $this->extensions = $extensions;
         $this->config = $config;
         $this->settings = $settings;
         $this->db = $db;
         $this->queue = $queue;
+        $this->session = $session;
+        $this->sessionHandler = $sessionHandler;
 
         parent::__construct();
     }
@@ -93,6 +111,7 @@ class InfoCommand extends AbstractCommand
         $this->output->writeln('<info>Base URL:</info> '.$this->config->url());
         $this->output->writeln('<info>Installation path:</info> '.getcwd());
         $this->output->writeln('<info>Queue driver:</info> '.$this->identifyQueueDriver());
+        $this->output->writeln('<info>Session driver:</info> '.$this->identifySessionDriver());
         $this->output->writeln('<info>Mail driver:</info> '.$this->settings->get('mail_driver', 'unknown'));
         $this->output->writeln('<info>Debug mode:</info> '.($this->config->inDebugMode() ? '<error>ON</error>' : 'off'));
 
@@ -168,5 +187,54 @@ class InfoCommand extends AbstractCommand
     private function identifyDatabaseVersion(): string
     {
         return $this->db->getPdo()->getAttribute(PDO::ATTR_SERVER_VERSION);
+    }
+
+    /**
+     * Reports on the session driver in use based on three scenarios:
+     *  1. If the configured session driver is valid and in use, it will be returned.
+     *  2. If the configured session driver is invalid, fallback to the default one and mention it.
+     *  3. If the actual used driver (i.e `session.handler`) is different from the current one (configured or default), mention it.
+     */
+    private function identifySessionDriver(): string
+    {
+        /*
+         * Get the configured driver and fallback to the default one.
+         */
+        $defaultDriver = $this->session->getDefaultDriver();
+        $configuredDriver = Arr::get($this->config, 'session.driver', $defaultDriver);
+        $driver = $configuredDriver;
+
+        try {
+            // Try to get the configured driver instance.
+            // Driver instances are created on demand.
+            $this->session->driver($configuredDriver);
+        } catch (InvalidArgumentException $e) {
+            // An exception is thrown if the configured driver is not a valid driver.
+            // So we fallback to the default driver.
+            $driver = $defaultDriver;
+        }
+
+        /*
+         * Get actual driver name from its class name.
+         * And compare that to the current configured driver.
+         */
+        // Get class name
+        $handlerName = get_class($this->sessionHandler);
+        // Drop the namespace
+        $handlerName = Str::afterLast($handlerName, '\\');
+        // Lowercase the class name
+        $handlerName = strtolower($handlerName);
+        // Drop everything like sessionhandler FileSessionHandler, DatabaseSessionHandler ..etc
+        $handlerName = str_replace('sessionhandler', '', $handlerName);
+
+        if ($driver !== $handlerName) {
+            return "$handlerName <comment>(Code override. Configured to <options=bold,underscore>$configuredDriver</>)</comment>";
+        }
+
+        if ($driver !== $configuredDriver) {
+            return "$driver <comment>(Fallback default driver. Configured to invalid driver <options=bold,underscore>$configuredDriver</>)</comment>";
+        }
+
+        return $driver;
     }
 }
