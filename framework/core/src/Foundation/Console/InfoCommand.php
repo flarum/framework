@@ -42,6 +42,7 @@ class InfoCommand extends AbstractCommand
      * @var ConnectionInterface
      */
     protected $db;
+
     /**
      * @var Queue
      */

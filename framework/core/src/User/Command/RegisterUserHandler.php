@@ -54,12 +54,6 @@ class RegisterUserHandler
      */
     protected $imageManager;
 
-    /**
-     * @param Dispatcher $events
-     * @param SettingsRepositoryInterface $settings
-     * @param UserValidator $validator
-     * @param AvatarUploader $avatarUploader
-     */
     public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings, UserValidator $userValidator, AvatarUploader $avatarUploader, Factory $validator, ImageManager $imageManager)
     {
         $this->events = $events;
@@ -91,6 +85,7 @@ class RegisterUserHandler
         // If a valid authentication token was provided as an attribute,
         // then we won't require the user to choose a password.
         if (isset($data['attributes']['token'])) {
+            /** @var RegistrationToken $token */
             $token = RegistrationToken::validOrFail($data['attributes']['token']);
 
             $password = $password ?: Str::random(20);

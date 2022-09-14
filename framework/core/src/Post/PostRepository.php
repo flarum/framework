@@ -18,7 +18,7 @@ class PostRepository
     /**
      * Get a new query builder for the posts table.
      *
-     * @return Builder
+     * @return Builder<Post>
      */
     public function query()
     {
@@ -27,7 +27,7 @@ class PostRepository
 
     /**
      * @param User|null $user
-     * @return Builder
+     * @return Builder<Post>
      */
     protected function queryVisibleTo(User $user = null)
     {
@@ -45,8 +45,8 @@ class PostRepository
      * user, or throw an exception.
      *
      * @param int $id
-     * @param \Flarum\User\User $actor
-     * @return \Flarum\Post\Post
+     * @param \Flarum\User\User|null $actor
+     * @return Post
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
@@ -126,7 +126,7 @@ class PostRepository
     /**
      * @param array $ids
      * @param User|null $actor
-     * @return Builder
+     * @return Builder<Post>
      */
     protected function queryIds(array $ids, User $actor = null)
     {

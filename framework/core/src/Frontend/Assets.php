@@ -13,7 +13,7 @@ use Flarum\Frontend\Compiler\CompilerInterface;
 use Flarum\Frontend\Compiler\JsCompiler;
 use Flarum\Frontend\Compiler\LessCompiler;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
-use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Contracts\Filesystem\Cloud;
 
 /**
  * A factory class for creating frontend asset compilers.
@@ -38,7 +38,7 @@ class Assets
     protected $name;
 
     /**
-     * @var Filesystem
+     * @var Cloud
      */
     protected $assetsDir;
 
@@ -67,7 +67,7 @@ class Assets
      */
     protected $customFunctions = [];
 
-    public function __construct(string $name, Filesystem $assetsDir, string $cacheDir = null, array $lessImportDirs = null, array $customFunctions = [])
+    public function __construct(string $name, Cloud $assetsDir, string $cacheDir = null, array $lessImportDirs = null, array $customFunctions = [])
     {
         $this->name = $name;
         $this->assetsDir = $assetsDir;
@@ -200,12 +200,12 @@ class Assets
         $this->name = $name;
     }
 
-    public function getAssetsDir(): Filesystem
+    public function getAssetsDir(): Cloud
     {
         return $this->assetsDir;
     }
 
-    public function setAssetsDir(Filesystem $assetsDir)
+    public function setAssetsDir(Cloud $assetsDir)
     {
         $this->assetsDir = $assetsDir;
     }

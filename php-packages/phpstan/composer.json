@@ -4,8 +4,8 @@
     "minimum-stability": "dev",
     "license": "MIT",
     "require": {
-        "phpstan/phpstan-php-parser": "^1.0",
-        "phpstan/phpstan": "^1.2"
+        "phpstan/phpstan": "^1.2",
+        "nunomaduro/larastan": "^1.0"
     },
     "autoload": {
         "psr-4": {

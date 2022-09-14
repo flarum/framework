@@ -1,0 +1,15 @@
+<?php
+
+namespace Illuminate\Filesystem;
+
+class Filesystem
+{
+    /**
+    * Find path names matching a given pattern.
+    *
+    * @param  string  $pattern
+    * @param  int  $flags
+    * @return mixed[]|false
+    */
+    public function glob($pattern, $flags = 0);
+}

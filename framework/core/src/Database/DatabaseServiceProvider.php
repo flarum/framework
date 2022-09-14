@@ -10,6 +10,7 @@
 namespace Flarum\Database;
 
 use Flarum\Foundation\AbstractServiceProvider;
+use Illuminate\Container\Container as ContainerImplementation;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\ConnectionInterface;
@@ -22,7 +23,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->container->singleton(Manager::class, function (Container $container) {
+        $this->container->singleton(Manager::class, function (ContainerImplementation $container) {
             $manager = new Manager($container);
 
             $config = $container['flarum']->config('database');

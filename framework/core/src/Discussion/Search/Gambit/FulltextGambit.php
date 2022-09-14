@@ -65,5 +65,7 @@ class FulltextGambit implements GambitInterface
             $query->orderByRaw('MATCH('.$grammar->wrap('discussions.title').') AGAINST (?) desc', [$bit]);
             $query->orderBy('posts_ft.score', 'desc');
         });
+
+        return true;
     }
 }

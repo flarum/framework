@@ -43,7 +43,6 @@ abstract class AbstractSearcher
      * @param int $offset
      *
      * @return QueryResults
-     * @throws InvalidArgumentException
      */
     public function search(QueryCriteria $criteria, $limit = null, $offset = 0): QueryResults
     {
