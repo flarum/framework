@@ -9,7 +9,7 @@
     "license": "MIT",
     "require": {
         "ext-json": "*",
-        "mockery/mockery": "^1.4",
+        "mockery/mockery": "^1.5",
         "phpunit/phpunit": "^9.0"
     },
     "require-dev": {

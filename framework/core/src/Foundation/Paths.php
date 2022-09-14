@@ -12,10 +12,10 @@ namespace Flarum\Foundation;
 use InvalidArgumentException;
 
 /**
- * @property-read string base
- * @property-read string public
- * @property-read string storage
- * @property-read string vendor
+ * @property-read string $base
+ * @property-read string $public
+ * @property-read string $storage
+ * @property-read string $vendor
  */
 class Paths
 {

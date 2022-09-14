@@ -221,14 +221,13 @@ class Document implements Renderable
         return resolve(TitleDriverInterface::class)->makeTitle($this, $this->request, $this->forumApiDocument);
     }
 
-    /**
-     * @return View
-     */
-    protected function makeLayout(): View
+    protected function makeLayout(): ?View
     {
         if ($this->layoutView) {
             return $this->view->make($this->layoutView)->with('content', $this->makeContent());
         }
+
+        return null;
     }
 
     /**

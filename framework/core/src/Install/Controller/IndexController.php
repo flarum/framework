@@ -26,10 +26,6 @@ class IndexController extends AbstractHtmlController
      */
     protected $installation;
 
-    /**
-     * @param Factory $view
-     * @param Installation $installation
-     */
     public function __construct(Factory $view, Installation $installation)
     {
         $this->view = $view;
@@ -37,7 +33,6 @@ class IndexController extends AbstractHtmlController
     }
 
     /**
-     * @param Request $request
      * @return \Illuminate\Contracts\Support\Renderable
      */
     public function render(Request $request)

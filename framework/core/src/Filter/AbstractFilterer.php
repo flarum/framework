@@ -39,7 +39,7 @@ abstract class AbstractFilterer
 
     /**
      * @param QueryCriteria $criteria
-     * @param mixed|null $limit
+     * @param int|null $limit
      * @param int $offset
      *
      * @return QueryResults

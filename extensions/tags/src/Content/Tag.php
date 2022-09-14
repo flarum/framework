@@ -109,12 +109,7 @@ class Tag
      */
     private function getSortMap()
     {
-        return [
-            'latest' => '-lastPostedAt',
-            'top' => '-commentCount',
-            'newest' => '-createdAt',
-            'oldest' => 'createdAt'
-        ];
+        return resolve('flarum.forum.discussions.sortmap');
     }
 
     /**
