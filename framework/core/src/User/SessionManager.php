@@ -11,7 +11,6 @@ namespace Flarum\User;
 
 use Flarum\Foundation\Config;
 use Illuminate\Session\SessionManager as IlluminateSessionManager;
-use Illuminate\Session\Store;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
