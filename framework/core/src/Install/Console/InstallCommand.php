@@ -13,6 +13,7 @@ use Flarum\Console\AbstractCommand;
 use Flarum\Install\Installation;
 use Flarum\Install\Pipeline;
 use Flarum\Install\Step;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputOption;
 
 class InstallCommand extends AbstractCommand
@@ -83,7 +84,9 @@ class InstallCommand extends AbstractCommand
         if ($this->input->getOption('file')) {
             $this->dataSource = new FileDataProvider($this->input);
         } else {
-            $this->dataSource = new UserDataProvider($this->input, $this->output, $this->getHelperSet()->get('question'));
+            /** @var QuestionHelper $questionHelper */
+            $questionHelper = $this->getHelperSet()->get('question');
+            $this->dataSource = new UserDataProvider($this->input, $this->output, $questionHelper);
         }
     }
 

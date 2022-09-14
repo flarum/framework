@@ -25,8 +25,8 @@ use Psr\Http\Message\ServerRequestInterface;
  * @property Carbon|null $last_activity_at
  * @property string $type
  * @property string $title
- * @property string $last_ip_address
- * @property string $last_user_agent
+ * @property string|null $last_ip_address
+ * @property string|null $last_user_agent
  * @property \Flarum\User\User|null $user
  */
 class AccessToken extends AbstractModel

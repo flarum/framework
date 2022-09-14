@@ -21,7 +21,7 @@ class QueueFactory implements Factory
     /**
      * The cached queue instance.
      *
-     * @var \Illuminate\Contracts\Queue\Queue
+     * @var \Illuminate\Contracts\Queue\Queue|null
      */
     private $queue;
 

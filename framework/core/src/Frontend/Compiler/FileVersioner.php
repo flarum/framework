@@ -27,8 +27,8 @@ class FileVersioner implements VersionerInterface
 
     public function putRevision(string $file, ?string $revision)
     {
-        if ($this->filesystem->has(static::REV_MANIFEST)) {
-            $manifest = json_decode($this->filesystem->read(static::REV_MANIFEST), true);
+        if ($this->filesystem->exists(static::REV_MANIFEST)) {
+            $manifest = json_decode($this->filesystem->get(static::REV_MANIFEST), true);
         } else {
             $manifest = [];
         }
@@ -44,8 +44,8 @@ class FileVersioner implements VersionerInterface
 
     public function getRevision(string $file): ?string
     {
-        if ($this->filesystem->has(static::REV_MANIFEST)) {
-            $manifest = json_decode($this->filesystem->read(static::REV_MANIFEST), true);
+        if ($this->filesystem->exists(static::REV_MANIFEST)) {
+            $manifest = json_decode($this->filesystem->get(static::REV_MANIFEST), true);
 
             return Arr::get($manifest, $file);
         }

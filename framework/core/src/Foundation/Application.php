@@ -140,10 +140,10 @@ class Application
          * Use container inside flarum instead.
          */
         $this->container->instance('app', $this->container);
-        $this->container->alias('app', \Illluminate\Container\Container::class);
+        $this->container->alias('app', \Illuminate\Container\Container::class);
 
         $this->container->instance('container', $this->container);
-        $this->container->alias('container', \Illluminate\Container\Container::class);
+        $this->container->alias('container', \Illuminate\Container\Container::class);
 
         $this->container->instance('flarum', $this);
         $this->container->alias('flarum', self::class);
@@ -170,7 +170,7 @@ class Application
      */
     public function register($provider, $options = [], $force = false)
     {
-        if ($registered = $this->getProvider($provider) && ! $force) {
+        if (($registered = $this->getProvider($provider)) && ! $force) {
             return $registered;
         }
 

@@ -81,7 +81,7 @@ class EmailToken extends AbstractModel
      */
     public function scopeValidOrFail($query, $id)
     {
-        /** @var EmailToken $token */
+        /** @var static|null $token */
         $token = $query->find($id);
 
         if (! $token || $token->created_at->diffInDays() >= 1) {

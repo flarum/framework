@@ -28,10 +28,6 @@ class IndexController extends AbstractHtmlController
         $this->view = $view;
     }
 
-    /**
-     * @param Request $request
-     * @return \Psr\Http\Message\ResponseInterface
-     */
     public function render(Request $request)
     {
         $view = $this->view->make('flarum.update::app')->with('title', 'Update Flarum');

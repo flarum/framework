@@ -1,0 +1,17 @@
+parameters:
+	ignoreErrors:
+		# Remove this group below with larastan 2.0 (i.e Flarum 2.0)
+		- "#Relation '[A-z_-]+' is not found in [A-z\_]+ model.#"
+		- '#^Parameter \#1 \$query of method [A-z_<>\\]+\:\:union\(\) expects [A-z_<> .,|\\]+ given\.$#'
+		- '#^Parameter \#1 \$query of method [A-z_<>\\]+\:\:joinSub\(\) expects [A-z_<> .,|\\]+ given\.$#'
+
+		#	We ignore this because resolve can either take a class name as the generic return type or just a binding name.
+		- "#Template type T of function resolve[()]{2} is not referenced in a parameter.#"
+
+		#	We ignore new static errors because we want extensibility.
+		#	@TODO: needs discussion.
+		- "#^Unsafe usage of new static[()]{2}.$#"
+
+		# ConnectionInterface lacks methods that exist in the implementation,
+		# yet we don't want to inject the implementation.
+		- '#^Call to an undefined method Illuminate\\Database\\ConnectionInterface\:\:[A-z0-9_]+\(\)\.$#'

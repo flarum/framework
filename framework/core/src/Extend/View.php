@@ -13,6 +13,7 @@ use Flarum\Extension\Extension;
 use Flarum\Foundation\Paths;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\View\Factory as FactoryImplementation;
 
 /**
  * Views are PHP files that use the Laravel Blade syntax for creation of server-side generated HTML.
@@ -65,7 +66,7 @@ class View implements ExtenderInterface, LifecycleInterface
 
     public function extend(Container $container, Extension $extension = null)
     {
-        $container->resolving(Factory::class, function (Factory $view) {
+        $container->resolving(Factory::class, function (FactoryImplementation $view) {
             foreach ($this->namespaces as $namespace => $hints) {
                 $view->addNamespace($namespace, $hints);
             }
