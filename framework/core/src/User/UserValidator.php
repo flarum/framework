@@ -14,7 +14,7 @@ use Flarum\Foundation\AbstractValidator;
 class UserValidator extends AbstractValidator
 {
     /**
-     * @var User
+     * @var User|null
      */
     protected $user;
 

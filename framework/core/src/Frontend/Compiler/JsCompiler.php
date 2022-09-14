@@ -72,7 +72,7 @@ class JsCompiler extends RevisionCompiler
     {
         parent::delete($file);
 
-        if ($this->assetsDir->has($mapFile = $file.'.map')) {
+        if ($this->assetsDir->exists($mapFile = $file.'.map')) {
             $this->assetsDir->delete($mapFile);
         }
     }

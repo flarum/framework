@@ -11,7 +11,6 @@ namespace Flarum\Api;
 
 use Flarum\Http\RequestUtil;
 use Flarum\User\User;
-use Illuminate\Contracts\Container\Container;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Diactoros\Uri;
 use Laminas\Stratigility\MiddlewarePipeInterface;
@@ -26,12 +25,12 @@ class Client
     protected $pipe;
 
     /**
-     * @var User
+     * @var User|null
      */
     protected $actor;
 
     /**
-     * @var ServerRequestInterface
+     * @var ServerRequestInterface|null
      */
     protected $parent;
 
@@ -45,9 +44,6 @@ class Client
      */
     protected $body = [];
 
-    /**
-     * @param Container $container
-     */
     public function __construct(MiddlewarePipeInterface $pipe)
     {
         $this->pipe = $pipe;

@@ -46,7 +46,7 @@ class CookieFactory
     /**
      * Same Site cookie value.
      *
-     * @var string
+     * @var string|null
      */
     protected $samesite;
 

@@ -76,7 +76,7 @@ class ErrorHandling implements ExtenderInterface
      * contain "details" - arbitrary data with more context for to the error.
      *
      * @param string $exceptionClass: The ::class attribute of the exception class.
-     * @param string $errorType: The ::class attribute of the handler class.
+     * @param string $handlerClass: The ::class attribute of the handler class.
      * @return self
      */
     public function handler(string $exceptionClass, string $handlerClass): self

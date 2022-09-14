@@ -31,7 +31,7 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
     /**
      * LanguagePack constructor.
      *
-     * @param string|null $path: Path to yaml language files.
+     * @param string $path: Path to yaml language files.
      */
     public function __construct(string $path = '/locale')
     {
@@ -115,7 +115,7 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
             return true;
         }
 
-        /** @var ExtensionManager $extensions */
+        /** @var ExtensionManager|null $extensions */
         static $extensions;
         $extensions = $extensions ?? $container->make(ExtensionManager::class);
 

@@ -41,7 +41,7 @@ use Illuminate\Support\Arr;
  * @property \Carbon\Carbon $deleted_at
  * @property \Flarum\User\User|null $user
  * @property \Flarum\User\User|null $fromUser
- * @property \Flarum\Database\AbstractModel|null $subject
+ * @property \Flarum\Database\AbstractModel|\Flarum\Post\Post|\Flarum\Discussion\Discussion|null $subject
  */
 class Notification extends AbstractModel
 {
@@ -76,7 +76,7 @@ class Notification extends AbstractModel
      * When getting the data attribute, unserialize the JSON stored in the
      * database into a plain array.
      *
-     * @param string $value
+     * @param string|null $value
      * @return mixed
      */
     public function getDataAttribute($value)
@@ -258,7 +258,7 @@ class Notification extends AbstractModel
         static::$subjectModels[$type] = $subjectModel;
     }
 
-    private static function getBlueprintAttributes(BlueprintInterface $blueprint): array
+    protected static function getBlueprintAttributes(BlueprintInterface $blueprint): array
     {
         return [
             'type' => $blueprint::getType(),

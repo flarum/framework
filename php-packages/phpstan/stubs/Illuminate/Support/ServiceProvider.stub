@@ -1,0 +1,23 @@
+<?php
+
+namespace Illuminate\Support;
+
+use Illuminate\Contracts\Container\Container;
+
+abstract class ServiceProvider
+{
+    /**
+     * The application instance.
+     *
+     * @var Container
+     */
+    protected $app;
+
+    /**
+     * Create a new service provider instance.
+     *
+     * @param  Container  $app
+     * @return void
+     */
+    public function __construct($app);
+}
