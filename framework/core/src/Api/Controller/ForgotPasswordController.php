@@ -9,10 +9,11 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\User\Command\RequestPasswordReset;
-use Flarum\User\UserRepository;
-use Illuminate\Contracts\Bus\Dispatcher;
+use Flarum\User\Job\RequestPasswordResetJob;
+use Illuminate\Contracts\Queue\Queue;
+use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -21,23 +22,19 @@ use Psr\Http\Server\RequestHandlerInterface;
 class ForgotPasswordController implements RequestHandlerInterface
 {
     /**
-     * @var \Flarum\User\UserRepository
+     * @var Queue
      */
-    protected $users;
+    protected $queue;
 
     /**
-     * @var Dispatcher
+     * @var Factory
      */
-    protected $bus;
+    protected $validatorFactory;
 
-    /**
-     * @param \Flarum\User\UserRepository $users
-     * @param Dispatcher $bus
-     */
-    public function __construct(UserRepository $users, Dispatcher $bus)
+    public function __construct(Queue $queue, Factory $validatorFactory)
     {
-        $this->users = $users;
-        $this->bus = $bus;
+        $this->queue = $queue;
+        $this->validatorFactory = $validatorFactory;
     }
 
     /**
@@ -47,9 +44,18 @@ class ForgotPasswordController implements RequestHandlerInterface
     {
         $email = Arr::get($request->getParsedBody(), 'email');
 
-        $this->bus->dispatch(
-            new RequestPasswordReset($email)
+        $validation = $this->validatorFactory->make(
+            compact('email'),
+            ['email' => 'required|email']
         );
+
+        if ($validation->fails()) {
+            throw new ValidationException($validation);
+        }
+
+        // Prevents leaking user existence by not throwing an error.
+        // Prevents leaking user existence by duration by using a queued job.
+        $this->queue->push(new RequestPasswordResetJob($email));
 
         return new EmptyResponse;
     }

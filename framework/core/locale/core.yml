@@ -350,7 +350,7 @@ core:
     forgot_password:
       dismiss_button: => core.ref.okay
       email_placeholder: => core.ref.email
-      email_sent_message: We've sent you an email containing a link to reset your password. Check your spam folder if you don't receive it within the next minute or two.
+      email_sent_message: If the email you entered is registered with this site, we'll send you an email containing a link to reset your password. Check your spam folder if you don't receive it within the next minute or two.
       not_found_message: There is no user registered with that email address.
       submit_button: Recover Password
       text: Enter your email address and we will send you a link to reset your password.
