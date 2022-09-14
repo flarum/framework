@@ -30,7 +30,6 @@ class SessionManager extends IlluminateSessionManager
         $config = $this->container->make(Config::class);
         $driverName = Arr::get($config, 'session.driver');
 
-        /** @var Store $driverInstance */
         try {
             $driverInstance = parent::driver($driverName);
         } catch (InvalidArgumentException $e) {
