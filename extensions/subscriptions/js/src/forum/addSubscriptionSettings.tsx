@@ -4,7 +4,7 @@ import SettingsPage from 'flarum/forum/components/SettingsPage';
 import Switch from 'flarum/common/components/Switch';
 
 export default function () {
-  extend(SettingsPage.prototype, 'notificationsItems', function (items) {
+  extend(SettingsPage.prototype, 'notificationsItems', function (this: SettingsPage, items) {
     items.add(
       'followAfterReply',
       Switch.component(
@@ -22,6 +22,19 @@ export default function () {
         },
         app.translator.trans('flarum-subscriptions.forum.settings.follow_after_reply_label')
       )
+    );
+
+    items.add(
+      'notifyForAllPosts',
+      <Switch
+        id="flarum_subscriptions__notify_for_all_posts"
+        state={!!this.user!.preferences()?.['flarum-subscriptions.notify_for_all_posts']}
+        onchange={(val: boolean) => {
+          this.user!.savePreferences({ 'flarum-subscriptions.notify_for_all_posts': val });
+        }}
+      >
+        {app.translator.trans('flarum-subscriptions.forum.settings.notify_for_all_posts_label')}
+      </Switch>
     );
   });
 }
