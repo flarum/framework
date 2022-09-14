@@ -16,12 +16,14 @@ export function truncate(string: string, length: number, start: number = 0): str
 export function slug(string: string, mode: SluggingMode = SluggingMode.ALPHANUMERIC): string {
   switch (mode) {
     case SluggingMode.UTF8:
-      return string
-        .toLowerCase()
-        // Match non-word characters (take UTF8 into consideration) and replace with a dash.
-        .replace(/[^\p{L}\p{N}\p{M}]/giu, '-')
-        .replace(/-+/g, '-')
-        .replace(/-$|^-/g, '');
+      return (
+        string
+          .toLowerCase()
+          // Match non-word characters (take UTF8 into consideration) and replace with a dash.
+          .replace(/[^\p{L}\p{N}\p{M}]/giu, '-')
+          .replace(/-+/g, '-')
+          .replace(/-$|^-/g, '')
+      );
 
     case SluggingMode.ALPHANUMERIC:
     default:
