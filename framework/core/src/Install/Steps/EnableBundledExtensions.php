@@ -60,6 +60,11 @@ class EnableBundledExtensions implements Step
      */
     private $enabledExtensions;
 
+    /**
+     * @var Migrator|null
+     */
+    private $migrator;
+
     public function __construct(ConnectionInterface $database, $vendorPath, $assetPath, $enabledExtensions = null)
     {
         $this->database = $database;
@@ -124,7 +129,7 @@ class EnableBundledExtensions implements Step
             });
     }
 
-    private function getMigrator()
+    private function getMigrator(): Migrator
     {
         return $this->migrator = $this->migrator ?? new Migrator(
             new DatabaseMigrationRepository($this->database, 'migrations'),

@@ -16,11 +16,11 @@ if (! function_exists('resolve')) {
      * Resolve a service from the container.
      *
      * @template T
-     * @param  class-string<T>|string  $name
-     * @param  array  $parameters
+     * @param string|class-string<T> $name
+     * @param array $parameters
      * @return T|mixed
      */
-    function resolve($name, $parameters = [])
+    function resolve(string $name, array $parameters = [])
     {
         return Container::getInstance()->make($name, $parameters);
     }

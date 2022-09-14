@@ -4,7 +4,7 @@ import { ApiQueryParamsPlural } from 'flarum/common/Store';
 
 export default class QueueState {
   private tasks: Task[] | null = null;
-  private limit = 5;
+  private limit = 20;
   private offset = 0;
   private total = 0;
 

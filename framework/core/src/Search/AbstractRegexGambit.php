@@ -34,13 +34,15 @@ abstract class AbstractRegexGambit implements GambitInterface
      * Match the bit against this gambit.
      *
      * @param string $bit
-     * @return array
+     * @return array|null
      */
     protected function match($bit)
     {
         if (preg_match('/^(-?)'.$this->getGambitPattern().'$/i', $bit, $matches)) {
             return $matches;
         }
+
+        return null;
     }
 
     /**

@@ -1,6 +1,8 @@
 /// <reference path="../../@types/translator-icu-rich.d.ts" />
-export default class AppearancePage extends AdminPage<import("../../common/components/Page").IPageAttrs> {
-    constructor();
+import AdminPage from './AdminPage';
+import ItemList from '../../common/utils/ItemList';
+import type Mithril from 'mithril';
+export default class AppearancePage extends AdminPage {
     headerInfo(): {
         className: string;
         icon: string;
@@ -8,7 +10,6 @@ export default class AppearancePage extends AdminPage<import("../../common/compo
         description: import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
     };
     content(): JSX.Element[];
-    colorItems(): ItemList<any>;
+    colorItems(): ItemList<Mithril.Children>;
+    onsaved(): void;
 }
-import AdminPage from "./AdminPage";
-import ItemList from "../../common/utils/ItemList";

@@ -22,7 +22,7 @@ flarum-package-manager:
       update: Update
 
     file_permissions: >
-      The package manager requires read and write permissions on the following files and directories: composer.json, composer.lock, vendor, storage/.composer
+      The package manager requires read and write permissions on the following files and directories: composer.json, composer.lock, vendor, storage, storage/.composer
 
     major_updater:
       description: Major Flarum updates are not backwards compatible, meaning that some of your currently installed extensions, and manually made modifications might not work with this new version.
@@ -78,6 +78,7 @@ flarum-package-manager:
         Make sure the PHP version used for the queue is {php_version}. Make sure <a href='{folder_perms_link}'>folder permissions</a> are correctly configured.
 
     updater:
+      up_to_date: Everything is up to date!
       check_for_updates: Check for updates
       flarum: Flarum Core
       global_update_successful: Successfully updated all packages.

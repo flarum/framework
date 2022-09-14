@@ -60,7 +60,7 @@ class UpdateMentionsMetadataWhenVisible
         $users = User::whereIn('id', $mentioned)
             ->get()
             ->filter(function ($user) use ($post) {
-                return $post->isVisibleTo($user) && $user->id !== $post->user->id;
+                return $post->isVisibleTo($user) && $user->id !== $post->user_id;
             })
             ->all();
 
@@ -75,8 +75,8 @@ class UpdateMentionsMetadataWhenVisible
         $posts = Post::with('user')
             ->whereIn('id', $mentioned)
             ->get()
-            ->filter(function ($post) use ($reply) {
-                return $post->user && $post->user->id !== $reply->user_id && $reply->isVisibleTo($post->user);
+            ->filter(function (Post $post) use ($reply) {
+                return $post->user && $post->user_id !== $reply->user_id && $reply->isVisibleTo($post->user);
             })
             ->all();
 

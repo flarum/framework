@@ -62,7 +62,7 @@ class ForumSerializer extends AbstractSerializer
      */
     public function getId($model)
     {
-        return 1;
+        return '1';
     }
 
     /**

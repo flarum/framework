@@ -13,7 +13,6 @@ use Flarum\Discussion\Discussion;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Access\AbstractPolicy;
 use Flarum\User\User;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class DiscussionPolicy extends AbstractPolicy
 {
@@ -22,10 +21,6 @@ class DiscussionPolicy extends AbstractPolicy
      */
     protected $settings;
 
-    /**
-     * @param SettingsRepositoryInterface $settings
-     * @param Dispatcher $events
-     */
     public function __construct(SettingsRepositoryInterface $settings)
     {
         $this->settings = $settings;
@@ -34,7 +29,7 @@ class DiscussionPolicy extends AbstractPolicy
     /**
      * @param User $actor
      * @param string $ability
-     * @return bool|null
+     * @return string|void
      */
     public function can(User $actor, $ability)
     {

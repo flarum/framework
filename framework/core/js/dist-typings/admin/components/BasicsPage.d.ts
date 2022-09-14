@@ -1,10 +1,17 @@
 /// <reference path="../../@types/translator-icu-rich.d.ts" />
-export default class BasicsPage extends AdminPage<import("../../common/components/Page").IPageAttrs> {
-    constructor();
-    oninit(vnode: any): void;
-    localeOptions: {} | undefined;
-    displayNameOptions: {} | undefined;
-    slugDriverOptions: {} | undefined;
+import ItemList from '../../common/utils/ItemList';
+import AdminPage from './AdminPage';
+import type { IPageAttrs } from '../../common/components/Page';
+import type Mithril from 'mithril';
+export declare type HomePageItem = {
+    path: string;
+    label: Mithril.Children;
+};
+export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends AdminPage<CustomAttrs> {
+    localeOptions: Record<string, string>;
+    displayNameOptions: Record<string, string>;
+    slugDriverOptions: Record<string, Record<string, string>>;
+    oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     headerInfo(): {
         className: string;
         icon: string;
@@ -15,13 +22,6 @@ export default class BasicsPage extends AdminPage<import("../../common/component
     /**
      * Build a list of options for the default homepage. Each option must be an
      * object with `path` and `label` properties.
-     *
-     * @return {ItemList<{ path: string, label: import('mithril').Children }>}
      */
-    homePageItems(): ItemList<{
-        path: string;
-        label: import('mithril').Children;
-    }>;
+    homePageItems(): ItemList<HomePageItem>;
 }
-import AdminPage from "./AdminPage";
-import ItemList from "../../common/utils/ItemList";
