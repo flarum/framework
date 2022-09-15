@@ -12,7 +12,8 @@ namespace Flarum\Api\Serializer;
 class ExtensionReadmeSerializer extends AbstractSerializer
 {
     /**
-     * {@inheritdoc}
+     * @param \Flarum\Extension\Extension $extension
+     * @return array
      */
     protected function getDefaultAttributes($extension)
     {

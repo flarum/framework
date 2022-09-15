@@ -89,7 +89,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     protected static $beforeSerializationCallbacks = [];
 
     /**
-     * @var string[]
+     * @var string[][]
      */
     protected static $loadRelations = [];
 

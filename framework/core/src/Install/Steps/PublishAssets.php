@@ -10,10 +10,9 @@
 namespace Flarum\Install\Steps;
 
 use Flarum\Install\ReversibleStep;
-use Flarum\Install\Step;
 use Illuminate\Filesystem\Filesystem;
 
-class PublishAssets implements Step, ReversibleStep
+class PublishAssets implements ReversibleStep
 {
     /**
      * @var string

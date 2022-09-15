@@ -39,20 +39,17 @@ class Migrator
     /**
      * The output interface implementation.
      *
-     * @var OutputInterface
+     * @var OutputInterface|null
      */
     protected $output;
+
     /**
-     * @var ConnectionInterface|MySqlConnection
+     * @var ConnectionInterface
      */
     protected $connection;
 
     /**
      * Create a new migrator instance.
-     *
-     * @param  MigrationRepositoryInterface  $repository
-     * @param  ConnectionInterface           $connection
-     * @param  Filesystem                    $files
      */
     public function __construct(
         MigrationRepositoryInterface $repository,
@@ -76,7 +73,7 @@ class Migrator
      * Run the outstanding migrations at a given path.
      *
      * @param  string    $path
-     * @param  Extension $extension
+     * @param  Extension|null $extension
      * @return void
      */
     public function run($path, Extension $extension = null)
@@ -95,7 +92,7 @@ class Migrator
      *
      * @param  string    $path
      * @param  array     $migrations
-     * @param  Extension $extension
+     * @param  Extension|null $extension
      * @return void
      */
     public function runMigrationList($path, $migrations, Extension $extension = null)
@@ -122,8 +119,7 @@ class Migrator
      *
      * @param  string    $path
      * @param  string    $file
-     * @param  string    $path
-     * @param  Extension $extension
+     * @param  Extension|null $extension
      * @return void
      */
     protected function runUp($path, $file, Extension $extension = null)
@@ -144,7 +140,7 @@ class Migrator
      * Rolls all of the currently applied migrations back.
      *
      * @param  string    $path
-     * @param  Extension $extension
+     * @param  Extension|null $extension
      * @return int
      */
     public function reset($path, Extension $extension = null)
@@ -245,6 +241,8 @@ class Migrator
         if ($this->files->exists($migration)) {
             return $this->files->getRequire($migration);
         }
+
+        return [];
     }
 
     /**

@@ -40,13 +40,11 @@ abstract class AbstractPolicy
     }
 
     /**
-     * @param User $user
-     * @param string $ability
-     * @param $instance
      * @return string|void
      */
     public function checkAbility(User $actor, string $ability, $instance)
-    { // If a specific method for this ability is defined,
+    {
+        // If a specific method for this ability is defined,
         // call that and return any non-null results
         if (method_exists($this, $ability)) {
             $result = $this->sanitizeResult(call_user_func_array([$this, $ability], [$actor, $instance]));
@@ -73,7 +71,7 @@ abstract class AbstractPolicy
      * `return SOME_BOOLEAN_LOGIC;
      *
      * @param mixed $result
-     * @return string|void
+     * @return string|void|null
      */
     public function sanitizeResult($result)
     {

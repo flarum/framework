@@ -23,6 +23,7 @@ use Flarum\Post\MergeableInterface;
 use Flarum\Post\Post;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 /**
@@ -83,7 +84,7 @@ class Discussion extends AbstractModel
     /**
      * The user for which the state relationship should be loaded.
      *
-     * @var User
+     * @var User|null
      */
     protected static $stateUser;
 
@@ -224,8 +225,8 @@ class Discussion extends AbstractModel
      */
     public function refreshLastPost()
     {
-        /** @var Post $lastPost */
         if ($lastPost = $this->comments()->latest()->first()) {
+            /** @var Post $lastPost */
             $this->setLastPost($lastPost);
         }
 
@@ -264,8 +265,9 @@ class Discussion extends AbstractModel
      * DiscussionRenamedPost, and delete if the title has been reverted
      * completely.)
      *
-     * @param \Flarum\Post\MergeableInterface $post The post to save.
-     * @return Post The resulting post. It may or may not be the same post as
+     * @template T of \Flarum\Post\MergeableInterface
+     * @param T $post The post to save.
+     * @return T The resulting post. It may or may not be the same post as
      *     was originally intended to be saved. It also may not exist, if the
      *     merge logic resulted in deletion.
      */
@@ -301,7 +303,7 @@ class Discussion extends AbstractModel
     /**
      * Define the relationship with the discussion's publicly-visible comments.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Post>
      */
     public function comments()
     {
@@ -394,12 +396,12 @@ class Discussion extends AbstractModel
      * If no user is passed (i.e. in the case of eager loading the 'state'
      * relation), then the static `$stateUser` property is used.
      *
-     * @see Discussion::setStateUser()
-     *
      * @param User|null $user
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return HasOne
+     *
+     * @see Discussion::setStateUser()
      */
-    public function state(User $user = null)
+    public function state(User $user = null): HasOne
     {
         $user = $user ?: static::$stateUser;
 
@@ -409,12 +411,10 @@ class Discussion extends AbstractModel
     /**
      * Get the state model for a user, or instantiate a new one if it does not
      * exist.
-     *
-     * @param User $user
-     * @return \Flarum\Discussion\UserState
      */
-    public function stateFor(User $user)
+    public function stateFor(User $user): UserState
     {
+        /** @var UserState|null $state */
         $state = $this->state($user)->first();
 
         if (! $state) {
@@ -428,8 +428,6 @@ class Discussion extends AbstractModel
 
     /**
      * Set the user for which the state relationship should be loaded.
-     *
-     * @param User $user
      */
     public static function setStateUser(User $user)
     {
@@ -440,11 +438,8 @@ class Discussion extends AbstractModel
      * Set the discussion title.
      *
      * This automatically creates a matching slug for the discussion.
-     *
-     * @todo slug should be set by the slugger, drop slug column entirely?
-     * @param string $title
      */
-    protected function setTitleAttribute($title)
+    protected function setTitleAttribute(string $title)
     {
         $this->attributes['title'] = $title;
         $this->slug = Str::slug(

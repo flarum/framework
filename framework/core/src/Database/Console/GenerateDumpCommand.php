@@ -12,6 +12,7 @@ namespace Flarum\Database\Console;
 use Flarum\Console\AbstractCommand;
 use Flarum\Foundation\Paths;
 use Illuminate\Database\Connection;
+use Illuminate\Database\MySqlConnection;
 
 class GenerateDumpCommand extends AbstractCommand
 {
@@ -53,7 +54,7 @@ class GenerateDumpCommand extends AbstractCommand
     protected function fire()
     {
         $dumpPath = __DIR__.'/../../../migrations/install.dump';
-        /** @var Connection */
+        /** @var Connection&MySqlConnection */
         $connection = resolve('db.connection');
 
         $connection

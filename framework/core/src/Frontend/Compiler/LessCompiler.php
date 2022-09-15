@@ -35,12 +35,12 @@ class LessCompiler extends RevisionCompiler
     protected $customFunctions = [];
 
     /**
-     * @var Collection
+     * @var Collection|null
      */
     protected $lessImportOverrides;
 
     /**
-     * @var Collection
+     * @var Collection|null
      */
     protected $fileSourceOverrides;
 
@@ -88,7 +88,7 @@ class LessCompiler extends RevisionCompiler
             return '';
         }
 
-        ini_set('xdebug.max_nesting_level', 200);
+        ini_set('xdebug.max_nesting_level', '200');
 
         $parser = new Less_Parser([
             'compress' => true,
