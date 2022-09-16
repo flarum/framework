@@ -1,5 +1,5 @@
-import Application, {FlarumGenericRoute} from "../Application";
-import IExtender, {IExtensionModule} from "./IExtender";
+import Application, { FlarumGenericRoute } from '../Application';
+import IExtender, { IExtensionModule } from './IExtender';
 
 type HelperRoute = (...args: any) => string;
 

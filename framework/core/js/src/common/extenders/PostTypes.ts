@@ -1,6 +1,6 @@
-import IExtender, { IExtensionModule } from "./IExtender";
-import Application from "../Application";
-import ForumApplication from "../../forum/ForumApplication";
+import IExtender, { IExtensionModule } from './IExtender';
+import Application from '../Application';
+import ForumApplication from '../../forum/ForumApplication';
 
 export default class PostTypes implements IExtender {
   private postComponents: Record<string, any> = {};
@@ -22,4 +22,3 @@ export default class PostTypes implements IExtender {
     Object.assign((app as unknown as ForumApplication).postComponents, this.postComponents);
   }
 }
-
