@@ -12,7 +12,8 @@ import PostMentionedNotification from './components/PostMentionedNotification';
 import UserMentionedNotification from './components/UserMentionedNotification';
 import UserPage from 'flarum/forum/components/UserPage';
 import LinkButton from 'flarum/common/components/LinkButton';
-import MentionsUserPage from './components/MentionsUserPage';
+
+export { default as extend } from './extend';
 
 app.initializers.add('flarum-mentions', function () {
   // For every mention of a post inside a post's content, set up a hover handler
@@ -53,7 +54,6 @@ app.initializers.add('flarum-mentions', function () {
   });
 
   // Add mentions tab in user profile
-  app.routes['user.mentions'] = { path: '/u/:username/mentions', component: MentionsUserPage };
   extend(UserPage.prototype, 'navItems', function (items) {
     const user = this.user;
     items.add(

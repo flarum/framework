@@ -9,6 +9,8 @@ import addLikesList from './addLikesList';
 import PostLikedNotification from './components/PostLikedNotification';
 import addLikesTabToUserProfile from './addLikesTabToUserProfile';
 
+export { default as extend } from './extend';
+
 app.initializers.add('flarum-likes', () => {
   app.notificationComponents.postLiked = PostLikedNotification;
 
