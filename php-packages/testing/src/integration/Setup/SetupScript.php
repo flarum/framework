@@ -66,7 +66,19 @@ class SetupScript
     /**
      * @var DatabaseConfig
      */
-    private $dbConfig;
+    protected $dbConfig;
+
+    /**
+     * Settings to be applied during installation.
+     * @var array
+     */
+    protected $settings = ['mail_driver' => 'log'];
+
+    /**
+     * Extensions to activate.
+     * @var array
+     */
+    protected $extensions = [];
 
     public function __construct()
     {
@@ -124,8 +136,8 @@ class SetupScript
                 'password',
                 'admin@machine.local'
             ))
-            ->settings(['mail_driver' => 'log'])
-            ->extensions([])
+            ->settings($this->settings)
+            ->extensions($this->extensions)
             ->build();
 
         // Run the actual configuration
@@ -144,5 +156,19 @@ class SetupScript
             $builder->dropAllTables();
             $builder->dropAllViews();
         }))->run();
+    }
+
+    public function addSettings(array $settings): static
+    {
+        $this->settings = array_merge($this->settings, $settings);
+
+        return $this;
+    }
+
+    public function addExtensions(array $extensions): static
+    {
+        $this->extensions = array_merge($this->extensions, $extensions);
+
+        return $this;
     }
 }
