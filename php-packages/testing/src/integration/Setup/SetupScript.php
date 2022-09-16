@@ -158,14 +158,14 @@ class SetupScript
         }))->run();
     }
 
-    public function addSettings(array $settings): static
+    public function addSettings(array $settings): self
     {
         $this->settings = array_merge($this->settings, $settings);
 
         return $this;
     }
 
-    public function addExtensions(array $extensions): static
+    public function addExtensions(array $extensions): self
     {
         $this->extensions = array_merge($this->extensions, $extensions);
 
