@@ -4,13 +4,13 @@ import Model from 'flarum/common/Model';
 import Discussion from 'flarum/common/models/Discussion';
 import NotificationGrid from 'flarum/forum/components/NotificationGrid';
 
-import DiscussionLockedPost from './components/DiscussionLockedPost';
 import DiscussionLockedNotification from './components/DiscussionLockedNotification';
 import addLockBadge from './addLockBadge';
 import addLockControl from './addLockControl';
 
+export { default as extend } from './extend';
+
 app.initializers.add('flarum-lock', () => {
-  app.postComponents.discussionLocked = DiscussionLockedPost;
   app.notificationComponents.discussionLocked = DiscussionLockedNotification;
 
   Discussion.prototype.isLocked = Model.attribute('isLocked');

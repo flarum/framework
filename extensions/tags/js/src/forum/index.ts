@@ -3,7 +3,6 @@ import Model from 'flarum/common/Model';
 import Discussion from 'flarum/common/models/Discussion';
 
 import Tag from '../common/models/Tag';
-import DiscussionTaggedPost from './components/DiscussionTaggedPost';
 
 import TagListState from './states/TagListState';
 
@@ -16,8 +15,6 @@ import addTagComposer from './addTagComposer';
 export { default as extend } from './extend';
 
 app.initializers.add('flarum-tags', function () {
-  app.postComponents.discussionTagged = DiscussionTaggedPost;
-
   app.store.models.tags = Tag;
 
   app.tagList = new TagListState();
