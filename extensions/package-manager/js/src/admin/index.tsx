@@ -11,6 +11,7 @@ import jumpToQueue from './utils/jumpToQueue';
 import extractText from 'flarum/common/utils/extractText';
 import { AsyncBackendResponse } from './shims';
 import PackageManagerState from './states/PackageManagerState';
+import Alert from "@flarum/core/src/common/components/Alert";
 
 app.initializers.add('flarum-package-manager', (app) => {
   app.store.models['package-manager-tasks'] = Task;
@@ -19,6 +20,13 @@ app.initializers.add('flarum-package-manager', (app) => {
 
   app.extensionData
     .for('flarum-package-manager')
+    .registerSetting(() => (
+      <div className="Form-group">
+        <Alert type="warning" dismissible={false}>
+          {app.translator.trans('flarum-package-manager.admin.settings.access_warning')}
+        </Alert>
+      </div>
+    ))
     .registerSetting({
       setting: 'flarum-package-manager.queue_jobs',
       label: app.translator.trans('flarum-package-manager.admin.settings.queue_jobs'),
