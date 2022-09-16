@@ -1,4 +1,9 @@
 import Extend from 'flarum/common/extenders';
+import Post from 'flarum/common/models/Post';
 import MentionsUserPage from './components/MentionsUserPage';
 
-export default [new Extend.Routes().add('user.mentions', '/u/:username/mentions', MentionsUserPage)];
+export default [
+  new Extend.Routes().add('user.mentions', '/u/:username/mentions', MentionsUserPage),
+
+  new Extend.Model(Post).hasMany<Post>('mentionedBy'),
+];

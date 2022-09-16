@@ -1,7 +1,5 @@
 import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
-import Model from 'flarum/common/Model';
-import Discussion from 'flarum/common/models/Discussion';
 import NotificationGrid from 'flarum/forum/components/NotificationGrid';
 
 import DiscussionLockedNotification from './components/DiscussionLockedNotification';
@@ -12,9 +10,6 @@ export { default as extend } from './extend';
 
 app.initializers.add('flarum-lock', () => {
   app.notificationComponents.discussionLocked = DiscussionLockedNotification;
-
-  Discussion.prototype.isLocked = Model.attribute('isLocked');
-  Discussion.prototype.canLock = Model.attribute('canLock');
 
   addLockBadge();
   addLockControl();
