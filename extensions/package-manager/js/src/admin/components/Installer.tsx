@@ -79,6 +79,12 @@ export default class Installer extends Component<InstallerAttrs> {
           window.location.reload();
         }
       })
+      .catch((e) => {
+        if (e.status === 422) {
+          app.alerts.clear();
+          app.alerts.show({ type: 'error' }, e.response.errors[0].detail);
+        }
+      })
       .finally(() => {
         app.packageManager.control.setLoading(null);
         app.modal.close();
