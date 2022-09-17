@@ -11,7 +11,7 @@ import jumpToQueue from './utils/jumpToQueue';
 import extractText from 'flarum/common/utils/extractText';
 import { AsyncBackendResponse } from './shims';
 import PackageManagerState from './states/PackageManagerState';
-import Alert from "@flarum/core/src/common/components/Alert";
+import Alert from '@flarum/core/src/common/components/Alert';
 
 app.initializers.add('flarum-package-manager', (app) => {
   app.store.models['package-manager-tasks'] = Task;
