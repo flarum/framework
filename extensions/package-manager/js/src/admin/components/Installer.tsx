@@ -64,7 +64,6 @@ export default class Installer extends Component<InstallerAttrs> {
         body: {
           data: this.data(),
         },
-        errorHandler,
       })
       .then((response) => {
         if (response.processing) {
@@ -79,12 +78,7 @@ export default class Installer extends Component<InstallerAttrs> {
           window.location.reload();
         }
       })
-      .catch((e) => {
-        if (e.status === 422) {
-          app.alerts.clear();
-          app.alerts.show({ type: 'error' }, e.response.errors[0].detail);
-        }
-      })
+      .catch(errorHandler)
       .finally(() => {
         app.packageManager.control.setLoading(null);
         app.modal.close();
