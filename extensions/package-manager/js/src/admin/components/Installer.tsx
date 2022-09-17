@@ -81,6 +81,7 @@ export default class Installer extends Component<InstallerAttrs> {
       })
       .finally(() => {
         app.packageManager.control.setLoading(null);
+        app.modal.close();
         m.redraw();
       });
   }
