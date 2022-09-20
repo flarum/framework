@@ -90,13 +90,16 @@ class ShowStatisticsData implements RequestHandlerInterface
         }
 
         if ($period === 'custom') {
-            if (! $customDateRange) {
+            $start = (int) $customDateRange['start'];
+            $end = (int) $customDateRange['end'];
+
+            if (! $customDateRange || ! $start || ! $end) {
                 throw new InvalidParameterException('A custom date range must be specified');
             }
 
             // Seconds-based timestamps
-            $startRange = Carbon::createFromTimestampUTC($customDateRange['start'])->toDateTime();
-            $endRange = Carbon::createFromTimestampUTC($customDateRange['end'])->toDateTime();
+            $startRange = Carbon::createFromTimestampUTC($start)->toDateTime();
+            $endRange = Carbon::createFromTimestampUTC($end)->toDateTime();
 
             // We can't really cache this
             return $this->getTimedCounts($this->entities[$model][0], $this->entities[$model][1], $startRange, $endRange);
