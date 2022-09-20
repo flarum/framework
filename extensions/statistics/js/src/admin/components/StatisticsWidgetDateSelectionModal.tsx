@@ -63,7 +63,7 @@ export default class StatisticsWidgetDateSelectionModal extends Modal<IStatistic
   }
 
   className(): string {
-    return 'StatisticsWidgetDateSelectionModal';
+    return 'StatisticsWidgetDateSelectionModal Modal--small';
   }
 
   title(): Mithril.Children {
