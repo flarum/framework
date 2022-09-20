@@ -74,12 +74,6 @@ class SetupScript
      */
     protected $settings = ['mail_driver' => 'log'];
 
-    /**
-     * Extensions to activate.
-     * @var array
-     */
-    protected $extensions = [];
-
     public function __construct()
     {
         $this->host = getenv('DB_HOST') ?: 'localhost';
@@ -137,7 +131,7 @@ class SetupScript
                 'admin@machine.local'
             ))
             ->settings($this->settings)
-            ->extensions($this->extensions)
+            ->extensions([])
             ->build();
 
         // Run the actual configuration
@@ -158,16 +152,18 @@ class SetupScript
         }))->run();
     }
 
+    /**
+     * Can be used to add settings to the Flarum installation.
+     * Use this only when it is really needed.
+     * This can be useful in rare cases where the settings are required to be set
+     * already when extensions Extenders are executed. In those cases, setting the
+     * settings with the `setting()` method of the `TestCase` will not work.
+     *
+     * @param string $settings (key => value)
+     */
     public function addSettings(array $settings): self
     {
         $this->settings = array_merge($this->settings, $settings);
-
-        return $this;
-    }
-
-    public function addExtensions(array $extensions): self
-    {
-        $this->extensions = array_merge($this->extensions, $extensions);
 
         return $this;
     }
