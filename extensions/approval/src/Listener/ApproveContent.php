@@ -13,7 +13,7 @@ use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Post\Event\Saving;
 use Illuminate\Contracts\Events\Dispatcher;
 
-class   ApproveContent
+class ApproveContent
 {
     /**
      * @param Dispatcher $events
