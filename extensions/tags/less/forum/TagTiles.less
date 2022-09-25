@@ -63,8 +63,25 @@
     color: @control-color;
   }
   &.colored {
-    &, a {
-      color: @body-bg;
+    &.tag-light {
+      &, a {
+        color: @text-color;
+      }
+      & when (@config-dark-mode = true) {
+        &, a {
+          color: @body-bg;
+        }
+      }
+    }
+    &.tag-dark {
+      &, a {
+        color: @body-bg;
+      }
+      & when (@config-dark-mode = true) {
+        &, a {
+          color: @text-color;
+        }
+      }
     }
   }
 }
