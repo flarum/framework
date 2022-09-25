@@ -1,5 +1,5 @@
 import extract from 'flarum/common/utils/extract';
-import yiqValue from 'flarum/common/utils/yiqValue';
+import getContrast from 'flarum/common/utils/getContrast';
 import Link from 'flarum/common/components/Link';
 import tagIcon from './tagIcon';
 
