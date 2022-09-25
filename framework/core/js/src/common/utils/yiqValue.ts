@@ -4,7 +4,13 @@
  */
 
 export default function yiqValue(hexcolor: String) {
-  const hexnumbers = hexcolor.replace("#", "");
+
+  var hexnumbers = hexcolor.replace("#", "");
+
+  if (hexnumbers.length == 3) {
+    hexnumbers += hexnumbers;
+  }
+
   const r = parseInt(hexnumbers.substr(0,2),16);
   const g = parseInt(hexnumbers.substr(2,2),16);
   const b = parseInt(hexnumbers.substr(4,2),16);
