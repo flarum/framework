@@ -17,11 +17,11 @@ export default function tagLabel(tag, attrs = {}) {
       attrs.style['--tag-bg'] = color;
       attrs.className += ' colored';
 
-      if (contrast > 120) {
-        attrs.className += ' tag-dark';
+      if (contrast >= 128) {
+        attrs.className += ' tag-light';
       }
       else {
-        attrs.className += ' tag-light';
+        attrs.className += ' tag-dark';
       }
     }
 
