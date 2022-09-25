@@ -12,7 +12,7 @@ export default function tagLabel(tag, attrs = {}) {
 
   if (tag) {
     const color = tag.color();
-    const contrast = yiqValue(color);
+    const contrast = getContrast(color);
     if (color) {
       attrs.style['--tag-bg'] = color;
       attrs.className += ' colored';
