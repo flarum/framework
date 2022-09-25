@@ -16,10 +16,21 @@
   }
 
   &.colored {
-    --tag-color: @body-bg;
 
-    .TagLabel-text {
-      color: var(--tag-color) !important;
+    &.tag-dark {
+      --tag-color: @body-bg;
+
+      .TagLabel-text {
+        color: var(--tag-color) !important;
+      }
+    }
+
+    &.tag-light {
+      --tag-color: @text-color;
+
+      .TagLabel-text {
+        color: var(--tag-color) !important;
+      }
     }
   }
 
