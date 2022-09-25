@@ -1,9 +1,10 @@
 /**
- * The `yiqValue` utility converts a hex color to rgb, and then calcul a yiq
- * contrast value.
+ * The `getContrast` utility converts a hex color to rgb, and then calcul a YIQ
+ * value in order to get the appropriate contrast value (is it dark or is it
+ * light?) See https://www.w3.org/TR/AERT/#color-contrast for references
  */
 
-export default function yiqValue(hexcolor: String) {
+export default function getContrast(hexcolor: String) {
 
   var hexnumbers = hexcolor.replace("#", "");
 
