@@ -1,4 +1,5 @@
 import extract from 'flarum/common/utils/extract';
+import yiqValue from 'flarum/common/utils/yiqValue';
 import Link from 'flarum/common/components/Link';
 import tagIcon from './tagIcon';
 
@@ -11,9 +12,17 @@ export default function tagLabel(tag, attrs = {}) {
 
   if (tag) {
     const color = tag.color();
+    const contrast = yiqValue(color);
     if (color) {
       attrs.style['--tag-bg'] = color;
       attrs.className += ' colored';
+
+      if (contrast > 120) {
+        attrs.className += ' tag-dark';
+      }
+      else {
+        attrs.className += ' tag-light';
+      }
     }
 
     if (link) {
