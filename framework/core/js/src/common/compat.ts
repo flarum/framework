@@ -33,7 +33,7 @@ import formatNumber from './utils/formatNumber';
 import mapRoutes from './utils/mapRoutes';
 import withAttr from './utils/withAttr';
 import * as FocusTrap from './utils/focusTrap';
-import getContrast from './utils/getContrast';
+import isDark from './utils/isDark';
 import Notification from './models/Notification';
 import User from './models/User';
 import Post from './models/Post';
@@ -121,7 +121,7 @@ export default {
   'utils/throttleDebounce': ThrottleDebounce,
   'utils/isObject': isObject,
   'utils/focusTrap': FocusTrap,
-  'utils/getContrast': getContrast,
+  'utils/isDark': isDark,
   'models/Notification': Notification,
   'models/User': User,
   'models/Post': Post,

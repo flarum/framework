@@ -4,7 +4,7 @@
  * light?) See https://www.w3.org/TR/AERT/#color-contrast for references
  */
 
-export default function getContrast(hexcolor: String) {
+export default function isDark(hexcolor: String) {
 
   var hexnumbers = hexcolor.replace("#", "");
 
@@ -15,7 +15,7 @@ export default function getContrast(hexcolor: String) {
   const r = parseInt(hexnumbers.substr(0,2),16);
   const g = parseInt(hexnumbers.substr(2,2),16);
   const b = parseInt(hexnumbers.substr(4,2),16);
-  const contrast = ((r*299)+(g*587)+(b*114))/1000;
+  const yiq = ((r*299)+(g*587)+(b*114))/1000;
 
-  return contrast;
+  return (yiq >= 128) ? false : true;
 }
