@@ -18,11 +18,7 @@
   &.colored {
 
     &.tag-dark {
-      --tag-color: @body-bg;
-
-      & when (@config-dark-mode = true) {
-        --tag-color: @text-color;
-      }
+      --tag-color: @text-on-dark;
 
       .TagLabel-text {
         color: var(--tag-color) !important;
@@ -30,11 +26,7 @@
     }
 
     &.tag-light {
-      --tag-color: @text-color;
-
-      & when (@config-dark-mode = true) {
-        --tag-color: @body-bg;
-      }
+      --tag-color: @text-on-light;
 
       .TagLabel-text {
         color: var(--tag-color) !important;
