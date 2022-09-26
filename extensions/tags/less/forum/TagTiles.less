@@ -65,22 +65,12 @@
   &.colored {
     &.tag-light {
       &, a {
-        color: @text-color;
-      }
-      & when (@config-dark-mode = true) {
-        &, a {
-          color: @body-bg;
-        }
+        color: @text-on-light;
       }
     }
     &.tag-dark {
       &, a {
-        color: @body-bg;
-      }
-      & when (@config-dark-mode = true) {
-        &, a {
-          color: @text-color;
-        }
+        color: @text-on-dark;
       }
     }
   }
