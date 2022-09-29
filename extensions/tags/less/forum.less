@@ -6,10 +6,17 @@
 @import "forum/TagTiles";
 @import "forum/ToggleButton";
 
-.Button--tagColored {
+.Button {
   --button-primary-bg: var(--color);
   --button-primary-bg-hover: var(--color);
   --button-primary-bg-active: var(--color);
+
+  &--tagLight {
+    color: @text-on-light;
+  }
+  &--tagDark {
+    color: @text-on-dark;
+  }
 }
 .DiscussionHero {
   .item-title {
