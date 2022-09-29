@@ -42,13 +42,25 @@
     &.colored {
       --tag-color: var(--tag-bg);
       margin-right: 5px;
-      background: @body-bg !important;
+    }
+    &.tag-light {
+      background: @text-on-light !important;
+    }
+    &.tag-dark {
+      background: @text-on-dark !important;
     }
   }
 }
-.DiscussionHero--colored {
-  &, a {
-    color: @body-bg;
+.DiscussionHero {
+  &--light {
+    &, a {
+      color: @text-on-light;
+    }
+  }
+  &--dark {
+    &, a {
+      color: @text-on-dark;
+    }
   }
 }
 .TagsLabel {
