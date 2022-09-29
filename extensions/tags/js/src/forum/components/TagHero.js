@@ -1,4 +1,5 @@
 import Component from 'flarum/common/Component';
+import isDark from 'flarum/common/utils/isDark';
 import tagIcon from '../../common/helpers/tagIcon';
 
 export default class TagHero extends Component {
@@ -7,7 +8,7 @@ export default class TagHero extends Component {
     const color = tag.color();
 
     return (
-      <header className={'Hero TagHero' + (color ? ' TagHero--colored' : '')} style={color ? { '--hero-bg': color } : ''}>
+      <header className={'Hero TagHero' + (color ? ' TagHero--colored' : '') + (isDark(color) ? ' TagHero--dark' : ' TagHero--light')} style={color ? { '--hero-bg': color } : ''}>
         <div className="container">
           <div className="containerNarrow">
             <h2 className="Hero-title">
