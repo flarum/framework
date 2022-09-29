@@ -83,7 +83,13 @@ export default class StatisticsWidgetDateSelectionModal extends Modal<IStatistic
       'date_start',
       <div class="Form-group">
         <label htmlFor={this.state.ids.startDate}>{app.translator.trans('flarum-statistics.admin.date_selection_modal.start_date')}</label>
-        <input type="date" id={this.state.ids.startDate} value={this.state.inputs.startDateVal} onchange={this.updateState('startDateVal')} className="FormControl" />
+        <input
+          type="date"
+          id={this.state.ids.startDate}
+          value={this.state.inputs.startDateVal}
+          onchange={this.updateState('startDateVal')}
+          className="FormControl"
+        />
       </div>,
       90
     );
@@ -92,7 +98,13 @@ export default class StatisticsWidgetDateSelectionModal extends Modal<IStatistic
       'date_end',
       <div class="Form-group">
         <label htmlFor={this.state.ids.endDate}>{app.translator.trans('flarum-statistics.admin.date_selection_modal.end_date')}</label>
-        <input type="date" id={this.state.ids.endDate} value={this.state.inputs.endDateVal} onchange={this.updateState('endDateVal')} className="FormControl" />
+        <input
+          type="date"
+          id={this.state.ids.endDate}
+          value={this.state.inputs.endDateVal}
+          onchange={this.updateState('endDateVal')}
+          className="FormControl"
+        />
       </div>,
       80
     );
