@@ -35,3 +35,5 @@ flarum-statistics:
       users_heading: => core.ref.users
       view_full: View more statistics
       no_data: There is no data available for this date range.
+      current_period: Current period
+      previous_period: Previous period

@@ -93,14 +93,10 @@
   }
 
   .chart-container {
-    .dataset-0 {
+    .dataset-1 {
       opacity: 0.2;
     }
     .chart-legend {
-      display: none;
-    }
-    // Hide the "last period" data from the tooltip
-    .graph-svg-tip ul.data-point-list > li:first-child {
       display: none;
     }
   }
@@ -198,6 +194,10 @@
       min-width: 90px;
       flex: 1;
       font-weight: 600;
+
+      &:nth-child(2) {
+        border-top-color: #5a5a5a !important;
+      }
     }
   }
   strong {

@@ -17,12 +17,11 @@ import type Mithril from 'mithril';
 import dayjs from 'dayjs';
 import dayjsUtc from 'dayjs/plugin/utc';
 import dayjsLocalizedFormat from 'dayjs/plugin/localizedFormat';
+// @ts-expect-error No typings available
+import { Chart } from 'frappe-charts';
 
 dayjs.extend(dayjsUtc);
 dayjs.extend(dayjsLocalizedFormat);
-
-// @ts-expect-error No typings available
-import { Chart } from 'frappe-charts';
 
 interface IPeriodDeclaration {
   start: number;
@@ -374,7 +373,16 @@ export default class StatisticsWidget extends DashboardWidget {
       m.redraw();
     }
 
-    const datasets = [{ values: lastPeriod }, { values: thisPeriod }];
+    const datasets = [
+      {
+        name: extractText(app.translator.trans('flarum-statistics.admin.statistics.current_period')),
+        values: thisPeriod,
+      },
+      {
+        name: extractText(app.translator.trans('flarum-statistics.admin.statistics.previous_period')),
+        values: lastPeriod,
+      },
+    ];
     const data = {
       labels,
       datasets,
@@ -394,8 +402,9 @@ export default class StatisticsWidget extends DashboardWidget {
         },
         lineOptions: {
           hideDots: 1,
+          regionFill: 1,
         },
-        colors: ['black', app.forum.attribute('themePrimaryColor')],
+        colors: [app.forum.attribute('themePrimaryColor'), 'black'],
       });
     } else {
       this.chart.update(data);
