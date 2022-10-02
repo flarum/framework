@@ -1,8 +1,8 @@
-import IExtender, { IExtensionModule } from './IExtender';
+import ExtenderInterface, { ExtensionModuleInterface } from './ExtenderInterface';
 import Application from '../Application';
 import ForumApplication from '../../forum/ForumApplication';
 
-export default class PostTypes implements IExtender {
+export default class PostTypes implements ExtenderInterface {
   private postComponents: Record<string, any> = {};
 
   /**
@@ -18,7 +18,7 @@ export default class PostTypes implements IExtender {
     return this;
   }
 
-  extend(app: Application, extension: IExtensionModule): void {
+  extend(app: Application, extension: ExtensionModuleInterface): void {
     Object.assign((app as unknown as ForumApplication).postComponents, this.postComponents);
   }
 }
