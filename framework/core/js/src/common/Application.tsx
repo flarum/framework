@@ -35,7 +35,7 @@ import type { ComponentAttrs } from './Component';
 import Model, { SavedModelData } from './Model';
 import fireApplicationError from './helpers/fireApplicationError';
 import IHistory from './IHistory';
-import ExtenderInterface from './extenders/ExtenderInterface';
+import IExtender from './extenders/IExtender';
 
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 
@@ -301,7 +301,7 @@ export default class Application {
     caughtInitializationErrors.forEach((handler) => handler());
   }
 
-  public bootExtensions(extensions: Record<string, { extend?: ExtenderInterface[] }>) {
+  public bootExtensions(extensions: Record<string, { extend?: IExtender[] }>) {
     Object.keys(extensions).forEach((name) => {
       const extension = extensions[name];
 

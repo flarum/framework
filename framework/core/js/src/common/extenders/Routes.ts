@@ -1,9 +1,9 @@
 import Application, { FlarumGenericRoute } from '../Application';
-import ExtenderInterface, { ExtensionModuleInterface } from './ExtenderInterface';
+import IExtender, { IExtensionModule } from './IExtender';
 
 type HelperRoute = (...args: any) => string;
 
-export default class Routes implements ExtenderInterface {
+export default class Routes implements IExtender {
   private routes: Record<string, FlarumGenericRoute> = {};
   private helpers: Record<string, HelperRoute> = {};
 
@@ -26,7 +26,7 @@ export default class Routes implements ExtenderInterface {
     return this;
   }
 
-  extend(app: Application, extension: ExtensionModuleInterface) {
+  extend(app: Application, extension: IExtensionModule) {
     Object.assign(app.routes, this.routes);
     Object.assign(app.route, this.helpers);
   }
