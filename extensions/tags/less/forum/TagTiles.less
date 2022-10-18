@@ -108,8 +108,11 @@
   font-size: 12px;
   margin: 0 0 10px;
 
-  .TagTile.colored & {
-    color: fade(@body-bg, 70%);
+  .TagTile.colored.tag-dark & {
+    color: fade(@text-on-dark, 70%);
+  }
+  .TagTile.colored.tag-light & {
+    color: fade(@text-on-light, 70%);
   }
 }
 .TagTile-children {
