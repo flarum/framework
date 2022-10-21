@@ -19,7 +19,7 @@ flarum-mentions:
 
     # These translations are used by the composer (reply autocompletion function).
     composer:
-      mention_tooltip: Mention a user or post
+      mention_tooltip: Mention a user, group or post
       reply_to_post_text: "Reply to #{number}"
 
     # These translations are used by the Notifications dropdown, a.k.a. "the bell".
@@ -27,6 +27,7 @@ flarum-mentions:
       others_text: => core.ref.some_others
       post_mentioned_text: "{username} replied to your post"  # Can be pluralized to agree with the number of users!
       user_mentioned_text: "{username} mentioned you"
+      group_mentioned_text: "{username} mentioned a group you're a member of"
 
     # These translations are displayed beneath individual posts.
     post:
@@ -41,6 +42,7 @@ flarum-mentions:
     settings:
       notify_post_mentioned_label: Someone replies to one of my posts
       notify_user_mentioned_label: Someone mentions me in a post
+      notify_group_mentioned_label: Someone mentions a group I'm a member of in a post
 
     # These translations are used in the user profile page and profile popup.
     user:

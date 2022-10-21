@@ -1,4 +1,4 @@
-.PostMention, .UserMention {
+.PostMention, .UserMention, .GroupMention {
   background: @control-bg;
   color: @control-color;
   border-radius: @border-radius;
@@ -14,7 +14,7 @@
     color: @link-color;
   }
 }
-.UserMention, .PostMention {
+.UserMention, .PostMention, .GroupMention {
   &--deleted {
     opacity: 0.8;
     filter: grayscale(1);
@@ -96,6 +96,17 @@
 .PostQuoteButton {
   position: absolute;
   .Button--color(@tooltip-color, @tooltip-bg);
+}
+.GroupMention {
+  color: @body-bg;
+  i {
+    margin-left: 5px;
+  }
+
+  &:hover,
+  &:active {
+    color: @body-bg;
+  }
 }
 
 @media @phone {

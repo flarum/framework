@@ -50,6 +50,11 @@ class UpdateMentionsMetadataWhenVisible
             $event->post,
             Utils::getAttributeValues($content, 'POSTMENTION', 'id')
         );
+
+        $this->syncGroupMentions(
+            $event->post,
+            Utils::getAttributeValues($content, 'GROUPMENTION', 'id')
+        );
     }
 
     protected function syncUserMentions(Post $post, array $mentioned)
@@ -83,5 +88,13 @@ class UpdateMentionsMetadataWhenVisible
         foreach ($posts as $post) {
             $this->notifications->sync(new PostMentionedBlueprint($post, $reply), [$post->user]);
         }
+    }
+
+    protected function syncGroupMentions(Post $post, array $mentioned)
+    {
+        $post->mentionsGroups()->sync($mentioned);
+        $post->unsetRelation('mentionsGroups');
+
+        //TODO notify
     }
 }

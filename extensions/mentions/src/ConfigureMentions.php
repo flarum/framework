@@ -9,6 +9,7 @@
 
 namespace Flarum\Mentions;
 
+use Flarum\Group\Group;
 use Flarum\Http\UrlGenerator;
 use Flarum\Post\CommentPost;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -34,6 +35,7 @@ class ConfigureMentions
     {
         $this->configureUserMentions($config);
         $this->configurePostMentions($config);
+        $this->configureGroupMentions($config);
     }
 
     private function configureUserMentions(Configurator $config)
@@ -135,5 +137,56 @@ class ConfigureMentions
 
             return true;
         }
+    }
+
+    private function configureGroupMentions(Configurator $config)
+    {
+        $tagName = 'GROUPMENTION';
+
+        $tag = $config->tags->add($tagName);
+        $tag->attributes->add('displayname');
+        $tag->attributes->add('icon');
+        $tag->attributes->add('color');
+        $tag->attributes->add('id')->filterChain->append('#uint');
+
+        $tag->template = '
+            <xsl:choose>
+                <xsl:when test="@deleted != 1">
+                    <span class="GroupMention" style="background: {@color}">@<xsl:value-of select="@displayname"/><i class="icon {@icon}"></i></span>
+                </xsl:when>
+                <xsl:otherwise>
+                    <span class="GroupMention GroupMention--deleted">@<xsl:value-of select="@displayname"/></span>
+                </xsl:otherwise>
+            </xsl:choose>';
+        $tag->filterChain->prepend([static::class, 'addGroupId'])
+            ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterGroupMentions(tag); }');
+
+        $config->Preg->match('/\B@["|“](?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#g(?<id>[0-9]+)\b/', $tagName);
+        $config->Preg->match('/\B@(?<groupname>[a-z0-9_-]+)(?!#)/i', $tagName);
+    }
+
+    /**
+     * @param $group
+     * @return bool
+     */
+    public static function addGroupId($tag)
+    {
+        if ($tag->hasAttribute('groupname')) {
+            $groupName = $tag->getAttribute('groupname');
+            $group = Group::where('name_plural', $groupName)->orWhere('name_singular', $groupName)->first();
+        } elseif ($tag->hasAttribute('id')) {
+            $group = Group::find($tag->getAttribute('id'));
+        }
+
+        if (isset($group)) {
+            $tag->setAttribute('id', $group->id);
+            $tag->setAttribute('displayname', $group->name_plural);
+            $tag->setAttribute('icon', $group->icon ?? 'fas fa-at');
+            $tag->setAttribute('color', $group->color);
+
+            return true;
+        }
+
+        $tag->invalidate();
     }
 }

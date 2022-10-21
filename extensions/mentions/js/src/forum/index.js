@@ -10,6 +10,7 @@ import addPostQuoteButton from './addPostQuoteButton';
 import addComposerAutocomplete from './addComposerAutocomplete';
 import PostMentionedNotification from './components/PostMentionedNotification';
 import UserMentionedNotification from './components/UserMentionedNotification';
+import GroupMentionedNotification from './components/GroupMentionedNotification';
 import UserPage from 'flarum/forum/components/UserPage';
 import LinkButton from 'flarum/common/components/LinkButton';
 import MentionsUserPage from './components/MentionsUserPage';
@@ -36,6 +37,7 @@ app.initializers.add('flarum-mentions', function () {
 
   app.notificationComponents.postMentioned = PostMentionedNotification;
   app.notificationComponents.userMentioned = UserMentionedNotification;
+  app.notificationComponents.groupMentiond = GroupMentionedNotification;
 
   // Add notification preferences.
   extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
@@ -50,6 +52,12 @@ app.initializers.add('flarum-mentions', function () {
       icon: 'fas fa-at',
       label: app.translator.trans('flarum-mentions.forum.settings.notify_user_mentioned_label'),
     });
+
+    items.add('groupMentioned', {
+      name: 'groupMentioned',
+      icon: 'fas fa-at',
+      label: app.translator.trans('flarum-mentions.forum.settings.notify_group_mentioned_label'),
+    })
   });
 
   // Add mentions tab in user profile
