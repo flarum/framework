@@ -40,7 +40,7 @@ const throttledGroupSearch = throttle(
   function (typed, searched, returnedGroups, returnedGroupIds, dropdown, buildSuggestions) {
     const typedLower = typed.toLowerCase();
     if (!searched.includes(typedLower)) {
-      app.store.find('groups', {filter: { q: typed }, page: { limit: 5}}).then((results) => {
+      app.store.find('groups', { filter: { q: typed }, page: { limit: 5 } }).then((results) => {
         results.forEach((g) => {
           if (!returnedGroupIds.has(g.id())) {
             returnedGroupIds.add(g.id());
@@ -90,7 +90,7 @@ export default function addComposerAutocomplete() {
     const returnedGroupIds = new Set(returnedGroups.map((g) => g.id()));
 
     const applySuggestion = (replacement) => {
-      console.log('apply')
+      console.log('apply');
       this.attrs.composer.editor.replaceBeforeCursor(absMentionStart - 1, replacement + ' ');
 
       dropdown.hide();
@@ -148,7 +148,7 @@ export default function addComposerAutocomplete() {
           );
         };
 
-        const makeGroupSuggestion = function(group, replacement, content, className = '') {
+        const makeGroupSuggestion = function (group, replacement, content, className = '') {
           let groupName = group.namePlural().toLowerCase();
 
           if (typed) {
@@ -164,12 +164,12 @@ export default function addComposerAutocomplete() {
               }}
             >
               <span className="PostPreview-content">
-                <Badge class={`Avatar Badge Badge--group--${group.id()} Badge-icon `} color={group.color()} type="group" icon={group.icon()}/>
+                <Badge class={`Avatar Badge Badge--group--${group.id()} Badge-icon `} color={group.color()} type="group" icon={group.icon()} />
                 <span className="username">{groupName}</span>
               </span>
             </button>
           );
-        }
+        };
 
         const userMatches = function (user) {
           const names = [user.username(), user.displayName()];
@@ -181,7 +181,7 @@ export default function addComposerAutocomplete() {
           const names = [group.nameSingular(), group.namePlural()];
 
           return names.some((name) => name.toLowerCase().substr(0, typed.length) === typed);
-        }
+        };
 
         const buildSuggestions = () => {
           const suggestions = [];
@@ -200,7 +200,7 @@ export default function addComposerAutocomplete() {
               if (!groupMatches(group)) return;
 
               suggestions.push(makeGroupSuggestion(group, getMentionText(undefined, undefined, group), '', 'MentionsDropdown-group'));
-            })
+            });
           }
 
           // If the user is replying to a discussion, or if they are editing a

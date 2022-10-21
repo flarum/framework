@@ -17,7 +17,7 @@ import getCleanDisplayName, { shouldUseOldFormat } from './getCleanDisplayName';
  * @example <caption>Using old syntax</caption>
  * // '@username'
  * getMentionText(User) // User's username is 'username'
- * 
+ *
  * @example <caption>Group mention</caption>
  * // '@"Mods"#g4'
  * getMentionText(undefined, undefined, group) // Group display name is 'Mods', group ID is 4
@@ -38,6 +38,6 @@ export default function getMentionText(user, postId, group) {
     return `@"${cleanText}"#p${postId}`;
   } else if (postId === undefined) {
     // @"Name Plural"#gGroupID
-    return `@"${group.namePlural()}"#g${group.id()}`
+    return `@"${group.namePlural()}"#g${group.id()}`;
   }
 }
