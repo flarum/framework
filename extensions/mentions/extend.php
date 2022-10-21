@@ -79,14 +79,14 @@ return [
         ]),
 
     (new Extend\ApiController(Controller\ShowPostController::class))
-        ->addInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion', 'mentionedBy.group']),
+        ->addInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion']),
 
     (new Extend\ApiController(Controller\ListPostsController::class))
-        ->addInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion', 'mentionedBy.group'])
+        ->addInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion'])
         ->load([
             'mentionsUsers', 'mentionsPosts', 'mentionsPosts.user', 'mentionedBy',
             'mentionedBy.mentionsPosts', 'mentionedBy.mentionsPosts.user', 'mentionedBy.mentionsUsers',
-            'mentionsGroups', 'mentionsGroups.group'
+            'mentionsGroups'
         ]),
 
     (new Extend\ApiController(Controller\CreatePostController::class))

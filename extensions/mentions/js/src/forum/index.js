@@ -37,7 +37,7 @@ app.initializers.add('flarum-mentions', function () {
 
   app.notificationComponents.postMentioned = PostMentionedNotification;
   app.notificationComponents.userMentioned = UserMentionedNotification;
-  app.notificationComponents.groupMentiond = GroupMentionedNotification;
+  app.notificationComponents.groupMentioned = GroupMentionedNotification;
 
   // Add notification preferences.
   extend(NotificationGrid.prototype, 'notificationTypes', function (items) {

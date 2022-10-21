@@ -82,4 +82,16 @@ flarum-mentions:
         ---
 
         {content}
+    # These translations are used in emails sent when a group is mentioned
+    group_mentioned:
+      subject: "{mentioner_display_name} mentioned a group you're a member of in {title}"
+      body: |
+        Hey {recipient_display_name}!
 
+        {mentioner_display_name} mentioned a group you're a member of in {title}.
+
+        {url}
+
+        ---
+
+        {content}

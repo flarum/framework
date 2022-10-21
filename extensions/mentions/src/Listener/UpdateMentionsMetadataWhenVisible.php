@@ -9,6 +9,7 @@
 
 namespace Flarum\Mentions\Listener;
 
+use Flarum\Mentions\Notification\GroupMentionedBlueprint;
 use Flarum\Mentions\Notification\PostMentionedBlueprint;
 use Flarum\Mentions\Notification\UserMentionedBlueprint;
 use Flarum\Notification\NotificationSyncer;
@@ -95,6 +96,15 @@ class UpdateMentionsMetadataWhenVisible
         $post->mentionsGroups()->sync($mentioned);
         $post->unsetRelation('mentionsGroups');
 
-        //TODO notify
+        $users = User::whereHas('groups', function ($query) use ($mentioned) {
+            $query->whereIn('id', $mentioned);
+        })
+            ->get()
+            ->filter(function (User $user) use ($post) {
+                return $post->isVisibleTo($user) && $user->id !== $post->user_id;
+            })
+            ->all();
+
+        $this->notifications->sync(new GroupMentionedBlueprint($post), $users);
     }
 }
