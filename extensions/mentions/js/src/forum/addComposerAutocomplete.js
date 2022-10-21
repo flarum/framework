@@ -90,7 +90,6 @@ export default function addComposerAutocomplete() {
     const returnedGroupIds = new Set(returnedGroups.map((g) => g.id()));
 
     const applySuggestion = (replacement) => {
-      console.log('apply');
       this.attrs.composer.editor.replaceBeforeCursor(absMentionStart - 1, replacement + ' ');
 
       dropdown.hide();
