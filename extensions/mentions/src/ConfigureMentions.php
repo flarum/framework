@@ -172,7 +172,7 @@ class ConfigureMentions
     {
         $group = Group::find($tag->getAttribute('id'));
 
-        if (isset($group)) {
+        if (isset($group) && ! in_array($group->id, [Group::GUEST_ID, Group::MEMBER_ID])) {
             $tag->setAttribute('id', $group->id);
             $tag->setAttribute('displayname', $group->name_plural);
             $tag->setAttribute('icon', $group->icon ?? 'fas fa-at');

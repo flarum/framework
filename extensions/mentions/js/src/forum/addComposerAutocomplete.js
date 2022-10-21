@@ -11,6 +11,7 @@ import KeyboardNavigatable from 'flarum/forum/utils/KeyboardNavigatable';
 import { truncate } from 'flarum/common/utils/string';
 import { throttle } from 'flarum/common/utils/throttleDebounce';
 import Badge from 'flarum/common/components/Badge';
+import Group from 'flarum/common/models/Group';
 
 import AutocompleteDropdown from './fragments/AutocompleteDropdown';
 import getMentionText from './utils/getMentionText';
@@ -86,7 +87,13 @@ export default function addComposerAutocomplete() {
     // We also use a hashset for user IDs to provide O(1) lookup for the users already in the list.
     const returnedUsers = Array.from(app.store.all('users'));
     const returnedUserIds = new Set(returnedUsers.map((u) => u.id()));
-    const returnedGroups = Array.from(app.store.all('groups'));
+
+    // Store groups, but exclude the two virtual groups - 'Guest' and 'Member'
+    const returnedGroups = Array.from(
+      app.store.all('groups').filter((group) => {
+        return group.id() != Group.GUEST_ID && group.id() != Group.MEMBER_ID;
+      })
+    );
     const returnedGroupIds = new Set(returnedGroups.map((g) => g.id()));
 
     const applySuggestion = (replacement) => {
