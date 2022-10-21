@@ -16,7 +16,6 @@ use Flarum\Api\Serializer\GroupSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Extend;
 use Flarum\Group\Group;
-use Flarum\Mentions\Notification;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
