@@ -6,8 +6,7 @@
  */
 
 export default function isDark(hexcolor: String) {
-
-  var hexnumbers = hexcolor.replace("#", "");
+  let hexnumbers = hexcolor.replace("#", "");
 
   if (hexnumbers.length == 3) {
     hexnumbers += hexnumbers;
