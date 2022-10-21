@@ -10,11 +10,12 @@ import highlight from 'flarum/common/helpers/highlight';
 import KeyboardNavigatable from 'flarum/forum/utils/KeyboardNavigatable';
 import { truncate } from 'flarum/common/utils/string';
 import { throttle } from 'flarum/common/utils/throttleDebounce';
+import Badge from 'flarum/common/components/Badge';
 
 import AutocompleteDropdown from './fragments/AutocompleteDropdown';
 import getMentionText from './utils/getMentionText';
 
-const throttledSearch = throttle(
+const throttledUserSearch = throttle(
   250, // 250ms timeout
   function (typed, searched, returnedUsers, returnedUserIds, dropdown, buildSuggestions) {
     const typedLower = typed.toLowerCase();
@@ -24,6 +25,26 @@ const throttledSearch = throttle(
           if (!returnedUserIds.has(u.id())) {
             returnedUserIds.add(u.id());
             returnedUsers.push(u);
+          }
+        });
+
+        buildSuggestions();
+      });
+      searched.push(typedLower);
+    }
+  }
+);
+
+const throttledGroupSearch = throttle(
+  250, // 250ms timeout
+  function (typed, searched, returnedGroups, returnedGroupIds, dropdown, buildSuggestions) {
+    const typedLower = typed.toLowerCase();
+    if (!searched.includes(typedLower)) {
+      app.store.find('groups', {filter: { q: typed }, page: { limit: 5}}).then((results) => {
+        results.forEach((g) => {
+          if (!returnedGroupIds.has(g.id())) {
+            returnedGroupIds.add(g.id());
+            returnedGroups.push(g);
           }
         });
 
@@ -65,8 +86,11 @@ export default function addComposerAutocomplete() {
     // We also use a hashset for user IDs to provide O(1) lookup for the users already in the list.
     const returnedUsers = Array.from(app.store.all('users'));
     const returnedUserIds = new Set(returnedUsers.map((u) => u.id()));
+    const returnedGroups = Array.from(app.store.all('groups'));
+    const returnedGroupIds = new Set(returnedGroups.map((g) => g.id()));
 
     const applySuggestion = (replacement) => {
+      console.log('apply')
       this.attrs.composer.editor.replaceBeforeCursor(absMentionStart - 1, replacement + ' ');
 
       dropdown.hide();
@@ -124,11 +148,40 @@ export default function addComposerAutocomplete() {
           );
         };
 
+        const makeGroupSuggestion = function(group, replacement, content, className = '') {
+          let groupName = group.namePlural().toLowerCase();
+
+          if (typed) {
+            groupName = highlight(groupName, typed);
+          }
+
+          return (
+            <button
+              className={'PostPreview ' + className}
+              onclick={() => applySuggestion(replacement)}
+              onmouseenter={function () {
+                dropdown.setIndex($(this).parent().index());
+              }}
+            >
+              <span className="PostPreview-content">
+                <Badge class={`Avatar Badge Badge--group--${group.id()} Badge-icon `} color={group.color()} type="group" icon={group.icon()}/>
+                <span className="username">{groupName}</span>
+              </span>
+            </button>
+          );
+        }
+
         const userMatches = function (user) {
           const names = [user.username(), user.displayName()];
 
           return names.some((name) => name.toLowerCase().substr(0, typed.length) === typed);
         };
+
+        const groupMatches = function (group) {
+          const names = [group.nameSingular(), group.namePlural()];
+
+          return names.some((name) => name.toLowerCase().substr(0, typed.length) === typed);
+        }
 
         const buildSuggestions = () => {
           const suggestions = [];
@@ -141,6 +194,13 @@ export default function addComposerAutocomplete() {
 
               suggestions.push(makeSuggestion(user, getMentionText(user), '', 'MentionsDropdown-user'));
             });
+
+            // ... or groups.
+            returnedGroups.forEach((group) => {
+              if (!groupMatches(group)) return;
+
+              suggestions.push(makeGroupSuggestion(group, getMentionText(undefined, undefined, group), '', 'MentionsDropdown-group'));
+            })
           }
 
           // If the user is replying to a discussion, or if they are editing a
@@ -226,7 +286,8 @@ export default function addComposerAutocomplete() {
         // Don't send API calls searching for users until at least 2 characters have been typed.
         // This focuses the mention results on users and posts in the discussion.
         if (typed.length > 1 && app.forum.attribute('canSearchUsers')) {
-          throttledSearch(typed, searched, returnedUsers, returnedUserIds, dropdown, buildSuggestions);
+          throttledUserSearch(typed, searched, returnedUsers, returnedUserIds, dropdown, buildSuggestions);
+          throttledGroupSearch(typed, searched, returnedGroups, returnedGroupIds, dropdown, buildSuggestions);
         }
       }
     });

@@ -162,21 +162,15 @@ class ConfigureMentions
             ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterGroupMentions(tag); }');
 
         $config->Preg->match('/\B@["|“](?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#g(?<id>[0-9]+)\b/', $tagName);
-        $config->Preg->match('/\B@(?<groupname>[a-z0-9_-]+)(?!#)/i', $tagName);
     }
 
     /**
-     * @param $group
+     * @param $tag
      * @return bool
      */
     public static function addGroupId($tag)
     {
-        if ($tag->hasAttribute('groupname')) {
-            $groupName = $tag->getAttribute('groupname');
-            $group = Group::where('name_plural', $groupName)->orWhere('name_singular', $groupName)->first();
-        } elseif ($tag->hasAttribute('id')) {
-            $group = Group::find($tag->getAttribute('id'));
-        }
+        $group = Group::find($tag->getAttribute('id'));
 
         if (isset($group)) {
             $tag->setAttribute('id', $group->id);
