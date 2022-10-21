@@ -14,7 +14,7 @@ export default {
   'mentions/components/MentionsUserPage': MentionsUserPage,
   'mentions/components/PostMentionedNotification': PostMentionedNotification,
   'mentions/components/UserMentionedNotification': UserMentionedNotification,
-  'mentions/components/GroupMentionedNotification' : GroupMentionedNotification,
+  'mentions/components/GroupMentionedNotification': GroupMentionedNotification,
   'mentions/fragments/AutocompleteDropdown': AutocompleteDropdown,
   'mentions/fragments/PostQuoteButton': PostQuoteButton,
   'mentions/utils/getCleanDisplayName': getCleanDisplayName,

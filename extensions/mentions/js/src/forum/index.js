@@ -57,7 +57,7 @@ app.initializers.add('flarum-mentions', function () {
       name: 'groupMentioned',
       icon: 'fas fa-at',
       label: app.translator.trans('flarum-mentions.forum.settings.notify_group_mentioned_label'),
-    })
+    });
   });
 
   // Add mentions tab in user profile
