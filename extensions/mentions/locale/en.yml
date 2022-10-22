@@ -52,6 +52,9 @@ flarum-mentions:
     post_mention:
       deleted_text: "[unknown]"
 
+    group_mention:
+      deleted_text: "[unknown group]"
+
   # Translations in this namespace are used in emails sent by the forum.
   email:
 
