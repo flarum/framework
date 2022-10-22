@@ -12,10 +12,6 @@ use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        $schema->table('post_mentions_group', function (Blueprint $table) {
-            $table->timestamp('created_at')->nullable();
-        });
-
         // do this manually because dbal doesn't recognize timestamp columns
         $connection = $schema->getConnection();
         $prefix = $connection->getTablePrefix();
@@ -23,8 +19,6 @@ return [
     },
 
     'down' => function (Builder $schema) {
-        $schema->table('post_mentions_group', function (Blueprint $table) {
-            $table->dropColumn('created_at');
-        });
+        // Nothing to do.
     }
 ];
