@@ -155,7 +155,7 @@ class ConfigureMentions
                     <span class="GroupMention" style="background: {@color}">@<xsl:value-of select="@groupname"/><i class="icon {@icon}"></i></span>
                 </xsl:when>
                 <xsl:otherwise>
-                    <span class="GroupMention GroupMention--deleted">@<xsl:value-of select="@groupname"/></span>
+                    <span class="GroupMention GroupMention--deleted">@<xsl:value-of select="@groupname"/><i class="icon {@icon}"></i></span>
                 </xsl:otherwise>
             </xsl:choose>';
         $tag->filterChain->prepend([static::class, 'addGroupId'])
