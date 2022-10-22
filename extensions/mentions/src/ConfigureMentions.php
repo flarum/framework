@@ -144,7 +144,7 @@ class ConfigureMentions
         $tagName = 'GROUPMENTION';
 
         $tag = $config->tags->add($tagName);
-        $tag->attributes->add('displayname');
+        $tag->attributes->add('groupname');
         $tag->attributes->add('icon');
         $tag->attributes->add('color');
         $tag->attributes->add('id')->filterChain->append('#uint');
@@ -152,16 +152,16 @@ class ConfigureMentions
         $tag->template = '
             <xsl:choose>
                 <xsl:when test="@deleted != 1">
-                    <span class="GroupMention" style="background: {@color}">@<xsl:value-of select="@displayname"/><i class="icon {@icon}"></i></span>
+                    <span class="GroupMention" style="background: {@color}">@<xsl:value-of select="@groupname"/><i class="icon {@icon}"></i></span>
                 </xsl:when>
                 <xsl:otherwise>
-                    <span class="GroupMention GroupMention--deleted">@<xsl:value-of select="@displayname"/></span>
+                    <span class="GroupMention GroupMention--deleted">@<xsl:value-of select="@groupname"/></span>
                 </xsl:otherwise>
             </xsl:choose>';
         $tag->filterChain->prepend([static::class, 'addGroupId'])
             ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterGroupMentions(tag); }');
 
-        $config->Preg->match('/\B@["|“](?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#g(?<id>[0-9]+)\b/', $tagName);
+        $config->Preg->match('/\B@["|“](?<groupname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#g(?<id>[0-9]+)\b/', $tagName);
     }
 
     /**
@@ -174,7 +174,7 @@ class ConfigureMentions
 
         if (isset($group) && ! in_array($group->id, [Group::GUEST_ID, Group::MEMBER_ID])) {
             $tag->setAttribute('id', $group->id);
-            $tag->setAttribute('displayname', $group->name_plural);
+            $tag->setAttribute('groupname', $group->name_plural);
             $tag->setAttribute('icon', $group->icon ?? 'fas fa-at');
             $tag->setAttribute('color', $group->color);
 

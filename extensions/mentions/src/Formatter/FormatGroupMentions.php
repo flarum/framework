@@ -42,12 +42,12 @@ class FormatGroupMentions
             : Group::find($attributes['id']);
 
             if ($group) {
-                $attributes['displayname'] = $group->name_plural;
+                $attributes['groupname'] = $group->name_plural;
                 $attributes['icon'] = $group->icon ?? 'fas fa-at';
                 $attributes['color'] = $group->color;
                 $attributes['deleted'] = false;
             } else {
-                $attributes['displayname'] = $this->translator->trans('flarum-mentions.forum.group_mention.deleted_text');
+                $attributes['groupname'] = $this->translator->trans('flarum-mentions.forum.group_mention.deleted_text');
                 $attributes['deleted'] = true;
             }
 
