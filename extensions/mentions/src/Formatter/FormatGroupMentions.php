@@ -32,9 +32,9 @@ class FormatGroupMentions
      * @param s9e\TextFormatter\Renderer $renderer
      * @param mixed $context
      * @param string|null $xml
-     * @return void
+     * @return string
      */
-    public function __invoke(Renderer $renderer, $context, string $xml)
+    public function __invoke(Renderer $renderer, $context, string $xml): string
     {
         return Utils::replaceAttributes($xml, 'GROUPMENTION', function ($attributes) use ($context) {
             $group = (($context && isset($context->getRelations()['mentionsGroups'])) || $context instanceof Group)
