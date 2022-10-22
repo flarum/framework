@@ -23,7 +23,7 @@ import getCleanDisplayName, { shouldUseOldFormat } from './getCleanDisplayName';
  * getMentionText(undefined, undefined, group) // Group display name is 'Mods', group ID is 4
  */
 export default function getMentionText(user, postId, group) {
-  if (postId === undefined && group === undefined) {
+  if (user !== undefined && postId === undefined) {
     if (shouldUseOldFormat()) {
       // Plain @username
       const cleanText = getCleanDisplayName(user, false);
@@ -32,12 +32,14 @@ export default function getMentionText(user, postId, group) {
     // @"Display name"#UserID
     const cleanText = getCleanDisplayName(user);
     return `@"${cleanText}"#${user.id()}`;
-  } else if (group === undefined) {
+  } else if (user !== undefined && postId !== undefined) {
     // @"Display name"#pPostID
     const cleanText = getCleanDisplayName(user);
     return `@"${cleanText}"#p${postId}`;
-  } else if (postId === undefined) {
+  } else if (group !== undefined) {
     // @"Name Plural"#gGroupID
     return `@"${group.namePlural()}"#g${group.id()}`;
+  } else {
+    throw 'No parameters were passed';
   }
 }
