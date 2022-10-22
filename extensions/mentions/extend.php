@@ -39,8 +39,7 @@ return [
         ->render(Formatter\FormatUserMentions::class)
         ->render(Formatter\FormatGroupMentions::class)
         ->unparse(Formatter\UnparsePostMentions::class)
-        ->unparse(Formatter\UnparseUserMentions::class)
-        ->unparse(Formatter\UnparseGroupMentions::class),
+        ->unparse(Formatter\UnparseUserMentions::class),
 
     (new Extend\Model(Post::class))
         ->belongsToMany('mentionedBy', Post::class, 'post_mentions_post', 'mentions_post_id', 'post_id')
