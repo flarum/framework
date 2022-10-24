@@ -34,17 +34,31 @@ class ListTest extends TestCase
     /**
      * @test
      */
-    public function shows_limited_index_for_guest()
+    public function disallows_index_for_guest()
     {
         $response = $this->send(
             $this->request('GET', '/api/groups')
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
+        $this->assertEquals(403, $response->getStatusCode());
+    }
 
-        // The four default groups created by the installer
-        $this->assertEquals(['1', '2', '3', '4'], Arr::pluck($data['data'], 'id'));
+    /**
+     * @test
+     */
+    public function shows_index_for_guest_when_they_have_permission()
+    {
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'searchGroups', 'group_id' => 2],
+            ],
+        ]);
+
+        $response = $this->send(
+            $this->request('GET', '/api/groups')
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
     }
 
     /**
@@ -112,6 +126,12 @@ class ListTest extends TestCase
      */
     public function filters_only_public_groups_for_guest()
     {
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'searchGroups', 'group_id' => 2],
+            ],
+        ]);
+        
         $response = $this->send(
             $this->request('GET', '/api/groups')
             ->withQueryParams([
@@ -131,6 +151,12 @@ class ListTest extends TestCase
      */
     public function hides_hidden_groups_when_filtering_for_guest()
     {
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'searchGroups', 'group_id' => 2],
+            ],
+        ]);
+        
         $response = $this->send(
             $this->request('GET', '/api/groups')
             ->withQueryParams([
@@ -151,6 +177,12 @@ class ListTest extends TestCase
      */
     public function paginates_groups_without_filter()
     {
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'searchGroups', 'group_id' => 2],
+            ],
+        ]);
+        
         $response = $this->send(
             $this->request('GET', '/api/groups')
             ->withQueryParams([
@@ -170,6 +202,12 @@ class ListTest extends TestCase
      */
     public function paginates_groups_with_filter()
     {
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'searchGroups', 'group_id' => 2],
+            ],
+        ]);
+        
         $response = $this->send(
             $this->request('GET', '/api/groups')
             ->withQueryParams([
@@ -191,6 +229,12 @@ class ListTest extends TestCase
      */
     public function sorts_groups_by_name()
     {
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'searchGroups', 'group_id' => 2],
+            ],
+        ]);
+        
         $response = $this->send(
             $this->request('GET', '/api/groups', [
                 'authenticatedAs' => 1,
