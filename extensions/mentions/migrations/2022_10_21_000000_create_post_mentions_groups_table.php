@@ -15,7 +15,7 @@ return Migration::createTable(
     function (Blueprint $table) {
         $table->integer('post_id')->unsigned();
         $table->integer('mentions_group_id')->unsigned();
-        $table->timestamp('created_at')->nullable();
+        $table->timestamp('created_at')->useCurrent()->nullable();
         $table->primary(['post_id', 'mentions_group_id']);
 
         $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
