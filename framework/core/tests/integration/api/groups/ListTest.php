@@ -131,7 +131,7 @@ class ListTest extends TestCase
                 ['permission' => 'searchGroups', 'group_id' => 2],
             ],
         ]);
-        
+
         $response = $this->send(
             $this->request('GET', '/api/groups')
             ->withQueryParams([
@@ -156,7 +156,7 @@ class ListTest extends TestCase
                 ['permission' => 'searchGroups', 'group_id' => 2],
             ],
         ]);
-        
+
         $response = $this->send(
             $this->request('GET', '/api/groups')
             ->withQueryParams([
@@ -182,7 +182,7 @@ class ListTest extends TestCase
                 ['permission' => 'searchGroups', 'group_id' => 2],
             ],
         ]);
-        
+
         $response = $this->send(
             $this->request('GET', '/api/groups')
             ->withQueryParams([
@@ -207,7 +207,7 @@ class ListTest extends TestCase
                 ['permission' => 'searchGroups', 'group_id' => 2],
             ],
         ]);
-        
+
         $response = $this->send(
             $this->request('GET', '/api/groups')
             ->withQueryParams([
@@ -234,7 +234,7 @@ class ListTest extends TestCase
                 ['permission' => 'searchGroups', 'group_id' => 2],
             ],
         ]);
-        
+
         $response = $this->send(
             $this->request('GET', '/api/groups', [
                 'authenticatedAs' => 1,
