@@ -14,6 +14,7 @@ use Flarum\Group\Filter\GroupFilterer;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Query\QueryCriteria;
+use Flarum\Group\Search\GroupSearcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -42,17 +43,24 @@ class ListGroupsController extends AbstractListController
     protected $filterer;
 
     /**
+     * @var GroupSearcher
+     */
+    protected $searcher;
+
+    /**
      * @var UrlGenerator
      */
     protected $url;
 
     /**
      * @param GroupFilterer $filterer
+     * @param GroupSearcher $searcher
      * @param UrlGenerator $url
      */
-    public function __construct(GroupFilterer $filterer, UrlGenerator $url)
+    public function __construct(GroupFilterer $filterer, GroupSearcher $searcher, UrlGenerator $url)
     {
         $this->filterer = $filterer;
+        $this->searcher = $searcher;
         $this->url = $url;
     }
 
@@ -63,6 +71,8 @@ class ListGroupsController extends AbstractListController
     {
         $actor = RequestUtil::getActor($request);
 
+        $actor->assertCan('searchGroups');
+
         $filters = $this->extractFilter($request);
         $sort = $this->extractSort($request);
         $sortIsDefault = $this->sortIsDefault($request);
@@ -71,8 +81,11 @@ class ListGroupsController extends AbstractListController
         $offset = $this->extractOffset($request);
 
         $criteria = new QueryCriteria($actor, $filters, $sort, $sortIsDefault);
-
-        $queryResults = $this->filterer->filter($criteria, $limit, $offset);
+        if (array_key_exists('q', $filters)) {
+            $queryResults = $this->searcher->search($criteria, $limit, $offset);
+        } else {
+            $queryResults = $this->filterer->filter($criteria, $limit, $offset);
+        }
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('groups.index'),

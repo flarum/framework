@@ -14,6 +14,8 @@ use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Discussion\Search\Gambit\FulltextGambit as DiscussionFulltextGambit;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
+use Flarum\Group\Search\Gambit\FulltextGambit as GroupFulltextGambit;
+use Flarum\Group\Search\GroupSearcher;
 use Flarum\User\Query as UserQuery;
 use Flarum\User\Search\Gambit\FulltextGambit as UserFulltextGambit;
 use Flarum\User\Search\UserSearcher;
@@ -30,7 +32,8 @@ class SearchServiceProvider extends AbstractServiceProvider
         $this->container->singleton('flarum.simple_search.fulltext_gambits', function () {
             return [
                 DiscussionSearcher::class => DiscussionFulltextGambit::class,
-                UserSearcher::class => UserFulltextGambit::class
+                UserSearcher::class => UserFulltextGambit::class,
+                GroupSearcher::class => GroupFulltextGambit::class
             ];
         });
 
