@@ -11,10 +11,10 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\GroupSerializer;
 use Flarum\Group\Filter\GroupFilterer;
+use Flarum\Group\Search\GroupSearcher;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Query\QueryCriteria;
-use Flarum\Group\Search\GroupSearcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 

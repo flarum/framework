@@ -9,9 +9,9 @@
 
 namespace Flarum\Group\Search\Gambit;
 
+use Flarum\Group\GroupRepository;
 use Flarum\Search\GambitInterface;
 use Flarum\Search\SearchState;
-use Flarum\Group\GroupRepository;
 
 class FulltextGambit implements GambitInterface
 {
