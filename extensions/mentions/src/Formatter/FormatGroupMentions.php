@@ -48,6 +48,7 @@ class FormatGroupMentions
                 $attributes['deleted'] = false;
             } else {
                 $attributes['groupname'] = $this->translator->trans('flarum-mentions.forum.group_mention.deleted_text');
+                $attributes['icon'] = '';
                 $attributes['deleted'] = true;
             }
 
