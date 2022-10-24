@@ -9,6 +9,7 @@
 
 namespace Flarum\Group\Search\Gambit;
 
+use Flarum\Group\Group;
 use Flarum\Group\GroupRepository;
 use Flarum\Search\GambitInterface;
 use Flarum\Search\SearchState;
@@ -40,7 +41,8 @@ class FulltextGambit implements GambitInterface
             ->where(function ($query) use ($searchValue) {
                 $query->where('name_plural', 'like', "{$searchValue}%")
                     ->orWhere('name_singular', 'like', "{$searchValue}%");
-            });
+            })
+            ->whereNotIn('id', [Group::GUEST_ID, Group::MEMBER_ID]);
     }
 
     /**
