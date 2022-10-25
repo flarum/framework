@@ -14,6 +14,8 @@ import GroupMentionedNotification from './components/GroupMentionedNotification'
 import UserPage from 'flarum/forum/components/UserPage';
 import LinkButton from 'flarum/common/components/LinkButton';
 import MentionsUserPage from './components/MentionsUserPage';
+import User from 'flarum/common/models/User';
+import Model from 'flarum/common/Model';
 
 app.initializers.add('flarum-mentions', function () {
   // For every mention of a post inside a post's content, set up a hover handler
@@ -81,6 +83,8 @@ app.initializers.add('flarum-mentions', function () {
   // Remove post mentions when rendering post previews.
   getPlainContent.removeSelectors.push('a.PostMention');
 });
+
+User.prototype.canMentionGroups = Model.attribute('canMentionGroups');
 
 export * from './utils/textFormatter';
 

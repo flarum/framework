@@ -69,13 +69,12 @@ export default function addComposerAutocomplete() {
     const returnedUsers = Array.from(app.store.all('users'));
     const returnedUserIds = new Set(returnedUsers.map((u) => u.id()));
 
-    // Store groups, but exclude the two virtual groups - 'Guest' and 'Member'
+    // Store groups, but exclude the two virtual groups - 'Guest' and 'Member'.
     const returnedGroups = Array.from(
       app.store.all('groups').filter((group) => {
         return group.id() != Group.GUEST_ID && group.id() != Group.MEMBER_ID;
       })
     );
-    const returnedGroupIds = new Set(returnedGroups.map((g) => g.id()));
 
     const applySuggestion = (replacement) => {
       this.attrs.composer.editor.replaceBeforeCursor(absMentionStart - 1, replacement + ' ');
@@ -183,11 +182,13 @@ export default function addComposerAutocomplete() {
             });
 
             // ... or groups.
-            returnedGroups.forEach((group) => {
-              if (!groupMatches(group)) return;
+            if (app.session?.user?.canMentionGroups()) {
+              returnedGroups.forEach((group) => {
+                if (!groupMatches(group)) return;
 
-              suggestions.push(makeGroupSuggestion(group, getMentionText(undefined, undefined, group), '', 'MentionsDropdown-group'));
-            });
+                suggestions.push(makeGroupSuggestion(group, getMentionText(undefined, undefined, group), '', 'MentionsDropdown-group'));
+              });
+            }
           }
 
           // If the user is replying to a discussion, or if they are editing a

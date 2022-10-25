@@ -12,6 +12,7 @@ namespace Flarum\Mentions;
 use Flarum\Api\Controller;
 use Flarum\Api\Serializer\BasicPostSerializer;
 use Flarum\Api\Serializer\BasicUserSerializer;
+use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\GroupSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Extend;
@@ -109,4 +110,9 @@ return [
 
     (new Extend\Filter(PostFilterer::class))
         ->addFilter(Filter\MentionedFilter::class),
+
+    (new Extend\ApiSerializer(CurrentUserSerializer::class))
+        ->attribute('canMentionGroups', function (CurrentUserSerializer $serializer, User $user, array $attributes): bool {
+            return $user->can('mentionGroups');
+        })
 ];

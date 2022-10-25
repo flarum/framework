@@ -7,6 +7,9 @@ flarum-mentions:
   # Translations in this namespace are used by the admin interface.
   admin:
 
+    # These translations are used in the mentions permissions
+    permissions:
+      mention_groups_label: Mention groups
     # These translations are used in the mentions Settings page.
     settings:
       allow_username_format_label: Allow username mention format (@Username)
