@@ -15,7 +15,7 @@ use s9e\TextFormatter\Parser;
 
 class CheckPermissions
 {
-    public function __invoke(Parser $parser, mixed $content, string $text, ?ServerRequestInterface $request): string
+    public function __invoke(Parser $parser, $content, string $text, ?ServerRequestInterface $request): string
     {
         // Check user has `mentionGroups` permission, if not, remove it from the parser
 
