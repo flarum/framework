@@ -204,7 +204,6 @@ core:
       read_heading: Read
       rename_discussions_label: Rename discussions
       reply_to_discussions_label: Reply to discussions
-      search_groups_label: Search groups
       search_users_label: Search users
       sign_up_label: Sign up
       start_discussions_label: Start discussions

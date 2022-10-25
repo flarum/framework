@@ -170,17 +170,6 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
     );
 
     items.add(
-      'searchGroups',
-      {
-        icon: 'fas fa-users',
-        label: app.translator.trans('core.admin.permissions.search_groups_label'),
-        permission: 'searchGroups',
-        allowGuest: true,
-      },
-      95
-    );
-
-    items.add(
       'signUp',
       {
         icon: 'fas fa-user-plus',
