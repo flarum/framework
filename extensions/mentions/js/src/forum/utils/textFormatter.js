@@ -33,14 +33,16 @@ export function filterPostMentions(tag) {
 }
 
 export function filterGroupMentions(tag) {
-  const group = app.store.getById('groups', tag.getAttribute('id'));
+  if (app.session?.user?.canMentionGroups()) {
+    const group = app.store.getById('groups', tag.getAttribute('id'));
 
-  if (group) {
-    tag.setAttribute('groupname', extractText(group.namePlural()));
-    tag.setAttribute('icon', group.icon());
-    tag.setAttribute('color', group.color());
+    if (group) {
+      tag.setAttribute('groupname', extractText(group.namePlural()));
+      tag.setAttribute('icon', group.icon());
+      tag.setAttribute('color', group.color());
 
-    return true;
+      return true;
+    }
   }
 
   tag.invalidate();
