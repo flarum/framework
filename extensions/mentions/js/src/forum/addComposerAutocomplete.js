@@ -11,38 +11,27 @@ import KeyboardNavigatable from 'flarum/forum/utils/KeyboardNavigatable';
 import { truncate } from 'flarum/common/utils/string';
 import { throttle } from 'flarum/common/utils/throttleDebounce';
 import Badge from 'flarum/common/components/Badge';
+import Group from 'flarum/common/models/Group';
 
 import AutocompleteDropdown from './fragments/AutocompleteDropdown';
 import getMentionText from './utils/getMentionText';
 
 const throttledSearch = throttle(
   250, // 250ms timeout
-  function (typed, searched, returnedUsers, returnedUserIds, returnedGroups, returnedGroupIds, dropdown, buildSuggestions) {
+  function (typed, searched, returnedUsers, returnedUserIds, dropdown, buildSuggestions) {
     const typedLower = typed.toLowerCase();
     if (!searched.includes(typedLower)) {
-      if (app.forum.attribute('canSearchUsers')) {
-        app.store.find('users', { filter: { q: typed }, page: { limit: 5 } }).then((results) => {
-          results.forEach((u) => {
-            if (!returnedUserIds.has(u.id())) {
-              returnedUserIds.add(u.id());
-              returnedUsers.push(u);
-            }
-          });
+      app.store.find('users', { filter: { q: typed }, page: { limit: 5 } }).then((results) => {
+        results.forEach((u) => {
+          if (!returnedUserIds.has(u.id())) {
+            returnedUserIds.add(u.id());
+            returnedUsers.push(u);
+          }
         });
-      }
 
-      if (app.forum.attribute('canSearchGroups')) {
-        app.store.find('groups', { filter: { q: typed }, page: { limit: 5 } }).then((results) => {
-          results.forEach((g) => {
-            if (!returnedGroupIds.has(g.id())) {
-              returnedGroupIds.add(g.id());
-              returnedGroups.push(g);
-            }
-          });
-        });
-      }
+        buildSuggestions();
+      });
 
-      buildSuggestions();
       searched.push(typedLower);
     }
   }
@@ -80,9 +69,12 @@ export default function addComposerAutocomplete() {
     const returnedUsers = Array.from(app.store.all('users'));
     const returnedUserIds = new Set(returnedUsers.map((u) => u.id()));
 
-    // We don't store an initial set of groups, so that we are forced to rely on the API response, which is
-    // scoped to return only the groups which the current user can mention.
-    const returnedGroups = [];
+    // Store groups, but exclude the two virtual groups - 'Guest' and 'Member'
+    const returnedGroups = Array.from(
+      app.store.all('groups').filter((group) => {
+        return group.id() != Group.GUEST_ID && group.id() != Group.MEMBER_ID;
+      })
+    );
     const returnedGroupIds = new Set(returnedGroups.map((g) => g.id()));
 
     const applySuggestion = (replacement) => {
@@ -159,12 +151,7 @@ export default function addComposerAutocomplete() {
               }}
             >
               <span className="PostPreview-content">
-                <Badge
-                  class={`Avatar Badge Badge--group--${group.id()} Badge-icon `}
-                  color={group.color()}
-                  type="group"
-                  icon={group.icon()}
-                />
+                <Badge class={`Avatar Badge Badge--group--${group.id()} Badge-icon `} color={group.color()} type="group" icon={group.icon()} />
                 <span className="username">{groupName}</span>
               </span>
             </button>
@@ -283,10 +270,10 @@ export default function addComposerAutocomplete() {
         dropdown.setIndex(0);
         dropdown.$().scrollTop(0);
 
-        // Don't send API calls searching for users or groups until at least 2 characters have been typed.
+        // Don't send API calls searching for users until at least 2 characters have been typed.
         // This focuses the mention results on users and posts in the discussion.
-        if (typed.length > 1) {
-          throttledSearch(typed, searched, returnedUsers, returnedUserIds, returnedGroups, returnedGroupIds, dropdown, buildSuggestions);
+        if (typed.length > 1 && app.forum.attribute('canSearchUsers')) {
+          throttledSearch(typed, searched, returnedUsers, returnedUserIds, dropdown, buildSuggestions);
         }
       }
     });
