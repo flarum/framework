@@ -139,32 +139,32 @@ use Flarum\Testing\integration\TestCase;
      /**
       * @test
       */
-      public function mention_a_virtual_group_as_an_admin_user_does_not_mention()
-      {
-          $response = $this->send(
-              $this->request('POST', '/api/posts', [
-                  'authenticatedAs' => 1,
-                  'json' => [
-                      'data' => [
-                          'attributes' => [
-                              'content' => '@"Members"#g3 @"Guests"#g2',
-                          ],
-                          'relationships' => [
-                              'discussion' => ['data' => ['id' => 2]],
-                          ]
-                      ]
-                  ]
-              ])
-          );
- 
-          $this->assertEquals(201, $response->getStatusCode());
- 
-          $response = json_decode($response->getBody(), true);
- 
-          $this->assertStringNotContainsString('@Members', $response['data']['attributes']['contentHtml']);
-          $this->assertStringNotContainsString('@Guests', $response['data']['attributes']['contentHtml']);
-          $this->assertEquals('@"Members"#g3 @"Guests"#g2', $response['data']['attributes']['content']);
-          $this->assertStringNotContainsString('GroupMention', $response['data']['attributes']['contentHtml']);
-          $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsGroups);
-      }
+     public function mention_a_virtual_group_as_an_admin_user_does_not_mention()
+     {
+         $response = $this->send(
+             $this->request('POST', '/api/posts', [
+                 'authenticatedAs' => 1,
+                 'json' => [
+                     'data' => [
+                         'attributes' => [
+                             'content' => '@"Members"#g3 @"Guests"#g2',
+                         ],
+                         'relationships' => [
+                             'discussion' => ['data' => ['id' => 2]],
+                         ]
+                     ]
+                 ]
+             ])
+         );
+
+         $this->assertEquals(201, $response->getStatusCode());
+
+         $response = json_decode($response->getBody(), true);
+
+         $this->assertStringNotContainsString('@Members', $response['data']['attributes']['contentHtml']);
+         $this->assertStringNotContainsString('@Guests', $response['data']['attributes']['contentHtml']);
+         $this->assertEquals('@"Members"#g3 @"Guests"#g2', $response['data']['attributes']['content']);
+         $this->assertStringNotContainsString('GroupMention', $response['data']['attributes']['contentHtml']);
+         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsGroups);
+     }
  }
