@@ -11,7 +11,6 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\GroupSerializer;
 use Flarum\Group\Filter\GroupFilterer;
-use Flarum\Group\Search\GroupSearcher;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Query\QueryCriteria;
@@ -72,7 +71,7 @@ class ListGroupsController extends AbstractListController
         $offset = $this->extractOffset($request);
 
         $criteria = new QueryCriteria($actor, $filters, $sort, $sortIsDefault);
-        
+
         $queryResults = $this->filterer->filter($criteria, $limit, $offset);
 
         $document->addPaginationLinks(
