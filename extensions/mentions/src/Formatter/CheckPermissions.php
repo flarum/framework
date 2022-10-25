@@ -20,7 +20,6 @@ class CheckPermissions
         // Check user has `mentionGroups` permission, if not, remove it from the parser
 
         if ($request) {
-            dd($request);
             $actor = RequestUtil::getActor($request);
             if ($actor->cannot('mentionGroups')) {
                 $parser->disableTag('GROUPMENTION');

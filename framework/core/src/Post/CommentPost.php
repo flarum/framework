@@ -58,16 +58,11 @@ class CommentPost extends Post
         $post->ip_address = $ipAddress;
 
         // Set content last, as the parsing may rely on other post attributes.
-        $post->content = self::setContent($content, $post, $request);
+        $post->setContentAttribute($content, $request);
 
         $post->raise(new Posted($post));
 
         return $post;
-    }
-
-    public static function setContent(string $content, mixed $context, ServerRequestInterface $request): ?string
-    {
-        return $content ? static::$formatter->parse($content, $context, $request) : null;
     }
 
     /**
