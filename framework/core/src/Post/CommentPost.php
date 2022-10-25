@@ -44,9 +44,10 @@ class CommentPost extends Post
      * @param string $content
      * @param int $userId
      * @param string $ipAddress
+     * @param ServerRequestInterface $request
      * @return static
      */
-    public static function reply($discussionId, $content, $userId, $ipAddress)
+    public static function reply($discussionId, $content, $userId, $ipAddress, $request)
     {
         $post = new static;
 
@@ -57,11 +58,16 @@ class CommentPost extends Post
         $post->ip_address = $ipAddress;
 
         // Set content last, as the parsing may rely on other post attributes.
-        $post->content = $content;
+        $post->content = self::setContent($content, $post, $request);
 
         $post->raise(new Posted($post));
 
         return $post;
+    }
+
+    public static function setContent(string $content, mixed $context, ServerRequestInterface $request): ?string
+    {
+        return $content ? static::$formatter->parse($content, $context, $request) : null;
     }
 
     /**
@@ -145,10 +151,11 @@ class CommentPost extends Post
      * Parse the content before it is saved to the database.
      *
      * @param string $value
+     * @param ServerRequestInterface $request
      */
-    public function setContentAttribute($value)
+    public function setContentAttribute($value, ServerRequestInterface $request = null)
     {
-        $this->attributes['content'] = $value ? static::$formatter->parse($value, $this) : null;
+        $this->attributes['content'] = $value ? static::$formatter->parse($value, $this, $request) : null;
     }
 
     /**

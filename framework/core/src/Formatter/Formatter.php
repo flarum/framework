@@ -83,14 +83,15 @@ class Formatter
      *
      * @param string $text
      * @param mixed $context
+     * @param ServerRequestInterface|null $request
      * @return string
      */
-    public function parse($text, $context = null)
+    public function parse($text, $context = null, ServerRequestInterface $request = null)
     {
         $parser = $this->getParser($context);
 
         foreach ($this->parsingCallbacks as $callback) {
-            $text = $callback($parser, $context, $text);
+            $text = $callback($parser, $context, $text, $request);
         }
 
         return $parser->parse($text);
