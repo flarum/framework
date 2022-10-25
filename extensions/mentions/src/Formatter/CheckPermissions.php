@@ -18,7 +18,7 @@ class CheckPermissions
     public function __invoke(Parser $parser, mixed $content, string $text, ?ServerRequestInterface $request): string
     {
         // Check user has `mentionGroups` permission, if not, remove it from the parser
-        
+
         if ($request) {
             dd($request);
             $actor = RequestUtil::getActor($request);
