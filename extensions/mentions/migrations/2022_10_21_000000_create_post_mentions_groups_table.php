@@ -29,6 +29,6 @@ return [
     },
 
     'down' => function (Builder $schema) {
-        $schema->drop('post_mentions_groups');
+        $schema->drop('post_mentions_group');
     }
 ];
