@@ -12,7 +12,7 @@ use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        $schema->create('post_mentions_groups', function (Blueprint $table) {
+        $schema->create('post_mentions_group', function (Blueprint $table) {
             $table->integer('post_id')->unsigned();
             $table->integer('mentions_group_id')->unsigned();
             $table->timestamp('created_at')->nullable();
