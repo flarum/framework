@@ -30,7 +30,7 @@ class SearchServiceProvider extends AbstractServiceProvider
         $this->container->singleton('flarum.simple_search.fulltext_gambits', function () {
             return [
                 DiscussionSearcher::class => DiscussionFulltextGambit::class,
-                UserSearcher::class => UserFulltextGambit::class,
+                UserSearcher::class => UserFulltextGambit::class
             ];
         });
 
