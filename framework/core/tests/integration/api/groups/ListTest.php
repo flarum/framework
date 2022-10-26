@@ -195,9 +195,9 @@ class ListTest extends TestCase
             $this->request('GET', '/api/groups', [
                 'authenticatedAs' => 1,
             ])
-                ->withQueryParams([
-                    'sort' => 'nameSingular',
-                ])
+            ->withQueryParams([
+                'sort' => 'nameSingular',
+            ])
         );
 
         $this->assertEquals(200, $response->getStatusCode());
