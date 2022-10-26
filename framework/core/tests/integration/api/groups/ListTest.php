@@ -95,9 +95,9 @@ class ListTest extends TestCase
             $this->request('GET', '/api/groups', [
                 'authenticatedAs' => 1,
             ])
-                ->withQueryParams([
-                    'filter' => ['hidden' => 1],
-                ])
+            ->withQueryParams([
+                'filter' => ['hidden' => 1],
+            ])
         );
 
         $this->assertEquals(200, $response->getStatusCode());
