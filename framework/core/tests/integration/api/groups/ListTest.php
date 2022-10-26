@@ -153,9 +153,9 @@ class ListTest extends TestCase
     {
         $response = $this->send(
             $this->request('GET', '/api/groups')
-                ->withQueryParams([
-                    'page' => ['limit' => '2', 'offset' => '2'],
-                ])
+            ->withQueryParams([
+                'page' => ['limit' => '2', 'offset' => '2'],
+            ])
         );
 
         $this->assertEquals(200, $response->getStatusCode());
