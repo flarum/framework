@@ -94,7 +94,8 @@ return [
         ->addInclude(['mentionsPosts', 'mentionsPosts.mentionedBy', 'mentionsGroups']),
 
     (new Extend\ApiController(Controller\UpdatePostController::class))
-        ->addInclude(['mentionsPosts', 'mentionsPosts.mentionedBy', 'mentionsGroups']),
+        ->addInclude(['mentionsPosts', 'mentionsPosts.mentionedBy'])
+        ->addOptionalInclude('mentionsGroups'),
 
     (new Extend\ApiController(Controller\AbstractSerializeController::class))
         ->prepareDataForSerialization(FilterVisiblePosts::class),
