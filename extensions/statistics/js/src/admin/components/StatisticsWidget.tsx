@@ -318,6 +318,18 @@ export default class StatisticsWidget extends DashboardWidget {
         </>
 
         {this.noData && <Placeholder text={app.translator.trans(`flarum-statistics.admin.statistics.no_data`)} />}
+
+        {!this.noData && !!this.chart && (
+          <Button
+            className="StatisticsWidget-chartExport Button"
+            icon="fas fa-file-export"
+            onclick={() => {
+              this.chart.export();
+            }}
+          >
+            {app.translator.trans('flarum-statistics.admin.statistics.export_chart_button')}
+          </Button>
+        )}
       </div>
     );
   }
