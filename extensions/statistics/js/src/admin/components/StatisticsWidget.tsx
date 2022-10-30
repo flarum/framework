@@ -336,7 +336,7 @@ export default class StatisticsWidget extends DashboardWidget {
           }
         : this.periods![this.selectedPeriod!];
     const periodLength = period.end - period.start;
-    const labels = [];
+    const labels: string[] = [];
     const thisPeriod = [];
     const lastPeriod = [];
 
@@ -361,7 +361,7 @@ export default class StatisticsWidget extends DashboardWidget {
       labels.push(label);
 
       thisPeriod.push(this.getPeriodCount(this.selectedEntity, { start: i, end: i + period.step }));
-      lastPeriod.push(this.getPeriodCount(this.selectedEntity, { start: i - periodLength, end: i - periodLength + period.step }));
+      lastPeriod.push(this.getPeriodCount(this.selectedEntity, { start: i - periodLength, end: i - periodLength }));
     }
 
     if (thisPeriod.length === 0) {
