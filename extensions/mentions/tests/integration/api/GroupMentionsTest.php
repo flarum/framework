@@ -10,7 +10,6 @@
 namespace Flarum\Mentions\Tests\integration\api;
 
 use Carbon\Carbon;
-use Flarum\Extend;
 use Flarum\Group\Group;
 use Flarum\Post\CommentPost;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
@@ -241,7 +240,7 @@ class GroupMentionsTest extends TestCase
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'mentionGroups'],
             ]
         ]);
-        
+
         $response = $this->send(
             $this->request('POST', '/api/posts', [
                 'authenticatedAs' => 3,
@@ -278,7 +277,7 @@ class GroupMentionsTest extends TestCase
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'mentionGroups'],
             ]
         ]);
-        
+
         $response = $this->send(
             $this->request('POST', '/api/posts', [
                 'authenticatedAs' => 3,
