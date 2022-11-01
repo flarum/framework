@@ -21,11 +21,6 @@ return [
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
             $table->foreign('mentions_group_id')->references('id')->on('groups')->onDelete('cascade');
         });
-
-    // do this manually because dbal doesn't recognize timestamp columns
-        // $connection = $schema->getConnection();
-        // $prefix = $connection->getTablePrefix();
-        // $connection->statement("ALTER TABLE `${prefix}post_mentions_group` MODIFY created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP");
     },
 
     'down' => function (Builder $schema) {
