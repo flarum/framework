@@ -15,7 +15,7 @@ return [
         $schema->create('post_mentions_group', function (Blueprint $table) {
             $table->integer('post_id')->unsigned();
             $table->integer('mentions_group_id')->unsigned();
-            $table->timestamp('created_at')->nullable();
+            $table->dateTime('created_at')->useCurrent()->nullable();
             $table->primary(['post_id', 'mentions_group_id']);
 
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
@@ -23,9 +23,9 @@ return [
         });
 
         // do this manually because dbal doesn't recognize timestamp columns
-        $connection = $schema->getConnection();
-        $prefix = $connection->getTablePrefix();
-        $connection->statement("ALTER TABLE `${prefix}post_mentions_group` MODIFY created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP");
+        // $connection = $schema->getConnection();
+        // $prefix = $connection->getTablePrefix();
+        // $connection->statement("ALTER TABLE `${prefix}post_mentions_group` MODIFY created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP");
     },
 
     'down' => function (Builder $schema) {
