@@ -19,7 +19,7 @@ class MigrationKeyMissing extends Exception
     {
         $this->direction = $direction;
 
-        $fileNameWithSpace = $file ? ' ' . realpath($file) : '';
+        $fileNameWithSpace = $file ? ' '.realpath($file) : '';
         parent::__construct("Migration file$fileNameWithSpace should contain an array with up/down (looking for $direction)");
     }
 
