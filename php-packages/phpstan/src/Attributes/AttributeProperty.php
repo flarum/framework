@@ -11,14 +11,17 @@ use PHPStan\Type\ObjectType;
 use PHPStan\Type\Type;
 use PHPStan\Type\UnionType;
 
-class DateAttributeProperty implements PropertyReflection
+class AttributeProperty implements PropertyReflection
 {
     /** @var ClassReflection */
     private $classReflection;
+    /** @var Type */
+    private $type;
 
-    public function __construct(ClassReflection $classReflection)
+    public function __construct(ClassReflection $classReflection, Type $type)
     {
         $this->classReflection = $classReflection;
+        $this->type = $type;
     }
 
     public function getDeclaringClass(): ClassReflection
@@ -48,10 +51,7 @@ class DateAttributeProperty implements PropertyReflection
 
     public function getReadableType(): Type
     {
-        return new UnionType([
-            new ObjectType(Carbon::class),
-            new NullType(),
-        ]);
+        return $this->type;
     }
 
     public function getWritableType(): Type
