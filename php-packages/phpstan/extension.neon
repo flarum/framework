@@ -27,6 +27,10 @@ services:
 		tags:
 			- phpstan.broker.propertiesClassReflectionExtension
 	-
+		class: Flarum\PHPStan\Attributes\ModelCastAttributeProperty
+		tags:
+			- phpstan.broker.propertiesClassReflectionExtension
+	-
 		class: Flarum\PHPStan\Extender\FilesProvider
 		arguments:
 			- %paths%

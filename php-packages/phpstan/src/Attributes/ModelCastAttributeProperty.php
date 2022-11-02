@@ -2,37 +2,38 @@
 
 namespace Flarum\PHPStan\Attributes;
 
-use Carbon\Carbon;
 use Flarum\PHPStan\Extender\MethodCall;
 use Flarum\PHPStan\Extender\Resolver;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\PropertiesClassReflectionExtension;
 use PHPStan\Reflection\PropertyReflection;
 use PHPStan\Type\NullType;
-use PHPStan\Type\ObjectType;
 use PHPStan\Type\UnionType;
 
-class ModelDateAttributesExtension implements PropertiesClassReflectionExtension
+class ModelCastAttributeProperty implements PropertiesClassReflectionExtension
 {
     /** @var Resolver */
     private $extendersResolver;
+    /** @var \PHPStan\PhpDoc\TypeStringResolver */
+    private $typeStringResolver;
 
-    public function __construct(Resolver $extendersResolver)
+    public function __construct(Resolver $extendersResolver, \PHPStan\PhpDoc\TypeStringResolver $typeStringResolver)
     {
         $this->extendersResolver = $extendersResolver;
+        $this->typeStringResolver = $typeStringResolver;
     }
 
     public function hasProperty(ClassReflection $classReflection, string $propertyName): bool
     {
-        return $this->findDateAttributeMethod($classReflection, $propertyName) !== null;
+        return $this->findCastAttributeMethod($classReflection, $propertyName) !== null;
     }
 
     public function getProperty(ClassReflection $classReflection, string $propertyName): PropertyReflection
     {
-        return $this->resolveDateAttributeProperty($this->findDateAttributeMethod($classReflection, $propertyName), $classReflection);
+        return $this->resolveCastAttributeProperty($this->findCastAttributeMethod($classReflection, $propertyName), $classReflection);
     }
 
-    private function findDateAttributeMethod(ClassReflection $classReflection, string $propertyName): ?MethodCall
+    private function findCastAttributeMethod(ClassReflection $classReflection, string $propertyName): ?MethodCall
     {
         foreach ($this->extendersResolver->getExtenders() as $extender) {
             if (! $extender->isExtender('Model')) {
@@ -45,7 +46,7 @@ class ModelDateAttributesExtension implements PropertiesClassReflectionExtension
                 }
 
                 if ($extender->extends($className)) {
-                    if ($methodCalls = $extender->findMethodCalls('dateAttribute')) {
+                    if ($methodCalls = $extender->findMethodCalls('castAttribute')) {
                         foreach ($methodCalls as $methodCall) {
                             if ($methodCall->arguments[0]->value === $propertyName) {
                                 return $methodCall;
@@ -59,10 +60,10 @@ class ModelDateAttributesExtension implements PropertiesClassReflectionExtension
         return null;
     }
 
-    private function resolveDateAttributeProperty(MethodCall $methodCall, ClassReflection $classReflection): PropertyReflection
+    private function resolveCastAttributeProperty(?MethodCall $methodCall, ClassReflection $classReflection): PropertyReflection
     {
         return new AttributeProperty($classReflection, new UnionType([
-            new ObjectType(Carbon::class),
+            $this->typeStringResolver->resolve($methodCall->arguments[1]->value),
             new NullType(),
         ]));
     }
