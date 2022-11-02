@@ -23,6 +23,10 @@ services:
 			- phpstan.broker.methodsClassReflectionExtension
 			- phpstan.broker.propertiesClassReflectionExtension
 	-
+		class: Flarum\PHPStan\Attributes\ModelDateAttributesExtension
+		tags:
+			- phpstan.broker.propertiesClassReflectionExtension
+	-
 		class: Flarum\PHPStan\Extender\FilesProvider
 		arguments:
 			- %paths%
