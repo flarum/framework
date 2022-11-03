@@ -2,12 +2,14 @@
 
 namespace Flarum\PHPStan\Attributes;
 
+use Carbon\Carbon;
 use Flarum\PHPStan\Extender\MethodCall;
 use Flarum\PHPStan\Extender\Resolver;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\PropertiesClassReflectionExtension;
 use PHPStan\Reflection\PropertyReflection;
 use PHPStan\Type\NullType;
+use PHPStan\Type\ObjectType;
 use PHPStan\Type\UnionType;
 
 class ModelCastAttributeProperty implements PropertiesClassReflectionExtension
@@ -60,11 +62,18 @@ class ModelCastAttributeProperty implements PropertiesClassReflectionExtension
         return null;
     }
 
-    private function resolveCastAttributeProperty(?MethodCall $methodCall, ClassReflection $classReflection): PropertyReflection
+    private function resolveCastAttributeProperty(MethodCall $methodCall, ClassReflection $classReflection): PropertyReflection
     {
-        return new AttributeProperty($classReflection, new UnionType([
-            $this->typeStringResolver->resolve($methodCall->arguments[1]->value),
-            new NullType(),
-        ]));
+        $typeName = $methodCall->arguments[1]->value;
+        $type = $this->typeStringResolver->resolve("$typeName|null");
+
+        if (str_contains($typeName, 'date') || $typeName === 'timestamp') {
+            $type = new UnionType([
+                new ObjectType(Carbon::class),
+                new NullType(),
+            ]);
+        }
+
+        return new AttributeProperty($classReflection, $type);
     }
 }
