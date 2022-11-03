@@ -54,6 +54,11 @@ class InfoCommand extends AbstractCommand
     private $queue;
 
     /**
+     * @var QueueRepository
+     */
+    private $queues;
+
+    /**
      * @var SessionManager
      */
     private $session;
