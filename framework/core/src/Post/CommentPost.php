@@ -45,7 +45,7 @@ class CommentPost extends Post
      * @param string $content
      * @param int $userId
      * @param string $ipAddress
-     * @param ServerRequestInterface $request
+     * @param ServerRequestInterface|null $request
      * @return static
      */
     public static function reply($discussionId, $content, $userId, $ipAddress, $request)
@@ -59,7 +59,7 @@ class CommentPost extends Post
         $post->ip_address = $ipAddress;
 
         // Set content last, as the parsing may rely on other post attributes.
-        $post->setContentAttribute($content, RequestUtil::getActor($request));
+        $post->setContentAttribute($content, $request ? RequestUtil::getActor($request) : null);
 
         $post->raise(new Posted($post));
 
