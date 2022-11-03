@@ -14,6 +14,7 @@ use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Return_;
 use PHPStan\Parser\Parser;
 use PHPStan\Parser\ParserErrorsException;
@@ -67,15 +68,20 @@ class Resolver
     }
 
     /**
+     * @return Extender[]
      * @throws ParserErrorsException
      * @throws \Exception
      */
-    private function resolveExtendersFromFile($extenderFile)
+    private function resolveExtendersFromFile($extenderFile): array
     {
         /** @var Extender[] $extenders */
         $extenders = [];
 
         $statements = $this->parser->parseFile($extenderFile);
+
+        if ($statements[0] instanceof Namespace_) {
+            $statements = $statements[0]->stmts;
+        }
 
         foreach ($statements as $statement) {
             if ($statement instanceof Return_) {
