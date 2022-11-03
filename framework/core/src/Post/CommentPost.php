@@ -11,7 +11,6 @@ namespace Flarum\Post;
 
 use Carbon\Carbon;
 use Flarum\Formatter\Formatter;
-use Flarum\Http\RequestUtil;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
