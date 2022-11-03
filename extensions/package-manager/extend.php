@@ -41,7 +41,8 @@ return [
             $paths = resolve(Paths::class);
 
             $document->payload['flarum-package-manager.writable_dirs'] = is_writable($paths->vendor)
-                && is_writable($paths->storage.'/.composer')
+                && is_writable($paths->storage)
+                && (! file_exists($paths->storage.'/.composer') || is_writable($paths->storage.'/.composer'))
                 && is_writable($paths->base.'/composer.json')
                 && is_writable($paths->base.'/composer.lock');
 

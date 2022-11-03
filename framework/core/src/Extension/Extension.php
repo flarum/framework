@@ -214,9 +214,6 @@ class Extension implements Arrayable
      * @param array $extensionSet: An associative array where keys are the composer package names
      *                             of installed extensions. Used to figure out which dependencies
      *                             are flarum extensions.
-     * @param array $enabledIds:   An associative array where keys are the composer package names
-     *                             of enabled extensions. Used to figure out optional dependencies.
-     *
      * @internal
      */
     public function calculateDependencies($extensionSet)
@@ -489,6 +486,7 @@ class Extension implements Arrayable
     }
 
     /**
+     * @return int|void
      * @internal
      */
     public function migrate(Migrator $migrator, $direction = 'up')
@@ -498,7 +496,7 @@ class Extension implements Arrayable
         }
 
         if ($direction == 'up') {
-            return $migrator->run($this->getPath().'/migrations', $this);
+            $migrator->run($this->getPath().'/migrations', $this);
         } else {
             return $migrator->reset($this->getPath().'/migrations', $this);
         }

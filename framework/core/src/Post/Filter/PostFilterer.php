@@ -35,6 +35,6 @@ class PostFilterer extends AbstractFilterer
 
     protected function getQuery(User $actor): Builder
     {
-        return $this->posts->query()->whereVisibleTo($actor);
+        return $this->posts->query()->select('posts.*')->whereVisibleTo($actor);
     }
 }

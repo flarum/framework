@@ -91,6 +91,9 @@ jobs:
     name: Checks & Build
     runs-on: ubuntu-latest
 
+    if: >-
+      ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')
+
     steps:
       - name: Check out code
         uses: actions/checkout@v2

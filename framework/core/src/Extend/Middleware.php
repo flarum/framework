@@ -48,7 +48,7 @@ class Middleware implements ExtenderInterface
      *
      * @param string $originalMiddleware: ::class attribute of the original middleware class.
      *                                    Or container binding name.
-     * @param string $middleware: ::class attribute of the middleware class.
+     * @param string $newMiddleware: ::class attribute of the middleware class.
      *                            Must implement \Psr\Http\Server\MiddlewareInterface.
      * @return self
      */
@@ -77,7 +77,7 @@ class Middleware implements ExtenderInterface
      *
      * @param string $originalMiddleware: ::class attribute of the original middleware class.
      *                                    Or container binding name.
-     * @param string $middleware: ::class attribute of the middleware class.
+     * @param string $newMiddleware: ::class attribute of the middleware class.
      *                            Must implement \Psr\Http\Server\MiddlewareInterface.
      * @return self
      */
@@ -93,7 +93,7 @@ class Middleware implements ExtenderInterface
      *
      * @param string $originalMiddleware: ::class attribute of the original middleware class.
      *                                    Or container binding name.
-     * @param string $middleware: ::class attribute of the middleware class.
+     * @param string $newMiddleware: ::class attribute of the middleware class.
      *                            Must implement \Psr\Http\Server\MiddlewareInterface.
      * @return self
      */

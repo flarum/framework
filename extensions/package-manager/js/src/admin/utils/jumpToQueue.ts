@@ -6,7 +6,7 @@ window.jumpToQueue = jumpToQueue;
 export default function jumpToQueue(): void {
   app.modal.close();
   m.route.set(app.route('extension', { id: 'flarum-package-manager' }));
-  app.packageManagerQueue.load();
+  app.packageManager.queue.load();
   setTimeout(() => {
     document.getElementById('PackageManager-queueSection')?.scrollIntoView({ block: 'nearest' });
   }, 200);

@@ -1,4 +1,5 @@
 import DashboardWidget, { IDashboardWidgetAttrs } from 'flarum/admin/components/DashboardWidget';
+import { IDateSelection } from './StatisticsWidgetDateSelectionModal';
 import type Mithril from 'mithril';
 interface IPeriodDeclaration {
     start: number;
@@ -9,17 +10,22 @@ export default class StatisticsWidget extends DashboardWidget {
     entities: string[];
     periods: undefined | Record<string, IPeriodDeclaration>;
     chart: any;
-    timedData: any;
+    customPeriod: IDateSelection | null;
+    timedData: Record<string, undefined | any>;
     lifetimeData: any;
+    customPeriodData: Record<string, undefined | any>;
+    noData: boolean;
     loadingLifetime: boolean;
-    loadingTimed: boolean;
+    loadingTimed: Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'>;
+    loadingCustom: Record<string, 'unloaded' | 'loading' | 'loaded' | 'fail'>;
     selectedEntity: string;
     selectedPeriod: undefined | string;
     chartEntity?: string;
     chartPeriod?: string;
     oncreate(vnode: Mithril.VnodeDOM<IDashboardWidgetAttrs, this>): void;
     loadLifetimeData(): Promise<void>;
-    loadTimedData(): Promise<void>;
+    loadTimedData(model: string): Promise<void>;
+    loadCustomRangeData(model: string): Promise<void>;
     className(): string;
     content(): JSX.Element;
     drawChart(vnode: Mithril.VnodeDOM<any, any>): void;

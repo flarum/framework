@@ -9,8 +9,8 @@
 
 namespace Flarum\Statistics\Api\Controller;
 
+use Carbon\Carbon;
 use DateTime;
-use DateTimeZone;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\Post;
@@ -24,6 +24,7 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Tobscure\JsonApi\Exception\InvalidParameterException;
 
 class ShowStatisticsData implements RequestHandlerInterface
 {
@@ -69,21 +70,42 @@ class ShowStatisticsData implements RequestHandlerInterface
         // control panel.
         $actor->assertAdmin();
 
-        $reportingPeriod = Arr::get($request->getQueryParams(), 'period');
+        $query = $request->getQueryParams();
 
-        return new JsonResponse($this->getResponse($reportingPeriod));
+        $reportingPeriod = Arr::get($query, 'period');
+        $model = Arr::get($query, 'model');
+        $customDateRange = Arr::get($query, 'dateRange');
+
+        return new JsonResponse($this->getResponse($model, $reportingPeriod, $customDateRange));
     }
 
-    private function getResponse(?string $period): array
+    private function getResponse(?string $model, ?string $period, ?array $customDateRange): array
     {
         if ($period === 'lifetime') {
             return $this->getLifetimeStatistics();
         }
 
-        return array_merge(
-            $this->getTimedStatistics(),
-            ['timezoneOffset' => $this->getUserTimezone()->getOffset(new DateTime)]
-        );
+        if (! Arr::exists($this->entities, $model)) {
+            throw new InvalidParameterException('A model must be specified');
+        }
+
+        if ($period === 'custom') {
+            $start = (int) $customDateRange['start'];
+            $end = (int) $customDateRange['end'];
+
+            if (! $customDateRange || ! $start || ! $end) {
+                throw new InvalidParameterException('A custom date range must be specified');
+            }
+
+            // Seconds-based timestamps
+            $startRange = Carbon::createFromTimestampUTC($start)->toDateTime();
+            $endRange = Carbon::createFromTimestampUTC($end)->toDateTime();
+
+            // We can't really cache this
+            return $this->getTimedCounts($this->entities[$model][0], $this->entities[$model][1], $startRange, $endRange);
+        }
+
+        return $this->getTimedStatistics($model);
     }
 
     private function getLifetimeStatistics()
@@ -95,61 +117,44 @@ class ShowStatisticsData implements RequestHandlerInterface
         });
     }
 
-    private function getTimedStatistics()
+    private function getTimedStatistics(string $model)
     {
-        return $this->cache->remember('flarum-subscriptions.timed_stats', self::$lifetimeStatsCacheTtl, function () {
-            return array_map(function ($entity) {
-                return $this->getTimedCounts($entity[0], $entity[1]);
-            }, $this->entities);
+        return $this->cache->remember("flarum-subscriptions.timed_stats.$model", self::$lifetimeStatsCacheTtl, function () use ($model) {
+            return $this->getTimedCounts($this->entities[$model][0], $this->entities[$model][1]);
         });
     }
 
-    private function getTimedCounts(Builder $query, $column)
+    private function getTimedCounts(Builder $query, string $column, ?DateTime $startDate = null, ?DateTime $endDate = null)
     {
-        // Calculate the offset between the server timezone (which is used for
-        // dates stored in the database) and the user's timezone (set via the
-        // settings table). We will use this to make sure we aggregate the
-        // daily/hourly statistics according to the user's timezone.
-        $offset = $this->getTimezoneOffset();
+        if (! isset($startDate)) {
+            $startDate = new DateTime('-365 days');
+        }
+
+        if (! isset($endDate)) {
+            $endDate = new DateTime();
+        }
 
         $results = $query
             ->selectRaw(
                 'DATE_FORMAT(
-                    @date := DATE_ADD('.$column.', INTERVAL ? SECOND), -- convert to user timezone
+                    @date := '.$column.',
                     IF(@date > ?, \'%Y-%m-%d %H:00:00\', \'%Y-%m-%d\') -- if within the last 24 hours, group by hour
                 ) as time_group',
-                [$offset, new DateTime('-25 hours')]
+                [new DateTime('-25 hours')]
             )
             ->selectRaw('COUNT(id) as count')
-            ->where($column, '>', new DateTime('-365 days'))
+            ->where($column, '>', $startDate)
+            ->where($column, '<=', $endDate)
             ->groupBy('time_group')
             ->pluck('count', 'time_group');
 
-        // Now that we have the aggregated statistics, convert each time group
-        // into a UNIX timestamp.
-        $userTimezone = $this->getUserTimezone();
-
         $timed = [];
 
-        $results->each(function ($count, $time) use (&$timed, $userTimezone) {
-            $time = new DateTime($time, $userTimezone);
+        $results->each(function ($count, $time) use (&$timed) {
+            $time = new DateTime($time);
             $timed[$time->getTimestamp()] = (int) $count;
         });
 
         return $timed;
-    }
-
-    private function getTimezoneOffset()
-    {
-        $now = new DateTime;
-
-        $dataTimezone = new DateTimeZone(date_default_timezone_get());
-
-        return $this->getUserTimezone()->getOffset($now) - $dataTimezone->getOffset($now);
-    }
-
-    private function getUserTimezone()
-    {
-        return new DateTimeZone($this->settings->get('flarum-statistics.timezone', date_default_timezone_get()));
     }
 }

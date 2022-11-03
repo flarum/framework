@@ -13,6 +13,9 @@ use Flarum\Database\AbstractModel;
 use Flarum\Http\SlugDriverInterface;
 use Flarum\User\User;
 
+/**
+ * @implements SlugDriverInterface<Discussion>
+ */
 class IdWithTransliteratedSlugDriver implements SlugDriverInterface
 {
     /**
@@ -25,6 +28,9 @@ class IdWithTransliteratedSlugDriver implements SlugDriverInterface
         $this->discussions = $discussions;
     }
 
+    /**
+     * @param Discussion $instance
+     */
     public function toSlug(AbstractModel $instance): string
     {
         return $instance->id.(trim($instance->slug) ? '-'.$instance->slug : '');

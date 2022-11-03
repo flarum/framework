@@ -26,7 +26,7 @@ class ResolveRoute implements Middleware
     protected $routes;
 
     /**
-     * @var Dispatcher
+     * @var Dispatcher|null
      */
     protected $dispatcher;
 
@@ -43,6 +43,8 @@ class ResolveRoute implements Middleware
     /**
      * Resolve the given request from our route collection.
      *
+     * @return Response
+     *
      * @throws MethodNotAllowedException
      * @throws RouteNotFoundException
      */
@@ -58,7 +60,7 @@ class ResolveRoute implements Middleware
                 throw new RouteNotFoundException($uri);
             case Dispatcher::METHOD_NOT_ALLOWED:
                 throw new MethodNotAllowedException($method);
-            case Dispatcher::FOUND:
+            default:
                 $request = $request
                     ->withAttribute('routeName', $routeInfo[1]['name'])
                     ->withAttribute('routeHandler', $routeInfo[1]['handler'])

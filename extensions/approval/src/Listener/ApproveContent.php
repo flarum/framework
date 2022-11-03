@@ -69,7 +69,9 @@ class ApproveContent
 
         $discussion->save();
 
-        $user->refreshCommentCount();
-        $user->save();
+        if ($discussion->user) {
+            $user->refreshCommentCount();
+            $user->save();
+        }
     }
 }

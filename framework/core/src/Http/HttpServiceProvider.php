@@ -11,6 +11,7 @@ namespace Flarum\Http;
 
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\IdWithTransliteratedSlugDriver;
+use Flarum\Discussion\Utf8SlugDriver;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\IdSlugDriver;
@@ -37,7 +38,8 @@ class HttpServiceProvider extends AbstractServiceProvider
         $this->container->singleton('flarum.http.slugDrivers', function () {
             return [
                 Discussion::class => [
-                    'default' => IdWithTransliteratedSlugDriver::class
+                    'default' => IdWithTransliteratedSlugDriver::class,
+                    'utf8' => Utf8SlugDriver::class,
                 ],
                 User::class => [
                     'default' => UsernameSlugDriver::class,

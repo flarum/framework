@@ -9,7 +9,7 @@
 
 namespace Flarum\Database;
 
-use Exception;
+use Flarum\Database\Exception\MigrationKeyMissing;
 use Flarum\Extension\Extension;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\MySqlConnection;
@@ -39,20 +39,17 @@ class Migrator
     /**
      * The output interface implementation.
      *
-     * @var OutputInterface
+     * @var OutputInterface|null
      */
     protected $output;
+
     /**
-     * @var ConnectionInterface|MySqlConnection
+     * @var ConnectionInterface
      */
     protected $connection;
 
     /**
      * Create a new migrator instance.
-     *
-     * @param  MigrationRepositoryInterface  $repository
-     * @param  ConnectionInterface           $connection
-     * @param  Filesystem                    $files
      */
     public function __construct(
         MigrationRepositoryInterface $repository,
@@ -76,7 +73,7 @@ class Migrator
      * Run the outstanding migrations at a given path.
      *
      * @param  string    $path
-     * @param  Extension $extension
+     * @param  Extension|null $extension
      * @return void
      */
     public function run($path, Extension $extension = null)
@@ -95,7 +92,7 @@ class Migrator
      *
      * @param  string    $path
      * @param  array     $migrations
-     * @param  Extension $extension
+     * @param  Extension|null $extension
      * @return void
      */
     public function runMigrationList($path, $migrations, Extension $extension = null)
@@ -122,15 +119,12 @@ class Migrator
      *
      * @param  string    $path
      * @param  string    $file
-     * @param  string    $path
-     * @param  Extension $extension
+     * @param  Extension|null $extension
      * @return void
      */
     protected function runUp($path, $file, Extension $extension = null)
     {
-        $migration = $this->resolve($path, $file);
-
-        $this->runClosureMigration($migration);
+        $this->resolveAndRunClosureMigration($path, $file);
 
         // Once we have run a migrations class, we will log that it was run in this
         // repository so that we don't try to run it next time we do a migration
@@ -144,7 +138,7 @@ class Migrator
      * Rolls all of the currently applied migrations back.
      *
      * @param  string    $path
-     * @param  Extension $extension
+     * @param  Extension|null $extension
      * @return int
      */
     public function reset($path, Extension $extension = null)
@@ -177,9 +171,7 @@ class Migrator
      */
     protected function runDown($path, $file, Extension $extension = null)
     {
-        $migration = $this->resolve($path, $file);
-
-        $this->runClosureMigration($migration, 'down');
+        $this->resolveAndRunClosureMigration($path, $file, 'down');
 
         // Once we have successfully run the migration "down" we will remove it from
         // the migration repository so it will be considered to have not been run
@@ -194,14 +186,33 @@ class Migrator
      *
      * @param        $migration
      * @param string $direction
-     * @throws Exception
+     * @throws MigrationKeyMissing
      */
     protected function runClosureMigration($migration, $direction = 'up')
     {
         if (is_array($migration) && array_key_exists($direction, $migration)) {
             call_user_func($migration[$direction], $this->connection->getSchemaBuilder());
         } else {
-            throw new Exception('Migration file should contain an array with up/down.');
+            throw new MigrationKeyMissing($direction);
+        }
+    }
+
+    /**
+     * Resolves and run a migration and assign the filename to the exception if needed.
+     *
+     * @param string $path
+     * @param string $file
+     * @param string $direction
+     * @throws MigrationKeyMissing
+     */
+    protected function resolveAndRunClosureMigration(string $path, string $file, string $direction = 'up')
+    {
+        $migration = $this->resolve($path, $file);
+
+        try {
+            $this->runClosureMigration($migration, $direction);
+        } catch (MigrationKeyMissing $exception) {
+            throw $exception->withFile("$path/$file.php");
         }
     }
 
@@ -245,6 +256,8 @@ class Migrator
         if ($this->files->exists($migration)) {
             return $this->files->getRequire($migration);
         }
+
+        return [];
     }
 
     /**

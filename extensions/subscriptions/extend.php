@@ -61,4 +61,7 @@ return [
 
     (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
         ->addGambit(SubscriptionFilterGambit::class),
+
+    (new Extend\User())
+        ->registerPreference('flarum-subscriptions.notify_for_all_posts', 'boolval', false),
 ];

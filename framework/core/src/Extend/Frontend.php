@@ -110,7 +110,7 @@ class Frontend implements ExtenderInterface
     /**
      * Modify the content of the frontend.
      *
-     * @param callable|string|null $content
+     * @param callable|string|null $callback
      *
      * The content can be a closure or an invokable class, and should accept:
      * - \Flarum\Frontend\Document $document

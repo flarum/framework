@@ -149,7 +149,6 @@ export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignup
   logIn() {
     const attrs = {
       identification: this.email() || this.username(),
-      password: this.password(),
     };
 
     app.modal.show(LogInModal, attrs);

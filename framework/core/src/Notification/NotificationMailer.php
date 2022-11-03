@@ -12,6 +12,7 @@ namespace Flarum\Notification;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Contracts\Mail\Mailer;
+use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Mail\Message;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -23,7 +24,7 @@ class NotificationMailer
     protected $mailer;
 
     /**
-     * @var TranslatorInterface
+     * @var TranslatorInterface&Translator
      */
     protected $translator;
 
@@ -33,9 +34,7 @@ class NotificationMailer
     protected $settings;
 
     /**
-     * @param Mailer $mailer
-     * @param TranslatorInterface $translator
-     * @param SettingsRepositoryInterface $settings
+     * @param TranslatorInterface&Translator $translator
      */
     public function __construct(Mailer $mailer, TranslatorInterface $translator, SettingsRepositoryInterface $settings)
     {
