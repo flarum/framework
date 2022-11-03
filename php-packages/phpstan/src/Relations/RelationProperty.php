@@ -69,7 +69,7 @@ class RelationProperty implements PropertyReflection
                 return new ObjectType($this->methodCall->arguments[1]->class->toString());
 
             default:
-                throw new Exception('Unknown relationship type for relation: ' . $this->methodCall->methodName);
+                throw new Exception('Unknown relationship type for relation: '.$this->methodCall->methodName);
         }
     }
 

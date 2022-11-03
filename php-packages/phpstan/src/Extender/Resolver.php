@@ -104,6 +104,7 @@ class Resolver
     {
         return new Extender($var->class->toString(), array_map(function (Arg $arg) {
             $arg->value->setAttributes([]);
+
             return $arg->value;
         }, $var->args), $methodCalls);
     }
@@ -112,6 +113,7 @@ class Resolver
     {
         return new ExtenderMethodCall($var->name->toString(), array_map(function (Arg $arg) {
             $arg->value->setAttributes([]);
+
             return $arg->value;
         }, $var->args));
     }
@@ -128,7 +130,7 @@ class Resolver
         $methodStack = array_reverse($methodStack);
 
         if (! $value->var instanceof New_) {
-            throw new \Exception('Unable to resolve extender for ' . get_class($value->var));
+            throw new \Exception('Unable to resolve extender for '.get_class($value->var));
         }
 
         return $this->resolveExtenderNew($value->var, $methodStack);
