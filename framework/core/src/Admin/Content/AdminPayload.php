@@ -17,6 +17,7 @@ use Flarum\Queue\QueueRepository;
 use Flarum\Settings\Event\Deserializing;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\Queue;
@@ -68,6 +69,11 @@ class AdminPayload
     protected $queue;
 
     /**
+     * @var Schedule
+     */
+    protected $schedule;
+
+    /**
      * @param Container $container
      * @param SettingsRepositoryInterface $settings
      * @param ExtensionManager $extensions
@@ -85,7 +91,8 @@ class AdminPayload
         Dispatcher $events,
         Config $config,
         QueueRepository $queues,
-        Queue $queue
+        Queue $queue,
+        Schedule $schedule
     ) {
         $this->container = $container;
         $this->settings = $settings;
@@ -95,6 +102,7 @@ class AdminPayload
         $this->config = $config;
         $this->queues = $queues;
         $this->queue = $queue;
+        $this->schedule = $schedule;
     }
 
     public function __invoke(Document $document, Request $request)
@@ -117,7 +125,11 @@ class AdminPayload
         $document->payload['phpVersion'] = PHP_VERSION;
         $document->payload['mysqlVersion'] = $this->db->selectOne('select version() as version')->version;
         $document->payload['debugEnabled'] = Arr::get($this->config, 'debug');
-        $document->payload['schedulerStatus'] = $this->getSchedulerStatus();
+        
+        if ($this->scheduledTasksRegistered()) {
+            $document->payload['schedulerStatus'] = $this->getSchedulerStatus();
+        }
+        
         $document->payload['queueDriver'] = $this->queues->identifyDriver($this->queue);
 
         /**
@@ -132,6 +144,11 @@ class AdminPayload
                 'total' => User::count()
             ]
         ];
+    }
+
+    private function scheduledTasksRegistered(): bool
+    {
+        return count($this->schedule->events()) > 0;
     }
 
     private function getSchedulerStatus(): string
