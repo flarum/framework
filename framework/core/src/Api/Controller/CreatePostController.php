@@ -59,7 +59,7 @@ class CreatePostController extends AbstractCreateController
         $ipAddress = $request->getAttribute('ipAddress');
 
         $post = $this->bus->dispatch(
-            new PostReply($discussionId, $actor, $data, $ipAddress, $actor)
+            new PostReply($discussionId, $actor, $data, $ipAddress)
         );
 
         // After replying, we assume that the user has seen all of the posts
