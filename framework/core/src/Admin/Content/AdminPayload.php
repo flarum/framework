@@ -125,11 +125,11 @@ class AdminPayload
         $document->payload['phpVersion'] = PHP_VERSION;
         $document->payload['mysqlVersion'] = $this->db->selectOne('select version() as version')->version;
         $document->payload['debugEnabled'] = Arr::get($this->config, 'debug');
-        
+
         if ($this->scheduledTasksRegistered()) {
             $document->payload['schedulerStatus'] = $this->getSchedulerStatus();
         }
-        
+
         $document->payload['queueDriver'] = $this->queues->identifyDriver($this->queue);
 
         /**
