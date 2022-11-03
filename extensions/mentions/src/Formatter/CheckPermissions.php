@@ -16,7 +16,7 @@ class CheckPermissions
 {
     public function __invoke(Parser $parser, $content, string $text, ?User $actor): string
     {
-        // Check user has `mentionGroups` permission, if not, remove the `GROUPMENTION` tag the parser
+        // Check user has `mentionGroups` permission, if not, remove the `GROUPMENTION` tag from the parser.
         if ($actor && $actor->cannot('mentionGroups')) {
             $parser->disableTag('GROUPMENTION');
         }
