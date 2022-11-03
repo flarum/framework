@@ -11,6 +11,7 @@ namespace Flarum\Post;
 
 use Carbon\Carbon;
 use Flarum\Formatter\Formatter;
+use Flarum\Http\RequestUtil;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
@@ -58,7 +59,7 @@ class CommentPost extends Post
         $post->ip_address = $ipAddress;
 
         // Set content last, as the parsing may rely on other post attributes.
-        $post->setContentAttribute($content, $request);
+        $post->setContentAttribute($content, RequestUtil::getActor($request));
 
         $post->raise(new Posted($post));
 
@@ -146,11 +147,11 @@ class CommentPost extends Post
      * Parse the content before it is saved to the database.
      *
      * @param string $value
-     * @param ServerRequestInterface $request
+     * @param User $actor
      */
-    public function setContentAttribute($value, ServerRequestInterface $request = null)
+    public function setContentAttribute($value, User $actor = null)
     {
-        $this->attributes['content'] = $value ? static::$formatter->parse($value, $this, $request) : null;
+        $this->attributes['content'] = $value ? static::$formatter->parse($value, $this, $actor ?? $this->user) : null;
     }
 
     /**

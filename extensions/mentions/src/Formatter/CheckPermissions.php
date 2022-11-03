@@ -9,18 +9,16 @@
 
 namespace Flarum\Mentions\Formatter;
 
-use Flarum\Http\RequestUtil;
-use Psr\Http\Message\ServerRequestInterface;
+use Flarum\User\User;
 use s9e\TextFormatter\Parser;
 
 class CheckPermissions
 {
-    public function __invoke(Parser $parser, $content, string $text, ?ServerRequestInterface $request): string
+    public function __invoke(Parser $parser, $content, string $text, ?User $actor): string
     {
-        // Check user has `mentionGroups` permission, if not, remove it from the parser
+        // Check user has `mentionGroups` permission, if not, remove the `GROUPMENTION` tag the parser
 
-        if ($request) {
-            $actor = RequestUtil::getActor($request);
+        if ($actor) {
             if ($actor->cannot('mentionGroups')) {
                 $parser->disableTag('GROUPMENTION');
             }
