@@ -10,7 +10,6 @@
 namespace Flarum\Post\Command;
 
 use Flarum\User\User;
-use Psr\Http\Message\ServerRequestInterface;
 
 class PostReply
 {
