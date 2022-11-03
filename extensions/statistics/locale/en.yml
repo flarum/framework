@@ -20,6 +20,7 @@ flarum-statistics:
     # These translations are used in the Statistics dashboard widget.
     statistics:
       discussions_heading: => core.ref.discussions
+      export_chart_button: Export chart to SVG
       last_12_months_label: Last 12 months
       last_28_days_label: Last 28 days
       last_7_days_label: Last 7 days
