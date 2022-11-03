@@ -12,13 +12,8 @@ namespace Flarum\PackageManager\Command;
 use Flarum\PackageManager\Task\Task;
 use Flarum\User\User;
 
-class WhyNot implements BusinessCommandInterface
+class WhyNot extends AbstractActionCommand
 {
-    /**
-     * @var Task
-     */
-    public $task = null;
-
     /**
      * @var User
      */

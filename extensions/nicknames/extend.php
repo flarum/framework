@@ -26,6 +26,9 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
+    (new Extend\Model(User::class))
+        ->castAttribute('nickname', 'string'),
+
     (new Extend\User())
         ->displayNameDriver('nickname', NicknameDriver::class),
 

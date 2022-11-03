@@ -9,6 +9,7 @@
 
 namespace Flarum\Sticky\Post;
 
+use Carbon\Carbon;
 use Flarum\Post\AbstractEventPost;
 use Flarum\Post\MergeableInterface;
 use Flarum\Post\Post;
@@ -59,7 +60,7 @@ class DiscussionStickiedPost extends AbstractEventPost implements MergeableInter
         $post = new static;
 
         $post->content = static::buildContent($isSticky);
-        $post->created_at = time();
+        $post->created_at = Carbon::now();
         $post->discussion_id = $discussionId;
         $post->user_id = $userId;
 

@@ -37,9 +37,9 @@ class FormatUserMentions
     /**
      * Configure rendering for user mentions.
      *
-     * @param s9e\TextFormatter\Renderer $renderer
+     * @param \s9e\TextFormatter\Renderer $renderer
      * @param mixed $context
-     * @param string|null $xml
+     * @param string $xml
      * @return string $xml to be rendered
      */
     public function __invoke(Renderer $renderer, $context, string $xml)

@@ -14,6 +14,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
 use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
+use Flarum\Discussion\UserState;
 use Flarum\Extend;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Hidden;
@@ -23,6 +24,7 @@ use Flarum\Subscriptions\HideIgnoredFromAllDiscussionsPage;
 use Flarum\Subscriptions\Listener;
 use Flarum\Subscriptions\Notification\NewPostBlueprint;
 use Flarum\Subscriptions\Query\SubscriptionFilterGambit;
+use Flarum\User\User;
 
 return [
     (new Extend\Frontend('forum'))
@@ -31,6 +33,12 @@ return [
         ->route('/following', 'following'),
 
     new Extend\Locales(__DIR__.'/locale'),
+
+    (new Extend\Model(User::class))
+        ->castAttribute('last_read_post_number', 'integer'),
+
+    (new Extend\Model(UserState::class))
+        ->castAttribute('subscription', 'string'),
 
     (new Extend\View)
         ->namespace('flarum-subscriptions', __DIR__.'/views'),

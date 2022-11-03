@@ -9,6 +9,7 @@
 
 namespace Flarum\Tags\Post;
 
+use Carbon\Carbon;
 use Flarum\Post\AbstractEventPost;
 use Flarum\Post\MergeableInterface;
 use Flarum\Post\Post;
@@ -61,7 +62,7 @@ class DiscussionTaggedPost extends AbstractEventPost implements MergeableInterfa
         $post = new static;
 
         $post->content = static::buildContent($oldTagIds, $newTagIds);
-        $post->created_at = time();
+        $post->created_at = Carbon::now();
         $post->discussion_id = $discussionId;
         $post->user_id = $userId;
 

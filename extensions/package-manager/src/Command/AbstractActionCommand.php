@@ -9,7 +9,14 @@
 
 namespace Flarum\PackageManager\Command;
 
-interface BusinessCommandInterface
+use Flarum\PackageManager\Task\Task;
+
+abstract class AbstractActionCommand
 {
-    public function getOperationName(): string;
+    /**
+     * @var Task|null
+     */
+    public $task = null;
+
+    abstract public function getOperationName(): string;
 }

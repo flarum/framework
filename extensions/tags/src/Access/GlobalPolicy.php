@@ -27,9 +27,9 @@ class GlobalPolicy extends AbstractPolicy
     }
 
     /**
-     * @param Flarum\User\User $actor
+     * @param User $actor
      * @param string $ability
-     * @return bool|void
+     * @return string|void
      */
     public function can(User $actor, string $ability)
     {

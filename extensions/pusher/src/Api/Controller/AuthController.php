@@ -48,6 +48,7 @@ class AuthController implements RequestHandlerInterface
                 $this->settings->get('flarum-pusher.app_key'),
                 $this->settings->get('flarum-pusher.app_secret'),
                 $this->settings->get('flarum-pusher.app_id'),
+                // @phpstan-ignore-next-line
                 ['cluster' => $this->settings->get('flarum-pusher.app_cluster')]
             );
 

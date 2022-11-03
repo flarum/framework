@@ -12,6 +12,8 @@ namespace Flarum\Flags\Api\Serializer;
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\PostSerializer;
+use Flarum\Flags\Flag;
+use InvalidArgumentException;
 
 class FlagSerializer extends AbstractSerializer
 {
@@ -20,11 +22,14 @@ class FlagSerializer extends AbstractSerializer
      */
     protected $type = 'flags';
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getDefaultAttributes($flag)
     {
+        if (! ($flag instanceof Flag)) {
+            throw new InvalidArgumentException(
+                get_class($this).' can only serialize instances of '.Flag::class
+            );
+        }
+
         return [
             'type'         => $flag->type,
             'reason'       => $flag->reason,
