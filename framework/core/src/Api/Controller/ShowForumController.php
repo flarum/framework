@@ -25,15 +25,18 @@ class ShowForumController extends AbstractShowController
     /**
      * {@inheritdoc}
      */
-    public $include = ['groups'];
+    public $include = ['groups', 'currentUser'];
 
     /**
      * {@inheritdoc}
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
+        $actor = RequestUtil::getActor($request);
+
         return [
-            'groups' => Group::whereVisibleTo(RequestUtil::getActor($request))->get()
+            'groups' => Group::whereVisibleTo($actor)->get(),
+            'currentUser' => $actor->isGuest() ? null : $actor
         ];
     }
 }

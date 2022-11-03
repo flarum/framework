@@ -135,4 +135,12 @@ class ForumSerializer extends AbstractSerializer
     {
         return $this->assetsFilesystem->url($assetPath);
     }
+
+    /**
+     * @return \Tobscure\JsonApi\Relationship|null
+     */
+    protected function currentUser($model)
+    {
+        return $this->hasOne($model, CurrentUserSerializer::class);
+    }
 }
