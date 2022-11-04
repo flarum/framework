@@ -139,7 +139,7 @@ class ForumSerializer extends AbstractSerializer
     /**
      * @return \Tobscure\JsonApi\Relationship|null
      */
-    protected function currentUser($model)
+    protected function actor($model)
     {
         return $this->hasOne($model, CurrentUserSerializer::class);
     }
