@@ -35,10 +35,8 @@ class FilesProvider
         $extenderFiles = [];
 
         foreach ($this->paths as $path) {
-            $extenderFile = str_replace('src', 'extend.php', $path);
-
-            if (file_exists($extenderFile)) {
-                $extenderFiles[] = $extenderFile;
+            if (str_contains($path, 'extend.php') && file_exists($path)) {
+                $extenderFiles[] = $path;
             }
         }
 
