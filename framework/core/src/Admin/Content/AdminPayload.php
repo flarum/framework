@@ -13,6 +13,7 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Config;
 use Flarum\Frontend\Document;
 use Flarum\Group\Permission;
+use Flarum\Locale\Translator;
 use Flarum\Queue\QueueRepository;
 use Flarum\Settings\Event\Deserializing;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -74,6 +75,11 @@ class AdminPayload
     protected $schedule;
 
     /**
+     * @var Translator
+     */
+    protected $translator;
+
+    /**
      * @param Container $container
      * @param SettingsRepositoryInterface $settings
      * @param ExtensionManager $extensions
@@ -92,7 +98,8 @@ class AdminPayload
         Config $config,
         QueueRepository $queues,
         Queue $queue,
-        Schedule $schedule
+        Schedule $schedule,
+        Translator $translator
     ) {
         $this->container = $container;
         $this->settings = $settings;
@@ -103,6 +110,7 @@ class AdminPayload
         $this->queues = $queues;
         $this->queue = $queue;
         $this->schedule = $schedule;
+        $this->translator = $translator;
     }
 
     public function __invoke(Document $document, Request $request)
@@ -156,10 +164,10 @@ class AdminPayload
         $status = $this->settings->get('schedule.last_run');
 
         if (! $status) {
-            return 'Never run';
+            return $this->translator->trans('core.admin.dashboard.status.scheduler.never-run');
         }
 
         // If the schedule has not run in the last 5 minutes, mark it as inactive.
-        return Carbon::parse($status) > Carbon::now()->subMinutes(5) ? 'Active' : 'Inactive';
+        return Carbon::parse($status) > Carbon::now()->subMinutes(5) ? $this->translator->trans('core.admin.dashboard.status.scheduler.active') : $this->translator->trans('core.admin.status.scheduler.inactive');
     }
 }
