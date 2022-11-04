@@ -84,7 +84,6 @@ class InfoCommand extends AbstractCommand
         SessionManager $session,
         SessionHandlerInterface $sessionHandler,
         ScheduleRepository $schedules
-
     ) {
         $this->extensions = $extensions;
         $this->config = $config;
@@ -129,11 +128,11 @@ class InfoCommand extends AbstractCommand
         $this->output->writeln('<info>Installation path:</info> '.getcwd());
         $this->output->writeln('<info>Queue driver:</info> '.$this->queues->identifyDriver($this->queue));
         $this->output->writeln('<info>Session driver:</info> '.$this->identifySessionDriver());
-        
-        if($this->schedules->scheduledTasksRegistered()) {
+
+        if ($this->schedules->scheduledTasksRegistered()) {
             $this->output->writeln('<info>Scheduler status:</info> '.$this->schedules->getSchedulerStatus());
         }
-        
+
         $this->output->writeln('<info>Mail driver:</info> '.$this->settings->get('mail_driver', 'unknown'));
         $this->output->writeln('<info>Debug mode:</info> '.($this->config->inDebugMode() ? '<error>ON</error>' : 'off'));
 

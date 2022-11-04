@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Foundation;
 
 use Carbon\Carbon;
@@ -13,7 +20,7 @@ class ScheduleRepository
      * @var SettingsRepositoryInterface
      */
     protected $settings;
-    
+
     /**
      * @var Translator
      */
@@ -23,19 +30,19 @@ class ScheduleRepository
      * @var Schedule
      */
     protected $schedule;
-    
+
     public function __construct(SettingsRepositoryInterface $settings, Translator $translator, Schedule $schedule)
     {
         $this->settings = $settings;
-        $this->translator = $translator; 
-        $this->schedule = $schedule;  
+        $this->translator = $translator;
+        $this->schedule = $schedule;
     }
-    
+
     public function scheduledTasksRegistered(): bool
     {
         return count($this->schedule->events()) > 0;
     }
-    
+
     public function getSchedulerStatus(): string
     {
         $status = $this->settings->get('schedule.last_run');
