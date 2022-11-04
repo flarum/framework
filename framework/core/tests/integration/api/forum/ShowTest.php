@@ -67,8 +67,8 @@ class ShowTest extends TestCase
         $this->assertEquals('http://localhost/api', Arr::get($json, 'data.attributes.apiUrl'));
 
         $this->assertArrayNotHasKey('adminUrl', Arr::get($json, 'data.attributes'));
-        $this->assertArrayHasKey('currentUser', Arr::get($json, 'data.relationships'));
-        $this->assertEquals(2, Arr::get($json, 'data.relationships.currentUser.data.id'));
+        $this->assertArrayHasKey('actor', Arr::get($json, 'data.relationships'));
+        $this->assertEquals(2, Arr::get($json, 'data.relationships.actor.data.id'));
     }
 
     /**
