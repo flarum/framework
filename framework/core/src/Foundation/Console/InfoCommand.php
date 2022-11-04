@@ -13,6 +13,7 @@ use Flarum\Console\AbstractCommand;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Config;
+use Flarum\Foundation\ScheduleRepository;
 use Flarum\Queue\QueueRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\SessionManager;
@@ -68,6 +69,11 @@ class InfoCommand extends AbstractCommand
      */
     private $sessionHandler;
 
+    /**
+     * @var ScheduleRepository
+     */
+    private $schedules;
+
     public function __construct(
         ExtensionManager $extensions,
         Config $config,
@@ -76,7 +82,9 @@ class InfoCommand extends AbstractCommand
         Queue $queue,
         QueueRepository $queues,
         SessionManager $session,
-        SessionHandlerInterface $sessionHandler
+        SessionHandlerInterface $sessionHandler,
+        ScheduleRepository $schedules
+
     ) {
         $this->extensions = $extensions;
         $this->config = $config;
@@ -86,6 +94,7 @@ class InfoCommand extends AbstractCommand
         $this->queues = $queues;
         $this->session = $session;
         $this->sessionHandler = $sessionHandler;
+        $this->schedules = $schedules;
 
         parent::__construct();
     }
@@ -120,6 +129,11 @@ class InfoCommand extends AbstractCommand
         $this->output->writeln('<info>Installation path:</info> '.getcwd());
         $this->output->writeln('<info>Queue driver:</info> '.$this->queues->identifyDriver($this->queue));
         $this->output->writeln('<info>Session driver:</info> '.$this->identifySessionDriver());
+        
+        if($this->schedules->scheduledTasksRegistered()) {
+            $this->output->writeln('<info>Scheduler status:</info> '.$this->schedules->getSchedulerStatus());
+        }
+        
         $this->output->writeln('<info>Mail driver:</info> '.$this->settings->get('mail_driver', 'unknown'));
         $this->output->writeln('<info>Debug mode:</info> '.($this->config->inDebugMode() ? '<error>ON</error>' : 'off'));
 

@@ -11,20 +11,18 @@ namespace Flarum\Admin\Content;
 
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Config;
+use Flarum\Foundation\ScheduleRepository;
 use Flarum\Frontend\Document;
 use Flarum\Group\Permission;
-use Flarum\Locale\Translator;
 use Flarum\Queue\QueueRepository;
 use Flarum\Settings\Event\Deserializing;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
-use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Carbon;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AdminPayload
@@ -70,14 +68,9 @@ class AdminPayload
     protected $queue;
 
     /**
-     * @var Schedule
+     * @var ScheduleRepository
      */
-    protected $schedule;
-
-    /**
-     * @var Translator
-     */
-    protected $translator;
+    protected $schedules;
 
     /**
      * @param Container $container
@@ -88,6 +81,7 @@ class AdminPayload
      * @param Config $config
      * @param QueueRepository $queues
      * @param Queue $queue
+     * @param ScheduleRepository $schedules
      */
     public function __construct(
         Container $container,
@@ -98,8 +92,7 @@ class AdminPayload
         Config $config,
         QueueRepository $queues,
         Queue $queue,
-        Schedule $schedule,
-        Translator $translator
+        ScheduleRepository $schedules
     ) {
         $this->container = $container;
         $this->settings = $settings;
@@ -109,8 +102,7 @@ class AdminPayload
         $this->config = $config;
         $this->queues = $queues;
         $this->queue = $queue;
-        $this->schedule = $schedule;
-        $this->translator = $translator;
+        $this->schedules = $schedules;
     }
 
     public function __invoke(Document $document, Request $request)
@@ -134,8 +126,8 @@ class AdminPayload
         $document->payload['mysqlVersion'] = $this->db->selectOne('select version() as version')->version;
         $document->payload['debugEnabled'] = Arr::get($this->config, 'debug');
 
-        if ($this->scheduledTasksRegistered()) {
-            $document->payload['schedulerStatus'] = $this->getSchedulerStatus();
+        if ($this->schedules->scheduledTasksRegistered()) {
+            $document->payload['schedulerStatus'] = $this->schedules->getSchedulerStatus();
         }
 
         $document->payload['queueDriver'] = $this->queues->identifyDriver($this->queue);
@@ -152,22 +144,5 @@ class AdminPayload
                 'total' => User::count()
             ]
         ];
-    }
-
-    private function scheduledTasksRegistered(): bool
-    {
-        return count($this->schedule->events()) > 0;
-    }
-
-    private function getSchedulerStatus(): string
-    {
-        $status = $this->settings->get('schedule.last_run');
-
-        if (! $status) {
-            return $this->translator->trans('core.admin.dashboard.status.scheduler.never-run');
-        }
-
-        // If the schedule has not run in the last 5 minutes, mark it as inactive.
-        return Carbon::parse($status) > Carbon::now()->subMinutes(5) ? $this->translator->trans('core.admin.dashboard.status.scheduler.active') : $this->translator->trans('core.admin.status.scheduler.inactive');
     }
 }
