@@ -36,7 +36,7 @@ class ShowForumController extends AbstractShowController
 
         return [
             'groups' => Group::whereVisibleTo($actor)->get(),
-            'currentUser' => $actor->isGuest() ? null : $actor
+            'actor' => $actor->isGuest() ? null : $actor
         ];
     }
 }
