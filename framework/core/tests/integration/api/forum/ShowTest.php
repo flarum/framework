@@ -34,7 +34,7 @@ class ShowTest extends TestCase
     /**
      * @test
      */
-    public function guest_user_does_not_have_user_relationship()
+    public function guest_user_does_not_see_actor_relationship()
     {
         $response = $this->send(
             $this->request('GET', '/api')
@@ -44,7 +44,7 @@ class ShowTest extends TestCase
 
         $json = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertArrayNotHasKey('currentUser', Arr::get($json, 'data.relationships'));
+        $this->assertArrayNotHasKey('actor', Arr::get($json, 'data.relationships'));
     }
 
     /**
