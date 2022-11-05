@@ -40,9 +40,12 @@ class GroupMentionsTest extends TestCase
             ],
             'posts' => [
                 ['id' => 4, 'number' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><p>One of the <GROUPMENTION color="#80349E" groupname="Mods" icon="fas fa-bolt" id="4">@"Mods"#g4</GROUPMENTION> will look at this</p></r>'],
+                ['id' => 6, 'number' => 3, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><p><GROUPMENTION color="#80349E" groupname="OldGroupName" icon="fas fa-circle" id="100">@"OldGroupName"#g100</GROUPMENTION></p></r>'],
+                ['id' => 7, 'number' => 4, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><p><GROUPMENTION color="#000" groupname="OldGroupName" icon="fas fa-circle" id="11">@"OldGroupName"#g11</GROUPMENTION></p></r>'],
             ],
             'post_mentions_group' => [
                 ['post_id' => 4, 'mentions_group_id' => 4],
+                ['post_id' => 7, 'mentions_group_id' => 11],
             ],
             'group_permission' => [
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'postWithoutThrottle'],
@@ -55,6 +58,14 @@ class GroupMentionsTest extends TestCase
                     'color' => null,
                     'icon' => 'fas fa-wrench',
                     'is_hidden' => 1
+                ],
+                [
+                    'id' => 11,
+                    'name_singular' => 'Fresh Name',
+                    'name_plural' => 'Fresh Name',
+                    'color' => '#ccc',
+                    'icon' => 'fas fa-users',
+                    'is_hidden' => 0
                 ]
             ]
         ]);
@@ -63,7 +74,7 @@ class GroupMentionsTest extends TestCase
     /**
      * @test
      */
-    public function render_a_group_mention_works()
+    public function rendering_a_valid_group_mention_works()
     {
         $response = $this->send(
             $this->request('GET', '/api/posts/4')
@@ -80,7 +91,82 @@ class GroupMentionsTest extends TestCase
     /**
      * @test
      */
-    public function mention_a_group_as_an_admin_user()
+    public function mentioning_an_invalid_group_doesnt_work()
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'content' => '@"InvalidGroup"#g99',
+                        ],
+                        'relationships' => [
+                            'discussion' => ['data' => ['id' => 2]],
+                        ]
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $response = json_decode($response->getBody(), true);
+
+        $this->assertStringContainsString('@"InvalidGroup"#g99', $response['data']['attributes']['content']);
+        $this->assertStringNotContainsString('GroupMention', $response['data']['attributes']['contentHtml']);
+        $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsGroups);
+    }
+
+    /**
+     * @test
+     */
+    public function deleted_group_mentions_render_with_deleted_label()
+    {
+        $deleted_text = $this->app()->getContainer()->make('translator')->trans('flarum-mentions.forum.group_mention.deleted_text');
+
+        $response = $this->send(
+            $this->request('GET', '/api/posts/6', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $response = json_decode($response->getBody(), true);
+
+        $this->assertStringContainsString("@$deleted_text", $response['data']['attributes']['contentHtml']);
+        $this->assertStringContainsString('GroupMention', $response['data']['attributes']['contentHtml']);
+        $this->assertStringContainsString('GroupMention--deleted', $response['data']['attributes']['contentHtml']);
+        $this->assertStringNotContainsString('@OldGroupName', $response['data']['attributes']['contentHtml']);
+        $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsGroups);
+    }
+
+    /**
+     * @test
+     */
+    public function group_mentions_render_with_fresh_data()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/posts/7', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $response = json_decode($response->getBody(), true);
+
+        $this->assertStringContainsString("@Fresh Name", $response['data']['attributes']['contentHtml']);
+        $this->assertStringContainsString('GroupMention', $response['data']['attributes']['contentHtml']);
+        $this->assertStringNotContainsString('@OldGroupName', $response['data']['attributes']['contentHtml']);
+        $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsGroups->find(11));
+    }
+
+    /**
+     * @test
+     */
+    public function mentioning_a_group_as_an_admin_user_works()
     {
         $response = $this->send(
             $this->request('POST', '/api/posts', [
@@ -112,7 +198,7 @@ class GroupMentionsTest extends TestCase
     /**
      * @test
      */
-    public function mention_multiple_groups_as_an_admin_user()
+    public function mentioning_multiple_groups_as_an_admin_user_works()
     {
         $response = $this->send(
             $this->request('POST', '/api/posts', [
@@ -146,7 +232,7 @@ class GroupMentionsTest extends TestCase
     /**
      * @test
      */
-    public function mention_a_virtual_group_as_an_admin_user_does_not_mention()
+    public function mentioning_a_virtual_group_as_an_admin_user_does_not_work()
     {
         $response = $this->send(
             $this->request('POST', '/api/posts', [
@@ -302,5 +388,33 @@ class GroupMentionsTest extends TestCase
         $this->assertStringContainsString('@"Ninjas"#g10', $response['data']['attributes']['content']);
         $this->assertStringNotContainsString('GroupMention', $response['data']['attributes']['contentHtml']);
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsGroups);
+    }
+
+    /**
+     * @test
+     */
+    public function editing_a_post_that_has_a_mention_works()
+    {
+        $response = $this->send(
+            $this->request('PATCH', '/api/posts/4', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'content' => 'New content with @"Mods"#g4 mention',
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $response = json_decode($response->getBody(), true);
+
+        $this->assertStringContainsString('@Mods', $response['data']['attributes']['contentHtml']);
+        $this->assertEquals('New content with @"Mods"#g4 mention', $response['data']['attributes']['content']);
+        $this->assertStringContainsString('GroupMention', $response['data']['attributes']['contentHtml']);
+        $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsGroups->find(4));
     }
 }
