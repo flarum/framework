@@ -47,7 +47,7 @@ class CommentPost extends Post
      * @param User|null $actor
      * @return static
      */
-    public static function reply($discussionId, $content, $userId, $ipAddress, $actor = null)
+    public static function reply($discussionId, $content, $userId, $ipAddress, User $actor = null)
     {
         $post = new static;
 
@@ -75,7 +75,7 @@ class CommentPost extends Post
     public function revise($content, User $actor)
     {
         if ($this->content !== $content) {
-            $this->content = $content;
+            $this->setContentAttribute($content, $actor);
 
             $this->edited_at = Carbon::now();
             $this->edited_user_id = $actor->id;

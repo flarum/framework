@@ -30,9 +30,9 @@ class FormatGroupMentions
     /**
      * Configure rendering for group mentions.
      *
-     * @param s9e\TextFormatter\Renderer $renderer
+     * @param \s9e\TextFormatter\Renderer $renderer
      * @param mixed $context
-     * @param string|null $xml
+     * @param string $xml
      * @return string
      */
     public function __invoke(Renderer $renderer, $context, string $xml): string
