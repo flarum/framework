@@ -9,6 +9,7 @@
 
 namespace Flarum\Mentions;
 
+use Flarum\Group\Group;
 use Flarum\Http\UrlGenerator;
 use Flarum\Post\CommentPost;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -34,6 +35,7 @@ class ConfigureMentions
     {
         $this->configureUserMentions($config);
         $this->configurePostMentions($config);
+        $this->configureGroupMentions($config);
     }
 
     private function configureUserMentions(Configurator $config)
@@ -135,5 +137,50 @@ class ConfigureMentions
 
             return true;
         }
+    }
+
+    private function configureGroupMentions(Configurator $config)
+    {
+        $tagName = 'GROUPMENTION';
+
+        $tag = $config->tags->add($tagName);
+        $tag->attributes->add('groupname');
+        $tag->attributes->add('icon');
+        $tag->attributes->add('color');
+        $tag->attributes->add('id')->filterChain->append('#uint');
+
+        $tag->template = '
+            <xsl:choose>
+                <xsl:when test="@deleted != 1">
+                    <span class="GroupMention" style="background: {@color}">@<xsl:value-of select="@groupname"/><i class="icon {@icon}"></i></span>
+                </xsl:when>
+                <xsl:otherwise>
+                    <span class="GroupMention GroupMention--deleted" style="background: {@color}">@<xsl:value-of select="@groupname"/><i class="icon {@icon}"></i></span>
+                </xsl:otherwise>
+            </xsl:choose>';
+        $tag->filterChain->prepend([static::class, 'addGroupId'])
+            ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterGroupMentions(tag); }');
+
+        $config->Preg->match('/\B@["|“](?<groupname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#g(?<id>[0-9]+)\b/', $tagName);
+    }
+
+    /**
+     * @param $tag
+     * @return bool
+     */
+    public static function addGroupId($tag)
+    {
+        $group = Group::find($tag->getAttribute('id'));
+
+        if (isset($group) && ! in_array($group->id, [Group::GUEST_ID, Group::MEMBER_ID])) {
+            $tag->setAttribute('id', $group->id);
+            $tag->setAttribute('groupname', $group->name_plural);
+            $tag->setAttribute('icon', $group->icon ?? 'fas fa-at');
+            $tag->setAttribute('color', $group->color);
+
+            return true;
+        }
+
+        $tag->invalidate();
     }
 }

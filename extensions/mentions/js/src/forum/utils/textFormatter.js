@@ -31,3 +31,19 @@ export function filterPostMentions(tag) {
     return true;
   }
 }
+
+export function filterGroupMentions(tag) {
+  if (app.session?.user?.canMentionGroups()) {
+    const group = app.store.getById('groups', tag.getAttribute('id'));
+
+    if (group) {
+      tag.setAttribute('groupname', extractText(group.namePlural()));
+      tag.setAttribute('icon', group.icon());
+      tag.setAttribute('color', group.color());
+
+      return true;
+    }
+  }
+
+  tag.invalidate();
+}
