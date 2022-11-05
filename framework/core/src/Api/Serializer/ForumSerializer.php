@@ -15,6 +15,7 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
+use Tobscure\JsonApi\Relationship;
 
 class ForumSerializer extends AbstractSerializer
 {
@@ -68,7 +69,7 @@ class ForumSerializer extends AbstractSerializer
     /**
      * {@inheritdoc}
      */
-    protected function getDefaultAttributes($model)
+    protected function getDefaultAttributes($model): array
     {
         $attributes = [
             'title' => $this->settings->get('forum_title'),
@@ -104,9 +105,9 @@ class ForumSerializer extends AbstractSerializer
     }
 
     /**
-     * @return \Tobscure\JsonApi\Relationship
+     * @return Relationship
      */
-    protected function groups($model)
+    protected function groups($model): Relationship
     {
         return $this->hasMany($model, GroupSerializer::class);
     }
@@ -114,7 +115,7 @@ class ForumSerializer extends AbstractSerializer
     /**
      * @return null|string
      */
-    protected function getLogoUrl()
+    protected function getLogoUrl(): ?string
     {
         $logoPath = $this->settings->get('logo_path');
 
@@ -124,7 +125,7 @@ class ForumSerializer extends AbstractSerializer
     /**
      * @return null|string
      */
-    protected function getFaviconUrl()
+    protected function getFaviconUrl(): ?string
     {
         $faviconPath = $this->settings->get('favicon_path');
 
@@ -137,9 +138,9 @@ class ForumSerializer extends AbstractSerializer
     }
 
     /**
-     * @return \Tobscure\JsonApi\Relationship|null
+     * @return Relationship|null
      */
-    protected function actor($model)
+    protected function actor($model): ?Relationship
     {
         return $this->hasOne($model, CurrentUserSerializer::class);
     }
