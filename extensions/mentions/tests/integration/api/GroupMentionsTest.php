@@ -157,7 +157,7 @@ class GroupMentionsTest extends TestCase
 
         $response = json_decode($response->getBody(), true);
 
-        $this->assertStringContainsString("@Fresh Name", $response['data']['attributes']['contentHtml']);
+        $this->assertStringContainsString('@Fresh Name', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('GroupMention', $response['data']['attributes']['contentHtml']);
         $this->assertStringNotContainsString('@OldGroupName', $response['data']['attributes']['contentHtml']);
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsGroups->find(11));
