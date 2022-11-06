@@ -10,6 +10,7 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
+use Flarum\Forum\LogInValidator;
 use Flarum\Http\AccessToken;
 use Flarum\Http\RememberAccessToken;
 use Flarum\Http\Rememberer;
@@ -51,18 +52,25 @@ class LogInController implements RequestHandlerInterface
     protected $rememberer;
 
     /**
+     * @var LogInValidator
+     */
+    protected $validator;
+
+    /**
      * @param \Flarum\User\UserRepository $users
      * @param Client $apiClient
      * @param SessionAuthenticator $authenticator
      * @param Rememberer $rememberer
+     * @param LogInValidator $validator
      */
-    public function __construct(UserRepository $users, Client $apiClient, SessionAuthenticator $authenticator, Dispatcher $events, Rememberer $rememberer)
+    public function __construct(UserRepository $users, Client $apiClient, SessionAuthenticator $authenticator, Dispatcher $events, Rememberer $rememberer, LogInValidator $validator)
     {
         $this->users = $users;
         $this->apiClient = $apiClient;
         $this->authenticator = $authenticator;
         $this->events = $events;
         $this->rememberer = $rememberer;
+        $this->validator = $validator;
     }
 
     /**
@@ -73,9 +81,7 @@ class LogInController implements RequestHandlerInterface
         $body = $request->getParsedBody();
         $params = Arr::only($body, ['identification', 'password', 'remember']);
 
-        // Dispatch an event with all the provided params, except the password provided.
-        // This allows extensions to add custom validation rules, etc and check for their existence in the payload.
-        $this->events->dispatch(new LoggingIn(Arr::except($body, 'password')));
+        $this->validator->assertValid($body);
 
         $response = $this->apiClient->withParentRequest($request)->withBody($params)->post('/token');
 
