@@ -15,6 +15,7 @@ use Flarum\Http\RememberAccessToken;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\User\Event\LoggedIn;
+use Flarum\User\Event\LoggingIn;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
@@ -71,6 +72,10 @@ class LogInController implements RequestHandlerInterface
     {
         $body = $request->getParsedBody();
         $params = Arr::only($body, ['identification', 'password', 'remember']);
+
+        // Dispatch an event with all the provided params, except the password provided.
+        // This allows extensions to add custom validation rules, etc and check for their existence in the payload.
+        $this->events->dispatch(new LoggingIn(Arr::except($body, 'password')));
 
         $response = $this->apiClient->withParentRequest($request)->withBody($params)->post('/token');
 
