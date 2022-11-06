@@ -9,7 +9,7 @@ import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
 import type Mithril from 'mithril';
 import RequestError from '../../common/utils/RequestError';
-import { LoginParams } from '../../common/Session';
+import type { LoginParams } from '../../common/Session';
 
 export interface ILoginModalAttrs extends IInternalModalAttrs {
   identification?: string;
