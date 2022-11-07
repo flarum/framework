@@ -98,15 +98,39 @@
   .Button--color(@tooltip-color, @tooltip-bg);
 }
 .GroupMention {
-  color: @body-bg;
+  & when (@config-dark-mode = false) {
+    &,
+    &:hover,
+    &:active {
+      color: @text-on-light;
+    }
+  }
+  & when (@config-dark-mode = true) {
+    &,
+    &:hover,
+    &:active {
+      color: @text-on-dark;
+    }
+  }
+
+  &--light {
+    &,
+    &:hover,
+    &:active {
+      color: @text-on-light;
+    }
+  }
+
+  &--dark {
+    &,
+    &:hover,
+    &:active {
+      color: @text-on-dark;
+    }
+  }
 
   .icon {
     margin-left: 5px;
-  }
-
-  &:hover,
-  &:active {
-    color: @body-bg;
   }
 }
 .MentionsDropdown .Badge {
