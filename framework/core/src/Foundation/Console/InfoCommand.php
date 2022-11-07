@@ -86,7 +86,7 @@ class InfoCommand extends AbstractCommand
     protected function fire()
     {
         $coreVersion = $this->findPackageVersion(__DIR__.'/../../../', Application::VERSION);
-        $this->output->writeln("<info>Flarum core $coreVersion</info>");
+        $this->output->writeln("<info>Flarum core:</info> $coreVersion");
 
         $this->output->writeln('<info>PHP version:</info> '.$this->appInfo->identifyPHPVersion());
         $this->output->writeln('<info>MySQL version:</info> '.$this->appInfo->identifyDatabaseVersion());
