@@ -24,6 +24,7 @@ export default function () {
       const color = tags[0].color();
       if (color) {
         view.attrs.style = { '--hero-bg': color };
+        view.attrs.className += ' DiscussionHero--colored';
 
         if (isDark(color)) {
           view.attrs.className += ' DiscussionHero--dark';
