@@ -84,7 +84,7 @@ class GroupMentionsTest extends TestCase
 
         $response = json_decode($response->getBody(), true);
 
-        $this->assertStringContainsString('<p>One of the <span style="background:#80349E" class="GroupMention">@Mods<i class="icon fas fa-bolt"></i></span> will look at this</p>', $response['data']['attributes']['contentHtml']);
+        $this->assertStringContainsString('<p>One of the <span style="background:#80349E" class="GroupMention ">@Mods<i class="icon fas fa-bolt"></i></span> will look at this</p>', $response['data']['attributes']['contentHtml']);
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsGroups->find(4));
     }
 
