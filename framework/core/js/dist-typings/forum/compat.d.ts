@@ -112,6 +112,7 @@ declare const _default: {
     'utils/throttleDebounce': typeof import("../common/utils/throttleDebounce");
     'utils/isObject': typeof import("../common/utils/isObject").default;
     'utils/focusTrap': typeof import("../common/utils/focusTrap");
+    'utils/isDark': typeof import("../common/utils/isDark").default;
     'models/Notification': typeof import("../common/models/Notification").default;
     'models/User': typeof import("../common/models/User").default;
     'models/Post': typeof import("../common/models/Post").default;
