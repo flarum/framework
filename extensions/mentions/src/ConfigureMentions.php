@@ -174,12 +174,16 @@ class ConfigureMentions
     {
         $group = Group::find($tag->getAttribute('id'));
 
-        if (isset($group) && ! in_array($group->id, [Group::GUEST_ID, Group::MEMBER_ID])) {
+        if (isset($group) && !in_array($group->id, [Group::GUEST_ID, Group::MEMBER_ID])) {
             $tag->setAttribute('id', $group->id);
             $tag->setAttribute('groupname', $group->name_plural);
             $tag->setAttribute('icon', $group->icon ?? 'fas fa-at');
             $tag->setAttribute('color', $group->color);
-            $tag->setAttribute('class', self::isDark($group->color) ? 'GroupMention--light' : 'GroupMention--dark');
+            if (!empty($group->color)) {
+                $tag->setAttribute('class', self::isDark($group->color) ? 'GroupMention--light' : 'GroupMention--dark');
+            } else {
+                $tag->setAttribute('class', '');
+            }
 
             return true;
         }
@@ -195,7 +199,7 @@ class ConfigureMentions
      */
     public static function isDark(?string $hexColor): bool
     {
-        if (! $hexColor) {
+        if (!$hexColor) {
             return false;
         }
 

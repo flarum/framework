@@ -98,13 +98,23 @@
   .Button--color(@tooltip-color, @tooltip-bg);
 }
 .GroupMention {
-  &--light {
-    color: @text-on-light;
-
-    & when (@config-dark-mode = true) {
+  & when (@config-dark-mode = false) {
+    &,
+    &:hover,
+    &:active {
+      color: @text-on-light;
+    }
+  }
+  & when (@config-dark-mode = true) {
+    &,
+    &:hover,
+    &:active {
       color: @text-on-dark;
     }
+  }
 
+  &--light {
+    &,
     &:hover,
     &:active {
       color: @text-on-light;
@@ -112,12 +122,7 @@
   }
 
   &--dark {
-    color: @text-on-dark;
-
-    & when (@config-dark-mode = true) {
-      color: @text-on-light;
-    }
-
+    &,
     &:hover,
     &:active {
       color: @text-on-dark;
