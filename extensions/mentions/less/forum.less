@@ -98,15 +98,26 @@
   .Button--color(@tooltip-color, @tooltip-bg);
 }
 .GroupMention {
-  color: @body-bg;
+  &--light {
+    color: @text-on-light;
+
+    &:hover,
+    &:active {
+      color: @text-on-light;
+    }
+  }
+
+  &--dark {
+    color: @text-on-dark;
+
+    &:hover,
+    &:active {
+      color: @text-on-dark;
+    }
+  }
 
   .icon {
     margin-left: 5px;
-  }
-
-  &:hover,
-  &:active {
-    color: @body-bg;
   }
 }
 .MentionsDropdown .Badge {

@@ -14,6 +14,7 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Post\CommentPost;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
+use Illuminate\Support\Str;
 use s9e\TextFormatter\Configurator;
 
 class ConfigureMentions
@@ -147,12 +148,13 @@ class ConfigureMentions
         $tag->attributes->add('groupname');
         $tag->attributes->add('icon');
         $tag->attributes->add('color');
+        $tag->attributes->add('class');
         $tag->attributes->add('id')->filterChain->append('#uint');
 
         $tag->template = '
             <xsl:choose>
                 <xsl:when test="@deleted != 1">
-                    <span class="GroupMention" style="background: {@color}">@<xsl:value-of select="@groupname"/><i class="icon {@icon}"></i></span>
+                    <span class="GroupMention {@class}" style="background: {@color}">@<xsl:value-of select="@groupname"/><i class="icon {@icon}"></i></span>
                 </xsl:when>
                 <xsl:otherwise>
                     <span class="GroupMention GroupMention--deleted" style="background: {@color}">@<xsl:value-of select="@groupname"/><i class="icon {@icon}"></i></span>
@@ -177,10 +179,34 @@ class ConfigureMentions
             $tag->setAttribute('groupname', $group->name_plural);
             $tag->setAttribute('icon', $group->icon ?? 'fas fa-at');
             $tag->setAttribute('color', $group->color);
-
+            $tag->setAttribute('class', self::isDark($group->color) ? 'GroupMention--light' : 'GroupMention--dark');
             return true;
         }
 
         $tag->invalidate();
+    }
+
+    /**
+    * The `isDark` utility converts a hex color to rgb, and then calcul a YIQ
+    * value in order to get the appropriate brightness value (is it dark or is it
+    * light?) See https://www.w3.org/TR/AERT/#color-contrast for references. A YIQ
+    * value >= 128 is a light color.
+    */
+    public static function isDark(?string $hexColor): bool
+    {
+        if (!$hexColor) {
+            return false;
+        }
+        
+        $hexNumbers = Str::replace('#', '', $hexColor);
+        if (Str::length($hexNumbers) === 3) {
+            $hexNumbers += $hexNumbers;
+        }
+
+        $r = (int) Str::substr($hexNumbers, 0, 2);
+        $g = (int) Str::subStr($hexNumbers, 2, 2);
+        $b = (int) Str::subStr($hexNumbers, 4, 2);
+        $yiq = ($r * 299 + $g *587 + $b * 114) / 1000;
+        return $yiq >= 128 ? false : true;
     }
 }
