@@ -50,6 +50,7 @@ export default class StatusWidget extends DashboardWidget {
     }
 
     items.add('queue-driver', [<strong>Queue Driver</strong>, <br />, app.data.queueDriver], 60);
+    items.add('session-driver', [<strong>Session Driver</strong>, <br />, app.data.sessionDriver], 50);
 
     return items;
   }
