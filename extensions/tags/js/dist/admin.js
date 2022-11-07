@@ -1,3 +1,5360 @@
-/*! For license information please see admin.js.LICENSE.txt */
-(()=>{var t={949:(t,e,n)=>{"use strict";const o=flarum.core.compat["admin/app"];var a=n.n(o);function r(t,e){return r=Object.setPrototypeOf||function(t,e){return t.__proto__=e,t},r(t,e)}function i(t,e){t.prototype=Object.create(e.prototype),t.prototype.constructor=t,r(t,e)}const s=flarum.core.compat["common/utils/computed"];var l=n.n(s);const c=flarum.core.compat["common/Model"];var u=n.n(c),d=function(t){function e(){return t.apply(this,arguments)||this}i(e,t);var n=e.prototype;return n.name=function(){return u().attribute("name").call(this)},n.slug=function(){return u().attribute("slug").call(this)},n.description=function(){return u().attribute("description").call(this)},n.color=function(){return u().attribute("color").call(this)},n.backgroundUrl=function(){return u().attribute("backgroundUrl").call(this)},n.backgroundMode=function(){return u().attribute("backgroundMode").call(this)},n.icon=function(){return u().attribute("icon").call(this)},n.position=function(){return u().attribute("position").call(this)},n.parent=function(){return u().hasOne("parent").call(this)},n.children=function(){return u().hasMany("children").call(this)},n.defaultSort=function(){return u().attribute("defaultSort").call(this)},n.isChild=function(){return u().attribute("isChild").call(this)},n.isHidden=function(){return u().attribute("isHidden").call(this)},n.discussionCount=function(){return u().attribute("discussionCount").call(this)},n.lastPostedAt=function(){return u().attribute("lastPostedAt",u().transformDate).call(this)},n.lastPostedDiscussion=function(){return u().hasOne("lastPostedDiscussion").call(this)},n.isRestricted=function(){return u().attribute("isRestricted").call(this)},n.canStartDiscussion=function(){return u().attribute("canStartDiscussion").call(this)},n.canAddToDiscussion=function(){return u().attribute("canAddToDiscussion").call(this)},n.isPrimary=function(){return l()("position","parent",(function(t,e){return null!==t&&!1===e})).call(this)},e}(u());const p=flarum.core.compat["common/extend"],h=flarum.core.compat["admin/components/PermissionGrid"];var f=n.n(h);const g=flarum.core.compat["admin/components/PermissionDropdown"];var v=n.n(g);const b=flarum.core.compat["common/components/Dropdown"];var y=n.n(b);const _=flarum.core.compat["common/components/Button"];var w=n.n(_);const T=flarum.core.compat["common/components/LoadingIndicator"];var E=n.n(T);const D=flarum.core.compat["common/utils/extract"];var S=n.n(D);const C=flarum.core.compat["common/components/Link"];var N=n.n(C);const x=flarum.core.compat["common/utils/classList"];var O=n.n(x);function P(t,e,n){void 0===e&&(e={}),void 0===n&&(n={});var o=t&&t.icon(),a=n.useColor,r=void 0===a||a;return e.className=O()([e.className,"icon",o?t.icon():"TagIcon"]),t&&r?(e.style=e.style||{},e.style["--color"]=t.color(),o&&(e.style.color=t.color())):t||(e.className+=" untagged"),o?m("i",e):m("span",e)}function M(t,e){void 0===e&&(e={}),e.style=e.style||{},e.className="TagLabel "+(e.className||"");var n=S()(e,"link"),o=t?t.name():app.translator.trans("flarum-tags.lib.deleted_tag_text");if(t){var a=t.color();a&&(e.style["--tag-bg"]=a,e.className+=" colored"),n&&(e.title=t.description()||"",e.href=app.route("tag",{tags:t.slug()})),t.isChild()&&(e.className+=" TagLabel--child")}else e.className+=" untagged";return m(n?N():"span",e,m("span",{className:"TagLabel-text"},t&&t.icon()&&P(t,{},{useColor:!1})," ",o))}function I(t){return t.slice(0).sort((function(t,e){var n=t.position(),o=e.position();if(null===n&&null===o)return e.discussionCount()-t.discussionCount();if(null===o)return-1;if(null===n)return 1;var a=t.parent(),r=e.parent();return a===r?n-o:a&&r?a.position()-r.position():a?a===e?1:a.position()-o:r?r===t?-1:n-r.position():0}))}function A(){(0,p.extend)(f().prototype,"oninit",(function(){this.loading=!0})),(0,p.extend)(f().prototype,"oncreate",(function(){var t=this;a().store.find("tags",{}).then((function(){t.loading=!1,m.redraw()}))})),(0,p.override)(f().prototype,"view",(function(t,e){return this.loading?m(E(),null):t(e)})),(0,p.override)(a(),"getRequiredPermissions",(function(t,e){var n=e.match(/^tag\d+\./);return n?t(e.substr(n[0].length)).map((function(t){return n[0]+t})):t(e)})),(0,p.extend)(f().prototype,"scopeItems",(function(t){I(a().store.all("tags")).filter((function(t){return t.isRestricted()})).forEach((function(e){return t.add("tag"+e.id(),{label:M(e),onremove:function(){return e.save({isRestricted:!1})},render:function(t){return"setting"in t?"":"viewForum"===t.permission||"startDiscussion"===t.permission||t.permission&&0===t.permission.indexOf("discussion.")&&!1!==t.tagScoped||t.tagScoped?v().component({permission:"tag"+e.id()+"."+t.permission,allowGuest:t.allowGuest}):""}})}))})),(0,p.extend)(f().prototype,"scopeControlItems",(function(t){var e=I(a().store.all("tags").filter((function(t){return!t.isRestricted()})));e.length&&t.add("tag",m(y(),{className:"Dropdown--restrictByTag",buttonClassName:"Button Button--text",label:a().translator.trans("flarum-tags.admin.permissions.restrict_by_tag_heading"),icon:"fas fa-plus",caretIcon:null},e.map((function(t){return m(w(),{icon:!0,onclick:function(){return t.save({isRestricted:!0})}},[P(t,{className:"Button-icon"})," ",t.name()])}))))}))}function k(){app.extensionData.for("flarum-tags").registerPermission({icon:"fas fa-tag",label:app.translator.trans("flarum-tags.admin.permissions.tag_discussions_label"),permission:"discussion.tag"},"moderate",95).registerPermission({icon:"fas fa-tags",label:app.translator.trans("flarum-tags.admin.permissions.bypass_tag_counts_label"),permission:"bypassTagCounts"},"start",89)}const F=flarum.core.compat["admin/components/BasicsPage"];var L=n.n(F);function R(){(0,p.extend)(L().prototype,"homePageItems",(function(t){t.add("tags",{path:"/tags",label:app.translator.trans("flarum-tags.admin.basics.tags_label")})}))}const B=flarum.core.compat["admin/components/SettingDropdown"];var X=n.n(B);function Y(){(0,p.extend)(f().prototype,"startItems",(function(t){t.add("allowTagChange",{icon:"fas fa-tag",label:app.translator.trans("flarum-tags.admin.permissions.allow_edit_tags_label"),setting:function(){var t=parseInt(app.data.settings.allow_tag_change,10);return X().component({defaultLabel:t?app.translator.trans("core.admin.permissions_controls.allow_some_minutes_button",{count:t}):app.translator.trans("core.admin.permissions_controls.allow_indefinitely_button"),key:"allow_tag_change",options:[{value:"-1",label:app.translator.trans("core.admin.permissions_controls.allow_indefinitely_button")},{value:"10",label:app.translator.trans("core.admin.permissions_controls.allow_ten_minutes_button")},{value:"reply",label:app.translator.trans("core.admin.permissions_controls.allow_until_reply_button")}]})}},90)}))}function H(t,e){var n=Object.keys(t);if(Object.getOwnPropertySymbols){var o=Object.getOwnPropertySymbols(t);e&&(o=o.filter((function(e){return Object.getOwnPropertyDescriptor(t,e).enumerable}))),n.push.apply(n,o)}return n}function j(t){for(var e=1;e<arguments.length;e++){var n=null!=arguments[e]?arguments[e]:{};e%2?H(Object(n),!0).forEach((function(e){z(t,e,n[e])})):Object.getOwnPropertyDescriptors?Object.defineProperties(t,Object.getOwnPropertyDescriptors(n)):H(Object(n)).forEach((function(e){Object.defineProperty(t,e,Object.getOwnPropertyDescriptor(n,e))}))}return t}function W(t){return W="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(t){return typeof t}:function(t){return t&&"function"==typeof Symbol&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t},W(t)}function z(t,e,n){return e in t?Object.defineProperty(t,e,{value:n,enumerable:!0,configurable:!0,writable:!0}):t[e]=n,t}function G(){return G=Object.assign||function(t){for(var e=1;e<arguments.length;e++){var n=arguments[e];for(var o in n)Object.prototype.hasOwnProperty.call(n,o)&&(t[o]=n[o])}return t},G.apply(this,arguments)}function U(t,e){if(null==t)return{};var n,o,a=function(t,e){if(null==t)return{};var n,o,a={},r=Object.keys(t);for(o=0;o<r.length;o++)n=r[o],e.indexOf(n)>=0||(a[n]=t[n]);return a}(t,e);if(Object.getOwnPropertySymbols){var r=Object.getOwnPropertySymbols(t);for(o=0;o<r.length;o++)n=r[o],e.indexOf(n)>=0||Object.prototype.propertyIsEnumerable.call(t,n)&&(a[n]=t[n])}return a}function q(t){if("undefined"!=typeof window&&window.navigator)return!!navigator.userAgent.match(t)}var K=q(/(?:Trident.*rv[ :]?11\.|msie|iemobile|Windows Phone)/i),V=q(/Edge/i),Z=q(/firefox/i),Q=q(/safari/i)&&!q(/chrome/i)&&!q(/android/i),J=q(/iP(ad|od|hone)/i),tt=q(/chrome/i)&&q(/android/i),et={capture:!1,passive:!1};function nt(t,e,n){t.addEventListener(e,n,!K&&et)}function ot(t,e,n){t.removeEventListener(e,n,!K&&et)}function at(t,e){if(e){if(">"===e[0]&&(e=e.substring(1)),t)try{if(t.matches)return t.matches(e);if(t.msMatchesSelector)return t.msMatchesSelector(e);if(t.webkitMatchesSelector)return t.webkitMatchesSelector(e)}catch(t){return!1}return!1}}function rt(t){return t.host&&t!==document&&t.host.nodeType?t.host:t.parentNode}function it(t,e,n,o){if(t){n=n||document;do{if(null!=e&&(">"===e[0]?t.parentNode===n&&at(t,e):at(t,e))||o&&t===n)return t;if(t===n)break}while(t=rt(t))}return null}var st,lt=/\s+/g;function ct(t,e,n){if(t&&e)if(t.classList)t.classList[n?"add":"remove"](e);else{var o=(" "+t.className+" ").replace(lt," ").replace(" "+e+" "," ");t.className=(o+(n?" "+e:"")).replace(lt," ")}}function ut(t,e,n){var o=t&&t.style;if(o){if(void 0===n)return document.defaultView&&document.defaultView.getComputedStyle?n=document.defaultView.getComputedStyle(t,""):t.currentStyle&&(n=t.currentStyle),void 0===e?n:n[e];e in o||-1!==e.indexOf("webkit")||(e="-webkit-"+e),o[e]=n+("string"==typeof n?"":"px")}}function dt(t,e){var n="";if("string"==typeof t)n=t;else do{var o=ut(t,"transform");o&&"none"!==o&&(n=o+" "+n)}while(!e&&(t=t.parentNode));var a=window.DOMMatrix||window.WebKitCSSMatrix||window.CSSMatrix||window.MSCSSMatrix;return a&&new a(n)}function mt(t,e,n){if(t){var o=t.getElementsByTagName(e),a=0,r=o.length;if(n)for(;a<r;a++)n(o[a],a);return o}return[]}function pt(){return document.scrollingElement||document.documentElement}function ht(t,e,n,o,a){if(t.getBoundingClientRect||t===window){var r,i,s,l,c,u,d;if(t!==window&&t.parentNode&&t!==pt()?(i=(r=t.getBoundingClientRect()).top,s=r.left,l=r.bottom,c=r.right,u=r.height,d=r.width):(i=0,s=0,l=window.innerHeight,c=window.innerWidth,u=window.innerHeight,d=window.innerWidth),(e||n)&&t!==window&&(a=a||t.parentNode,!K))do{if(a&&a.getBoundingClientRect&&("none"!==ut(a,"transform")||n&&"static"!==ut(a,"position"))){var m=a.getBoundingClientRect();i-=m.top+parseInt(ut(a,"border-top-width")),s-=m.left+parseInt(ut(a,"border-left-width")),l=i+r.height,c=s+r.width;break}}while(a=a.parentNode);if(o&&t!==window){var p=dt(a||t),h=p&&p.a,f=p&&p.d;p&&(l=(i/=f)+(u/=f),c=(s/=h)+(d/=h))}return{top:i,left:s,bottom:l,right:c,width:d,height:u}}}function ft(t,e,n){for(var o=_t(t,!0),a=ht(t)[e];o;){var r=ht(o)[n];if(!("top"===n||"left"===n?a>=r:a<=r))return o;if(o===pt())break;o=_t(o,!1)}return!1}function gt(t,e,n,o){for(var a=0,r=0,i=t.children;r<i.length;){if("none"!==i[r].style.display&&i[r]!==Te.ghost&&(o||i[r]!==Te.dragged)&&it(i[r],n.draggable,t,!1)){if(a===e)return i[r];a++}r++}return null}function vt(t,e){for(var n=t.lastElementChild;n&&(n===Te.ghost||"none"===ut(n,"display")||e&&!at(n,e));)n=n.previousElementSibling;return n||null}function bt(t,e){var n=0;if(!t||!t.parentNode)return-1;for(;t=t.previousElementSibling;)"TEMPLATE"===t.nodeName.toUpperCase()||t===Te.clone||e&&!at(t,e)||n++;return n}function yt(t){var e=0,n=0,o=pt();if(t)do{var a=dt(t),r=a.a,i=a.d;e+=t.scrollLeft*r,n+=t.scrollTop*i}while(t!==o&&(t=t.parentNode));return[e,n]}function _t(t,e){if(!t||!t.getBoundingClientRect)return pt();var n=t,o=!1;do{if(n.clientWidth<n.scrollWidth||n.clientHeight<n.scrollHeight){var a=ut(n);if(n.clientWidth<n.scrollWidth&&("auto"==a.overflowX||"scroll"==a.overflowX)||n.clientHeight<n.scrollHeight&&("auto"==a.overflowY||"scroll"==a.overflowY)){if(!n.getBoundingClientRect||n===document.body)return pt();if(o||e)return n;o=!0}}}while(n=n.parentNode);return pt()}function wt(t,e){return Math.round(t.top)===Math.round(e.top)&&Math.round(t.left)===Math.round(e.left)&&Math.round(t.height)===Math.round(e.height)&&Math.round(t.width)===Math.round(e.width)}function Tt(t,e){return function(){if(!st){var n=arguments,o=this;1===n.length?t.call(o,n[0]):t.apply(o,n),st=setTimeout((function(){st=void 0}),e)}}}function Et(t,e,n){t.scrollLeft+=e,t.scrollTop+=n}function Dt(t){var e=window.Polymer,n=window.jQuery||window.Zepto;return e&&e.dom?e.dom(t).cloneNode(!0):n?n(t).clone(!0)[0]:t.cloneNode(!0)}var St="Sortable"+(new Date).getTime();var Ct=[],Nt={initializeByDefault:!0},xt={mount:function(t){for(var e in Nt)Nt.hasOwnProperty(e)&&!(e in t)&&(t[e]=Nt[e]);Ct.forEach((function(e){if(e.pluginName===t.pluginName)throw"Sortable: Cannot mount plugin ".concat(t.pluginName," more than once")})),Ct.push(t)},pluginEvent:function(t,e,n){var o=this;this.eventCanceled=!1,n.cancel=function(){o.eventCanceled=!0};var a=t+"Global";Ct.forEach((function(o){e[o.pluginName]&&(e[o.pluginName][a]&&e[o.pluginName][a](j({sortable:e},n)),e.options[o.pluginName]&&e[o.pluginName][t]&&e[o.pluginName][t](j({sortable:e},n)))}))},initializePlugins:function(t,e,n,o){for(var a in Ct.forEach((function(o){var a=o.pluginName;if(t.options[a]||o.initializeByDefault){var r=new o(t,e,t.options);r.sortable=t,r.options=t.options,t[a]=r,G(n,r.defaults)}})),t.options)if(t.options.hasOwnProperty(a)){var r=this.modifyOption(t,a,t.options[a]);void 0!==r&&(t.options[a]=r)}},getEventProperties:function(t,e){var n={};return Ct.forEach((function(o){"function"==typeof o.eventProperties&&G(n,o.eventProperties.call(e[o.pluginName],t))})),n},modifyOption:function(t,e,n){var o;return Ct.forEach((function(a){t[a.pluginName]&&a.optionListeners&&"function"==typeof a.optionListeners[e]&&(o=a.optionListeners[e].call(t[a.pluginName],n))})),o}};var Ot=["evt"],Pt=function(t,e){var n=arguments.length>2&&void 0!==arguments[2]?arguments[2]:{},o=n.evt,a=U(n,Ot);xt.pluginEvent.bind(Te)(t,e,j({dragEl:It,parentEl:At,ghostEl:kt,rootEl:Ft,nextEl:Lt,lastDownEl:Rt,cloneEl:Bt,cloneHidden:Xt,dragStarted:Qt,putSortable:Gt,activeSortable:Te.active,originalEvent:o,oldIndex:Yt,oldDraggableIndex:jt,newIndex:Ht,newDraggableIndex:Wt,hideGhostForTarget:be,unhideGhostForTarget:ye,cloneNowHidden:function(){Xt=!0},cloneNowShown:function(){Xt=!1},dispatchSortableEvent:function(t){Mt({sortable:e,name:t,originalEvent:o})}},a))};function Mt(t){!function(t){var e=t.sortable,n=t.rootEl,o=t.name,a=t.targetEl,r=t.cloneEl,i=t.toEl,s=t.fromEl,l=t.oldIndex,c=t.newIndex,u=t.oldDraggableIndex,d=t.newDraggableIndex,m=t.originalEvent,p=t.putSortable,h=t.extraEventProperties;if(e=e||n&&n[St]){var f,g=e.options,v="on"+o.charAt(0).toUpperCase()+o.substr(1);!window.CustomEvent||K||V?(f=document.createEvent("Event")).initEvent(o,!0,!0):f=new CustomEvent(o,{bubbles:!0,cancelable:!0}),f.to=i||n,f.from=s||n,f.item=a||n,f.clone=r,f.oldIndex=l,f.newIndex=c,f.oldDraggableIndex=u,f.newDraggableIndex=d,f.originalEvent=m,f.pullMode=p?p.lastPutMode:void 0;var b=j(j({},h),xt.getEventProperties(o,e));for(var y in b)f[y]=b[y];n&&n.dispatchEvent(f),g[v]&&g[v].call(e,f)}}(j({putSortable:Gt,cloneEl:Bt,targetEl:It,rootEl:Ft,oldIndex:Yt,oldDraggableIndex:jt,newIndex:Ht,newDraggableIndex:Wt},t))}var It,At,kt,Ft,Lt,Rt,Bt,Xt,Yt,Ht,jt,Wt,zt,Gt,Ut,qt,$t,Kt,Vt,Zt,Qt,Jt,te,ee,ne,oe=!1,ae=!1,re=[],ie=!1,se=!1,le=[],ce=!1,ue=[],de="undefined"!=typeof document,me=J,pe=V||K?"cssFloat":"float",he=de&&!tt&&!J&&"draggable"in document.createElement("div"),fe=function(){if(de){if(K)return!1;var t=document.createElement("x");return t.style.cssText="pointer-events:auto","auto"===t.style.pointerEvents}}(),ge=function(t,e){var n=ut(t),o=parseInt(n.width)-parseInt(n.paddingLeft)-parseInt(n.paddingRight)-parseInt(n.borderLeftWidth)-parseInt(n.borderRightWidth),a=gt(t,0,e),r=gt(t,1,e),i=a&&ut(a),s=r&&ut(r),l=i&&parseInt(i.marginLeft)+parseInt(i.marginRight)+ht(a).width,c=s&&parseInt(s.marginLeft)+parseInt(s.marginRight)+ht(r).width;if("flex"===n.display)return"column"===n.flexDirection||"column-reverse"===n.flexDirection?"vertical":"horizontal";if("grid"===n.display)return n.gridTemplateColumns.split(" ").length<=1?"vertical":"horizontal";if(a&&i.float&&"none"!==i.float){var u="left"===i.float?"left":"right";return!r||"both"!==s.clear&&s.clear!==u?"horizontal":"vertical"}return a&&("block"===i.display||"flex"===i.display||"table"===i.display||"grid"===i.display||l>=o&&"none"===n[pe]||r&&"none"===n[pe]&&l+c>o)?"vertical":"horizontal"},ve=function(t){function e(t,n){return function(o,a,r,i){var s=o.options.group.name&&a.options.group.name&&o.options.group.name===a.options.group.name;if(null==t&&(n||s))return!0;if(null==t||!1===t)return!1;if(n&&"clone"===t)return t;if("function"==typeof t)return e(t(o,a,r,i),n)(o,a,r,i);var l=(n?o:a).options.group.name;return!0===t||"string"==typeof t&&t===l||t.join&&t.indexOf(l)>-1}}var n={},o=t.group;o&&"object"==W(o)||(o={name:o}),n.name=o.name,n.checkPull=e(o.pull,!0),n.checkPut=e(o.put),n.revertClone=o.revertClone,t.group=n},be=function(){!fe&&kt&&ut(kt,"display","none")},ye=function(){!fe&&kt&&ut(kt,"display","")};de&&document.addEventListener("click",(function(t){if(ae)return t.preventDefault(),t.stopPropagation&&t.stopPropagation(),t.stopImmediatePropagation&&t.stopImmediatePropagation(),ae=!1,!1}),!0);var _e=function(t){if(It){t=t.touches?t.touches[0]:t;var e=(a=t.clientX,r=t.clientY,re.some((function(t){var e=t[St].options.emptyInsertThreshold;if(e&&!vt(t)){var n=ht(t),o=a>=n.left-e&&a<=n.right+e,s=r>=n.top-e&&r<=n.bottom+e;return o&&s?i=t:void 0}})),i);if(e){var n={};for(var o in t)t.hasOwnProperty(o)&&(n[o]=t[o]);n.target=n.rootEl=e,n.preventDefault=void 0,n.stopPropagation=void 0,e[St]._onDragOver(n)}}var a,r,i},we=function(t){It&&It.parentNode[St]._isOutsideThisEl(t.target)};function Te(t,e){if(!t||!t.nodeType||1!==t.nodeType)throw"Sortable: `el` must be an HTMLElement, not ".concat({}.toString.call(t));this.el=t,this.options=e=G({},e),t[St]=this;var n,o,a={group:null,sort:!0,disabled:!1,store:null,handle:null,draggable:/^[uo]l$/i.test(t.nodeName)?">li":">*",swapThreshold:1,invertSwap:!1,invertedSwapThreshold:null,removeCloneOnHide:!0,direction:function(){return ge(t,this.options)},ghostClass:"sortable-ghost",chosenClass:"sortable-chosen",dragClass:"sortable-drag",ignore:"a, img",filter:null,preventOnFilter:!0,animation:0,easing:null,setData:function(t,e){t.setData("Text",e.textContent)},dropBubble:!1,dragoverBubble:!1,dataIdAttr:"data-id",delay:0,delayOnTouchOnly:!1,touchStartThreshold:(Number.parseInt?Number:window).parseInt(window.devicePixelRatio,10)||1,forceFallback:!1,fallbackClass:"sortable-fallback",fallbackOnBody:!1,fallbackTolerance:0,fallbackOffset:{x:0,y:0},supportPointer:!1!==Te.supportPointer&&"PointerEvent"in window&&!Q,emptyInsertThreshold:5};for(var r in xt.initializePlugins(this,t,a),a)!(r in e)&&(e[r]=a[r]);for(var i in ve(e),this)"_"===i.charAt(0)&&"function"==typeof this[i]&&(this[i]=this[i].bind(this));this.nativeDraggable=!e.forceFallback&&he,this.nativeDraggable&&(this.options.touchStartThreshold=1),e.supportPointer?nt(t,"pointerdown",this._onTapStart):(nt(t,"mousedown",this._onTapStart),nt(t,"touchstart",this._onTapStart)),this.nativeDraggable&&(nt(t,"dragover",this),nt(t,"dragenter",this)),re.push(this.el),e.store&&e.store.get&&this.sort(e.store.get(this)||[]),G(this,(o=[],{captureAnimationState:function(){o=[],this.options.animation&&[].slice.call(this.el.children).forEach((function(t){if("none"!==ut(t,"display")&&t!==Te.ghost){o.push({target:t,rect:ht(t)});var e=j({},o[o.length-1].rect);if(t.thisAnimationDuration){var n=dt(t,!0);n&&(e.top-=n.f,e.left-=n.e)}t.fromRect=e}}))},addAnimationState:function(t){o.push(t)},removeAnimationState:function(t){o.splice(function(t,e){for(var n in t)if(t.hasOwnProperty(n))for(var o in e)if(e.hasOwnProperty(o)&&e[o]===t[n][o])return Number(n);return-1}(o,{target:t}),1)},animateAll:function(t){var e=this;if(!this.options.animation)return clearTimeout(n),void("function"==typeof t&&t());var a=!1,r=0;o.forEach((function(t){var n=0,o=t.target,i=o.fromRect,s=ht(o),l=o.prevFromRect,c=o.prevToRect,u=t.rect,d=dt(o,!0);d&&(s.top-=d.f,s.left-=d.e),o.toRect=s,o.thisAnimationDuration&&wt(l,s)&&!wt(i,s)&&(u.top-s.top)/(u.left-s.left)==(i.top-s.top)/(i.left-s.left)&&(n=function(t,e,n,o){return Math.sqrt(Math.pow(e.top-t.top,2)+Math.pow(e.left-t.left,2))/Math.sqrt(Math.pow(e.top-n.top,2)+Math.pow(e.left-n.left,2))*o.animation}(u,l,c,e.options)),wt(s,i)||(o.prevFromRect=i,o.prevToRect=s,n||(n=e.options.animation),e.animate(o,u,s,n)),n&&(a=!0,r=Math.max(r,n),clearTimeout(o.animationResetTimer),o.animationResetTimer=setTimeout((function(){o.animationTime=0,o.prevFromRect=null,o.fromRect=null,o.prevToRect=null,o.thisAnimationDuration=null}),n),o.thisAnimationDuration=n)})),clearTimeout(n),a?n=setTimeout((function(){"function"==typeof t&&t()}),r):"function"==typeof t&&t(),o=[]},animate:function(t,e,n,o){if(o){ut(t,"transition",""),ut(t,"transform","");var a=dt(this.el),r=a&&a.a,i=a&&a.d,s=(e.left-n.left)/(r||1),l=(e.top-n.top)/(i||1);t.animatingX=!!s,t.animatingY=!!l,ut(t,"transform","translate3d("+s+"px,"+l+"px,0)"),this.forRepaintDummy=function(t){return t.offsetWidth}(t),ut(t,"transition","transform "+o+"ms"+(this.options.easing?" "+this.options.easing:"")),ut(t,"transform","translate3d(0,0,0)"),"number"==typeof t.animated&&clearTimeout(t.animated),t.animated=setTimeout((function(){ut(t,"transition",""),ut(t,"transform",""),t.animated=!1,t.animatingX=!1,t.animatingY=!1}),o)}}}))}function Ee(t,e,n,o,a,r,i,s){var l,c,u=t[St],d=u.options.onMove;return!window.CustomEvent||K||V?(l=document.createEvent("Event")).initEvent("move",!0,!0):l=new CustomEvent("move",{bubbles:!0,cancelable:!0}),l.to=e,l.from=t,l.dragged=n,l.draggedRect=o,l.related=a||e,l.relatedRect=r||ht(e),l.willInsertAfter=s,l.originalEvent=i,t.dispatchEvent(l),d&&(c=d.call(u,l,i)),c}function De(t){t.draggable=!1}function Se(){ce=!1}function Ce(t){for(var e=t.tagName+t.className+t.src+t.href+t.textContent,n=e.length,o=0;n--;)o+=e.charCodeAt(n);return o.toString(36)}function Ne(t){return setTimeout(t,0)}function xe(t){return clearTimeout(t)}Te.prototype={constructor:Te,_isOutsideThisEl:function(t){this.el.contains(t)||t===this.el||(Jt=null)},_getDirection:function(t,e){return"function"==typeof this.options.direction?this.options.direction.call(this,t,e,It):this.options.direction},_onTapStart:function(t){if(t.cancelable){var e=this,n=this.el,o=this.options,a=o.preventOnFilter,r=t.type,i=t.touches&&t.touches[0]||t.pointerType&&"touch"===t.pointerType&&t,s=(i||t).target,l=t.target.shadowRoot&&(t.path&&t.path[0]||t.composedPath&&t.composedPath()[0])||s,c=o.filter;if(function(t){ue.length=0;for(var e=t.getElementsByTagName("input"),n=e.length;n--;){var o=e[n];o.checked&&ue.push(o)}}(n),!It&&!(/mousedown|pointerdown/.test(r)&&0!==t.button||o.disabled)&&!l.isContentEditable&&(this.nativeDraggable||!Q||!s||"SELECT"!==s.tagName.toUpperCase())&&!((s=it(s,o.draggable,n,!1))&&s.animated||Rt===s)){if(Yt=bt(s),jt=bt(s,o.draggable),"function"==typeof c){if(c.call(this,t,s,this))return Mt({sortable:e,rootEl:l,name:"filter",targetEl:s,toEl:n,fromEl:n}),Pt("filter",e,{evt:t}),void(a&&t.cancelable&&t.preventDefault())}else if(c&&(c=c.split(",").some((function(o){if(o=it(l,o.trim(),n,!1))return Mt({sortable:e,rootEl:o,name:"filter",targetEl:s,fromEl:n,toEl:n}),Pt("filter",e,{evt:t}),!0}))))return void(a&&t.cancelable&&t.preventDefault());o.handle&&!it(l,o.handle,n,!1)||this._prepareDragStart(t,i,s)}}},_prepareDragStart:function(t,e,n){var o,a=this,r=a.el,i=a.options,s=r.ownerDocument;if(n&&!It&&n.parentNode===r){var l=ht(n);if(Ft=r,At=(It=n).parentNode,Lt=It.nextSibling,Rt=n,zt=i.group,Te.dragged=It,Ut={target:It,clientX:(e||t).clientX,clientY:(e||t).clientY},Vt=Ut.clientX-l.left,Zt=Ut.clientY-l.top,this._lastX=(e||t).clientX,this._lastY=(e||t).clientY,It.style["will-change"]="all",o=function(){Pt("delayEnded",a,{evt:t}),Te.eventCanceled?a._onDrop():(a._disableDelayedDragEvents(),!Z&&a.nativeDraggable&&(It.draggable=!0),a._triggerDragStart(t,e),Mt({sortable:a,name:"choose",originalEvent:t}),ct(It,i.chosenClass,!0))},i.ignore.split(",").forEach((function(t){mt(It,t.trim(),De)})),nt(s,"dragover",_e),nt(s,"mousemove",_e),nt(s,"touchmove",_e),nt(s,"mouseup",a._onDrop),nt(s,"touchend",a._onDrop),nt(s,"touchcancel",a._onDrop),Z&&this.nativeDraggable&&(this.options.touchStartThreshold=4,It.draggable=!0),Pt("delayStart",this,{evt:t}),!i.delay||i.delayOnTouchOnly&&!e||this.nativeDraggable&&(V||K))o();else{if(Te.eventCanceled)return void this._onDrop();nt(s,"mouseup",a._disableDelayedDrag),nt(s,"touchend",a._disableDelayedDrag),nt(s,"touchcancel",a._disableDelayedDrag),nt(s,"mousemove",a._delayedDragTouchMoveHandler),nt(s,"touchmove",a._delayedDragTouchMoveHandler),i.supportPointer&&nt(s,"pointermove",a._delayedDragTouchMoveHandler),a._dragStartTimer=setTimeout(o,i.delay)}}},_delayedDragTouchMoveHandler:function(t){var e=t.touches?t.touches[0]:t;Math.max(Math.abs(e.clientX-this._lastX),Math.abs(e.clientY-this._lastY))>=Math.floor(this.options.touchStartThreshold/(this.nativeDraggable&&window.devicePixelRatio||1))&&this._disableDelayedDrag()},_disableDelayedDrag:function(){It&&De(It),clearTimeout(this._dragStartTimer),this._disableDelayedDragEvents()},_disableDelayedDragEvents:function(){var t=this.el.ownerDocument;ot(t,"mouseup",this._disableDelayedDrag),ot(t,"touchend",this._disableDelayedDrag),ot(t,"touchcancel",this._disableDelayedDrag),ot(t,"mousemove",this._delayedDragTouchMoveHandler),ot(t,"touchmove",this._delayedDragTouchMoveHandler),ot(t,"pointermove",this._delayedDragTouchMoveHandler)},_triggerDragStart:function(t,e){e=e||"touch"==t.pointerType&&t,!this.nativeDraggable||e?this.options.supportPointer?nt(document,"pointermove",this._onTouchMove):nt(document,e?"touchmove":"mousemove",this._onTouchMove):(nt(It,"dragend",this),nt(Ft,"dragstart",this._onDragStart));try{document.selection?Ne((function(){document.selection.empty()})):window.getSelection().removeAllRanges()}catch(t){}},_dragStarted:function(t,e){if(oe=!1,Ft&&It){Pt("dragStarted",this,{evt:e}),this.nativeDraggable&&nt(document,"dragover",we);var n=this.options;!t&&ct(It,n.dragClass,!1),ct(It,n.ghostClass,!0),Te.active=this,t&&this._appendGhost(),Mt({sortable:this,name:"start",originalEvent:e})}else this._nulling()},_emulateDragOver:function(){if(qt){this._lastX=qt.clientX,this._lastY=qt.clientY,be();for(var t=document.elementFromPoint(qt.clientX,qt.clientY),e=t;t&&t.shadowRoot&&(t=t.shadowRoot.elementFromPoint(qt.clientX,qt.clientY))!==e;)e=t;if(It.parentNode[St]._isOutsideThisEl(t),e)do{if(e[St]&&e[St]._onDragOver({clientX:qt.clientX,clientY:qt.clientY,target:t,rootEl:e})&&!this.options.dragoverBubble)break;t=e}while(e=e.parentNode);ye()}},_onTouchMove:function(t){if(Ut){var e=this.options,n=e.fallbackTolerance,o=e.fallbackOffset,a=t.touches?t.touches[0]:t,r=kt&&dt(kt,!0),i=kt&&r&&r.a,s=kt&&r&&r.d,l=me&&ne&&yt(ne),c=(a.clientX-Ut.clientX+o.x)/(i||1)+(l?l[0]-le[0]:0)/(i||1),u=(a.clientY-Ut.clientY+o.y)/(s||1)+(l?l[1]-le[1]:0)/(s||1);if(!Te.active&&!oe){if(n&&Math.max(Math.abs(a.clientX-this._lastX),Math.abs(a.clientY-this._lastY))<n)return;this._onDragStart(t,!0)}if(kt){r?(r.e+=c-($t||0),r.f+=u-(Kt||0)):r={a:1,b:0,c:0,d:1,e:c,f:u};var d="matrix(".concat(r.a,",").concat(r.b,",").concat(r.c,",").concat(r.d,",").concat(r.e,",").concat(r.f,")");ut(kt,"webkitTransform",d),ut(kt,"mozTransform",d),ut(kt,"msTransform",d),ut(kt,"transform",d),$t=c,Kt=u,qt=a}t.cancelable&&t.preventDefault()}},_appendGhost:function(){if(!kt){var t=this.options.fallbackOnBody?document.body:Ft,e=ht(It,!0,me,!0,t),n=this.options;if(me){for(ne=t;"static"===ut(ne,"position")&&"none"===ut(ne,"transform")&&ne!==document;)ne=ne.parentNode;ne!==document.body&&ne!==document.documentElement?(ne===document&&(ne=pt()),e.top+=ne.scrollTop,e.left+=ne.scrollLeft):ne=pt(),le=yt(ne)}ct(kt=It.cloneNode(!0),n.ghostClass,!1),ct(kt,n.fallbackClass,!0),ct(kt,n.dragClass,!0),ut(kt,"transition",""),ut(kt,"transform",""),ut(kt,"box-sizing","border-box"),ut(kt,"margin",0),ut(kt,"top",e.top),ut(kt,"left",e.left),ut(kt,"width",e.width),ut(kt,"height",e.height),ut(kt,"opacity","0.8"),ut(kt,"position",me?"absolute":"fixed"),ut(kt,"zIndex","100000"),ut(kt,"pointerEvents","none"),Te.ghost=kt,t.appendChild(kt),ut(kt,"transform-origin",Vt/parseInt(kt.style.width)*100+"% "+Zt/parseInt(kt.style.height)*100+"%")}},_onDragStart:function(t,e){var n=this,o=t.dataTransfer,a=n.options;Pt("dragStart",this,{evt:t}),Te.eventCanceled?this._onDrop():(Pt("setupClone",this),Te.eventCanceled||((Bt=Dt(It)).draggable=!1,Bt.style["will-change"]="",this._hideClone(),ct(Bt,this.options.chosenClass,!1),Te.clone=Bt),n.cloneId=Ne((function(){Pt("clone",n),Te.eventCanceled||(n.options.removeCloneOnHide||Ft.insertBefore(Bt,It),n._hideClone(),Mt({sortable:n,name:"clone"}))})),!e&&ct(It,a.dragClass,!0),e?(ae=!0,n._loopId=setInterval(n._emulateDragOver,50)):(ot(document,"mouseup",n._onDrop),ot(document,"touchend",n._onDrop),ot(document,"touchcancel",n._onDrop),o&&(o.effectAllowed="move",a.setData&&a.setData.call(n,o,It)),nt(document,"drop",n),ut(It,"transform","translateZ(0)")),oe=!0,n._dragStartId=Ne(n._dragStarted.bind(n,e,t)),nt(document,"selectstart",n),Qt=!0,Q&&ut(document.body,"user-select","none"))},_onDragOver:function(t){var e,n,o,a,r=this.el,i=t.target,s=this.options,l=s.group,c=Te.active,u=zt===l,d=s.sort,m=Gt||c,p=this,h=!1;if(!ce){if(void 0!==t.preventDefault&&t.cancelable&&t.preventDefault(),i=it(i,s.draggable,r,!0),O("dragOver"),Te.eventCanceled)return h;if(It.contains(t.target)||i.animated&&i.animatingX&&i.animatingY||p._ignoreWhileAnimating===i)return M(!1);if(ae=!1,c&&!s.disabled&&(u?d||(o=At!==Ft):Gt===this||(this.lastPutMode=zt.checkPull(this,c,It,t))&&l.checkPut(this,c,It,t))){if(a="vertical"===this._getDirection(t,i),e=ht(It),O("dragOverValid"),Te.eventCanceled)return h;if(o)return At=Ft,P(),this._hideClone(),O("revert"),Te.eventCanceled||(Lt?Ft.insertBefore(It,Lt):Ft.appendChild(It)),M(!0);var f=vt(r,s.draggable);if(!f||function(t,e,n){var o=ht(vt(n.el,n.options.draggable));return e?t.clientX>o.right+10||t.clientX<=o.right&&t.clientY>o.bottom&&t.clientX>=o.left:t.clientX>o.right&&t.clientY>o.top||t.clientX<=o.right&&t.clientY>o.bottom+10}(t,a,this)&&!f.animated){if(f===It)return M(!1);if(f&&r===t.target&&(i=f),i&&(n=ht(i)),!1!==Ee(Ft,r,It,e,i,n,t,!!i))return P(),r.appendChild(It),At=r,I(),M(!0)}else if(f&&function(t,e,n){var o=ht(gt(n.el,0,n.options,!0));return e?t.clientX<o.left-10||t.clientY<o.top&&t.clientX<o.right:t.clientY<o.top-10||t.clientY<o.bottom&&t.clientX<o.left}(t,a,this)){var g=gt(r,0,s,!0);if(g===It)return M(!1);if(n=ht(i=g),!1!==Ee(Ft,r,It,e,i,n,t,!1))return P(),r.insertBefore(It,g),At=r,I(),M(!0)}else if(i.parentNode===r){n=ht(i);var v,b,y,_=It.parentNode!==r,w=!function(t,e,n){var o=n?t.left:t.top,a=n?t.right:t.bottom,r=n?t.width:t.height,i=n?e.left:e.top,s=n?e.right:e.bottom,l=n?e.width:e.height;return o===i||a===s||o+r/2===i+l/2}(It.animated&&It.toRect||e,i.animated&&i.toRect||n,a),T=a?"top":"left",E=ft(i,"top","top")||ft(It,"top","top"),D=E?E.scrollTop:void 0;if(Jt!==i&&(b=n[T],ie=!1,se=!w&&s.invertSwap||_),v=function(t,e,n,o,a,r,i,s){var l=o?t.clientY:t.clientX,c=o?n.height:n.width,u=o?n.top:n.left,d=o?n.bottom:n.right,m=!1;if(!i)if(s&&ee<c*a){if(!ie&&(1===te?l>u+c*r/2:l<d-c*r/2)&&(ie=!0),ie)m=!0;else if(1===te?l<u+ee:l>d-ee)return-te}else if(l>u+c*(1-a)/2&&l<d-c*(1-a)/2)return function(t){return bt(It)<bt(t)?1:-1}(e);return(m=m||i)&&(l<u+c*r/2||l>d-c*r/2)?l>u+c/2?1:-1:0}(t,i,n,a,w?1:s.swapThreshold,null==s.invertedSwapThreshold?s.swapThreshold:s.invertedSwapThreshold,se,Jt===i),0!==v){var S=bt(It);do{S-=v,y=At.children[S]}while(y&&("none"===ut(y,"display")||y===kt))}if(0===v||y===i)return M(!1);Jt=i,te=v;var C=i.nextElementSibling,N=!1,x=Ee(Ft,r,It,e,i,n,t,N=1===v);if(!1!==x)return 1!==x&&-1!==x||(N=1===x),ce=!0,setTimeout(Se,30),P(),N&&!C?r.appendChild(It):i.parentNode.insertBefore(It,N?C:i),E&&Et(E,0,D-E.scrollTop),At=It.parentNode,void 0===b||se||(ee=Math.abs(b-ht(i)[T])),I(),M(!0)}if(r.contains(It))return M(!1)}return!1}function O(s,l){Pt(s,p,j({evt:t,isOwner:u,axis:a?"vertical":"horizontal",revert:o,dragRect:e,targetRect:n,canSort:d,fromSortable:m,target:i,completed:M,onMove:function(n,o){return Ee(Ft,r,It,e,n,ht(n),t,o)},changed:I},l))}function P(){O("dragOverAnimationCapture"),p.captureAnimationState(),p!==m&&m.captureAnimationState()}function M(e){return O("dragOverCompleted",{insertion:e}),e&&(u?c._hideClone():c._showClone(p),p!==m&&(ct(It,Gt?Gt.options.ghostClass:c.options.ghostClass,!1),ct(It,s.ghostClass,!0)),Gt!==p&&p!==Te.active?Gt=p:p===Te.active&&Gt&&(Gt=null),m===p&&(p._ignoreWhileAnimating=i),p.animateAll((function(){O("dragOverAnimationComplete"),p._ignoreWhileAnimating=null})),p!==m&&(m.animateAll(),m._ignoreWhileAnimating=null)),(i===It&&!It.animated||i===r&&!i.animated)&&(Jt=null),s.dragoverBubble||t.rootEl||i===document||(It.parentNode[St]._isOutsideThisEl(t.target),!e&&_e(t)),!s.dragoverBubble&&t.stopPropagation&&t.stopPropagation(),h=!0}function I(){Ht=bt(It),Wt=bt(It,s.draggable),Mt({sortable:p,name:"change",toEl:r,newIndex:Ht,newDraggableIndex:Wt,originalEvent:t})}},_ignoreWhileAnimating:null,_offMoveEvents:function(){ot(document,"mousemove",this._onTouchMove),ot(document,"touchmove",this._onTouchMove),ot(document,"pointermove",this._onTouchMove),ot(document,"dragover",_e),ot(document,"mousemove",_e),ot(document,"touchmove",_e)},_offUpEvents:function(){var t=this.el.ownerDocument;ot(t,"mouseup",this._onDrop),ot(t,"touchend",this._onDrop),ot(t,"pointerup",this._onDrop),ot(t,"touchcancel",this._onDrop),ot(document,"selectstart",this)},_onDrop:function(t){var e=this.el,n=this.options;Ht=bt(It),Wt=bt(It,n.draggable),Pt("drop",this,{evt:t}),At=It&&It.parentNode,Ht=bt(It),Wt=bt(It,n.draggable),Te.eventCanceled||(oe=!1,se=!1,ie=!1,clearInterval(this._loopId),clearTimeout(this._dragStartTimer),xe(this.cloneId),xe(this._dragStartId),this.nativeDraggable&&(ot(document,"drop",this),ot(e,"dragstart",this._onDragStart)),this._offMoveEvents(),this._offUpEvents(),Q&&ut(document.body,"user-select",""),ut(It,"transform",""),t&&(Qt&&(t.cancelable&&t.preventDefault(),!n.dropBubble&&t.stopPropagation()),kt&&kt.parentNode&&kt.parentNode.removeChild(kt),(Ft===At||Gt&&"clone"!==Gt.lastPutMode)&&Bt&&Bt.parentNode&&Bt.parentNode.removeChild(Bt),It&&(this.nativeDraggable&&ot(It,"dragend",this),De(It),It.style["will-change"]="",Qt&&!oe&&ct(It,Gt?Gt.options.ghostClass:this.options.ghostClass,!1),ct(It,this.options.chosenClass,!1),Mt({sortable:this,name:"unchoose",toEl:At,newIndex:null,newDraggableIndex:null,originalEvent:t}),Ft!==At?(Ht>=0&&(Mt({rootEl:At,name:"add",toEl:At,fromEl:Ft,originalEvent:t}),Mt({sortable:this,name:"remove",toEl:At,originalEvent:t}),Mt({rootEl:At,name:"sort",toEl:At,fromEl:Ft,originalEvent:t}),Mt({sortable:this,name:"sort",toEl:At,originalEvent:t})),Gt&&Gt.save()):Ht!==Yt&&Ht>=0&&(Mt({sortable:this,name:"update",toEl:At,originalEvent:t}),Mt({sortable:this,name:"sort",toEl:At,originalEvent:t})),Te.active&&(null!=Ht&&-1!==Ht||(Ht=Yt,Wt=jt),Mt({sortable:this,name:"end",toEl:At,originalEvent:t}),this.save())))),this._nulling()},_nulling:function(){Pt("nulling",this),Ft=It=At=kt=Lt=Bt=Rt=Xt=Ut=qt=Qt=Ht=Wt=Yt=jt=Jt=te=Gt=zt=Te.dragged=Te.ghost=Te.clone=Te.active=null,ue.forEach((function(t){t.checked=!0})),ue.length=$t=Kt=0},handleEvent:function(t){switch(t.type){case"drop":case"dragend":this._onDrop(t);break;case"dragenter":case"dragover":It&&(this._onDragOver(t),function(t){t.dataTransfer&&(t.dataTransfer.dropEffect="move"),t.cancelable&&t.preventDefault()}(t));break;case"selectstart":t.preventDefault()}},toArray:function(){for(var t,e=[],n=this.el.children,o=0,a=n.length,r=this.options;o<a;o++)it(t=n[o],r.draggable,this.el,!1)&&e.push(t.getAttribute(r.dataIdAttr)||Ce(t));return e},sort:function(t,e){var n={},o=this.el;this.toArray().forEach((function(t,e){var a=o.children[e];it(a,this.options.draggable,o,!1)&&(n[t]=a)}),this),e&&this.captureAnimationState(),t.forEach((function(t){n[t]&&(o.removeChild(n[t]),o.appendChild(n[t]))})),e&&this.animateAll()},save:function(){var t=this.options.store;t&&t.set&&t.set(this)},closest:function(t,e){return it(t,e||this.options.draggable,this.el,!1)},option:function(t,e){var n=this.options;if(void 0===e)return n[t];var o=xt.modifyOption(this,t,e);n[t]=void 0!==o?o:e,"group"===t&&ve(n)},destroy:function(){Pt("destroy",this);var t=this.el;t[St]=null,ot(t,"mousedown",this._onTapStart),ot(t,"touchstart",this._onTapStart),ot(t,"pointerdown",this._onTapStart),this.nativeDraggable&&(ot(t,"dragover",this),ot(t,"dragenter",this)),Array.prototype.forEach.call(t.querySelectorAll("[draggable]"),(function(t){t.removeAttribute("draggable")})),this._onDrop(),this._disableDelayedDragEvents(),re.splice(re.indexOf(this.el),1),this.el=t=null},_hideClone:function(){if(!Xt){if(Pt("hideClone",this),Te.eventCanceled)return;ut(Bt,"display","none"),this.options.removeCloneOnHide&&Bt.parentNode&&Bt.parentNode.removeChild(Bt),Xt=!0}},_showClone:function(t){if("clone"===t.lastPutMode){if(Xt){if(Pt("showClone",this),Te.eventCanceled)return;It.parentNode!=Ft||this.options.group.revertClone?Lt?Ft.insertBefore(Bt,Lt):Ft.appendChild(Bt):Ft.insertBefore(Bt,It),this.options.group.revertClone&&this.animate(It,Bt),ut(Bt,"display",""),Xt=!1}}else this._hideClone()}},de&&nt(document,"touchmove",(function(t){(Te.active||oe)&&t.cancelable&&t.preventDefault()})),Te.utils={on:nt,off:ot,css:ut,find:mt,is:function(t,e){return!!it(t,e,t,!1)},extend:function(t,e){if(t&&e)for(var n in e)e.hasOwnProperty(n)&&(t[n]=e[n]);return t},throttle:Tt,closest:it,toggleClass:ct,clone:Dt,index:bt,nextTick:Ne,cancelNextTick:xe,detectDirection:ge,getChild:gt},Te.get=function(t){return t[St]},Te.mount=function(){for(var t=arguments.length,e=new Array(t),n=0;n<t;n++)e[n]=arguments[n];e[0].constructor===Array&&(e=e[0]),e.forEach((function(t){if(!t.prototype||!t.prototype.constructor)throw"Sortable: Mounted plugin must be a constructor function, not ".concat({}.toString.call(t));t.utils&&(Te.utils=j(j({},Te.utils),t.utils)),xt.mount(t)}))},Te.create=function(t,e){return new Te(t,e)},Te.version="1.14.0";var Oe,Pe,Me,Ie,Ae,ke,Fe=[],Le=!1;function Re(){Fe.forEach((function(t){clearInterval(t.pid)})),Fe=[]}function Be(){clearInterval(ke)}var Xe=Tt((function(t,e,n,o){if(e.scroll){var a,r=(t.touches?t.touches[0]:t).clientX,i=(t.touches?t.touches[0]:t).clientY,s=e.scrollSensitivity,l=e.scrollSpeed,c=pt(),u=!1;Pe!==n&&(Pe=n,Re(),Oe=e.scroll,a=e.scrollFn,!0===Oe&&(Oe=_t(n,!0)));var d=0,m=Oe;do{var p=m,h=ht(p),f=h.top,g=h.bottom,v=h.left,b=h.right,y=h.width,_=h.height,w=void 0,T=void 0,E=p.scrollWidth,D=p.scrollHeight,S=ut(p),C=p.scrollLeft,N=p.scrollTop;p===c?(w=y<E&&("auto"===S.overflowX||"scroll"===S.overflowX||"visible"===S.overflowX),T=_<D&&("auto"===S.overflowY||"scroll"===S.overflowY||"visible"===S.overflowY)):(w=y<E&&("auto"===S.overflowX||"scroll"===S.overflowX),T=_<D&&("auto"===S.overflowY||"scroll"===S.overflowY));var x=w&&(Math.abs(b-r)<=s&&C+y<E)-(Math.abs(v-r)<=s&&!!C),O=T&&(Math.abs(g-i)<=s&&N+_<D)-(Math.abs(f-i)<=s&&!!N);if(!Fe[d])for(var P=0;P<=d;P++)Fe[P]||(Fe[P]={});Fe[d].vx==x&&Fe[d].vy==O&&Fe[d].el===p||(Fe[d].el=p,Fe[d].vx=x,Fe[d].vy=O,clearInterval(Fe[d].pid),0==x&&0==O||(u=!0,Fe[d].pid=setInterval(function(){o&&0===this.layer&&Te.active._onTouchMove(Ae);var e=Fe[this.layer].vy?Fe[this.layer].vy*l:0,n=Fe[this.layer].vx?Fe[this.layer].vx*l:0;"function"==typeof a&&"continue"!==a.call(Te.dragged.parentNode[St],n,e,t,Ae,Fe[this.layer].el)||Et(Fe[this.layer].el,n,e)}.bind({layer:d}),24))),d++}while(e.bubbleScroll&&m!==c&&(m=_t(m,!1)));Le=u}}),30),Ye=function(t){var e=t.originalEvent,n=t.putSortable,o=t.dragEl,a=t.activeSortable,r=t.dispatchSortableEvent,i=t.hideGhostForTarget,s=t.unhideGhostForTarget;if(e){var l=n||a;i();var c=e.changedTouches&&e.changedTouches.length?e.changedTouches[0]:e,u=document.elementFromPoint(c.clientX,c.clientY);s(),l&&!l.el.contains(u)&&(r("spill"),this.onSpill({dragEl:o,putSortable:n}))}};function He(){}function je(){}He.prototype={startIndex:null,dragStart:function(t){var e=t.oldDraggableIndex;this.startIndex=e},onSpill:function(t){var e=t.dragEl,n=t.putSortable;this.sortable.captureAnimationState(),n&&n.captureAnimationState();var o=gt(this.sortable.el,this.startIndex,this.options);o?this.sortable.el.insertBefore(e,o):this.sortable.el.appendChild(e),this.sortable.animateAll(),n&&n.animateAll()},drop:Ye},G(He,{pluginName:"revertOnSpill"}),je.prototype={onSpill:function(t){var e=t.dragEl,n=t.putSortable||this.sortable;n.captureAnimationState(),e.parentNode&&e.parentNode.removeChild(e),n.animateAll()},drop:Ye},G(je,{pluginName:"removeOnSpill"}),Te.mount(new function(){function t(){for(var t in this.defaults={scroll:!0,forceAutoScrollFallback:!1,scrollSensitivity:30,scrollSpeed:10,bubbleScroll:!0},this)"_"===t.charAt(0)&&"function"==typeof this[t]&&(this[t]=this[t].bind(this))}return t.prototype={dragStarted:function(t){var e=t.originalEvent;this.sortable.nativeDraggable?nt(document,"dragover",this._handleAutoScroll):this.options.supportPointer?nt(document,"pointermove",this._handleFallbackAutoScroll):e.touches?nt(document,"touchmove",this._handleFallbackAutoScroll):nt(document,"mousemove",this._handleFallbackAutoScroll)},dragOverCompleted:function(t){var e=t.originalEvent;this.options.dragOverBubble||e.rootEl||this._handleAutoScroll(e)},drop:function(){this.sortable.nativeDraggable?ot(document,"dragover",this._handleAutoScroll):(ot(document,"pointermove",this._handleFallbackAutoScroll),ot(document,"touchmove",this._handleFallbackAutoScroll),ot(document,"mousemove",this._handleFallbackAutoScroll)),Be(),Re(),clearTimeout(st),st=void 0},nulling:function(){Ae=Pe=Oe=Le=ke=Me=Ie=null,Fe.length=0},_handleFallbackAutoScroll:function(t){this._handleAutoScroll(t,!0)},_handleAutoScroll:function(t,e){var n=this,o=(t.touches?t.touches[0]:t).clientX,a=(t.touches?t.touches[0]:t).clientY,r=document.elementFromPoint(o,a);if(Ae=t,e||this.options.forceAutoScrollFallback||V||K||Q){Xe(t,this.options,r,e);var i=_t(r,!0);!Le||ke&&o===Me&&a===Ie||(ke&&Be(),ke=setInterval((function(){var r=_t(document.elementFromPoint(o,a),!0);r!==i&&(i=r,Re()),Xe(t,n.options,r,e)}),10),Me=o,Ie=a)}else{if(!this.options.bubbleScroll||_t(r,!0)===pt())return void Re();Xe(t,this.options,_t(r,!1),!1)}}},G(t,{pluginName:"scroll",initializeByDefault:!0})}),Te.mount(je,He);const We=Te,ze=flarum.core.compat["admin/components/ExtensionPage"];var Ge=n.n(ze);const Ue=flarum.core.compat["common/utils/withAttr"];var qe=n.n(Ue);const $e=flarum.core.compat["common/components/Modal"];var Ke=n.n($e);const Ve=flarum.core.compat["common/components/ColorPreviewInput"];var Ze=n.n(Ve);const Qe=flarum.core.compat["common/utils/ItemList"];var Je=n.n(Qe);const tn=flarum.core.compat["common/utils/string"],en=flarum.core.compat["common/utils/Stream"];var nn=n.n(en);const on=flarum.core.compat["common/utils/extractText"];var an=n.n(on),rn=function(t){function e(){for(var e,n=arguments.length,o=new Array(n),a=0;a<n;a++)o[a]=arguments[a];return(e=t.call.apply(t,[this].concat(o))||this).tag=void 0,e.name=void 0,e.slug=void 0,e.description=void 0,e.color=void 0,e.icon=void 0,e.isHidden=void 0,e.primary=void 0,e}i(e,t);var n=e.prototype;return n.oninit=function(e){t.prototype.oninit.call(this,e),this.tag=this.attrs.model||a().store.createRecord("tags"),this.name=nn()(this.tag.name()||""),this.slug=nn()(this.tag.slug()||""),this.description=nn()(this.tag.description()||""),this.color=nn()(this.tag.color()||""),this.icon=nn()(this.tag.icon()||""),this.isHidden=nn()(this.tag.isHidden()||!1),this.primary=nn()(this.attrs.primary||!1)},n.className=function(){return"EditTagModal Modal--small"},n.title=function(){return this.name()?M(a().store.createRecord("tags",{attributes:this.submitData()})):a().translator.trans("flarum-tags.admin.edit_tag.title")},n.content=function(){return m("div",{className:"Modal-body"},m("div",{className:"Form"},this.fields().toArray()))},n.fields=function(){var t=this,e=new(Je());return e.add("name",m("div",{className:"Form-group"},m("label",null,a().translator.trans("flarum-tags.admin.edit_tag.name_label")),m("input",{className:"FormControl",placeholder:a().translator.trans("flarum-tags.admin.edit_tag.name_placeholder"),value:this.name(),oninput:function(e){var n=e.target;t.name(n.value),t.slug((0,tn.slug)(n.value))}})),50),e.add("slug",m("div",{className:"Form-group"},m("label",null,a().translator.trans("flarum-tags.admin.edit_tag.slug_label")),m("input",{className:"FormControl",bidi:this.slug})),40),e.add("description",m("div",{className:"Form-group"},m("label",null,a().translator.trans("flarum-tags.admin.edit_tag.description_label")),m("textarea",{className:"FormControl",bidi:this.description})),30),e.add("color",m("div",{className:"Form-group"},m("label",null,a().translator.trans("flarum-tags.admin.edit_tag.color_label")),m(Ze(),{className:"FormControl",placeholder:"#aaaaaa",bidi:this.color})),20),e.add("icon",m("div",{className:"Form-group"},m("label",null,a().translator.trans("flarum-tags.admin.edit_tag.icon_label")),m("div",{className:"helpText"},a().translator.trans("flarum-tags.admin.edit_tag.icon_text",{a:m("a",{href:"https://fontawesome.com/icons?m=free",tabindex:"-1"})})),m("input",{className:"FormControl",placeholder:"fas fa-bolt",bidi:this.icon})),10),e.add("hidden",m("div",{className:"Form-group"},m("div",null,m("label",{className:"checkbox"},m("input",{type:"checkbox",bidi:this.isHidden}),a().translator.trans("flarum-tags.admin.edit_tag.hide_label")))),10),e.add("submit",m("div",{className:"Form-group"},w().component({type:"submit",className:"Button Button--primary EditTagModal-save",loading:this.loading},a().translator.trans("flarum-tags.admin.edit_tag.submit_button")),this.tag.exists?m("button",{type:"button",className:"Button EditTagModal-delete",onclick:this.delete.bind(this)},a().translator.trans("flarum-tags.admin.edit_tag.delete_tag_button")):""),-10),e},n.submitData=function(){return{name:this.name(),slug:this.slug(),description:this.description(),color:this.color(),icon:this.icon(),isHidden:this.isHidden(),primary:this.primary()}},n.onsubmit=function(t){var e=this;t.preventDefault(),this.loading=!0,this.tag.save(this.submitData()).then((function(){return e.hide()}),(function(){return e.loading=!1}))},n.delete=function(){var t=this;if(confirm(an()(a().translator.trans("flarum-tags.admin.edit_tag.delete_tag_confirmation")))){var e=a().store.all("tags").filter((function(e){return e.parent()===t.tag}));this.tag.delete().then((function(){e.forEach((function(t){return t.pushData({attributes:{isChild:!1},relationships:{parent:null}})})),m.redraw()})),this.hide()}},e}(Ke());function sn(t){return m("li",{"data-id":t.id(),style:{color:t.color()}},m("div",{className:"TagListItem-info"},P(t),m("span",{className:"TagListItem-name"},t.name()),w().component({className:"Button Button--link",icon:"fas fa-pencil-alt",onclick:function(){return a().modal.show(rn,{model:t})}})),t.isChild()||null===t.position()?"":m("ol",{className:"TagListItem-children TagList"},I(a().store.all("tags")).filter((function(e){return e.parent()===t})).map(sn)))}var ln=function(t){function e(){return t.apply(this,arguments)||this}i(e,t);var n=e.prototype;return n.oninit=function(e){var n=this;t.prototype.oninit.call(this,e),this.forcedRefreshKey=0,this.loading=!0,a().store.find("tags",{include:"parent"}).then((function(){n.loading=!1,m.redraw()}))},n.content=function(){if(this.loading)return m(E(),null);var t=this.setting("flarum-tags.min_primary_tags",0),e=this.setting("flarum-tags.max_primary_tags",0),n=this.setting("flarum-tags.min_secondary_tags",0),o=this.setting("flarum-tags.max_secondary_tags",0),r=I(a().store.all("tags").filter((function(t){return!t.parent()})));return m("div",{className:"TagsContent"},m("div",{className:"TagsContent-list"},m("div",{className:"container",key:this.forcedRefreshKey,oncreate:this.onListOnCreate.bind(this)},m("div",{className:"SettingsGroups"},m("div",{className:"TagGroup"},m("label",null,a().translator.trans("flarum-tags.admin.tags.primary_heading")),m("ol",{className:"TagList TagList--primary"},r.filter((function(t){return null!==t.position()&&!t.isChild()})).map(sn)),w().component({className:"Button TagList-button",icon:"fas fa-plus",onclick:function(){return a().modal.show(rn,{primary:!0})}},a().translator.trans("flarum-tags.admin.tags.create_primary_tag_button"))),m("div",{className:"TagGroup TagGroup--secondary"},m("label",null,a().translator.trans("flarum-tags.admin.tags.secondary_heading")),m("ul",{className:"TagList"},r.filter((function(t){return null===t.position()})).sort((function(t,e){return t.name().localeCompare(e.name())})).map(sn)),w().component({className:"Button TagList-button",icon:"fas fa-plus",onclick:function(){return a().modal.show(rn,{primary:!1})}},a().translator.trans("flarum-tags.admin.tags.create_secondary_tag_button"))),m("div",{className:"Form"},m("label",null,a().translator.trans("flarum-tags.admin.tags.settings_heading")),m("div",{className:"Form-group"},m("label",null,a().translator.trans("flarum-tags.admin.tag_settings.required_primary_heading")),m("div",{className:"helpText"},a().translator.trans("flarum-tags.admin.tag_settings.required_primary_text")),m("div",{className:"TagSettings-rangeInput"},m("input",{className:"FormControl",type:"number",min:"0",value:t(),oninput:qe()("value",this.setMinTags.bind(this,t,e))}),a().translator.trans("flarum-tags.admin.tag_settings.range_separator_text"),m("input",{className:"FormControl",type:"number",min:t(),bidi:e}))),m("div",{className:"Form-group"},m("label",null,a().translator.trans("flarum-tags.admin.tag_settings.required_secondary_heading")),m("div",{className:"helpText"},a().translator.trans("flarum-tags.admin.tag_settings.required_secondary_text")),m("div",{className:"TagSettings-rangeInput"},m("input",{className:"FormControl",type:"number",min:"0",value:n(),oninput:qe()("value",this.setMinTags.bind(this,n,o))}),a().translator.trans("flarum-tags.admin.tag_settings.range_separator_text"),m("input",{className:"FormControl",type:"number",min:n(),bidi:o}))),m("div",{className:"Form-group"},this.submitButton()))),m("div",{className:"TagsContent-footer"},m("p",null,a().translator.trans("flarum-tags.admin.tags.about_tags_text"))))))},n.onListOnCreate=function(t){var e=this;this.$(".TagList").get().map((function(t){We.create(t,{group:"tags",delay:50,delayOnTouchOnly:!0,touchStartThreshold:5,animation:150,swapThreshold:.65,dragClass:"sortable-dragging",ghostClass:"sortable-placeholder",onSort:function(t){return e.onSortUpdate(t)}})}))},n.setMinTags=function(t,e,n){t(n),e(Math.max(n,e()))},n.onSortUpdate=function(t){t.from instanceof HTMLOListElement&&t.to instanceof HTMLUListElement&&a().store.getById("tags",t.item.getAttribute("data-id")).pushData({attributes:{position:null,isChild:!1},relationships:{parent:null}});var e=this.$(".TagList--primary > li").map((function(){return{id:$(this).data("id"),children:$(this).find("li").map((function(){return $(this).data("id")})).get()}})).get();e.forEach((function(t,e){var n=a().store.getById("tags",t.id);n.pushData({attributes:{position:e,isChild:!1},relationships:{parent:null}}),t.children.forEach((function(t,e){a().store.getById("tags",t).pushData({attributes:{position:e,isChild:!0},relationships:{parent:n}})}))})),a().request({url:a().forum.attribute("apiUrl")+"/tags/order",method:"POST",body:{order:e}}),this.forcedRefreshKey++,m.redraw()},e}(Ge());const cn={"tags/utils/sortTags":I,"tags/models/Tag":d,"tags/helpers/tagsLabel":function(t,e){void 0===e&&(e={});var n=[],o=S()(e,"link");return e.className="TagsLabel "+(e.className||""),t?I(t).forEach((function(e){(e||1===t.length)&&n.push(M(e,{link:o}))})):n.push(M()),m("span",e,n)},"tags/helpers/tagIcon":P,"tags/helpers/tagLabel":M},un=Object.assign(cn,{"tags/addTagsHomePageOption":R,"tags/addTagChangePermission":Y,"tags/components/TagsPage":ln,"tags/components/EditTagModal":rn,"tags/addTagPermission":k,"tags/addTagsPermissionScope":A}),dn=flarum.core;a().initializers.add("flarum-tags",(function(t){t.store.models.tags=d,t.extensionData.for("flarum-tags").registerPage(ln),A(),k(),R(),Y()})),Object.assign(dn.compat,un)},810:()=>{}},e={};function n(o){var a=e[o];if(void 0!==a)return a.exports;var r=e[o]={exports:{}};return t[o](r,r.exports,n),r.exports}n.n=t=>{var e=t&&t.__esModule?()=>t.default:()=>t;return n.d(e,{a:e}),e},n.d=(t,e)=>{for(var o in e)n.o(e,o)&&!n.o(t,o)&&Object.defineProperty(t,o,{enumerable:!0,get:e[o]})},n.o=(t,e)=>Object.prototype.hasOwnProperty.call(t,e),n.r=t=>{"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})};var o={};(()=>{"use strict";n.r(o);var t=n(810),e={};for(const n in t)"default"!==n&&(e[n]=()=>t[n]);n.d(o,e),n(949)})(),module.exports=o})();
+/******/ (() => { // webpackBootstrap
+/******/ 	var __webpack_modules__ = ({
+
+/***/ "./src/admin/addTagChangePermission.js":
+/*!*********************************************!*\
+  !*** ./src/admin/addTagChangePermission.js ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* export default binding */ __WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var flarum_common_extend__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! flarum/common/extend */ "flarum/common/extend");
+/* harmony import */ var flarum_common_extend__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(flarum_common_extend__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var flarum_admin_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! flarum/admin/components/PermissionGrid */ "flarum/admin/components/PermissionGrid");
+/* harmony import */ var flarum_admin_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(flarum_admin_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var flarum_admin_components_SettingDropdown__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! flarum/admin/components/SettingDropdown */ "flarum/admin/components/SettingDropdown");
+/* harmony import */ var flarum_admin_components_SettingDropdown__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(flarum_admin_components_SettingDropdown__WEBPACK_IMPORTED_MODULE_2__);
+
+
+
+/* harmony default export */ function __WEBPACK_DEFAULT_EXPORT__() {
+  (0,flarum_common_extend__WEBPACK_IMPORTED_MODULE_0__.extend)((flarum_admin_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_1___default().prototype), 'startItems', function (items) {
+    items.add('allowTagChange', {
+      icon: 'fas fa-tag',
+      label: app.translator.trans('flarum-tags.admin.permissions.allow_edit_tags_label'),
+      setting: function setting() {
+        var minutes = parseInt(app.data.settings.allow_tag_change, 10);
+        return flarum_admin_components_SettingDropdown__WEBPACK_IMPORTED_MODULE_2___default().component({
+          defaultLabel: minutes ? app.translator.trans('core.admin.permissions_controls.allow_some_minutes_button', {
+            count: minutes
+          }) : app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button'),
+          key: 'allow_tag_change',
+          options: [{
+            value: '-1',
+            label: app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button')
+          }, {
+            value: '10',
+            label: app.translator.trans('core.admin.permissions_controls.allow_ten_minutes_button')
+          }, {
+            value: 'reply',
+            label: app.translator.trans('core.admin.permissions_controls.allow_until_reply_button')
+          }]
+        });
+      }
+    }, 90);
+  });
+}
+
+/***/ }),
+
+/***/ "./src/admin/addTagPermission.js":
+/*!***************************************!*\
+  !*** ./src/admin/addTagPermission.js ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* export default binding */ __WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ function __WEBPACK_DEFAULT_EXPORT__() {
+  app.extensionData["for"]('flarum-tags').registerPermission({
+    icon: 'fas fa-tag',
+    label: app.translator.trans('flarum-tags.admin.permissions.tag_discussions_label'),
+    permission: 'discussion.tag'
+  }, 'moderate', 95).registerPermission({
+    icon: 'fas fa-tags',
+    label: app.translator.trans('flarum-tags.admin.permissions.bypass_tag_counts_label'),
+    permission: 'bypassTagCounts'
+  }, 'start', 89);
+}
+
+/***/ }),
+
+/***/ "./src/admin/addTagsHomePageOption.js":
+/*!********************************************!*\
+  !*** ./src/admin/addTagsHomePageOption.js ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* export default binding */ __WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var flarum_common_extend__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! flarum/common/extend */ "flarum/common/extend");
+/* harmony import */ var flarum_common_extend__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(flarum_common_extend__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var flarum_admin_components_BasicsPage__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! flarum/admin/components/BasicsPage */ "flarum/admin/components/BasicsPage");
+/* harmony import */ var flarum_admin_components_BasicsPage__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(flarum_admin_components_BasicsPage__WEBPACK_IMPORTED_MODULE_1__);
+
+
+/* harmony default export */ function __WEBPACK_DEFAULT_EXPORT__() {
+  (0,flarum_common_extend__WEBPACK_IMPORTED_MODULE_0__.extend)((flarum_admin_components_BasicsPage__WEBPACK_IMPORTED_MODULE_1___default().prototype), 'homePageItems', function (items) {
+    items.add('tags', {
+      path: '/tags',
+      label: app.translator.trans('flarum-tags.admin.basics.tags_label')
+    });
+  });
+}
+
+/***/ }),
+
+/***/ "./src/admin/addTagsPermissionScope.tsx":
+/*!**********************************************!*\
+  !*** ./src/admin/addTagsPermissionScope.tsx ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* export default binding */ __WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var flarum_admin_app__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! flarum/admin/app */ "flarum/admin/app");
+/* harmony import */ var flarum_admin_app__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(flarum_admin_app__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var flarum_common_extend__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! flarum/common/extend */ "flarum/common/extend");
+/* harmony import */ var flarum_common_extend__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(flarum_common_extend__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var flarum_admin_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! flarum/admin/components/PermissionGrid */ "flarum/admin/components/PermissionGrid");
+/* harmony import */ var flarum_admin_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(flarum_admin_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var flarum_admin_components_PermissionDropdown__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! flarum/admin/components/PermissionDropdown */ "flarum/admin/components/PermissionDropdown");
+/* harmony import */ var flarum_admin_components_PermissionDropdown__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(flarum_admin_components_PermissionDropdown__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var flarum_common_components_Dropdown__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! flarum/common/components/Dropdown */ "flarum/common/components/Dropdown");
+/* harmony import */ var flarum_common_components_Dropdown__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(flarum_common_components_Dropdown__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! flarum/common/components/Button */ "flarum/common/components/Button");
+/* harmony import */ var flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var flarum_common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! flarum/common/components/LoadingIndicator */ "flarum/common/components/LoadingIndicator");
+/* harmony import */ var flarum_common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(flarum_common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _common_helpers_tagLabel__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../common/helpers/tagLabel */ "./src/common/helpers/tagLabel.js");
+/* harmony import */ var _common_helpers_tagIcon__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../common/helpers/tagIcon */ "./src/common/helpers/tagIcon.js");
+/* harmony import */ var _common_utils_sortTags__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../common/utils/sortTags */ "./src/common/utils/sortTags.tsx");
+
+
+
+
+
+
+
+
+
+
+/* harmony default export */ function __WEBPACK_DEFAULT_EXPORT__() {
+  (0,flarum_common_extend__WEBPACK_IMPORTED_MODULE_1__.extend)((flarum_admin_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_2___default().prototype), 'oninit', function () {
+    this.loading = true;
+  });
+  (0,flarum_common_extend__WEBPACK_IMPORTED_MODULE_1__.extend)((flarum_admin_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_2___default().prototype), 'oncreate', function () {
+    var _this = this;
+
+    flarum_admin_app__WEBPACK_IMPORTED_MODULE_0___default().store.find('tags', {}).then(function () {
+      _this.loading = false;
+      m.redraw();
+    });
+  });
+  (0,flarum_common_extend__WEBPACK_IMPORTED_MODULE_1__.override)((flarum_admin_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_2___default().prototype), 'view', function (original, vnode) {
+    if (this.loading) {
+      return m((flarum_common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_6___default()), null);
+    }
+
+    return original(vnode);
+  });
+  (0,flarum_common_extend__WEBPACK_IMPORTED_MODULE_1__.override)((flarum_admin_app__WEBPACK_IMPORTED_MODULE_0___default()), 'getRequiredPermissions', function (original, permission) {
+    var tagPrefix = permission.match(/^tag\d+\./);
+
+    if (tagPrefix) {
+      var globalPermission = permission.substr(tagPrefix[0].length);
+      var required = original(globalPermission);
+      return required.map(function (required) {
+        return tagPrefix[0] + required;
+      });
+    }
+
+    return original(permission);
+  });
+  (0,flarum_common_extend__WEBPACK_IMPORTED_MODULE_1__.extend)((flarum_admin_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_2___default().prototype), 'scopeItems', function (items) {
+    (0,_common_utils_sortTags__WEBPACK_IMPORTED_MODULE_9__["default"])(flarum_admin_app__WEBPACK_IMPORTED_MODULE_0___default().store.all('tags')).filter(function (tag) {
+      return tag.isRestricted();
+    }).forEach(function (tag) {
+      return items.add('tag' + tag.id(), {
+        label: (0,_common_helpers_tagLabel__WEBPACK_IMPORTED_MODULE_7__["default"])(tag),
+        onremove: function onremove() {
+          return tag.save({
+            isRestricted: false
+          });
+        },
+        render: function render(item) {
+          if ('setting' in item) return '';
+
+          if (item.permission === 'viewForum' || item.permission === 'startDiscussion' || item.permission && item.permission.indexOf('discussion.') === 0 && item.tagScoped !== false || item.tagScoped) {
+            return flarum_admin_components_PermissionDropdown__WEBPACK_IMPORTED_MODULE_3___default().component({
+              permission: 'tag' + tag.id() + '.' + item.permission,
+              allowGuest: item.allowGuest
+            });
+          }
+
+          return '';
+        }
+      });
+    });
+  });
+  (0,flarum_common_extend__WEBPACK_IMPORTED_MODULE_1__.extend)((flarum_admin_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_2___default().prototype), 'scopeControlItems', function (items) {
+    var tags = (0,_common_utils_sortTags__WEBPACK_IMPORTED_MODULE_9__["default"])(flarum_admin_app__WEBPACK_IMPORTED_MODULE_0___default().store.all('tags').filter(function (tag) {
+      return !tag.isRestricted();
+    }));
+
+    if (tags.length) {
+      items.add('tag', m((flarum_common_components_Dropdown__WEBPACK_IMPORTED_MODULE_4___default()), {
+        className: "Dropdown--restrictByTag",
+        buttonClassName: "Button Button--text",
+        label: flarum_admin_app__WEBPACK_IMPORTED_MODULE_0___default().translator.trans('flarum-tags.admin.permissions.restrict_by_tag_heading'),
+        icon: "fas fa-plus",
+        caretIcon: null
+      }, tags.map(function (tag) {
+        return m((flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_5___default()), {
+          icon: true,
+          onclick: function onclick() {
+            return tag.save({
+              isRestricted: true
+            });
+          }
+        }, [(0,_common_helpers_tagIcon__WEBPACK_IMPORTED_MODULE_8__["default"])(tag, {
+          className: 'Button-icon'
+        }), ' ', tag.name()]);
+      })));
+    }
+  });
+}
+
+/***/ }),
+
+/***/ "./src/admin/compat.js":
+/*!*****************************!*\
+  !*** ./src/admin/compat.js ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _common_compat__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../common/compat */ "./src/common/compat.js");
+/* harmony import */ var _addTagsHomePageOption__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./addTagsHomePageOption */ "./src/admin/addTagsHomePageOption.js");
+/* harmony import */ var _addTagChangePermission__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./addTagChangePermission */ "./src/admin/addTagChangePermission.js");
+/* harmony import */ var _components_TagsPage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/TagsPage */ "./src/admin/components/TagsPage.js");
+/* harmony import */ var _components_EditTagModal__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/EditTagModal */ "./src/admin/components/EditTagModal.tsx");
+/* harmony import */ var _addTagPermission__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./addTagPermission */ "./src/admin/addTagPermission.js");
+/* harmony import */ var _addTagsPermissionScope__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./addTagsPermissionScope */ "./src/admin/addTagsPermissionScope.tsx");
+
+
+
+
+
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Object.assign(_common_compat__WEBPACK_IMPORTED_MODULE_0__["default"], {
+  'tags/addTagsHomePageOption': _addTagsHomePageOption__WEBPACK_IMPORTED_MODULE_1__["default"],
+  'tags/addTagChangePermission': _addTagChangePermission__WEBPACK_IMPORTED_MODULE_2__["default"],
+  'tags/components/TagsPage': _components_TagsPage__WEBPACK_IMPORTED_MODULE_3__["default"],
+  'tags/components/EditTagModal': _components_EditTagModal__WEBPACK_IMPORTED_MODULE_4__["default"],
+  'tags/addTagPermission': _addTagPermission__WEBPACK_IMPORTED_MODULE_5__["default"],
+  'tags/addTagsPermissionScope': _addTagsPermissionScope__WEBPACK_IMPORTED_MODULE_6__["default"]
+}));
+
+/***/ }),
+
+/***/ "./src/admin/components/EditTagModal.tsx":
+/*!***********************************************!*\
+  !*** ./src/admin/components/EditTagModal.tsx ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ EditTagModal)
+/* harmony export */ });
+/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "../../../node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
+/* harmony import */ var flarum_admin_app__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! flarum/admin/app */ "flarum/admin/app");
+/* harmony import */ var flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(flarum_admin_app__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var flarum_common_components_Modal__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! flarum/common/components/Modal */ "flarum/common/components/Modal");
+/* harmony import */ var flarum_common_components_Modal__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(flarum_common_components_Modal__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! flarum/common/components/Button */ "flarum/common/components/Button");
+/* harmony import */ var flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var flarum_common_components_ColorPreviewInput__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! flarum/common/components/ColorPreviewInput */ "flarum/common/components/ColorPreviewInput");
+/* harmony import */ var flarum_common_components_ColorPreviewInput__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(flarum_common_components_ColorPreviewInput__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var flarum_common_utils_ItemList__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! flarum/common/utils/ItemList */ "flarum/common/utils/ItemList");
+/* harmony import */ var flarum_common_utils_ItemList__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(flarum_common_utils_ItemList__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var flarum_common_utils_string__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! flarum/common/utils/string */ "flarum/common/utils/string");
+/* harmony import */ var flarum_common_utils_string__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(flarum_common_utils_string__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var flarum_common_utils_Stream__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! flarum/common/utils/Stream */ "flarum/common/utils/Stream");
+/* harmony import */ var flarum_common_utils_Stream__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(flarum_common_utils_Stream__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var _common_helpers_tagLabel__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../common/helpers/tagLabel */ "./src/common/helpers/tagLabel.js");
+/* harmony import */ var flarum_common_utils_extractText__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! flarum/common/utils/extractText */ "flarum/common/utils/extractText");
+/* harmony import */ var flarum_common_utils_extractText__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(flarum_common_utils_extractText__WEBPACK_IMPORTED_MODULE_9__);
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * The `EditTagModal` component shows a modal dialog which allows the user
+ * to create or edit a tag.
+ */
+var EditTagModal = /*#__PURE__*/function (_Modal) {
+  (0,_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(EditTagModal, _Modal);
+
+  function EditTagModal() {
+    var _this;
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _Modal.call.apply(_Modal, [this].concat(args)) || this;
+    _this.tag = void 0;
+    _this.name = void 0;
+    _this.slug = void 0;
+    _this.description = void 0;
+    _this.color = void 0;
+    _this.icon = void 0;
+    _this.isHidden = void 0;
+    _this.primary = void 0;
+    return _this;
+  }
+
+  var _proto = EditTagModal.prototype;
+
+  _proto.oninit = function oninit(vnode) {
+    _Modal.prototype.oninit.call(this, vnode);
+
+    this.tag = this.attrs.model || flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default().store.createRecord('tags');
+    this.name = flarum_common_utils_Stream__WEBPACK_IMPORTED_MODULE_7___default()(this.tag.name() || '');
+    this.slug = flarum_common_utils_Stream__WEBPACK_IMPORTED_MODULE_7___default()(this.tag.slug() || '');
+    this.description = flarum_common_utils_Stream__WEBPACK_IMPORTED_MODULE_7___default()(this.tag.description() || '');
+    this.color = flarum_common_utils_Stream__WEBPACK_IMPORTED_MODULE_7___default()(this.tag.color() || '');
+    this.icon = flarum_common_utils_Stream__WEBPACK_IMPORTED_MODULE_7___default()(this.tag.icon() || '');
+    this.isHidden = flarum_common_utils_Stream__WEBPACK_IMPORTED_MODULE_7___default()(this.tag.isHidden() || false);
+    this.primary = flarum_common_utils_Stream__WEBPACK_IMPORTED_MODULE_7___default()(this.attrs.primary || false);
+  };
+
+  _proto.className = function className() {
+    return 'EditTagModal Modal--small';
+  };
+
+  _proto.title = function title() {
+    return this.name() ? (0,_common_helpers_tagLabel__WEBPACK_IMPORTED_MODULE_8__["default"])(flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default().store.createRecord('tags', {
+      attributes: this.submitData()
+    })) : flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default().translator.trans('flarum-tags.admin.edit_tag.title');
+  };
+
+  _proto.content = function content() {
+    return m("div", {
+      className: "Modal-body"
+    }, m("div", {
+      className: "Form"
+    }, this.fields().toArray()));
+  };
+
+  _proto.fields = function fields() {
+    var _this2 = this;
+
+    var items = new (flarum_common_utils_ItemList__WEBPACK_IMPORTED_MODULE_5___default())();
+    items.add('name', m("div", {
+      className: "Form-group"
+    }, m("label", null, flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default().translator.trans('flarum-tags.admin.edit_tag.name_label')), m("input", {
+      className: "FormControl",
+      placeholder: flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default().translator.trans('flarum-tags.admin.edit_tag.name_placeholder'),
+      value: this.name(),
+      oninput: function oninput(e) {
+        var target = e.target;
+
+        _this2.name(target.value);
+
+        _this2.slug((0,flarum_common_utils_string__WEBPACK_IMPORTED_MODULE_6__.slug)(target.value));
+      }
+    })), 50);
+    items.add('slug', m("div", {
+      className: "Form-group"
+    }, m("label", null, flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default().translator.trans('flarum-tags.admin.edit_tag.slug_label')), m("input", {
+      className: "FormControl",
+      bidi: this.slug
+    })), 40);
+    items.add('description', m("div", {
+      className: "Form-group"
+    }, m("label", null, flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default().translator.trans('flarum-tags.admin.edit_tag.description_label')), m("textarea", {
+      className: "FormControl",
+      bidi: this.description
+    })), 30);
+    items.add('color', m("div", {
+      className: "Form-group"
+    }, m("label", null, flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default().translator.trans('flarum-tags.admin.edit_tag.color_label')), m((flarum_common_components_ColorPreviewInput__WEBPACK_IMPORTED_MODULE_4___default()), {
+      className: "FormControl",
+      placeholder: "#aaaaaa",
+      bidi: this.color
+    })), 20);
+    items.add('icon', m("div", {
+      className: "Form-group"
+    }, m("label", null, flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default().translator.trans('flarum-tags.admin.edit_tag.icon_label')), m("div", {
+      className: "helpText"
+    }, flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default().translator.trans('flarum-tags.admin.edit_tag.icon_text', {
+      a: m("a", {
+        href: "https://fontawesome.com/icons?m=free",
+        tabindex: "-1"
+      })
+    })), m("input", {
+      className: "FormControl",
+      placeholder: "fas fa-bolt",
+      bidi: this.icon
+    })), 10);
+    items.add('hidden', m("div", {
+      className: "Form-group"
+    }, m("div", null, m("label", {
+      className: "checkbox"
+    }, m("input", {
+      type: "checkbox",
+      bidi: this.isHidden
+    }), flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default().translator.trans('flarum-tags.admin.edit_tag.hide_label')))), 10);
+    items.add('submit', m("div", {
+      className: "Form-group"
+    }, flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_3___default().component({
+      type: 'submit',
+      className: 'Button Button--primary EditTagModal-save',
+      loading: this.loading
+    }, flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default().translator.trans('flarum-tags.admin.edit_tag.submit_button')), this.tag.exists ? m("button", {
+      type: "button",
+      className: "Button EditTagModal-delete",
+      onclick: this["delete"].bind(this)
+    }, flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default().translator.trans('flarum-tags.admin.edit_tag.delete_tag_button')) : ''), -10);
+    return items;
+  };
+
+  _proto.submitData = function submitData() {
+    return {
+      name: this.name(),
+      slug: this.slug(),
+      description: this.description(),
+      color: this.color(),
+      icon: this.icon(),
+      isHidden: this.isHidden(),
+      primary: this.primary()
+    };
+  };
+
+  _proto.onsubmit = function onsubmit(e) {
+    var _this3 = this;
+
+    e.preventDefault();
+    this.loading = true; // Errors aren't passed to the modal onerror handler here.
+    // This is done for better error visibility on smaller screen heights.
+
+    this.tag.save(this.submitData()).then(function () {
+      return _this3.hide();
+    }, function () {
+      return _this3.loading = false;
+    });
+  };
+
+  _proto["delete"] = function _delete() {
+    var _this4 = this;
+
+    if (confirm(flarum_common_utils_extractText__WEBPACK_IMPORTED_MODULE_9___default()(flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default().translator.trans('flarum-tags.admin.edit_tag.delete_tag_confirmation')))) {
+      var children = flarum_admin_app__WEBPACK_IMPORTED_MODULE_1___default().store.all('tags').filter(function (tag) {
+        return tag.parent() === _this4.tag;
+      });
+      this.tag["delete"]().then(function () {
+        children.forEach(function (tag) {
+          return tag.pushData({
+            attributes: {
+              isChild: false
+            },
+            // @deprecated. Temporary hack for type safety, remove before v1.3.
+            relationships: {
+              parent: null
+            }
+          });
+        });
+        m.redraw();
+      });
+      this.hide();
+    }
+  };
+
+  return EditTagModal;
+}((flarum_common_components_Modal__WEBPACK_IMPORTED_MODULE_2___default()));
+
+
+
+/***/ }),
+
+/***/ "./src/admin/components/TagsPage.js":
+/*!******************************************!*\
+  !*** ./src/admin/components/TagsPage.js ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ TagsPage)
+/* harmony export */ });
+/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "../../../node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
+/* harmony import */ var sortablejs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! sortablejs */ "../../../node_modules/sortablejs/modular/sortable.esm.js");
+/* harmony import */ var flarum_admin_app__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! flarum/admin/app */ "flarum/admin/app");
+/* harmony import */ var flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(flarum_admin_app__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var flarum_admin_components_ExtensionPage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! flarum/admin/components/ExtensionPage */ "flarum/admin/components/ExtensionPage");
+/* harmony import */ var flarum_admin_components_ExtensionPage__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(flarum_admin_components_ExtensionPage__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! flarum/common/components/Button */ "flarum/common/components/Button");
+/* harmony import */ var flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var flarum_common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! flarum/common/components/LoadingIndicator */ "flarum/common/components/LoadingIndicator");
+/* harmony import */ var flarum_common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(flarum_common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var flarum_common_utils_withAttr__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! flarum/common/utils/withAttr */ "flarum/common/utils/withAttr");
+/* harmony import */ var flarum_common_utils_withAttr__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(flarum_common_utils_withAttr__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _EditTagModal__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./EditTagModal */ "./src/admin/components/EditTagModal.tsx");
+/* harmony import */ var _common_helpers_tagIcon__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../common/helpers/tagIcon */ "./src/common/helpers/tagIcon.js");
+/* harmony import */ var _common_utils_sortTags__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../common/utils/sortTags */ "./src/common/utils/sortTags.tsx");
+
+
+
+
+
+
+
+
+
+
+
+function tagItem(tag) {
+  return m("li", {
+    "data-id": tag.id(),
+    style: {
+      color: tag.color()
+    }
+  }, m("div", {
+    className: "TagListItem-info"
+  }, (0,_common_helpers_tagIcon__WEBPACK_IMPORTED_MODULE_8__["default"])(tag), m("span", {
+    className: "TagListItem-name"
+  }, tag.name()), flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_4___default().component({
+    className: 'Button Button--link',
+    icon: 'fas fa-pencil-alt',
+    onclick: function onclick() {
+      return flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().modal.show(_EditTagModal__WEBPACK_IMPORTED_MODULE_7__["default"], {
+        model: tag
+      });
+    }
+  })), !tag.isChild() && tag.position() !== null ? m("ol", {
+    className: "TagListItem-children TagList"
+  }, (0,_common_utils_sortTags__WEBPACK_IMPORTED_MODULE_9__["default"])(flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().store.all('tags')).filter(function (child) {
+    return child.parent() === tag;
+  }).map(tagItem)) : '');
+}
+
+var TagsPage = /*#__PURE__*/function (_ExtensionPage) {
+  (0,_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(TagsPage, _ExtensionPage);
+
+  function TagsPage() {
+    return _ExtensionPage.apply(this, arguments) || this;
+  }
+
+  var _proto = TagsPage.prototype;
+
+  _proto.oninit = function oninit(vnode) {
+    var _this = this;
+
+    _ExtensionPage.prototype.oninit.call(this, vnode); // A regular redraw won't work here, because sortable has mucked around
+    // with the DOM which will confuse Mithril's diffing algorithm. Instead
+    // we force a full reconstruction of the DOM by changing the key, which
+    // makes mithril completely re-render the component on redraw.
+
+
+    this.forcedRefreshKey = 0;
+    this.loading = true;
+    flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().store.find('tags', {
+      include: 'parent'
+    }).then(function () {
+      _this.loading = false;
+      m.redraw();
+    });
+  };
+
+  _proto.content = function content() {
+    if (this.loading) {
+      return m((flarum_common_components_LoadingIndicator__WEBPACK_IMPORTED_MODULE_5___default()), null);
+    }
+
+    var minPrimaryTags = this.setting('flarum-tags.min_primary_tags', 0);
+    var maxPrimaryTags = this.setting('flarum-tags.max_primary_tags', 0);
+    var minSecondaryTags = this.setting('flarum-tags.min_secondary_tags', 0);
+    var maxSecondaryTags = this.setting('flarum-tags.max_secondary_tags', 0);
+    var tags = (0,_common_utils_sortTags__WEBPACK_IMPORTED_MODULE_9__["default"])(flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().store.all('tags').filter(function (tag) {
+      return !tag.parent();
+    }));
+    return m("div", {
+      className: "TagsContent"
+    }, m("div", {
+      className: "TagsContent-list"
+    }, m("div", {
+      className: "container",
+      key: this.forcedRefreshKey,
+      oncreate: this.onListOnCreate.bind(this)
+    }, m("div", {
+      className: "SettingsGroups"
+    }, m("div", {
+      className: "TagGroup"
+    }, m("label", null, flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().translator.trans('flarum-tags.admin.tags.primary_heading')), m("ol", {
+      className: "TagList TagList--primary"
+    }, tags.filter(function (tag) {
+      return tag.position() !== null && !tag.isChild();
+    }).map(tagItem)), flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_4___default().component({
+      className: 'Button TagList-button',
+      icon: 'fas fa-plus',
+      onclick: function onclick() {
+        return flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().modal.show(_EditTagModal__WEBPACK_IMPORTED_MODULE_7__["default"], {
+          primary: true
+        });
+      }
+    }, flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().translator.trans('flarum-tags.admin.tags.create_primary_tag_button'))), m("div", {
+      className: "TagGroup TagGroup--secondary"
+    }, m("label", null, flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().translator.trans('flarum-tags.admin.tags.secondary_heading')), m("ul", {
+      className: "TagList"
+    }, tags.filter(function (tag) {
+      return tag.position() === null;
+    }).sort(function (a, b) {
+      return a.name().localeCompare(b.name());
+    }).map(tagItem)), flarum_common_components_Button__WEBPACK_IMPORTED_MODULE_4___default().component({
+      className: 'Button TagList-button',
+      icon: 'fas fa-plus',
+      onclick: function onclick() {
+        return flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().modal.show(_EditTagModal__WEBPACK_IMPORTED_MODULE_7__["default"], {
+          primary: false
+        });
+      }
+    }, flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().translator.trans('flarum-tags.admin.tags.create_secondary_tag_button'))), m("div", {
+      className: "Form"
+    }, m("label", null, flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().translator.trans('flarum-tags.admin.tags.settings_heading')), m("div", {
+      className: "Form-group"
+    }, m("label", null, flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().translator.trans('flarum-tags.admin.tag_settings.required_primary_heading')), m("div", {
+      className: "helpText"
+    }, flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().translator.trans('flarum-tags.admin.tag_settings.required_primary_text')), m("div", {
+      className: "TagSettings-rangeInput"
+    }, m("input", {
+      className: "FormControl",
+      type: "number",
+      min: "0",
+      value: minPrimaryTags(),
+      oninput: flarum_common_utils_withAttr__WEBPACK_IMPORTED_MODULE_6___default()('value', this.setMinTags.bind(this, minPrimaryTags, maxPrimaryTags))
+    }), flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().translator.trans('flarum-tags.admin.tag_settings.range_separator_text'), m("input", {
+      className: "FormControl",
+      type: "number",
+      min: minPrimaryTags(),
+      bidi: maxPrimaryTags
+    }))), m("div", {
+      className: "Form-group"
+    }, m("label", null, flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().translator.trans('flarum-tags.admin.tag_settings.required_secondary_heading')), m("div", {
+      className: "helpText"
+    }, flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().translator.trans('flarum-tags.admin.tag_settings.required_secondary_text')), m("div", {
+      className: "TagSettings-rangeInput"
+    }, m("input", {
+      className: "FormControl",
+      type: "number",
+      min: "0",
+      value: minSecondaryTags(),
+      oninput: flarum_common_utils_withAttr__WEBPACK_IMPORTED_MODULE_6___default()('value', this.setMinTags.bind(this, minSecondaryTags, maxSecondaryTags))
+    }), flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().translator.trans('flarum-tags.admin.tag_settings.range_separator_text'), m("input", {
+      className: "FormControl",
+      type: "number",
+      min: minSecondaryTags(),
+      bidi: maxSecondaryTags
+    }))), m("div", {
+      className: "Form-group"
+    }, this.submitButton()))), m("div", {
+      className: "TagsContent-footer"
+    }, m("p", null, flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().translator.trans('flarum-tags.admin.tags.about_tags_text'))))));
+  };
+
+  _proto.onListOnCreate = function onListOnCreate(vnode) {
+    var _this2 = this;
+
+    this.$('.TagList').get().map(function (e) {
+      sortablejs__WEBPACK_IMPORTED_MODULE_1__["default"].create(e, {
+        group: 'tags',
+        delay: 50,
+        delayOnTouchOnly: true,
+        touchStartThreshold: 5,
+        animation: 150,
+        swapThreshold: 0.65,
+        dragClass: 'sortable-dragging',
+        ghostClass: 'sortable-placeholder',
+        onSort: function onSort(e) {
+          return _this2.onSortUpdate(e);
+        }
+      });
+    });
+  };
+
+  _proto.setMinTags = function setMinTags(minTags, maxTags, value) {
+    minTags(value);
+    maxTags(Math.max(value, maxTags()));
+  };
+
+  _proto.onSortUpdate = function onSortUpdate(e) {
+    // If we've moved a tag from 'primary' to 'secondary', then we'll update
+    // its attributes in our local store so that when we redraw the change
+    // will be made.
+    if (e.from instanceof HTMLOListElement && e.to instanceof HTMLUListElement) {
+      flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().store.getById('tags', e.item.getAttribute('data-id')).pushData({
+        attributes: {
+          position: null,
+          isChild: false
+        },
+        relationships: {
+          parent: null
+        }
+      });
+    } // Construct an array of primary tag IDs and their children, in the same
+    // order that they have been arranged in.
+
+
+    var order = this.$('.TagList--primary > li').map(function () {
+      return {
+        id: $(this).data('id'),
+        children: $(this).find('li').map(function () {
+          return $(this).data('id');
+        }).get()
+      };
+    }).get(); // Now that we have an accurate representation of the order which the
+    // primary tags are in, we will update the tag attributes in our local
+    // store to reflect this order.
+
+    order.forEach(function (tag, i) {
+      var parent = flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().store.getById('tags', tag.id);
+      parent.pushData({
+        attributes: {
+          position: i,
+          isChild: false
+        },
+        relationships: {
+          parent: null
+        }
+      });
+      tag.children.forEach(function (child, j) {
+        flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().store.getById('tags', child).pushData({
+          attributes: {
+            position: j,
+            isChild: true
+          },
+          relationships: {
+            parent: parent
+          }
+        });
+      });
+    });
+    flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().request({
+      url: flarum_admin_app__WEBPACK_IMPORTED_MODULE_2___default().forum.attribute('apiUrl') + '/tags/order',
+      method: 'POST',
+      body: {
+        order: order
+      }
+    });
+    this.forcedRefreshKey++;
+    m.redraw();
+  };
+
+  return TagsPage;
+}((flarum_admin_components_ExtensionPage__WEBPACK_IMPORTED_MODULE_3___default()));
+
+
+
+/***/ }),
+
+/***/ "./src/admin/index.ts":
+/*!****************************!*\
+  !*** ./src/admin/index.ts ***!
+  \****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var flarum_admin_app__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! flarum/admin/app */ "flarum/admin/app");
+/* harmony import */ var flarum_admin_app__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(flarum_admin_app__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _common_models_Tag__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../common/models/Tag */ "./src/common/models/Tag.ts");
+/* harmony import */ var _addTagsPermissionScope__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./addTagsPermissionScope */ "./src/admin/addTagsPermissionScope.tsx");
+/* harmony import */ var _addTagPermission__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./addTagPermission */ "./src/admin/addTagPermission.js");
+/* harmony import */ var _addTagsHomePageOption__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./addTagsHomePageOption */ "./src/admin/addTagsHomePageOption.js");
+/* harmony import */ var _addTagChangePermission__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./addTagChangePermission */ "./src/admin/addTagChangePermission.js");
+/* harmony import */ var _components_TagsPage__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/TagsPage */ "./src/admin/components/TagsPage.js");
+/* harmony import */ var _compat__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./compat */ "./src/admin/compat.js");
+/* harmony import */ var _flarum_core_admin__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @flarum/core/admin */ "@flarum/core/admin");
+/* harmony import */ var _flarum_core_admin__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(_flarum_core_admin__WEBPACK_IMPORTED_MODULE_8__);
+
+
+
+
+
+
+
+flarum_admin_app__WEBPACK_IMPORTED_MODULE_0___default().initializers.add('flarum-tags', function (app) {
+  app.store.models.tags = _common_models_Tag__WEBPACK_IMPORTED_MODULE_1__["default"];
+  app.extensionData["for"]('flarum-tags').registerPage(_components_TagsPage__WEBPACK_IMPORTED_MODULE_6__["default"]);
+  (0,_addTagsPermissionScope__WEBPACK_IMPORTED_MODULE_2__["default"])();
+  (0,_addTagPermission__WEBPACK_IMPORTED_MODULE_3__["default"])();
+  (0,_addTagsHomePageOption__WEBPACK_IMPORTED_MODULE_4__["default"])();
+  (0,_addTagChangePermission__WEBPACK_IMPORTED_MODULE_5__["default"])();
+}); // Expose compat API
+
+
+
+Object.assign(_flarum_core_admin__WEBPACK_IMPORTED_MODULE_8__.compat, _compat__WEBPACK_IMPORTED_MODULE_7__["default"]);
+
+/***/ }),
+
+/***/ "./src/common/compat.js":
+/*!******************************!*\
+  !*** ./src/common/compat.js ***!
+  \******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _utils_sortTags__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/sortTags */ "./src/common/utils/sortTags.tsx");
+/* harmony import */ var _models_Tag__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./models/Tag */ "./src/common/models/Tag.ts");
+/* harmony import */ var _helpers_tagsLabel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./helpers/tagsLabel */ "./src/common/helpers/tagsLabel.js");
+/* harmony import */ var _helpers_tagIcon__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./helpers/tagIcon */ "./src/common/helpers/tagIcon.js");
+/* harmony import */ var _helpers_tagLabel__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./helpers/tagLabel */ "./src/common/helpers/tagLabel.js");
+
+
+
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  'tags/utils/sortTags': _utils_sortTags__WEBPACK_IMPORTED_MODULE_0__["default"],
+  'tags/models/Tag': _models_Tag__WEBPACK_IMPORTED_MODULE_1__["default"],
+  'tags/helpers/tagsLabel': _helpers_tagsLabel__WEBPACK_IMPORTED_MODULE_2__["default"],
+  'tags/helpers/tagIcon': _helpers_tagIcon__WEBPACK_IMPORTED_MODULE_3__["default"],
+  'tags/helpers/tagLabel': _helpers_tagLabel__WEBPACK_IMPORTED_MODULE_4__["default"]
+});
+
+/***/ }),
+
+/***/ "./src/common/helpers/tagIcon.js":
+/*!***************************************!*\
+  !*** ./src/common/helpers/tagIcon.js ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ tagIcon)
+/* harmony export */ });
+/* harmony import */ var flarum_common_utils_classList__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! flarum/common/utils/classList */ "flarum/common/utils/classList");
+/* harmony import */ var flarum_common_utils_classList__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(flarum_common_utils_classList__WEBPACK_IMPORTED_MODULE_0__);
+
+function tagIcon(tag, attrs, settings) {
+  if (attrs === void 0) {
+    attrs = {};
+  }
+
+  if (settings === void 0) {
+    settings = {};
+  }
+
+  var hasIcon = tag && tag.icon();
+  var _settings = settings,
+      _settings$useColor = _settings.useColor,
+      useColor = _settings$useColor === void 0 ? true : _settings$useColor;
+  attrs.className = flarum_common_utils_classList__WEBPACK_IMPORTED_MODULE_0___default()([attrs.className, 'icon', hasIcon ? tag.icon() : 'TagIcon']);
+
+  if (tag && useColor) {
+    attrs.style = attrs.style || {};
+    attrs.style['--color'] = tag.color();
+
+    if (hasIcon) {
+      attrs.style.color = tag.color();
+    }
+  } else if (!tag) {
+    attrs.className += ' untagged';
+  }
+
+  return hasIcon ? m("i", attrs) : m("span", attrs);
+}
+
+/***/ }),
+
+/***/ "./src/common/helpers/tagLabel.js":
+/*!****************************************!*\
+  !*** ./src/common/helpers/tagLabel.js ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ tagLabel)
+/* harmony export */ });
+/* harmony import */ var flarum_common_utils_extract__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! flarum/common/utils/extract */ "flarum/common/utils/extract");
+/* harmony import */ var flarum_common_utils_extract__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(flarum_common_utils_extract__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var flarum_common_utils_isDark__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! flarum/common/utils/isDark */ "flarum/common/utils/isDark");
+/* harmony import */ var flarum_common_utils_isDark__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(flarum_common_utils_isDark__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var flarum_common_components_Link__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! flarum/common/components/Link */ "flarum/common/components/Link");
+/* harmony import */ var flarum_common_components_Link__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(flarum_common_components_Link__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _tagIcon__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./tagIcon */ "./src/common/helpers/tagIcon.js");
+
+
+
+
+function tagLabel(tag, attrs) {
+  if (attrs === void 0) {
+    attrs = {};
+  }
+
+  attrs.style = attrs.style || {};
+  attrs.className = 'TagLabel ' + (attrs.className || '');
+  var link = flarum_common_utils_extract__WEBPACK_IMPORTED_MODULE_0___default()(attrs, 'link');
+  var tagText = tag ? tag.name() : app.translator.trans('flarum-tags.lib.deleted_tag_text');
+
+  if (tag) {
+    var color = tag.color();
+
+    if (color) {
+      attrs.style['--tag-bg'] = color;
+      attrs.className += ' colored';
+
+      if (flarum_common_utils_isDark__WEBPACK_IMPORTED_MODULE_1___default()(color)) {
+        attrs.className += ' tag-dark';
+      } else {
+        attrs.className += ' tag-light';
+      }
+    }
+
+    if (link) {
+      attrs.title = tag.description() || '';
+      attrs.href = app.route('tag', {
+        tags: tag.slug()
+      });
+    }
+
+    if (tag.isChild()) {
+      attrs.className += ' TagLabel--child';
+    }
+  } else {
+    attrs.className += ' untagged';
+  }
+
+  return m(link ? (flarum_common_components_Link__WEBPACK_IMPORTED_MODULE_2___default()) : 'span', attrs, m("span", {
+    className: "TagLabel-text"
+  }, tag && tag.icon() && (0,_tagIcon__WEBPACK_IMPORTED_MODULE_3__["default"])(tag, {}, {
+    useColor: false
+  }), " ", tagText));
+}
+
+/***/ }),
+
+/***/ "./src/common/helpers/tagsLabel.js":
+/*!*****************************************!*\
+  !*** ./src/common/helpers/tagsLabel.js ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ tagsLabel)
+/* harmony export */ });
+/* harmony import */ var flarum_common_utils_extract__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! flarum/common/utils/extract */ "flarum/common/utils/extract");
+/* harmony import */ var flarum_common_utils_extract__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(flarum_common_utils_extract__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _tagLabel__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./tagLabel */ "./src/common/helpers/tagLabel.js");
+/* harmony import */ var _utils_sortTags__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/sortTags */ "./src/common/utils/sortTags.tsx");
+
+
+
+function tagsLabel(tags, attrs) {
+  if (attrs === void 0) {
+    attrs = {};
+  }
+
+  var children = [];
+  var link = flarum_common_utils_extract__WEBPACK_IMPORTED_MODULE_0___default()(attrs, 'link');
+  attrs.className = 'TagsLabel ' + (attrs.className || '');
+
+  if (tags) {
+    (0,_utils_sortTags__WEBPACK_IMPORTED_MODULE_2__["default"])(tags).forEach(function (tag) {
+      if (tag || tags.length === 1) {
+        children.push((0,_tagLabel__WEBPACK_IMPORTED_MODULE_1__["default"])(tag, {
+          link: link
+        }));
+      }
+    });
+  } else {
+    children.push((0,_tagLabel__WEBPACK_IMPORTED_MODULE_1__["default"])());
+  }
+
+  return m("span", attrs, children);
+}
+
+/***/ }),
+
+/***/ "./src/common/index.ts":
+/*!*****************************!*\
+  !*** ./src/common/index.ts ***!
+  \*****************************/
+/***/ (() => {
+
+
+
+/***/ }),
+
+/***/ "./src/common/models/Tag.ts":
+/*!**********************************!*\
+  !*** ./src/common/models/Tag.ts ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Tag)
+/* harmony export */ });
+/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "../../../node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
+/* harmony import */ var flarum_common_utils_computed__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! flarum/common/utils/computed */ "flarum/common/utils/computed");
+/* harmony import */ var flarum_common_utils_computed__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(flarum_common_utils_computed__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var flarum_common_Model__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! flarum/common/Model */ "flarum/common/Model");
+/* harmony import */ var flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(flarum_common_Model__WEBPACK_IMPORTED_MODULE_2__);
+
+
+
+
+var Tag = /*#__PURE__*/function (_Model) {
+  (0,_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(Tag, _Model);
+
+  function Tag() {
+    return _Model.apply(this, arguments) || this;
+  }
+
+  var _proto = Tag.prototype;
+
+  _proto.name = function name() {
+    return flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().attribute('name').call(this);
+  };
+
+  _proto.slug = function slug() {
+    return flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().attribute('slug').call(this);
+  };
+
+  _proto.description = function description() {
+    return flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().attribute('description').call(this);
+  };
+
+  _proto.color = function color() {
+    return flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().attribute('color').call(this);
+  };
+
+  _proto.backgroundUrl = function backgroundUrl() {
+    return flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().attribute('backgroundUrl').call(this);
+  };
+
+  _proto.backgroundMode = function backgroundMode() {
+    return flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().attribute('backgroundMode').call(this);
+  };
+
+  _proto.icon = function icon() {
+    return flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().attribute('icon').call(this);
+  };
+
+  _proto.position = function position() {
+    return flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().attribute('position').call(this);
+  };
+
+  _proto.parent = function parent() {
+    return flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().hasOne('parent').call(this);
+  };
+
+  _proto.children = function children() {
+    return flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().hasMany('children').call(this);
+  };
+
+  _proto.defaultSort = function defaultSort() {
+    return flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().attribute('defaultSort').call(this);
+  };
+
+  _proto.isChild = function isChild() {
+    return flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().attribute('isChild').call(this);
+  };
+
+  _proto.isHidden = function isHidden() {
+    return flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().attribute('isHidden').call(this);
+  };
+
+  _proto.discussionCount = function discussionCount() {
+    return flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().attribute('discussionCount').call(this);
+  };
+
+  _proto.lastPostedAt = function lastPostedAt() {
+    return flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().attribute('lastPostedAt', (flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().transformDate)).call(this);
+  };
+
+  _proto.lastPostedDiscussion = function lastPostedDiscussion() {
+    return flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().hasOne('lastPostedDiscussion').call(this);
+  };
+
+  _proto.isRestricted = function isRestricted() {
+    return flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().attribute('isRestricted').call(this);
+  };
+
+  _proto.canStartDiscussion = function canStartDiscussion() {
+    return flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().attribute('canStartDiscussion').call(this);
+  };
+
+  _proto.canAddToDiscussion = function canAddToDiscussion() {
+    return flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default().attribute('canAddToDiscussion').call(this);
+  };
+
+  _proto.isPrimary = function isPrimary() {
+    return flarum_common_utils_computed__WEBPACK_IMPORTED_MODULE_1___default()('position', 'parent', function (position, parent) {
+      return position !== null && parent === false;
+    }).call(this);
+  };
+
+  return Tag;
+}((flarum_common_Model__WEBPACK_IMPORTED_MODULE_2___default()));
+
+
+
+/***/ }),
+
+/***/ "./src/common/utils/sortTags.tsx":
+/*!***************************************!*\
+  !*** ./src/common/utils/sortTags.tsx ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ sortTags)
+/* harmony export */ });
+function sortTags(tags) {
+  return tags.slice(0).sort(function (a, b) {
+    var aPos = a.position();
+    var bPos = b.position(); // If they're both secondary tags, sort them by their discussions count,
+    // descending.
+
+    if (aPos === null && bPos === null) return b.discussionCount() - a.discussionCount(); // If just one is a secondary tag, then the primary tag should
+    // come first.
+
+    if (bPos === null) return -1;
+    if (aPos === null) return 1; // If we've made it this far, we know they're both primary tags. So we'll
+    // need to see if they have parents.
+
+    var aParent = a.parent();
+    var bParent = b.parent(); // If they both have the same parent, then their positions are local,
+    // so we can compare them directly.
+
+    if (aParent === bParent) return aPos - bPos; // If they are both child tags, then we will compare the positions of their
+    // parents.
+    else if (aParent && bParent) return aParent.position() - bParent.position(); // If we are comparing a child tag with its parent, then we let the parent
+    // come first. If we are comparing an unrelated parent/child, then we
+    // compare both of the parents.
+    else if (aParent) return aParent === b ? 1 : aParent.position() - bPos;else if (bParent) return bParent === a ? -1 : aPos - bParent.position();
+    return 0;
+  });
+}
+
+/***/ }),
+
+/***/ "../../../node_modules/sortablejs/modular/sortable.esm.js":
+/*!****************************************************************!*\
+  !*** ../../../node_modules/sortablejs/modular/sortable.esm.js ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "MultiDrag": () => (/* binding */ MultiDragPlugin),
+/* harmony export */   "Sortable": () => (/* binding */ Sortable),
+/* harmony export */   "Swap": () => (/* binding */ SwapPlugin),
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/**!
+ * Sortable 1.14.0
+ * @author	RubaXa   <trash@rubaxa.org>
+ * @author	owenm    <owen23355@gmail.com>
+ * @license MIT
+ */
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+
+    if (enumerableOnly) {
+      symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
+
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
+function _typeof(obj) {
+  "@babel/helpers - typeof";
+
+  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+    _typeof = function _typeof(obj) {
+      return typeof obj;
+    };
+  } else {
+    _typeof = function _typeof(obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+    };
+  }
+
+  return _typeof(obj);
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+function _extends() {
+  _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return _extends.apply(this, arguments);
+}
+
+function _objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
+}
+
+function _objectWithoutProperties(source, excluded) {
+  if (source == null) return {};
+
+  var target = _objectWithoutPropertiesLoose(source, excluded);
+
+  var key, i;
+
+  if (Object.getOwnPropertySymbols) {
+    var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
+
+    for (i = 0; i < sourceSymbolKeys.length; i++) {
+      key = sourceSymbolKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
+      target[key] = source[key];
+    }
+  }
+
+  return target;
+}
+
+function _toConsumableArray(arr) {
+  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+}
+
+function _arrayWithoutHoles(arr) {
+  if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+}
+
+function _iterableToArray(iter) {
+  if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+}
+
+function _unsupportedIterableToArray(o, minLen) {
+  if (!o) return;
+  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+  var n = Object.prototype.toString.call(o).slice(8, -1);
+  if (n === "Object" && o.constructor) n = o.constructor.name;
+  if (n === "Map" || n === "Set") return Array.from(o);
+  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+}
+
+function _arrayLikeToArray(arr, len) {
+  if (len == null || len > arr.length) len = arr.length;
+
+  for (var i = 0, arr2 = new Array(len); i < len; i++) {
+    arr2[i] = arr[i];
+  }
+
+  return arr2;
+}
+
+function _nonIterableSpread() {
+  throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+
+var version = "1.14.0";
+
+function userAgent(pattern) {
+  if (typeof window !== 'undefined' && window.navigator) {
+    return !! /*@__PURE__*/navigator.userAgent.match(pattern);
+  }
+}
+
+var IE11OrLess = userAgent(/(?:Trident.*rv[ :]?11\.|msie|iemobile|Windows Phone)/i);
+var Edge = userAgent(/Edge/i);
+var FireFox = userAgent(/firefox/i);
+var Safari = userAgent(/safari/i) && !userAgent(/chrome/i) && !userAgent(/android/i);
+var IOS = userAgent(/iP(ad|od|hone)/i);
+var ChromeForAndroid = userAgent(/chrome/i) && userAgent(/android/i);
+var captureMode = {
+  capture: false,
+  passive: false
+};
+
+function on(el, event, fn) {
+  el.addEventListener(event, fn, !IE11OrLess && captureMode);
+}
+
+function off(el, event, fn) {
+  el.removeEventListener(event, fn, !IE11OrLess && captureMode);
+}
+
+function matches(
+/**HTMLElement*/
+el,
+/**String*/
+selector) {
+  if (!selector) return;
+  selector[0] === '>' && (selector = selector.substring(1));
+
+  if (el) {
+    try {
+      if (el.matches) {
+        return el.matches(selector);
+      } else if (el.msMatchesSelector) {
+        return el.msMatchesSelector(selector);
+      } else if (el.webkitMatchesSelector) {
+        return el.webkitMatchesSelector(selector);
+      }
+    } catch (_) {
+      return false;
+    }
+  }
+
+  return false;
+}
+
+function getParentOrHost(el) {
+  return el.host && el !== document && el.host.nodeType ? el.host : el.parentNode;
+}
+
+function closest(
+/**HTMLElement*/
+el,
+/**String*/
+selector,
+/**HTMLElement*/
+ctx, includeCTX) {
+  if (el) {
+    ctx = ctx || document;
+
+    do {
+      if (selector != null && (selector[0] === '>' ? el.parentNode === ctx && matches(el, selector) : matches(el, selector)) || includeCTX && el === ctx) {
+        return el;
+      }
+
+      if (el === ctx) break;
+      /* jshint boss:true */
+    } while (el = getParentOrHost(el));
+  }
+
+  return null;
+}
+
+var R_SPACE = /\s+/g;
+
+function toggleClass(el, name, state) {
+  if (el && name) {
+    if (el.classList) {
+      el.classList[state ? 'add' : 'remove'](name);
+    } else {
+      var className = (' ' + el.className + ' ').replace(R_SPACE, ' ').replace(' ' + name + ' ', ' ');
+      el.className = (className + (state ? ' ' + name : '')).replace(R_SPACE, ' ');
+    }
+  }
+}
+
+function css(el, prop, val) {
+  var style = el && el.style;
+
+  if (style) {
+    if (val === void 0) {
+      if (document.defaultView && document.defaultView.getComputedStyle) {
+        val = document.defaultView.getComputedStyle(el, '');
+      } else if (el.currentStyle) {
+        val = el.currentStyle;
+      }
+
+      return prop === void 0 ? val : val[prop];
+    } else {
+      if (!(prop in style) && prop.indexOf('webkit') === -1) {
+        prop = '-webkit-' + prop;
+      }
+
+      style[prop] = val + (typeof val === 'string' ? '' : 'px');
+    }
+  }
+}
+
+function matrix(el, selfOnly) {
+  var appliedTransforms = '';
+
+  if (typeof el === 'string') {
+    appliedTransforms = el;
+  } else {
+    do {
+      var transform = css(el, 'transform');
+
+      if (transform && transform !== 'none') {
+        appliedTransforms = transform + ' ' + appliedTransforms;
+      }
+      /* jshint boss:true */
+
+    } while (!selfOnly && (el = el.parentNode));
+  }
+
+  var matrixFn = window.DOMMatrix || window.WebKitCSSMatrix || window.CSSMatrix || window.MSCSSMatrix;
+  /*jshint -W056 */
+
+  return matrixFn && new matrixFn(appliedTransforms);
+}
+
+function find(ctx, tagName, iterator) {
+  if (ctx) {
+    var list = ctx.getElementsByTagName(tagName),
+        i = 0,
+        n = list.length;
+
+    if (iterator) {
+      for (; i < n; i++) {
+        iterator(list[i], i);
+      }
+    }
+
+    return list;
+  }
+
+  return [];
+}
+
+function getWindowScrollingElement() {
+  var scrollingElement = document.scrollingElement;
+
+  if (scrollingElement) {
+    return scrollingElement;
+  } else {
+    return document.documentElement;
+  }
+}
+/**
+ * Returns the "bounding client rect" of given element
+ * @param  {HTMLElement} el                       The element whose boundingClientRect is wanted
+ * @param  {[Boolean]} relativeToContainingBlock  Whether the rect should be relative to the containing block of (including) the container
+ * @param  {[Boolean]} relativeToNonStaticParent  Whether the rect should be relative to the relative parent of (including) the contaienr
+ * @param  {[Boolean]} undoScale                  Whether the container's scale() should be undone
+ * @param  {[HTMLElement]} container              The parent the element will be placed in
+ * @return {Object}                               The boundingClientRect of el, with specified adjustments
+ */
+
+
+function getRect(el, relativeToContainingBlock, relativeToNonStaticParent, undoScale, container) {
+  if (!el.getBoundingClientRect && el !== window) return;
+  var elRect, top, left, bottom, right, height, width;
+
+  if (el !== window && el.parentNode && el !== getWindowScrollingElement()) {
+    elRect = el.getBoundingClientRect();
+    top = elRect.top;
+    left = elRect.left;
+    bottom = elRect.bottom;
+    right = elRect.right;
+    height = elRect.height;
+    width = elRect.width;
+  } else {
+    top = 0;
+    left = 0;
+    bottom = window.innerHeight;
+    right = window.innerWidth;
+    height = window.innerHeight;
+    width = window.innerWidth;
+  }
+
+  if ((relativeToContainingBlock || relativeToNonStaticParent) && el !== window) {
+    // Adjust for translate()
+    container = container || el.parentNode; // solves #1123 (see: https://stackoverflow.com/a/37953806/6088312)
+    // Not needed on <= IE11
+
+    if (!IE11OrLess) {
+      do {
+        if (container && container.getBoundingClientRect && (css(container, 'transform') !== 'none' || relativeToNonStaticParent && css(container, 'position') !== 'static')) {
+          var containerRect = container.getBoundingClientRect(); // Set relative to edges of padding box of container
+
+          top -= containerRect.top + parseInt(css(container, 'border-top-width'));
+          left -= containerRect.left + parseInt(css(container, 'border-left-width'));
+          bottom = top + elRect.height;
+          right = left + elRect.width;
+          break;
+        }
+        /* jshint boss:true */
+
+      } while (container = container.parentNode);
+    }
+  }
+
+  if (undoScale && el !== window) {
+    // Adjust for scale()
+    var elMatrix = matrix(container || el),
+        scaleX = elMatrix && elMatrix.a,
+        scaleY = elMatrix && elMatrix.d;
+
+    if (elMatrix) {
+      top /= scaleY;
+      left /= scaleX;
+      width /= scaleX;
+      height /= scaleY;
+      bottom = top + height;
+      right = left + width;
+    }
+  }
+
+  return {
+    top: top,
+    left: left,
+    bottom: bottom,
+    right: right,
+    width: width,
+    height: height
+  };
+}
+/**
+ * Checks if a side of an element is scrolled past a side of its parents
+ * @param  {HTMLElement}  el           The element who's side being scrolled out of view is in question
+ * @param  {String}       elSide       Side of the element in question ('top', 'left', 'right', 'bottom')
+ * @param  {String}       parentSide   Side of the parent in question ('top', 'left', 'right', 'bottom')
+ * @return {HTMLElement}               The parent scroll element that the el's side is scrolled past, or null if there is no such element
+ */
+
+
+function isScrolledPast(el, elSide, parentSide) {
+  var parent = getParentAutoScrollElement(el, true),
+      elSideVal = getRect(el)[elSide];
+  /* jshint boss:true */
+
+  while (parent) {
+    var parentSideVal = getRect(parent)[parentSide],
+        visible = void 0;
+
+    if (parentSide === 'top' || parentSide === 'left') {
+      visible = elSideVal >= parentSideVal;
+    } else {
+      visible = elSideVal <= parentSideVal;
+    }
+
+    if (!visible) return parent;
+    if (parent === getWindowScrollingElement()) break;
+    parent = getParentAutoScrollElement(parent, false);
+  }
+
+  return false;
+}
+/**
+ * Gets nth child of el, ignoring hidden children, sortable's elements (does not ignore clone if it's visible)
+ * and non-draggable elements
+ * @param  {HTMLElement} el       The parent element
+ * @param  {Number} childNum      The index of the child
+ * @param  {Object} options       Parent Sortable's options
+ * @return {HTMLElement}          The child at index childNum, or null if not found
+ */
+
+
+function getChild(el, childNum, options, includeDragEl) {
+  var currentChild = 0,
+      i = 0,
+      children = el.children;
+
+  while (i < children.length) {
+    if (children[i].style.display !== 'none' && children[i] !== Sortable.ghost && (includeDragEl || children[i] !== Sortable.dragged) && closest(children[i], options.draggable, el, false)) {
+      if (currentChild === childNum) {
+        return children[i];
+      }
+
+      currentChild++;
+    }
+
+    i++;
+  }
+
+  return null;
+}
+/**
+ * Gets the last child in the el, ignoring ghostEl or invisible elements (clones)
+ * @param  {HTMLElement} el       Parent element
+ * @param  {selector} selector    Any other elements that should be ignored
+ * @return {HTMLElement}          The last child, ignoring ghostEl
+ */
+
+
+function lastChild(el, selector) {
+  var last = el.lastElementChild;
+
+  while (last && (last === Sortable.ghost || css(last, 'display') === 'none' || selector && !matches(last, selector))) {
+    last = last.previousElementSibling;
+  }
+
+  return last || null;
+}
+/**
+ * Returns the index of an element within its parent for a selected set of
+ * elements
+ * @param  {HTMLElement} el
+ * @param  {selector} selector
+ * @return {number}
+ */
+
+
+function index(el, selector) {
+  var index = 0;
+
+  if (!el || !el.parentNode) {
+    return -1;
+  }
+  /* jshint boss:true */
+
+
+  while (el = el.previousElementSibling) {
+    if (el.nodeName.toUpperCase() !== 'TEMPLATE' && el !== Sortable.clone && (!selector || matches(el, selector))) {
+      index++;
+    }
+  }
+
+  return index;
+}
+/**
+ * Returns the scroll offset of the given element, added with all the scroll offsets of parent elements.
+ * The value is returned in real pixels.
+ * @param  {HTMLElement} el
+ * @return {Array}             Offsets in the format of [left, top]
+ */
+
+
+function getRelativeScrollOffset(el) {
+  var offsetLeft = 0,
+      offsetTop = 0,
+      winScroller = getWindowScrollingElement();
+
+  if (el) {
+    do {
+      var elMatrix = matrix(el),
+          scaleX = elMatrix.a,
+          scaleY = elMatrix.d;
+      offsetLeft += el.scrollLeft * scaleX;
+      offsetTop += el.scrollTop * scaleY;
+    } while (el !== winScroller && (el = el.parentNode));
+  }
+
+  return [offsetLeft, offsetTop];
+}
+/**
+ * Returns the index of the object within the given array
+ * @param  {Array} arr   Array that may or may not hold the object
+ * @param  {Object} obj  An object that has a key-value pair unique to and identical to a key-value pair in the object you want to find
+ * @return {Number}      The index of the object in the array, or -1
+ */
+
+
+function indexOfObject(arr, obj) {
+  for (var i in arr) {
+    if (!arr.hasOwnProperty(i)) continue;
+
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key) && obj[key] === arr[i][key]) return Number(i);
+    }
+  }
+
+  return -1;
+}
+
+function getParentAutoScrollElement(el, includeSelf) {
+  // skip to window
+  if (!el || !el.getBoundingClientRect) return getWindowScrollingElement();
+  var elem = el;
+  var gotSelf = false;
+
+  do {
+    // we don't need to get elem css if it isn't even overflowing in the first place (performance)
+    if (elem.clientWidth < elem.scrollWidth || elem.clientHeight < elem.scrollHeight) {
+      var elemCSS = css(elem);
+
+      if (elem.clientWidth < elem.scrollWidth && (elemCSS.overflowX == 'auto' || elemCSS.overflowX == 'scroll') || elem.clientHeight < elem.scrollHeight && (elemCSS.overflowY == 'auto' || elemCSS.overflowY == 'scroll')) {
+        if (!elem.getBoundingClientRect || elem === document.body) return getWindowScrollingElement();
+        if (gotSelf || includeSelf) return elem;
+        gotSelf = true;
+      }
+    }
+    /* jshint boss:true */
+
+  } while (elem = elem.parentNode);
+
+  return getWindowScrollingElement();
+}
+
+function extend(dst, src) {
+  if (dst && src) {
+    for (var key in src) {
+      if (src.hasOwnProperty(key)) {
+        dst[key] = src[key];
+      }
+    }
+  }
+
+  return dst;
+}
+
+function isRectEqual(rect1, rect2) {
+  return Math.round(rect1.top) === Math.round(rect2.top) && Math.round(rect1.left) === Math.round(rect2.left) && Math.round(rect1.height) === Math.round(rect2.height) && Math.round(rect1.width) === Math.round(rect2.width);
+}
+
+var _throttleTimeout;
+
+function throttle(callback, ms) {
+  return function () {
+    if (!_throttleTimeout) {
+      var args = arguments,
+          _this = this;
+
+      if (args.length === 1) {
+        callback.call(_this, args[0]);
+      } else {
+        callback.apply(_this, args);
+      }
+
+      _throttleTimeout = setTimeout(function () {
+        _throttleTimeout = void 0;
+      }, ms);
+    }
+  };
+}
+
+function cancelThrottle() {
+  clearTimeout(_throttleTimeout);
+  _throttleTimeout = void 0;
+}
+
+function scrollBy(el, x, y) {
+  el.scrollLeft += x;
+  el.scrollTop += y;
+}
+
+function clone(el) {
+  var Polymer = window.Polymer;
+  var $ = window.jQuery || window.Zepto;
+
+  if (Polymer && Polymer.dom) {
+    return Polymer.dom(el).cloneNode(true);
+  } else if ($) {
+    return $(el).clone(true)[0];
+  } else {
+    return el.cloneNode(true);
+  }
+}
+
+function setRect(el, rect) {
+  css(el, 'position', 'absolute');
+  css(el, 'top', rect.top);
+  css(el, 'left', rect.left);
+  css(el, 'width', rect.width);
+  css(el, 'height', rect.height);
+}
+
+function unsetRect(el) {
+  css(el, 'position', '');
+  css(el, 'top', '');
+  css(el, 'left', '');
+  css(el, 'width', '');
+  css(el, 'height', '');
+}
+
+var expando = 'Sortable' + new Date().getTime();
+
+function AnimationStateManager() {
+  var animationStates = [],
+      animationCallbackId;
+  return {
+    captureAnimationState: function captureAnimationState() {
+      animationStates = [];
+      if (!this.options.animation) return;
+      var children = [].slice.call(this.el.children);
+      children.forEach(function (child) {
+        if (css(child, 'display') === 'none' || child === Sortable.ghost) return;
+        animationStates.push({
+          target: child,
+          rect: getRect(child)
+        });
+
+        var fromRect = _objectSpread2({}, animationStates[animationStates.length - 1].rect); // If animating: compensate for current animation
+
+
+        if (child.thisAnimationDuration) {
+          var childMatrix = matrix(child, true);
+
+          if (childMatrix) {
+            fromRect.top -= childMatrix.f;
+            fromRect.left -= childMatrix.e;
+          }
+        }
+
+        child.fromRect = fromRect;
+      });
+    },
+    addAnimationState: function addAnimationState(state) {
+      animationStates.push(state);
+    },
+    removeAnimationState: function removeAnimationState(target) {
+      animationStates.splice(indexOfObject(animationStates, {
+        target: target
+      }), 1);
+    },
+    animateAll: function animateAll(callback) {
+      var _this = this;
+
+      if (!this.options.animation) {
+        clearTimeout(animationCallbackId);
+        if (typeof callback === 'function') callback();
+        return;
+      }
+
+      var animating = false,
+          animationTime = 0;
+      animationStates.forEach(function (state) {
+        var time = 0,
+            target = state.target,
+            fromRect = target.fromRect,
+            toRect = getRect(target),
+            prevFromRect = target.prevFromRect,
+            prevToRect = target.prevToRect,
+            animatingRect = state.rect,
+            targetMatrix = matrix(target, true);
+
+        if (targetMatrix) {
+          // Compensate for current animation
+          toRect.top -= targetMatrix.f;
+          toRect.left -= targetMatrix.e;
+        }
+
+        target.toRect = toRect;
+
+        if (target.thisAnimationDuration) {
+          // Could also check if animatingRect is between fromRect and toRect
+          if (isRectEqual(prevFromRect, toRect) && !isRectEqual(fromRect, toRect) && // Make sure animatingRect is on line between toRect & fromRect
+          (animatingRect.top - toRect.top) / (animatingRect.left - toRect.left) === (fromRect.top - toRect.top) / (fromRect.left - toRect.left)) {
+            // If returning to same place as started from animation and on same axis
+            time = calculateRealTime(animatingRect, prevFromRect, prevToRect, _this.options);
+          }
+        } // if fromRect != toRect: animate
+
+
+        if (!isRectEqual(toRect, fromRect)) {
+          target.prevFromRect = fromRect;
+          target.prevToRect = toRect;
+
+          if (!time) {
+            time = _this.options.animation;
+          }
+
+          _this.animate(target, animatingRect, toRect, time);
+        }
+
+        if (time) {
+          animating = true;
+          animationTime = Math.max(animationTime, time);
+          clearTimeout(target.animationResetTimer);
+          target.animationResetTimer = setTimeout(function () {
+            target.animationTime = 0;
+            target.prevFromRect = null;
+            target.fromRect = null;
+            target.prevToRect = null;
+            target.thisAnimationDuration = null;
+          }, time);
+          target.thisAnimationDuration = time;
+        }
+      });
+      clearTimeout(animationCallbackId);
+
+      if (!animating) {
+        if (typeof callback === 'function') callback();
+      } else {
+        animationCallbackId = setTimeout(function () {
+          if (typeof callback === 'function') callback();
+        }, animationTime);
+      }
+
+      animationStates = [];
+    },
+    animate: function animate(target, currentRect, toRect, duration) {
+      if (duration) {
+        css(target, 'transition', '');
+        css(target, 'transform', '');
+        var elMatrix = matrix(this.el),
+            scaleX = elMatrix && elMatrix.a,
+            scaleY = elMatrix && elMatrix.d,
+            translateX = (currentRect.left - toRect.left) / (scaleX || 1),
+            translateY = (currentRect.top - toRect.top) / (scaleY || 1);
+        target.animatingX = !!translateX;
+        target.animatingY = !!translateY;
+        css(target, 'transform', 'translate3d(' + translateX + 'px,' + translateY + 'px,0)');
+        this.forRepaintDummy = repaint(target); // repaint
+
+        css(target, 'transition', 'transform ' + duration + 'ms' + (this.options.easing ? ' ' + this.options.easing : ''));
+        css(target, 'transform', 'translate3d(0,0,0)');
+        typeof target.animated === 'number' && clearTimeout(target.animated);
+        target.animated = setTimeout(function () {
+          css(target, 'transition', '');
+          css(target, 'transform', '');
+          target.animated = false;
+          target.animatingX = false;
+          target.animatingY = false;
+        }, duration);
+      }
+    }
+  };
+}
+
+function repaint(target) {
+  return target.offsetWidth;
+}
+
+function calculateRealTime(animatingRect, fromRect, toRect, options) {
+  return Math.sqrt(Math.pow(fromRect.top - animatingRect.top, 2) + Math.pow(fromRect.left - animatingRect.left, 2)) / Math.sqrt(Math.pow(fromRect.top - toRect.top, 2) + Math.pow(fromRect.left - toRect.left, 2)) * options.animation;
+}
+
+var plugins = [];
+var defaults = {
+  initializeByDefault: true
+};
+var PluginManager = {
+  mount: function mount(plugin) {
+    // Set default static properties
+    for (var option in defaults) {
+      if (defaults.hasOwnProperty(option) && !(option in plugin)) {
+        plugin[option] = defaults[option];
+      }
+    }
+
+    plugins.forEach(function (p) {
+      if (p.pluginName === plugin.pluginName) {
+        throw "Sortable: Cannot mount plugin ".concat(plugin.pluginName, " more than once");
+      }
+    });
+    plugins.push(plugin);
+  },
+  pluginEvent: function pluginEvent(eventName, sortable, evt) {
+    var _this = this;
+
+    this.eventCanceled = false;
+
+    evt.cancel = function () {
+      _this.eventCanceled = true;
+    };
+
+    var eventNameGlobal = eventName + 'Global';
+    plugins.forEach(function (plugin) {
+      if (!sortable[plugin.pluginName]) return; // Fire global events if it exists in this sortable
+
+      if (sortable[plugin.pluginName][eventNameGlobal]) {
+        sortable[plugin.pluginName][eventNameGlobal](_objectSpread2({
+          sortable: sortable
+        }, evt));
+      } // Only fire plugin event if plugin is enabled in this sortable,
+      // and plugin has event defined
+
+
+      if (sortable.options[plugin.pluginName] && sortable[plugin.pluginName][eventName]) {
+        sortable[plugin.pluginName][eventName](_objectSpread2({
+          sortable: sortable
+        }, evt));
+      }
+    });
+  },
+  initializePlugins: function initializePlugins(sortable, el, defaults, options) {
+    plugins.forEach(function (plugin) {
+      var pluginName = plugin.pluginName;
+      if (!sortable.options[pluginName] && !plugin.initializeByDefault) return;
+      var initialized = new plugin(sortable, el, sortable.options);
+      initialized.sortable = sortable;
+      initialized.options = sortable.options;
+      sortable[pluginName] = initialized; // Add default options from plugin
+
+      _extends(defaults, initialized.defaults);
+    });
+
+    for (var option in sortable.options) {
+      if (!sortable.options.hasOwnProperty(option)) continue;
+      var modified = this.modifyOption(sortable, option, sortable.options[option]);
+
+      if (typeof modified !== 'undefined') {
+        sortable.options[option] = modified;
+      }
+    }
+  },
+  getEventProperties: function getEventProperties(name, sortable) {
+    var eventProperties = {};
+    plugins.forEach(function (plugin) {
+      if (typeof plugin.eventProperties !== 'function') return;
+
+      _extends(eventProperties, plugin.eventProperties.call(sortable[plugin.pluginName], name));
+    });
+    return eventProperties;
+  },
+  modifyOption: function modifyOption(sortable, name, value) {
+    var modifiedValue;
+    plugins.forEach(function (plugin) {
+      // Plugin must exist on the Sortable
+      if (!sortable[plugin.pluginName]) return; // If static option listener exists for this option, call in the context of the Sortable's instance of this plugin
+
+      if (plugin.optionListeners && typeof plugin.optionListeners[name] === 'function') {
+        modifiedValue = plugin.optionListeners[name].call(sortable[plugin.pluginName], value);
+      }
+    });
+    return modifiedValue;
+  }
+};
+
+function dispatchEvent(_ref) {
+  var sortable = _ref.sortable,
+      rootEl = _ref.rootEl,
+      name = _ref.name,
+      targetEl = _ref.targetEl,
+      cloneEl = _ref.cloneEl,
+      toEl = _ref.toEl,
+      fromEl = _ref.fromEl,
+      oldIndex = _ref.oldIndex,
+      newIndex = _ref.newIndex,
+      oldDraggableIndex = _ref.oldDraggableIndex,
+      newDraggableIndex = _ref.newDraggableIndex,
+      originalEvent = _ref.originalEvent,
+      putSortable = _ref.putSortable,
+      extraEventProperties = _ref.extraEventProperties;
+  sortable = sortable || rootEl && rootEl[expando];
+  if (!sortable) return;
+  var evt,
+      options = sortable.options,
+      onName = 'on' + name.charAt(0).toUpperCase() + name.substr(1); // Support for new CustomEvent feature
+
+  if (window.CustomEvent && !IE11OrLess && !Edge) {
+    evt = new CustomEvent(name, {
+      bubbles: true,
+      cancelable: true
+    });
+  } else {
+    evt = document.createEvent('Event');
+    evt.initEvent(name, true, true);
+  }
+
+  evt.to = toEl || rootEl;
+  evt.from = fromEl || rootEl;
+  evt.item = targetEl || rootEl;
+  evt.clone = cloneEl;
+  evt.oldIndex = oldIndex;
+  evt.newIndex = newIndex;
+  evt.oldDraggableIndex = oldDraggableIndex;
+  evt.newDraggableIndex = newDraggableIndex;
+  evt.originalEvent = originalEvent;
+  evt.pullMode = putSortable ? putSortable.lastPutMode : undefined;
+
+  var allEventProperties = _objectSpread2(_objectSpread2({}, extraEventProperties), PluginManager.getEventProperties(name, sortable));
+
+  for (var option in allEventProperties) {
+    evt[option] = allEventProperties[option];
+  }
+
+  if (rootEl) {
+    rootEl.dispatchEvent(evt);
+  }
+
+  if (options[onName]) {
+    options[onName].call(sortable, evt);
+  }
+}
+
+var _excluded = ["evt"];
+
+var pluginEvent = function pluginEvent(eventName, sortable) {
+  var _ref = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+      originalEvent = _ref.evt,
+      data = _objectWithoutProperties(_ref, _excluded);
+
+  PluginManager.pluginEvent.bind(Sortable)(eventName, sortable, _objectSpread2({
+    dragEl: dragEl,
+    parentEl: parentEl,
+    ghostEl: ghostEl,
+    rootEl: rootEl,
+    nextEl: nextEl,
+    lastDownEl: lastDownEl,
+    cloneEl: cloneEl,
+    cloneHidden: cloneHidden,
+    dragStarted: moved,
+    putSortable: putSortable,
+    activeSortable: Sortable.active,
+    originalEvent: originalEvent,
+    oldIndex: oldIndex,
+    oldDraggableIndex: oldDraggableIndex,
+    newIndex: newIndex,
+    newDraggableIndex: newDraggableIndex,
+    hideGhostForTarget: _hideGhostForTarget,
+    unhideGhostForTarget: _unhideGhostForTarget,
+    cloneNowHidden: function cloneNowHidden() {
+      cloneHidden = true;
+    },
+    cloneNowShown: function cloneNowShown() {
+      cloneHidden = false;
+    },
+    dispatchSortableEvent: function dispatchSortableEvent(name) {
+      _dispatchEvent({
+        sortable: sortable,
+        name: name,
+        originalEvent: originalEvent
+      });
+    }
+  }, data));
+};
+
+function _dispatchEvent(info) {
+  dispatchEvent(_objectSpread2({
+    putSortable: putSortable,
+    cloneEl: cloneEl,
+    targetEl: dragEl,
+    rootEl: rootEl,
+    oldIndex: oldIndex,
+    oldDraggableIndex: oldDraggableIndex,
+    newIndex: newIndex,
+    newDraggableIndex: newDraggableIndex
+  }, info));
+}
+
+var dragEl,
+    parentEl,
+    ghostEl,
+    rootEl,
+    nextEl,
+    lastDownEl,
+    cloneEl,
+    cloneHidden,
+    oldIndex,
+    newIndex,
+    oldDraggableIndex,
+    newDraggableIndex,
+    activeGroup,
+    putSortable,
+    awaitingDragStarted = false,
+    ignoreNextClick = false,
+    sortables = [],
+    tapEvt,
+    touchEvt,
+    lastDx,
+    lastDy,
+    tapDistanceLeft,
+    tapDistanceTop,
+    moved,
+    lastTarget,
+    lastDirection,
+    pastFirstInvertThresh = false,
+    isCircumstantialInvert = false,
+    targetMoveDistance,
+    // For positioning ghost absolutely
+ghostRelativeParent,
+    ghostRelativeParentInitialScroll = [],
+    // (left, top)
+_silent = false,
+    savedInputChecked = [];
+/** @const */
+
+var documentExists = typeof document !== 'undefined',
+    PositionGhostAbsolutely = IOS,
+    CSSFloatProperty = Edge || IE11OrLess ? 'cssFloat' : 'float',
+    // This will not pass for IE9, because IE9 DnD only works on anchors
+supportDraggable = documentExists && !ChromeForAndroid && !IOS && 'draggable' in document.createElement('div'),
+    supportCssPointerEvents = function () {
+  if (!documentExists) return; // false when <= IE11
+
+  if (IE11OrLess) {
+    return false;
+  }
+
+  var el = document.createElement('x');
+  el.style.cssText = 'pointer-events:auto';
+  return el.style.pointerEvents === 'auto';
+}(),
+    _detectDirection = function _detectDirection(el, options) {
+  var elCSS = css(el),
+      elWidth = parseInt(elCSS.width) - parseInt(elCSS.paddingLeft) - parseInt(elCSS.paddingRight) - parseInt(elCSS.borderLeftWidth) - parseInt(elCSS.borderRightWidth),
+      child1 = getChild(el, 0, options),
+      child2 = getChild(el, 1, options),
+      firstChildCSS = child1 && css(child1),
+      secondChildCSS = child2 && css(child2),
+      firstChildWidth = firstChildCSS && parseInt(firstChildCSS.marginLeft) + parseInt(firstChildCSS.marginRight) + getRect(child1).width,
+      secondChildWidth = secondChildCSS && parseInt(secondChildCSS.marginLeft) + parseInt(secondChildCSS.marginRight) + getRect(child2).width;
+
+  if (elCSS.display === 'flex') {
+    return elCSS.flexDirection === 'column' || elCSS.flexDirection === 'column-reverse' ? 'vertical' : 'horizontal';
+  }
+
+  if (elCSS.display === 'grid') {
+    return elCSS.gridTemplateColumns.split(' ').length <= 1 ? 'vertical' : 'horizontal';
+  }
+
+  if (child1 && firstChildCSS["float"] && firstChildCSS["float"] !== 'none') {
+    var touchingSideChild2 = firstChildCSS["float"] === 'left' ? 'left' : 'right';
+    return child2 && (secondChildCSS.clear === 'both' || secondChildCSS.clear === touchingSideChild2) ? 'vertical' : 'horizontal';
+  }
+
+  return child1 && (firstChildCSS.display === 'block' || firstChildCSS.display === 'flex' || firstChildCSS.display === 'table' || firstChildCSS.display === 'grid' || firstChildWidth >= elWidth && elCSS[CSSFloatProperty] === 'none' || child2 && elCSS[CSSFloatProperty] === 'none' && firstChildWidth + secondChildWidth > elWidth) ? 'vertical' : 'horizontal';
+},
+    _dragElInRowColumn = function _dragElInRowColumn(dragRect, targetRect, vertical) {
+  var dragElS1Opp = vertical ? dragRect.left : dragRect.top,
+      dragElS2Opp = vertical ? dragRect.right : dragRect.bottom,
+      dragElOppLength = vertical ? dragRect.width : dragRect.height,
+      targetS1Opp = vertical ? targetRect.left : targetRect.top,
+      targetS2Opp = vertical ? targetRect.right : targetRect.bottom,
+      targetOppLength = vertical ? targetRect.width : targetRect.height;
+  return dragElS1Opp === targetS1Opp || dragElS2Opp === targetS2Opp || dragElS1Opp + dragElOppLength / 2 === targetS1Opp + targetOppLength / 2;
+},
+
+/**
+ * Detects first nearest empty sortable to X and Y position using emptyInsertThreshold.
+ * @param  {Number} x      X position
+ * @param  {Number} y      Y position
+ * @return {HTMLElement}   Element of the first found nearest Sortable
+ */
+_detectNearestEmptySortable = function _detectNearestEmptySortable(x, y) {
+  var ret;
+  sortables.some(function (sortable) {
+    var threshold = sortable[expando].options.emptyInsertThreshold;
+    if (!threshold || lastChild(sortable)) return;
+    var rect = getRect(sortable),
+        insideHorizontally = x >= rect.left - threshold && x <= rect.right + threshold,
+        insideVertically = y >= rect.top - threshold && y <= rect.bottom + threshold;
+
+    if (insideHorizontally && insideVertically) {
+      return ret = sortable;
+    }
+  });
+  return ret;
+},
+    _prepareGroup = function _prepareGroup(options) {
+  function toFn(value, pull) {
+    return function (to, from, dragEl, evt) {
+      var sameGroup = to.options.group.name && from.options.group.name && to.options.group.name === from.options.group.name;
+
+      if (value == null && (pull || sameGroup)) {
+        // Default pull value
+        // Default pull and put value if same group
+        return true;
+      } else if (value == null || value === false) {
+        return false;
+      } else if (pull && value === 'clone') {
+        return value;
+      } else if (typeof value === 'function') {
+        return toFn(value(to, from, dragEl, evt), pull)(to, from, dragEl, evt);
+      } else {
+        var otherGroup = (pull ? to : from).options.group.name;
+        return value === true || typeof value === 'string' && value === otherGroup || value.join && value.indexOf(otherGroup) > -1;
+      }
+    };
+  }
+
+  var group = {};
+  var originalGroup = options.group;
+
+  if (!originalGroup || _typeof(originalGroup) != 'object') {
+    originalGroup = {
+      name: originalGroup
+    };
+  }
+
+  group.name = originalGroup.name;
+  group.checkPull = toFn(originalGroup.pull, true);
+  group.checkPut = toFn(originalGroup.put);
+  group.revertClone = originalGroup.revertClone;
+  options.group = group;
+},
+    _hideGhostForTarget = function _hideGhostForTarget() {
+  if (!supportCssPointerEvents && ghostEl) {
+    css(ghostEl, 'display', 'none');
+  }
+},
+    _unhideGhostForTarget = function _unhideGhostForTarget() {
+  if (!supportCssPointerEvents && ghostEl) {
+    css(ghostEl, 'display', '');
+  }
+}; // #1184 fix - Prevent click event on fallback if dragged but item not changed position
+
+
+if (documentExists) {
+  document.addEventListener('click', function (evt) {
+    if (ignoreNextClick) {
+      evt.preventDefault();
+      evt.stopPropagation && evt.stopPropagation();
+      evt.stopImmediatePropagation && evt.stopImmediatePropagation();
+      ignoreNextClick = false;
+      return false;
+    }
+  }, true);
+}
+
+var nearestEmptyInsertDetectEvent = function nearestEmptyInsertDetectEvent(evt) {
+  if (dragEl) {
+    evt = evt.touches ? evt.touches[0] : evt;
+
+    var nearest = _detectNearestEmptySortable(evt.clientX, evt.clientY);
+
+    if (nearest) {
+      // Create imitation event
+      var event = {};
+
+      for (var i in evt) {
+        if (evt.hasOwnProperty(i)) {
+          event[i] = evt[i];
+        }
+      }
+
+      event.target = event.rootEl = nearest;
+      event.preventDefault = void 0;
+      event.stopPropagation = void 0;
+
+      nearest[expando]._onDragOver(event);
+    }
+  }
+};
+
+var _checkOutsideTargetEl = function _checkOutsideTargetEl(evt) {
+  if (dragEl) {
+    dragEl.parentNode[expando]._isOutsideThisEl(evt.target);
+  }
+};
+/**
+ * @class  Sortable
+ * @param  {HTMLElement}  el
+ * @param  {Object}       [options]
+ */
+
+
+function Sortable(el, options) {
+  if (!(el && el.nodeType && el.nodeType === 1)) {
+    throw "Sortable: `el` must be an HTMLElement, not ".concat({}.toString.call(el));
+  }
+
+  this.el = el; // root element
+
+  this.options = options = _extends({}, options); // Export instance
+
+  el[expando] = this;
+  var defaults = {
+    group: null,
+    sort: true,
+    disabled: false,
+    store: null,
+    handle: null,
+    draggable: /^[uo]l$/i.test(el.nodeName) ? '>li' : '>*',
+    swapThreshold: 1,
+    // percentage; 0 <= x <= 1
+    invertSwap: false,
+    // invert always
+    invertedSwapThreshold: null,
+    // will be set to same as swapThreshold if default
+    removeCloneOnHide: true,
+    direction: function direction() {
+      return _detectDirection(el, this.options);
+    },
+    ghostClass: 'sortable-ghost',
+    chosenClass: 'sortable-chosen',
+    dragClass: 'sortable-drag',
+    ignore: 'a, img',
+    filter: null,
+    preventOnFilter: true,
+    animation: 0,
+    easing: null,
+    setData: function setData(dataTransfer, dragEl) {
+      dataTransfer.setData('Text', dragEl.textContent);
+    },
+    dropBubble: false,
+    dragoverBubble: false,
+    dataIdAttr: 'data-id',
+    delay: 0,
+    delayOnTouchOnly: false,
+    touchStartThreshold: (Number.parseInt ? Number : window).parseInt(window.devicePixelRatio, 10) || 1,
+    forceFallback: false,
+    fallbackClass: 'sortable-fallback',
+    fallbackOnBody: false,
+    fallbackTolerance: 0,
+    fallbackOffset: {
+      x: 0,
+      y: 0
+    },
+    supportPointer: Sortable.supportPointer !== false && 'PointerEvent' in window && !Safari,
+    emptyInsertThreshold: 5
+  };
+  PluginManager.initializePlugins(this, el, defaults); // Set default options
+
+  for (var name in defaults) {
+    !(name in options) && (options[name] = defaults[name]);
+  }
+
+  _prepareGroup(options); // Bind all private methods
+
+
+  for (var fn in this) {
+    if (fn.charAt(0) === '_' && typeof this[fn] === 'function') {
+      this[fn] = this[fn].bind(this);
+    }
+  } // Setup drag mode
+
+
+  this.nativeDraggable = options.forceFallback ? false : supportDraggable;
+
+  if (this.nativeDraggable) {
+    // Touch start threshold cannot be greater than the native dragstart threshold
+    this.options.touchStartThreshold = 1;
+  } // Bind events
+
+
+  if (options.supportPointer) {
+    on(el, 'pointerdown', this._onTapStart);
+  } else {
+    on(el, 'mousedown', this._onTapStart);
+    on(el, 'touchstart', this._onTapStart);
+  }
+
+  if (this.nativeDraggable) {
+    on(el, 'dragover', this);
+    on(el, 'dragenter', this);
+  }
+
+  sortables.push(this.el); // Restore sorting
+
+  options.store && options.store.get && this.sort(options.store.get(this) || []); // Add animation state manager
+
+  _extends(this, AnimationStateManager());
+}
+
+Sortable.prototype =
+/** @lends Sortable.prototype */
+{
+  constructor: Sortable,
+  _isOutsideThisEl: function _isOutsideThisEl(target) {
+    if (!this.el.contains(target) && target !== this.el) {
+      lastTarget = null;
+    }
+  },
+  _getDirection: function _getDirection(evt, target) {
+    return typeof this.options.direction === 'function' ? this.options.direction.call(this, evt, target, dragEl) : this.options.direction;
+  },
+  _onTapStart: function _onTapStart(
+  /** Event|TouchEvent */
+  evt) {
+    if (!evt.cancelable) return;
+
+    var _this = this,
+        el = this.el,
+        options = this.options,
+        preventOnFilter = options.preventOnFilter,
+        type = evt.type,
+        touch = evt.touches && evt.touches[0] || evt.pointerType && evt.pointerType === 'touch' && evt,
+        target = (touch || evt).target,
+        originalTarget = evt.target.shadowRoot && (evt.path && evt.path[0] || evt.composedPath && evt.composedPath()[0]) || target,
+        filter = options.filter;
+
+    _saveInputCheckedState(el); // Don't trigger start event when an element is been dragged, otherwise the evt.oldindex always wrong when set option.group.
+
+
+    if (dragEl) {
+      return;
+    }
+
+    if (/mousedown|pointerdown/.test(type) && evt.button !== 0 || options.disabled) {
+      return; // only left button and enabled
+    } // cancel dnd if original target is content editable
+
+
+    if (originalTarget.isContentEditable) {
+      return;
+    } // Safari ignores further event handling after mousedown
+
+
+    if (!this.nativeDraggable && Safari && target && target.tagName.toUpperCase() === 'SELECT') {
+      return;
+    }
+
+    target = closest(target, options.draggable, el, false);
+
+    if (target && target.animated) {
+      return;
+    }
+
+    if (lastDownEl === target) {
+      // Ignoring duplicate `down`
+      return;
+    } // Get the index of the dragged element within its parent
+
+
+    oldIndex = index(target);
+    oldDraggableIndex = index(target, options.draggable); // Check filter
+
+    if (typeof filter === 'function') {
+      if (filter.call(this, evt, target, this)) {
+        _dispatchEvent({
+          sortable: _this,
+          rootEl: originalTarget,
+          name: 'filter',
+          targetEl: target,
+          toEl: el,
+          fromEl: el
+        });
+
+        pluginEvent('filter', _this, {
+          evt: evt
+        });
+        preventOnFilter && evt.cancelable && evt.preventDefault();
+        return; // cancel dnd
+      }
+    } else if (filter) {
+      filter = filter.split(',').some(function (criteria) {
+        criteria = closest(originalTarget, criteria.trim(), el, false);
+
+        if (criteria) {
+          _dispatchEvent({
+            sortable: _this,
+            rootEl: criteria,
+            name: 'filter',
+            targetEl: target,
+            fromEl: el,
+            toEl: el
+          });
+
+          pluginEvent('filter', _this, {
+            evt: evt
+          });
+          return true;
+        }
+      });
+
+      if (filter) {
+        preventOnFilter && evt.cancelable && evt.preventDefault();
+        return; // cancel dnd
+      }
+    }
+
+    if (options.handle && !closest(originalTarget, options.handle, el, false)) {
+      return;
+    } // Prepare `dragstart`
+
+
+    this._prepareDragStart(evt, touch, target);
+  },
+  _prepareDragStart: function _prepareDragStart(
+  /** Event */
+  evt,
+  /** Touch */
+  touch,
+  /** HTMLElement */
+  target) {
+    var _this = this,
+        el = _this.el,
+        options = _this.options,
+        ownerDocument = el.ownerDocument,
+        dragStartFn;
+
+    if (target && !dragEl && target.parentNode === el) {
+      var dragRect = getRect(target);
+      rootEl = el;
+      dragEl = target;
+      parentEl = dragEl.parentNode;
+      nextEl = dragEl.nextSibling;
+      lastDownEl = target;
+      activeGroup = options.group;
+      Sortable.dragged = dragEl;
+      tapEvt = {
+        target: dragEl,
+        clientX: (touch || evt).clientX,
+        clientY: (touch || evt).clientY
+      };
+      tapDistanceLeft = tapEvt.clientX - dragRect.left;
+      tapDistanceTop = tapEvt.clientY - dragRect.top;
+      this._lastX = (touch || evt).clientX;
+      this._lastY = (touch || evt).clientY;
+      dragEl.style['will-change'] = 'all';
+
+      dragStartFn = function dragStartFn() {
+        pluginEvent('delayEnded', _this, {
+          evt: evt
+        });
+
+        if (Sortable.eventCanceled) {
+          _this._onDrop();
+
+          return;
+        } // Delayed drag has been triggered
+        // we can re-enable the events: touchmove/mousemove
+
+
+        _this._disableDelayedDragEvents();
+
+        if (!FireFox && _this.nativeDraggable) {
+          dragEl.draggable = true;
+        } // Bind the events: dragstart/dragend
+
+
+        _this._triggerDragStart(evt, touch); // Drag start event
+
+
+        _dispatchEvent({
+          sortable: _this,
+          name: 'choose',
+          originalEvent: evt
+        }); // Chosen item
+
+
+        toggleClass(dragEl, options.chosenClass, true);
+      }; // Disable "draggable"
+
+
+      options.ignore.split(',').forEach(function (criteria) {
+        find(dragEl, criteria.trim(), _disableDraggable);
+      });
+      on(ownerDocument, 'dragover', nearestEmptyInsertDetectEvent);
+      on(ownerDocument, 'mousemove', nearestEmptyInsertDetectEvent);
+      on(ownerDocument, 'touchmove', nearestEmptyInsertDetectEvent);
+      on(ownerDocument, 'mouseup', _this._onDrop);
+      on(ownerDocument, 'touchend', _this._onDrop);
+      on(ownerDocument, 'touchcancel', _this._onDrop); // Make dragEl draggable (must be before delay for FireFox)
+
+      if (FireFox && this.nativeDraggable) {
+        this.options.touchStartThreshold = 4;
+        dragEl.draggable = true;
+      }
+
+      pluginEvent('delayStart', this, {
+        evt: evt
+      }); // Delay is impossible for native DnD in Edge or IE
+
+      if (options.delay && (!options.delayOnTouchOnly || touch) && (!this.nativeDraggable || !(Edge || IE11OrLess))) {
+        if (Sortable.eventCanceled) {
+          this._onDrop();
+
+          return;
+        } // If the user moves the pointer or let go the click or touch
+        // before the delay has been reached:
+        // disable the delayed drag
+
+
+        on(ownerDocument, 'mouseup', _this._disableDelayedDrag);
+        on(ownerDocument, 'touchend', _this._disableDelayedDrag);
+        on(ownerDocument, 'touchcancel', _this._disableDelayedDrag);
+        on(ownerDocument, 'mousemove', _this._delayedDragTouchMoveHandler);
+        on(ownerDocument, 'touchmove', _this._delayedDragTouchMoveHandler);
+        options.supportPointer && on(ownerDocument, 'pointermove', _this._delayedDragTouchMoveHandler);
+        _this._dragStartTimer = setTimeout(dragStartFn, options.delay);
+      } else {
+        dragStartFn();
+      }
+    }
+  },
+  _delayedDragTouchMoveHandler: function _delayedDragTouchMoveHandler(
+  /** TouchEvent|PointerEvent **/
+  e) {
+    var touch = e.touches ? e.touches[0] : e;
+
+    if (Math.max(Math.abs(touch.clientX - this._lastX), Math.abs(touch.clientY - this._lastY)) >= Math.floor(this.options.touchStartThreshold / (this.nativeDraggable && window.devicePixelRatio || 1))) {
+      this._disableDelayedDrag();
+    }
+  },
+  _disableDelayedDrag: function _disableDelayedDrag() {
+    dragEl && _disableDraggable(dragEl);
+    clearTimeout(this._dragStartTimer);
+
+    this._disableDelayedDragEvents();
+  },
+  _disableDelayedDragEvents: function _disableDelayedDragEvents() {
+    var ownerDocument = this.el.ownerDocument;
+    off(ownerDocument, 'mouseup', this._disableDelayedDrag);
+    off(ownerDocument, 'touchend', this._disableDelayedDrag);
+    off(ownerDocument, 'touchcancel', this._disableDelayedDrag);
+    off(ownerDocument, 'mousemove', this._delayedDragTouchMoveHandler);
+    off(ownerDocument, 'touchmove', this._delayedDragTouchMoveHandler);
+    off(ownerDocument, 'pointermove', this._delayedDragTouchMoveHandler);
+  },
+  _triggerDragStart: function _triggerDragStart(
+  /** Event */
+  evt,
+  /** Touch */
+  touch) {
+    touch = touch || evt.pointerType == 'touch' && evt;
+
+    if (!this.nativeDraggable || touch) {
+      if (this.options.supportPointer) {
+        on(document, 'pointermove', this._onTouchMove);
+      } else if (touch) {
+        on(document, 'touchmove', this._onTouchMove);
+      } else {
+        on(document, 'mousemove', this._onTouchMove);
+      }
+    } else {
+      on(dragEl, 'dragend', this);
+      on(rootEl, 'dragstart', this._onDragStart);
+    }
+
+    try {
+      if (document.selection) {
+        // Timeout neccessary for IE9
+        _nextTick(function () {
+          document.selection.empty();
+        });
+      } else {
+        window.getSelection().removeAllRanges();
+      }
+    } catch (err) {}
+  },
+  _dragStarted: function _dragStarted(fallback, evt) {
+    awaitingDragStarted = false;
+
+    if (rootEl && dragEl) {
+      pluginEvent('dragStarted', this, {
+        evt: evt
+      });
+
+      if (this.nativeDraggable) {
+        on(document, 'dragover', _checkOutsideTargetEl);
+      }
+
+      var options = this.options; // Apply effect
+
+      !fallback && toggleClass(dragEl, options.dragClass, false);
+      toggleClass(dragEl, options.ghostClass, true);
+      Sortable.active = this;
+      fallback && this._appendGhost(); // Drag start event
+
+      _dispatchEvent({
+        sortable: this,
+        name: 'start',
+        originalEvent: evt
+      });
+    } else {
+      this._nulling();
+    }
+  },
+  _emulateDragOver: function _emulateDragOver() {
+    if (touchEvt) {
+      this._lastX = touchEvt.clientX;
+      this._lastY = touchEvt.clientY;
+
+      _hideGhostForTarget();
+
+      var target = document.elementFromPoint(touchEvt.clientX, touchEvt.clientY);
+      var parent = target;
+
+      while (target && target.shadowRoot) {
+        target = target.shadowRoot.elementFromPoint(touchEvt.clientX, touchEvt.clientY);
+        if (target === parent) break;
+        parent = target;
+      }
+
+      dragEl.parentNode[expando]._isOutsideThisEl(target);
+
+      if (parent) {
+        do {
+          if (parent[expando]) {
+            var inserted = void 0;
+            inserted = parent[expando]._onDragOver({
+              clientX: touchEvt.clientX,
+              clientY: touchEvt.clientY,
+              target: target,
+              rootEl: parent
+            });
+
+            if (inserted && !this.options.dragoverBubble) {
+              break;
+            }
+          }
+
+          target = parent; // store last element
+        }
+        /* jshint boss:true */
+        while (parent = parent.parentNode);
+      }
+
+      _unhideGhostForTarget();
+    }
+  },
+  _onTouchMove: function _onTouchMove(
+  /**TouchEvent*/
+  evt) {
+    if (tapEvt) {
+      var options = this.options,
+          fallbackTolerance = options.fallbackTolerance,
+          fallbackOffset = options.fallbackOffset,
+          touch = evt.touches ? evt.touches[0] : evt,
+          ghostMatrix = ghostEl && matrix(ghostEl, true),
+          scaleX = ghostEl && ghostMatrix && ghostMatrix.a,
+          scaleY = ghostEl && ghostMatrix && ghostMatrix.d,
+          relativeScrollOffset = PositionGhostAbsolutely && ghostRelativeParent && getRelativeScrollOffset(ghostRelativeParent),
+          dx = (touch.clientX - tapEvt.clientX + fallbackOffset.x) / (scaleX || 1) + (relativeScrollOffset ? relativeScrollOffset[0] - ghostRelativeParentInitialScroll[0] : 0) / (scaleX || 1),
+          dy = (touch.clientY - tapEvt.clientY + fallbackOffset.y) / (scaleY || 1) + (relativeScrollOffset ? relativeScrollOffset[1] - ghostRelativeParentInitialScroll[1] : 0) / (scaleY || 1); // only set the status to dragging, when we are actually dragging
+
+      if (!Sortable.active && !awaitingDragStarted) {
+        if (fallbackTolerance && Math.max(Math.abs(touch.clientX - this._lastX), Math.abs(touch.clientY - this._lastY)) < fallbackTolerance) {
+          return;
+        }
+
+        this._onDragStart(evt, true);
+      }
+
+      if (ghostEl) {
+        if (ghostMatrix) {
+          ghostMatrix.e += dx - (lastDx || 0);
+          ghostMatrix.f += dy - (lastDy || 0);
+        } else {
+          ghostMatrix = {
+            a: 1,
+            b: 0,
+            c: 0,
+            d: 1,
+            e: dx,
+            f: dy
+          };
+        }
+
+        var cssMatrix = "matrix(".concat(ghostMatrix.a, ",").concat(ghostMatrix.b, ",").concat(ghostMatrix.c, ",").concat(ghostMatrix.d, ",").concat(ghostMatrix.e, ",").concat(ghostMatrix.f, ")");
+        css(ghostEl, 'webkitTransform', cssMatrix);
+        css(ghostEl, 'mozTransform', cssMatrix);
+        css(ghostEl, 'msTransform', cssMatrix);
+        css(ghostEl, 'transform', cssMatrix);
+        lastDx = dx;
+        lastDy = dy;
+        touchEvt = touch;
+      }
+
+      evt.cancelable && evt.preventDefault();
+    }
+  },
+  _appendGhost: function _appendGhost() {
+    // Bug if using scale(): https://stackoverflow.com/questions/2637058
+    // Not being adjusted for
+    if (!ghostEl) {
+      var container = this.options.fallbackOnBody ? document.body : rootEl,
+          rect = getRect(dragEl, true, PositionGhostAbsolutely, true, container),
+          options = this.options; // Position absolutely
+
+      if (PositionGhostAbsolutely) {
+        // Get relatively positioned parent
+        ghostRelativeParent = container;
+
+        while (css(ghostRelativeParent, 'position') === 'static' && css(ghostRelativeParent, 'transform') === 'none' && ghostRelativeParent !== document) {
+          ghostRelativeParent = ghostRelativeParent.parentNode;
+        }
+
+        if (ghostRelativeParent !== document.body && ghostRelativeParent !== document.documentElement) {
+          if (ghostRelativeParent === document) ghostRelativeParent = getWindowScrollingElement();
+          rect.top += ghostRelativeParent.scrollTop;
+          rect.left += ghostRelativeParent.scrollLeft;
+        } else {
+          ghostRelativeParent = getWindowScrollingElement();
+        }
+
+        ghostRelativeParentInitialScroll = getRelativeScrollOffset(ghostRelativeParent);
+      }
+
+      ghostEl = dragEl.cloneNode(true);
+      toggleClass(ghostEl, options.ghostClass, false);
+      toggleClass(ghostEl, options.fallbackClass, true);
+      toggleClass(ghostEl, options.dragClass, true);
+      css(ghostEl, 'transition', '');
+      css(ghostEl, 'transform', '');
+      css(ghostEl, 'box-sizing', 'border-box');
+      css(ghostEl, 'margin', 0);
+      css(ghostEl, 'top', rect.top);
+      css(ghostEl, 'left', rect.left);
+      css(ghostEl, 'width', rect.width);
+      css(ghostEl, 'height', rect.height);
+      css(ghostEl, 'opacity', '0.8');
+      css(ghostEl, 'position', PositionGhostAbsolutely ? 'absolute' : 'fixed');
+      css(ghostEl, 'zIndex', '100000');
+      css(ghostEl, 'pointerEvents', 'none');
+      Sortable.ghost = ghostEl;
+      container.appendChild(ghostEl); // Set transform-origin
+
+      css(ghostEl, 'transform-origin', tapDistanceLeft / parseInt(ghostEl.style.width) * 100 + '% ' + tapDistanceTop / parseInt(ghostEl.style.height) * 100 + '%');
+    }
+  },
+  _onDragStart: function _onDragStart(
+  /**Event*/
+  evt,
+  /**boolean*/
+  fallback) {
+    var _this = this;
+
+    var dataTransfer = evt.dataTransfer;
+    var options = _this.options;
+    pluginEvent('dragStart', this, {
+      evt: evt
+    });
+
+    if (Sortable.eventCanceled) {
+      this._onDrop();
+
+      return;
+    }
+
+    pluginEvent('setupClone', this);
+
+    if (!Sortable.eventCanceled) {
+      cloneEl = clone(dragEl);
+      cloneEl.draggable = false;
+      cloneEl.style['will-change'] = '';
+
+      this._hideClone();
+
+      toggleClass(cloneEl, this.options.chosenClass, false);
+      Sortable.clone = cloneEl;
+    } // #1143: IFrame support workaround
+
+
+    _this.cloneId = _nextTick(function () {
+      pluginEvent('clone', _this);
+      if (Sortable.eventCanceled) return;
+
+      if (!_this.options.removeCloneOnHide) {
+        rootEl.insertBefore(cloneEl, dragEl);
+      }
+
+      _this._hideClone();
+
+      _dispatchEvent({
+        sortable: _this,
+        name: 'clone'
+      });
+    });
+    !fallback && toggleClass(dragEl, options.dragClass, true); // Set proper drop events
+
+    if (fallback) {
+      ignoreNextClick = true;
+      _this._loopId = setInterval(_this._emulateDragOver, 50);
+    } else {
+      // Undo what was set in _prepareDragStart before drag started
+      off(document, 'mouseup', _this._onDrop);
+      off(document, 'touchend', _this._onDrop);
+      off(document, 'touchcancel', _this._onDrop);
+
+      if (dataTransfer) {
+        dataTransfer.effectAllowed = 'move';
+        options.setData && options.setData.call(_this, dataTransfer, dragEl);
+      }
+
+      on(document, 'drop', _this); // #1276 fix:
+
+      css(dragEl, 'transform', 'translateZ(0)');
+    }
+
+    awaitingDragStarted = true;
+    _this._dragStartId = _nextTick(_this._dragStarted.bind(_this, fallback, evt));
+    on(document, 'selectstart', _this);
+    moved = true;
+
+    if (Safari) {
+      css(document.body, 'user-select', 'none');
+    }
+  },
+  // Returns true - if no further action is needed (either inserted or another condition)
+  _onDragOver: function _onDragOver(
+  /**Event*/
+  evt) {
+    var el = this.el,
+        target = evt.target,
+        dragRect,
+        targetRect,
+        revert,
+        options = this.options,
+        group = options.group,
+        activeSortable = Sortable.active,
+        isOwner = activeGroup === group,
+        canSort = options.sort,
+        fromSortable = putSortable || activeSortable,
+        vertical,
+        _this = this,
+        completedFired = false;
+
+    if (_silent) return;
+
+    function dragOverEvent(name, extra) {
+      pluginEvent(name, _this, _objectSpread2({
+        evt: evt,
+        isOwner: isOwner,
+        axis: vertical ? 'vertical' : 'horizontal',
+        revert: revert,
+        dragRect: dragRect,
+        targetRect: targetRect,
+        canSort: canSort,
+        fromSortable: fromSortable,
+        target: target,
+        completed: completed,
+        onMove: function onMove(target, after) {
+          return _onMove(rootEl, el, dragEl, dragRect, target, getRect(target), evt, after);
+        },
+        changed: changed
+      }, extra));
+    } // Capture animation state
+
+
+    function capture() {
+      dragOverEvent('dragOverAnimationCapture');
+
+      _this.captureAnimationState();
+
+      if (_this !== fromSortable) {
+        fromSortable.captureAnimationState();
+      }
+    } // Return invocation when dragEl is inserted (or completed)
+
+
+    function completed(insertion) {
+      dragOverEvent('dragOverCompleted', {
+        insertion: insertion
+      });
+
+      if (insertion) {
+        // Clones must be hidden before folding animation to capture dragRectAbsolute properly
+        if (isOwner) {
+          activeSortable._hideClone();
+        } else {
+          activeSortable._showClone(_this);
+        }
+
+        if (_this !== fromSortable) {
+          // Set ghost class to new sortable's ghost class
+          toggleClass(dragEl, putSortable ? putSortable.options.ghostClass : activeSortable.options.ghostClass, false);
+          toggleClass(dragEl, options.ghostClass, true);
+        }
+
+        if (putSortable !== _this && _this !== Sortable.active) {
+          putSortable = _this;
+        } else if (_this === Sortable.active && putSortable) {
+          putSortable = null;
+        } // Animation
+
+
+        if (fromSortable === _this) {
+          _this._ignoreWhileAnimating = target;
+        }
+
+        _this.animateAll(function () {
+          dragOverEvent('dragOverAnimationComplete');
+          _this._ignoreWhileAnimating = null;
+        });
+
+        if (_this !== fromSortable) {
+          fromSortable.animateAll();
+          fromSortable._ignoreWhileAnimating = null;
+        }
+      } // Null lastTarget if it is not inside a previously swapped element
+
+
+      if (target === dragEl && !dragEl.animated || target === el && !target.animated) {
+        lastTarget = null;
+      } // no bubbling and not fallback
+
+
+      if (!options.dragoverBubble && !evt.rootEl && target !== document) {
+        dragEl.parentNode[expando]._isOutsideThisEl(evt.target); // Do not detect for empty insert if already inserted
+
+
+        !insertion && nearestEmptyInsertDetectEvent(evt);
+      }
+
+      !options.dragoverBubble && evt.stopPropagation && evt.stopPropagation();
+      return completedFired = true;
+    } // Call when dragEl has been inserted
+
+
+    function changed() {
+      newIndex = index(dragEl);
+      newDraggableIndex = index(dragEl, options.draggable);
+
+      _dispatchEvent({
+        sortable: _this,
+        name: 'change',
+        toEl: el,
+        newIndex: newIndex,
+        newDraggableIndex: newDraggableIndex,
+        originalEvent: evt
+      });
+    }
+
+    if (evt.preventDefault !== void 0) {
+      evt.cancelable && evt.preventDefault();
+    }
+
+    target = closest(target, options.draggable, el, true);
+    dragOverEvent('dragOver');
+    if (Sortable.eventCanceled) return completedFired;
+
+    if (dragEl.contains(evt.target) || target.animated && target.animatingX && target.animatingY || _this._ignoreWhileAnimating === target) {
+      return completed(false);
+    }
+
+    ignoreNextClick = false;
+
+    if (activeSortable && !options.disabled && (isOwner ? canSort || (revert = parentEl !== rootEl) // Reverting item into the original list
+    : putSortable === this || (this.lastPutMode = activeGroup.checkPull(this, activeSortable, dragEl, evt)) && group.checkPut(this, activeSortable, dragEl, evt))) {
+      vertical = this._getDirection(evt, target) === 'vertical';
+      dragRect = getRect(dragEl);
+      dragOverEvent('dragOverValid');
+      if (Sortable.eventCanceled) return completedFired;
+
+      if (revert) {
+        parentEl = rootEl; // actualization
+
+        capture();
+
+        this._hideClone();
+
+        dragOverEvent('revert');
+
+        if (!Sortable.eventCanceled) {
+          if (nextEl) {
+            rootEl.insertBefore(dragEl, nextEl);
+          } else {
+            rootEl.appendChild(dragEl);
+          }
+        }
+
+        return completed(true);
+      }
+
+      var elLastChild = lastChild(el, options.draggable);
+
+      if (!elLastChild || _ghostIsLast(evt, vertical, this) && !elLastChild.animated) {
+        // Insert to end of list
+        // If already at end of list: Do not insert
+        if (elLastChild === dragEl) {
+          return completed(false);
+        } // if there is a last element, it is the target
+
+
+        if (elLastChild && el === evt.target) {
+          target = elLastChild;
+        }
+
+        if (target) {
+          targetRect = getRect(target);
+        }
+
+        if (_onMove(rootEl, el, dragEl, dragRect, target, targetRect, evt, !!target) !== false) {
+          capture();
+          el.appendChild(dragEl);
+          parentEl = el; // actualization
+
+          changed();
+          return completed(true);
+        }
+      } else if (elLastChild && _ghostIsFirst(evt, vertical, this)) {
+        // Insert to start of list
+        var firstChild = getChild(el, 0, options, true);
+
+        if (firstChild === dragEl) {
+          return completed(false);
+        }
+
+        target = firstChild;
+        targetRect = getRect(target);
+
+        if (_onMove(rootEl, el, dragEl, dragRect, target, targetRect, evt, false) !== false) {
+          capture();
+          el.insertBefore(dragEl, firstChild);
+          parentEl = el; // actualization
+
+          changed();
+          return completed(true);
+        }
+      } else if (target.parentNode === el) {
+        targetRect = getRect(target);
+        var direction = 0,
+            targetBeforeFirstSwap,
+            differentLevel = dragEl.parentNode !== el,
+            differentRowCol = !_dragElInRowColumn(dragEl.animated && dragEl.toRect || dragRect, target.animated && target.toRect || targetRect, vertical),
+            side1 = vertical ? 'top' : 'left',
+            scrolledPastTop = isScrolledPast(target, 'top', 'top') || isScrolledPast(dragEl, 'top', 'top'),
+            scrollBefore = scrolledPastTop ? scrolledPastTop.scrollTop : void 0;
+
+        if (lastTarget !== target) {
+          targetBeforeFirstSwap = targetRect[side1];
+          pastFirstInvertThresh = false;
+          isCircumstantialInvert = !differentRowCol && options.invertSwap || differentLevel;
+        }
+
+        direction = _getSwapDirection(evt, target, targetRect, vertical, differentRowCol ? 1 : options.swapThreshold, options.invertedSwapThreshold == null ? options.swapThreshold : options.invertedSwapThreshold, isCircumstantialInvert, lastTarget === target);
+        var sibling;
+
+        if (direction !== 0) {
+          // Check if target is beside dragEl in respective direction (ignoring hidden elements)
+          var dragIndex = index(dragEl);
+
+          do {
+            dragIndex -= direction;
+            sibling = parentEl.children[dragIndex];
+          } while (sibling && (css(sibling, 'display') === 'none' || sibling === ghostEl));
+        } // If dragEl is already beside target: Do not insert
+
+
+        if (direction === 0 || sibling === target) {
+          return completed(false);
+        }
+
+        lastTarget = target;
+        lastDirection = direction;
+        var nextSibling = target.nextElementSibling,
+            after = false;
+        after = direction === 1;
+
+        var moveVector = _onMove(rootEl, el, dragEl, dragRect, target, targetRect, evt, after);
+
+        if (moveVector !== false) {
+          if (moveVector === 1 || moveVector === -1) {
+            after = moveVector === 1;
+          }
+
+          _silent = true;
+          setTimeout(_unsilent, 30);
+          capture();
+
+          if (after && !nextSibling) {
+            el.appendChild(dragEl);
+          } else {
+            target.parentNode.insertBefore(dragEl, after ? nextSibling : target);
+          } // Undo chrome's scroll adjustment (has no effect on other browsers)
+
+
+          if (scrolledPastTop) {
+            scrollBy(scrolledPastTop, 0, scrollBefore - scrolledPastTop.scrollTop);
+          }
+
+          parentEl = dragEl.parentNode; // actualization
+          // must be done before animation
+
+          if (targetBeforeFirstSwap !== undefined && !isCircumstantialInvert) {
+            targetMoveDistance = Math.abs(targetBeforeFirstSwap - getRect(target)[side1]);
+          }
+
+          changed();
+          return completed(true);
+        }
+      }
+
+      if (el.contains(dragEl)) {
+        return completed(false);
+      }
+    }
+
+    return false;
+  },
+  _ignoreWhileAnimating: null,
+  _offMoveEvents: function _offMoveEvents() {
+    off(document, 'mousemove', this._onTouchMove);
+    off(document, 'touchmove', this._onTouchMove);
+    off(document, 'pointermove', this._onTouchMove);
+    off(document, 'dragover', nearestEmptyInsertDetectEvent);
+    off(document, 'mousemove', nearestEmptyInsertDetectEvent);
+    off(document, 'touchmove', nearestEmptyInsertDetectEvent);
+  },
+  _offUpEvents: function _offUpEvents() {
+    var ownerDocument = this.el.ownerDocument;
+    off(ownerDocument, 'mouseup', this._onDrop);
+    off(ownerDocument, 'touchend', this._onDrop);
+    off(ownerDocument, 'pointerup', this._onDrop);
+    off(ownerDocument, 'touchcancel', this._onDrop);
+    off(document, 'selectstart', this);
+  },
+  _onDrop: function _onDrop(
+  /**Event*/
+  evt) {
+    var el = this.el,
+        options = this.options; // Get the index of the dragged element within its parent
+
+    newIndex = index(dragEl);
+    newDraggableIndex = index(dragEl, options.draggable);
+    pluginEvent('drop', this, {
+      evt: evt
+    });
+    parentEl = dragEl && dragEl.parentNode; // Get again after plugin event
+
+    newIndex = index(dragEl);
+    newDraggableIndex = index(dragEl, options.draggable);
+
+    if (Sortable.eventCanceled) {
+      this._nulling();
+
+      return;
+    }
+
+    awaitingDragStarted = false;
+    isCircumstantialInvert = false;
+    pastFirstInvertThresh = false;
+    clearInterval(this._loopId);
+    clearTimeout(this._dragStartTimer);
+
+    _cancelNextTick(this.cloneId);
+
+    _cancelNextTick(this._dragStartId); // Unbind events
+
+
+    if (this.nativeDraggable) {
+      off(document, 'drop', this);
+      off(el, 'dragstart', this._onDragStart);
+    }
+
+    this._offMoveEvents();
+
+    this._offUpEvents();
+
+    if (Safari) {
+      css(document.body, 'user-select', '');
+    }
+
+    css(dragEl, 'transform', '');
+
+    if (evt) {
+      if (moved) {
+        evt.cancelable && evt.preventDefault();
+        !options.dropBubble && evt.stopPropagation();
+      }
+
+      ghostEl && ghostEl.parentNode && ghostEl.parentNode.removeChild(ghostEl);
+
+      if (rootEl === parentEl || putSortable && putSortable.lastPutMode !== 'clone') {
+        // Remove clone(s)
+        cloneEl && cloneEl.parentNode && cloneEl.parentNode.removeChild(cloneEl);
+      }
+
+      if (dragEl) {
+        if (this.nativeDraggable) {
+          off(dragEl, 'dragend', this);
+        }
+
+        _disableDraggable(dragEl);
+
+        dragEl.style['will-change'] = ''; // Remove classes
+        // ghostClass is added in dragStarted
+
+        if (moved && !awaitingDragStarted) {
+          toggleClass(dragEl, putSortable ? putSortable.options.ghostClass : this.options.ghostClass, false);
+        }
+
+        toggleClass(dragEl, this.options.chosenClass, false); // Drag stop event
+
+        _dispatchEvent({
+          sortable: this,
+          name: 'unchoose',
+          toEl: parentEl,
+          newIndex: null,
+          newDraggableIndex: null,
+          originalEvent: evt
+        });
+
+        if (rootEl !== parentEl) {
+          if (newIndex >= 0) {
+            // Add event
+            _dispatchEvent({
+              rootEl: parentEl,
+              name: 'add',
+              toEl: parentEl,
+              fromEl: rootEl,
+              originalEvent: evt
+            }); // Remove event
+
+
+            _dispatchEvent({
+              sortable: this,
+              name: 'remove',
+              toEl: parentEl,
+              originalEvent: evt
+            }); // drag from one list and drop into another
+
+
+            _dispatchEvent({
+              rootEl: parentEl,
+              name: 'sort',
+              toEl: parentEl,
+              fromEl: rootEl,
+              originalEvent: evt
+            });
+
+            _dispatchEvent({
+              sortable: this,
+              name: 'sort',
+              toEl: parentEl,
+              originalEvent: evt
+            });
+          }
+
+          putSortable && putSortable.save();
+        } else {
+          if (newIndex !== oldIndex) {
+            if (newIndex >= 0) {
+              // drag & drop within the same list
+              _dispatchEvent({
+                sortable: this,
+                name: 'update',
+                toEl: parentEl,
+                originalEvent: evt
+              });
+
+              _dispatchEvent({
+                sortable: this,
+                name: 'sort',
+                toEl: parentEl,
+                originalEvent: evt
+              });
+            }
+          }
+        }
+
+        if (Sortable.active) {
+          /* jshint eqnull:true */
+          if (newIndex == null || newIndex === -1) {
+            newIndex = oldIndex;
+            newDraggableIndex = oldDraggableIndex;
+          }
+
+          _dispatchEvent({
+            sortable: this,
+            name: 'end',
+            toEl: parentEl,
+            originalEvent: evt
+          }); // Save sorting
+
+
+          this.save();
+        }
+      }
+    }
+
+    this._nulling();
+  },
+  _nulling: function _nulling() {
+    pluginEvent('nulling', this);
+    rootEl = dragEl = parentEl = ghostEl = nextEl = cloneEl = lastDownEl = cloneHidden = tapEvt = touchEvt = moved = newIndex = newDraggableIndex = oldIndex = oldDraggableIndex = lastTarget = lastDirection = putSortable = activeGroup = Sortable.dragged = Sortable.ghost = Sortable.clone = Sortable.active = null;
+    savedInputChecked.forEach(function (el) {
+      el.checked = true;
+    });
+    savedInputChecked.length = lastDx = lastDy = 0;
+  },
+  handleEvent: function handleEvent(
+  /**Event*/
+  evt) {
+    switch (evt.type) {
+      case 'drop':
+      case 'dragend':
+        this._onDrop(evt);
+
+        break;
+
+      case 'dragenter':
+      case 'dragover':
+        if (dragEl) {
+          this._onDragOver(evt);
+
+          _globalDragOver(evt);
+        }
+
+        break;
+
+      case 'selectstart':
+        evt.preventDefault();
+        break;
+    }
+  },
+
+  /**
+   * Serializes the item into an array of string.
+   * @returns {String[]}
+   */
+  toArray: function toArray() {
+    var order = [],
+        el,
+        children = this.el.children,
+        i = 0,
+        n = children.length,
+        options = this.options;
+
+    for (; i < n; i++) {
+      el = children[i];
+
+      if (closest(el, options.draggable, this.el, false)) {
+        order.push(el.getAttribute(options.dataIdAttr) || _generateId(el));
+      }
+    }
+
+    return order;
+  },
+
+  /**
+   * Sorts the elements according to the array.
+   * @param  {String[]}  order  order of the items
+   */
+  sort: function sort(order, useAnimation) {
+    var items = {},
+        rootEl = this.el;
+    this.toArray().forEach(function (id, i) {
+      var el = rootEl.children[i];
+
+      if (closest(el, this.options.draggable, rootEl, false)) {
+        items[id] = el;
+      }
+    }, this);
+    useAnimation && this.captureAnimationState();
+    order.forEach(function (id) {
+      if (items[id]) {
+        rootEl.removeChild(items[id]);
+        rootEl.appendChild(items[id]);
+      }
+    });
+    useAnimation && this.animateAll();
+  },
+
+  /**
+   * Save the current sorting
+   */
+  save: function save() {
+    var store = this.options.store;
+    store && store.set && store.set(this);
+  },
+
+  /**
+   * For each element in the set, get the first element that matches the selector by testing the element itself and traversing up through its ancestors in the DOM tree.
+   * @param   {HTMLElement}  el
+   * @param   {String}       [selector]  default: `options.draggable`
+   * @returns {HTMLElement|null}
+   */
+  closest: function closest$1(el, selector) {
+    return closest(el, selector || this.options.draggable, this.el, false);
+  },
+
+  /**
+   * Set/get option
+   * @param   {string} name
+   * @param   {*}      [value]
+   * @returns {*}
+   */
+  option: function option(name, value) {
+    var options = this.options;
+
+    if (value === void 0) {
+      return options[name];
+    } else {
+      var modifiedValue = PluginManager.modifyOption(this, name, value);
+
+      if (typeof modifiedValue !== 'undefined') {
+        options[name] = modifiedValue;
+      } else {
+        options[name] = value;
+      }
+
+      if (name === 'group') {
+        _prepareGroup(options);
+      }
+    }
+  },
+
+  /**
+   * Destroy
+   */
+  destroy: function destroy() {
+    pluginEvent('destroy', this);
+    var el = this.el;
+    el[expando] = null;
+    off(el, 'mousedown', this._onTapStart);
+    off(el, 'touchstart', this._onTapStart);
+    off(el, 'pointerdown', this._onTapStart);
+
+    if (this.nativeDraggable) {
+      off(el, 'dragover', this);
+      off(el, 'dragenter', this);
+    } // Remove draggable attributes
+
+
+    Array.prototype.forEach.call(el.querySelectorAll('[draggable]'), function (el) {
+      el.removeAttribute('draggable');
+    });
+
+    this._onDrop();
+
+    this._disableDelayedDragEvents();
+
+    sortables.splice(sortables.indexOf(this.el), 1);
+    this.el = el = null;
+  },
+  _hideClone: function _hideClone() {
+    if (!cloneHidden) {
+      pluginEvent('hideClone', this);
+      if (Sortable.eventCanceled) return;
+      css(cloneEl, 'display', 'none');
+
+      if (this.options.removeCloneOnHide && cloneEl.parentNode) {
+        cloneEl.parentNode.removeChild(cloneEl);
+      }
+
+      cloneHidden = true;
+    }
+  },
+  _showClone: function _showClone(putSortable) {
+    if (putSortable.lastPutMode !== 'clone') {
+      this._hideClone();
+
+      return;
+    }
+
+    if (cloneHidden) {
+      pluginEvent('showClone', this);
+      if (Sortable.eventCanceled) return; // show clone at dragEl or original position
+
+      if (dragEl.parentNode == rootEl && !this.options.group.revertClone) {
+        rootEl.insertBefore(cloneEl, dragEl);
+      } else if (nextEl) {
+        rootEl.insertBefore(cloneEl, nextEl);
+      } else {
+        rootEl.appendChild(cloneEl);
+      }
+
+      if (this.options.group.revertClone) {
+        this.animate(dragEl, cloneEl);
+      }
+
+      css(cloneEl, 'display', '');
+      cloneHidden = false;
+    }
+  }
+};
+
+function _globalDragOver(
+/**Event*/
+evt) {
+  if (evt.dataTransfer) {
+    evt.dataTransfer.dropEffect = 'move';
+  }
+
+  evt.cancelable && evt.preventDefault();
+}
+
+function _onMove(fromEl, toEl, dragEl, dragRect, targetEl, targetRect, originalEvent, willInsertAfter) {
+  var evt,
+      sortable = fromEl[expando],
+      onMoveFn = sortable.options.onMove,
+      retVal; // Support for new CustomEvent feature
+
+  if (window.CustomEvent && !IE11OrLess && !Edge) {
+    evt = new CustomEvent('move', {
+      bubbles: true,
+      cancelable: true
+    });
+  } else {
+    evt = document.createEvent('Event');
+    evt.initEvent('move', true, true);
+  }
+
+  evt.to = toEl;
+  evt.from = fromEl;
+  evt.dragged = dragEl;
+  evt.draggedRect = dragRect;
+  evt.related = targetEl || toEl;
+  evt.relatedRect = targetRect || getRect(toEl);
+  evt.willInsertAfter = willInsertAfter;
+  evt.originalEvent = originalEvent;
+  fromEl.dispatchEvent(evt);
+
+  if (onMoveFn) {
+    retVal = onMoveFn.call(sortable, evt, originalEvent);
+  }
+
+  return retVal;
+}
+
+function _disableDraggable(el) {
+  el.draggable = false;
+}
+
+function _unsilent() {
+  _silent = false;
+}
+
+function _ghostIsFirst(evt, vertical, sortable) {
+  var rect = getRect(getChild(sortable.el, 0, sortable.options, true));
+  var spacer = 10;
+  return vertical ? evt.clientX < rect.left - spacer || evt.clientY < rect.top && evt.clientX < rect.right : evt.clientY < rect.top - spacer || evt.clientY < rect.bottom && evt.clientX < rect.left;
+}
+
+function _ghostIsLast(evt, vertical, sortable) {
+  var rect = getRect(lastChild(sortable.el, sortable.options.draggable));
+  var spacer = 10;
+  return vertical ? evt.clientX > rect.right + spacer || evt.clientX <= rect.right && evt.clientY > rect.bottom && evt.clientX >= rect.left : evt.clientX > rect.right && evt.clientY > rect.top || evt.clientX <= rect.right && evt.clientY > rect.bottom + spacer;
+}
+
+function _getSwapDirection(evt, target, targetRect, vertical, swapThreshold, invertedSwapThreshold, invertSwap, isLastTarget) {
+  var mouseOnAxis = vertical ? evt.clientY : evt.clientX,
+      targetLength = vertical ? targetRect.height : targetRect.width,
+      targetS1 = vertical ? targetRect.top : targetRect.left,
+      targetS2 = vertical ? targetRect.bottom : targetRect.right,
+      invert = false;
+
+  if (!invertSwap) {
+    // Never invert or create dragEl shadow when target movemenet causes mouse to move past the end of regular swapThreshold
+    if (isLastTarget && targetMoveDistance < targetLength * swapThreshold) {
+      // multiplied only by swapThreshold because mouse will already be inside target by (1 - threshold) * targetLength / 2
+      // check if past first invert threshold on side opposite of lastDirection
+      if (!pastFirstInvertThresh && (lastDirection === 1 ? mouseOnAxis > targetS1 + targetLength * invertedSwapThreshold / 2 : mouseOnAxis < targetS2 - targetLength * invertedSwapThreshold / 2)) {
+        // past first invert threshold, do not restrict inverted threshold to dragEl shadow
+        pastFirstInvertThresh = true;
+      }
+
+      if (!pastFirstInvertThresh) {
+        // dragEl shadow (target move distance shadow)
+        if (lastDirection === 1 ? mouseOnAxis < targetS1 + targetMoveDistance // over dragEl shadow
+        : mouseOnAxis > targetS2 - targetMoveDistance) {
+          return -lastDirection;
+        }
+      } else {
+        invert = true;
+      }
+    } else {
+      // Regular
+      if (mouseOnAxis > targetS1 + targetLength * (1 - swapThreshold) / 2 && mouseOnAxis < targetS2 - targetLength * (1 - swapThreshold) / 2) {
+        return _getInsertDirection(target);
+      }
+    }
+  }
+
+  invert = invert || invertSwap;
+
+  if (invert) {
+    // Invert of regular
+    if (mouseOnAxis < targetS1 + targetLength * invertedSwapThreshold / 2 || mouseOnAxis > targetS2 - targetLength * invertedSwapThreshold / 2) {
+      return mouseOnAxis > targetS1 + targetLength / 2 ? 1 : -1;
+    }
+  }
+
+  return 0;
+}
+/**
+ * Gets the direction dragEl must be swapped relative to target in order to make it
+ * seem that dragEl has been "inserted" into that element's position
+ * @param  {HTMLElement} target       The target whose position dragEl is being inserted at
+ * @return {Number}                   Direction dragEl must be swapped
+ */
+
+
+function _getInsertDirection(target) {
+  if (index(dragEl) < index(target)) {
+    return 1;
+  } else {
+    return -1;
+  }
+}
+/**
+ * Generate id
+ * @param   {HTMLElement} el
+ * @returns {String}
+ * @private
+ */
+
+
+function _generateId(el) {
+  var str = el.tagName + el.className + el.src + el.href + el.textContent,
+      i = str.length,
+      sum = 0;
+
+  while (i--) {
+    sum += str.charCodeAt(i);
+  }
+
+  return sum.toString(36);
+}
+
+function _saveInputCheckedState(root) {
+  savedInputChecked.length = 0;
+  var inputs = root.getElementsByTagName('input');
+  var idx = inputs.length;
+
+  while (idx--) {
+    var el = inputs[idx];
+    el.checked && savedInputChecked.push(el);
+  }
+}
+
+function _nextTick(fn) {
+  return setTimeout(fn, 0);
+}
+
+function _cancelNextTick(id) {
+  return clearTimeout(id);
+} // Fixed #973:
+
+
+if (documentExists) {
+  on(document, 'touchmove', function (evt) {
+    if ((Sortable.active || awaitingDragStarted) && evt.cancelable) {
+      evt.preventDefault();
+    }
+  });
+} // Export utils
+
+
+Sortable.utils = {
+  on: on,
+  off: off,
+  css: css,
+  find: find,
+  is: function is(el, selector) {
+    return !!closest(el, selector, el, false);
+  },
+  extend: extend,
+  throttle: throttle,
+  closest: closest,
+  toggleClass: toggleClass,
+  clone: clone,
+  index: index,
+  nextTick: _nextTick,
+  cancelNextTick: _cancelNextTick,
+  detectDirection: _detectDirection,
+  getChild: getChild
+};
+/**
+ * Get the Sortable instance of an element
+ * @param  {HTMLElement} element The element
+ * @return {Sortable|undefined}         The instance of Sortable
+ */
+
+Sortable.get = function (element) {
+  return element[expando];
+};
+/**
+ * Mount a plugin to Sortable
+ * @param  {...SortablePlugin|SortablePlugin[]} plugins       Plugins being mounted
+ */
+
+
+Sortable.mount = function () {
+  for (var _len = arguments.length, plugins = new Array(_len), _key = 0; _key < _len; _key++) {
+    plugins[_key] = arguments[_key];
+  }
+
+  if (plugins[0].constructor === Array) plugins = plugins[0];
+  plugins.forEach(function (plugin) {
+    if (!plugin.prototype || !plugin.prototype.constructor) {
+      throw "Sortable: Mounted plugin must be a constructor function, not ".concat({}.toString.call(plugin));
+    }
+
+    if (plugin.utils) Sortable.utils = _objectSpread2(_objectSpread2({}, Sortable.utils), plugin.utils);
+    PluginManager.mount(plugin);
+  });
+};
+/**
+ * Create sortable instance
+ * @param {HTMLElement}  el
+ * @param {Object}      [options]
+ */
+
+
+Sortable.create = function (el, options) {
+  return new Sortable(el, options);
+}; // Export
+
+
+Sortable.version = version;
+var autoScrolls = [],
+    scrollEl,
+    scrollRootEl,
+    scrolling = false,
+    lastAutoScrollX,
+    lastAutoScrollY,
+    touchEvt$1,
+    pointerElemChangedInterval;
+
+function AutoScrollPlugin() {
+  function AutoScroll() {
+    this.defaults = {
+      scroll: true,
+      forceAutoScrollFallback: false,
+      scrollSensitivity: 30,
+      scrollSpeed: 10,
+      bubbleScroll: true
+    }; // Bind all private methods
+
+    for (var fn in this) {
+      if (fn.charAt(0) === '_' && typeof this[fn] === 'function') {
+        this[fn] = this[fn].bind(this);
+      }
+    }
+  }
+
+  AutoScroll.prototype = {
+    dragStarted: function dragStarted(_ref) {
+      var originalEvent = _ref.originalEvent;
+
+      if (this.sortable.nativeDraggable) {
+        on(document, 'dragover', this._handleAutoScroll);
+      } else {
+        if (this.options.supportPointer) {
+          on(document, 'pointermove', this._handleFallbackAutoScroll);
+        } else if (originalEvent.touches) {
+          on(document, 'touchmove', this._handleFallbackAutoScroll);
+        } else {
+          on(document, 'mousemove', this._handleFallbackAutoScroll);
+        }
+      }
+    },
+    dragOverCompleted: function dragOverCompleted(_ref2) {
+      var originalEvent = _ref2.originalEvent; // For when bubbling is canceled and using fallback (fallback 'touchmove' always reached)
+
+      if (!this.options.dragOverBubble && !originalEvent.rootEl) {
+        this._handleAutoScroll(originalEvent);
+      }
+    },
+    drop: function drop() {
+      if (this.sortable.nativeDraggable) {
+        off(document, 'dragover', this._handleAutoScroll);
+      } else {
+        off(document, 'pointermove', this._handleFallbackAutoScroll);
+        off(document, 'touchmove', this._handleFallbackAutoScroll);
+        off(document, 'mousemove', this._handleFallbackAutoScroll);
+      }
+
+      clearPointerElemChangedInterval();
+      clearAutoScrolls();
+      cancelThrottle();
+    },
+    nulling: function nulling() {
+      touchEvt$1 = scrollRootEl = scrollEl = scrolling = pointerElemChangedInterval = lastAutoScrollX = lastAutoScrollY = null;
+      autoScrolls.length = 0;
+    },
+    _handleFallbackAutoScroll: function _handleFallbackAutoScroll(evt) {
+      this._handleAutoScroll(evt, true);
+    },
+    _handleAutoScroll: function _handleAutoScroll(evt, fallback) {
+      var _this = this;
+
+      var x = (evt.touches ? evt.touches[0] : evt).clientX,
+          y = (evt.touches ? evt.touches[0] : evt).clientY,
+          elem = document.elementFromPoint(x, y);
+      touchEvt$1 = evt; // IE does not seem to have native autoscroll,
+      // Edge's autoscroll seems too conditional,
+      // MACOS Safari does not have autoscroll,
+      // Firefox and Chrome are good
+
+      if (fallback || this.options.forceAutoScrollFallback || Edge || IE11OrLess || Safari) {
+        autoScroll(evt, this.options, elem, fallback); // Listener for pointer element change
+
+        var ogElemScroller = getParentAutoScrollElement(elem, true);
+
+        if (scrolling && (!pointerElemChangedInterval || x !== lastAutoScrollX || y !== lastAutoScrollY)) {
+          pointerElemChangedInterval && clearPointerElemChangedInterval(); // Detect for pointer elem change, emulating native DnD behaviour
+
+          pointerElemChangedInterval = setInterval(function () {
+            var newElem = getParentAutoScrollElement(document.elementFromPoint(x, y), true);
+
+            if (newElem !== ogElemScroller) {
+              ogElemScroller = newElem;
+              clearAutoScrolls();
+            }
+
+            autoScroll(evt, _this.options, newElem, fallback);
+          }, 10);
+          lastAutoScrollX = x;
+          lastAutoScrollY = y;
+        }
+      } else {
+        // if DnD is enabled (and browser has good autoscrolling), first autoscroll will already scroll, so get parent autoscroll of first autoscroll
+        if (!this.options.bubbleScroll || getParentAutoScrollElement(elem, true) === getWindowScrollingElement()) {
+          clearAutoScrolls();
+          return;
+        }
+
+        autoScroll(evt, this.options, getParentAutoScrollElement(elem, false), false);
+      }
+    }
+  };
+  return _extends(AutoScroll, {
+    pluginName: 'scroll',
+    initializeByDefault: true
+  });
+}
+
+function clearAutoScrolls() {
+  autoScrolls.forEach(function (autoScroll) {
+    clearInterval(autoScroll.pid);
+  });
+  autoScrolls = [];
+}
+
+function clearPointerElemChangedInterval() {
+  clearInterval(pointerElemChangedInterval);
+}
+
+var autoScroll = throttle(function (evt, options, rootEl, isFallback) {
+  // Bug: https://bugzilla.mozilla.org/show_bug.cgi?id=505521
+  if (!options.scroll) return;
+  var x = (evt.touches ? evt.touches[0] : evt).clientX,
+      y = (evt.touches ? evt.touches[0] : evt).clientY,
+      sens = options.scrollSensitivity,
+      speed = options.scrollSpeed,
+      winScroller = getWindowScrollingElement();
+  var scrollThisInstance = false,
+      scrollCustomFn; // New scroll root, set scrollEl
+
+  if (scrollRootEl !== rootEl) {
+    scrollRootEl = rootEl;
+    clearAutoScrolls();
+    scrollEl = options.scroll;
+    scrollCustomFn = options.scrollFn;
+
+    if (scrollEl === true) {
+      scrollEl = getParentAutoScrollElement(rootEl, true);
+    }
+  }
+
+  var layersOut = 0;
+  var currentParent = scrollEl;
+
+  do {
+    var el = currentParent,
+        rect = getRect(el),
+        top = rect.top,
+        bottom = rect.bottom,
+        left = rect.left,
+        right = rect.right,
+        width = rect.width,
+        height = rect.height,
+        canScrollX = void 0,
+        canScrollY = void 0,
+        scrollWidth = el.scrollWidth,
+        scrollHeight = el.scrollHeight,
+        elCSS = css(el),
+        scrollPosX = el.scrollLeft,
+        scrollPosY = el.scrollTop;
+
+    if (el === winScroller) {
+      canScrollX = width < scrollWidth && (elCSS.overflowX === 'auto' || elCSS.overflowX === 'scroll' || elCSS.overflowX === 'visible');
+      canScrollY = height < scrollHeight && (elCSS.overflowY === 'auto' || elCSS.overflowY === 'scroll' || elCSS.overflowY === 'visible');
+    } else {
+      canScrollX = width < scrollWidth && (elCSS.overflowX === 'auto' || elCSS.overflowX === 'scroll');
+      canScrollY = height < scrollHeight && (elCSS.overflowY === 'auto' || elCSS.overflowY === 'scroll');
+    }
+
+    var vx = canScrollX && (Math.abs(right - x) <= sens && scrollPosX + width < scrollWidth) - (Math.abs(left - x) <= sens && !!scrollPosX);
+    var vy = canScrollY && (Math.abs(bottom - y) <= sens && scrollPosY + height < scrollHeight) - (Math.abs(top - y) <= sens && !!scrollPosY);
+
+    if (!autoScrolls[layersOut]) {
+      for (var i = 0; i <= layersOut; i++) {
+        if (!autoScrolls[i]) {
+          autoScrolls[i] = {};
+        }
+      }
+    }
+
+    if (autoScrolls[layersOut].vx != vx || autoScrolls[layersOut].vy != vy || autoScrolls[layersOut].el !== el) {
+      autoScrolls[layersOut].el = el;
+      autoScrolls[layersOut].vx = vx;
+      autoScrolls[layersOut].vy = vy;
+      clearInterval(autoScrolls[layersOut].pid);
+
+      if (vx != 0 || vy != 0) {
+        scrollThisInstance = true;
+        /* jshint loopfunc:true */
+
+        autoScrolls[layersOut].pid = setInterval(function () {
+          // emulate drag over during autoscroll (fallback), emulating native DnD behaviour
+          if (isFallback && this.layer === 0) {
+            Sortable.active._onTouchMove(touchEvt$1); // To move ghost if it is positioned absolutely
+
+          }
+
+          var scrollOffsetY = autoScrolls[this.layer].vy ? autoScrolls[this.layer].vy * speed : 0;
+          var scrollOffsetX = autoScrolls[this.layer].vx ? autoScrolls[this.layer].vx * speed : 0;
+
+          if (typeof scrollCustomFn === 'function') {
+            if (scrollCustomFn.call(Sortable.dragged.parentNode[expando], scrollOffsetX, scrollOffsetY, evt, touchEvt$1, autoScrolls[this.layer].el) !== 'continue') {
+              return;
+            }
+          }
+
+          scrollBy(autoScrolls[this.layer].el, scrollOffsetX, scrollOffsetY);
+        }.bind({
+          layer: layersOut
+        }), 24);
+      }
+    }
+
+    layersOut++;
+  } while (options.bubbleScroll && currentParent !== winScroller && (currentParent = getParentAutoScrollElement(currentParent, false)));
+
+  scrolling = scrollThisInstance; // in case another function catches scrolling as false in between when it is not
+}, 30);
+
+var drop = function drop(_ref) {
+  var originalEvent = _ref.originalEvent,
+      putSortable = _ref.putSortable,
+      dragEl = _ref.dragEl,
+      activeSortable = _ref.activeSortable,
+      dispatchSortableEvent = _ref.dispatchSortableEvent,
+      hideGhostForTarget = _ref.hideGhostForTarget,
+      unhideGhostForTarget = _ref.unhideGhostForTarget;
+  if (!originalEvent) return;
+  var toSortable = putSortable || activeSortable;
+  hideGhostForTarget();
+  var touch = originalEvent.changedTouches && originalEvent.changedTouches.length ? originalEvent.changedTouches[0] : originalEvent;
+  var target = document.elementFromPoint(touch.clientX, touch.clientY);
+  unhideGhostForTarget();
+
+  if (toSortable && !toSortable.el.contains(target)) {
+    dispatchSortableEvent('spill');
+    this.onSpill({
+      dragEl: dragEl,
+      putSortable: putSortable
+    });
+  }
+};
+
+function Revert() {}
+
+Revert.prototype = {
+  startIndex: null,
+  dragStart: function dragStart(_ref2) {
+    var oldDraggableIndex = _ref2.oldDraggableIndex;
+    this.startIndex = oldDraggableIndex;
+  },
+  onSpill: function onSpill(_ref3) {
+    var dragEl = _ref3.dragEl,
+        putSortable = _ref3.putSortable;
+    this.sortable.captureAnimationState();
+
+    if (putSortable) {
+      putSortable.captureAnimationState();
+    }
+
+    var nextSibling = getChild(this.sortable.el, this.startIndex, this.options);
+
+    if (nextSibling) {
+      this.sortable.el.insertBefore(dragEl, nextSibling);
+    } else {
+      this.sortable.el.appendChild(dragEl);
+    }
+
+    this.sortable.animateAll();
+
+    if (putSortable) {
+      putSortable.animateAll();
+    }
+  },
+  drop: drop
+};
+
+_extends(Revert, {
+  pluginName: 'revertOnSpill'
+});
+
+function Remove() {}
+
+Remove.prototype = {
+  onSpill: function onSpill(_ref4) {
+    var dragEl = _ref4.dragEl,
+        putSortable = _ref4.putSortable;
+    var parentSortable = putSortable || this.sortable;
+    parentSortable.captureAnimationState();
+    dragEl.parentNode && dragEl.parentNode.removeChild(dragEl);
+    parentSortable.animateAll();
+  },
+  drop: drop
+};
+
+_extends(Remove, {
+  pluginName: 'removeOnSpill'
+});
+
+var lastSwapEl;
+
+function SwapPlugin() {
+  function Swap() {
+    this.defaults = {
+      swapClass: 'sortable-swap-highlight'
+    };
+  }
+
+  Swap.prototype = {
+    dragStart: function dragStart(_ref) {
+      var dragEl = _ref.dragEl;
+      lastSwapEl = dragEl;
+    },
+    dragOverValid: function dragOverValid(_ref2) {
+      var completed = _ref2.completed,
+          target = _ref2.target,
+          onMove = _ref2.onMove,
+          activeSortable = _ref2.activeSortable,
+          changed = _ref2.changed,
+          cancel = _ref2.cancel;
+      if (!activeSortable.options.swap) return;
+      var el = this.sortable.el,
+          options = this.options;
+
+      if (target && target !== el) {
+        var prevSwapEl = lastSwapEl;
+
+        if (onMove(target) !== false) {
+          toggleClass(target, options.swapClass, true);
+          lastSwapEl = target;
+        } else {
+          lastSwapEl = null;
+        }
+
+        if (prevSwapEl && prevSwapEl !== lastSwapEl) {
+          toggleClass(prevSwapEl, options.swapClass, false);
+        }
+      }
+
+      changed();
+      completed(true);
+      cancel();
+    },
+    drop: function drop(_ref3) {
+      var activeSortable = _ref3.activeSortable,
+          putSortable = _ref3.putSortable,
+          dragEl = _ref3.dragEl;
+      var toSortable = putSortable || this.sortable;
+      var options = this.options;
+      lastSwapEl && toggleClass(lastSwapEl, options.swapClass, false);
+
+      if (lastSwapEl && (options.swap || putSortable && putSortable.options.swap)) {
+        if (dragEl !== lastSwapEl) {
+          toSortable.captureAnimationState();
+          if (toSortable !== activeSortable) activeSortable.captureAnimationState();
+          swapNodes(dragEl, lastSwapEl);
+          toSortable.animateAll();
+          if (toSortable !== activeSortable) activeSortable.animateAll();
+        }
+      }
+    },
+    nulling: function nulling() {
+      lastSwapEl = null;
+    }
+  };
+  return _extends(Swap, {
+    pluginName: 'swap',
+    eventProperties: function eventProperties() {
+      return {
+        swapItem: lastSwapEl
+      };
+    }
+  });
+}
+
+function swapNodes(n1, n2) {
+  var p1 = n1.parentNode,
+      p2 = n2.parentNode,
+      i1,
+      i2;
+  if (!p1 || !p2 || p1.isEqualNode(n2) || p2.isEqualNode(n1)) return;
+  i1 = index(n1);
+  i2 = index(n2);
+
+  if (p1.isEqualNode(p2) && i1 < i2) {
+    i2++;
+  }
+
+  p1.insertBefore(n2, p1.children[i1]);
+  p2.insertBefore(n1, p2.children[i2]);
+}
+
+var multiDragElements = [],
+    multiDragClones = [],
+    lastMultiDragSelect,
+    // for selection with modifier key down (SHIFT)
+multiDragSortable,
+    initialFolding = false,
+    // Initial multi-drag fold when drag started
+folding = false,
+    // Folding any other time
+dragStarted = false,
+    dragEl$1,
+    clonesFromRect,
+    clonesHidden;
+
+function MultiDragPlugin() {
+  function MultiDrag(sortable) {
+    // Bind all private methods
+    for (var fn in this) {
+      if (fn.charAt(0) === '_' && typeof this[fn] === 'function') {
+        this[fn] = this[fn].bind(this);
+      }
+    }
+
+    if (sortable.options.supportPointer) {
+      on(document, 'pointerup', this._deselectMultiDrag);
+    } else {
+      on(document, 'mouseup', this._deselectMultiDrag);
+      on(document, 'touchend', this._deselectMultiDrag);
+    }
+
+    on(document, 'keydown', this._checkKeyDown);
+    on(document, 'keyup', this._checkKeyUp);
+    this.defaults = {
+      selectedClass: 'sortable-selected',
+      multiDragKey: null,
+      setData: function setData(dataTransfer, dragEl) {
+        var data = '';
+
+        if (multiDragElements.length && multiDragSortable === sortable) {
+          multiDragElements.forEach(function (multiDragElement, i) {
+            data += (!i ? '' : ', ') + multiDragElement.textContent;
+          });
+        } else {
+          data = dragEl.textContent;
+        }
+
+        dataTransfer.setData('Text', data);
+      }
+    };
+  }
+
+  MultiDrag.prototype = {
+    multiDragKeyDown: false,
+    isMultiDrag: false,
+    delayStartGlobal: function delayStartGlobal(_ref) {
+      var dragged = _ref.dragEl;
+      dragEl$1 = dragged;
+    },
+    delayEnded: function delayEnded() {
+      this.isMultiDrag = ~multiDragElements.indexOf(dragEl$1);
+    },
+    setupClone: function setupClone(_ref2) {
+      var sortable = _ref2.sortable,
+          cancel = _ref2.cancel;
+      if (!this.isMultiDrag) return;
+
+      for (var i = 0; i < multiDragElements.length; i++) {
+        multiDragClones.push(clone(multiDragElements[i]));
+        multiDragClones[i].sortableIndex = multiDragElements[i].sortableIndex;
+        multiDragClones[i].draggable = false;
+        multiDragClones[i].style['will-change'] = '';
+        toggleClass(multiDragClones[i], this.options.selectedClass, false);
+        multiDragElements[i] === dragEl$1 && toggleClass(multiDragClones[i], this.options.chosenClass, false);
+      }
+
+      sortable._hideClone();
+
+      cancel();
+    },
+    clone: function clone(_ref3) {
+      var sortable = _ref3.sortable,
+          rootEl = _ref3.rootEl,
+          dispatchSortableEvent = _ref3.dispatchSortableEvent,
+          cancel = _ref3.cancel;
+      if (!this.isMultiDrag) return;
+
+      if (!this.options.removeCloneOnHide) {
+        if (multiDragElements.length && multiDragSortable === sortable) {
+          insertMultiDragClones(true, rootEl);
+          dispatchSortableEvent('clone');
+          cancel();
+        }
+      }
+    },
+    showClone: function showClone(_ref4) {
+      var cloneNowShown = _ref4.cloneNowShown,
+          rootEl = _ref4.rootEl,
+          cancel = _ref4.cancel;
+      if (!this.isMultiDrag) return;
+      insertMultiDragClones(false, rootEl);
+      multiDragClones.forEach(function (clone) {
+        css(clone, 'display', '');
+      });
+      cloneNowShown();
+      clonesHidden = false;
+      cancel();
+    },
+    hideClone: function hideClone(_ref5) {
+      var _this = this;
+
+      var sortable = _ref5.sortable,
+          cloneNowHidden = _ref5.cloneNowHidden,
+          cancel = _ref5.cancel;
+      if (!this.isMultiDrag) return;
+      multiDragClones.forEach(function (clone) {
+        css(clone, 'display', 'none');
+
+        if (_this.options.removeCloneOnHide && clone.parentNode) {
+          clone.parentNode.removeChild(clone);
+        }
+      });
+      cloneNowHidden();
+      clonesHidden = true;
+      cancel();
+    },
+    dragStartGlobal: function dragStartGlobal(_ref6) {
+      var sortable = _ref6.sortable;
+
+      if (!this.isMultiDrag && multiDragSortable) {
+        multiDragSortable.multiDrag._deselectMultiDrag();
+      }
+
+      multiDragElements.forEach(function (multiDragElement) {
+        multiDragElement.sortableIndex = index(multiDragElement);
+      }); // Sort multi-drag elements
+
+      multiDragElements = multiDragElements.sort(function (a, b) {
+        return a.sortableIndex - b.sortableIndex;
+      });
+      dragStarted = true;
+    },
+    dragStarted: function dragStarted(_ref7) {
+      var _this2 = this;
+
+      var sortable = _ref7.sortable;
+      if (!this.isMultiDrag) return;
+
+      if (this.options.sort) {
+        // Capture rects,
+        // hide multi drag elements (by positioning them absolute),
+        // set multi drag elements rects to dragRect,
+        // show multi drag elements,
+        // animate to rects,
+        // unset rects & remove from DOM
+        sortable.captureAnimationState();
+
+        if (this.options.animation) {
+          multiDragElements.forEach(function (multiDragElement) {
+            if (multiDragElement === dragEl$1) return;
+            css(multiDragElement, 'position', 'absolute');
+          });
+          var dragRect = getRect(dragEl$1, false, true, true);
+          multiDragElements.forEach(function (multiDragElement) {
+            if (multiDragElement === dragEl$1) return;
+            setRect(multiDragElement, dragRect);
+          });
+          folding = true;
+          initialFolding = true;
+        }
+      }
+
+      sortable.animateAll(function () {
+        folding = false;
+        initialFolding = false;
+
+        if (_this2.options.animation) {
+          multiDragElements.forEach(function (multiDragElement) {
+            unsetRect(multiDragElement);
+          });
+        } // Remove all auxiliary multidrag items from el, if sorting enabled
+
+
+        if (_this2.options.sort) {
+          removeMultiDragElements();
+        }
+      });
+    },
+    dragOver: function dragOver(_ref8) {
+      var target = _ref8.target,
+          completed = _ref8.completed,
+          cancel = _ref8.cancel;
+
+      if (folding && ~multiDragElements.indexOf(target)) {
+        completed(false);
+        cancel();
+      }
+    },
+    revert: function revert(_ref9) {
+      var fromSortable = _ref9.fromSortable,
+          rootEl = _ref9.rootEl,
+          sortable = _ref9.sortable,
+          dragRect = _ref9.dragRect;
+
+      if (multiDragElements.length > 1) {
+        // Setup unfold animation
+        multiDragElements.forEach(function (multiDragElement) {
+          sortable.addAnimationState({
+            target: multiDragElement,
+            rect: folding ? getRect(multiDragElement) : dragRect
+          });
+          unsetRect(multiDragElement);
+          multiDragElement.fromRect = dragRect;
+          fromSortable.removeAnimationState(multiDragElement);
+        });
+        folding = false;
+        insertMultiDragElements(!this.options.removeCloneOnHide, rootEl);
+      }
+    },
+    dragOverCompleted: function dragOverCompleted(_ref10) {
+      var sortable = _ref10.sortable,
+          isOwner = _ref10.isOwner,
+          insertion = _ref10.insertion,
+          activeSortable = _ref10.activeSortable,
+          parentEl = _ref10.parentEl,
+          putSortable = _ref10.putSortable;
+      var options = this.options;
+
+      if (insertion) {
+        // Clones must be hidden before folding animation to capture dragRectAbsolute properly
+        if (isOwner) {
+          activeSortable._hideClone();
+        }
+
+        initialFolding = false; // If leaving sort:false root, or already folding - Fold to new location
+
+        if (options.animation && multiDragElements.length > 1 && (folding || !isOwner && !activeSortable.options.sort && !putSortable)) {
+          // Fold: Set all multi drag elements's rects to dragEl's rect when multi-drag elements are invisible
+          var dragRectAbsolute = getRect(dragEl$1, false, true, true);
+          multiDragElements.forEach(function (multiDragElement) {
+            if (multiDragElement === dragEl$1) return;
+            setRect(multiDragElement, dragRectAbsolute); // Move element(s) to end of parentEl so that it does not interfere with multi-drag clones insertion if they are inserted
+            // while folding, and so that we can capture them again because old sortable will no longer be fromSortable
+
+            parentEl.appendChild(multiDragElement);
+          });
+          folding = true;
+        } // Clones must be shown (and check to remove multi drags) after folding when interfering multiDragElements are moved out
+
+
+        if (!isOwner) {
+          // Only remove if not folding (folding will remove them anyways)
+          if (!folding) {
+            removeMultiDragElements();
+          }
+
+          if (multiDragElements.length > 1) {
+            var clonesHiddenBefore = clonesHidden;
+
+            activeSortable._showClone(sortable); // Unfold animation for clones if showing from hidden
+
+
+            if (activeSortable.options.animation && !clonesHidden && clonesHiddenBefore) {
+              multiDragClones.forEach(function (clone) {
+                activeSortable.addAnimationState({
+                  target: clone,
+                  rect: clonesFromRect
+                });
+                clone.fromRect = clonesFromRect;
+                clone.thisAnimationDuration = null;
+              });
+            }
+          } else {
+            activeSortable._showClone(sortable);
+          }
+        }
+      }
+    },
+    dragOverAnimationCapture: function dragOverAnimationCapture(_ref11) {
+      var dragRect = _ref11.dragRect,
+          isOwner = _ref11.isOwner,
+          activeSortable = _ref11.activeSortable;
+      multiDragElements.forEach(function (multiDragElement) {
+        multiDragElement.thisAnimationDuration = null;
+      });
+
+      if (activeSortable.options.animation && !isOwner && activeSortable.multiDrag.isMultiDrag) {
+        clonesFromRect = _extends({}, dragRect);
+        var dragMatrix = matrix(dragEl$1, true);
+        clonesFromRect.top -= dragMatrix.f;
+        clonesFromRect.left -= dragMatrix.e;
+      }
+    },
+    dragOverAnimationComplete: function dragOverAnimationComplete() {
+      if (folding) {
+        folding = false;
+        removeMultiDragElements();
+      }
+    },
+    drop: function drop(_ref12) {
+      var evt = _ref12.originalEvent,
+          rootEl = _ref12.rootEl,
+          parentEl = _ref12.parentEl,
+          sortable = _ref12.sortable,
+          dispatchSortableEvent = _ref12.dispatchSortableEvent,
+          oldIndex = _ref12.oldIndex,
+          putSortable = _ref12.putSortable;
+      var toSortable = putSortable || this.sortable;
+      if (!evt) return;
+      var options = this.options,
+          children = parentEl.children; // Multi-drag selection
+
+      if (!dragStarted) {
+        if (options.multiDragKey && !this.multiDragKeyDown) {
+          this._deselectMultiDrag();
+        }
+
+        toggleClass(dragEl$1, options.selectedClass, !~multiDragElements.indexOf(dragEl$1));
+
+        if (!~multiDragElements.indexOf(dragEl$1)) {
+          multiDragElements.push(dragEl$1);
+          dispatchEvent({
+            sortable: sortable,
+            rootEl: rootEl,
+            name: 'select',
+            targetEl: dragEl$1,
+            originalEvt: evt
+          }); // Modifier activated, select from last to dragEl
+
+          if (evt.shiftKey && lastMultiDragSelect && sortable.el.contains(lastMultiDragSelect)) {
+            var lastIndex = index(lastMultiDragSelect),
+                currentIndex = index(dragEl$1);
+
+            if (~lastIndex && ~currentIndex && lastIndex !== currentIndex) {
+              // Must include lastMultiDragSelect (select it), in case modified selection from no selection
+              // (but previous selection existed)
+              var n, i;
+
+              if (currentIndex > lastIndex) {
+                i = lastIndex;
+                n = currentIndex;
+              } else {
+                i = currentIndex;
+                n = lastIndex + 1;
+              }
+
+              for (; i < n; i++) {
+                if (~multiDragElements.indexOf(children[i])) continue;
+                toggleClass(children[i], options.selectedClass, true);
+                multiDragElements.push(children[i]);
+                dispatchEvent({
+                  sortable: sortable,
+                  rootEl: rootEl,
+                  name: 'select',
+                  targetEl: children[i],
+                  originalEvt: evt
+                });
+              }
+            }
+          } else {
+            lastMultiDragSelect = dragEl$1;
+          }
+
+          multiDragSortable = toSortable;
+        } else {
+          multiDragElements.splice(multiDragElements.indexOf(dragEl$1), 1);
+          lastMultiDragSelect = null;
+          dispatchEvent({
+            sortable: sortable,
+            rootEl: rootEl,
+            name: 'deselect',
+            targetEl: dragEl$1,
+            originalEvt: evt
+          });
+        }
+      } // Multi-drag drop
+
+
+      if (dragStarted && this.isMultiDrag) {
+        folding = false; // Do not "unfold" after around dragEl if reverted
+
+        if ((parentEl[expando].options.sort || parentEl !== rootEl) && multiDragElements.length > 1) {
+          var dragRect = getRect(dragEl$1),
+              multiDragIndex = index(dragEl$1, ':not(.' + this.options.selectedClass + ')');
+          if (!initialFolding && options.animation) dragEl$1.thisAnimationDuration = null;
+          toSortable.captureAnimationState();
+
+          if (!initialFolding) {
+            if (options.animation) {
+              dragEl$1.fromRect = dragRect;
+              multiDragElements.forEach(function (multiDragElement) {
+                multiDragElement.thisAnimationDuration = null;
+
+                if (multiDragElement !== dragEl$1) {
+                  var rect = folding ? getRect(multiDragElement) : dragRect;
+                  multiDragElement.fromRect = rect; // Prepare unfold animation
+
+                  toSortable.addAnimationState({
+                    target: multiDragElement,
+                    rect: rect
+                  });
+                }
+              });
+            } // Multi drag elements are not necessarily removed from the DOM on drop, so to reinsert
+            // properly they must all be removed
+
+
+            removeMultiDragElements();
+            multiDragElements.forEach(function (multiDragElement) {
+              if (children[multiDragIndex]) {
+                parentEl.insertBefore(multiDragElement, children[multiDragIndex]);
+              } else {
+                parentEl.appendChild(multiDragElement);
+              }
+
+              multiDragIndex++;
+            }); // If initial folding is done, the elements may have changed position because they are now
+            // unfolding around dragEl, even though dragEl may not have his index changed, so update event
+            // must be fired here as Sortable will not.
+
+            if (oldIndex === index(dragEl$1)) {
+              var update = false;
+              multiDragElements.forEach(function (multiDragElement) {
+                if (multiDragElement.sortableIndex !== index(multiDragElement)) {
+                  update = true;
+                  return;
+                }
+              });
+
+              if (update) {
+                dispatchSortableEvent('update');
+              }
+            }
+          } // Must be done after capturing individual rects (scroll bar)
+
+
+          multiDragElements.forEach(function (multiDragElement) {
+            unsetRect(multiDragElement);
+          });
+          toSortable.animateAll();
+        }
+
+        multiDragSortable = toSortable;
+      } // Remove clones if necessary
+
+
+      if (rootEl === parentEl || putSortable && putSortable.lastPutMode !== 'clone') {
+        multiDragClones.forEach(function (clone) {
+          clone.parentNode && clone.parentNode.removeChild(clone);
+        });
+      }
+    },
+    nullingGlobal: function nullingGlobal() {
+      this.isMultiDrag = dragStarted = false;
+      multiDragClones.length = 0;
+    },
+    destroyGlobal: function destroyGlobal() {
+      this._deselectMultiDrag();
+
+      off(document, 'pointerup', this._deselectMultiDrag);
+      off(document, 'mouseup', this._deselectMultiDrag);
+      off(document, 'touchend', this._deselectMultiDrag);
+      off(document, 'keydown', this._checkKeyDown);
+      off(document, 'keyup', this._checkKeyUp);
+    },
+    _deselectMultiDrag: function _deselectMultiDrag(evt) {
+      if (typeof dragStarted !== "undefined" && dragStarted) return; // Only deselect if selection is in this sortable
+
+      if (multiDragSortable !== this.sortable) return; // Only deselect if target is not item in this sortable
+
+      if (evt && closest(evt.target, this.options.draggable, this.sortable.el, false)) return; // Only deselect if left click
+
+      if (evt && evt.button !== 0) return;
+
+      while (multiDragElements.length) {
+        var el = multiDragElements[0];
+        toggleClass(el, this.options.selectedClass, false);
+        multiDragElements.shift();
+        dispatchEvent({
+          sortable: this.sortable,
+          rootEl: this.sortable.el,
+          name: 'deselect',
+          targetEl: el,
+          originalEvt: evt
+        });
+      }
+    },
+    _checkKeyDown: function _checkKeyDown(evt) {
+      if (evt.key === this.options.multiDragKey) {
+        this.multiDragKeyDown = true;
+      }
+    },
+    _checkKeyUp: function _checkKeyUp(evt) {
+      if (evt.key === this.options.multiDragKey) {
+        this.multiDragKeyDown = false;
+      }
+    }
+  };
+  return _extends(MultiDrag, {
+    // Static methods & properties
+    pluginName: 'multiDrag',
+    utils: {
+      /**
+       * Selects the provided multi-drag item
+       * @param  {HTMLElement} el    The element to be selected
+       */
+      select: function select(el) {
+        var sortable = el.parentNode[expando];
+        if (!sortable || !sortable.options.multiDrag || ~multiDragElements.indexOf(el)) return;
+
+        if (multiDragSortable && multiDragSortable !== sortable) {
+          multiDragSortable.multiDrag._deselectMultiDrag();
+
+          multiDragSortable = sortable;
+        }
+
+        toggleClass(el, sortable.options.selectedClass, true);
+        multiDragElements.push(el);
+      },
+
+      /**
+       * Deselects the provided multi-drag item
+       * @param  {HTMLElement} el    The element to be deselected
+       */
+      deselect: function deselect(el) {
+        var sortable = el.parentNode[expando],
+            index = multiDragElements.indexOf(el);
+        if (!sortable || !sortable.options.multiDrag || !~index) return;
+        toggleClass(el, sortable.options.selectedClass, false);
+        multiDragElements.splice(index, 1);
+      }
+    },
+    eventProperties: function eventProperties() {
+      var _this3 = this;
+
+      var oldIndicies = [],
+          newIndicies = [];
+      multiDragElements.forEach(function (multiDragElement) {
+        oldIndicies.push({
+          multiDragElement: multiDragElement,
+          index: multiDragElement.sortableIndex
+        }); // multiDragElements will already be sorted if folding
+
+        var newIndex;
+
+        if (folding && multiDragElement !== dragEl$1) {
+          newIndex = -1;
+        } else if (folding) {
+          newIndex = index(multiDragElement, ':not(.' + _this3.options.selectedClass + ')');
+        } else {
+          newIndex = index(multiDragElement);
+        }
+
+        newIndicies.push({
+          multiDragElement: multiDragElement,
+          index: newIndex
+        });
+      });
+      return {
+        items: _toConsumableArray(multiDragElements),
+        clones: [].concat(multiDragClones),
+        oldIndicies: oldIndicies,
+        newIndicies: newIndicies
+      };
+    },
+    optionListeners: {
+      multiDragKey: function multiDragKey(key) {
+        key = key.toLowerCase();
+
+        if (key === 'ctrl') {
+          key = 'Control';
+        } else if (key.length > 1) {
+          key = key.charAt(0).toUpperCase() + key.substr(1);
+        }
+
+        return key;
+      }
+    }
+  });
+}
+
+function insertMultiDragElements(clonesInserted, rootEl) {
+  multiDragElements.forEach(function (multiDragElement, i) {
+    var target = rootEl.children[multiDragElement.sortableIndex + (clonesInserted ? Number(i) : 0)];
+
+    if (target) {
+      rootEl.insertBefore(multiDragElement, target);
+    } else {
+      rootEl.appendChild(multiDragElement);
+    }
+  });
+}
+/**
+ * Insert multi-drag clones
+ * @param  {[Boolean]} elementsInserted  Whether the multi-drag elements are inserted
+ * @param  {HTMLElement} rootEl
+ */
+
+
+function insertMultiDragClones(elementsInserted, rootEl) {
+  multiDragClones.forEach(function (clone, i) {
+    var target = rootEl.children[clone.sortableIndex + (elementsInserted ? Number(i) : 0)];
+
+    if (target) {
+      rootEl.insertBefore(clone, target);
+    } else {
+      rootEl.appendChild(clone);
+    }
+  });
+}
+
+function removeMultiDragElements() {
+  multiDragElements.forEach(function (multiDragElement) {
+    if (multiDragElement === dragEl$1) return;
+    multiDragElement.parentNode && multiDragElement.parentNode.removeChild(multiDragElement);
+  });
+}
+
+Sortable.mount(new AutoScrollPlugin());
+Sortable.mount(Remove, Revert);
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Sortable);
+
+
+/***/ }),
+
+/***/ "@flarum/core/admin":
+/*!******************************!*\
+  !*** external "flarum.core" ***!
+  \******************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core;
+
+/***/ }),
+
+/***/ "flarum/admin/app":
+/*!**************************************************!*\
+  !*** external "flarum.core.compat['admin/app']" ***!
+  \**************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['admin/app'];
+
+/***/ }),
+
+/***/ "flarum/admin/components/BasicsPage":
+/*!********************************************************************!*\
+  !*** external "flarum.core.compat['admin/components/BasicsPage']" ***!
+  \********************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['admin/components/BasicsPage'];
+
+/***/ }),
+
+/***/ "flarum/admin/components/ExtensionPage":
+/*!***********************************************************************!*\
+  !*** external "flarum.core.compat['admin/components/ExtensionPage']" ***!
+  \***********************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['admin/components/ExtensionPage'];
+
+/***/ }),
+
+/***/ "flarum/admin/components/PermissionDropdown":
+/*!****************************************************************************!*\
+  !*** external "flarum.core.compat['admin/components/PermissionDropdown']" ***!
+  \****************************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['admin/components/PermissionDropdown'];
+
+/***/ }),
+
+/***/ "flarum/admin/components/PermissionGrid":
+/*!************************************************************************!*\
+  !*** external "flarum.core.compat['admin/components/PermissionGrid']" ***!
+  \************************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['admin/components/PermissionGrid'];
+
+/***/ }),
+
+/***/ "flarum/admin/components/SettingDropdown":
+/*!*************************************************************************!*\
+  !*** external "flarum.core.compat['admin/components/SettingDropdown']" ***!
+  \*************************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['admin/components/SettingDropdown'];
+
+/***/ }),
+
+/***/ "flarum/common/Model":
+/*!*****************************************************!*\
+  !*** external "flarum.core.compat['common/Model']" ***!
+  \*****************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['common/Model'];
+
+/***/ }),
+
+/***/ "flarum/common/components/Button":
+/*!*****************************************************************!*\
+  !*** external "flarum.core.compat['common/components/Button']" ***!
+  \*****************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['common/components/Button'];
+
+/***/ }),
+
+/***/ "flarum/common/components/ColorPreviewInput":
+/*!****************************************************************************!*\
+  !*** external "flarum.core.compat['common/components/ColorPreviewInput']" ***!
+  \****************************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['common/components/ColorPreviewInput'];
+
+/***/ }),
+
+/***/ "flarum/common/components/Dropdown":
+/*!*******************************************************************!*\
+  !*** external "flarum.core.compat['common/components/Dropdown']" ***!
+  \*******************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['common/components/Dropdown'];
+
+/***/ }),
+
+/***/ "flarum/common/components/Link":
+/*!***************************************************************!*\
+  !*** external "flarum.core.compat['common/components/Link']" ***!
+  \***************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['common/components/Link'];
+
+/***/ }),
+
+/***/ "flarum/common/components/LoadingIndicator":
+/*!***************************************************************************!*\
+  !*** external "flarum.core.compat['common/components/LoadingIndicator']" ***!
+  \***************************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['common/components/LoadingIndicator'];
+
+/***/ }),
+
+/***/ "flarum/common/components/Modal":
+/*!****************************************************************!*\
+  !*** external "flarum.core.compat['common/components/Modal']" ***!
+  \****************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['common/components/Modal'];
+
+/***/ }),
+
+/***/ "flarum/common/extend":
+/*!******************************************************!*\
+  !*** external "flarum.core.compat['common/extend']" ***!
+  \******************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['common/extend'];
+
+/***/ }),
+
+/***/ "flarum/common/utils/ItemList":
+/*!**************************************************************!*\
+  !*** external "flarum.core.compat['common/utils/ItemList']" ***!
+  \**************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['common/utils/ItemList'];
+
+/***/ }),
+
+/***/ "flarum/common/utils/Stream":
+/*!************************************************************!*\
+  !*** external "flarum.core.compat['common/utils/Stream']" ***!
+  \************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['common/utils/Stream'];
+
+/***/ }),
+
+/***/ "flarum/common/utils/classList":
+/*!***************************************************************!*\
+  !*** external "flarum.core.compat['common/utils/classList']" ***!
+  \***************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['common/utils/classList'];
+
+/***/ }),
+
+/***/ "flarum/common/utils/computed":
+/*!**************************************************************!*\
+  !*** external "flarum.core.compat['common/utils/computed']" ***!
+  \**************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['common/utils/computed'];
+
+/***/ }),
+
+/***/ "flarum/common/utils/extract":
+/*!*************************************************************!*\
+  !*** external "flarum.core.compat['common/utils/extract']" ***!
+  \*************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['common/utils/extract'];
+
+/***/ }),
+
+/***/ "flarum/common/utils/extractText":
+/*!*****************************************************************!*\
+  !*** external "flarum.core.compat['common/utils/extractText']" ***!
+  \*****************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['common/utils/extractText'];
+
+/***/ }),
+
+/***/ "flarum/common/utils/isDark":
+/*!************************************************************!*\
+  !*** external "flarum.core.compat['common/utils/isDark']" ***!
+  \************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['common/utils/isDark'];
+
+/***/ }),
+
+/***/ "flarum/common/utils/string":
+/*!************************************************************!*\
+  !*** external "flarum.core.compat['common/utils/string']" ***!
+  \************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['common/utils/string'];
+
+/***/ }),
+
+/***/ "flarum/common/utils/withAttr":
+/*!**************************************************************!*\
+  !*** external "flarum.core.compat['common/utils/withAttr']" ***!
+  \**************************************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = flarum.core.compat['common/utils/withAttr'];
+
+/***/ }),
+
+/***/ "../../../node_modules/@babel/runtime/helpers/esm/inheritsLoose.js":
+/*!*************************************************************************!*\
+  !*** ../../../node_modules/@babel/runtime/helpers/esm/inheritsLoose.js ***!
+  \*************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ _inheritsLoose)
+/* harmony export */ });
+/* harmony import */ var _setPrototypeOf_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./setPrototypeOf.js */ "../../../node_modules/@babel/runtime/helpers/esm/setPrototypeOf.js");
+
+function _inheritsLoose(subClass, superClass) {
+  subClass.prototype = Object.create(superClass.prototype);
+  subClass.prototype.constructor = subClass;
+  (0,_setPrototypeOf_js__WEBPACK_IMPORTED_MODULE_0__["default"])(subClass, superClass);
+}
+
+/***/ }),
+
+/***/ "../../../node_modules/@babel/runtime/helpers/esm/setPrototypeOf.js":
+/*!**************************************************************************!*\
+  !*** ../../../node_modules/@babel/runtime/helpers/esm/setPrototypeOf.js ***!
+  \**************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ _setPrototypeOf)
+/* harmony export */ });
+function _setPrototypeOf(o, p) {
+  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  };
+
+  return _setPrototypeOf(o, p);
+}
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
+"use strict";
+/*!******************!*\
+  !*** ./admin.ts ***!
+  \******************/
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _src_common__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./src/common */ "./src/common/index.ts");
+/* harmony import */ var _src_common__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_src_common__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ var __WEBPACK_REEXPORT_OBJECT__ = {};
+/* harmony reexport (unknown) */ for(const __WEBPACK_IMPORT_KEY__ in _src_common__WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== "default") __WEBPACK_REEXPORT_OBJECT__[__WEBPACK_IMPORT_KEY__] = () => _src_common__WEBPACK_IMPORTED_MODULE_0__[__WEBPACK_IMPORT_KEY__]
+/* harmony reexport (unknown) */ __webpack_require__.d(__webpack_exports__, __WEBPACK_REEXPORT_OBJECT__);
+/* harmony import */ var _src_admin__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./src/admin */ "./src/admin/index.ts");
+
+
+})();
+
+module.exports = __webpack_exports__;
+/******/ })()
+;
 //# sourceMappingURL=admin.js.map

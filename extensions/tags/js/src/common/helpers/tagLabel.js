@@ -1,6 +1,7 @@
 import extract from 'flarum/common/utils/extract';
 import isDark from 'flarum/common/utils/isDark';
 import Link from 'flarum/common/components/Link';
+import classList from 'flarum/common/utils/classList';
 import tagIcon from './tagIcon';
 
 export default function tagLabel(tag, attrs = {}) {
@@ -14,14 +15,7 @@ export default function tagLabel(tag, attrs = {}) {
     const color = tag.color();
     if (color) {
       attrs.style['--tag-bg'] = color;
-      attrs.className += ' colored';
-
-      if (isDark(color)) {
-        attrs.className += ' tag-dark';
-      }
-      else {
-        attrs.className += ' tag-light';
-      }
+      attrs.className = classList(attrs.className, 'colored', isDark(color) ? 'tag-dark' : 'tag-light');
     }
 
     if (link) {
