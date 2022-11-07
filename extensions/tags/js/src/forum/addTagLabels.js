@@ -2,6 +2,7 @@ import { extend } from 'flarum/common/extend';
 import DiscussionListItem from 'flarum/forum/components/DiscussionListItem';
 import DiscussionHero from 'flarum/forum/components/DiscussionHero';
 import isDark from 'flarum/common/utils/isDark';
+import classList from 'flarum/common/utils/classList';
 
 import tagsLabel from '../common/helpers/tagsLabel';
 import sortTags from '../common/utils/sortTags';
@@ -24,13 +25,7 @@ export default function () {
       const color = tags[0].color();
       if (color) {
         view.attrs.style = { '--hero-bg': color };
-
-        if (isDark(color)) {
-          view.attrs.className += ' DiscussionHero--dark';
-        }
-        else {
-          view.attrs.className += ' DiscussionHero--light';
-        }
+        view.attrs.className = classList(view.attrs.className, 'DiscussionHero--colored', isDark(color) ? 'DiscussionHero--dark' : 'DiscussionHero--light');
       }
     }
   });
