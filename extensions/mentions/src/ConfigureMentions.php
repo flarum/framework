@@ -180,7 +180,6 @@ class ConfigureMentions
             $tag->setAttribute('icon', $group->icon ?? 'fas fa-at');
             $tag->setAttribute('color', $group->color);
             $tag->setAttribute('class', self::isDark($group->color) ? 'GroupMention--light' : 'GroupMention--dark');
-
             return true;
         }
 
@@ -188,27 +187,26 @@ class ConfigureMentions
     }
 
     /**
-     * The `isDark` utility converts a hex color to rgb, and then calcul a YIQ
-     * value in order to get the appropriate brightness value (is it dark or is it
-     * light?) See https://www.w3.org/TR/AERT/#color-contrast for references. A YIQ
-     * value >= 128 is a light color.
-     */
+    * The `isDark` utility converts a hex color to rgb, and then calcul a YIQ
+    * value in order to get the appropriate brightness value (is it dark or is it
+    * light?) See https://www.w3.org/TR/AERT/#color-contrast for references. A YIQ
+    * value >= 128 is a light color.
+    */
     public static function isDark(?string $hexColor): bool
     {
-        if (! $hexColor) {
+        if (!$hexColor) {
             return false;
         }
-
+        
         $hexNumbers = Str::replace('#', '', $hexColor);
         if (Str::length($hexNumbers) === 3) {
             $hexNumbers += $hexNumbers;
         }
 
-        $r = (int) Str::substr($hexNumbers, 0, 2);
-        $g = (int) Str::subStr($hexNumbers, 2, 2);
-        $b = (int) Str::subStr($hexNumbers, 4, 2);
-        $yiq = ($r * 299 + $g * 587 + $b * 114) / 1000;
-
+        $r = hexdec(Str::substr($hexNumbers, 0, 2));
+        $g = hexdec(Str::subStr($hexNumbers, 2, 2));
+        $b = hexdec(Str::subStr($hexNumbers, 4, 2));
+        $yiq = ($r * 299 + $g *587 + $b * 114) / 1000;
         return $yiq >= 128 ? false : true;
     }
 }
