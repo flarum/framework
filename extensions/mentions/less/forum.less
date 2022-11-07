@@ -101,6 +101,10 @@
   &--light {
     color: @text-on-light;
 
+    & when (@config-dark-mode = true) {
+      color: @text-on-dark;
+    }
+
     &:hover,
     &:active {
       color: @text-on-light;
@@ -109,6 +113,10 @@
 
   &--dark {
     color: @text-on-dark;
+
+    & when (@config-dark-mode = true) {
+      color: @text-on-light;
+    }
 
     &:hover,
     &:active {
