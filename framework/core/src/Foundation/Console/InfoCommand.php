@@ -162,6 +162,4 @@ class InfoCommand extends AbstractCommand
 
         return $fallback;
     }
-
-    
 }

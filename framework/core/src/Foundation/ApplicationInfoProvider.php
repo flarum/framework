@@ -19,7 +19,6 @@ use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
-use PDO;
 use SessionHandlerInterface;
 
 class ApplicationInfoProvider
@@ -69,15 +68,14 @@ class ApplicationInfoProvider
      * @param SessionHandlerInterface $sessionHandler
      */
     public function __construct(
-        SettingsRepositoryInterface $settings, 
-        Translator $translator, 
-        Schedule $schedule, 
-        ConnectionInterface $db, 
+        SettingsRepositoryInterface $settings,
+        Translator $translator,
+        Schedule $schedule,
+        ConnectionInterface $db,
         Config $config,
         SessionManager $session,
         SessionHandlerInterface $sessionHandler
-        )
-    {
+    ) {
         $this->settings = $settings;
         $this->translator = $translator;
         $this->schedule = $schedule;
@@ -90,7 +88,7 @@ class ApplicationInfoProvider
     /**
      * Identify if any tasks are registered with the scheduler.
      *
-     * @return boolean
+     * @return bool
      */
     public function scheduledTasksRegistered(): bool
     {
@@ -111,11 +109,11 @@ class ApplicationInfoProvider
         }
 
         // If the schedule has not run in the last 5 minutes, mark it as inactive.
-        return Carbon::parse($status) > Carbon::now()->subMinutes(5) 
-            ? $this->translator->trans('core.admin.dashboard.status.scheduler.active') 
+        return Carbon::parse($status) > Carbon::now()->subMinutes(5)
+            ? $this->translator->trans('core.admin.dashboard.status.scheduler.active')
             : $this->translator->trans('core.admin.status.scheduler.inactive');
     }
-    
+
     /**
      * Identify the queue driver in use.
      *
