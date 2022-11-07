@@ -64,6 +64,13 @@
   @code-color:                     #fff;
 }
 
+// Beyond dark or light mode, we need stable colors depending on the luminosity
+// of the parents element's background. This allow not to change the color
+// variable depending on the dark/light mode to get the same final color, and
+// thus to simplify the logic.
+@text-on-dark:                     #ddd;
+@text-on-light:                    #111;
+
 @hero-bg:                          @control-bg;
 @hero-color:                       @control-color;
 @hero-muted-color:                 @control-color;
