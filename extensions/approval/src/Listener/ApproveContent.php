@@ -21,12 +21,8 @@ class ApproveContent
     public function subscribe(Dispatcher $events)
     {
         $events->listen(Saving::class, [$this, 'approvePost']);
-        $events->listen(PostWasApproved::class, [$this, 'approveDiscussion']);
     }
 
-    /**
-     * @param Saving $event
-     */
     public function approvePost(Saving $event)
     {
         $attributes = $event->data['attributes'];
@@ -44,34 +40,6 @@ class ApproveContent
             $post->is_approved = true;
 
             $post->raise(new PostWasApproved($post, $event->actor));
-        }
-    }
-
-    /**
-     * @param PostWasApproved $event
-     */
-    public function approveDiscussion(PostWasApproved $event)
-    {
-        $post = $event->post;
-        $discussion = $post->discussion;
-        $user = $discussion->user;
-
-        $discussion->refreshCommentCount();
-        $discussion->refreshLastPost();
-
-        if ($post->number == 1) {
-            $discussion->is_approved = true;
-
-            $discussion->afterSave(function () use ($user) {
-                $user->refreshDiscussionCount();
-            });
-        }
-
-        $discussion->save();
-
-        if ($discussion->user) {
-            $user->refreshCommentCount();
-            $user->save();
         }
     }
 }

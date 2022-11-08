@@ -10,11 +10,16 @@ import addPostQuoteButton from './addPostQuoteButton';
 import addComposerAutocomplete from './addComposerAutocomplete';
 import PostMentionedNotification from './components/PostMentionedNotification';
 import UserMentionedNotification from './components/UserMentionedNotification';
+import GroupMentionedNotification from './components/GroupMentionedNotification';
 import UserPage from 'flarum/forum/components/UserPage';
 import LinkButton from 'flarum/common/components/LinkButton';
 import MentionsUserPage from './components/MentionsUserPage';
+import User from 'flarum/common/models/User';
+import Model from 'flarum/common/Model';
 
 app.initializers.add('flarum-mentions', function () {
+  User.prototype.canMentionGroups = Model.attribute('canMentionGroups');
+
   // For every mention of a post inside a post's content, set up a hover handler
   // that shows a preview of the mentioned post.
   addPostMentionPreviews();
@@ -36,6 +41,7 @@ app.initializers.add('flarum-mentions', function () {
 
   app.notificationComponents.postMentioned = PostMentionedNotification;
   app.notificationComponents.userMentioned = UserMentionedNotification;
+  app.notificationComponents.groupMentioned = GroupMentionedNotification;
 
   // Add notification preferences.
   extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
@@ -49,6 +55,12 @@ app.initializers.add('flarum-mentions', function () {
       name: 'userMentioned',
       icon: 'fas fa-at',
       label: app.translator.trans('flarum-mentions.forum.settings.notify_user_mentioned_label'),
+    });
+
+    items.add('groupMentioned', {
+      name: 'groupMentioned',
+      icon: 'fas fa-at',
+      label: app.translator.trans('flarum-mentions.forum.settings.notify_group_mentioned_label'),
     });
   });
 

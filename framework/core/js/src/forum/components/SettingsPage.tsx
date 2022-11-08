@@ -40,14 +40,15 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
   settingsItems() {
     const items = new ItemList<Mithril.Children>();
 
-    ['account', 'notifications', 'privacy'].forEach((section) => {
+    ['account', 'notifications', 'privacy'].forEach((section, index) => {
       const sectionItems = `${section}Items` as 'accountItems' | 'notificationsItems' | 'privacyItems';
 
       items.add(
         section,
         <FieldSet className={`Settings-${section}`} label={app.translator.trans(`core.forum.settings.${section}_heading`)}>
           {this[sectionItems]().toArray()}
-        </FieldSet>
+        </FieldSet>,
+        100 - index * 10
       );
     });
 
@@ -64,14 +65,16 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
       'changePassword',
       <Button className="Button" onclick={() => app.modal.show(ChangePasswordModal)}>
         {app.translator.trans('core.forum.settings.change_password_button')}
-      </Button>
+      </Button>,
+      100
     );
 
     items.add(
       'changeEmail',
       <Button className="Button" onclick={() => app.modal.show(ChangeEmailModal)}>
         {app.translator.trans('core.forum.settings.change_email_button')}
-      </Button>
+      </Button>,
+      90
     );
 
     return items;
@@ -83,7 +86,7 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
   notificationsItems() {
     const items = new ItemList<Mithril.Children>();
 
-    items.add('notificationGrid', <NotificationGrid user={this.user} />);
+    items.add('notificationGrid', <NotificationGrid user={this.user} />, 100);
 
     return items;
   }
@@ -109,7 +112,8 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
         loading={this.discloseOnlineLoading}
       >
         {app.translator.trans('core.forum.settings.privacy_disclose_online_label')}
-      </Switch>
+      </Switch>,
+      100
     );
 
     return items;

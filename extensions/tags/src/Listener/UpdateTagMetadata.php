@@ -66,7 +66,9 @@ class UpdateTagMetadata
      */
     public function whenDiscussionIsDeleted(Deleted $event)
     {
-        $this->updateTags($event->discussion, -1);
+        // If already soft deleted when permanently deleted, the -1 delta has already been applied in Hidden listener
+        $delta = $event->discussion->hidden_at ? 0 : -1;
+        $this->updateTags($event->discussion, $delta);
 
         $event->discussion->tags()->detach();
     }
