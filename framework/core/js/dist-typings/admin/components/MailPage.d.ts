@@ -1,4 +1,4 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
+/// <reference path="../../../src/@types/translator-icu-rich.d.ts" />
 import AdminPage from './AdminPage';
 import type { IPageAttrs } from '../../common/components/Page';
 import type { AlertIdentifier } from '../../common/states/AlertManagerState';
