@@ -2,6 +2,7 @@
     "private": true,
     "name": "@flarum/core",
     "version": "0.0.0",
+    "type": "module",
     "prettier": "@flarum/prettier-config",
     "dependencies": {
         "@askvortsov/rich-icu-message-formatter": "^0.2.4",
@@ -30,6 +31,7 @@
         "bundlewatch": "^0.3.2",
         "cross-env": "^7.0.3",
         "expose-loader": "^3.1.0",
+        "flarum-jest-config": "^1.0.0",
         "flarum-tsconfig": "^1.0.2",
         "flarum-webpack-config": "^2.0.0",
         "prettier": "^2.5.1",
@@ -49,6 +51,7 @@
         "build-typings": "yarn run clean-typings && ([ -e src/@types ] && cp -r src/@types dist-typings/@types || true) && tsc && yarn run post-build-typings",
         "post-build-typings": "find dist-typings -type f -name '*.d.ts' -print0 | xargs -0 sed -i 's,../src/@types,@types,g'",
         "check-typings": "tsc --noEmit --emitDeclarationOnly false",
-        "check-typings-coverage": "typescript-coverage-report"
+        "check-typings-coverage": "typescript-coverage-report",
+        "test": "yarn node --experimental-vm-modules $(yarn bin jest)"
     }
 }

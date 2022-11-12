@@ -2,7 +2,6 @@ import app from '../../forum/app';
 import subclassOf from '../../common/utils/subclassOf';
 import Stream from '../../common/utils/Stream';
 import ReplyComposer from '../components/ReplyComposer';
-import EditorDriverInterface from '../../common/utils/EditorDriverInterface';
 
 class ComposerState {
   constructor() {
