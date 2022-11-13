@@ -1,4 +1,4 @@
-/// <reference path="../../../src/@types/translator-icu-rich.d.ts" />
+/// <reference path="../../@types/translator-icu-rich.d.ts" />
 import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
 import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
