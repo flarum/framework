@@ -16,7 +16,7 @@ module.exports = (options = {}) => ({
     ],
   },
   preset: 'ts-jest',
-  setupFilesAfterEnv: [path.resolve(__dirname, 'src/setup-env.js')],
+  setupFilesAfterEnv: [path.resolve(__dirname, 'setup-env.js')],
   moduleDirectories: ['node_modules', 'src'],
   ...options,
 });
