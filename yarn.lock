@@ -2065,7 +2065,7 @@ caniuse-lite@^1.0.30001400:
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001431.tgz#e7c59bd1bc518fae03a4656be442ce6c4887a795"
   integrity sha512-zBUoFU0ZcxpvSt9IU66dXVT/3ctO1cy4y9cscs1szkPlcWb6pasYM144GqrUygUbT+k7cmUCW61cvskjcv0enQ==
 
-chalk@^2.0.0:
+chalk@^2.0.0, chalk@^2.4.2:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-2.4.2.tgz#cd42541677a54333cf541a49108c1432b44c9424"
   integrity sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==
@@ -2199,6 +2199,11 @@ commander@^2.20.0:
   version "2.20.3"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.3.tgz#fd485e84c03eb4881c20722ba48035e8531aeb33"
   integrity sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==
+
+commander@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-3.0.2.tgz#6837c3fb677ad9933d1cfba42dd14d5117d6b39e"
+  integrity sha512-Gar0ASD4BDyKC4hl4DwHqDrmvjoxWKZigVnAbn5H1owvm4CxCPdb0HQDehwNYMJpla5+M2tPmPARzhtYuwpHow==
 
 commander@^5.0.0:
   version "5.1.0"
@@ -2363,6 +2368,11 @@ domexception@^4.0.0:
   integrity sha512-A2is4PLG+eeSfoTMA95/s4pvAoSo2mKtiM5jlHkAVewmiO8ISFTFKZjH7UAM1Atli/OT/7JHOrJRJiMKUZKYBw==
   dependencies:
     webidl-conversions "^7.0.0"
+
+domino@2.1.6:
+  version "2.1.6"
+  resolved "https://registry.yarnpkg.com/domino/-/domino-2.1.6.tgz#fe4ace4310526e5e7b9d12c7de01b7f485a57ffe"
+  integrity sha512-3VdM/SXBZX2omc9JF9nOPCtDaYQ67BGp5CoLpIQlO2KCAPETs8TcDHacF26jXadGbvUteZzRTeos2fhID5+ucQ==
 
 duplexer@^0.1.2:
   version "0.1.2"
@@ -3641,6 +3651,15 @@ minimatch@^3.0.4, minimatch@^3.1.1:
   dependencies:
     brace-expansion "^1.1.7"
 
+mithril-query@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/mithril-query/-/mithril-query-4.0.1.tgz#1ba606bf96ec70aefb341e602dd4702c215be141"
+  integrity sha512-OWbR6a7SsDqrlbNUsXnoiiZr62JF+oG9msOY9Xqf708dNiyBDHDtaxlTDiTKBM0uFd/yCJd6pHNMG5IViCri6A==
+  dependencies:
+    domino "2.1.6"
+    pretty-html-log "1.1.1"
+    yields-keycode "1.1.0"
+
 mithril@^2.0.4:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/mithril/-/mithril-2.2.2.tgz#5a0743bd04726cc1efa6e91477f995d80fc6c539"
@@ -3878,6 +3897,11 @@ prelude-ls@~1.1.2:
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.1.2.tgz#21932a549f5e52ffd9a827f570e04be62a97da54"
   integrity sha512-ESF23V4SKG6lVSGZgYNpbsiaAkdab6ZgOxe52p7+Kid3W3u3bxR4Vfd/o21dmN7jSt0IwgZ4v5MUd26FEtXE9w==
 
+prettier@^1.18.2:
+  version "1.19.1"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.19.1.tgz#f7d7f5ff8a9cd872a7be4ca142095956a60797cb"
+  integrity sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==
+
 prettier@^2.4.1, prettier@^2.5.1, prettier@^2.7.1:
   version "2.7.1"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.7.1.tgz#e235806850d057f97bb08368a4f7d899f7760c64"
@@ -3896,6 +3920,15 @@ pretty-format@^29.0.0, pretty-format@^29.3.1:
     "@jest/schemas" "^29.0.0"
     ansi-styles "^5.0.0"
     react-is "^18.0.0"
+
+pretty-html-log@1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/pretty-html-log/-/pretty-html-log-1.1.1.tgz#3d234af1f8e2bdc9c6af0f364de2ccb03ca60d6a"
+  integrity sha512-7Ai/cBk764SmU9vmJL/B7wzcWu7MIQflJ0Yx1cL/kPHZXkyn7AY1Tqtfgrjo9P750G7nsSDfk12FQ+mQKqQUvg==
+  dependencies:
+    chalk "^2.4.2"
+    commander "^3.0.2"
+    prettier "^1.18.2"
 
 prompts@^2.0.1:
   version "2.4.2"
@@ -4907,6 +4940,11 @@ yargs@^17.3.1:
     string-width "^4.2.3"
     y18n "^5.0.5"
     yargs-parser "^21.1.1"
+
+yields-keycode@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/yields-keycode/-/yields-keycode-1.1.0.tgz#038a985866cbb6910e433ac5e28b8399dffc35df"
+  integrity sha512-5xkHkiEa8TRGlcDzOvVXrVhhLbla9WDFmHsN2tyTtFwxwCo7cpJdvOczvaUjSQKay3VuW5sV4jMtiesTKbZYXw==
 
 yocto-queue@^0.1.0:
   version "0.1.0"

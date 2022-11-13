@@ -5,6 +5,7 @@ import fs from 'fs';
 import jquery from 'jquery';
 import m from 'mithril';
 import flatten from 'flat';
+import './test-matchers';
 
 // Boot the Flarum app.
 function bootApp() {
