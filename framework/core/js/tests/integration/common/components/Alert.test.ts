@@ -1,4 +1,5 @@
 import Alert from '../../../../src/common/components/Alert';
+import m from 'mithril';
 import mq from 'mithril-query';
 import { jest } from '@jest/globals';
 
