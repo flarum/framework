@@ -30,7 +30,7 @@ class ComposerState {
     /**
      * A reference to the text editor that allows text manipulation.
      *
-     * @type {EditorDriverInterface|null}
+     * @type {import('../../common/utils/EditorDriverInterface')|null}
      */
     this.editor = null;
 
