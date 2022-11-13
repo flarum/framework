@@ -75,6 +75,9 @@ module.exports = function (options = {}) {
           test: /\.[jt]sx?$/,
           loader: require.resolve('babel-loader'),
           options: require('./babel.config'),
+          resolve: {
+            fullySpecified: false,
+          },
         },
       ],
     },
