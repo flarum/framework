@@ -1,5 +1,6 @@
 # Changelog
 
+
 ## [v1.6.0](https://github.com/flarum/framework/compare/v1.5.0...v1.6.0)
 ### Fixed
 - (approval) posts approved for deleted users error ([b5874a0](b5874a08e482196f50af50aa78e43c93c29fb647))
