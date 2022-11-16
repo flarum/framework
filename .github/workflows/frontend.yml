@@ -8,8 +8,8 @@ jobs:
     with:
       frontend_directory: ./
       backend_directory: ./
-      js_package_manager: npm
-      cache_dependency_path: ./package-lock.json
+      js_package_manager: yarn
+      cache_dependency_path: ./yarn.lock
       main_git_branch: main
 
     secrets:

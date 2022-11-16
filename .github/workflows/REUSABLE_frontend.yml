@@ -69,7 +69,7 @@ on:
       js_package_manager:
         description: "Enable TypeScript?"
         type: string
-        default: yarn
+        default: npm
         required: false
       cache_dependency_path:
         description: "The path to the cache dependency file."
