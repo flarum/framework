@@ -1,5 +1,8 @@
 # Changelog
 
+## [v1.6.1](https://github.com/flarum/framework/compare/v1.6.0...v1.6.1)
+### Fixed
+* JS dependencies update breaks utilities.
 
 ## [v1.6.0](https://github.com/flarum/framework/compare/v1.5.0...v1.6.0)
 ### Fixed
