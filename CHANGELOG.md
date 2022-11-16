@@ -1,5 +1,49 @@
 # Changelog
 
+## [v1.6.1](https://github.com/flarum/framework/compare/v1.6.0...v1.6.1)
+### Fixed
+* JS dependencies update breaks utilities.
+
+## [v1.6.0](https://github.com/flarum/framework/compare/v1.5.0...v1.6.0)
+### Fixed
+- (approval) posts approved for deleted users error ([b5874a0](b5874a08e482196f50af50aa78e43c93c29fb647))
+- (regression) bad import ([5f2d7fb](5f2d7fb7b6e430d40cf2bb05eca7c73f6ca5a2cc))
+- akismet fails when the extension is not on a version ([45d9121](45d91212f6bfa777cae9fc06c55c85d01ffd174d))
+- apply flex for AppearancePage colors input [#3651]
+- groupmentions have poor contrast on some backgrounds [#3672]
+- larastan v1 incompatible with phpstan v1.9.0 [#3665]
+- package manager failures not showing alerts [#3647]
+- password reset leaks user existence [#3616]
+- statistics previous period chart is unclear [#3654]
+### Changed
+- (package-manager) config composer to use web php version ([fd19645](fd196454a5641776784fa80886cc7577c840f8ed))
+- (package-manager) set min core version and add warning ([31c3cfc](31c3cfc4eab4c314260b9b0d11e53ac2d4be158d))
+- (statistics) prepare v1.5.1 ([dc215ab](dc215aba59145dfd7b0d6efad4388444f30e47fb))
+- Apply fixes from StyleCI ([267f675](267f6759f80bd06f468337245ea6045635e827d9))
+- Fix tag discussion count decreased by 2 when hiding before deleting [#3660]
+- Log migration path when up/down keys are missing [#3664]
+- Make it possible to extend SetupScript [#3643]
+- Setup PHPStan Level 5 [#3553]
+- `yarn format` ([c5c312d](c5c312db0d800e3b84b94a4abb9691e348dea742))
+- add missing last period to custom date ranges [#3661]
+- add priorities to profile settings page [#3657]
+- allow specifying php extensions in workflow ([b0b47a0](b0b47a0888f513a459b67e9f89e72a61de38f1ce))
+- format js ([06963df](06963df4079373fc8fc51b7479e9576f02beb098))
+- group mentions [#3658]
+- remove styleci from changelog ([b2fa28e](b2fa28e4b57094e46dbdb3d79fab74f290a17d17))
+- set flarum version to dev for 1.6.0 ([fc743ba](fc743ba88872031db13597d7365a063b8004c78f))
+- throw an exception when no serializer is provided to the controller [#3614]
+### Added
+- (statistics) support for custom date ranges [#3622]
+- Allow additional login params, Introduce `LogInValidator` [#3670]
+- Allow additional reset password params, introduce `ForgotPasswordValidator` [#3671]
+- add statistics chart export button [#3662]
+- allow specifying extensions when installing an instance [#3655]
+- contrast util with yiq calculator [#3652]
+- customizable session driver [#3610]
+- replace `ColorPreviewInput` for GroupModal color input [#3650]
+- send notifications of a new reply when post is approved [#3656]
+
 ## [v1.5.0](https://github.com/flarum/framework/compare/v1.4.0...v1.5.0)
 ### Fixed
 - (a11y) add accessible labels to notification grid options [#3520]

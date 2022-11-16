@@ -52,6 +52,7 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      * - \s9e\TextFormatter\Parser $parser
      * - mixed $context
      * - string $text: The text to be parsed.
+     * - \Flarum\User\User|null $actor. This argument MUST either be nullable, or omitted entirely.
      *
      * The callback should return:
      * - string $text: The text to be parsed.

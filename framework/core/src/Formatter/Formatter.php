@@ -9,6 +9,7 @@
 
 namespace Flarum\Formatter;
 
+use Flarum\User\User;
 use Illuminate\Contracts\Cache\Repository;
 use Psr\Http\Message\ServerRequestInterface;
 use s9e\TextFormatter\Configurator;
@@ -83,14 +84,15 @@ class Formatter
      *
      * @param string $text
      * @param mixed $context
+     * @param User|null $user
      * @return string
      */
-    public function parse($text, $context = null)
+    public function parse($text, $context = null, User $user = null)
     {
         $parser = $this->getParser($context);
 
         foreach ($this->parsingCallbacks as $callback) {
-            $text = $callback($parser, $context, $text);
+            $text = $callback($parser, $context, $text, $user);
         }
 
         return $parser->parse($text);

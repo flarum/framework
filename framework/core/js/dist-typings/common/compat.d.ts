@@ -28,6 +28,7 @@ import extractText from './utils/extractText';
 import formatNumber from './utils/formatNumber';
 import mapRoutes from './utils/mapRoutes';
 import * as FocusTrap from './utils/focusTrap';
+import isDark from './utils/isDark';
 import Notification from './models/Notification';
 import User from './models/User';
 import Post from './models/Post';
@@ -121,6 +122,7 @@ declare const _default: {
     'utils/throttleDebounce': typeof ThrottleDebounce;
     'utils/isObject': typeof isObject;
     'utils/focusTrap': typeof FocusTrap;
+    'utils/isDark': typeof isDark;
     'models/Notification': typeof Notification;
     'models/User': typeof User;
     'models/Post': typeof Post;

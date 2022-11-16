@@ -73,12 +73,15 @@ class CanRequestCustomTimedStatisticsTest extends TestCase
             'users' => [
                 $timeStart->copy()->getTimestamp() => 1,
                 $timeStart->copy()->subDays(1)->getTimestamp() => 1,
+                $timeStart->copy()->subDays(2)->getTimestamp() => 1,
             ], 'discussions' => [
                 $timeStart->copy()->getTimestamp() => 1,
                 $timeStart->copy()->subDays(1)->getTimestamp() => 2,
+                $timeStart->copy()->subDays(2)->getTimestamp() => 1,
             ], 'posts' => [
                 $timeStart->copy()->getTimestamp() => 2,
                 $timeStart->copy()->subDays(1)->getTimestamp() => 2,
+                $timeStart->copy()->subDays(2)->getTimestamp() => 1,
             ]
         ];
 

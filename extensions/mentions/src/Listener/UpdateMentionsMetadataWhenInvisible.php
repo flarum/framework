@@ -40,5 +40,8 @@ class UpdateMentionsMetadataWhenInvisible
 
         // Remove post mentions
         $event->post->mentionsPosts()->sync([]);
+
+        // Remove group mentions
+        $event->post->mentionsGroups()->sync([]);
     }
 }

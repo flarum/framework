@@ -126,8 +126,15 @@ class ShowStatisticsData implements RequestHandlerInterface
 
     private function getTimedCounts(Builder $query, string $column, ?DateTime $startDate = null, ?DateTime $endDate = null)
     {
+        $diff = $startDate && $endDate ? $startDate->diff($endDate) : null;
+
         if (! isset($startDate)) {
-            $startDate = new DateTime('-365 days');
+            // need -12 months and period before that
+            $startDate = new DateTime('-2 years');
+        } else {
+            // If the start date is custom, we need to include an equal amount beforehand
+            // to show the data for the previous period.
+            $startDate = (new Carbon($startDate))->subtract($diff)->toDateTime();
         }
 
         if (! isset($endDate)) {
