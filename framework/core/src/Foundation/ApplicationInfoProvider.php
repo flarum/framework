@@ -59,6 +59,11 @@ class ApplicationInfoProvider
     protected $sessionHandler;
 
     /**
+     * @var Queue
+     */
+    protected $queue;
+
+    /**
      * @param SettingsRepositoryInterface $settings
      * @param Translator $translator
      * @param Schedule $schedule
@@ -66,6 +71,7 @@ class ApplicationInfoProvider
      * @param Config $config
      * @param SessionManager $session
      * @param SessionHandlerInterface $sessionHandler
+     * @param Queue $queue
      */
     public function __construct(
         SettingsRepositoryInterface $settings,
@@ -74,7 +80,8 @@ class ApplicationInfoProvider
         ConnectionInterface $db,
         Config $config,
         SessionManager $session,
-        SessionHandlerInterface $sessionHandler
+        SessionHandlerInterface $sessionHandler,
+        Queue $queue
     ) {
         $this->settings = $settings;
         $this->translator = $translator;
@@ -83,6 +90,7 @@ class ApplicationInfoProvider
         $this->config = $config;
         $this->session = $session;
         $this->sessionHandler = $sessionHandler;
+        $this->queue = $queue;
     }
 
     /**
@@ -117,13 +125,12 @@ class ApplicationInfoProvider
     /**
      * Identify the queue driver in use.
      *
-     * @param Queue $queue
      * @return string
      */
-    public function identifyQueueDriver(Queue $queue): string
+    public function identifyQueueDriver(): string
     {
         // Get class name
-        $queue = get_class($queue);
+        $queue = get_class($this->queue);
         // Drop the namespace
         $queue = Str::afterLast($queue, '\\');
         // Lowercase the class name

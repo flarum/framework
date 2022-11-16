@@ -15,7 +15,6 @@ use Flarum\Foundation\Application;
 use Flarum\Foundation\ApplicationInfoProvider;
 use Flarum\Foundation\Config;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Database\ConnectionInterface;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableStyle;
@@ -43,11 +42,6 @@ class InfoCommand extends AbstractCommand
     protected $db;
 
     /**
-     * @var Queue
-     */
-    private $queue;
-
-    /**
      * @var ApplicationInfoProvider
      */
     private $appInfo;
@@ -57,14 +51,12 @@ class InfoCommand extends AbstractCommand
         Config $config,
         SettingsRepositoryInterface $settings,
         ConnectionInterface $db,
-        Queue $queue,
         ApplicationInfoProvider $appInfo
     ) {
         $this->extensions = $extensions;
         $this->config = $config;
         $this->settings = $settings;
         $this->db = $db;
-        $this->queue = $queue;
         $this->appInfo = $appInfo;
 
         parent::__construct();
@@ -98,7 +90,7 @@ class InfoCommand extends AbstractCommand
 
         $this->output->writeln('<info>Base URL:</info> '.$this->config->url());
         $this->output->writeln('<info>Installation path:</info> '.getcwd());
-        $this->output->writeln('<info>Queue driver:</info> '.$this->appInfo->identifyQueueDriver($this->queue));
+        $this->output->writeln('<info>Queue driver:</info> '.$this->appInfo->identifyQueueDriver());
         $this->output->writeln('<info>Session driver:</info> '.$this->appInfo->identifySessionDriver());
 
         if ($this->appInfo->scheduledTasksRegistered()) {

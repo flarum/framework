@@ -19,7 +19,6 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -57,11 +56,6 @@ class AdminPayload
     protected $config;
 
     /**
-     * @var Queue
-     */
-    protected $queue;
-
-    /**
      * @var ApplicationInfoProvider
      */
     protected $appInfo;
@@ -73,7 +67,6 @@ class AdminPayload
      * @param ConnectionInterface $db
      * @param Dispatcher $events
      * @param Config $config
-     * @param Queue $queue
      * @param ApplicationInfoProvider $appInfo
      */
     public function __construct(
@@ -83,7 +76,6 @@ class AdminPayload
         ConnectionInterface $db,
         Dispatcher $events,
         Config $config,
-        Queue $queue,
         ApplicationInfoProvider $appInfo
     ) {
         $this->container = $container;
@@ -92,7 +84,6 @@ class AdminPayload
         $this->db = $db;
         $this->events = $events;
         $this->config = $config;
-        $this->queue = $queue;
         $this->appInfo = $appInfo;
     }
 
@@ -121,7 +112,7 @@ class AdminPayload
             $document->payload['schedulerStatus'] = $this->appInfo->getSchedulerStatus();
         }
 
-        $document->payload['queueDriver'] = $this->appInfo->identifyQueueDriver($this->queue);
+        $document->payload['queueDriver'] = $this->appInfo->identifyQueueDriver();
         $document->payload['sessionDriver'] = $this->appInfo->identifySessionDriver();
 
         /**
