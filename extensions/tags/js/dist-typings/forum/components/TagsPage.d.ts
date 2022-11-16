@@ -1,7 +1,7 @@
 export default class TagsPage extends Page<import("flarum/common/components/Page").IPageAttrs, undefined> {
     constructor();
     oninit(vnode: any): void;
-    tags: any[] | import("../../common/models/Tag").default[] | undefined;
+    tags: any[] | undefined;
     loading: boolean | undefined;
     view(): JSX.Element;
     oncreate(vnode: any): void;

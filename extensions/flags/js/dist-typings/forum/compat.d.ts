@@ -1,4 +1,4 @@
-declare const _default: {
+declare var _default: {
     'flags/addFlagsToPosts': typeof addFlagsToPosts;
     'flags/addFlagControl': typeof addFlagControl;
     'flags/addFlagsDropdown': typeof addFlagsDropdown;

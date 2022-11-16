@@ -1,4 +1,4 @@
-declare const _default: {
+declare var _default: {
     'tags/utils/sortTags': typeof sortTags;
     'tags/models/Tag': typeof Tag;
     'tags/helpers/tagsLabel': typeof tagsLabel;
