@@ -3,7 +3,7 @@ import User from '../models/User';
 import icon from './icon';
 
 /**
- * The `useronline` helper displays a green circle if the user is online
+ * The `useronline` helper displays a green circle if the user is online.
  */
 export default function userOnline(user: User): Mithril.Vnode<{}, {}> | null {
   if (user.lastSeenAt() && user.isOnline()) {
