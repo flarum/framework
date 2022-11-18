@@ -410,16 +410,20 @@ export default class Application {
       pageNumber: 1,
     };
 
-    const title =
+    let title =
       onHomepage || !this.title
         ? extractText(app.translator.trans('core.lib.meta_titles.without_page_title', params))
         : extractText(app.translator.trans('core.lib.meta_titles.with_page_title', params));
 
-    const tempEl = document.createElement('div');
-    tempEl.innerHTML = title;
-    const decodedTitle = tempEl.innerText;
+    title = count + title;
 
-    document.title = count + decodedTitle;
+    const titleNodes = document.getElementsByTagName('title');
+
+    if (titleNodes.length) {
+      titleNodes[0].innerHTML = title;
+    } else {
+      document.title = title;
+    }
   }
 
   protected transformRequestOptions<ResponseType>(flarumOptions: FlarumRequestOptions<ResponseType>): InternalFlarumRequestOptions<ResponseType> {
