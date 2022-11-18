@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.6.2](https://github.com/flarum/framework/compare/v1.6.1...v1.6.2)
+### Fixed
+* XSS Vulnerability in core (https://github.com/flarum/framework/pull/3684).
+
 ## [v1.6.1](https://github.com/flarum/framework/compare/v1.6.0...v1.6.1)
 ### Fixed
 * JS dependencies update breaks utilities.
