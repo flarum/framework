@@ -417,8 +417,11 @@ export default class Application {
 
     title = count + title;
 
+    // We set the title directly to the title element's innerHTML to properly display raw entities,
+    // while preventing XSS attacks from user input.
+    // https://github.com/flarum/framework/issues/3514
+    // https://github.com/flarum/framework/pull/3684
     const titleNodes = document.getElementsByTagName('title');
-
     if (titleNodes.length) {
       titleNodes[0].innerHTML = title;
     } else {
