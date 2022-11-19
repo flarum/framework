@@ -18,10 +18,12 @@ app.initializers.add('flarum-tags', (app) => {
   addTagPermission();
   addTagsHomePageOption();
   addTagChangePermission();
+  addTagSelectionSettingComponent();
 });
 
 // Expose compat API
 import tagsCompat from './compat';
 import { compat } from '@flarum/core/admin';
+import addTagSelectionSettingComponent from './addTagSelectionSettingComponent';
 
 Object.assign(compat, tagsCompat);

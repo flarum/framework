@@ -38,6 +38,10 @@ flarum-tags:
       restrict_by_tag_heading: Restrict by Tag
       tag_discussions_label: Tag discussions
 
+    # These translations are used in the Tags custom settings component.
+    settings:
+      button_text: => flarum-tags.ref.choose_tags
+
     # These translations are used in the Tag Settings modal dialog.
     tag_settings:
       range_separator_text: " to "
