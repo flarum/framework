@@ -2,10 +2,12 @@ import app from 'flarum/forum/app';
 import DiscussionPage from 'flarum/forum/components/DiscussionPage';
 import classList from 'flarum/common/utils/classList';
 import extractText from 'flarum/common/utils/extractText';
-import Discussion from 'flarum/common/models/Discussion';
 
 import getSelectableTags from '../utils/getSelectableTags';
 import TagSelectionModal, { ITagSelectionModalAttrs } from '../../common/components/TagSelectionModal';
+
+import type Discussion from 'flarum/common/models/Discussion';
+import type Tag from '../../common/models/Tag';
 
 export interface TagDiscussionModalAttrs extends ITagSelectionModalAttrs {
   discussion?: Discussion;
@@ -21,9 +23,9 @@ export default class TagDiscussionModal extends TagSelectionModal<TagDiscussionM
 
     attrs.className = classList(attrs.className, 'TagDiscussionModal');
     attrs.title = extractText(title);
-
+    attrs.allowResetting = !!app.forum.attribute('canBypassTagCounts');
     attrs.limits = {
-      allowBypassing: !!app.forum.attribute('canBypassTagCounts'),
+      allowBypassing: attrs.allowResetting,
       max: {
         primary: app.forum.attribute<number>('minPrimaryTags'),
         secondary: app.forum.attribute<number>('maxSecondaryTags'),
@@ -35,8 +37,10 @@ export default class TagDiscussionModal extends TagSelectionModal<TagDiscussionM
     };
     attrs.requireParentTag = true;
     attrs.selectableTags = () => getSelectableTags(attrs.discussion);
-    attrs.selectedTags = attrs.discussion?.tags() || [];
+    attrs.selectedTags ??= (attrs.discussion?.tags() as Tag[]) || [];
     attrs.canSelect = (tag) => tag.canStartDiscussion();
+
+    const suppliedOnsubmit = attrs.onsubmit || null;
 
     // Save changes.
     attrs.onsubmit = function (tags) {
@@ -51,6 +55,8 @@ export default class TagDiscussionModal extends TagSelectionModal<TagDiscussionM
           m.redraw();
         });
       }
+
+      if (suppliedOnsubmit) suppliedOnsubmit(tags);
     };
   }
 }

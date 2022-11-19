@@ -5,16 +5,34 @@ import extractText from 'flarum/common/utils/extractText';
 import highlight from 'flarum/common/helpers/highlight';
 import KeyboardNavigatable from 'flarum/common/utils/KeyboardNavigatable';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
-import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
+import Modal from 'flarum/common/components/Modal';
 import Stream from 'flarum/common/utils/Stream';
 
 import sortTags from '../utils/sortTags';
 import tagLabel from '../helpers/tagLabel';
 import tagIcon from '../helpers/tagIcon';
-import Tag from '../models/Tag';
 import ToggleButton from '../../forum/components/ToggleButton';
 
+import type Tag from '../models/Tag';
+import type { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import type Mithril from 'mithril';
+
+export interface ITagSelectionModalLimits {
+  /** Whether to allow bypassing the limits set here. This will show a toggle button to bypass limits. */
+  allowBypassing?: boolean;
+  /** Maximum number of primary/secondary tags allowed. */
+  max?: {
+    total?: number;
+    primary?: number;
+    secondary?: number;
+  };
+  /** Minimum number of primary/secondary tags to be selected. */
+  min?: {
+    total?: number;
+    primary?: number;
+    secondary?: number;
+  };
+}
 
 export interface ITagSelectionModalAttrs extends IInternalModalAttrs {
   /** Custom modal className to use. */
@@ -22,22 +40,11 @@ export interface ITagSelectionModalAttrs extends IInternalModalAttrs {
   /** Modal title, defaults to 'Choose Tags'. */
   title?: string;
   /** Initial tag selection value. */
-  selectedTags?: (Tag | undefined)[];
+  selectedTags?: Tag[];
   /** Limits set based on minimum and maximum number of primary/secondary tags that can be selected. */
-  limits?: {
-    /** Whether to allow bypassing the limits set here. This will show a toggle button to bypass limits. */
-    allowBypassing?: boolean;
-    /** Maximum number of primary/secondary tags allowed. */
-    max?: {
-      primary: number;
-      secondary: number;
-    };
-    /** Minimum number of primary/secondary tags to be selected. */
-    min?: {
-      primary: number;
-      secondary: number;
-    };
-  };
+  limits?: ITagSelectionModalLimits;
+  /** Whether to allow resetting the value. Defaults to true. */
+  allowResetting?: boolean;
   /** Whether to require the parent tag of a selected tag to be selected as well. */
   requireParentTag?: boolean;
   /** Filter tags that can be selected. */
@@ -45,11 +52,11 @@ export interface ITagSelectionModalAttrs extends IInternalModalAttrs {
   /** Whether a tag can be selected. */
   canSelect: (tag: Tag) => boolean;
   /** Callback for when a tag is selected. */
-  onSelect?: (this: TagSelectionModal<this>, tag: Tag, selected: Tag[]) => void;
+  onSelect?: (tag: Tag, selected: Tag[]) => void;
   /** Callback for when a tag is deselected. */
-  onDeselect?: (this: TagSelectionModal<this>, tag: Tag, selected: Tag[]) => void;
+  onDeselect?: (tag: Tag, selected: Tag[]) => void;
   /** Callback for when the selection is submitted. */
-  onsubmit?: (this: TagSelectionModal<this>, selected: Tag[]) => void;
+  onsubmit?: (selected: Tag[]) => void;
 }
 
 export type ITagSelectionModalState = undefined;
@@ -74,16 +81,22 @@ export default class TagSelectionModal<
     // Default values for optional attributes.
     attrs.title ||= extractText(app.translator.trans('flarum-tags.lib.tag_selection_modal.title'));
     attrs.canSelect ||= () => true;
+    attrs.allowResetting ??= true;
     attrs.limits = {
       min: {
-        primary: attrs.limits?.min?.primary || 0,
-        secondary: attrs.limits?.min?.secondary || 0,
+        total: attrs.limits?.min?.total ?? -Infinity,
+        primary: attrs.limits?.min?.primary ?? -Infinity,
+        secondary: attrs.limits?.min?.secondary ?? -Infinity,
       },
       max: {
-        primary: attrs.limits?.max?.primary || Infinity,
-        secondary: attrs.limits?.max?.secondary || Infinity,
+        total: attrs.limits?.max?.total ?? Infinity,
+        primary: attrs.limits?.max?.primary ?? Infinity,
+        secondary: attrs.limits?.max?.secondary ?? Infinity,
       },
     };
+
+    // Prevent illogical limits from being provided.
+    catchInvalidLimits(attrs.limits);
   }
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
@@ -227,13 +240,21 @@ export default class TagSelectionModal<
       });
     }
 
-    // If the number of selected primary/secondary tags is at the maximum, then
-    // we'll filter out all other tags of that type.
-    if (primaryCount >= this.attrs.limits!.max!.primary && !this.bypassReqs) {
-      tags = tags.filter((tag) => !tag.isPrimary() || this.selected.includes(tag));
-    }
-    if (secondaryCount >= this.attrs.limits!.max!.secondary && !this.bypassReqs) {
-      tags = tags.filter((tag) => tag.isPrimary() || this.selected.includes(tag));
+    if (!this.bypassReqs) {
+      // If we reached the total maximum number of tags, we can't select anymore.
+      if (this.selected.length >= this.attrs.limits!.max!.total!) {
+        tags = tags.filter((tag) => this.selected.includes(tag));
+      }
+      // If the number of selected primary/secondary tags is at the maximum, then
+      // we'll filter out all other tags of that type.
+      else {
+        if (primaryCount >= this.attrs.limits!.max!.primary!) {
+          tags = tags.filter((tag) => !tag.isPrimary() || this.selected.includes(tag));
+        }
+        if (secondaryCount >= this.attrs.limits!.max!.secondary!) {
+          tags = tags.filter((tag) => tag.isPrimary() || this.selected.includes(tag));
+        }
+      }
     }
 
     // If the user has entered text in the filter input, then filter by tags
@@ -265,11 +286,15 @@ export default class TagSelectionModal<
    * Validates the number of selected primary/secondary tags against the set min max limits.
    */
   protected meetsRequirements(primaryCount: number, secondaryCount: number) {
-    if (this.attrs.limits!.allowBypassing) {
+    if (this.bypassReqs || (this.attrs.allowResetting && this.selected.length === 0)) {
       return true;
     }
 
-    return primaryCount >= (this.attrs.limits!.min!.primary || 0) && secondaryCount >= (this.attrs.limits!.min!.secondary || 0);
+    if (this.selected.length < this.attrs.limits!.min!.total!) {
+      return false;
+    }
+
+    return primaryCount >= this.attrs.limits!.min!.primary! && secondaryCount >= this.attrs.limits!.min!.secondary!;
   }
 
   /**
@@ -279,7 +304,7 @@ export default class TagSelectionModal<
     if (!tag || !this.attrs.canSelect(tag)) return;
 
     if (this.attrs.onSelect) {
-      this.attrs.onSelect.call(this, tag, this.selected);
+      this.attrs.onSelect(tag, this.selected);
     }
 
     // If this tag has a parent, we'll also need to add the parent tag to the
@@ -312,7 +337,7 @@ export default class TagSelectionModal<
       }
 
       if (this.attrs.onDeselect) {
-        this.attrs.onDeselect.call(this, tag, this.selected);
+        this.attrs.onDeselect(tag, this.selected);
       }
     }
   }
@@ -343,12 +368,15 @@ export default class TagSelectionModal<
       return '';
     }
 
-    if (primaryCount < this.attrs.limits!.min!.primary) {
-      const remaining = this.attrs.limits!.min!.primary - primaryCount;
+    if (primaryCount < this.attrs.limits!.min!.primary!) {
+      const remaining = this.attrs.limits!.min!.primary! - primaryCount;
       return extractText(app.translator.trans('flarum-tags.lib.tag_selection_modal.choose_primary_placeholder', { count: remaining }));
-    } else if (secondaryCount < this.attrs.limits!.min!.secondary) {
-      const remaining = this.attrs.limits!.min!.secondary - secondaryCount;
+    } else if (secondaryCount < this.attrs.limits!.min!.secondary!) {
+      const remaining = this.attrs.limits!.min!.secondary! - secondaryCount;
       return extractText(app.translator.trans('flarum-tags.lib.tag_selection_modal.choose_secondary_placeholder', { count: remaining }));
+    } else if (this.selected.length < this.attrs.limits!.min!.total!) {
+      const remaining = this.attrs.limits!.min!.total! - this.selected.length;
+      return extractText(app.translator.trans('flarum-tags.lib.tag_selection_modal.choose_tags_placeholder', { count: remaining }));
     }
 
     return '';
@@ -360,7 +388,7 @@ export default class TagSelectionModal<
   onsubmit(e: SubmitEvent) {
     e.preventDefault();
 
-    if (this.attrs.onsubmit) this.attrs.onsubmit.call(this, this.selected);
+    if (this.attrs.onsubmit) this.attrs.onsubmit(this.selected);
 
     this.hide();
   }
@@ -426,5 +454,30 @@ export default class TagSelectionModal<
         $dropdown.stop(true).animate({ scrollTop }, 100);
       }
     }
+  }
+}
+
+/**
+ * Catch invalid limits provided to the tag selection modal.
+ */
+function catchInvalidLimits(limits: ITagSelectionModalLimits) {
+  if (limits.min!.primary! > limits.max!.primary!) {
+    throw new Error('The minimum number of primary tags allowed cannot be more than the maximum number of primary tags allowed.');
+  }
+
+  if (limits.min!.secondary! > limits.max!.secondary!) {
+    throw new Error('The minimum number of secondary tags allowed cannot be more than the maximum number of secondary tags allowed.');
+  }
+
+  if (limits.min!.total! > limits.max!.primary! + limits.max!.secondary!) {
+    throw new Error('The minimum number of tags allowed cannot be more than the maximum number of primary and secondary tags allowed together.');
+  }
+
+  if (limits.max!.total! < limits.min!.primary! + limits.min!.secondary!) {
+    throw new Error('The maximum number of tags allowed cannot be less than the minimum number of primary and secondary tags allowed together.');
+  }
+
+  if (limits.min!.total! > limits.max!.total!) {
+    throw new Error('The minimum number of tags allowed cannot be more than the maximum number of tags allowed.');
   }
 }

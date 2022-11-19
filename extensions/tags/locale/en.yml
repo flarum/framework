@@ -107,7 +107,8 @@ flarum-tags:
     tag_selection_modal:
       bypass_requirements: Bypass tag requirements
       choose_primary_placeholder: "{count, plural, one {Choose a primary tag} other {Choose # primary tags}}"
-      choose_secondary_placeholder: "{count, plural, one {Choose 1 more tag} other {Choose # more tags}}"
+      choose_secondary_placeholder: => flarum-tags.ref.choose_tags_placeholder
+      choose_tags_placeholder: => flarum-tags.ref.choose_tags_placeholder
       submit_button: => core.ref.okay
       title: => flarum-tags.ref.choose_tags
 
@@ -118,5 +119,6 @@ flarum-tags:
   # Translations in this namespace are referenced by two or more unique keys.
   ref:
     choose_tags: Choose Tags
+    choose_tags_placeholder: "{count, plural, one {Choose 1 more tag} other {Choose # more tags}}"
     name: Name
     tags: Tags
