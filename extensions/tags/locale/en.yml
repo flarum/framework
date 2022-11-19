@@ -66,16 +66,12 @@ flarum-tags:
 
     # These translations are used by the Choose Tags modal dialog.
     choose_tags:
-      bypass_requirements: Bypass tag requirements
-      choose_primary_placeholder: "{count, plural, one {Choose a primary tag} other {Choose # primary tags}}"
-      choose_secondary_placeholder: "{count, plural, one {Choose 1 more tag} other {Choose # more tags}}"
       edit_title: "Edit Tags for {title}"
-      submit_button: => core.ref.okay
       title: Choose Tags for Your Discussion
 
     # These translations are used by the composer when starting a discussion.
     composer_discussion:
-      choose_tags_link: Choose Tags
+      choose_tags_link: => flarum-tags.ref.choose_tags
 
     # These translations are used by the discussion control buttons.
     discussion_controls:
@@ -107,11 +103,20 @@ flarum-tags:
     # This translation is displayed in place of the name of a tag that's been deleted.
     deleted_tag_text: Deleted
 
+    # These translations are used in the tag selection modal.
+    tag_selection_modal:
+      bypass_requirements: Bypass tag requirements
+      choose_primary_placeholder: "{count, plural, one {Choose a primary tag} other {Choose # primary tags}}"
+      choose_secondary_placeholder: "{count, plural, one {Choose 1 more tag} other {Choose # more tags}}"
+      submit_button: => core.ref.okay
+      title: => flarum-tags.ref.choose_tags
+
   ##
   # REUSED TRANSLATIONS - These keys should not be used directly in code!
   ##
 
   # Translations in this namespace are referenced by two or more unique keys.
   ref:
+    choose_tags: Choose Tags
     name: Name
     tags: Tags
