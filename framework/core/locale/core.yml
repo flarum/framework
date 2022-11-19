@@ -56,6 +56,11 @@ core:
       clear_cache_button: Clear Cache
       description: Your forum at a glance.
       io_error_message: "Could not write to filesystem. Check your filesystem permissions and try again. Or try running from the command line."
+      status:
+        scheduler:
+          active: Active
+          inactive: Inactive
+          never-run: Never run
       title: Dashboard
       tools_button: Tools
 
