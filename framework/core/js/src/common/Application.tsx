@@ -553,7 +553,11 @@ export default class Application {
         break;
 
       default:
-        content = app.translator.trans('core.lib.error.generic_message');
+        if (this.requestWasCrossOrigin(error)) {
+          content = app.translator.trans('core.lib.error.generic_cross_origin_message');
+        } else {
+          content = app.translator.trans('core.lib.error.generic_message');
+        }
     }
 
     const isDebug: boolean = app.forum.attribute('debug');
@@ -575,6 +579,18 @@ export default class Application {
     }
 
     return Promise.reject(error);
+  }
+
+  /**
+   * Used to modify the error message shown on the page to help troubleshooting.
+   * While not certain, a failing cross-origin request likely indicates a missing redirect to Flarum canonical URL.
+   * Because XHR errors do not expose CORS information, we can only compare the requested URL origin to the page origin.
+   *
+   * @param error
+   * @protected
+   */
+  protected requestWasCrossOrigin(error: RequestError): boolean {
+    return new URL(error.options.url, document.baseURI).origin !== window.location.origin;
   }
 
   protected requestErrorDefaultHandler(e: unknown, isDebug: boolean, formattedErrors: string[]): void {

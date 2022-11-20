@@ -555,6 +555,7 @@ core:
       dependent_extensions_message: "Cannot disable {extension} until the following dependent extensions are disabled: {extensions}"
       extension_initialiation_failed_message: "{extension} failed to initialize, check the browser console for further information."
       generic_message: "Oops! Something went wrong. Please reload the page and try again."
+      generic_cross_origin_message: "Oops! Something went wrong during a cross-origin request. Please reload the page and try again."
       missing_dependencies_message: "Cannot enable {extension} until the following dependencies are enabled: {extensions}"
       not_found_message: The requested resource was not found.
       payload_too_large_message: The request payload was too large.
