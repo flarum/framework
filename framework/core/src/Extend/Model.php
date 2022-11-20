@@ -39,7 +39,7 @@ class Model implements ExtenderInterface
      */
     public function dateAttribute(string $attribute): self
     {
-        $this->castAttribute($attribute, 'datetime');
+        $this->cast($attribute, 'datetime');
 
         return $this;
     }
@@ -51,7 +51,7 @@ class Model implements ExtenderInterface
      * @param string $cast: The cast type. See https://laravel.com/docs/8.x/eloquent-mutators#attribute-casting
      * @return self
      */
-    public function castAttribute(string $attribute, string $cast): self
+    public function cast(string $attribute, string $cast): self
     {
         $this->casts[$attribute] = $cast;
 

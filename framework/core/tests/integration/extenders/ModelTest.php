@@ -391,7 +391,7 @@ class ModelTest extends TestCase
     {
         $this->extend(
             (new Extend\Model(Post::class))
-                ->castAttribute('custom', 'datetime')
+                ->cast('custom', 'datetime')
         );
 
         $this->app();
@@ -408,7 +408,7 @@ class ModelTest extends TestCase
     {
         $this->extend(
             (new Extend\Model(Post::class))
-                ->castAttribute('custom', 'boolean')
+                ->cast('custom', 'boolean')
         );
 
         $this->app();
@@ -425,7 +425,7 @@ class ModelTest extends TestCase
     {
         $this->extend(
             (new Extend\Model(Post::class))
-                ->castAttribute('custom', 'integer')
+                ->cast('custom', 'integer')
         );
 
         $this->app();
