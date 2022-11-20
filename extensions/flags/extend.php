@@ -46,7 +46,7 @@ return [
         ->delete('/posts/{id}/flags', 'flags.delete', DeleteFlagsController::class),
 
     (new Extend\Model(User::class))
-        ->castAttribute('read_flags_at', 'datetime'),
+        ->cast('read_flags_at', 'datetime'),
 
     (new Extend\Model(Post::class))
         ->hasMany('flags', Flag::class, 'post_id'),

@@ -29,12 +29,12 @@ return [
     // Discussions should be approved by default
     (new Extend\Model(Discussion::class))
         ->default('is_approved', true)
-        ->castAttribute('is_approved', 'bool'),
+        ->cast('is_approved', 'bool'),
 
     // Posts should be approved by default
     (new Extend\Model(Post::class))
         ->default('is_approved', true)
-        ->castAttribute('is_approved', 'bool'),
+        ->cast('is_approved', 'bool'),
 
     (new Extend\ApiSerializer(BasicDiscussionSerializer::class))
         ->attribute('isApproved', function ($serializer, Discussion $discussion) {

@@ -35,10 +35,10 @@ return [
     new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Model(User::class))
-        ->castAttribute('last_read_post_number', 'integer'),
+        ->cast('last_read_post_number', 'integer'),
 
     (new Extend\Model(UserState::class))
-        ->castAttribute('subscription', 'string'),
+        ->cast('subscription', 'string'),
 
     (new Extend\View)
         ->namespace('flarum-subscriptions', __DIR__.'/views'),

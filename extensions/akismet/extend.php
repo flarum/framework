@@ -33,5 +33,5 @@ return [
         ->register(AkismetProvider::class),
 
     (new Extend\Model(Post::class))
-        ->castAttribute('is_spam', 'bool'),
+        ->cast('is_spam', 'bool'),
 ];

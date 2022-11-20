@@ -36,7 +36,7 @@ return [
         ->type(DiscussionLockedBlueprint::class, BasicDiscussionSerializer::class, ['alert']),
 
     (new Extend\Model(Discussion::class))
-        ->castAttribute('is_locked', 'bool'),
+        ->cast('is_locked', 'bool'),
 
     (new Extend\ApiSerializer(DiscussionSerializer::class))
         ->attribute('isLocked', function (DiscussionSerializer $serializer, Discussion $discussion) {

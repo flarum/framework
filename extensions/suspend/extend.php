@@ -34,9 +34,9 @@ return [
         ->css(__DIR__.'/less/admin.less'),
 
     (new Extend\Model(User::class))
-        ->castAttribute('suspended_until', 'datetime')
-        ->castAttribute('suspend_reason', 'string')
-        ->castAttribute('suspend_message', 'string'),
+        ->cast('suspended_until', 'datetime')
+        ->cast('suspend_reason', 'string')
+        ->cast('suspend_message', 'string'),
 
     (new Extend\ApiSerializer(UserSerializer::class))
         ->attributes(AddUserSuspendAttributes::class),

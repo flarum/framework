@@ -28,7 +28,7 @@ return [
         ->css(__DIR__.'/less/forum.less'),
 
     (new Extend\Model(Discussion::class))
-        ->castAttribute('is_sticky', 'bool'),
+        ->cast('is_sticky', 'bool'),
 
     (new Extend\Post())
         ->type(DiscussionStickiedPost::class),
