@@ -1,9 +1,12 @@
 # Changelog
 
-## [1.4.2](https://github.com/flarum/statistics/compare/v1.4.1...v1.4.2)
+## [1.5.1](https://github.com/flarum/statistics/compare/v1.5.0...v1.5.1)
 
-### Changed
-- Split timed data into per-model XHR requests (https://github.com/flarum/framework/pull/3601)
+### Added
+- Support for custom date ranges (https://github.com/flarum/framework/pull/3622)
+
+### Fixed
+- Previous period chart is unclear (https://github.com/flarum/framework/pull/3654)
 
 ## [1.4.1](https://github.com/flarum/statistics/compare/v1.4.0...v1.4.1)
 

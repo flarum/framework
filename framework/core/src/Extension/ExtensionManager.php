@@ -441,11 +441,12 @@ class ExtensionManager
      *
      * @param Extension[] $extensionList
      *
-     * @return array with 2 keys: 'valid' points to an ordered array of \Flarum\Extension\Extension
-     *                            'missingDependencies' points to an associative array of extensions that could not be resolved due
-     *                                to missing dependencies, in the format extension id => array of missing dependency IDs.
-     *                            'circularDependencies' points to an array of extensions ids of extensions
-     *                                that cannot be processed due to circular dependencies
+     * @return array{valid: Extension[], missingDependencies: array<string, string[]>, circularDependencies: string[]}
+     *      'valid' points to an ordered array of \Flarum\Extension\Extension
+     *      'missingDependencies' points to an associative array of extensions that could not be resolved due
+     *          to missing dependencies, in the format extension id => array of missing dependency IDs.
+     *      'circularDependencies' points to an array of extensions ids of extensions
+     *          that cannot be processed due to circular dependencies
      *
      * @internal
      */
@@ -471,6 +472,7 @@ class ExtensionManager
             $extensionIdMapping[$extension->getId()] = $extension;
         }
 
+        /** @var Extension $extension */
         foreach ($extensionList as $extension) {
             $optionalDependencies = array_filter($extension->getOptionalDependencyIds(), function ($id) use ($extensionIdMapping) {
                 return array_key_exists($id, $extensionIdMapping);

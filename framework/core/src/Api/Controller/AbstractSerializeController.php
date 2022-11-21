@@ -14,6 +14,7 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -120,6 +121,10 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
                     $callback($this, $data, $request, $document);
                 }
             }
+        }
+
+        if (empty($this->serializer)) {
+            throw new InvalidArgumentException('Serializer required for controller: '.static::class);
         }
 
         $serializer = static::$container->make($this->serializer);

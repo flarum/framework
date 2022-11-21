@@ -16,12 +16,12 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Console\AssetsPublishCommand;
 use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\Console\InfoCommand;
+use Flarum\Foundation\Console\ScheduleRunCommand;
 use Illuminate\Console\Scheduling\CacheEventMutex;
 use Illuminate\Console\Scheduling\CacheSchedulingMutex;
 use Illuminate\Console\Scheduling\EventMutex;
 use Illuminate\Console\Scheduling\Schedule as LaravelSchedule;
 use Illuminate\Console\Scheduling\ScheduleListCommand;
-use Illuminate\Console\Scheduling\ScheduleRunCommand;
 use Illuminate\Console\Scheduling\SchedulingMutex;
 use Illuminate\Contracts\Container\Container;
 

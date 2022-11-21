@@ -1,3 +1,4 @@
+import GroupMentionedNotification from './components/GroupMentionedNotification';
 import MentionsUserPage from './components/MentionsUserPage';
 import PostMentionedNotification from './components/PostMentionedNotification';
 import UserMentionedNotification from './components/UserMentionedNotification';
@@ -13,6 +14,7 @@ export default {
   'mentions/components/MentionsUserPage': MentionsUserPage,
   'mentions/components/PostMentionedNotification': PostMentionedNotification,
   'mentions/components/UserMentionedNotification': UserMentionedNotification,
+  'mentions/components/GroupMentionedNotification': GroupMentionedNotification,
   'mentions/fragments/AutocompleteDropdown': AutocompleteDropdown,
   'mentions/fragments/PostQuoteButton': PostQuoteButton,
   'mentions/utils/getCleanDisplayName': getCleanDisplayName,

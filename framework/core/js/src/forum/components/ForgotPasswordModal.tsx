@@ -5,6 +5,7 @@ import extractText from '../../common/utils/extractText';
 import Stream from '../../common/utils/Stream';
 import Mithril from 'mithril';
 import RequestError from '../../common/utils/RequestError';
+import ItemList from '../../common/utils/ItemList';
 
 export interface IForgotPasswordModalAttrs extends IInternalModalAttrs {
   email?: string;
@@ -52,36 +53,53 @@ export default class ForgotPasswordModal<CustomAttrs extends IForgotPasswordModa
       );
     }
 
-    const emailLabel = extractText(app.translator.trans('core.forum.forgot_password.email_placeholder'));
-
     return (
       <div className="Modal-body">
         <div className="Form Form--centered">
           <p className="helpText">{app.translator.trans('core.forum.forgot_password.text')}</p>
-          <div className="Form-group">
-            <input
-              className="FormControl"
-              name="email"
-              type="email"
-              placeholder={emailLabel}
-              aria-label={emailLabel}
-              bidi={this.email}
-              disabled={this.loading}
-            />
-          </div>
-          <div className="Form-group">
-            {Button.component(
-              {
-                className: 'Button Button--primary Button--block',
-                type: 'submit',
-                loading: this.loading,
-              },
-              app.translator.trans('core.forum.forgot_password.submit_button')
-            )}
-          </div>
+          {this.fields().toArray()}
         </div>
       </div>
     );
+  }
+
+  fields() {
+    const items = new ItemList();
+
+    const emailLabel = extractText(app.translator.trans('core.forum.forgot_password.email_placeholder'));
+
+    items.add(
+      'email',
+      <div className="Form-group">
+        <input
+          className="FormControl"
+          name="email"
+          type="email"
+          placeholder={emailLabel}
+          aria-label={emailLabel}
+          bidi={this.email}
+          disabled={this.loading}
+        />
+      </div>,
+      50
+    );
+
+    items.add(
+      'submit',
+      <div className="Form-group">
+        {Button.component(
+          {
+            className: 'Button Button--primary Button--block',
+            type: 'submit',
+            loading: this.loading,
+          },
+          app.translator.trans('core.forum.forgot_password.submit_button')
+        )}
+      </div>,
+      -10
+    );
+
+    return items;
   }
 
   onsubmit(e: SubmitEvent) {
@@ -93,7 +111,7 @@ export default class ForgotPasswordModal<CustomAttrs extends IForgotPasswordModa
       .request({
         method: 'POST',
         url: app.forum.attribute('apiUrl') + '/forgot',
-        body: { email: this.email() },
+        body: this.requestParams(),
         errorHandler: this.onerror.bind(this),
       })
       .then(() => {
@@ -102,6 +120,14 @@ export default class ForgotPasswordModal<CustomAttrs extends IForgotPasswordModa
       })
       .catch(() => {})
       .then(this.loaded.bind(this));
+  }
+
+  requestParams(): Record<string, unknown> {
+    const data = {
+      email: this.email(),
+    };
+
+    return data;
   }
 
   onerror(error: RequestError) {

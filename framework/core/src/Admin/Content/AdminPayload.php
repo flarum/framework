@@ -10,6 +10,7 @@
 namespace Flarum\Admin\Content;
 
 use Flarum\Extension\ExtensionManager;
+use Flarum\Foundation\ApplicationInfoProvider;
 use Flarum\Foundation\Config;
 use Flarum\Frontend\Document;
 use Flarum\Group\Permission;
@@ -55,12 +56,18 @@ class AdminPayload
     protected $config;
 
     /**
+     * @var ApplicationInfoProvider
+     */
+    protected $appInfo;
+
+    /**
      * @param Container $container
      * @param SettingsRepositoryInterface $settings
      * @param ExtensionManager $extensions
      * @param ConnectionInterface $db
      * @param Dispatcher $events
      * @param Config $config
+     * @param ApplicationInfoProvider $appInfo
      */
     public function __construct(
         Container $container,
@@ -68,7 +75,8 @@ class AdminPayload
         ExtensionManager $extensions,
         ConnectionInterface $db,
         Dispatcher $events,
-        Config $config
+        Config $config,
+        ApplicationInfoProvider $appInfo
     ) {
         $this->container = $container;
         $this->settings = $settings;
@@ -76,6 +84,7 @@ class AdminPayload
         $this->db = $db;
         $this->events = $events;
         $this->config = $config;
+        $this->appInfo = $appInfo;
     }
 
     public function __invoke(Document $document, Request $request)
@@ -95,9 +104,16 @@ class AdminPayload
             return array_keys($resourceDrivers);
         }, $this->container->make('flarum.http.slugDrivers'));
 
-        $document->payload['phpVersion'] = PHP_VERSION;
-        $document->payload['mysqlVersion'] = $this->db->selectOne('select version() as version')->version;
+        $document->payload['phpVersion'] = $this->appInfo->identifyPHPVersion();
+        $document->payload['mysqlVersion'] = $this->appInfo->identifyDatabaseVersion();
         $document->payload['debugEnabled'] = Arr::get($this->config, 'debug');
+
+        if ($this->appInfo->scheduledTasksRegistered()) {
+            $document->payload['schedulerStatus'] = $this->appInfo->getSchedulerStatus();
+        }
+
+        $document->payload['queueDriver'] = $this->appInfo->identifyQueueDriver();
+        $document->payload['sessionDriver'] = $this->appInfo->identifySessionDriver();
 
         /**
          * Used in the admin user list. Implemented as this as it matches the API in flarum/statistics.
