@@ -52,18 +52,18 @@ export function filterGroupMentions(tag) {
 
 export function filterTagMentions(tag) {
   if (app.initializers.has('flarum-tags')) {
-  const tagModel = app.store.getById('tags', tag.getAttribute('id'));
+    const tagModel = app.store.getById('tags', tag.getAttribute('id'));
 
-  if (tagModel) {
-    tag.setAttribute('tagname', extractText(tagModel.name()));
-    tag.setAttribute('icon', tagModel.icon());
-    tag.setAttribute('color', tagModel.color());
-    tag.setAttribute('slug', tagModel.slug());
-    tag.setAttribute('class', isDark(tagModel.color()) ? 'TagMention--light' : 'TagMention--dark');
+    if (tagModel) {
+      tag.setAttribute('tagname', extractText(tagModel.name()));
+      tag.setAttribute('icon', tagModel.icon());
+      tag.setAttribute('color', tagModel.color());
+      tag.setAttribute('slug', tagModel.slug());
+      tag.setAttribute('class', isDark(tagModel.color()) ? 'TagMention--light' : 'TagMention--dark');
 
-    return true;
+      return true;
+    }
   }
-}
 
   tag.invalidate();
 }
