@@ -19,12 +19,12 @@ class AddCurrentUserAttributes
      * @var ExtensionManager
      */
     protected $extensions;
-    
+
     public function __construct(ExtensionManager $extensions)
     {
         $this->extensions = $extensions;
     }
-    
+
     public function __invoke(CurrentUserSerializer $serializer, User $user, array $attributes): array
     {
         $attributes['canMentionGroups'] = $user->can('mentionGroups');

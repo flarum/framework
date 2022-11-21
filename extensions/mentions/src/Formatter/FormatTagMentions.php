@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Mentions\Formatter;
 
 use Flarum\Extension\ExtensionManager;
@@ -15,7 +22,7 @@ class FormatTagMentions
      * @var ExtensionManager
      */
     private $extensions;
-    
+
     /**
      * @var TranslatorInterface
      */
@@ -37,15 +44,15 @@ class FormatTagMentions
      */
     public function __invoke(Renderer $renderer, $context, string $xml): string
     {
-        if (!$this->extensions->isEnabled('flarum-tags')) {
+        if (! $this->extensions->isEnabled('flarum-tags')) {
             return $xml;
         }
-        
+
         return Utils::replaceAttributes($xml, 'TAGMENTION', function ($attributes) use ($context) {
             $tag = (($context && isset($context->getRelations()['mentionsTags'])) || $context instanceof Post)
             ? $context->mentionsTags->find($attributes['id'])
             : Tag::find($attributes['id']);
-//$tag = Tag::find($attributes['id']);
+            //$tag = Tag::find($attributes['id']);
             if ($tag) {
                 $attributes['tagname'] = $tag->name;
                 $attributes['icon'] = $tag->icon ?? 'fas fa-tags';
