@@ -69,7 +69,7 @@ export default class MentionTextGenerator {
   /**
    * Generates the mention syntax for a tag mention.
    *
-   * @example <caption>Group mention</caption>
+   * @example <caption>Tag mention</caption>
    * // '@"General"#t1'
    * // @"Name"#tTagID
    * forTag(tag) // Tag display name is 'General', tag ID is 1

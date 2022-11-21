@@ -24,7 +24,7 @@ import getCleanDisplayName, { shouldUseOldFormat } from './getCleanDisplayName';
  * // '@"Mods"#g4'
  * getMentionText(undefined, undefined, group) // Group display name is 'Mods', group ID is 4
  */
-export default function getMentionText(user, postId, group, tag) {
+export default function getMentionText(user, postId, group) {
   if (user !== undefined && postId === undefined) {
     if (shouldUseOldFormat()) {
       // Plain @username
