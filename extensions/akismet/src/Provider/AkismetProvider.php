@@ -38,7 +38,7 @@ class AkismetProvider extends AbstractServiceProvider
                 $settings->get('flarum-akismet.api_key'),
                 $url->to('forum')->base(),
                 $app::VERSION,
-                $extensions->getExtension('flarum-akismet')->getVersion(),
+                $extensions->getExtension('flarum-akismet')->getVersion() ?? 'unknown',
                 $config->inDebugMode()
             );
         });

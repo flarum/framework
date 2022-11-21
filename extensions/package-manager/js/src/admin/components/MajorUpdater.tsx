@@ -104,7 +104,6 @@ export default class MajorUpdater<T extends MajorUpdaterAttrs = MajorUpdaterAttr
         body: {
           data: { dryRun },
         },
-        errorHandler,
       })
       .then((response) => {
         if (response?.processing) {
@@ -114,6 +113,7 @@ export default class MajorUpdater<T extends MajorUpdaterAttrs = MajorUpdaterAttr
           window.location.reload();
         }
       })
+      .catch(errorHandler)
       .catch((e: RequestError) => {
         app.modal.close();
         this.updateState.status = 'failure';

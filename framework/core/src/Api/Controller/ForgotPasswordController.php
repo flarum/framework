@@ -9,11 +9,10 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\ForgotPasswordValidator;
 use Flarum\User\Job\RequestPasswordResetJob;
 use Illuminate\Contracts\Queue\Queue;
-use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Support\Arr;
-use Illuminate\Validation\ValidationException;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -27,14 +26,14 @@ class ForgotPasswordController implements RequestHandlerInterface
     protected $queue;
 
     /**
-     * @var Factory
+     * @var ForgotPasswordValidator
      */
-    protected $validatorFactory;
+    protected $validator;
 
-    public function __construct(Queue $queue, Factory $validatorFactory)
+    public function __construct(Queue $queue, ForgotPasswordValidator $validator)
     {
         $this->queue = $queue;
-        $this->validatorFactory = $validatorFactory;
+        $this->validator = $validator;
     }
 
     /**
@@ -42,16 +41,11 @@ class ForgotPasswordController implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $email = Arr::get($request->getParsedBody(), 'email');
+        $params = $request->getParsedBody();
 
-        $validation = $this->validatorFactory->make(
-            compact('email'),
-            ['email' => 'required|email']
-        );
+        $this->validator->assertValid($params);
 
-        if ($validation->fails()) {
-            throw new ValidationException($validation);
-        }
+        $email = Arr::get($params, 'email');
 
         // Prevents leaking user existence by not throwing an error.
         // Prevents leaking user existence by duration by using a queued job.

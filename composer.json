@@ -140,7 +140,7 @@
     "require-dev": {
         "mockery/mockery": "^1.4",
         "phpunit/phpunit": "^9.0",
-        "phpstan/phpstan": "^1.2",
+        "phpstan/phpstan": ">=1.8.11 < 1.9.0",
         "nunomaduro/larastan": "^1.0"
     },
     "config": {

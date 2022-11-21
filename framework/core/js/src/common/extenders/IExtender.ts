@@ -1,5 +1,4 @@
 import Application from '../Application';
-import type * as module from 'module';
 
 export interface IExtensionModule {
   name: string;

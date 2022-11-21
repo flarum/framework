@@ -28,9 +28,6 @@ export default class Routes implements IExtender {
 
   extend(app: Application, extension: IExtensionModule) {
     Object.assign(app.routes, this.routes);
-
-    if (Object.keys(this.helpers).length) {
-      Object.assign(app.route, this.helpers);
-    }
+    Object.assign(app.route, this.helpers);
   }
 }
