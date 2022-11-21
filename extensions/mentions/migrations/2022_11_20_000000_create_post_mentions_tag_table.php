@@ -10,8 +10,10 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
-// TODO: Refactor to use Clark's new augmented migrator, when it's ready
 return [
+    'when' => function (Builder $schema) {
+        return $schema->hasTable('tags');
+    },
     'up' => function (Builder $schema) {
         $schema->create('post_mentions_tag', function (Blueprint $table) {
             $table->integer('post_id')->unsigned();
@@ -25,6 +27,6 @@ return [
     },
 
     'down' => function (Builder $schema) {
-        $schema->drop('post_mentions_tag');
+        $schema->dropIfExists('post_mentions_tag');
     }
 ];
