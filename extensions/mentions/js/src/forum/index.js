@@ -13,15 +13,12 @@ import UserMentionedNotification from './components/UserMentionedNotification';
 import GroupMentionedNotification from './components/GroupMentionedNotification';
 import UserPage from 'flarum/forum/components/UserPage';
 import LinkButton from 'flarum/common/components/LinkButton';
-import MentionsUserPage from './components/MentionsUserPage';
 import User from 'flarum/common/models/User';
 import Model from 'flarum/common/Model';
 
 export { default as extend } from './extend';
 
 app.initializers.add('flarum-mentions', function () {
-  User.prototype.canMentionGroups = Model.attribute('canMentionGroups');
-
   // For every mention of a post inside a post's content, set up a hover handler
   // that shows a preview of the mentioned post.
   addPostMentionPreviews();
