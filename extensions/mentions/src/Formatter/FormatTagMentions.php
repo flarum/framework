@@ -52,7 +52,7 @@ class FormatTagMentions
             $tag = (($context && isset($context->getRelations()['mentionsTags'])) || $context instanceof Post)
             ? $context->mentionsTags->find($attributes['id'])
             : Tag::find($attributes['id']);
-            //$tag = Tag::find($attributes['id']);
+
             if ($tag) {
                 $attributes['tagname'] = $tag->name;
                 $attributes['icon'] = $tag->icon ?? 'fas fa-tags';

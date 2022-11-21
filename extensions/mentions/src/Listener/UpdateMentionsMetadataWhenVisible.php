@@ -9,6 +9,7 @@
 
 namespace Flarum\Mentions\Listener;
 
+use Flarum\Extension\ExtensionManager;
 use Flarum\Mentions\Notification\GroupMentionedBlueprint;
 use Flarum\Mentions\Notification\PostMentionedBlueprint;
 use Flarum\Mentions\Notification\UserMentionedBlueprint;
@@ -17,6 +18,7 @@ use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
 use Flarum\Post\Event\Revised;
 use Flarum\Post\Post;
+use Flarum\Tags\Tag;
 use Flarum\User\User;
 use s9e\TextFormatter\Utils;
 
@@ -28,11 +30,17 @@ class UpdateMentionsMetadataWhenVisible
     protected $notifications;
 
     /**
+     * @var ExtensionManager
+     */
+    protected $extensions;
+
+    /**
      * @param NotificationSyncer $notifications
      */
-    public function __construct(NotificationSyncer $notifications)
+    public function __construct(NotificationSyncer $notifications, ExtensionManager $extensions)
     {
         $this->notifications = $notifications;
+        $this->extensions = $extensions;
     }
 
     /**
@@ -56,6 +64,13 @@ class UpdateMentionsMetadataWhenVisible
             $event->post,
             Utils::getAttributeValues($content, 'GROUPMENTION', 'id')
         );
+
+        if ($this->extensions->isEnabled('flarum-tags')) {
+            $this->syncTagMentions(
+                $event->post,
+                Utils::getAttributeValues($content, 'TAGMENTION', 'id')
+            );
+        }
     }
 
     protected function syncUserMentions(Post $post, array $mentioned)
@@ -106,5 +121,11 @@ class UpdateMentionsMetadataWhenVisible
             ->all();
 
         $this->notifications->sync(new GroupMentionedBlueprint($post), $users);
+    }
+
+    protected function syncTagMentions(Post $post, array $mentioned): void
+    {
+        $post->mentionsTags()->sync($mentioned);
+        $post->unsetRelation('mentionsTags');
     }
 }
