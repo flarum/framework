@@ -37,7 +37,10 @@
                 "name": "fas fa-at",
                 "backgroundColor": "#539EC1",
                 "color": "#fff"
-            }
+            },
+            "optional-dependencies": [
+                "flarum/tags"
+            ]
         },
         "flarum-cli": {
             "modules": {

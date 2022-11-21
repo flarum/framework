@@ -24,6 +24,8 @@ use Flarum\Post\Event\Restored;
 use Flarum\Post\Event\Revised;
 use Flarum\Post\Filter\PostFilterer;
 use Flarum\Post\Post;
+use Flarum\Tags\Api\Serializer\TagSerializer;
+use Flarum\Tags\Tag;
 use Flarum\User\User;
 
 return [
@@ -39,6 +41,7 @@ return [
         ->render(Formatter\FormatPostMentions::class)
         ->render(Formatter\FormatUserMentions::class)
         ->render(Formatter\FormatGroupMentions::class)
+        ->render(Formatter\FormatTagMentions::class)
         ->unparse(Formatter\UnparsePostMentions::class)
         ->unparse(Formatter\UnparseUserMentions::class)
         ->parse(Formatter\CheckPermissions::class),
@@ -47,7 +50,8 @@ return [
         ->belongsToMany('mentionedBy', Post::class, 'post_mentions_post', 'mentions_post_id', 'post_id')
         ->belongsToMany('mentionsPosts', Post::class, 'post_mentions_post', 'post_id', 'mentions_post_id')
         ->belongsToMany('mentionsUsers', User::class, 'post_mentions_user', 'post_id', 'mentions_user_id')
-        ->belongsToMany('mentionsGroups', Group::class, 'post_mentions_group', 'post_id', 'mentions_group_id'),
+        ->belongsToMany('mentionsGroups', Group::class, 'post_mentions_group', 'post_id', 'mentions_group_id')
+        ->belongsToMany('mentionsTags', Tag::class, 'post_mentions_tag', 'post_id', 'mentions_tag_id'),
 
     new Extend\Locales(__DIR__.'/locale'),
 
@@ -63,20 +67,21 @@ return [
         ->hasMany('mentionedBy', BasicPostSerializer::class)
         ->hasMany('mentionsPosts', BasicPostSerializer::class)
         ->hasMany('mentionsUsers', BasicUserSerializer::class)
-        ->hasMany('mentionsGroups', GroupSerializer::class),
+        ->hasMany('mentionsGroups', GroupSerializer::class)
+        ->hasMany('mentionsTags', TagSerializer::class),
 
     (new Extend\ApiController(Controller\ShowDiscussionController::class))
-        ->addInclude(['posts.mentionedBy', 'posts.mentionedBy.user', 'posts.mentionedBy.discussion'])
+        ->addInclude(['posts.mentionedBy', 'posts.mentionedBy.user', 'posts.mentionedBy.discussion', 'posts.mentionsTags'])
         ->load([
             'posts.mentionsUsers', 'posts.mentionsPosts', 'posts.mentionsPosts.user', 'posts.mentionedBy',
             'posts.mentionedBy.mentionsPosts', 'posts.mentionedBy.mentionsPosts.user', 'posts.mentionedBy.mentionsUsers',
-            'posts.mentionsGroups'
+            'posts.mentionsGroups', 'posts.mentionsTags',
         ]),
 
     (new Extend\ApiController(Controller\ListDiscussionsController::class))
         ->load([
-            'firstPost.mentionsUsers', 'firstPost.mentionsPosts', 'firstPost.mentionsPosts.user', 'firstPost.mentionsGroups',
-            'lastPost.mentionsUsers', 'lastPost.mentionsPosts', 'lastPost.mentionsPosts.user', 'lastPost.mentionsGroups'
+            'firstPost.mentionsUsers', 'firstPost.mentionsPosts', 'firstPost.mentionsPosts.user', 'firstPost.mentionsGroups', 'firstPost.mentionsTags',
+            'lastPost.mentionsUsers', 'lastPost.mentionsPosts', 'lastPost.mentionsPosts.user', 'lastPost.mentionsGroups', 'lastPost.mentionsTags',
         ]),
 
     (new Extend\ApiController(Controller\ShowPostController::class))
@@ -87,16 +92,16 @@ return [
         ->load([
             'mentionsUsers', 'mentionsPosts', 'mentionsPosts.user', 'mentionedBy',
             'mentionedBy.mentionsPosts', 'mentionedBy.mentionsPosts.user', 'mentionedBy.mentionsUsers',
-            'mentionsGroups'
+            'mentionsGroups', 'mentionsTags',
         ]),
 
     (new Extend\ApiController(Controller\CreatePostController::class))
         ->addInclude(['mentionsPosts', 'mentionsPosts.mentionedBy'])
-        ->addOptionalInclude('mentionsGroups'),
+        ->addOptionalInclude(['mentionsGroups', 'mentionsTags']),
 
     (new Extend\ApiController(Controller\UpdatePostController::class))
         ->addInclude(['mentionsPosts', 'mentionsPosts.mentionedBy'])
-        ->addOptionalInclude('mentionsGroups'),
+        ->addOptionalInclude(['mentionsGroups', 'mentionsTags']),
 
     (new Extend\ApiController(Controller\AbstractSerializeController::class))
         ->prepareDataForSerialization(FilterVisiblePosts::class),
@@ -115,7 +120,5 @@ return [
         ->addFilter(Filter\MentionedFilter::class),
 
     (new Extend\ApiSerializer(CurrentUserSerializer::class))
-        ->attribute('canMentionGroups', function (CurrentUserSerializer $serializer, User $user, array $attributes): bool {
-            return $user->can('mentionGroups');
-        })
+        ->attributes(AddCurrentUserAttributes::class),
 ];
