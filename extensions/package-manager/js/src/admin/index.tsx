@@ -4,8 +4,9 @@ import ExtensionPage from 'flarum/admin/components/ExtensionPage';
 import Button from 'flarum/common/components/Button';
 import LoadingModal from 'flarum/admin/components/LoadingModal';
 import isExtensionEnabled from 'flarum/admin/utils/isExtensionEnabled';
-import SettingsPage from './components/SettingsPage';
+import Alert from 'flarum/common/components/Alert';
 
+import SettingsPage from './components/SettingsPage';
 import Task from './models/Task';
 import jumpToQueue from './utils/jumpToQueue';
 import extractText from 'flarum/common/utils/extractText';
@@ -19,6 +20,13 @@ app.initializers.add('flarum-package-manager', (app) => {
 
   app.extensionData
     .for('flarum-package-manager')
+    .registerSetting(() => (
+      <div className="Form-group">
+        <Alert type="warning" dismissible={false}>
+          {app.translator.trans('flarum-package-manager.admin.settings.access_warning')}
+        </Alert>
+      </div>
+    ))
     .registerSetting({
       setting: 'flarum-package-manager.queue_jobs',
       label: app.translator.trans('flarum-package-manager.admin.settings.queue_jobs'),

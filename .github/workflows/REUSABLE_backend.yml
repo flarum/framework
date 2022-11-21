@@ -26,6 +26,13 @@ on:
         type: string
         required: false
         default: '["7.3", "7.4", "8.0", "8.1"]'
+
+      php_extensions:
+        description: PHP extensions to install.
+        type: string
+        required: false
+        default: 'curl, dom, gd, json, mbstring, openssl, pdo_mysql, tokenizer, zip'
+
       db_versions:
         description: Versions of databases to test with. Should be array of strings encoded as JSON array
         type: string
@@ -106,7 +113,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           coverage: xdebug
-          extensions: curl, dom, gd, json, mbstring, openssl, pdo_mysql, tokenizer, zip
+          extensions: ${{ inputs.php_extensions }}
           tools: phpunit, composer:v2
           ini-values: ${{ inputs.php_ini_values }}
 
@@ -158,7 +165,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           coverage: xdebug
-          extensions: curl, dom, gd, json, mbstring, openssl, pdo_mysql, tokenizer, zip
+          extensions: ${{ inputs.php_extensions }}
           tools: phpunit, composer:v2
           ini-values: ${{ inputs.php_ini_values }}
 

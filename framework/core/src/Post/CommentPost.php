@@ -44,9 +44,10 @@ class CommentPost extends Post
      * @param string $content
      * @param int $userId
      * @param string $ipAddress
+     * @param User|null $actor
      * @return static
      */
-    public static function reply($discussionId, $content, $userId, $ipAddress)
+    public static function reply($discussionId, $content, $userId, $ipAddress, User $actor = null)
     {
         $post = new static;
 
@@ -57,7 +58,7 @@ class CommentPost extends Post
         $post->ip_address = $ipAddress;
 
         // Set content last, as the parsing may rely on other post attributes.
-        $post->content = $content;
+        $post->setContentAttribute($content, $actor);
 
         $post->raise(new Posted($post));
 
@@ -74,7 +75,7 @@ class CommentPost extends Post
     public function revise($content, User $actor)
     {
         if ($this->content !== $content) {
-            $this->content = $content;
+            $this->setContentAttribute($content, $actor);
 
             $this->edited_at = Carbon::now();
             $this->edited_user_id = $actor->id;
@@ -145,10 +146,11 @@ class CommentPost extends Post
      * Parse the content before it is saved to the database.
      *
      * @param string $value
+     * @param User $actor
      */
-    public function setContentAttribute($value)
+    public function setContentAttribute($value, User $actor = null)
     {
-        $this->attributes['content'] = $value ? static::$formatter->parse($value, $this) : null;
+        $this->attributes['content'] = $value ? static::$formatter->parse($value, $this, $actor ?? $this->user) : null;
     }
 
     /**

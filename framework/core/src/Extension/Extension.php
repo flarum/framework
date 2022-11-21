@@ -211,7 +211,7 @@ class Extension implements Arrayable
     /**
      * Get the list of flarum extensions that this extension depends on.
      *
-     * @param array $extensionSet: An associative array where keys are the composer package names
+     * @param array<string, mixed> $extensionSet: An associative array where keys are the composer package names
      *                             of installed extensions. Used to figure out which dependencies
      *                             are flarum extensions.
      * @internal

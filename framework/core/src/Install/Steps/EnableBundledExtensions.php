@@ -12,6 +12,7 @@ namespace Flarum\Install\Steps;
 use Flarum\Database\DatabaseMigrationRepository;
 use Flarum\Database\Migrator;
 use Flarum\Extension\Extension;
+use Flarum\Extension\ExtensionManager;
 use Flarum\Install\Step;
 use Flarum\Settings\DatabaseSettingsRepository;
 use Illuminate\Database\ConnectionInterface;
@@ -80,7 +81,7 @@ class EnableBundledExtensions implements Step
 
     public function run()
     {
-        $extensions = $this->loadExtensions();
+        $extensions = ExtensionManager::resolveExtensionOrder($this->loadExtensions()->all())['valid'];
 
         foreach ($extensions as $extension) {
             $extension->migrate($this->getMigrator());
@@ -89,14 +90,15 @@ class EnableBundledExtensions implements Step
             );
         }
 
-        (new DatabaseSettingsRepository($this->database))->set(
-            'extensions_enabled',
-            $extensions->keys()->toJson()
-        );
+        $extensionNames = json_encode(array_map(function (Extension $extension) {
+            return $extension->getId();
+        }, $extensions));
+
+        (new DatabaseSettingsRepository($this->database))->set('extensions_enabled', $extensionNames);
     }
 
     /**
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Support\Collection<Extension>
      */
     private function loadExtensions()
     {
@@ -106,7 +108,7 @@ class EnableBundledExtensions implements Step
         // Composer 2.0 changes the structure of the installed.json manifest
         $installed = $installed['packages'] ?? $installed;
 
-        return (new Collection($installed))
+        $installedExtensions = (new Collection($installed))
             ->filter(function ($package) {
                 return Arr::get($package, 'type') == 'flarum-extension';
             })->filter(function ($package) {
@@ -120,13 +122,19 @@ class EnableBundledExtensions implements Step
                 $extension->setVersion(Arr::get($package, 'version'));
 
                 return $extension;
-            })->filter(function (Extension $extension) {
-                return in_array($extension->getId(), $this->enabledExtensions);
-            })->sortBy(function (Extension $extension) {
-                return $extension->getTitle();
             })->mapWithKeys(function (Extension $extension) {
-                return [$extension->getId() => $extension];
+                return [$extension->name => $extension];
             });
+
+        return $installedExtensions->filter(function (Extension $extension) {
+            return in_array($extension->getId(), $this->enabledExtensions);
+        })->map(function (Extension $extension) use ($installedExtensions) {
+            $extension->calculateDependencies($installedExtensions->map(function () {
+                return true;
+            })->toArray());
+
+            return $extension;
+        });
     }
 
     private function getMigrator(): Migrator

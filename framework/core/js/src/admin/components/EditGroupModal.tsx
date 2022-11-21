@@ -8,6 +8,7 @@ import Switch from '../../common/components/Switch';
 import Stream from '../../common/utils/Stream';
 import Mithril from 'mithril';
 import extractText from '../../common/utils/extractText';
+import ColorPreviewInput from '../../common/components/ColorPreviewInput';
 
 export interface IEditGroupModalAttrs extends IInternalModalAttrs {
   group?: Group;
@@ -81,7 +82,7 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
       'color',
       <div className="Form-group">
         <label>{app.translator.trans('core.admin.edit_group.color_label')}</label>
-        <input className="FormControl" placeholder="#aaaaaa" bidi={this.color} />
+        <ColorPreviewInput placeholder="#aaaaaa" bidi={this.color} />
       </div>,
       20
     );
