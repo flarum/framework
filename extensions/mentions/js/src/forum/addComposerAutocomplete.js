@@ -14,7 +14,7 @@ import Badge from 'flarum/common/components/Badge';
 import Group from 'flarum/common/models/Group';
 
 import AutocompleteDropdown from './fragments/AutocompleteDropdown';
-import getMentionText from './utils/getMentionText';
+import MentionTextGenerator from './utils/MentionTextGenerator';
 
 const tagsEnabled = !!app.initializers.has('flarum-tags');
 
@@ -64,6 +64,8 @@ export default function addComposerAutocomplete() {
     let absMentionStart;
     let typed;
     let matchTyped;
+
+    const mentionTextGenerator = new MentionTextGenerator();
 
     // We store users returned from an API here to preserve order in which they are returned
     // This prevents the user list jumping around while users are returned.
@@ -215,7 +217,7 @@ export default function addComposerAutocomplete() {
             returnedUsers.forEach((user) => {
               if (!userMatches(user)) return;
 
-              suggestions.push(makeSuggestion(user, getMentionText(user), '', 'MentionsDropdown-user'));
+              suggestions.push(makeSuggestion(user, mentionTextGenerator.forUser(user), '', 'MentionsDropdown-user'));
             });
 
             // ... or groups.
@@ -223,7 +225,7 @@ export default function addComposerAutocomplete() {
               returnedGroups.forEach((group) => {
                 if (!groupMatches(group)) return;
 
-                suggestions.push(makeGroupSuggestion(group, getMentionText(undefined, undefined, group), '', 'MentionsDropdown-group'));
+                suggestions.push(makeGroupSuggestion(group, mentionTextGenerator.forGroup(group), '', 'MentionsDropdown-group'));
               });
             }
 
@@ -232,7 +234,7 @@ export default function addComposerAutocomplete() {
               returnedTags.forEach((tag) => {
                 if (!tagMatches(tag)) return;
 
-                suggestions.push(makeTagSuggestion(tag, getMentionText(undefined, undefined, undefined, tag), '', 'MentionsDropdown-tag'));
+                suggestions.push(makeTagSuggestion(tag, mentionTextGenerator.forTag(tag), '', 'MentionsDropdown-tag'));
               });
             }
           }
@@ -266,7 +268,7 @@ export default function addComposerAutocomplete() {
                   suggestions.push(
                     makeSuggestion(
                       user,
-                      getMentionText(user, post.id()),
+                      mentionTextGenerator.forPostMention(user, post.id()),
                       [
                         app.translator.trans('flarum-mentions.forum.composer.reply_to_post_text', { number: post.number() }),
                         ' — ',

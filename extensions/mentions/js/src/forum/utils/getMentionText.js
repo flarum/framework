@@ -6,6 +6,8 @@ import getCleanDisplayName, { shouldUseOldFormat } from './getCleanDisplayName';
  * Automatically determines which mention syntax to be used based on the option in the
  * admin dashboard. Also performs display name clean-up automatically.
  *
+ * @deprecated Use `MentionTextGenerator` instead. Remove in 2.0.
+ *
  * @example <caption>New display name syntax</caption>
  * // '@"User"#1'
  * getMentionText(User) // User is ID 1, display name is 'User'
@@ -21,9 +23,6 @@ import getCleanDisplayName, { shouldUseOldFormat } from './getCleanDisplayName';
  * @example <caption>Group mention</caption>
  * // '@"Mods"#g4'
  * getMentionText(undefined, undefined, group) // Group display name is 'Mods', group ID is 4
- * @example <caption>Group mention</caption>
- * // '@"General"#g1'
- * getMentionText(undefined, undefined, undefined, tag) // Tag name is 'General', tag ID is 1
  */
 export default function getMentionText(user, postId, group, tag) {
   if (user !== undefined && postId === undefined) {
@@ -42,9 +41,6 @@ export default function getMentionText(user, postId, group, tag) {
   } else if (group !== undefined) {
     // @"Name Plural"#gGroupID
     return `@"${group.namePlural()}"#g${group.id()}`;
-  } else if (tag !== undefined) {
-    // @"Name"#tTagID
-    return `@"${tag.name()}"#t${tag.id()}`;
   } else {
     throw 'No parameters were passed';
   }
