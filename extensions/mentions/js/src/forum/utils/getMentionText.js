@@ -1,7 +1,7 @@
 import getCleanDisplayName, { shouldUseOldFormat } from './getCleanDisplayName';
 
 /**
- * Fetches the mention text for a specified user (and optionally a post ID for replies, or group).
+ * Fetches the mention text for a specified user (and optionally a post ID for replies, group, or tag).
  *
  * Automatically determines which mention syntax to be used based on the option in the
  * admin dashboard. Also performs display name clean-up automatically.
@@ -21,6 +21,9 @@ import getCleanDisplayName, { shouldUseOldFormat } from './getCleanDisplayName';
  * @example <caption>Group mention</caption>
  * // '@"Mods"#g4'
  * getMentionText(undefined, undefined, group) // Group display name is 'Mods', group ID is 4
+ * @example <caption>Group mention</caption>
+ * // '@"General"#g1'
+ * getMentionText(undefined, undefined, undefined, tag) // Tag name is 'General', tag ID is 1
  */
 export default function getMentionText(user, postId, group, tag) {
   if (user !== undefined && postId === undefined) {

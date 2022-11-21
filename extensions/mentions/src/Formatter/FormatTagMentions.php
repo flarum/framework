@@ -55,7 +55,7 @@ class FormatTagMentions
 
             if ($tag) {
                 $attributes['tagname'] = $tag->name;
-                $attributes['icon'] = $tag->icon ?? 'fas fa-tags';
+                $attributes['icon'] = $tag->icon ?? '';
                 $attributes['color'] = $tag->color;
                 $attributes['slug'] = $tag->slug;
                 $attributes['deleted'] = false;

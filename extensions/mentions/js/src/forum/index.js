@@ -20,6 +20,10 @@ import Model from 'flarum/common/Model';
 app.initializers.add('flarum-mentions', function () {
   User.prototype.canMentionGroups = Model.attribute('canMentionGroups');
 
+  if (app.initializers.has('flarum-tags')) {
+    User.prototype.canMentionTags = Model.attribute('canMentionTags');
+  }
+
   // For every mention of a post inside a post's content, set up a hover handler
   // that shows a preview of the mentioned post.
   addPostMentionPreviews();
