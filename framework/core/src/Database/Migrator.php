@@ -128,7 +128,7 @@ class Migrator
 
         // If a "when" callback in defined in a migration array, a falsy return value will cause the migration to skip
         if (is_array($migration) && array_key_exists('when', $migration)) {
-            if (!call_user_func($migration['when'], $this->connection->getSchemaBuilder())) {
+            if (! call_user_func($migration['when'], $this->connection->getSchemaBuilder())) {
                 $this->note("<info>Skipped:</info> $file");
 
                 return;
