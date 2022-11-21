@@ -6,6 +6,7 @@ import AutocompleteDropdown from './fragments/AutocompleteDropdown';
 import PostQuoteButton from './fragments/PostQuoteButton';
 import getCleanDisplayName from './utils/getCleanDisplayName';
 import getMentionText from './utils/getMentionText';
+import MentionTextGenerator from './utils/MentionTextGenerator';
 import * as reply from './utils/reply';
 import selectedText from './utils/selectedText';
 import * as textFormatter from './utils/textFormatter';
@@ -19,6 +20,7 @@ export default {
   'mentions/fragments/PostQuoteButton': PostQuoteButton,
   'mentions/utils/getCleanDisplayName': getCleanDisplayName,
   'mentions/utils/getMentionText': getMentionText,
+  'mentions/utils/MentionTextGenerator': MentionTextGenerator,
   'mentions/utils/reply': reply,
   'mentions/utils/selectedText': selectedText,
   'mentions/utils/textFormatter': textFormatter,
