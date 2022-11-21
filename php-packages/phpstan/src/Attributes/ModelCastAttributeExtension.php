@@ -12,6 +12,7 @@ namespace Flarum\PHPStan\Attributes;
 use Carbon\Carbon;
 use Flarum\PHPStan\Extender\MethodCall;
 use Flarum\PHPStan\Extender\Resolver;
+use PHPStan\PhpDoc\TypeStringResolver;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\PropertiesClassReflectionExtension;
 use PHPStan\Reflection\PropertyReflection;
@@ -19,14 +20,14 @@ use PHPStan\Type\NullType;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\UnionType;
 
-class ModelCastAttributeProperty implements PropertiesClassReflectionExtension
+class ModelCastAttributeExtension implements PropertiesClassReflectionExtension
 {
     /** @var Resolver */
     private $extendersResolver;
-    /** @var \PHPStan\PhpDoc\TypeStringResolver */
+    /** @var TypeStringResolver */
     private $typeStringResolver;
 
-    public function __construct(Resolver $extendersResolver, \PHPStan\PhpDoc\TypeStringResolver $typeStringResolver)
+    public function __construct(Resolver $extendersResolver, TypeStringResolver $typeStringResolver)
     {
         $this->extendersResolver = $extendersResolver;
         $this->typeStringResolver = $typeStringResolver;
@@ -55,7 +56,7 @@ class ModelCastAttributeProperty implements PropertiesClassReflectionExtension
                 }
 
                 if ($extender->extends($className)) {
-                    if ($methodCalls = $extender->findMethodCalls('castAttribute')) {
+                    if ($methodCalls = $extender->findMethodCalls('cast')) {
                         foreach ($methodCalls as $methodCall) {
                             if ($methodCall->arguments[0]->value === $propertyName) {
                                 return $methodCall;
