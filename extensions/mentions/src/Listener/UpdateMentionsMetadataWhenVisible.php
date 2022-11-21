@@ -18,7 +18,6 @@ use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
 use Flarum\Post\Event\Revised;
 use Flarum\Post\Post;
-use Flarum\Tags\Tag;
 use Flarum\User\User;
 use s9e\TextFormatter\Utils;
 
