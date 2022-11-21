@@ -31,7 +31,7 @@ export default function getMentionText(user, postId, group) {
   } else if (user !== undefined && postId !== undefined) {
     return generator.forPostMention(user, postId);
   } else if (group !== undefined) {
-    generator.forGroup(group);
+    return generator.forGroup(group);
   } else {
     throw 'No parameters were passed';
   }
