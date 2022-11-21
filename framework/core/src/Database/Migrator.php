@@ -124,7 +124,22 @@ class Migrator
      */
     protected function runUp($path, $file, Extension $extension = null)
     {
-        $this->resolveAndRunClosureMigration($path, $file);
+        $migration = $this->resolve($path, $file);
+
+        // If a "when" callback in defined in a migration array, a falsy return value will cause the migration to skip
+        if (is_array($migration) && array_key_exists('when', $migration)) {
+            if (!call_user_func($migration['when'], $this->connection->getSchemaBuilder())) {
+                $this->note("<info>Skipped:</info> $file");
+
+                return;
+            }
+        }
+
+        try {
+            $this->runClosureMigration($migration);
+        } catch (MigrationKeyMissing $exception) {
+            throw $exception->withFile("$path/$file.php");
+        }
 
         // Once we have run a migrations class, we will log that it was run in this
         // repository so that we don't try to run it next time we do a migration
@@ -165,13 +180,18 @@ class Migrator
      *
      * @param  string    $path
      * @param  string    $file
-     * @param  string    $path
-     * @param  Extension $extension
+     * @param  Extension|null $extension
      * @return void
      */
     protected function runDown($path, $file, Extension $extension = null)
     {
-        $this->resolveAndRunClosureMigration($path, $file, 'down');
+        $migration = $this->resolve($path, $file);
+
+        try {
+            $this->runClosureMigration($migration, 'down');
+        } catch (MigrationKeyMissing $exception) {
+            throw $exception->withFile("$path/$file.php");
+        }
 
         // Once we have successfully run the migration "down" we will remove it from
         // the migration repository so it will be considered to have not been run
@@ -194,25 +214,6 @@ class Migrator
             call_user_func($migration[$direction], $this->connection->getSchemaBuilder());
         } else {
             throw new MigrationKeyMissing($direction);
-        }
-    }
-
-    /**
-     * Resolves and run a migration and assign the filename to the exception if needed.
-     *
-     * @param string $path
-     * @param string $file
-     * @param string $direction
-     * @throws MigrationKeyMissing
-     */
-    protected function resolveAndRunClosureMigration(string $path, string $file, string $direction = 'up')
-    {
-        $migration = $this->resolve($path, $file);
-
-        try {
-            $this->runClosureMigration($migration, $direction);
-        } catch (MigrationKeyMissing $exception) {
-            throw $exception->withFile("$path/$file.php");
         }
     }
 
