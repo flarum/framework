@@ -206,7 +206,7 @@ class ConfigureMentions
 
     private function configureTagMentions(Configurator $config)
     {
-        $config->rendering->parameters['TAG_URL'] = $this->url->to('forum')->route('tags', ['slug' => '']);
+        $config->rendering->parameters['TAG_URL'] = $this->url->to('forum')->route('tag', ['slug' => '']);
 
         $tagName = 'TAGMENTION';
 
@@ -221,10 +221,10 @@ class ConfigureMentions
         $tag->template = '
             <xsl:choose>
                 <xsl:when test="@deleted != 1">
-                    <a href="{$TAG_URL}/{@slug}" class="TagMention {@class}" style="background: {@color}">@<xsl:value-of select="@tagname"/><i class="icon {@icon}"></i></a>
+                    <a href="{$TAG_URL}{@slug}" class="TagMention {@class}" style="background: {@color}"><i class="icon {@icon}"></i><xsl:value-of select="@tagname"/></a>
                 </xsl:when>
                 <xsl:otherwise>
-                    <span class="TagMention TagMention--deleted" style="background: {@color}">@<xsl:value-of select="@tagname"/><i class="icon {@icon}"></i></span>
+                    <span class="TagMention TagMention--deleted" style="background: {@color}"><i class="icon {@icon}"></i><xsl:value-of select="@tagname"/></span>
                 </xsl:otherwise>
             </xsl:choose>';
         $tag->filterChain->prepend([static::class, 'addTagId'])
