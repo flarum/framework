@@ -16,6 +16,8 @@ import Group from 'flarum/common/models/Group';
 import AutocompleteDropdown from './fragments/AutocompleteDropdown';
 import getMentionText from './utils/getMentionText';
 
+const tagsEnabled = !!app.initializers.has('flarum-tags');
+
 const throttledSearch = throttle(
   250, // 250ms timeout
   function (typed, searched, returnedUsers, returnedUserIds, dropdown, buildSuggestions) {
@@ -75,6 +77,12 @@ export default function addComposerAutocomplete() {
         return group.id() != Group.GUEST_ID && group.id() != Group.MEMBER_ID;
       })
     );
+
+    let returnedTags;
+    if (tagsEnabled) {
+      // Store tags..
+      returnedTags = Array.from(app.store.all('tags'));
+    }
 
     const applySuggestion = (replacement) => {
       this.attrs.composer.editor.replaceBeforeCursor(absMentionStart - 1, replacement + ' ');
@@ -157,6 +165,29 @@ export default function addComposerAutocomplete() {
           );
         };
 
+        const makeTagSuggestion = function (tag, replacement, content, className = '') {
+          let tagName = tag.name().toLowerCase();
+
+          if (typed) {
+            tagName = highlight(tagName, typed);
+          }
+
+          return (
+            <button
+              className={'PostPreview ' + className}
+              onclick={() => applySuggestion(replacement)}
+              onmouseenter={function () {
+                dropdown.setIndex($(this).parent().index());
+              }}
+            >
+              <span className="PostPreview-content">
+                <Badge class={`Avatar Badge Badge--tag--${tag.id()} Badge-icon `} color={tag.color()} type="tag" icon={tag.icon()} />
+                <span className="username">{tagName}</span>
+              </span>
+            </button>
+          );
+        };
+
         const userMatches = function (user) {
           const names = [user.username(), user.displayName()];
 
@@ -165,6 +196,12 @@ export default function addComposerAutocomplete() {
 
         const groupMatches = function (group) {
           const names = [group.nameSingular(), group.namePlural()];
+
+          return names.some((name) => name.toLowerCase().substr(0, typed.length) === typed);
+        };
+
+        const tagMatches = function (tag) {
+          const names = [tag.name()];
 
           return names.some((name) => name.toLowerCase().substr(0, typed.length) === typed);
         };
@@ -187,6 +224,15 @@ export default function addComposerAutocomplete() {
                 if (!groupMatches(group)) return;
 
                 suggestions.push(makeGroupSuggestion(group, getMentionText(undefined, undefined, group), '', 'MentionsDropdown-group'));
+              });
+            }
+
+            // ... or tags.
+            if (tagsEnabled && app.session?.user?.canMentionTags?.()) {
+              returnedTags.forEach((tag) => {
+                if (!tagMatches(tag)) return;
+
+                suggestions.push(makeTagSuggestion(tag, getMentionText(undefined, undefined, undefined, tag), '', 'MentionsDropdown-tag'));
               });
             }
           }
@@ -271,7 +317,7 @@ export default function addComposerAutocomplete() {
         dropdown.setIndex(0);
         dropdown.$().scrollTop(0);
 
-        // Don't send API calls searching for users until at least 2 characters have been typed.
+        // Don't send API calls searching for users or tags until at least 2 characters have been typed.
         // This focuses the mention results on users and posts in the discussion.
         if (typed.length > 1 && app.forum.attribute('canSearchUsers')) {
           throttledSearch(typed, searched, returnedUsers, returnedUserIds, dropdown, buildSuggestions);
