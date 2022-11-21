@@ -19,12 +19,12 @@ class CheckPermissions
      * @var ExtensionManager
      */
     protected $extensions;
-    
+
     public function __construct(ExtensionManager $extensions)
     {
         $this->extensions = $extensions;
     }
-    
+
     public function __invoke(Parser $parser, $content, string $text, ?User $actor): string
     {
         // Check user has `mentionGroups` permission, if not, remove the `GROUPMENTION` tag from the parser.
