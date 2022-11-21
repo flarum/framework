@@ -27,7 +27,7 @@ services:
 		tags:
 			- phpstan.broker.propertiesClassReflectionExtension
 	-
-		class: Flarum\PHPStan\Attributes\ModelCastAttributeProperty
+		class: Flarum\PHPStan\Attributes\ModelCastAttributeExtension
 		tags:
 			- phpstan.broker.propertiesClassReflectionExtension
 	-
