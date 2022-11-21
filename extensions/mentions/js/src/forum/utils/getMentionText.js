@@ -1,4 +1,4 @@
-import getCleanDisplayName, { shouldUseOldFormat } from './getCleanDisplayName';
+import MentionTextGenerator from './MentionTextGenerator';
 
 /**
  * Fetches the mention text for a specified user (and optionally a post ID for replies, group, or tag).
@@ -25,22 +25,13 @@ import getCleanDisplayName, { shouldUseOldFormat } from './getCleanDisplayName';
  * getMentionText(undefined, undefined, group) // Group display name is 'Mods', group ID is 4
  */
 export default function getMentionText(user, postId, group) {
+  const generator = new MentionTextGenerator();
   if (user !== undefined && postId === undefined) {
-    if (shouldUseOldFormat()) {
-      // Plain @username
-      const cleanText = getCleanDisplayName(user, false);
-      return `@${cleanText}`;
-    }
-    // @"Display name"#UserID
-    const cleanText = getCleanDisplayName(user);
-    return `@"${cleanText}"#${user.id()}`;
+    return generator.forUser(user);
   } else if (user !== undefined && postId !== undefined) {
-    // @"Display name"#pPostID
-    const cleanText = getCleanDisplayName(user);
-    return `@"${cleanText}"#p${postId}`;
+    return generator.forPostMention(user, postId);
   } else if (group !== undefined) {
-    // @"Name Plural"#gGroupID
-    return `@"${group.namePlural()}"#g${group.id()}`;
+    generator.forGroup(group);
   } else {
     throw 'No parameters were passed';
   }
