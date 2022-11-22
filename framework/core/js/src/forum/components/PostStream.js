@@ -122,8 +122,8 @@ export default class PostStream extends Component {
   }
 
   /**
-    * @returns {ItemList<import('mithril').Children>}
-    */
+   * @returns {ItemList<import('mithril').Children>}
+   */
   endItems() {
     const items = new ItemList();
 
