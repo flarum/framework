@@ -97,11 +97,7 @@ export default class PostStream extends Component {
 
     // Allow extensions to add items to the end of the post stream.
     if (viewingEnd) {
-      if (this.endItems().toArray().length) {
-        this.endItems()
-          .toArray()
-          .map((item) => items.push(item));
-      }
+      items.push(...this.endItems().toArray());
     }
 
     // If we're viewing the end of the discussion, the user can reply, and
