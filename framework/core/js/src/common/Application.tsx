@@ -439,8 +439,6 @@ export default class Application {
     // a dud response, we don't want the application to crash. We'll show an
     // error message to the user instead.
 
-    // @ts-expect-error Typescript doesn't know we return promisified `ReturnType` OR `string`,
-    // so it errors due to Mithril's typings
     const defaultDeserialize = (response: string) => response as ResponseType;
 
     // When extracting the data from the response, we can check the server
