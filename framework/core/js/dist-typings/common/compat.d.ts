@@ -117,7 +117,7 @@ declare const _default: {
     'utils/setRouteWithForcedRefresh': typeof setRouteWithForcedRefresh;
     'utils/patchMithril': typeof patchMithril;
     'utils/proxifyCompat': typeof proxifyCompat;
-    'utils/classList': (...classes: import("clsx").ClassValue[]) => string;
+    'utils/classList': typeof import("clsx").clsx;
     'utils/extractText': typeof extractText;
     'utils/formatNumber': typeof formatNumber;
     'utils/mapRoutes': typeof mapRoutes;

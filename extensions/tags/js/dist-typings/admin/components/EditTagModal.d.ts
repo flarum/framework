@@ -23,7 +23,7 @@ export default class EditTagModal extends Modal<EditTagModalAttrs> {
     primary: Stream<boolean>;
     oninit(vnode: Mithril.Vnode<EditTagModalAttrs, this>): void;
     className(): string;
-    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray | Mithril.Vnode<any, any>;
+    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray | Mithril.Vnode<import("flarum/common/Component").ComponentAttrs, any>;
     content(): JSX.Element;
     fields(): ItemList<unknown>;
     submitData(): {
