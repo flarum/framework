@@ -70,4 +70,19 @@ class SendPasswordResetEmailTest extends TestCase
 
         $this->assertEquals(429, $response->getStatusCode());
     }
+
+    /** @test */
+    public function request_password_reset_does_not_leak_user_existence()
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/forgot', [
+                'authenticatedAs' => 3,
+                'json' => [
+                    'email' => 'missing_user@machine.local'
+                ]
+            ])
+        );
+
+        $this->assertEquals(204, $response->getStatusCode());
+    }
 }

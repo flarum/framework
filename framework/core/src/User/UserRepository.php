@@ -16,7 +16,7 @@ class UserRepository
     /**
      * Get a new query builder for the users table.
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder<User>
      */
     public function query()
     {
@@ -27,15 +27,15 @@ class UserRepository
      * Find a user by ID, optionally making sure it is visible to a certain
      * user, or throw an exception.
      *
-     * @param int $id
-     * @param User $actor
+     * @param int|string $id
+     * @param User|null $actor
      * @return User
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     public function findOrFail($id, User $actor = null)
     {
-        $query = User::where('id', $id);
+        $query = $this->query()->where('id', $id);
 
         return $this->scopeVisibleTo($query, $actor)->firstOrFail();
     }
@@ -44,15 +44,15 @@ class UserRepository
      * Find a user by username, optionally making sure it is visible to a certain
      * user, or throw an exception.
      *
-     * @param int $id
-     * @param User $actor
+     * @param string $username
+     * @param User|null $actor
      * @return User
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     public function findOrFailByUsername($username, User $actor = null)
     {
-        $query = User::where('username', $username);
+        $query = $this->query()->where('username', $username);
 
         return $this->scopeVisibleTo($query, $actor)->firstOrFail();
     }
@@ -67,7 +67,7 @@ class UserRepository
     {
         $field = filter_var($identification, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-        return User::where($field, $identification)->first();
+        return $this->query()->where($field, $identification)->first();
     }
 
     /**
@@ -78,7 +78,7 @@ class UserRepository
      */
     public function findByEmail($email)
     {
-        return User::where('email', $email)->first();
+        return $this->query()->where('email', $email)->first();
     }
 
     /**
@@ -90,7 +90,7 @@ class UserRepository
      */
     public function getIdForUsername($username, User $actor = null)
     {
-        $query = User::where('username', $username);
+        $query = $this->query()->where('username', $username);
 
         return $this->scopeVisibleTo($query, $actor)->value('id');
     }
@@ -107,7 +107,7 @@ class UserRepository
     {
         $string = $this->escapeLikeString($string);
 
-        $query = User::where('username', 'like', '%'.$string.'%')
+        $query = $this->query()->where('username', 'like', '%'.$string.'%')
             ->orderByRaw('username = ? desc', [$string])
             ->orderByRaw('username like ? desc', [$string.'%']);
 
@@ -117,9 +117,9 @@ class UserRepository
     /**
      * Scope a query to only include records that are visible to a user.
      *
-     * @param Builder $query
-     * @param User $actor
-     * @return Builder
+     * @param Builder<User> $query
+     * @param User|null $actor
+     * @return Builder<User>
      */
     protected function scopeVisibleTo(Builder $query, User $actor = null)
     {

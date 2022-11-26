@@ -12,12 +12,10 @@ namespace Flarum\Foundation\Console;
 use Flarum\Console\AbstractCommand;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Application;
+use Flarum\Foundation\ApplicationInfoProvider;
 use Flarum\Foundation\Config;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Support\Str;
-use PDO;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableStyle;
 
@@ -42,23 +40,24 @@ class InfoCommand extends AbstractCommand
      * @var ConnectionInterface
      */
     protected $db;
+
     /**
-     * @var Queue
+     * @var ApplicationInfoProvider
      */
-    private $queue;
+    private $appInfo;
 
     public function __construct(
         ExtensionManager $extensions,
         Config $config,
         SettingsRepositoryInterface $settings,
         ConnectionInterface $db,
-        Queue $queue
+        ApplicationInfoProvider $appInfo
     ) {
         $this->extensions = $extensions;
         $this->config = $config;
         $this->settings = $settings;
         $this->db = $db;
-        $this->queue = $queue;
+        $this->appInfo = $appInfo;
 
         parent::__construct();
     }
@@ -79,10 +78,10 @@ class InfoCommand extends AbstractCommand
     protected function fire()
     {
         $coreVersion = $this->findPackageVersion(__DIR__.'/../../../', Application::VERSION);
-        $this->output->writeln("<info>Flarum core $coreVersion</info>");
+        $this->output->writeln("<info>Flarum core:</info> $coreVersion");
 
-        $this->output->writeln('<info>PHP version:</info> '.PHP_VERSION);
-        $this->output->writeln('<info>MySQL version:</info> '.$this->identifyDatabaseVersion());
+        $this->output->writeln('<info>PHP version:</info> '.$this->appInfo->identifyPHPVersion());
+        $this->output->writeln('<info>MySQL version:</info> '.$this->appInfo->identifyDatabaseVersion());
 
         $phpExtensions = implode(', ', get_loaded_extensions());
         $this->output->writeln("<info>Loaded extensions:</info> $phpExtensions");
@@ -91,7 +90,13 @@ class InfoCommand extends AbstractCommand
 
         $this->output->writeln('<info>Base URL:</info> '.$this->config->url());
         $this->output->writeln('<info>Installation path:</info> '.getcwd());
-        $this->output->writeln('<info>Queue driver:</info> '.$this->identifyQueueDriver());
+        $this->output->writeln('<info>Queue driver:</info> '.$this->appInfo->identifyQueueDriver());
+        $this->output->writeln('<info>Session driver:</info> '.$this->appInfo->identifySessionDriver());
+
+        if ($this->appInfo->scheduledTasksRegistered()) {
+            $this->output->writeln('<info>Scheduler status:</info> '.$this->appInfo->getSchedulerStatus());
+        }
+
         $this->output->writeln('<info>Mail driver:</info> '.$this->settings->get('mail_driver', 'unknown'));
         $this->output->writeln('<info>Debug mode:</info> '.($this->config->inDebugMode() ? '<error>ON</error>' : 'off'));
 
@@ -148,24 +153,5 @@ class InfoCommand extends AbstractCommand
         }
 
         return $fallback;
-    }
-
-    private function identifyQueueDriver(): string
-    {
-        // Get class name
-        $queue = get_class($this->queue);
-        // Drop the namespace
-        $queue = Str::afterLast($queue, '\\');
-        // Lowercase the class name
-        $queue = strtolower($queue);
-        // Drop everything like queue SyncQueue, RedisQueue
-        $queue = str_replace('queue', '', $queue);
-
-        return $queue;
-    }
-
-    private function identifyDatabaseVersion(): string
-    {
-        return $this->db->getPdo()->getAttribute(PDO::ATTR_SERVER_VERSION);
     }
 }

@@ -33,6 +33,7 @@ import formatNumber from './utils/formatNumber';
 import mapRoutes from './utils/mapRoutes';
 import withAttr from './utils/withAttr';
 import * as FocusTrap from './utils/focusTrap';
+import isDark from './utils/isDark';
 import Notification from './models/Notification';
 import User from './models/User';
 import Post from './models/Post';
@@ -83,6 +84,9 @@ import Fragment from './Fragment';
 import DefaultResolver from './resolvers/DefaultResolver';
 import PaginatedListState from './states/PaginatedListState';
 import isObject from './utils/isObject';
+import AlertManagerState from './states/AlertManagerState';
+import ModalManagerState from './states/ModalManagerState';
+import PageState from './states/PageState';
 
 export default {
   extend: extend,
@@ -120,6 +124,7 @@ export default {
   'utils/throttleDebounce': ThrottleDebounce,
   'utils/isObject': isObject,
   'utils/focusTrap': FocusTrap,
+  'utils/isDark': isDark,
   'models/Notification': Notification,
   'models/User': User,
   'models/Post': Post,
@@ -169,4 +174,7 @@ export default {
   'helpers/listItems': listItems,
   'resolvers/DefaultResolver': DefaultResolver,
   'states/PaginatedListState': PaginatedListState,
+  'states/AlertManagerState': AlertManagerState,
+  'states/ModalManagerState': ModalManagerState,
+  'states/PageState': PageState,
 };

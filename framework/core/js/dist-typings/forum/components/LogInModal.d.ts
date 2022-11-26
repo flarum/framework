@@ -4,6 +4,7 @@ import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
 import type Mithril from 'mithril';
 import RequestError from '../../common/utils/RequestError';
+import type { LoginParams } from '../../common/Session';
 export interface ILoginModalAttrs extends IInternalModalAttrs {
     identification?: string;
     password?: string;
@@ -41,5 +42,6 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
     signUp(): void;
     onready(): void;
     onsubmit(e: SubmitEvent): void;
+    loginParams(): LoginParams;
     onerror(error: RequestError): void;
 }

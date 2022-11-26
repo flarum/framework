@@ -1,4 +1,4 @@
-declare var _default: {
+declare const _default: {
     'tags/utils/sortTags': typeof import("../common/utils/sortTags").default;
     'tags/models/Tag': typeof import("../common/models/Tag").default;
     'tags/helpers/tagsLabel': typeof import("../common/helpers/tagsLabel").default;

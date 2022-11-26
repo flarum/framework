@@ -72,6 +72,7 @@ flarum-package-manager:
         title: Queue
 
     settings:
+      access_warning: Please be careful to who you give access to the admin area, the package manager could be misused by bad actors to install packages that can lead to security breaches.
       queue_jobs: Run operations in the background queue
       queue_jobs_help: >
         You can read about a <a href='{basic_impl_link}'>basic queue</a> implementation or a <a href='{adv_impl_link}'>more advanced</a> one.

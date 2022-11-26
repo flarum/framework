@@ -8,6 +8,7 @@
   position: relative;
   top: 0;
   border-radius: var(--border-radius);
+  .clearfix();
 
   &.editing {
     top: 5px;
@@ -321,7 +322,7 @@
       vertical-align: top;
     }
   }
-  .Post:hover &, .Post:focus-within &, &.open {
+  .Post:hover &, .Post:focus-within &, &.openWithin {
     opacity: 1;
   }
 }

@@ -3,6 +3,7 @@ import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
 import Stream from '../../common/utils/Stream';
 import Mithril from 'mithril';
 import RequestError from '../../common/utils/RequestError';
+import ItemList from '../../common/utils/ItemList';
 export interface IForgotPasswordModalAttrs extends IInternalModalAttrs {
     email?: string;
 }
@@ -20,6 +21,8 @@ export default class ForgotPasswordModal<CustomAttrs extends IForgotPasswordModa
     className(): string;
     title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
     content(): JSX.Element;
+    fields(): ItemList<unknown>;
     onsubmit(e: SubmitEvent): void;
+    requestParams(): Record<string, unknown>;
     onerror(error: RequestError): void;
 }

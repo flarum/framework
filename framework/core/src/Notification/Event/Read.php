@@ -32,7 +32,7 @@ class Read
 
     public function __construct(User $user, Notification $notification, DateTime $timestamp)
     {
-        $this->user = $user;
+        $this->actor = $user;
         $this->notification = $notification;
         $this->timestamp = $timestamp;
     }

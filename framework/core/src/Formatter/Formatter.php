@@ -9,8 +9,7 @@
 
 namespace Flarum\Formatter;
 
-use DOMDocument;
-use DOMElement;
+use Flarum\User\User;
 use Illuminate\Contracts\Cache\Repository;
 use Psr\Http\Message\ServerRequestInterface;
 use s9e\TextFormatter\Configurator;
@@ -85,14 +84,15 @@ class Formatter
      *
      * @param string $text
      * @param mixed $context
+     * @param User|null $user
      * @return string
      */
-    public function parse($text, $context = null)
+    public function parse($text, $context = null, User $user = null)
     {
         $parser = $this->getParser($context);
 
         foreach ($this->parsingCallbacks as $callback) {
-            $text = $callback($parser, $context, $text);
+            $text = $callback($parser, $context, $text, $user);
         }
 
         return $parser->parse($text);
@@ -152,8 +152,8 @@ class Formatter
 
         $configurator->rootRules->enableAutoLineBreaks();
 
-        $configurator->rendering->engine = 'PHP';
-        $configurator->rendering->engine->cacheDir = $this->cacheDir;
+        $configurator->rendering->setEngine('PHP');
+        $configurator->rendering->getEngine()->cacheDir = $this->cacheDir; // @phpstan-ignore-line
 
         $configurator->enableJavaScript();
         $configurator->javascript->exports = ['preview'];
@@ -161,9 +161,9 @@ class Formatter
         $configurator->javascript->setMinifier('MatthiasMullieMinify')
             ->keepGoing = true;
 
-        $configurator->Escaper;
-        $configurator->Autoemail;
-        $configurator->Autolink;
+        $configurator->Escaper; /** @phpstan-ignore-line */
+        $configurator->Autoemail; /** @phpstan-ignore-line */
+        $configurator->Autolink; /** @phpstan-ignore-line */
         $configurator->tags->onDuplicate('replace');
 
         foreach ($this->configurationCallbacks as $callback) {
@@ -180,11 +180,13 @@ class Formatter
      */
     protected function configureExternalLinks(Configurator $configurator)
     {
-        /** @var DOMDocument $dom */
+        /**
+         * @var Configurator\Items\TemplateDocument $dom
+         */
         $dom = $configurator->tags['URL']->template->asDOM();
 
-        /** @var DOMElement $a */
         foreach ($dom->getElementsByTagName('a') as $a) {
+            /** @var \s9e\SweetDOM\Element $a */
             $a->prependXslCopyOf('@target');
             $a->prependXslCopyOf('@rel');
         }

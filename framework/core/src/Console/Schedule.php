@@ -18,17 +18,20 @@ class Schedule extends LaravelSchedule
     public function dueEvents($container)
     {
         return (new Collection($this->events))->filter->isDue(new class($container) {
+            /** @var Config */
+            protected $config;
+
             public function __construct($container)
             {
                 $this->config = $container->make(Config::class);
             }
 
-            public function isDownForMaintenance()
+            public function isDownForMaintenance(): bool
             {
                 return $this->config->inMaintenanceMode();
             }
 
-            public function environment()
+            public function environment(): string
             {
                 return '';
             }

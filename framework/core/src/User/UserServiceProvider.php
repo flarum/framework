@@ -109,6 +109,9 @@ class UserServiceProvider extends AbstractServiceProvider
             User::addGroupProcessor(ContainerUtil::wrapCallback($callback, $container));
         }
 
+        /**
+         * @var \Illuminate\Container\Container $container
+         */
         User::setHasher($container->make('hash'));
         User::setPasswordCheckers($container->make('flarum.user.password_checkers'));
         User::setGate($container->makeWith(Access\Gate::class, ['policyClasses' => $container->make('flarum.policies')]));

@@ -97,7 +97,7 @@ export default abstract class Post<CustomAttrs extends IPostAttrs = IPostAttrs> 
     const $actions = this.$('.Post-actions');
     const $controls = this.$('.Post-controls');
 
-    $actions.toggleClass('open', $controls.hasClass('open'));
+    $actions.toggleClass('openWithin', $controls.hasClass('open'));
   }
 
   /**

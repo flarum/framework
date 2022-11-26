@@ -9,6 +9,7 @@
 
 namespace Flarum\Mentions\Listener;
 
+use Flarum\Mentions\Notification\GroupMentionedBlueprint;
 use Flarum\Mentions\Notification\PostMentionedBlueprint;
 use Flarum\Mentions\Notification\UserMentionedBlueprint;
 use Flarum\Notification\NotificationSyncer;
@@ -50,6 +51,11 @@ class UpdateMentionsMetadataWhenVisible
             $event->post,
             Utils::getAttributeValues($content, 'POSTMENTION', 'id')
         );
+
+        $this->syncGroupMentions(
+            $event->post,
+            Utils::getAttributeValues($content, 'GROUPMENTION', 'id')
+        );
     }
 
     protected function syncUserMentions(Post $post, array $mentioned)
@@ -60,7 +66,7 @@ class UpdateMentionsMetadataWhenVisible
         $users = User::whereIn('id', $mentioned)
             ->get()
             ->filter(function ($user) use ($post) {
-                return $post->isVisibleTo($user) && $user->id !== $post->user->id;
+                return $post->isVisibleTo($user) && $user->id !== $post->user_id;
             })
             ->all();
 
@@ -75,13 +81,30 @@ class UpdateMentionsMetadataWhenVisible
         $posts = Post::with('user')
             ->whereIn('id', $mentioned)
             ->get()
-            ->filter(function ($post) use ($reply) {
-                return $post->user && $post->user->id !== $reply->user_id && $reply->isVisibleTo($post->user);
+            ->filter(function (Post $post) use ($reply) {
+                return $post->user && $post->user_id !== $reply->user_id && $reply->isVisibleTo($post->user);
             })
             ->all();
 
         foreach ($posts as $post) {
             $this->notifications->sync(new PostMentionedBlueprint($post, $reply), [$post->user]);
         }
+    }
+
+    protected function syncGroupMentions(Post $post, array $mentioned)
+    {
+        $post->mentionsGroups()->sync($mentioned);
+        $post->unsetRelation('mentionsGroups');
+
+        $users = User::whereHas('groups', function ($query) use ($mentioned) {
+            $query->whereIn('id', $mentioned);
+        })
+            ->get()
+            ->filter(function (User $user) use ($post) {
+                return $post->isVisibleTo($user) && $user->id !== $post->user_id;
+            })
+            ->all();
+
+        $this->notifications->sync(new GroupMentionedBlueprint($post), $users);
     }
 }

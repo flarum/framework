@@ -85,7 +85,8 @@ class PostReplyHandler
             $discussion->id,
             Arr::get($command->data, 'attributes.content'),
             $actor->id,
-            $command->ipAddress
+            $command->ipAddress,
+            $command->actor,
         );
 
         if ($actor->isAdmin() && ($time = Arr::get($command->data, 'attributes.createdAt'))) {

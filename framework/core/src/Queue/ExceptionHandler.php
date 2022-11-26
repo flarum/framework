@@ -42,9 +42,9 @@ class ExceptionHandler implements ExceptionHandling
      *
      * @param  \Illuminate\Http\Request $request
      * @param  Throwable               $e
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return void
      */
-    public function render($request, Throwable $e)
+    public function render($request, Throwable $e) /** @phpstan-ignore-line */
     {
         // TODO: Implement render() method.
     }

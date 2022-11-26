@@ -9,6 +9,7 @@
 
 namespace Flarum\PackageManager\Composer;
 
+use Composer\Config;
 use Composer\Console\Application;
 use Flarum\Foundation\Paths;
 use Flarum\PackageManager\OutputLogger;
@@ -69,5 +70,10 @@ class ComposerAdapter
         }
 
         return new ComposerOutput($exitCode, $output);
+    }
+
+    public static function setPhpVersion(string $phpVersion)
+    {
+        Config::$defaultConfig['platform']['php'] = $phpVersion;
     }
 }

@@ -9,6 +9,7 @@ import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
 import type Mithril from 'mithril';
 import RequestError from '../../common/utils/RequestError';
+import type { LoginParams } from '../../common/Session';
 
 export interface ILoginModalAttrs extends IInternalModalAttrs {
   identification?: string;
@@ -158,7 +159,6 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
 
     const attrs = {
       [identification.includes('@') ? 'email' : 'username']: identification,
-      password: this.password(),
     };
 
     app.modal.show(SignUpModal, attrs);
@@ -173,18 +173,23 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
 
     this.loading = true;
 
-    const identification = this.identification();
-    const password = this.password();
-    const remember = this.remember();
+    app.session.login(this.loginParams(), { errorHandler: this.onerror.bind(this) }).then(() => window.location.reload(), this.loaded.bind(this));
+  }
 
-    app.session
-      .login({ identification, password, remember }, { errorHandler: this.onerror.bind(this) })
-      .then(() => window.location.reload(), this.loaded.bind(this));
+  loginParams(): LoginParams {
+    const data = {
+      identification: this.identification(),
+      password: this.password(),
+      remember: this.remember(),
+    };
+
+    return data;
   }
 
   onerror(error: RequestError) {
     if (error.status === 401 && error.alert) {
       error.alert.content = app.translator.trans('core.forum.log_in.invalid_login_message');
+      this.password('');
     }
 
     super.onerror(error);
