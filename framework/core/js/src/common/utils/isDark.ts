@@ -1,8 +1,10 @@
 /**
  * The `isDark` utility converts a hex color to rgb, and then calcul a YIQ
- * value in order to get the appropriate brightness value (is it dark or is it
- * light?) See https://www.w3.org/TR/AERT/#color-contrast for references. A YIQ
- * value >= 128 is a light color.
+ * value in order to get the appropriate brightness value. See
+ * https://www.w3.org/TR/AERT/#color-contrast for references.
+ *
+ * A YIQ value >= 128 correspond to a light color according to the W3C
+ * standards, but we use a slightly higher threashold for design consistency.
  */
 
 export default function isDark(hexcolor: String) {
