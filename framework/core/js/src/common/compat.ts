@@ -84,6 +84,9 @@ import Fragment from './Fragment';
 import DefaultResolver from './resolvers/DefaultResolver';
 import PaginatedListState from './states/PaginatedListState';
 import isObject from './utils/isObject';
+import AlertManagerState from './states/AlertManagerState';
+import ModalManagerState from './states/ModalManagerState';
+import PageState from './states/PageState';
 
 export default {
   extend: extend,
@@ -171,4 +174,7 @@ export default {
   'helpers/listItems': listItems,
   'resolvers/DefaultResolver': DefaultResolver,
   'states/PaginatedListState': PaginatedListState,
+  'states/AlertManagerState': AlertManagerState,
+  'states/ModalManagerState': ModalManagerState,
+  'states/PageState': PageState,
 };

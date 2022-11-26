@@ -34,6 +34,22 @@ class ShowTest extends TestCase
     /**
      * @test
      */
+    public function guest_user_does_not_see_actor_relationship()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api')
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $json = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayNotHasKey('actor', Arr::get($json, 'data.relationships'));
+    }
+
+    /**
+     * @test
+     */
     public function normal_user_sees_most_information()
     {
         $response = $this->send(
@@ -51,6 +67,8 @@ class ShowTest extends TestCase
         $this->assertEquals('http://localhost/api', Arr::get($json, 'data.attributes.apiUrl'));
 
         $this->assertArrayNotHasKey('adminUrl', Arr::get($json, 'data.attributes'));
+        $this->assertArrayHasKey('actor', Arr::get($json, 'data.relationships'));
+        $this->assertEquals(2, Arr::get($json, 'data.relationships.actor.data.id'));
     }
 
     /**

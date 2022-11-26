@@ -79,6 +79,9 @@ import Fragment from './Fragment';
 import DefaultResolver from './resolvers/DefaultResolver';
 import PaginatedListState from './states/PaginatedListState';
 import isObject from './utils/isObject';
+import AlertManagerState from './states/AlertManagerState';
+import ModalManagerState from './states/ModalManagerState';
+import PageState from './states/PageState';
 declare const _default: {
     extend: any;
     Session: typeof Session;
@@ -114,7 +117,7 @@ declare const _default: {
     'utils/setRouteWithForcedRefresh': typeof setRouteWithForcedRefresh;
     'utils/patchMithril': typeof patchMithril;
     'utils/proxifyCompat': typeof proxifyCompat;
-    'utils/classList': (...classes: import("clsx").ClassValue[]) => string;
+    'utils/classList': typeof import("clsx").clsx;
     'utils/extractText': typeof extractText;
     'utils/formatNumber': typeof formatNumber;
     'utils/mapRoutes': typeof mapRoutes;
@@ -172,5 +175,8 @@ declare const _default: {
     'helpers/listItems': typeof listItems;
     'resolvers/DefaultResolver': typeof DefaultResolver;
     'states/PaginatedListState': typeof PaginatedListState;
+    'states/AlertManagerState': typeof AlertManagerState;
+    'states/ModalManagerState': typeof ModalManagerState;
+    'states/PageState': typeof PageState;
 };
 export default _default;
