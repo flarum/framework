@@ -22,7 +22,7 @@ function isActive(vnode: Mithril.Children): boolean {
   if (typeof tag === 'string' && tag !== 'a' && tag !== 'button') return false;
 
   if (typeof tag === 'object' && 'initAttrs' in tag) {
-    (tag as typeof Component).initAttrs(vnode.attrs);
+    (tag as unknown as typeof Component).initAttrs(vnode.attrs);
   }
 
   return typeof tag === 'object' && 'isActive' in tag ? (tag as any).isActive(vnode.attrs) : vnode.attrs.active;
