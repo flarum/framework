@@ -4,7 +4,7 @@
  * https://www.w3.org/TR/AERT/#color-contrast for references.
  *
  * A YIQ value >= 128 correspond to a light color according to the W3C
- * standards, but we use a slightly higher threashold for design consistency.
+ * standards, but we use a slightly higher threshold for design consistency.
  */
 
 export default function isDark(hexcolor: String) {
