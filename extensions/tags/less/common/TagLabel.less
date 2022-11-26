@@ -16,16 +16,7 @@
   }
 
   &.colored {
-  --tag-color: @body-bg;
-
-    &.tag-dark {
-      --tag-color: @text-on-dark;
-    }
-
-    &.tag-light {
-      --tag-color: @text-on-light;
-    }
-
+    --tag-color: var(--contrast-color, var(--body-bg));
 
     .TagLabel-text {
       color: var(--tag-color) !important;
@@ -40,25 +31,13 @@
     &.colored {
       --tag-color: var(--tag-bg);
       margin-right: 5px;
-    }
-    &.tag-light {
-      background: @text-on-light !important;
-    }
-    &.tag-dark {
-      background: @text-on-dark !important;
+      background-color: var(--contrast-color, var(--body-bg));
     }
   }
 }
-.DiscussionHero {
-  &--light {
-    &, a {
-      color: @text-on-light;
-    }
-  }
-  &--dark {
-    &, a {
-      color: @text-on-dark;
-    }
+.DiscussionHero--colored {
+  &, a {
+    color: var(--contrast-color, var(--body-bg));
   }
 }
 .TagsLabel {

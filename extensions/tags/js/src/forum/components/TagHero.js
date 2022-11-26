@@ -1,5 +1,5 @@
 import Component from 'flarum/common/Component';
-import isDark from 'flarum/common/utils/isDark';
+import textContrastClass from 'flarum/common/helpers/textContrastClass';
 import tagIcon from '../../common/helpers/tagIcon';
 import classList from 'flarum/common/utils/classList';
 
@@ -9,7 +9,10 @@ export default class TagHero extends Component {
     const color = tag.color();
 
     return (
-      <header className={classList('Hero', 'TagHero', { 'TagHero--colored': color }, isDark(color) ? 'TagHero--dark' : 'TagHero--light')} style={color ? { '--hero-bg': color } : ''}>
+      <header
+        className={classList('Hero', 'TagHero', { 'TagHero--colored': color }, textContrastClass(color))}
+        style={color ? { '--hero-bg': color } : ''}
+      >
         <div className="container">
           <div className="containerNarrow">
             <h2 className="Hero-title">

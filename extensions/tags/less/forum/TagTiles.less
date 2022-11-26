@@ -63,15 +63,8 @@
     color: @control-color;
   }
   &.colored {
-    &.tag-light {
-      &, a {
-        color: @text-on-light;
-      }
-    }
-    &.tag-dark {
-      &, a {
-        color: @text-on-dark;
-      }
+    &, a {
+      color: var(--contrast-color, var(--body-bg));
     }
   }
 }
@@ -107,13 +100,7 @@
 .TagTile-description {
   font-size: 12px;
   margin: 0 0 10px;
-
-  .TagTile.colored.tag-dark & {
-    color: fade(@text-on-dark, 70%);
-  }
-  .TagTile.colored.tag-light & {
-    color: fade(@text-on-light, 70%);
-  }
+  opacity: 70%;
 }
 .TagTile-children {
   font-weight: bold;
@@ -134,15 +121,7 @@
   font-size: 12px;
   border-top: 1px solid rgba(0, 0, 0, 0.15);
   margin: 0 20px;
-
-  .TagTile.colored.tag-dark & {
-    color: fade(@text-on-dark, 70%);
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
-  }
-  .TagTile.colored.tag-light & {
-    color: fade(@text-on-light, 70%);
-    border-top: 1px solid rgba(0, 0, 0, 0.15);
-  }
+  opacity: 70%;
 
   &:hover .TagTile-lastPostedDiscussion-title {
     text-decoration: underline;

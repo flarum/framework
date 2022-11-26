@@ -5,7 +5,7 @@ import IndexPage from 'flarum/forum/components/IndexPage';
 import DiscussionListState from 'flarum/forum/states/DiscussionListState';
 import GlobalSearchState from 'flarum/forum/states/GlobalSearchState';
 import classList from 'flarum/common/utils/classList';
-import isDark from 'flarum/common/utils/isDark';
+import textContrastClass from 'flarum/common/helpers/textContrastClass';
 
 import TagHero from './components/TagHero';
 import Tag from '../common/models/Tag';
@@ -91,15 +91,8 @@ export default function () {
       const newDiscussion = items.get('newDiscussion') as Mithril.Vnode<ComponentAttrs, {}>;
 
       if (color) {
-        newDiscussion.attrs.className = classList([newDiscussion.attrs.className, 'Button--tagColored']);
+        newDiscussion.attrs.className = classList([newDiscussion.attrs.className, 'Button--tagColored', textContrastClass(color)]);
         newDiscussion.attrs.style = { '--color': color };
-
-        if (isDark(color)) {
-        newDiscussion.attrs.className = classList([newDiscussion.attrs.className, 'Button--tagDark']);
-        }
-        else {
-        newDiscussion.attrs.className = classList([newDiscussion.attrs.className, 'Button--tagLight']);
-        }
       }
 
       newDiscussion.attrs.disabled = !canStartDiscussion;
