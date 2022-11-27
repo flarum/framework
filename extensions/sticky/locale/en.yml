@@ -25,8 +25,8 @@ flarum-sticky:
 
     # These translations are displayed between posts in the post stream.
     post_stream:
-      discussion_stickied_text: "{username} stickied the discussion."
-      discussion_unstickied_text: "{username} unstickied the discussion."
+      discussion_stickied_text: "{username} stickied the discussion {time}."
+      discussion_unstickied_text: "{username} unstickied the discussion {time}."
 
   ##
   # REUSED TRANSLATIONS - These keys should not be used directly in code!

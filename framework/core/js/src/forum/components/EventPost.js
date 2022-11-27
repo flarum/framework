@@ -4,6 +4,7 @@ import { ucfirst } from '../../common/utils/string';
 import usernameHelper from '../../common/helpers/username';
 import icon from '../../common/helpers/icon';
 import Link from '../../common/components/Link';
+import humanTime from '../../common/helpers/humanTime';
 
 /**
  * The `EventPost` component displays a post which indicating a discussion
@@ -37,6 +38,7 @@ export default class EventPost extends Post {
       ) : (
         username
       ),
+      time: humanTime(this.attrs.post.createdAt()),
     });
 
     return super.content().concat([icon(this.icon(), { className: 'EventPost-icon' }), <div class="EventPost-info">{this.description(data)}</div>]);
