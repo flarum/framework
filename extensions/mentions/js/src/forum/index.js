@@ -2,6 +2,8 @@ import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
 import NotificationGrid from 'flarum/forum/components/NotificationGrid';
 import { getPlainContent } from 'flarum/common/utils/string';
+import textContrastClass from 'flarum/common/helpers/textContrastClass';
+import Post from 'flarum/forum/components/Post';
 
 import addPostMentionPreviews from './addPostMentionPreviews';
 import addMentionedByList from './addMentionedByList';
@@ -84,6 +86,13 @@ app.initializers.add('flarum-mentions', function () {
 
   // Remove post mentions when rendering post previews.
   getPlainContent.removeSelectors.push('a.PostMention');
+
+  // Apply color contrast fix on group mentions.
+  extend(Post.prototype, 'oncreate', function () {
+    this.$('.GroupMention--colored').each(function () {
+      this.classList.add(textContrastClass(getComputedStyle(this).getPropertyValue('--group-color')));
+    });
+  });
 });
 
 export * from './utils/textFormatter';

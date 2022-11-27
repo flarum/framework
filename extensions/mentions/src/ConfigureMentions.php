@@ -151,16 +151,37 @@ class ConfigureMentions
         $tag->attributes->add('groupname');
         $tag->attributes->add('icon');
         $tag->attributes->add('color');
-        $tag->attributes->add('class');
         $tag->attributes->add('id')->filterChain->append('#uint');
 
         $tag->template = '
             <xsl:choose>
                 <xsl:when test="@deleted != 1">
-                    <span class="GroupMention {@class}" style="background: {@color}">@<xsl:value-of select="@groupname"/><i class="icon {@icon}"></i></span>
+                    <xsl:choose>
+                        <xsl:when test="string(@color) != \'\'">
+                            <span class="GroupMention GroupMention--colored" style="--group-color:{@color};">
+                                <span class="GroupMention-name">@<xsl:value-of select="@groupname"/></span>
+                                <xsl:if test="string(@icon) != \'\'">
+                                    <i class="icon {@icon}"></i>
+                                </xsl:if>
+                            </span>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <span class="GroupMention">
+                                <span class="GroupMention-name">@<xsl:value-of select="@groupname"/></span>
+                                <xsl:if test="string(@icon) != \'\'">
+                                    <i class="icon {@icon}"></i>
+                                </xsl:if>
+                            </span>
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:when>
                 <xsl:otherwise>
-                    <span class="GroupMention GroupMention--deleted" style="background: {@color}">@<xsl:value-of select="@groupname"/><i class="icon {@icon}"></i></span>
+                    <span class="GroupMention GroupMention--deleted">
+                        <span class="GroupMention-name">@<xsl:value-of select="@groupname"/></span>
+                        <xsl:if test="string(@icon) != \'\'">
+                            <i class="icon {@icon}"></i>
+                        </xsl:if>
+                    </span>
                 </xsl:otherwise>
             </xsl:choose>';
         $tag->filterChain->prepend([static::class, 'addGroupId'])
@@ -182,40 +203,10 @@ class ConfigureMentions
             $tag->setAttribute('groupname', $group->name_plural);
             $tag->setAttribute('icon', $group->icon ?? 'fas fa-at');
             $tag->setAttribute('color', $group->color);
-            if (! empty($group->color)) {
-                $tag->setAttribute('class', self::isDark($group->color) ? 'GroupMention--light' : 'GroupMention--dark');
-            } else {
-                $tag->setAttribute('class', '');
-            }
 
             return true;
         }
 
         $tag->invalidate();
-    }
-
-    /**
-     * The `isDark` utility converts a hex color to rgb, and then calcul a YIQ
-     * value in order to get the appropriate brightness value (is it dark or is it
-     * light?) See https://www.w3.org/TR/AERT/#color-contrast for references. A YIQ
-     * value >= 128 is a light color.
-     */
-    public static function isDark(?string $hexColor): bool
-    {
-        if (! $hexColor) {
-            return false;
-        }
-
-        $hexNumbers = Str::replace('#', '', $hexColor);
-        if (Str::length($hexNumbers) === 3) {
-            $hexNumbers .= $hexNumbers;
-        }
-
-        $r = hexdec(Str::substr($hexNumbers, 0, 2));
-        $g = hexdec(Str::subStr($hexNumbers, 2, 2));
-        $b = hexdec(Str::subStr($hexNumbers, 4, 2));
-        $yiq = ($r * 299 + $g * 587 + $b * 114) / 1000;
-
-        return $yiq >= 128 ? false : true;
     }
 }

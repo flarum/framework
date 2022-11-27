@@ -1,7 +1,7 @@
 import app from 'flarum/forum/app';
 import username from 'flarum/common/helpers/username';
 import extractText from 'flarum/common/utils/extractText';
-import isDark from 'flarum/common/utils/isDark';
+import textContrastClass from 'flarum/common/helpers/textContrastClass';
 
 export function filterUserMentions(tag) {
   let user;
@@ -41,7 +41,6 @@ export function filterGroupMentions(tag) {
       tag.setAttribute('groupname', extractText(group.namePlural()));
       tag.setAttribute('icon', group.icon());
       tag.setAttribute('color', group.color());
-      tag.setAttribute('class', isDark(group.color()) ? 'GroupMention--light' : 'GroupMention--dark');
 
       return true;
     }
