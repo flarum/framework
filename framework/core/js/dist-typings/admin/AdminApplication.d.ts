@@ -36,6 +36,7 @@ export interface AdminApplicationData extends ApplicationData {
     }>;
     displayNameDrivers: string[];
     slugDrivers: Record<string, string[]>;
+    permissions: Record<string, string[]>;
 }
 export default class AdminApplication extends Application {
     extensionData: ExtensionData;
