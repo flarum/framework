@@ -38,7 +38,7 @@ const plugins = [];
  * is required at build-time from an extension/core's scope) are redirected to the
  * copy of `@babel/runtime` which is a dependency of this package.
  *
- * This removes the need for hoisting, and allows for Plyug'n'Play compatibility.
+ * This removes the need for hoisting, and allows for Plug'n'Play compatibility.
  *
  * Thanks goes to Yarn's lead maintainer @arcanis for helping me get to this
  * solution.
