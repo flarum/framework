@@ -11,6 +11,7 @@ namespace Flarum\PackageManager\Job;
 
 use Flarum\Bus\Dispatcher;
 use Flarum\PackageManager\Command\BusinessCommandInterface;
+use Flarum\PackageManager\Composer\ComposerAdapter;
 use Flarum\Queue\AbstractJob;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Throwable;
@@ -23,11 +24,11 @@ class ComposerCommandJob extends AbstractJob
     protected $command;
 
     /**
-     * @var int[]
+     * @var string
      */
     protected $phpVersion;
 
-    public function __construct(BusinessCommandInterface $command, array $phpVersion)
+    public function __construct(BusinessCommandInterface $command, string $phpVersion)
     {
         $this->command = $command;
         $this->phpVersion = $phpVersion;
@@ -36,12 +37,7 @@ class ComposerCommandJob extends AbstractJob
     public function handle(Dispatcher $bus)
     {
         try {
-            if ([PHP_MAJOR_VERSION, PHP_MINOR_VERSION] !== [$this->phpVersion[0], $this->phpVersion[1]]) {
-                $webPhpVersion = implode('.', $this->phpVersion);
-                $sshPhpVersion = implode('.', [PHP_MAJOR_VERSION, PHP_MINOR_VERSION]);
-
-                throw new \Exception("PHP version mismatch. SSH PHP version must match web server PHP version. Found SSH (PHP $sshPhpVersion) and Web Server (PHP $webPhpVersion).");
-            }
+            ComposerAdapter::setPhpVersion($this->phpVersion);
 
             $this->command->task->start();
 

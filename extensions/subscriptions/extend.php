@@ -9,6 +9,7 @@
 
 use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Api\Serializer\DiscussionSerializer;
+use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
 use Flarum\Discussion\Filter\DiscussionFilterer;
@@ -50,6 +51,7 @@ return [
     (new Extend\Event())
         ->listen(Saving::class, Listener\SaveSubscriptionToDatabase::class)
         ->listen(Posted::class, Listener\SendNotificationWhenReplyIsPosted::class)
+        ->listen(PostWasApproved::class, Listener\SendNotificationWhenReplyIsPosted::class)
         ->listen(Hidden::class, Listener\DeleteNotificationWhenPostIsHiddenOrDeleted::class)
         ->listen(Restored::class, Listener\RestoreNotificationWhenPostIsRestored::class)
         ->listen(Deleted::class, Listener\DeleteNotificationWhenPostIsHiddenOrDeleted::class)

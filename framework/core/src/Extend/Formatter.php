@@ -52,6 +52,7 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      * - \s9e\TextFormatter\Parser $parser
      * - mixed $context
      * - string $text: The text to be parsed.
+     * - \Flarum\User\User|null $actor. This argument MUST either be nullable, or omitted entirely.
      *
      * The callback should return:
      * - string $text: The text to be parsed.
@@ -94,7 +95,7 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      * @param callable|string $callback
      *
      * The callback can be a closure or invokable class, and should accept:
-     * - \s9e\TextFormatter\Rendered $renderer
+     * - \s9e\TextFormatter\Renderer $renderer
      * - mixed $context
      * - string $xml: The xml to be rendered.
      * - ServerRequestInterface $request. This argument MUST either be nullable, or omitted entirely.

@@ -1,6 +1,7 @@
 import app from 'flarum/forum/app';
 import username from 'flarum/common/helpers/username';
 import extractText from 'flarum/common/utils/extractText';
+import isDark from 'flarum/common/utils/isDark';
 
 export function filterUserMentions(tag) {
   let user;
@@ -30,4 +31,21 @@ export function filterPostMentions(tag) {
 
     return true;
   }
+}
+
+export function filterGroupMentions(tag) {
+  if (app.session?.user?.canMentionGroups()) {
+    const group = app.store.getById('groups', tag.getAttribute('id'));
+
+    if (group) {
+      tag.setAttribute('groupname', extractText(group.namePlural()));
+      tag.setAttribute('icon', group.icon());
+      tag.setAttribute('color', group.color());
+      tag.setAttribute('class', isDark(group.color()) ? 'GroupMention--light' : 'GroupMention--dark');
+
+      return true;
+    }
+  }
+
+  tag.invalidate();
 }

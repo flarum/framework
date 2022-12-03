@@ -14,8 +14,8 @@ import type Component from './Component';
 import type { ComponentAttrs } from './Component';
 import Model, { SavedModelData } from './Model';
 import IHistory from './IHistory';
-export declare type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
-export declare type FlarumGenericRoute = RouteItem<any, any, any>;
+export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
+export type FlarumGenericRoute = RouteItem<any, any, any>;
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
     errorHandler?: (error: RequestError) => void;
     url: string;
@@ -35,7 +35,7 @@ export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.Request
 /**
  * A valid route definition.
  */
-export declare type RouteItem<Attrs extends ComponentAttrs, Comp extends Component<Attrs & {
+export type RouteItem<Attrs extends ComponentAttrs, Comp extends Component<Attrs & {
     routeName: string;
 }>, RouteArgs extends Record<string, unknown> = {}> = {
     /**
@@ -232,6 +232,15 @@ export default class Application {
      * By default, show an error alert, and log the error to the console.
      */
     protected requestErrorCatch<ResponseType>(error: RequestError, customErrorHandler: FlarumRequestOptions<ResponseType>['errorHandler']): Promise<never>;
+    /**
+     * Used to modify the error message shown on the page to help troubleshooting.
+     * While not certain, a failing cross-origin request likely indicates a missing redirect to Flarum canonical URL.
+     * Because XHR errors do not expose CORS information, we can only compare the requested URL origin to the page origin.
+     *
+     * @param error
+     * @protected
+     */
+    protected requestWasCrossOrigin(error: RequestError): boolean;
     protected requestErrorDefaultHandler(e: unknown, isDebug: boolean, formattedErrors: string[]): void;
     private showDebug;
     /**

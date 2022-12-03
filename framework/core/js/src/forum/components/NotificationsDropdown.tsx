@@ -1,26 +1,31 @@
 import app from '../../forum/app';
-import Dropdown from '../../common/components/Dropdown';
+import Dropdown, { IDropdownAttrs } from '../../common/components/Dropdown';
 import icon from '../../common/helpers/icon';
 import classList from '../../common/utils/classList';
 import NotificationList from './NotificationList';
+import extractText from '../../common/utils/extractText';
+import type Mithril from 'mithril';
 
-export default class NotificationsDropdown extends Dropdown {
-  static initAttrs(attrs) {
-    attrs.className = attrs.className || 'NotificationsDropdown';
-    attrs.buttonClassName = attrs.buttonClassName || 'Button Button--flat';
-    attrs.menuClassName = attrs.menuClassName || 'Dropdown-menu--right';
-    attrs.label = attrs.label || app.translator.trans('core.forum.notifications.tooltip');
-    attrs.icon = attrs.icon || 'fas fa-bell';
+export interface INotificationsDropdown extends IDropdownAttrs {}
+
+export default class NotificationsDropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttrs> extends Dropdown<CustomAttrs> {
+  static initAttrs(attrs: INotificationsDropdown) {
+    attrs.className ||= 'NotificationsDropdown';
+    attrs.buttonClassName ||= 'Button Button--flat';
+    attrs.menuClassName ||= 'Dropdown-menu--right';
+    attrs.label ||= extractText(app.translator.trans('core.forum.notifications.tooltip'));
+    attrs.icon ||= 'fas fa-bell';
 
     // For best a11y support, both `title` and `aria-label` should be used
-    attrs.accessibleToggleLabel = attrs.accessibleToggleLabel || app.translator.trans('core.forum.notifications.toggle_dropdown_accessible_label');
+    attrs.accessibleToggleLabel ||= extractText(app.translator.trans('core.forum.notifications.toggle_dropdown_accessible_label'));
 
     super.initAttrs(attrs);
   }
 
-  getButton() {
+  getButton(children: Mithril.ChildArray): Mithril.Vnode<any, any> {
     const newNotifications = this.getNewCount();
-    const vdom = super.getButton();
+
+    const vdom = super.getButton(children);
 
     vdom.attrs.title = this.attrs.label;
 
@@ -30,11 +35,11 @@ export default class NotificationsDropdown extends Dropdown {
     return vdom;
   }
 
-  getButtonContent() {
+  getButtonContent(): Mithril.ChildArray {
     const unread = this.getUnreadCount();
 
     return [
-      icon(this.attrs.icon, { className: 'Button-icon' }),
+      this.attrs.icon ? icon(this.attrs.icon, { className: 'Button-icon' }) : null,
       unread !== 0 && <span className="NotificationsDropdown-unread">{unread}</span>,
       <span className="Button-label">{this.attrs.label}</span>,
     ];
@@ -61,16 +66,16 @@ export default class NotificationsDropdown extends Dropdown {
   }
 
   getUnreadCount() {
-    return app.session.user.unreadNotificationCount();
+    return app.session.user!.unreadNotificationCount();
   }
 
   getNewCount() {
-    return app.session.user.newNotificationCount();
+    return app.session.user!.newNotificationCount();
   }
 
-  menuClick(e) {
+  menuClick(e: MouseEvent) {
     // Don't close the notifications dropdown if the user is opening a link in a
     // new tab or window.
-    if (e.shiftKey || e.metaKey || e.ctrlKey || e.which === 2) e.stopPropagation();
+    if (e.shiftKey || e.metaKey || e.ctrlKey || e.button === 1) e.stopPropagation();
   }
 }
