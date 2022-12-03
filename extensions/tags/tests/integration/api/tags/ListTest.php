@@ -83,7 +83,7 @@ class ListTest extends TestCase
     }
 
     /**
-     * @dataProvider listTagsIncludes
+     * @dataProvider listTagsIncludesDataProvider
      * @test
      */
     public function user_sees_where_allowed_with_included_tags(string $include, array $expectedIncludes)
@@ -127,7 +127,7 @@ class ListTest extends TestCase
         $this->assertEquals(['1', '2', '3', '4', '9', '10'], $ids);
     }
 
-    public function listTagsIncludes(): array
+    public function listTagsIncludesDataProvider(): array
     {
         return [
             ['children', ['3', '4']],
