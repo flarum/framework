@@ -44,7 +44,7 @@ class SyncTagMentions
      * @param array $mentioned
      * @return void
      */
-    public function syncTagMentions($event, array $mentioned): void
+    public function syncTagMentions($event): void
     {
         if ($this->extensions->isEnabled('flarum-mentions')) {
             $content = $event->post->parsedContent;
