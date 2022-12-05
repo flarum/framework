@@ -11,24 +11,24 @@ namespace Flarum\Tags\Query;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
+use Flarum\Http\SlugManager;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\SearchState;
-use Flarum\Tags\TagRepository;
+use Flarum\Tags\Tag;
+use Flarum\User\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Query\Builder;
 
 class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
     /**
-     * @var TagRepository
+     * @var SlugManager
      */
-    protected $tags;
+    protected $slugger;
 
-    /**
-     * @param TagRepository $tags
-     */
-    public function __construct(TagRepository $tags)
+    public function __construct(SlugManager $slugger)
     {
-        $this->tags = $tags;
+        $this->slugger = $slugger;
     }
 
     protected function getGambitPattern()
@@ -48,14 +48,14 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
 
     public function filter(FilterState $filterState, string $filterValue, bool $negate)
     {
-        $this->constrain($filterState->getQuery(), $filterValue, $negate);
+        $this->constrain($filterState->getQuery(), $filterValue, $negate, $filterState->getActor());
     }
 
-    protected function constrain(Builder $query, $rawSlugs, $negate)
+    protected function constrain(Builder $query, $rawSlugs, $negate, User $actor)
     {
         $slugs = explode(',', trim($rawSlugs, '"'));
 
-        $query->where(function (Builder $query) use ($slugs, $negate) {
+        $query->where(function (Builder $query) use ($slugs, $negate, $actor) {
             foreach ($slugs as $slug) {
                 if ($slug === 'untagged') {
                     $query->whereIn('discussions.id', function (Builder $query) {
@@ -63,7 +63,12 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
                             ->from('discussion_tag');
                     }, 'or', ! $negate);
                 } else {
-                    $id = $this->tags->getIdForSlug($slug);
+                    // @TODO: grab all IDs first instead of multiple queries.
+                    try {
+                        $id = $this->slugger->forResource(Tag::class)->fromSlug($slug, $actor)->id;
+                    } catch (ModelNotFoundException $e) {
+                        $id = null;
+                    }
 
                     $query->whereIn('discussions.id', function (Builder $query) use ($id) {
                         $query->select('discussion_id')

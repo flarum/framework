@@ -28,6 +28,8 @@ use Flarum\Tags\Filter\HideHiddenTagsFromAllDiscussionsPage;
 use Flarum\Tags\Filter\PostTagFilter;
 use Flarum\Tags\Post\DiscussionTaggedPost;
 use Flarum\Tags\Query\TagFilterGambit;
+use Flarum\Tags\Tag;
+use Flarum\Tags\Utf8SlugDriver;
 use Psr\Http\Message\ServerRequestInterface;
 
 $eagerLoadTagState = function ($query, ?ServerRequestInterface $request, array $relations) {
@@ -139,4 +141,7 @@ return [
 
     (new Extend\ApiSerializer(CurrentUserSerializer::class))
         ->attributes(AddCurrentUserAttributes::class),
+
+    (new Extend\ModelUrl(Tag::class))
+        ->addSlugDriver('default', Utf8SlugDriver::class),
 ];

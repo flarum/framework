@@ -21,11 +21,11 @@ function isActive(vnode: Mithril.Children): boolean {
   // Allow non-selectable dividers/headers to be added.
   if (typeof tag === 'string' && tag !== 'a' && tag !== 'button') return false;
 
-  if (typeof tag === 'object' && 'initAttrs' in tag) {
+  if ((typeof tag === 'object' || typeof tag === 'function') && 'initAttrs' in tag) {
     (tag as unknown as typeof Component).initAttrs(vnode.attrs);
   }
 
-  return typeof tag === 'object' && 'isActive' in tag ? (tag as any).isActive(vnode.attrs) : vnode.attrs.active;
+  return (typeof tag === 'object' || typeof tag === 'function') && 'isActive' in tag ? (tag as any).isActive(vnode.attrs) : vnode.attrs.active;
 }
 
 export interface ISelectDropdownAttrs extends IDropdownAttrs {
