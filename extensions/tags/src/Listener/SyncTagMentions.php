@@ -16,6 +16,7 @@ use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
 use Flarum\Post\Event\Revised;
 use Illuminate\Contracts\Events\Dispatcher;
+use s9e\TextFormatter\Utils;
 
 class SyncTagMentions
 {
@@ -46,6 +47,8 @@ class SyncTagMentions
     public function syncTagMentions($event, array $mentioned): void
     {
         if ($this->extensions->isEnabled('flarum-mentions')) {
+            $content = $event->post->parsedContent;
+            $mentioned = Utils::getAttributeValues($content, 'TAGMENTION', 'id');
             $event->post->mentionsTags()->sync($mentioned);
             $event->post->unsetRelation('mentionsTags');
         }
