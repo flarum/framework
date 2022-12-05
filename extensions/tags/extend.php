@@ -48,7 +48,7 @@ return [
         ->css(__DIR__.'/less/admin.less'),
 
     (new Extend\Formatter())
-        ->configure(configureTagMentions::class)
+        ->configure(ConfigureTagMentions::class)
         ->render(Formatter\FormatTagMentions::class)
         ->parse(Formatter\CheckPermissions::class),
 
