@@ -7,7 +7,10 @@
  * LICENSE file that was distributed with this source code.
  */
 
+namespace Flarum\Tags;
+
 use Flarum\Api\Controller as FlarumController;
+use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Discussion\Discussion;
@@ -19,8 +22,10 @@ use Flarum\Flags\Api\Controller\ListFlagsController;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\Filter\PostFilterer;
 use Flarum\Tags\Access;
+use Flarum\Tags\AddCurrentUserAttributes;
 use Flarum\Tags\Api\Controller;
 use Flarum\Tags\Api\Serializer\TagSerializer;
+use Flarum\Tags\configureTagMentions;
 use Flarum\Tags\Content;
 use Flarum\Tags\Event\DiscussionWasTagged;
 use Flarum\Tags\Filter\HideHiddenTagsFromAllDiscussionsPage;
@@ -48,6 +53,11 @@ return [
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js')
         ->css(__DIR__.'/less/admin.less'),
+
+    (new Extend\Formatter())
+        ->configure(configureTagMentions::class)
+        ->render(Formatter\FormatTagMentions::class)
+        ->parse(Formatter\CheckPermissions::class),
 
     (new Extend\Routes('api'))
         ->get('/tags', 'tags.index', Controller\ListTagsController::class)
@@ -133,4 +143,7 @@ return [
 
     (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
         ->addGambit(TagFilterGambit::class),
+
+    (new Extend\ApiSerializer(CurrentUserSerializer::class))
+        ->attributes(AddCurrentUserAttributes::class),
 ];

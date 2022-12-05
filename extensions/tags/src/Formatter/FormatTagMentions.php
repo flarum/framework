@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Mentions\Formatter;
+namespace Flarum\Tags\Formatter;
 
 use Flarum\Extension\ExtensionManager;
 use Flarum\Locale\Translator;

@@ -9,12 +9,10 @@
 
 namespace Flarum\Mentions;
 
-use Flarum\Extension\ExtensionManager;
 use Flarum\Group\Group;
 use Flarum\Http\UrlGenerator;
 use Flarum\Post\CommentPost;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Tags\Tag;
 use Flarum\User\User;
 use Illuminate\Support\Str;
 use s9e\TextFormatter\Configurator;
@@ -27,18 +25,11 @@ class ConfigureMentions
     protected $url;
 
     /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    /**
      * @param UrlGenerator $url
-     * @param ExtensionManager $extensions
      */
-    public function __construct(UrlGenerator $url, ExtensionManager $extensions)
+    public function __construct(UrlGenerator $url)
     {
         $this->url = $url;
-        $this->extensions = $extensions;
     }
 
     public function __invoke(Configurator $config)
@@ -46,10 +37,6 @@ class ConfigureMentions
         $this->configureUserMentions($config);
         $this->configurePostMentions($config);
         $this->configureGroupMentions($config);
-
-        if ($this->extensions->isEnabled('flarum-tags')) {
-            $this->configureTagMentions($config);
-        }
     }
 
     private function configureUserMentions(Configurator $config)
@@ -194,61 +181,6 @@ class ConfigureMentions
             $tag->setAttribute('color', $group->color);
             if (! empty($group->color)) {
                 $tag->setAttribute('class', self::isDark($group->color) ? 'GroupMention--light' : 'GroupMention--dark');
-            } else {
-                $tag->setAttribute('class', '');
-            }
-
-            return true;
-        }
-
-        $tag->invalidate();
-    }
-
-    private function configureTagMentions(Configurator $config)
-    {
-        $config->rendering->parameters['TAG_URL'] = $this->url->to('forum')->route('tag', ['slug' => '']);
-
-        $tagName = 'TAGMENTION';
-
-        $tag = $config->tags->add($tagName);
-        $tag->attributes->add('tagname');
-        $tag->attributes->add('icon');
-        $tag->attributes->add('color');
-        $tag->attributes->add('class');
-        $tag->attributes->add('slug');
-        $tag->attributes->add('id')->filterChain->append('#uint');
-
-        $tag->template = '
-            <xsl:choose>
-                <xsl:when test="@deleted != 1">
-                    <a href="{$TAG_URL}{@slug}" class="TagMention {@class}" style="background: {@color}"><i class="icon {@icon}"></i><xsl:value-of select="@tagname"/></a>
-                </xsl:when>
-                <xsl:otherwise>
-                    <span class="TagMention TagMention--deleted" style="background: {@color}"><i class="icon {@icon}"></i><xsl:value-of select="@tagname"/></span>
-                </xsl:otherwise>
-            </xsl:choose>';
-        $tag->filterChain->prepend([static::class, 'addTagId'])
-            ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterTagMentions(tag); }');
-
-        $config->Preg->match('/\B@["|“](?<tagname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#t(?<id>[0-9]+)\b/', $tagName);
-    }
-
-    /**
-     * @param $tag
-     * @return bool
-     */
-    public static function addTagId($tag)
-    {
-        $tagModel = Tag::find($tag->getAttribute('id'));
-
-        if (isset($tagModel)) {
-            $tag->setAttribute('id', $tagModel->id);
-            $tag->setAttribute('tagname', $tagModel->name);
-            $tag->setAttribute('icon', $tagModel->icon ?? 'fas fa-tags');
-            $tag->setAttribute('color', $tagModel->color);
-            $tag->setAttribute('slug', $tagModel->slug);
-            if (! empty($tagModel->color)) {
-                $tag->setAttribute('class', self::isDark($tagModel->color) ? 'TagMention--light' : 'TagMention--dark');
             } else {
                 $tag->setAttribute('class', '');
             }

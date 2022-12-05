@@ -11,9 +11,6 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
 return [
-    'when' => function (Builder $schema) {
-        return $schema->hasTable('tags');
-    },
     'up' => function (Builder $schema) {
         $schema->create('post_mentions_tag', function (Blueprint $table) {
             $table->integer('post_id')->unsigned();

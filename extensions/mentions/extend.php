@@ -41,7 +41,6 @@ return [
         ->render(Formatter\FormatPostMentions::class)
         ->render(Formatter\FormatUserMentions::class)
         ->render(Formatter\FormatGroupMentions::class)
-        ->render(Formatter\FormatTagMentions::class)
         ->unparse(Formatter\UnparsePostMentions::class)
         ->unparse(Formatter\UnparseUserMentions::class)
         ->parse(Formatter\CheckPermissions::class),

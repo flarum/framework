@@ -42,7 +42,10 @@
                 "name": "fas fa-tags",
                 "backgroundColor": "#F28326",
                 "color": "#fff"
-            }
+            },
+            "optional-dependencies": [
+                "flarum/mentions"
+            ]
         },
         "flarum-cli": {
             "modules": {
