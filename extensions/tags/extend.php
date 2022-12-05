@@ -21,20 +21,13 @@ use Flarum\Extend;
 use Flarum\Flags\Api\Controller\ListFlagsController;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\Filter\PostFilterer;
-use Flarum\Tags\Access;
-use Flarum\Tags\AddCurrentUserAttributes;
 use Flarum\Tags\Api\Controller;
 use Flarum\Tags\Api\Serializer\TagSerializer;
-use Flarum\Tags\configureTagMentions;
-use Flarum\Tags\Content;
 use Flarum\Tags\Event\DiscussionWasTagged;
 use Flarum\Tags\Filter\HideHiddenTagsFromAllDiscussionsPage;
 use Flarum\Tags\Filter\PostTagFilter;
-use Flarum\Tags\Listener;
-use Flarum\Tags\LoadForumTagsRelationship;
 use Flarum\Tags\Post\DiscussionTaggedPost;
 use Flarum\Tags\Query\TagFilterGambit;
-use Flarum\Tags\Tag;
 use Psr\Http\Message\ServerRequestInterface;
 
 $eagerLoadTagState = function ($query, ?ServerRequestInterface $request, array $relations) {
