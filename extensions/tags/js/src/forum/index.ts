@@ -27,6 +27,10 @@ app.initializers.add('flarum-tags', function () {
 
   app.tagList = new TagListState();
 
+  if (app.initializers.has('flarum-mentions')) {
+    User.prototype.canMentionTags = Model.attribute('canMentionTags');
+  }
+
   Discussion.prototype.tags = Model.hasMany<Tag>('tags');
   Discussion.prototype.canTag = Model.attribute<boolean>('canTag');
 
@@ -40,5 +44,6 @@ app.initializers.add('flarum-tags', function () {
 // Expose compat API
 import tagsCompat from './compat';
 import { compat } from '@flarum/core/forum';
+import User from 'flarum/common/models/User';
 
 Object.assign(compat, tagsCompat);

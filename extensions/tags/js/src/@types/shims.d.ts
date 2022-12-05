@@ -36,3 +36,9 @@ declare module 'flarum/admin/components/PermissionGrid' {
     loading?: boolean;
   }
 }
+
+declare module 'flarum/common/models/User' {
+  export default interface User {
+    canMentionTags: () => boolean | undefined;
+  }
+}
