@@ -125,7 +125,8 @@ return [
     (new Extend\Event())
         ->listen(Saving::class, Listener\SaveTagsToDatabase::class)
         ->listen(DiscussionWasTagged::class, Listener\CreatePostWhenTagsAreChanged::class)
-        ->subscribe(Listener\UpdateTagMetadata::class),
+        ->subscribe(Listener\UpdateTagMetadata::class)
+        ->subscribe(Listener\SyncTagMentions::class),
 
     (new Extend\Filter(PostFilterer::class))
         ->addFilter(PostTagFilter::class),
