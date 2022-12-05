@@ -10,7 +10,6 @@ flarum-mentions:
     # These translations are used in the mentions permissions
     permissions:
       mention_groups_label: Mention groups
-      mention_tags_label: Mention tags
     # These translations are used in the mentions Settings page.
     settings:
       allow_username_format_label: Allow username mention format (@Username)
