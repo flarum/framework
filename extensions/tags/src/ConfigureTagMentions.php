@@ -67,7 +67,7 @@ class configureTagMentions
                 </xsl:otherwise>
             </xsl:choose>';
         $tag->filterChain->prepend([static::class, 'addTagId'])
-            ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterTagMentions(tag); }');
+            ->setJS('function(tag) { return flarum.extensions["flarum-tags"].filterTagMentions(tag); }');
 
         $config->Preg->match('/\B@["|“](?<tagname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#t(?<id>[0-9]+)\b/', $tagName);
     }

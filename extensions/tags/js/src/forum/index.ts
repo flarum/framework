@@ -41,6 +41,8 @@ app.initializers.add('flarum-tags', function () {
   addTagComposer();
 });
 
+export * from './utils/textFormatter';
+
 // Expose compat API
 import tagsCompat from './compat';
 import { compat } from '@flarum/core/forum';

@@ -11,6 +11,7 @@ import addTagList from './addTagList';
 import addTagLabels from './addTagLabels';
 import addTagComposer from './addTagComposer';
 import getSelectableTags from './utils/getSelectableTags';
+import * as textFormatter from './utils/textFormatter';
 
 export default Object.assign(compat, {
   'tags/addTagFilter': addTagFilter,
@@ -24,4 +25,5 @@ export default Object.assign(compat, {
   'tags/addTagLabels': addTagLabels,
   'tags/addTagComposer': addTagComposer,
   'tags/utils/getSelectableTags': getSelectableTags,
+  'tags/utils/textFormatter': textFormatter,
 });
