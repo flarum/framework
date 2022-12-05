@@ -2,6 +2,7 @@ import app from 'flarum/forum/app';
 import Model from 'flarum/common/Model';
 import Discussion from 'flarum/common/models/Discussion';
 import IndexPage from 'flarum/forum/components/IndexPage';
+import User from 'flarum/common/models/User';
 
 import Tag from '../common/models/Tag';
 import TagsPage from './components/TagsPage';
@@ -46,6 +47,5 @@ export * from './utils/textFormatter';
 // Expose compat API
 import tagsCompat from './compat';
 import { compat } from '@flarum/core/forum';
-import User from 'flarum/common/models/User';
 
 Object.assign(compat, tagsCompat);
