@@ -70,13 +70,13 @@ return [
         ->load([
             'posts.mentionsUsers', 'posts.mentionsPosts', 'posts.mentionsPosts.user', 'posts.mentionedBy',
             'posts.mentionedBy.mentionsPosts', 'posts.mentionedBy.mentionsPosts.user', 'posts.mentionedBy.mentionsUsers',
-            'posts.mentionsGroups',
+            'posts.mentionsGroups'
         ]),
 
     (new Extend\ApiController(Controller\ListDiscussionsController::class))
         ->load([
             'firstPost.mentionsUsers', 'firstPost.mentionsPosts', 'firstPost.mentionsPosts.user', 'firstPost.mentionsGroups',
-            'lastPost.mentionsUsers', 'lastPost.mentionsPosts', 'lastPost.mentionsPosts.user', 'lastPost.mentionsGroups',
+            'lastPost.mentionsUsers', 'lastPost.mentionsPosts', 'lastPost.mentionsPosts.user', 'lastPost.mentionsGroups'
         ]),
 
     (new Extend\ApiController(Controller\ShowPostController::class))
@@ -87,16 +87,16 @@ return [
         ->load([
             'mentionsUsers', 'mentionsPosts', 'mentionsPosts.user', 'mentionedBy',
             'mentionedBy.mentionsPosts', 'mentionedBy.mentionsPosts.user', 'mentionedBy.mentionsUsers',
-            'mentionsGroups',
+            'mentionsGroups'
         ]),
 
     (new Extend\ApiController(Controller\CreatePostController::class))
         ->addInclude(['mentionsPosts', 'mentionsPosts.mentionedBy'])
-        ->addOptionalInclude(['mentionsGroups']),
+        ->addOptionalInclude('mentionsGroups'),
 
     (new Extend\ApiController(Controller\UpdatePostController::class))
         ->addInclude(['mentionsPosts', 'mentionsPosts.mentionedBy'])
-        ->addOptionalInclude(['mentionsGroups']),
+        ->addOptionalInclude('mentionsGroups'),
 
     (new Extend\ApiController(Controller\AbstractSerializeController::class))
         ->prepareDataForSerialization(FilterVisiblePosts::class),
