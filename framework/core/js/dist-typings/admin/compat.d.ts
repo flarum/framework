@@ -68,7 +68,7 @@ declare const _default: {
     'utils/setRouteWithForcedRefresh': typeof import("../common/utils/setRouteWithForcedRefresh").default;
     'utils/patchMithril': typeof import("../common/utils/patchMithril").default;
     'utils/proxifyCompat': typeof import("../common/utils/proxifyCompat").default;
-    'utils/classList': (...classes: import("clsx").ClassValue[]) => string;
+    'utils/classList': typeof import("clsx").clsx;
     'utils/extractText': typeof import("../common/utils/extractText").default;
     'utils/formatNumber': typeof import("../common/utils/formatNumber").default;
     'utils/mapRoutes': typeof import("../common/utils/mapRoutes").default;

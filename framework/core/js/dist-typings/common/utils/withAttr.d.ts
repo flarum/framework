@@ -1,4 +1,3 @@
-declare const _default: (key: string, cb: Function) => (this: Element) => void;
 /**
  * An event handler factory that makes it simpler to implement data binding
  * for component event listeners.
@@ -10,4 +9,5 @@ declare const _default: (key: string, cb: Function) => (this: Element) => void;
  * Replaces m.withAttr for Mithril 2.0.
  * @see https://mithril.js.org/archive/v0.2.5/mithril.withAttr.html
  */
+declare const _default: (key: string, cb: Function) => (this: Element) => void;
 export default _default;
