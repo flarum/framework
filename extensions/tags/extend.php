@@ -10,9 +10,7 @@
 namespace Flarum\Tags;
 
 use Flarum\Api\Controller as FlarumController;
-use Flarum\Api\Serializer\CurrentUserSerializer;
-use Flarum\Api\Serializer\DiscussionSerializer;
-use Flarum\Api\Serializer\ForumSerializer;
+use Flarum\Api\Serializer as FlarumSerializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
 use Flarum\Discussion\Filter\DiscussionFilterer;
@@ -21,6 +19,7 @@ use Flarum\Extend;
 use Flarum\Flags\Api\Controller\ListFlagsController;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\Filter\PostFilterer;
+use Flarum\Post\Post;
 use Flarum\Tags\Api\Controller;
 use Flarum\Tags\Api\Serializer\TagSerializer;
 use Flarum\Tags\Event\DiscussionWasTagged;
@@ -63,35 +62,48 @@ return [
     (new Extend\Model(Discussion::class))
         ->belongsToMany('tags', Tag::class, 'discussion_tag'),
 
-    (new Extend\ApiSerializer(ForumSerializer::class))
+    (new Extend\Model(Post::class))
+        ->belongsToMany('mentionsTags', Tag::class, 'post_mentions_tag', 'post_id', 'mentions_tag_id'),
+
+    (new Extend\ApiSerializer(FlarumSerializer\ForumSerializer::class))
         ->hasMany('tags', TagSerializer::class)
-        ->attribute('canBypassTagCounts', function (ForumSerializer $serializer) {
+        ->attribute('canBypassTagCounts', function (FlarumSerializer\ForumSerializer $serializer) {
             return $serializer->getActor()->can('bypassTagCounts');
         }),
 
-    (new Extend\ApiSerializer(DiscussionSerializer::class))
+    (new Extend\ApiSerializer(FlarumSerializer\DiscussionSerializer::class))
         ->hasMany('tags', TagSerializer::class)
-        ->attribute('canTag', function (DiscussionSerializer $serializer, $model) {
+        ->attribute('canTag', function (FlarumSerializer\DiscussionSerializer $serializer, $model) {
             return $serializer->getActor()->can('tag', $model);
         }),
 
+    (new Extend\ApiSerializer(FlarumSerializer\BasicPostSerializer::class))
+        ->hasMany('mentionsTags', TagSerializer::class),
+
     (new Extend\ApiController(FlarumController\ListPostsController::class))
-        ->load('discussion.tags'),
+        ->load(['discussion.tags', 'mentionsTags']),
 
     (new Extend\ApiController(ListFlagsController::class))
         ->load('post.discussion.tags'),
 
     (new Extend\ApiController(FlarumController\ListDiscussionsController::class))
-        ->addInclude(['tags', 'tags.state', 'tags.parent'])
+        ->addInclude(['tags', 'tags.state', 'tags.parent', 'firstPost.mentionsTags', 'lastPost.mentionsTags'])
         ->loadWhere('tags', $eagerLoadTagState),
 
     (new Extend\ApiController(FlarumController\ShowDiscussionController::class))
-        ->addInclude(['tags', 'tags.state', 'tags.parent'])
-        ->loadWhere('tags', $eagerLoadTagState),
+        ->addInclude(['tags', 'tags.state', 'tags.parent', 'posts.mentionsTags'])
+        ->loadWhere('tags', $eagerLoadTagState)
+        ->load(['posts.mentionsTags']),
 
     (new Extend\ApiController(FlarumController\CreateDiscussionController::class))
         ->addInclude(['tags', 'tags.state', 'tags.parent'])
         ->loadWhere('tags', $eagerLoadTagState),
+
+    (new Extend\ApiController(FlarumController\CreatePostController::class))
+        ->addOptionalInclude(['mentionsTags']),
+
+    (new Extend\ApiController(FlarumController\UpdatePostController::class))
+        ->addOptionalInclude(['mentionsTags']),
 
     (new Extend\ApiController(FlarumController\ShowForumController::class))
         ->addInclude(['tags', 'tags.parent'])
