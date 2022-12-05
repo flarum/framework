@@ -44,7 +44,7 @@ class FormatTagMentions
      */
     public function __invoke(Renderer $renderer, $context, string $xml): string
     {
-        if (! $this->extensions->isEnabled('flarum-tags')) {
+        if (! $this->extensions->isEnabled('flarum-mentions')) {
             return $xml;
         }
 
