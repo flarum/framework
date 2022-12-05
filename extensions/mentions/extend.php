@@ -115,5 +115,7 @@ return [
         ->addFilter(Filter\MentionedFilter::class),
 
     (new Extend\ApiSerializer(CurrentUserSerializer::class))
-        ->attributes(AddCurrentUserAttributes::class),
+        ->attribute('canMentionGroups', function (CurrentUserSerializer $serializer, User $user, array $attributes): bool {
+            return $user->can('mentionGroups');
+        })
 ];
