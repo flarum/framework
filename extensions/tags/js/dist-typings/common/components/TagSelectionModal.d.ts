@@ -1,3 +1,4 @@
+import KeyboardNavigatable from 'flarum/common/utils/KeyboardNavigatable';
 import Modal from 'flarum/common/components/Modal';
 import Stream from 'flarum/common/utils/Stream';
 import type Tag from '../models/Tag';
@@ -51,12 +52,12 @@ export default class TagSelectionModal<CustomAttrs extends ITagSelectionModalAtt
     protected bypassReqs: boolean;
     protected filter: Stream<string>;
     protected focused: boolean;
-    protected navigator: any;
+    protected navigator: KeyboardNavigatable;
     protected indexTag?: Tag;
     static initAttrs(attrs: ITagSelectionModalAttrs): void;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     className(): string;
-    title(): any;
+    title(): string | undefined;
     content(): JSX.Element | JSX.Element[];
     /**
      * Filters the available tags on every state change.
@@ -92,8 +93,8 @@ export default class TagSelectionModal<CustomAttrs extends ITagSelectionModalAtt
      */
     onsubmit(e: SubmitEvent): void;
     protected select(e: KeyboardEvent): void;
-    protected selectableItems(): any;
-    protected getCurrentNumericIndex(): any;
-    protected getItem(selectedTag: Tag): any;
+    protected selectableItems(): JQuery<HTMLElement>;
+    protected getCurrentNumericIndex(): number;
+    protected getItem(selectedTag: Tag): JQuery<HTMLElement>;
     protected setIndex(index: number, scrollToItem: boolean): void;
 }
