@@ -3,11 +3,10 @@ import Model from 'flarum/common/Model';
 import Discussion from 'flarum/common/models/Discussion';
 import IndexPage from 'flarum/forum/components/IndexPage';
 
+import TagListState from '../common/states/TagListState';
 import Tag from '../common/models/Tag';
 import TagsPage from './components/TagsPage';
 import DiscussionTaggedPost from './components/DiscussionTaggedPost';
-
-import TagListState from './states/TagListState';
 
 import addTagList from './addTagList';
 import addTagFilter from './addTagFilter';

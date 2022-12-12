@@ -1,7 +1,7 @@
 import compat from '../common/compat';
 
 import PostControls from './utils/PostControls';
-import KeyboardNavigatable from './utils/KeyboardNavigatable';
+import KeyboardNavigatable from '../common/utils/KeyboardNavigatable';
 import slidable from './utils/slidable';
 import History from './utils/History';
 import DiscussionControls from './utils/DiscussionControls';
@@ -76,6 +76,7 @@ import isSafariMobile from './utils/isSafariMobile';
 
 export default Object.assign(compat, {
   'utils/PostControls': PostControls,
+  // @deprecated import from 'flarum/common/utils/KeyboardNavigatable' instead
   'utils/KeyboardNavigatable': KeyboardNavigatable,
   'utils/slidable': slidable,
   'utils/History': History,
