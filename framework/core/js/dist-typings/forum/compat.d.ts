@@ -1,5 +1,5 @@
 /// <reference types="mithril" />
-import KeyboardNavigatable from './utils/KeyboardNavigatable';
+import KeyboardNavigatable from '../common/utils/KeyboardNavigatable';
 import slidable from './utils/slidable';
 import History from './utils/History';
 import alertEmailConfirmation from './utils/alertEmailConfirmation';
@@ -82,6 +82,7 @@ declare const _default: {
         one(event: string, handler: Function): void;
         off(event: string, handler: Function): void;
     };
+    'utils/KeyboardNavigatable': typeof KeyboardNavigatable;
     'utils/liveHumanTimes': typeof import("../common/utils/liveHumanTimes").default;
     'utils/ItemList': typeof import("../common/utils/ItemList").default;
     'utils/mixin': typeof import("../common/utils/mixin").default;

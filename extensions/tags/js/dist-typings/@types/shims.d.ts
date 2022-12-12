@@ -1,5 +1,5 @@
 import type Tag from '../common/models/Tag';
-import type TagListState from '../forum/states/TagListState';
+import type TagListState from '../common/states/TagListState';
 
 declare module 'flarum/forum/routes' {
   export interface ForumRoutes {
@@ -7,8 +7,8 @@ declare module 'flarum/forum/routes' {
   }
 }
 
-declare module 'flarum/forum/ForumApplication' {
-  export default interface ForumApplication {
+declare module 'flarum/common/Application' {
+  export default interface Application {
     tagList: TagListState;
   }
 }
