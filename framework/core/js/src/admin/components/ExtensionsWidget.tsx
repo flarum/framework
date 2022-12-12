@@ -1,12 +1,19 @@
-import app from '../../admin/app';
-import DashboardWidget from './DashboardWidget';
+import app from '../app';
+import DashboardWidget, {IDashboardWidgetAttrs} from './DashboardWidget';
 import isExtensionEnabled from '../utils/isExtensionEnabled';
 import getCategorizedExtensions from '../utils/getCategorizedExtensions';
 import Link from '../../common/components/Link';
 import icon from '../../common/helpers/icon';
+import { Extension } from '../AdminApplication';
+import type Mithril from 'mithril';
 
-export default class ExtensionsWidget extends DashboardWidget {
-  oninit(vnode) {
+export interface IExtensionsWidgetAttrs extends IDashboardWidgetAttrs {}
+
+export default class ExtensionsWidget <CustomAttrs extends IExtensionsWidgetAttrs=IExtensionsWidgetAttrs> extends DashboardWidget<CustomAttrs> {
+  extension!: Extension;
+  categorizedExtensions:any;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
     this.categorizedExtensions = getCategorizedExtensions();
@@ -26,16 +33,16 @@ export default class ExtensionsWidget extends DashboardWidget {
     );
   }
 
-  extensionCategory(category) {
+  extensionCategory(category:any) {
     return (
       <div className="ExtensionList-Category">
         <h4 className="ExtensionList-Label">{app.translator.trans(`core.admin.nav.categories.${category}`)}</h4>
-        <ul className="ExtensionList">{this.categorizedExtensions[category].map((extension) => this.extensionWidget(extension))}</ul>
+        <ul className="ExtensionList">{this.categorizedExtensions[category].map((extension:any) => this.extensionWidget(extension))}</ul>
       </div>
     );
   }
 
-  extensionWidget(extension) {
+  extensionWidget(extension:any) {
     return (
       <li className={'ExtensionListItem ' + (!isExtensionEnabled(extension.id) ? 'disabled' : '')}>
         <Link href={app.route('extension', { id: extension.id })}>
