@@ -7,7 +7,7 @@ import EditPostComposer from 'flarum/forum/components/EditPostComposer';
 import avatar from 'flarum/common/helpers/avatar';
 import usernameHelper from 'flarum/common/helpers/username';
 import highlight from 'flarum/common/helpers/highlight';
-import KeyboardNavigatable from 'flarum/forum/utils/KeyboardNavigatable';
+import KeyboardNavigatable from 'flarum/common/utils/KeyboardNavigatable';
 import { truncate } from 'flarum/common/utils/string';
 import { throttle } from 'flarum/common/utils/throttleDebounce';
 import Badge from 'flarum/common/components/Badge';

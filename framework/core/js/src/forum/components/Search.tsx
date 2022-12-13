@@ -4,7 +4,7 @@ import LoadingIndicator from '../../common/components/LoadingIndicator';
 import ItemList from '../../common/utils/ItemList';
 import classList from '../../common/utils/classList';
 import extractText from '../../common/utils/extractText';
-import KeyboardNavigatable from '../utils/KeyboardNavigatable';
+import KeyboardNavigatable from '../../common/utils/KeyboardNavigatable';
 import icon from '../../common/helpers/icon';
 import SearchState from '../states/SearchState';
 import DiscussionsSearchSource from './DiscussionsSearchSource';
