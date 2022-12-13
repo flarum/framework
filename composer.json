@@ -111,7 +111,7 @@
         "illuminate/view": "^8.0",
         "intervention/image": "2.5.* || ^2.6.1",
         "laminas/laminas-diactoros": "^2.4.1",
-        "laminas/laminas-httphandlerrunner": "^1.2.0",
+        "laminas/laminas-httphandlerrunner": "^1.2.0 || ^2.3.0",
         "laminas/laminas-stratigility": "^3.2.2",
         "league/flysystem": "^1.0.11",
         "matthiasmullie/minify": "^1.3",
