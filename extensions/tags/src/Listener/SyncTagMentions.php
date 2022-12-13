@@ -9,7 +9,6 @@
 
 namespace Flarum\Tags\Listener;
 
-use Flarum\Extension\ExtensionManager;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
@@ -20,19 +19,6 @@ use s9e\TextFormatter\Utils;
 
 class SyncTagMentions
 {
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    /**
-     * @param NotificationSyncer $notifications
-     */
-    public function __construct(ExtensionManager $extensions)
-    {
-        $this->extensions = $extensions;
-    }
-
     public function subscribe(Dispatcher $events)
     {
         $events->listen([Posted::class, Restored::class, Revised::class], [$this, 'syncTagMentions']);
@@ -46,12 +32,10 @@ class SyncTagMentions
      */
     public function syncTagMentions($event): void
     {
-        if ($this->extensions->isEnabled('flarum-mentions')) {
-            $content = $event->post->parsedContent;
-            $mentioned = Utils::getAttributeValues($content, 'TAGMENTION', 'id');
-            $event->post->mentionsTags()->sync($mentioned);
-            $event->post->unsetRelation('mentionsTags');
-        }
+        $content = $event->post->parsedContent;
+        $mentioned = Utils::getAttributeValues($content, 'TAGMENTION', 'id');
+        $event->post->mentionsTags()->sync($mentioned);
+        $event->post->unsetRelation('mentionsTags');
     }
 
     /**
@@ -60,8 +44,6 @@ class SyncTagMentions
      */
     public function removeTagMentions($event)
     {
-        if ($this->extensions->isEnabled('flarum-mentions')) {
-            $event->post->mentionsTags()->sync([]);
-        }
+        $event->post->mentionsTags()->sync([]);
     }
 }
