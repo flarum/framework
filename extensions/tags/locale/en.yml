@@ -35,7 +35,6 @@ flarum-tags:
     permissions:
       allow_edit_tags_label: Allow tag editing
       bypass_tag_counts_label: Bypass tag requirements
-      mention_tags_label: Mention tags
       restrict_by_tag_heading: Restrict by Tag
       tag_discussions_label: Tag discussions
 

@@ -27,10 +27,6 @@ app.initializers.add('flarum-tags', function () {
 
   app.tagList = new TagListState();
 
-  if (app.initializers.has('flarum-mentions')) {
-    User.prototype.canMentionTags = Model.attribute('canMentionTags');
-  }
-
   Discussion.prototype.tags = Model.hasMany<Tag>('tags');
   Discussion.prototype.canTag = Model.attribute<boolean>('canTag');
 
@@ -39,6 +35,7 @@ app.initializers.add('flarum-tags', function () {
   addTagLabels();
   addTagControl();
   addTagComposer();
+  addComposerAutocomplete();
 });
 
 export * from './utils/textFormatter';
@@ -46,5 +43,6 @@ export * from './utils/textFormatter';
 // Expose compat API
 import tagsCompat from './compat';
 import { compat } from '@flarum/core/forum';
+import addComposerAutocomplete from './addComposerAutocomplete';
 
 Object.assign(compat, tagsCompat);

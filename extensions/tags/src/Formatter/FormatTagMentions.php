@@ -9,7 +9,6 @@
 
 namespace Flarum\Tags\Formatter;
 
-use Flarum\Extension\ExtensionManager;
 use Flarum\Locale\Translator;
 use Flarum\Post\Post;
 use Flarum\Tags\Tag;
@@ -19,18 +18,12 @@ use s9e\TextFormatter\Utils;
 class FormatTagMentions
 {
     /**
-     * @var ExtensionManager
-     */
-    private $extensions;
-
-    /**
      * @var TranslatorInterface
      */
     private $translator;
 
-    public function __construct(ExtensionManager $extensions, Translator $translator)
+    public function __construct(Translator $translator)
     {
-        $this->extensions = $extensions;
         $this->translator = $translator;
     }
 
@@ -44,10 +37,6 @@ class FormatTagMentions
      */
     public function __invoke(Renderer $renderer, $context, string $xml): string
     {
-        if (! $this->extensions->isEnabled('flarum-mentions')) {
-            return $xml;
-        }
-
         return Utils::replaceAttributes($xml, 'TAGMENTION', function ($attributes) use ($context) {
             $tag = (($context && isset($context->getRelations()['mentionsTags'])) || $context instanceof Post)
             ? $context->mentionsTags->find($attributes['id'])

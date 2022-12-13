@@ -9,12 +9,11 @@
 
 namespace Flarum\Tags;
 
-use Flarum\Extension\ExtensionManager;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Support\Str;
 use s9e\TextFormatter\Configurator;
 
-class configureTagMentions
+class ConfigureTagMentions
 {
     /**
      * @var UrlGenerator
@@ -22,25 +21,16 @@ class configureTagMentions
     protected $url;
 
     /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    /**
      * @param UrlGenerator $url
-     * @param ExtensionManager $extensions
      */
-    public function __construct(UrlGenerator $url, ExtensionManager $extensions)
+    public function __construct(UrlGenerator $url)
     {
         $this->url = $url;
-        $this->extensions = $extensions;
     }
 
     public function __invoke(Configurator $config)
     {
-        if ($this->extensions->isEnabled('flarum-mentions')) {
-            $this->configureTagMentions($config);
-        }
+        $this->configureTagMentions($config);
     }
 
     private function configureTagMentions(Configurator $config)
@@ -69,7 +59,7 @@ class configureTagMentions
         $tag->filterChain->prepend([static::class, 'addTagId'])
             ->setJS('function(tag) { return flarum.extensions["flarum-tags"].filterTagMentions(tag); }');
 
-        $config->Preg->match('/\B@["|“](?<tagname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#t(?<id>[0-9]+)\b/', $tagName);
+        $config->Preg->match('/\B#["|“](?<tagname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#t(?<id>[0-9]+)\b/', $tagName);
     }
 
     /**
@@ -112,7 +102,7 @@ class configureTagMentions
 
         $hexNumbers = Str::replace('#', '', $hexColor);
         if (Str::length($hexNumbers) === 3) {
-            $hexNumbers += $hexNumbers;
+            $hexNumbers .= $hexNumbers;
         }
 
         $r = hexdec(Str::substr($hexNumbers, 0, 2));

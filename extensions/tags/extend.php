@@ -48,8 +48,7 @@ return [
 
     (new Extend\Formatter())
         ->configure(ConfigureTagMentions::class)
-        ->render(Formatter\FormatTagMentions::class)
-        ->parse(Formatter\CheckPermissions::class),
+        ->render(Formatter\FormatTagMentions::class),
 
     (new Extend\Routes('api'))
         ->get('/tags', 'tags.index', Controller\ListTagsController::class)
@@ -149,9 +148,6 @@ return [
 
     (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
         ->addGambit(TagFilterGambit::class),
-
-    (new Extend\ApiSerializer(CurrentUserSerializer::class))
-        ->attributes(AddCurrentUserAttributes::class),
 
     (new Extend\ModelUrl(Tag::class))
         ->addSlugDriver('default', Utf8SlugDriver::class),
