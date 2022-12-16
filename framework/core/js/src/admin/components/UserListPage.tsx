@@ -14,8 +14,11 @@ import type User from '../../common/models/User';
 import ItemList from '../../common/utils/ItemList';
 import classList from '../../common/utils/classList';
 import extractText from '../../common/utils/extractText';
+import Stream from '../../common/utils/Stream';
 
 import AdminPage from './AdminPage';
+import { IPageAttrs } from '../../common/components/Page';
+import { debounce } from '../../common/utils/throttleDebounce';
 
 type ColumnData = {
   /**
@@ -32,6 +35,8 @@ type ColumnData = {
  * Admin page which displays a paginated list of all users on the forum.
  */
 export default class UserListPage extends AdminPage {
+  userSearchQuery = Stream('');
+
   /**
    * Number of users to load per page.
    */
@@ -91,6 +96,7 @@ export default class UserListPage extends AdminPage {
     const columns = this.columns().toArray();
 
     return [
+      <input className="FormControl" placeholder={app.translator.trans('core.admin.users.search_placeholder')} bidi={this.userSearchQuery} />,
       <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.users.total_users', { count: this.userCount })}</p>,
       <section
         class={classList(['UserListPage-grid', this.isLoadingPage ? 'UserListPage-grid--loadingPage' : 'UserListPage-grid--loaded'])}
@@ -339,9 +345,10 @@ export default class UserListPage extends AdminPage {
 
     app.store
       .find<User[]>('users', {
+        filter: { q: this.userSearchQuery() },
         page: {
           limit: this.numPerPage,
-          offset: pageNumber * this.numPerPage,
+          offset: pageNumber * this.numPerPage
         },
       })
       .then((apiData) => {
@@ -373,5 +380,11 @@ export default class UserListPage extends AdminPage {
   previousPage() {
     this.isLoadingPage = true;
     this.loadPage(this.pageNumber - 1);
+  }
+
+  onupdate(vnode: Mithril.VnodeDOM<IPageAttrs, this>) {
+    super.onupdate(vnode);
+    this.isLoadingPage = true;
+    debounce(300, this.loadPage.bind(this.pageNumber));
   }
 }
