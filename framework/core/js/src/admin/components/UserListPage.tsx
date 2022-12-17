@@ -17,8 +17,7 @@ import extractText from '../../common/utils/extractText';
 import Stream from '../../common/utils/Stream';
 
 import AdminPage from './AdminPage';
-import { IPageAttrs } from '../../common/components/Page';
-import { throttle } from '../../common/utils/throttleDebounce';
+import { debounce } from '../../common/utils/throttleDebounce';
 
 type ColumnData = {
   /**
@@ -35,7 +34,7 @@ type ColumnData = {
  * Admin page which displays a paginated list of all users on the forum.
  */
 export default class UserListPage extends AdminPage {
-  userSearchQuery = Stream('');
+  query: string = '';
 
   /**
    * Number of users to load per page.
@@ -97,7 +96,11 @@ export default class UserListPage extends AdminPage {
 
     return [
       <div className="Search-input">
-        <input className="FormControl SearchBar" type="search" placeholder={app.translator.trans('core.admin.users.search_placeholder')} bidi={this.userSearchQuery} oninput={this.searchPage} />
+        <input className="FormControl SearchBar" type="search" placeholder={app.translator.trans('core.admin.users.search_placeholder')} oninput={(e: InputEvent) => {
+          this.isLoadingPage = true;
+          this.query = (e?.target as HTMLInputElement)?.value;
+          debounce(250, () => this.loadPage(this.pageNumber))();
+        }} />
       </div>,
       <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.users.total_users', { count: this.userCount })}</p>,
       <section
@@ -347,7 +350,7 @@ export default class UserListPage extends AdminPage {
 
     app.store
       .find<User[]>('users', {
-        filter: { q: this.userSearchQuery() },
+        filter: { q: this.query },
         page: {
           limit: this.numPerPage,
           offset: pageNumber * this.numPerPage
@@ -383,15 +386,4 @@ export default class UserListPage extends AdminPage {
     this.isLoadingPage = true;
     this.loadPage(this.pageNumber - 1);
   }
-
-  searchPage() {
-    this.isLoadingPage = true;
-    this.loadPage(this.pageNumber);
-  }
-
-  /*onupdate(vnode: Mithril.VnodeDOM<IPageAttrs, this>) {
-    super.onupdate(vnode);
-    this.isLoadingPage = true;
-    this.loadPage(this.pageNumber);
-  }*/
 }
