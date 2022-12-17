@@ -96,11 +96,16 @@ export default class UserListPage extends AdminPage {
 
     return [
       <div className="Search-input">
-        <input className="FormControl SearchBar" type="search" placeholder={app.translator.trans('core.admin.users.search_placeholder')} oninput={(e: InputEvent) => {
-          this.isLoadingPage = true;
-          this.query = (e?.target as HTMLInputElement)?.value;
-          debounce(250, () => this.loadPage(this.pageNumber))();
-        }} />
+        <input
+          className="FormControl SearchBar"
+          type="search"
+          placeholder={app.translator.trans('core.admin.users.search_placeholder')}
+          oninput={(e: InputEvent) => {
+            this.isLoadingPage = true;
+            this.query = (e?.target as HTMLInputElement)?.value;
+            debounce(250, () => this.loadPage(this.pageNumber))();
+          }}
+        />
       </div>,
       <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.users.total_users', { count: this.userCount })}</p>,
       <section
@@ -353,7 +358,7 @@ export default class UserListPage extends AdminPage {
         filter: { q: this.query },
         page: {
           limit: this.numPerPage,
-          offset: pageNumber * this.numPerPage
+          offset: pageNumber * this.numPerPage,
         },
       })
       .then((apiData) => {
