@@ -18,7 +18,7 @@ import Stream from '../../common/utils/Stream';
 
 import AdminPage from './AdminPage';
 import { IPageAttrs } from '../../common/components/Page';
-import { debounce } from '../../common/utils/throttleDebounce';
+import { throttle } from '../../common/utils/throttleDebounce';
 
 type ColumnData = {
   /**
@@ -96,7 +96,9 @@ export default class UserListPage extends AdminPage {
     const columns = this.columns().toArray();
 
     return [
-      <input className="FormControl" placeholder={app.translator.trans('core.admin.users.search_placeholder')} bidi={this.userSearchQuery} />,
+      <div className="Search-input">
+        <input className="FormControl SearchBar" type="search" placeholder={app.translator.trans('core.admin.users.search_placeholder')} bidi={this.userSearchQuery} oninput={this.searchPage} />
+      </div>,
       <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.users.total_users', { count: this.userCount })}</p>,
       <section
         class={classList(['UserListPage-grid', this.isLoadingPage ? 'UserListPage-grid--loadingPage' : 'UserListPage-grid--loaded'])}
@@ -382,9 +384,14 @@ export default class UserListPage extends AdminPage {
     this.loadPage(this.pageNumber - 1);
   }
 
-  onupdate(vnode: Mithril.VnodeDOM<IPageAttrs, this>) {
+  searchPage() {
+    this.isLoadingPage = true;
+    this.loadPage(this.pageNumber);
+  }
+
+  /*onupdate(vnode: Mithril.VnodeDOM<IPageAttrs, this>) {
     super.onupdate(vnode);
     this.isLoadingPage = true;
-    debounce(300, this.loadPage.bind(this.pageNumber));
-  }
+    this.loadPage(this.pageNumber);
+  }*/
 }
