@@ -23,6 +23,6 @@ class PostTagFilter implements FilterInterface
     {
         $filterState->getQuery()
             ->join('discussion_tag', 'discussion_tag.discussion_id', '=', 'posts.discussion_id')
-            ->where('discussion_tag.tag_id', $filterValue);
+            ->where('discussion_tag.tag_id', $negate ? '!=' : '=', $filterValue);
     }
 }
