@@ -14,8 +14,6 @@ import type User from '../../common/models/User';
 import ItemList from '../../common/utils/ItemList';
 import classList from '../../common/utils/classList';
 import extractText from '../../common/utils/extractText';
-import Stream from '../../common/utils/Stream';
-
 import AdminPage from './AdminPage';
 import { debounce } from '../../common/utils/throttleDebounce';
 
@@ -34,7 +32,8 @@ type ColumnData = {
  * Admin page which displays a paginated list of all users on the forum.
  */
 export default class UserListPage extends AdminPage {
-  query: string = '';
+  private query: string = '';
+  private throttledSearch = debounce(250, () => this.loadPage(0));
 
   /**
    * Number of users to load per page.
@@ -103,7 +102,7 @@ export default class UserListPage extends AdminPage {
           oninput={(e: InputEvent) => {
             this.isLoadingPage = true;
             this.query = (e?.target as HTMLInputElement)?.value;
-            debounce(250, () => this.loadPage(this.pageNumber))();
+            this.throttledSearch();
           }}
         />
       </div>,
