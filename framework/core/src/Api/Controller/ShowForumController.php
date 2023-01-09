@@ -25,7 +25,7 @@ class ShowForumController extends AbstractShowController
     /**
      * {@inheritdoc}
      */
-    public $include = ['groups', 'actor'];
+    public $include = ['groups', 'actor', 'actor.groups'];
 
     /**
      * {@inheritdoc}
