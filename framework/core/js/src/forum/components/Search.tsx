@@ -215,7 +215,9 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
 
     this.$('.Search-results')
       .on('mousedown', (e) => e.preventDefault())
-      .on('click', () => this.$('input').trigger('blur'))
+      .on('touchstart', () => this.$('input').trigger('focus'))
+      .on('touchend', () => this.$('input').trigger('focus'))
+      .on('click', 'a', () => this.$('input').trigger('blur'))
 
       // Whenever the mouse is hovered over a search result, highlight it.
       .on('mouseenter', '> li:not(.Dropdown-header)', function () {
