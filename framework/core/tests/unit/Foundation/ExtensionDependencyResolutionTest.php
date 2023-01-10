@@ -23,7 +23,7 @@ class ExtensionDependencyResolutionTest extends TestCase
     public $circular1;
     public $circular2;
     public $optionalDependencyCategories;
-    
+
     public function setUp(): void
     {
         parent::setUp();
