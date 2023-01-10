@@ -113,7 +113,7 @@ class NotificationSyncerTest extends TestCase
         );
     }
 
-    protected function visibleSubjectsProvider()
+    public function visibleSubjectsProvider()
     {
         return [
             [Post::class, 1, BasicPostSerializer::class],
@@ -121,7 +121,7 @@ class NotificationSyncerTest extends TestCase
         ];
     }
 
-    protected function invisibleSubjectsProvider()
+    public function invisibleSubjectsProvider()
     {
         return [
             [Post::class, 2, BasicPostSerializer::class],
