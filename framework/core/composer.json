@@ -84,7 +84,7 @@
         "symfony/polyfill-intl-messageformatter": "^1.22.0",
         "symfony/translation": "^5.1.5",
         "symfony/yaml": "^5.2.2",
-        "wikimedia/less.php": "^3.0"
+        "wikimedia/less.php": "^3.2"
     },
     "require-dev": {
         "flarum/testing": "^1.0.0"
