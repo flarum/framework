@@ -11,13 +11,11 @@ namespace Flarum\Mentions;
 
 use Flarum\Group\Group;
 use Flarum\Http\UrlGenerator;
-use Flarum\Post\CommentPost;
 use Flarum\Post\PostRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Support\Str;
 use s9e\TextFormatter\Configurator;
-use s9e\TextFormatter\Parser;
 
 class ConfigureMentions
 {
