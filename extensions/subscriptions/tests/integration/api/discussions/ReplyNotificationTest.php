@@ -10,7 +10,9 @@
 namespace Flarum\Subscriptions\tests\integration\api\discussions;
 
 use Carbon\Carbon;
+use Flarum\Extend\ModelVisibility;
 use Flarum\Group\Group;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -277,5 +279,48 @@ class ReplyNotificationTest extends TestCase
         );
 
         $this->assertEquals(1, $mainUser->getUnreadNotificationCount());
+    }
+
+    /** @test */
+    public function replying_to_a_discussion_with_a_restricted_post_only_sends_notifications_to_allowed_users()
+    {
+        // Add visibility scoper to only allow admin
+        // to see expected new post with content containing 'restricted-test-post'.
+        $this->extend(
+            (new ModelVisibility(Post::class))
+                ->scope(function (User $actor, $query) {
+                    if (! $actor->isAdmin()) {
+                        $query->where('content', 'not like', '%restricted-test-post%');
+                    }
+                })
+        );
+
+        $this->app();
+
+        /** @var User $allowedUser */
+        $allowedUser = User::query()->find(1);
+        $normalUser = User::query()->find(2);
+
+        $this->assertEquals(0, $allowedUser->getUnreadNotificationCount());
+        $this->assertEquals(0, $normalUser->getUnreadNotificationCount());
+
+        $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 3,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'content' => 'restricted-test-post',
+                        ],
+                        'relationships' => [
+                            'discussion' => ['data' => ['id' => 1]],
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(1, $allowedUser->getUnreadNotificationCount());
+        $this->assertEquals(0, $normalUser->getUnreadNotificationCount());
     }
 }
