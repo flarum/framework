@@ -1,5 +1,11 @@
 # Changelog
 
+# [v1.6.3](https://github.com/flarum/framework/compare/v1.6.2...v1.6.3)
+### Fixed
+* Post mentions can be used to read any post on the forum without access control (ab1c868b978e8b0d09a5d682c54665dae17d0985).
+* Notifications can leak restricted content (d0a2b95dca57d3dae9a0d77b610b1cb1d0b1766a).
+* Any user including unactivated can reply in public discussions whose first post was permanently deleted (12f14112a0ecd1484d97330b82beb2a145919015).
+
 ## [v1.6.2](https://github.com/flarum/framework/compare/v1.6.1...v1.6.2)
 ### Fixed
 * XSS Vulnerability in core (https://github.com/flarum/framework/pull/3684).
