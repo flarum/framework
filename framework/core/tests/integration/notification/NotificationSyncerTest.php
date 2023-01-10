@@ -65,7 +65,6 @@ class NotificationSyncerTest extends TestCase
         );
     }
 
-
     /**
      * @dataProvider invisibleSubjectsProvider
      * @test
