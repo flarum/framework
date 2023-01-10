@@ -91,6 +91,13 @@ class Formatter
     {
         $parser = $this->getParser($context);
 
+         /*
+          * Can be injected in tag or attribute filters by calling:
+          * ->addParameterByName('actor') on the filter.
+          * See the mentions extension's ConfigureMentions.php for an example.
+          */
+        $parser->registeredVars['actor'] = $user;
+
         foreach ($this->parsingCallbacks as $callback) {
             $text = $callback($parser, $context, $text, $user);
         }
