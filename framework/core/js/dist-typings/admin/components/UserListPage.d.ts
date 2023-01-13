@@ -17,6 +17,8 @@ type ColumnData = {
  * Admin page which displays a paginated list of all users on the forum.
  */
 export default class UserListPage extends AdminPage {
+    private query;
+    private throttledSearch;
     /**
      * Number of users to load per page.
      */
