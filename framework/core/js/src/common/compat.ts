@@ -4,6 +4,7 @@ import Session from './Session';
 import Store from './Store';
 import BasicEditorDriver from './utils/BasicEditorDriver';
 import evented from './utils/evented';
+import KeyboardNavigatable from './utils/KeyboardNavigatable';
 import liveHumanTimes from './utils/liveHumanTimes';
 import ItemList from './utils/ItemList';
 import mixin from './utils/mixin';
@@ -84,6 +85,9 @@ import Fragment from './Fragment';
 import DefaultResolver from './resolvers/DefaultResolver';
 import PaginatedListState from './states/PaginatedListState';
 import isObject from './utils/isObject';
+import AlertManagerState from './states/AlertManagerState';
+import ModalManagerState from './states/ModalManagerState';
+import PageState from './states/PageState';
 
 export default {
   extend: extend,
@@ -91,6 +95,7 @@ export default {
   Store: Store,
   'utils/BasicEditorDriver': BasicEditorDriver,
   'utils/evented': evented,
+  'utils/KeyboardNavigatable': KeyboardNavigatable,
   'utils/liveHumanTimes': liveHumanTimes,
   'utils/ItemList': ItemList,
   'utils/mixin': mixin,
@@ -171,4 +176,7 @@ export default {
   'helpers/listItems': listItems,
   'resolvers/DefaultResolver': DefaultResolver,
   'states/PaginatedListState': PaginatedListState,
+  'states/AlertManagerState': AlertManagerState,
+  'states/ModalManagerState': ModalManagerState,
+  'states/PageState': PageState,
 };

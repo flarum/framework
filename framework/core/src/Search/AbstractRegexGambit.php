@@ -38,7 +38,7 @@ abstract class AbstractRegexGambit implements GambitInterface
      */
     protected function match($bit)
     {
-        if (preg_match('/^(-?)'.$this->getGambitPattern().'$/i', $bit, $matches)) {
+        if (! empty($bit) && preg_match('/^(-?)'.$this->getGambitPattern().'$/i', $bit, $matches)) {
             return $matches;
         }
 

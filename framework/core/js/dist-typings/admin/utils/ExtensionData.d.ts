@@ -3,12 +3,12 @@ import ItemList from '../../common/utils/ItemList';
 import { SettingsComponentOptions } from '../components/AdminPage';
 import ExtensionPage, { ExtensionPageAttrs } from '../components/ExtensionPage';
 import { PermissionConfig, PermissionType } from '../components/PermissionGrid';
-declare type SettingConfigInput = SettingsComponentOptions | (() => Mithril.Children);
-declare type SettingConfigInternal = SettingsComponentOptions | ((() => Mithril.Children) & {
+type SettingConfigInput = SettingsComponentOptions | (() => Mithril.Children);
+type SettingConfigInternal = SettingsComponentOptions | ((() => Mithril.Children) & {
     setting: string;
 });
-export declare type CustomExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionPageAttrs> = new () => ExtensionPage<Attrs>;
-declare type ExtensionConfig = {
+export type CustomExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionPageAttrs> = new () => ExtensionPage<Attrs>;
+type ExtensionConfig = {
     settings?: ItemList<SettingConfigInternal>;
     permissions?: {
         view?: ItemList<PermissionConfig>;
@@ -18,13 +18,13 @@ declare type ExtensionConfig = {
     };
     page?: CustomExtensionPage;
 };
-declare type InnerDataNoActiveExtension = {
+type InnerDataNoActiveExtension = {
     currentExtension: null;
     data: {
         [key: string]: ExtensionConfig | undefined;
     };
 };
-declare type InnerDataActiveExtension = {
+type InnerDataActiveExtension = {
     currentExtension: string;
     data: {
         [key: string]: ExtensionConfig;

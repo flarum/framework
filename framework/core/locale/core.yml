@@ -56,6 +56,11 @@ core:
       clear_cache_button: Clear Cache
       description: Your forum at a glance.
       io_error_message: "Could not write to filesystem. Check your filesystem permissions and try again. Or try running from the command line."
+      status:
+        scheduler:
+          active: Active
+          inactive: Inactive
+          never-run: Never run
       title: Dashboard
       tools_button: Tools
 
@@ -204,7 +209,7 @@ core:
       read_heading: Read
       rename_discussions_label: Rename discussions
       reply_to_discussions_label: Reply to discussions
-      search_users_label: Search users
+      search_users_label: => core.ref.search_users
       sign_up_label: Sign up
       start_discussions_label: Start discussions
       title: Permissions
@@ -271,6 +276,7 @@ core:
         next_button: Next page
         page_counter: Page {current} of {total}
 
+      search_placeholder: => core.ref.search_users
       title: => core.ref.users
       total_users: "Total users: {count}"
 
@@ -550,6 +556,7 @@ core:
       dependent_extensions_message: "Cannot disable {extension} until the following dependent extensions are disabled: {extensions}"
       extension_initialiation_failed_message: "{extension} failed to initialize, check the browser console for further information."
       generic_message: "Oops! Something went wrong. Please reload the page and try again."
+      generic_cross_origin_message: "Oops! Something went wrong during a cross-origin request. Please reload the page and try again."
       missing_dependencies_message: "Cannot enable {extension} until the following dependencies are enabled: {extensions}"
       not_found_message: The requested resource was not found.
       payload_too_large_message: The request payload was too large.
@@ -752,7 +759,8 @@ core:
     reply: Reply                                 # Referenced by flarum-mentions.yml
     reset_your_password: Reset Your Password
     restore: Restore
-    save_changes: Save Changes                   # Referenced by flarum-suspend.yml, flarum-tags.yml
+    save_changes: Save Changes     
+    search_users: Search users              # Referenced by flarum-suspend.yml, flarum-tags.yml
     settings: Settings
     sign_up: Sign Up
     some_others: "{count, plural, one {# other} other {# others}}"  # Referenced by flarum-likes.yml, flarum-mentions.yml
