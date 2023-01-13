@@ -35,7 +35,7 @@ class Model implements ExtenderInterface
      *
      * @param string $attribute
      * @return self
-     * @deprecated use `castAttribute` instead. Will be removed in v2.
+     * @deprecated use `cast` instead. Will be removed in v2.
      */
     public function dateAttribute(string $attribute): self
     {
