@@ -41,6 +41,50 @@ class ShowTest extends TestCase
         ]);
     }
 
+    /** @test */
+    public function can_show_tag_with_url_decoded_utf8_slug()
+    {
+        $this->prepareDatabase([
+            'tags' => [
+                ['id' => 155, 'name' => '测试', 'slug' => '测试', 'position' => 0, 'parent_id' => null]
+            ]
+        ]);
+
+        $response = $this->send(
+            $this->request('GET', '/api/tags/测试')
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $response2 = $this->send(
+            $this->request('GET', '/t/测试')
+        );
+
+        $this->assertEquals(200, $response2->getStatusCode());
+    }
+
+    /** @test */
+    public function can_show_tag_with_url_encoded_utf8_slug()
+    {
+        $this->prepareDatabase([
+            'tags' => [
+                ['id' => 155, 'name' => '测试', 'slug' => '测试', 'position' => 0, 'parent_id' => null]
+            ]
+        ]);
+
+        $response = $this->send(
+            $this->request('GET', '/api/tags/'.urlencode('测试'))
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $response2 = $this->send(
+            $this->request('GET', '/t/'.urlencode('测试'))
+        );
+
+        $this->assertEquals(200, $response2->getStatusCode());
+    }
+
     /**
      * @dataProvider showTagIncludes
      * @test

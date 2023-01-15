@@ -1,4 +1,4 @@
-import app from 'flarum/forum/app';
+import app from 'flarum/common/app';
 import type Tag from '../../common/models/Tag';
 
 export default class TagListState {

@@ -22,6 +22,7 @@ use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
 use Flarum\Subscriptions\HideIgnoredFromAllDiscussionsPage;
 use Flarum\Subscriptions\Listener;
+use Flarum\Subscriptions\Notification\FilterVisiblePostsBeforeSending;
 use Flarum\Subscriptions\Notification\NewPostBlueprint;
 use Flarum\Subscriptions\Query\SubscriptionFilterGambit;
 use Flarum\User\User;
@@ -44,7 +45,8 @@ return [
         ->namespace('flarum-subscriptions', __DIR__.'/views'),
 
     (new Extend\Notification())
-        ->type(NewPostBlueprint::class, BasicDiscussionSerializer::class, ['alert', 'email']),
+        ->type(NewPostBlueprint::class, BasicDiscussionSerializer::class, ['alert', 'email'])
+        ->beforeSending(FilterVisiblePostsBeforeSending::class),
 
     (new Extend\ApiSerializer(DiscussionSerializer::class))
         ->attribute('subscription', function (DiscussionSerializer $serializer, Discussion $discussion) {

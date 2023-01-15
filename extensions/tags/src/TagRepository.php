@@ -33,6 +33,16 @@ class TagRepository
      */
     public function with($relations, User $actor): Builder
     {
+        return $this->query()->with($this->getAuthorizedRelations($relations, $actor));
+    }
+
+    /**
+     * @param array|string $relations
+     * @param User $actor
+     * @return array
+     */
+    public function getAuthorizedRelations($relations, User $actor): array
+    {
         $relations = is_string($relations) ? explode(',', $relations) : $relations;
         $relationsArray = [];
 
@@ -46,7 +56,7 @@ class TagRepository
             }
         }
 
-        return $this->query()->with($relationsArray);
+        return $relationsArray;
     }
 
     /**

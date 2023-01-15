@@ -46,6 +46,7 @@ declare const _default: {
         one(event: string, handler: Function): void;
         off(event: string, handler: Function): void;
     };
+    'utils/KeyboardNavigatable': typeof import("../common/utils/KeyboardNavigatable").default;
     'utils/liveHumanTimes': typeof import("../common/utils/liveHumanTimes").default;
     'utils/ItemList': typeof import("../common/utils/ItemList").default;
     'utils/mixin': typeof import("../common/utils/mixin").default;
@@ -68,7 +69,7 @@ declare const _default: {
     'utils/setRouteWithForcedRefresh': typeof import("../common/utils/setRouteWithForcedRefresh").default;
     'utils/patchMithril': typeof import("../common/utils/patchMithril").default;
     'utils/proxifyCompat': typeof import("../common/utils/proxifyCompat").default;
-    'utils/classList': (...classes: import("clsx").ClassValue[]) => string;
+    'utils/classList': typeof import("clsx").clsx;
     'utils/extractText': typeof import("../common/utils/extractText").default;
     'utils/formatNumber': typeof import("../common/utils/formatNumber").default;
     'utils/mapRoutes': typeof import("../common/utils/mapRoutes").default;

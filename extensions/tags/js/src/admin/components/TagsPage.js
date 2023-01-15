@@ -47,7 +47,7 @@ export default class TagsPage extends ExtensionPage {
 
     this.loading = true;
 
-    app.store.find('tags', { include: 'parent' }).then(() => {
+    app.tagList.load(['parent']).then(() => {
       this.loading = false;
 
       m.redraw();

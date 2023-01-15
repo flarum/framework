@@ -4,6 +4,7 @@ import Session from './Session';
 import Store from './Store';
 import BasicEditorDriver from './utils/BasicEditorDriver';
 import evented from './utils/evented';
+import KeyboardNavigatable from './utils/KeyboardNavigatable';
 import liveHumanTimes from './utils/liveHumanTimes';
 import ItemList from './utils/ItemList';
 import mixin from './utils/mixin';
@@ -94,6 +95,7 @@ export default {
   Store: Store,
   'utils/BasicEditorDriver': BasicEditorDriver,
   'utils/evented': evented,
+  'utils/KeyboardNavigatable': KeyboardNavigatable,
   'utils/liveHumanTimes': liveHumanTimes,
   'utils/ItemList': ItemList,
   'utils/mixin': mixin,
