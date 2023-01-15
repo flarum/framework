@@ -40,6 +40,7 @@ export interface AdminApplicationData extends ApplicationData {
   modelStatistics: Record<string, { total: number }>;
   displayNameDrivers: string[];
   slugDrivers: Record<string, string[]>;
+  permissions: Record<string, string[]>;
 }
 
 export default class AdminApplication extends Application {

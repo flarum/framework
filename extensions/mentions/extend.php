@@ -91,11 +91,9 @@ return [
         ]),
 
     (new Extend\ApiController(Controller\CreatePostController::class))
-        ->addInclude(['mentionsPosts', 'mentionsPosts.mentionedBy'])
         ->addOptionalInclude('mentionsGroups'),
 
     (new Extend\ApiController(Controller\UpdatePostController::class))
-        ->addInclude(['mentionsPosts', 'mentionsPosts.mentionedBy'])
         ->addOptionalInclude('mentionsGroups'),
 
     (new Extend\ApiController(Controller\AbstractSerializeController::class))

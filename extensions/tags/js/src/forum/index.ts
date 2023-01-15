@@ -2,9 +2,8 @@ import app from 'flarum/forum/app';
 import Model from 'flarum/common/Model';
 import Discussion from 'flarum/common/models/Discussion';
 
+import TagListState from '../common/states/TagListState';
 import Tag from '../common/models/Tag';
-
-import TagListState from './states/TagListState';
 
 import addTagList from './addTagList';
 import addTagFilter from './addTagFilter';

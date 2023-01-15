@@ -1,5 +1,5 @@
 /// <reference types="flarum/@types/translator-icu-rich" />
-export default class FlagPostModal extends Modal<import("flarum/common/components/Modal").IInternalModalAttrs> {
+export default class FlagPostModal extends Modal<import("flarum/common/components/Modal").IInternalModalAttrs, undefined> {
     constructor();
     oninit(vnode: any): void;
     success: boolean | undefined;

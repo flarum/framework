@@ -61,7 +61,7 @@ class GroupFilterGambit extends AbstractRegexGambit implements FilterInterface
             }
         }
 
-        $groupQuery->whereIn('id', $ids)
+        $groupQuery->whereIn('groups.id', $ids)
             ->orWhereIn('name_singular', $names)
             ->orWhereIn('name_plural', $names);
 

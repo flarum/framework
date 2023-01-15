@@ -157,7 +157,7 @@ class ApplicationInfoProvider
      *  2. If the configured session driver is invalid, fallback to the default one and mention it.
      *  3. If the actual used driver (i.e `session.handler`) is different from the current one (configured or default), mention it.
      */
-    public function identifySessionDriver(): string
+    public function identifySessionDriver(bool $forWeb = false): string
     {
         /*
          * Get the configured driver and fallback to the default one.
@@ -190,11 +190,11 @@ class ApplicationInfoProvider
         $handlerName = str_replace('sessionhandler', '', $handlerName);
 
         if ($driver !== $handlerName) {
-            return "$handlerName <comment>(Code override. Configured to <options=bold,underscore>$configuredDriver</>)</comment>";
+            return $forWeb ? $handlerName : "$handlerName <comment>(Code override. Configured to <options=bold,underscore>$configuredDriver</>)</comment>";
         }
 
         if ($driver !== $configuredDriver) {
-            return "$driver <comment>(Fallback default driver. Configured to invalid driver <options=bold,underscore>$configuredDriver</>)</comment>";
+            return $forWeb ? $driver : "$driver <comment>(Fallback default driver. Configured to invalid driver <options=bold,underscore>$configuredDriver</>)</comment>";
         }
 
         return $driver;

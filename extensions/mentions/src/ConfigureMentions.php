@@ -11,7 +11,7 @@ namespace Flarum\Mentions;
 
 use Flarum\Group\Group;
 use Flarum\Http\UrlGenerator;
-use Flarum\Post\CommentPost;
+use Flarum\Post\PostRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Support\Str;
@@ -115,7 +115,8 @@ class ConfigureMentions
 
         $tag->filterChain
             ->prepend([static::class, 'addPostId'])
-            ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterPostMentions(tag); }');
+            ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterPostMentions(tag); }')
+            ->addParameterByName('actor');
 
         $config->Preg->match('/\B@["|“](?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#p(?<id>[0-9]+)\b/', $tagName);
     }
@@ -124,9 +125,11 @@ class ConfigureMentions
      * @param $tag
      * @return bool
      */
-    public static function addPostId($tag)
+    public static function addPostId($tag, User $actor)
     {
-        $post = CommentPost::find($tag->getAttribute('id'));
+        $post = resolve(PostRepository::class)
+            ->queryVisibleTo($actor)
+            ->find($tag->getAttribute('id'));
 
         if ($post) {
             $tag->setAttribute('discussionid', (int) $post->discussion_id);

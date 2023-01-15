@@ -50,7 +50,6 @@
     color: var(--muted-color);
   }
   thead th {
-    position: -webkit-sticky;
     position: sticky;
     top: 0;
     padding-bottom: 10px;
@@ -63,9 +62,12 @@
     z-index: 1;
 
     &:first-child {
-      left: 0;
       z-index: 3;
       background: var(--body-bg);
+
+      @media @tablet-up {
+        left: 0;
+      }
     }
 
     &:not(:hover) .PermissionGrid-removeScope {
@@ -74,12 +76,14 @@
   }
   tbody {
     th {
-      position: -webkit-sticky;
-      position: sticky;
-      left: 0;
       padding-right: 50px;
       z-index: 4;
       background: inherit;
+
+      @media @tablet-up {
+        position: sticky;
+        left: 0;
+      }
 
       .icon {
         margin-right: 5px;
