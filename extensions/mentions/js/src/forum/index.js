@@ -13,7 +13,6 @@ import UserMentionedNotification from './components/UserMentionedNotification';
 import GroupMentionedNotification from './components/GroupMentionedNotification';
 import UserPage from 'flarum/forum/components/UserPage';
 import LinkButton from 'flarum/common/components/LinkButton';
-import MentionsUserPage from './components/MentionsUserPage';
 import User from 'flarum/common/models/User';
 import Model from 'flarum/common/Model';
 
