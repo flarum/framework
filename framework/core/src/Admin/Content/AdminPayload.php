@@ -113,7 +113,7 @@ class AdminPayload
         }
 
         $document->payload['queueDriver'] = $this->appInfo->identifyQueueDriver();
-        $document->payload['sessionDriver'] = $this->appInfo->identifySessionDriver();
+        $document->payload['sessionDriver'] = $this->appInfo->identifySessionDriver(true);
 
         /**
          * Used in the admin user list. Implemented as this as it matches the API in flarum/statistics.

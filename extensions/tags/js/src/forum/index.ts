@@ -1,6 +1,6 @@
 import app from 'flarum/forum/app';
 
-import TagListState from './states/TagListState';
+import TagListState from '../common/states/TagListState';
 
 import addTagList from './addTagList';
 import addTagFilter from './addTagFilter';

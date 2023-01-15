@@ -19,6 +19,7 @@ class Model implements ExtenderInterface
 {
     private $modelClass;
     private $customRelations = [];
+    private $casts = [];
 
     /**
      * @param string $modelClass: The ::class attribute of the model you are modifying.
@@ -34,17 +35,25 @@ class Model implements ExtenderInterface
      *
      * @param string $attribute
      * @return self
+     * @deprecated use `cast` instead. Will be removed in v2.
      */
     public function dateAttribute(string $attribute): self
     {
-        Arr::set(
-            AbstractModel::$dateAttributes,
-            $this->modelClass,
-            array_merge(
-                Arr::get(AbstractModel::$dateAttributes, $this->modelClass, []),
-                [$attribute]
-            )
-        );
+        $this->cast($attribute, 'datetime');
+
+        return $this;
+    }
+
+    /**
+     * Add a custom attribute type cast. Should not be applied to non-extension attributes.
+     *
+     * @param string $attribute: The new attribute name.
+     * @param string $cast: The cast type. See https://laravel.com/docs/8.x/eloquent-mutators#attribute-casting
+     * @return self
+     */
+    public function cast(string $attribute, string $cast): self
+    {
+        $this->casts[$attribute] = $cast;
 
         return $this;
     }
@@ -184,5 +193,14 @@ class Model implements ExtenderInterface
         foreach ($this->customRelations as $name => $callback) {
             Arr::set(AbstractModel::$customRelations, "$this->modelClass.$name", ContainerUtil::wrapCallback($callback, $container));
         }
+
+        Arr::set(
+            AbstractModel::$customCasts,
+            $this->modelClass,
+            array_merge(
+                Arr::get(AbstractModel::$customCasts, $this->modelClass, []),
+                $this->casts
+            )
+        );
     }
 }

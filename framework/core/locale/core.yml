@@ -209,7 +209,7 @@ core:
       read_heading: Read
       rename_discussions_label: Rename discussions
       reply_to_discussions_label: Reply to discussions
-      search_users_label: Search users
+      search_users_label: => core.ref.search_users
       sign_up_label: Sign up
       start_discussions_label: Start discussions
       title: Permissions
@@ -276,6 +276,7 @@ core:
         next_button: Next page
         page_counter: Page {current} of {total}
 
+      search_placeholder: => core.ref.search_users
       title: => core.ref.users
       total_users: "Total users: {count}"
 
@@ -758,7 +759,8 @@ core:
     reply: Reply                                 # Referenced by flarum-mentions.yml
     reset_your_password: Reset Your Password
     restore: Restore
-    save_changes: Save Changes                   # Referenced by flarum-suspend.yml, flarum-tags.yml
+    save_changes: Save Changes     
+    search_users: Search users              # Referenced by flarum-suspend.yml, flarum-tags.yml
     settings: Settings
     sign_up: Sign Up
     some_others: "{count, plural, one {# other} other {# others}}"  # Referenced by flarum-likes.yml, flarum-mentions.yml

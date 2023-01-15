@@ -2,7 +2,7 @@ import { AdminRoutes } from './routes';
 import Application, { ApplicationData } from '../common/Application';
 import ExtensionData from './utils/ExtensionData';
 import IHistory from '../common/IHistory';
-export declare type Extension = {
+export type Extension = {
     id: string;
     name: string;
     version: string;
@@ -36,6 +36,7 @@ export interface AdminApplicationData extends ApplicationData {
     }>;
     displayNameDrivers: string[];
     slugDrivers: Record<string, string[]>;
+    permissions: Record<string, string[]>;
 }
 export default class AdminApplication extends Application {
     extensionData: ExtensionData;

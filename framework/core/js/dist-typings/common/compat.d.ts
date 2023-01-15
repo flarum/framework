@@ -1,6 +1,7 @@
 import Session from './Session';
 import Store from './Store';
 import BasicEditorDriver from './utils/BasicEditorDriver';
+import KeyboardNavigatable from './utils/KeyboardNavigatable';
 import liveHumanTimes from './utils/liveHumanTimes';
 import ItemList from './utils/ItemList';
 import mixin from './utils/mixin';
@@ -95,6 +96,7 @@ declare const _default: {
         one(event: string, handler: Function): void;
         off(event: string, handler: Function): void;
     };
+    'utils/KeyboardNavigatable': typeof KeyboardNavigatable;
     'utils/liveHumanTimes': typeof liveHumanTimes;
     'utils/ItemList': typeof ItemList;
     'utils/mixin': typeof mixin;
@@ -117,7 +119,7 @@ declare const _default: {
     'utils/setRouteWithForcedRefresh': typeof setRouteWithForcedRefresh;
     'utils/patchMithril': typeof patchMithril;
     'utils/proxifyCompat': typeof proxifyCompat;
-    'utils/classList': (...classes: import("clsx").ClassValue[]) => string;
+    'utils/classList': typeof import("clsx").clsx;
     'utils/extractText': typeof extractText;
     'utils/formatNumber': typeof formatNumber;
     'utils/mapRoutes': typeof mapRoutes;

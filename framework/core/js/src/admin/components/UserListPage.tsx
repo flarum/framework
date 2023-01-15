@@ -14,8 +14,8 @@ import type User from '../../common/models/User';
 import ItemList from '../../common/utils/ItemList';
 import classList from '../../common/utils/classList';
 import extractText from '../../common/utils/extractText';
-
 import AdminPage from './AdminPage';
+import { debounce } from '../../common/utils/throttleDebounce';
 
 type ColumnData = {
   /**
@@ -32,6 +32,9 @@ type ColumnData = {
  * Admin page which displays a paginated list of all users on the forum.
  */
 export default class UserListPage extends AdminPage {
+  private query: string = '';
+  private throttledSearch = debounce(250, () => this.loadPage(0));
+
   /**
    * Number of users to load per page.
    */
@@ -91,6 +94,18 @@ export default class UserListPage extends AdminPage {
     const columns = this.columns().toArray();
 
     return [
+      <div className="Search-input">
+        <input
+          className="FormControl SearchBar"
+          type="search"
+          placeholder={app.translator.trans('core.admin.users.search_placeholder')}
+          oninput={(e: InputEvent) => {
+            this.isLoadingPage = true;
+            this.query = (e?.target as HTMLInputElement)?.value;
+            this.throttledSearch();
+          }}
+        />
+      </div>,
       <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.users.total_users', { count: this.userCount })}</p>,
       <section
         class={classList(['UserListPage-grid', this.isLoadingPage ? 'UserListPage-grid--loadingPage' : 'UserListPage-grid--loaded'])}
@@ -339,6 +354,7 @@ export default class UserListPage extends AdminPage {
 
     app.store
       .find<User[]>('users', {
+        filter: { q: this.query },
         page: {
           limit: this.numPerPage,
           offset: pageNumber * this.numPerPage,

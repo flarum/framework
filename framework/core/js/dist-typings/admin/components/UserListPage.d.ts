@@ -3,7 +3,7 @@ import type Mithril from 'mithril';
 import type User from '../../common/models/User';
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
-declare type ColumnData = {
+type ColumnData = {
     /**
      * Column title
      */
@@ -17,6 +17,8 @@ declare type ColumnData = {
  * Admin page which displays a paginated list of all users on the forum.
  */
 export default class UserListPage extends AdminPage {
+    private query;
+    private throttledSearch;
     /**
      * Number of users to load per page.
      */

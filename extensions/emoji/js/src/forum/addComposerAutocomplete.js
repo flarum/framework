@@ -3,7 +3,7 @@ import emojiMap from 'simple-emoji-map';
 import { extend } from 'flarum/common/extend';
 import TextEditor from 'flarum/common/components/TextEditor';
 import TextEditorButton from 'flarum/common/components/TextEditorButton';
-import KeyboardNavigatable from 'flarum/forum/utils/KeyboardNavigatable';
+import KeyboardNavigatable from 'flarum/common/utils/KeyboardNavigatable';
 
 import AutocompleteDropdown from './fragments/AutocompleteDropdown';
 import getEmojiIconCode from './helpers/getEmojiIconCode';
