@@ -171,7 +171,7 @@ class ConfigureMentions
 
     /**
      * @param $tag
-     * @return bool
+     * @return bool|void
      */
     public static function addGroupId($tag)
     {
@@ -208,7 +208,7 @@ class ConfigureMentions
 
         $hexNumbers = Str::replace('#', '', $hexColor);
         if (Str::length($hexNumbers) === 3) {
-            $hexNumbers += $hexNumbers;
+            $hexNumbers .= $hexNumbers;
         }
 
         $r = hexdec(Str::substr($hexNumbers, 0, 2));

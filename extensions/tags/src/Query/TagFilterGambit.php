@@ -38,7 +38,7 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
 
     protected function conditions(SearchState $search, array $matches, $negate)
     {
-        $this->constrain($search->getQuery(), $matches[1], $negate);
+        $this->constrain($search->getQuery(), $matches[1], $negate, $search->getActor());
     }
 
     public function getFilterKey(): string
