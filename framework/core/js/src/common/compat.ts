@@ -1,5 +1,5 @@
-// @ts-expect-error We need to explicitly use the prefix to distinguish between the extend folder.
-import * as extend from './extend.ts';
+import * as extend from './extend';
+import extenders from './extenders';
 import Session from './Session';
 import Store from './Store';
 import BasicEditorDriver from './utils/BasicEditorDriver';
@@ -90,6 +90,7 @@ import ModalManagerState from './states/ModalManagerState';
 import PageState from './states/PageState';
 
 export default {
+  extenders,
   extend: extend,
   Session: Session,
   Store: Store,

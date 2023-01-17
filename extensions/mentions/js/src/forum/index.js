@@ -13,9 +13,10 @@ import UserMentionedNotification from './components/UserMentionedNotification';
 import GroupMentionedNotification from './components/GroupMentionedNotification';
 import UserPage from 'flarum/forum/components/UserPage';
 import LinkButton from 'flarum/common/components/LinkButton';
-import MentionsUserPage from './components/MentionsUserPage';
 import User from 'flarum/common/models/User';
 import Model from 'flarum/common/Model';
+
+export { default as extend } from './extend';
 
 app.initializers.add('flarum-mentions', function () {
   User.prototype.canMentionGroups = Model.attribute('canMentionGroups');
@@ -65,7 +66,6 @@ app.initializers.add('flarum-mentions', function () {
   });
 
   // Add mentions tab in user profile
-  app.routes['user.mentions'] = { path: '/u/:username/mentions', component: MentionsUserPage };
   extend(UserPage.prototype, 'navItems', function (items) {
     const user = this.user;
     items.add(

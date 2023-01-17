@@ -8,13 +8,13 @@ import addFlagControl from './addFlagControl';
 import addFlagsDropdown from './addFlagsDropdown';
 import addFlagsToPosts from './addFlagsToPosts';
 
+export { default as extend } from './extend';
+
 app.initializers.add('flarum-flags', () => {
   Post.prototype.flags = Model.hasMany<Flag>('flags');
   Post.prototype.canFlag = Model.attribute<boolean>('canFlag');
 
   app.store.models.flags = Flag;
-
-  app.routes.flags = { path: '/flags', component: FlagsPage };
 
   app.flags = new FlagListState(app);
 
