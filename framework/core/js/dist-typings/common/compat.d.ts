@@ -77,6 +77,7 @@ import highlight from './helpers/highlight';
 import username from './helpers/username';
 import userOnline from './helpers/userOnline';
 import listItems from './helpers/listItems';
+import textContrastClass from './helpers/textContrastClass';
 import Fragment from './Fragment';
 import DefaultResolver from './resolvers/DefaultResolver';
 import PaginatedListState from './states/PaginatedListState';
@@ -180,6 +181,7 @@ declare const _default: {
     'helpers/username': typeof username;
     'helpers/userOnline': typeof userOnline;
     'helpers/listItems': typeof listItems;
+    'helpers/textContrastClass': typeof textContrastClass;
     'resolvers/DefaultResolver': typeof DefaultResolver;
     'states/PaginatedListState': typeof PaginatedListState;
     'states/AlertManagerState': typeof AlertManagerState;
