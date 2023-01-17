@@ -34,7 +34,11 @@ import routes from './routes';
 import AdminApplication from './AdminApplication';
 import generateElementId from './utils/generateElementId';
 declare const _default: {
-    extend: any;
+    extenders: {
+        PostTypes: typeof import("../common/extenders/PostTypes").default;
+        Routes: typeof import("../common/extenders/Routes").default;
+    };
+    extend: typeof import("../common/extend");
     Session: typeof import("../common/Session").default;
     Store: typeof import("../common/Store").default;
     'utils/BasicEditorDriver': typeof import("../common/utils/BasicEditorDriver").default;

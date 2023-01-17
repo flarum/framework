@@ -14,6 +14,7 @@ import type Component from './Component';
 import type { ComponentAttrs } from './Component';
 import Model, { SavedModelData } from './Model';
 import IHistory from './IHistory';
+import IExtender from './extenders/IExtender';
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 export type FlarumGenericRoute = RouteItem<any, any, any>;
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
@@ -196,7 +197,7 @@ export default class Application {
     load(payload: Application['data']): void;
     boot(): void;
     bootExtensions(extensions: Record<string, {
-        extend?: unknown[];
+        extend?: IExtender[];
     }>): void;
     protected mount(basePath?: string): void;
     /**
