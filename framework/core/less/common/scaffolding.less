@@ -159,3 +159,14 @@ blockquote ol:last-child {
   white-space: nowrap;
   width: 1px;
 }
+
+.text-contrast {
+  &--dark {
+    --contrast-color: var(--text-on-light);
+    color: var(--contrast-color);
+  }
+  &--light {
+    --contrast-color: var(--text-on-dark);
+    color: var(--contrast-color);
+  }
+}

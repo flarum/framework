@@ -64,7 +64,7 @@
   }
   &.colored {
     &, a {
-      color: @body-bg;
+      color: var(--contrast-color, var(--body-bg));
     }
   }
 }
@@ -100,10 +100,7 @@
 .TagTile-description {
   font-size: 12px;
   margin: 0 0 10px;
-
-  .TagTile.colored & {
-    color: fade(@body-bg, 70%);
-  }
+  opacity: 70%;
 }
 .TagTile-children {
   font-weight: bold;
@@ -124,10 +121,7 @@
   font-size: 12px;
   border-top: 1px solid rgba(0, 0, 0, 0.15);
   margin: 0 20px;
-
-  .TagTile.colored & {
-    color: fade(@body-bg, 70%);
-  }
+  opacity: 70%;
 
   &:hover .TagTile-lastPostedDiscussion-title {
     text-decoration: underline;
