@@ -16,7 +16,7 @@ interface MailableInterface
     /**
      * Get the name of the view to construct a notification email with.
      *
-     * @return string
+     * @return string|array
      */
     public function getEmailView();
 

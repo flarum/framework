@@ -10,7 +10,7 @@
 namespace Flarum\PackageManager\Job;
 
 use Flarum\Bus\Dispatcher as Bus;
-use Flarum\PackageManager\Command\BusinessCommandInterface;
+use Flarum\PackageManager\Command\AbstractActionCommand;
 use Flarum\PackageManager\Task\Task;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Queue\Queue;
@@ -63,7 +63,7 @@ class Dispatcher
         return $this;
     }
 
-    public function dispatch(BusinessCommandInterface $command): DispatcherResponse
+    public function dispatch(AbstractActionCommand $command): DispatcherResponse
     {
         $queueJobs = ($this->runSyncOverride === false) || ($this->runSyncOverride !== true && $this->settings->get('flarum-package-manager.queue_jobs'));
 
