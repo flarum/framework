@@ -64,9 +64,6 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
 
   view() {
     const discussion = this.attrs.discussion;
-    const user = discussion.user();
-    const isUnread = discussion.isUnread();
-    const isRead = discussion.isRead();
 
     let jumpTo = 0;
     const controls = DiscussionControls.controls(discussion, this).toArray();
@@ -84,45 +81,85 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
       jumpTo = Math.min(discussion.lastPostNumber() ?? 0, (discussion.lastReadPostNumber() || 0) + 1);
     }
 
+    const data = { discussion, jumpTo };
+
     return (
       <div {...attrs}>
-        {controls.length > 0 &&
-          Dropdown.component(
-            {
-              icon: 'fas fa-ellipsis-v',
-              className: 'DiscussionListItem-controls',
-              buttonClassName: 'Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right',
-              accessibleToggleLabel: app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label'),
-            },
-            controls
-          )}
-
-        <span
-          className={'Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic' + (isUnread ? '' : ' disabled')}
-          onclick={this.markAsRead.bind(this)}
-        >
-          {icon('fas fa-check')}
-        </span>
-
-        <div className={classList('DiscussionListItem-content', 'Slidable-content', { unread: isUnread, read: isRead })}>
-          <Tooltip
-            text={app.translator.trans('core.forum.discussion_list.started_text', { user, ago: humanTime(discussion.createdAt()) })}
-            position="right"
-          >
-            <Link className="DiscussionListItem-author" href={user ? app.route.user(user) : '#'}>
-              {avatar(user || null, { title: '' })}
-            </Link>
-          </Tooltip>
-
-          <ul className="DiscussionListItem-badges badges">{listItems(discussion.badges().toArray())}</ul>
-
-          <Link href={app.route.discussion(discussion, jumpTo)} className="DiscussionListItem-main">
-            <h3 className="DiscussionListItem-title">{highlight(discussion.title(), this.highlightRegExp)}</h3>
-            <ul className="DiscussionListItem-info">{listItems(this.infoItems().toArray())}</ul>
-          </Link>
-          {this.replyCountItem()}
-        </div>
+        {this.controlsView(controls)}
+        {this.slidableUnderneathView(data)}
+        {this.contentView(data)}
       </div>
+    );
+  }
+
+  controlsView(controls: Mithril.ChildArray): Mithril.Children {
+    return (
+      (controls.length > 0 &&
+        Dropdown.component(
+          {
+            icon: 'fas fa-ellipsis-v',
+            className: 'DiscussionListItem-controls',
+            buttonClassName: 'Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right',
+            accessibleToggleLabel: app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label'),
+          },
+          controls
+        )) ||
+      null
+    );
+  }
+
+  slidableUnderneathView({ discussion }: any): Mithril.Children {
+    const isUnread = discussion.isUnread();
+
+    return (
+      <span
+        className={'Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic' + (isUnread ? '' : ' disabled')}
+        onclick={this.markAsRead.bind(this)}
+      >
+        {icon('fas fa-check')}
+      </span>
+    );
+  }
+
+  contentView(data: any): Mithril.Children {
+    const isUnread = data.discussion.isUnread();
+    const isRead = data.discussion.isRead();
+
+    return (
+      <div className={classList('DiscussionListItem-content', 'Slidable-content', { unread: isUnread, read: isRead })}>
+        {this.authorAvatarView(data)}
+        {this.badgesView(data)}
+        {this.mainView(data)}
+        {this.replyCountItem()}
+      </div>
+    );
+  }
+
+  authorAvatarView({ discussion }: any): Mithril.Children {
+    const user = discussion.user();
+
+    return (
+      <Tooltip
+        text={app.translator.trans('core.forum.discussion_list.started_text', { user, ago: humanTime(discussion.createdAt()) })}
+        position="right"
+      >
+        <Link className="DiscussionListItem-author" href={user ? app.route.user(user) : '#'}>
+          {avatar(user || null, { title: '' })}
+        </Link>
+      </Tooltip>
+    );
+  }
+
+  badgesView({ discussion }: any): Mithril.Children {
+    return <ul className="DiscussionListItem-badges badges">{listItems(discussion.badges().toArray())}</ul>;
+  }
+
+  mainView({ discussion, jumpTo }: any): Mithril.Children {
+    return (
+      <Link href={app.route.discussion(discussion, jumpTo)} className="DiscussionListItem-main">
+        <h3 className="DiscussionListItem-title">{highlight(discussion.title(), this.highlightRegExp)}</h3>
+        <ul className="DiscussionListItem-info">{listItems(this.infoItems().toArray())}</ul>
+      </Link>
     );
   }
 
