@@ -3,6 +3,7 @@ import IndexPage from 'flarum/forum/components/IndexPage';
 import Link from 'flarum/common/components/Link';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import listItems from 'flarum/common/helpers/listItems';
+import ItemList from 'flarum/common/utils/ItemList';
 import humanTime from 'flarum/common/helpers/humanTime';
 import textContrastClass from 'flarum/common/helpers/textContrastClass';
 import classList from 'flarum/common/utils/classList';
@@ -14,7 +15,6 @@ import sortTags from '../../common/utils/sortTags';
 export default class TagsPage extends Page {
   oninit(vnode) {
     super.oninit(vnode);
-    TagsPage;
 
     app.history.push('tags', app.translator.trans('flarum-tags.forum.header.back_to_tags_tooltip'));
 
@@ -38,36 +38,56 @@ export default class TagsPage extends Page {
     });
   }
 
-  view() {
-    const pinned = this.tags.filter((tag) => tag.position() !== null);
-    const cloud = this.tags.filter((tag) => tag.position() === null);
-
-    return (
-      <div className="TagsPage">
-        {this.hero()}
-        <div className="container">
-          {this.sidebar()}
-
-          <div className="TagsPage-content sideNavOffset">
-            {this.loading ? (
-              <LoadingIndicator />
-            ) : (
-              <>
-                {this.tagTileListView(pinned)}
-                {cloud.length ? this.cloudView(cloud) : ''}
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   oncreate(vnode) {
     super.oncreate(vnode);
 
     app.setTitle(app.translator.trans('flarum-tags.forum.all_tags.meta_title_text'));
     app.setTitleCount(0);
+  }
+
+  view() {
+    return <div className="TagsPage">{this.pageContent().toArray()}</div>;
+  }
+
+  pageContent() {
+    const items = new ItemList();
+
+    items.add('hero', this.hero(), 100);
+    items.add('main', <div className="container">{this.mainContent().toArray()}</div>, 10);
+
+    return items;
+  }
+
+  mainContent() {
+    const items = new ItemList();
+
+    items.add('sidebar', this.sidebar(), 100);
+    items.add('content', this.content(), 10);
+
+    return items;
+  }
+
+  content() {
+    return <div className="TagsPage-content sideNavOffset">{this.contentItems().toArray()}</div>;
+  }
+
+  contentItems() {
+    const items = new ItemList();
+
+    if (this.loading) {
+      items.add('loading', <LoadingIndicator />);
+    } else {
+      const pinned = this.tags.filter((tag) => tag.position() !== null);
+      const cloud = this.tags.filter((tag) => tag.position() === null);
+
+      items.add('tagTiles', this.tagTileListView(pinned), 100);
+
+      if (cloud.length) {
+        items.add('cloud', this.cloudView(cloud), 10);
+      }
+    }
+
+    return items;
   }
 
   hero() {
