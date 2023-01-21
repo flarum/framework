@@ -12,13 +12,8 @@ namespace Flarum\PackageManager\Command;
 use Flarum\PackageManager\Task\Task;
 use Flarum\User\User;
 
-class GlobalUpdate implements BusinessCommandInterface
+class GlobalUpdate extends AbstractActionCommand
 {
-    /**
-     * @var Task
-     */
-    public $task = null;
-
     /**
      * @var \Flarum\User\User
      */

@@ -1,3 +1,4 @@
+import * as extend from './extend';
 import Session from './Session';
 import Store from './Store';
 import BasicEditorDriver from './utils/BasicEditorDriver';
@@ -76,6 +77,7 @@ import highlight from './helpers/highlight';
 import username from './helpers/username';
 import userOnline from './helpers/userOnline';
 import listItems from './helpers/listItems';
+import textContrastClass from './helpers/textContrastClass';
 import Fragment from './Fragment';
 import DefaultResolver from './resolvers/DefaultResolver';
 import PaginatedListState from './states/PaginatedListState';
@@ -84,7 +86,11 @@ import AlertManagerState from './states/AlertManagerState';
 import ModalManagerState from './states/ModalManagerState';
 import PageState from './states/PageState';
 declare const _default: {
-    extend: any;
+    extenders: {
+        PostTypes: typeof import("./extenders/PostTypes").default;
+        Routes: typeof import("./extenders/Routes").default;
+    };
+    extend: typeof extend;
     Session: typeof Session;
     Store: typeof Store;
     'utils/BasicEditorDriver': typeof BasicEditorDriver;
@@ -175,6 +181,7 @@ declare const _default: {
     'helpers/username': typeof username;
     'helpers/userOnline': typeof userOnline;
     'helpers/listItems': typeof listItems;
+    'helpers/textContrastClass': typeof textContrastClass;
     'resolvers/DefaultResolver': typeof DefaultResolver;
     'states/PaginatedListState': typeof PaginatedListState;
     'states/AlertManagerState': typeof AlertManagerState;

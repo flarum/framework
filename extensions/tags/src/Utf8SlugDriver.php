@@ -44,10 +44,13 @@ class Utf8SlugDriver implements SlugDriverInterface
      */
     public function fromSlug(string $slug, User $actor): AbstractModel
     {
-        return $this->repository
+        /** @var Tag $tag */
+        $tag = $this->repository
             ->query()
             ->where('slug', urldecode($slug))
             ->whereVisibleTo($actor)
             ->firstOrFail();
+
+        return $tag;
     }
 }

@@ -60,6 +60,7 @@ class ComposerAdapter
         $exitCode = $this->application->run($input, $this->output);
         chdir($currDir);
 
+        // @phpstan-ignore-next-line
         $command = $input->__toString();
         $output = $this->output->fetch();
 

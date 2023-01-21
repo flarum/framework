@@ -4,6 +4,8 @@ import Link from 'flarum/common/components/Link';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import listItems from 'flarum/common/helpers/listItems';
 import humanTime from 'flarum/common/helpers/humanTime';
+import textContrastClass from 'flarum/common/helpers/textContrastClass';
+import classList from 'flarum/common/utils/classList';
 
 import tagIcon from '../../common/helpers/tagIcon';
 import tagLabel from '../../common/helpers/tagLabel';
@@ -58,7 +60,7 @@ export default class TagsPage extends Page {
                 const children = sortTags(tag.children() || []);
 
                 return (
-                  <li className={'TagTile ' + (tag.color() ? 'colored' : '')} style={{ '--tag-bg': tag.color() }}>
+                  <li className={classList('TagTile', { colored: tag.color() }, textContrastClass(tag.color()))} style={{ '--tag-bg': tag.color() }}>
                     <Link className="TagTile-info" href={app.route.tag(tag)}>
                       {tag.icon() && tagIcon(tag, {}, { useColor: false })}
                       <h3 className="TagTile-name">{tag.name()}</h3>

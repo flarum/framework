@@ -1,6 +1,7 @@
 import app from '../../forum/app';
 import EventPost from './EventPost';
 import extractText from '../../common/utils/extractText';
+import Tooltip from '../../common/components/Tooltip';
 
 /**
  * The `DiscussionRenamedPost` component displays a discussion event post
@@ -17,9 +18,8 @@ export default class DiscussionRenamedPost extends EventPost {
 
   description(data) {
     const renamed = app.translator.trans('core.forum.post_stream.discussion_renamed_text', data);
-    const oldName = app.translator.trans('core.forum.post_stream.discussion_renamed_old_tooltip', data);
 
-    return <span title={extractText(oldName)}>{renamed}</span>;
+    return <span>{renamed}</span>;
   }
 
   descriptionData() {
@@ -28,8 +28,11 @@ export default class DiscussionRenamedPost extends EventPost {
     const newTitle = post.content()[1];
 
     return {
-      old: oldTitle,
-      new: <strong className="DiscussionRenamedPost-new">{newTitle}</strong>,
+      new: (
+        <Tooltip text={extractText(app.translator.trans('core.forum.post_stream.discussion_renamed_old_tooltip', { old: oldTitle }))}>
+          <strong className="DiscussionRenamedPost-new">{newTitle}</strong>
+        </Tooltip>
+      ),
     };
   }
 }

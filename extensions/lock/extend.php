@@ -35,12 +35,15 @@ return [
     (new Extend\Notification())
         ->type(DiscussionLockedBlueprint::class, BasicDiscussionSerializer::class, ['alert']),
 
+    (new Extend\Model(Discussion::class))
+        ->cast('is_locked', 'bool'),
+
     (new Extend\ApiSerializer(DiscussionSerializer::class))
         ->attribute('isLocked', function (DiscussionSerializer $serializer, Discussion $discussion) {
-            return (bool) $discussion->is_locked;
+            return $discussion->is_locked;
         })
         ->attribute('canLock', function (DiscussionSerializer $serializer, Discussion $discussion) {
-            return (bool) $serializer->getActor()->can('lock', $discussion);
+            return $serializer->getActor()->can('lock', $discussion);
         }),
 
     (new Extend\Post())

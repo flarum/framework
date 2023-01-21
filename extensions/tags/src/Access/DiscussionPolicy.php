@@ -34,7 +34,7 @@ class DiscussionPolicy extends AbstractPolicy
      * @param User $actor
      * @param string $ability
      * @param Discussion $discussion
-     * @return bool
+     * @return string|void
      */
     public function can(User $actor, $ability, Discussion $discussion)
     {
@@ -68,7 +68,7 @@ class DiscussionPolicy extends AbstractPolicy
      *
      * @param User $actor
      * @param Discussion $discussion
-     * @return bool
+     * @return string|void
      */
     public function tag(User $actor, Discussion $discussion)
     {

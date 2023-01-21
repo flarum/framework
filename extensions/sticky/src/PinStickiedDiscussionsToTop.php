@@ -43,12 +43,12 @@ class PinStickiedDiscussionsToTop
             // reorder the unread ones up to the top.
             $sticky = clone $query;
             $sticky->where('is_sticky', true);
-            $sticky->orders = null;
+            unset($sticky->orders);
 
             $query->union($sticky);
 
             $read = $query->newQuery()
-                ->selectRaw(1)
+                ->selectRaw('1')
                 ->from('discussion_user as sticky')
                 ->whereColumn('sticky.discussion_id', 'id')
                 ->where('sticky.user_id', '=', $filterState->getActor()->id)
@@ -58,14 +58,14 @@ class PinStickiedDiscussionsToTop
             // argument in orderByRaw) for now due to a bug in Laravel which
             // would add the bindings in the wrong order.
             $query->orderByRaw('is_sticky and not exists ('.$read->toSql().') and last_posted_at > ? desc')
-                ->addBinding(array_merge($read->getBindings(), [$filterState->getActor()->read_time ?: 0]), 'union');
+                ->addBinding(array_merge($read->getBindings(), [$filterState->getActor()->marked_all_as_read_at ?: 0]), 'union');
 
             $query->unionOrders = array_merge($query->unionOrders, $query->orders);
             $query->unionLimit = $query->limit;
             $query->unionOffset = $query->offset;
 
             $query->limit = $sticky->limit = $query->offset + $query->limit;
-            $query->offset = $sticky->offset = null;
+            unset($query->offset, $sticky->offset);
         }
     }
 }
