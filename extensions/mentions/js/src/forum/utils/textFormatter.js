@@ -1,7 +1,6 @@
 import app from 'flarum/forum/app';
 import username from 'flarum/common/helpers/username';
 import extractText from 'flarum/common/utils/extractText';
-import textContrastClass from 'flarum/common/helpers/textContrastClass';
 
 export function filterUserMentions(tag) {
   let user;
