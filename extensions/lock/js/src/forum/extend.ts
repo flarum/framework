@@ -7,5 +7,6 @@ export default [
     .add('discussionLocked', DiscussionLockedPost),
 
   new Extend.Model(Discussion) //
-    .attribute<boolean>('isLocked').attribute<boolean>('canLock'),
+    .attribute<boolean>('isLocked')
+    .attribute<boolean>('canLock'),
 ];

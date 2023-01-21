@@ -11,5 +11,6 @@ export default [
     .register('flags'),
 
   new Extend.Model(Post) //
-    .hasMany<Flag>('flags').attribute<boolean>('canFlag'),
+    .hasMany<Flag>('flags')
+    .attribute<boolean>('canFlag'),
 ];

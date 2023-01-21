@@ -8,5 +8,6 @@ export default [
     .add('user.likes', '/u/:username/likes', LikesUserPage),
 
   new Extend.Model(Post) //
-    .hasMany<User>('likes').attribute<boolean>('canLike'),
+    .hasMany<User>('likes')
+    .attribute<boolean>('canLike'),
 ];

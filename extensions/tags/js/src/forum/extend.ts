@@ -12,13 +12,14 @@ export default [
   ...commonExtend,
 
   new Extend.Routes() //
-    .add('tags', '/tags', TagsPage)
-    .add('tag', '/t/:tags', IndexPage)
+    .add('tags', '/tags', TagsPage) //
+    .add('tag', '/t/:tags', IndexPage) //
     .helper('tag', (tag) => app.route('tag', { tags: tag.slug() })),
 
   new Extend.PostTypes() //
     .add('discussionTagged', DiscussionTaggedPost),
 
   new Extend.Model(Discussion) //
-    .hasMany<Tag>('tags').attribute<boolean>('canTag'),
+    .hasMany<Tag>('tags') //
+    .attribute<boolean>('canTag'),
 ];

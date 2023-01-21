@@ -5,6 +5,7 @@ import Discussion from 'flarum/common/models/Discussion';
 export default [
   new Extend.Routes() //
     .add('following', '/following', IndexPage),
+
   new Extend.Model(Discussion) //
-    .attribute('subscription')
+    .attribute('subscription'),
 ];

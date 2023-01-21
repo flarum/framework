@@ -7,5 +7,6 @@ export default [
     .add('discussionStickied', DiscussionStickiedPost),
 
   new Extend.Model(Discussion) //
-    .attribute<boolean>('isSticky').attribute<boolean>('canSticky'),
+    .attribute<boolean>('isSticky')
+    .attribute<boolean>('canSticky'),
 ];
