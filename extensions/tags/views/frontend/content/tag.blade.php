@@ -2,7 +2,7 @@
 
 <div class="container">
     <h1>{{ $tag->name }}</h1>
-    <h2>{{ $tag->description }}</h2>
+    <p>{{ $tag->description }}</p>
 
     <ul>
         @foreach ($apiDocument->data as $discussion)
