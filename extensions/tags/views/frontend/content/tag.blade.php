@@ -1,8 +1,8 @@
 @inject('url', 'Flarum\Http\UrlGenerator')
 
 <div class="container">
-    <h2>{{ $tag->name }}</h2>
-    <p>{{ $tag->description }}</p>
+    <h1>{{ $tag->name }}</h1>
+    <h2>{{ $tag->description }}</h2>
 
     <ul>
         @foreach ($apiDocument->data as $discussion)
