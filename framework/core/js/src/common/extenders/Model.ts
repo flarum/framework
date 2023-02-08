@@ -4,7 +4,6 @@ import ActualModel from '../Model';
 
 export default class Model implements IExtender {
   private readonly model: { new (): ActualModel };
-  private type: string | null = null;
   private callbacks: Array<() => void> = [];
 
   public constructor(model: { new (): ActualModel }) {
@@ -35,24 +34,9 @@ export default class Model implements IExtender {
     return this;
   }
 
-  /**
-   * Set the model type and register it to the application.
-   *
-   * @param type The model type name. Must be the same as the backend serializer's type name.
-   */
-  public register(type: string): Model {
-    this.type = type;
-
-    return this;
-  }
-
   extend(app: Application, extension: IExtensionModule): void {
     for (const callback of this.callbacks) {
       callback.call(this);
-    }
-
-    if (this.type) {
-      app.store.models[this.type] = this.model;
     }
   }
 }

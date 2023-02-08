@@ -7,8 +7,8 @@ export default [
   new Extend.Routes() //
     .add('flags', '/flags', FlagsPage),
 
-  new Extend.Model(Flag) //
-    .register('flags'),
+  new Extend.Store() //
+    .add('flags', Flag),
 
   new Extend.Model(Post) //
     .hasMany<Flag>('flags')
