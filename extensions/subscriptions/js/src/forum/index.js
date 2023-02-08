@@ -16,8 +16,6 @@ export { default as extend } from './extend';
 app.initializers.add('subscriptions', function () {
   app.notificationComponents.newPost = NewPostNotification;
 
-  Discussion.prototype.subscription = Model.attribute('subscription');
-
   addSubscriptionBadge();
   addSubscriptionControls();
   addSubscriptionFilter();
