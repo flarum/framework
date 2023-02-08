@@ -35,8 +35,10 @@ import AdminApplication from './AdminApplication';
 import generateElementId from './utils/generateElementId';
 declare const _default: {
     extenders: {
+        Model: typeof import("../common/extenders/Model").default;
         PostTypes: typeof import("../common/extenders/PostTypes").default;
         Routes: typeof import("../common/extenders/Routes").default;
+        Store: typeof import("../common/extenders/Store").default;
     };
     extend: typeof import("../common/extend");
     Session: typeof import("../common/Session").default;

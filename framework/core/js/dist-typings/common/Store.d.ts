@@ -69,8 +69,12 @@ export default class Store {
      * The model registry. A map of resource types to the model class that
      * should be used to represent resources of that type.
      */
-    models: Record<string, typeof Model>;
-    constructor(models: Record<string, typeof Model>);
+    models: Record<string, {
+        new (): Model;
+    }>;
+    constructor(models: Record<string, {
+        new (): Model;
+    }>);
     /**
      * Push resources contained within an API payload into the store.
      *
