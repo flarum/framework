@@ -9,6 +9,7 @@
 
 namespace Flarum\Pusher\Listener;
 
+use Flarum\Extension\ExtensionManager;
 use Flarum\Post\Event\Posted;
 use Flarum\User\Guest;
 use Flarum\User\User;
@@ -22,9 +23,15 @@ class PushNewPost
      */
     protected $pusher;
 
-    public function __construct(Pusher $pusher)
+    /**
+     * @var ExtensionManager
+     */
+    protected $extensions;
+
+    public function __construct(Pusher $pusher, ExtensionManager $extensions)
     {
         $this->pusher = $pusher;
+        $this->extensions = $extensions;
     }
 
     public function handle(Posted $event)
@@ -43,6 +50,7 @@ class PushNewPost
                 return;
             }
 
+            // @phpstan-ignore-next-line
             foreach ($response->channels as $name => $channel) {
                 $userId = Str::after($name, 'private-user');
 
@@ -53,7 +61,7 @@ class PushNewPost
         }
 
         if (count($channels)) {
-            $tags = $event->post->discussion->tags;
+            $tags = $this->extensions->isEnabled('flarum-tags') ? $event->post->discussion->tags : null;
 
             $this->pusher->trigger($channels, 'newPost', [
                 'postId' => $event->post->id,

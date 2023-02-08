@@ -29,6 +29,7 @@ class PusherProvider extends AbstractServiceProvider
                 $settings->get('flarum-pusher.app_key'),
                 $settings->get('flarum-pusher.app_secret'),
                 $settings->get('flarum-pusher.app_id'),
+                // @phpstan-ignore-next-line
                 $options
             );
         });

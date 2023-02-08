@@ -35,6 +35,7 @@ import type { ComponentAttrs } from './Component';
 import Model, { SavedModelData } from './Model';
 import fireApplicationError from './helpers/fireApplicationError';
 import IHistory from './IHistory';
+import IExtender from './extenders/IExtender';
 
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 
@@ -300,8 +301,7 @@ export default class Application {
     caughtInitializationErrors.forEach((handler) => handler());
   }
 
-  // TODO: This entire system needs a do-over for v2
-  public bootExtensions(extensions: Record<string, { extend?: unknown[] }>) {
+  public bootExtensions(extensions: Record<string, { extend?: IExtender[] }>) {
     Object.keys(extensions).forEach((name) => {
       const extension = extensions[name];
 
@@ -311,7 +311,6 @@ export default class Application {
       const extenders = extension.extend.flat(Infinity);
 
       for (const extender of extenders) {
-        // @ts-expect-error This is beyond saving atm.
         extender.extend(this, { name, exports: extension });
       }
     });

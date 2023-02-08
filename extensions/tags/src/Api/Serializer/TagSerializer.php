@@ -13,6 +13,7 @@ use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Http\SlugManager;
 use Flarum\Tags\Tag;
+use InvalidArgumentException;
 
 class TagSerializer extends AbstractSerializer
 {
@@ -39,6 +40,12 @@ class TagSerializer extends AbstractSerializer
      */
     protected function getDefaultAttributes($tag)
     {
+        if (! ($tag instanceof Tag)) {
+            throw new InvalidArgumentException(
+                get_class($this).' can only serialize instances of '.Tag::class
+            );
+        }
+
         $attributes = [
             'name'               => $tag->name,
             'description'        => $tag->description,

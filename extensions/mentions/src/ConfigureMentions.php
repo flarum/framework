@@ -11,11 +11,12 @@ namespace Flarum\Mentions;
 
 use Flarum\Group\Group;
 use Flarum\Http\UrlGenerator;
-use Flarum\Post\CommentPost;
+use Flarum\Post\PostRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Support\Str;
 use s9e\TextFormatter\Configurator;
+use s9e\TextFormatter\Parser\Tag;
 
 class ConfigureMentions
 {
@@ -39,7 +40,7 @@ class ConfigureMentions
         $this->configureGroupMentions($config);
     }
 
-    private function configureUserMentions(Configurator $config)
+    private function configureUserMentions(Configurator $config): void
     {
         $config->rendering->parameters['PROFILE_URL'] = $this->url->to('forum')->route('user', ['username' => '']);
 
@@ -66,9 +67,8 @@ class ConfigureMentions
     }
 
     /**
-     * @param $tag
-     *
-     * @return bool
+     * @param Tag $tag
+     * @return bool|void
      */
     public static function addUserId($tag)
     {
@@ -81,7 +81,7 @@ class ConfigureMentions
         }
 
         if (isset($user)) {
-            $tag->setAttribute('id', $user->id);
+            $tag->setAttribute('id', (string) $user->id);
             $tag->setAttribute('displayname', $user->display_name);
 
             return true;
@@ -90,7 +90,7 @@ class ConfigureMentions
         $tag->invalidate();
     }
 
-    private function configurePostMentions(Configurator $config)
+    private function configurePostMentions(Configurator $config): void
     {
         $config->rendering->parameters['DISCUSSION_URL'] = $this->url->to('forum')->route('discussion', ['id' => '']);
 
@@ -115,22 +115,25 @@ class ConfigureMentions
 
         $tag->filterChain
             ->prepend([static::class, 'addPostId'])
-            ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterPostMentions(tag); }');
+            ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterPostMentions(tag); }')
+            ->addParameterByName('actor');
 
         $config->Preg->match('/\B@["|“](?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#p(?<id>[0-9]+)\b/', $tagName);
     }
 
     /**
-     * @param $tag
-     * @return bool
+     * @param Tag $tag
+     * @return bool|void
      */
-    public static function addPostId($tag)
+    public static function addPostId($tag, User $actor)
     {
-        $post = CommentPost::find($tag->getAttribute('id'));
+        $post = resolve(PostRepository::class)
+            ->queryVisibleTo($actor)
+            ->find($tag->getAttribute('id'));
 
         if ($post) {
-            $tag->setAttribute('discussionid', (int) $post->discussion_id);
-            $tag->setAttribute('number', (int) $post->number);
+            $tag->setAttribute('discussionid', (string) $post->discussion_id);
+            $tag->setAttribute('number', (string) $post->number);
 
             if ($post->user) {
                 $tag->setAttribute('displayname', $post->user->display_name);
@@ -168,7 +171,7 @@ class ConfigureMentions
 
     /**
      * @param $tag
-     * @return bool
+     * @return bool|void
      */
     public static function addGroupId($tag)
     {
@@ -205,7 +208,7 @@ class ConfigureMentions
 
         $hexNumbers = Str::replace('#', '', $hexColor);
         if (Str::length($hexNumbers) === 3) {
-            $hexNumbers += $hexNumbers;
+            $hexNumbers .= $hexNumbers;
         }
 
         $r = hexdec(Str::substr($hexNumbers, 0, 2));

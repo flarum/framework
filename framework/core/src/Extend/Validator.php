@@ -31,7 +31,7 @@ class Validator implements ExtenderInterface
      * Configure the validator. This is often used to adjust validation rules, but can be
      * used to make other changes to the validator as well.
      *
-     * @param callable $callback
+     * @param callable|class-string $callback
      *
      * The callback can be a closure or invokable class, and should accept:
      * - \Flarum\Foundation\AbstractValidator $flarumValidator: The Flarum validator wrapper

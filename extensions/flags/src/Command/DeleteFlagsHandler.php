@@ -11,7 +11,7 @@ namespace Flarum\Flags\Command;
 
 use Flarum\Flags\Event\Deleting;
 use Flarum\Flags\Event\FlagsWillBeDeleted;
-use Flarum\Flags\Flag;
+use Flarum\Post\Post;
 use Flarum\Post\PostRepository;
 use Illuminate\Events\Dispatcher;
 
@@ -39,7 +39,7 @@ class DeleteFlagsHandler
 
     /**
      * @param DeleteFlags $command
-     * @return Flag
+     * @return Post
      */
     public function handle(DeleteFlags $command)
     {

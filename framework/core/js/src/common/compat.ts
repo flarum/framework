@@ -1,5 +1,5 @@
-// @ts-expect-error We need to explicitly use the prefix to distinguish between the extend folder.
-import * as extend from './extend.ts';
+import * as extend from './extend';
+import extenders from './extenders';
 import Session from './Session';
 import Store from './Store';
 import BasicEditorDriver from './utils/BasicEditorDriver';
@@ -81,6 +81,7 @@ import highlight from './helpers/highlight';
 import username from './helpers/username';
 import userOnline from './helpers/userOnline';
 import listItems from './helpers/listItems';
+import textContrastClass from './helpers/textContrastClass';
 import Fragment from './Fragment';
 import DefaultResolver from './resolvers/DefaultResolver';
 import PaginatedListState from './states/PaginatedListState';
@@ -90,6 +91,7 @@ import ModalManagerState from './states/ModalManagerState';
 import PageState from './states/PageState';
 
 export default {
+  extenders,
   extend: extend,
   Session: Session,
   Store: Store,
@@ -174,6 +176,7 @@ export default {
   'helpers/username': username,
   'helpers/userOnline': userOnline,
   'helpers/listItems': listItems,
+  'helpers/textContrastClass': textContrastClass,
   'resolvers/DefaultResolver': DefaultResolver,
   'states/PaginatedListState': PaginatedListState,
   'states/AlertManagerState': AlertManagerState,

@@ -54,7 +54,7 @@ abstract class AbstractModel extends Eloquent
     /**
      * @internal
      */
-    public static $dateAttributes = [];
+    public static $customCasts = [];
 
     /**
      * @internal
@@ -100,19 +100,17 @@ abstract class AbstractModel extends Eloquent
     }
 
     /**
-     * Get the attributes that should be converted to dates.
-     *
-     * @return array
+     * {@inheritdoc}
      */
-    public function getDates()
+    public function getCasts()
     {
-        $dates = $this->dates;
+        $casts = parent::getCasts();
 
         foreach (array_merge(array_reverse(class_parents($this)), [static::class]) as $class) {
-            $dates = array_merge($dates, Arr::get(static::$dateAttributes, $class, []));
+            $casts = array_merge($casts, Arr::get(static::$customCasts, $class, []));
         }
 
-        return $dates;
+        return $casts;
     }
 
     /**

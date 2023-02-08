@@ -92,9 +92,9 @@ flarum-tags:
 
     # These translations are displayed between posts in the post stream.
     post_stream:
-      added_and_removed_tags_text: "{username} added the {tagsAdded} and removed the {tagsRemoved}."
-      added_tags_text: "{username} added the {tagsAdded}."
-      removed_tags_text: "{username} removed the {tagsRemoved}."
+      added_and_removed_tags_text: "{username} added the {tagsAdded} and removed the {tagsRemoved} {time}."
+      added_tags_text: "{username} added the {tagsAdded} {time}."
+      removed_tags_text: "{username} removed the {tagsRemoved} {time}."
       tags_text: "{count, plural, one {{tags} tag} other {{tags} tags}}"
 
     # These translations are used when visiting a single tag's discussion list.

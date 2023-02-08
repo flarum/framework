@@ -236,7 +236,7 @@ class Extension implements Arrayable
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getVersion()
     {

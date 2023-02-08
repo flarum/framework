@@ -9,6 +9,7 @@
 
 use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Api\Serializer\DiscussionSerializer;
+use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
 use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
@@ -25,6 +26,9 @@ return [
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
         ->css(__DIR__.'/less/forum.less'),
+
+    (new Extend\Model(Discussion::class))
+        ->cast('is_sticky', 'bool'),
 
     (new Extend\Post())
         ->type(DiscussionStickiedPost::class),

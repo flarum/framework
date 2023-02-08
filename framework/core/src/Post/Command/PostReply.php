@@ -42,16 +42,22 @@ class PostReply
     public $ipAddress;
 
     /**
+     * @var bool
+     */
+    public $isFirstPost;
+
+    /**
      * @param int $discussionId The ID of the discussion to post the reply to.
      * @param User $actor The user who is performing the action.
      * @param array $data The attributes to assign to the new post.
      * @param string $ipAddress The IP address of the actor.
      */
-    public function __construct($discussionId, User $actor, array $data, $ipAddress = null)
+    public function __construct($discussionId, User $actor, array $data, $ipAddress = null, bool $isFirstPost = false)
     {
         $this->discussionId = $discussionId;
         $this->actor = $actor;
         $this->data = $data;
         $this->ipAddress = $ipAddress;
+        $this->isFirstPost = $isFirstPost;
     }
 }

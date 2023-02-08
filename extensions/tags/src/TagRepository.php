@@ -29,7 +29,7 @@ class TagRepository
     /**
      * @param array|string $relations
      * @param User $actor
-     * @return Builder
+     * @return Builder<Tag>
      */
     public function with($relations, User $actor): Builder
     {
@@ -64,9 +64,8 @@ class TagRepository
      * user, or throw an exception.
      *
      * @param int $id
-     * @param User $actor
+     * @param User|null $actor
      * @return Tag
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     public function findOrFail($id, User $actor = null)
     {
@@ -80,7 +79,7 @@ class TagRepository
      * certain user.
      *
      * @param User|null $user
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Database\Eloquent\Collection<Tag>
      */
     public function all(User $user = null)
     {
@@ -106,9 +105,9 @@ class TagRepository
     /**
      * Scope a query to only include records that are visible to a user.
      *
-     * @param Builder $query
-     * @param User $user
-     * @return Builder
+     * @param Builder<Tag> $query
+     * @param User|null $user
+     * @return Builder<Tag>
      */
     protected function scopeVisibleTo(Builder $query, User $user = null)
     {
