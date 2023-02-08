@@ -16,7 +16,7 @@
   }
 
   &.colored {
-    --tag-color: @body-bg;
+    --tag-color: var(--contrast-color, var(--body-bg));
 
     .TagLabel-text {
       color: var(--tag-color) !important;
@@ -31,13 +31,13 @@
     &.colored {
       --tag-color: var(--tag-bg);
       margin-right: 5px;
-      background: @body-bg !important;
+      background-color: var(--contrast-color, var(--body-bg));
     }
   }
 }
 .DiscussionHero--colored {
   &, a {
-    color: @body-bg;
+    color: var(--contrast-color, var(--body-bg));
   }
 }
 .TagsLabel {

@@ -11,7 +11,9 @@ namespace Flarum\Tags\Api\Controller;
 
 use Flarum\Api\Controller\AbstractShowController;
 use Flarum\Http\RequestUtil;
+use Flarum\Http\SlugManager;
 use Flarum\Tags\Api\Serializer\TagSerializer;
+use Flarum\Tags\Tag;
 use Flarum\Tags\TagRepository;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
@@ -34,11 +36,17 @@ class ShowTagController extends AbstractShowController
     /**
      * @var TagRepository
      */
-    private $tags;
+    protected $tags;
 
-    public function __construct(TagRepository $tags)
+    /**
+     * @var SlugManager
+     */
+    protected $slugger;
+
+    public function __construct(TagRepository $tags, SlugManager $slugger)
     {
         $this->tags = $tags;
+        $this->slugger = $slugger;
     }
 
     /**
@@ -57,11 +65,11 @@ class ShowTagController extends AbstractShowController
             $include = array_unique(array_diff($include, ['parent.children.parent']));
         }
 
-        $tag = $this->tags
-            ->with($include, $actor)
-            ->whereVisibleTo($actor)
-            ->where('slug', $slug)
-            ->firstOrFail();
+        $tag = $this->slugger
+            ->forResource(Tag::class)
+            ->fromSlug($slug, $actor);
+
+        $tag->load($this->tags->getAuthorizedRelations($include, $actor));
 
         if ($setParentOnChildren && $tag->parent) {
             foreach ($tag->parent->children as $child) {

@@ -16,6 +16,10 @@ export default class PostStream extends Component<import("../../common/Component
     stream: any;
     scrollListener: ScrollListener | undefined;
     view(): JSX.Element;
+    /**
+     * @returns {ItemList<import('mithril').Children>}
+     */
+    endItems(): ItemList<import('mithril').Children>;
     onupdate(vnode: any): void;
     oncreate(vnode: any): void;
     onremove(vnode: any): void;
@@ -86,3 +90,4 @@ export default class PostStream extends Component<import("../../common/Component
 }
 import Component from "../../common/Component";
 import ScrollListener from "../../common/utils/ScrollListener";
+import ItemList from "../../common/utils/ItemList";

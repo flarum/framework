@@ -34,7 +34,11 @@ import routes from './routes';
 import AdminApplication from './AdminApplication';
 import generateElementId from './utils/generateElementId';
 declare const _default: {
-    extend: any;
+    extenders: {
+        PostTypes: typeof import("../common/extenders/PostTypes").default;
+        Routes: typeof import("../common/extenders/Routes").default;
+    };
+    extend: typeof import("../common/extend");
     Session: typeof import("../common/Session").default;
     Store: typeof import("../common/Store").default;
     'utils/BasicEditorDriver': typeof import("../common/utils/BasicEditorDriver").default;
@@ -46,6 +50,7 @@ declare const _default: {
         one(event: string, handler: Function): void;
         off(event: string, handler: Function): void;
     };
+    'utils/KeyboardNavigatable': typeof import("../common/utils/KeyboardNavigatable").default;
     'utils/liveHumanTimes': typeof import("../common/utils/liveHumanTimes").default;
     'utils/ItemList': typeof import("../common/utils/ItemList").default;
     'utils/mixin': typeof import("../common/utils/mixin").default;
@@ -124,8 +129,12 @@ declare const _default: {
     'helpers/username': typeof import("../common/helpers/username").default;
     'helpers/userOnline': typeof import("../common/helpers/userOnline").default;
     'helpers/listItems': typeof import("../common/helpers/listItems").default;
+    'helpers/textContrastClass': typeof import("../common/helpers/textContrastClass").default;
     'resolvers/DefaultResolver': typeof import("../common/resolvers/DefaultResolver").default;
     'states/PaginatedListState': typeof import("../common/states/PaginatedListState").default;
+    'states/AlertManagerState': typeof import("../common/states/AlertManagerState").default;
+    'states/ModalManagerState': typeof import("../common/states/ModalManagerState").default;
+    'states/PageState': typeof import("../common/states/PageState").default;
 } & {
     'utils/saveSettings': typeof saveSettings;
     'utils/ExtensionData': typeof ExtensionData;

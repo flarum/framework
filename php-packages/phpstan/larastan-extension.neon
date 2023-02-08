@@ -1,36 +1,36 @@
 parameters:
     stubFiles:
-        - ../../vendor/nunomaduro/larastan/stubs/Enumerable.stub
-        - ../../vendor/nunomaduro/larastan/stubs/EloquentBuilder.stub
-        - ../../vendor/nunomaduro/larastan/stubs/Collection.stub
-        - ../../vendor/nunomaduro/larastan/stubs/EloquentCollection.stub
-        - ../../vendor/nunomaduro/larastan/stubs/Factory.stub
-        - ../../vendor/nunomaduro/larastan/stubs/Model.stub
-        - ../../vendor/nunomaduro/larastan/stubs/Gate.stub
-        - ../../vendor/nunomaduro/larastan/stubs/Relation.stub
-        - ../../vendor/nunomaduro/larastan/stubs/BelongsTo.stub
-        - ../../vendor/nunomaduro/larastan/stubs/BelongsToMany.stub
-        - ../../vendor/nunomaduro/larastan/stubs/HasOneOrMany.stub
-        - ../../vendor/nunomaduro/larastan/stubs/HasMany.stub
-        - ../../vendor/nunomaduro/larastan/stubs/HasOne.stub
-        - ../../vendor/nunomaduro/larastan/stubs/HasOneThrough.stub
-        - ../../vendor/nunomaduro/larastan/stubs/HasManyThrough.stub
-        - ../../vendor/nunomaduro/larastan/stubs/Mailable.stub
-        - ../../vendor/nunomaduro/larastan/stubs/MorphOne.stub
-        - ../../vendor/nunomaduro/larastan/stubs/MorphOneOrMany.stub
-        - ../../vendor/nunomaduro/larastan/stubs/MorphTo.stub
-        - ../../vendor/nunomaduro/larastan/stubs/MorphToMany.stub
-        - ../../vendor/nunomaduro/larastan/stubs/MorphMany.stub
-        - ../../vendor/nunomaduro/larastan/stubs/Helpers.stub
-        - ../../vendor/nunomaduro/larastan/stubs/HigherOrderProxies.stub
-        - ../../vendor/nunomaduro/larastan/stubs/QueryBuilder.stub
-        - ../../vendor/nunomaduro/larastan/stubs/Facades.stub
-        - ../../vendor/nunomaduro/larastan/stubs/Pagination.stub
-        - ../../vendor/nunomaduro/larastan/stubs/Contracts/Pagination.stub
-        - ../../vendor/nunomaduro/larastan/stubs/Contracts/Support.stub
-        - ../../vendor/nunomaduro/larastan/stubs/Redis/Connection.stub
-        - ../../vendor/nunomaduro/larastan/stubs/Logger.stub
-        - ../../vendor/nunomaduro/larastan/stubs/EnumeratesValues.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/Enumerable.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/EloquentBuilder.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/Collection.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/EloquentCollection.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/Factory.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/Model.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/Gate.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/Relation.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/BelongsTo.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/BelongsToMany.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/HasOneOrMany.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/HasMany.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/HasOne.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/HasOneThrough.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/HasManyThrough.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/Mailable.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/MorphOne.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/MorphOneOrMany.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/MorphTo.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/MorphToMany.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/MorphMany.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/Helpers.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/HigherOrderProxies.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/QueryBuilder.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/Facades.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/Pagination.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/Contracts/Pagination.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/Contracts/Support.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/Redis/Connection.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/Logger.stub
+        - %rootDir%/../../nunomaduro/larastan/stubs/EnumeratesValues.stub
     universalObjectCratesClasses:
         - Illuminate\Http\Request
     earlyTerminatingFunctionCalls:

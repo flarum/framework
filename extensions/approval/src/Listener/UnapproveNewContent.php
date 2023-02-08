@@ -9,6 +9,7 @@
 
 namespace Flarum\Approval\Listener;
 
+use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Flags\Flag;
 use Flarum\Post\CommentPost;
@@ -55,7 +56,7 @@ class UnapproveNewContent
 
                 $flag->post_id = $post->id;
                 $flag->type = 'approval';
-                $flag->created_at = time();
+                $flag->created_at = Carbon::now();
 
                 $flag->save();
             });

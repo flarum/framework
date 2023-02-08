@@ -31,6 +31,19 @@
   --error-color:                   @error-color;
 
   // ---------------------------------
+  // UTILITIES
+
+  --text-on-dark:                  @text-on-dark;
+  --text-on-light:                 @text-on-light;
+
+  & when (@config-dark-mode = true) {
+    --yiq-threshold: 108;
+  }
+  & when (@config-dark-mode = false) {
+    --yiq-threshold: 138;
+  }
+
+  // ---------------------------------
   // COMPONENTS
 
   --header-bg:                     @header-bg;

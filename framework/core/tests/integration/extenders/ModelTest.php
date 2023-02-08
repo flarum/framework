@@ -375,64 +375,64 @@ class ModelTest extends TestCase
     /**
      * @test
      */
-    public function custom_date_attribute_doesnt_exist_by_default()
+    public function custom_cast_attribute_doesnt_exist_by_default()
     {
         $post = new Post;
 
         $this->app();
 
-        $this->assertNotContains('custom', $post->getDates());
+        $this->assertFalse($post->hasCast('custom'));
     }
 
     /**
      * @test
      */
-    public function custom_date_attribute_can_be_set()
+    public function custom_cast_attribute_can_be_set()
     {
         $this->extend(
             (new Extend\Model(Post::class))
-                ->dateAttribute('custom')
+                ->cast('custom', 'datetime')
         );
 
         $this->app();
 
         $post = new Post;
 
-        $this->assertContains('custom', $post->getDates());
+        $this->assertTrue($post->hasCast('custom', 'datetime'));
     }
 
     /**
      * @test
      */
-    public function custom_date_attribute_is_inherited_to_child_classes()
+    public function custom_cast_attribute_is_inherited_to_child_classes()
     {
         $this->extend(
             (new Extend\Model(Post::class))
-                ->dateAttribute('custom')
+                ->cast('custom', 'boolean')
         );
 
         $this->app();
 
         $post = new CommentPost;
 
-        $this->assertContains('custom', $post->getDates());
+        $this->assertTrue($post->hasCast('custom', 'boolean'));
     }
 
     /**
      * @test
      */
-    public function custom_date_attribute_doesnt_work_if_set_on_unrelated_model()
+    public function custom_cast_attribute_doesnt_work_if_set_on_unrelated_model()
     {
         $this->extend(
             (new Extend\Model(Post::class))
-                ->dateAttribute('custom')
+                ->cast('custom', 'integer')
         );
 
         $this->app();
 
         $discussion = new Discussion;
 
-        $this->assertNotContains('custom', $discussion->getDates());
+        $this->assertFalse($discussion->hasCast('custom', 'integer'));
     }
 }
 

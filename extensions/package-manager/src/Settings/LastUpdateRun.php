@@ -26,7 +26,7 @@ class LastUpdateRun implements JsonSetting
     protected $data;
 
     /**
-     * @var {'major'|'minor'|'global'}
+     * @var string|null
      */
     protected $activeUpdate;
 

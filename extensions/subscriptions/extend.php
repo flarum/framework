@@ -14,6 +14,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
 use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
+use Flarum\Discussion\UserState;
 use Flarum\Extend;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Hidden;
@@ -21,8 +22,10 @@ use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
 use Flarum\Subscriptions\HideIgnoredFromAllDiscussionsPage;
 use Flarum\Subscriptions\Listener;
+use Flarum\Subscriptions\Notification\FilterVisiblePostsBeforeSending;
 use Flarum\Subscriptions\Notification\NewPostBlueprint;
 use Flarum\Subscriptions\Query\SubscriptionFilterGambit;
+use Flarum\User\User;
 
 return [
     (new Extend\Frontend('forum'))
@@ -32,11 +35,18 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
+    (new Extend\Model(User::class))
+        ->cast('last_read_post_number', 'integer'),
+
+    (new Extend\Model(UserState::class))
+        ->cast('subscription', 'string'),
+
     (new Extend\View)
         ->namespace('flarum-subscriptions', __DIR__.'/views'),
 
     (new Extend\Notification())
-        ->type(NewPostBlueprint::class, BasicDiscussionSerializer::class, ['alert', 'email']),
+        ->type(NewPostBlueprint::class, BasicDiscussionSerializer::class, ['alert', 'email'])
+        ->beforeSending(FilterVisiblePostsBeforeSending::class),
 
     (new Extend\ApiSerializer(DiscussionSerializer::class))
         ->attribute('subscription', function (DiscussionSerializer $serializer, Discussion $discussion) {

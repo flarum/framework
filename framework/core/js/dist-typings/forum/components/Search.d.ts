@@ -1,6 +1,6 @@
 import Component, { ComponentAttrs } from '../../common/Component';
 import ItemList from '../../common/utils/ItemList';
-import KeyboardNavigatable from '../utils/KeyboardNavigatable';
+import KeyboardNavigatable from '../../common/utils/KeyboardNavigatable';
 import SearchState from '../states/SearchState';
 import type Mithril from 'mithril';
 /**

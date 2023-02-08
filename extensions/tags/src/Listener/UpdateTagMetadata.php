@@ -18,9 +18,11 @@ use Flarum\Post\Event\Deleted as PostDeleted;
 use Flarum\Post\Event\Hidden as PostHidden;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored as PostRestored;
+use Flarum\Post\Post;
 use Flarum\Tags\Event\DiscussionWasTagged;
 use Flarum\Tags\Tag;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 
 class UpdateTagMetadata
@@ -124,9 +126,9 @@ class UpdateTagMetadata
     }
 
     /**
-     * @param \Flarum\Discussion\Discussion $discussion
+     * @param Discussion $discussion
      * @param int $delta
-     * @param Tag[]|null $tags
+     * @param Collection<Tag>|null $tags
      * @param Post $post: This is only used when a post has been hidden
      */
     protected function updateTags(Discussion $discussion, $delta = 0, $tags = null, $post = null)

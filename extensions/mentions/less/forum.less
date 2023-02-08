@@ -1,17 +1,17 @@
 .PostMention, .UserMention, .GroupMention {
-  background: @control-bg;
-  color: @control-color;
+  background: var(--control-bg);
+  color: var(--control-color);
   border-radius: @border-radius;
   padding: 2px 5px;
   border: 0 !important;
   font-weight: 600;
 
   blockquote & {
-    background: @body-bg;
+    background: var(--body-bg);
   }
   &:hover,
   &:active {
-    color: @link-color;
+    color: var(--link-color);
   }
 }
 .UserMention, .PostMention, .GroupMention {
@@ -98,35 +98,13 @@
   .Button--color(@tooltip-color, @tooltip-bg);
 }
 .GroupMention {
-  & when (@config-dark-mode = false) {
-    &,
-    &:hover,
-    &:active {
-      color: @text-on-light;
-    }
-  }
-  & when (@config-dark-mode = true) {
-    &,
-    &:hover,
-    &:active {
-      color: @text-on-dark;
-    }
-  }
+  background-color: var(--group-color, var(--control-bg));
+  color: var(--control-color);
+  --link-color: currentColor;
 
-  &--light {
-    &,
-    &:hover,
-    &:active {
-      color: @text-on-light;
-    }
-  }
-
-  &--dark {
-    &,
-    &:hover,
-    &:active {
-      color: @text-on-dark;
-    }
+  &--colored {
+    --control-color: var(--contrast-color, var(--body-bg));
+    --link-color: var(--control-color);
   }
 
   .icon {

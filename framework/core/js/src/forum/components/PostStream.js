@@ -4,6 +4,7 @@ import ScrollListener from '../../common/utils/ScrollListener';
 import PostLoading from './LoadingPost';
 import ReplyPlaceholder from './ReplyPlaceholder';
 import Button from '../../common/components/Button';
+import ItemList from '../../common/utils/ItemList';
 
 /**
  * The `PostStream` component displays an infinitely-scrollable wall of posts in
@@ -94,6 +95,11 @@ export default class PostStream extends Component {
       );
     }
 
+    // Allow extensions to add items to the end of the post stream.
+    if (viewingEnd) {
+      items.push(...this.endItems().toArray());
+    }
+
     // If we're viewing the end of the discussion, the user can reply, and
     // is not already doing so, then show a 'write a reply' placeholder.
     if (viewingEnd && (!app.session.user || this.discussion.canReply())) {
@@ -109,6 +115,15 @@ export default class PostStream extends Component {
         {items}
       </div>
     );
+  }
+
+  /**
+   * @returns {ItemList<import('mithril').Children>}
+   */
+  endItems() {
+    const items = new ItemList();
+
+    return items;
   }
 
   onupdate(vnode) {

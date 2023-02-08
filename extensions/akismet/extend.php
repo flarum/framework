@@ -13,6 +13,7 @@ use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Extend;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Saving;
+use Flarum\Post\Post;
 
 return [
     (new Extend\Frontend('forum'))
@@ -30,4 +31,7 @@ return [
 
     (new Extend\ServiceProvider())
         ->register(AkismetProvider::class),
+
+    (new Extend\Model(Post::class))
+        ->cast('is_spam', 'bool'),
 ];

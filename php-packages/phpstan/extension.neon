@@ -15,3 +15,27 @@ parameters:
     - stubs/Illuminate/Contracts/Filesystem/Factory.stub
     - stubs/Illuminate/Contracts/Filesystem/Cloud.stub
     - stubs/Illuminate/Contracts/Filesystem/Filesystem.stub
+
+services:
+	-
+		class: Flarum\PHPStan\Relations\ModelRelationsExtension
+		tags:
+			- phpstan.broker.methodsClassReflectionExtension
+			- phpstan.broker.propertiesClassReflectionExtension
+	-
+		class: Flarum\PHPStan\Attributes\ModelDateAttributesExtension
+		tags:
+			- phpstan.broker.propertiesClassReflectionExtension
+	-
+		class: Flarum\PHPStan\Attributes\ModelCastAttributeExtension
+		tags:
+			- phpstan.broker.propertiesClassReflectionExtension
+	-
+		class: Flarum\PHPStan\Extender\FilesProvider
+		arguments:
+			- %paths%
+	-
+		class: Flarum\PHPStan\Extender\Resolver
+		arguments:
+			- @Flarum\PHPStan\Extender\FilesProvider
+			- @defaultAnalysisParser
