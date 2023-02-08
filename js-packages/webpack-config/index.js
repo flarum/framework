@@ -72,33 +72,11 @@ module.exports = function (options = {}) {
         {
           // Matches .js, .jsx, .ts, .tsx
           // See: https://regexr.com/5snjd
-          test: /\.(j|t)sx?$/,
+          test: /\.[jt]sx?$/,
           loader: require.resolve('babel-loader'),
-          options: {
-            presets: [
-              require.resolve('@babel/preset-react'),
-              require.resolve('@babel/preset-typescript'),
-              [
-                require.resolve('@babel/preset-env'),
-                {
-                  modules: false,
-                  loose: true,
-                },
-              ],
-            ],
-            plugins: [
-              [require.resolve('@babel/plugin-transform-runtime'), { useESModules: true }],
-              [require.resolve('@babel/plugin-proposal-class-properties'), { loose: true }],
-              [require.resolve('@babel/plugin-proposal-private-methods'), { loose: true }],
-              [
-                require.resolve('@babel/plugin-transform-react-jsx'),
-                {
-                  pragma: 'm',
-                  pragmaFrag: "'['",
-                  useBuiltIns: true,
-                },
-              ],
-            ],
+          options: require('./babel.config'),
+          resolve: {
+            fullySpecified: false,
           },
         },
       ],
