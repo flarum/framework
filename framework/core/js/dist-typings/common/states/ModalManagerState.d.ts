@@ -7,11 +7,11 @@ import Modal, { IDismissibleOptions } from '../components/Modal';
  * https://github.com/Microsoft/TypeScript/issues/1213
  * Therefore, we have to use this ugly, messy workaround.
  */
-type UnsafeModalClass = ComponentClass<any, Modal> & {
+declare type UnsafeModalClass = ComponentClass<any, Modal> & {
     get dismissibleOptions(): IDismissibleOptions;
     component: typeof Component.component;
 };
-type ModalItem = {
+declare type ModalItem = {
     componentClass: UnsafeModalClass;
     attrs?: Record<string, unknown>;
     key: number;

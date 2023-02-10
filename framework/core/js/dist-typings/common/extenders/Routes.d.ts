@@ -1,6 +1,6 @@
 import Application from '../Application';
 import IExtender, { IExtensionModule } from './IExtender';
-type HelperRoute = (...args: any) => string;
+declare type HelperRoute = (...args: any) => string;
 export default class Routes implements IExtender {
     private routes;
     private helpers;

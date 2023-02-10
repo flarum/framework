@@ -3,8 +3,8 @@ import Alert, { AlertAttrs } from '../components/Alert';
 /**
  * Returned by `AlertManagerState.show`. Used to dismiss alerts.
  */
-export type AlertIdentifier = number;
-export type AlertArray = {
+export declare type AlertIdentifier = number;
+export declare type AlertArray = {
     [id: AlertIdentifier]: AlertState;
 };
 export interface AlertState {

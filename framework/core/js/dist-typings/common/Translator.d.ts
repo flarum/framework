@@ -1,8 +1,8 @@
 /// <reference path="../@types/translator-icu-rich.d.ts" />
 import { RichMessageFormatter } from '@askvortsov/rich-icu-message-formatter';
 import { pluralTypeHandler, selectTypeHandler } from '@ultraq/icu-message-formatter';
-type Translations = Record<string, string>;
-type TranslatorParameters = Record<string, unknown>;
+declare type Translations = Record<string, string>;
+declare type TranslatorParameters = Record<string, unknown>;
 export default class Translator {
     /**
      * A map of translation keys to their translated values.

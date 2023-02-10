@@ -3,7 +3,7 @@ import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
 import type { IPageAttrs } from '../../common/components/Page';
 import type Mithril from 'mithril';
-export type HomePageItem = {
+export declare type HomePageItem = {
     path: string;
     label: Mithril.Children;
 };
