@@ -12,3 +12,11 @@ This package provides a [Jest](https://jestjs.io/) config object to run unit & i
 ```js
 module.exports = require('flarum-jest-config')();
 ```
+* If you are using TypeScript, create `tsconfig.test.json` with the following content:
+```json
+{
+  "extends": "./tsconfig.json",
+  "include": ["tests/**/*"],
+  "files": ["../../../node_modules/flarum-jest-config/shims.d.ts"]
+}
+```
