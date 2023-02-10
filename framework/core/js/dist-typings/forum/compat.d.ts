@@ -1,5 +1,5 @@
 /// <reference types="mithril" />
-import KeyboardNavigatable from './utils/KeyboardNavigatable';
+import KeyboardNavigatable from '../common/utils/KeyboardNavigatable';
 import slidable from './utils/slidable';
 import History from './utils/History';
 import alertEmailConfirmation from './utils/alertEmailConfirmation';
@@ -70,7 +70,13 @@ import routes from './routes';
 import ForumApplication from './ForumApplication';
 import isSafariMobile from './utils/isSafariMobile';
 declare const _default: {
-    extend: any;
+    extenders: {
+        Model: typeof import("../common/extenders/Model").default;
+        PostTypes: typeof import("../common/extenders/PostTypes").default;
+        Routes: typeof import("../common/extenders/Routes").default;
+        Store: typeof import("../common/extenders/Store").default;
+    };
+    extend: typeof import("../common/extend");
     Session: typeof import("../common/Session").default;
     Store: typeof import("../common/Store").default;
     'utils/BasicEditorDriver': typeof BasicEditorDriver;
@@ -82,6 +88,7 @@ declare const _default: {
         one(event: string, handler: Function): void;
         off(event: string, handler: Function): void;
     };
+    'utils/KeyboardNavigatable': typeof KeyboardNavigatable;
     'utils/liveHumanTimes': typeof import("../common/utils/liveHumanTimes").default;
     'utils/ItemList': typeof import("../common/utils/ItemList").default;
     'utils/mixin': typeof import("../common/utils/mixin").default;
@@ -104,7 +111,7 @@ declare const _default: {
     'utils/setRouteWithForcedRefresh': typeof import("../common/utils/setRouteWithForcedRefresh").default;
     'utils/patchMithril': typeof import("../common/utils/patchMithril").default;
     'utils/proxifyCompat': typeof import("../common/utils/proxifyCompat").default;
-    'utils/classList': (...classes: import("clsx").ClassValue[]) => string;
+    'utils/classList': typeof import("clsx").clsx;
     'utils/extractText': typeof import("../common/utils/extractText").default;
     'utils/formatNumber': typeof import("../common/utils/formatNumber").default;
     'utils/mapRoutes': typeof import("../common/utils/mapRoutes").default;
@@ -160,6 +167,7 @@ declare const _default: {
     'helpers/username': typeof import("../common/helpers/username").default;
     'helpers/userOnline': typeof import("../common/helpers/userOnline").default;
     'helpers/listItems': typeof import("../common/helpers/listItems").default;
+    'helpers/textContrastClass': typeof import("../common/helpers/textContrastClass").default;
     'resolvers/DefaultResolver': typeof import("../common/resolvers/DefaultResolver").default;
     'states/PaginatedListState': typeof import("../common/states/PaginatedListState").default;
     'states/AlertManagerState': typeof import("../common/states/AlertManagerState").default;

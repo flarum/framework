@@ -36,7 +36,7 @@ interface BlueprintInterface
     /**
      * Get the data to be stored in the notification.
      *
-     * @return array|null
+     * @return mixed
      */
     public function getData();
 

@@ -1,6 +1,6 @@
 // NOTE:
 // If you're looking at core's `tsconfig.json` for the "perfect"
-// tsconfig for your erxtension, look at the dedicated tsconfig
+// tsconfig for your extension, look at the dedicated tsconfig
 // repo instead.
 //
 // https://github.com/flarum/flarum-tsconfig

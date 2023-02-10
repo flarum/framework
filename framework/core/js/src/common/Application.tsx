@@ -35,6 +35,7 @@ import type { ComponentAttrs } from './Component';
 import Model, { SavedModelData } from './Model';
 import fireApplicationError from './helpers/fireApplicationError';
 import IHistory from './IHistory';
+import IExtender from './extenders/IExtender';
 import AccessToken from './models/AccessToken';
 
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
@@ -302,8 +303,7 @@ export default class Application {
     caughtInitializationErrors.forEach((handler) => handler());
   }
 
-  // TODO: This entire system needs a do-over for v2
-  public bootExtensions(extensions: Record<string, { extend?: unknown[] }>) {
+  public bootExtensions(extensions: Record<string, { extend?: IExtender[] }>) {
     Object.keys(extensions).forEach((name) => {
       const extension = extensions[name];
 
@@ -313,7 +313,6 @@ export default class Application {
       const extenders = extension.extend.flat(Infinity);
 
       for (const extender of extenders) {
-        // @ts-expect-error This is beyond saving atm.
         extender.extend(this, { name, exports: extension });
       }
     });
@@ -441,8 +440,6 @@ export default class Application {
     // a dud response, we don't want the application to crash. We'll show an
     // error message to the user instead.
 
-    // @ts-expect-error Typescript doesn't know we return promisified `ReturnType` OR `string`,
-    // so it errors due to Mithril's typings
     const defaultDeserialize = (response: string) => response as ResponseType;
 
     // When extracting the data from the response, we can check the server

@@ -29,9 +29,19 @@ class TagRepository
     /**
      * @param array|string $relations
      * @param User $actor
-     * @return Builder
+     * @return Builder<Tag>
      */
     public function with($relations, User $actor): Builder
+    {
+        return $this->query()->with($this->getAuthorizedRelations($relations, $actor));
+    }
+
+    /**
+     * @param array|string $relations
+     * @param User $actor
+     * @return array
+     */
+    public function getAuthorizedRelations($relations, User $actor): array
     {
         $relations = is_string($relations) ? explode(',', $relations) : $relations;
         $relationsArray = [];
@@ -46,7 +56,7 @@ class TagRepository
             }
         }
 
-        return $this->query()->with($relationsArray);
+        return $relationsArray;
     }
 
     /**
@@ -54,9 +64,8 @@ class TagRepository
      * user, or throw an exception.
      *
      * @param int $id
-     * @param User $actor
+     * @param User|null $actor
      * @return Tag
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     public function findOrFail($id, User $actor = null)
     {
@@ -70,7 +79,7 @@ class TagRepository
      * certain user.
      *
      * @param User|null $user
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Database\Eloquent\Collection<Tag>
      */
     public function all(User $user = null)
     {
@@ -96,9 +105,9 @@ class TagRepository
     /**
      * Scope a query to only include records that are visible to a user.
      *
-     * @param Builder $query
-     * @param User $user
-     * @return Builder
+     * @param Builder<Tag> $query
+     * @param User|null $user
+     * @return Builder<Tag>
      */
     protected function scopeVisibleTo(Builder $query, User $user = null)
     {

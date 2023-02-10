@@ -9,7 +9,6 @@
 export default class DiscussionRenamedPost extends EventPost {
     description(data: any): JSX.Element;
     descriptionData(): {
-        old: string;
         new: JSX.Element;
     };
 }

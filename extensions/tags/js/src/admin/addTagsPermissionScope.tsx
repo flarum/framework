@@ -17,7 +17,7 @@ export default function () {
   });
 
   extend(PermissionGrid.prototype, 'oncreate', function () {
-    app.store.find<Tag[]>('tags', {}).then(() => {
+    app.tagList.load().then(() => {
       this.loading = false;
 
       m.redraw();

@@ -15,6 +15,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Group\Permission;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * @property int $id
@@ -34,7 +35,13 @@ use Illuminate\Database\Eloquent\Builder;
  * @property int $last_posted_discussion_id
  * @property int $last_posted_user_id
  * @property string $icon
- * @property TagState
+ *
+ * @property TagState $state
+ * @property Tag|null $parent
+ * @property-read Collection<Tag> $children
+ * @property-read Collection<Discussion> $discussions
+ * @property Discussion|null $lastPostedDiscussion
+ * @property User|null $lastPostedUser
  */
 class Tag extends AbstractModel
 {

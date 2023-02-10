@@ -30,6 +30,7 @@ use Flarum\Tags\LoadForumTagsRelationship;
 use Flarum\Tags\Post\DiscussionTaggedPost;
 use Flarum\Tags\Query\TagFilterGambit;
 use Flarum\Tags\Tag;
+use Flarum\Tags\Utf8SlugDriver;
 use Psr\Http\Message\ServerRequestInterface;
 
 $eagerLoadTagState = function ($query, ?ServerRequestInterface $request, array $relations) {
@@ -133,4 +134,7 @@ return [
 
     (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
         ->addGambit(TagFilterGambit::class),
+
+    (new Extend\ModelUrl(Tag::class))
+        ->addSlugDriver('default', Utf8SlugDriver::class),
 ];

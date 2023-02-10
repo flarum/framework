@@ -12,13 +12,8 @@ namespace Flarum\PackageManager\Command;
 use Flarum\PackageManager\Task\Task;
 use Flarum\User\User;
 
-class UpdateExtension implements BusinessCommandInterface
+class UpdateExtension extends AbstractActionCommand
 {
-    /**
-     * @var Task
-     */
-    public $task = null;
-
     /**
      * @var User
      */

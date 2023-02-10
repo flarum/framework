@@ -9,6 +9,7 @@
 
 namespace Flarum\Flags\Command;
 
+use Carbon\Carbon;
 use Flarum\Flags\Event\Created;
 use Flarum\Flags\Flag;
 use Flarum\Foundation\ValidationException;
@@ -99,7 +100,7 @@ class CreateFlagHandler
         $flag->type = 'user';
         $flag->reason = Arr::get($data, 'attributes.reason');
         $flag->reason_detail = Arr::get($data, 'attributes.reasonDetail');
-        $flag->created_at = time();
+        $flag->created_at = Carbon::now();
 
         $flag->save();
 

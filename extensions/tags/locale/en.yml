@@ -38,6 +38,10 @@ flarum-tags:
       restrict_by_tag_heading: Restrict by Tag
       tag_discussions_label: Tag discussions
 
+    # These translations are used in the Tags custom settings component.
+    settings:
+      button_text: => flarum-tags.ref.choose_tags
+
     # These translations are used in the Tag Settings modal dialog.
     tag_settings:
       range_separator_text: " to "
@@ -66,16 +70,12 @@ flarum-tags:
 
     # These translations are used by the Choose Tags modal dialog.
     choose_tags:
-      bypass_requirements: Bypass tag requirements
-      choose_primary_placeholder: "{count, plural, one {Choose a primary tag} other {Choose # primary tags}}"
-      choose_secondary_placeholder: "{count, plural, one {Choose 1 more tag} other {Choose # more tags}}"
       edit_title: "Edit Tags for {title}"
-      submit_button: => core.ref.okay
       title: Choose Tags for Your Discussion
 
     # These translations are used by the composer when starting a discussion.
     composer_discussion:
-      choose_tags_link: Choose Tags
+      choose_tags_link: => flarum-tags.ref.choose_tags
 
     # These translations are used by the discussion control buttons.
     discussion_controls:
@@ -92,9 +92,9 @@ flarum-tags:
 
     # These translations are displayed between posts in the post stream.
     post_stream:
-      added_and_removed_tags_text: "{username} added the {tagsAdded} and removed the {tagsRemoved}."
-      added_tags_text: "{username} added the {tagsAdded}."
-      removed_tags_text: "{username} removed the {tagsRemoved}."
+      added_and_removed_tags_text: "{username} added the {tagsAdded} and removed the {tagsRemoved} {time}."
+      added_tags_text: "{username} added the {tagsAdded} {time}."
+      removed_tags_text: "{username} removed the {tagsRemoved} {time}."
       tags_text: "{count, plural, one {{tags} tag} other {{tags} tags}}"
 
     # These translations are used when visiting a single tag's discussion list.
@@ -107,11 +107,22 @@ flarum-tags:
     # This translation is displayed in place of the name of a tag that's been deleted.
     deleted_tag_text: Deleted
 
+    # These translations are used in the tag selection modal.
+    tag_selection_modal:
+      bypass_requirements: Bypass tag requirements
+      choose_primary_placeholder: "{count, plural, one {Choose a primary tag} other {Choose # primary tags}}"
+      choose_secondary_placeholder: => flarum-tags.ref.choose_tags_placeholder
+      choose_tags_placeholder: => flarum-tags.ref.choose_tags_placeholder
+      submit_button: => core.ref.okay
+      title: => flarum-tags.ref.choose_tags
+
   ##
   # REUSED TRANSLATIONS - These keys should not be used directly in code!
   ##
 
   # Translations in this namespace are referenced by two or more unique keys.
   ref:
+    choose_tags: Choose Tags
+    choose_tags_placeholder: "{count, plural, one {Choose 1 more tag} other {Choose # more tags}}"
     name: Name
     tags: Tags

@@ -40,7 +40,7 @@ class UpdateMentionsMetadataWhenVisible
      */
     public function handle($event)
     {
-        $content = $event->post->parsedContent;
+        $content = $event->post->parsed_content;
 
         $this->syncUserMentions(
             $event->post,

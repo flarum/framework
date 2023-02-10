@@ -2,6 +2,8 @@ import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
 import NotificationGrid from 'flarum/forum/components/NotificationGrid';
 import { getPlainContent } from 'flarum/common/utils/string';
+import textContrastClass from 'flarum/common/helpers/textContrastClass';
+import Post from 'flarum/forum/components/Post';
 
 import addPostMentionPreviews from './addPostMentionPreviews';
 import addMentionedByList from './addMentionedByList';
@@ -13,13 +15,12 @@ import UserMentionedNotification from './components/UserMentionedNotification';
 import GroupMentionedNotification from './components/GroupMentionedNotification';
 import UserPage from 'flarum/forum/components/UserPage';
 import LinkButton from 'flarum/common/components/LinkButton';
-import MentionsUserPage from './components/MentionsUserPage';
 import User from 'flarum/common/models/User';
 import Model from 'flarum/common/Model';
 
-app.initializers.add('flarum-mentions', function () {
-  User.prototype.canMentionGroups = Model.attribute('canMentionGroups');
+export { default as extend } from './extend';
 
+app.initializers.add('flarum-mentions', function () {
   // For every mention of a post inside a post's content, set up a hover handler
   // that shows a preview of the mentioned post.
   addPostMentionPreviews();
@@ -65,7 +66,6 @@ app.initializers.add('flarum-mentions', function () {
   });
 
   // Add mentions tab in user profile
-  app.routes['user.mentions'] = { path: '/u/:username/mentions', component: MentionsUserPage };
   extend(UserPage.prototype, 'navItems', function (items) {
     const user = this.user;
     items.add(
@@ -84,6 +84,13 @@ app.initializers.add('flarum-mentions', function () {
 
   // Remove post mentions when rendering post previews.
   getPlainContent.removeSelectors.push('a.PostMention');
+
+  // Apply color contrast fix on group mentions.
+  extend(Post.prototype, 'oncreate', function () {
+    this.$('.GroupMention--colored').each(function () {
+      this.classList.add(textContrastClass(getComputedStyle(this).getPropertyValue('--group-color')));
+    });
+  });
 });
 
 export * from './utils/textFormatter';

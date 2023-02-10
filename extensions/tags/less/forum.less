@@ -1,7 +1,6 @@
 @import "common/common";
 
 @import "forum/TagCloud";
-@import "forum/TagDiscussionModal";
 @import "forum/TagHero";
 @import "forum/TagTiles";
 @import "forum/ToggleButton";
@@ -10,6 +9,7 @@
   --button-primary-bg: var(--color);
   --button-primary-bg-hover: var(--color);
   --button-primary-bg-active: var(--color);
+  --button-color: var(--contrast-color);
 }
 .DiscussionHero {
   .item-title {
@@ -36,7 +36,6 @@
 }
 .DiscussionComposer-changeTags {
   margin-right: 15px;
-  vertical-align: 2px;
 
   &.disabled {
     opacity: 0.5;
