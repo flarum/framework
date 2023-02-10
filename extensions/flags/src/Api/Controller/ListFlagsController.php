@@ -9,6 +9,7 @@
 
 namespace Flarum\Flags\Api\Controller;
 
+use Carbon\Carbon;
 use Flarum\Api\Controller\AbstractListController;
 use Flarum\Flags\Api\Serializer\FlagSerializer;
 use Flarum\Flags\Flag;
@@ -43,7 +44,7 @@ class ListFlagsController extends AbstractListController
 
         $actor->assertRegistered();
 
-        $actor->read_flags_at = time();
+        $actor->read_flags_at = Carbon::now();
         $actor->save();
 
         $flags = Flag::whereVisibleTo($actor)

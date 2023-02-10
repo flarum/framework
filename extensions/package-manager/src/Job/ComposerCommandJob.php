@@ -10,7 +10,7 @@
 namespace Flarum\PackageManager\Job;
 
 use Flarum\Bus\Dispatcher;
-use Flarum\PackageManager\Command\BusinessCommandInterface;
+use Flarum\PackageManager\Command\AbstractActionCommand;
 use Flarum\PackageManager\Composer\ComposerAdapter;
 use Flarum\Queue\AbstractJob;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -19,7 +19,7 @@ use Throwable;
 class ComposerCommandJob extends AbstractJob
 {
     /**
-     * @var BusinessCommandInterface
+     * @var AbstractActionCommand
      */
     protected $command;
 
@@ -28,7 +28,7 @@ class ComposerCommandJob extends AbstractJob
      */
     protected $phpVersion;
 
-    public function __construct(BusinessCommandInterface $command, string $phpVersion)
+    public function __construct(AbstractActionCommand $command, string $phpVersion)
     {
         $this->command = $command;
         $this->phpVersion = $phpVersion;

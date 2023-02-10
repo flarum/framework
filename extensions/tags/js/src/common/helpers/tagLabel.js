@@ -1,5 +1,7 @@
 import extract from 'flarum/common/utils/extract';
 import Link from 'flarum/common/components/Link';
+import classList from 'flarum/common/utils/classList';
+import textContrastClass from 'flarum/common/helpers/textContrastClass';
 import tagIcon from './tagIcon';
 
 export default function tagLabel(tag, attrs = {}) {
@@ -13,7 +15,7 @@ export default function tagLabel(tag, attrs = {}) {
     const color = tag.color();
     if (color) {
       attrs.style['--tag-bg'] = color;
-      attrs.className += ' colored';
+      attrs.className = classList(attrs.className, 'colored', textContrastClass(color));
     }
 
     if (link) {

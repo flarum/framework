@@ -35,6 +35,7 @@ import type { ComponentAttrs } from './Component';
 import Model, { SavedModelData } from './Model';
 import fireApplicationError from './helpers/fireApplicationError';
 import IHistory from './IHistory';
+import IExtender from './extenders/IExtender';
 
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 
@@ -300,8 +301,7 @@ export default class Application {
     caughtInitializationErrors.forEach((handler) => handler());
   }
 
-  // TODO: This entire system needs a do-over for v2
-  public bootExtensions(extensions: Record<string, { extend?: unknown[] }>) {
+  public bootExtensions(extensions: Record<string, { extend?: IExtender[] }>) {
     Object.keys(extensions).forEach((name) => {
       const extension = extensions[name];
 
@@ -311,7 +311,6 @@ export default class Application {
       const extenders = extension.extend.flat(Infinity);
 
       for (const extender of extenders) {
-        // @ts-expect-error This is beyond saving atm.
         extender.extend(this, { name, exports: extension });
       }
     });
@@ -410,16 +409,22 @@ export default class Application {
       pageNumber: 1,
     };
 
-    const title =
+    let title =
       onHomepage || !this.title
         ? extractText(app.translator.trans('core.lib.meta_titles.without_page_title', params))
         : extractText(app.translator.trans('core.lib.meta_titles.with_page_title', params));
 
-    const tempEl = document.createElement('div');
-    tempEl.innerHTML = title;
-    const decodedTitle = tempEl.innerText;
+    title = count + title;
 
-    document.title = count + decodedTitle;
+    // We pass the title through a DOMParser to allow HTML entities
+    // to be rendered correctly, while still preventing XSS attacks
+    // from user input by using a script-disabled environment.
+    // https://github.com/flarum/framework/issues/3514
+    // https://github.com/flarum/framework/pull/3684
+    const parser = new DOMParser();
+    const safeTitle = parser.parseFromString(title, 'text/html').body.innerHTML;
+
+    document.title = safeTitle;
   }
 
   protected transformRequestOptions<ResponseType>(flarumOptions: FlarumRequestOptions<ResponseType>): InternalFlarumRequestOptions<ResponseType> {
@@ -545,7 +550,11 @@ export default class Application {
         break;
 
       default:
-        content = app.translator.trans('core.lib.error.generic_message');
+        if (this.requestWasCrossOrigin(error)) {
+          content = app.translator.trans('core.lib.error.generic_cross_origin_message');
+        } else {
+          content = app.translator.trans('core.lib.error.generic_message');
+        }
     }
 
     const isDebug: boolean = app.forum.attribute('debug');
@@ -567,6 +576,18 @@ export default class Application {
     }
 
     return Promise.reject(error);
+  }
+
+  /**
+   * Used to modify the error message shown on the page to help troubleshooting.
+   * While not certain, a failing cross-origin request likely indicates a missing redirect to Flarum canonical URL.
+   * Because XHR errors do not expose CORS information, we can only compare the requested URL origin to the page origin.
+   *
+   * @param error
+   * @protected
+   */
+  protected requestWasCrossOrigin(error: RequestError): boolean {
+    return new URL(error.options.url, document.baseURI).origin !== window.location.origin;
   }
 
   protected requestErrorDefaultHandler(e: unknown, isDebug: boolean, formattedErrors: string[]): void {

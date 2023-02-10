@@ -18,7 +18,7 @@ class DiscussionPolicy extends AbstractPolicy
     /**
      * @param User $actor
      * @param Discussion $discussion
-     * @return bool
+     * @return string|void
      */
     public function reply(User $actor, Discussion $discussion)
     {

@@ -1,6 +1,6 @@
 # Jest config for Flarum
 
-This package generates a [Jest](https://jestjs.io/) config object to run unit & integration tests on Flarum extensions.
+This package provides a [Jest](https://jestjs.io/) config object to run unit & integration tests on Flarum extensions.
 
 ## Usage
 

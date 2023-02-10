@@ -5,6 +5,7 @@ import ItemList from '../../common/utils/ItemList';
 import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
 import LoadingModal from './LoadingModal';
+import LinkButton from '../../common/components/LinkButton';
 
 export default class StatusWidget extends DashboardWidget {
   className() {
@@ -30,9 +31,26 @@ export default class StatusWidget extends DashboardWidget {
       </Dropdown>
     );
 
-    items.add('version-flarum', [<strong>Flarum</strong>, <br />, app.forum.attribute('version')]);
-    items.add('version-php', [<strong>PHP</strong>, <br />, app.data.phpVersion]);
-    items.add('version-mysql', [<strong>MySQL</strong>, <br />, app.data.mysqlVersion]);
+    items.add('version-flarum', [<strong>Flarum</strong>, <br />, app.forum.attribute('version')], 100);
+    items.add('version-php', [<strong>PHP</strong>, <br />, app.data.phpVersion], 90);
+    items.add('version-mysql', [<strong>MySQL</strong>, <br />, app.data.mysqlVersion], 80);
+    if (app.data.schedulerStatus) {
+      items.add(
+        'schedule-status',
+        [
+          <span>
+            <strong>Scheduler</strong>{' '}
+            <LinkButton href="https://discuss.flarum.org/d/24118" external={true} target="_blank" icon="fas fa-info-circle" />
+          </span>,
+          <br />,
+          app.data.schedulerStatus,
+        ],
+        70
+      );
+    }
+
+    items.add('queue-driver', [<strong>Queue Driver</strong>, <br />, app.data.queueDriver], 60);
+    items.add('session-driver', [<strong>Session Driver</strong>, <br />, app.data.sessionDriver], 50);
 
     return items;
   }

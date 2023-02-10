@@ -29,8 +29,8 @@ flarum-lock:
 
     # These translations are displayed between posts in the post stream.
     post_stream:
-      discussion_locked_text: "{username} locked the discussion."
-      discussion_unlocked_text: "{username} unlocked the discussion."
+      discussion_locked_text: "{username} locked the discussion {time}."
+      discussion_unlocked_text: "{username} unlocked the discussion {time}."
 
     # These translations are used in the Settings page.
     settings:

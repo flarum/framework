@@ -25,7 +25,7 @@ export interface ApiQueryParamsPlural {
     sort?: string;
     meta?: MetaInformation;
 }
-export declare type ApiQueryParams = ApiQueryParamsPlural | ApiQueryParamsSingle;
+export type ApiQueryParams = ApiQueryParamsPlural | ApiQueryParamsSingle;
 export interface ApiPayloadSingle {
     data: SavedModelData;
     included?: SavedModelData[];
@@ -41,14 +41,14 @@ export interface ApiPayloadPlural {
     };
     meta?: MetaInformation;
 }
-export declare type ApiPayload = ApiPayloadSingle | ApiPayloadPlural;
-export declare type ApiResponseSingle<M extends Model> = M & {
+export type ApiPayload = ApiPayloadSingle | ApiPayloadPlural;
+export type ApiResponseSingle<M extends Model> = M & {
     payload: ApiPayloadSingle;
 };
-export declare type ApiResponsePlural<M extends Model> = M[] & {
+export type ApiResponsePlural<M extends Model> = M[] & {
     payload: ApiPayloadPlural;
 };
-export declare type ApiResponse<M extends Model> = ApiResponseSingle<M> | ApiResponsePlural<M>;
+export type ApiResponse<M extends Model> = ApiResponseSingle<M> | ApiResponsePlural<M>;
 interface ApiQueryRequestOptions<ResponseType> extends Omit<FlarumRequestOptions<ResponseType>, 'url'> {
 }
 interface StoreData {
@@ -69,8 +69,12 @@ export default class Store {
      * The model registry. A map of resource types to the model class that
      * should be used to represent resources of that type.
      */
-    models: Record<string, typeof Model>;
-    constructor(models: Record<string, typeof Model>);
+    models: Record<string, {
+        new (): Model;
+    }>;
+    constructor(models: Record<string, {
+        new (): Model;
+    }>);
     /**
      * Push resources contained within an API payload into the store.
      *

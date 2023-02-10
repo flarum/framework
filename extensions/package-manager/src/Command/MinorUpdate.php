@@ -12,13 +12,8 @@ namespace Flarum\PackageManager\Command;
 use Flarum\PackageManager\Task\Task;
 use Flarum\User\User;
 
-class MinorUpdate implements BusinessCommandInterface
+class MinorUpdate extends AbstractActionCommand
 {
-    /**
-     * @var Task
-     */
-    public $task = null;
-
     /**
      * @var \Flarum\User\User
      */

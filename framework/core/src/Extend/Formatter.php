@@ -95,7 +95,7 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      * @param callable|string $callback
      *
      * The callback can be a closure or invokable class, and should accept:
-     * - \s9e\TextFormatter\Rendered $renderer
+     * - \s9e\TextFormatter\Renderer $renderer
      * - mixed $context
      * - string $xml: The xml to be rendered.
      * - ServerRequestInterface $request. This argument MUST either be nullable, or omitted entirely.

@@ -22,7 +22,7 @@ class UpdateDiscussionAfterPostApproval
         $discussion->refreshCommentCount();
         $discussion->refreshLastPost();
 
-        if ($post->number == 1) {
+        if ($post->number === 1) {
             $discussion->is_approved = true;
 
             $discussion->afterSave(function () use ($user) {

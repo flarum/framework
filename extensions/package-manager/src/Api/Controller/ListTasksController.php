@@ -58,7 +58,7 @@ class ListTasksController extends AbstractListController
 
         $total = $this->repository->query()->count();
 
-        $document->addMeta('total', $total);
+        $document->addMeta('total', (string) $total);
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('package-manager.tasks.index'),

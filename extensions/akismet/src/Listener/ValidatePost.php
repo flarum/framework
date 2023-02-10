@@ -50,7 +50,7 @@ class ValidatePost
             ->withContent($post->content)
             ->withAuthorName($post->user->username)
             ->withAuthorEmail($post->user->email)
-            ->withType($post->number == 1 ? 'forum-post' : 'reply')
+            ->withType($post->number === 1 ? 'forum-post' : 'reply')
             ->withIp($post->ip_address)
             ->withUserAgent($_SERVER['HTTP_USER_AGENT'])
             ->checkSpam();

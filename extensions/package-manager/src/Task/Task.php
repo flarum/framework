@@ -13,16 +13,16 @@ use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 
 /**
- * @property int id
- * @property int status
- * @property string operation
- * @property string command
- * @property string package
- * @property string output
- * @property Carbon created_at
- * @property Carbon started_at
- * @property Carbon finished_at
- * @property int peak_memory_used
+ * @property int $id
+ * @property int $status
+ * @property string $operation
+ * @property string $command
+ * @property string $package
+ * @property string $output
+ * @property Carbon $created_at
+ * @property Carbon $started_at
+ * @property Carbon $finished_at
+ * @property float $peak_memory_used
  */
 class Task extends AbstractModel
 {

@@ -30,7 +30,10 @@ export interface IDismissibleOptions {
  * The `Modal` component displays a modal dialog, wrapped in a form. Subclasses
  * should implement the `className`, `title`, and `content` methods.
  */
-export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IInternalModalAttrs> extends Component<ModalAttrs> {
+export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IInternalModalAttrs, CustomState = undefined> extends Component<
+  ModalAttrs,
+  CustomState
+> {
   // TODO: [Flarum 2.0] remove `isDismissible` static attribute
   /**
    * Determine whether or not the modal should be dismissible via an 'x' button.
