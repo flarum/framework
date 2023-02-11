@@ -84,8 +84,8 @@
         "flarum/testing": "self.version"
     },
     "require": {
-        "ext-json": "*",
         "php": ">=7.3",
+        "ext-json": "*",
         "components/font-awesome": "^5.14.0",
         "composer/composer": "^2.0",
         "dflydev/fig-cookies": "^3.0.0",
@@ -110,6 +110,7 @@
         "illuminate/validation": "^8.0",
         "illuminate/view": "^8.0",
         "intervention/image": "2.5.* || ^2.6.1",
+        "jenssegers/agent": "^2.6",
         "laminas/laminas-diactoros": "^2.4.1",
         "laminas/laminas-httphandlerrunner": "^1.2.0",
         "laminas/laminas-stratigility": "^3.2.2",

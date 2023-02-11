@@ -10,6 +10,8 @@
 namespace Flarum\Api\Serializer;
 
 use Flarum\Http\AccessToken;
+use Jenssegers\Agent\Agent;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AccessTokenSerializer extends AbstractSerializer
 {
@@ -19,11 +21,27 @@ class AccessTokenSerializer extends AbstractSerializer
     protected $type = 'access-tokens';
 
     /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
+
+    /**
+     * @param TranslatorInterface $translator
+     */
+    public function __construct(TranslatorInterface $translator)
+    {
+        $this->translator = $translator;
+    }
+
+    /**
      * @param AccessToken $token
      */
     protected function getDefaultAttributes($token)
     {
         $session = $this->request->getAttribute('session');
+
+        $agent = new Agent();
+        $agent->setUserAgent($token->last_user_agent);
 
         $attributes = [
             'token' => $token->token,
@@ -34,7 +52,10 @@ class AccessTokenSerializer extends AbstractSerializer
             'isSessionToken' => in_array($token->type, ['session', 'session_remember'], true),
             'title' => $token->title,
             'lastIpAddress' => $token->last_ip_address,
-            'lastUserAgent' => $token->last_user_agent,
+            'device' => $this->translator->trans('core.forum.security.browser_on_operating_system', [
+                'browser' => $agent->browser(),
+                'os' => $agent->platform(),
+            ]),
         ];
 
         // Unset hidden attributes (like the token value on session tokens)

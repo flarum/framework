@@ -1,7 +1,6 @@
 import app from '../app';
 import Component, { ComponentAttrs } from '../../common/Component';
 import icon from '../../common/helpers/icon';
-import uaParser from 'ua-parser-js';
 import Button from '../../common/components/Button';
 import humanTime from '../../common/helpers/humanTime';
 import ItemList from '../../common/utils/ItemList';
@@ -65,19 +64,11 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
   tokenInfoItems(token: AccessToken) {
     const items = new ItemList<Mithril.Children>();
 
-    const ua = uaParser(token.lastUserAgent());
-    const device = extractText(
-      app.translator.trans('core.forum.security.browser_on_operating_system', {
-        browser: ua.browser.name,
-        os: ua.os.name,
-      })
-    );
-
     if (this.attrs.type === 'session') {
       items.add(
         'title',
         <div className="AccessTokensList-item-title">
-          <span className="AccessTokensList-item-title-main">{device}</span>
+          <span className="AccessTokensList-item-title-main">{token.device()}</span>
           {token.isCurrent()
             ? [' — ', <span className="AccessTokensList-item-title-sub">{app.translator.trans('core.forum.security.current_active_session')}</span>]
             : null}
@@ -109,10 +100,10 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
               <>
                 {humanTime(token.lastActivityAt())}
                 {token.lastIpAddress() && ` — ${token.lastIpAddress()}`}
-                {this.attrs.type === 'developer_token' && token.lastUserAgent() && (
+                {this.attrs.type === 'developer_token' && token.device() && (
                   <>
                     {' '}
-                    — <span className="AccessTokensList-item-title-sub">{device}</span>
+                    — <span className="AccessTokensList-item-title-sub">{token.device()}</span>
                   </>
                 )}
               </>

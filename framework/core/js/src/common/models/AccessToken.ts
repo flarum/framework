@@ -22,8 +22,8 @@ export default class AccessToken extends Model {
   lastIpAddress() {
     return Model.attribute<string>('lastIpAddress').call(this);
   }
-  lastUserAgent() {
-    return Model.attribute<string>('lastUserAgent').call(this);
+  device() {
+    return Model.attribute<string>('device').call(this);
   }
   isCurrent() {
     return Model.attribute<boolean>('isCurrent').call(this);
