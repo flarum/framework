@@ -11,6 +11,9 @@ jobs:
       js_package_manager: yarn
       cache_dependency_path: ./yarn.lock
       main_git_branch: main
+      enable_tests: true
+      # @TODO: fix bundlewatch
+      enable_bundlewatch: false
 
     secrets:
       bundlewatch_github_token: ${{ secrets.BUNDLEWATCH_GITHUB_TOKEN }}
