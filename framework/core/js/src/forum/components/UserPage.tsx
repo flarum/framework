@@ -131,6 +131,7 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
   navItems() {
     const items = new ItemList<Mithril.Children>();
     const user = this.user!;
+    const isActor = app.session.user === user;
 
     items.add(
       'posts',
@@ -148,7 +149,7 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
       90
     );
 
-    if (app.session.user === user) {
+    if (isActor) {
       items.add('separator', <Separator />, -90);
       items.add(
         'settings',
@@ -159,8 +160,8 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
       );
     }
 
-    if (app.session.user!.id() === user.id() || app.forum.attribute<boolean>('canModerateAccessTokens')) {
-      if (app.session.user!.id() !== user.id()) {
+    if (isActor || app.forum.attribute<boolean>('canModerateAccessTokens')) {
+      if (!isActor) {
         items.add('security-separator', <Separator />, -90);
       }
 

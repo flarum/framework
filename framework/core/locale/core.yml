@@ -490,6 +490,8 @@ core:
       terminate_session: Terminate
       title: => core.ref.security
       token_revoked: Token revoked.
+      token_item_title: "{title} - {token}"
+      token_title_placeholder: "/"
 
     # These translations are used in the Settings page.
     settings:

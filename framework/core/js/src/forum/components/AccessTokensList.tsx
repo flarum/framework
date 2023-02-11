@@ -11,6 +11,7 @@ import classList from '../../common/utils/classList';
 import Tooltip from '../../common/components/Tooltip';
 import type Mithril from 'mithril';
 import type AccessToken from '../../common/models/AccessToken';
+import { NestedStringArray } from '@askvortsov/rich-icu-message-formatter';
 
 export interface IAccessTokensListAttrs extends ComponentAttrs {
   tokens: AccessToken[];
@@ -86,7 +87,7 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
       items.add(
         'title',
         <div className="AccessTokensList-item-title">
-          <span className="AccessTokensList-item-title-main">{[token.title() || '/', token.token() && [' — ', this.tokenValueDisplay(token)]]}</span>
+          <span className="AccessTokensList-item-title-main">{this.generateTokenTitle(token)}</span>
         </div>
       );
     }
@@ -188,7 +189,17 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
     m.redraw();
   }
 
+  generateTokenTitle(token: AccessToken): NestedStringArray {
+    const name = token.title() || app.translator.trans('core.forum.security.token_title_placeholder');
+    const value = this.tokenValueDisplay(token);
+
+    return app.translator.trans('core.forum.security.token_item_title', { name, value });
+  }
+
   tokenValueDisplay(token: AccessToken): Mithril.Children {
-    return <code className="AccessTokensList-item-token">{this.showingTokens[token.id()!] ? token.token() : Array(12).fill('*').join('')}</code>;
+    const obfuscatedName = Array(12).fill('*').join('');
+    const value = this.showingTokens[token.id()!] ? token.token() : obfuscatedName;
+
+    return <code className="AccessTokensList-item-token">{value}</code>;
   }
 }
