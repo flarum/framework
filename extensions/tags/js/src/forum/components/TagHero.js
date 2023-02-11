@@ -15,9 +15,9 @@ export default class TagHero extends Component {
       >
         <div className="container">
           <div className="containerNarrow">
-            <h2 className="Hero-title">
+            <h1 className="Hero-title">
               {tag.icon() && tagIcon(tag, {}, { useColor: false })} {tag.name()}
-            </h2>
+            </h1>
             <div className="Hero-subtitle">{tag.description()}</div>
           </div>
         </div>

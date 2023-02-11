@@ -82,7 +82,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
               {this.extension.icon ? icon(this.extension.icon.name) : ''}
             </span>
             <div className="ExtensionName">
-              <h2>{this.extension.extra['flarum-extension'].title}</h2>
+              <h1>{this.extension.extra['flarum-extension'].title}</h1>
             </div>
             <div className="ExtensionPage-headerTopItems">
               <ul>{listItems(this.topItems().toArray())}</ul>
@@ -115,7 +115,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
       <div className="ExtensionPage-permissions">
         <div className="ExtensionPage-permissions-header">
           <div className="container">
-            <h2 className="ExtensionTitle">{app.translator.trans('core.admin.extension.permissions_title')}</h2>
+            <h1 className="ExtensionTitle">{app.translator.trans('core.admin.extension.permissions_title')}</h1>
           </div>
         </div>
         <div className="container">
