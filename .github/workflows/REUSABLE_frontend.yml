@@ -28,6 +28,11 @@ on:
         type: string
         required: false
         default: check-typings-coverage
+      test_script:
+        description: "Script to run for tests. Empty value to disable."
+        type: string
+        required: false
+        default: test
 
       enable_bundlewatch:
         description: "Enable Bundlewatch?"
@@ -43,6 +48,11 @@ on:
         description: "Enable TypeScript?"
         type: boolean
         default: true
+        required: false
+      enable_tests:
+        description: "Enable Tests?"
+        type: boolean
+        default: false
         required: false
 
       backend_directory:
@@ -96,10 +106,10 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ inputs.node_version }}
           cache: ${{ inputs.js_package_manager }}
@@ -130,6 +140,7 @@ jobs:
           format_script: ${{ inputs.enable_prettier == true && inputs.format_script || '' }}
           check_typings_script: ${{ inputs.enable_typescript == true && inputs.check_typings_script || '' }}
           type_coverage_script: ${{ inputs.enable_typescript == true && inputs.type_coverage_script || '' }}
+          test_script: ${{ inputs.enable_tests == true && inputs.test_script || '' }}
           package_manager: ${{ inputs.js_package_manager }}
           js_path: ${{ inputs.frontend_directory }}
           do_not_commit: ${{ github.ref != format('refs/heads/{0}', inputs.main_git_branch) || github.event_name != 'push' }}
