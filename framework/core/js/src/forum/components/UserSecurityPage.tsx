@@ -182,14 +182,18 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
         url: app.forum.attribute('apiUrl') + '/sessions',
       })
       .then(() => {
-        this.state.setLoading(false);
-
         // Count terminated sessions first.
         const count = this.state.getOtherSessionTokens().length;
 
         this.state.removeOtherSessionTokens();
+
         app.alerts.show({ type: 'success' }, app.translator.trans('core.forum.security.session_terminated', { count }));
+
         m.redraw();
-      });
+      })
+      .catch(() => {
+        app.alerts.show({ type: 'error' }, app.translator.trans('core.forum.security.session_termination_failed'));
+      })
+      .finally(() => this.state.setLoading(false));
   }
 }
