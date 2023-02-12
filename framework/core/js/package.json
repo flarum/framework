@@ -22,6 +22,7 @@
         "throttle-debounce": "^3.0.1"
     },
     "devDependencies": {
+        "@flarum/jest-config": "^1.0.0",
         "@flarum/prettier-config": "^1.0.0",
         "@types/body-scroll-lock": "^3.1.0",
         "@types/jquery": "^3.5.10",
@@ -31,7 +32,6 @@
         "bundlewatch": "^0.3.2",
         "cross-env": "^7.0.3",
         "expose-loader": "^3.1.0",
-        "flarum-jest-config": "^1.0.0",
         "flarum-tsconfig": "^1.0.2",
         "flarum-webpack-config": "^2.0.0",
         "prettier": "^2.5.1",
