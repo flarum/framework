@@ -2,7 +2,7 @@ import { UpdaterLoadingTypes } from '../components/Updater';
 import { InstallerLoadingTypes } from '../components/Installer';
 import { MajorUpdaterLoadingTypes } from '../components/MajorUpdater';
 import { Extension } from 'flarum/admin/AdminApplication';
-export type UpdatedPackage = {
+export declare type UpdatedPackage = {
     name: string;
     version: string;
     latest: string;
@@ -11,28 +11,28 @@ export type UpdatedPackage = {
     'latest-status': string;
     description: string;
 };
-export type ComposerUpdates = {
+export declare type ComposerUpdates = {
     installed: UpdatedPackage[];
 };
-export type LastUpdateCheck = {
+export declare type LastUpdateCheck = {
     checkedAt: Date | null;
     updates: ComposerUpdates;
 };
-type UpdateType = 'major' | 'minor' | 'global';
-type UpdateStatus = 'success' | 'failure' | null;
-export type UpdateState = {
+declare type UpdateType = 'major' | 'minor' | 'global';
+declare type UpdateStatus = 'success' | 'failure' | null;
+export declare type UpdateState = {
     ranAt: Date | null;
     status: UpdateStatus;
     limitedPackages: string[];
     incompatibleExtensions: string[];
 };
-export type LastUpdateRun = {
+export declare type LastUpdateRun = {
     [key in UpdateType]: UpdateState;
 } & {
     limitedPackages: () => string[];
 };
-export type LoadingTypes = UpdaterLoadingTypes | InstallerLoadingTypes | MajorUpdaterLoadingTypes;
-export type CoreUpdate = {
+export declare type LoadingTypes = UpdaterLoadingTypes | InstallerLoadingTypes | MajorUpdaterLoadingTypes;
+export declare type CoreUpdate = {
     package: UpdatedPackage;
     extension: Extension;
 };

@@ -1,6 +1,6 @@
 import User from './models/User';
 import { FlarumRequestOptions } from './Application';
-export type LoginParams = {
+export declare type LoginParams = {
     /**
      * The username/email
      */

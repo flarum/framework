@@ -12,8 +12,8 @@ export interface PermissionSetting {
     icon: string;
     label: Mithril.Children;
 }
-export type PermissionGridEntry = PermissionConfig | PermissionSetting;
-export type PermissionType = 'view' | 'start' | 'reply' | 'moderate';
+export declare type PermissionGridEntry = PermissionConfig | PermissionSetting;
+export declare type PermissionType = 'view' | 'start' | 'reply' | 'moderate';
 export interface ScopeItem {
     label: Mithril.Children;
     render: (permission: PermissionGridEntry) => Mithril.Children;

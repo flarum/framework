@@ -87,8 +87,10 @@ import ModalManagerState from './states/ModalManagerState';
 import PageState from './states/PageState';
 declare const _default: {
     extenders: {
+        Model: typeof import("./extenders/Model").default;
         PostTypes: typeof import("./extenders/PostTypes").default;
         Routes: typeof import("./extenders/Routes").default;
+        Store: typeof import("./extenders/Store").default;
     };
     extend: typeof extend;
     Session: typeof Session;

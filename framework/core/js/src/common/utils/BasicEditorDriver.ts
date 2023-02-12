@@ -1,7 +1,8 @@
 import getCaretCoordinates from 'textarea-caret';
 import insertText from './insertText';
-import EditorDriverInterface, { EditorDriverParams } from './EditorDriverInterface';
 import ItemList from './ItemList';
+import type EditorDriverInterface from './EditorDriverInterface';
+import { type EditorDriverParams } from './EditorDriverInterface';
 
 export default class BasicEditorDriver implements EditorDriverInterface {
   el: HTMLTextAreaElement;

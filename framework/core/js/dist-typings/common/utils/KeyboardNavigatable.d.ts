@@ -1,5 +1,5 @@
-type KeyboardEventHandler = (event: KeyboardEvent) => void;
-type ShouldHandle = (event: KeyboardEvent) => boolean;
+declare type KeyboardEventHandler = (event: KeyboardEvent) => void;
+declare type ShouldHandle = (event: KeyboardEvent) => boolean;
 /**
  * The `KeyboardNavigatable` class manages lists that can be navigated with the
  * keyboard, calling callbacks for each actions.
