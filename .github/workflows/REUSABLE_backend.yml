@@ -58,6 +58,7 @@ jobs:
         php: ${{ fromJSON(inputs.php_versions) }}
         service: ${{ fromJSON(inputs.db_versions) }}
         prefix: ['']
+        php_ini_values: [inputs.php_ini_values]
 
         # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstrategymatrixinclude
         include:
@@ -86,12 +87,24 @@ jobs:
             prefix: flarum_
             prefixStr: (prefix)
 
+          # @TODO: remove in 2.0
+          # Include testing PHP 8.2 with deprecation warnings disabled.
+          - php: 8.2
+            php_ini_values: error_reporting=E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED
+
         # To reduce number of actions, we exclude some PHP versions from running with some DB versions.
         exclude:
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
             service: 'mysql:8.0.30'
           - php: ${{ fromJSON(inputs.php_versions)[2] }}
             service: 'mysql:8.0.30'
+          - php: ${{ fromJSON(inputs.php_versions)[3] }}
+            service: 'mysql:8.0.30'
+
+          # @TODO: remove in 2.0
+          # Exclude testing PHP 8.2 with deprecation warnings enabled.
+          - php: 8.2
+            php_ini_values: error_reporting=E_ALL
 
     services:
       mysql:
@@ -115,7 +128,7 @@ jobs:
           coverage: xdebug
           extensions: ${{ inputs.php_extensions }}
           tools: phpunit, composer:v2
-          ini-values: ${{ inputs.php_ini_values }}
+          ini-values: ${{ matrix.php_ini_values }}
 
       # The authentication alter is necessary because newer mysql versions use the `caching_sha2_password` driver,
       # which isn't supported prior to PHP7.4
@@ -167,7 +180,7 @@ jobs:
           coverage: xdebug
           extensions: ${{ inputs.php_extensions }}
           tools: phpunit, composer:v2
-          ini-values: ${{ inputs.php_ini_values }}
+          ini-values: ${{ matrix.php_ini_values }}
 
       - name: Install Composer dependencies
         run: composer install
