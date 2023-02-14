@@ -55,7 +55,7 @@ class ScopeDiscussionVisibilityForAbility
                 })
                 ->orWhere(function ($query) use ($actor, $permission) {
                     // Allow extensions a way to override scoping for any given permission.
-                    $query->whereVisibleTo($actor, "${permission}InRestrictedTags");
+                    $query->whereVisibleTo($actor, "{$permission}InRestrictedTags");
                 });
         });
 
