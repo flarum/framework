@@ -22,9 +22,9 @@ export default class PostUser extends Component {
     if (!user) {
       return (
         <div className="PostUser">
-          <div class="PostUser-name">
+          <h3 class="PostUser-name">
             {avatar(user, { className: 'PostUser-avatar' })} {username(user)}
-          </div>
+          </h3>
         </div>
       );
     }
@@ -41,13 +41,13 @@ export default class PostUser extends Component {
 
     return (
       <div className="PostUser">
-        <div class="PostUser-name">
+        <h3 class="PostUser-name">
           <Link href={app.route.user(user)}>
             {avatar(user, { className: 'PostUser-avatar' })}
             {userOnline(user)}
             {username(user)}
           </Link>
-        </div>
+        </h3>
         <ul className="PostUser-badges badges">{listItems(user.badges().toArray())}</ul>
         {card}
       </div>

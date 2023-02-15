@@ -21,10 +21,10 @@ export default class ReplyPlaceholder extends Component {
         <article className="Post CommentPost editing" aria-busy="true">
           <header className="Post-header">
             <div className="PostUser">
-              <div class="PostUser-name">
+              <h3 class="PostUser-name">
                 {avatar(app.session.user, { className: 'PostUser-avatar' })}
                 {username(app.session.user)}
-              </div>
+              </h3>
               <ul className="PostUser-badges badges">{listItems(app.session.user.badges().toArray())}</ul>
             </div>
           </header>
