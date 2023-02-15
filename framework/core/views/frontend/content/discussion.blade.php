@@ -1,15 +1,15 @@
 <div class="container">
-    <h2>{{ $apiDocument->data->attributes->title }}</h2>
+    <h1>{{ $apiDocument->data->attributes->title }}</h1>
 
     <div>
         @foreach ($posts as $post)
-            <div>
+            <article>
                 @php $user = ! empty($post->relationships->user->data) ? $getResource($post->relationships->user->data) : null; @endphp
                 <h3>{{ $user ? $user->attributes->displayName : $translator->trans('core.lib.username.deleted_text') }}</h3>
                 <div class="Post-body">
                     {!! $post->attributes->contentHtml !!}
                 </div>
-            </div>
+            </article>
 
             <hr>
         @endforeach

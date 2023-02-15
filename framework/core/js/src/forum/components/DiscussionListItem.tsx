@@ -117,7 +117,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
           <ul className="DiscussionListItem-badges badges">{listItems(discussion.badges().toArray())}</ul>
 
           <Link href={app.route.discussion(discussion, jumpTo)} className="DiscussionListItem-main">
-            <h3 className="DiscussionListItem-title">{highlight(discussion.title(), this.highlightRegExp)}</h3>
+            <h2 className="DiscussionListItem-title">{highlight(discussion.title(), this.highlightRegExp)}</h2>
             <ul className="DiscussionListItem-info">{listItems(this.infoItems().toArray())}</ul>
           </Link>
           {this.replyCountItem()}
