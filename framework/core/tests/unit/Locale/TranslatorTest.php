@@ -33,8 +33,8 @@ class TranslatorTest extends TestCase
             'test2' => 'test2 {placeholder} test2',
         ], 'en', self::DOMAIN);
 
-        $this->assertSame("test1 ' test1", $translator->trans('test1', ['{placeholder}' => "'"]));
-        $this->assertSame("test1 test2 ' test2 test1", $translator->trans('test1', ['{placeholder}' => $translator->trans('test2', ['{placeholder}' => "'"])]));
+        $this->assertSame("test1 ' test1", $translator->trans('test1', ['placeholder' => "'"]));
+        $this->assertSame("test1 test2 ' test2 test1", $translator->trans('test1', ['placeholder' => $translator->trans('test2', ['placeholder' => "'"])]));
     }
 
     /** @test */
@@ -58,6 +58,6 @@ class TranslatorTest extends TestCase
             'test3' => "test1 {placeholder} '{placeholder}' test1",
         ], 'en', self::DOMAIN);
 
-        $this->assertSame("test1 ' {placeholder} test1", $translator->trans('test3', ['{placeholder}' => "'"]));
+        $this->assertSame("test1 ' {placeholder} test1", $translator->trans('test3', ['placeholder' => "'"]));
     }
 }
