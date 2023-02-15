@@ -5,7 +5,7 @@
         @foreach ($posts as $post)
             <article>
                 @php $user = ! empty($post->relationships->user->data) ? $getResource($post->relationships->user->data) : null; @endphp
-                <h3>{{ $user ? $user->attributes->displayName : $translator->trans('core.lib.username.deleted_text') }}</h3>
+                <div class="PostUser"><h3 class="PostUser-name">{{ $user ? $user->attributes->displayName : $translator->trans('core.lib.username.deleted_text') }}</h3></div>
                 <div class="Post-body">
                     {!! $post->attributes->contentHtml !!}
                 </div>
