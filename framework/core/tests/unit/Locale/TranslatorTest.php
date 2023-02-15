@@ -60,4 +60,17 @@ class TranslatorTest extends TestCase
 
         $this->assertSame("test1 ' {placeholder} test1", $translator->trans('test3', ['placeholder' => "'"]));
     }
+
+    /** @test */
+    public function plural_rules()
+    {
+        $translator = new Translator('en');
+        $translator->addLoader('array', new ArrayLoader());
+        $translator->addResource('array', [
+            'test4' => '{pageNumber, plural, =1 {{forumName}} other {Page # - {forumName}}}',
+        ], 'en', self::DOMAIN);
+
+        $this->assertSame('A & B', $translator->trans('test4', ['forumName' => 'A & B', 'pageNumber' => 1]));
+        $this->assertSame('Page 2 - A & B', $translator->trans('test4', ['forumName' => 'A & B', 'pageNumber' => 2]));
+    }
 }
