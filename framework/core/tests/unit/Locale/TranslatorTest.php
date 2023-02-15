@@ -16,7 +16,7 @@ use Symfony\Component\Translation\MessageCatalogueInterface;
 
 class TranslatorTest extends TestCase
 {
-    private const DOMAIN = 'messages' . MessageCatalogueInterface::INTL_DOMAIN_SUFFIX;
+    private const DOMAIN = 'messages'.MessageCatalogueInterface::INTL_DOMAIN_SUFFIX;
 
     /*
      * These tests should be in sync with JS tests in `js/tests/unit/common/utils/Translator.test.ts`, to make sure that JS
@@ -29,8 +29,8 @@ class TranslatorTest extends TestCase
         $translator = new Translator('en');
         $translator->addLoader('array', new ArrayLoader());
         $translator->addResource('array', [
-            'test1' => "test1 {placeholder} test1",
-            'test2' => "test2 {placeholder} test2",
+            'test1' => 'test1 {placeholder} test1',
+            'test2' => 'test2 {placeholder} test2',
         ], 'en', self::DOMAIN);
 
         $this->assertSame("test1 ' test1", $translator->trans('test1', ['{placeholder}' => "'"]));
@@ -43,10 +43,10 @@ class TranslatorTest extends TestCase
         $translator = new Translator('en');
         $translator->addLoader('array', new ArrayLoader());
         $translator->addResource('array', [
-            'test1' => "test1 {placeholder} test1",
+            'test1' => 'test1 {placeholder} test1',
         ], 'en', self::DOMAIN);
 
-        $this->assertSame("test1 {placeholder} test1", $translator->trans('test1', []));
+        $this->assertSame('test1 {placeholder} test1', $translator->trans('test1', []));
     }
 
     /** @test */
