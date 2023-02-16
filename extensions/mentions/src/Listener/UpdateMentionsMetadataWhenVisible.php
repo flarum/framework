@@ -19,6 +19,7 @@ use Flarum\Post\Event\Revised;
 use Flarum\Post\Post;
 use Flarum\User\User;
 use s9e\TextFormatter\Utils;
+use Flarum\Approval\Event\PostWasApproved;
 
 class UpdateMentionsMetadataWhenVisible
 {
@@ -36,7 +37,7 @@ class UpdateMentionsMetadataWhenVisible
     }
 
     /**
-     * @param Posted|Restored|Revised $event
+     * @param Posted|Restored|Revised|PostWasApproved $event
      */
     public function handle($event)
     {
