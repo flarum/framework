@@ -20,8 +20,8 @@ return [
         // do this manually because dbal doesn't recognize timestamp columns
         $connection = $schema->getConnection();
         $prefix = $connection->getTablePrefix();
-        $connection->statement("ALTER TABLE `${prefix}tags` MODIFY created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP");
-        $connection->statement("ALTER TABLE `${prefix}tags` MODIFY updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+        $connection->statement("ALTER TABLE `{$prefix}tags` MODIFY created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP");
+        $connection->statement("ALTER TABLE `{$prefix}tags` MODIFY updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
     },
 
     'down' => function (Builder $schema) {

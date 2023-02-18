@@ -27,9 +27,9 @@ declare class ComposerState {
     /**
      * A reference to the text editor that allows text manipulation.
      *
-     * @type {EditorDriverInterface|null}
+     * @type {import('../../common/utils/EditorDriverInterface')|null}
      */
-    editor: EditorDriverInterface | null;
+    editor: typeof import("../../common/utils/EditorDriverInterface") | null;
     /**
      * Load a content component into the composer.
      *
@@ -151,5 +151,4 @@ declare namespace ComposerState {
         const FULLSCREEN: string;
     }
 }
-import EditorDriverInterface from "../../common/utils/EditorDriverInterface";
 import Stream from "../../common/utils/Stream";

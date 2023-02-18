@@ -1,7 +1,7 @@
 @inject('url', 'Flarum\Http\UrlGenerator')
 
 <div class="container">
-    <h2>{{ $translator->trans('flarum-tags.forum.index.tags_link') }}</h2>
+    <h1>{{ $translator->trans('flarum-tags.forum.index.tags_link') }}</h1>
 
     @foreach ([$primaryTags, $secondaryTags] as $category)
         <ul>

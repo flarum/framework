@@ -7,7 +7,7 @@
         <header id="header" class="App-header">
             <div id="header-navigation" class="Header-navigation"></div>
             <div class="container">
-                <h1 class="Header-title">
+                <div class="Header-title">
                     <a href="{{ $forum['baseUrl'] }}">
                         @if ($forum['logoUrl'])
                             <img src="{{ $forum['logoUrl'] }}" alt="{{ $forum['title'] }}" class="Header-logo">
@@ -15,7 +15,7 @@
                             {{ $forum['title'] }}
                         @endif
                     </a>
-                </h1>
+                </div>
                 <div id="header-primary" class="Header-primary"></div>
                 <div id="header-secondary" class="Header-secondary"></div>
             </div>

@@ -10,6 +10,7 @@
 namespace Flarum\Discussion\Event;
 
 use Flarum\Discussion\UserState;
+use Flarum\User\User;
 
 class UserRead
 {
@@ -17,6 +18,11 @@ class UserRead
      * @var UserState
      */
     public $state;
+
+    /**
+     * @var User
+     */
+    public $actor;
 
     /**
      * @param UserState $state

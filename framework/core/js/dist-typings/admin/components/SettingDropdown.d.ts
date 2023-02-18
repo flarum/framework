@@ -1,6 +1,6 @@
 import SelectDropdown, { ISelectDropdownAttrs } from '../../common/components/SelectDropdown';
 import Mithril from 'mithril';
-export type SettingDropdownOption = {
+export declare type SettingDropdownOption = {
     value: any;
     label: string;
 };

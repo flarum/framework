@@ -3,7 +3,7 @@ import type Mithril from 'mithril';
 import type User from '../../common/models/User';
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
-type ColumnData = {
+declare type ColumnData = {
     /**
      * Column title
      */

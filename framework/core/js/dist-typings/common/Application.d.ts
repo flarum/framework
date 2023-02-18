@@ -15,8 +15,8 @@ import type { ComponentAttrs } from './Component';
 import Model, { SavedModelData } from './Model';
 import IHistory from './IHistory';
 import IExtender from './extenders/IExtender';
-export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
-export type FlarumGenericRoute = RouteItem<any, any, any>;
+export declare type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
+export declare type FlarumGenericRoute = RouteItem<any, any, any>;
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
     errorHandler?: (error: RequestError) => void;
     url: string;
@@ -36,7 +36,7 @@ export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.Request
 /**
  * A valid route definition.
  */
-export type RouteItem<Attrs extends ComponentAttrs, Comp extends Component<Attrs & {
+export declare type RouteItem<Attrs extends ComponentAttrs, Comp extends Component<Attrs & {
     routeName: string;
 }>, RouteArgs extends Record<string, unknown> = {}> = {
     /**

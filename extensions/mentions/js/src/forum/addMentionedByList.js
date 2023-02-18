@@ -1,7 +1,5 @@
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
-import Model from 'flarum/common/Model';
-import Post from 'flarum/common/models/Post';
 import CommentPost from 'flarum/forum/components/CommentPost';
 import Link from 'flarum/common/components/Link';
 import PostPreview from 'flarum/forum/components/PostPreview';
@@ -10,8 +8,6 @@ import username from 'flarum/common/helpers/username';
 import icon from 'flarum/common/helpers/icon';
 
 export default function addMentionedByList() {
-  Post.prototype.mentionedBy = Model.hasMany('mentionedBy');
-
   function hidePreview() {
     this.$('.Post-mentionedBy-preview')
       .removeClass('in')
