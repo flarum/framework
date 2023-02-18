@@ -9,6 +9,7 @@
 
 namespace Flarum\Mentions\Listener;
 
+use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Mentions\Notification\GroupMentionedBlueprint;
 use Flarum\Mentions\Notification\PostMentionedBlueprint;
 use Flarum\Mentions\Notification\UserMentionedBlueprint;
@@ -19,7 +20,6 @@ use Flarum\Post\Event\Revised;
 use Flarum\Post\Post;
 use Flarum\User\User;
 use s9e\TextFormatter\Utils;
-use Flarum\Approval\Event\PostWasApproved;
 
 class UpdateMentionsMetadataWhenVisible
 {
