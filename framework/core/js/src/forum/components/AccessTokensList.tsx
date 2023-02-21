@@ -69,8 +69,10 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
         'title',
         <div className="AccessTokensList-item-title">
           <span className="AccessTokensList-item-title-main">{token.device()}</span>
-          {!!token.isCurrent()
-            && [' — ', <span className="AccessTokensList-item-title-sub">{app.translator.trans('core.forum.security.current_active_session')}</span>]}
+          {token.isCurrent() && [
+            ' — ',
+            <span className="AccessTokensList-item-title-sub">{app.translator.trans('core.forum.security.current_active_session')}</span>,
+          ]}
         </div>
       );
     } else {
