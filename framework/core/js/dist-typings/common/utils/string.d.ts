@@ -27,4 +27,8 @@ export declare namespace getPlainContent {
  * Make a string's first character uppercase.
  */
 export declare function ucfirst(string: string): string;
+/**
+ * Transform a camel case string to snake case.
+ */
+export declare function camelCaseToSnakeCase(str: string): string;
 export {};

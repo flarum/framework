@@ -1,6 +1,7 @@
 /// <reference path="../../@types/translator-icu-rich.d.ts" />
 import type Mithril from 'mithril';
 import type User from '../../common/models/User';
+import type { IPageAttrs } from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
 declare type ColumnData = {
@@ -28,6 +29,10 @@ export default class UserListPage extends AdminPage {
      */
     private pageNumber;
     /**
+     * Page number being loaded. Zero-indexed.
+     */
+    private loadingPageNumber;
+    /**
      * Total number of forum users.
      *
      * Fetched from the active `AdminApplication` (`app`), with
@@ -50,6 +55,7 @@ export default class UserListPage extends AdminPage {
      */
     private moreData;
     private isLoadingPage;
+    oninit(vnode: Mithril.Vnode<IPageAttrs, this>): void;
     /**
      * Component to render.
      */
@@ -78,10 +84,15 @@ export default class UserListPage extends AdminPage {
      *
      * Uses the `this.numPerPage` as the response limit, and automatically calculates the offset required from `pageNumber`.
      *
-     * @param pageNumber The page number to load and display
+     * @param pageNumber The **zero-based** page number to load and display
      */
     loadPage(pageNumber: number): Promise<void>;
     nextPage(): void;
     previousPage(): void;
+    /**
+     * @param page The **1-based** page number
+     */
+    goToPage(page: number): void;
+    private setPageNumberInUrl;
 }
 export {};
