@@ -3,7 +3,6 @@ import app from 'flarum/app';
 import UserControls from 'flarum/utils/UserControls';
 import Button from 'flarum/components/Button';
 import Badge from 'flarum/components/Badge';
-import Model from 'flarum/Model';
 import User from 'flarum/models/User';
 
 import SuspendUserModal from './components/SuspendUserModal';
@@ -11,14 +10,11 @@ import UserSuspendedNotification from './components/UserSuspendedNotification';
 import UserUnsuspendedNotification from './components/UserUnsuspendedNotification';
 import checkForSuspension from './checkForSuspension';
 
+export { default as extend } from './extend';
+
 app.initializers.add('flarum-suspend', () => {
   app.notificationComponents.userSuspended = UserSuspendedNotification;
   app.notificationComponents.userUnsuspended = UserUnsuspendedNotification;
-
-  User.prototype.canSuspend = Model.attribute('canSuspend');
-  User.prototype.suspendedUntil = Model.attribute('suspendedUntil', Model.transformDate);
-  User.prototype.suspendReason = Model.attribute('suspendReason');
-  User.prototype.suspendMessage = Model.attribute('suspendMessage');
 
   extend(UserControls, 'moderationControls', (items, user) => {
     if (user.canSuspend()) {

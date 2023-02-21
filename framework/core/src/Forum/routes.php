@@ -50,6 +50,12 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     );
 
     $map->post(
+        '/global-logout',
+        'globalLogout',
+        $route->toController(Controller\GlobalLogOutController::class)
+    );
+
+    $map->post(
         '/login',
         'login',
         $route->toController(Controller\LogInController::class)

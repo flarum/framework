@@ -18,5 +18,10 @@ abstract class AbstractActionCommand
      */
     public $task = null;
 
+    /**
+     * @var string|null
+     */
+    public $package = null;
+
     abstract public function getOperationName(): string;
 }

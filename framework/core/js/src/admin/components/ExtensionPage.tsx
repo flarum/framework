@@ -115,7 +115,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
       <div className="ExtensionPage-permissions">
         <div className="ExtensionPage-permissions-header">
           <div className="container">
-            <h2 className="ExtensionTitle">{app.translator.trans('core.admin.extension.permissions_title')}</h2>
+            <h1 className="ExtensionTitle">{app.translator.trans('core.admin.extension.permissions_title')}</h1>
           </div>
         </div>
         <div className="container">

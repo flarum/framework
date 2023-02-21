@@ -72,3 +72,10 @@ getPlainContent.removeSelectors = ['blockquote', 'script'];
 export function ucfirst(string: string): string {
   return string.substr(0, 1).toUpperCase() + string.substr(1);
 }
+
+/**
+ * Transform a camel case string to snake case.
+ */
+export function camelCaseToSnakeCase(str: string): string {
+  return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+}

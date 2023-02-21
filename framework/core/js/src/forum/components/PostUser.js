@@ -22,7 +22,7 @@ export default class PostUser extends Component {
     if (!user) {
       return (
         <div className="PostUser">
-          <h3>
+          <h3 class="PostUser-name">
             {avatar(user, { className: 'PostUser-avatar' })} {username(user)}
           </h3>
         </div>
@@ -41,7 +41,7 @@ export default class PostUser extends Component {
 
     return (
       <div className="PostUser">
-        <h3>
+        <h3 class="PostUser-name">
           <Link href={app.route.user(user)}>
             {avatar(user, { className: 'PostUser-avatar' })}
             {userOnline(user)}
@@ -60,11 +60,11 @@ export default class PostUser extends Component {
     let timeout;
 
     this.$()
-      .on('mouseover', 'h3 a, .UserCard', () => {
+      .on('mouseover', '.PostUser-name a, .UserCard', () => {
         clearTimeout(timeout);
         timeout = setTimeout(this.showCard.bind(this), 500);
       })
-      .on('mouseout', 'h3 a, .UserCard', () => {
+      .on('mouseout', '.PostUser-name a, .UserCard', () => {
         clearTimeout(timeout);
         timeout = setTimeout(this.hideCard.bind(this), 250);
       });

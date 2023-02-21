@@ -4,15 +4,13 @@ import Button from 'flarum/common/components/Button';
 import EditUserModal from 'flarum/common/components/EditUserModal';
 import SignUpModal from 'flarum/forum/components/SignUpModal';
 import SettingsPage from 'flarum/forum/components/SettingsPage';
-import Model from 'flarum/common/Model';
-import User from 'flarum/common/models/User';
 import extractText from 'flarum/common/utils/extractText';
 import Stream from 'flarum/common/utils/Stream';
 import NickNameModal from './components/NicknameModal';
 
-app.initializers.add('flarum/nicknames', () => {
-  User.prototype.canEditNickname = Model.attribute('canEditNickname');
+export { default as extend } from './extend';
 
+app.initializers.add('flarum/nicknames', () => {
   extend(SettingsPage.prototype, 'accountItems', function (items) {
     if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
 

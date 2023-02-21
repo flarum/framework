@@ -49,7 +49,7 @@ export default class UserCard extends Component {
               : ''}
 
             <div className="UserCard-profile">
-              <h2 className="UserCard-identity">
+              <h1 className="UserCard-identity">
                 {this.attrs.editable ? (
                   [AvatarEditor.component({ user, className: 'UserCard-avatar' }), username(user)]
                 ) : (
@@ -58,7 +58,7 @@ export default class UserCard extends Component {
                     {username(user)}
                   </Link>
                 )}
-              </h2>
+              </h1>
 
               {badges.length ? <ul className="UserCard-badges badges">{listItems(badges)}</ul> : ''}
 

@@ -157,7 +157,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
   mainView({ discussion, jumpTo }: any): Mithril.Children {
     return (
       <Link href={app.route.discussion(discussion, jumpTo)} className="DiscussionListItem-main">
-        <h3 className="DiscussionListItem-title">{highlight(discussion.title(), this.highlightRegExp)}</h3>
+        <h2 className="DiscussionListItem-title">{highlight(discussion.title(), this.highlightRegExp)}</h2>
         <ul className="DiscussionListItem-info">{listItems(this.infoItems().toArray())}</ul>
       </Link>
     );

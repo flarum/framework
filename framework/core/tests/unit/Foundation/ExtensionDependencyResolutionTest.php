@@ -14,6 +14,16 @@ use Flarum\Testing\unit\TestCase;
 
 class ExtensionDependencyResolutionTest extends TestCase
 {
+    public $tags;
+    public $categories;
+    public $tagBackgrounds;
+    public $something;
+    public $help;
+    public $missing;
+    public $circular1;
+    public $circular2;
+    public $optionalDependencyCategories;
+
     public function setUp(): void
     {
         parent::setUp();

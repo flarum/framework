@@ -40,10 +40,14 @@
   font-weight: normal;
   position: relative;
 
-  h3 {
+  // TODO: remove styles for h3 on Flarum 2.0 cleanup - they may be used by extensions, but they should target `.PostUser-name` class instead
+  h3,
+  .PostUser-name {
     display: inline;
   }
-  h3, h3 a {
+  // TODO: remove styles for h3 on Flarum 2.0 cleanup - they may be used by extensions, but they should target `.PostUser-name` class instead
+  h3, h3 a,
+  .PostUser-name, .PostUser-name a {
     color: var(--heading-color);
     font-weight: bold;
     font-size: 14px;
@@ -190,18 +194,31 @@
 }
 
 .Post--hidden {
-  .Post-header, .Post-header a, .PostUser h3, .PostUser h3 a {
+  .Post-header, .Post-header a,
+  // TODO: remove styles for h3 on Flarum 2.0 cleanup - they may be used by extensions, but they should target `.PostUser-name` class instead
+  .PostUser h3, .PostUser h3 a,
+  .PostUser .PostUser-name, .PostUser .PostUser-name a {
     color: var(--muted-more-color);
   }
   &:not(.revealContent) {
     .Post-header {
       margin-bottom: 0;
     }
-    .Post-body, .Post-footer, h3 .Avatar, .PostUser-badges {
+    .Post-body,
+    .Post-footer,
+    // TODO: remove styles for h3 on Flarum 2.0 cleanup - they may be used by extensions, but they should target `.PostUser-name` class instead
+    h3 .Avatar,
+    .PostUser-name .Avatar,
+    .PostUser-badges {
       display: none;
     }
   }
-  .Post-body, .Post-footer, h3 .Avatar, .PostUser-badges {
+  .Post-body,
+  .Post-footer,
+  // TODO: remove styles for h3 on Flarum 2.0 cleanup - they may be used by extensions, but they should target `.PostUser-name` class instead
+  h3 .Avatar,
+  .PostUser-name .Avatar,
+  .PostUser-badges {
     opacity: 0.5;
   }
   .Post-header .Button--more {

@@ -5,7 +5,7 @@ export interface MajorUpdaterAttrs extends ComponentAttrs {
     coreUpdate: UpdatedPackage;
     updateState: UpdateState;
 }
-export type MajorUpdaterLoadingTypes = 'major-update' | 'major-update-dry-run';
+export declare type MajorUpdaterLoadingTypes = 'major-update' | 'major-update-dry-run';
 export default class MajorUpdater<T extends MajorUpdaterAttrs = MajorUpdaterAttrs> extends Component<T> {
     updateState: UpdateState;
     oninit(vnode: Mithril.Vnode<T, this>): void;

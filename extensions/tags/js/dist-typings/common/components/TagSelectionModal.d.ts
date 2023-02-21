@@ -44,7 +44,7 @@ export interface ITagSelectionModalAttrs extends IInternalModalAttrs {
     /** Callback for when the selection is submitted. */
     onsubmit?: (selected: Tag[]) => void;
 }
-export type ITagSelectionModalState = undefined;
+export declare type ITagSelectionModalState = undefined;
 export default class TagSelectionModal<CustomAttrs extends ITagSelectionModalAttrs = ITagSelectionModalAttrs, CustomState extends ITagSelectionModalState = ITagSelectionModalState> extends Modal<CustomAttrs, CustomState> {
     protected loading: boolean;
     protected tags: Tag[];

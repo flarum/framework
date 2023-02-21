@@ -2,7 +2,7 @@ import { AdminRoutes } from './routes';
 import Application, { ApplicationData } from '../common/Application';
 import ExtensionData from './utils/ExtensionData';
 import IHistory from '../common/IHistory';
-export type Extension = {
+export declare type Extension = {
     id: string;
     name: string;
     version: string;

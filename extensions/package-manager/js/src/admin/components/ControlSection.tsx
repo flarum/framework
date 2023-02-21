@@ -17,7 +17,7 @@ export default class ControlSection extends Component<ComponentAttrs> {
       <div className="ExtensionPage-permissions PackageManager-controlSection">
         <div className="ExtensionPage-permissions-header">
           <div className="container">
-            <h2 className="ExtensionTitle">{app.translator.trans('flarum-package-manager.admin.sections.control.title')}</h2>
+            <h1 className="ExtensionTitle">{app.translator.trans('flarum-package-manager.admin.sections.control.title')}</h1>
           </div>
         </div>
         <div className="container">
