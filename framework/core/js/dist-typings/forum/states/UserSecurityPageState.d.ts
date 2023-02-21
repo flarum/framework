@@ -1,10 +1,9 @@
 import AccessToken from '../../common/models/AccessToken';
 export default class UserSecurityPageState {
     protected tokens: AccessToken[] | null;
-    protected loading: boolean;
-    isLoading(): boolean;
+    loadingTerminateSessions: boolean;
+    loadingGlobalLogout: boolean;
     hasLoadedTokens(): boolean;
-    setLoading(loading: boolean): void;
     getTokens(): AccessToken[] | null;
     setTokens(tokens: AccessToken[]): void;
     pushToken(token: AccessToken): void;

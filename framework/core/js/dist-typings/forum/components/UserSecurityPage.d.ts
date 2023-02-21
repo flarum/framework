@@ -24,4 +24,5 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
     sessionsItems(): ItemList<Mithril.Children>;
     loadTokens(): Promise<void>;
     terminateAllOtherSessions(): Promise<void> | undefined;
+    globalLogout(): Promise<void>;
 }
