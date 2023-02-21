@@ -273,6 +273,9 @@ core:
 
       pagination:
         back_button: Previous page
+        first_button: Go to first page
+        go_to_page_textbox_a11y_label: Go directly to page number
+        last_button: Go to last page
         next_button: Next page
         page_counter: Page {current} of {total}
 
