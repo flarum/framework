@@ -46,6 +46,11 @@ export default class UserListPage extends AdminPage {
   private pageNumber: number = 0;
 
   /**
+   * Page number being loaded. Zero-indexed.
+   */
+  private loadingPageNumber: number = 0;
+
+  /**
    * Total number of forum users.
    *
    * Fetched from the active `AdminApplication` (`app`), with
@@ -165,7 +170,38 @@ export default class UserListPage extends AdminPage {
         />
         <span class="UserListPage-pageNumber">
           {app.translator.trans('core.admin.users.pagination.page_counter', {
-            current: this.pageNumber + 1,
+            current: (
+              <input
+                type="text"
+                value={this.loadingPageNumber + 1}
+                aria-label={extractText(app.translator.trans('core.admin.users.pagination.go_to_page_textbox_a11y_label'))}
+                autocomplete="off"
+                className="FormControl UserListPage-pageNumberInput"
+                onchange={(e: InputEvent) => {
+                  const target = e.target as HTMLInputElement;
+                  let pageNumber = parseInt(target.value);
+
+                  if (isNaN(pageNumber)) {
+                    // Invalid value, reset to current page
+                    target.value = (this.pageNumber + 1).toString();
+                    return;
+                  }
+
+                  if (pageNumber < 1) {
+                    // Lower constraint
+                    pageNumber = 1;
+                  } else if (pageNumber > this.getTotalPageCount()) {
+                    // Upper constraint
+                    pageNumber = this.getTotalPageCount();
+                  }
+
+                  target.value = pageNumber.toString();
+
+                  this.goToPage(pageNumber);
+                }}
+              />
+            ),
+            currentNum: this.pageNumber + 1,
             total: this.getTotalPageCount(),
           })}
         </span>
@@ -361,10 +397,12 @@ export default class UserListPage extends AdminPage {
    *
    * Uses the `this.numPerPage` as the response limit, and automatically calculates the offset required from `pageNumber`.
    *
-   * @param pageNumber The page number to load and display
+   * @param pageNumber The **zero-based** page number to load and display
    */
   async loadPage(pageNumber: number) {
     if (pageNumber < 0) pageNumber = 0;
+
+    this.loadingPageNumber = pageNumber;
 
     app.store
       .find<User[]>('users', {
