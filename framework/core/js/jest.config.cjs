@@ -1,1 +1,1 @@
-module.exports = require('flarum-jest-config')({});
+module.exports = require('@flarum/jest-config')({});

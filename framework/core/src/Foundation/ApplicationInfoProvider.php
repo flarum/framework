@@ -119,7 +119,7 @@ class ApplicationInfoProvider
         // If the schedule has not run in the last 5 minutes, mark it as inactive.
         return Carbon::parse($status) > Carbon::now()->subMinutes(5)
             ? $this->translator->trans('core.admin.dashboard.status.scheduler.active')
-            : $this->translator->trans('core.admin.status.scheduler.inactive');
+            : $this->translator->trans('core.admin.dashboard.status.scheduler.inactive');
     }
 
     /**

@@ -1,7 +1,7 @@
 @inject('url', 'Flarum\Http\UrlGenerator')
 
 <div class="container">
-    <h2>{{ $translator->trans('core.views.index.all_discussions_heading') }}</h2>
+    <h1>{{ $translator->trans('core.views.index.all_discussions_heading') }}</h1>
 
     <ul>
         @foreach ($apiDocument->data as $discussion)

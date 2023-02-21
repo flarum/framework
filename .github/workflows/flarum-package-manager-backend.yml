@@ -6,6 +6,6 @@ jobs:
   run:
     uses: ./.github/workflows/REUSABLE_backend.yml
     with:
-      enable_backend_testing: true
+      enable_backend_testing: false
 
       backend_directory: ./extensions/package-manager

@@ -1,5 +1,5 @@
 {
-    "name": "flarum-jest-config",
+    "name": "@flarum/jest-config",
     "version": "1.0.0",
     "description": "Jest config for Flarum.",
     "main": "index.cjs",

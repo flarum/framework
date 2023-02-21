@@ -39,7 +39,7 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
           />
 
           <div class="containerNarrow">
-            <h2 class="Hero-title">{app.forum.attribute('welcomeTitle')}</h2>
+            <h1 class="Hero-title">{app.forum.attribute('welcomeTitle')}</h1>
             <div class="Hero-subtitle">{m.trust(app.forum.attribute('welcomeMessage'))}</div>
           </div>
         </div>
