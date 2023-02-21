@@ -472,11 +472,16 @@ core:
 
     # These translations are used in the Security page.
     security:
-      developer_tokens_heading: Developer Tokens
-      current_active_session: Current Active Session
       browser_on_operating_system: "{browser} on {os}"
       cannot_terminate_current_session: Cannot terminate the current active session. Log out instead.
       created: Created
+      current_active_session: Current Active Session
+      developer_tokens_heading: Developer Tokens
+      empty_text: It looks like there is nothing to see here.
+      global_logout:
+        heading: Global Logout
+        help_text: "Clears current cookie session, terminates all sessions, revokes developer tokens, and invalidates any email confirmation or password reset emails."
+        log_out_button: => core.ref.log_out
       hide_access_token: Hide Token
       last_activity: Last activity
       never: Never
@@ -485,7 +490,6 @@ core:
         submit_button: Create Token
         title: => core.ref.new_token
         title_placeholder: Title
-      empty_text: It looks like there is nothing to see here.
       revoke_access_token: Revoke
       revoke_access_token_confirmation: => core.ref.generic_confirmation_message
       sessions_heading: Active Sessions
