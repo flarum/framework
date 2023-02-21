@@ -19,11 +19,39 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\ShowForumController::class)
     );
 
+    // List access tokens
+    $map->get(
+        '/access-tokens',
+        'access-tokens.index',
+        $route->toController(Controller\ListAccessTokensController::class)
+    );
+
+    // List access tokens
+    $map->post(
+        '/access-tokens',
+        'access-tokens.create',
+        $route->toController(Controller\CreateAccessTokenController::class)
+    );
+
+    // List access tokens
+    $map->delete(
+        '/access-tokens/{id}',
+        'access-tokens.delete',
+        $route->toController(Controller\DeleteAccessTokenController::class)
+    );
+
     // Retrieve authentication token
     $map->post(
         '/token',
         'token',
         $route->toController(Controller\CreateTokenController::class)
+    );
+
+    // Terminate all other sessions
+    $map->delete(
+        '/sessions',
+        'sessions.delete',
+        $route->toController(Controller\TerminateAllOtherSessionsController::class)
     );
 
     // Send forgot password email
@@ -71,7 +99,7 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     $map->delete(
         '/users/{id}',
         'users.delete',
-        $route->toController(Controller\DeleteUserController::class)
+        $route->toController(Controller\DeleteAccessTokenController::class)
     );
 
     // Upload avatar

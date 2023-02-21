@@ -15,6 +15,8 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Group\Filter as GroupFilter;
 use Flarum\Group\Filter\GroupFilterer;
+use Flarum\Http\Filter\AccessTokenFilterer;
+use Flarum\Http\Filter as HttpFilter;
 use Flarum\Post\Filter as PostFilter;
 use Flarum\Post\Filter\PostFilterer;
 use Flarum\User\Filter\UserFilterer;
@@ -33,6 +35,9 @@ class FilterServiceProvider extends AbstractServiceProvider
     {
         $this->container->singleton('flarum.filter.filters', function () {
             return [
+                AccessTokenFilterer::class => [
+                    HttpFilter\UserFilter::class,
+                ],
                 DiscussionFilterer::class => [
                     DiscussionQuery\AuthorFilterGambit::class,
                     DiscussionQuery\CreatedFilterGambit::class,

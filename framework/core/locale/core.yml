@@ -191,6 +191,7 @@ core:
     permissions:
       allow_post_editing_label: Allow post editing
       allow_renaming_label: Allow renaming
+      create_access_token_label: Create access token
       create_heading: Create
       delete_discussions_forever_label: Delete discussions forever
       delete_discussions_label: Delete discussions
@@ -203,6 +204,7 @@ core:
       edit_users_groups_label: Edit user groups
       global_heading: Global
       moderate_heading: Moderate
+      moderate_access_tokens_label: Moderate Access Tokens
       new_group_button: New Group
       participate_heading: Participate
       post_without_throttle_label: Reply multiple times without waiting
@@ -468,6 +470,36 @@ core:
       discussions_heading: => core.ref.discussions
       users_heading: => core.ref.users
 
+    # These translations are used in the Security page.
+    security:
+      developer_tokens_heading: Developer Tokens
+      current_active_session: Current Active Session
+      browser_on_operating_system: "{browser} on {os}"
+      cannot_terminate_current_session: Cannot terminate the current active session. Log out instead.
+      created: Created
+      hide_access_token: Hide Token
+      last_activity: Last activity
+      never: Never
+      new_access_token_button: => core.ref.new_token
+      new_access_token_modal:
+        submit_button: Create Token
+        title: => core.ref.new_token
+        title_placeholder: Title
+      empty_text: It looks like there is nothing to see here.
+      revoke_access_token: Revoke
+      revoke_access_token_confirmation: => core.ref.generic_confirmation_message
+      sessions_heading: Active Sessions
+      session_terminated: "{count, plural, one {Session terminated} other {# Sessions terminated}}."
+      session_termination_failed: "An error occurred while terminating your sessions."
+      show_access_token: View Token
+      terminate_all_other_sessions: Terminate all other sessions
+      terminate_all_other_sessions_confirmation: => core.ref.generic_confirmation_message
+      terminate_session: Terminate
+      title: => core.ref.security
+      token_revoked: Token revoked.
+      token_item_title: "{title} - {token}"
+      token_title_placeholder: "/"
+
     # These translations are used in the Settings page.
     settings:
       account_heading: Account
@@ -505,6 +537,7 @@ core:
       posts_empty_text: It looks like there are no posts here.
       posts_link: => core.ref.posts
       posts_load_more_button: => core.ref.load_more
+      security_link: => core.ref.security
       settings_link: => core.ref.settings
 
     # These translations are found on the user profile page (admin function).
@@ -541,6 +574,10 @@ core:
     # These translations are used in the dropdown component.
     dropdown:
       toggle_dropdown_accessible_label: Toggle dropdown menu
+
+    # These translations are used in the data segment component.
+    data_segment:
+      label: "{label}:"
 
     # These translations are used in the Edit User modal dialog (admin function).
     edit_user:
@@ -747,6 +784,7 @@ core:
     edit_user: Edit User
     email: Email
     extensions: Extensions
+    generic_confirmation_message: "Are you sure you want to proceed? This action cannot be undone."
     icon: Icon
     icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the <code>fas fa-</code> prefix."
     load_more: Load More
@@ -754,6 +792,7 @@ core:
     log_in: Log In
     log_out: Log Out
     mark_all_as_read: Mark All as Read
+    new_token: New Token
     next_page: Next Page
     notifications: Notifications
     okay: OK                                     # Referenced by flarum-tags.yml
@@ -765,8 +804,9 @@ core:
     reply: Reply                                 # Referenced by flarum-mentions.yml
     reset_your_password: Reset Your Password
     restore: Restore
-    save_changes: Save Changes     
+    save_changes: Save Changes
     search_users: Search users              # Referenced by flarum-suspend.yml, flarum-tags.yml
+    security: Security
     settings: Settings
     sign_up: Sign Up
     some_others: "{count, plural, one {# other} other {# others}}"  # Referenced by flarum-likes.yml, flarum-mentions.yml

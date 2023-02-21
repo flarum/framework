@@ -21,6 +21,11 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
+/**
+ * Not to be confused with the CreateAccessTokenController,
+ * this controller is used to authenticate a user with credentials,
+ * and return a system generated session-type access token.
+ */
 class CreateTokenController implements RequestHandlerInterface
 {
     /**

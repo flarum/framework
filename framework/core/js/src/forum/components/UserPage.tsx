@@ -131,6 +131,7 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
   navItems() {
     const items = new ItemList<Mithril.Children>();
     const user = this.user!;
+    const isActor = app.session.user === user;
 
     items.add(
       'posts',
@@ -148,12 +149,26 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
       90
     );
 
-    if (app.session.user === user) {
+    if (isActor) {
       items.add('separator', <Separator />, -90);
       items.add(
         'settings',
         <LinkButton href={app.route('settings')} icon="fas fa-cog">
           {app.translator.trans('core.forum.user.settings_link')}
+        </LinkButton>,
+        -100
+      );
+    }
+
+    if (isActor || app.forum.attribute<boolean>('canModerateAccessTokens')) {
+      if (!isActor) {
+        items.add('security-separator', <Separator />, -90);
+      }
+
+      items.add(
+        'security',
+        <LinkButton href={app.route('user.security', { username: user.slug() })} icon="fas fa-shield-alt">
+          {app.translator.trans('core.forum.user.security_link')}
         </LinkButton>,
         -100
       );

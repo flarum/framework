@@ -236,6 +236,16 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
       90
     );
 
+    items.add(
+      'createAccessToken',
+      {
+        icon: 'fas fa-key',
+        label: app.translator.trans('core.admin.permissions.create_access_token_label'),
+        permission: 'createAccessToken',
+      },
+      80
+    );
+
     items.merge(app.extensionData.getAllExtensionPermissions('start'));
 
     return items;
@@ -392,6 +402,16 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
         icon: 'fas fa-address-card',
         label: app.translator.trans('core.admin.permissions.edit_users_label'),
         permission: 'user.edit',
+      },
+      60
+    );
+
+    items.add(
+      'moderateAccessTokens',
+      {
+        icon: 'fas fa-key',
+        label: app.translator.trans('core.admin.permissions.moderate_access_tokens_label'),
+        permission: 'moderateAccessTokens',
       },
       60
     );
