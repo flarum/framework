@@ -245,6 +245,9 @@ core:
 
       grid:
         columns:
+          display_name:
+            title: Display name
+
           edit_user:
             button: => core.ref.edit
             title: => core.ref.edit_user
