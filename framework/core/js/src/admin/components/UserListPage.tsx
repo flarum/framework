@@ -284,6 +284,15 @@ export default class UserListPage extends AdminPage {
     );
 
     columns.add(
+      'displayName',
+      {
+        name: app.translator.trans('core.admin.users.grid.columns.display_name.title'),
+        content: (user: User) => user.displayName(),
+      },
+      85
+    );
+
+    columns.add(
       'joinDate',
       {
         name: app.translator.trans('core.admin.users.grid.columns.join_time.title'),
