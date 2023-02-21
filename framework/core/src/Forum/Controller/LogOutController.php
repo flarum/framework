@@ -102,11 +102,12 @@ class LogOutController implements RequestHandlerInterface
             return new HtmlResponse($view->render());
         }
 
+        $accessToken = $session->get('access_token');
         $response = new RedirectResponse($url);
 
         $this->authenticator->logOut($session);
 
-        $actor->accessTokens()->delete();
+        $actor->accessTokens()->where('token', $accessToken)->delete();
 
         $this->events->dispatch(new LoggedOut($actor, false));
 
