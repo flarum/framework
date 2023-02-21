@@ -10,6 +10,7 @@ import icon from '../../common/helpers/icon';
 import listItems from '../../common/helpers/listItems';
 
 import type User from '../../common/models/User';
+import type { IPageAttrs } from '../../common/components/Page';
 
 import ItemList from '../../common/utils/ItemList';
 import classList from '../../common/utils/classList';
@@ -82,12 +83,28 @@ export default class UserListPage extends AdminPage {
 
   private isLoadingPage: boolean = false;
 
+  oninit(vnode: Mithril.Vnode<IPageAttrs, this>) {
+    super.oninit(vnode);
+
+    // Get page query value from URL
+    const page = parseInt(m.route.param('page'));
+
+    if (isNaN(page) || page < 1) {
+      this.setPageNumberInUrl(1);
+      this.pageNumber = 0;
+    } else {
+      this.pageNumber = page - 1;
+    }
+
+    this.loadingPageNumber = this.pageNumber;
+  }
+
   /**
    * Component to render.
    */
   content() {
     if (typeof this.pageData === 'undefined') {
-      this.loadPage(0);
+      this.loadPage(this.pageNumber);
 
       return [
         <section class="UserListPage-grid UserListPage-grid--loading">
@@ -403,6 +420,7 @@ export default class UserListPage extends AdminPage {
     if (pageNumber < 0) pageNumber = 0;
 
     this.loadingPageNumber = pageNumber;
+    this.setPageNumberInUrl(pageNumber + 1);
 
     app.store
       .find<User[]>('users', {
@@ -421,9 +439,16 @@ export default class UserListPage extends AdminPage {
         // @ts-ignore
         delete data.payload;
 
-        this.pageData = data;
-        this.pageNumber = pageNumber;
-        this.isLoadingPage = false;
+        const lastPage = this.getTotalPageCount();
+
+        if (pageNumber > lastPage) {
+          this.loadPage(lastPage - 1);
+        } else {
+          this.pageData = data;
+          this.pageNumber = pageNumber;
+          this.loadingPageNumber = pageNumber;
+          this.isLoadingPage = false;
+        }
 
         m.redraw();
       })
@@ -449,5 +474,13 @@ export default class UserListPage extends AdminPage {
   goToPage(page: number) {
     this.isLoadingPage = true;
     this.loadPage(page - 1);
+  }
+
+  private setPageNumberInUrl(pageNumber: number) {
+    const search = window.location.hash.split('?', 2);
+    const params = new URLSearchParams(search?.[1] ?? '');
+
+    params.set('page', `${pageNumber}`);
+    window.location.hash = search?.[0] + '?' + params.toString();
   }
 }
