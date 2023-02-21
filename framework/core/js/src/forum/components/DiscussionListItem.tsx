@@ -65,29 +65,14 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
   view() {
     const discussion = this.attrs.discussion;
 
-    let jumpTo = 0;
     const controls = DiscussionControls.controls(discussion, this).toArray();
     const attrs = this.elementAttrs();
-
-    if (this.attrs.params.q) {
-      const post = discussion.mostRelevantPost();
-      if (post) {
-        jumpTo = post.number();
-      }
-
-      const phrase = escapeRegExp(this.attrs.params.q);
-      this.highlightRegExp = new RegExp(phrase + '|' + phrase.trim().replace(/\s+/g, '|'), 'gi');
-    } else {
-      jumpTo = Math.min(discussion.lastPostNumber() ?? 0, (discussion.lastReadPostNumber() || 0) + 1);
-    }
-
-    const data = { discussion, jumpTo };
 
     return (
       <div {...attrs}>
         {this.controlsView(controls)}
-        {this.slidableUnderneathView(data)}
-        {this.contentView(data)}
+        {this.slidableUnderneathView()}
+        {this.contentView()}
       </div>
     );
   }
@@ -108,7 +93,8 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     );
   }
 
-  slidableUnderneathView({ discussion }: any): Mithril.Children {
+  slidableUnderneathView(): Mithril.Children {
+    const discussion = this.attrs.discussion;
     const isUnread = discussion.isUnread();
 
     return (
@@ -121,21 +107,23 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     );
   }
 
-  contentView(data: any): Mithril.Children {
-    const isUnread = data.discussion.isUnread();
-    const isRead = data.discussion.isRead();
+  contentView(): Mithril.Children {
+    const discussion = this.attrs.discussion;
+    const isUnread = discussion.isUnread();
+    const isRead = discussion.isRead();
 
     return (
       <div className={classList('DiscussionListItem-content', 'Slidable-content', { unread: isUnread, read: isRead })}>
-        {this.authorAvatarView(data)}
-        {this.badgesView(data)}
-        {this.mainView(data)}
+        {this.authorAvatarView()}
+        {this.badgesView()}
+        {this.mainView()}
         {this.replyCountItem()}
       </div>
     );
   }
 
-  authorAvatarView({ discussion }: any): Mithril.Children {
+  authorAvatarView(): Mithril.Children {
+    const discussion = this.attrs.discussion;
     const user = discussion.user();
 
     return (
@@ -150,17 +138,41 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     );
   }
 
-  badgesView({ discussion }: any): Mithril.Children {
+  badgesView(): Mithril.Children {
+    const discussion = this.attrs.discussion;
+
     return <ul className="DiscussionListItem-badges badges">{listItems(discussion.badges().toArray())}</ul>;
   }
 
-  mainView({ discussion, jumpTo }: any): Mithril.Children {
+  mainView(): Mithril.Children {
+    const discussion = this.attrs.discussion;
+    const jumpTo = this.getJumpTo();
+
     return (
       <Link href={app.route.discussion(discussion, jumpTo)} className="DiscussionListItem-main">
         <h2 className="DiscussionListItem-title">{highlight(discussion.title(), this.highlightRegExp)}</h2>
         <ul className="DiscussionListItem-info">{listItems(this.infoItems().toArray())}</ul>
       </Link>
     );
+  }
+
+  getJumpTo() {
+    const discussion = this.attrs.discussion;
+    let jumpTo = 0;
+
+    if (this.attrs.params.q) {
+      const post = discussion.mostRelevantPost();
+      if (post) {
+        jumpTo = post.number();
+      }
+
+      const phrase = escapeRegExp(this.attrs.params.q);
+      this.highlightRegExp = new RegExp(phrase + '|' + phrase.trim().replace(/\s+/g, '|'), 'gi');
+    } else {
+      jumpTo = Math.min(discussion.lastPostNumber() ?? 0, (discussion.lastReadPostNumber() || 0) + 1);
+    }
+
+    return jumpTo;
   }
 
   oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
