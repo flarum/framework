@@ -4,7 +4,7 @@ import icon from '../../common/helpers/icon';
 import Button from '../../common/components/Button';
 import humanTime from '../../common/helpers/humanTime';
 import ItemList from '../../common/utils/ItemList';
-import DataSegment from '../../common/components/DataSegment';
+import LabelValue from '../../common/components/LabelValue';
 import extractText from '../../common/utils/extractText';
 import classList from '../../common/utils/classList';
 import Tooltip from '../../common/components/Tooltip';
@@ -87,14 +87,14 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
     items.add(
       'createdAt',
       <div className="AccessTokensList-item-createdAt">
-        <DataSegment label={app.translator.trans('core.forum.security.created')} value={humanTime(token.createdAt())} />
+        <LabelValue label={app.translator.trans('core.forum.security.created')} value={humanTime(token.createdAt())} />
       </div>
     );
 
     items.add(
       'lastActivityAt',
       <div className="AccessTokensList-item-lastActivityAt">
-        <DataSegment
+        <LabelValue
           label={app.translator.trans('core.forum.security.last_activity')}
           value={
             token.lastActivityAt() ? (

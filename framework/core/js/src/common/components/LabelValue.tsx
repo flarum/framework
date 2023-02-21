@@ -2,7 +2,7 @@ import Component, { ComponentAttrs } from '../Component';
 import type Mithril from 'mithril';
 import app from '../app';
 
-export interface IDataSegmentAttrs extends ComponentAttrs {
+export interface ILabelValueAttrs extends ComponentAttrs {
   label: Mithril.Children;
   value: Mithril.Children;
 }
@@ -13,16 +13,16 @@ export interface IDataSegmentAttrs extends ComponentAttrs {
  *
  * `label: value`
  */
-export default class DataSegment<CustomAttrs extends IDataSegmentAttrs = IDataSegmentAttrs> extends Component<CustomAttrs> {
+export default class LabelValue<CustomAttrs extends ILabelValueAttrs = ILabelValueAttrs> extends Component<CustomAttrs> {
   view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
     return (
-      <div className="DataSegment">
-        <div className="DataSegment-label">
+      <div className="LabelValue">
+        <div className="LabelValue-label">
           {app.translator.trans('core.lib.data_segment.label', {
             label: this.attrs.label,
           })}
         </div>
-        <div className="DataSegment-value">{this.attrs.value}</div>
+        <div className="LabelValue-value">{this.attrs.value}</div>
       </div>
     );
   }
