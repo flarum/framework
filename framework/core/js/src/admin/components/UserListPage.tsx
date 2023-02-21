@@ -187,9 +187,12 @@ export default class UserListPage extends AdminPage {
         />
         <span class="UserListPage-pageNumber">
           {app.translator.trans('core.admin.users.pagination.page_counter', {
+            // https://technology.blog.gov.uk/2020/02/24/why-the-gov-uk-design-system-team-changed-the-input-type-for-numbers/
             current: (
               <input
                 type="text"
+                inputmode="numeric"
+                pattern="[0-9]*"
                 value={this.loadingPageNumber + 1}
                 aria-label={extractText(app.translator.trans('core.admin.users.pagination.go_to_page_textbox_a11y_label'))}
                 autocomplete="off"
