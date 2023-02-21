@@ -69,10 +69,16 @@
   }
 
   &-gridPagination {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto auto 1fr auto auto;
+    gap: 8px;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     margin-top: 16px;
+  }
+
+  &-pageNumber {
+    text-align: center;
   }
 }
 

@@ -151,6 +151,13 @@ export default class UserListPage extends AdminPage {
       <nav class="UserListPage-gridPagination">
         <Button
           disabled={this.pageNumber === 0}
+          title={app.translator.trans('core.admin.users.pagination.first_page_button')}
+          onclick={this.goToPage.bind(this, 1)}
+          icon="fas fa-step-backward"
+          className="Button Button--icon UserListPage-firstPageBtn"
+        />
+        <Button
+          disabled={this.pageNumber === 0}
           title={app.translator.trans('core.admin.users.pagination.back_button')}
           onclick={this.previousPage.bind(this)}
           icon="fas fa-chevron-left"
@@ -168,6 +175,13 @@ export default class UserListPage extends AdminPage {
           onclick={this.nextPage.bind(this)}
           icon="fas fa-chevron-right"
           className="Button Button--icon UserListPage-nextBtn"
+        />
+        <Button
+          disabled={!this.moreData}
+          title={app.translator.trans('core.admin.users.pagination.last_page_button')}
+          onclick={this.goToPage.bind(this, this.getTotalPageCount())}
+          icon="fas fa-step-forward"
+          className="Button Button--icon UserListPage-lastPageBtn"
         />
       </nav>,
     ];
@@ -389,5 +403,13 @@ export default class UserListPage extends AdminPage {
   previousPage() {
     this.isLoadingPage = true;
     this.loadPage(this.pageNumber - 1);
+  }
+
+  /**
+   * @param page The **1-based** page number
+   */
+  goToPage(page: number) {
+    this.isLoadingPage = true;
+    this.loadPage(page - 1);
   }
 }
