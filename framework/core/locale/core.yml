@@ -51,6 +51,16 @@ core:
       welcome_banner_heading: Welcome Banner
       welcome_banner_text: Configure the text that displays in the banner on the All Discussions page. Use this to welcome guests to your forum.
 
+    # These translations are used in the Create User modal.
+    create_user:
+      bulk_add_label: Keep modal open after creation?
+      email_placeholder: => core.ref.email
+      email_confirmed_label: Require user to confirm this email?
+      password_placeholder: => core.ref.password
+      submit_button: Create user
+      title: Create new user
+      username_placeholder: => core.ref.username
+
     # These translations are used in the Dashboard page.
     dashboard:
       clear_cache_button: Clear Cache

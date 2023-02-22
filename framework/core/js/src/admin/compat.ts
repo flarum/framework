@@ -35,6 +35,7 @@ import EditGroupModal from './components/EditGroupModal';
 import routes from './routes';
 import AdminApplication from './AdminApplication';
 import generateElementId from './utils/generateElementId';
+import CreateUserModal from './components/CreateUserModal';
 
 export default Object.assign(compat, {
   'utils/saveSettings': saveSettings,
@@ -70,6 +71,7 @@ export default Object.assign(compat, {
   'components/AdminHeader': AdminHeader,
   'components/EditCustomCssModal': EditCustomCssModal,
   'components/EditGroupModal': EditGroupModal,
+  'components/CreateUserModal': CreateUserModal,
   routes: routes,
   AdminApplication: AdminApplication,
 });
