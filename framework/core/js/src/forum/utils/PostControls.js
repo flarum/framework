@@ -25,7 +25,7 @@ export default {
       const controls = this[section + 'Controls'](post, context).toArray();
       if (controls.length) {
         controls.forEach((item) => items.add(item.itemName, item));
-        items.add(section + 'Separator', Separator.component());
+        items.add(section + 'Separator', <Separator />);
       }
     });
 
@@ -61,13 +61,9 @@ export default {
       if (!post.isHidden()) {
         items.add(
           'edit',
-          Button.component(
-            {
-              icon: 'fas fa-pencil-alt',
-              onclick: this.editAction.bind(post),
-            },
-            app.translator.trans('core.forum.post_controls.edit_button')
-          )
+          <Button icon="fas fa-pencil-alt" onclick={this.editAction.bind(post)}>
+            {app.translator.trans('core.forum.post_controls.edit_button')}
+          </Button>
         );
       }
     }
@@ -91,38 +87,26 @@ export default {
       if (post.canHide()) {
         items.add(
           'hide',
-          Button.component(
-            {
-              icon: 'far fa-trash-alt',
-              onclick: this.hideAction.bind(post),
-            },
-            app.translator.trans('core.forum.post_controls.delete_button')
-          )
+          <Button icon="far fa-trash-alt" onclick={this.hideAction.bind(post)}>
+            {app.translator.trans('core.forum.post_controls.delete_button')}
+          </Button>
         );
       }
     } else {
       if (post.contentType() === 'comment' && post.canHide()) {
         items.add(
           'restore',
-          Button.component(
-            {
-              icon: 'fas fa-reply',
-              onclick: this.restoreAction.bind(post),
-            },
-            app.translator.trans('core.forum.post_controls.restore_button')
-          )
+          <Button icon="fas fa-reply" onclick={this.restoreAction.bind(post)}>
+            {app.translator.trans('core.forum.post_controls.restore_button')}
+          </Button>
         );
       }
       if (post.canDelete()) {
         items.add(
           'delete',
-          Button.component(
-            {
-              icon: 'fas fa-times',
-              onclick: this.deleteAction.bind(post, context),
-            },
-            app.translator.trans('core.forum.post_controls.delete_forever_button')
-          )
+          <Button icon="fas fa-times" onclick={this.deleteAction.bind(post, context)}>
+            {app.translator.trans('core.forum.post_controls.delete_forever_button')}
+          </Button>
         );
       }
     }

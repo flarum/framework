@@ -90,15 +90,16 @@ export default class ReplyComposer extends ComposerBody {
           // their reply has been posted, containing a button which will
           // transition to their new post when clicked.
           let alert;
-          const viewButton = Button.component(
-            {
-              className: 'Button Button--link',
-              onclick: () => {
+          const viewButton = (
+            <Button
+              className="Button Button--link"
+              onclick={() => {
                 m.route.set(app.route.post(post));
                 app.alerts.dismiss(alert);
-              },
-            },
-            app.translator.trans('core.forum.composer_reply.view_button')
+              }}
+            >
+              {app.translator.trans('core.forum.composer_reply.view_button')}
+            </Button>
           );
           alert = app.alerts.show(
             {

@@ -65,32 +65,24 @@ export default class HeaderSecondary extends Component {
     }
 
     if (app.session.user) {
-      items.add('notifications', NotificationsDropdown.component({ state: app.notifications }), 10);
-      items.add('session', SessionDropdown.component(), 0);
+      items.add('notifications', <NotificationsDropdown state={app.notifications} />, 10);
+      items.add('session', <SessionDropdown />, 0);
     } else {
       if (app.forum.attribute('allowSignUp')) {
         items.add(
           'signUp',
-          Button.component(
-            {
-              className: 'Button Button--link',
-              onclick: () => app.modal.show(SignUpModal),
-            },
-            app.translator.trans('core.forum.header.sign_up_link')
-          ),
+          <Button className="Button Button--link" onclick={() => app.modal.show(SignUpModal)}>
+            {app.translator.trans('core.forum.header.sign_up_link')}
+          </Button>,
           10
         );
       }
 
       items.add(
         'logIn',
-        Button.component(
-          {
-            className: 'Button Button--link',
-            onclick: () => app.modal.show(LogInModal),
-          },
-          app.translator.trans('core.forum.header.log_in_link')
-        ),
+        <Button className="Button Button--link" onclick={() => app.modal.show(LogInModal)}>
+          {app.translator.trans('core.forum.header.log_in_link')}
+        </Button>,
         0
       );
     }
