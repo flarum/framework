@@ -42,7 +42,9 @@ export default class EventPost extends Post {
       time: humanTime(this.attrs.post.createdAt()),
     });
 
-    return super.content().concat([icon(this.icon(), { className: 'EventPost-icon' }), <div className="EventPost-info">{this.description(data)}</div>]);
+    return super
+      .content()
+      .concat([icon(this.icon(), { className: 'EventPost-icon' }), <div className="EventPost-info">{this.description(data)}</div>]);
   }
 
   /**

@@ -99,16 +99,16 @@ export default class PermissionDropdown<CustomAttrs extends IPermissionDropdownA
         .all<Group>('groups')
         .filter((group) => !excludedGroups.includes(group.id()!))
         .map((group) => (
-            <Button
-              icon={groupIds.indexOf(group.id()) !== -1 ? 'fas fa-check' : true}
-              onclick={(e) => {
-                if (e.shiftKey) e.stopPropagation();
-                this.toggle(group.id());
-              }}
-              disabled={this.isGroupDisabled(group.id()) && this.isGroupDisabled(Group.MEMBER_ID) && this.isGroupDisabled(Group.GUEST_ID)}
-            >
-              {badgeForId(group.id())} {group.namePlural()}
-            </Button>
+          <Button
+            icon={groupIds.indexOf(group.id()) !== -1 ? 'fas fa-check' : true}
+            onclick={(e) => {
+              if (e.shiftKey) e.stopPropagation();
+              this.toggle(group.id());
+            }}
+            disabled={this.isGroupDisabled(group.id()) && this.isGroupDisabled(Group.MEMBER_ID) && this.isGroupDisabled(Group.GUEST_ID)}
+          >
+            {badgeForId(group.id())} {group.namePlural()}
+          </Button>
         ));
 
       children.push(...groupButtons);
