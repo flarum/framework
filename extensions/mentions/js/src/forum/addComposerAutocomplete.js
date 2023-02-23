@@ -150,7 +150,7 @@ export default function addComposerAutocomplete() {
               }}
             >
               <span className="PostPreview-content">
-                <Badge class={`Avatar Badge Badge--group--${group.id()} Badge-icon `} color={group.color()} type="group" icon={group.icon()} />
+                <Badge className={`Avatar Badge Badge--group--${group.id()} Badge-icon `} color={group.color()} type="group" icon={group.icon()} />
                 <span className="username">{groupName}</span>
               </span>
             </button>

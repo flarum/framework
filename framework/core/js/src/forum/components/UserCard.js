@@ -32,7 +32,7 @@ export default class UserCard extends Component {
     const badges = user.badges().toArray();
 
     return (
-      <div class={classList('UserCard', this.attrs.className)} style={color && { '--usercard-bg': color }}>
+      <div className={classList('UserCard', this.attrs.className)} style={color && { '--usercard-bg': color }}>
         <div className="darkenBackground">
           <div className="container">
             {!!controls.length && (
@@ -87,7 +87,7 @@ export default class UserCard extends Component {
 
       items.add(
         'lastSeen',
-        <span class={classList('UserCard-lastSeen', { online })}>
+        <span className={classList('UserCard-lastSeen', { online })}>
           {online
             ? [icon('fas fa-circle'), ' ', app.translator.trans('core.forum.user.online_text')]
             : [icon('far fa-clock'), ' ', humanTime(lastSeenAt)]}

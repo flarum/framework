@@ -23,7 +23,7 @@ export default class ExtensionLinkButton extends LinkButton {
   statusItems(name) {
     const items = new ItemList();
 
-    items.add('enabled', <span class={'ExtensionListItem-Dot ' + (isExtensionEnabled(name) ? 'enabled' : 'disabled')} />);
+    items.add('enabled', <span className={'ExtensionListItem-Dot ' + (isExtensionEnabled(name) ? 'enabled' : 'disabled')} />);
 
     return items;
   }

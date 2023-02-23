@@ -98,7 +98,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
         )}
 
         <span
-          class={classList('Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic', { disabled: isUnread })}
+          className={classList('Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic', { disabled: isUnread })}
           onclick={this.markAsRead.bind(this)}
         >
           {icon('fas fa-check')}
@@ -213,7 +213,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
         <button className="Button--ua-reset DiscussionListItem-count" onclick={this.markAsRead.bind(this)}>
           <span aria-hidden="true">{abbreviateNumber(discussion.unreadCount())}</span>
 
-          <span class="visually-hidden">
+          <span className="visually-hidden">
             {app.translator.trans('core.forum.discussion_list.unread_replies_a11y_label', { count: discussion.replyCount() })}
           </span>
         </button>
@@ -224,7 +224,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
       <span className="DiscussionListItem-count">
         <span aria-hidden="true">{abbreviateNumber(discussion.replyCount())}</span>
 
-        <span class="visually-hidden">
+        <span className="visually-hidden">
           {app.translator.trans('core.forum.discussion_list.total_replies_a11y_label', { count: discussion.replyCount() })}
         </span>
       </span>

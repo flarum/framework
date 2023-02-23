@@ -47,7 +47,7 @@ export default class DiscussionList extends Component {
     const pageSize = state.pageSize;
 
     return (
-      <div class={classList('DiscussionList', { 'DiscussionList--searchResults': state.isSearchResults() })}>
+      <div className={classList('DiscussionList', { 'DiscussionList--searchResults': state.isSearchResults() })}>
         <ul role="feed" aria-busy={isLoading} className="DiscussionList-discussions">
           {state.getPages().map((pg, pageNum) => {
             return pg.items.map((discussion, itemNum) => (

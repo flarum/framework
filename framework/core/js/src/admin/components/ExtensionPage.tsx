@@ -211,7 +211,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     const extension = this.extension;
     items.add(
       'readme',
-      <Button icon="fab fa-readme" class="Button Button--text" onclick={() => app.modal.show(ReadmeModal, { extension })}>
+      <Button icon="fab fa-readme" className="Button Button--text" onclick={() => app.modal.show(ReadmeModal, { extension })}>
         {app.translator.trans('core.admin.extension.readme.button_label')}
       </Button>,
       10

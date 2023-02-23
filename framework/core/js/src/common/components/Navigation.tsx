@@ -26,7 +26,7 @@ export default class Navigation extends Component {
 
     return (
       <div
-        class={classList('Navigation ButtonGroup', this.attrs.className)}
+        className={classList('Navigation ButtonGroup', this.attrs.className)}
         onmouseenter={pane && pane.show.bind(pane)}
         onmouseleave={pane && pane.onmouseleave.bind(pane)}
       >
@@ -67,7 +67,7 @@ export default class Navigation extends Component {
 
     return (
       <Button
-        class={classList('Button Button--icon Navigation-pin', { active: pane.pinned })}
+        className={classList('Button Button--icon Navigation-pin', { active: pane.pinned })}
         onclick={pane.togglePinned.bind(pane)}
         icon="fas fa-thumbtack"
       />
@@ -85,7 +85,7 @@ export default class Navigation extends Component {
 
     return (
       <Button
-        class={classList('Button Button--icon Navigation-drawer', { new: user?.newNotificationCount() })}
+        className={classList('Button Button--icon Navigation-drawer', { new: user?.newNotificationCount() })}
         onclick={(e: MouseEvent) => {
           e.stopPropagation();
           drawer.show();

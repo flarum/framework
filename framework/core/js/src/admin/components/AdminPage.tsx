@@ -217,7 +217,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
    *     return (
    *       <div className={attrs.className}>
    *         <label>{attrs.label}</label>
-   *         {attrs.help && <p class="helpText">{attrs.help}</p>}
+   *         {attrs.help && <p className="helpText">{attrs.help}</p>}
    *
    *         My setting component!
    *       </div>

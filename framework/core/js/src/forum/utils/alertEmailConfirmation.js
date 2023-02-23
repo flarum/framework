@@ -23,7 +23,7 @@ export default function alertEmailConfirmation(app) {
 
     view() {
       return (
-        <Button class="Button Button--link" onclick={this.onclick.bind(this)} loading={this.loading} disabled={this.sent}>
+        <Button className="Button Button--link" onclick={this.onclick.bind(this)} loading={this.loading} disabled={this.sent}>
           {this.sent
             ? [icon('fas fa-check'), ' ', app.translator.trans('core.forum.user_email_confirmation.sent_message')]
             : app.translator.trans('core.forum.user_email_confirmation.resend_button')}
@@ -59,7 +59,7 @@ export default function alertEmailConfirmation(app) {
     }
   }
 
-  m.mount($('<div class="App-notices"/>').insertBefore('#content')[0], {
+  m.mount($('<div className="App-notices"/>').insertBefore('#content')[0], {
     view: () => (
       <ContainedAlert dismissible={false} controls={[<ResendButton />]} className="Alert--emailConfirmation">
         {app.translator.trans('core.forum.user_email_confirmation.alert_message', { email: <strong>{user.email()}</strong> })}

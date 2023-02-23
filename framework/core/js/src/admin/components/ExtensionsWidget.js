@@ -38,7 +38,7 @@ export default class ExtensionsWidget extends DashboardWidget {
 
   extensionWidget(extension) {
     return (
-      <li class={classList('ExtensionListItem', { disabled: !isExtensionEnabled(extension.id) })}>
+      <li className={classList('ExtensionListItem', { disabled: !isExtensionEnabled(extension.id) })}>
         <Link href={app.route('extension', { id: extension.id })}>
           <div className="ExtensionListItem-content">
             <span className="ExtensionListItem-icon ExtensionIcon" style={extension.icon}>
