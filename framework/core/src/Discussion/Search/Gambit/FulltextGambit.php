@@ -30,8 +30,9 @@ class FulltextGambit implements GambitInterface
         $query = $search->getQuery();
         $grammar = $query->getGrammar();
 
+        // We give discussion title search score a higher weight than post.
         $discussionSubquery = Discussion::select('id')
-            ->selectRaw('NULL as score')
+            ->selectRaw('MATCH('.$grammar->wrap('discussions.title').') AGAINST (?)*1.5 as score', [$bit])
             ->selectRaw('first_post_id as most_relevant_post_id')
             ->whereRaw('MATCH('.$grammar->wrap('discussions.title').') AGAINST (? IN BOOLEAN MODE)', [$bit]);
 
@@ -61,8 +62,7 @@ class FulltextGambit implements GambitInterface
             ->groupBy('discussions.id')
             ->addBinding($subquery->getBindings(), 'join');
 
-        $search->setDefaultSort(function ($query) use ($grammar, $bit) {
-            $query->orderByRaw('MATCH('.$grammar->wrap('discussions.title').') AGAINST (?) desc', [$bit]);
+        $search->setDefaultSort(function ($query) {
             $query->orderBy('posts_ft.score', 'desc');
         });
 

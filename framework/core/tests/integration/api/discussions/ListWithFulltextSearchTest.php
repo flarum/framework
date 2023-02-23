@@ -36,17 +36,19 @@ class ListWithFulltextSearchTest extends TestCase
             ['id' => 3, 'title' => 'not in title either', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
             ['id' => 4, 'title' => 'not in title or text', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
             ['id' => 5, 'title' => 'తెలుగు', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
-            ['id' => 6, 'title' => '支持中文吗', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
+            ['id' => 6, 'title' => '支持中文吗 acme', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
+            ['id' => 7, 'title' => 'add "acme for life" module!', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
         ]);
 
         $this->database()->table('posts')->insert([
             ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>not in text</p></t>'],
             ['id' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>lightsail in text</p></t>'],
-            ['id' => 3, 'discussion_id' => 2, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>another lightsail for discussion 2!</p></t>'],
+            ['id' => 3, 'discussion_id' => 2, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>another lightsail for discussion 2! acme for life</p></t>'],
             ['id' => 4, 'discussion_id' => 3, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>just one lightsail for discussion 3.</p></t>'],
-            ['id' => 5, 'discussion_id' => 4, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>not in title or text</p></t>'],
+            ['id' => 5, 'discussion_id' => 4, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>not in title or text (acme)</p></t>'],
             ['id' => 6, 'discussion_id' => 4, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>తెలుగు</p></t>'],
             ['id' => 7, 'discussion_id' => 2, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>支持中文吗</p></t>'],
+            ['id' => 8, 'discussion_id' => 5, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>some lorem ipsum acme dolor sit amet life kor for</p></t>'],
         ]);
 
         // We need to call these again, since we rolled back the transaction started by `::app()`.
@@ -85,6 +87,27 @@ class ListWithFulltextSearchTest extends TestCase
         }, $data['data']);
 
         $this->assertEqualsCanonicalizing(['2', '1', '3'], $ids, 'IDs do not match');
+    }
+
+    /**
+     * @test
+     */
+    public function search_prioritizes_title_search_score_over_post()
+    {
+        $response = $this->send(
+            $this->request('GET', '/api/discussions')
+                ->withQueryParams([
+                    'filter' => ['q' => 'acme for life'],
+                    'include' => 'mostRelevantPost',
+                ])
+        );
+
+        $data = json_decode($response->getBody()->getContents(), true);
+        $ids = array_map(function ($row) {
+            return $row['id'];
+        }, $data['data']);
+
+        $this->assertEquals(['7', '2', '5', '6', '4'], $ids, 'IDs do not match');
     }
 
     /**
