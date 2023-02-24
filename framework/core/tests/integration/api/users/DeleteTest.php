@@ -9,10 +9,8 @@
 
 namespace integration\api\users;
 
-use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Flarum\User\RegistrationToken;
 use Flarum\User\User;
 
 class DeleteTest extends TestCase
