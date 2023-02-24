@@ -6,7 +6,6 @@ import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
 import type Mithril from 'mithril';
 import Switch from '../../common/components/Switch';
-import Checkbox from '../../common/components/Checkbox';
 import { generateRandomString } from '../../common/utils/string';
 
 export interface ICreateUserModalAttrs extends IInternalModalAttrs {
