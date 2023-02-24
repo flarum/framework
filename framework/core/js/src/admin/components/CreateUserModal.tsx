@@ -7,6 +7,7 @@ import Stream from '../../common/utils/Stream';
 import type Mithril from 'mithril';
 import Switch from '../../common/components/Switch';
 import Checkbox from '../../common/components/Checkbox';
+import { generateRandomString } from '../../common/utils/string';
 
 export interface ICreateUserModalAttrs extends IInternalModalAttrs {
   username?: string;
@@ -37,7 +38,7 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
   /**
    * The value of the password input.
    */
-  password!: Stream<string>;
+  password!: Stream<string | null>;
 
   /**
    * Whether email confirmation is required after signing in.
@@ -55,7 +56,7 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
 
     this.username = Stream('');
     this.email = Stream('');
-    this.password = Stream('');
+    this.password = Stream<string | null>('');
     this.requireEmailConfirmation = Stream(false);
     this.bulkAdd = Stream(false);
   }
@@ -90,6 +91,7 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
     const usernameLabel = extractText(app.translator.trans('core.admin.create_user.username_placeholder'));
     const emailLabel = extractText(app.translator.trans('core.admin.create_user.email_placeholder'));
     const emailConfirmationLabel = extractText(app.translator.trans('core.admin.create_user.email_confirmed_label'));
+    const useRandomPasswordLabel = extractText(app.translator.trans('core.admin.create_user.use_random_password'));
     const passwordLabel = extractText(app.translator.trans('core.admin.create_user.password_placeholder'));
 
     items.add(
@@ -142,6 +144,17 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
     items.add(
       'password',
       <div className="Form-group">
+        <Switch
+          name="useRandomPassword"
+          state={this.password() === null}
+          onchange={(enabled: boolean) => {
+            this.password(enabled ? null : '');
+          }}
+          disabled={this.loading}
+        >
+          {useRandomPasswordLabel}
+        </Switch>
+
         <input
           className="FormControl"
           name="password"
@@ -150,7 +163,7 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
           placeholder={passwordLabel}
           aria-label={passwordLabel}
           bidi={this.password}
-          disabled={this.loading}
+          disabled={this.loading || this.password() === null}
         />
       </div>,
       40
@@ -196,13 +209,14 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
         errorHandler: this.onerror.bind(this),
       })
       .then(() => {
-        this.loaded();
-
         if (this.bulkAdd()) {
           this.resetData();
         } else {
           this.hide();
         }
+      })
+      .finally(() => {
+        this.loaded();
       });
   }
 
@@ -214,7 +228,7 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
       username: this.username(),
       email: this.email(),
       isEmailConfirmed: !this.requireEmailConfirmation(),
-      password: this.password(),
+      password: this.password() ?? generateRandomString(32),
     };
 
     return data;
