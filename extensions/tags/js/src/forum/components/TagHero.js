@@ -1,4 +1,3 @@
-import classList from '@flarum/core/src/common/utils/classList';
 import Component from 'flarum/common/Component';
 import textContrastClass from 'flarum/common/helpers/textContrastClass';
 import tagIcon from '../../common/helpers/tagIcon';
