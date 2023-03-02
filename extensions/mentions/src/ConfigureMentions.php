@@ -9,14 +9,20 @@
 
 namespace Flarum\Mentions;
 
+use Flarum\Extension\ExtensionManager;
 use Flarum\Group\Group;
 use Flarum\Http\UrlGenerator;
 use Flarum\Post\PostRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\Tags\Tag;
+use Flarum\Tags\TagRepository;
 use Flarum\User\User;
 use s9e\TextFormatter\Configurator;
-use s9e\TextFormatter\Parser\Tag;
+use s9e\TextFormatter\Parser\Tag as FormatterTag;
 
+/**
+ * @TODO: mentionable models polymorphic system.
+ */
 class ConfigureMentions
 {
     /**
@@ -25,11 +31,14 @@ class ConfigureMentions
     protected $url;
 
     /**
-     * @param UrlGenerator $url
+     * @var ExtensionManager
      */
-    public function __construct(UrlGenerator $url)
+    protected $extensions;
+
+    public function __construct(UrlGenerator $url, ExtensionManager $extensions)
     {
         $this->url = $url;
+        $this->extensions = $extensions;
     }
 
     public function __invoke(Configurator $config)
@@ -37,6 +46,10 @@ class ConfigureMentions
         $this->configureUserMentions($config);
         $this->configurePostMentions($config);
         $this->configureGroupMentions($config);
+
+        if ($this->extensions->isEnabled('flarum-tags')) {
+            $this->configureTagMentions($config);
+        }
     }
 
     private function configureUserMentions(Configurator $config): void
@@ -66,7 +79,7 @@ class ConfigureMentions
     }
 
     /**
-     * @param Tag $tag
+     * @param FormatterTag $tag
      * @return bool|void
      */
     public static function addUserId($tag)
@@ -121,7 +134,7 @@ class ConfigureMentions
     }
 
     /**
-     * @param Tag $tag
+     * @param FormatterTag $tag
      * @return bool|void
      */
     public static function addPostId($tag, User $actor)
@@ -190,7 +203,7 @@ class ConfigureMentions
     }
 
     /**
-     * @param $tag
+     * @param FormatterTag $tag
      * @return bool|void
      */
     public static function addGroupId($tag)
@@ -207,5 +220,52 @@ class ConfigureMentions
         }
 
         $tag->invalidate();
+    }
+
+    private function configureTagMentions(Configurator $config)
+    {
+        $config->rendering->parameters['TAG_URL'] = $this->url->to('forum')->route('tag', ['slug' => '']);
+
+        $tagName = 'TAGMENTION';
+
+        $tag = $config->tags->add($tagName);
+        $tag->attributes->add('tagname');
+        $tag->attributes->add('slug');
+        $tag->attributes->add('id')->filterChain->append('#uint');
+
+        $tag->template = '
+            <xsl:choose>
+                <xsl:when test="@deleted != 1">
+                    <a href="{$TAG_URL}{@slug}" class="TagMention" data-id="{@id}"><xsl:value-of select="@tagname"/></a>
+                </xsl:when>
+                <xsl:otherwise>
+                    <span class="TagMention TagMention--deleted" data-id="{@id}"><xsl:value-of select="@tagname"/></span>
+                </xsl:otherwise>
+            </xsl:choose>';
+
+        $tag->filterChain
+            ->prepend([static::class, 'addTagId'])
+            ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterTagMentions(tag); }')
+            ->addParameterByName('actor');
+
+        $config->Preg->match('/\B@["|“](?<tagname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#t(?<id>[0-9]+)\b/', $tagName);
+    }
+
+    /**
+     * @return true|void
+     */
+    public static function addTagId(FormatterTag $tag, User $actor)
+    {
+        /** @var Tag $tag */
+        $model = resolve(TagRepository::class)
+            ->queryVisibleTo($actor)
+            ->find($tag->getAttribute('id'));
+
+        if ($model) {
+            $tag->setAttribute('slug', $model->slug);
+            $tag->setAttribute('tagname', $model->name);
+
+            return true;
+        }
     }
 }

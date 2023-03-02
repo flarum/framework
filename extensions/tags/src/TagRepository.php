@@ -26,6 +26,11 @@ class TagRepository
         return Tag::query();
     }
 
+    public function queryVisibleTo(User $actor): Builder
+    {
+        return $this->scopeVisibleTo($this->query(), $actor);
+    }
+
     /**
      * @param array|string $relations
      * @param User $actor

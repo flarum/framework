@@ -62,6 +62,11 @@ class UpdateMentionsMetadataWhenVisible
             $event->post,
             Utils::getAttributeValues($content, 'GROUPMENTION', 'id')
         );
+
+        $this->syncTagMentions(
+            $event->post,
+            Utils::getAttributeValues($content, 'TAGMENTION', 'id')
+        );
     }
 
     protected function syncUserMentions(Post $post, array $mentioned)
@@ -112,5 +117,11 @@ class UpdateMentionsMetadataWhenVisible
             ->all();
 
         $this->notifications->sync(new GroupMentionedBlueprint($post), $users);
+    }
+
+    protected function syncTagMentions(Post $post, array $mentioned)
+    {
+        $post->mentionsTags()->sync($mentioned);
+        $post->unsetRelation('mentionsTags');
     }
 }
