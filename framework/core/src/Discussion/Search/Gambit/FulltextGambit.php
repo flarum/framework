@@ -30,7 +30,8 @@ class FulltextGambit implements GambitInterface
         $query = $search->getQuery();
         $grammar = $query->getGrammar();
 
-        $discussionSubquery = Discussion::select('id')
+        $discussionSubquery = Discussion::query()
+            ->selectRaw('id as discussion_id')
             ->selectRaw('NULL as score')
             ->selectRaw('first_post_id as most_relevant_post_id')
             ->whereRaw('MATCH('.$grammar->wrap('discussions.title').') AGAINST (? IN BOOLEAN MODE)', [$bit]);
@@ -52,17 +53,19 @@ class FulltextGambit implements GambitInterface
         // discussions that have a relevant title or that contain relevant posts.
         $query
             ->addSelect('posts_ft.most_relevant_post_id')
+            ->addSelect('posts_ft.score')
+            ->selectRaw('MATCH('.$grammar->wrap('discussions.title').') AGAINST (?) as title_score', [$bit])
             ->join(
                 new Expression('('.$subquery->toSql().') '.$grammar->wrapTable('posts_ft')),
                 'posts_ft.discussion_id',
                 '=',
                 'discussions.id'
             )
-            ->groupBy('discussions.id')
+            ->groupBy('posts_ft.discussion_id', 'title_score')
             ->addBinding($subquery->getBindings(), 'join');
 
-        $search->setDefaultSort(function ($query) use ($grammar, $bit) {
-            $query->orderByRaw('MATCH('.$grammar->wrap('discussions.title').') AGAINST (?) desc', [$bit]);
+        $search->setDefaultSort(function ($query) {
+            $query->orderBy('title_score', 'desc');
             $query->orderBy('posts_ft.score', 'desc');
         });
 
