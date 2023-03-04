@@ -21,6 +21,7 @@ use Illuminate\Filesystem\FilesystemAdapter;
 use League\Flysystem\Adapter\NullAdapter;
 use League\Flysystem\Filesystem;
 use Less_Exception_Parser;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
@@ -59,6 +60,15 @@ class ValidateCustomLess
     {
         if (! isset($event->settings['custom_less']) && ! $this->hasDirtyCustomLessSettings($event)) {
             return;
+        }
+
+        // Restrict what features can be used in custom LESS
+        if (preg_match('/@import|data-uri\s*\(/i', $event->settings['custom_less'])) {
+            $translator = $this->container->make(TranslatorInterface::class);
+
+            throw new ValidationException([
+                'custom_less' => $translator->trans('core.admin.appearance.custom_styles_cannot_use_less_features')
+            ]);
         }
 
         // We haven't saved the settings yet, but we want to trial a full
