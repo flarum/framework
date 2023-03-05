@@ -236,10 +236,39 @@ class ConfigureMentions
         $tag->template = '
             <xsl:choose>
                 <xsl:when test="@deleted != 1">
-                    <a href="{$TAG_URL}{@slug}" class="TagMention" data-id="{@id}"><xsl:value-of select="@tagname"/></a>
+                    <a href="{$TAG_URL}{@slug}" data-id="{@id}">
+                        <xsl:attribute name="class">
+                            <xsl:choose>
+                                <xsl:when test="@color != \'\'">
+                                    <xsl:text>TagMention TagMention--colored</xsl:text>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:text>TagMention</xsl:text>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </xsl:attribute>
+                        <xsl:attribute name="style">
+                            <xsl:choose>
+                                <xsl:when test="@color != \'\'">
+                                    <xsl:text>--color:</xsl:text>
+                                    <xsl:value-of select="@color"/>
+                                </xsl:when>
+                            </xsl:choose>
+                        </xsl:attribute>
+                        <span class="TagMention-text">
+                            <xsl:if test="@icon != \'\'">
+                                <i class="icon {@icon}"></i>
+                            </xsl:if>
+                            <xsl:value-of select="@tagname"/>
+                        </span>
+                    </a>
                 </xsl:when>
                 <xsl:otherwise>
-                    <span class="TagMention TagMention--deleted" data-id="{@id}"><xsl:value-of select="@tagname"/></span>
+                    <span class="TagMention TagMention--deleted" data-id="{@id}">
+                        <span class="TagMention-text">
+                            <xsl:value-of select="@tagname"/>
+                        </span>
+                    </span>
                 </xsl:otherwise>
             </xsl:choose>';
 

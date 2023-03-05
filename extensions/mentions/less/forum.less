@@ -2,8 +2,6 @@
   background: var(--control-bg);
   color: var(--control-color);
   border-radius: @border-radius;
-  padding: 2px 5px;
-  border: 0 !important;
   font-weight: 600;
 
   blockquote & {
@@ -14,7 +12,11 @@
     color: var(--link-color);
   }
 }
-.UserMention, .PostMention, .GroupMention {
+.UserMention, .PostMention, .GroupMention, .TagMention {
+  padding: 2px 5px;
+  vertical-align: middle;
+  border: 0 !important;
+
   &--deleted {
     opacity: 0.8;
     filter: grayscale(1);
@@ -31,6 +33,30 @@
     .fas();
     content: @fa-var-reply;
     margin-right: 5px;
+  }
+}
+.GroupMention {
+  background-color: var(--group-color, var(--control-bg));
+  color: var(--control-color);
+  --link-color: currentColor;
+
+  &--colored {
+    --control-color: var(--contrast-color, var(--body-bg));
+    --link-color: var(--control-color);
+  }
+
+  .icon {
+    margin-left: 5px;
+  }
+}
+& when (is-extension-enabled('flarum-tags')) {
+  .TagMention {
+    --tag-bg: var(--color, var(--control-bg));
+    .tag-label();
+
+    .icon {
+      margin-right: 2px;
+    }
   }
 }
 .ComposerBody-mentionsWrapper {
@@ -97,24 +123,9 @@
   position: absolute;
   .Button--color(@tooltip-color, @tooltip-bg);
 }
-.GroupMention {
-  background-color: var(--group-color, var(--control-bg));
-  color: var(--control-color);
-  --link-color: currentColor;
-
-  &--colored {
-    --control-color: var(--contrast-color, var(--body-bg));
-    --link-color: var(--control-color);
-  }
-
-  .icon {
-    margin-left: 5px;
-  }
-}
 .MentionsDropdown .Badge {
   box-shadow: none;
 }
-
 @media @phone {
   .MentionsDropdown {
     max-width: 100%;

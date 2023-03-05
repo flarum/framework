@@ -44,6 +44,8 @@ class FormatTagMentions
                 $attributes['deleted'] = false;
                 $attributes['tagname'] = $tag->name;
                 $attributes['slug'] = $tag->slug;
+                $attributes['color'] = $tag->color ?? '';
+                $attributes['icon'] = $tag->icon ?? '';
             } else {
                 $attributes['deleted'] = true;
             }
