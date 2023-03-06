@@ -63,7 +63,7 @@ class ValidateCustomLess
         }
 
         // Restrict what features can be used in custom LESS
-        if (preg_match('/@import|data-uri\s*\(/i', $event->settings['custom_less'])) {
+        if (isset($event->settings['custom_less']) && preg_match('/@import|data-uri\s*\(/i', $event->settings['custom_less'])) {
             $translator = $this->container->make(TranslatorInterface::class);
 
             throw new ValidationException([
