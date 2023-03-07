@@ -47,14 +47,6 @@ class NotificationsTest extends TestCase
                 ['id' => 37, 'discussion_id' => 33, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 5],
                 ['id' => 38, 'discussion_id' => 33, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 6],
             ],
-            'discussion_user' => [
-                ['discussion_id' => 1, 'user_id' => 1, 'last_read_post_number' => 1, 'subscription' => 'follow'],
-                ['discussion_id' => 1, 'user_id' => 2, 'last_read_post_number' => 1, 'subscription' => 'follow'],
-                ['discussion_id' => 2, 'user_id' => 1, 'last_read_post_number' => 1, 'subscription' => 'follow'],
-
-                ['discussion_id' => 33, 'user_id' => 2, 'last_read_post_number' => 1, 'subscription' => 'follow'],
-                ['discussion_id' => 33, 'user_id' => 3, 'last_read_post_number' => 1, 'subscription' => 'follow'],
-            ]
         ]);
     }
 
