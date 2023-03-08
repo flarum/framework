@@ -1,6 +1,7 @@
-import Flag from '../forum/models/Flag';
-import FlagListState from '../forum/states/FlagListState';
-import Mithril from 'mithril';
+import type Flag from '../forum/models/Flag';
+import type FlagListState from '../forum/states/FlagListState';
+import type Mithril from 'mithril';
+import type ItemList from 'flarum/common/utils/ItemList';
 
 declare module 'flarum/common/models/Post' {
   export default interface Post {
@@ -17,6 +18,8 @@ declare module 'flarum/forum/ForumApplication' {
 
 declare module 'flarum/forum/components/Post' {
   export default interface Post {
+    dismissFlag: (body: any) => Promise<any>;
+    flagActionItems: () => ItemList<Mithril.Children>;
     flagReason: (flag: Flag) => Mithril.Children;
   }
 }

@@ -1,10 +1,14 @@
 import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
 import Post from 'flarum/forum/components/Post';
+import CommentPost from 'flarum/forum/components/CommentPost';
 import Button from 'flarum/common/components/Button';
 import ItemList from 'flarum/common/utils/ItemList';
 import PostControls from 'flarum/forum/utils/PostControls';
 import humanTime from 'flarum/common/utils/humanTime';
+import isObject from 'flarum/common/utils/isObject';
+import type Flag from './models/Flag';
+import type Mithril from 'mithril';
 
 export default function () {
   extend(Post.prototype, 'elementAttrs', function (attrs) {
@@ -21,7 +25,7 @@ export default function () {
     this.subtree.invalidate();
 
     if (app.flags.cache) {
-      app.flags.cache.some((flag, i) => {
+      app.flags.cache.some((flag: Flag, i: number) => {
         if (flag.post() === post) {
           app.flags.cache.splice(i, 1);
 
@@ -39,6 +43,8 @@ export default function () {
 
           return true;
         }
+
+        return false;
       });
     }
 
@@ -50,16 +56,17 @@ export default function () {
   };
 
   Post.prototype.flagActionItems = function () {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
 
-    const controls = PostControls.destructiveControls(this.attrs.post);
+    const controls = PostControls.destructiveControls(this.attrs.post, this);
 
     Object.keys(controls.items).forEach((k) => {
-      const attrs = controls.get(k).attrs;
+      const item = controls.get(k);
+      const attrs = isObject(item) && 'attrs' in item ? item.attrs : {};
 
       attrs.className = 'Button';
 
-      extend(attrs, 'onclick', () => this.dismissFlag());
+      extend(attrs, 'onclick', () => this.dismissFlag({}));
     });
 
     items.add('controls', <div className="ButtonGroup">{controls.toArray()}</div>);
@@ -81,12 +88,16 @@ export default function () {
 
     if (!flags.length) return;
 
-    if (post.isHidden()) this.revealContent = true;
+    if (post.isHidden() && this instanceof CommentPost) {
+      this.revealContent = true;
+    }
+
+    if (!isObject(vdom) || !('unshift' in vdom)) return;
 
     vdom.unshift(
       <div className="Post-flagged">
         <div className="Post-flagged-flags">
-          {flags.map((flag) => (
+          {flags.map((flag: Flag) => (
             <div className="Post-flagged-flag">{this.flagReason(flag)}</div>
           ))}
         </div>
@@ -111,5 +122,7 @@ export default function () {
         detail ? <span className="Post-flagged-detail">{detail}</span> : '',
       ];
     }
+
+    return null;
   };
 }

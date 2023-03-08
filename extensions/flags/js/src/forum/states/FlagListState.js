@@ -1,4 +1,6 @@
 export default class FlagListState {
+  index = 0;
+
   constructor(app) {
     this.app = app;
 
