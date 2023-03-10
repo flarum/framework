@@ -33,6 +33,10 @@ export default class NotificationList extends Component {
     const items = new ItemList();
     const state = this.attrs.state;
 
+    if (!state.hasItems()) {
+      return;
+    }
+
     items.add(
       'mark_all_as_read',
       <Tooltip text={app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip')}>
