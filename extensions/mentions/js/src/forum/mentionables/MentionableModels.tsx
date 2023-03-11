@@ -1,14 +1,12 @@
+import MentionFormats from './MentionFormats';
+import type MentionableModel from './MentionableModel';
 import type Model from 'flarum/common/Model';
 import type Mithril from 'mithril';
-import type IMentionableModel from './IMentionableModel';
 import MentionsDropdownItem from '../components/MentionsDropdownItem';
-import UserMention from './UserMention';
-import PostMention from './PostMention';
-import GroupMention from './GroupMention';
 import { throttle } from 'flarum/common/utils/throttleDebounce';
 
 export default class MentionableModels {
-  private models: IMentionableModel<Model>[] = [new UserMention(), new PostMention(), new GroupMention()];
+  protected mentionables?: MentionableModel[];
   /**
    * We store models returned from an API here to preserve order in which they are returned
    * This prevents the list jumping around while models are returned.
@@ -23,14 +21,11 @@ export default class MentionableModels {
     this.dropdownItemAttrs = dropdownItemAttrs;
   }
 
-  public get(type: string): IMentionableModel<Model> | null {
-    return this.models.find((model) => model.type() === type) ?? null;
-  }
-
-  public init() {
+  public init(mentionables: MentionableModel[]): void {
     this.typed = null;
+    this.mentionables = mentionables;
 
-    for (const mentionable of this.models) {
+    for (const mentionable of this.mentionables) {
       this.results[mentionable.type()] = new Map(mentionable.initialResults().map((result) => [result.id() as string, result]));
     }
   }
@@ -46,7 +41,7 @@ export default class MentionableModels {
 
     if (this.searched.includes(typedLower)) return;
 
-    for (const mentionable of this.models) {
+    for (const mentionable of this.mentionables!) {
       for (const model of await mentionable.search(typedLower)) {
         if (!this.results[mentionable.type()].has(model.id() as string)) {
           this.results[mentionable.type()].set(model.id() as string, model);
@@ -59,11 +54,11 @@ export default class MentionableModels {
     return Promise.resolve();
   });
 
-  public matches(mentionable: IMentionableModel<Model>, model: Model): boolean {
+  public matches(mentionable: MentionableModel, model: Model): boolean {
     return mentionable.matches(model, this.typed?.toLowerCase() || '');
   }
 
-  public makeSuggestion(mentionable: IMentionableModel<Model>, model: Model): Mithril.Children {
+  public makeSuggestion(mentionable: MentionableModel, model: Model): Mithril.Children {
     const content = mentionable.suggestion(model, this.typed!);
     const replacement = mentionable.replacement(model);
 
@@ -79,7 +74,7 @@ export default class MentionableModels {
   public buildSuggestions(): Mithril.Children {
     const suggestions: Mithril.Children = [];
 
-    for (const mentionable of this.models) {
+    for (const mentionable of this.mentionables!) {
       if (!mentionable.enabled()) continue;
 
       let matches = Array.from(this.results[mentionable.type()].values()).filter((model) => this.matches(mentionable, model));

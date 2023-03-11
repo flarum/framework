@@ -5,9 +5,12 @@ import TextEditorButton from 'flarum/common/components/TextEditorButton';
 import KeyboardNavigatable from 'flarum/common/utils/KeyboardNavigatable';
 
 import AutocompleteDropdown from './fragments/AutocompleteDropdown';
+import MentionFormats from './mentionables/MentionFormats';
 import MentionableModels from './mentionables/MentionableModels';
 
 export default function addComposerAutocomplete() {
+  app.mentionFormats = new MentionFormats();
+
   const $container = $('<div class="ComposerBody-mentionsDropdownContainer"></div>');
   const dropdown = new AutocompleteDropdown();
 
@@ -31,7 +34,7 @@ export default function addComposerAutocomplete() {
     let absMentionStart;
     let matchTyped;
 
-    app.mentionables = new MentionableModels({
+    let mentionables = new MentionableModels({
       onmouseenter: function () {
         dropdown.setIndex($(this).parent().index());
       },
@@ -42,9 +45,6 @@ export default function addComposerAutocomplete() {
       },
     });
 
-    // Initialize the mentionables.
-    app.mentionables.init();
-
     const suggestionsInputListener = () => {
       const selection = this.attrs.composer.editor.getSelectionRange();
 
@@ -52,15 +52,20 @@ export default function addComposerAutocomplete() {
 
       if (selection[1] - cursor > 0) return;
 
-      // Search backwards from the cursor for an '@' symbol. If we find one,
-      // we will want to show the autocomplete dropdown!
+      // Search backwards from the cursor for a mention triggering symbol. If we find one,
+      // we will want to show the correct autocomplete dropdown!
+      // Check classes implementing the IMentionableModel interface to see triggering symbols.
       const lastChunk = this.attrs.composer.editor.getLastNChars(30);
       absMentionStart = 0;
+      let activeFormat = null;
       for (let i = lastChunk.length - 1; i >= 0; i--) {
         const character = lastChunk.substr(i, 1);
-        if (character === '@' && (i == 0 || /\s/.test(lastChunk.substr(i - 1, 1)))) {
+        activeFormat = app.mentionFormats.get(character);
+
+        if (activeFormat && (i === 0 || /\s/.test(lastChunk.substr(i - 1, 1)))) {
           relMentionStart = i + 1;
           absMentionStart = cursor - lastChunk.length + i + 1;
+          mentionables.init(activeFormat.makeMentionables());
           break;
         }
       }
@@ -69,14 +74,14 @@ export default function addComposerAutocomplete() {
       dropdown.active = false;
 
       if (absMentionStart) {
-        app.mentionables.typed = lastChunk.substring(relMentionStart).toLowerCase();
-        matchTyped = app.mentionables.typed.match(/^["|“]((?:(?!"#).)+)$/);
-        app.mentionables.typed = (matchTyped && matchTyped[1]) || app.mentionables.typed;
+        const typed = lastChunk.substring(relMentionStart).toLowerCase();
+        matchTyped = activeFormat.queryFromTyped(typed);
+        mentionables.typed = matchTyped || typed;
 
         const buildSuggestions = () => {
           // If the user has started to type a mention,
           // then suggest models matching.
-          const suggestions = app.mentionables.buildSuggestions();
+          const suggestions = mentionables.buildSuggestions();
 
           if (suggestions.length) {
             dropdown.items = suggestions;
@@ -116,7 +121,7 @@ export default function addComposerAutocomplete() {
         dropdown.setIndex(0);
         dropdown.$().scrollTop(0);
 
-        app.mentionables.search()?.then(buildSuggestions);
+        mentionables.search()?.then(buildSuggestions);
       }
     };
 

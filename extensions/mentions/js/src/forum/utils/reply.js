@@ -1,11 +1,10 @@
 import app from 'flarum/forum/app';
 import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
 import EditPostComposer from 'flarum/forum/components/EditPostComposer';
-import MentionTextGenerator from './MentionTextGenerator';
 
 export function insertMention(post, composer, quote) {
   return new Promise((resolve) => {
-    const mention = MentionTextGenerator.forPost(post) + ' ';
+    const mention = app.mentionFormats.mentionable('post').replacement(post) + ' ';
 
     // If the composer is empty, then assume we're starting a new reply.
     // In which case we don't want the user to have to confirm if they

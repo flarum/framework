@@ -16,6 +16,7 @@
   padding: 2px 5px;
   vertical-align: middle;
   border: 0 !important;
+  white-space: nowrap;
 
   &--deleted {
     opacity: 0.8;
@@ -29,6 +30,7 @@
     margin-left: 0;
   }
 
+  // @TODO: 2.0 use an icon in the XSLT template.
   &:before {
     .fas();
     content: @fa-var-reply;
@@ -53,6 +55,7 @@
   .TagMention {
     --tag-bg: var(--color, var(--control-bg));
     .tag-label();
+    margin-right: 3px;
 
     .icon {
       margin-right: 2px;

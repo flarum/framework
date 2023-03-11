@@ -1,12 +1,11 @@
 import Component from 'flarum/common/Component';
 import type { ComponentAttrs } from 'flarum/common/Component';
 import classList from 'flarum/common/utils/classList';
-import type IMentionableModel from '../mentionables/IMentionableModel';
-import type Model from 'flarum/common/Model';
-import Mithril from 'mithril';
+import type MentionableModel from '../mentionables/MentionableModel';
+import type Mithril from 'mithril';
 
 export interface IMentionsDropdownItemAttrs extends ComponentAttrs {
-  mentionable: IMentionableModel<Model>;
+  mentionable: MentionableModel;
   onclick: () => void;
   onmouseenter: () => void;
 }

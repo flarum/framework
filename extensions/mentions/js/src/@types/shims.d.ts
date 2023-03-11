@@ -1,8 +1,8 @@
-import MentionableModels from './mentionables/MentionableModels';
+import MentionFormats from '../forum/mentionables/MentionFormats';
 
 declare module 'flarum/forum/ForumApplication' {
   export default interface ForumApplication {
-    mentionables: MentionableModels;
+    mentionFormats: MentionFormats;
   }
 }
 

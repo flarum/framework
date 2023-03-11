@@ -9,7 +9,9 @@ import getMentionText from './utils/getMentionText';
 import * as reply from './utils/reply';
 import selectedText from './utils/selectedText';
 import * as textFormatter from './utils/textFormatter';
-import MentionTextGenerator from './utils/MentionTextGenerator';
+import MentionableModel from './mentionables/MentionableModel';
+import MentionFormat from './mentionables/formats/MentionFormat';
+import Mentionables from './extenders/Mentionables';
 
 export default {
   'mentions/components/MentionsUserPage': MentionsUserPage,
@@ -20,8 +22,10 @@ export default {
   'mentions/fragments/PostQuoteButton': PostQuoteButton,
   'mentions/utils/getCleanDisplayName': getCleanDisplayName,
   'mentions/utils/getMentionText': getMentionText,
-  'mentions/utils/MentionTextGenerator': MentionTextGenerator,
   'mentions/utils/reply': reply,
   'mentions/utils/selectedText': selectedText,
   'mentions/utils/textFormatter': textFormatter,
+  'mentions/mentionables/MentionableModel': MentionableModel,
+  'mentions/mentionables/formats/MentionFormat': MentionFormat,
+  'mentions/extenders/Mentionables': Mentionables,
 };

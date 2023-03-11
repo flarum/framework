@@ -1,16 +1,17 @@
 import app from 'flarum/forum/app';
-import IMentionableModel from './IMentionableModel';
+import MentionableModel from './MentionableModel';
 import type Post from 'flarum/common/models/Post';
 import type Mithril from 'mithril';
-import MentionTextGenerator from '../utils/MentionTextGenerator';
 import usernameHelper from 'flarum/common/helpers/username';
 import avatar from 'flarum/common/helpers/avatar';
 import highlight from 'flarum/common/helpers/highlight';
 import { truncate } from 'flarum/common/utils/string';
 import ReplyComposer from 'flarum/forum/components/ReplyComposer';
 import EditPostComposer from 'flarum/forum/components/EditPostComposer';
+import getCleanDisplayName from '../utils/getCleanDisplayName';
+import type AtMentionFormat from './formats/AtMentionFormat';
 
-export default class PostMention implements IMentionableModel<Post> {
+export default class PostMention extends MentionableModel<Post, AtMentionFormat> {
   type(): string {
     return 'post';
   }
@@ -41,8 +42,18 @@ export default class PostMention implements IMentionableModel<Post> {
     );
   }
 
-  replacement(model: Post): string {
-    return MentionTextGenerator.forPost(model);
+  /**
+   * Generates the syntax for mentioning of a post. Also cleans up the display name.
+   *
+   * @example <caption>Post mention</caption>
+   * // '@"User"#p13'
+   * // @"Display name"#pPostID
+   * forPostMention(user, 13) // User display name is 'User', post ID is 13
+   */
+  public replacement(post: Post): string {
+    const user = post.user();
+    const cleanText = getCleanDisplayName(user);
+    return this.format.format(cleanText, 'p', post.id());
   }
 
   suggestion(model: Post, typed: string): Mithril.Children {
@@ -69,7 +80,7 @@ export default class PostMention implements IMentionableModel<Post> {
 
   matches(model: Post, typed: string): boolean {
     const user = model.user();
-    const userMentionable = app.mentionables.get('user')!;
+    const userMentionable = app.mentionFormats.mentionable('user')!;
 
     return !typed || (user && userMentionable.matches(user, typed));
   }
