@@ -55,16 +55,14 @@ class UnparseTagMentions
     protected function updateTagMentionTags($context, string $xml): string
     {
         return Utils::replaceAttributes($xml, 'TAGMENTION', function (array $attributes) use ($context) {
+            /** @var Tag $tag */
             $tag = (($context && isset($context->getRelations()['mentionsTags'])) || $context instanceof Post)
                 ? $context->mentionsTags->find($attributes['id'])
                 : Tag::query()->find($attributes['id']);
 
             if ($tag) {
                 $attributes['tagname'] = $tag->name;
-            }
-
-            if (strpos($attributes['tagname'], '"#') !== false) {
-                $attributes['tagname'] = preg_replace('/"#[a-z]{0,3}[0-9]+/', '_', $attributes['tagname']);
+                $attributes['slug'] = $tag->slug;
             }
 
             return $attributes;
@@ -86,8 +84,8 @@ class UnparseTagMentions
         }
 
         return preg_replace(
-            '/<'.preg_quote($tagName).'\b[^>]*(?=\bid="([0-9]+)")[^>]*(?=\btagname="(.*)")[^>]*>@[^<]+<\/'.preg_quote($tagName).'>/U',
-            '@"$2"#t$1',
+            '/<'.preg_quote($tagName).'\b[^>]*(?=\bid="([0-9]+)")[^>]*(?=\bslug="(.*)")[^>]*>@[^<]+<\/'.preg_quote($tagName).'>/U',
+            '#$2',
             $xml
         );
     }

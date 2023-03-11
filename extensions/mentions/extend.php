@@ -77,13 +77,15 @@ return [
         ->load([
             'posts.mentionsUsers', 'posts.mentionsPosts', 'posts.mentionsPosts.user', 'posts.mentionedBy',
             'posts.mentionedBy.mentionsPosts', 'posts.mentionedBy.mentionsPosts.user', 'posts.mentionedBy.mentionsUsers',
-            'posts.mentionsGroups'
+            'posts.mentionsGroups', 'posts.mentionsTags',
         ]),
 
     (new Extend\ApiController(Controller\ListDiscussionsController::class))
         ->load([
-            'firstPost.mentionsUsers', 'firstPost.mentionsPosts', 'firstPost.mentionsPosts.user', 'firstPost.mentionsGroups',
-            'lastPost.mentionsUsers', 'lastPost.mentionsPosts', 'lastPost.mentionsPosts.user', 'lastPost.mentionsGroups'
+            'firstPost.mentionsUsers', 'firstPost.mentionsPosts','firstPost.mentionsPosts.user',
+            'firstPost.mentionsGroups', 'firstPost.mentionsTags',
+            'lastPost.mentionsUsers', 'lastPost.mentionsPosts', 'lastPost.mentionsPosts.user',
+            'lastPost.mentionsGroups', 'lastPost.mentionsTags',
         ]),
 
     (new Extend\ApiController(Controller\ShowPostController::class))
@@ -94,7 +96,7 @@ return [
         ->load([
             'mentionsUsers', 'mentionsPosts', 'mentionsPosts.user', 'mentionedBy',
             'mentionedBy.mentionsPosts', 'mentionedBy.mentionsPosts.user', 'mentionedBy.mentionsUsers',
-            'mentionsGroups'
+            'mentionsGroups', 'mentionsTags',
         ]),
 
     (new Extend\ApiController(Controller\AbstractSerializeController::class))

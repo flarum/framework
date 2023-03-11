@@ -22,7 +22,7 @@ use s9e\TextFormatter\Configurator;
 use s9e\TextFormatter\Parser\Tag as FormatterTag;
 
 /**
- * @TODO: mentionable models polymorphic system.
+ * @TODO: refactor this lump of code into a mentionable models polymorphic system (for v2.0).
  */
 class ConfigureMentions
 {
@@ -287,7 +287,11 @@ class ConfigureMentions
             ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterTagMentions(tag); }')
             ->addParameterByName('actor');
 
-        $config->Preg->match('/\B@["|“](?<tagname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#t(?<id>[0-9]+)\b/', $tagName);
+        $tag->filterChain
+            ->append([static::class, 'dummyFilter'])
+            ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].postFilterTagMentions(tag); }');
+
+        $config->Preg->match('/(?:[^“"]|^)\B#(?<slug>[-_\p{L}\p{N}\p{M}]+)\b/ui', $tagName);
     }
 
     /**
@@ -295,13 +299,13 @@ class ConfigureMentions
      */
     public static function addTagId(FormatterTag $tag, User $actor)
     {
-        /** @var Tag $tag */
+        /** @var Tag $model */
         $model = resolve(TagRepository::class)
             ->queryVisibleTo($actor)
-            ->find($tag->getAttribute('id'));
+            ->firstWhere('slug', $tag->getAttribute('slug'));
 
         if ($model) {
-            $tag->setAttribute('slug', $model->slug);
+            $tag->setAttribute('id', (string) $model->id);
             $tag->setAttribute('tagname', $model->name);
 
             return true;
