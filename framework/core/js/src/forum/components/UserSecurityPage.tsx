@@ -52,21 +52,22 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
     const items = new ItemList<Mithril.Children>();
 
     if (
-      app.forum.attribute('canCreateAccessToken') || app.forum.attribute('canModerateAccessTokens')
-      || (this.state.hasLoadedTokens() && this.state.getDeveloperTokens()?.length)
+      app.forum.attribute('canCreateAccessToken') ||
+      app.forum.attribute('canModerateAccessTokens') ||
+      (this.state.hasLoadedTokens() && this.state.getDeveloperTokens()?.length)
     ) {
       items.add(
         'developerTokensItems',
         <FieldSet
           className="UserSecurityPage-developerTokensItems"
-          styles={!this.state.hasLoadedTokens() || !this.state.getDeveloperTokens() ? {display: 'none'} : {color: 'red'}}
+          styles={!this.state.hasLoadedTokens() || !this.state.getDeveloperTokens() ? { display: 'none' } : { color: 'red' }}
           label={app.translator.trans(`core.forum.security.developer_tokens_heading`)}
         >
           {this.developerTokensItems().toArray()}
         </FieldSet>
       );
     } else if (!this.state.hasLoadedTokens()) {
-      items.add('developerTokensItems', <LoadingIndicator/>);
+      items.add('developerTokensItems', <LoadingIndicator />);
     }
 
     items.add(
