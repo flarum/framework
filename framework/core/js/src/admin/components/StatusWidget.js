@@ -49,8 +49,16 @@ export default class StatusWidget extends DashboardWidget {
       );
     }
 
-    items.add('queue-driver', [<strong>{app.translator.trans('core.admin.dashboard.status.headers.queue-driver')}</strong>, <br />, app.data.queueDriver], 60);
-    items.add('session-driver', [<strong>{app.translator.trans('core.admin.dashboard.status.headers.session-driver')}</strong>, <br />, app.data.sessionDriver], 50);
+    items.add(
+      'queue-driver',
+      [<strong>{app.translator.trans('core.admin.dashboard.status.headers.queue-driver')}</strong>, <br />, app.data.queueDriver],
+      60
+    );
+    items.add(
+      'session-driver',
+      [<strong>{app.translator.trans('core.admin.dashboard.status.headers.session-driver')}</strong>, <br />, app.data.sessionDriver],
+      50
+    );
 
     return items;
   }
