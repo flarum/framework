@@ -11,6 +11,7 @@ namespace Flarum\Mentions;
 
 use Flarum\Extension\ExtensionManager;
 use Flarum\Group\Group;
+use Flarum\Group\GroupRepository;
 use Flarum\Http\UrlGenerator;
 use Flarum\Post\PostRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -74,7 +75,7 @@ class ConfigureMentions
         $tag->filterChain->prepend([static::class, 'addUserId'])
             ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterUserMentions(tag); }');
 
-        $config->Preg->match('/\B@["|“](?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#(?<id>[0-9]+)\b/', $tagName);
+        $config->Preg->match('/\B@["“](?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)["”]#(?<id>[0-9]+)\b/', $tagName);
         $config->Preg->match('/\B@(?<username>[a-z0-9_-]+)(?!#)/i', $tagName);
     }
 
@@ -130,7 +131,7 @@ class ConfigureMentions
             ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterPostMentions(tag); }')
             ->addParameterByName('actor');
 
-        $config->Preg->match('/\B@["|“](?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#p(?<id>[0-9]+)\b/', $tagName);
+        $config->Preg->match('/\B@["“](?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)["”]#p(?<id>[0-9]+)\b/', $tagName);
     }
 
     /**
@@ -161,8 +162,6 @@ class ConfigureMentions
 
         $tag = $config->tags->add($tagName);
         $tag->attributes->add('groupname');
-        $tag->attributes->add('icon');
-        $tag->attributes->add('color');
         $tag->attributes->add('id')->filterChain->append('#uint');
 
         $tag->template = '
@@ -196,25 +195,36 @@ class ConfigureMentions
                     </span>
                 </xsl:otherwise>
             </xsl:choose>';
-        $tag->filterChain->prepend([static::class, 'addGroupId'])
-            ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterGroupMentions(tag); }');
 
-        $config->Preg->match('/\B@["|“](?<groupname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#g(?<id>[0-9]+)\b/', $tagName);
+        $tag->filterChain->prepend([static::class, 'addGroupId'])
+            ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterGroupMentions(tag); }')
+            ->addParameterByName('actor');
+
+        $tag->filterChain->append([static::class, 'dummyFilter'])
+            ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].postFilterGroupMentions(tag); }');
+
+        $config->Preg->match('/\B@["“](?<groupname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#g(?<id>[0-9]+)\b/', $tagName);
     }
 
     /**
-     * @param FormatterTag $tag
      * @return bool|void
      */
-    public static function addGroupId($tag)
+    public static function addGroupId(FormatterTag $tag, User $actor)
     {
-        $group = Group::find($tag->getAttribute('id'));
+        $id = $tag->getAttribute('id');
 
-        if (isset($group) && ! in_array($group->id, [Group::GUEST_ID, Group::MEMBER_ID])) {
+        if ($actor->cannot('mentionGroups') || in_array($id, [Group::GUEST_ID, Group::MEMBER_ID])) {
+            $tag->invalidate();
+            return false;
+        }
+
+        $group = resolve(GroupRepository::class)
+            ->queryVisibleTo($actor)
+            ->find($id);
+
+        if ($group) {
             $tag->setAttribute('id', $group->id);
             $tag->setAttribute('groupname', $group->name_plural);
-            $tag->setAttribute('icon', $group->icon ?? 'fas fa-at');
-            $tag->setAttribute('color', $group->color);
 
             return true;
         }
@@ -296,5 +306,14 @@ class ConfigureMentions
 
             return true;
         }
+    }
+
+    /**
+     * Used when only an append JS filter is needed,
+     * to add post tag validation attributes.
+     */
+    public static function dummyFilter(): bool
+    {
+        return true;
     }
 }

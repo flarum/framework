@@ -45,8 +45,7 @@ return [
         ->render(Formatter\FormatGroupMentions::class)
         ->unparse(Formatter\UnparsePostMentions::class)
         ->unparse(Formatter\UnparseUserMentions::class)
-        ->unparse(Formatter\UnparseTagMentions::class)
-        ->parse(Formatter\CheckPermissions::class),
+        ->unparse(Formatter\UnparseTagMentions::class),
 
     (new Extend\Model(Post::class))
         ->belongsToMany('mentionedBy', Post::class, 'post_mentions_post', 'mentions_post_id', 'post_id')
@@ -97,12 +96,6 @@ return [
             'mentionedBy.mentionsPosts', 'mentionedBy.mentionsPosts.user', 'mentionedBy.mentionsUsers',
             'mentionsGroups'
         ]),
-
-    (new Extend\ApiController(Controller\CreatePostController::class))
-        ->addOptionalInclude('mentionsGroups'),
-
-    (new Extend\ApiController(Controller\UpdatePostController::class))
-        ->addOptionalInclude('mentionsGroups'),
 
     (new Extend\ApiController(Controller\AbstractSerializeController::class))
         ->prepareDataForSerialization(FilterVisiblePosts::class),
