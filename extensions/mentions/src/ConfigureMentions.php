@@ -169,7 +169,7 @@ class ConfigureMentions
                 <xsl:when test="@deleted != 1">
                     <xsl:choose>
                         <xsl:when test="string(@color) != \'\'">
-                            <span class="GroupMention GroupMention--colored" style="--group-color:{@color};">
+                            <span class="GroupMention GroupMention--colored" style="--color:{@color};">
                                 <span class="GroupMention-name">@<xsl:value-of select="@groupname"/></span>
                                 <xsl:if test="string(@icon) != \'\'">
                                     <i class="icon {@icon}"></i>
