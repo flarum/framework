@@ -65,7 +65,7 @@ export default class MentionableModels {
     const { onclick, ...attrs } = this.dropdownItemAttrs;
 
     return (
-      <MentionsDropdownItem model={model} mentionable={mentionable} onclick={() => onclick(replacement)} {...attrs}>
+      <MentionsDropdownItem mentionable={mentionable} onclick={() => onclick(replacement)} {...attrs}>
         {content}
       </MentionsDropdownItem>
     );

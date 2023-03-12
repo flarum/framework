@@ -33,7 +33,7 @@ export default class GroupMention extends MentionableModel<Group, AtMentionForma
   }
 
   suggestion(model: Group, typed: string): Mithril.Children {
-    let groupName: Mithril.Children = model.namePlural().toLowerCase();
+    let groupName: Mithril.Children = model.namePlural();
 
     if (typed) {
       groupName = highlight(groupName, typed);
@@ -41,7 +41,7 @@ export default class GroupMention extends MentionableModel<Group, AtMentionForma
 
     return (
       <>
-        <Badge class={`Avatar Badge Badge--group--${model.id()} Badge-icon `} color={model.color()} type="group" icon={model.icon()} />
+        <Badge className={`Avatar Badge Badge--group--${model.id()} Badge-icon`} color={model.color()} type="group" icon={model.icon()} />
         <span className="username">{groupName}</span>
       </>
     );

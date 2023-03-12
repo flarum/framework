@@ -45,7 +45,7 @@ export default class TagMention extends MentionableModel<Tag, HashMentionFormat>
   }
 
   suggestion(model: Tag, typed: string): Mithril.Children {
-    let tagName: Mithril.Children = model.name().toLowerCase();
+    let tagName: Mithril.Children = model.name();
 
     if (typed) {
       tagName = highlight(tagName, typed);
@@ -53,8 +53,8 @@ export default class TagMention extends MentionableModel<Tag, HashMentionFormat>
 
     return (
       <>
-        <Badge icon={model.icon()} color={model.color()} />
-        {tagName}
+        <Badge className="Avatar" icon={model.icon()} color={model.color()} type="tag" />
+        <span className="username">{tagName}</span>
       </>
     );
   }
