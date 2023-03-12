@@ -58,11 +58,7 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
     ) {
       items.add(
         'developerTokensItems',
-        <FieldSet
-          className="UserSecurityPage-developerTokensItems"
-          styles={!this.state.hasLoadedTokens() || !this.state.getDeveloperTokens() ? { display: 'none' } : { color: 'red' }}
-          label={app.translator.trans(`core.forum.security.developer_tokens_heading`)}
-        >
+        <FieldSet className="UserSecurityPage-developerTokensItems" label={app.translator.trans(`core.forum.security.developer_tokens_heading`)}>
           {this.developerTokensItems().toArray()}
         </FieldSet>
       );
