@@ -185,7 +185,7 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
     const name = token.title() || app.translator.trans('core.forum.security.token_title_placeholder');
     const value = this.tokenValueDisplay(token);
 
-    return app.translator.trans('core.forum.security.token_item_title', { name, value });
+    return app.translator.trans('core.forum.security.token_item_title', { title: name, token: value });
   }
 
   tokenValueDisplay(token: AccessToken): Mithril.Children {
