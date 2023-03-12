@@ -40,8 +40,8 @@ export default class TagMention extends MentionableModel<Tag, HashMentionFormat>
     return null;
   }
 
-  search(typed: string): Promise<Tag[]> {
-    return Promise.resolve([]);
+  async search(typed: string): Promise<Tag[]> {
+    return await app.store.find<Tag[]>('tags', { filter: { q: typed }, page: { limit: 5 } });
   }
 
   suggestion(model: Tag, typed: string): Mithril.Children {

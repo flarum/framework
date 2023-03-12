@@ -31,7 +31,8 @@ class FulltextGambit implements GambitInterface
         return $this->tags
             ->query()
             ->select('id')
-            ->where('name', 'like', "$searchValue%");
+            ->where('name', 'like', "$searchValue%")
+            ->orWhere('slug', 'like', "$searchValue%");
     }
 
     public function apply(SearchState $search, $searchValue)
