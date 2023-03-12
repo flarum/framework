@@ -58,6 +58,10 @@ core:
       description: Your forum at a glance.
       io_error_message: "Could not write to filesystem. Check your filesystem permissions and try again. Or try running from the command line."
       status:
+        headers:
+          scheduler-status: Scheduler
+          queue-driver: Queue Driver
+          session-driver: Session Driver
         scheduler:
           active: Active
           inactive: Inactive
@@ -65,7 +69,7 @@ core:
       title: Dashboard
       tools_button: Tools
 
-    # These translations are usin in the debug warning widget.
+    # These translations are used in the debug warning widget.
     debug-warning:
       detail: |
         When <code>debug</code> mode is active, Flarum will rebuild its <code>JavaScript</code> and <code>CSS</code> assets on every request, and could also potentially leak other information, such as database secrets, environment variables, etc.
