@@ -58,7 +58,7 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
     ) {
       items.add(
         'developerTokensItems',
-        <FieldSet className="UserSecurityPage-developerTokensItems" label={app.translator.trans(`core.forum.security.developer_tokens_heading`)}>
+        <FieldSet className="UserSecurityPage-developerTokens" label={app.translator.trans(`core.forum.security.developer_tokens_heading`)}>
           {this.developerTokensItems().toArray()}
         </FieldSet>
       );
@@ -68,7 +68,7 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
 
     items.add(
       'sessionsItems',
-      <FieldSet className="UserSecurityPage-sessionsItems" label={app.translator.trans(`core.forum.security.sessions_heading`)}>
+      <FieldSet className="UserSecurityPage-sessions" label={app.translator.trans(`core.forum.security.sessions_heading`)}>
         {this.sessionsItems().toArray()}
       </FieldSet>
     );
