@@ -57,17 +57,17 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
       (this.state.hasLoadedTokens() && this.state.getDeveloperTokens()?.length)
     ) {
       items.add(
-        'developerTokensItems',
+        'developerTokens',
         <FieldSet className="UserSecurityPage-developerTokens" label={app.translator.trans(`core.forum.security.developer_tokens_heading`)}>
           {this.developerTokensItems().toArray()}
         </FieldSet>
       );
     } else if (!this.state.hasLoadedTokens()) {
-      items.add('developerTokensItems', <LoadingIndicator />);
+      items.add('developerTokens', <LoadingIndicator />);
     }
 
     items.add(
-      'sessionsItems',
+      'sessions',
       <FieldSet className="UserSecurityPage-sessions" label={app.translator.trans(`core.forum.security.sessions_heading`)}>
         {this.sessionsItems().toArray()}
       </FieldSet>
