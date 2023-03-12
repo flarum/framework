@@ -8,7 +8,7 @@
   <div class="FormGroup">
     <div class="FormField">
       <label>Database Password</label>
-      <input type="password" name="databasePassword">
+      <input type="password" name="databasePassword" autofocus>
     </div>
   </div>
 
@@ -20,12 +20,10 @@
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script>
 $(function() {
-  $('form :input:first').select();
-
   $('form').on('submit', function(e) {
     e.preventDefault();
 
-    var $button = $(this).find('button')
+    const $button = $(this).find('button')
       .text('Please Wait...')
       .prop('disabled', true);
 

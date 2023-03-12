@@ -7,9 +7,7 @@
         <ul>
             @foreach ($category->pluck('attributes', 'id') as $id => $tag)
                 <li>
-                    <a href="{{ $url->to('forum')->route('tag', [
-                                'slug' => $tag['slug']
-                            ]) }}">
+                    <a href="{{ $url->to('forum')->route('tag', ['slug' => $tag['slug']]) }}">
                         {{ $tag['name'] }}
                     </a>
 
@@ -17,9 +15,7 @@
                         <ul>
                             @foreach ($children->get($id) as $child)
                                 <li>
-                                    <a href="{{ $url->to('forum')->route('tag', [
-                                                'slug' => $child['attributes']['slug']
-                                            ]) }}">
+                                    <a href="{{ $url->to('forum')->route('tag', ['slug' => $child['attributes']['slug']]) }}">
                                         {{ $child['attributes']['name'] }}
                                     </a>
                                 </li>
@@ -28,6 +24,6 @@
                     @endif
                 </li>
             @endforeach
-            </ul>
+        </ul>
     @endforeach
 </div>
