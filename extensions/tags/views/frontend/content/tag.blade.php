@@ -18,7 +18,7 @@
         <a href="{{ $url->to('forum')->route('tag', ['slug' => $tag->slug]) }}?page={{ $page - 1 }}">&laquo; {{ $translator->trans('core.views.index.previous_page_button') }}</a>
     @endisset
 
-    @isset($apiDocument->links->next))
+    @isset($apiDocument->links->next)
         <a href="{{ $url->to('forum')->route('tag', ['slug' => $tag->slug]) }}?page={{ $page + 1 }}">{{ $translator->trans('core.views.index.next_page_button') }} &raquo;</a>
     @endif
 </div>
