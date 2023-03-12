@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.7.1](https://github.com/flarum/framework/compare/v1.7.0...v1.7.1)
+### Fixed
+- (tags) composer tag selection modal using wrong primary max & min numbers (abc9670659426b765274376945b818b70d84848c)
+- missing parameter names in token title translation. (#3752)
+- hardcoded language strings in StatusWidget (#3754)
+- hide developer tokens section in if there is nothing to display or create (#3753)
+- improve sessions user UI on mobile (dd868ab44e11e892d020e3b9412553c6a789e68d)
+
 ## [v1.7.0](https://github.com/flarum/framework/compare/v1.6.3...v1.7.0)
 ### Added
 - (actions) allow running JS tests in GH actions  [#3730]
