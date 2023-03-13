@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\integration\api\discussions;
+namespace Flarum\Mentions\Tests\integration\api;
 
 use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
