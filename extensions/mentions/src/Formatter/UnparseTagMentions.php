@@ -55,7 +55,7 @@ class UnparseTagMentions
     protected function updateTagMentionTags($context, string $xml): string
     {
         return Utils::replaceAttributes($xml, 'TAGMENTION', function (array $attributes) use ($context) {
-            /** @var Tag $tag */
+            /** @var Tag|null $tag */
             $tag = (($context && isset($context->getRelations()['mentionsTags'])) || $context instanceof Post)
                 ? $context->mentionsTags->find($attributes['id'])
                 : Tag::query()->find($attributes['id']);

@@ -307,7 +307,7 @@ class ConfigureMentions
      */
     public static function addTagId(FormatterTag $tag, User $actor)
     {
-        /** @var Tag $model */
+        /** @var Tag|null $model */
         $model = resolve(TagRepository::class)
             ->queryVisibleTo($actor)
             ->firstWhere('slug', $tag->getAttribute('slug'));

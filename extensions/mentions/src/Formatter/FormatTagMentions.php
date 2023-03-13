@@ -35,7 +35,7 @@ class FormatTagMentions
         }
 
         return Utils::replaceAttributes($xml, 'TAGMENTION', function ($attributes) use ($context) {
-            /** @var Tag $tag */
+            /** @var Tag|null $tag */
             $tag = (($context && isset($context->getRelations()['mentionsTags'])) || $context instanceof Post)
                 ? $context->mentionsTags->find($attributes['id'])
                 : Tag::query()->find($attributes['id']);
