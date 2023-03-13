@@ -20,6 +20,10 @@ export function filterUserMentions(tag) {
   tag.invalidate();
 }
 
+export function postFilterUserMentions(tag) {
+  tag.setAttribute('deleted', false);
+}
+
 export function filterPostMentions(tag) {
   const post = app.store.getById('posts', tag.getAttribute('id'));
 
@@ -30,6 +34,10 @@ export function filterPostMentions(tag) {
 
     return true;
   }
+}
+
+export function postFilterPostMentions(tag) {
+  tag.setAttribute('deleted', false);
 }
 
 export function filterGroupMentions(tag) {

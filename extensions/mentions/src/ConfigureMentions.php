@@ -72,8 +72,12 @@ class ConfigureMentions
                     <span class="UserMention UserMention--deleted">@<xsl:value-of select="@displayname"/></span>
                 </xsl:otherwise>
             </xsl:choose>';
+
         $tag->filterChain->prepend([static::class, 'addUserId'])
             ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterUserMentions(tag); }');
+
+        $tag->filterChain->append([static::class, 'dummyFilter'])
+            ->setJs('function(tag) { return flarum.extensions["flarum-mentions"].postFilterUserMentions(tag); }');
 
         $config->Preg->match('/\B@["“](?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)["”]#(?<id>[0-9]+)\b/', $tagName);
         $config->Preg->match('/\B@(?<username>[a-z0-9_-]+)(?!#)/i', $tagName);
@@ -130,6 +134,9 @@ class ConfigureMentions
             ->prepend([static::class, 'addPostId'])
             ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterPostMentions(tag); }')
             ->addParameterByName('actor');
+
+        $tag->filterChain->append([static::class, 'dummyFilter'])
+            ->setJs('function(tag) { return flarum.extensions["flarum-mentions"].postFilterPostMentions(tag); }');
 
         $config->Preg->match('/\B@["“](?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)["”]#p(?<id>[0-9]+)\b/', $tagName);
     }
