@@ -222,6 +222,7 @@ class ConfigureMentions
 
         if ($actor->cannot('mentionGroups') || in_array($id, [Group::GUEST_ID, Group::MEMBER_ID])) {
             $tag->invalidate();
+
             return false;
         }
 

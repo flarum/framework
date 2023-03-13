@@ -82,7 +82,7 @@ return [
 
     (new Extend\ApiController(Controller\ListDiscussionsController::class))
         ->load([
-            'firstPost.mentionsUsers', 'firstPost.mentionsPosts','firstPost.mentionsPosts.user',
+            'firstPost.mentionsUsers', 'firstPost.mentionsPosts', 'firstPost.mentionsPosts.user',
             'firstPost.mentionsGroups', 'firstPost.mentionsTags',
             'lastPost.mentionsUsers', 'lastPost.mentionsPosts', 'lastPost.mentionsPosts.user',
             'lastPost.mentionsGroups', 'lastPost.mentionsTags',

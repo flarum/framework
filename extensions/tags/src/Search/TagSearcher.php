@@ -11,8 +11,8 @@ namespace Flarum\Tags\Search;
 
 use Flarum\Search\AbstractSearcher;
 use Flarum\Search\GambitManager;
-use Flarum\User\User;
 use Flarum\Tags\TagRepository;
+use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
 class TagSearcher extends AbstractSearcher

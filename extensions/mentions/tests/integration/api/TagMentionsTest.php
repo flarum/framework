@@ -10,13 +10,10 @@
 namespace Flarum\Mentions\Tests\integration\api;
 
 use Carbon\Carbon;
-use Flarum\Extend;
 use Flarum\Group\Group;
 use Flarum\Post\CommentPost;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Flarum\User\DisplayName\DriverInterface;
-use Flarum\User\User;
 
 class TagMentionsTest extends TestCase
 {

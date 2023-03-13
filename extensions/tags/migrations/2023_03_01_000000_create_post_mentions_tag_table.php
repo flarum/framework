@@ -47,4 +47,3 @@ return Migration::createTable(
         $table->primary(['post_id', 'mentions_tag_id']);
     }
 );
-
