@@ -149,6 +149,36 @@ class TagMentionsTest extends TestCase
     }
 
     /** @test */
+    public function mentioning_a_tag_when_tags_disabled_does_not_cause_errors()
+    {
+        $this->extensions = ['flarum-mentions'];
+
+        $response = $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'content' => '#test',
+                        ],
+                        'relationships' => [
+                            'discussion' => ['data' => ['id' => 2]],
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $response = json_decode($response->getBody(), true);
+
+        $this->assertEquals('#test', $response['data']['attributes']['content']);
+        $this->assertStringNotContainsString('TagMention', $response['data']['attributes']['contentHtml']);
+        $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsTags);
+    }
+
+    /** @test */
     public function mentioning_a_restricted_tag_doesnt_work_without_privileges()
     {
         $response = $this->send(
@@ -251,6 +281,20 @@ class TagMentionsTest extends TestCase
         $this->assertStringContainsString('Test', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('TagMention', $response['data']['attributes']['contentHtml']);
         $this->assertCount(1, CommentPost::find($response['data']['id'])->mentionsTags);
+    }
+
+    /** @test */
+    public function tag_mentions_dont_cause_errors_when_tags_disabled()
+    {
+        $this->extensions = ['flarum-mentions'];
+
+        $response = $this->send(
+            $this->request('GET', '/api/posts/4', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
     }
 
     /** @test */
