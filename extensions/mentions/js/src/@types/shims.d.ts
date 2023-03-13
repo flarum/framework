@@ -1,4 +1,4 @@
-import MentionFormats from '../forum/mentionables/MentionFormats';
+import MentionFormats from '../forum/mentionables/formats/MentionFormats';
 
 declare module 'flarum/forum/ForumApplication' {
   export default interface ForumApplication {

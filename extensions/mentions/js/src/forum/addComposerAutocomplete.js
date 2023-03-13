@@ -5,7 +5,7 @@ import TextEditorButton from 'flarum/common/components/TextEditorButton';
 import KeyboardNavigatable from 'flarum/common/utils/KeyboardNavigatable';
 
 import AutocompleteDropdown from './fragments/AutocompleteDropdown';
-import MentionFormats from './mentionables/MentionFormats';
+import MentionFormats from './mentionables/formats/MentionFormats';
 import MentionableModels from './mentionables/MentionableModels';
 
 export default function addComposerAutocomplete() {

@@ -1,7 +1,7 @@
-import AtMentionFormat from './formats/AtMentionFormat';
-import HashMentionFormat from './formats/HashMentionFormat';
-import type MentionFormat from './formats/MentionFormat';
-import MentionableModel from './MentionableModel';
+import AtMentionFormat from './AtMentionFormat';
+import HashMentionFormat from './HashMentionFormat';
+import type MentionFormat from './MentionFormat';
+import MentionableModel from '../MentionableModel';
 
 export default class MentionFormats {
   protected formats: MentionFormat[] = [new AtMentionFormat(), new HashMentionFormat()];
