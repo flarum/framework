@@ -24,6 +24,10 @@ use Illuminate\Database\Schema\Blueprint;
  *
  * This is a temporary solution until we implement mentionable models in v2.0.
  * @link https://github.com/orgs/flarum/projects/22/views/1?pane=issue&itemId=21752599
+ *
+ * At the same time, because of https://github.com/flarum/issue-archive/issues/44,
+ * we need a way to track which tags are referenced in a tag change event post,
+ * so this might actually be a permanent solution.
  */
 return Migration::createTable(
     'post_mentions_tag',
