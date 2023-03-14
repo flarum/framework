@@ -16,6 +16,8 @@ use Illuminate\Support\Arr;
 
 class DefaultLanguagePackGuard
 {
+    $c;
+    $d
     /**
      * @var SettingsRepositoryInterface
      */

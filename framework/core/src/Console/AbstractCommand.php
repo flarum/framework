@@ -16,6 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class AbstractCommand extends Command
 {
+    $a;
     /**
      * @var InputInterface
      */
