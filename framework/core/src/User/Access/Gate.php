@@ -65,7 +65,7 @@ class Gate
         $appliedPolicies = [];
 
         if ($model) {
-            $modelClasses = is_string($model) ? [$model] : array_merge(class_parents(($model)), [get_class($model)]);
+            $modelClasses = is_string($model) ? [$model] : array_merge(class_parents($model), [get_class($model)]);
 
             foreach ($modelClasses as $class) {
                 $appliedPolicies = array_merge($appliedPolicies, $this->getPolicies($class));
@@ -87,7 +87,7 @@ class Gate
         // If no policy covered this permission query, we will only grant
         // the permission if the actor's groups have it. Otherwise, we will
         // not allow the user to perform this action.
-        if ($actor->isAdmin() || ($actor->hasPermission($ability))) {
+        if ($actor->isAdmin() || $actor->hasPermission($ability)) {
             return true;
         }
 
