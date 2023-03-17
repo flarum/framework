@@ -126,8 +126,14 @@ class ForumServiceProvider extends AbstractServiceProvider
             return $assets;
         });
 
-        $this->container->bind('flarum.frontend.forum', function (Container $container) {
-            return $container->make('flarum.frontend.factory')('forum');
+        $this->container->bind('flarum.frontend.forum', function (Container $container, array $args = []) {
+            $frontend = $container->make('flarum.frontend.factory')('forum');
+
+            if ($content = $args[0] ?? null) {
+                $frontend->content(is_callable($content) ? $content : $container->make($content));
+            }
+
+            return $frontend;
         });
 
         $this->container->singleton('flarum.forum.discussions.sortmap', function () {
