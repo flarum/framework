@@ -10,6 +10,7 @@ import icon from '../../common/helpers/icon';
 import listItems from '../../common/helpers/listItems';
 
 import type User from '../../common/models/User';
+import type { IPageAttrs } from '../../common/components/Page';
 
 import ItemList from '../../common/utils/ItemList';
 import classList from '../../common/utils/classList';
@@ -46,6 +47,11 @@ export default class UserListPage extends AdminPage {
   private pageNumber: number = 0;
 
   /**
+   * Page number being loaded. Zero-indexed.
+   */
+  private loadingPageNumber: number = 0;
+
+  /**
    * Total number of forum users.
    *
    * Fetched from the active `AdminApplication` (`app`), with
@@ -77,12 +83,28 @@ export default class UserListPage extends AdminPage {
 
   private isLoadingPage: boolean = false;
 
+  oninit(vnode: Mithril.Vnode<IPageAttrs, this>) {
+    super.oninit(vnode);
+
+    // Get page query value from URL
+    const page = parseInt(m.route.param('page'));
+
+    if (isNaN(page) || page < 1) {
+      this.setPageNumberInUrl(1);
+      this.pageNumber = 0;
+    } else {
+      this.pageNumber = page - 1;
+    }
+
+    this.loadingPageNumber = this.pageNumber;
+  }
+
   /**
    * Component to render.
    */
   content() {
     if (typeof this.pageData === 'undefined') {
-      this.loadPage(0);
+      this.loadPage(this.pageNumber);
 
       return [
         <section class="UserListPage-grid UserListPage-grid--loading">
@@ -151,6 +173,13 @@ export default class UserListPage extends AdminPage {
       <nav class="UserListPage-gridPagination">
         <Button
           disabled={this.pageNumber === 0}
+          title={app.translator.trans('core.admin.users.pagination.first_page_button')}
+          onclick={this.goToPage.bind(this, 1)}
+          icon="fas fa-step-backward"
+          className="Button Button--icon UserListPage-firstPageBtn"
+        />
+        <Button
+          disabled={this.pageNumber === 0}
           title={app.translator.trans('core.admin.users.pagination.back_button')}
           onclick={this.previousPage.bind(this)}
           icon="fas fa-chevron-left"
@@ -158,7 +187,41 @@ export default class UserListPage extends AdminPage {
         />
         <span class="UserListPage-pageNumber">
           {app.translator.trans('core.admin.users.pagination.page_counter', {
-            current: this.pageNumber + 1,
+            // https://technology.blog.gov.uk/2020/02/24/why-the-gov-uk-design-system-team-changed-the-input-type-for-numbers/
+            current: (
+              <input
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                value={this.loadingPageNumber + 1}
+                aria-label={extractText(app.translator.trans('core.admin.users.pagination.go_to_page_textbox_a11y_label'))}
+                autocomplete="off"
+                className="FormControl UserListPage-pageNumberInput"
+                onchange={(e: InputEvent) => {
+                  const target = e.target as HTMLInputElement;
+                  let pageNumber = parseInt(target.value);
+
+                  if (isNaN(pageNumber)) {
+                    // Invalid value, reset to current page
+                    target.value = (this.pageNumber + 1).toString();
+                    return;
+                  }
+
+                  if (pageNumber < 1) {
+                    // Lower constraint
+                    pageNumber = 1;
+                  } else if (pageNumber > this.getTotalPageCount()) {
+                    // Upper constraint
+                    pageNumber = this.getTotalPageCount();
+                  }
+
+                  target.value = pageNumber.toString();
+
+                  this.goToPage(pageNumber);
+                }}
+              />
+            ),
+            currentNum: this.pageNumber + 1,
             total: this.getTotalPageCount(),
           })}
         </span>
@@ -168,6 +231,13 @@ export default class UserListPage extends AdminPage {
           onclick={this.nextPage.bind(this)}
           icon="fas fa-chevron-right"
           className="Button Button--icon UserListPage-nextBtn"
+        />
+        <Button
+          disabled={!this.moreData}
+          title={app.translator.trans('core.admin.users.pagination.last_page_button')}
+          onclick={this.goToPage.bind(this, this.getTotalPageCount())}
+          icon="fas fa-step-forward"
+          className="Button Button--icon UserListPage-lastPageBtn"
         />
       </nav>,
     ];
@@ -214,6 +284,15 @@ export default class UserListPage extends AdminPage {
         },
       },
       90
+    );
+
+    columns.add(
+      'displayName',
+      {
+        name: app.translator.trans('core.admin.users.grid.columns.display_name.title'),
+        content: (user: User) => user.displayName(),
+      },
+      85
     );
 
     columns.add(
@@ -347,10 +426,13 @@ export default class UserListPage extends AdminPage {
    *
    * Uses the `this.numPerPage` as the response limit, and automatically calculates the offset required from `pageNumber`.
    *
-   * @param pageNumber The page number to load and display
+   * @param pageNumber The **zero-based** page number to load and display
    */
   async loadPage(pageNumber: number) {
     if (pageNumber < 0) pageNumber = 0;
+
+    this.loadingPageNumber = pageNumber;
+    this.setPageNumberInUrl(pageNumber + 1);
 
     app.store
       .find<User[]>('users', {
@@ -369,9 +451,16 @@ export default class UserListPage extends AdminPage {
         // @ts-ignore
         delete data.payload;
 
-        this.pageData = data;
-        this.pageNumber = pageNumber;
-        this.isLoadingPage = false;
+        const lastPage = this.getTotalPageCount();
+
+        if (pageNumber > lastPage) {
+          this.loadPage(lastPage - 1);
+        } else {
+          this.pageData = data;
+          this.pageNumber = pageNumber;
+          this.loadingPageNumber = pageNumber;
+          this.isLoadingPage = false;
+        }
 
         m.redraw();
       })
@@ -389,5 +478,21 @@ export default class UserListPage extends AdminPage {
   previousPage() {
     this.isLoadingPage = true;
     this.loadPage(this.pageNumber - 1);
+  }
+
+  /**
+   * @param page The **1-based** page number
+   */
+  goToPage(page: number) {
+    this.isLoadingPage = true;
+    this.loadPage(page - 1);
+  }
+
+  private setPageNumberInUrl(pageNumber: number) {
+    const search = window.location.hash.split('?', 2);
+    const params = new URLSearchParams(search?.[1] ?? '');
+
+    params.set('page', `${pageNumber}`);
+    window.location.hash = search?.[0] + '?' + params.toString();
   }
 }

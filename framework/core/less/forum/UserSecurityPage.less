@@ -1,0 +1,80 @@
+.UserSecurityPage {
+  > ul, fieldset > ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  > ul > li {
+    margin-bottom: 25px;
+  }
+}
+
+.AccessTokensList {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+
+  &-item {
+    display: flex;
+    padding: 16px 16px 16px 0;
+    background-color: var(--control-bg);
+    color: var(--control-color);
+
+    &-icon {
+      --font-size: 1.6rem;
+      font-size: var(--font-size);
+      width: calc(~"var(--font-size) + 4rem");
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    &-title {
+      font-weight: bold;
+
+      &-sub {
+        font-style: italic;
+      }
+    }
+
+    &-actions {
+      display: flex;
+      align-items: center;
+      margin-left: auto;
+
+      > *:not(:first-child) {
+        margin-left: 8px;
+      }
+    }
+
+    &--active &-title-sub {
+      color: var(--alert-success-color);
+    }
+  }
+
+  &--empty {
+    color: var(--control-color);
+  }
+}
+
+@media @phone {
+  .AccessTokensList {
+    &-item {
+      flex-wrap: wrap;
+      padding: 16px;
+
+      &-icon {
+        justify-content: start;
+        padding: 8px;
+        width: auto;
+        min-width: calc(~"var(--font-size) + 4rem");
+      }
+
+      &-actions {
+        width: auto;
+      }
+    }
+  }
+}

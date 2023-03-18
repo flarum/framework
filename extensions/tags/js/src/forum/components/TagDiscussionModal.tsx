@@ -27,11 +27,11 @@ export default class TagDiscussionModal extends TagSelectionModal<TagDiscussionM
     attrs.limits = {
       allowBypassing: attrs.allowResetting,
       max: {
-        primary: app.forum.attribute<number>('minPrimaryTags'),
+        primary: app.forum.attribute<number>('maxPrimaryTags'),
         secondary: app.forum.attribute<number>('maxSecondaryTags'),
       },
       min: {
-        primary: app.forum.attribute<number>('maxPrimaryTags'),
+        primary: app.forum.attribute<number>('minPrimaryTags'),
         secondary: app.forum.attribute<number>('minSecondaryTags'),
       },
     };

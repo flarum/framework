@@ -36,6 +36,7 @@ import Model, { SavedModelData } from './Model';
 import fireApplicationError from './helpers/fireApplicationError';
 import IHistory from './IHistory';
 import IExtender from './extenders/IExtender';
+import AccessToken from './models/AccessToken';
 
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 
@@ -178,6 +179,7 @@ export default class Application {
    * The app's data store.
    */
   store: Store = new Store({
+    'access-tokens': AccessToken,
     forums: Forum,
     users: User,
     discussions: Discussion,

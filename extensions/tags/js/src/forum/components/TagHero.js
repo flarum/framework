@@ -10,7 +10,7 @@ export default class TagHero extends Component {
 
     return (
       <header
-        className={classList('Hero', 'TagHero', { 'TagHero--colored': color }, textContrastClass(color))}
+        className={classList('Hero', 'TagHero', { 'TagHero--colored': color, [textContrastClass(color)]: color })}
         style={color ? { '--hero-bg': color } : ''}
       >
         <div className="container">

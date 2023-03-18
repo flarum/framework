@@ -1,6 +1,71 @@
 # Changelog
 
-# [v1.6.3](https://github.com/flarum/framework/compare/v1.6.2...v1.6.3)
+## [v1.7.1](https://github.com/flarum/framework/compare/v1.7.0...v1.7.1)
+### Fixed
+- (tags) composer tag selection modal using wrong primary max & min numbers (abc9670659426b765274376945b818b70d84848c)
+- missing parameter names in token title translation. (#3752)
+- hardcoded language strings in StatusWidget (#3754)
+- hide developer tokens section in if there is nothing to display or create (#3753)
+- improve sessions user UI on mobile (dd868ab44e11e892d020e3b9412553c6a789e68d)
+
+## [v1.7.0](https://github.com/flarum/framework/compare/v1.6.3...v1.7.0)
+### Added
+- (actions) allow running JS tests in GH actions  [#3730]
+- (core) PHP 8.2 Support [#3709]
+- (jest) create jest config package for unit testing [#3678]
+- (jest) mithril component testing [#3679]
+- (phpstan) foundation for usage in extensions [#3666]
+- (seo) Do not use h3 header for poster author in posts stream [#3732]
+- (seo) Use h2 header for discussions on discussions list [#3731]
+- (seo) shift h1 tag from logo to discussion title [#3724]
+- (tags) admin tag selection component (reusable tag selection modal) [#3686]
+- Admin User Search [#3712]
+- access tokens user management UI [#3587]
+- add display name column to admin users list [#3740]
+- allow push additional items to the end of the poststream [#3691]
+- allow using utf8 characters in tag slugs [#3588]
+- expose queue driver, schedule status [#3593]
+- expose {time} to eventPost data, fix renamed tooltip [#3698]
+- frontend `Model` extender [#3646]
+- global logout to clear all sessions, access tokens, email tokens and password tokens [#3605]
+- improved page navigation for users list [#3741]
+- introduce frontend extenders [#3645]
+### Fixed
+- (mentions) correctly convert a 3 char. hex color to a 6 char. one [#3694]
+- (mentions) post reply mention missing notification on approval [#3738]
+- (phpstan) adapt phpstan package for extension use [#3727]
+- (tags) clickable tag labels have underline [#3737]
+- (tags) tag text color contrast [#3653]
+- 3 digit hex color value in color input not supported [#3706]
+- column `id` can be ambiguous in group filter with extensions [#3696]
+- disallow certain dangerous LESS features ([1761660](1761660c98ea5a3e9665fb8e6041d1f2ee62a444))
+- evaluated page title content [#3684]
+- invalid translation key for scheduler dashboard [#3736]
+- load actor.groups on showforumcontroller [#3716]
+- make go-to-page input number-like [#3743]
+- normal logout affects all sessions [#3571]
+- permissions table on mobile is unusable [#3722]
+- post dropdown opens all dropdowns in `.Post-actions` [#3675]
+- typo in Formatter extender docblock [#3676]
+- undefined showing in dropdown active title [#3700]
+### Changed
+- (phpstan) enable phpstan in bundled extensions [#3667]
+- Add missing states exports to `compat.ts` [#3683]
+- Indicate cross-origin request in generic error message [#3669]
+- Merge branch 'release/v1.6.2' ([e0b9dcf](e0b9dcfbcd7db175368dbc98255f9223da8df17d))
+- The negate field doesn't get used, which means you cant exclude tags [#3713]
+- Update forum.less to fix the misalignment of the choose tags button [#3726]
+- `yarn audit-fix` ([8ddb0fe](8ddb0feb097dad06c5763107d7a7f7b5a55562c4))
+- `yarn` ([ee1e04c](ee1e04cdc26b3e63057a58899f32f482901a95fd))
+- convert `Dropdown` components to TS [#3608]
+- fix php 8.1 on preg_match 2nd argument being null, which also optimizes slightly ([d7b9a03](d7b9a03f31847c39631ba495df8f515509774610))
+- improve group mentions parsing [#3723]
+- prepare `@flarum/jest-config` for release ([748cca6](748cca6d12f8b1744a6017c09395725bdbb4a118))
+- remove use of deprecated phpunit assertion ([3af0481](3af0481f304277f5380fac9c9b169a7fa651f53b))
+- set flarum version to 1.7.0 for dev ([2517bc0](2517bc0f70b0f0e3d3ea3f6ae06af8604d89b25d))
+- update JS dependencies  [#3695]
+
+## [v1.6.3](https://github.com/flarum/framework/compare/v1.6.2...v1.6.3)
 ### Fixed
 * Post mentions can be used to read any post on the forum without access control (ab1c868b978e8b0d09a5d682c54665dae17d0985).
 * Notifications can leak restricted content (d0a2b95dca57d3dae9a0d77b610b1cb1d0b1766a).

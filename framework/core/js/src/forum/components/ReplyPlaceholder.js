@@ -21,7 +21,7 @@ export default class ReplyPlaceholder extends Component {
         <article className="Post CommentPost editing" aria-busy="true">
           <header className="Post-header">
             <div className="PostUser">
-              <h3>
+              <h3 class="PostUser-name">
                 {avatar(app.session.user, { className: 'PostUser-avatar' })}
                 {username(app.session.user)}
               </h3>

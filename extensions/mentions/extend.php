@@ -15,6 +15,7 @@ use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\GroupSerializer;
 use Flarum\Api\Serializer\PostSerializer;
+use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Extend;
 use Flarum\Group\Group;
 use Flarum\Post\Event\Deleted;
@@ -106,6 +107,7 @@ return [
         ->listen(Posted::class, Listener\UpdateMentionsMetadataWhenVisible::class)
         ->listen(Restored::class, Listener\UpdateMentionsMetadataWhenVisible::class)
         ->listen(Revised::class, Listener\UpdateMentionsMetadataWhenVisible::class)
+        ->listen(PostWasApproved::class, Listener\UpdateMentionsMetadataWhenVisible::class)
         ->listen(Hidden::class, Listener\UpdateMentionsMetadataWhenInvisible::class)
         ->listen(Deleted::class, Listener\UpdateMentionsMetadataWhenInvisible::class),
 

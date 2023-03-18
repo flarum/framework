@@ -4,7 +4,7 @@ import type Post from 'flarum/common/models/Post';
 import type ItemList from 'flarum/common/utils/ItemList';
 
 import PostControls from 'flarum/forum/utils/PostControls';
-import CommentPost from 'flarum/forum/components/CommentPost';
+import PostComponent from 'flarum/forum/components/Post';
 import type Mithril from 'mithril';
 
 app.initializers.add('flarum-akismet', () => {
@@ -21,7 +21,7 @@ app.initializers.add('flarum-akismet', () => {
     }
   });
 
-  override(CommentPost.prototype, 'flagReason', function (original, flag) {
+  override(PostComponent.prototype, 'flagReason', function (original, flag) {
     if (flag.type() === 'akismet') {
       return app.translator.trans('flarum-akismet.forum.post.akismet_flagged_text');
     }

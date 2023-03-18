@@ -82,7 +82,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
               {this.extension.icon ? icon(this.extension.icon.name) : ''}
             </span>
             <div className="ExtensionName">
-              <h1>{this.extension.extra['flarum-extension'].title}</h1>
+              <h2>{this.extension.extra['flarum-extension'].title}</h2>
             </div>
             <div className="ExtensionPage-headerTopItems">
               <ul>{listItems(this.topItems().toArray())}</ul>

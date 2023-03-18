@@ -7,10 +7,10 @@ export default class AdminHeader extends Component {
     return [
       <div className={classList(['AdminHeader', this.attrs.className])}>
         <div className="container">
-          <h1>
+          <h2>
             {icon(this.attrs.icon)}
             {vnode.children}
-          </h1>
+          </h2>
           <div className="AdminHeader-description">{this.attrs.description}</div>
         </div>
       </div>,

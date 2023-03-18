@@ -22,7 +22,7 @@ export default class DiscussionListPane extends Component {
       return;
     }
 
-    return <div className="DiscussionPage-list">{this.enoughSpace() && <DiscussionList state={this.attrs.state} />}</div>;
+    return <aside className="DiscussionPage-list">{this.enoughSpace() && <DiscussionList state={this.attrs.state} />}</aside>;
   }
 
   oncreate(vnode) {

@@ -9,10 +9,12 @@
 
 namespace Flarum\Mentions\Listener;
 
+use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Mentions\Notification\GroupMentionedBlueprint;
 use Flarum\Mentions\Notification\PostMentionedBlueprint;
 use Flarum\Mentions\Notification\UserMentionedBlueprint;
 use Flarum\Notification\NotificationSyncer;
+use Flarum\Post\CommentPost;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
 use Flarum\Post\Event\Revised;
@@ -36,10 +38,14 @@ class UpdateMentionsMetadataWhenVisible
     }
 
     /**
-     * @param Posted|Restored|Revised $event
+     * @param Posted|Restored|Revised|PostWasApproved $event
      */
     public function handle($event)
     {
+        if (! $event->post instanceof CommentPost) {
+            return;
+        }
+
         $content = $event->post->parsed_content;
 
         $this->syncUserMentions(
