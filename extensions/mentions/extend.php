@@ -137,6 +137,6 @@ return [
                 ]),
 
             (new Extend\ApiController(Controller\ListPostsController::class))
-                ->load(['mentionsTags',]),
+                ->load(['mentionsTags']),
         ]),
 ];

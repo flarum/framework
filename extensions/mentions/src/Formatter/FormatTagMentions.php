@@ -9,7 +9,6 @@
 
 namespace Flarum\Mentions\Formatter;
 
-use Flarum\Extension\ExtensionManager;
 use Flarum\Post\Post;
 use Flarum\Tags\Tag;
 use Psr\Http\Message\ServerRequestInterface as Request;
