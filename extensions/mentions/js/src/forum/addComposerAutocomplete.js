@@ -89,17 +89,30 @@ export default function addComposerAutocomplete() {
 
       if (selection[1] - cursor > 0) return;
 
+      // Identify whether we are working with a mention by looking at an @
+      // consider the following scenario's `@"d1spl4Y name"`, `@username`, but also
+      // post mentions `@"d1spl4y name"#p45`. We cancel searching when we see a space or newline
+      // but only if this isn't part of a display name.
+
       // Search backwards from the cursor for an '@' symbol. If we find one,
       // we will want to show the autocomplete dropdown!
       const lastChunk = this.attrs.composer.editor.getLastNChars(30);
-      absMentionStart = 0;
-      for (let i = lastChunk.length - 1; i >= 0; i--) {
-        const character = lastChunk.substr(i, 1);
-        if (character === '@' && (i == 0 || /\s/.test(lastChunk.substr(i - 1, 1)))) {
-          relMentionStart = i + 1;
-          absMentionStart = cursor - lastChunk.length + i + 1;
-          break;
+
+      // Identify whether this is a Display Name mention and we're beyond the mention
+      if (/\s.*/.test(lastChunk) && /@"[^"]+"/.test(lastChunk.substr(0, lastChunk.length - 1))) {
+        // .. skip
+      } else {
+        for (let i = lastChunk.length - 1; i >= 0; i--) {
+          const character = lastChunk.substr(i, 1);
+
+          // We have discovered the start of the mention
+          if (character === '@' && (i == 0 || /\s/.test(lastChunk.substr(i - 1, 1)))) {
+            relMentionStart = i + 1;
+            absMentionStart = cursor - lastChunk.length + i + 1;
+            break;
+          }
         }
+
       }
 
       dropdown.hide();
