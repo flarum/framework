@@ -9,6 +9,7 @@
 
 namespace Flarum\Mentions\Listener;
 
+use Flarum\Extension\ExtensionManager;
 use Flarum\Mentions\Notification\UserMentionedBlueprint;
 use Flarum\Notification\NotificationSyncer;
 use Flarum\Post\Event\Deleted;
@@ -22,11 +23,14 @@ class UpdateMentionsMetadataWhenInvisible
     protected $notifications;
 
     /**
-     * @param NotificationSyncer $notifications
+     * @var ExtensionManager
      */
-    public function __construct(NotificationSyncer $notifications)
+    protected $extensions;
+
+    public function __construct(NotificationSyncer $notifications, ExtensionManager $extensions)
     {
         $this->notifications = $notifications;
+        $this->extensions = $extensions;
     }
 
     /**
@@ -45,6 +49,8 @@ class UpdateMentionsMetadataWhenInvisible
         $event->post->mentionsGroups()->sync([]);
 
         // Remove tag mentions
-        $event->post->mentionsTags()->sync([]);
+        if ($this->extensions->isEnabled('flarum-tags')) {
+            $event->post->mentionsTags()->sync([]);
+        }
     }
 }

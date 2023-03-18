@@ -172,7 +172,7 @@ class TagMentionsTest extends TestCase
 
         $this->assertEquals('#test', $response['data']['attributes']['content']);
         $this->assertStringNotContainsString('TagMention', $response['data']['attributes']['contentHtml']);
-        $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsTags);
+        $this->assertNull(CommentPost::find($response['data']['id'])->mentionsTags);
     }
 
     /** @test */

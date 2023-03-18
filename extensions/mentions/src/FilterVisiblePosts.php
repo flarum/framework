@@ -55,9 +55,9 @@ class FilterVisiblePosts
             || $controller instanceof Controller\UpdatePostController) {
             $relations = [
                 'mentionsUsers', 'mentionsPosts', 'mentionsPosts.user', 'mentionedBy',
-                'mentionsGroups', 'mentionsTags',
+                'mentionsGroups',
                 'mentionedBy.mentionsPosts', 'mentionedBy.mentionsPosts.user',
-                'mentionedBy.mentionsUsers', 'mentionedBy.mentionsGroups', 'mentionedBy.mentionsTags',
+                'mentionedBy.mentionsUsers', 'mentionedBy.mentionsGroups',
             ];
 
             $posts = [$data];

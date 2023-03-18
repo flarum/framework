@@ -39,21 +39,18 @@ return [
 
     (new Extend\Formatter)
         ->configure(ConfigureMentions::class)
-        ->render(Formatter\FormatTagMentions::class)
         ->render(Formatter\FormatPostMentions::class)
         ->render(Formatter\FormatUserMentions::class)
         ->render(Formatter\FormatGroupMentions::class)
         ->unparse(Formatter\UnparsePostMentions::class)
-        ->unparse(Formatter\UnparseUserMentions::class)
-        ->unparse(Formatter\UnparseTagMentions::class),
+        ->unparse(Formatter\UnparseUserMentions::class),
 
     (new Extend\Model(Post::class))
         ->belongsToMany('mentionedBy', Post::class, 'post_mentions_post', 'mentions_post_id', 'post_id')
         ->belongsToMany('mentionsPosts', Post::class, 'post_mentions_post', 'post_id', 'mentions_post_id')
         ->belongsToMany('mentionsUsers', User::class, 'post_mentions_user', 'post_id', 'mentions_user_id')
         ->belongsToMany('mentionsGroups', Group::class, 'post_mentions_group', 'post_id', 'mentions_group_id')
-        ->belongsToMany('mentionsUsers', User::class, 'post_mentions_user', 'post_id', 'mentions_user_id')
-        ->belongsToMany('mentionsTags', Tag::class, 'post_mentions_tag', 'post_id', 'mentions_tag_id'),
+        ->belongsToMany('mentionsUsers', User::class, 'post_mentions_user', 'post_id', 'mentions_user_id'),
 
     new Extend\Locales(__DIR__.'/locale'),
 
@@ -69,23 +66,20 @@ return [
         ->hasMany('mentionedBy', BasicPostSerializer::class)
         ->hasMany('mentionsPosts', BasicPostSerializer::class)
         ->hasMany('mentionsUsers', BasicUserSerializer::class)
-        ->hasMany('mentionsGroups', GroupSerializer::class)
-        ->hasMany('mentionsTags', TagSerializer::class),
+        ->hasMany('mentionsGroups', GroupSerializer::class),
 
     (new Extend\ApiController(Controller\ShowDiscussionController::class))
         ->addInclude(['posts.mentionedBy', 'posts.mentionedBy.user', 'posts.mentionedBy.discussion'])
         ->load([
             'posts.mentionsUsers', 'posts.mentionsPosts', 'posts.mentionsPosts.user', 'posts.mentionedBy',
             'posts.mentionedBy.mentionsPosts', 'posts.mentionedBy.mentionsPosts.user', 'posts.mentionedBy.mentionsUsers',
-            'posts.mentionsGroups', 'posts.mentionsTags',
+            'posts.mentionsGroups',
         ]),
 
     (new Extend\ApiController(Controller\ListDiscussionsController::class))
         ->load([
-            'firstPost.mentionsUsers', 'firstPost.mentionsPosts', 'firstPost.mentionsPosts.user',
-            'firstPost.mentionsGroups', 'firstPost.mentionsTags',
-            'lastPost.mentionsUsers', 'lastPost.mentionsPosts', 'lastPost.mentionsPosts.user',
-            'lastPost.mentionsGroups', 'lastPost.mentionsTags',
+            'firstPost.mentionsUsers', 'firstPost.mentionsPosts', 'firstPost.mentionsPosts.user', 'firstPost.mentionsGroups',
+            'lastPost.mentionsUsers', 'lastPost.mentionsPosts', 'lastPost.mentionsPosts.user', 'lastPost.mentionsGroups',
         ]),
 
     (new Extend\ApiController(Controller\ShowPostController::class))
@@ -96,7 +90,7 @@ return [
         ->load([
             'mentionsUsers', 'mentionsPosts', 'mentionsPosts.user', 'mentionedBy',
             'mentionedBy.mentionsPosts', 'mentionedBy.mentionsPosts.user', 'mentionedBy.mentionsUsers',
-            'mentionsGroups', 'mentionsTags',
+            'mentionsGroups',
         ]),
 
     (new Extend\ApiController(Controller\AbstractSerializeController::class))
@@ -120,4 +114,29 @@ return [
         ->attribute('canMentionGroups', function (CurrentUserSerializer $serializer, User $user): bool {
             return $user->can('mentionGroups');
         }),
+
+    // Tag mentions
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-tags', [
+            (new Extend\Formatter)
+                ->render(Formatter\FormatTagMentions::class)
+                ->unparse(Formatter\UnparseTagMentions::class),
+
+            (new Extend\Model(Post::class))
+                ->belongsToMany('mentionsTags', Tag::class, 'post_mentions_tag', 'post_id', 'mentions_tag_id'),
+
+            (new Extend\ApiSerializer(BasicPostSerializer::class))
+                ->hasMany('mentionsTags', TagSerializer::class),
+
+            (new Extend\ApiController(Controller\ShowDiscussionController::class))
+                ->load(['posts.mentionsTags']),
+
+            (new Extend\ApiController(Controller\ListDiscussionsController::class))
+                ->load([
+                    'firstPost.mentionsTags', 'lastPost.mentionsTags',
+                ]),
+
+            (new Extend\ApiController(Controller\ListPostsController::class))
+                ->load(['mentionsTags',]),
+        ]),
 ];

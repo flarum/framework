@@ -17,16 +17,6 @@ use s9e\TextFormatter\Utils;
 class UnparseTagMentions
 {
     /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    public function __construct(ExtensionManager $extensions)
-    {
-        $this->extensions = $extensions;
-    }
-
-    /**
      * Configure rendering for user mentions.
      *
      * @param string $xml
@@ -35,10 +25,6 @@ class UnparseTagMentions
      */
     public function __invoke($context, string $xml)
     {
-        if (! $this->extensions->isEnabled('flarum-tags')) {
-            return $xml;
-        }
-
         $xml = $this->updateTagMentionTags($context, $xml);
         $xml = $this->unparseTagMentionTags($xml);
 

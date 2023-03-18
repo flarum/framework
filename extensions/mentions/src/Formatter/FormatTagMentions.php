@@ -18,22 +18,8 @@ use s9e\TextFormatter\Utils;
 
 class FormatTagMentions
 {
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    public function __construct(ExtensionManager $extensions)
-    {
-        $this->extensions = $extensions;
-    }
-
     public function __invoke(Renderer $renderer, $context, ?string $xml, Request $request = null): string
     {
-        if (! $this->extensions->isEnabled('flarum-tags')) {
-            return $xml;
-        }
-
         return Utils::replaceAttributes($xml, 'TAGMENTION', function ($attributes) use ($context) {
             /** @var Tag|null $tag */
             $tag = (($context && isset($context->getRelations()['mentionsTags'])) || $context instanceof Post)
