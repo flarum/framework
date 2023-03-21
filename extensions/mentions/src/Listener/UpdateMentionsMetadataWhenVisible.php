@@ -103,7 +103,7 @@ class UpdateMentionsMetadataWhenVisible
         $post->unsetRelation('mentionsGroups');
 
         $users = User::whereHas('groups', function ($query) use ($mentioned) {
-            $query->whereIn('id', $mentioned);
+            $query->whereIn('groups.id', $mentioned);
         })
             ->get()
             ->filter(function (User $user) use ($post) {
