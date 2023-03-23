@@ -25,7 +25,7 @@ export default function isDark(hexcolor: string): boolean {
   const b = parseInt(hexnumbers.slice(4, 6), 16);
   const yiq = (r * 299 + g * 587 + b * 114) / 1000;
 
-  const threshold = parseInt(getComputedStyle(document.body).getPropertyValue("--yiq-threshold").trim()) || 128;
+  const threshold = parseInt(getComputedStyle(document.body).getPropertyValue('--yiq-threshold').trim()) || 128;
   
   return yiq < threshold;
 }
