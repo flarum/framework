@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.7.2](https://github.com/flarum/framework/compare/v1.7.1...v1.7.2)
+### Fixed
+- empty string displayed as SelectDropdown title #3773
+
 ## [v1.7.1](https://github.com/flarum/framework/compare/v1.7.0...v1.7.1)
 ### Fixed
 - (tags) composer tag selection modal using wrong primary max & min numbers (abc9670659426b765274376945b818b70d84848c)
