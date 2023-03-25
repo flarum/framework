@@ -8,24 +8,24 @@
   <div class="FormGroup">
     <div class="FormField">
       <label>Forum Title</label>
-      <input name="forumTitle">
+      <input type="text" name="forumTitle" autofocus>
     </div>
   </div>
 
   <div class="FormGroup">
     <div class="FormField">
       <label>MySQL Host</label>
-      <input name="mysqlHost" value="localhost">
+      <input type="text" name="mysqlHost" value="localhost">
     </div>
 
     <div class="FormField">
       <label>MySQL Database</label>
-      <input name="mysqlDatabase">
+      <input type="text" name="mysqlDatabase">
     </div>
 
     <div class="FormField">
       <label>MySQL Username</label>
-      <input name="mysqlUsername">
+      <input type="text" name="mysqlUsername">
     </div>
 
     <div class="FormField">
@@ -42,12 +42,12 @@
   <div class="FormGroup">
     <div class="FormField">
       <label>Admin Username</label>
-      <input name="adminUsername">
+      <input type="text" name="adminUsername">
     </div>
 
     <div class="FormField">
       <label>Admin Email</label>
-      <input name="adminEmail">
+      <input type="email" name="adminEmail">
     </div>
 
     <div class="FormField">
@@ -69,12 +69,10 @@
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script>
 $(function() {
-  $('form :input:first').select();
-
   $('form').on('submit', function(e) {
     e.preventDefault();
 
-    var $button = $(this).find('button')
+    const $button = $(this).find('button')
       .text('Please Wait...')
       .prop('disabled', true);
 

@@ -16,7 +16,7 @@
 
         <script>
             document.getElementById('flarum-loading').style.display = 'block';
-            var flarum = {extensions: {}};
+            const flarum = {extensions: {}};
         </script>
 
         {!! $js !!}
@@ -32,7 +32,7 @@
                 flarum.core.app.bootExtensions(flarum.extensions);
                 flarum.core.app.boot();
             } catch (e) {
-                var error = document.getElementById('flarum-loading-error');
+                const error = document.getElementById('flarum-loading-error');
                 error.innerHTML += document.getElementById('flarum-content').textContent;
                 error.style.display = 'block';
                 throw e;
