@@ -48,15 +48,18 @@ export default class PermissionDropdown<CustomAttrs extends IPermissionDropdownA
   view(vnode: Mithril.Vnode<CustomAttrs, this>) {
     const children = [];
 
-    let groupIds = app.data.permissions[this.attrs.permission] || [];
+    let groupIds = app.data.permissions[this.attrs.permission] || [Group.NO_ONE_ID];
 
     groupIds = filterByRequiredPermissions(groupIds, this.attrs.permission);
 
+    const no_one = groupIds.includes(Group.NO_ONE_ID);
     const everyone = groupIds.includes(Group.GUEST_ID);
     const members = groupIds.includes(Group.MEMBER_ID);
     const adminGroup = app.store.getById<Group>('groups', Group.ADMINISTRATOR_ID)!;
 
-    if (everyone) {
+    if (no_one) {
+      this.attrs.label = Badge.component({ icon: 'fas fa-user-slash' });
+    } else if (everyone) {
       this.attrs.label = Badge.component({ icon: 'fas fa-globe' });
     } else if (members) {
       this.attrs.label = Badge.component({ icon: 'fas fa-user' });
@@ -65,6 +68,18 @@ export default class PermissionDropdown<CustomAttrs extends IPermissionDropdownA
     }
 
     if (this.showing) {
+      if (this.attrs.allowNoOne) {
+        children.push(
+          Button.component(
+            {
+              icon: no_one ? 'fas fa-check' : true,
+              onclick: () => this.save([Group.NO_ONE_ID]),
+              disabled: this.isGroupDisabled(Group.NO_ONE_ID),
+            },
+            [Badge.component({ icon: 'fas fa-user-slash' }), ' ', app.translator.trans('core.admin.permissions_controls.no_one_button')]
+          )
+        );
+      }
       if (this.attrs.allowGuest) {
         children.push(
           Button.component(
