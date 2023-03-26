@@ -380,8 +380,6 @@ class User extends AbstractModel
      */
     public function hasPermission($permission)
     {
-
-
         return in_array($permission, $this->getPermissions());
     }
 
