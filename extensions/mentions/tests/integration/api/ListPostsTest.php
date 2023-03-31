@@ -7,9 +7,10 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\integration\api\discussions;
+namespace Flarum\Mentions\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
+use Flarum\Mentions\Api\LoadMentionedByRelationship;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
@@ -106,5 +107,133 @@ class ListPostsTest extends TestCase
         // Order-independent comparison
         $ids = Arr::pluck($data, 'id');
         $this->assertEqualsCanonicalizing(['3', '2'], $ids, 'IDs do not match');
+    }
+
+    protected function prepareMentionedByData(): void
+    {
+        $this->prepareDatabase([
+            'discussions' => [
+                ['id' => 100, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 101, 'comment_count' => 12],
+            ],
+            'posts' => [
+                ['id' => 101, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 102, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 103, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>', 'is_private' => 1],
+                ['id' => 104, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 105, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 106, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 107, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 108, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 109, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 110, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 111, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 112, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+            ],
+            'post_mentions_post' => [
+                ['post_id' => 102, 'mentions_post_id' => 101],
+                ['post_id' => 103, 'mentions_post_id' => 101],
+                ['post_id' => 104, 'mentions_post_id' => 101],
+                ['post_id' => 105, 'mentions_post_id' => 101],
+                ['post_id' => 106, 'mentions_post_id' => 101],
+                ['post_id' => 107, 'mentions_post_id' => 101],
+                ['post_id' => 108, 'mentions_post_id' => 101],
+                ['post_id' => 109, 'mentions_post_id' => 101],
+                ['post_id' => 110, 'mentions_post_id' => 101],
+                ['post_id' => 111, 'mentions_post_id' => 101],
+                ['post_id' => 112, 'mentions_post_id' => 101],
+            ],
+        ]);
+    }
+
+    /** @test */
+    public function mentioned_by_relation_returns_limited_results_and_shows_only_visible_posts_in_show_post_endpoint()
+    {
+        $this->prepareMentionedByData();
+
+        // List posts endpoint
+        $response = $this->send(
+            $this->request('GET', '/api/posts/101', [
+                'authenticatedAs' => 2,
+            ])->withQueryParams([
+                'include' => 'mentionedBy',
+            ])
+        );
+
+        $data = json_decode($response->getBody()->getContents(), true)['data'];
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $mentionedBy = $data['relationships']['mentionedBy']['data'];
+
+        // Only displays a limited amount of mentioned by posts
+        $this->assertCount(LoadMentionedByRelationship::MAX_MENTIONED_BY, $mentionedBy);
+        // Of the limited amount of mentioned by posts, they must be visible to the actor
+        $this->assertEquals([102, 104, 105, 106], Arr::pluck($mentionedBy, 'id'));
+    }
+
+    /** @test */
+    public function mentioned_by_relation_returns_limited_results_and_shows_only_visible_posts_in_list_posts_endpoint()
+    {
+        $this->prepareMentionedByData();
+
+        // List posts endpoint
+        $response = $this->send(
+            $this->request('GET', '/api/posts', [
+                'authenticatedAs' => 2,
+            ])->withQueryParams([
+                'filter' => ['discussion' => 100],
+                'include' => 'mentionedBy',
+            ])
+        );
+
+        $data = json_decode($response->getBody()->getContents(), true)['data'];
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $mentionedBy = $data[0]['relationships']['mentionedBy']['data'];
+
+        // Only displays a limited amount of mentioned by posts
+        $this->assertCount(LoadMentionedByRelationship::MAX_MENTIONED_BY, $mentionedBy);
+        // Of the limited amount of mentioned by posts, they must be visible to the actor
+        $this->assertEquals([102, 104, 105, 106], Arr::pluck($mentionedBy, 'id'));
+    }
+
+    /**
+     * @dataProvider mentionedByIncludeProvider
+     * @test
+     */
+    public function mentioned_by_relation_returns_limited_results_and_shows_only_visible_posts_in_show_discussion_endpoint(string $include)
+    {
+        $this->prepareMentionedByData();
+
+        // Show discussion endpoint
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/100', [
+                'authenticatedAs' => 2,
+            ])->withQueryParams([
+                'include' => $include,
+            ])
+        );
+
+        $included = json_decode($response->getBody()->getContents(), true)['included'];
+
+        $mentionedBy = collect($included)
+            ->where('type', 'posts')
+            ->where('id', 101)
+            ->first()['relationships']['mentionedBy']['data'];
+
+        // Only displays a limited amount of mentioned by posts
+        $this->assertCount(LoadMentionedByRelationship::MAX_MENTIONED_BY, $mentionedBy);
+        // Of the limited amount of mentioned by posts, they must be visible to the actor
+        $this->assertEquals([102, 104, 105, 106], Arr::pluck($mentionedBy, 'id'));
+    }
+
+    public function mentionedByIncludeProvider(): array
+    {
+        return [
+            ['posts,posts.mentionedBy'],
+            ['posts.mentionedBy'],
+            [''],
+        ];
     }
 }

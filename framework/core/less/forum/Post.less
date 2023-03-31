@@ -353,10 +353,13 @@
     word-wrap: break-word;
   }
 
-  .Avatar {
+  &-badge, .Avatar {
     float: left;
     margin-left: -50px;
     .Avatar--size(32px);
+  }
+  &-badge {
+    color: var(--control-color);
   }
   .username {
     color: var(--text-color);

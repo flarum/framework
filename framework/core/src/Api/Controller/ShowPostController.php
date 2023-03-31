@@ -12,6 +12,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\PostRepository;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -52,6 +53,12 @@ class ShowPostController extends AbstractShowController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        return $this->posts->findOrFail(Arr::get($request->getQueryParams(), 'id'), RequestUtil::getActor($request));
+        $post = $this->posts->findOrFail(Arr::get($request->getQueryParams(), 'id'), RequestUtil::getActor($request));
+
+        $include = $this->extractInclude($request);
+
+        $this->loadRelations(new Collection([$post]), $include, $request);
+
+        return $post;
     }
 }

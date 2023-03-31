@@ -313,7 +313,7 @@ class ApiController implements ExtenderInterface
      * Allows loading a relationship with additional query modification.
      *
      * @param string $relation: Relationship name, see load method description.
-     * @param callable(\Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Relations\Relation, \Psr\Http\Message\ServerRequestInterface|null, array): void $callback
+     * @param string|callable(\Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Relations\Relation, \Psr\Http\Message\ServerRequestInterface|null, array): void $callback: callable or invokable class.
      *
      * The callback to modify the query, should accept:
      * - \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Relations\Relation $query: A query object.
@@ -322,7 +322,7 @@ class ApiController implements ExtenderInterface
      *
      * @return self
      */
-    public function loadWhere(string $relation, callable $callback): self
+    public function loadWhere(string $relation, $callback): self
     {
         $this->loadCallables = array_merge($this->loadCallables, [$relation => $callback]);
 
@@ -393,6 +393,10 @@ class ApiController implements ExtenderInterface
         foreach ($this->beforeSerializationCallbacks as $beforeSerializationCallback) {
             $beforeSerializationCallback = ContainerUtil::wrapCallback($beforeSerializationCallback, $container);
             AbstractSerializeController::addSerializationPreparationCallback($this->controllerClass, $beforeSerializationCallback);
+        }
+
+        foreach ($this->loadCallables as $relation => $callback) {
+            $this->loadCallables[$relation] = ContainerUtil::wrapCallback($callback, $container);
         }
 
         AbstractSerializeController::setLoadRelations($this->controllerClass, $this->load);
