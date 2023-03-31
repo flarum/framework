@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Mentions\Api;
 
 use Flarum\Http\RequestUtil;
@@ -14,7 +21,8 @@ class LoadMentionedByRelationship
 {
     public const MAX_MENTIONED_BY = 4;
 
-    public function __invoke(BelongsToMany $query, ServerRequestInterface $request) {
+    public function __invoke(BelongsToMany $query, ServerRequestInterface $request)
+    {
         $actor = RequestUtil::getActor($request);
 
         return $query
