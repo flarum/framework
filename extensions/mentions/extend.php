@@ -97,7 +97,10 @@ return [
         ->addInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion'])
         // We wouldn't normally need to eager load on a single model,
         // but we do so here for visibility scoping.
-        ->loadWhere('mentionedBy', LoadMentionedByRelationship::class),
+        ->loadWhere('mentionedBy', LoadMentionedByRelationship::class)
+        ->prepareDataForSerialization(function ($controller, Post $data) {
+            $data->loadCount('mentionedBy');
+        }),
 
     (new Extend\ApiController(Controller\ListPostsController::class))
         ->addInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion'])
