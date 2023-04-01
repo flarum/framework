@@ -19,7 +19,7 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class LoadMentionedByRelationship
 {
-    public const MAX_MENTIONED_BY = 4;
+    public static $maxMentionedBy = 4;
 
     public function __invoke(BelongsToMany $query, ServerRequestInterface $request)
     {
@@ -32,6 +32,6 @@ class LoadMentionedByRelationship
             // Limiting a relationship results is only possible because
             // the Post model uses the \Staudenmeir\EloquentEagerLimit\HasEagerLimit
             // trait.
-            ->limit(self::MAX_MENTIONED_BY);
+            ->limit(self::$maxMentionedBy);
     }
 }
