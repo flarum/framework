@@ -16,7 +16,6 @@ use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Api\Serializer\GroupSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Approval\Event\PostWasApproved;
-use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Group\Group;
 use Flarum\Mentions\Api\LoadMentionedByRelationship;
@@ -28,7 +27,6 @@ use Flarum\Post\Event\Revised;
 use Flarum\Post\Filter\PostFilterer;
 use Flarum\Post\Post;
 use Flarum\User\User;
-use Illuminate\Database\Eloquent\Collection;
 
 return [
     (new Extend\Frontend('forum'))
@@ -79,13 +77,8 @@ return [
             'posts.mentionsUsers', 'posts.mentionsPosts', 'posts.mentionsPosts.user',
             'posts.mentionsGroups'
         ])
-        ->loadWhere('posts.mentionedBy', LoadMentionedByRelationship::class)
-        ->prepareDataForSerialization(function ($controller, Discussion $data) {
-            $postsCollection = new Collection($data->posts);
-            $postsCollection->filter(function ($m) {
-                return $m instanceof Post;
-            })->loadCount('mentionedBy');
-        }),
+        ->loadWhere('posts.mentionedBy', [LoadMentionedByRelationship::class, 'mutateRelation'])
+        ->prepareDataForSerialization([LoadMentionedByRelationship::class, 'countRelation']),
 
     (new Extend\ApiController(Controller\ListDiscussionsController::class))
         ->load([
@@ -97,18 +90,14 @@ return [
         ->addInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion'])
         // We wouldn't normally need to eager load on a single model,
         // but we do so here for visibility scoping.
-        ->loadWhere('mentionedBy', LoadMentionedByRelationship::class)
-        ->prepareDataForSerialization(function ($controller, Post $data) {
-            $data->loadCount('mentionedBy');
-        }),
+        ->loadWhere('mentionedBy', [LoadMentionedByRelationship::class, 'mutateRelation'])
+        ->prepareDataForSerialization([LoadMentionedByRelationship::class, 'countRelation']),
 
     (new Extend\ApiController(Controller\ListPostsController::class))
         ->addInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion'])
         ->load(['mentionsUsers', 'mentionsPosts', 'mentionsPosts.user', 'mentionsGroups'])
-        ->loadWhere('mentionedBy', LoadMentionedByRelationship::class)
-        ->prepareDataForSerialization(function ($controller, Collection $data) {
-            $data->loadCount('mentionedBy');
-        }),
+        ->loadWhere('mentionedBy', [LoadMentionedByRelationship::class, 'mutateRelation'])
+        ->prepareDataForSerialization([LoadMentionedByRelationship::class, 'countRelation']),
 
     (new Extend\ApiController(Controller\CreatePostController::class))
         ->addOptionalInclude('mentionsGroups'),

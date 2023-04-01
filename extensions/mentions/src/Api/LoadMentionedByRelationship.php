@@ -9,7 +9,10 @@
 
 namespace Flarum\Mentions\Api;
 
+use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
+use Flarum\Post\Post;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -21,7 +24,7 @@ class LoadMentionedByRelationship
 {
     public static $maxMentionedBy = 4;
 
-    public function __invoke(BelongsToMany $query, ServerRequestInterface $request)
+    public static function mutateRelation(BelongsToMany $query, ServerRequestInterface $request)
     {
         $actor = RequestUtil::getActor($request);
 
@@ -33,5 +36,33 @@ class LoadMentionedByRelationship
             // the Post model uses the \Staudenmeir\EloquentEagerLimit\HasEagerLimit
             // trait.
             ->limit(self::$maxMentionedBy);
+    }
+
+    /**
+     * Called using the @see ApiController::prepareDataForSerialization extender.
+     */
+    public static function countRelation($controller, $data, ServerRequestInterface $request): void
+    {
+        $actor = RequestUtil::getActor($request);
+        $loadable = null;
+
+        if ($data instanceof Discussion) {
+            // @phpstan-ignore-next-line
+            $loadable = $data->newCollection($data->posts)->filter(function ($post) {
+                return $post instanceof Post;
+            });
+        } elseif ($data instanceof Collection) {
+            $loadable = $data;
+        } elseif ($data instanceof Post) {
+            $loadable = $data->newCollection([$data]);
+        }
+
+        if ($loadable) {
+            $loadable->loadCount([
+                'mentionedBy' => function ($query) use ($actor) {
+                    return $query->whereVisibleTo($actor);
+                }
+            ]);
+        }
     }
 }
