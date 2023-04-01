@@ -33,7 +33,7 @@ export default class MentionedByModal<CustomAttrs extends IMentionedByModalAttrs
   }
 
   title(): Mithril.Children {
-    return app.translator.trans('flarum-mentions.forum.post.mentioned_by_modal.title');
+    return app.translator.trans('flarum-mentions.forum.mentioned_by.title');
   }
 
   content(): Mithril.Children {
@@ -61,7 +61,7 @@ export default class MentionedByModal<CustomAttrs extends IMentionedByModalAttrs
             <div className="Form Form--centered">
               <div className="Form-group">
                 <Button className="Button Button--block" onclick={() => this.state.loadNext()} loading={this.state.isLoadingNext()}>
-                  {app.translator.trans('flarum-mentions.forum.post.mentioned_by_modal.load_more_button')}
+                  {app.translator.trans('flarum-mentions.forum.mentioned_by.load_more_button')}
                 </Button>
               </div>
             </div>
