@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Likes\Api;
 
 use Flarum\Http\RequestUtil;
@@ -19,7 +26,7 @@ class LoadLikesRelationship
 
         return $query
             // So that we can tell if the current user has liked the post.
-            ->orderBy(new Expression($grammar->wrap('user_id') . ' = ' . $actor->id), 'desc')
+            ->orderBy(new Expression($grammar->wrap('user_id').' = '.$actor->id), 'desc')
             // Limiting a relationship results is only possible because
             // the Post model uses the \Staudenmeir\EloquentEagerLimit\HasEagerLimit
             // trait.

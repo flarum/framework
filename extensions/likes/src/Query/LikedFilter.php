@@ -25,7 +25,7 @@ class LikedFilter implements FilterInterface
 
         $filterState
             ->getQuery()
-            ->whereIn('id', function ($query) use ($likedId, $negate) {
+            ->whereIn('id', function ($query) use ($likedId) {
                 $query->select('user_id')
                     ->from('post_likes')
                     ->where('post_id', $likedId);
