@@ -141,6 +141,7 @@ class ListPostsTest extends TestCase
                 ['post_id' => 110, 'mentions_post_id' => 101],
                 ['post_id' => 111, 'mentions_post_id' => 101],
                 ['post_id' => 112, 'mentions_post_id' => 101],
+                ['post_id' => 103, 'mentions_post_id' => 112],
             ],
         ]);
     }
@@ -235,5 +236,24 @@ class ListPostsTest extends TestCase
             ['posts.mentionedBy'],
             [''],
         ];
+    }
+
+    /** @test */
+    public function mentioned_by_count_only_includes_visible_posts_to_actor()
+    {
+        $this->prepareMentionedByData();
+
+        // List posts endpoint
+        $response = $this->send(
+            $this->request('GET', '/api/posts/112', [
+                'authenticatedAs' => 2,
+            ])
+        );
+
+        $data = json_decode($response->getBody()->getContents(), true)['data'];
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $this->assertEquals(0, $data['attributes']['mentionedByCount']);
     }
 }
