@@ -116,9 +116,6 @@ return [
     (new Extend\ApiController(Controller\UpdatePostController::class))
         ->addOptionalInclude('mentionsGroups'),
 
-    (new Extend\ApiController(Controller\AbstractSerializeController::class))
-        ->prepareDataForSerialization(FilterVisiblePosts::class),
-
     (new Extend\Settings)
         ->serializeToForum('allowUsernameMentionFormat', 'flarum-mentions.allow_username_format', 'boolval'),
 
