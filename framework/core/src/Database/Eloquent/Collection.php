@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Database\Eloquent;
 
 use Illuminate\Database\Eloquent\Collection as BaseCollection;
@@ -9,7 +16,7 @@ class Collection extends BaseCollection
     /**
      * This is done to prevent conflicts when using visibility scopes.
      * Without this, we get the following example query when using a visibility scope
-     * and eager loading the count of `mentionedBy`:
+     * and eager loading the count of `mentionedBy`:.
      *
      * ```sql
      * SELECT `id`, (

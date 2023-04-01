@@ -247,7 +247,7 @@ abstract class AbstractModel extends Eloquent
     public function withTableAlias(callable $callback)
     {
         static $aliasCount = 0;
-        $this->tableAlias = 'flarum_reserved_' . ++$aliasCount;
+        $this->tableAlias = 'flarum_reserved_'.++$aliasCount;
 
         $result = $callback();
 
