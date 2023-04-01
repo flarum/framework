@@ -166,7 +166,7 @@ class ListPostsTest extends TestCase
         $mentionedBy = $data['relationships']['mentionedBy']['data'];
 
         // Only displays a limited amount of mentioned by posts
-        $this->assertCount(LoadMentionedByRelationship::MAX_MENTIONED_BY, $mentionedBy);
+        $this->assertCount(LoadMentionedByRelationship::$maxMentionedBy, $mentionedBy);
         // Of the limited amount of mentioned by posts, they must be visible to the actor
         $this->assertEquals([102, 104, 105, 106], Arr::pluck($mentionedBy, 'id'));
     }
@@ -193,7 +193,7 @@ class ListPostsTest extends TestCase
         $mentionedBy = $data[0]['relationships']['mentionedBy']['data'];
 
         // Only displays a limited amount of mentioned by posts
-        $this->assertCount(LoadMentionedByRelationship::MAX_MENTIONED_BY, $mentionedBy);
+        $this->assertCount(LoadMentionedByRelationship::$maxMentionedBy, $mentionedBy);
         // Of the limited amount of mentioned by posts, they must be visible to the actor
         $this->assertEquals([102, 104, 105, 106], Arr::pluck($mentionedBy, 'id'));
     }
@@ -223,7 +223,7 @@ class ListPostsTest extends TestCase
             ->first()['relationships']['mentionedBy']['data'];
 
         // Only displays a limited amount of mentioned by posts
-        $this->assertCount(LoadMentionedByRelationship::MAX_MENTIONED_BY, $mentionedBy);
+        $this->assertCount(LoadMentionedByRelationship::$maxMentionedBy, $mentionedBy);
         // Of the limited amount of mentioned by posts, they must be visible to the actor
         $this->assertEquals([102, 104, 105, 106], Arr::pluck($mentionedBy, 'id'));
     }
