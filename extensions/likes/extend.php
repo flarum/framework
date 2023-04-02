@@ -53,32 +53,25 @@ return [
 
     (new Extend\ApiController(Controller\ShowDiscussionController::class))
         ->addInclude('posts.likes')
-        ->loadWhere('posts.likes', LoadLikesRelationship::class)
-        ->prepareDataForSerialization(function ($controller, Discussion $data) {
-            $postsCollection = new Collection($data->posts);
-            $postsCollection->filter(function ($m) {
-                return $m instanceof Post;
-            })->loadCount('likes');
-        }),
+        ->loadWhere('posts.likes', [LoadLikesRelationship::class, 'mutateRelation'])
+        ->prepareDataForSerialization([LoadLikesRelationship::class, 'countRelation']),
 
     (new Extend\ApiController(Controller\ListPostsController::class))
         ->addInclude('likes')
-        ->loadWhere('likes', LoadLikesRelationship::class)
-        ->prepareDataForSerialization(function ($controller, Collection $data) {
-            $data->loadCount('likes');
-        }),
+        ->loadWhere('likes', [LoadLikesRelationship::class, 'mutateRelation'])
+        ->prepareDataForSerialization([LoadLikesRelationship::class, 'countRelation']),
     (new Extend\ApiController(Controller\ShowPostController::class))
         ->addInclude('likes')
-        ->loadWhere('likes', LoadLikesRelationship::class)
-        ->prepareDataForSerialization(function ($controller, Post $data) {
-            $data->loadCount('likes');
-        }),
+        ->loadWhere('likes', [LoadLikesRelationship::class, 'mutateRelation'])
+        ->prepareDataForSerialization([LoadLikesRelationship::class, 'countRelation']),
     (new Extend\ApiController(Controller\CreatePostController::class))
         ->addInclude('likes')
-        ->loadWhere('likes', LoadLikesRelationship::class),
+        ->loadWhere('likes', [LoadLikesRelationship::class, 'mutateRelation'])
+        ->prepareDataForSerialization([LoadLikesRelationship::class, 'countRelation']),
     (new Extend\ApiController(Controller\UpdatePostController::class))
         ->addInclude('likes')
-        ->loadWhere('likes', LoadLikesRelationship::class),
+        ->loadWhere('likes', [LoadLikesRelationship::class, 'mutateRelation'])
+        ->prepareDataForSerialization([LoadLikesRelationship::class, 'countRelation']),
 
     (new Extend\Event())
         ->listen(PostWasLiked::class, Listener\SendNotificationWhenPostIsLiked::class)
