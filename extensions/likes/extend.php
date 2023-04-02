@@ -12,7 +12,6 @@ namespace Flarum\Likes;
 use Flarum\Api\Controller;
 use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\PostSerializer;
-use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Likes\Api\LoadLikesRelationship;
 use Flarum\Likes\Event\PostWasLiked;
@@ -24,7 +23,6 @@ use Flarum\Post\Filter\PostFilterer;
 use Flarum\Post\Post;
 use Flarum\User\Filter\UserFilterer;
 use Flarum\User\User;
-use Illuminate\Database\Eloquent\Collection;
 
 return [
     (new Extend\Frontend('forum'))
