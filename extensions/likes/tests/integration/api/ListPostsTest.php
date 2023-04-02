@@ -133,6 +133,8 @@ class ListPostsTest extends TestCase
 
         // Only displays a limited amount of likes
         $this->assertCount(LoadLikesRelationship::$maxLikes, $likes);
+        // Displays the correct count of likes
+        $this->assertEquals(11, $data['attributes']['likesCount']);
         // Of the limited amount of likes, the actor always appears
         $this->assertEquals([2, 102, 104, 105], Arr::pluck($likes, 'id'));
     }
@@ -158,6 +160,8 @@ class ListPostsTest extends TestCase
 
         // Only displays a limited amount of likes
         $this->assertCount(LoadLikesRelationship::$maxLikes, $likes);
+        // Displays the correct count of likes
+        $this->assertEquals(11, $data[0]['attributes']['likesCount']);
         // Of the limited amount of likes, the actor always appears
         $this->assertEquals([2, 102, 104, 105], Arr::pluck($likes, 'id'));
     }
@@ -186,6 +190,11 @@ class ListPostsTest extends TestCase
 
         // Only displays a limited amount of likes
         $this->assertCount(LoadLikesRelationship::$maxLikes, $likes);
+        // Displays the correct count of likes
+        $this->assertEquals(11, collect($included)
+            ->where('type', 'posts')
+            ->where('id', 101)
+            ->first()['attributes']['likesCount']);
         // Of the limited amount of likes, the actor always appears
         $this->assertEquals([2, 102, 104, 105], Arr::pluck($likes, 'id'));
     }
