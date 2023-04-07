@@ -399,7 +399,6 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
       },
       60
     );
-    
 
     items.add(
       'userEditCredentials',
