@@ -200,6 +200,7 @@ core:
       create_heading: Create
       delete_discussions_forever_label: Delete discussions forever
       delete_discussions_label: Delete discussions
+      allow_delete_own_posts_label: Allow deleting own posts
       delete_posts_forever_label: Delete posts forever
       delete_posts_label: Delete posts
       description: Configure who can see and do what.

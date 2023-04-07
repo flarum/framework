@@ -56,6 +56,7 @@ class WriteSettings implements Step
     private function getDefaults()
     {
         return [
+            'allow_delete_own_posts' => 'reply',
             'allow_post_editing' => 'reply',
             'allow_renaming' => '10',
             'allow_sign_up' => '1',
