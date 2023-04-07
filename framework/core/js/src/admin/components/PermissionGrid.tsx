@@ -383,7 +383,7 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
               { value: '-1', label: app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button') },
               { value: '10', label: app.translator.trans('core.admin.permissions_controls.allow_ten_minutes_button') },
               { value: 'reply', label: app.translator.trans('core.admin.permissions_controls.allow_until_reply_button') },
-              { value: '0', label: app.translator.trans('core.admin.permissions_controls.allow_never_button') }
+              { value: '0', label: app.translator.trans('core.admin.permissions_controls.allow_never_button') },
             ],
           });
         },
