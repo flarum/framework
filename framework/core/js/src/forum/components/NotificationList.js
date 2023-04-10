@@ -34,7 +34,7 @@ export default class NotificationList extends Component {
     const state = this.attrs.state;
 
     if (!state.hasItems()) {
-      return;
+      return items;
     }
 
     items.add(
