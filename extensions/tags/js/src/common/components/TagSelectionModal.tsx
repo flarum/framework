@@ -260,7 +260,7 @@ export default class TagSelectionModal<
     // If the user has entered text in the filter input, then filter by tags
     // whose name matches what they've entered.
     if (filter) {
-      tags = tags.filter((tag) => tag.name().substring(0, filter.length).toLowerCase() === filter);
+      tags = tags.filter((tag) => tag.name().toLowerCase().includes(filter));
     }
 
     if (!this.indexTag || !tags.includes(this.indexTag)) this.indexTag = tags[0];
