@@ -194,7 +194,7 @@ core:
 
     # These translations are used in the Permissions page of the admin interface.
     permissions:
-      allow_delete_own_posts_label: Allow deleting own posts
+      allow_hide_own_posts_label: Allow deleting own posts
       allow_post_editing_label: Allow post editing
       allow_renaming_label: Allow renaming
       create_access_token_label: Create access token
