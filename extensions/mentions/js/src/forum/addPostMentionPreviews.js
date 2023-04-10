@@ -14,10 +14,14 @@ export default function addPostMentionPreviews() {
     const parentPost = this.attrs.post;
     const $parentPost = this.$();
 
-    this.$().on('click', '.UserMention:not(.UserMention--deleted), .PostMention:not(.PostMention--deleted)', function (e) {
-      m.route.set(this.getAttribute('href'));
-      e.preventDefault();
-    });
+    this.$().on(
+      'click',
+      '.UserMention:not(.UserMention--deleted), .PostMention:not(.PostMention--deleted), .TagMention:not(.TagMention--deleted)',
+      function (e) {
+        m.route.set(this.getAttribute('href'));
+        e.preventDefault();
+      }
+    );
 
     this.$('.PostMention:not(.PostMention--deleted)').each(function () {
       const $this = $(this);
