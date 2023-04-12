@@ -15,6 +15,7 @@ use Flarum\Extension\Event\Disabling;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Extension\Event\Enabling;
 use Flarum\Extension\Event\Uninstalled;
+use Flarum\Extension\Exception\CircularDependenciesException;
 use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
@@ -155,6 +156,13 @@ class ExtensionManager
         }
 
         return $this->extensions;
+    }
+
+    public function getExtensionsById(array $ids): Collection
+    {
+        return $this->getExtensions()->filter(function (Extension $extension) use ($ids) {
+            return in_array($extension->getId(), $ids);
+        });
     }
 
     /**
@@ -397,10 +405,19 @@ class ExtensionManager
      * Persist the currently enabled extensions.
      *
      * @param array $enabledExtensions
+     * @throws CircularDependenciesException
      */
     protected function setEnabledExtensions(array $enabledExtensions)
     {
-        $sortedEnabled = static::resolveExtensionOrder($enabledExtensions)['valid'];
+        $resolved = static::resolveExtensionOrder($enabledExtensions);
+
+        if (! empty($resolved['circularDependencies'])) {
+            throw new Exception\CircularDependenciesException(
+                $this->getExtensionsById($resolved['circularDependencies'])->values()->all()
+            );
+        }
+
+        $sortedEnabled = $resolved['valid'];
 
         $sortedEnabledIds = array_map(function (Extension $extension) {
             return $extension->getId();
