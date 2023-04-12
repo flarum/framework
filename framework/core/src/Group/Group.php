@@ -33,6 +33,11 @@ class Group extends AbstractModel
     use ScopeVisibilityTrait;
 
     /**
+     * The temporary ID for when no one can do something.
+     */
+    const NO_ONE_ID = -1;
+
+    /**
      * The ID of the administrator group.
      */
     const ADMINISTRATOR_ID = 1;

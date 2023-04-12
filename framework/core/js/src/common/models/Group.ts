@@ -1,6 +1,7 @@
 import Model from '../Model';
 
 export default class Group extends Model {
+  static NO_ONE_ID = '-1';
   static ADMINISTRATOR_ID = '1';
   static GUEST_ID = '2';
   static MEMBER_ID = '3';

@@ -380,10 +380,6 @@ class User extends AbstractModel
      */
     public function hasPermission($permission)
     {
-        if ($this->isAdmin()) {
-            return true;
-        }
-
         return in_array($permission, $this->getPermissions());
     }
 
@@ -396,10 +392,6 @@ class User extends AbstractModel
      */
     public function hasPermissionLike($match)
     {
-        if ($this->isAdmin()) {
-            return true;
-        }
-
         foreach ($this->getPermissions() as $permission) {
             if (substr($permission, -strlen($match)) === $match) {
                 return true;

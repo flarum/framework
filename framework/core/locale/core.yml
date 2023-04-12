@@ -235,6 +235,7 @@ core:
       members_button: => core.group.members
       signup_closed_button: Closed
       signup_open_button: Open
+      no_one_button: No one
 
     # These translations are used generically in setting fields.
     settings:

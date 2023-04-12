@@ -20,6 +20,7 @@ use Flarum\Http\AccessToken;
 use Flarum\Post\Access\PostPolicy;
 use Flarum\Post\Post;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\Access\AdminPolicy;
 use Flarum\User\Access\ScopeUserVisibility;
 use Flarum\User\DisplayName\DriverInterface;
 use Flarum\User\DisplayName\UsernameDriver;
@@ -49,7 +50,7 @@ class UserServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.policies', function () {
             return [
-                Access\AbstractPolicy::GLOBAL => [],
+                Access\AbstractPolicy::GLOBAL => [AdminPolicy::class],
                 AccessToken::class => [AccessTokenPolicy::class],
                 Discussion::class => [DiscussionPolicy::class],
                 Group::class => [GroupPolicy::class],

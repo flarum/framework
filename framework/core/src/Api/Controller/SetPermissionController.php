@@ -9,6 +9,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Group\Group;
 use Flarum\Group\Permission;
 use Flarum\Http\RequestUtil;
 use Illuminate\Support\Arr;
@@ -31,6 +32,11 @@ class SetPermissionController implements RequestHandlerInterface
         $groupIds = Arr::get($body, 'groupIds');
 
         Permission::where('permission', $permission)->delete();
+
+        // Permission set to no one.
+        if (count($groupIds) === 1 && intval($groupIds[0]) === Group::NO_ONE_ID) {
+            return new EmptyResponse(204);
+        }
 
         Permission::insert(array_map(function ($groupId) use ($permission) {
             return [

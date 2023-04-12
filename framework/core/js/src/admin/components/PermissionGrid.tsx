@@ -12,6 +12,7 @@ export interface PermissionConfig {
   icon: string;
   label: Mithril.Children;
   allowGuest?: boolean;
+  allowNoOne?: boolean;
 }
 
 export interface PermissionSetting {
@@ -435,6 +436,7 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
             return PermissionDropdown.component({
               permission: item.permission,
               allowGuest: item.allowGuest,
+              allowNoOne: item.allowNoOne,
             });
           }
 
