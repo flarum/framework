@@ -45,11 +45,12 @@ class GroupFilterGambit extends AbstractRegexGambit implements FilterInterface
 
     public function filter(FilterState $filterState, $filterValue, bool $negate)
     {
-        $this->constrain($filterState->getQuery(), $filterState->getActor(), $this->asArray($filterValue), $negate);
+        $this->constrain($filterState->getQuery(), $filterState->getActor(), $filterValue, $negate);
     }
 
-    protected function constrain(Builder $query, User $actor, array $groupIdentifiers, bool $negate)
+    protected function constrain(Builder $query, User $actor, $rawQuery, bool $negate)
     {
+        $groupIdentifiers = $this->asArray($rawQuery);
         $groupQuery = Group::whereVisibleTo($actor);
 
         $ids = [];
