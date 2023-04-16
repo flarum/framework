@@ -105,22 +105,27 @@ class PostRepository
      */
     public function getIndexForNumber($discussionId, $number, User $actor = null)
     {
-        $query = Discussion::find($discussionId)
-            ->posts()
-            ->whereVisibleTo($actor)
-            ->where('created_at', '<', function ($query) use ($discussionId, $number) {
-                $query->select('created_at')
-                      ->from('posts')
-                      ->where('discussion_id', $discussionId)
-                      ->whereNotNull('number')
-                      ->take(1)
+        $discussion = Discussion::find($discussionId);
 
-                      // We don't add $number as a binding because for some
-                      // reason doing so makes the bindings go out of order.
-                      ->orderByRaw('ABS(CAST(number AS SIGNED) - '.(int) $number.')');
-            });
+        if ($discussion) {
+            $query = $discussion->posts()
+                ->whereVisibleTo($actor)
+                ->where('created_at', '<', function ($query) use ($discussionId, $number) {
+                    $query->select('created_at')
+                        ->from('posts')
+                        ->where('discussion_id', $discussionId)
+                        ->whereNotNull('number')
+                        ->take(1)
 
-        return $query->count();
+                        // We don't add $number as a binding because for some
+                        // reason doing so makes the bindings go out of order.
+                        ->orderByRaw('ABS(CAST(number AS SIGNED) - '.(int) $number.')');
+                });
+
+            return $query->count();
+        }
+
+        return 0;
     }
 
     /**
