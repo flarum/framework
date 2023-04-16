@@ -18,7 +18,7 @@
 </form>
 
 <script>
-  window.onload = function() {
+  document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('form input').select();
 
     document.querySelector('form').addEventListener('submit', function(e) {
@@ -48,6 +48,6 @@
 
       return false;
     });
-  }
+  });
 </script>
 
