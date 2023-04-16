@@ -17,18 +17,20 @@ trait ValidateFilterTrait
     /**
      * @throws FlarumValidationException
      */
-    protected function asArray($filterValue, $multidimensional = false): array
+    protected function asStringArray($filterValue, bool $multidimensional = false): array
     {
         if (is_array($filterValue)) {
             $value = array_map(function ($subValue) use ($multidimensional) {
                 if (is_array($subValue) && ! $multidimensional) {
                     $this->throwValidationException('core.api.invalid_filter_type.must_not_be_multidimensional_array_message');
+                } elseif (is_array($subValue)) {
+                    return $this->asStringArray($subValue, true);
+                } else {
+                    return $this->asString($subValue);
                 }
-
-                return trim($subValue, '"');
             }, $filterValue);
         } else {
-            $value = explode(',', trim($filterValue, '"'));
+            $value = explode(',', $this->asString($filterValue));
         }
 
         return $value;
@@ -65,7 +67,7 @@ trait ValidateFilterTrait
     {
         return array_map(function ($value) {
             return $this->asInt($value);
-        }, $this->asArray($filterValue));
+        }, $this->asStringArray($filterValue));
     }
 
     /**

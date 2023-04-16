@@ -50,7 +50,7 @@ class GroupFilterGambit extends AbstractRegexGambit implements FilterInterface
 
     protected function constrain(Builder $query, User $actor, $rawQuery, bool $negate)
     {
-        $groupIdentifiers = $this->asArray($rawQuery);
+        $groupIdentifiers = $this->asStringArray($rawQuery);
         $groupQuery = Group::whereVisibleTo($actor);
 
         $ids = [];

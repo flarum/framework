@@ -56,7 +56,7 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
 
     protected function constrain(Builder $query, $rawSlugs, $negate, User $actor)
     {
-        $slugs = $this->asArray($rawSlugs);
+        $slugs = $this->asStringArray($rawSlugs);
 
         $query->where(function (Builder $query) use ($slugs, $negate, $actor) {
             foreach ($slugs as $slug) {

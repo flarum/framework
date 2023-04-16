@@ -35,7 +35,7 @@ class AuthorFilter implements FilterInterface
 
     public function filter(FilterState $filterState, $filterValue, bool $negate)
     {
-        $usernames = $this->asArray($filterValue);
+        $usernames = $this->asStringArray($filterValue);
 
         $ids = $this->users->query()->whereIn('username', $usernames)->pluck('id');
 
