@@ -16,6 +16,7 @@ trait ValidateFilterTrait
 {
     /**
      * @throws FlarumValidationException
+     * @return array<string>|array<array>
      */
     protected function asStringArray($filterValue, bool $multidimensional = false): array
     {
@@ -62,6 +63,7 @@ trait ValidateFilterTrait
 
     /**
      * @throws FlarumValidationException
+     * @return array<int>
      */
     protected function asIntArray($filterValue): array
     {
