@@ -9,10 +9,10 @@
 namespace Flarum\Mentions\tests\integration\api\NotificationsTest;
 
 use Carbon\Carbon;
+use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
-use Flarum\Group\Group;
 
 class NotificationsTest extends TestCase
 {
@@ -62,7 +62,7 @@ class NotificationsTest extends TestCase
             ->where('group_id', Group::MEMBER_ID)
             ->where('permission', 'discussion.replyWithoutApproval')
             ->delete();
-        
+
         /** @var User $mainUser */
         $mainUser = User::query()->find(2);
 
