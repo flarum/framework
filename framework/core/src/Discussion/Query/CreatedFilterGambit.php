@@ -11,6 +11,7 @@ namespace Flarum\Discussion\Query;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
+use Flarum\Filter\ValidateFilterTrait;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\SearchState;
 use Illuminate\Database\Query\Builder;
@@ -18,6 +19,8 @@ use Illuminate\Support\Arr;
 
 class CreatedFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
+    use ValidateFilterTrait;
+
     /**
      * {@inheritdoc}
      */
@@ -39,8 +42,10 @@ class CreatedFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'created';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, $filterValue, bool $negate)
     {
+        $filterValue = $this->asString($filterValue);
+
         preg_match('/^'.$this->getGambitPattern().'$/i', 'created:'.$filterValue, $matches);
 
         $this->constrain($filterState->getQuery(), Arr::get($matches, 1), Arr::get($matches, 3), $negate);

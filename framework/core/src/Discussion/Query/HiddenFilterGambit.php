@@ -38,7 +38,7 @@ class HiddenFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'hidden';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, $filterValue, bool $negate)
     {
         $this->constrain($filterState->getQuery(), $negate);
     }

@@ -32,7 +32,7 @@ class LockedFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'locked';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, $filterValue, bool $negate)
     {
         $this->constrain($filterState->getQuery(), $negate);
     }

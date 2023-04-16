@@ -11,17 +11,20 @@ namespace Flarum\Post\Filter;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
+use Flarum\Filter\ValidateFilterTrait;
 
 class DiscussionFilter implements FilterInterface
 {
+    use ValidateFilterTrait;
+
     public function getFilterKey(): string
     {
         return 'discussion';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, $filterValue, bool $negate)
     {
-        $discussionId = trim($filterValue, '"');
+        $discussionId = $this->asInt($filterValue);
 
         $filterState->getQuery()->where('posts.discussion_id', $negate ? '!=' : '=', $discussionId);
     }

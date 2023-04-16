@@ -11,16 +11,21 @@ namespace Flarum\Group\Filter;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
+use Flarum\Filter\ValidateFilterTrait;
 
 class HiddenFilter implements FilterInterface
 {
+    use ValidateFilterTrait;
+
     public function getFilterKey(): string
     {
         return 'hidden';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, $filterValue, bool $negate)
     {
-        $filterState->getQuery()->where('is_hidden', $negate ? '!=' : '=', $filterValue);
+        $hidden = $this->asBool($filterValue);
+
+        $filterState->getQuery()->where('is_hidden', $negate ? '!=' : '=', $hidden);
     }
 }

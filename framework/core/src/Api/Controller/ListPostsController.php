@@ -10,6 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\PostSerializer;
+use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Post\Filter\PostFilterer;
@@ -145,7 +146,9 @@ class ListPostsController extends AbstractListController
                 );
             }
 
-            $offset = $this->posts->getIndexForNumber($filter['discussion'], $near, $actor);
+            $discussionId = Discussion::findOrFail((int) $filter['discussion'])->id;
+
+            $offset = $this->posts->getIndexForNumber($discussionId, $near, $actor);
 
             return max(0, $offset - $limit / 2);
         }

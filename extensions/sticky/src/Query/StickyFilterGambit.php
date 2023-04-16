@@ -32,7 +32,7 @@ class StickyFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'sticky';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, $negate)
+    public function filter(FilterState $filterState, $filterValue, $negate)
     {
         $this->constrain($filterState->getQuery(), $negate);
     }

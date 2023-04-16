@@ -12,6 +12,7 @@ namespace Flarum\Http\Filter;
 use Flarum\Api\Controller\ListAccessTokensController;
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
+use Flarum\Filter\ValidateFilterTrait;
 
 /**
  * Filters an access tokens request by the related user.
@@ -20,6 +21,8 @@ use Flarum\Filter\FilterState;
  */
 class UserFilter implements FilterInterface
 {
+    use ValidateFilterTrait;
+
     /**
      * @inheritDoc
      */
@@ -31,8 +34,10 @@ class UserFilter implements FilterInterface
     /**
      * @inheritDoc
      */
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, $filterValue, bool $negate)
     {
+        $filterValue = $this->asInt($filterValue);
+
         $filterState->getQuery()->where('user_id', $negate ? '!=' : '=', $filterValue);
     }
 }
