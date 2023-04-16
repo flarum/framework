@@ -6,6 +6,7 @@
  * For detailed copyright and license information, please view the
  * LICENSE file that was distributed with this source code.
  */
+
 namespace Flarum\Mentions\tests\integration\api\NotificationsTest;
 
 use Carbon\Carbon;
