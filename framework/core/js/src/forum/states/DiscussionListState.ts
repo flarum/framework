@@ -2,16 +2,22 @@ import app from '../../forum/app';
 import PaginatedListState, { Page, PaginatedListParams, PaginatedListRequestParams } from '../../common/states/PaginatedListState';
 import Discussion from '../../common/models/Discussion';
 import { ApiResponsePlural } from '../../common/Store';
+import EventEmitter from '../../common/utils/EventEmitter';
 
 export interface DiscussionListParams extends PaginatedListParams {
   sort?: string;
 }
 
+const globalEventEmitter = new EventEmitter();
+
 export default class DiscussionListState<P extends DiscussionListParams = DiscussionListParams> extends PaginatedListState<Discussion, P> {
   protected extraDiscussions: Discussion[] = [];
+  protected eventEmitter: EventEmitter;
 
   constructor(params: P, page: number = 1) {
     super(params, page, 20);
+
+    this.eventEmitter = globalEventEmitter.on('discussion.deleted', this.deleteDiscussion.bind(this));
   }
 
   get type(): string {
@@ -77,6 +83,10 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
   }
 
   removeDiscussion(discussion: Discussion): void {
+    this.eventEmitter.emit('discussion.deleted', discussion);
+  }
+
+  deleteDiscussion(discussion: Discussion): void {
     for (const page of this.pages) {
       const index = page.items.indexOf(discussion);
 
