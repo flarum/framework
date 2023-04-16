@@ -113,16 +113,16 @@ class ListNotificationsController extends AbstractListController
         $ids = [];
 
         foreach ($notifications as $notification) {
-            if ($notification->subject && property_exists($notification->subject, 'discussion_id')) {
-                $ids[] = $notification->subject->discussion_id;
+            if ($notification->subject && ($discussionId = $notification->subject->getAttribute('discussion_id'))) {
+                $ids[] = $discussionId;
             }
         }
 
         $discussions = Discussion::query()->find(array_unique($ids));
 
         foreach ($notifications as $notification) {
-            if ($notification->subject && property_exists($notification->subject, 'discussion_id')) {
-                $notification->subject->setRelation('discussion', $discussions->find($notification->subject->discussion_id));
+            if ($notification->subject && ($discussionId = $notification->subject->getAttribute('discussion_id'))) {
+                $notification->subject->setRelation('discussion', $discussions->find($discussionId));
             }
         }
     }
