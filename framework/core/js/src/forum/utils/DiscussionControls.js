@@ -121,7 +121,7 @@ export default {
    * @return {ItemList<import('mithril').Children>}
    * @protected
    */
-  destructiveControls(discussion) {
+  destructiveControls(discussion, context) {
     const items = new ItemList();
 
     if (!discussion.isHidden()) {
@@ -157,7 +157,7 @@ export default {
           Button.component(
             {
               icon: 'fas fa-times',
-              onclick: this.deleteAction.bind(discussion),
+              onclick: this.deleteAction.bind(discussion, context),
             },
             app.translator.trans('core.forum.discussion_controls.delete_forever_button')
           )
@@ -232,9 +232,11 @@ export default {
   /**
    * Delete the discussion after confirming with the user.
    *
+   * @param {import('../../common/Component').default<any, any>} context The parent component under which the controls menu will be displayed.
+   *
    * @return {Promise<void>}
    */
-  deleteAction() {
+  deleteAction(context) {
     if (confirm(extractText(app.translator.trans('core.forum.discussion_controls.delete_confirmation')))) {
       // If we're currently viewing the discussion that was deleted, go back
       // to the previous page.
@@ -242,7 +244,14 @@ export default {
         app.history.back();
       }
 
-      return this.delete().then(() => app.discussions.removeDiscussion(this));
+      return this.delete().then(() => {
+        if (context.attrs?.state) {
+          // Delete from the local state.
+          context.attrs.state.removeDiscussion(this);
+          // And the global state if it isn't the global state.
+          if (context.attrs.state !== app.discussions) app.discussions.removeDiscussion(this);
+        }
+      });
     }
   },
 

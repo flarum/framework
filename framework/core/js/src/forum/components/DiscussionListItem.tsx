@@ -20,10 +20,12 @@ import Tooltip from '../../common/components/Tooltip';
 import type Discussion from '../../common/models/Discussion';
 import type Mithril from 'mithril';
 import type { DiscussionListParams } from '../states/DiscussionListState';
+import DiscussionListState from '../states/DiscussionListState';
 
 export interface IDiscussionListItemAttrs extends ComponentAttrs {
   discussion: Discussion;
   params: DiscussionListParams;
+  state?: DiscussionListState;
 }
 
 /**

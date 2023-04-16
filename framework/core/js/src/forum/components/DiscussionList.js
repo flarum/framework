@@ -50,7 +50,7 @@ export default class DiscussionList extends Component {
           {state.getPages().map((pg, pageNum) => {
             return pg.items.map((discussion, itemNum) => (
               <li key={discussion.id()} data-id={discussion.id()} role="article" aria-setsize="-1" aria-posinset={pageNum * pageSize + itemNum}>
-                <DiscussionListItem discussion={discussion} params={params} />
+                <DiscussionListItem discussion={discussion} params={params} state={state} />
               </li>
             ));
           })}
