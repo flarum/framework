@@ -66,29 +66,38 @@
   </div>
 </form>
 
-<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script>
-$(function() {
-  $('form :input:first').select();
+document.querySelector('form input').select();
 
-  $('form').on('submit', function(e) {
-    e.preventDefault();
+document.querySelector('form').addEventListener('submit', function(e) {
+  e.preventDefault();
 
-    var $button = $(this).find('button')
-      .text('Please Wait...')
-      .prop('disabled', true);
+  var button = this.querySelector('button');
+  button.textContent = 'Please Wait...';
+  button.disabled = true;
 
-    $.post('', $(this).serialize())
-      .done(function() {
+  fetch('', {
+    method: 'POST',
+    body: new FormData(this)
+  })
+    .then(response => {
+      if (response.ok) {
         window.location.reload();
-      })
-      .fail(function(data) {
-        $('#error').show().text('Something went wrong:\n\n' + data.responseText);
+      } else {
+        response.text().then(errorMessage => {
+          var error = document.querySelector('#error');
+          error.style.display = 'block';
+          error.textContent = 'Something went wrong:\n\n' + errorMessage;
+          button.disabled = false;
+          button.textContent = 'Install Flarum';
+        });
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
 
-        $button.prop('disabled', false).text('Install Flarum');
-      });
-
-    return false;
-  });
+  return false;
 });
 </script>
+
