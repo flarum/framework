@@ -67,37 +67,36 @@
 </form>
 
 <script>
-document.querySelector('form input').select();
+  window.onload = function() {
+    document.querySelector('form input').select();
 
-document.querySelector('form').addEventListener('submit', function(e) {
-  e.preventDefault();
+    document.querySelector('form').addEventListener('submit', function(e) {
+      e.preventDefault();
 
-  var button = this.querySelector('button');
-  button.textContent = 'Please Wait...';
-  button.disabled = true;
+      var button = this.querySelector('button');
+      button.textContent = 'Please Wait...';
+      button.disabled = true;
 
-  fetch('', {
-    method: 'POST',
-    body: new FormData(this)
-  })
-    .then(response => {
-      if (response.ok) {
-        window.location.reload();
-      } else {
-        response.text().then(errorMessage => {
-          var error = document.querySelector('#error');
-          error.style.display = 'block';
-          error.textContent = 'Something went wrong:\n\n' + errorMessage;
-          button.disabled = false;
-          button.textContent = 'Install Flarum';
+      fetch('', {
+        method: 'POST',
+        body: new FormData(this)
+      })
+        .then(response => {
+          if (response.ok) {
+            window.location.reload();
+          } else {
+            response.text().then(errorMessage => {
+              var error = document.querySelector('#error');
+              error.style.display = 'block';
+              error.textContent = 'Something went wrong:\n\n' + errorMessage;
+              button.disabled = false;
+              button.textContent = 'Install Flarum';
+            });
+          }
         });
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-    });
 
-  return false;
-});
+      return false;
+    });
+  }
 </script>
 
