@@ -288,6 +288,31 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
       90
     );
 
+    items.add(
+      'hideOwnPosts',
+      {
+        icon: 'far fa-trash-alt',
+        label: app.translator.trans('core.admin.permissions.allow_hide_own_posts_label'),
+        setting: () => {
+          const minutes = parseInt(app.data.settings.allow_hide_own_posts, 10);
+
+          return SettingDropdown.component({
+            defaultLabel: minutes
+              ? app.translator.trans('core.admin.permissions_controls.allow_some_minutes_button', { count: minutes })
+              : app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button'),
+            key: 'allow_hide_own_posts',
+            options: [
+              { value: '-1', label: app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button') },
+              { value: '10', label: app.translator.trans('core.admin.permissions_controls.allow_ten_minutes_button') },
+              { value: 'reply', label: app.translator.trans('core.admin.permissions_controls.allow_until_reply_button') },
+              { value: '0', label: app.translator.trans('core.admin.permissions_controls.allow_never_button') },
+            ],
+          });
+        },
+      },
+      80
+    );
+
     items.merge(app.extensionData.getAllExtensionPermissions('reply'));
 
     return items;

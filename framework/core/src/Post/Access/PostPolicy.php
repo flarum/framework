@@ -71,6 +71,14 @@ class PostPolicy extends AbstractPolicy
      */
     public function hide(User $actor, Post $post)
     {
-        return $this->edit($actor, $post);
+        if ($post->user_id == $actor->id && (! $post->hidden_at || $post->hidden_user_id == $actor->id) && $actor->can('reply', $post->discussion)) {
+            $allowHiding = $this->settings->get('allow_hide_own_posts');
+
+            if ($allowHiding === '-1'
+                || ($allowHiding === 'reply' && $post->number >= $post->discussion->last_post_number)
+                || (is_numeric($allowHiding) && $post->created_at->diffInMinutes(new Carbon) < $allowHiding)) {
+                return $this->allow();
+            }
+        }
     }
 }

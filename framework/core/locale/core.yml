@@ -194,6 +194,7 @@ core:
 
     # These translations are used in the Permissions page of the admin interface.
     permissions:
+      allow_hide_own_posts_label: Allow deleting own posts
       allow_post_editing_label: Allow post editing
       allow_renaming_label: Allow renaming
       create_access_token_label: Create access token
@@ -228,6 +229,7 @@ core:
     # These translations are used in the dropdown menus on the Permissions page.
     permissions_controls:
       allow_indefinitely_button: Indefinitely
+      allow_never_button: => core.ref.never
       allow_some_minutes_button: "{count, plural, one {For # minute} other {For # minutes}}"
       allow_ten_minutes_button: For 10 minutes
       allow_until_reply_button: Until next reply
@@ -489,7 +491,7 @@ core:
         log_out_button: => core.ref.log_out
       hide_access_token: Hide Token
       last_activity: Last activity
-      never: Never
+      never: => core.ref.never
       new_access_token_button: => core.ref.new_token
       new_access_token_modal:
         submit_button: Create Token
@@ -802,6 +804,7 @@ core:
     log_in: Log In
     log_out: Log Out
     mark_all_as_read: Mark All as Read
+    never: Never
     new_token: New Token
     next_page: Next Page
     notifications: Notifications
