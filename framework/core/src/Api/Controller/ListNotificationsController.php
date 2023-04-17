@@ -34,11 +34,6 @@ class ListNotificationsController extends AbstractListController
     ];
 
     /**
-     * {@inheritdoc}
-     */
-    public $limit = 10;
-
-    /**
      * @var NotificationRepository
      */
     protected $notifications;
