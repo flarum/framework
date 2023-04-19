@@ -18,6 +18,7 @@ use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Extend;
 use Flarum\Group\Group;
+use Flarum\Mentions\Api\LoadMentionedByRelationship;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
@@ -64,15 +65,20 @@ return [
         ->hasMany('mentionedBy', BasicPostSerializer::class)
         ->hasMany('mentionsPosts', BasicPostSerializer::class)
         ->hasMany('mentionsUsers', BasicUserSerializer::class)
-        ->hasMany('mentionsGroups', GroupSerializer::class),
+        ->hasMany('mentionsGroups', GroupSerializer::class)
+        ->attribute('mentionedByCount', function (BasicPostSerializer $serializer, Post $post) {
+            // Only if it was eager loaded.
+            return $post->getAttribute('mentioned_by_count') ?? 0;
+        }),
 
     (new Extend\ApiController(Controller\ShowDiscussionController::class))
         ->addInclude(['posts.mentionedBy', 'posts.mentionedBy.user', 'posts.mentionedBy.discussion'])
         ->load([
-            'posts.mentionsUsers', 'posts.mentionsPosts', 'posts.mentionsPosts.user', 'posts.mentionedBy',
-            'posts.mentionedBy.mentionsPosts', 'posts.mentionedBy.mentionsPosts.user', 'posts.mentionedBy.mentionsUsers',
+            'posts.mentionsUsers', 'posts.mentionsPosts', 'posts.mentionsPosts.user',
             'posts.mentionsGroups'
-        ]),
+        ])
+        ->loadWhere('posts.mentionedBy', [LoadMentionedByRelationship::class, 'mutateRelation'])
+        ->prepareDataForSerialization([LoadMentionedByRelationship::class, 'countRelation']),
 
     (new Extend\ApiController(Controller\ListDiscussionsController::class))
         ->load([
@@ -81,24 +87,23 @@ return [
         ]),
 
     (new Extend\ApiController(Controller\ShowPostController::class))
-        ->addInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion']),
+        ->addInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion'])
+        // We wouldn't normally need to eager load on a single model,
+        // but we do so here for visibility scoping.
+        ->loadWhere('mentionedBy', [LoadMentionedByRelationship::class, 'mutateRelation'])
+        ->prepareDataForSerialization([LoadMentionedByRelationship::class, 'countRelation']),
 
     (new Extend\ApiController(Controller\ListPostsController::class))
         ->addInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion'])
-        ->load([
-            'mentionsUsers', 'mentionsPosts', 'mentionsPosts.user', 'mentionedBy',
-            'mentionedBy.mentionsPosts', 'mentionedBy.mentionsPosts.user', 'mentionedBy.mentionsUsers',
-            'mentionsGroups'
-        ]),
+        ->load(['mentionsUsers', 'mentionsPosts', 'mentionsPosts.user', 'mentionsGroups'])
+        ->loadWhere('mentionedBy', [LoadMentionedByRelationship::class, 'mutateRelation'])
+        ->prepareDataForSerialization([LoadMentionedByRelationship::class, 'countRelation']),
 
     (new Extend\ApiController(Controller\CreatePostController::class))
         ->addOptionalInclude('mentionsGroups'),
 
     (new Extend\ApiController(Controller\UpdatePostController::class))
         ->addOptionalInclude('mentionsGroups'),
-
-    (new Extend\ApiController(Controller\AbstractSerializeController::class))
-        ->prepareDataForSerialization(FilterVisiblePosts::class),
 
     (new Extend\Settings)
         ->serializeToForum('allowUsernameMentionFormat', 'flarum-mentions.allow_username_format', 'boolval'),
@@ -112,7 +117,8 @@ return [
         ->listen(Deleted::class, Listener\UpdateMentionsMetadataWhenInvisible::class),
 
     (new Extend\Filter(PostFilterer::class))
-        ->addFilter(Filter\MentionedFilter::class),
+        ->addFilter(Filter\MentionedFilter::class)
+        ->addFilter(Filter\MentionedPostFilter::class),
 
     (new Extend\ApiSerializer(CurrentUserSerializer::class))
         ->attribute('canMentionGroups', function (CurrentUserSerializer $serializer, User $user, array $attributes): bool {

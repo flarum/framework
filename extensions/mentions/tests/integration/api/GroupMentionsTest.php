@@ -80,9 +80,11 @@ class GroupMentionsTest extends TestCase
             $this->request('GET', '/api/posts/4')
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $contents = $response->getBody()->getContents();
 
-        $response = json_decode($response->getBody(), true);
+        $this->assertEquals(200, $response->getStatusCode(), $contents);
+
+        $response = json_decode($contents, true);
 
         $this->assertStringContainsString('GroupMention', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('#80349E', $response['data']['attributes']['contentHtml']);

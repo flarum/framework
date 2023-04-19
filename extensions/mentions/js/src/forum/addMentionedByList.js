@@ -6,6 +6,8 @@ import PostPreview from 'flarum/forum/components/PostPreview';
 import punctuateSeries from 'flarum/common/helpers/punctuateSeries';
 import username from 'flarum/common/helpers/username';
 import icon from 'flarum/common/helpers/icon';
+import Button from 'flarum/common/components/Button';
+import MentionedByModal from './components/MentionedByModal';
 
 export default function addMentionedByList() {
   function hidePreview() {
@@ -36,14 +38,34 @@ export default function addMentionedByList() {
         // popup.
         m.render(
           $preview[0],
-          replies.map((reply) => (
-            <li data-number={reply.number()}>
-              {PostPreview.component({
-                post: reply,
-                onclick: hidePreview.bind(this),
-              })}
-            </li>
-          ))
+          <>
+            {replies.map((reply) => (
+              <li data-number={reply.number()}>
+                {PostPreview.component({
+                  post: reply,
+                  onclick: hidePreview.bind(this),
+                })}
+              </li>
+            ))}
+            {replies.length < post.mentionedByCount() ? (
+              <li className="Post-mentionedBy-preview-more">
+                <Button
+                  className="PostPreview Button"
+                  onclick={() => {
+                    hidePreview.call(this);
+                    app.modal.show(MentionedByModal, { post });
+                  }}
+                >
+                  <span className="PostPreview-content">
+                    <span className="PostPreview-badge Avatar">{icon('fas fa-reply-all')}</span>
+                    <span>
+                      {app.translator.trans('flarum-mentions.forum.post.mentioned_by_more_text', { count: post.mentionedByCount() - replies.length })}
+                    </span>
+                  </span>
+                </Button>
+              </li>
+            ) : null}
+          </>
         );
 
         $preview
