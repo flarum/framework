@@ -58,6 +58,7 @@ class ErrorServiceProvider extends AbstractServiceProvider
             return [
                 IlluminateValidationException::class => Handling\ExceptionHandler\IlluminateValidationExceptionHandler::class,
                 ValidationException::class => Handling\ExceptionHandler\ValidationExceptionHandler::class,
+                ExtensionException\CircularDependenciesException::class => ExtensionException\CircularDependenciesExceptionHandler::class,
                 ExtensionException\DependentExtensionsException::class => ExtensionException\DependentExtensionsExceptionHandler::class,
                 ExtensionException\MissingDependenciesException::class => ExtensionException\MissingDependenciesExceptionHandler::class,
             ];

@@ -226,7 +226,7 @@ export default class ControlSectionState {
         version: app.data.settings.version,
         icon: {
           // @ts-ignore
-          backgroundImage: `url(${app.forum.attribute('baseUrl')}/assets/extensions/flarum-package-manager/flarum.svg`,
+          backgroundImage: `url(${app.data.resources[0]['attributes']['baseUrl']}/assets/extensions/flarum-package-manager/flarum.svg`,
         },
         extra: {
           'flarum-extension': {

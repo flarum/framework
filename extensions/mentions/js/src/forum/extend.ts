@@ -8,7 +8,8 @@ export default [
     .add('user.mentions', '/u/:username/mentions', MentionsUserPage),
 
   new Extend.Model(Post) //
-    .hasMany<Post>('mentionedBy'),
+    .hasMany<Post>('mentionedBy')
+    .attribute<number>('mentionedByCount'),
 
   new Extend.Model(User) //
     .attribute<boolean>('canMentionGroups'),

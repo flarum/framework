@@ -313,7 +313,7 @@ class ApiController implements ExtenderInterface
      * Allows loading a relationship with additional query modification.
      *
      * @param string $relation: Relationship name, see load method description.
-     * @param callable(\Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Relations\Relation, \Psr\Http\Message\ServerRequestInterface|null, array): void $callback
+     * @param array|(callable(\Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Relations\Relation, \Psr\Http\Message\ServerRequestInterface|null, array): void) $callback
      *
      * The callback to modify the query, should accept:
      * - \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Relations\Relation $query: A query object.
@@ -322,7 +322,7 @@ class ApiController implements ExtenderInterface
      *
      * @return self
      */
-    public function loadWhere(string $relation, callable $callback): self
+    public function loadWhere(string $relation, callable $callback): self // @phpstan-ignore-line
     {
         $this->loadCallables = array_merge($this->loadCallables, [$relation => $callback]);
 

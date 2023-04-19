@@ -34,7 +34,8 @@ export default function tagLabel(tag, attrs = {}) {
     link ? Link : 'span',
     attrs,
     <span className="TagLabel-text">
-      {tag && tag.icon() && tagIcon(tag, {}, { useColor: false })} {tagText}
+      {tag && tag.icon() && tagIcon(tag, { className: 'TagLabel-icon' }, { useColor: false })}
+      <span className="TagLabel-name">{tagText}</span>
     </span>
   );
 }
