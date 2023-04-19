@@ -1,7 +1,7 @@
 import PaginatedListState, { PaginatedListParams } from 'flarum/common/states/PaginatedListState';
 import Post from 'flarum/common/models/Post';
 
-export interface MentionedByModalParams extends PaginatedListParams {
+export interface MentionedByModalListParams extends PaginatedListParams {
   filter: {
     mentionedPost: string;
   };
@@ -12,7 +12,7 @@ export interface MentionedByModalParams extends PaginatedListParams {
   };
 }
 
-export default class MentionedByModalState<P extends MentionedByModalParams = MentionedByModalParams> extends PaginatedListState<Post, P> {
+export default class MentionedByModalState<P extends MentionedByModalListParams = MentionedByModalListParams> extends PaginatedListState<Post, P> {
   constructor(params: P, page: number = 1) {
     const limit = 10;
 
