@@ -38,11 +38,11 @@ export default class ReplyPlaceholder extends Component {
     };
 
     return (
-      <article className="Post ReplyPlaceholder" onclick={reply}>
-        <header className="Post-header">
+      <button className="Post ReplyPlaceholder" onclick={reply}>
+        <span className="Post-header">
           {avatar(app.session.user, { className: 'PostUser-avatar' })} {app.translator.trans('core.forum.post_stream.reply_placeholder')}
-        </header>
-      </article>
+        </span>
+      </button>
     );
   }
 

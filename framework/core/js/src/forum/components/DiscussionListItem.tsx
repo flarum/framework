@@ -64,13 +64,101 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
 
   view() {
     const discussion = this.attrs.discussion;
-    const user = discussion.user();
+
+    const controls = DiscussionControls.controls(discussion, this).toArray();
+    const attrs = this.elementAttrs();
+
+    return (
+      <div {...attrs}>
+        {this.controlsView(controls)}
+        {this.slidableUnderneathView()}
+        {this.contentView()}
+      </div>
+    );
+  }
+
+  controlsView(controls: Mithril.ChildArray): Mithril.Children {
+    return (
+      (controls.length > 0 &&
+        Dropdown.component(
+          {
+            icon: 'fas fa-ellipsis-v',
+            className: 'DiscussionListItem-controls',
+            buttonClassName: 'Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right',
+            accessibleToggleLabel: app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label'),
+          },
+          controls
+        )) ||
+      null
+    );
+  }
+
+  slidableUnderneathView(): Mithril.Children {
+    const discussion = this.attrs.discussion;
+    const isUnread = discussion.isUnread();
+
+    return (
+      <span
+        className={'Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic' + (isUnread ? '' : ' disabled')}
+        onclick={this.markAsRead.bind(this)}
+      >
+        {icon('fas fa-check')}
+      </span>
+    );
+  }
+
+  contentView(): Mithril.Children {
+    const discussion = this.attrs.discussion;
     const isUnread = discussion.isUnread();
     const isRead = discussion.isRead();
 
+    return (
+      <div className={classList('DiscussionListItem-content', 'Slidable-content', { unread: isUnread, read: isRead })}>
+        {this.authorAvatarView()}
+        {this.badgesView()}
+        {this.mainView()}
+        {this.replyCountItem()}
+      </div>
+    );
+  }
+
+  authorAvatarView(): Mithril.Children {
+    const discussion = this.attrs.discussion;
+    const user = discussion.user();
+
+    return (
+      <Tooltip
+        text={app.translator.trans('core.forum.discussion_list.started_text', { user, ago: humanTime(discussion.createdAt()) })}
+        position="right"
+      >
+        <Link className="DiscussionListItem-author" href={user ? app.route.user(user) : '#'}>
+          {avatar(user || null, { title: '' })}
+        </Link>
+      </Tooltip>
+    );
+  }
+
+  badgesView(): Mithril.Children {
+    const discussion = this.attrs.discussion;
+
+    return <ul className="DiscussionListItem-badges badges">{listItems(discussion.badges().toArray())}</ul>;
+  }
+
+  mainView(): Mithril.Children {
+    const discussion = this.attrs.discussion;
+    const jumpTo = this.getJumpTo();
+
+    return (
+      <Link href={app.route.discussion(discussion, jumpTo)} className="DiscussionListItem-main">
+        <h2 className="DiscussionListItem-title">{highlight(discussion.title(), this.highlightRegExp)}</h2>
+        <ul className="DiscussionListItem-info">{listItems(this.infoItems().toArray())}</ul>
+      </Link>
+    );
+  }
+
+  getJumpTo() {
+    const discussion = this.attrs.discussion;
     let jumpTo = 0;
-    const controls = DiscussionControls.controls(discussion, this).toArray();
-    const attrs = this.elementAttrs();
 
     if (this.attrs.params.q) {
       const post = discussion.mostRelevantPost();
@@ -84,46 +172,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
       jumpTo = Math.min(discussion.lastPostNumber() ?? 0, (discussion.lastReadPostNumber() || 0) + 1);
     }
 
-    return (
-      <div {...attrs}>
-        {controls.length > 0 &&
-          Dropdown.component(
-            {
-              icon: 'fas fa-ellipsis-v',
-              className: 'DiscussionListItem-controls',
-              buttonClassName: 'Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right',
-              accessibleToggleLabel: app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label'),
-            },
-            controls
-          )}
-
-        <span
-          className={'Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic' + (isUnread ? '' : ' disabled')}
-          onclick={this.markAsRead.bind(this)}
-        >
-          {icon('fas fa-check')}
-        </span>
-
-        <div className={classList('DiscussionListItem-content', 'Slidable-content', { unread: isUnread, read: isRead })}>
-          <Tooltip
-            text={app.translator.trans('core.forum.discussion_list.started_text', { user, ago: humanTime(discussion.createdAt()) })}
-            position="right"
-          >
-            <Link className="DiscussionListItem-author" href={user ? app.route.user(user) : '#'}>
-              {avatar(user || null, { title: '' })}
-            </Link>
-          </Tooltip>
-
-          <ul className="DiscussionListItem-badges badges">{listItems(discussion.badges().toArray())}</ul>
-
-          <Link href={app.route.discussion(discussion, jumpTo)} className="DiscussionListItem-main">
-            <h2 className="DiscussionListItem-title">{highlight(discussion.title(), this.highlightRegExp)}</h2>
-            <ul className="DiscussionListItem-info">{listItems(this.infoItems().toArray())}</ul>
-          </Link>
-          {this.replyCountItem()}
-        </div>
-      </div>
-    );
+    return jumpTo;
   }
 
   oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
