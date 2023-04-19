@@ -2,8 +2,6 @@
   background: var(--control-bg);
   color: var(--control-color);
   border-radius: @border-radius;
-  padding: 2px 5px;
-  border: 0 !important;
   font-weight: 600;
 
   blockquote & {
@@ -14,7 +12,12 @@
     color: var(--link-color);
   }
 }
-.UserMention, .PostMention, .GroupMention {
+.UserMention, .PostMention, .GroupMention, .TagMention {
+  padding: 2px 5px;
+  vertical-align: middle;
+  border: 0 !important;
+  white-space: nowrap;
+
   &--deleted {
     opacity: 0.8;
     filter: grayscale(1);
@@ -27,10 +30,36 @@
     margin-left: 0;
   }
 
+  // @TODO: 2.0 use an icon in the XSLT template.
   &:before {
     .fas();
     content: @fa-var-reply;
     margin-right: 5px;
+  }
+}
+.GroupMention {
+  background-color: var(--color, var(--control-bg));
+  color: var(--control-color);
+  --link-color: currentColor;
+
+  &--colored {
+    --control-color: var(--contrast-color, var(--body-bg));
+    --link-color: var(--control-color);
+  }
+
+  .icon {
+    margin-left: 5px;
+  }
+}
+& when (is-extension-enabled('flarum-tags')) {
+  .TagMention {
+    --tag-bg: var(--color, var(--control-bg));
+    .tag-label();
+    margin: 0 2px;
+
+    .icon {
+      margin-right: 2px;
+    }
   }
 }
 .ComposerBody-mentionsWrapper {
@@ -50,6 +79,7 @@
   }
 }
 .MentionsDropdown, .PostMention-preview, .Post-mentionedBy-preview {
+  // @TODO: Rename to .MentionsDropdownItem, along with child classes. 2.0
   .PostPreview {
     color: @muted-color;
 
@@ -97,24 +127,9 @@
   position: absolute;
   .Button--color(@tooltip-color, @tooltip-bg);
 }
-.GroupMention {
-  background-color: var(--group-color, var(--control-bg));
-  color: var(--control-color);
-  --link-color: currentColor;
-
-  &--colored {
-    --control-color: var(--contrast-color, var(--body-bg));
-    --link-color: var(--control-color);
-  }
-
-  .icon {
-    margin-left: 5px;
-  }
-}
 .MentionsDropdown .Badge {
   box-shadow: none;
 }
-
 @media @phone {
   .MentionsDropdown {
     max-width: 100%;

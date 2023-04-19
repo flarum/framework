@@ -26,6 +26,8 @@ use Flarum\Post\Event\Restored;
 use Flarum\Post\Event\Revised;
 use Flarum\Post\Filter\PostFilterer;
 use Flarum\Post\Post;
+use Flarum\Tags\Api\Serializer\TagSerializer;
+use Flarum\Tags\Tag;
 use Flarum\User\User;
 
 return [
@@ -42,14 +44,14 @@ return [
         ->render(Formatter\FormatUserMentions::class)
         ->render(Formatter\FormatGroupMentions::class)
         ->unparse(Formatter\UnparsePostMentions::class)
-        ->unparse(Formatter\UnparseUserMentions::class)
-        ->parse(Formatter\CheckPermissions::class),
+        ->unparse(Formatter\UnparseUserMentions::class),
 
     (new Extend\Model(Post::class))
         ->belongsToMany('mentionedBy', Post::class, 'post_mentions_post', 'mentions_post_id', 'post_id')
         ->belongsToMany('mentionsPosts', Post::class, 'post_mentions_post', 'post_id', 'mentions_post_id')
         ->belongsToMany('mentionsUsers', User::class, 'post_mentions_user', 'post_id', 'mentions_user_id')
-        ->belongsToMany('mentionsGroups', Group::class, 'post_mentions_group', 'post_id', 'mentions_group_id'),
+        ->belongsToMany('mentionsGroups', Group::class, 'post_mentions_group', 'post_id', 'mentions_group_id')
+        ->belongsToMany('mentionsUsers', User::class, 'post_mentions_user', 'post_id', 'mentions_user_id'),
 
     new Extend\Locales(__DIR__.'/locale'),
 
@@ -83,7 +85,7 @@ return [
     (new Extend\ApiController(Controller\ListDiscussionsController::class))
         ->load([
             'firstPost.mentionsUsers', 'firstPost.mentionsPosts', 'firstPost.mentionsPosts.user', 'firstPost.mentionsGroups',
-            'lastPost.mentionsUsers', 'lastPost.mentionsPosts', 'lastPost.mentionsPosts.user', 'lastPost.mentionsGroups'
+            'lastPost.mentionsUsers', 'lastPost.mentionsPosts', 'lastPost.mentionsPosts.user', 'lastPost.mentionsGroups',
         ]),
 
     (new Extend\ApiController(Controller\ShowPostController::class))
@@ -98,12 +100,6 @@ return [
         ->load(['mentionsUsers', 'mentionsPosts', 'mentionsPosts.user', 'mentionsGroups'])
         ->loadWhere('mentionedBy', [LoadMentionedByRelationship::class, 'mutateRelation'])
         ->prepareDataForSerialization([LoadMentionedByRelationship::class, 'countRelation']),
-
-    (new Extend\ApiController(Controller\CreatePostController::class))
-        ->addOptionalInclude('mentionsGroups'),
-
-    (new Extend\ApiController(Controller\UpdatePostController::class))
-        ->addOptionalInclude('mentionsGroups'),
 
     (new Extend\Settings)
         ->serializeToForum('allowUsernameMentionFormat', 'flarum-mentions.allow_username_format', 'boolval'),
@@ -121,7 +117,32 @@ return [
         ->addFilter(Filter\MentionedPostFilter::class),
 
     (new Extend\ApiSerializer(CurrentUserSerializer::class))
-        ->attribute('canMentionGroups', function (CurrentUserSerializer $serializer, User $user, array $attributes): bool {
+        ->attribute('canMentionGroups', function (CurrentUserSerializer $serializer, User $user): bool {
             return $user->can('mentionGroups');
-        })
+        }),
+
+    // Tag mentions
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-tags', [
+            (new Extend\Formatter)
+                ->render(Formatter\FormatTagMentions::class)
+                ->unparse(Formatter\UnparseTagMentions::class),
+
+            (new Extend\Model(Post::class))
+                ->belongsToMany('mentionsTags', Tag::class, 'post_mentions_tag', 'post_id', 'mentions_tag_id'),
+
+            (new Extend\ApiSerializer(BasicPostSerializer::class))
+                ->hasMany('mentionsTags', TagSerializer::class),
+
+            (new Extend\ApiController(Controller\ShowDiscussionController::class))
+                ->load(['posts.mentionsTags']),
+
+            (new Extend\ApiController(Controller\ListDiscussionsController::class))
+                ->load([
+                    'firstPost.mentionsTags', 'lastPost.mentionsTags',
+                ]),
+
+            (new Extend\ApiController(Controller\ListPostsController::class))
+                ->load(['mentionsTags']),
+        ]),
 ];

@@ -41,6 +41,11 @@ class GroupRepository
         return $this->scopeVisibleTo($query, $actor)->firstOrFail();
     }
 
+    public function queryVisibleTo(User $actor = null)
+    {
+        return $this->scopeVisibleTo($this->query(), $actor);
+    }
+
     /**
      * Scope a query to only include records that are visible to a user.
      *

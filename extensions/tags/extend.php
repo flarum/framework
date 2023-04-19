@@ -29,6 +29,8 @@ use Flarum\Tags\Listener;
 use Flarum\Tags\LoadForumTagsRelationship;
 use Flarum\Tags\Post\DiscussionTaggedPost;
 use Flarum\Tags\Query\TagFilterGambit;
+use Flarum\Tags\Search\Gambit\FulltextGambit;
+use Flarum\Tags\Search\TagSearcher;
 use Flarum\Tags\Tag;
 use Flarum\Tags\Utf8SlugDriver;
 use Psr\Http\Message\ServerRequestInterface;
@@ -134,6 +136,9 @@ return [
 
     (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
         ->addGambit(TagFilterGambit::class),
+
+    (new Extend\SimpleFlarumSearch(TagSearcher::class))
+        ->setFullTextGambit(FullTextGambit::class),
 
     (new Extend\ModelUrl(Tag::class))
         ->addSlugDriver('default', Utf8SlugDriver::class),
