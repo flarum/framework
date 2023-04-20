@@ -335,7 +335,7 @@ export default class Application {
     // which will set the navbar's position to fixed. We don't want to always
     // have it fixed, as that could overlap with custom headers.
     const scrollListener = new ScrollListener((top: number) => {
-      const offset = appEl.getBoundingClientRect().top + document.body.scrollTop;
+      const offset = appEl.getBoundingClientRect().top + document.body.scrollTop + top;
 
       appEl.classList.toggle('affix', top >= offset);
       appEl.classList.toggle('scrolled', top > offset);
