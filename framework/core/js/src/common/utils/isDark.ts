@@ -7,16 +7,16 @@
  * standards, but we use a custom threshold for each light and dark modes
  * to preserve design consistency.
  */
-export default function isDark(hexcolor: string): boolean {
+export default function isDark(hexcolor: string | null): boolean {
   // return if hexcolor is undefined or shorter than 4 characters, shortest hex form is #333;
   // decided against regex hex color validation for performance considerations
-  if (!hexcolor || hexcolor.length <= 4) {
+  if (!hexcolor || hexcolor.length < 4) {
     return false;
   }
 
   let hexnumbers = hexcolor.replace('#', '');
 
-  if (hexnumbers.length == 3) {
+  if (hexnumbers.length === 3) {
     hexnumbers += hexnumbers;
   }
 
