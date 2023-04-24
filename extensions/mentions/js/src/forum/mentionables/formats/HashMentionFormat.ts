@@ -13,7 +13,7 @@ export default class HashMentionFormat extends MentionFormat {
   public queryFromTyped(typed: string): string | null {
     const matchTyped = typed.match(/^[-_\p{L}\p{N}\p{M}]+$/giu);
 
-    return matchTyped ? matchTyped[1] : null;
+    return matchTyped ? matchTyped[0] : null;
   }
 
   public format(slug: string): string {

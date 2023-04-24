@@ -1,4 +1,3 @@
-import MentionFormats from './MentionFormats';
 import type MentionableModel from './MentionableModel';
 import type Model from 'flarum/common/Model';
 import type Mithril from 'mithril';
