@@ -13,7 +13,7 @@ export default class AtMentionFormat extends MentionFormat {
   }
 
   public queryFromTyped(typed: string): string | null {
-    const matchTyped = typed.match(/^["“]((?:(?!"#).)+)$/);
+    const matchTyped = typed.match(/^["“]?((?:(?!"#).)+)$/);
 
     return matchTyped ? matchTyped[1] : null;
   }

@@ -76,7 +76,10 @@ export default function addComposerAutocomplete() {
       if (absMentionStart) {
         const typed = lastChunk.substring(relMentionStart).toLowerCase();
         matchTyped = activeFormat.queryFromTyped(typed);
-        mentionables.typed = matchTyped || typed;
+
+        if (!matchTyped) return;
+
+        mentionables.typed = matchTyped;
 
         const buildSuggestions = () => {
           // If the user has started to type a mention,
