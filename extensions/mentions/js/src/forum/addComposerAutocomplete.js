@@ -73,59 +73,59 @@ export default function addComposerAutocomplete() {
       dropdown.hide();
       dropdown.active = false;
 
-      if (!absMentionStart) return;
+      if (absMentionStart) {
+        const typed = lastChunk.substring(relMentionStart).toLowerCase();
+        matchTyped = activeFormat.queryFromTyped(typed);
 
-      const typed = lastChunk.substring(relMentionStart).toLowerCase();
-      matchTyped = activeFormat.queryFromTyped(typed);
+        if (!matchTyped) return;
 
-      if (!matchTyped) return;
+        mentionables.typed = matchTyped;
 
-      mentionables.typed = matchTyped;
+        const buildSuggestions = () => {
+          // If the user has started to type a mention,
+          // then suggest models matching.
+          const suggestions = mentionables.buildSuggestions();
 
-      const buildSuggestions = () => {
-        // If the user has started to type a mention,
-        // then suggest models matching.
-        const suggestions = mentionables.buildSuggestions();
+          if (suggestions.length) {
+            dropdown.items = suggestions;
+            m.render($container[0], dropdown.render());
 
-        if (suggestions.length) {
-          dropdown.items = suggestions;
-          m.render($container[0], dropdown.render());
+            dropdown.show();
+            const coordinates = this.attrs.composer.editor.getCaretCoordinates(absMentionStart);
+            const width = dropdown.$().outerWidth();
+            const height = dropdown.$().outerHeight();
+            const parent = dropdown.$().offsetParent();
+            let left = coordinates.left;
+            let top = coordinates.top + 15;
 
-          dropdown.show();
-          const coordinates = this.attrs.composer.editor.getCaretCoordinates(absMentionStart);
-          const width = dropdown.$().outerWidth();
-          const height = dropdown.$().outerHeight();
-          const parent = dropdown.$().offsetParent();
-          let left = coordinates.left;
-          let top = coordinates.top + 15;
+            // Keep the dropdown inside the editor.
+            if (top + height > parent.height()) {
+              top = coordinates.top - height - 15;
+            }
+            if (left + width > parent.width()) {
+              left = parent.width() - width;
+            }
 
-          // Keep the dropdown inside the editor.
-          if (top + height > parent.height()) {
-            top = coordinates.top - height - 15;
+            // Prevent the dropdown from going off screen on mobile
+            top = Math.max(-(parent.offset().top - $(document).scrollTop()), top);
+            left = Math.max(-parent.offset().left, left);
+
+            dropdown.show(left, top);
+          } else {
+            dropdown.active = false;
+            dropdown.hide();
           }
-          if (left + width > parent.width()) {
-            left = parent.width() - width;
-          }
+        };
 
-          // Prevent the dropdown from going off screen on mobile
-          top = Math.max(-(parent.offset().top - $(document).scrollTop()), top);
-          left = Math.max(-parent.offset().left, left);
+        dropdown.active = true;
 
-          dropdown.show(left, top);
-        } else {
-          dropdown.active = false;
-          dropdown.hide();
-        }
-      };
+        buildSuggestions();
 
-      dropdown.active = true;
+        dropdown.setIndex(0);
+        dropdown.$().scrollTop(0);
 
-      buildSuggestions();
-
-      dropdown.setIndex(0);
-      dropdown.$().scrollTop(0);
-
-      mentionables.search()?.then(buildSuggestions);
+        mentionables.search()?.then(buildSuggestions);
+      }
     };
 
     params.inputListeners.push(suggestionsInputListener);
