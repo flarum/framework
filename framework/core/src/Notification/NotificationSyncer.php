@@ -9,7 +9,6 @@
 
 namespace Flarum\Notification;
 
-use Flarum\Database\AbstractModel;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Driver\NotificationDriverInterface;
 use Flarum\User\User;

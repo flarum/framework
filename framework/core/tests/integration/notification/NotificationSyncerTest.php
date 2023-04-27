@@ -10,15 +10,11 @@
 namespace Flarum\Tests\integration\notification;
 
 use Carbon\Carbon;
-use Flarum\Api\Serializer\BasicDiscussionSerializer;
-use Flarum\Api\Serializer\BasicPostSerializer;
 use Flarum\Database\AbstractModel;
-use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Notification;
 use Flarum\Notification\NotificationSyncer;
-use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;

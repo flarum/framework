@@ -11,18 +11,13 @@ namespace Flarum\Mentions;
 
 use Flarum\Extension\ExtensionManager;
 use Flarum\Group\Group;
-use Flarum\Group\GroupRepository;
 use Flarum\Http\UrlGenerator;
-use Flarum\Post\PostRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Tag;
-use Flarum\Tags\TagRepository;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Collection;
 use s9e\TextFormatter\Configurator;
-use s9e\TextFormatter\Parser;
 use s9e\TextFormatter\Parser\Tag as FormatterTag;
-use s9e\TextFormatter\Utils;
 
 /**
  * @TODO: refactor this lump of code into a mentionable models polymorphic system (for v2.0).

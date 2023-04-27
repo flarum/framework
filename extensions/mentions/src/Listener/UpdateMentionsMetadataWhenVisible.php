@@ -12,16 +12,11 @@ namespace Flarum\Mentions\Listener;
 use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Mentions\Job\SendMentionsNotificationsJob;
-use Flarum\Mentions\Notification\GroupMentionedBlueprint;
-use Flarum\Mentions\Notification\PostMentionedBlueprint;
-use Flarum\Mentions\Notification\UserMentionedBlueprint;
-use Flarum\Notification\NotificationSyncer;
 use Flarum\Post\CommentPost;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
 use Flarum\Post\Event\Revised;
 use Flarum\Post\Post;
-use Flarum\User\User;
 use Illuminate\Contracts\Queue\Queue;
 use s9e\TextFormatter\Utils;
 
