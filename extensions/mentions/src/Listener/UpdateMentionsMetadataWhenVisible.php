@@ -81,6 +81,7 @@ class UpdateMentionsMetadataWhenVisible
         $post->unsetRelation('mentionsUsers');
 
         $users = User::whereIn('id', $mentioned)
+            ->with('groups')
             ->get()
             ->filter(function ($user) use ($post) {
                 return $post->isVisibleTo($user) && $user->id !== $post->user_id;
@@ -97,6 +98,7 @@ class UpdateMentionsMetadataWhenVisible
 
         $posts = Post::with('user')
             ->whereIn('id', $mentioned)
+            ->with('user.groups')
             ->get()
             ->filter(function (Post $post) use ($reply) {
                 return $post->user && $post->user_id !== $reply->user_id && $reply->isVisibleTo($post->user);
@@ -116,6 +118,7 @@ class UpdateMentionsMetadataWhenVisible
         $users = User::whereHas('groups', function ($query) use ($mentioned) {
             $query->whereIn('groups.id', $mentioned);
         })
+            ->with('groups')
             ->get()
             ->filter(function (User $user) use ($post) {
                 return $post->isVisibleTo($user) && $user->id !== $post->user_id;
