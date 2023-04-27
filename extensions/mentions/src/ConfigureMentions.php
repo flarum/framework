@@ -18,14 +18,23 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Tag;
 use Flarum\Tags\TagRepository;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Collection;
 use s9e\TextFormatter\Configurator;
+use s9e\TextFormatter\Parser;
 use s9e\TextFormatter\Parser\Tag as FormatterTag;
+use s9e\TextFormatter\Utils;
 
 /**
  * @TODO: refactor this lump of code into a mentionable models polymorphic system (for v2.0).
  */
 class ConfigureMentions
 {
+    public const USER_MENTION_WITH_DISPLAY_NAME_REGEX = '/\B@["“](?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)["”]#(?<id>[0-9]+)\b/';
+    public const USER_MENTION_WITH_USERNAME_REGEX = '/\B@(?<username>[a-z0-9_-]+)(?!#)/i';
+    public const POST_MENTION_WITH_DISPLAY_NAME_REGEX = '/\B@["“](?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)["”]#p(?<id>[0-9]+)\b/';
+    public const GROUP_MENTION_WITH_NAME_REGEX = '/\B@["“](?<groupname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#g(?<id>[0-9]+)\b/';
+    public const TAG_MENTION_WITH_SLUG_REGEX = '/(?:[^“"]|^)\B#(?<slug>[-_\p{L}\p{N}\p{M}]+)\b/ui';
+
     /**
      * @var UrlGenerator
      */
@@ -74,27 +83,29 @@ class ConfigureMentions
             </xsl:choose>';
 
         $tag->filterChain->prepend([static::class, 'addUserId'])
-            ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterUserMentions(tag); }');
+            ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterUserMentions(tag); }')
+            ->addParameterByName('mentions');
 
         $tag->filterChain->append([static::class, 'dummyFilter'])
             ->setJs('function(tag) { return flarum.extensions["flarum-mentions"].postFilterUserMentions(tag); }');
 
-        $config->Preg->match('/\B@["“](?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)["”]#(?<id>[0-9]+)\b/', $tagName);
-        $config->Preg->match('/\B@(?<username>[a-z0-9_-]+)(?!#)/i', $tagName);
+        $config->Preg->match(self::USER_MENTION_WITH_DISPLAY_NAME_REGEX, $tagName);
+        $config->Preg->match(self::USER_MENTION_WITH_USERNAME_REGEX, $tagName);
     }
 
     /**
      * @param FormatterTag $tag
+     * @param array<string, Collection> $mentions
      * @return bool|void
      */
-    public static function addUserId($tag)
+    public static function addUserId($tag, array $mentions)
     {
         $allow_username_format = (bool) resolve(SettingsRepositoryInterface::class)->get('flarum-mentions.allow_username_format');
 
         if ($tag->hasAttribute('username') && $allow_username_format) {
-            $user = User::where('username', $tag->getAttribute('username'))->first();
+            $user = $mentions['users']->where('username', $tag->getAttribute('username'))->first();
         } elseif ($tag->hasAttribute('id')) {
-            $user = User::find($tag->getAttribute('id'));
+            $user = $mentions['users']->where('id', $tag->getAttribute('id'))->first();
         }
 
         if (isset($user)) {
@@ -133,23 +144,22 @@ class ConfigureMentions
         $tag->filterChain
             ->prepend([static::class, 'addPostId'])
             ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterPostMentions(tag); }')
-            ->addParameterByName('actor');
+            ->addParameterByName('mentions');
 
         $tag->filterChain->append([static::class, 'dummyFilter'])
             ->setJs('function(tag) { return flarum.extensions["flarum-mentions"].postFilterPostMentions(tag); }');
 
-        $config->Preg->match('/\B@["“](?<displayname>((?!"#[a-z]{0,3}[0-9]+).)+)["”]#p(?<id>[0-9]+)\b/', $tagName);
+        $config->Preg->match(self::POST_MENTION_WITH_DISPLAY_NAME_REGEX, $tagName);
     }
 
     /**
      * @param FormatterTag $tag
+     * @param array<string, Collection> $mentions
      * @return bool|void
      */
-    public static function addPostId($tag, User $actor)
+    public static function addPostId($tag, array $mentions)
     {
-        $post = resolve(PostRepository::class)
-            ->queryVisibleTo($actor)
-            ->find($tag->getAttribute('id'));
+        $post = $mentions['posts']->where('id', $tag->getAttribute('id'))->first();
 
         if ($post) {
             $tag->setAttribute('discussionid', (string) $post->discussion_id);
@@ -205,18 +215,22 @@ class ConfigureMentions
 
         $tag->filterChain->prepend([static::class, 'addGroupId'])
             ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterGroupMentions(tag); }')
-            ->addParameterByName('actor');
+            ->addParameterByName('actor')
+            ->addParameterByName('mentions');
 
         $tag->filterChain->append([static::class, 'dummyFilter'])
             ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].postFilterGroupMentions(tag); }');
 
-        $config->Preg->match('/\B@["“](?<groupname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#g(?<id>[0-9]+)\b/', $tagName);
+        $config->Preg->match(self::GROUP_MENTION_WITH_NAME_REGEX, $tagName);
     }
 
     /**
+     * @param FormatterTag $tag
+     * @param User $actor
+     * @param array<string, Collection> $mentions
      * @return bool|void
      */
-    public static function addGroupId(FormatterTag $tag, User $actor)
+    public static function addGroupId(FormatterTag $tag, User $actor, array $mentions)
     {
         $id = $tag->getAttribute('id');
 
@@ -226,9 +240,7 @@ class ConfigureMentions
             return false;
         }
 
-        $group = resolve(GroupRepository::class)
-            ->queryVisibleTo($actor)
-            ->find($id);
+        $group = $mentions['groups']->where('id', $id)->first();
 
         if ($group) {
             $tag->setAttribute('id', $group->id);
@@ -293,24 +305,24 @@ class ConfigureMentions
         $tag->filterChain
             ->prepend([static::class, 'addTagId'])
             ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].filterTagMentions(tag); }')
-            ->addParameterByName('actor');
+            ->addParameterByName('mentions');
 
         $tag->filterChain
             ->append([static::class, 'dummyFilter'])
             ->setJS('function(tag) { return flarum.extensions["flarum-mentions"].postFilterTagMentions(tag); }');
 
-        $config->Preg->match('/(?:[^“"]|^)\B#(?<slug>[-_\p{L}\p{N}\p{M}]+)\b/ui', $tagName);
+        $config->Preg->match(self::TAG_MENTION_WITH_SLUG_REGEX, $tagName);
     }
 
     /**
+     * @param FormatterTag $tag
+     * @param array<string, Collection> $mentions
      * @return true|void
      */
-    public static function addTagId(FormatterTag $tag, User $actor)
+    public static function addTagId(FormatterTag $tag, array $mentions)
     {
         /** @var Tag|null $model */
-        $model = resolve(TagRepository::class)
-            ->queryVisibleTo($actor)
-            ->firstWhere('slug', $tag->getAttribute('slug'));
+        $model = $mentions['tags']->where('id', $tag->getAttribute('id'))->first();
 
         if ($model) {
             $tag->setAttribute('id', (string) $model->id);

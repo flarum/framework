@@ -85,7 +85,7 @@ class Formatter
      * @param string $text
      * @param mixed $context
      * @param User|null $user
-     * @return string
+     * @return string the parsed XML
      */
     public function parse($text, $context = null, User $user = null)
     {
