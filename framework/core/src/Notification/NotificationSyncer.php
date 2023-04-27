@@ -75,12 +75,6 @@ class NotificationSyncer
                 continue;
             }
 
-            // To add access checking on notification subjects, we first attempt
-            // to load visible subjects to this user.
-            if (! $this->userCanSeeSubject($user, $blueprint->getSubject())) {
-                continue;
-            }
-
             $existing = $toDelete->first(function ($notification) use ($user) {
                 return $notification->user_id === $user->id;
             });
@@ -166,18 +160,6 @@ class NotificationSyncer
     protected function setDeleted(array $ids, $isDeleted)
     {
         Notification::whereIn('id', $ids)->update(['is_deleted' => $isDeleted]);
-    }
-
-    /**
-     * Check access to determine if the recipient is allowed to receive the notification.
-     */
-    protected function userCanSeeSubject(User $user, ?AbstractModel $subject): bool
-    {
-        if ($subject && method_exists($subject, 'registerVisibilityScoper')) {
-            return (bool) $subject->newQuery()->whereVisibleTo($user)->find($subject->id);
-        }
-
-        return true;
     }
 
     /**

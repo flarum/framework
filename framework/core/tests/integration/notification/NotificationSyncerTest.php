@@ -51,35 +51,6 @@ class NotificationSyncerTest extends TestCase
     }
 
     /**
-     * @dataProvider visibleSubjectsProvider
-     * @param class-string<AbstractModel> $subjectClass
-     * @test
-     */
-    public function can_receive_notification_for_visible_subjects(string $subjectClass, int $subjectId, string $serializer)
-    {
-        $this->expect_notification_count_from_sending_notification_type_with_subject(
-            2,
-            $subjectClass,
-            $subjectId,
-            $serializer
-        );
-    }
-
-    /**
-     * @dataProvider invisibleSubjectsProvider
-     * @test
-     */
-    public function cannot_receive_notification_for_restricted_subjects(string $subjectClass, int $subjectId, string $serializer)
-    {
-        $this->expect_notification_count_from_sending_notification_type_with_subject(
-            0,
-            $subjectClass,
-            $subjectId,
-            $serializer
-        );
-    }
-
-    /**
      * @param class-string<AbstractModel> $subjectClass
      */
     protected function expect_notification_count_from_sending_notification_type_with_subject(int $count, string $subjectClass, int $subjectId, string $serializer)
@@ -111,23 +82,6 @@ class NotificationSyncerTest extends TestCase
                 ->whereSubject($subject)
                 ->count()
         );
-    }
-
-    public function visibleSubjectsProvider()
-    {
-        return [
-            [Post::class, 1, BasicPostSerializer::class],
-            [Discussion::class, 1, BasicDiscussionSerializer::class],
-        ];
-    }
-
-    public function invisibleSubjectsProvider()
-    {
-        return [
-            [Post::class, 2, BasicPostSerializer::class],
-            [Discussion::class, 2, BasicDiscussionSerializer::class],
-            [Post::class, 3, BasicPostSerializer::class],
-        ];
     }
 }
 
