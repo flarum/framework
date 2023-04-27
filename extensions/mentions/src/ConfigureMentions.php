@@ -317,7 +317,7 @@ class ConfigureMentions
     public static function addTagId(FormatterTag $tag, array $mentions)
     {
         /** @var Tag|null $model */
-        $model = $mentions['tags']->where('id', $tag->getAttribute('id'))->first();
+        $model = $mentions['tags']->where('slug', $tag->getAttribute('slug'))->first();
 
         if ($model) {
             $tag->setAttribute('id', (string) $model->id);
