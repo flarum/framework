@@ -56,7 +56,7 @@ class ListTest extends TestCase
                 ['id' => 2, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'discussionTagged', 'content' => '[[1,5],[5]]', 'number' => 2],
                 ['id' => 3, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>', 'number' => 3],
                 ['id' => 4, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'discussionTagged', 'content' => '[[1,5],[5]]', 'number' => 4],
-           ],
+            ],
             'discussion_tag' => [
                 ['discussion_id' => 1, 'tag_id' => 1],
             ],
