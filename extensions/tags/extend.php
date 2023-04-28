@@ -8,6 +8,7 @@
  */
 
 use Flarum\Api\Controller as FlarumController;
+use Flarum\Api\Serializer\BasicPostSerializer;
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Discussion\Discussion;
@@ -18,6 +19,7 @@ use Flarum\Extend;
 use Flarum\Flags\Api\Controller\ListFlagsController;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\Filter\PostFilterer;
+use Flarum\Post\Post;
 use Flarum\Tags\Access;
 use Flarum\Tags\Api\Controller;
 use Flarum\Tags\Api\Serializer\TagSerializer;
@@ -142,4 +144,37 @@ return [
 
     (new Extend\ModelUrl(Tag::class))
         ->addSlugDriver('default', Utf8SlugDriver::class),
+
+    /*
+     * Fixes DiscussionTaggedPost showing tags as deleted because they are not loaded in the store.
+     * @link https://github.com/flarum/framework/issues/3620#issuecomment-1232911734
+     */
+
+    (new Extend\Model(Post::class))
+        ->belongsToMany('mentionsTags', Tag::class, 'post_mentions_tag', 'post_id', 'mentions_tag_id')
+        // We do not wish to include all `mentionsTags` in the API response,
+        // only those related to `discussionTagged` posts.
+        ->relationship('eventPostMentionsTags', function (Post $model) {
+            return $model->mentionsTags();
+        }),
+
+    (new Extend\ApiSerializer(BasicPostSerializer::class))
+        ->relationship('eventPostMentionsTags', function (BasicPostSerializer $serializer, Post $model) {
+            if ($model instanceof DiscussionTaggedPost) {
+                return $serializer->hasMany($model, TagSerializer::class, 'eventPostMentionsTags');
+            }
+
+            return null;
+        })
+        ->hasMany('eventPostMentionsTags', TagSerializer::class),
+
+    (new Extend\ApiController(FlarumController\ListPostsController::class))
+        ->addInclude('eventPostMentionsTags')
+        // Restricted tags should still appear as `deleted` to unauthorized users.
+        ->loadWhere('eventPostMentionsTags', function ($query, ?ServerRequestInterface $request) {
+            if ($request) {
+                $actor = RequestUtil::getActor($request);
+                $query->whereVisibleTo($actor);
+            }
+        }),
 ];

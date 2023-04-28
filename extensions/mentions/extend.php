@@ -128,9 +128,6 @@ return [
                 ->render(Formatter\FormatTagMentions::class)
                 ->unparse(Formatter\UnparseTagMentions::class),
 
-            (new Extend\Model(Post::class))
-                ->belongsToMany('mentionsTags', Tag::class, 'post_mentions_tag', 'post_id', 'mentions_tag_id'),
-
             (new Extend\ApiSerializer(BasicPostSerializer::class))
                 ->hasMany('mentionsTags', TagSerializer::class),
 

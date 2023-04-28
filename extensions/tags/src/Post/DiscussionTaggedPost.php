@@ -45,6 +45,11 @@ class DiscussionTaggedPost extends AbstractEventPost implements MergeableInterfa
 
         $this->save();
 
+        // Create mentions of the tags so that we can load them when rendering.
+        $this->mentionsTags()->sync(
+            array_merge($this->content[0], $this->content[1])
+        );
+
         return $this;
     }
 
