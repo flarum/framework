@@ -23,6 +23,7 @@ abstract class ConsoleTestCase extends TestCase
         if (is_null($this->console)) {
             $this->console = new ConsoleApplication('Flarum', Application::VERSION);
             $this->console->setAutoExit(false);
+            $this->console->setCatchExceptions(false);
 
             foreach ($this->app()->getConsoleCommands() as $command) {
                 $this->console->add($command);
