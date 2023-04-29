@@ -1,4 +1,4 @@
-name: Framework PHP
+name: Static Code Analysis
 
 on: [workflow_dispatch, push, pull_request]
 

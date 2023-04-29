@@ -69,6 +69,7 @@
             "Flarum\\Lock\\Tests\\": "extensions/lock/tests",
             "Flarum\\Mentions\\Tests\\": "extensions/mentions/tests",
             "Flarum\\Nicknames\\Tests\\": "extensions/nicknames/tests",
+            "Flarum\\PackageManager\\Tests\\": "extensions/package-manager/tests",
             "Flarum\\Pusher\\Tests\\": "extensions/pusher/tests",
             "Flarum\\Statistics\\Tests\\": "extensions/statistics/tests",
             "Flarum\\Sticky\\Tests\\": "extensions/sticky/tests",
