@@ -7,5 +7,5 @@ jobs:
     uses: ./.github/workflows/REUSABLE_backend.yml
     with:
       enable_backend_testing: true
-
+      composer_directory: .
       backend_directory: ./extensions/likes

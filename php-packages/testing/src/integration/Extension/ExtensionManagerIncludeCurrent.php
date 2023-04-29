@@ -54,22 +54,14 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
      */
     public function getExtensions()
     {
-        $extensions = parent::getExtensions();
+        parent::getExtensions();
 
         $package = json_decode($this->filesystem->get($this->paths->vendor.'/../composer.json'), true);
+        $packagePath = $this->paths->vendor.'/../';
 
-        if (Arr::get($package, 'type') === 'flarum-extension') {
-            $current = new Extension($this->paths->vendor.'/../', $package);
-            $current->setInstalled(true);
-            $current->setVersion(Arr::get($package, 'version'));
-            $current->calculateDependencies([], []);
+        $this->includeCurrentExtension($package, $packagePath);
 
-            $extensions->put($current->getId(), $current);
-
-            $this->extensions = $extensions->sortBy(function ($extension, $name) {
-                return $extension->composerJsonAttribute('extra.flarum-extension.title');
-            });
-        }
+        $this->includeMonorepoExtensions($package, $packagePath);
 
         return $this->extensions;
     }
@@ -111,5 +103,33 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
     protected function getAssetsFilesystem(): Cloud
     {
         return new FilesystemAdapter(new FlysystemFilesystem(new Local($this->paths->public.'/assets'), ['url' => resolve('flarum.config')->url().'/assets']));
+    }
+
+    protected function includeCurrentExtension($package, string $packagePath)
+    {
+        if (Arr::get($package, 'type') === 'flarum-extension') {
+            $current = new Extension($packagePath, $package);
+            $current->setInstalled(true);
+            $current->setVersion(Arr::get($package, 'version'));
+            $current->calculateDependencies([], []);
+
+            $this->extensions->put($current->getId(), $current);
+
+            $this->extensions = $this->extensions->sortBy(function ($extension, $name) {
+                return $extension->composerJsonAttribute('extra.flarum-extension.title');
+            });
+        }
+    }
+
+    /**
+     * Allows symlinking the vendor directory in extensions when running tests on monorepos.
+     */
+    protected function includeMonorepoExtensions($package, string $packagePath)
+    {
+        foreach ($this->subExtensionConfsFromJson($package, $packagePath) ?? [] as $path => $package) {
+            $extension = $this->extensionFromJson($package, $path);
+            $extension->calculateDependencies([], []);
+            $this->extensions->put($extension->getId(), $extension);
+        }
     }
 }

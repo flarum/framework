@@ -21,6 +21,12 @@ on:
         required: false
         default: '.'
 
+      # Used with mono-repos, defaults to `backend_directory`.
+      composer_directory:
+        description: The directory of the project where composer.json is located. This is generally the backend directory, but can be different in mono-repos.
+        type: string
+        required: false
+
       php_versions:
         description: Versions of PHP to test with. Should be array of strings encoded as JSON array
         type: string
@@ -47,6 +53,8 @@ on:
 
 env:
   COMPOSER_ROOT_VERSION: dev-main
+  # `inputs.composer_directory` defaults to `inputs.backend_directory`
+  COMPOSER_DIR: ${{ inputs.composer_directory || inputs.backend_directory }}
   FLARUM_TEST_TMP_DIR_LOCAL: tests/integration/tmp
 
 jobs:
@@ -141,7 +149,7 @@ jobs:
 
       - name: Install Composer dependencies
         run: composer install
-        working-directory: ${{ inputs.backend_directory }}
+        working-directory: ${{ env.COMPOSER_DIR }}
 
       - name: Setup Composer tests
         run: composer test:setup

@@ -59,6 +59,25 @@
             "framework/core/src/helpers.php"
         ]
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Flarum\\Tests\\": "tests",
+            "Flarum\\Akismet\\Tests\\": "extensions/akismet/tests",
+            "Flarum\\Approval\\Tests\\": "extensions/approval/tests",
+            "Flarum\\Flags\\Tests\\": "extensions/flags/tests",
+            "Flarum\\Likes\\Tests\\": "extensions/likes/tests",
+            "Flarum\\Lock\\Tests\\": "extensions/lock/tests",
+            "Flarum\\Mentions\\Tests\\": "extensions/mentions/tests",
+            "Flarum\\Nicknames\\Tests\\": "extensions/nicknames/tests",
+            "Flarum\\Pusher\\Tests\\": "extensions/pusher/tests",
+            "Flarum\\Statistics\\Tests\\": "extensions/statistics/tests",
+            "Flarum\\Sticky\\Tests\\": "extensions/sticky/tests",
+            "Flarum\\Subscriptions\\Tests\\": "extensions/subscriptions/tests",
+            "Flarum\\Suspend\\Tests\\": "extensions/suspend/tests",
+            "Flarum\\Tags\\Tests\\": "extensions/tags/tests",
+            "Flarum\\Testing\\Tests\\": "php-packages/testing/tests"
+        }
+    },
     "replace": {
         "flarum/core": "self.version",
         "flarum/akismet": "self.version",

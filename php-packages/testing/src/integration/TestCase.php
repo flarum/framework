@@ -62,7 +62,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                     'base' => $tmp,
                     'public' => "$tmp/public",
                     'storage' => "$tmp/storage",
-                    'vendor' => getcwd().'/vendor',
+                    'vendor' => getenv('FLARUM_TEST_VENDOR_PATH') ?: getcwd().'/vendor',
                 ]),
                 new Config($config)
             );

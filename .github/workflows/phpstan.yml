@@ -8,5 +8,4 @@ jobs:
     with:
       enable_backend_testing: false
       enable_phpstan: true
-
       backend_directory: .

@@ -10,6 +10,7 @@
     convertWarningsToExceptions="true"
     processIsolation="true"
     stopOnFailure="false"
+    bootstrap="../../../tests/bootstrap.php"
 >
     <coverage processUncoveredFiles="true">
         <include>
