@@ -13,6 +13,7 @@ use Flarum\Console\AbstractCommand;
 use Flarum\Extend;
 use Flarum\Testing\integration\ConsoleTestCase;
 use Illuminate\Console\Scheduling\Event;
+use Symfony\Component\Console\Exception\CommandNotFoundException;
 
 class ConsoleTest extends ConsoleTestCase
 {
@@ -25,7 +26,8 @@ class ConsoleTest extends ConsoleTestCase
             'command' => 'customTestCommand'
         ];
 
-        $this->assertEquals('Command "customTestCommand" is not defined.', $this->runCommand($input));
+        $this->expectException(CommandNotFoundException::class);
+        $this->runCommand($input);
     }
 
     /**
