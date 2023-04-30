@@ -32,11 +32,10 @@ class ToggleExtensionCommand extends AbstractCommand
     protected function configure()
     {
         $this
-            ->setName('extension:toggle')
+            ->setName('extension:enable')
+            ->setAliases(['extension:disable'])
             ->setDescription('Enable or disable an extension.')
-            ->addArgument('extension', null, 'The extension to enable or disable.')
-            ->addOption('enable', null, null, 'Enable the extension.')
-            ->addOption('disable', null, null, 'Disable the extension.');
+            ->addArgument('extension-id', null, 'The ID of the extension to enable or disable.');
     }
 
     /**
