@@ -20,6 +20,7 @@ use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem as FlysystemFilesystem;
 
@@ -54,16 +55,14 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
      */
     public function getExtensions()
     {
-        parent::getExtensions();
+        $extensions = parent::getExtensions();
 
         $package = json_decode($this->filesystem->get($this->paths->vendor.'/../composer.json'), true);
         $packagePath = $this->paths->vendor.'/../';
 
-        $this->includeCurrentExtension($package, $packagePath);
+        $extensions = $this->includeCurrentExtension($extensions, $package, $packagePath);
 
-        $this->includeMonorepoExtensions($package, $packagePath);
-
-        return $this->extensions;
+        return $this->extensions = $this->includeMonorepoExtensions($extensions, $package, $packagePath);
     }
 
     /**
@@ -105,31 +104,35 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
         return new FilesystemAdapter(new FlysystemFilesystem(new Local($this->paths->public.'/assets'), ['url' => resolve('flarum.config')->url().'/assets']));
     }
 
-    protected function includeCurrentExtension($package, string $packagePath)
+    protected function includeCurrentExtension(Collection $extensions, $package, string $packagePath): Collection
     {
         if (Arr::get($package, 'type') === 'flarum-extension') {
             $current = new Extension($packagePath, $package);
             $current->setInstalled(true);
             $current->setVersion(Arr::get($package, 'version'));
-            $current->calculateDependencies([], []);
+            $current->calculateDependencies([]);
 
-            $this->extensions->put($current->getId(), $current);
+            $extensions->put($current->getId(), $current);
 
-            $this->extensions = $this->extensions->sortBy(function ($extension, $name) {
+            $extensions = $extensions->sortBy(function ($extension, $name) {
                 return $extension->composerJsonAttribute('extra.flarum-extension.title');
             });
         }
+
+        return $extensions;
     }
 
     /**
      * Allows symlinking the vendor directory in extensions when running tests on monorepos.
      */
-    protected function includeMonorepoExtensions($package, string $packagePath)
+    protected function includeMonorepoExtensions(Collection $extensions, $package, string $packagePath): Collection
     {
         foreach ($this->subExtensionConfsFromJson($package, $packagePath) ?? [] as $path => $package) {
             $extension = $this->extensionFromJson($package, $path);
-            $extension->calculateDependencies([], []);
-            $this->extensions->put($extension->getId(), $extension);
+            $extension->calculateDependencies([]);
+            $extensions->put($extension->getId(), $extension);
         }
+
+        return $extensions;
     }
 }
