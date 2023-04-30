@@ -38,5 +38,15 @@ return [
             $config->BBCodes->addFromRepository('CENTER');
             $config->BBCodes->addFromRepository('SIZE');
             $config->BBCodes->addFromRepository('*');
+
+            // Fix for highlight JS not working after changing post content.
+            $codeTag = $config->tags->get('CODE');
+            $script = '
+                <script>
+                    if(window.hljsLoader && !document.currentScript.parentNode.hasAttribute(\'data-s9e-livepreview-onupdate\')) {
+                        window.hljsLoader.highlightBlocks(document.currentScript.parentNode);
+                    }
+                </script>';
+            $codeTag->template = str_replace('</pre>', $script.'</pre>', $codeTag->template);
         }),
 ];
