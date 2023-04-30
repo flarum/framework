@@ -11,7 +11,6 @@ namespace Flarum\Extension\Console;
 
 use Flarum\Console\AbstractCommand;
 use Flarum\Extension\ExtensionManager;
-use Illuminate\Contracts\Container\Container;
 
 class ToggleExtensionCommand extends AbstractCommand
 {
@@ -26,7 +25,7 @@ class ToggleExtensionCommand extends AbstractCommand
 
         parent::__construct();
     }
-    
+
     /**
      * {@inheritdoc}
      */
