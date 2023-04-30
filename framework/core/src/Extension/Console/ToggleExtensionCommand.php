@@ -48,6 +48,7 @@ class ToggleExtensionCommand extends AbstractCommand
 
         if ($this->extensionManager->getExtension($name) === null) {
             $this->error("There are no extensions by the ID of '$name'.");
+
             return;
         }
 
@@ -55,6 +56,7 @@ class ToggleExtensionCommand extends AbstractCommand
             case true:
                 if ($this->extensionManager->isEnabled($name)) {
                     $this->info("The '$name' extension is already enabled.");
+
                     return;
                 } else {
                     $this->info("Enabling '$name' extension...");
@@ -64,6 +66,7 @@ class ToggleExtensionCommand extends AbstractCommand
             case false:
                 if (! $this->extensionManager->isEnabled($name)) {
                     $this->info("The '$name' extension is already disabled.");
+
                     return;
                 } else {
                     $this->info("Disabling '$name' extension...");
