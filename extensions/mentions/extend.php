@@ -40,6 +40,7 @@ return [
 
     (new Extend\Formatter)
         ->configure(ConfigureMentions::class)
+        ->parse(Formatter\EagerLoadMentionedModels::class)
         ->render(Formatter\FormatPostMentions::class)
         ->render(Formatter\FormatUserMentions::class)
         ->render(Formatter\FormatGroupMentions::class)
