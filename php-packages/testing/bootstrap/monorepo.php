@@ -25,7 +25,9 @@
 |
 */
 
-$monorepoVendor = __DIR__.'/../vendor';
+$monorepoVendor = __DIR__.'/../../../vendor';
+
+// The root directory of the extension where tests are run from.
 $localVendor = getcwd().'/vendor';
 
 if (! file_exists("$localVendor/bin")) {

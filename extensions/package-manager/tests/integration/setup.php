@@ -9,7 +9,7 @@
 
 use Flarum\PackageManager\Tests\integration\SetupComposer;
 
-$setup = require __DIR__.'/../../../../tests/bootstrap.php';
+$setup = require __DIR__.'/../../../../php-packages/testing/bootstrap/monorepo.php';
 
 $setup->run();
 
