@@ -1,4 +1,4 @@
-import type Mithril from 'mithril';
+import Mithril from 'mithril';
 
 import app from '../../admin/app';
 
@@ -17,6 +17,7 @@ import classList from '../../common/utils/classList';
 import extractText from '../../common/utils/extractText';
 import AdminPage from './AdminPage';
 import { debounce } from '../../common/utils/throttleDebounce';
+import CreateUserModal from './CreateUserModal';
 
 type ColumnData = {
   /**
@@ -116,19 +117,7 @@ export default class UserListPage extends AdminPage {
     const columns = this.columns().toArray();
 
     return [
-      <div className="Search-input">
-        <input
-          className="FormControl SearchBar"
-          type="search"
-          placeholder={app.translator.trans('core.admin.users.search_placeholder')}
-          oninput={(e: InputEvent) => {
-            this.isLoadingPage = true;
-            this.query = (e?.target as HTMLInputElement)?.value;
-            this.throttledSearch();
-          }}
-        />
-      </div>,
-      <p className="UserListPage-totalUsers">{app.translator.trans('core.admin.users.total_users', { count: this.userCount })}</p>,
+      <div className="UserListPage-header">{this.headerItems().toArray()}</div>,
       <section
         className={classList(['UserListPage-grid', this.isLoadingPage ? 'UserListPage-grid--loadingPage' : 'UserListPage-grid--loaded'])}
         style={{ '--columns': columns.length }}
@@ -241,6 +230,51 @@ export default class UserListPage extends AdminPage {
         />
       </nav>,
     ];
+  }
+
+  headerItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add(
+      'search',
+      <div className="Search-input">
+        <input
+          className="FormControl SearchBar"
+          type="search"
+          placeholder={app.translator.trans('core.admin.users.search_placeholder')}
+          oninput={(e: InputEvent) => {
+            this.isLoadingPage = true;
+            this.query = (e?.target as HTMLInputElement)?.value;
+            this.throttledSearch();
+          }}
+        />
+      </div>,
+      100
+    );
+
+    items.add(
+      'totalUsers',
+      <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.users.total_users', { count: this.userCount })}</p>,
+      90
+    );
+
+    items.add('actions', <div className="UserListPage-actions">{this.actionItems().toArray()}</div>, 80);
+
+    return items;
+  }
+
+  actionItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add(
+      'createUser',
+      <Button className="Button UserListPage-createUserBtn" icon="fas fa-user-plus" onclick={() => app.modal.show(CreateUserModal)}>
+        {app.translator.trans('core.admin.users.create_user_button')}
+      </Button>,
+      100
+    );
+
+    return items;
   }
 
   /**

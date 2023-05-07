@@ -2,6 +2,20 @@
   // Pad bottom of page to make nav area look less squashed
   padding-bottom: 24px;
 
+  &-header {
+    margin-bottom: 16px;
+  }
+
+  &-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    * + * {
+      margin-left: 8px;
+    }
+  }
+
   &-grid {
     width: 100%;
     position: relative;

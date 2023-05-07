@@ -79,3 +79,23 @@ export function ucfirst(string: string): string {
 export function camelCaseToSnakeCase(str: string): string {
   return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 }
+
+/**
+ * Generate a random string (a-z, 0-9) of a given length.
+ *
+ * Providing a length of less than 0 will result in an error.
+ *
+ * @param length Length of the random string to generate
+ * @returns A random string of provided length
+ */
+export function generateRandomString(length: number): string {
+  if (length < 0) throw new Error('Cannot generate a random string with length less than 0.');
+  if (length === 0) return '';
+
+  const arr = new Uint8Array(length / 2);
+  window.crypto.getRandomValues(arr);
+
+  return Array.from(arr, (dec) => {
+    return dec.toString(16).padStart(2, '0');
+  }).join('');
+}

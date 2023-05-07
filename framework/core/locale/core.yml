@@ -52,6 +52,17 @@ core:
       welcome_banner_heading: Welcome Banner
       welcome_banner_text: Configure the text that displays in the banner on the All Discussions page. Use this to welcome guests to your forum.
 
+    # These translations are used in the Create User modal.
+    create_user:
+      email_placeholder: => core.ref.email
+      email_confirmed_label: Require user to confirm this email
+      password_placeholder: => core.ref.password
+      submit_and_create_another_button: Create and add another
+      submit_button: Create user
+      title: Create new user
+      use_random_password: Generate random password
+      username_placeholder: => core.ref.username
+
     # These translations are used in the Dashboard page.
     dashboard:
       clear_cache_button: Clear Cache
@@ -250,6 +261,7 @@ core:
 
     # These translations are used for the users list on the admin dashboard.
     users:
+      create_user_button: New User
       description: A paginated list of all users on your forum.
 
       grid:
@@ -785,7 +797,7 @@ core:
     all_discussions: All Discussions
     change_email: Change Email
     change_password: Change Password
-    color: Color                                 # Referenced by flarum-tags.yml
+    color: Color # Referenced by flarum-tags.yml
     confirm_password: Confirm Password
     confirm_email: Confirm Email
     confirmation_email_sent: "We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
@@ -795,7 +807,7 @@ core:
     custom_header_title: Edit Custom Header
     delete: Delete
     delete_forever: Delete Forever
-    discussions: Discussions                     # Referenced by flarum-statistics.yml
+    discussions: Discussions # Referenced by flarum-statistics.yml
     edit: Edit
     edit_user: Edit User
     email: Email
@@ -812,27 +824,27 @@ core:
     new_token: New Token
     next_page: Next Page
     notifications: Notifications
-    okay: OK                                     # Referenced by flarum-tags.yml
+    okay: OK # Referenced by flarum-tags.yml
     password: Password
-    posts: Posts                                 # Referenced by flarum-statistics.yml
+    posts: Posts # Referenced by flarum-statistics.yml
     previous_page: Previous Page
     remove: Remove
     rename: Rename
-    reply: Reply                                 # Referenced by flarum-mentions.yml
+    reply: Reply # Referenced by flarum-mentions.yml
     reset_your_password: Reset Your Password
     restore: Restore
     save_changes: Save Changes
-    search_users: Search users              # Referenced by flarum-suspend.yml, flarum-tags.yml
+    search_users: Search users # Referenced by flarum-suspend.yml, flarum-tags.yml
     security: Security
     settings: Settings
     sign_up: Sign Up
-    some_others: "{count, plural, one {# other} other {# others}}"  # Referenced by flarum-likes.yml, flarum-mentions.yml
+    some_others: "{count, plural, one {# other} other {# others}}" # Referenced by flarum-likes.yml, flarum-mentions.yml
     start_a_discussion: Start a Discussion
     username: Username
-    users: Users                                 # Referenced by flarum-statistics.yml
+    users: Users # Referenced by flarum-statistics.yml
     view: View
     write_a_reply: Write a Reply...
-    you: You                                     # Referenced by flarum-likes.yml, flarum-mentions.yml
+    you: You # Referenced by flarum-likes.yml, flarum-mentions.yml
 
   ##
   # GROUP NAMES - These keys are translated at the back end.
