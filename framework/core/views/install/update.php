@@ -44,6 +44,9 @@
               button.textContent = 'Update Flarum';
             });
           }
+        })
+        .catch(error => {
+          console.error('Error:', error);
         });
 
       return false;
