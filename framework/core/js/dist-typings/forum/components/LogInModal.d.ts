@@ -29,7 +29,7 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
     content(): JSX.Element[];
     body(): JSX.Element[];
     fields(): ItemList<unknown>;
-    footer(): (string | JSX.Element)[];
+    footer(): JSX.Element;
     /**
      * Open the forgot password modal, prefilling it with an email if the user has
      * entered one.
