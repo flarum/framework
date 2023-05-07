@@ -31,4 +31,13 @@ export declare function ucfirst(string: string): string;
  * Transform a camel case string to snake case.
  */
 export declare function camelCaseToSnakeCase(str: string): string;
+/**
+ * Generate a random string (a-z, 0-9) of a given length.
+ *
+ * Providing a length of less than 0 will result in an error.
+ *
+ * @param length Length of the random string to generate
+ * @returns A random string of provided length
+ */
+export declare function generateRandomString(length: number): string;
 export {};

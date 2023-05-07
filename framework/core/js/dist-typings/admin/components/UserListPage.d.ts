@@ -1,5 +1,5 @@
 /// <reference path="../../@types/translator-icu-rich.d.ts" />
-import type Mithril from 'mithril';
+import Mithril from 'mithril';
 import type User from '../../common/models/User';
 import type { IPageAttrs } from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
@@ -60,6 +60,8 @@ export default class UserListPage extends AdminPage {
      * Component to render.
      */
     content(): JSX.Element[];
+    headerItems(): ItemList<Mithril.Children>;
+    actionItems(): ItemList<Mithril.Children>;
     /**
      * Build an item list of columns to show for each user.
      *
