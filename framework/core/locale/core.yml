@@ -54,10 +54,10 @@ core:
 
     # These translations are used in the Create User modal.
     create_user:
-      bulk_add_label: Keep modal open after creation?
       email_placeholder: => core.ref.email
-      email_confirmed_label: Require user to confirm this email?
+      email_confirmed_label: Require user to confirm this email
       password_placeholder: => core.ref.password
+      submit_and_create_another_button: Create and add another
       submit_button: Create user
       title: Create new user
       use_random_password: Generate random password
@@ -261,6 +261,7 @@ core:
 
     # These translations are used for the users list on the admin dashboard.
     users:
+      create_user_button: New User
       description: A paginated list of all users on your forum.
 
       grid:

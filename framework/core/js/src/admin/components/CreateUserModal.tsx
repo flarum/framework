@@ -126,34 +126,8 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
     );
 
     items.add(
-      'emailConfirmation',
-      <div className="Form-group">
-        <Switch
-          name="emailConfirmed"
-          state={this.requireEmailConfirmation()}
-          onchange={(checked: boolean) => this.requireEmailConfirmation(checked)}
-          disabled={this.loading}
-        >
-          {emailConfirmationLabel}
-        </Switch>
-      </div>,
-      60
-    );
-
-    items.add(
       'password',
       <div className="Form-group">
-        <Switch
-          name="useRandomPassword"
-          state={this.password() === null}
-          onchange={(enabled: boolean) => {
-            this.password(enabled ? null : '');
-          }}
-          disabled={this.loading}
-        >
-          {useRandomPasswordLabel}
-        </Switch>
-
         <input
           className="FormControl"
           name="password"
@@ -165,17 +139,39 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
           disabled={this.loading || this.password() === null}
         />
       </div>,
+      60
+    );
+
+    items.add(
+      'emailConfirmation',
+      <div className="Form-group">
+        <Switch
+          name="emailConfirmed"
+          state={this.requireEmailConfirmation()}
+          onchange={(checked: boolean) => this.requireEmailConfirmation(checked)}
+          disabled={this.loading}
+        >
+          {emailConfirmationLabel}
+        </Switch>
+      </div>,
       40
     );
 
     items.add(
-      'bulkAdd',
-      <div className="Form-group CreateUserModal-bulkAdd">
-        <Switch name="bulkAdd" disabled={this.loading} state={this.bulkAdd()} onchange={(checked: boolean) => this.bulkAdd(checked)}>
-          {app.translator.trans('core.admin.create_user.bulk_add_label')}
+      'useRandomPassword',
+      <div className="Form-group">
+        <Switch
+          name="useRandomPassword"
+          state={this.password() === null}
+          onchange={(enabled: boolean) => {
+            this.password(enabled ? null : '');
+          }}
+          disabled={this.loading}
+        >
+          {useRandomPasswordLabel}
         </Switch>
       </div>,
-      0
+      20
     );
 
     items.add(
@@ -185,7 +181,17 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
           {app.translator.trans('core.admin.create_user.submit_button')}
         </Button>
       </div>,
-      -10
+      0
+    );
+
+    items.add(
+      'submitAndAdd',
+      <div className="Form-group">
+        <Button className="Button Button--block" onclick={() => this.bulkAdd(true) && this.onsubmit()} disabled={this.loading}>
+          {app.translator.trans('core.admin.create_user.submit_and_create_another_button')}
+        </Button>
+      </div>,
+      -20
     );
 
     return items;
@@ -195,8 +201,8 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
     this.$('[name=username]').trigger('select');
   }
 
-  onsubmit(e: SubmitEvent) {
-    e.preventDefault();
+  onsubmit(e: SubmitEvent | null = null) {
+    e?.preventDefault();
 
     this.loading = true;
 
@@ -215,6 +221,7 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
         }
       })
       .finally(() => {
+        this.bulkAdd(false);
         this.loaded();
       });
   }
