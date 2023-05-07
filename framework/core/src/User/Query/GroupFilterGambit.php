@@ -11,6 +11,7 @@ namespace Flarum\User\Query;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
+use Flarum\Filter\ValidateFilterTrait;
 use Flarum\Group\Group;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\SearchState;
@@ -19,6 +20,8 @@ use Illuminate\Database\Query\Builder;
 
 class GroupFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
+    use ValidateFilterTrait;
+
     /**
      * {@inheritdoc}
      */
@@ -40,15 +43,14 @@ class GroupFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'group';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, $filterValue, bool $negate)
     {
         $this->constrain($filterState->getQuery(), $filterState->getActor(), $filterValue, $negate);
     }
 
-    protected function constrain(Builder $query, User $actor, string $rawQuery, bool $negate)
+    protected function constrain(Builder $query, User $actor, $rawQuery, bool $negate)
     {
-        $groupIdentifiers = explode(',', trim($rawQuery, '"'));
-
+        $groupIdentifiers = $this->asStringArray($rawQuery);
         $groupQuery = Group::whereVisibleTo($actor);
 
         $ids = [];

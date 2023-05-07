@@ -145,7 +145,7 @@ class ListPostsController extends AbstractListController
                 );
             }
 
-            $offset = $this->posts->getIndexForNumber($filter['discussion'], $near, $actor);
+            $offset = $this->posts->getIndexForNumber((int) $filter['discussion'], $near, $actor);
 
             return max(0, $offset - $limit / 2);
         }

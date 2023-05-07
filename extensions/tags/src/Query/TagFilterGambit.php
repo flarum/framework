@@ -11,6 +11,7 @@ namespace Flarum\Tags\Query;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
+use Flarum\Filter\ValidateFilterTrait;
 use Flarum\Http\SlugManager;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\SearchState;
@@ -21,6 +22,8 @@ use Illuminate\Database\Query\Builder;
 
 class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
+    use ValidateFilterTrait;
+
     /**
      * @var SlugManager
      */
@@ -46,14 +49,14 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'tag';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, $filterValue, bool $negate)
     {
         $this->constrain($filterState->getQuery(), $filterValue, $negate, $filterState->getActor());
     }
 
     protected function constrain(Builder $query, $rawSlugs, $negate, User $actor)
     {
-        $slugs = explode(',', trim($rawSlugs, '"'));
+        $slugs = $this->asStringArray($rawSlugs);
 
         $query->where(function (Builder $query) use ($slugs, $negate, $actor) {
             foreach ($slugs as $slug) {

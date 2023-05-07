@@ -717,6 +717,10 @@ core:
   # Translations in this namespace are used in messages output by the API.
   api:
     invalid_username_message: "The username may only contain letters, numbers, and dashes."
+    invalid_filter_type:
+      must_be_numeric_message: "The {filter} filter must be numeric."
+      must_not_be_array_message: "The {filter} filter must not be an array."
+      must_not_be_multidimensional_array_message: "The {filter} filter must not be a multidimensional array."
 
   # Translations in this namespace are used in emails sent by the forum.
   email:

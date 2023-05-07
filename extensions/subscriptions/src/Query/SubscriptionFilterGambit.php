@@ -11,6 +11,7 @@ namespace Flarum\Subscriptions\Query;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
+use Flarum\Filter\ValidateFilterTrait;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\SearchState;
 use Flarum\User\User;
@@ -18,6 +19,8 @@ use Illuminate\Database\Query\Builder;
 
 class SubscriptionFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
+    use ValidateFilterTrait;
+
     protected function getGambitPattern()
     {
         return 'is:(follow|ignor)(?:ing|ed)';
@@ -33,8 +36,10 @@ class SubscriptionFilterGambit extends AbstractRegexGambit implements FilterInte
         return 'subscription';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, $filterValue, bool $negate)
     {
+        $filterValue = $this->asString($filterValue);
+
         preg_match('/^'.$this->getGambitPattern().'$/i', 'is:'.$filterValue, $matches);
 
         $this->constrain($filterState->getQuery(), $filterState->getActor(), $matches[1], $negate);

@@ -95,6 +95,13 @@ class UserRepository
         return $this->scopeVisibleTo($query, $actor)->value('id');
     }
 
+    public function getIdsForUsernames(array $usernames, User $actor = null): array
+    {
+        $query = $this->query()->whereIn('username', $usernames);
+
+        return $this->scopeVisibleTo($query, $actor)->pluck('id')->all();
+    }
+
     /**
      * Find users by matching a string of words against their username,
      * optionally making sure they are visible to a certain user.

@@ -11,12 +11,15 @@ namespace Flarum\User\Query;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
+use Flarum\Filter\ValidateFilterTrait;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\SearchState;
 use Illuminate\Database\Query\Builder;
 
 class EmailFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
+    use ValidateFilterTrait;
+
     /**
      * {@inheritdoc}
      */
@@ -50,7 +53,7 @@ class EmailFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'email';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, $filterValue, bool $negate)
     {
         if (! $filterState->getActor()->hasPermission('user.edit')) {
             return;
@@ -61,7 +64,7 @@ class EmailFilterGambit extends AbstractRegexGambit implements FilterInterface
 
     protected function constrain(Builder $query, $rawEmail, bool $negate)
     {
-        $email = trim($rawEmail, '"');
+        $email = $this->asString($rawEmail);
 
         $query->where('email', $negate ? '!=' : '=', $email);
     }

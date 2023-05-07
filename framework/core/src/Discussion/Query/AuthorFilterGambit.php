@@ -11,6 +11,7 @@ namespace Flarum\Discussion\Query;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
+use Flarum\Filter\ValidateFilterTrait;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\SearchState;
 use Flarum\User\UserRepository;
@@ -18,6 +19,8 @@ use Illuminate\Database\Query\Builder;
 
 class AuthorFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
+    use ValidateFilterTrait;
+
     /**
      * @var \Flarum\User\UserRepository
      */
@@ -52,20 +55,16 @@ class AuthorFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'author';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, $filterValue, bool $negate)
     {
         $this->constrain($filterState->getQuery(), $filterValue, $negate);
     }
 
     protected function constrain(Builder $query, $rawUsernames, $negate)
     {
-        $usernames = trim($rawUsernames, '"');
-        $usernames = explode(',', $usernames);
+        $usernames = $this->asStringArray($rawUsernames);
 
-        $ids = [];
-        foreach ($usernames as $username) {
-            $ids[] = $this->users->getIdForUsername($username);
-        }
+        $ids = $this->users->getIdsForUsernames($usernames);
 
         $query->whereIn('discussions.user_id', $ids, 'and', $negate);
     }

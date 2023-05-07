@@ -11,18 +11,23 @@ namespace Flarum\Tags\Filter;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
+use Flarum\Filter\ValidateFilterTrait;
 
 class PostTagFilter implements FilterInterface
 {
+    use ValidateFilterTrait;
+
     public function getFilterKey(): string
     {
         return 'tag';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, $filterValue, bool $negate)
     {
+        $ids = $this->asIntArray($filterValue);
+
         $filterState->getQuery()
             ->join('discussion_tag', 'discussion_tag.discussion_id', '=', 'posts.discussion_id')
-            ->where('discussion_tag.tag_id', $negate ? '!=' : '=', $filterValue);
+            ->whereIn('discussion_tag.tag_id', $ids, 'and', $negate);
     }
 }
