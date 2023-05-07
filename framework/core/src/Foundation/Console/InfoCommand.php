@@ -83,7 +83,9 @@ class InfoCommand extends AbstractCommand
         $this->output->writeln('<info>PHP version:</info> '.$this->appInfo->identifyPHPVersion());
         $this->output->writeln('<info>MySQL version:</info> '.$this->appInfo->identifyDatabaseVersion());
 
-        $phpExtensions = implode(', ', get_loaded_extensions());
+        $phpExtensions = get_loaded_extensions();
+        sort($phpExtensions, SORT_STRING | SORT_FLAG_CASE);
+        $phpExtensions = implode(', ', $phpExtensions);
         $this->output->writeln("<info>Loaded extensions:</info> $phpExtensions");
 
         $this->getExtensionTable()->render();
@@ -118,7 +120,15 @@ class InfoCommand extends AbstractCommand
                 (new TableStyle)->setCellHeaderFormat('<info>%s</info>')
             );
 
-        foreach ($this->extensions->getEnabledExtensions() as $extension) {
+        $extensions = [];
+        foreach (array_values($this->extensions->getEnabledExtensions()) as $i => $extension) {
+            // Sort by ID, use their position as tiebreaker to prevent any potential name collision
+            $sortKey = $extension->getId().'-'.$i;
+            $extensions[$sortKey] = $extension;
+        }
+        ksort($extensions, SORT_STRING | SORT_FLAG_CASE);
+
+        foreach ($extensions as $extension) {
             $table->addRow([
                 $extension->getId(),
                 $extension->getVersion(),
