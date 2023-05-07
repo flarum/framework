@@ -2,6 +2,7 @@ import * as extend from './extend';
 import Session from './Session';
 import Store from './Store';
 import BasicEditorDriver from './utils/BasicEditorDriver';
+import EventEmitter from './utils/EventEmitter';
 import KeyboardNavigatable from './utils/KeyboardNavigatable';
 import liveHumanTimes from './utils/liveHumanTimes';
 import ItemList from './utils/ItemList';
@@ -104,6 +105,7 @@ declare const _default: {
         one(event: string, handler: Function): void;
         off(event: string, handler: Function): void;
     };
+    'utils/EventEmitter': typeof EventEmitter;
     'utils/KeyboardNavigatable': typeof KeyboardNavigatable;
     'utils/liveHumanTimes': typeof liveHumanTimes;
     'utils/ItemList': typeof ItemList;

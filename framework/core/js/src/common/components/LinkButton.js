@@ -39,6 +39,6 @@ export default class LinkButton extends Button {
    * @return {boolean}
    */
   static isActive(attrs) {
-    return typeof attrs.active !== 'undefined' ? attrs.active : m.route.get() === attrs.href;
+    return typeof attrs.active !== 'undefined' ? attrs.active : m.route.get()?.split('?')[0] === attrs.href?.split('?')[0];
   }
 }

@@ -12,6 +12,7 @@ namespace Flarum\Console;
 use Flarum\Console\Cache\Factory;
 use Flarum\Database\Console\MigrateCommand;
 use Flarum\Database\Console\ResetCommand;
+use Flarum\Extension\Console\ToggleExtensionCommand;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Console\AssetsPublishCommand;
 use Flarum\Foundation\Console\CacheClearCommand;
@@ -63,7 +64,8 @@ class ConsoleServiceProvider extends AbstractServiceProvider
                 MigrateCommand::class,
                 ResetCommand::class,
                 ScheduleListCommand::class,
-                ScheduleRunCommand::class
+                ScheduleRunCommand::class,
+                ToggleExtensionCommand::class
                 // Used internally to create DB dumps before major releases.
                 // \Flarum\Database\Console\GenerateDumpCommand::class
             ];

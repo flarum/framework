@@ -54,8 +54,12 @@ class UpdatePostController extends AbstractShowController
         $actor = RequestUtil::getActor($request);
         $data = Arr::get($request->getParsedBody(), 'data', []);
 
-        return $this->bus->dispatch(
+        $post = $this->bus->dispatch(
             new EditPost($id, $actor, $data)
         );
+
+        $this->loadRelations($post->newCollection([$post]), $this->extractInclude($request), $request);
+
+        return $post;
     }
 }

@@ -39,8 +39,8 @@ class FormatGroupMentions
     {
         return Utils::replaceAttributes($xml, 'GROUPMENTION', function ($attributes) use ($context) {
             $group = (($context && isset($context->getRelations()['mentionsGroups'])) || $context instanceof Post)
-            ? $context->mentionsGroups->find($attributes['id'])
-            : Group::find($attributes['id']);
+                ? $context->mentionsGroups->find($attributes['id'])
+                : Group::find($attributes['id']);
 
             if ($group) {
                 $attributes['groupname'] = $group->name_plural;

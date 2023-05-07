@@ -414,19 +414,19 @@ class Extension implements Arrayable
             $links['source'] = $sourceUrl;
         }
 
-        if (($discussUrl = $this->composerJsonAttribute('support.forum'))) {
+        if ($discussUrl = $this->composerJsonAttribute('support.forum')) {
             $links['discuss'] = $discussUrl;
         }
 
-        if (($documentationUrl = $this->composerJsonAttribute('support.docs'))) {
+        if ($documentationUrl = $this->composerJsonAttribute('support.docs')) {
             $links['documentation'] = $documentationUrl;
         }
 
-        if (($websiteUrl = $this->composerJsonAttribute('homepage'))) {
+        if ($websiteUrl = $this->composerJsonAttribute('homepage')) {
             $links['website'] = $websiteUrl;
         }
 
-        if (($supportEmail = $this->composerJsonAttribute('support.email'))) {
+        if ($supportEmail = $this->composerJsonAttribute('support.email')) {
             $links['support'] = "mailto:$supportEmail";
         }
 

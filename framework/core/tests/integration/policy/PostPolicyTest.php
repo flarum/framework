@@ -121,4 +121,104 @@ class PostPolicyTest extends TestCase
         $this->assertFalse($user->can('edit', $earlierPost));
         $this->assertFalse($user->can('edit', $lastPost));
     }
+
+    /**
+     * @test
+     */
+    public function hide_indefinitely()
+    {
+        $this->setting('allow_hide_own_posts', '-1');
+        $this->app();
+
+        $user = User::findOrFail(2);
+        $earlierPost = Post::findOrFail(1);
+        $lastPost = Post::findOrFail(2);
+
+        // Date close to "now"
+        Carbon::setTestNow('2021-11-01 13:00:05');
+
+        $this->assertTrue($user->can('hide', $earlierPost));
+        $this->assertTrue($user->can('hide', $lastPost));
+
+        // Date further into the future
+        Carbon::setTestNow('2025-01-01 13:00:00');
+
+        $this->assertTrue($user->can('hide', $earlierPost));
+        $this->assertTrue($user->can('hide', $lastPost));
+    }
+
+    /**
+     * @test
+     */
+    public function hide_until_reply()
+    {
+        $this->setting('allow_hide_own_posts', 'reply');
+        $this->app();
+
+        $user = User::findOrFail(2);
+        $earlierPost = Post::findOrFail(1);
+        $lastPost = Post::findOrFail(2);
+
+        // Date close to "now"
+        Carbon::setTestNow('2021-11-01 13:00:05');
+
+        $this->assertFalse($user->can('hide', $earlierPost));
+        $this->assertTrue($user->can('hide', $lastPost));
+
+        // Date further into the future
+        Carbon::setTestNow('2025-01-01 13:00:00');
+
+        $this->assertFalse($user->can('hide', $earlierPost));
+        $this->assertTrue($user->can('hide', $lastPost));
+    }
+
+    /**
+     * @test
+     */
+    public function hide_10_minutes()
+    {
+        $this->setting('allow_hide_own_posts', '10');
+        $this->app();
+
+        $user = User::findOrFail(2);
+        $earlierPost = Post::findOrFail(1);
+        $lastPost = Post::findOrFail(2);
+
+        // Date close to "now"
+        Carbon::setTestNow('2021-11-01 13:00:05');
+
+        $this->assertTrue($user->can('hide', $earlierPost));
+        $this->assertTrue($user->can('hide', $lastPost));
+
+        // Date further into the future
+        Carbon::setTestNow('2025-01-01 13:00:00');
+
+        $this->assertFalse($user->can('hide', $earlierPost));
+        $this->assertFalse($user->can('hide', $lastPost));
+    }
+
+    /**
+     * @test
+     */
+    public function hide_never()
+    {
+        $this->setting('allow_hide_own_posts', '0');
+        $this->app();
+
+        $user = User::findOrFail(2);
+        $earlierPost = Post::findOrFail(1);
+        $lastPost = Post::findOrFail(2);
+
+        // Date close to "now"
+        Carbon::setTestNow('2021-11-01 13:00:05');
+
+        $this->assertFalse($user->can('hide', $earlierPost));
+        $this->assertFalse($user->can('hide', $lastPost));
+
+        // Date further into the future
+        Carbon::setTestNow('2025-01-01 13:00:00');
+
+        $this->assertFalse($user->can('hide', $earlierPost));
+        $this->assertFalse($user->can('hide', $lastPost));
+    }
 }

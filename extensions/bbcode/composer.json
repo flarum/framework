@@ -19,7 +19,12 @@
         }
     ],
     "require": {
-        "flarum/core": "^1.6"
+        "flarum/core": "^1.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flarum\\BBCode\\": "src"
+        }
     },
     "extra": {
         "branch-alias": {

@@ -34,6 +34,7 @@ use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Support\Arr;
+use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 /**
  * @property int $id
@@ -55,6 +56,7 @@ class User extends AbstractModel
 {
     use EventGeneratorTrait;
     use ScopeVisibilityTrait;
+    use HasEagerLimit;
 
     /**
      * The attributes that should be mutated to dates.

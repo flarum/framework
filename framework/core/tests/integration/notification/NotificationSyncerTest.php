@@ -10,15 +10,11 @@
 namespace Flarum\Tests\integration\notification;
 
 use Carbon\Carbon;
-use Flarum\Api\Serializer\BasicDiscussionSerializer;
-use Flarum\Api\Serializer\BasicPostSerializer;
 use Flarum\Database\AbstractModel;
-use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Notification;
 use Flarum\Notification\NotificationSyncer;
-use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -48,35 +44,6 @@ class NotificationSyncerTest extends TestCase
                 ['id' => 3, 'discussion_id' => 2, 'number' => 1, 'created_at' => Carbon::parse('2021-11-01 13:00:00')->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t></t>', 'is_private' => 0],
             ],
         ]);
-    }
-
-    /**
-     * @dataProvider visibleSubjectsProvider
-     * @param class-string<AbstractModel> $subjectClass
-     * @test
-     */
-    public function can_receive_notification_for_visible_subjects(string $subjectClass, int $subjectId, string $serializer)
-    {
-        $this->expect_notification_count_from_sending_notification_type_with_subject(
-            2,
-            $subjectClass,
-            $subjectId,
-            $serializer
-        );
-    }
-
-    /**
-     * @dataProvider invisibleSubjectsProvider
-     * @test
-     */
-    public function cannot_receive_notification_for_restricted_subjects(string $subjectClass, int $subjectId, string $serializer)
-    {
-        $this->expect_notification_count_from_sending_notification_type_with_subject(
-            0,
-            $subjectClass,
-            $subjectId,
-            $serializer
-        );
     }
 
     /**
@@ -111,23 +78,6 @@ class NotificationSyncerTest extends TestCase
                 ->whereSubject($subject)
                 ->count()
         );
-    }
-
-    public function visibleSubjectsProvider()
-    {
-        return [
-            [Post::class, 1, BasicPostSerializer::class],
-            [Discussion::class, 1, BasicDiscussionSerializer::class],
-        ];
-    }
-
-    public function invisibleSubjectsProvider()
-    {
-        return [
-            [Post::class, 2, BasicPostSerializer::class],
-            [Discussion::class, 2, BasicDiscussionSerializer::class],
-            [Post::class, 3, BasicPostSerializer::class],
-        ];
     }
 }
 

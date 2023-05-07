@@ -7,6 +7,7 @@ import username from 'flarum/common/helpers/username';
 import icon from 'flarum/common/helpers/icon';
 
 import PostLikesModal from './components/PostLikesModal';
+import Button from '@flarum/core/src/common/components/Button';
 
 export default function () {
   extend(CommentPost.prototype, 'footerItems', function (items) {
@@ -15,7 +16,7 @@ export default function () {
 
     if (likes && likes.length) {
       const limit = 4;
-      const overLimit = likes.length > limit;
+      const overLimit = post.likesCount() > limit;
 
       // Construct a list of names of users who have liked this post. Make sure the
       // current user is first in the list, and cap a maximum of 4 items.
@@ -34,19 +35,24 @@ export default function () {
       // others" name to the end of the list. Clicking on it will display a modal
       // with a full list of names.
       if (overLimit) {
-        const count = likes.length - names.length;
+        const count = post.likesCount() - names.length;
+        const label = app.translator.trans('flarum-likes.forum.post.others_link', { count });
 
-        names.push(
-          <a
-            href="#"
-            onclick={(e) => {
-              e.preventDefault();
-              app.modal.show(PostLikesModal, { post });
-            }}
-          >
-            {app.translator.trans('flarum-likes.forum.post.others_link', { count })}
-          </a>
-        );
+        if (app.forum.attribute('canSearchUsers')) {
+          names.push(
+            <Button
+              className="Button Button--ua-reset Button--text"
+              onclick={(e) => {
+                e.preventDefault();
+                app.modal.show(PostLikesModal, { post });
+              }}
+            >
+              {label}
+            </Button>
+          );
+        } else {
+          names.push(<span>{label}</span>);
+        }
       }
 
       items.add(

@@ -94,7 +94,8 @@ class ShowDiscussionController extends AbstractShowController
             $discussion = $this->discussions->findOrFail($discussionId, $actor);
         }
 
-        if (in_array('posts', $include)) {
+        // If posts is included or a sub relation of post is included.
+        if (in_array('posts', $include) || Str::contains(implode(',', $include), 'posts.')) {
             $postRelationships = $this->getPostRelationships($include);
 
             $this->includePosts($discussion, $request, $postRelationships);
@@ -119,7 +120,7 @@ class ShowDiscussionController extends AbstractShowController
         $offset = $this->getPostsOffset($request, $discussion, $limit);
 
         $allPosts = $this->loadPostIds($discussion, $actor);
-        $loadedPosts = $this->loadPosts($discussion, $actor, $offset, $limit, $include);
+        $loadedPosts = $this->loadPosts($discussion, $actor, $offset, $limit, $include, $request);
 
         array_splice($allPosts, $offset, $limit, $loadedPosts);
 
@@ -136,11 +137,7 @@ class ShowDiscussionController extends AbstractShowController
         return $discussion->posts()->whereVisibleTo($actor)->orderBy('number')->pluck('id')->all();
     }
 
-    /**
-     * @param array $include
-     * @return array
-     */
-    private function getPostRelationships(array $include)
+    private function getPostRelationships(array $include): array
     {
         $prefixLength = strlen($prefix = 'posts.');
         $relationships = [];
@@ -183,11 +180,11 @@ class ShowDiscussionController extends AbstractShowController
      * @param array $include
      * @return mixed
      */
-    private function loadPosts($discussion, $actor, $offset, $limit, array $include)
+    private function loadPosts($discussion, $actor, $offset, $limit, array $include, ServerRequestInterface $request)
     {
         $query = $discussion->posts()->whereVisibleTo($actor);
 
-        $query->orderBy('number')->skip($offset)->take($limit)->with($include);
+        $query->orderBy('number')->skip($offset)->take($limit);
 
         $posts = $query->get();
 
@@ -195,7 +192,7 @@ class ShowDiscussionController extends AbstractShowController
             $post->discussion = $discussion;
         }
 
-        $this->loadRelations($posts, $include);
+        $this->loadRelations($posts, $include, $request);
 
         return $posts->all();
     }
@@ -221,8 +218,13 @@ class ShowDiscussionController extends AbstractShowController
 
         $postCallableRelationships = $this->getPostRelationships(array_keys($addedCallableRelations));
 
-        return array_intersect_key($addedCallableRelations, array_flip(array_map(function ($relation) {
+        $relationCallables = array_intersect_key($addedCallableRelations, array_flip(array_map(function ($relation) {
             return "posts.$relation";
         }, $postCallableRelationships)));
+
+        // remove posts. prefix from keys
+        return array_combine(array_map(function ($relation) {
+            return substr($relation, 6);
+        }, array_keys($relationCallables)), array_values($relationCallables));
     }
 }

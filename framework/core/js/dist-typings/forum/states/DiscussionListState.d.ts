@@ -1,11 +1,13 @@
 import PaginatedListState, { Page, PaginatedListParams, PaginatedListRequestParams } from '../../common/states/PaginatedListState';
 import Discussion from '../../common/models/Discussion';
 import { ApiResponsePlural } from '../../common/Store';
+import EventEmitter from '../../common/utils/EventEmitter';
 export interface DiscussionListParams extends PaginatedListParams {
     sort?: string;
 }
 export default class DiscussionListState<P extends DiscussionListParams = DiscussionListParams> extends PaginatedListState<Discussion, P> {
     protected extraDiscussions: Discussion[];
+    protected eventEmitter: EventEmitter;
     constructor(params: P, page?: number);
     get type(): string;
     requestParams(): PaginatedListRequestParams;
@@ -21,6 +23,7 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
      */
     isSearchResults(): boolean;
     removeDiscussion(discussion: Discussion): void;
+    deleteDiscussion(discussion: Discussion): void;
     /**
      * Add a discussion to the top of the list.
      */

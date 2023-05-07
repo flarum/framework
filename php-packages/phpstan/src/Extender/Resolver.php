@@ -68,6 +68,8 @@ class Resolver
     }
 
     /**
+     * Retrieves all extenders from a given `extend.php` file.
+     *
      * @return Extender[]
      * @throws ParserErrorsException
      * @throws \Exception
@@ -90,7 +92,22 @@ class Resolver
                 if ($expression instanceof Array_) {
                     foreach ($expression->items as $item) {
                         if ($item->value instanceof MethodCall) {
-                            $extenders[] = $this->resolveExtender($item->value);
+                            // Conditional extenders
+                            if ($item->value->name->toString() === 'whenExtensionEnabled') {
+                                $conditionalExtenders = $item->value->args[1] ?? null;
+
+                                if ($conditionalExtenders->value instanceof Array_) {
+                                    foreach ($conditionalExtenders->value->items as $conditionalExtender) {
+                                        if ($conditionalExtender->value instanceof MethodCall) {
+                                            $extenders[] = $this->resolveExtender($conditionalExtender->value);
+                                        }
+                                    }
+                                }
+                            }
+                            // Normal extenders
+                            else {
+                                $extenders[] = $this->resolveExtender($item->value);
+                            }
                         }
                     }
                 }

@@ -113,7 +113,7 @@ class Tag
      *
      * @return array
      */
-    private function getSortMap()
+    protected function getSortMap()
     {
         return resolve('flarum.forum.discussions.sortmap');
     }
@@ -121,12 +121,12 @@ class Tag
     /**
      * Get the result of an API request to list discussions.
      */
-    private function getApiDocument(Request $request, array $params)
+    protected function getApiDocument(Request $request, array $params)
     {
         return json_decode($this->api->withParentRequest($request)->withQueryParams($params)->get('/discussions')->getBody());
     }
 
-    private function getTagsDocument(Request $request, string $slug)
+    protected function getTagsDocument(Request $request, string $slug)
     {
         return json_decode($this->api->withParentRequest($request)->withQueryParams([
             'include' => 'children,children.parent,parent,parent.children.parent,state'

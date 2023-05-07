@@ -9,5 +9,6 @@ export default [
 
   new Extend.Model(Post) //
     .hasMany<User>('likes')
+    .attribute<number>('likesCount')
     .attribute<boolean>('canLike'),
 ];
