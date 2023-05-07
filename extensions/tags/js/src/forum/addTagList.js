@@ -5,7 +5,7 @@ import LinkButton from 'flarum/common/components/LinkButton';
 
 import TagLinkButton from './components/TagLinkButton';
 import TagsPage from './components/TagsPage';
-import app from 'flarum/admin/app';
+import app from 'flarum/forum/app';
 import sortTags from '../common/utils/sortTags';
 
 export default function () {
