@@ -88,7 +88,7 @@ export default class PermissionDropdown<CustomAttrs extends IPermissionDropdownA
             this.save([]);
           }}
         >
-          {badgeForId(adminGroup.id())} {adminGroup.namePlural()}
+          {badgeForId(adminGroup.id()!)} {adminGroup.namePlural()}
         </Button>
       );
 
@@ -100,14 +100,14 @@ export default class PermissionDropdown<CustomAttrs extends IPermissionDropdownA
         .filter((group) => !excludedGroups.includes(group.id()!))
         .map((group) => (
           <Button
-            icon={groupIds.indexOf(group.id()) !== -1 ? 'fas fa-check' : true}
-            onclick={(e) => {
+            icon={groupIds.includes(group.id()!) ? 'fas fa-check' : true}
+            onclick={(e: MouseEvent) => {
               if (e.shiftKey) e.stopPropagation();
-              this.toggle(group.id());
+              this.toggle(group.id()!);
             }}
-            disabled={this.isGroupDisabled(group.id()) && this.isGroupDisabled(Group.MEMBER_ID) && this.isGroupDisabled(Group.GUEST_ID)}
+            disabled={this.isGroupDisabled(group.id()!) && this.isGroupDisabled(Group.MEMBER_ID) && this.isGroupDisabled(Group.GUEST_ID)}
           >
-            {badgeForId(group.id())} {group.namePlural()}
+            {badgeForId(group.id()!)} {group.namePlural()}
           </Button>
         ));
 
