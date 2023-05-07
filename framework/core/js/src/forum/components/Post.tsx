@@ -60,7 +60,7 @@ export default abstract class Post<CustomAttrs extends IPostAttrs = IPostAttrs> 
           <aside className="Post-actions">
             <ul>
               {listItems(this.actionItems().toArray())}
-              {controls.length ? (
+              {!!controls.length && (
                 <li>
                   <Dropdown
                     className="Post-controls"
@@ -74,8 +74,6 @@ export default abstract class Post<CustomAttrs extends IPostAttrs = IPostAttrs> 
                     {controls}
                   </Dropdown>
                 </li>
-              ) : (
-                ''
               )}
             </ul>
           </aside>

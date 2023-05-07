@@ -9,9 +9,11 @@
 
 namespace Flarum\Database;
 
+use Flarum\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use LogicException;
 
 /**
@@ -60,6 +62,14 @@ abstract class AbstractModel extends Eloquent
      * @internal
      */
     public static $defaults = [];
+
+    /**
+     * An alias for the table name, used in queries.
+     *
+     * @var string|null
+     * @internal
+     */
+    protected $tableAlias = null;
 
     /**
      * {@inheritdoc}
@@ -212,5 +222,42 @@ abstract class AbstractModel extends Eloquent
         }
 
         return parent::__call($method, $arguments);
+    }
+
+    public function newModelQuery()
+    {
+        $query = parent::newModelQuery();
+
+        if ($this->tableAlias) {
+            $query->from($this->getTable().' as '.$this->tableAlias);
+        }
+
+        return $query;
+    }
+
+    public function qualifyColumn($column)
+    {
+        if (Str::contains($column, '.')) {
+            return $column;
+        }
+
+        return ($this->tableAlias ?? $this->getTable()).'.'.$column;
+    }
+
+    public function withTableAlias(callable $callback)
+    {
+        static $aliasCount = 0;
+        $this->tableAlias = 'flarum_reserved_'.++$aliasCount;
+
+        $result = $callback();
+
+        $this->tableAlias = null;
+
+        return $result;
+    }
+
+    public function newCollection(array $models = [])
+    {
+        return new Collection($models);
     }
 }

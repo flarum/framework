@@ -99,7 +99,7 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     $map->delete(
         '/users/{id}',
         'users.delete',
-        $route->toController(Controller\DeleteAccessTokenController::class)
+        $route->toController(Controller\DeleteUserController::class)
     );
 
     // Upload avatar

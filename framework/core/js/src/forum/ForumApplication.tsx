@@ -1,4 +1,4 @@
-import app from '../forum/app';
+import app from './app';
 
 import History from './utils/History';
 import Pane from './utils/Pane';
@@ -115,11 +115,11 @@ export default class ForumApplication extends Application {
 
     // We mount navigation and header components after the page, so components
     // like the back button can access the updated state when rendering.
-    m.mount(document.getElementById('app-navigation')!, { view: () => Navigation.component({ className: 'App-backControl', drawer: true }) });
+    m.mount(document.getElementById('app-navigation')!, { view: () => <Navigation className="App-backControl" drawer /> });
     m.mount(document.getElementById('header-navigation')!, Navigation);
     m.mount(document.getElementById('header-primary')!, HeaderPrimary);
     m.mount(document.getElementById('header-secondary')!, HeaderSecondary);
-    m.mount(document.getElementById('composer')!, { view: () => Composer.component({ state: this.composer }) });
+    m.mount(document.getElementById('composer')!, { view: () => <Composer state={this.composer} /> });
 
     alertEmailConfirmation(this);
 

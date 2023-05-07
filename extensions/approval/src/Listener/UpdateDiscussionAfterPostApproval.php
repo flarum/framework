@@ -36,5 +36,10 @@ class UpdateDiscussionAfterPostApproval
             $user->refreshCommentCount();
             $user->save();
         }
+
+        if ($post->user) {
+            $post->user->refreshCommentCount();
+            $post->user->save();
+        }
     }
 }

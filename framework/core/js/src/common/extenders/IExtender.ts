@@ -5,6 +5,6 @@ export interface IExtensionModule {
   exports: unknown;
 }
 
-export default interface IExtender {
-  extend(app: Application, extension: IExtensionModule): void;
+export default interface IExtender<App = Application> {
+  extend(app: App, extension: IExtensionModule): void;
 }

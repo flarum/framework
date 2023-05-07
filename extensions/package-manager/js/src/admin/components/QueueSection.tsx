@@ -32,7 +32,7 @@ export default class QueueSection extends Component<{}> {
       <section id="PackageManager-queueSection" className="ExtensionPage-permissions PackageManager-queueSection">
         <div className="ExtensionPage-permissions-header PackageManager-queueSection-header">
           <div className="container">
-            <h1 className="ExtensionTitle">{app.translator.trans('flarum-package-manager.admin.sections.queue.title')}</h1>
+            <h2 className="ExtensionTitle">{app.translator.trans('flarum-package-manager.admin.sections.queue.title')}</h2>
             <Button
               className="Button Button--icon"
               icon="fas fa-sync-alt"
@@ -75,7 +75,7 @@ export default class QueueSection extends Component<{}> {
           return extension ? (
             <div className="PackageManager-queueTable-package">
               <div className="PackageManager-queueTable-package-icon ExtensionIcon" style={extension.icon}>
-                {extension.icon ? icon(extension.icon.name) : ''}
+                {!!extension.icon && icon(extension.icon.name)}
               </div>
               <div className="PackageManager-queueTable-package-details">
                 <span className="PackageManager-queueTable-package-title">{extension.extra['flarum-extension'].title}</span>

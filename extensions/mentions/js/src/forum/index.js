@@ -70,14 +70,9 @@ app.initializers.add('flarum-mentions', function () {
     const user = this.user;
     items.add(
       'mentions',
-      LinkButton.component(
-        {
-          href: app.route('user.mentions', { username: user.slug() }),
-          name: 'mentions',
-          icon: 'fas fa-at',
-        },
-        app.translator.trans('flarum-mentions.forum.user.mentions_link')
-      ),
+      <LinkButton href={app.route('user.mentions', { username: user.slug() })} name="mentions" icon="fas fa-at">
+        {app.translator.trans('flarum-mentions.forum.user.mentions_link')}
+      </LinkButton>,
       80
     );
   });
@@ -87,8 +82,8 @@ app.initializers.add('flarum-mentions', function () {
 
   // Apply color contrast fix on group mentions.
   extend(Post.prototype, 'oncreate', function () {
-    this.$('.GroupMention--colored').each(function () {
-      this.classList.add(textContrastClass(getComputedStyle(this).getPropertyValue('--group-color')));
+    this.$('.GroupMention--colored, .TagMention--colored').each(function () {
+      this.classList.add(textContrastClass(getComputedStyle(this).getPropertyValue('--color')));
     });
   });
 });

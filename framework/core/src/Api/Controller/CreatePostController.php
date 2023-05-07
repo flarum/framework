@@ -74,6 +74,8 @@ class CreatePostController extends AbstractCreateController
         $discussion = $post->discussion;
         $discussion->posts = $discussion->posts()->whereVisibleTo($actor)->orderBy('created_at')->pluck('id');
 
+        $this->loadRelations($post->newCollection([$post]), $this->extractInclude($request), $request);
+
         return $post;
     }
 }

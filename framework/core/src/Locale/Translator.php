@@ -62,7 +62,7 @@ class Translator extends BaseTranslator implements TranslatorContract
     {
         foreach ($catalogue->all() as $domain => $messages) {
             foreach ($messages as $id => $translation) {
-                if (preg_match(self::REFERENCE_REGEX, $translation, $matches)) {
+                if (! empty($translation) && preg_match(self::REFERENCE_REGEX, $translation, $matches)) {
                     $catalogue->set($id, $this->getTranslation($catalogue, $id, $domain), $domain);
                 }
             }

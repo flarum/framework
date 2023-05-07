@@ -13,7 +13,7 @@ export default abstract class SettingsModal<CustomAttrs extends ISettingsModalAt
   loading: boolean = false;
 
   form(): Mithril.Children {
-    return '';
+    return null;
   }
 
   content() {

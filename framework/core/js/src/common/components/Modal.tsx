@@ -155,7 +155,11 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
               <h3 className="App-titleControl App-titleControl--text">{this.title()}</h3>
             </div>
 
-            {this.alertAttrs ? <div className="Modal-alert">{Alert.component(this.alertAttrs)}</div> : ''}
+            {!!this.alertAttrs && (
+              <div className="Modal-alert">
+                <Alert {...this.alertAttrs} />
+              </div>
+            )}
 
             {this.content()}
           </form>

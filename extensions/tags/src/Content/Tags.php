@@ -100,7 +100,7 @@ class Tags
         return $document;
     }
 
-    private function getTagsDocument(Request $request)
+    protected function getTagsDocument(Request $request)
     {
         return json_decode($this->api->withParentRequest($request)->withQueryParams([
             'include' => 'children,lastPostedDiscussion,parent'

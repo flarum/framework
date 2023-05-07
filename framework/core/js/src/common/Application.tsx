@@ -411,22 +411,12 @@ export default class Application {
       pageNumber: 1,
     };
 
-    let title =
+    const title =
       onHomepage || !this.title
         ? extractText(app.translator.trans('core.lib.meta_titles.without_page_title', params))
         : extractText(app.translator.trans('core.lib.meta_titles.with_page_title', params));
 
-    title = count + title;
-
-    // We pass the title through a DOMParser to allow HTML entities
-    // to be rendered correctly, while still preventing XSS attacks
-    // from user input by using a script-disabled environment.
-    // https://github.com/flarum/framework/issues/3514
-    // https://github.com/flarum/framework/pull/3684
-    const parser = new DOMParser();
-    const safeTitle = parser.parseFromString(title, 'text/html').body.innerHTML;
-
-    document.title = safeTitle;
+    document.title = count + title;
   }
 
   protected transformRequestOptions<ResponseType>(flarumOptions: FlarumRequestOptions<ResponseType>): InternalFlarumRequestOptions<ResponseType> {

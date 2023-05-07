@@ -29,8 +29,8 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
     };
 
     return (
-      <header class="Hero WelcomeHero">
-        <div class="container">
+      <header className="Hero WelcomeHero">
+        <div className="container">
           <Button
             icon="fas fa-times"
             onclick={slideUp}
@@ -38,9 +38,9 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
             aria-label={app.translator.trans('core.forum.welcome_hero.hide')}
           />
 
-          <div class="containerNarrow">
-            <h1 class="Hero-title">{app.forum.attribute('welcomeTitle')}</h1>
-            <div class="Hero-subtitle">{m.trust(app.forum.attribute('welcomeMessage'))}</div>
+          <div className="containerNarrow">
+            <h1 className="Hero-title">{app.forum.attribute('welcomeTitle')}</h1>
+            <div className="Hero-subtitle">{m.trust(app.forum.attribute('welcomeMessage'))}</div>
           </div>
         </div>
       </header>

@@ -16,10 +16,6 @@
   border-radius: var(--border-radius);
   overflow: hidden;
 
-  > *:not(:first-child) {
-    margin-left: 1px;
-  }
-
   &-item {
     display: flex;
     padding: 16px 16px 16px 0;
@@ -65,26 +61,19 @@
 
 @media @phone {
   .AccessTokensList {
-    > *:not(:first-child) {
-      margin-left: 8px;
-    }
-
     &-item {
       flex-wrap: wrap;
       padding: 16px;
 
-      > *:not(:first-child) {
-        margin-left: 16px;
-      }
-
       &-icon {
-        width: 100%;
         justify-content: start;
         padding: 8px;
+        width: auto;
+        min-width: calc(~"var(--font-size) + 4rem");
       }
 
       &-actions {
-        width: 100%;
+        width: auto;
       }
     }
   }

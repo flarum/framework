@@ -28,7 +28,7 @@ export default class SplitDropdown extends Dropdown {
 
     return (
       <>
-        {Button.component(buttonAttrs, firstChild.children)}
+        <Button {...buttonAttrs}>{firstChild.children}</Button>
         <button
           className={'Dropdown-toggle Button Button--icon ' + this.attrs.buttonClassName}
           aria-haspopup="menu"

@@ -52,6 +52,7 @@ declare const _default: {
         one(event: string, handler: Function): void;
         off(event: string, handler: Function): void;
     };
+    'utils/EventEmitter': typeof import("../common/utils/EventEmitter").default;
     'utils/KeyboardNavigatable': typeof import("../common/utils/KeyboardNavigatable").default;
     'utils/liveHumanTimes': typeof import("../common/utils/liveHumanTimes").default;
     'utils/ItemList': typeof import("../common/utils/ItemList").default;

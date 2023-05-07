@@ -1,1 +1,1 @@
-export default function textContrastClass(hexcolor: string): string;
+export default function textContrastClass(hexcolor: string | null): string;

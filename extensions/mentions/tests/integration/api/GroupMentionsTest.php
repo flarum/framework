@@ -33,40 +33,30 @@ class GroupMentionsTest extends TestCase
             'users' => [
                 ['id' => 3, 'username' => 'potato', 'email' => 'potato@machine.local', 'is_email_confirmed' => 1],
                 ['id' => 4, 'username' => 'toby', 'email' => 'toby@machine.local', 'is_email_confirmed' => 1],
-                ['id' => 5, 'username' => 'bad_user', 'email' => 'bad_user@machine.local', 'is_email_confirmed' => 1],
             ],
             'discussions' => [
                 ['id' => 2, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 3, 'first_post_id' => 4, 'comment_count' => 2],
             ],
             'posts' => [
-                ['id' => 4, 'number' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><p>One of the <GROUPMENTION color="#80349E" groupname="Mods" icon="fas fa-bolt" id="4">@"Mods"#g4</GROUPMENTION> will look at this</p></r>'],
-                ['id' => 6, 'number' => 3, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><p><GROUPMENTION color="#80349E" groupname="OldGroupName" icon="fas fa-circle" id="100">@"OldGroupName"#g100</GROUPMENTION></p></r>'],
-                ['id' => 7, 'number' => 4, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><p><GROUPMENTION color="#000" groupname="OldGroupName" icon="fas fa-circle" id="11">@"OldGroupName"#g11</GROUPMENTION></p></r>'],
+                ['id' => 4, 'number' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><p>One of the <GROUPMENTION groupname="Mods" id="4">@"Mods"#g4</GROUPMENTION> will look at this</p></r>'],
+                ['id' => 6, 'number' => 3, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><p><GROUPMENTION groupname="OldGroupName" id="100">@"OldGroupName"#g100</GROUPMENTION></p></r>'],
+                ['id' => 7, 'number' => 4, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><p><GROUPMENTION groupname="OldGroupName" id="11">@"OldGroupName"#g11</GROUPMENTION></p></r>'],
             ],
             'post_mentions_group' => [
                 ['post_id' => 4, 'mentions_group_id' => 4],
                 ['post_id' => 7, 'mentions_group_id' => 11],
             ],
+            'group_user' => [
+                ['group_id' => 9, 'user_id' => 4],
+            ],
             'group_permission' => [
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'postWithoutThrottle'],
+                ['group_id' => 9, 'permission' => 'mentionGroups'],
             ],
             'groups' => [
-                [
-                    'id' => 10,
-                    'name_singular' => 'Hidden',
-                    'name_plural' => 'Ninjas',
-                    'color' => null,
-                    'icon' => 'fas fa-wrench',
-                    'is_hidden' => 1
-                ],
-                [
-                    'id' => 11,
-                    'name_singular' => 'Fresh Name',
-                    'name_plural' => 'Fresh Name',
-                    'color' => '#ccc',
-                    'icon' => 'fas fa-users',
-                    'is_hidden' => 0
-                ]
+                ['id' => 9, 'name_singular' => 'HasPermissionToMentionGroups', 'name_plural' => 'test'],
+                ['id' => 10, 'name_singular' => 'Hidden', 'name_plural' => 'Ninjas', 'icon' => 'fas fa-wrench', 'color' => '#000', 'is_hidden' => 1],
+                ['id' => 11, 'name_singular' => 'Fresh Name', 'name_plural' => 'Fresh Name', 'color' => '#ccc', 'icon' => 'fas fa-users', 'is_hidden' => 0]
             ]
         ]);
     }
@@ -80,9 +70,11 @@ class GroupMentionsTest extends TestCase
             $this->request('GET', '/api/posts/4')
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $contents = $response->getBody()->getContents();
 
-        $response = json_decode($response->getBody(), true);
+        $this->assertEquals(200, $response->getStatusCode(), $contents);
+
+        $response = json_decode($contents, true);
 
         $this->assertStringContainsString('GroupMention', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('#80349E', $response['data']['attributes']['contentHtml']);
@@ -322,15 +314,9 @@ class GroupMentionsTest extends TestCase
      */
     public function user_with_permission_can_mention_groups()
     {
-        $this->prepareDatabase([
-            'group_permission' => [
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'mentionGroups'],
-            ]
-        ]);
-
         $response = $this->send(
             $this->request('POST', '/api/posts', [
-                'authenticatedAs' => 3,
+                'authenticatedAs' => 4,
                 'json' => [
                     'data' => [
                         'attributes' => [
@@ -359,15 +345,9 @@ class GroupMentionsTest extends TestCase
      */
     public function user_with_permission_cannot_mention_hidden_groups()
     {
-        $this->prepareDatabase([
-            'group_permission' => [
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'mentionGroups'],
-            ]
-        ]);
-
         $response = $this->send(
             $this->request('POST', '/api/posts', [
-                'authenticatedAs' => 3,
+                'authenticatedAs' => 4,
                 'json' => [
                     'data' => [
                         'attributes' => [

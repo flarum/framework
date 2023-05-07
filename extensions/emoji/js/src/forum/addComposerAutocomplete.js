@@ -80,7 +80,7 @@ export default function addComposerAutocomplete() {
                 dropdown.setIndex($(this).parent().index() - 1);
               }}
             >
-              <img alt={emoji} class="emoji" draggable="false" loading="lazy" src={`${cdn}72x72/${code}.png`} />
+              <img alt={emoji} className="emoji" draggable="false" loading="lazy" src={`${cdn}72x72/${code}.png`} />
               {name}
             </button>
           );

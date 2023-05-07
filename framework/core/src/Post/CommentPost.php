@@ -75,12 +75,14 @@ class CommentPost extends Post
     public function revise($content, User $actor)
     {
         if ($this->content !== $content) {
+            $oldContent = $this->content;
+
             $this->setContentAttribute($content, $actor);
 
             $this->edited_at = Carbon::now();
             $this->edited_user_id = $actor->id;
 
-            $this->raise(new Revised($this));
+            $this->raise(new Revised($this, $actor, $oldContent));
         }
 
         return $this;

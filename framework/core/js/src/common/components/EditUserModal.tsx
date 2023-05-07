@@ -89,19 +89,12 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
                 disabled={this.nonAdminEditingAdmin()}
               />
             </div>
-            {!this.isEmailConfirmed() && this.userIsAdmin(app.session.user) ? (
+            {!this.isEmailConfirmed() && this.userIsAdmin(app.session.user) && (
               <div>
-                {Button.component(
-                  {
-                    className: 'Button Button--block',
-                    loading: this.loading,
-                    onclick: this.activate.bind(this),
-                  },
-                  app.translator.trans('core.lib.edit_user.activate_button')
-                )}
+                <Button className="Button Button--block" loading={this.loading} onclick={this.activate.bind(this)}>
+                  {app.translator.trans('core.lib.edit_user.activate_button')}
+                </Button>
               </div>
-            ) : (
-              ''
             )}
           </div>,
           30
@@ -126,7 +119,7 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
                 />
                 {app.translator.trans('core.lib.edit_user.set_password_label')}
               </label>
-              {this.setPassword() ? (
+              {this.setPassword() && (
                 <input
                   className="FormControl"
                   type="password"
@@ -135,8 +128,6 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
                   bidi={this.password}
                   disabled={this.nonAdminEditingAdmin()}
                 />
-              ) : (
-                ''
               )}
             </div>
           </div>,
@@ -166,7 +157,7 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
                           group.id() === Group.ADMINISTRATOR_ID && (this.attrs.user === app.session.user || !this.userIsAdmin(app.session.user))
                         }
                       />
-                      {GroupBadge.component({ group, label: '' })} {group.nameSingular()}
+                      <GroupBadge group={group} label={null} /> {group.nameSingular()}
                     </label>
                   )
               )}
@@ -179,14 +170,9 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
     items.add(
       'submit',
       <div className="Form-group">
-        {Button.component(
-          {
-            className: 'Button Button--primary',
-            type: 'submit',
-            loading: this.loading,
-          },
-          app.translator.trans('core.lib.edit_user.submit_button')
-        )}
+        <Button className="Button Button--primary" type="submit" loading={this.loading}>
+          {app.translator.trans('core.lib.edit_user.submit_button')}
+        </Button>
       </div>,
       -10
     );
@@ -255,14 +241,14 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
       });
   }
 
-  nonAdminEditingAdmin() {
+  nonAdminEditingAdmin(): boolean {
     return this.userIsAdmin(this.attrs.user) && !this.userIsAdmin(app.session.user);
   }
 
   /**
    * @internal
    */
-  protected userIsAdmin(user: User | null) {
-    return user && (user.groups() || []).some((g) => g?.id() === Group.ADMINISTRATOR_ID);
+  protected userIsAdmin(user: User | null): boolean {
+    return !!(user?.groups() || []).some((g) => g?.id() === Group.ADMINISTRATOR_ID);
   }
 }

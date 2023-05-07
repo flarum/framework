@@ -39,7 +39,7 @@ export default class StatusWidget extends DashboardWidget {
         'schedule-status',
         [
           <span>
-            <strong>Scheduler</strong>{' '}
+            <strong>{app.translator.trans('core.admin.dashboard.status.headers.scheduler-status')}</strong>{' '}
             <LinkButton href="https://discuss.flarum.org/d/24118" external={true} target="_blank" icon="fas fa-info-circle" />
           </span>,
           <br />,
@@ -49,8 +49,16 @@ export default class StatusWidget extends DashboardWidget {
       );
     }
 
-    items.add('queue-driver', [<strong>Queue Driver</strong>, <br />, app.data.queueDriver], 60);
-    items.add('session-driver', [<strong>Session Driver</strong>, <br />, app.data.sessionDriver], 50);
+    items.add(
+      'queue-driver',
+      [<strong>{app.translator.trans('core.admin.dashboard.status.headers.queue-driver')}</strong>, <br />, app.data.queueDriver],
+      60
+    );
+    items.add(
+      'session-driver',
+      [<strong>{app.translator.trans('core.admin.dashboard.status.headers.session-driver')}</strong>, <br />, app.data.sessionDriver],
+      50
+    );
 
     return items;
   }
