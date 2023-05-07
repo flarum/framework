@@ -14,6 +14,7 @@ import GlobalSearchState from './states/GlobalSearchState';
 import NotificationListState from './states/NotificationListState';
 import PostStreamState from './states/PostStreamState';
 import SearchState from './states/SearchState';
+import UserSecurityPageState from './states/UserSecurityPageState';
 import AffixedSidebar from './components/AffixedSidebar';
 import DiscussionPage from './components/DiscussionPage';
 import DiscussionListPane from './components/DiscussionListPane';
@@ -46,6 +47,7 @@ import UserPage from './components/UserPage';
 import PostUser from './components/PostUser';
 import UserCard from './components/UserCard';
 import UsersSearchSource from './components/UsersSearchSource';
+import UserSecurityPage from './components/UserSecurityPage';
 import NotificationGrid from './components/NotificationGrid';
 import PostPreview from './components/PostPreview';
 import EventPost from './components/EventPost';
@@ -92,6 +94,7 @@ export default Object.assign(compat, {
   'states/NotificationListState': NotificationListState,
   'states/PostStreamState': PostStreamState,
   'states/SearchState': SearchState,
+  'states/UserSecurityPageState': UserSecurityPageState,
   'components/AffixedSidebar': AffixedSidebar,
   'components/DiscussionPage': DiscussionPage,
   'components/DiscussionListPane': DiscussionListPane,
@@ -124,6 +127,7 @@ export default Object.assign(compat, {
   'components/PostUser': PostUser,
   'components/UserCard': UserCard,
   'components/UsersSearchSource': UsersSearchSource,
+  'components/UserSecurityPage': UserSecurityPage,
   'components/NotificationGrid': NotificationGrid,
   'components/PostPreview': PostPreview,
   'components/EventPost': EventPost,
