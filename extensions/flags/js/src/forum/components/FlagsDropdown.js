@@ -1,5 +1,5 @@
 import app from 'flarum/forum/app';
-import NotificationsDropdown from 'flarum/components/NotificationsDropdown';
+import NotificationsDropdown from 'flarum/forum/components/NotificationsDropdown';
 
 import FlagList from './FlagList';
 
@@ -14,7 +14,7 @@ export default class FlagsDropdown extends NotificationsDropdown {
   getMenu() {
     return (
       <div className={'Dropdown-menu ' + this.attrs.menuClassName} onclick={this.menuClick.bind(this)}>
-        {this.showing ? FlagList.component({ state: this.attrs.state }) : ''}
+        {this.showing && <FlagList state={this.attrs.state} />}
       </div>
     );
   }

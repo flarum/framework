@@ -1,3 +1,4 @@
+import classList from '../utils/classList';
 import Checkbox, { ICheckboxAttrs } from './Checkbox';
 
 /**
@@ -8,10 +9,10 @@ export default class Switch extends Checkbox {
   static initAttrs(attrs: ICheckboxAttrs) {
     super.initAttrs(attrs);
 
-    attrs.className = (attrs.className || '') + ' Checkbox--switch';
+    attrs.className = classList(attrs.className, 'Checkbox--switch');
   }
 
   getDisplay() {
-    return this.attrs.loading ? super.getDisplay() : '';
+    return !!this.attrs.loading && super.getDisplay();
   }
 }

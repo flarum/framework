@@ -141,7 +141,7 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
    * Get the component to display as the hero.
    */
   hero() {
-    return WelcomeHero.component();
+    return <WelcomeHero />;
   }
 
   /**
@@ -155,32 +155,30 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
 
     items.add(
       'newDiscussion',
-      Button.component(
-        {
-          icon: 'fas fa-edit',
-          className: 'Button Button--primary IndexPage-newDiscussion',
-          itemClassName: 'App-primaryControl',
-          onclick: () => {
-            // If the user is not logged in, the promise rejects, and a login modal shows up.
-            // Since that's already handled, we dont need to show an error message in the console.
-            return this.newDiscussionAction().catch(() => {});
-          },
-          disabled: !canStartDiscussion,
-        },
-        app.translator.trans(canStartDiscussion ? 'core.forum.index.start_discussion_button' : 'core.forum.index.cannot_start_discussion_button')
-      )
+      <Button
+        icon="fas fa-edit"
+        className="Button Button--primary IndexPage-newDiscussion"
+        itemClassName="App-primaryControl"
+        onclick={() => {
+          // If the user is not logged in, the promise rejects, and a login modal shows up.
+          // Since that's already handled, we dont need to show an error message in the console.
+          return this.newDiscussionAction().catch(() => {});
+        }}
+        disabled={!canStartDiscussion}
+      >
+        {app.translator.trans(`core.forum.index.${canStartDiscussion ? 'start_discussion_button' : 'cannot_start_discussion_button'}`)}
+      </Button>
     );
 
     items.add(
       'nav',
-      SelectDropdown.component(
-        {
-          buttonClassName: 'Button',
-          className: 'App-titleControl',
-          accessibleToggleLabel: app.translator.trans('core.forum.index.toggle_sidenav_dropdown_accessible_label'),
-        },
-        this.navItems().toArray()
-      )
+      <SelectDropdown
+        buttonClassName="Button"
+        className="App-titleControl"
+        accessibleToggleLabel={app.translator.trans('core.forum.index.toggle_sidenav_dropdown_accessible_label')}
+      >
+        {this.navItems().toArray()}
+      </SelectDropdown>
     );
 
     return items;
@@ -196,13 +194,9 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
 
     items.add(
       'allDiscussions',
-      LinkButton.component(
-        {
-          href: app.route('index', params),
-          icon: 'far fa-comments',
-        },
-        app.translator.trans('core.forum.index.all_discussions_link')
-      ),
+      <LinkButton href={app.route('index', params)} icon="far fa-comments">
+        {app.translator.trans('core.forum.index.all_discussions_link')}
+      </LinkButton>,
       100
     );
 
@@ -225,26 +219,22 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
 
     items.add(
       'sort',
-      Dropdown.component(
-        {
-          buttonClassName: 'Button',
-          label: sortOptions[app.search.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0],
-          accessibleToggleLabel: app.translator.trans('core.forum.index_sort.toggle_dropdown_accessible_label'),
-        },
-        Object.keys(sortOptions).map((value) => {
+      <Dropdown
+        buttonClassName="Button"
+        label={sortOptions[app.search.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0]}
+        accessibleToggleLabel={app.translator.trans('core.forum.index_sort.toggle_dropdown_accessible_label')}
+      >
+        {Object.keys(sortOptions).map((value) => {
           const label = sortOptions[value];
           const active = (app.search.params().sort || Object.keys(sortMap)[0]) === value;
 
-          return Button.component(
-            {
-              icon: active ? 'fas fa-check' : true,
-              onclick: app.search.changeSort.bind(app.search, value),
-              active: active,
-            },
-            label
+          return (
+            <Button icon={active ? 'fas fa-check' : true} onclick={app.search.changeSort.bind(app.search, value)} active={active}>
+              {label}
+            </Button>
           );
-        })
-      )
+        })}
+      </Dropdown>
     );
 
     return items;
@@ -259,29 +249,29 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
 
     items.add(
       'refresh',
-      Button.component({
-        title: app.translator.trans('core.forum.index.refresh_tooltip'),
-        icon: 'fas fa-sync',
-        className: 'Button Button--icon',
-        onclick: () => {
+      <Button
+        title={app.translator.trans('core.forum.index.refresh_tooltip')}
+        icon="fas fa-sync"
+        className="Button Button--icon"
+        onclick={() => {
           app.discussions.refresh();
           if (app.session.user) {
             app.store.find('users', app.session.user.id()!);
             m.redraw();
           }
-        },
-      })
+        }}
+      />
     );
 
     if (app.session.user) {
       items.add(
         'markAllAsRead',
-        Button.component({
-          title: app.translator.trans('core.forum.index.mark_all_as_read_tooltip'),
-          icon: 'fas fa-check',
-          className: 'Button Button--icon',
-          onclick: this.markAllAsRead.bind(this),
-        })
+        <Button
+          title={app.translator.trans('core.forum.index.mark_all_as_read_tooltip')}
+          icon="fas fa-check"
+          className="Button Button--icon"
+          onclick={this.markAllAsRead.bind(this)}
+        />
       );
     }
 

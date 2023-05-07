@@ -8,11 +8,7 @@ export default function addStickyBadge() {
     if (this.isSticky()) {
       badges.add(
         'sticky',
-        Badge.component({
-          type: 'sticky',
-          label: app.translator.trans('flarum-sticky.forum.badge.sticky_tooltip'),
-          icon: 'fas fa-thumbtack',
-        }),
+        <Badge type="sticky" label={app.translator.trans('flarum-sticky.forum.badge.sticky_tooltip')} icon="fas fa-thumbtack" />,
         10
       );
     }

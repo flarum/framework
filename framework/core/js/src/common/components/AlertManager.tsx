@@ -21,7 +21,7 @@ export default class AlertManager<CustomAttrs extends IAlertManagerAttrs = IAler
     const activeAlerts = this.state.getActiveAlerts();
 
     return (
-      <div class="AlertManager">
+      <div className="AlertManager">
         {Object.keys(activeAlerts)
           .map(Number)
           .map((key) => {
@@ -29,7 +29,7 @@ export default class AlertManager<CustomAttrs extends IAlertManagerAttrs = IAler
             const urgent = alert.attrs.type === 'error';
 
             return (
-              <div class="AlertManager-alert" role="alert" aria-live={urgent ? 'assertive' : 'polite'}>
+              <div className="AlertManager-alert" role="alert" aria-live={urgent ? 'assertive' : 'polite'}>
                 <alert.componentClass {...alert.attrs} ondismiss={this.state.dismiss.bind(this.state, key)}>
                   {alert.children}
                 </alert.componentClass>

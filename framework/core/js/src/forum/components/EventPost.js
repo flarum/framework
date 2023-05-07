@@ -5,6 +5,7 @@ import usernameHelper from '../../common/helpers/username';
 import icon from '../../common/helpers/icon';
 import Link from '../../common/components/Link';
 import humanTime from '../../common/helpers/humanTime';
+import classList from '../../common/utils/classList';
 
 /**
  * The `EventPost` component displays a post which indicating a discussion
@@ -21,7 +22,7 @@ export default class EventPost extends Post {
   elementAttrs() {
     const attrs = super.elementAttrs();
 
-    attrs.className = (attrs.className || '') + ' EventPost ' + ucfirst(this.attrs.post.contentType()) + 'Post';
+    attrs.className = classList(attrs.className, 'EventPost', ucfirst(this.attrs.post.contentType()) + 'Post');
 
     return attrs;
   }
@@ -41,7 +42,9 @@ export default class EventPost extends Post {
       time: humanTime(this.attrs.post.createdAt()),
     });
 
-    return super.content().concat([icon(this.icon(), { className: 'EventPost-icon' }), <div class="EventPost-info">{this.description(data)}</div>]);
+    return super
+      .content()
+      .concat([icon(this.icon(), { className: 'EventPost-icon' }), <div className="EventPost-info">{this.description(data)}</div>]);
   }
 
   /**

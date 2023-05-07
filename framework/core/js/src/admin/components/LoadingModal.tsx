@@ -18,7 +18,7 @@ export default class LoadingModal<ModalAttrs extends ILoadingModalAttrs = ILoadi
   }
 
   content() {
-    return '';
+    return null;
   }
 
   onsubmit(e: Event): void {

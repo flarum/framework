@@ -28,7 +28,7 @@ export default {
       const controls = this[section + 'Controls'](discussion, context).toArray();
       if (controls.length) {
         controls.forEach((item) => items.add(item.itemName, item));
-        items.add(section + 'Separator', Separator.component());
+        items.add(section + 'Separator', <Separator />);
       }
     });
 
@@ -54,30 +54,30 @@ export default {
     if (context instanceof DiscussionPage) {
       items.add(
         'reply',
-        !app.session.user || discussion.canReply()
-          ? Button.component(
-              {
-                icon: 'fas fa-reply',
-                onclick: () => {
-                  // If the user is not logged in, the promise rejects, and a login modal shows up.
-                  // Since that's already handled, we dont need to show an error message in the console.
-                  return this.replyAction
-                    .bind(discussion)(true, false)
-                    .catch(() => {});
-                },
-              },
-              app.translator.trans(
-                app.session.user ? 'core.forum.discussion_controls.reply_button' : 'core.forum.discussion_controls.log_in_to_reply_button'
-              )
-            )
-          : Button.component(
-              {
-                icon: 'fas fa-reply',
-                className: 'disabled',
-                title: app.translator.trans('core.forum.discussion_controls.cannot_reply_text'),
-              },
-              app.translator.trans('core.forum.discussion_controls.cannot_reply_button')
-            )
+        !app.session.user || discussion.canReply() ? (
+          <Button
+            icon="fas fa-reply"
+            onclick={() => {
+              // If the user is not logged in, the promise rejects, and a login modal shows up.
+              // Since that's already handled, we dont need to show an error message in the console.
+              return this.replyAction
+                .bind(discussion)(true, false)
+                .catch(() => {});
+            }}
+          >
+            {app.translator.trans(
+              app.session.user ? 'core.forum.discussion_controls.reply_button' : 'core.forum.discussion_controls.log_in_to_reply_button'
+            )}
+          </Button>
+        ) : (
+          <Button
+            icon="fas fa-reply"
+            className="disabled"
+            title={extractText(app.translator.trans('core.forum.discussion_controls.cannot_reply_text'))}
+          >
+            {app.translator.trans('core.forum.discussion_controls.cannot_reply_button')}
+          </Button>
+        )
       );
     }
 
@@ -99,13 +99,9 @@ export default {
     if (discussion.canRename()) {
       items.add(
         'rename',
-        Button.component(
-          {
-            icon: 'fas fa-pencil-alt',
-            onclick: this.renameAction.bind(discussion),
-          },
-          app.translator.trans('core.forum.discussion_controls.rename_button')
-        )
+        <Button icon="fas fa-pencil-alt" onclick={this.renameAction.bind(discussion)}>
+          {app.translator.trans('core.forum.discussion_controls.rename_button')}
+        </Button>
       );
     }
 
@@ -128,39 +124,27 @@ export default {
       if (discussion.canHide()) {
         items.add(
           'hide',
-          Button.component(
-            {
-              icon: 'far fa-trash-alt',
-              onclick: this.hideAction.bind(discussion),
-            },
-            app.translator.trans('core.forum.discussion_controls.delete_button')
-          )
+          <Button icon="far fa-trash-alt" onclick={this.hideAction.bind(discussion)}>
+            {app.translator.trans('core.forum.discussion_controls.delete_button')}
+          </Button>
         );
       }
     } else {
       if (discussion.canHide()) {
         items.add(
           'restore',
-          Button.component(
-            {
-              icon: 'fas fa-reply',
-              onclick: this.restoreAction.bind(discussion),
-            },
-            app.translator.trans('core.forum.discussion_controls.restore_button')
-          )
+          <Button icon="fas fa-reply" onclick={this.restoreAction.bind(discussion)}>
+            {app.translator.trans('core.forum.discussion_controls.restore_button')}
+          </Button>
         );
       }
 
       if (discussion.canDelete()) {
         items.add(
           'delete',
-          Button.component(
-            {
-              icon: 'fas fa-times',
-              onclick: this.deleteAction.bind(discussion),
-            },
-            app.translator.trans('core.forum.discussion_controls.delete_forever_button')
-          )
+          <Button icon="fas fa-times" onclick={this.deleteAction.bind(discussion)}>
+            {app.translator.trans('core.forum.discussion_controls.delete_forever_button')}
+          </Button>
         );
       }
     }

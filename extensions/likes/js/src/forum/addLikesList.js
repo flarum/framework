@@ -59,7 +59,7 @@ export default function () {
         'liked',
         <div className="Post-likedBy">
           {icon('far fa-thumbs-up')}
-          {app.translator.trans('flarum-likes.forum.post.liked_by' + (likes[0] === app.session.user ? '_self' : '') + '_text', {
+          {app.translator.trans(`flarum-likes.forum.post.liked_by${likes[0] === app.session.user ? '_self' : ''}_text`, {
             count: names.length,
             users: punctuateSeries(names),
           })}

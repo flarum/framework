@@ -12,7 +12,7 @@ export default class ExtensionLinkButton extends LinkButton {
 
     content.unshift(
       <span className="ExtensionListItem-icon ExtensionIcon" style={extension.icon}>
-        {extension.icon ? icon(extension.icon.name) : ''}
+        {!!extension.icon && icon(extension.icon.name)}
       </span>
     );
     content.push(statuses);
@@ -23,7 +23,7 @@ export default class ExtensionLinkButton extends LinkButton {
   statusItems(name) {
     const items = new ItemList();
 
-    items.add('enabled', <span class={'ExtensionListItem-Dot ' + (isExtensionEnabled(name) ? 'enabled' : 'disabled')} />);
+    items.add('enabled', <span className={'ExtensionListItem-Dot ' + (isExtensionEnabled(name) ? 'enabled' : 'disabled')} />);
 
     return items;
   }

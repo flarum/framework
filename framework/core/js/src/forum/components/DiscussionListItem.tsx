@@ -79,17 +79,16 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
 
   controlsView(controls: Mithril.ChildArray): Mithril.Children {
     return (
-      (controls.length > 0 &&
-        Dropdown.component(
-          {
-            icon: 'fas fa-ellipsis-v',
-            className: 'DiscussionListItem-controls',
-            buttonClassName: 'Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right',
-            accessibleToggleLabel: app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label'),
-          },
-          controls
-        )) ||
-      null
+      !!controls.length && (
+        <Dropdown
+          icon="fas fa-ellipsis-v"
+          className="DiscussionListItem-controls"
+          buttonClassName="Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right"
+          accessibleToggleLabel={app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label')}
+        >
+          {controls}
+        </Dropdown>
+      )
     );
   }
 
@@ -99,7 +98,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
 
     return (
       <span
-        className={'Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic' + (isUnread ? '' : ' disabled')}
+        className={classList('Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic', { disabled: isUnread })}
         onclick={this.markAsRead.bind(this)}
       >
         {icon('fas fa-check')}
@@ -247,13 +246,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
         items.add('excerpt', excerpt, -100);
       }
     } else {
-      items.add(
-        'terminalPost',
-        TerminalPost.component({
-          discussion: this.attrs.discussion,
-          lastPost: !this.showFirstPost(),
-        })
-      );
+      items.add('terminalPost', <TerminalPost discussion={this.attrs.discussion} lastPost={!this.showFirstPost()} />);
     }
 
     return items;
@@ -268,7 +261,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
         <button className="Button--ua-reset DiscussionListItem-count" onclick={this.markAsRead.bind(this)}>
           <span aria-hidden="true">{abbreviateNumber(discussion.unreadCount())}</span>
 
-          <span class="visually-hidden">
+          <span className="visually-hidden">
             {app.translator.trans('core.forum.discussion_list.unread_replies_a11y_label', { count: discussion.replyCount() })}
           </span>
         </button>
@@ -279,7 +272,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
       <span className="DiscussionListItem-count">
         <span aria-hidden="true">{abbreviateNumber(discussion.replyCount())}</span>
 
-        <span class="visually-hidden">
+        <span className="visually-hidden">
           {app.translator.trans('core.forum.discussion_list.total_replies_a11y_label', { count: discussion.replyCount() })}
         </span>
       </span>
