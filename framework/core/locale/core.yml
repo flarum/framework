@@ -1,10 +1,12 @@
 core:
+
   ##
   # UNIQUE KEYS - The following keys are used in only one location each.
   ##
 
   # Translations in this namespace are used by the admin interface.
   admin:
+
     # These translations are used in the Appearance page.
     appearance:
       colored_header_label: Colored Header
@@ -58,7 +60,7 @@ core:
       password_placeholder: => core.ref.password
       submit_button: Create user
       title: Create new user
-      use_random_password: Generate random password?
+      use_random_password: Generate random password
       username_placeholder: => core.ref.username
 
     # These translations are used in the Dashboard page.
@@ -306,6 +308,7 @@ core:
 
   # Translations in this namespace are used by the forum user interface.
   forum:
+
     # These translations are used in the Change Email modal dialog.
     change_email:
       confirm_password_placeholder: => core.ref.confirm_password
@@ -728,6 +731,7 @@ core:
 
   # Translations in this namespace are used in emails sent by the forum.
   email:
+
     # These translations are used in emails sent when users register new accounts.
     activate_account:
       subject: Activate Your New Account
