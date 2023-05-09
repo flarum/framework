@@ -40,6 +40,7 @@
             "Flarum\\": "framework/core/src",
             "Flarum\\Akismet\\": "extensions/akismet/src",
             "Flarum\\Approval\\": "extensions/approval/src",
+            "Flarum\\BBCode\\": "extensions/bbcode/src",
             "Flarum\\Flags\\": "extensions/flags/src",
             "Flarum\\Likes\\": "extensions/likes/src",
             "Flarum\\Lock\\": "extensions/lock/src",
