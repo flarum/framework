@@ -7,7 +7,7 @@ export default function tagsLabel(tags, attrs = {}) {
   const children = [];
   const { link, ...otherAttrs } = attrs;
 
-  attrs.className = classList('TagsLabel', attrs.className);
+  otherAttrs.className = classList('TagsLabel', otherAttrs.className);
 
   if (tags) {
     sortTags(tags).forEach((tag) => {
