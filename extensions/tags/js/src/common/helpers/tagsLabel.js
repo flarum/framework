@@ -1,7 +1,7 @@
 import extract from 'flarum/common/utils/extract';
 import tagLabel from './tagLabel';
 import sortTags from '../utils/sortTags';
-import classList from '@flarum/core/src/common/utils/classList';
+import classList from 'flarum/common/utils/classList';
 
 export default function tagsLabel(tags, attrs = {}) {
   const children = [];

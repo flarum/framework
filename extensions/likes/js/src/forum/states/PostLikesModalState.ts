@@ -1,4 +1,4 @@
-import PaginatedListState, { PaginatedListParams } from '@flarum/core/src/common/states/PaginatedListState';
+import PaginatedListState, { PaginatedListParams } from 'flarum/common/states/PaginatedListState';
 import User from 'flarum/common/models/User';
 
 export interface PostLikesModalListParams extends PaginatedListParams {
