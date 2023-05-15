@@ -21,9 +21,9 @@ on:
         required: false
         default: '.'
 
-      # Used with mono-repos, defaults to `backend_directory`.
-      composer_directory:
-        description: The directory of the project where composer.json is located. This is generally the backend directory, but can be different in mono-repos.
+      # Only relevant in mono-repos.
+      monorepo_tests:
+        description: "The list of directories to test in a monorepo. This should be a space-separated list of directories relative to the backend directory."
         type: string
         required: false
 
@@ -54,7 +54,6 @@ on:
 env:
   COMPOSER_ROOT_VERSION: dev-main
   # `inputs.composer_directory` defaults to `inputs.backend_directory`
-  COMPOSER_DIR: ${{ inputs.composer_directory || inputs.backend_directory }}
   FLARUM_TEST_TMP_DIR_LOCAL: tests/integration/tmp
 
 jobs:
@@ -149,20 +148,29 @@ jobs:
 
       - name: Install Composer dependencies
         run: composer install
-        working-directory: ${{ env.COMPOSER_DIR }}
+        working-directory: ${{ inputs.backend_directory }}
 
-      - name: Setup Composer tests
-        run: composer test:setup
+      # If we have a `inputs.monorepo_tests`, we will run tests for each item of the provided array in a ::group::item
+      # If we don't have a `inputs.monorepo_tests`, we will run tests for the current repository
+      # We also have to run the `composer test:setup` script first before running each test
+      - name: Run tests
+        run: |
+          if [ -z "${{ inputs.monorepo_tests }}" ]; then
+            composer test:setup
+            composer test
+          else
+            for test in ${{ inputs.monorepo_tests }}; do
+              echo "::group::Running tests for $test"
+              composer test:setup --working-dir=$test
+              composer test --working-dir=$test
+              echo "::endgroup::"
+            done
+          fi
         working-directory: ${{ inputs.backend_directory }}
         env:
           DB_PORT: 13306
           DB_PASSWORD: root
           DB_PREFIX: ${{ matrix.prefix }}
-
-      - name: Run Composer tests
-        run: composer test
-        working-directory: ${{ inputs.backend_directory }}
-        env:
           COMPOSER_PROCESS_TIMEOUT: 600
 
   phpstan:
