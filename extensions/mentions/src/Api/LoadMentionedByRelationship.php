@@ -48,7 +48,7 @@ class LoadMentionedByRelationship
 
         if ($data instanceof Discussion) {
             // @phpstan-ignore-next-line
-            $loadable = $data->newCollection($data->posts)->filter(function ($post) {
+            $loadable = $data->newCollection((array) $data->posts)->filter(function ($post) {
                 return $post instanceof Post;
             });
         } elseif ($data instanceof Collection) {
