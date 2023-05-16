@@ -257,7 +257,7 @@ abstract class AbstractModel extends Eloquent
     }
 
     /**
-     * @param Collection|array $models
+     * @param \Illuminate\Support\Collection|array $models
      */
     public function newCollection($models = [])
     {
