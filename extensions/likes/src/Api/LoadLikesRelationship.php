@@ -44,7 +44,6 @@ class LoadLikesRelationship
         $loadable = null;
 
         if ($data instanceof Discussion) {
-            // @phpstan-ignore-next-line
             $loadable = $data->newCollection($data->posts)->filter(function ($post) {
                 return $post instanceof Post;
             });
