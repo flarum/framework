@@ -41,7 +41,7 @@ class GroupRepository
         return $this->scopeVisibleTo($query, $actor)->firstOrFail();
     }
 
-    public function queryVisibleTo(User $actor = null)
+    public function queryVisibleTo(?User $actor = null)
     {
         return $this->scopeVisibleTo($this->query(), $actor);
     }
@@ -53,7 +53,7 @@ class GroupRepository
      * @param User|null $actor
      * @return Builder<Group>
      */
-    protected function scopeVisibleTo(Builder $query, User $actor = null)
+    protected function scopeVisibleTo(Builder $query, ?User $actor = null)
     {
         if ($actor !== null) {
             $query->whereVisibleTo($actor);

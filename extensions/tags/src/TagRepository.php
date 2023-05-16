@@ -26,7 +26,7 @@ class TagRepository
         return Tag::query();
     }
 
-    public function queryVisibleTo(User $actor): Builder
+    public function queryVisibleTo(?User $actor = null): Builder
     {
         return $this->scopeVisibleTo($this->query(), $actor);
     }
@@ -114,7 +114,7 @@ class TagRepository
      * @param User|null $user
      * @return Builder<Tag>
      */
-    protected function scopeVisibleTo(Builder $query, User $user = null)
+    protected function scopeVisibleTo(Builder $query, ?User $user = null)
     {
         if ($user !== null) {
             $query->whereVisibleTo($user);

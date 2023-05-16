@@ -29,7 +29,7 @@ class PostRepository
      * @param User|null $user
      * @return Builder<Post>
      */
-    public function queryVisibleTo(User $user = null)
+    public function queryVisibleTo(?User $user = null)
     {
         $query = $this->query();
 
