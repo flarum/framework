@@ -87,7 +87,7 @@ class AvatarValidator extends AbstractValidator
         }
 
         try {
-            $this->imageManager->make($file->getStream());
+            $this->imageManager->make($file->getStream()->getMetadata('uri'));
         } catch (NotReadableException $_e) {
             $this->raise('image');
         }
