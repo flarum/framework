@@ -22,7 +22,7 @@
         "source": "https://github.com/flarum/package-manager"
     },
     "require": {
-        "flarum/core": "^1.5.0",
+        "flarum/core": "^1.8",
         "composer/composer": "^2.3"
     },
     "require-dev": {
