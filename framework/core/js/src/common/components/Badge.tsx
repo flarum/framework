@@ -28,7 +28,7 @@ export default class Badge<CustomAttrs extends IBadgeAttrs = IBadgeAttrs> extend
   view() {
     const { type, icon: iconName, label, color, style = {}, ...attrs } = this.attrs;
 
-    const className = classList('Badge', [type && `Badge--${type}`], attrs.className, color && textContrastClass(color));
+    const className = classList('Badge', [type && `Badge--${type}`], attrs.className, textContrastClass(color));
 
     const iconChild = iconName ? icon(iconName, { className: 'Badge-icon' }) : m.trust('&nbsp;');
 

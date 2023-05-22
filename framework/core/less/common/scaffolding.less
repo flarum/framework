@@ -176,4 +176,10 @@ blockquote ol:last-child {
     --contrast-color: var(--text-on-dark);
     color: var(--contrast-color);
   }
+
+  // This exists to prevent inheriting the contrast color from a parent element.
+  // Like when a badge is inside a tag hero.
+  &--unchanged {
+    --contrast-color: var(--unchanged-color);
+  }
 }
