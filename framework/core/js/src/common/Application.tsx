@@ -411,12 +411,23 @@ export default class Application {
       pageNumber: 1,
     };
 
-    const title =
+    let title =
       onHomepage || !this.title
         ? extractText(app.translator.trans('core.lib.meta_titles.without_page_title', params))
         : extractText(app.translator.trans('core.lib.meta_titles.with_page_title', params));
 
-    document.title = count + title;
+    title = count + title;
+
+    // We pass the title through a DOMParser to allow HTML entities
+    // to be rendered correctly, while still preventing XSS attacks
+    // from user input by using a script-disabled environment.
+    // https://github.com/flarum/framework/issues/3514
+    // https://github.com/flarum/framework/pull/3684
+    // This is only a temporary solution for 1.x,
+    // and the actual source of the issue will be fixed in 2.x
+    // Actual source of the issue: https://github.com/flarum/framework/issues/3685
+    const parser = new DOMParser();
+    document.title = parser.parseFromString(title, 'text/html').body.innerText;
   }
 
   protected transformRequestOptions<ResponseType>(flarumOptions: FlarumRequestOptions<ResponseType>): InternalFlarumRequestOptions<ResponseType> {
