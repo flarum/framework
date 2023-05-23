@@ -1,5 +1,11 @@
 # Changelog
 
+## [v1.8.1](https://github.com/flarum/framework/compare/v1.8.0...v1.8.1)
+### Fixed
+* recover temporary solution for html entities in browser title (e72541e35de4f71f9d870bbd9bb46ddf586bdf1d)
+* custom contrast color affected by parents (577890d89c593ae5b6cb96083fab69e2f1ae600c)
+* reply placeholder wrong positioning (253a3d281dbf5ce3fa712b629b80587cf67e7dbe)
+
 ## [v1.8.0](https://github.com/flarum/framework/compare/v1.7.1...v1.8.0)
 ### Fixed
 - (a11y) reply placeholder not accessible [#3793]
