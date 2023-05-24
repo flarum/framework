@@ -103,15 +103,17 @@ class Installation
     public function prerequisites(): Prerequisite\PrerequisiteInterface
     {
         return new Prerequisite\Composite(
-            new Prerequisite\PhpVersion('7.2.0'),
+            new Prerequisite\PhpVersion('8.1.0'),
             new Prerequisite\PhpExtensions([
                 'dom',
+                'fileinfo',
                 'gd',
                 'json',
                 'mbstring',
                 'openssl',
                 'pdo_mysql',
                 'tokenizer',
+                'zip',
             ]),
             new Prerequisite\WritablePaths([
                 $this->paths->base,
