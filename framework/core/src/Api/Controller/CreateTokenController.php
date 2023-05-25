@@ -32,7 +32,8 @@ class CreateTokenController implements RequestHandlerInterface
         protected UserRepository $users,
         protected BusDispatcher $bus,
         protected EventDispatcher $events
-    ) {}
+    ) {
+    }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {

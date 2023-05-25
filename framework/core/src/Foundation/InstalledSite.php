@@ -59,7 +59,8 @@ class InstalledSite implements SiteInterface
     public function __construct(
         protected Paths $paths,
         protected Config $config
-    ) {}
+    ) {
+    }
 
     /**
      * Create and boot a Flarum application instance.

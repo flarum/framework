@@ -15,5 +15,6 @@ class Enabling
 {
     public function __construct(
         public Extension $extension
-    ) {}
+    ) {
+    }
 }

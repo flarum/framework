@@ -42,7 +42,8 @@ class Frontend implements ExtenderInterface
      */
     public function __construct(
         private readonly string $frontend
-    ) {}
+    ) {
+    }
 
     /**
      * Add a CSS file to load in the frontend.

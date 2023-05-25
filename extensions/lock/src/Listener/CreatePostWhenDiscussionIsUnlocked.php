@@ -18,7 +18,8 @@ class CreatePostWhenDiscussionIsUnlocked
 {
     public function __construct(
         protected NotificationSyncer $notifications
-    ) {}
+    ) {
+    }
 
     public function handle(DiscussionWasUnlocked $event): void
     {

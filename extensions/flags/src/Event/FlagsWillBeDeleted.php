@@ -22,5 +22,6 @@ class FlagsWillBeDeleted
         public Post $post,
         public User $actor,
         public array $data = []
-    ) {}
+    ) {
+    }
 }

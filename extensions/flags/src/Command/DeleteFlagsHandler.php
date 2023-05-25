@@ -20,7 +20,8 @@ class DeleteFlagsHandler
     public function __construct(
         protected PostRepository $posts,
         protected Dispatcher $events
-    ) {}
+    ) {
+    }
 
     public function handle(DeleteFlags $command): Post
     {

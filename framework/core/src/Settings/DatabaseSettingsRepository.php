@@ -15,7 +15,8 @@ class DatabaseSettingsRepository implements SettingsRepositoryInterface
 {
     public function __construct(
         protected ConnectionInterface $database
-    ) {}
+    ) {
+    }
 
     public function all(): array
     {

@@ -17,5 +17,6 @@ class Deleting
     public function __construct(
         public Tag $tag,
         public User $actor
-    ) {}
+    ) {
+    }
 }

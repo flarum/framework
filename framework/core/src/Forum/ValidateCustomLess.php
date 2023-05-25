@@ -33,7 +33,8 @@ class ValidateCustomLess
         protected LocaleManager $locales,
         protected Container $container,
         protected array $customLessSettings = []
-    ) {}
+    ) {
+    }
 
     public function whenSettingsSaving(Saving $event): void
     {

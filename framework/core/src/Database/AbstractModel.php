@@ -9,7 +9,6 @@
 
 namespace Flarum\Database;
 
-use ArrayAccess;
 use Flarum\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\Relations\Relation;

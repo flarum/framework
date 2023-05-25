@@ -19,7 +19,8 @@ class IdSlugDriver implements SlugDriverInterface
 {
     public function __construct(
         protected UserRepository $users
-    ) {}
+    ) {
+    }
 
     /**
      * @param User $instance

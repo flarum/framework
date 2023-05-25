@@ -22,5 +22,6 @@ class Deserializing
          * The settings array to be unserialized.
          */
         public array &$settings
-    ) {}
+    ) {
+    }
 }

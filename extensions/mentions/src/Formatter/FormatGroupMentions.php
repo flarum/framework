@@ -19,7 +19,8 @@ class FormatGroupMentions
 {
     public function __construct(
         private readonly TranslatorInterface $translator
-    ) {}
+    ) {
+    }
 
     public function __invoke(Renderer $renderer, mixed $context, string $xml): string
     {

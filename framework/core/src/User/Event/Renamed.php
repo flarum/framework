@@ -17,5 +17,6 @@ class Renamed
         public User $user,
         public string $oldUsername,
         public ?User $actor = null
-    ) {}
+    ) {
+    }
 }

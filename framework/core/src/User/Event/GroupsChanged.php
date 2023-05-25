@@ -18,5 +18,6 @@ class GroupsChanged
         /** @var \Flarum\Group\Group[] */
         public array $oldGroups,
         public ?User $actor = null
-    ) {}
+    ) {
+    }
 }

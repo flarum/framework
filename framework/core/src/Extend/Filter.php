@@ -25,7 +25,8 @@ class Filter implements ExtenderInterface
      */
     public function __construct(
         private readonly string $filtererClass
-    ) {}
+    ) {
+    }
 
     /**
      * Add a filter to run when the filtererClass is filtered.

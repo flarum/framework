@@ -11,7 +11,6 @@ namespace Flarum\Subscriptions\Job;
 
 use Flarum\Notification\NotificationSyncer;
 use Flarum\Post\Post;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Subscriptions\Notification\NewPostBlueprint;
 use Flarum\User\User;
 use Illuminate\Bus\Queueable;
@@ -28,7 +27,8 @@ class SendReplyNotification implements ShouldQueue
     public function __construct(
         protected Post $post,
         protected ?int $lastPostNumber
-    ) {}
+    ) {
+    }
 
     public function handle(NotificationSyncer $notifications): void
     {

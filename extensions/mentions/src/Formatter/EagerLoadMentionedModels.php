@@ -12,7 +12,6 @@ namespace Flarum\Mentions\Formatter;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Group\GroupRepository;
 use Flarum\Mentions\ConfigureMentions;
-use Flarum\Post\CommentPost;
 use Flarum\Post\PostRepository;
 use Flarum\Tags\TagRepository;
 use Flarum\User\User;
@@ -26,7 +25,8 @@ class EagerLoadMentionedModels
         protected PostRepository $posts,
         protected GroupRepository $groups,
         protected TagRepository $tags
-    ) {}
+    ) {
+    }
 
     public function __invoke(Parser $parser, mixed $context, string $text, ?User $actor): string
     {

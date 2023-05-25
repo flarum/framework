@@ -19,5 +19,6 @@ class PostReply
         public array $data,
         public ?string $ipAddress = null,
         public bool $isFirstPost = false
-    ) {}
+    ) {
+    }
 }

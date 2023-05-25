@@ -21,7 +21,8 @@ class NewPostBlueprint implements BlueprintInterface, MailableInterface
 {
     public function __construct(
         public Post $post
-    ) {}
+    ) {
+    }
 
     public function getSubject(): ?AbstractModel
     {

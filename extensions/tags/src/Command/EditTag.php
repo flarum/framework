@@ -17,5 +17,6 @@ class EditTag
         public int $tagId,
         public User $actor,
         public array $data
-    ) {}
+    ) {
+    }
 }

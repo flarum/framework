@@ -30,7 +30,8 @@ class ListNotificationsController extends AbstractListController
     public function __construct(
         protected NotificationRepository $notifications,
         protected UrlGenerator $url
-    ) {}
+    ) {
+    }
 
     protected function data(ServerRequestInterface $request, Document $document): iterable
     {

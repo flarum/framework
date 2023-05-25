@@ -18,7 +18,8 @@ class MemoryCacheSettingsRepository implements SettingsRepositoryInterface
 
     public function __construct(
         protected SettingsRepositoryInterface $inner
-    ) {}
+    ) {
+    }
 
     public function all(): array
     {

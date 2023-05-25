@@ -17,5 +17,6 @@ class DeletePost
         public int $postId,
         public User $actor,
         public array $data = []
-    ) {}
+    ) {
+    }
 }

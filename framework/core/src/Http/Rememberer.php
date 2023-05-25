@@ -18,7 +18,8 @@ class Rememberer
 
     public function __construct(
         protected CookieFactory $cookie
-    ) {}
+    ) {
+    }
 
     /**
      * Sets the remember cookie on a response.

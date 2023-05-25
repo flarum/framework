@@ -27,7 +27,8 @@ class StartDiscussionHandler
         protected EventDispatcher $events,
         protected BusDispatcher $bus,
         protected DiscussionValidator $validator
-    ) {}
+    ) {
+    }
 
     public function handle(StartDiscussion $command): Discussion
     {

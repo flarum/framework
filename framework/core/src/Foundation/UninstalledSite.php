@@ -33,7 +33,8 @@ class UninstalledSite implements SiteInterface
     public function __construct(
         protected Paths $paths,
         private readonly string $baseUrl
-    ) {}
+    ) {
+    }
 
     /**
      * Create and boot a Flarum application instance.

@@ -17,5 +17,6 @@ class RegisteringFromProvider
         public User $user,
         public string $provider,
         public array $payload
-    ) {}
+    ) {
+    }
 }

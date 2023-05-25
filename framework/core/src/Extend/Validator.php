@@ -24,7 +24,8 @@ class Validator implements ExtenderInterface
      */
     public function __construct(
         private readonly string $validatorClass
-    ) {}
+    ) {
+    }
 
     /**
      * Configure the validator. This is often used to adjust validation rules, but can be

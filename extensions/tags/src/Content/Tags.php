@@ -28,7 +28,8 @@ class Tags
         protected TranslatorInterface $translator,
         protected SettingsRepositoryInterface $settings,
         protected UrlGenerator $url
-    ) {}
+    ) {
+    }
 
     public function __invoke(Document $document, Request $request): Document
     {

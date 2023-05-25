@@ -24,7 +24,8 @@ class ListTasksController extends AbstractListController
     public function __construct(
         protected UrlGenerator $url,
         protected TaskRepository $repository
-    ) {}
+    ) {
+    }
 
     protected function data(ServerRequestInterface $request, Document $document): iterable
     {

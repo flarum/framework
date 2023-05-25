@@ -49,7 +49,7 @@ class FileDataProvider implements DataProviderInterface
             $this->databaseConfiguration = (array) ($configuration['databaseConfiguration'] ?? []);
             $this->adminUser = (array) ($configuration['adminUser'] ?? []);
             $this->settings = (array) ($configuration['settings'] ?? []);
-            $this->extensions = isset($configuration['extensions']) ? explode(',',  (string) $configuration['extensions']) : null;
+            $this->extensions = isset($configuration['extensions']) ? explode(',', (string) $configuration['extensions']) : null;
         } else {
             throw new Exception('Configuration file does not exist.');
         }

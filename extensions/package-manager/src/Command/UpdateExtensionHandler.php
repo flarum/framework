@@ -30,7 +30,8 @@ class UpdateExtensionHandler
         public LastUpdateCheck $lastUpdateCheck,
         public Dispatcher $events,
         public Paths $paths
-    ) {}
+    ) {
+    }
 
     public function handle(UpdateExtension $command): void
     {

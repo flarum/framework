@@ -24,7 +24,8 @@ class MinorUpdateHandler
         protected LastUpdateCheck $lastUpdateCheck,
         protected Dispatcher $events,
         protected ComposerJson $composerJson
-    ) {}
+    ) {
+    }
 
     public function handle(MinorUpdate $command): void
     {

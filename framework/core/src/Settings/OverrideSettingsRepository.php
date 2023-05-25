@@ -28,7 +28,8 @@ class OverrideSettingsRepository implements SettingsRepositoryInterface
     public function __construct(
         protected SettingsRepositoryInterface $inner,
         protected array $overrides
-    ) {}
+    ) {
+    }
 
     public function all(): array
     {

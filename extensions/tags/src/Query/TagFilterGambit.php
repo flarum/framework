@@ -26,7 +26,8 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
 
     public function __construct(
         protected SlugManager $slugger
-    ) {}
+    ) {
+    }
 
     protected function getGambitPattern(): string
     {

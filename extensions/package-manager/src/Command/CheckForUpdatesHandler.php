@@ -19,7 +19,8 @@ class CheckForUpdatesHandler
     public function __construct(
         private ComposerAdapter $composer,
         private LastUpdateCheck $lastUpdateCheck
-    ) {}
+    ) {
+    }
 
     /**
      * We run two commands here.

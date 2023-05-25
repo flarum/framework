@@ -26,7 +26,8 @@ class ConfirmEmailController implements RequestHandlerInterface
         protected Dispatcher $bus,
         protected UrlGenerator $url,
         protected SessionAuthenticator $authenticator
-    ) {}
+    ) {
+    }
 
     public function handle(Request $request): ResponseInterface
     {

@@ -17,5 +17,6 @@ class EditUser
         public int $userId,
         public User $actor,
         public array $data
-    ) {}
+    ) {
+    }
 }

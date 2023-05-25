@@ -23,7 +23,8 @@ class JsonApiFormatter implements HttpFormatter
 {
     public function __construct(
         private readonly bool $includeTrace = false
-    ) {}
+    ) {
+    }
 
     public function format(HandledError $error, Request $request): Response
     {

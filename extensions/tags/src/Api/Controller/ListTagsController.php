@@ -37,7 +37,8 @@ class ListTagsController extends AbstractListController
         protected TagRepository $tags,
         protected TagSearcher $searcher,
         protected UrlGenerator $url
-    ) {}
+    ) {
+    }
 
     protected function data(ServerRequestInterface $request, Document $document): iterable
     {

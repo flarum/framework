@@ -13,5 +13,6 @@ class Saving
 {
     public function __construct(
         public array &$settings
-    ) {}
+    ) {
+    }
 }

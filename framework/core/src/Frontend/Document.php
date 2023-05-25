@@ -136,7 +136,8 @@ class Document implements Renderable
         protected array $forumApiDocument,
         protected Request $request,
         protected TitleDriverInterface $titleDriver
-    ) {}
+    ) {
+    }
 
     public function render(): string
     {

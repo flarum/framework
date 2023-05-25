@@ -24,7 +24,8 @@ class SaveTagsToDatabase
         protected SettingsRepositoryInterface $settings,
         protected Factory $validator,
         protected TranslatorInterface $translator
-    ) {}
+    ) {
+    }
 
     public function handle(Saving $event): void
     {

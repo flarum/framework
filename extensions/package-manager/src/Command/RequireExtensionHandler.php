@@ -26,7 +26,8 @@ class RequireExtensionHandler
         protected ExtensionManager $extensions,
         protected RequirePackageValidator $validator,
         protected Dispatcher $events
-    ) {}
+    ) {
+    }
 
     public function handle(RequireExtension $command): array
     {

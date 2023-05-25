@@ -22,7 +22,8 @@ class ReCheckForUpdates
         private readonly LastUpdateRun $lastUpdateRun,
         private readonly LastUpdateCheck $lastUpdateCheck,
         private readonly Dispatcher $bus
-    ) {}
+    ) {
+    }
 
     public function handle(FlarumUpdated|Updated $event): void
     {

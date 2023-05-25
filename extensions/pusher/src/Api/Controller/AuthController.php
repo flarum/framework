@@ -23,7 +23,8 @@ class AuthController implements RequestHandlerInterface
 {
     public function __construct(
         protected SettingsRepositoryInterface $settings
-    ) {}
+    ) {
+    }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {

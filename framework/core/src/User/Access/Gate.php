@@ -27,7 +27,7 @@ class Gate
     ];
 
     /**
-     * @var AbstractPolicy[] $policies
+     * @var AbstractPolicy[]
      */
     protected array $policies;
 
@@ -35,7 +35,8 @@ class Gate
         protected Container $container,
         /** @var class-string<AbstractPolicy>[] $policyClasses */
         protected array $policyClasses
-    ) {}
+    ) {
+    }
 
     /**
      * Determine if the given ability should be granted for the current user.

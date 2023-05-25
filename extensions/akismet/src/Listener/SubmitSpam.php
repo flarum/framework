@@ -16,7 +16,8 @@ class SubmitSpam
 {
     public function __construct(
         protected Akismet $akismet
-    ) {}
+    ) {
+    }
 
     public function handle(Hidden $event): void
     {

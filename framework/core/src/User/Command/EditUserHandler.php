@@ -17,7 +17,6 @@ use Flarum\User\UserRepository;
 use Flarum\User\UserValidator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
-use Illuminate\Validation\ValidationException;
 
 class EditUserHandler
 {
@@ -27,7 +26,8 @@ class EditUserHandler
         protected Dispatcher $events,
         protected UserRepository $users,
         protected UserValidator $validator
-    ) {}
+    ) {
+    }
 
     public function handle(EditUser $command): User
     {

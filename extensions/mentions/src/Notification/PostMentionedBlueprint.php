@@ -21,7 +21,8 @@ class PostMentionedBlueprint implements BlueprintInterface, MailableInterface
     public function __construct(
         public Post $post,
         public Post $reply
-    ) {}
+    ) {
+    }
 
     public function getSubject(): ?AbstractModel
     {

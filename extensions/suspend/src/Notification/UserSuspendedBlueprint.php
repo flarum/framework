@@ -20,7 +20,8 @@ class UserSuspendedBlueprint implements BlueprintInterface, MailableInterface
 {
     public function __construct(
         public User $user
-    ){}
+    ) {
+    }
 
     public function getSubject(): ?AbstractModel
     {

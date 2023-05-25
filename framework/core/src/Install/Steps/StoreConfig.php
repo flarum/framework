@@ -20,7 +20,8 @@ class StoreConfig implements ReversibleStep
         private readonly DatabaseConfig $dbConfig,
         private readonly BaseUrl $baseUrl,
         private readonly string $configFile
-    ) {}
+    ) {
+    }
 
     public function getMessage(): string
     {

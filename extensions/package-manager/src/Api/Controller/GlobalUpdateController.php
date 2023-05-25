@@ -22,7 +22,8 @@ class GlobalUpdateController implements RequestHandlerInterface
 {
     public function __construct(
         protected Dispatcher $bus
-    ) {}
+    ) {
+    }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {

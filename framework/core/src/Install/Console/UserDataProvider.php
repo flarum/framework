@@ -27,7 +27,8 @@ class UserDataProvider implements DataProviderInterface
         protected InputInterface $input,
         protected OutputInterface $output,
         protected QuestionHelper $questionHelper
-    ) {}
+    ) {
+    }
 
     public function configure(Installation $installation): Installation
     {

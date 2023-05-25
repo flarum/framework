@@ -27,7 +27,8 @@ class Model implements ExtenderInterface
      */
     public function __construct(
         private readonly string $modelClass
-    ) {}
+    ) {
+    }
 
     /**
      * Add an attribute to be treated as a date.

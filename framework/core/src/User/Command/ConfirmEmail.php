@@ -16,5 +16,6 @@ class ConfirmEmail
          * The email confirmation token.
          */
         public string $token
-    ) {}
+    ) {
+    }
 }

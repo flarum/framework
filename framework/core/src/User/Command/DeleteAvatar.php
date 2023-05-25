@@ -16,5 +16,6 @@ class DeleteAvatar
     public function __construct(
         public int $userId,
         public User $actor
-    ) {}
+    ) {
+    }
 }

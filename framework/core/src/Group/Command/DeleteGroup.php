@@ -17,5 +17,6 @@ class DeleteGroup
         public int $groupId,
         public User $actor,
         public array $data = []
-    ) {}
+    ) {
+    }
 }

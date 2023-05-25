@@ -13,7 +13,6 @@ use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Group\Event\Deleting;
 use Flarum\Group\Group;
 use Flarum\Group\GroupRepository;
-use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DeleteGroupHandler
@@ -23,7 +22,8 @@ class DeleteGroupHandler
     public function __construct(
         protected Dispatcher $events,
         protected GroupRepository $groups
-    ) {}
+    ) {
+    }
 
     public function handle(DeleteGroup $command): Group
     {

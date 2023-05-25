@@ -32,7 +32,8 @@ class ShowPostController extends AbstractShowController
 
     public function __construct(
         protected PostRepository $posts
-    ) {}
+    ) {
+    }
 
     protected function data(ServerRequestInterface $request, Document $document): Post
     {

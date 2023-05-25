@@ -19,7 +19,8 @@ class WriteSettings implements Step
     public function __construct(
         private readonly ConnectionInterface $database,
         private readonly array $custom
-    ) {}
+    ) {
+    }
 
     public function getMessage(): string
     {

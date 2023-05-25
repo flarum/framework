@@ -15,5 +15,6 @@ class Disabled
 {
     public function __construct(
         public Extension $extension
-    ) {}
+    ) {
+    }
 }

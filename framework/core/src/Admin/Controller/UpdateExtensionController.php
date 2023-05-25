@@ -24,7 +24,8 @@ class UpdateExtensionController implements RequestHandlerInterface
     public function __construct(
         protected UrlGenerator $url,
         protected Dispatcher $bus
-    ) {}
+    ) {
+    }
 
     public function handle(Request $request): ResponseInterface
     {

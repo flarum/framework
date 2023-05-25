@@ -26,7 +26,8 @@ class Middleware implements ExtenderInterface
      */
     public function __construct(
         private readonly string $frontend
-    ) {}
+    ) {
+    }
 
     /**
      * Adds a new middleware to the frontend.

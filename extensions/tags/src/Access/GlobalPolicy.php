@@ -18,7 +18,8 @@ class GlobalPolicy extends AbstractPolicy
 {
     public function __construct(
         protected SettingsRepositoryInterface $settings
-    ) {}
+    ) {
+    }
 
     public function can(User $actor, string $ability)
     {

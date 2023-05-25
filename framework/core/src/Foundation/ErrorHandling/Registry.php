@@ -25,7 +25,8 @@ class Registry
         private readonly array $statusMap,
         private readonly array $classMap,
         private readonly array $handlerMap
-    ) {}
+    ) {
+    }
 
     /**
      * Map exceptions to handled errors.

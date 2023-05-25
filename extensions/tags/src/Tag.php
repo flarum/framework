@@ -250,7 +250,8 @@ class Tag extends AbstractModel
                     ->whereIn('tags.id', function ($query) use ($isAdmin, $hasGlobalPermission, $tagIdsWithPermission) {
                         static::buildPermissionSubquery($query, $isAdmin, $hasGlobalPermission, $tagIdsWithPermission);
                     })
-                    ->where(fn ($query) => $query
+                    ->where(
+                        fn ($query) => $query
                         ->whereIn('tags.parent_id', function ($query) use ($isAdmin, $hasGlobalPermission, $tagIdsWithPermission) {
                             static::buildPermissionSubquery($query, $isAdmin, $hasGlobalPermission, $tagIdsWithPermission);
                         })

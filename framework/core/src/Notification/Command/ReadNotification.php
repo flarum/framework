@@ -16,5 +16,6 @@ class ReadNotification
     public function __construct(
         public int $notificationId,
         public User $actor
-    ) {}
+    ) {
+    }
 }

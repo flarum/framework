@@ -18,5 +18,6 @@ class UploadAvatar
         public int $userId,
         public UploadedFileInterface $file,
         public User $actor
-    ) {}
+    ) {
+    }
 }

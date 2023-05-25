@@ -23,7 +23,8 @@ class CreateGroupHandler
     public function __construct(
         protected Dispatcher $events,
         protected GroupValidator $validator
-    ) {}
+    ) {
+    }
 
     public function handle(CreateGroup $command): Group
     {

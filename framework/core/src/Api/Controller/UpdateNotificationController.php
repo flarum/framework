@@ -24,7 +24,8 @@ class UpdateNotificationController extends AbstractShowController
 
     public function __construct(
         protected Dispatcher $bus
-    ) {}
+    ) {
+    }
 
     protected function data(ServerRequestInterface $request, Document $document): Notification
     {

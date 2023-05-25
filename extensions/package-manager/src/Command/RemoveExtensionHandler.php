@@ -23,7 +23,8 @@ class RemoveExtensionHandler
         private ComposerAdapter $composer,
         private ExtensionManager $extensions,
         private Dispatcher $events
-    ) {}
+    ) {
+    }
 
     public function handle(RemoveExtension $command): void
     {

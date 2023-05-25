@@ -23,7 +23,8 @@ class DeleteUserHandler
     public function __construct(
         protected Dispatcher $events,
         protected UserRepository $users
-    ) {}
+    ) {
+    }
 
     /**
      * @throws PermissionDeniedException

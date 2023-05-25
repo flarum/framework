@@ -14,7 +14,6 @@ use Flarum\Group\Event\Saving;
 use Flarum\Group\Group;
 use Flarum\Group\GroupRepository;
 use Flarum\Group\GroupValidator;
-use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
@@ -26,7 +25,8 @@ class EditGroupHandler
         protected Dispatcher $events,
         protected GroupRepository $groups,
         protected GroupValidator $validator
-    ) {}
+    ) {
+    }
 
     public function handle(EditGroup $command): Group
     {

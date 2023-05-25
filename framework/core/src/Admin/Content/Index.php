@@ -22,7 +22,8 @@ class Index
         protected Factory $view,
         protected ExtensionManager $extensions,
         protected SettingsRepositoryInterface $settings
-    ) {}
+    ) {
+    }
 
     public function __invoke(Document $document, Request $request): Document
     {

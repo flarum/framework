@@ -36,7 +36,8 @@ class ListUsersController extends AbstractListController
         protected UserFilterer $filterer,
         protected UserSearcher $searcher,
         protected UrlGenerator $url
-    ) {}
+    ) {
+    }
 
     protected function data(ServerRequestInterface $request, Document $document): iterable
     {

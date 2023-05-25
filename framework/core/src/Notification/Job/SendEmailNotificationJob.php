@@ -19,7 +19,8 @@ class SendEmailNotificationJob extends AbstractJob
     public function __construct(
         private readonly MailableInterface $blueprint,
         private readonly User $recipient
-    ) {}
+    ) {
+    }
 
     public function handle(NotificationMailer $mailer): void
     {

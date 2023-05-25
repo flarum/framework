@@ -25,7 +25,8 @@ class ShareErrorsFromSession implements Middleware
 {
     public function __construct(
         protected ViewFactory $view
-    ) {}
+    ) {
+    }
 
     public function process(Request $request, Handler $handler): Response
     {

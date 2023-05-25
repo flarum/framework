@@ -17,5 +17,6 @@ class DeleteFlags
         public int $postId,
         public User $actor,
         public array $data = []
-    ) {}
+    ) {
+    }
 }

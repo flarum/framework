@@ -23,7 +23,8 @@ class Discussion
         protected Client $api,
         protected UrlGenerator $url,
         protected Factory $view
-    ) {}
+    ) {
+    }
 
     public function __invoke(Document $document, Request $request): Document
     {

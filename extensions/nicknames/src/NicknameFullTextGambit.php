@@ -25,7 +25,8 @@ class NicknameFullTextGambit implements GambitInterface
 {
     public function __construct(
         protected UserRepository $users
-    ) {}
+    ) {
+    }
 
     private function getUserSearchSubQuery(string $searchValue): Builder
     {

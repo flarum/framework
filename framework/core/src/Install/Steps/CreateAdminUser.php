@@ -21,7 +21,8 @@ class CreateAdminUser implements Step
         private readonly ConnectionInterface $database,
         private readonly AdminUser $admin,
         private readonly ?string $accessToken = null
-    ) {}
+    ) {
+    }
 
     public function getMessage(): string
     {

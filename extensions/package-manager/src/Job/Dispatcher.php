@@ -29,7 +29,8 @@ class Dispatcher
         protected Bus $bus,
         protected Queue $queue,
         protected SettingsRepositoryInterface $settings
-    ) {}
+    ) {
+    }
 
     public function sync(): self
     {

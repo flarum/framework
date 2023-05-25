@@ -33,7 +33,8 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
      */
     public function __construct(
         private readonly string $path = '/locale'
-    ) {}
+    ) {
+    }
 
     public function extend(Container $container, Extension $extension = null): void
     {

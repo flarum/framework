@@ -20,7 +20,8 @@ class SendPusherNotificationsJob extends AbstractJob
         private readonly BlueprintInterface $blueprint,
         /** @var User[] */
         private readonly array $recipients
-    ) {}
+    ) {
+    }
 
     public function handle(Pusher $pusher): void
     {

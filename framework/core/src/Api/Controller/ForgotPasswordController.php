@@ -23,7 +23,8 @@ class ForgotPasswordController implements RequestHandlerInterface
     public function __construct(
         protected Queue $queue,
         protected ForgotPasswordValidator $validator
-    ) {}
+    ) {
+    }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {

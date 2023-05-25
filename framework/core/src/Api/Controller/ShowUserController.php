@@ -28,7 +28,8 @@ class ShowUserController extends AbstractShowController
     public function __construct(
         protected SlugManager $slugManager,
         protected UserRepository $users
-    ) {}
+    ) {
+    }
 
     protected function data(ServerRequestInterface $request, Document $document): User
     {

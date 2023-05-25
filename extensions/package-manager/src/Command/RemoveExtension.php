@@ -17,7 +17,8 @@ class RemoveExtension extends AbstractActionCommand
     public function __construct(
         public User $actor,
         public string $extensionId
-    ) {}
+    ) {
+    }
 
     public function getOperationName(): string
     {

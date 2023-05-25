@@ -15,5 +15,6 @@ class Uninstalled
 {
     public function __construct(
         public Extension $extension
-    ) {}
+    ) {
+    }
 }

@@ -16,7 +16,8 @@ class SubmitHam
 {
     public function __construct(
         protected Akismet $akismet
-    ) {}
+    ) {
+    }
 
     public function handle(PostWasApproved $event): void
     {

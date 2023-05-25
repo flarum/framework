@@ -13,7 +13,6 @@ use Flarum\Http\RememberAccessToken;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\SessionAccessToken;
 use Illuminate\Database\Eloquent\Builder;
-use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ServerRequestInterface;
 
 class TerminateAllOtherSessionsController extends AbstractDeleteController

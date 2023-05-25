@@ -19,7 +19,8 @@ class DiscussionPolicy extends AbstractPolicy
 {
     public function __construct(
         protected SettingsRepositoryInterface $settings
-    ) {}
+    ) {
+    }
 
     public function can(User $actor, string $ability, Discussion $discussion)
     {

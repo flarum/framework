@@ -17,7 +17,8 @@ class PusherNotificationDriver implements NotificationDriverInterface
 {
     public function __construct(
         protected Queue $queue
-    ) {}
+    ) {
+    }
 
     public function send(BlueprintInterface $blueprint, array $users): void
     {

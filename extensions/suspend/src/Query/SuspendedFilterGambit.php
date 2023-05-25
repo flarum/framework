@@ -22,7 +22,8 @@ class SuspendedFilterGambit extends AbstractRegexGambit implements FilterInterfa
 {
     public function __construct(
         protected UserRepository $users
-    ) {}
+    ) {
+    }
 
     protected function getGambitPattern(): string
     {

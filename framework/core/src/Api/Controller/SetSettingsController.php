@@ -23,7 +23,8 @@ class SetSettingsController implements RequestHandlerInterface
     public function __construct(
         protected SettingsRepositoryInterface $settings,
         protected Dispatcher $dispatcher
-    ) {}
+    ) {
+    }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {

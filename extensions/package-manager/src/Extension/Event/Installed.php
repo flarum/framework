@@ -13,5 +13,6 @@ class Installed
 {
     public function __construct(
         public string $extensionId
-    ) {}
+    ) {
+    }
 }

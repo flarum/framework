@@ -31,7 +31,8 @@ class SendConfirmationEmailController implements RequestHandlerInterface
         protected Queue $queue,
         protected UrlGenerator $url,
         protected TranslatorInterface $translator
-    ) {}
+    ) {
+    }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {

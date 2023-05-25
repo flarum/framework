@@ -22,7 +22,8 @@ class GlobalUpdateHandler
         protected ComposerAdapter $composer,
         protected Dispatcher $events,
         protected FlarumDispatcher $commandDispatcher
-    ) {}
+    ) {
+    }
 
     public function handle(GlobalUpdate $command): void
     {

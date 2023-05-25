@@ -16,5 +16,6 @@ class RegisterUser
     public function __construct(
         public User $actor,
         public array $data
-    ) {}
+    ) {
+    }
 }

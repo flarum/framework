@@ -19,5 +19,6 @@ class Read
         public User $actor,
         public Notification $notification,
         public DateTime $timestamp
-    ) {}
+    ) {
+    }
 }

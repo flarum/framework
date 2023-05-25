@@ -20,7 +20,8 @@ class UpdateMentionsMetadataWhenInvisible
     public function __construct(
         protected NotificationSyncer $notifications,
         protected ExtensionManager $extensions
-    ) {}
+    ) {
+    }
 
     public function handle(Deleted|Hidden $event): void
     {

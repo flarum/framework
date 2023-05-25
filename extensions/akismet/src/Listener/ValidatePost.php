@@ -21,7 +21,8 @@ class ValidatePost
     public function __construct(
         protected Akismet $akismet,
         protected SettingsRepositoryInterface $settings
-    ) {}
+    ) {
+    }
 
     public function handle(Saving $event): void
     {

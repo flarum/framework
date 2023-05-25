@@ -12,5 +12,6 @@ namespace Flarum\Frontend\Compiler\Source;
 interface SourceInterface
 {
     public function getContent(): string;
+
     public function getCacheDifferentiator(): mixed;
 }

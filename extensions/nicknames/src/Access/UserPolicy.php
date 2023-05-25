@@ -17,7 +17,8 @@ class UserPolicy extends AbstractPolicy
 {
     public function __construct(
         protected SettingsRepositoryInterface $settings
-    ) {}
+    ) {
+    }
 
     public function editNickname(User $actor, User $user)
     {

@@ -32,7 +32,8 @@ class ApplicationInfoProvider
         protected SessionManager $session,
         protected SessionHandlerInterface $sessionHandler,
         protected Queue $queue
-    ) {}
+    ) {
+    }
 
     public function scheduledTasksRegistered(): bool
     {

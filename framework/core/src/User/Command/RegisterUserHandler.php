@@ -37,7 +37,8 @@ class RegisterUserHandler
         protected AvatarUploader $avatarUploader,
         private readonly Factory $validator,
         protected ImageManager $imageManager
-    ) {}
+    ) {
+    }
 
     /**
      * @throws PermissionDeniedException if signup is closed and the actor is

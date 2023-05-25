@@ -20,7 +20,8 @@ class CreateTagHandler
     public function __construct(
         protected TagValidator $validator,
         protected Dispatcher $events
-    ) {}
+    ) {
+    }
 
     public function handle(CreateTag $command): Tag
     {

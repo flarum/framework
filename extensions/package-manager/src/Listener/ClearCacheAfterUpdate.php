@@ -22,7 +22,8 @@ class ClearCacheAfterUpdate
         private ClearCacheCommand $clearCache,
         private AssetsPublishCommand $publishAssets,
         private MigrateCommand $migrate
-    ) {}
+    ) {
+    }
 
     /**
      * @throws \Exception

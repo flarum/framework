@@ -18,5 +18,6 @@ class Deleting
         public Group $group,
         public User $actor,
         public array $data
-    ) {}
+    ) {
+    }
 }

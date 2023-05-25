@@ -23,7 +23,8 @@ class SendTestMailController implements RequestHandlerInterface
     public function __construct(
         protected Mailer $mailer,
         protected TranslatorInterface $translator
-    ) {}
+    ) {
+    }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {

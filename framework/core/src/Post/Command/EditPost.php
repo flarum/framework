@@ -17,5 +17,6 @@ class EditPost
         public int $postId,
         public User $actor,
         public array $data
-    ) {}
+    ) {
+    }
 }

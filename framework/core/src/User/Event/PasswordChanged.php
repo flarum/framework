@@ -16,5 +16,6 @@ class PasswordChanged
     public function __construct(
         public User $user,
         public ?User $actor = null
-    ) {}
+    ) {
+    }
 }

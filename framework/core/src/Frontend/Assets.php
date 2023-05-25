@@ -41,7 +41,8 @@ class Assets
         protected ?string $cacheDir = null,
         protected ?array $lessImportDirs = null,
         protected array $customFunctions = []
-    ) {}
+    ) {
+    }
 
     public function js($sources): static
     {

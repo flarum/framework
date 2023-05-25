@@ -18,5 +18,6 @@ class Deleting
         public Flag $flag,
         public User $actor,
         public array $data = []
-    ) {}
+    ) {
+    }
 }

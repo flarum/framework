@@ -17,5 +17,6 @@ class Deleted
     public function __construct(
         public Group $group,
         public ?User $actor = null
-    ) {}
+    ) {
+    }
 }

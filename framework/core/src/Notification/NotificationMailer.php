@@ -22,7 +22,8 @@ class NotificationMailer
         protected Mailer $mailer,
         protected TranslatorInterface&Translator $translator,
         protected SettingsRepositoryInterface $settings
-    ) {}
+    ) {
+    }
 
     public function send(MailableInterface $blueprint, User $user): void
     {

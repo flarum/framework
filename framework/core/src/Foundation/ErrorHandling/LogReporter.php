@@ -19,7 +19,8 @@ class LogReporter implements Reporter
 {
     public function __construct(
         protected LoggerInterface $logger
-    ) {}
+    ) {
+    }
 
     public function report(Throwable $error): void
     {

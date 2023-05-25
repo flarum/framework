@@ -28,7 +28,8 @@ class Formatter
     public function __construct(
         protected Repository $cache,
         protected string $cacheDir
-    ) {}
+    ) {
+    }
 
     /**
      * @internal

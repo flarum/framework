@@ -23,7 +23,8 @@ class RegisterController implements RequestHandlerInterface
         protected Client $api,
         protected SessionAuthenticator $authenticator,
         protected Rememberer $rememberer
-    ) {}
+    ) {
+    }
 
     public function handle(Request $request): ResponseInterface
     {

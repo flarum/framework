@@ -29,9 +29,9 @@ class CookieFactory
         // Get the cookie settings from the config or use the default values
         $this->prefix = (string) ($config['cookie.name'] ?? 'flarum');
         $this->path = (string) ($config['cookie.path'] ?? $url->getPath() ?: '/');
-        $this->domain = (string) ($config['cookie.domain']);
+        $this->domain = (string) $config['cookie.domain'];
         $this->secure = (bool) ($config['cookie.secure'] ?? $url->getScheme() === 'https');
-        $this->samesite = (string) ($config['cookie.samesite']);
+        $this->samesite = (string) $config['cookie.samesite'];
     }
 
     /**

@@ -22,7 +22,8 @@ class ResponseFactory
 {
     public function __construct(
         protected Rememberer $rememberer
-    ) {}
+    ) {
+    }
 
     public function make(string $provider, string $identifier, callable $configureRegistration): ResponseInterface
     {

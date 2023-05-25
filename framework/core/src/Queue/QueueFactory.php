@@ -26,7 +26,8 @@ class QueueFactory implements Factory
      */
     public function __construct(
         private readonly Closure $factory
-    ) {}
+    ) {
+    }
 
     /**
      * Resolve a queue connection instance.

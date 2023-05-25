@@ -18,7 +18,8 @@ class UninstallExtensionController extends AbstractDeleteController
 {
     public function __construct(
         protected ExtensionManager $extensions
-    ) {}
+    ) {
+    }
 
     protected function delete(ServerRequestInterface $request): void
     {

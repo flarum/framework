@@ -21,7 +21,8 @@ class PushNewPost
     public function __construct(
         protected Pusher $pusher,
         protected ExtensionManager $extensions
-    ) {}
+    ) {
+    }
 
     public function handle(Posted $event): void
     {

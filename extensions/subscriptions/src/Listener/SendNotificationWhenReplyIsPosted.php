@@ -18,7 +18,8 @@ class SendNotificationWhenReplyIsPosted
 {
     public function __construct(
         protected Queue $queue
-    ) {}
+    ) {
+    }
 
     public function handle(Posted|PostWasApproved $event): void
     {

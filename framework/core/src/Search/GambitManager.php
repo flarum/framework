@@ -20,7 +20,8 @@ class GambitManager
 
     public function __construct(
         protected GambitInterface $fulltextGambit
-    ) {}
+    ) {
+    }
 
     public function add(GambitInterface $gambit): void
     {

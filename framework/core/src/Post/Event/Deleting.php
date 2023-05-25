@@ -18,5 +18,6 @@ class Deleting
         public Post $post,
         public User $actor,
         public array $data
-    ) {}
+    ) {
+    }
 }

@@ -18,7 +18,6 @@ use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Laminas\HttpHandlerRunner\RequestHandlerRunner;
 use Laminas\Stratigility\Middleware\ErrorResponseGenerator;
-use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -26,7 +25,8 @@ class Server
 {
     public function __construct(
         private readonly SiteInterface $site
-    ) {}
+    ) {
+    }
 
     public function listen(): void
     {

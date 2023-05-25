@@ -17,5 +17,6 @@ class DiscussionWasUnstickied
     public function __construct(
         public Discussion $discussion,
         public User $user
-    ) {}
+    ) {
+    }
 }

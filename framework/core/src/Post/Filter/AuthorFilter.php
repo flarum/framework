@@ -20,7 +20,8 @@ class AuthorFilter implements FilterInterface
 
     public function __construct(
         protected UserRepository $users
-    ) {}
+    ) {
+    }
 
     public function getFilterKey(): string
     {

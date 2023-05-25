@@ -21,7 +21,8 @@ class WhyNotHandler
         protected ComposerAdapter $composer,
         protected WhyNotValidator $validator,
         protected Dispatcher $events
-    ) {}
+    ) {
+    }
 
     public function handle(WhyNot $command): array
     {

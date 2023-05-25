@@ -31,7 +31,8 @@ class HandledError
         private readonly Throwable $error,
         private readonly string $type,
         private readonly int $statusCode
-    ) {}
+    ) {
+    }
 
     public function withDetails(array $details): self
     {

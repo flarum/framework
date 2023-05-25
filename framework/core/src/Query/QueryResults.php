@@ -16,7 +16,8 @@ class QueryResults
     public function __construct(
         protected Collection $results,
         protected bool $areMoreResults
-    ) {}
+    ) {
+    }
 
     public function getResults(): Collection
     {

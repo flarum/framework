@@ -31,7 +31,8 @@ class InstallController implements RequestHandlerInterface
         protected Installation $installation,
         protected SessionAuthenticator $authenticator,
         protected Rememberer $rememberer
-    ) {}
+    ) {
+    }
 
     public function handle(Request $request): ResponseInterface
     {

@@ -46,7 +46,7 @@ class ModelVisibility implements ExtenderInterface
         private readonly string $modelClass
     ) {
         if (class_exists($modelClass) && ! is_callable([$modelClass, 'registerVisibilityScoper'])) {
-            throw new Exception("Model $modelClass cannot be visibility scoped as it does not use ".ScopeVisibilityTrait::class.".");
+            throw new Exception("Model $modelClass cannot be visibility scoped as it does not use ".ScopeVisibilityTrait::class.'.');
         }
     }
 

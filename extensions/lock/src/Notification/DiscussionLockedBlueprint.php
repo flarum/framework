@@ -19,7 +19,8 @@ class DiscussionLockedBlueprint implements BlueprintInterface
 {
     public function __construct(
         protected DiscussionLockedPost $post
-    ) {}
+    ) {
+    }
 
     public function getFromUser(): ?User
     {

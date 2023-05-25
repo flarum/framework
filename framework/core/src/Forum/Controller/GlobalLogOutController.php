@@ -27,7 +27,8 @@ class GlobalLogOutController implements RequestHandlerInterface
         protected SessionAuthenticator $authenticator,
         protected Rememberer $rememberer,
         protected UrlGenerator $url
-    ) {}
+    ) {
+    }
 
     public function handle(Request $request): ResponseInterface
     {

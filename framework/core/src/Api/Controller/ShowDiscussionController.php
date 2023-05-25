@@ -47,7 +47,8 @@ class ShowDiscussionController extends AbstractShowController
         protected DiscussionRepository $discussions,
         protected PostRepository $posts,
         protected SlugManager $slugManager
-    ) {}
+    ) {
+    }
 
     protected function data(ServerRequestInterface $request, Document $document): Discussion
     {

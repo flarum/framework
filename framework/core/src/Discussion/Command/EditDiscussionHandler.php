@@ -25,7 +25,8 @@ class EditDiscussionHandler
         protected Dispatcher $events,
         protected DiscussionRepository $discussions,
         protected DiscussionValidator $validator
-    ) {}
+    ) {
+    }
 
     public function handle(EditDiscussion $command): Discussion
     {

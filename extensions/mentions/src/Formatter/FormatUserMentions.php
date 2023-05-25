@@ -21,7 +21,8 @@ class FormatUserMentions
     public function __construct(
         private readonly TranslatorInterface $translator,
         private readonly SlugManager $slugManager
-    ) {}
+    ) {
+    }
 
     public function __invoke(Renderer $renderer, mixed $context, string $xml): string
     {

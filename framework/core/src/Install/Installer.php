@@ -23,7 +23,8 @@ class Installer implements AppInterface
 {
     public function __construct(
         protected Container $container
-    ) {}
+    ) {
+    }
 
     public function getRequestHandler(): RequestHandlerInterface
     {

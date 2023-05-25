@@ -38,7 +38,8 @@ class ListPostsController extends AbstractListController
         protected PostFilterer $filterer,
         protected PostRepository $posts,
         protected UrlGenerator $url
-    ) {}
+    ) {
+    }
 
     protected function data(ServerRequestInterface $request, Document $document): iterable
     {

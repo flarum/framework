@@ -20,5 +20,6 @@ class Serializing
          * The settings value to save.
          */
         public string &$value
-    ){}
+    ) {
+    }
 }

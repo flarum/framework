@@ -17,5 +17,6 @@ class ReadAll
     public function __construct(
         public User $actor,
         public DateTime $timestamp
-    ) {}
+    ) {
+    }
 }

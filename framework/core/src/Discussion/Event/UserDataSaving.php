@@ -15,5 +15,6 @@ class UserDataSaving
 {
     public function __construct(
         public UserState $state
-    ) {}
+    ) {
+    }
 }

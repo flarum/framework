@@ -20,7 +20,8 @@ class Utf8SlugDriver implements SlugDriverInterface
 {
     public function __construct(
         protected DiscussionRepository $discussions
-    ) {}
+    ) {
+    }
 
     /**
      * @param Discussion $instance

@@ -43,7 +43,8 @@ class ListDiscussionsController extends AbstractListController
         protected DiscussionFilterer $filterer,
         protected DiscussionSearcher $searcher,
         protected UrlGenerator $url
-    ) {}
+    ) {
+    }
 
     protected function data(ServerRequestInterface $request, Document $document): iterable
     {

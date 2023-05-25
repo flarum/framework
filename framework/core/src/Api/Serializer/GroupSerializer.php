@@ -19,7 +19,8 @@ class GroupSerializer extends AbstractSerializer
 
     public function __construct(
         protected TranslatorInterface $translator
-    ) {}
+    ) {
+    }
 
     /**
      * @throws InvalidArgumentException

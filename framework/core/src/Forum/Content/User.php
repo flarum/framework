@@ -21,7 +21,8 @@ class User
     public function __construct(
         protected Client $api,
         protected UrlGenerator $url
-    ) {}
+    ) {
+    }
 
     public function __invoke(Document $document, Request $request): Document
     {

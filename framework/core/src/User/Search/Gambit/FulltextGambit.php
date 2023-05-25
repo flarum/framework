@@ -19,7 +19,8 @@ class FulltextGambit implements GambitInterface
 {
     public function __construct(
         protected UserRepository $users
-    ) {}
+    ) {
+    }
 
     /**
      * @return Builder<User>

@@ -17,5 +17,6 @@ class StartDiscussion
         public User $actor,
         public array $data,
         public string $ipAddress
-    ) {}
+    ) {
+    }
 }

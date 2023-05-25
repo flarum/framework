@@ -15,7 +15,8 @@ class ToggleExtensionHandler
 {
     public function __construct(
         protected ExtensionManager $extensions
-    ) {}
+    ) {
+    }
 
     public function handle(ToggleExtension $command): void
     {

@@ -22,7 +22,8 @@ class AddTranslations
     public function __construct(
         protected LocaleManager $locales,
         protected ?Closure $filter = null
-    ) {}
+    ) {
+    }
 
     public function forFrontend(string $name): static
     {

@@ -31,7 +31,8 @@ class HandleErrors implements Middleware
         protected HttpFormatter $formatter,
         /** @var \Flarum\Foundation\ErrorHandling\Reporter[] $reporters */
         protected iterable $reporters
-    ) {}
+    ) {
+    }
 
     /**
      * Catch all errors that happen during further middleware execution.

@@ -22,7 +22,8 @@ class DeletePostHandler
     public function __construct(
         protected Dispatcher $events,
         protected PostRepository $posts
-    ) {}
+    ) {
+    }
 
     public function handle(DeletePost $command): Post
     {

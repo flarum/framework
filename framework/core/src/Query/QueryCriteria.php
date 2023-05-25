@@ -34,5 +34,6 @@ class QueryCriteria
          * If false, the current request specifies a sort.
          */
         public bool $sortIsDefault = false
-    ) {}
+    ) {
+    }
 }

@@ -22,7 +22,8 @@ class Locales implements ExtenderInterface, LifecycleInterface
      */
     public function __construct(
         private readonly string $directory
-    ) {}
+    ) {
+    }
 
     public function extend(Container $container, Extension $extension = null): void
     {

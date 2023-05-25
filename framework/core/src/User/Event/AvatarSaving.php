@@ -18,5 +18,6 @@ class AvatarSaving
         public User $user,
         public User $actor,
         public Image $image
-    ) {}
+    ) {
+    }
 }

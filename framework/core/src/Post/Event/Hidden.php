@@ -17,5 +17,6 @@ class Hidden
     public function __construct(
         public CommentPost $post,
         public ?User $actor = null
-    ) {}
+    ) {
+    }
 }

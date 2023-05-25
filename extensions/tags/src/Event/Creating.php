@@ -18,5 +18,6 @@ class Creating
         public Tag $tag,
         public User $actor,
         public array $data
-    ) {}
+    ) {
+    }
 }

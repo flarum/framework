@@ -23,7 +23,8 @@ class RouteHandlerFactory
 {
     public function __construct(
         protected Container $container
-    ) {}
+    ) {
+    }
 
     public function toController($controller): Closure
     {

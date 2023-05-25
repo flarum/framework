@@ -16,5 +16,6 @@ class CreateFlag
     public function __construct(
         public User $actor,
         public array $data
-    ) {}
+    ) {
+    }
 }

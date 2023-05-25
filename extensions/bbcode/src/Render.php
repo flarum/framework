@@ -16,7 +16,8 @@ class Render
 {
     public function __construct(
         protected TranslatorInterface $translator
-    ) {}
+    ) {
+    }
 
     public function __invoke(Renderer $renderer, $context, string $xml): string
     {

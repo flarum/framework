@@ -18,7 +18,8 @@ class ScopeFlagVisibility
 {
     public function __construct(
         protected ExtensionManager $extensions
-    ) {}
+    ) {
+    }
 
     public function __invoke(User $actor, Builder $query): void
     {

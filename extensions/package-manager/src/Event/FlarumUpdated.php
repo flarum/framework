@@ -20,5 +20,6 @@ class FlarumUpdated
     public function __construct(
         public User $actor,
         public string $type
-    ) {}
+    ) {
+    }
 }

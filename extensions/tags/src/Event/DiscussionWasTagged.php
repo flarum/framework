@@ -20,5 +20,6 @@ class DiscussionWasTagged
         public User $actor,
         /** @var Tag[] */
         public array $oldTags
-    ) {}
+    ) {
+    }
 }

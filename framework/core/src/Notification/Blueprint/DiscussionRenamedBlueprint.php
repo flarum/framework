@@ -18,7 +18,8 @@ class DiscussionRenamedBlueprint implements BlueprintInterface
 {
     public function __construct(
         protected DiscussionRenamedPost $post
-    ) {}
+    ) {
+    }
 
     public function getFromUser(): ?User
     {

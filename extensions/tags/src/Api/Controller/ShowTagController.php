@@ -36,7 +36,8 @@ class ShowTagController extends AbstractShowController
     public function __construct(
         protected TagRepository $tags,
         protected SlugManager $slugger
-    ) {}
+    ) {
+    }
 
     protected function data(ServerRequestInterface $request, Document $document): Tag
     {

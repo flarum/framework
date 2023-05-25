@@ -16,7 +16,8 @@ class SlugManager
 {
     public function __construct(
         protected array $drivers = []
-    ) {}
+    ) {
+    }
 
     /**
      * @template T of AbstractModel

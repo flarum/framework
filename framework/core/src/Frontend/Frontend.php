@@ -26,7 +26,8 @@ class Frontend
         protected Factory $view,
         protected Client $api,
         protected TitleDriverInterface $titleDriver
-    ) {}
+    ) {
+    }
 
     public function content(callable $content): void
     {

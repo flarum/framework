@@ -15,7 +15,8 @@ class OutputLogger
 {
     public function __construct(
         protected LoggerInterface $logger
-    ) {}
+    ) {
+    }
 
     public function log(string $input, string $output, int $exitCode): void
     {

@@ -24,7 +24,8 @@ class ResolveRoute implements Middleware
 
     public function __construct(
         protected RouteCollection $routes
-    ) {}
+    ) {
+    }
 
     /**
      * Resolve the given request from our route collection.

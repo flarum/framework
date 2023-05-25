@@ -17,5 +17,6 @@ class Deleted
     public function __construct(
         public Post $post,
         public ?User $actor = null
-    ) {}
+    ) {
+    }
 }

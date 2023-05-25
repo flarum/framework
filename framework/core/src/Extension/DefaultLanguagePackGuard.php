@@ -18,7 +18,8 @@ class DefaultLanguagePackGuard
 {
     public function __construct(
         protected SettingsRepositoryInterface $settings
-    ) {}
+    ) {
+    }
 
     public function handle(Disabling $event): void
     {

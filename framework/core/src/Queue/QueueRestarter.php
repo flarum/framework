@@ -24,7 +24,8 @@ class QueueRestarter
     public function __construct(
         protected Container $container,
         protected RestartCommand $command
-    ){}
+    ) {
+    }
 
     public function subscribe(Dispatcher $events): void
     {

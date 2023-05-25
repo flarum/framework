@@ -17,5 +17,6 @@ class PostWasLiked
     public function __construct(
         public Post $post,
         public User $user
-    ) {}
+    ) {
+    }
 }

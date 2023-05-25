@@ -23,7 +23,8 @@ class EmailConfirmationMailer
         protected Queue $queue,
         protected UrlGenerator $url,
         protected TranslatorInterface $translator
-    ) {}
+    ) {
+    }
 
     public function handle(EmailChangeRequested $event): void
     {

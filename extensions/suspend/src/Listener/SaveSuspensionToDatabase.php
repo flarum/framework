@@ -23,7 +23,8 @@ class SaveSuspensionToDatabase
     public function __construct(
         protected SuspendValidator $validator,
         protected Dispatcher $events
-    ) {}
+    ) {
+    }
 
     public function handle(Saving $event): void
     {

@@ -18,7 +18,8 @@ class FileVersioner implements VersionerInterface
 
     public function __construct(
         protected Filesystem $filesystem
-    ) {}
+    ) {
+    }
 
     public function putRevision(string $file, ?string $revision): void
     {

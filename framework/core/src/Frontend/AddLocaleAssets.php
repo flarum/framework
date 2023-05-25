@@ -19,7 +19,8 @@ class AddLocaleAssets
 {
     public function __construct(
         protected LocaleManager $locales
-    ) {}
+    ) {
+    }
 
     public function to(Assets $assets): void
     {

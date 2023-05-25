@@ -18,5 +18,6 @@ class Saving
         public Post $post,
         public User $actor,
         public array $data = []
-    ) {}
+    ) {
+    }
 }

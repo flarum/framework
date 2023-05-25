@@ -35,7 +35,8 @@ class ViewFormatter implements HttpFormatter
         protected ViewFactory $view,
         protected TranslatorInterface $translator,
         protected SettingsRepositoryInterface $settings
-    ) {}
+    ) {
+    }
 
     public function format(HandledError $error, Request $request): Response
     {

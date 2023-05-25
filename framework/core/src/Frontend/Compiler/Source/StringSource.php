@@ -20,7 +20,8 @@ class StringSource implements SourceInterface
 
     public function __construct(
         protected Closure $callback
-    ) {}
+    ) {
+    }
 
     public function getContent(): string
     {

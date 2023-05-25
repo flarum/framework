@@ -35,7 +35,8 @@ class SavePasswordController implements RequestHandlerInterface
         protected UserValidator $validator,
         protected Factory $validatorFactory,
         protected Dispatcher $events
-    ) {}
+    ) {
+    }
 
     public function handle(Request $request): ResponseInterface
     {

@@ -17,5 +17,6 @@ class EditDiscussion
         public $discussionId,
         public User $actor,
         public array $data
-    ){}
+    ) {
+    }
 }

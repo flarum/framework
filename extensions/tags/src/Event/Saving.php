@@ -18,5 +18,6 @@ class Saving
         public Tag $tag,
         public User $actor,
         public array $data
-    ) {}
+    ) {
+    }
 }

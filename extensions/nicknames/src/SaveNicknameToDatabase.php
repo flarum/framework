@@ -17,7 +17,8 @@ class SaveNicknameToDatabase
 {
     public function __construct(
         protected SettingsRepositoryInterface $settings
-    ) {}
+    ) {
+    }
 
     public function handle(Saving $event): void
     {

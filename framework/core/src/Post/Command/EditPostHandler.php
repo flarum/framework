@@ -26,7 +26,8 @@ class EditPostHandler
         protected Dispatcher $events,
         protected PostRepository $posts,
         protected PostValidator $validator
-    ) {}
+    ) {
+    }
 
     public function handle(EditPost $command): Post|CommentPost
     {

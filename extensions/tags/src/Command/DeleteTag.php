@@ -17,5 +17,6 @@ class DeleteTag
         public int $tagId,
         public User $actor,
         public array $data = []
-    ) {}
+    ) {
+    }
 }

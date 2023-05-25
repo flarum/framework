@@ -18,7 +18,8 @@ class UnparseUserMentions
 {
     public function __construct(
         private readonly TranslatorInterface $translator
-    ) {}
+    ) {
+    }
 
     public function __invoke(mixed $context, string $xml): string
     {

@@ -29,7 +29,8 @@ class SimpleFlarumSearch implements ExtenderInterface
      */
     public function __construct(
         private readonly string $searcher
-    ) {}
+    ) {
+    }
 
     /**
      * Add a gambit to this searcher. Gambits are used to filter search queries.

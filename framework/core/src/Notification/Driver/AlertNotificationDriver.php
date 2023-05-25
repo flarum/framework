@@ -18,7 +18,8 @@ class AlertNotificationDriver implements NotificationDriverInterface
 {
     public function __construct(
         private readonly Queue $queue
-    ) {}
+    ) {
+    }
 
     public function send(BlueprintInterface $blueprint, array $users): void
     {

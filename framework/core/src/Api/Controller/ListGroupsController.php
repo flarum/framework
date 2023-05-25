@@ -28,7 +28,8 @@ class ListGroupsController extends AbstractListController
     public function __construct(
         protected GroupFilterer $filterer,
         protected UrlGenerator $url
-    ) {}
+    ) {
+    }
 
     protected function data(ServerRequestInterface $request, Document $document): iterable
     {

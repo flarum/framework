@@ -15,5 +15,6 @@ class DeleteAllNotifications
 {
     public function __construct(
         public User $actor
-    ) {}
+    ) {
+    }
 }

@@ -27,7 +27,8 @@ class ComposerAdapter
         private readonly OutputLogger $logger,
         private readonly Paths $paths,
         private readonly BufferedOutput $output
-    ) {}
+    ) {
+    }
 
     public function run(InputInterface $input, ?Task $task = null): ComposerOutput
     {

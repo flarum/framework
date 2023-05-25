@@ -17,5 +17,6 @@ class DeletedAll
     public function __construct(
         public User $user,
         public DateTime $timestamp
-    ) {}
+    ) {
+    }
 }

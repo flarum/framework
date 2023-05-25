@@ -20,7 +20,8 @@ class RunMigrations implements Step
     public function __construct(
         private readonly ConnectionInterface $database,
         private readonly string $path
-    ) {}
+    ) {
+    }
 
     public function getMessage(): string
     {

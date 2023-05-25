@@ -17,5 +17,6 @@ class Started
     public function __construct(
         public Discussion $discussion,
         public ?User $actor = null
-    ) {}
+    ) {
+    }
 }

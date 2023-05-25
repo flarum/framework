@@ -20,7 +20,8 @@ class RecompileFrontendAssets
     public function __construct(
         protected Assets $assets,
         protected LocaleManager $locales
-    ) {}
+    ) {
+    }
 
     public function whenSettingsSaved(Saved $event): void
     {

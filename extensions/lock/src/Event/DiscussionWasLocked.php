@@ -17,5 +17,6 @@ class DiscussionWasLocked
     public function __construct(
         public Discussion $discussion,
         public User $user
-    ) {}
+    ) {
+    }
 }

@@ -17,7 +17,8 @@ class MajorUpdate extends AbstractActionCommand
     public function __construct(
         public User $actor,
         public bool $dryRun
-    ) {}
+    ) {
+    }
 
     public function getOperationName(): string
     {

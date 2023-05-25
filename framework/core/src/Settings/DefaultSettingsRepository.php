@@ -16,7 +16,8 @@ class DefaultSettingsRepository implements SettingsRepositoryInterface
     public function __construct(
         private readonly SettingsRepositoryInterface $inner,
         protected Collection $defaults
-    ) {}
+    ) {
+    }
 
     public function get(string $key, $default = null): mixed
     {

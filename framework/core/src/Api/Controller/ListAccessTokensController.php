@@ -14,7 +14,6 @@ use Flarum\Http\Filter\AccessTokenFilterer;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Query\QueryCriteria;
-use Illuminate\Contracts\Support\Arrayable;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -25,7 +24,8 @@ class ListAccessTokensController extends AbstractListController
     public function __construct(
         protected UrlGenerator $url,
         protected AccessTokenFilterer $filterer
-    ) {}
+    ) {
+    }
 
     protected function data(ServerRequestInterface $request, Document $document): iterable
     {

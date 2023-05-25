@@ -17,7 +17,8 @@ class SendNotificationWhenPostIsUnliked
 {
     public function __construct(
         protected NotificationSyncer $notifications
-    ) {}
+    ) {
+    }
 
     public function handle(PostWasUnliked $event): void
     {

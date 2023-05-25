@@ -15,5 +15,6 @@ class Disabling
 {
     public function __construct(
         public Extension $extension
-    ) {}
+    ) {
+    }
 }

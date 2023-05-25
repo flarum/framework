@@ -17,7 +17,8 @@ class Factory implements FactoryContract
 {
     public function __construct(
         protected Container $container
-    ){}
+    ) {
+    }
 
     public function store($name = null): Repository
     {

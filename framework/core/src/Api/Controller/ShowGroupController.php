@@ -23,7 +23,8 @@ class ShowGroupController extends AbstractShowController
 
     public function __construct(
         protected GroupRepository $groups
-    ) {}
+    ) {
+    }
 
     protected function data(ServerRequestInterface $request, Document $document): Group
     {

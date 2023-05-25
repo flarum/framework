@@ -32,7 +32,8 @@ class LogInController implements RequestHandlerInterface
         protected Dispatcher $events,
         protected Rememberer $rememberer,
         protected LogInValidator $validator
-    ) {}
+    ) {
+    }
 
     public function handle(Request $request): ResponseInterface
     {

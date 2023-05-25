@@ -22,7 +22,8 @@ abstract class AbstractSearcher
     public function __construct(
         protected GambitManager $gambits,
         protected array $searchMutators
-    ) {}
+    ) {
+    }
 
     abstract protected function getQuery(User $actor): Builder;
 

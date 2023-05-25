@@ -23,7 +23,8 @@ class Pipeline
     public function __construct(
         /** @var callable[] */
         private array $steps = []
-    ) {}
+    ) {
+    }
 
     public function pipe(callable $factory): self
     {

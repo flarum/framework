@@ -19,7 +19,8 @@ class DeleteTagHandler
     public function __construct(
         protected TagRepository $tags,
         protected Dispatcher $events
-    ) {}
+    ) {
+    }
 
     public function handle(DeleteTag $command): Tag
     {

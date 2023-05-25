@@ -18,5 +18,6 @@ class Revised
         public CommentPost $post,
         public User $actor,
         public string $oldContent
-    ) {}
+    ) {
+    }
 }

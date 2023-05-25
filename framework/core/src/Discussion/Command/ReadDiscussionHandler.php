@@ -22,7 +22,8 @@ class ReadDiscussionHandler
     public function __construct(
         protected Dispatcher $events,
         protected DiscussionRepository $discussions
-    ) {}
+    ) {
+    }
 
     public function handle(ReadDiscussion $command): UserState
     {

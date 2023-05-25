@@ -26,7 +26,8 @@ class UpdateController implements RequestHandlerInterface
     public function __construct(
         protected MigrateCommand $command,
         protected Config $config
-    ) {}
+    ) {
+    }
 
     public function handle(Request $request): ResponseInterface
     {

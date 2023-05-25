@@ -17,7 +17,8 @@ class SendNotificationWhenUserIsSuspended
 {
     public function __construct(
         protected NotificationSyncer $notifications
-    ) {}
+    ) {
+    }
 
     public function handle(Suspended $event): void
     {

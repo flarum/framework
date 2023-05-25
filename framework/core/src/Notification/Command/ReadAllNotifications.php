@@ -15,5 +15,6 @@ class ReadAllNotifications
 {
     public function __construct(
         public User $actor
-    ) {}
+    ) {
+    }
 }

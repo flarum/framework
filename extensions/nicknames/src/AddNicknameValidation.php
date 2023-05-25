@@ -19,7 +19,8 @@ class AddNicknameValidation
     public function __construct(
         protected SettingsRepositoryInterface $settings,
         protected TranslatorInterface $translator
-    ) {}
+    ) {
+    }
 
     public function __invoke(UserValidator $flarumValidator, Validator $validator): void
     {

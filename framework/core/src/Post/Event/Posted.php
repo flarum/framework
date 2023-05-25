@@ -17,5 +17,6 @@ class Posted
     public function __construct(
         public CommentPost $post,
         public ?User $actor = null
-    ) {}
+    ) {
+    }
 }

@@ -18,7 +18,8 @@ class WhyNot extends AbstractActionCommand
         public User $actor,
         public ?string $package,
         public string $version
-    ) {}
+    ) {
+    }
 
     public function getOperationName(): string
     {

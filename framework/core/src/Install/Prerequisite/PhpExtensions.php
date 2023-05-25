@@ -15,7 +15,8 @@ class PhpExtensions implements PrerequisiteInterface
 {
     public function __construct(
         protected array $extensions
-    ) {}
+    ) {
+    }
 
     public function problems(): Collection
     {

@@ -26,7 +26,8 @@ class Index
         protected SettingsRepositoryInterface $settings,
         protected UrlGenerator $url,
         protected TranslatorInterface $translator
-    ) {}
+    ) {
+    }
 
     public function __invoke(Document $document, Request $request): Document
     {

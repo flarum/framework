@@ -20,7 +20,8 @@ class ComposerJson
     public function __construct(
         protected Paths $paths,
         protected Filesystem $filesystem
-    ) {}
+    ) {
+    }
 
     public function require(string $packageName, string $version): void
     {

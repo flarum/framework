@@ -20,7 +20,8 @@ class BasicDiscussionSerializer extends AbstractSerializer
 
     public function __construct(
         protected SlugManager $slugManager
-    ) {}
+    ) {
+    }
 
     /**
      * @throws InvalidArgumentException

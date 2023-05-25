@@ -28,7 +28,8 @@ class PostReplyHandler
         protected DiscussionRepository $discussions,
         protected NotificationSyncer $notifications,
         protected PostValidator $validator
-    ) {}
+    ) {
+    }
 
     public function handle(PostReply $command): CommentPost
     {

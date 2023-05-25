@@ -30,7 +30,8 @@ abstract class AbstractValidator
     public function __construct(
         protected Factory $validator,
         protected TranslatorInterface $translator
-    ) {}
+    ) {
+    }
 
     public function addConfiguration($callable): void
     {

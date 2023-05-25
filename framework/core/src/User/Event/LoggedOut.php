@@ -16,5 +16,6 @@ class LoggedOut
     public function __construct(
         public User $user,
         public bool $isGlobal = false
-    ) {}
+    ) {
+    }
 }

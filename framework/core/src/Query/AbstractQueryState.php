@@ -27,7 +27,8 @@ abstract class AbstractQueryState
          * @var array<string, string|int[]>|Closure $defaultSort
          */
         protected array|Closure $defaultSort = []
-    ) {}
+    ) {
+    }
 
     /**
      * Get the query builder for the search results query.

@@ -11,7 +11,6 @@ namespace Flarum\Notification\Command;
 
 use Flarum\Notification\Event\DeletedAll;
 use Flarum\Notification\NotificationRepository;
-use Flarum\User\Exception\NotAuthenticatedException;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Carbon;
 
@@ -20,7 +19,8 @@ class DeleteAllNotificationsHandler
     public function __construct(
         protected NotificationRepository $notifications,
         protected Dispatcher $events
-    ) {}
+    ) {
+    }
 
     public function handle(DeleteAllNotifications $command): void
     {

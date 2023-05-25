@@ -18,7 +18,8 @@ class BasicTitleDriver implements TitleDriverInterface
 {
     public function __construct(
         protected TranslatorInterface $translator
-    ) {}
+    ) {
+    }
 
     public function makeTitle(Document $document, ServerRequestInterface $request, array $forumApiDocument): string
     {

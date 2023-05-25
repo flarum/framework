@@ -15,5 +15,6 @@ class DeveloperTokenCreated
 {
     public function __construct(
         public AccessToken $token
-    ) {}
+    ) {
+    }
 }

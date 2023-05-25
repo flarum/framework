@@ -17,5 +17,6 @@ class ToggleExtension
         public User $actor,
         public string $name,
         public bool $enabled
-    ) {}
+    ) {
+    }
 }

@@ -17,5 +17,6 @@ class Deleting
         public User $user,
         public User $actor,
         public array $data
-    ) {}
+    ) {
+    }
 }

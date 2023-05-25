@@ -17,7 +17,8 @@ class RestoreNotificationWhenPostIsRestored
 {
     public function __construct(
         protected NotificationSyncer $notifications
-    ) {}
+    ) {
+    }
 
     public function handle(Restored $event): void
     {

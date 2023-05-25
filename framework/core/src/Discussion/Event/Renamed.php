@@ -18,5 +18,6 @@ class Renamed
         public Discussion $discussion,
         public string $oldTitle,
         public ?User $actor = null
-    ) {}
+    ) {
+    }
 }

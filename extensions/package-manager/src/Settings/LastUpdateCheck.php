@@ -19,7 +19,8 @@ class LastUpdateCheck implements JsonSetting
 
     public function __construct(
         protected SettingsRepositoryInterface $settings
-    ) {}
+    ) {
+    }
 
     public function with(string $key, mixed $value): JsonSetting
     {

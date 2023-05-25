@@ -25,7 +25,8 @@ class UpdateMentionsMetadataWhenVisible
     public function __construct(
         protected ExtensionManager $extensions,
         protected Queue $queue
-    ) {}
+    ) {
+    }
 
     public function handle(Restored|Revised|Posted|PostWasApproved $event): void
     {

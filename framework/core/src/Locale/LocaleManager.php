@@ -21,7 +21,8 @@ class LocaleManager
     public function __construct(
         protected Translator $translator,
         protected ?string $cacheDir = null
-    ) {}
+    ) {
+    }
 
     public function getLocale(): string
     {

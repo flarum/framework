@@ -19,5 +19,6 @@ class ReadDiscussion
         public User $actor,
         /**  The number of the post to mark as read */
         public $lastReadPostNumber
-    ) {}
+    ) {
+    }
 }

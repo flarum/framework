@@ -17,5 +17,6 @@ class DeleteDiscussion
         public int $discussionId,
         public User $actor,
         public array $data = []
-    ) {}
+    ) {
+    }
 }

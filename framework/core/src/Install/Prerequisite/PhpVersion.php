@@ -15,7 +15,8 @@ class PhpVersion implements PrerequisiteInterface
 {
     public function __construct(
         protected string $minVersion
-    ) {}
+    ) {
+    }
 
     public function problems(): Collection
     {

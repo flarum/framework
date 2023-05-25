@@ -17,5 +17,6 @@ class Updated
     public function __construct(
         public User $actor,
         public Extension $extension
-    ) {}
+    ) {
+    }
 }

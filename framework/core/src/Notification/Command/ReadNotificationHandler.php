@@ -18,7 +18,8 @@ class ReadNotificationHandler
 {
     public function __construct(
         protected Dispatcher $events
-    ) {}
+    ) {
+    }
 
     /**
      * @throws \Flarum\User\Exception\NotAuthenticatedException

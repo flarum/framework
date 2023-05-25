@@ -25,7 +25,8 @@ class Routes implements ExtenderInterface
      */
     public function __construct(
         private readonly string $appName
-    ) {}
+    ) {
+    }
 
     /**
      * Add a GET route.

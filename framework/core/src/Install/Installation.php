@@ -30,7 +30,8 @@ class Installation
 
     public function __construct(
         private readonly Paths $paths
-    ) {}
+    ) {
+    }
 
     public function configPath(string $path): self
     {

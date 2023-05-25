@@ -38,7 +38,8 @@ class ExtensionManager
         protected Migrator $migrator,
         protected Dispatcher $dispatcher,
         protected Filesystem $filesystem
-    ) {}
+    ) {
+    }
 
     public function getExtensions(): Collection
     {

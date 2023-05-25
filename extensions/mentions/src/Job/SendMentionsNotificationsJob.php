@@ -27,7 +27,8 @@ class SendMentionsNotificationsJob extends AbstractJob
         protected array $userMentions,
         protected array $postMentions,
         protected array $groupMentions
-    ) {}
+    ) {
+    }
 
     public function handle(NotificationSyncer $notifications): void
     {

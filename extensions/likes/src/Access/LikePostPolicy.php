@@ -18,7 +18,8 @@ class LikePostPolicy extends AbstractPolicy
 {
     public function __construct(
         protected SettingsRepositoryInterface $settings
-    ) {}
+    ) {
+    }
 
     public function like(User $actor, Post $post)
     {

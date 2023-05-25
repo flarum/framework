@@ -40,7 +40,8 @@ class ApiController implements ExtenderInterface
      */
     public function __construct(
         private readonly string $controllerClass
-    ) {}
+    ) {
+    }
 
     /**
      * @param (callable(AbstractSerializeController $controller): void)|class-string $callback

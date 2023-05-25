@@ -18,7 +18,8 @@ class DeleteNotificationWhenPostIsHiddenOrDeleted
 {
     public function __construct(
         protected NotificationSyncer $notifications
-    ) {}
+    ) {
+    }
 
     public function handle(Deleted|Hidden $event): void
     {

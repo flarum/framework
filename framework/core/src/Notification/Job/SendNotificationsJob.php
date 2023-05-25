@@ -20,7 +20,8 @@ class SendNotificationsJob extends AbstractJob
         private readonly BlueprintInterface $blueprint,
         /** @var User[] */
         private readonly array $recipients = []
-    ) {}
+    ) {
+    }
 
     public function handle(): void
     {

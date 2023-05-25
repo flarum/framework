@@ -33,7 +33,8 @@ class ConfigureMentions
     public function __construct(
         protected UrlGenerator $url,
         protected ExtensionManager $extensions
-    ) {}
+    ) {
+    }
 
     public function __invoke(Configurator $config): void
     {

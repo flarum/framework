@@ -18,7 +18,8 @@ class ExceptionHandler implements ExceptionHandling
 {
     public function __construct(
         private readonly LoggerInterface $logger
-    ) {}
+    ) {
+    }
 
     /**
      * Report or log an exception.

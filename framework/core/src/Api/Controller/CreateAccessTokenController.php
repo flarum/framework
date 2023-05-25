@@ -30,7 +30,8 @@ class CreateAccessTokenController extends AbstractCreateController
     public function __construct(
         protected Dispatcher $events,
         protected Factory $validation
-    ) {}
+    ) {
+    }
 
     public function data(ServerRequestInterface $request, Document $document): DeveloperAccessToken
     {

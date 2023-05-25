@@ -24,7 +24,8 @@ class AccountActivationMailer
         protected Queue $queue,
         protected UrlGenerator $url,
         protected TranslatorInterface $translator
-    ) {}
+    ) {
+    }
 
     public function handle(Registered $event): void
     {

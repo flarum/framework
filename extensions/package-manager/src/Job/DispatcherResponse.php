@@ -14,5 +14,6 @@ class DispatcherResponse
     public function __construct(
         public bool $queueJobs,
         public ?array $data
-    ) {}
+    ) {
+    }
 }

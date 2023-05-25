@@ -24,7 +24,8 @@ class ModelUrl implements ExtenderInterface
      */
     public function __construct(
         private readonly string $modelClass
-    ) {}
+    ) {
+    }
 
     /**
      * Add a slug driver.

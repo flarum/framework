@@ -29,7 +29,8 @@ class CreateFlagHandler
         protected TranslatorInterface $translator,
         protected SettingsRepositoryInterface $settings,
         protected Dispatcher $events
-    ) {}
+    ) {
+    }
 
     public function handle(CreateFlag $command): Flag
     {

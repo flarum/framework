@@ -18,7 +18,8 @@ class DiscussionRenamedLogger
 {
     public function __construct(
         protected NotificationSyncer $notifications
-    ) {}
+    ) {
+    }
 
     public function handle(Renamed $event): void
     {

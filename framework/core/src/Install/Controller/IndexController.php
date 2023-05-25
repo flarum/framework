@@ -20,7 +20,8 @@ class IndexController extends AbstractHtmlController
     public function __construct(
         protected Factory $view,
         protected Installation $installation
-    ) {}
+    ) {
+    }
 
     public function render(Request $request): Renderable|string
     {

@@ -33,7 +33,8 @@ class AdminPayload
         protected Dispatcher $events,
         protected Config $config,
         protected ApplicationInfoProvider $appInfo
-    ) {}
+    ) {
+    }
 
     public function __invoke(Document $document, Request $request): void
     {

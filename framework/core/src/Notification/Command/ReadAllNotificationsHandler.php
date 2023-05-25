@@ -19,7 +19,8 @@ class ReadAllNotificationsHandler
     public function __construct(
         protected NotificationRepository $notifications,
         protected Dispatcher $events
-    ) {}
+    ) {
+    }
 
     /**
      * @throws \Flarum\User\Exception\NotAuthenticatedException

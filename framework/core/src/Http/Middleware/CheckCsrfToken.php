@@ -19,7 +19,8 @@ class CheckCsrfToken implements Middleware
 {
     public function __construct(
         protected array $exemptRoutes
-    ) {}
+    ) {
+    }
 
     public function process(Request $request, Handler $handler): Response
     {

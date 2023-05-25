@@ -22,7 +22,8 @@ class EditTagHandler
         protected TagRepository $tags,
         protected TagValidator $validator,
         protected Dispatcher $events
-    ) {}
+    ) {
+    }
 
     public function handle(EditTag $command): Tag
     {

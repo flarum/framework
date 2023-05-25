@@ -19,7 +19,8 @@ class SendRawEmailJob extends AbstractJob
         private readonly string $email,
         private readonly string $subject,
         private readonly string $body
-    ) {}
+    ) {
+    }
 
     public function handle(Mailer $mailer): void
     {

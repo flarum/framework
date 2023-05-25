@@ -25,7 +25,8 @@ class InstalledApp implements AppInterface
     public function __construct(
         protected Container $container,
         protected Config $config
-    ) {}
+    ) {
+    }
 
     public function getContainer(): Container
     {

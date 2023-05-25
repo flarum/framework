@@ -17,7 +17,8 @@ class PublishAssets implements ReversibleStep
     public function __construct(
         private readonly string $vendorPath,
         private readonly string $assetPath
-    ) {}
+    ) {
+    }
 
     public function getMessage(): string
     {

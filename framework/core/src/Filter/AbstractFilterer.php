@@ -14,7 +14,6 @@ use Flarum\Query\QueryCriteria;
 use Flarum\Query\QueryResults;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Arr;
 use InvalidArgumentException;
 
 abstract class AbstractFilterer
@@ -25,7 +24,8 @@ abstract class AbstractFilterer
         /** @var array<string, FilterInterface[]> */
         protected array $filters,
         protected array $filterMutators
-    ) {}
+    ) {
+    }
 
     abstract protected function getQuery(User $actor): Builder;
 

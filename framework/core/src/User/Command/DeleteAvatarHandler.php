@@ -24,7 +24,8 @@ class DeleteAvatarHandler
         protected Dispatcher $events,
         protected UserRepository $users,
         protected AvatarUploader $uploader
-    ) {}
+    ) {
+    }
 
     public function handle(DeleteAvatar $command): User
     {

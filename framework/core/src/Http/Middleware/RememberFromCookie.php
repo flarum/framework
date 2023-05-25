@@ -22,7 +22,8 @@ class RememberFromCookie implements Middleware
 {
     public function __construct(
         protected CookieFactory $cookie
-    ) {}
+    ) {
+    }
 
     public function process(Request $request, Handler $handler): Response
     {

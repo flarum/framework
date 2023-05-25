@@ -18,7 +18,8 @@ class Controller implements RequestHandlerInterface
 {
     public function __construct(
         protected Frontend $frontend
-    ) {}
+    ) {
+    }
 
     public function handle(Request $request): Response
     {

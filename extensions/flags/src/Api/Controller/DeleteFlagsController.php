@@ -20,7 +20,8 @@ class DeleteFlagsController extends AbstractDeleteController
 {
     public function __construct(
         protected Dispatcher $bus
-    ) {}
+    ) {
+    }
 
     protected function delete(ServerRequestInterface $request): void
     {

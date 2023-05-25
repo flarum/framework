@@ -23,7 +23,8 @@ class ShowExtensionReadmeController extends AbstractShowController
 
     public function __construct(
         protected ExtensionManager $extensions
-    ) {}
+    ) {
+    }
 
     protected function data(ServerRequestInterface $request, Document $document): ?Extension
     {

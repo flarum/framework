@@ -22,7 +22,8 @@ class Server
 {
     public function __construct(
         private readonly SiteInterface $site
-    ) {}
+    ) {
+    }
 
     public function listen(): never
     {

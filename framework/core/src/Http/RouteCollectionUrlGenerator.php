@@ -17,7 +17,8 @@ class RouteCollectionUrlGenerator
     public function __construct(
         protected string $baseUrl,
         protected RouteCollection $routes
-    ) {}
+    ) {
+    }
 
     public function route(string $name, array $parameters = []): string
     {

@@ -22,7 +22,8 @@ class ConfirmEmailHandler
     public function __construct(
         protected Dispatcher $events,
         protected UserRepository $users
-    ) {}
+    ) {
+    }
 
     public function handle(ConfirmEmail $command): User
     {

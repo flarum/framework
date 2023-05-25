@@ -22,7 +22,8 @@ class RequestPasswordResetJob extends AbstractJob
 {
     public function __construct(
         protected string $email
-    ) {}
+    ) {
+    }
 
     public function handle(
         SettingsRepositoryInterface $settings,

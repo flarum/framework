@@ -19,7 +19,8 @@ class PostLikedBlueprint implements BlueprintInterface
     public function __construct(
         public Post $post,
         public User $user
-    ) {}
+    ) {
+    }
 
     public function getSubject(): ?AbstractModel
     {

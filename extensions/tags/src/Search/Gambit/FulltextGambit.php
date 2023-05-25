@@ -18,7 +18,8 @@ class FulltextGambit implements GambitInterface
 {
     public function __construct(
         protected TagRepository $tags
-    ) {}
+    ) {
+    }
 
     private function getTagSearchSubQuery(string $searchValue): Builder
     {

@@ -19,7 +19,8 @@ class LogDriver implements DriverInterface
 {
     public function __construct(
         private readonly LoggerInterface $logger
-    ) {}
+    ) {
+    }
 
     public function availableSettings(): array
     {

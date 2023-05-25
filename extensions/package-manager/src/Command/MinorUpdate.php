@@ -16,7 +16,8 @@ class MinorUpdate extends AbstractActionCommand
 {
     public function __construct(
         public User $actor
-    ) {}
+    ) {
+    }
 
     public function getOperationName(): string
     {

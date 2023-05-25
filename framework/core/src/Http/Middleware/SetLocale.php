@@ -21,7 +21,8 @@ class SetLocale implements Middleware
 {
     public function __construct(
         protected LocaleManager $locales
-    ) {}
+    ) {
+    }
 
     public function process(Request $request, Handler $handler): Response
     {

@@ -24,7 +24,8 @@ class BasicPostSerializer extends AbstractSerializer
     public function __construct(
         protected LogReporter $log,
         protected TranslatorInterface $translator
-    ) {}
+    ) {
+    }
 
     /**
      * @throws InvalidArgumentException

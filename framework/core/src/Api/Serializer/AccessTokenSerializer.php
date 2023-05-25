@@ -20,7 +20,8 @@ class AccessTokenSerializer extends AbstractSerializer
 
     public function __construct(
         protected TranslatorInterface $translator
-    ) {}
+    ) {
+    }
 
     protected function getDefaultAttributes(object|array $model): array
     {

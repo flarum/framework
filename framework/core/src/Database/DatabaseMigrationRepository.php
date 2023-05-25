@@ -17,7 +17,8 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
     public function __construct(
         protected ConnectionInterface $connection,
         protected string $table
-    ) {}
+    ) {
+    }
 
     public function getRan(?string $extension = null): array
     {

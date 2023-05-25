@@ -14,7 +14,8 @@ class ComposerOutput
     public function __construct(
         protected int $exitCode,
         protected string $contents
-    ) {}
+    ) {
+    }
 
     public function getExitCode(): int
     {

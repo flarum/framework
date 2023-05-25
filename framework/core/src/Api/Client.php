@@ -26,7 +26,8 @@ class Client
 
     public function __construct(
         protected MiddlewarePipeInterface $pipe
-    ) {}
+    ) {
+    }
 
     /**
      * Set the request actor.

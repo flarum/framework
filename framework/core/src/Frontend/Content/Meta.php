@@ -18,7 +18,8 @@ class Meta
 {
     public function __construct(
         private readonly LocaleManager $locales
-    ) {}
+    ) {
+    }
 
     public function __invoke(Document $document, Request $request): void
     {

@@ -28,7 +28,8 @@ class UploadAvatarHandler
         protected AvatarUploader $uploader,
         protected AvatarValidator $validator,
         protected ImageManager $imageManager
-    ) {}
+    ) {
+    }
 
     public function handle(UploadAvatar $command): User
     {

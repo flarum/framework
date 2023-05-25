@@ -23,7 +23,8 @@ class ClearCacheController extends AbstractDeleteController
     public function __construct(
         protected CacheClearCommand $command,
         protected AssetsPublishCommand $assetsPublishCommand
-    ) {}
+    ) {
+    }
 
     /**
      * @throws IOException|\Flarum\User\Exception\PermissionDeniedException|\Symfony\Component\Console\Exception\ExceptionInterface

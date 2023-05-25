@@ -28,7 +28,8 @@ class ApiSerializer implements ExtenderInterface
      */
     public function __construct(
         private readonly string $serializerClass
-    ) {}
+    ) {
+    }
 
     /**
      * Add a single attribute to this serializer.

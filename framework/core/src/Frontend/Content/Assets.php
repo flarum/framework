@@ -10,7 +10,7 @@
 namespace Flarum\Frontend\Content;
 
 use Flarum\Foundation\Config;
-use \Flarum\Frontend\Assets as FrontendAssets;
+use Flarum\Frontend\Assets as FrontendAssets;
 use Flarum\Frontend\Compiler\CompilerInterface;
 use Flarum\Frontend\Document;
 use Illuminate\Contracts\Container\Container;
@@ -24,7 +24,8 @@ class Assets
     public function __construct(
         protected Container $container,
         protected Config $config
-    ) {}
+    ) {
+    }
 
     /**
      * Sets the frontend to generate assets for.

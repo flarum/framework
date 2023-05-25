@@ -22,7 +22,8 @@ class ConnectToDatabase implements Step
     public function __construct(
         private readonly DatabaseConfig $dbConfig,
         private readonly Closure $store
-    ) {}
+    ) {
+    }
 
     public function getMessage(): string
     {

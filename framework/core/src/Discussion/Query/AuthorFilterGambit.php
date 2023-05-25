@@ -23,7 +23,8 @@ class AuthorFilterGambit extends AbstractRegexGambit implements FilterInterface
 
     public function __construct(
         protected UserRepository $users
-    ) {}
+    ) {
+    }
 
     public function getGambitPattern(): string
     {

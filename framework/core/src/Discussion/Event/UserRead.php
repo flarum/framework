@@ -10,11 +10,11 @@
 namespace Flarum\Discussion\Event;
 
 use Flarum\Discussion\UserState;
-use Flarum\User\User;
 
 class UserRead
 {
     public function __construct(
         public UserState $state
-    ) {}
+    ) {
+    }
 }

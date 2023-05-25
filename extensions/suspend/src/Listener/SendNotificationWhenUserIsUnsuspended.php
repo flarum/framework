@@ -17,7 +17,8 @@ class SendNotificationWhenUserIsUnsuspended
 {
     public function __construct(
         protected NotificationSyncer $notifications
-    ) {}
+    ) {
+    }
 
     public function handle(Unsuspended $event): void
     {

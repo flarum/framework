@@ -22,7 +22,8 @@ class TagSerializer extends AbstractSerializer
 
     public function __construct(
         protected SlugManager $slugManager
-    ) {}
+    ) {
+    }
 
     protected function getDefaultAttributes(object|array $model): array
     {

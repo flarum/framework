@@ -28,7 +28,8 @@ class Tag
         protected TagRepository $tags,
         protected TranslatorInterface $translator,
         protected SlugManager $slugger
-    ) {}
+    ) {
+    }
 
     public function __invoke(Document $document, Request $request): Document
     {

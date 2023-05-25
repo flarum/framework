@@ -17,7 +17,8 @@ class SendNotificationWhenPostIsLiked
 {
     public function __construct(
         protected NotificationSyncer $notifications
-    ) {}
+    ) {
+    }
 
     public function handle(PostWasLiked $event): void
     {

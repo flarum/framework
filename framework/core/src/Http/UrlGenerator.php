@@ -17,7 +17,8 @@ class UrlGenerator
 
     public function __construct(
         protected Application $app
-    ) {}
+    ) {
+    }
 
     /**
      * Register a named route collection for URL generation.
