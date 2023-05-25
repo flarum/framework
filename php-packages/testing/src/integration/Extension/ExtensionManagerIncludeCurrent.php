@@ -20,6 +20,7 @@ use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem as FlysystemFilesystem;
 
@@ -49,10 +50,7 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
         $this->enabledIds = $enabledIds;
     }
 
-    /**
-     * @{@inheritDoc}
-     */
-    public function getExtensions()
+    public function getExtensions(): Collection
     {
         $extensions = parent::getExtensions();
 
@@ -79,7 +77,7 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
      * However, since some logic needs this, as soon as we enable extensions
      * we'll switch booted to on.
      */
-    public function isEnabled($extension)
+    public function isEnabled($extension): bool
     {
         if (! $this->booted) {
             return false;
@@ -91,7 +89,7 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
     /**
      * In test cases, enabled extensions are determined by the test case, not the database.
      */
-    public function getEnabled()
+    public function getEnabled(): array
     {
         return $this->enabledIds;
     }
@@ -99,7 +97,7 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
     /**
      * Enabled extensions must be specified by the test case, so this should do nothing.
      */
-    protected function setEnabledExtensions(array $enabledExtensions)
+    protected function setEnabledExtensions(array $enabledExtensions): void
     {
     }
 
