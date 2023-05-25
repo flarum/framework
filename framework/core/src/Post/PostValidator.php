@@ -13,7 +13,7 @@ use Flarum\Foundation\AbstractValidator;
 
 class PostValidator extends AbstractValidator
 {
-    protected $rules = [
+    protected array $rules = [
         'content' => [
             'required',
             'max:65535'

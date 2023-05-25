@@ -18,22 +18,12 @@ use Flarum\Settings\SettingsRepositoryInterface;
 
 class ValidatePost
 {
-    /**
-     * @var Akismet
-     */
-    protected $akismet;
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    private $settings;
+    public function __construct(
+        protected Akismet $akismet,
+        protected SettingsRepositoryInterface $settings
+    ) {}
 
-    public function __construct(Akismet $akismet, SettingsRepositoryInterface $settings)
-    {
-        $this->akismet = $akismet;
-        $this->settings = $settings;
-    }
-
-    public function handle(Saving $event)
+    public function handle(Saving $event): void
     {
         if (! $this->akismet->isConfigured()) {
             return;

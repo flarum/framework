@@ -10,37 +10,18 @@
 namespace Flarum\Tags\Command;
 
 use Flarum\Tags\Event\Deleting;
+use Flarum\Tags\Tag;
 use Flarum\Tags\TagRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class DeleteTagHandler
 {
-    /**
-     * @var TagRepository
-     */
-    protected $tags;
+    public function __construct(
+        protected TagRepository $tags,
+        protected Dispatcher $events
+    ) {}
 
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @param TagRepository $tags
-     * @param Dispatcher $events
-     */
-    public function __construct(TagRepository $tags, Dispatcher $events)
-    {
-        $this->tags = $tags;
-        $this->events = $events;
-    }
-
-    /**
-     * @param DeleteTag $command
-     * @return \Flarum\Tags\Tag
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     */
-    public function handle(DeleteTag $command)
+    public function handle(DeleteTag $command): Tag
     {
         $actor = $command->actor;
 

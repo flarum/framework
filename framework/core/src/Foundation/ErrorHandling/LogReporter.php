@@ -17,17 +17,11 @@ use Throwable;
  */
 class LogReporter implements Reporter
 {
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
+    public function __construct(
+        protected LoggerInterface $logger
+    ) {}
 
-    public function __construct(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-    }
-
-    public function report(Throwable $error)
+    public function report(Throwable $error): void
     {
         $this->logger->error($error);
     }

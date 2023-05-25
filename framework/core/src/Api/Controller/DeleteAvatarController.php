@@ -19,28 +19,13 @@ use Tobscure\JsonApi\Document;
 
 class DeleteAvatarController extends AbstractShowController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = UserSerializer::class;
+    public ?string $serializer = UserSerializer::class;
 
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
+    public function __construct(
+        protected Dispatcher $bus
+    ) {}
 
-    /**
-     * @param Dispatcher $bus
-     */
-    public function __construct(Dispatcher $bus)
-    {
-        $this->bus = $bus;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): mixed
     {
         return $this->bus->dispatch(
             new DeleteAvatar(Arr::get($request->getQueryParams(), 'id'), RequestUtil::getActor($request))

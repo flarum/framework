@@ -16,21 +16,11 @@ use Illuminate\Contracts\Queue\Queue;
 
 class SendNotificationWhenReplyIsPosted
 {
-    /**
-     * @var Queue
-     */
-    protected $queue;
+    public function __construct(
+        protected Queue $queue
+    ) {}
 
-    public function __construct(Queue $queue)
-    {
-        $this->queue = $queue;
-    }
-
-    /**
-     * @param Posted|PostWasApproved $event
-     * @return void
-     */
-    public function handle($event)
+    public function handle(Posted|PostWasApproved $event): void
     {
         $this->queue->push(
             new SendReplyNotification($event->post, $event->post->discussion->last_post_number)

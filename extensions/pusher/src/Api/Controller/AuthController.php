@@ -21,23 +21,10 @@ use Pusher;
 
 class AuthController implements RequestHandlerInterface
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings
+    ) {}
 
-    /**
-     * @param SettingsRepositoryInterface $settings
-     */
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
-        $this->settings = $settings;
-    }
-
-    /**
-     * @param ServerRequestInterface $request
-     * @return ResponseInterface
-     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $userChannel = 'private-user'.RequestUtil::getActor($request)->id;

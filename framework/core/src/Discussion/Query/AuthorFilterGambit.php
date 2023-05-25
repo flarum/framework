@@ -21,31 +21,16 @@ class AuthorFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
     use ValidateFilterTrait;
 
-    /**
-     * @var \Flarum\User\UserRepository
-     */
-    protected $users;
+    public function __construct(
+        protected UserRepository $users
+    ) {}
 
-    /**
-     * @param \Flarum\User\UserRepository $users
-     */
-    public function __construct(UserRepository $users)
-    {
-        $this->users = $users;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getGambitPattern()
+    public function getGambitPattern(): string
     {
         return 'author:(.+)';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function conditions(SearchState $search, array $matches, $negate)
+    protected function conditions(SearchState $search, array $matches, bool $negate): void
     {
         $this->constrain($search->getQuery(), $matches[1], $negate);
     }
@@ -55,12 +40,12 @@ class AuthorFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'author';
     }
 
-    public function filter(FilterState $filterState, $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $this->constrain($filterState->getQuery(), $filterValue, $negate);
     }
 
-    protected function constrain(Builder $query, $rawUsernames, $negate)
+    protected function constrain(Builder $query, string|array $rawUsernames, $negate)
     {
         $usernames = $this->asStringArray($rawUsernames);
 

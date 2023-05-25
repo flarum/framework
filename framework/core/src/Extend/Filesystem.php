@@ -11,12 +11,14 @@ namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
+use Flarum\Foundation\Paths;
+use Flarum\Http\UrlGenerator;
 use Illuminate\Contracts\Container\Container;
 
 class Filesystem implements ExtenderInterface
 {
-    private $disks = [];
-    private $drivers = [];
+    private array $disks = [];
+    private array $drivers = [];
 
     /**
      * Declare a new filesystem disk.
@@ -29,7 +31,7 @@ class Filesystem implements ExtenderInterface
      * To declare a new disk, you must provide default configuration a "local" driver.
      *
      * @param string $name: The name of the disk.
-     * @param string|callable $callback
+     * @param (callable(Paths $paths, UrlGenerator $url): array)|class-string $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
      *  - \Flarum\Foundation\Paths $paths
@@ -53,7 +55,7 @@ class Filesystem implements ExtenderInterface
      *
      * @return self
      */
-    public function disk(string $name, $callback): self
+    public function disk(string $name, callable|string $callback): self
     {
         $this->disks[$name] = $callback;
 
@@ -75,7 +77,7 @@ class Filesystem implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         $container->extend('flarum.filesystem.disks', function ($existingDisks) use ($container) {
             foreach ($this->disks as $name => $disk) {

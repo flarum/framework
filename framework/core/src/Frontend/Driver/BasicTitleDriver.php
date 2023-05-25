@@ -16,15 +16,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BasicTitleDriver implements TitleDriverInterface
 {
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    public function __construct(TranslatorInterface $translator)
-    {
-        $this->translator = $translator;
-    }
+    public function __construct(
+        protected TranslatorInterface $translator
+    ) {}
 
     public function makeTitle(Document $document, ServerRequestInterface $request, array $forumApiDocument): string
     {

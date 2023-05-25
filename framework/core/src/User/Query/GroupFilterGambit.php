@@ -22,18 +22,12 @@ class GroupFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
     use ValidateFilterTrait;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getGambitPattern()
+    public function getGambitPattern(): string
     {
         return 'group:(.+)';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function conditions(SearchState $search, array $matches, $negate)
+    protected function conditions(SearchState $search, array $matches, bool $negate): void
     {
         $this->constrain($search->getQuery(), $search->getActor(), $matches[1], $negate);
     }
@@ -43,12 +37,12 @@ class GroupFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'group';
     }
 
-    public function filter(FilterState $filterState, $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $this->constrain($filterState->getQuery(), $filterState->getActor(), $filterValue, $negate);
     }
 
-    protected function constrain(Builder $query, User $actor, $rawQuery, bool $negate)
+    protected function constrain(Builder $query, User $actor, $rawQuery, bool $negate): void
     {
         $groupIdentifiers = $this->asStringArray($rawQuery);
         $groupQuery = Group::whereVisibleTo($actor);

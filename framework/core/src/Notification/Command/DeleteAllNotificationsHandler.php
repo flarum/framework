@@ -17,31 +17,12 @@ use Illuminate\Support\Carbon;
 
 class DeleteAllNotificationsHandler
 {
-    /**
-     * @var NotificationRepository
-     */
-    protected $notifications;
+    public function __construct(
+        protected NotificationRepository $notifications,
+        protected Dispatcher $events
+    ) {}
 
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @param NotificationRepository $notifications
-     * @param Dispatcher $events
-     */
-    public function __construct(NotificationRepository $notifications, Dispatcher $events)
-    {
-        $this->notifications = $notifications;
-        $this->events = $events;
-    }
-
-    /**
-     * @param DeleteAllNotifications $command
-     * @throws NotAuthenticatedException
-     */
-    public function handle(DeleteAllNotifications $command)
+    public function handle(DeleteAllNotifications $command): void
     {
         $actor = $command->actor;
 

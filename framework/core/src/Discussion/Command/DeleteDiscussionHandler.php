@@ -9,6 +9,7 @@
 
 namespace Flarum\Discussion\Command;
 
+use Flarum\Discussion\Discussion;
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Discussion\Event\Deleting;
 use Flarum\Foundation\DispatchEventsTrait;
@@ -19,27 +20,12 @@ class DeleteDiscussionHandler
 {
     use DispatchEventsTrait;
 
-    /**
-     * @var \Flarum\Discussion\DiscussionRepository
-     */
-    protected $discussions;
+    public function __construct(
+        protected Dispatcher $events,
+        protected DiscussionRepository $discussions
+    ) {}
 
-    /**
-     * @param Dispatcher $events
-     * @param DiscussionRepository $discussions
-     */
-    public function __construct(Dispatcher $events, DiscussionRepository $discussions)
-    {
-        $this->events = $events;
-        $this->discussions = $discussions;
-    }
-
-    /**
-     * @param DeleteDiscussion $command
-     * @return \Flarum\Discussion\Discussion
-     * @throws PermissionDeniedException
-     */
-    public function handle(DeleteDiscussion $command)
+    public function handle(DeleteDiscussion $command): Discussion
     {
         $actor = $command->actor;
 

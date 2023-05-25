@@ -16,10 +16,7 @@ use Illuminate\Contracts\Container\Container;
 
 class UpdateServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    public function register(): void
     {
         $this->container->singleton('flarum.update.routes', function (Container $container) {
             $routes = new RouteCollection;
@@ -30,16 +27,12 @@ class UpdateServiceProvider extends AbstractServiceProvider
         });
     }
 
-    public function boot()
+    public function boot(): void
     {
         $this->loadViewsFrom(__DIR__.'/../../views/install', 'flarum.update');
     }
 
-    /**
-     * @param RouteCollection     $routes
-     * @param RouteHandlerFactory $route
-     */
-    protected function populateRoutes(RouteCollection $routes, RouteHandlerFactory $route)
+    protected function populateRoutes(RouteCollection $routes, RouteHandlerFactory $route): void
     {
         $routes->get(
             '/{path:.*}',

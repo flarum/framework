@@ -18,27 +18,12 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class User
 {
-    /**
-     * @var Client
-     */
-    protected $api;
+    public function __construct(
+        protected Client $api,
+        protected UrlGenerator $url
+    ) {}
 
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @param Client $api
-     * @param UrlGenerator $url
-     */
-    public function __construct(Client $api, UrlGenerator $url)
-    {
-        $this->api = $api;
-        $this->url = $url;
-    }
-
-    public function __invoke(Document $document, Request $request)
+    public function __invoke(Document $document, Request $request): Document
     {
         $queryParams = $request->getQueryParams();
         $username = Arr::get($queryParams, 'username');

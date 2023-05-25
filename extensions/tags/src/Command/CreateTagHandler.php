@@ -17,31 +17,12 @@ use Illuminate\Support\Arr;
 
 class CreateTagHandler
 {
-    /**
-     * @var TagValidator
-     */
-    protected $validator;
+    public function __construct(
+        protected TagValidator $validator,
+        protected Dispatcher $events
+    ) {}
 
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @param TagValidator $validator
-     * @param Dispatcher $events
-     */
-    public function __construct(TagValidator $validator, Dispatcher $events)
-    {
-        $this->validator = $validator;
-        $this->events = $events;
-    }
-
-    /**
-     * @param CreateTag $command
-     * @return Tag
-     */
-    public function handle(CreateTag $command)
+    public function handle(CreateTag $command): Tag
     {
         $actor = $command->actor;
         $data = $command->data;

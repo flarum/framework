@@ -16,7 +16,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class DiscussionServiceProvider extends AbstractServiceProvider
 {
-    public function boot(Dispatcher $events)
+    public function boot(Dispatcher $events): void
     {
         $events->subscribe(DiscussionMetadataUpdater::class);
         $events->subscribe(UserStateUpdater::class);

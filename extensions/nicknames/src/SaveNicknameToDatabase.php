@@ -15,17 +15,11 @@ use Illuminate\Support\Arr;
 
 class SaveNicknameToDatabase
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings
+    ) {}
 
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
-        $this->settings = $settings;
-    }
-
-    public function handle(Saving $event)
+    public function handle(Saving $event): void
     {
         $user = $event->user;
         $data = $event->data;

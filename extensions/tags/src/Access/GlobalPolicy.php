@@ -16,21 +16,10 @@ use Flarum\User\User;
 
 class GlobalPolicy extends AbstractPolicy
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings
+    ) {}
 
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
-        $this->settings = $settings;
-    }
-
-    /**
-     * @param User $actor
-     * @param string $ability
-     * @return string|void
-     */
     public function can(User $actor, string $ability)
     {
         static $enoughPrimary;

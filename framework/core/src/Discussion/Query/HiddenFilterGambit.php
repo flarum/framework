@@ -17,18 +17,12 @@ use Illuminate\Database\Query\Builder;
 
 class HiddenFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getGambitPattern()
+    public function getGambitPattern(): string
     {
         return 'is:hidden';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function conditions(SearchState $search, array $matches, $negate)
+    protected function conditions(SearchState $search, array $matches, bool $negate): void
     {
         $this->constrain($search->getQuery(), $negate);
     }
@@ -38,7 +32,7 @@ class HiddenFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'hidden';
     }
 
-    public function filter(FilterState $filterState, $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $this->constrain($filterState->getQuery(), $negate);
     }

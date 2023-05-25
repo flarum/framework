@@ -20,29 +20,12 @@ use Illuminate\Support\Arr;
 
 class SaveSuspensionToDatabase
 {
-    /**
-     * Validator for limited suspension.
-     *
-     * @var SuspendValidator
-     */
-    protected $validator;
+    public function __construct(
+        protected SuspendValidator $validator,
+        protected Dispatcher $events
+    ) {}
 
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @param SuspendValidator $validator
-     * @param Dispatcher $events
-     */
-    public function __construct(SuspendValidator $validator, Dispatcher $events)
-    {
-        $this->validator = $validator;
-        $this->events = $events;
-    }
-
-    public function handle(Saving $event)
+    public function handle(Saving $event): void
     {
         $attributes = Arr::get($event->data, 'attributes', []);
 

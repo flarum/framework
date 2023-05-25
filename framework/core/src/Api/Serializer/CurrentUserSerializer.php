@@ -9,24 +9,29 @@
 
 namespace Flarum\Api\Serializer;
 
+use Flarum\User\User;
+use InvalidArgumentException;
+
 class CurrentUserSerializer extends UserSerializer
 {
-    /**
-     * @param \Flarum\User\User $user
-     * @return array
-     */
-    protected function getDefaultAttributes($user)
+    protected function getDefaultAttributes(object|array $model): array
     {
-        $attributes = parent::getDefaultAttributes($user);
+        if (! ($model instanceof User)) {
+            throw new InvalidArgumentException(
+                get_class($this).' can only serialize instances of '.User::class
+            );
+        }
+
+        $attributes = parent::getDefaultAttributes($model);
 
         $attributes += [
-            'isEmailConfirmed'         => (bool) $user->is_email_confirmed,
-            'email'                    => $user->email,
-            'markedAllAsReadAt'        => $this->formatDate($user->marked_all_as_read_at),
-            'unreadNotificationCount'  => (int) $user->getUnreadNotificationCount(),
-            'newNotificationCount'     => (int) $user->getNewNotificationCount(),
-            'preferences'              => (array) $user->preferences,
-            'isAdmin'                  => $user->isAdmin(),
+            'isEmailConfirmed'         => (bool) $model->is_email_confirmed,
+            'email'                    => $model->email,
+            'markedAllAsReadAt'        => $this->formatDate($model->marked_all_as_read_at),
+            'unreadNotificationCount'  => (int) $model->getUnreadNotificationCount(),
+            'newNotificationCount'     => (int) $model->getNewNotificationCount(),
+            'preferences'              => (array) $model->preferences,
+            'isAdmin'                  => $model->isAdmin(),
         ];
 
         return $attributes;

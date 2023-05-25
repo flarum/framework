@@ -14,15 +14,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Render
 {
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    public function __construct(TranslatorInterface $translator)
-    {
-        $this->translator = $translator;
-    }
+    public function __construct(
+        protected TranslatorInterface $translator
+    ) {}
 
     public function __invoke(Renderer $renderer, $context, string $xml): string
     {

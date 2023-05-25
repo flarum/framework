@@ -11,31 +11,18 @@ namespace Flarum\Install\Controller;
 
 use Flarum\Http\Controller\AbstractHtmlController;
 use Flarum\Install\Installation;
+use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class IndexController extends AbstractHtmlController
 {
-    /**
-     * @var Factory
-     */
-    protected $view;
+    public function __construct(
+        protected Factory $view,
+        protected Installation $installation
+    ) {}
 
-    /**
-     * @var Installation
-     */
-    protected $installation;
-
-    public function __construct(Factory $view, Installation $installation)
-    {
-        $this->view = $view;
-        $this->installation = $installation;
-    }
-
-    /**
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
-    public function render(Request $request)
+    public function render(Request $request): Renderable|string
     {
         $view = $this->view->make('flarum.install::app')->with('title', 'Install Flarum');
 

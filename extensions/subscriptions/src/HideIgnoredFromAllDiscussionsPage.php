@@ -14,7 +14,7 @@ use Flarum\Query\QueryCriteria;
 
 class HideIgnoredFromAllDiscussionsPage
 {
-    public function __invoke(FilterState $filterState, QueryCriteria $criteria)
+    public function __invoke(FilterState $filterState, QueryCriteria $criteria): void
     {
         // We only want to hide on the "all discussions" page.
         if (count($filterState->getActiveFilters()) === 0) {

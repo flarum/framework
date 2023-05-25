@@ -25,22 +25,17 @@ use Illuminate\Support\Arr;
  */
 class OverrideSettingsRepository implements SettingsRepositoryInterface
 {
-    protected $inner;
-
-    protected $overrides = [];
-
-    public function __construct(SettingsRepositoryInterface $inner, array $overrides)
-    {
-        $this->inner = $inner;
-        $this->overrides = $overrides;
-    }
+    public function __construct(
+        protected SettingsRepositoryInterface $inner,
+        protected array $overrides
+    ) {}
 
     public function all(): array
     {
         return array_merge($this->inner->all(), $this->overrides);
     }
 
-    public function get($key, $default = null)
+    public function get(string $key, $default = null): mixed
     {
         if (array_key_exists($key, $this->overrides)) {
             return $this->overrides[$key];
@@ -49,13 +44,13 @@ class OverrideSettingsRepository implements SettingsRepositoryInterface
         return Arr::get($this->all(), $key, $default);
     }
 
-    public function set($key, $value)
+    public function set(string $key, mixed $value): void
     {
         $this->inner->set($key, $value);
     }
 
-    public function delete($key)
+    public function delete(string $keyLike): void
     {
-        $this->inner->delete($key);
+        $this->inner->delete($keyLike);
     }
 }

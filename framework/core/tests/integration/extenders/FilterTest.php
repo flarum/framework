@@ -113,9 +113,6 @@ class NoResultFilter implements FilterInterface
         return 'noResult';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function filter(FilterState $filterState, string $filterValue, bool $negate)
     {
         if ($filterValue) {

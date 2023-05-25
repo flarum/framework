@@ -20,38 +20,14 @@ use Flarum\User\User;
 
 class SendMentionsNotificationsJob extends AbstractJob
 {
-    /**
-     * @var CommentPost
-     */
-    protected $post;
+    private NotificationSyncer $notifications;
 
-    /**
-     * @var array
-     */
-    protected $userMentions;
-
-    /**
-     * @var array
-     */
-    protected $postMentions;
-
-    /**
-     * @var array
-     */
-    protected $groupMentions;
-
-    /**
-     * @var NotificationSyncer
-     */
-    private $notifications;
-
-    public function __construct(CommentPost $post, array $userMentions, array $postMentions, array $groupMentions)
-    {
-        $this->post = $post;
-        $this->userMentions = $userMentions;
-        $this->postMentions = $postMentions;
-        $this->groupMentions = $groupMentions;
-    }
+    public function __construct(
+        protected CommentPost $post,
+        protected array $userMentions,
+        protected array $postMentions,
+        protected array $groupMentions
+    ) {}
 
     public function handle(NotificationSyncer $notifications): void
     {
@@ -62,7 +38,7 @@ class SendMentionsNotificationsJob extends AbstractJob
         $this->notifyAboutGroupMentions($this->post, $this->groupMentions);
     }
 
-    protected function notifyAboutUserMentions(Post $post, array $mentioned)
+    protected function notifyAboutUserMentions(Post $post, array $mentioned): void
     {
         $users = User::whereIn('id', $mentioned)
             ->with('groups')
@@ -75,7 +51,7 @@ class SendMentionsNotificationsJob extends AbstractJob
         $this->notifications->sync(new UserMentionedBlueprint($post), $users);
     }
 
-    protected function notifyAboutPostMentions(Post $reply, array $mentioned)
+    protected function notifyAboutPostMentions(Post $reply, array $mentioned): void
     {
         $posts = Post::with('user')
             ->whereIn('id', $mentioned)
@@ -91,7 +67,7 @@ class SendMentionsNotificationsJob extends AbstractJob
         }
     }
 
-    protected function notifyAboutGroupMentions(Post $post, array $mentioned)
+    protected function notifyAboutGroupMentions(Post $post, array $mentioned): void
     {
         $users = User::whereHas('groups', function ($query) use ($mentioned) {
             $query->whereIn('groups.id', $mentioned);

@@ -11,27 +11,20 @@ namespace Flarum\Foundation;
 
 trait EventGeneratorTrait
 {
-    /**
-     * @var array
-     */
-    protected $pendingEvents = [];
+    protected array $pendingEvents = [];
 
     /**
      * Raise a new event.
-     *
-     * @param mixed $event
      */
-    public function raise($event)
+    public function raise($event): void
     {
         $this->pendingEvents[] = $event;
     }
 
     /**
      * Return and reset all pending events.
-     *
-     * @return array
      */
-    public function releaseEvents()
+    public function releaseEvents(): array
     {
         $events = $this->pendingEvents;
 

@@ -19,7 +19,7 @@ use Swift_Mailer;
 
 class MailServiceProvider extends AbstractServiceProvider
 {
-    public function register()
+    public function register(): void
     {
         $this->container->singleton('mail.supported_drivers', function () {
             return [

@@ -11,9 +11,9 @@ namespace Flarum\Http;
 
 class SessionAccessToken extends AccessToken
 {
-    public static $type = 'session';
+    public static string $type = 'session';
 
-    protected static $lifetime = 60 * 60;  // 1 hour
+    protected static int $lifetime = 60 * 60;  // 1 hour
 
     protected $hidden = ['token'];
 }

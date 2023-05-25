@@ -17,6 +17,7 @@ use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Frontend\Assets;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Document;
+use Flarum\Frontend\Driver\TitleDriverInterface;
 use Flarum\Frontend\Frontend as ActualFrontend;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Http\RouteCollection;
@@ -24,26 +25,24 @@ use Flarum\Http\RouteHandlerFactory;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 use Illuminate\Contracts\Container\Container;
+use Psr\Http\Message\ServerRequestInterface;
 
 class Frontend implements ExtenderInterface
 {
-    private $frontend;
-
-    private $css = [];
-    private $js;
-    private $routes = [];
-    private $removedRoutes = [];
-    private $content = [];
-    private $preloadArrs = [];
-    private $titleDriver;
+    private array $css = [];
+    private string $js;
+    private array $routes = [];
+    private array $removedRoutes = [];
+    private array $content = [];
+    private array $preloadArrs = [];
+    private string $titleDriver;
 
     /**
      * @param string $frontend: The name of the frontend.
      */
-    public function __construct(string $frontend)
-    {
-        $this->frontend = $frontend;
-    }
+    public function __construct(
+        private readonly string $frontend
+    ) {}
 
     /**
      * Add a CSS file to load in the frontend.
@@ -76,7 +75,7 @@ class Frontend implements ExtenderInterface
      *
      * @param string $path: The path of the route.
      * @param string $name: The name of the route, must be unique.
-     * @param callable|string|null $content
+     * @param (callable(Document $document, ServerRequestInterface $request): void)|class-string|null $content
      *
      * The content can be a closure or an invokable class, and should accept:
      * - \Flarum\Frontend\Document $document
@@ -86,7 +85,7 @@ class Frontend implements ExtenderInterface
      *
      * @return self
      */
-    public function route(string $path, string $name, $content = null): self
+    public function route(string $path, string $name, callable|string $content = null): self
     {
         $this->routes[] = compact('path', 'name', 'content');
 
@@ -110,7 +109,7 @@ class Frontend implements ExtenderInterface
     /**
      * Modify the content of the frontend.
      *
-     * @param callable|string|null $callback
+     * @param (callable(Document $document, ServerRequestInterface $request): void)|class-string|null $callback
      *
      * The content can be a closure or an invokable class, and should accept:
      * - \Flarum\Frontend\Document $document
@@ -120,7 +119,7 @@ class Frontend implements ExtenderInterface
      *
      * @return self
      */
-    public function content($callback): self
+    public function content(callable|string|null $callback): self
     {
         $this->content[] = $callback;
 
@@ -153,7 +152,7 @@ class Frontend implements ExtenderInterface
      * @param callable|array $preloads
      * @return self
      */
-    public function preloads($preloads): self
+    public function preloads(callable|array $preloads): self
     {
         $this->preloadArrs[] = $preloads;
 
@@ -162,6 +161,8 @@ class Frontend implements ExtenderInterface
 
     /**
      * Register a new title driver to change the title of frontend documents.
+     *
+     * @param class-string<TitleDriverInterface> $driverClass
      */
     public function title(string $driverClass): self
     {
@@ -170,7 +171,7 @@ class Frontend implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         $this->registerAssets($container, $this->getModuleName($extension));
         $this->registerRoutes($container);

@@ -15,21 +15,10 @@ use Flarum\User\User;
 
 class UserPolicy extends AbstractPolicy
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings
+    ) {}
 
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
-        $this->settings = $settings;
-    }
-
-    /**
-     * @param User $actor
-     * @param User $user
-     * @return bool|null
-     */
     public function editNickname(User $actor, User $user)
     {
         if ($actor->isGuest() && ! $user->exists && $this->settings->get('flarum-nicknames.set_on_registration')) {

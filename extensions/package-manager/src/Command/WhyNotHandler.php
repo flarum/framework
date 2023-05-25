@@ -17,33 +17,13 @@ use Symfony\Component\Console\Input\StringInput;
 
 class WhyNotHandler
 {
-    /**
-     * @var ComposerAdapter
-     */
-    protected $composer;
+    public function __construct(
+        protected ComposerAdapter $composer,
+        protected WhyNotValidator $validator,
+        protected Dispatcher $events
+    ) {}
 
-    /**
-     * @var WhyNotValidator
-     */
-    protected $validator;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    public function __construct(ComposerAdapter $composer, WhyNotValidator $validator, Dispatcher $events)
-    {
-        $this->composer = $composer;
-        $this->validator = $validator;
-        $this->events = $events;
-    }
-
-    /**
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     * @throws \Exception
-     */
-    public function handle(WhyNot $command)
+    public function handle(WhyNot $command): array
     {
         $command->actor->assertAdmin();
 

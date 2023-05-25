@@ -16,9 +16,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 abstract class AbstractDeleteController implements RequestHandlerInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $this->delete($request);
@@ -26,10 +23,5 @@ abstract class AbstractDeleteController implements RequestHandlerInterface
         return new EmptyResponse(204);
     }
 
-    /**
-     * Delete the resource.
-     *
-     * @param ServerRequestInterface $request
-     */
-    abstract protected function delete(ServerRequestInterface $request);
+    abstract protected function delete(ServerRequestInterface $request): void;
 }

@@ -21,12 +21,12 @@ class SubscriptionFilterGambit extends AbstractRegexGambit implements FilterInte
 {
     use ValidateFilterTrait;
 
-    protected function getGambitPattern()
+    protected function getGambitPattern(): string
     {
         return 'is:(follow|ignor)(?:ing|ed)';
     }
 
-    protected function conditions(SearchState $search, array $matches, $negate)
+    protected function conditions(SearchState $search, array $matches, bool $negate): void
     {
         $this->constrain($search->getQuery(), $search->getActor(), $matches[1], $negate);
     }
@@ -36,7 +36,7 @@ class SubscriptionFilterGambit extends AbstractRegexGambit implements FilterInte
         return 'subscription';
     }
 
-    public function filter(FilterState $filterState, $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $filterValue = $this->asString($filterValue);
 
@@ -45,7 +45,7 @@ class SubscriptionFilterGambit extends AbstractRegexGambit implements FilterInte
         $this->constrain($filterState->getQuery(), $filterState->getActor(), $matches[1], $negate);
     }
 
-    protected function constrain(Builder $query, User $actor, string $subscriptionType, bool $negate)
+    protected function constrain(Builder $query, User $actor, string $subscriptionType, bool $negate): void
     {
         $method = $negate ? 'whereNotIn' : 'whereIn';
         $query->$method('discussions.id', function ($query) use ($actor, $subscriptionType) {

@@ -9,23 +9,22 @@
 
 namespace Flarum\Extend;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Extension\Extension;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
 
 class ModelUrl implements ExtenderInterface
 {
-    private $modelClass;
-    private $slugDrivers = [];
+    private array $slugDrivers = [];
 
     /**
-     * @param string $modelClass: The ::class attribute of the model you are modifying.
+     * @param class-string<AbstractModel> $modelClass: The ::class attribute of the model you are modifying.
      *                           This model should extend from \Flarum\Database\AbstractModel.
      */
-    public function __construct(string $modelClass)
-    {
-        $this->modelClass = $modelClass;
-    }
+    public function __construct(
+        private readonly string $modelClass
+    ) {}
 
     /**
      * Add a slug driver.
@@ -41,7 +40,7 @@ class ModelUrl implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         if ($this->slugDrivers) {
             $container->extend('flarum.http.slugDrivers', function ($existingDrivers) {

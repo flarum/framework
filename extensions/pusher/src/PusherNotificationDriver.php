@@ -15,19 +15,10 @@ use Illuminate\Contracts\Queue\Queue;
 
 class PusherNotificationDriver implements NotificationDriverInterface
 {
-    /**
-     * @var Queue
-     */
-    protected $queue;
+    public function __construct(
+        protected Queue $queue
+    ) {}
 
-    public function __construct(Queue $queue)
-    {
-        $this->queue = $queue;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function send(BlueprintInterface $blueprint, array $users): void
     {
         if (count($users)) {
@@ -35,9 +26,6 @@ class PusherNotificationDriver implements NotificationDriverInterface
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function registerType(string $blueprintClass, array $driversEnabledByDefault): void
     {
         // ...

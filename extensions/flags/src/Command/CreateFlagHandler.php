@@ -24,47 +24,14 @@ use Tobscure\JsonApi\Exception\InvalidParameterException;
 
 class CreateFlagHandler
 {
-    /**
-     * @var PostRepository
-     */
-    protected $posts;
+    public function __construct(
+        protected PostRepository $posts,
+        protected TranslatorInterface $translator,
+        protected SettingsRepositoryInterface $settings,
+        protected Dispatcher $events
+    ) {}
 
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @param PostRepository $posts
-     * @param TranslatorInterface $translator
-     * @param SettingsRepositoryInterface $settings
-     * @param Dispatcher $events
-     */
-    public function __construct(PostRepository $posts, TranslatorInterface $translator, SettingsRepositoryInterface $settings, Dispatcher $events)
-    {
-        $this->posts = $posts;
-        $this->translator = $translator;
-        $this->settings = $settings;
-        $this->events = $events;
-    }
-
-    /**
-     * @param CreateFlag $command
-     * @return Flag
-     * @throws InvalidParameterException
-     * @throws ValidationException
-     */
-    public function handle(CreateFlag $command)
+    public function handle(CreateFlag $command): Flag
     {
         $actor = $command->actor;
         $data = $command->data;

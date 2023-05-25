@@ -22,46 +22,15 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Tag
 {
-    /**
-     * @var Client
-     */
-    protected $api;
-
-    /**
-     * @var Factory
-     */
-    protected $view;
-
-    /**
-     * @var TagRepository
-     */
-    protected $tags;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @var SlugManager
-     */
-    protected $slugger;
-
     public function __construct(
-        Client $api,
-        Factory $view,
-        TagRepository $tags,
-        TranslatorInterface $translator,
-        SlugManager $slugger
-    ) {
-        $this->api = $api;
-        $this->view = $view;
-        $this->tags = $tags;
-        $this->translator = $translator;
-        $this->slugger = $slugger;
-    }
+        protected Client $api,
+        protected Factory $view,
+        protected TagRepository $tags,
+        protected TranslatorInterface $translator,
+        protected SlugManager $slugger
+    ) {}
 
-    public function __invoke(Document $document, Request $request)
+    public function __invoke(Document $document, Request $request): Document
     {
         $queryParams = $request->getQueryParams();
         $actor = RequestUtil::getActor($request);
@@ -110,10 +79,8 @@ class Tag
 
     /**
      * Get a map of sort query param values and their API sort params.
-     *
-     * @return array
      */
-    protected function getSortMap()
+    protected function getSortMap(): array
     {
         return resolve('flarum.forum.discussions.sortmap');
     }

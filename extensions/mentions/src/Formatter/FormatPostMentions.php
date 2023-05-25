@@ -16,26 +16,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FormatPostMentions
 {
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
+    public function __construct(
+        private readonly TranslatorInterface $translator
+    ) {}
 
-    public function __construct(TranslatorInterface $translator)
-    {
-        $this->translator = $translator;
-    }
-
-    /**
-     * Configure rendering for post mentions.
-     *
-     * @param \s9e\TextFormatter\Renderer $renderer
-     * @param mixed $context
-     * @param string|null $xml
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @return string
-     */
-    public function __invoke(Renderer $renderer, $context, $xml, Request $request = null)
+    public function __invoke(Renderer $renderer, mixed $context, ?string $xml, Request $request = null): string
     {
         $post = $context;
 

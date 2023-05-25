@@ -22,7 +22,7 @@ use Illuminate\Contracts\View\Factory as ViewFactory;
 
 class FrontendServiceProvider extends AbstractServiceProvider
 {
-    public function register()
+    public function register(): void
     {
         $this->container->singleton('flarum.assets.factory', function (Container $container) {
             return function (string $name) use ($container) {
@@ -165,10 +165,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function boot(Container $container, ViewFactory $views)
+    public function boot(Container $container, ViewFactory $views): void
     {
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum');
 
@@ -179,7 +176,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
         ]);
     }
 
-    public function addBaseCss(SourceCollector $sources)
+    public function addBaseCss(SourceCollector $sources): void
     {
         $sources->addFile(__DIR__.'/../../less/common/variables.less');
         $sources->addFile(__DIR__.'/../../less/common/mixins.less');
@@ -187,7 +184,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
         $this->addLessVariables($sources);
     }
 
-    private function addLessVariables(SourceCollector $sources)
+    private function addLessVariables(SourceCollector $sources): void
     {
         $sources->addString(function () {
             $vars = $this->container->make('flarum.less.config');

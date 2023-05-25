@@ -10,90 +10,78 @@
 namespace Flarum\Install;
 
 use Flarum\Foundation\Paths;
+use Illuminate\Database\ConnectionInterface;
 
 class Installation
 {
-    /**
-     * @var Paths
-     */
-    private $paths;
-
-    private $configPath;
-    private $debug = false;
-    private $baseUrl;
-    private $customSettings = [];
-    private $enabledExtensions = null;
-
-    /** @var DatabaseConfig */
-    private $dbConfig;
-
-    /** @var AdminUser */
-    private $adminUser;
-
-    private $accessToken;
+    private string $configPath;
+    private bool $debug = false;
+    private BaseUrl $baseUrl;
+    private array $customSettings = [];
+    private ?array $enabledExtensions = null;
+    private DatabaseConfig $dbConfig;
+    private AdminUser $adminUser;
+    private string $accessToken;
 
     // A few instance variables to persist objects between steps.
     // Could also be local variables in build(), but this way
     // access in closures is easier. :)
+    private ConnectionInterface $db;
 
-    /** @var \Illuminate\Database\ConnectionInterface */
-    private $db;
+    public function __construct(
+        private readonly Paths $paths
+    ) {}
 
-    public function __construct(Paths $paths)
-    {
-        $this->paths = $paths;
-    }
-
-    public function configPath($path)
+    public function configPath(string $path): self
     {
         $this->configPath = $path;
 
         return $this;
     }
 
-    public function debugMode($flag)
+    public function debugMode(bool $flag): self
     {
         $this->debug = $flag;
 
         return $this;
     }
 
-    public function databaseConfig(DatabaseConfig $dbConfig)
+    public function databaseConfig(DatabaseConfig $dbConfig): self
     {
         $this->dbConfig = $dbConfig;
 
         return $this;
     }
 
-    public function baseUrl(BaseUrl $baseUrl)
+    public function baseUrl(BaseUrl $baseUrl): self
     {
         $this->baseUrl = $baseUrl;
 
         return $this;
     }
 
-    public function settings($settings)
+    public function settings(array $settings): self
     {
         $this->customSettings = $settings;
 
         return $this;
     }
 
-    public function extensions($enabledExtensions)
+    public function extensions(?array $enabledExtensions): self
     {
         $this->enabledExtensions = $enabledExtensions;
 
         return $this;
     }
 
-    public function adminUser(AdminUser $admin)
+    public function adminUser(AdminUser $admin): self
     {
         $this->adminUser = $admin;
 
         return $this;
     }
 
-    public function accessToken(string $token)
+    public function accessToken(string $token): self
     {
         $this->accessToken = $token;
 
@@ -168,17 +156,17 @@ class Installation
         return $pipeline;
     }
 
-    private function getConfigPath()
+    private function getConfigPath(): string
     {
         return $this->paths->base.'/'.($this->configPath ?? 'config.php');
     }
 
-    private function getAssetPath()
+    private function getAssetPath(): string
     {
         return $this->paths->public.'/assets';
     }
 
-    private function getMigrationPath()
+    private function getMigrationPath(): string
     {
         return __DIR__.'/../../migrations';
     }

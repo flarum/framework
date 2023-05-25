@@ -9,6 +9,7 @@
 
 namespace Flarum\Discussion\Command;
 
+use Flarum\Discussion\Discussion;
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Discussion\DiscussionValidator;
 use Flarum\Discussion\Event\Saving;
@@ -20,34 +21,13 @@ class EditDiscussionHandler
 {
     use DispatchEventsTrait;
 
-    /**
-     * @var DiscussionRepository
-     */
-    protected $discussions;
+    public function __construct(
+        protected Dispatcher $events,
+        protected DiscussionRepository $discussions,
+        protected DiscussionValidator $validator
+    ) {}
 
-    /**
-     * @var DiscussionValidator
-     */
-    protected $validator;
-
-    /**
-     * @param Dispatcher $events
-     * @param DiscussionRepository $discussions
-     * @param DiscussionValidator $validator
-     */
-    public function __construct(Dispatcher $events, DiscussionRepository $discussions, DiscussionValidator $validator)
-    {
-        $this->events = $events;
-        $this->discussions = $discussions;
-        $this->validator = $validator;
-    }
-
-    /**
-     * @param EditDiscussion $command
-     * @return \Flarum\Discussion\Discussion
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     */
-    public function handle(EditDiscussion $command)
+    public function handle(EditDiscussion $command): Discussion
     {
         $actor = $command->actor;
         $data = $command->data;

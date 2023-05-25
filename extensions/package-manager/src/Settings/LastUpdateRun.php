@@ -17,22 +17,12 @@ class LastUpdateRun implements JsonSetting
 {
     public const SUCCESS = 'success';
     public const FAILURE = 'failure';
+    protected array $data;
+    protected ?string $activeUpdate;
 
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    protected $data;
-
-    /**
-     * @var string|null
-     */
-    protected $activeUpdate;
-
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
-        $this->settings = $settings;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings,
+    ) {
         $this->data = self::default();
     }
 
@@ -47,7 +37,7 @@ class LastUpdateRun implements JsonSetting
         return $this;
     }
 
-    public function with(string $key, $value): JsonSetting
+    public function with(string $key, mixed $value): JsonSetting
     {
         $this->data[$this->activeUpdate][$key] = $value;
 

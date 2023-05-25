@@ -25,27 +25,12 @@ class SendReplyNotification implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    /**
-     * @var Post
-     */
-    protected $post;
+    public function __construct(
+        protected Post $post,
+        protected ?int $lastPostNumber
+    ) {}
 
-    /**
-     * @var int
-     */
-    protected $lastPostNumber;
-
-    /**
-     * @param Post $post
-     * @param int|null $lastPostNumber
-     */
-    public function __construct(Post $post, $lastPostNumber)
-    {
-        $this->post = $post;
-        $this->lastPostNumber = $lastPostNumber;
-    }
-
-    public function handle(NotificationSyncer $notifications, SettingsRepositoryInterface $settings)
+    public function handle(NotificationSyncer $notifications): void
     {
         $post = $this->post;
         $discussion = $post->discussion;

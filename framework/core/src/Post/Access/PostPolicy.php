@@ -17,37 +17,17 @@ use Flarum\User\User;
 
 class PostPolicy extends AbstractPolicy
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings
+    ) {}
 
-    /**
-     * @param SettingsRepositoryInterface $settings
-     */
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
-        $this->settings = $settings;
-    }
-
-    /**
-     * @param User $actor
-     * @param string $ability
-     * @param \Flarum\Post\Post $post
-     * @return bool|null
-     */
-    public function can(User $actor, $ability, Post $post)
+    public function can(User $actor, string $ability, Post $post)
     {
         if ($actor->can($ability.'Posts', $post->discussion)) {
             return $this->allow();
         }
     }
 
-    /**
-     * @param User $actor
-     * @param Post $post
-     * @return bool|null
-     */
     public function edit(User $actor, Post $post)
     {
         // A post is allowed to be edited if the user is the author, the post
@@ -64,11 +44,6 @@ class PostPolicy extends AbstractPolicy
         }
     }
 
-    /**
-     * @param User $actor
-     * @param Post $post
-     * @return bool|null
-     */
     public function hide(User $actor, Post $post)
     {
         if ($post->user_id == $actor->id && (! $post->hidden_at || $post->hidden_user_id == $actor->id) && $actor->can('reply', $post->discussion)) {

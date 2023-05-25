@@ -17,27 +17,12 @@ use Flarum\Settings\Event\Saved;
  */
 class RecompileFrontendAssets
 {
-    /**
-     * @var Assets
-     */
-    protected $assets;
+    public function __construct(
+        protected Assets $assets,
+        protected LocaleManager $locales
+    ) {}
 
-    /**
-     * @var LocaleManager
-     */
-    protected $locales;
-
-    /**
-     * @param Assets $assets
-     * @param LocaleManager $locales
-     */
-    public function __construct(Assets $assets, LocaleManager $locales)
-    {
-        $this->assets = $assets;
-        $this->locales = $locales;
-    }
-
-    public function whenSettingsSaved(Saved $event)
+    public function whenSettingsSaved(Saved $event): void
     {
         // @deprecated 'theme_' check, to be removed in 2.0
         if (preg_grep('/^theme_/i', array_keys($event->settings))) {
@@ -45,13 +30,13 @@ class RecompileFrontendAssets
         }
     }
 
-    public function flush()
+    public function flush(): void
     {
         $this->flushCss();
         $this->flushJs();
     }
 
-    protected function flushCss()
+    protected function flushCss(): void
     {
         $this->assets->makeCss()->flush();
 
@@ -60,7 +45,7 @@ class RecompileFrontendAssets
         }
     }
 
-    protected function flushJs()
+    protected function flushJs(): void
     {
         $this->assets->makeJs()->flush();
 

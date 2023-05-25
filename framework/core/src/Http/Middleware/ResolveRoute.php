@@ -20,30 +20,14 @@ use Psr\Http\Server\RequestHandlerInterface as Handler;
 
 class ResolveRoute implements Middleware
 {
-    /**
-     * @var RouteCollection
-     */
-    protected $routes;
+    protected ?Dispatcher\GroupCountBased $dispatcher = null;
 
-    /**
-     * @var Dispatcher|null
-     */
-    protected $dispatcher;
-
-    /**
-     * Create the middleware instance.
-     *
-     * @param RouteCollection $routes
-     */
-    public function __construct(RouteCollection $routes)
-    {
-        $this->routes = $routes;
-    }
+    public function __construct(
+        protected RouteCollection $routes
+    ) {}
 
     /**
      * Resolve the given request from our route collection.
-     *
-     * @return Response
      *
      * @throws MethodNotAllowedException
      * @throws RouteNotFoundException
@@ -70,7 +54,7 @@ class ResolveRoute implements Middleware
         }
     }
 
-    protected function getDispatcher()
+    protected function getDispatcher(): Dispatcher\GroupCountBased
     {
         if (! isset($this->dispatcher)) {
             $this->dispatcher = new Dispatcher\GroupCountBased($this->routes->getRouteData());

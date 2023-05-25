@@ -15,7 +15,7 @@ use Illuminate\Contracts\Container\Container;
 
 class Post implements ExtenderInterface
 {
-    private $postTypes = [];
+    private array $postTypes = [];
 
     /**
      * Register a new post type. This is generally done for custom 'event posts',
@@ -31,7 +31,7 @@ class Post implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         foreach ($this->postTypes as $postType) {
             PostModel::setModel($postType::$type, $postType);

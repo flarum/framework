@@ -19,7 +19,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class LoadLikesRelationship
 {
-    public static $maxLikes = 4;
+    public static int $maxLikes = 4;
 
     public static function mutateRelation(BelongsToMany $query, ServerRequestInterface $request): BelongsToMany
     {

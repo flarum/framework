@@ -21,61 +21,16 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Tags
 {
-    /**
-     * @var Client
-     */
-    protected $api;
-
-    /**
-     * @var Factory
-     */
-    protected $view;
-
-    /**
-     * @var TagRepository
-     */
-    protected $tags;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @param Client $api
-     * @param Factory $view
-     * @param TagRepository $tags
-     * @param TranslatorInterface $translator
-     * @param SettingsRepositoryInterface $settings
-     * @param UrlGenerator $url
-     */
     public function __construct(
-        Client $api,
-        Factory $view,
-        TagRepository $tags,
-        TranslatorInterface $translator,
-        SettingsRepositoryInterface $settings,
-        UrlGenerator $url
-    ) {
-        $this->api = $api;
-        $this->view = $view;
-        $this->tags = $tags;
-        $this->settings = $settings;
-        $this->translator = $translator;
-        $this->url = $url;
-    }
+        protected Client $api,
+        protected Factory $view,
+        protected TagRepository $tags,
+        protected TranslatorInterface $translator,
+        protected SettingsRepositoryInterface $settings,
+        protected UrlGenerator $url
+    ) {}
 
-    public function __invoke(Document $document, Request $request)
+    public function __invoke(Document $document, Request $request): Document
     {
         $apiDocument = $this->getTagsDocument($request);
         $tags = collect(Arr::get($apiDocument, 'data', []));

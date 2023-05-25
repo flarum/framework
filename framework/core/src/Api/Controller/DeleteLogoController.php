@@ -18,30 +18,16 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class DeleteLogoController extends AbstractDeleteController
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
+    protected Filesystem $uploadDir;
 
-    /**
-     * @var Filesystem
-     */
-    protected $uploadDir;
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     * @param Factory $filesystemFactory
-     */
-    public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory)
-    {
-        $this->settings = $settings;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings,
+        Factory $filesystemFactory
+    ) {
         $this->uploadDir = $filesystemFactory->disk('flarum-assets');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function delete(ServerRequestInterface $request)
+    protected function delete(ServerRequestInterface $request): void
     {
         RequestUtil::getActor($request)->assertAdmin();
 
@@ -52,7 +38,5 @@ class DeleteLogoController extends AbstractDeleteController
         if ($this->uploadDir->exists($path)) {
             $this->uploadDir->delete($path);
         }
-
-        return new EmptyResponse(204);
     }
 }

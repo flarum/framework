@@ -14,33 +14,20 @@ use Flarum\Http\Filter\AccessTokenFilterer;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Query\QueryCriteria;
+use Illuminate\Contracts\Support\Arrayable;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 class ListAccessTokensController extends AbstractListController
 {
-    public $serializer = AccessTokenSerializer::class;
+    public ?string $serializer = AccessTokenSerializer::class;
 
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
+    public function __construct(
+        protected UrlGenerator $url,
+        protected AccessTokenFilterer $filterer
+    ) {}
 
-    /**
-     * @var AccessTokenFilterer
-     */
-    protected $filterer;
-
-    public function __construct(UrlGenerator $url, AccessTokenFilterer $filterer)
-    {
-        $this->url = $url;
-        $this->filterer = $filterer;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
 

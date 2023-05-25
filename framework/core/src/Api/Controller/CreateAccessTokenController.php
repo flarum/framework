@@ -25,28 +25,14 @@ use Tobscure\JsonApi\Document;
  */
 class CreateAccessTokenController extends AbstractCreateController
 {
-    public $serializer = AccessTokenSerializer::class;
+    public ?string $serializer = AccessTokenSerializer::class;
 
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
+    public function __construct(
+        protected Dispatcher $events,
+        protected Factory $validation
+    ) {}
 
-    /**
-     * @var Factory
-     */
-    protected $validation;
-
-    public function __construct(Dispatcher $events, Factory $validation)
-    {
-        $this->events = $events;
-        $this->validation = $validation;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function data(ServerRequestInterface $request, Document $document)
+    public function data(ServerRequestInterface $request, Document $document): DeveloperAccessToken
     {
         $actor = RequestUtil::getActor($request);
 

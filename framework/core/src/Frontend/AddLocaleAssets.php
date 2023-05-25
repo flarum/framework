@@ -17,20 +17,11 @@ use Flarum\Locale\LocaleManager;
  */
 class AddLocaleAssets
 {
-    /**
-     * @var LocaleManager
-     */
-    protected $locales;
+    public function __construct(
+        protected LocaleManager $locales
+    ) {}
 
-    /**
-     * @param LocaleManager $locales
-     */
-    public function __construct(LocaleManager $locales)
-    {
-        $this->locales = $locales;
-    }
-
-    public function to(Assets $assets)
+    public function to(Assets $assets): void
     {
         $assets->localeJs(function (SourceCollector $sources, string $locale) {
             foreach ($this->locales->getJsFiles($locale) as $file) {

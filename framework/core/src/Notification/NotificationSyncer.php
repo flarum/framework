@@ -22,41 +22,37 @@ use Flarum\User\User;
 class NotificationSyncer
 {
     /**
-     * Whether or not notifications are being limited to one per user.
-     *
-     * @var bool
+     * Whether notifications are being limited to one per user.
      */
-    protected static $onePerUser = false;
+    protected static bool $onePerUser = false;
 
     /**
      * An internal list of user IDs that notifications have been sent to.
      *
      * @var int[]
      */
-    protected static $sentTo = [];
+    protected static array $sentTo = [];
 
     /**
      * A map of notification drivers.
      *
      * @var NotificationDriverInterface[]
      */
-    protected static $notificationDrivers = [];
+    protected static array $notificationDrivers = [];
 
     /**
-     * @var array
+     * @var callable[]
      */
-    protected static $beforeSendingCallbacks = [];
+    protected static array $beforeSendingCallbacks = [];
 
     /**
      * Sync a notification so that it is visible to the specified users, and not
      * visible to anyone else. If it is being made visible for the first time,
      * attempt to send the user an email.
      *
-     * @param \Flarum\Notification\Blueprint\BlueprintInterface $blueprint
      * @param User[] $users
-     * @return void
      */
-    public function sync(Blueprint\BlueprintInterface $blueprint, array $users)
+    public function sync(BlueprintInterface $blueprint, array $users): void
     {
         // Find all existing notification records in the database matching this
         // blueprint. We will begin by assuming that they all need to be
@@ -87,7 +83,7 @@ class NotificationSyncer
             }
         }
 
-        // Delete all of the remaining notification records which weren't
+        // Delete all the remaining notification records which weren't
         // removed from this collection by the above loop. Un-delete the
         // existing records that we want to keep.
         if (count($toDelete)) {
@@ -113,22 +109,16 @@ class NotificationSyncer
 
     /**
      * Delete a notification for all users.
-     *
-     * @param \Flarum\Notification\Blueprint\BlueprintInterface $blueprint
-     * @return void
      */
-    public function delete(BlueprintInterface $blueprint)
+    public function delete(BlueprintInterface $blueprint): void
     {
         Notification::matchingBlueprint($blueprint)->update(['is_deleted' => true]);
     }
 
     /**
      * Restore a notification for all users.
-     *
-     * @param BlueprintInterface $blueprint
-     * @return void
      */
-    public function restore(BlueprintInterface $blueprint)
+    public function restore(BlueprintInterface $blueprint): void
     {
         Notification::matchingBlueprint($blueprint)->update(['is_deleted' => false]);
     }
@@ -136,11 +126,8 @@ class NotificationSyncer
     /**
      * Limit notifications to one per user for the entire duration of the given
      * callback.
-     *
-     * @param callable $callback
-     * @return void
      */
-    public function onePerUser(callable $callback)
+    public function onePerUser(callable $callback): void
     {
         static::$sentTo = [];
         static::$onePerUser = true;
@@ -154,19 +141,13 @@ class NotificationSyncer
      * Set the deleted status of a list of notification records.
      *
      * @param int[] $ids
-     * @param bool $isDeleted
      */
-    protected function setDeleted(array $ids, $isDeleted)
+    protected function setDeleted(array $ids, bool $isDeleted): void
     {
-        Notification::whereIn('id', $ids)->update(['is_deleted' => $isDeleted]);
+        Notification::query()->whereIn('id', $ids)->update(['is_deleted' => $isDeleted]);
     }
 
     /**
-     * Adds a notification driver to the list.
-     *
-     * @param string $driverName
-     * @param NotificationDriverInterface $driver
-     *
      * @internal
      */
     public static function addNotificationDriver(string $driverName, NotificationDriverInterface $driver): void
@@ -183,11 +164,9 @@ class NotificationSyncer
     }
 
     /**
-     * @param callable|string $callback
-     *
      * @internal
      */
-    public static function beforeSending($callback): void
+    public static function beforeSending(callable $callback): void
     {
         static::$beforeSendingCallbacks[] = $callback;
     }

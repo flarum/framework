@@ -14,6 +14,7 @@ use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Http\RequestUtil;
 use Flarum\User\Command\EditUser;
 use Flarum\User\Exception\NotAuthenticatedException;
+use Flarum\User\User;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
@@ -21,33 +22,15 @@ use Tobscure\JsonApi\Document;
 
 class UpdateUserController extends AbstractShowController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = UserSerializer::class;
+    public ?string $serializer = UserSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $include = ['groups'];
+    public array $include = ['groups'];
 
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
+    public function __construct(
+        protected Dispatcher $bus
+    ) {}
 
-    /**
-     * @param Dispatcher $bus
-     */
-    public function __construct(Dispatcher $bus)
-    {
-        $this->bus = $bus;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): User
     {
         $id = Arr::get($request->getQueryParams(), 'id');
         $actor = RequestUtil::getActor($request);

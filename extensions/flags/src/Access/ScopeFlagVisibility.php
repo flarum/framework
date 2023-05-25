@@ -16,17 +16,11 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ScopeFlagVisibility
 {
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
+    public function __construct(
+        protected ExtensionManager $extensions
+    ) {}
 
-    public function __construct(ExtensionManager $extensions)
-    {
-        $this->extensions = $extensions;
-    }
-
-    public function __invoke(User $actor, Builder $query)
+    public function __invoke(User $actor, Builder $query): void
     {
         if ($this->extensions->isEnabled('flarum-tags')) {
             $query

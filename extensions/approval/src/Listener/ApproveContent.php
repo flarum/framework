@@ -15,15 +15,12 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class ApproveContent
 {
-    /**
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
+    public function subscribe(Dispatcher $events): void
     {
-        $events->listen(Saving::class, [$this, 'approvePost']);
+        $events->listen(Saving::class, $this->approvePost(...));
     }
 
-    public function approvePost(Saving $event)
+    public function approvePost(Saving $event): void
     {
         $attributes = $event->data['attributes'];
         $post = $event->post;

@@ -10,17 +10,18 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
+use Flarum\Mail\DriverInterface;
 use Illuminate\Contracts\Container\Container;
 
 class Mail implements ExtenderInterface
 {
-    private $drivers = [];
+    private array $drivers = [];
 
     /**
      * Add a mail driver.
      *
      * @param string $identifier: Identifier for mail driver. E.g. 'smtp' for SmtpDriver.
-     * @param string $driver: ::class attribute of driver class, which must implement Flarum\Mail\DriverInterface.
+     * @param class-string<DriverInterface> $driver: ::class attribute of driver class, which must implement \Flarum\Mail\DriverInterface.
      * @return self
      */
     public function driver(string $identifier, string $driver): self
@@ -30,7 +31,7 @@ class Mail implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         $container->extend('mail.supported_drivers', function ($existingDrivers) {
             return array_merge($existingDrivers, $this->drivers);

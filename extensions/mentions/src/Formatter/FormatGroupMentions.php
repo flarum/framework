@@ -17,25 +17,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FormatGroupMentions
 {
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
+    public function __construct(
+        private readonly TranslatorInterface $translator
+    ) {}
 
-    public function __construct(TranslatorInterface $translator)
-    {
-        $this->translator = $translator;
-    }
-
-    /**
-     * Configure rendering for group mentions.
-     *
-     * @param \s9e\TextFormatter\Renderer $renderer
-     * @param mixed $context
-     * @param string $xml
-     * @return string
-     */
-    public function __invoke(Renderer $renderer, $context, string $xml): string
+    public function __invoke(Renderer $renderer, mixed $context, string $xml): string
     {
         return Utils::replaceAttributes($xml, 'GROUPMENTION', function ($attributes) use ($context) {
             $group = (($context && isset($context->getRelations()['mentionsGroups'])) || $context instanceof Post)

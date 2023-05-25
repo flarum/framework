@@ -22,7 +22,7 @@ class MentionedFilter implements FilterInterface
         return 'mentioned';
     }
 
-    public function filter(FilterState $filterState, $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $mentionedId = $this->asInt($filterValue);
 

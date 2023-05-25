@@ -21,25 +21,11 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class UpdateExtensionController implements RequestHandlerInterface
 {
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
+    public function __construct(
+        protected UrlGenerator $url,
+        protected Dispatcher $bus
+    ) {}
 
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
-
-    public function __construct(UrlGenerator $url, Dispatcher $bus)
-    {
-        $this->url = $url;
-        $this->bus = $bus;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function handle(Request $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);

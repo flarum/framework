@@ -28,36 +28,12 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 class CreateTokenController implements RequestHandlerInterface
 {
-    /**
-     * @var \Flarum\User\UserRepository
-     */
-    protected $users;
+    public function __construct(
+        protected UserRepository $users,
+        protected BusDispatcher $bus,
+        protected EventDispatcher $events
+    ) {}
 
-    /**
-     * @var BusDispatcher
-     */
-    protected $bus;
-
-    /**
-     * @var EventDispatcher
-     */
-    protected $events;
-
-    /**
-     * @param UserRepository $users
-     * @param BusDispatcher $bus
-     * @param EventDispatcher $events
-     */
-    public function __construct(UserRepository $users, BusDispatcher $bus, EventDispatcher $events)
-    {
-        $this->users = $users;
-        $this->bus = $bus;
-        $this->events = $events;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $body = $request->getParsedBody();

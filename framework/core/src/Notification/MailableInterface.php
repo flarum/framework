@@ -15,17 +15,11 @@ interface MailableInterface
 {
     /**
      * Get the name of the view to construct a notification email with.
-     *
-     * @return string|array
      */
-    public function getEmailView();
+    public function getEmailView(): string|array;
 
     /**
      * Get the subject line for a notification email.
-     *
-     * @param TranslatorInterface $translator
-     *
-     * @return string
      */
-    public function getEmailSubject(TranslatorInterface $translator);
+    public function getEmailSubject(TranslatorInterface $translator): string;
 }

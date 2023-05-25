@@ -20,25 +20,11 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class ForgotPasswordController implements RequestHandlerInterface
 {
-    /**
-     * @var Queue
-     */
-    protected $queue;
+    public function __construct(
+        protected Queue $queue,
+        protected ForgotPasswordValidator $validator
+    ) {}
 
-    /**
-     * @var ForgotPasswordValidator
-     */
-    protected $validator;
-
-    public function __construct(Queue $queue, ForgotPasswordValidator $validator)
-    {
-        $this->queue = $queue;
-        $this->validator = $validator;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $params = $request->getParsedBody();

@@ -13,6 +13,7 @@ use Flarum\Console\AbstractCommand;
 use Flarum\Extend;
 use Flarum\Testing\integration\ConsoleTestCase;
 use Illuminate\Console\Scheduling\Event;
+use Symfony\Component\Console\Command\Command;
 
 class ConsoleTest extends ConsoleTestCase
 {
@@ -79,19 +80,15 @@ class ConsoleTest extends ConsoleTestCase
 
 class CustomCommand extends AbstractCommand
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('customTestCommand');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function fire()
+    protected function fire(): int
     {
         $this->info('Custom Command.');
+
+        return Command::SUCCESS;
     }
 }

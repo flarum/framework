@@ -16,33 +16,25 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class ReadNotificationHandler
 {
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
+    public function __construct(
+        protected Dispatcher $events
+    ) {}
 
     /**
-     * @param Dispatcher $events
+     * @throws \Flarum\User\Exception\NotAuthenticatedException
      */
-    public function __construct(Dispatcher $events)
-    {
-        $this->events = $events;
-    }
-
-    /**
-     * @param ReadNotification $command
-     * @return \Flarum\Notification\Notification
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     */
-    public function handle(ReadNotification $command)
+    public function handle(ReadNotification $command): Notification
     {
         $actor = $command->actor;
 
         $actor->assertRegistered();
 
-        $notification = Notification::where('user_id', $actor->id)->findOrFail($command->notificationId);
+        /** @var Notification $notification */
+        $notification = Notification::query()
+            ->where('user_id', $actor->id)
+            ->findOrFail($command->notificationId);
 
-        Notification::where([
+        Notification::query()->where([
             'user_id' => $actor->id,
             'type' => $notification->type,
             'subject_id' => $notification->subject_id

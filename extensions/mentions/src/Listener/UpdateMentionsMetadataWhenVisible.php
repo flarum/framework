@@ -22,26 +22,12 @@ use s9e\TextFormatter\Utils;
 
 class UpdateMentionsMetadataWhenVisible
 {
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
+    public function __construct(
+        protected ExtensionManager $extensions,
+        protected Queue $queue
+    ) {}
 
-    /**
-     * @var Queue
-     */
-    protected $queue;
-
-    public function __construct(ExtensionManager $extensions, Queue $queue)
-    {
-        $this->extensions = $extensions;
-        $this->queue = $queue;
-    }
-
-    /**
-     * @param Posted|Restored|Revised|PostWasApproved $event
-     */
-    public function handle($event)
+    public function handle(Restored|Revised|Posted|PostWasApproved $event): void
     {
         if (! $event->post instanceof CommentPost) {
             return;
@@ -74,25 +60,25 @@ class UpdateMentionsMetadataWhenVisible
         $this->queue->push(new SendMentionsNotificationsJob($event->post, $userMentions, $postMentions, $groupMentions));
     }
 
-    protected function syncUserMentions(Post $post, array $mentioned)
+    protected function syncUserMentions(Post $post, array $mentioned): void
     {
         $post->mentionsUsers()->sync($mentioned);
         $post->unsetRelation('mentionsUsers');
     }
 
-    protected function syncPostMentions(Post $reply, array $mentioned)
+    protected function syncPostMentions(Post $reply, array $mentioned): void
     {
         $reply->mentionsPosts()->sync($mentioned);
         $reply->unsetRelation('mentionsPosts');
     }
 
-    protected function syncGroupMentions(Post $post, array $mentioned)
+    protected function syncGroupMentions(Post $post, array $mentioned): void
     {
         $post->mentionsGroups()->sync($mentioned);
         $post->unsetRelation('mentionsGroups');
     }
 
-    protected function syncTagMentions(Post $post, array $mentioned)
+    protected function syncTagMentions(Post $post, array $mentioned): void
     {
         $post->mentionsTags()->sync($mentioned);
         $post->unsetRelation('mentionsTags');

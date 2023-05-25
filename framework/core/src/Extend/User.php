@@ -10,20 +10,21 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
+use Flarum\User\DisplayName\DriverInterface;
 use Flarum\User\User as FlarumUser;
 use Illuminate\Contracts\Container\Container;
 
 class User implements ExtenderInterface
 {
-    private $displayNameDrivers = [];
-    private $groupProcessors = [];
-    private $preferences = [];
+    private array $displayNameDrivers = [];
+    private array $groupProcessors = [];
+    private array $preferences = [];
 
     /**
      * Add a display name driver.
      *
      * @param string $identifier: Identifier for display name driver. E.g. 'username' for UserNameDriver
-     * @param string $driver: ::class attribute of driver class, which must implement Flarum\User\DisplayName\DriverInterface
+     * @param class-string<DriverInterface> $driver: ::class attribute of driver class, which must implement Flarum\User\DisplayName\DriverInterface
      * @return self
      */
     public function displayNameDriver(string $identifier, string $driver): self
@@ -38,7 +39,7 @@ class User implements ExtenderInterface
      * This can be used to give a user permissions for groups they aren't actually in, based on context.
      * It will not change the group badges displayed for the user.
      *
-     * @param callable|string $callback
+     * @param (callable(\Flarum\User\User $user, int[] $groupIds): int[])|class-string $callback
      *
      * The callable can be a closure or invokable class, and should accept:
      * - \Flarum\User\User $user: the user in question.
@@ -49,7 +50,7 @@ class User implements ExtenderInterface
      *
      * @return self
      */
-    public function permissionGroups($callback): self
+    public function permissionGroups(callable|string $callback): self
     {
         $this->groupProcessors[] = $callback;
 
@@ -60,18 +61,18 @@ class User implements ExtenderInterface
      * Register a new user preference.
      *
      * @param string $key
-     * @param callable $transformer
+     * @param callable|null $transformer
      * @param mixed|null $default
      * @return self
      */
-    public function registerPreference(string $key, callable $transformer = null, $default = null): self
+    public function registerPreference(string $key, ?callable $transformer = null, mixed $default = null): self
     {
         $this->preferences[$key] = compact('transformer', 'default');
 
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         $container->extend('flarum.user.display_name.supported_drivers', function ($existingDrivers) {
             return array_merge($existingDrivers, $this->displayNameDrivers);

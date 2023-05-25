@@ -20,15 +20,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RequestPasswordResetJob extends AbstractJob
 {
-    /**
-     * @var string
-     */
-    protected $email;
-
-    public function __construct(string $email)
-    {
-        $this->email = $email;
-    }
+    public function __construct(
+        protected string $email
+    ) {}
 
     public function handle(
         SettingsRepositoryInterface $settings,
@@ -36,7 +30,7 @@ class RequestPasswordResetJob extends AbstractJob
         TranslatorInterface $translator,
         UserRepository $users,
         Queue $queue
-    ) {
+    ): void {
         $user = $users->findByEmail($this->email);
 
         if (! $user) {

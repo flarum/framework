@@ -16,15 +16,9 @@ use Flarum\User\User;
 
 class LikePostPolicy extends AbstractPolicy
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
-        $this->settings = $settings;
-    }
+    public function __construct(
+        protected SettingsRepositoryInterface $settings
+    ) {}
 
     public function like(User $actor, Post $post)
     {

@@ -14,39 +14,26 @@ use Symfony\Component\Translation\MessageCatalogueInterface;
 
 class LocaleManager
 {
-    /**
-     * @var Translator
-     */
-    protected $translator;
+    protected array $locales = [];
+    protected array $js = [];
+    protected array $css = [];
 
-    protected $locales = [];
-
-    protected $js = [];
-
-    protected $css = [];
-
-    /**
-     * @var string
-     */
-    protected $cacheDir;
-
-    public function __construct(Translator $translator, string $cacheDir = null)
-    {
-        $this->translator = $translator;
-        $this->cacheDir = $cacheDir;
-    }
+    public function __construct(
+        protected Translator $translator,
+        protected ?string $cacheDir = null
+    ) {}
 
     public function getLocale(): string
     {
         return $this->translator->getLocale();
     }
 
-    public function setLocale(string $locale)
+    public function setLocale(string $locale): void
     {
         $this->translator->setLocale($locale);
     }
 
-    public function addLocale(string $locale, string $name)
+    public function addLocale(string $locale, string $name): void
     {
         $this->locales[$locale] = $name;
     }
@@ -61,7 +48,7 @@ class LocaleManager
         return isset($this->locales[$locale]);
     }
 
-    public function addTranslations(string $locale, $file, string $module = null)
+    public function addTranslations(string $locale, $file, string $module = null): void
     {
         $prefix = $module ? $module.'::' : '';
 
@@ -72,7 +59,7 @@ class LocaleManager
         $this->translator->addResource('prefixed_yaml', compact('file', 'prefix'), $locale, $domain);
     }
 
-    public function addJsFile(string $locale, string $js)
+    public function addJsFile(string $locale, string $js): void
     {
         $this->js[$locale][] = $js;
     }
@@ -90,7 +77,7 @@ class LocaleManager
         return $files;
     }
 
-    public function addCssFile(string $locale, string $css)
+    public function addCssFile(string $locale, string $css): void
     {
         $this->css[$locale][] = $css;
     }
@@ -113,12 +100,12 @@ class LocaleManager
         return $this->translator;
     }
 
-    public function setTranslator(Translator $translator)
+    public function setTranslator(Translator $translator): void
     {
         $this->translator = $translator;
     }
 
-    public function clearCache()
+    public function clearCache(): void
     {
         if ($this->cacheDir) {
             array_map('unlink', glob($this->cacheDir.'/*'));

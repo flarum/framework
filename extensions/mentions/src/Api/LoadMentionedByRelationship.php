@@ -22,9 +22,9 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class LoadMentionedByRelationship
 {
-    public static $maxMentionedBy = 4;
+    public static int $maxMentionedBy = 4;
 
-    public static function mutateRelation(BelongsToMany $query, ServerRequestInterface $request)
+    public static function mutateRelation(BelongsToMany $query, ServerRequestInterface $request): BelongsToMany
     {
         $actor = RequestUtil::getActor($request);
 

@@ -20,15 +20,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SendTestMailController implements RequestHandlerInterface
 {
-    protected $mailer;
-
-    protected $translator;
-
-    public function __construct(Mailer $mailer, TranslatorInterface $translator)
-    {
-        $this->mailer = $mailer;
-        $this->translator = $translator;
-    }
+    public function __construct(
+        protected Mailer $mailer,
+        protected TranslatorInterface $translator
+    ) {}
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {

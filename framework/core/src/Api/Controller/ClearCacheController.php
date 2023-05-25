@@ -20,30 +20,15 @@ use Symfony\Component\Console\Output\NullOutput;
 
 class ClearCacheController extends AbstractDeleteController
 {
-    /**
-     * @var CacheClearCommand
-     */
-    protected $command;
+    public function __construct(
+        protected CacheClearCommand $command,
+        protected AssetsPublishCommand $assetsPublishCommand
+    ) {}
 
     /**
-     * @var AssetsPublishCommand
+     * @throws IOException|\Flarum\User\Exception\PermissionDeniedException|\Symfony\Component\Console\Exception\ExceptionInterface
      */
-    protected $assetsPublishCommand;
-
-    /**
-     * @param CacheClearCommand $command
-     */
-    public function __construct(CacheClearCommand $command, AssetsPublishCommand $assetsPublishCommand)
-    {
-        $this->command = $command;
-        $this->assetsPublishCommand = $assetsPublishCommand;
-    }
-
-    /**
-     * {@inheritdoc}
-     * @throws IOException|\Flarum\User\Exception\PermissionDeniedException
-     */
-    protected function delete(ServerRequestInterface $request)
+    protected function delete(ServerRequestInterface $request): void
     {
         RequestUtil::getActor($request)->assertAdmin();
 

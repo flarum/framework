@@ -16,12 +16,7 @@ use Illuminate\Support\Str;
 
 class ScopeDiscussionVisibilityForAbility
 {
-    /**
-     * @param User $actor
-     * @param Builder $query
-     * @param string $ability
-     */
-    public function __invoke(User $actor, Builder $query, $ability)
+    public function __invoke(User $actor, Builder $query, string $ability): void
     {
         // Automatic scoping should be applied to the global `view` ability,
         // and to arbitrary abilities that aren't subqueries of `view`.
@@ -29,7 +24,7 @@ class ScopeDiscussionVisibilityForAbility
         // edit posts, this should apply.
         // But if we are expanding a restriction of `view` (for example,
         // `viewPrivate`), we shouldn't apply this query again.
-        if (substr($ability, 0, 4) === 'view' && $ability !== 'view') {
+        if (Str::startsWith($ability, 'view') && $ability !== 'view') {
             return;
         }
 

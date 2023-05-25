@@ -16,39 +16,21 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UnparseUserMentions
 {
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
+    public function __construct(
+        private readonly TranslatorInterface $translator
+    ) {}
 
-    public function __construct(TranslatorInterface $translator)
+    public function __invoke(mixed $context, string $xml): string
     {
-        $this->translator = $translator;
-    }
-
-    /**
-     * Configure rendering for user mentions.
-     *
-     * @param string $xml
-     * @param mixed $context
-     * @return string $xml to be unparsed
-     */
-    public function __invoke($context, string $xml)
-    {
-        $xml = $this->updateUserMentionTags($context, $xml);
-        $xml = $this->unparseUserMentionTags($xml);
-
-        return $xml;
+        return $this->unparseUserMentionTags(
+            $this->updateUserMentionTags($context, $xml)
+        );
     }
 
     /**
      * Updates XML user mention tags before unparsing so that unparsing uses new display names.
-     *
-     * @param mixed $context
-     * @param string $xml : Parsed text.
-     * @return string $xml : Updated XML tags;
      */
-    protected function updateUserMentionTags($context, string $xml): string
+    protected function updateUserMentionTags(mixed $context, string $xml): string
     {
         return Utils::replaceAttributes($xml, 'USERMENTION', function ($attributes) use ($context) {
             $user = (($context && isset($context->getRelations()['mentionsUsers'])) || $context instanceof Post)
@@ -71,9 +53,6 @@ class UnparseUserMentions
 
     /**
      * Transforms user mention tags from XML to raw unparsed content with updated format and display name.
-     *
-     * @param string $xml : Parsed text.
-     * @return string : Unparsed text.
      */
     protected function unparseUserMentionTags(string $xml): string
     {

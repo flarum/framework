@@ -19,33 +19,13 @@ use Symfony\Component\Console\Input\StringInput;
 
 class RemoveExtensionHandler
 {
-    /**
-     * @var ComposerAdapter
-     */
-    protected $composer;
+    public function __construct(
+        private ComposerAdapter $composer,
+        private ExtensionManager $extensions,
+        private Dispatcher $events
+    ) {}
 
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    public function __construct(ComposerAdapter $composer, ExtensionManager $extensions, Dispatcher $events)
-    {
-        $this->composer = $composer;
-        $this->extensions = $extensions;
-        $this->events = $events;
-    }
-
-    /**
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     * @throws \Exception
-     */
-    public function handle(RemoveExtension $command)
+    public function handle(RemoveExtension $command): void
     {
         $command->actor->assertAdmin();
 

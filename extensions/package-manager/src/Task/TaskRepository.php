@@ -17,17 +17,12 @@ class TaskRepository
     /**
      * @return Builder
      */
-    public function query()
+    public function query(): Builder
     {
         return Task::query();
     }
 
-    /**
-     * @param int $id
-     * @param User $actor
-     * @return Task
-     */
-    public function findOrFail($id, User $actor = null): Task
+    public function findOrFail(int $id, ?User $actor = null): Task
     {
         return Task::findOrFail($id);
     }

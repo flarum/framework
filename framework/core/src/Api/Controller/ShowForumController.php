@@ -17,20 +17,11 @@ use Tobscure\JsonApi\Document;
 
 class ShowForumController extends AbstractShowController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = ForumSerializer::class;
+    public ?string $serializer = ForumSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $include = ['groups', 'actor', 'actor.groups'];
+    public array $include = ['groups', 'actor', 'actor.groups'];
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): array
     {
         $actor = RequestUtil::getActor($request);
 

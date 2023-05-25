@@ -15,15 +15,12 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class PostCreationThrottler
 {
-    public static $timeout = 10;
+    public static int $timeout = 10;
 
-    /**
-     * @return bool|void
-     */
-    public function __invoke(ServerRequestInterface $request)
+    public function __invoke(ServerRequestInterface $request): ?bool
     {
         if (! in_array($request->getAttribute('routeName'), ['discussions.create', 'posts.create'])) {
-            return;
+            return null;
         }
 
         $actor = RequestUtil::getActor($request);
