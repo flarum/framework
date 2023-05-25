@@ -24,7 +24,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Migrator
 {
-    protected ?OutputInterface $output;
+    protected ?OutputInterface $output = null;
 
     public function __construct(
         protected MigrationRepositoryInterface $repository,

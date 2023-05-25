@@ -40,37 +40,37 @@ class BasicDiscussionSerializer extends AbstractSerializer
         ];
     }
 
-    protected function user($discussion): Relationship
+    protected function user($discussion): ?Relationship
     {
         return $this->hasOne($discussion, BasicUserSerializer::class);
     }
 
-    protected function firstPost($discussion): Relationship
+    protected function firstPost($discussion): ?Relationship
     {
         return $this->hasOne($discussion, BasicPostSerializer::class);
     }
 
-    protected function lastPostedUser($discussion): Relationship
+    protected function lastPostedUser($discussion): ?Relationship
     {
         return $this->hasOne($discussion, BasicUserSerializer::class);
     }
 
-    protected function lastPost($discussion): Relationship
+    protected function lastPost($discussion): ?Relationship
     {
         return $this->hasOne($discussion, BasicPostSerializer::class);
     }
 
-    protected function posts($discussion): Relationship
+    protected function posts($discussion): ?Relationship
     {
         return $this->hasMany($discussion, PostSerializer::class);
     }
 
-    protected function mostRelevantPost($discussion): Relationship
+    protected function mostRelevantPost($discussion): ?Relationship
     {
         return $this->hasOne($discussion, PostSerializer::class);
     }
 
-    protected function hiddenUser($discussion): Relationship
+    protected function hiddenUser($discussion): ?Relationship
     {
         return $this->hasOne($discussion, BasicUserSerializer::class);
     }

@@ -115,7 +115,7 @@ abstract class AbstractModel extends Eloquent
      * Get an attribute from the model. If nothing is found, attempt to load
      * a custom relation method with this key.
      */
-    public function getAttribute(string $key): mixed
+    public function getAttribute($key)
     {
         if (! is_null($value = parent::getAttribute($key))) {
             return $value;

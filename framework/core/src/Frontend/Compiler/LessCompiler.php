@@ -22,8 +22,8 @@ class LessCompiler extends RevisionCompiler
     protected string $cacheDir;
     protected array $importDirs = [];
     protected array $customFunctions = [];
-    protected ?Collection $lessImportOverrides;
-    protected ?Collection $fileSourceOverrides;
+    protected ?Collection $lessImportOverrides = null;
+    protected ?Collection $fileSourceOverrides = null;
 
     public function getCacheDir(): string
     {

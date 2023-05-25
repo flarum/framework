@@ -69,7 +69,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
      *
      * @var array<string, string>|null
      */
-    public ?array $sort;
+    public ?array $sort = null;
 
     protected static Container $container;
 

@@ -30,12 +30,12 @@ use Psr\Http\Message\ServerRequestInterface;
 class Frontend implements ExtenderInterface
 {
     private array $css = [];
-    private string $js;
+    private ?string $js = null;
     private array $routes = [];
     private array $removedRoutes = [];
     private array $content = [];
     private array $preloadArrs = [];
-    private string $titleDriver;
+    private ?string $titleDriver = null;
 
     /**
      * @param string $frontend: The name of the frontend.

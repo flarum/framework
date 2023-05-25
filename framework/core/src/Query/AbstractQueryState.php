@@ -43,7 +43,7 @@ abstract class AbstractQueryState
         return $this->actor;
     }
 
-    public function getDefaultSort(): array
+    public function getDefaultSort(): array|Closure
     {
         return $this->defaultSort;
     }

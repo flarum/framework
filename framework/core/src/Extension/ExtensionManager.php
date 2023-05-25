@@ -29,7 +29,7 @@ use Illuminate\Support\Collection;
 
 class ExtensionManager
 {
-    protected ?Collection $extensions;
+    protected ?Collection $extensions = null;
 
     public function __construct(
         protected SettingsRepositoryInterface $config,

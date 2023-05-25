@@ -28,7 +28,7 @@ class CommentPost extends Post
     public static string $type = 'comment';
     protected static Formatter $formatter;
 
-    public static function reply(int $discussionId, string $content, int $userId, string $ipAddress, ?User $actor = null): static
+    public static function reply(int $discussionId, string $content, int $userId, ?string $ipAddress, ?User $actor = null): static
     {
         $post = new static;
 

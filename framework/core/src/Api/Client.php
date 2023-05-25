@@ -19,8 +19,8 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class Client
 {
-    protected ?User $actor;
-    protected ?ServerRequestInterface $parent;
+    protected ?User $actor = null;
+    protected ?ServerRequestInterface $parent = null;
     protected array $queryParams = [];
     protected array $body = [];
 

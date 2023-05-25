@@ -19,7 +19,7 @@ class CookieFactory
     protected string $path;
     protected string $domain;
     protected bool $secure;
-    protected ?string $samesite;
+    protected ?string $samesite = null;
 
     public function __construct(Config $config)
     {
@@ -31,7 +31,7 @@ class CookieFactory
         $this->path = (string) ($config['cookie.path'] ?? $url->getPath() ?: '/');
         $this->domain = (string) $config['cookie.domain'];
         $this->secure = (bool) ($config['cookie.secure'] ?? $url->getScheme() === 'https');
-        $this->samesite = (string) $config['cookie.samesite'];
+        $this->samesite = $config['cookie.samesite'];
     }
 
     /**

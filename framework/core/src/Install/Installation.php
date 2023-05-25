@@ -21,7 +21,7 @@ class Installation
     private ?array $enabledExtensions = null;
     private DatabaseConfig $dbConfig;
     private AdminUser $adminUser;
-    private string $accessToken;
+    private ?string $accessToken = null;
 
     // A few instance variables to persist objects between steps.
     // Could also be local variables in build(), but this way

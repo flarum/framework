@@ -146,7 +146,7 @@ class User extends AbstractModel
         });
     }
 
-    public static function register(string $username, string $email, string $password): static
+    public static function register(?string $username, ?string $email, ?string $password): static
     {
         $user = new static;
 
@@ -219,7 +219,7 @@ class User extends AbstractModel
     /**
      * Set the password attribute, storing it as a hash.
      */
-    public function setPasswordAttribute(string $value): void
+    public function setPasswordAttribute(?string $value): void
     {
         $this->attributes['password'] = $value ? static::$hasher->make($value) : '';
     }
@@ -253,7 +253,7 @@ class User extends AbstractModel
         return $this;
     }
 
-    public function getAvatarUrlAttribute(?string $value = null): string
+    public function getAvatarUrlAttribute(?string $value = null): ?string
     {
         if ($value && ! str_contains($value, '://')) {
             return resolve(Factory::class)->disk('flarum-avatars')->url($value);

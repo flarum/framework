@@ -113,7 +113,7 @@ class NoResultFilter implements FilterInterface
         return 'noResult';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         if ($filterValue) {
             $filterState->getQuery()

@@ -16,6 +16,7 @@ use Flarum\Http\RequestUtil;
 use Flarum\Http\SlugManager;
 use Flarum\Post\PostRepository;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -124,8 +125,9 @@ class ShowDiscussionController extends AbstractShowController
         return $offset;
     }
 
-    private function loadPosts(Discussion $discussion, User $actor, int $offset, int $limit, array $include, ServerRequestInterface $request): Collection
+    private function loadPosts(Discussion $discussion, User $actor, int $offset, int $limit, array $include, ServerRequestInterface $request): array
     {
+        /** @var Builder $query */
         $query = $discussion->posts()->whereVisibleTo($actor);
 
         $query->orderBy('number')->skip($offset)->take($limit);

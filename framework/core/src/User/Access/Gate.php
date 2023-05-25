@@ -29,7 +29,7 @@ class Gate
     /**
      * @var AbstractPolicy[]
      */
-    protected array $policies;
+    protected array $policies = [];
 
     public function __construct(
         protected Container $container,
@@ -41,9 +41,9 @@ class Gate
     /**
      * Determine if the given ability should be granted for the current user.
      *
-     * @param class-string<AbstractModel>|AbstractModel $model
+     * @param class-string<AbstractModel>|AbstractModel|null $model
      */
-    public function allows(User $actor, string $ability, string|AbstractModel $model): bool
+    public function allows(User $actor, string $ability, string|AbstractModel|null $model): bool
     {
         $results = [];
         $appliedPolicies = [];

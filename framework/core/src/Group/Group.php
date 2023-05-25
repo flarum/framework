@@ -55,7 +55,7 @@ class Group extends AbstractModel
         });
     }
 
-    public static function build(string $nameSingular, string $namePlural, ?string $color = null, ?string $icon = null, bool $isHidden = false): static
+    public static function build(?string $nameSingular, ?string $namePlural, ?string $color = null, ?string $icon = null, bool $isHidden = false): static
     {
         $group = new static;
 

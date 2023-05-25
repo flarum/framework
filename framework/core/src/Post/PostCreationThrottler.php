@@ -32,5 +32,7 @@ class PostCreationThrottler
         if (Post::where('user_id', $actor->id)->where('created_at', '>=', Carbon::now()->subSeconds(self::$timeout))->exists()) {
             return true;
         }
+
+        return null;
     }
 }

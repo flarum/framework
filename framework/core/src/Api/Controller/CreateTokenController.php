@@ -42,7 +42,9 @@ class CreateTokenController implements RequestHandlerInterface
         $identification = Arr::get($body, 'identification');
         $password = Arr::get($body, 'password');
 
-        $user = $this->users->findByIdentification($identification);
+        $user = $identification
+            ? $this->users->findByIdentification($identification)
+            : null;
 
         if (! $user || ! $user->checkPassword($password)) {
             throw new NotAuthenticatedException;
