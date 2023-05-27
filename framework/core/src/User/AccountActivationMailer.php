@@ -9,8 +9,8 @@
 
 namespace Flarum\User;
 
-use Flarum\Locale\TranslatorInterface;
 use Flarum\Http\UrlGenerator;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\Registered;
 use Illuminate\Contracts\Queue\Queue;

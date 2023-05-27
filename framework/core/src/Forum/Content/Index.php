@@ -11,8 +11,8 @@ namespace Flarum\Forum\Content;
 
 use Flarum\Api\Client;
 use Flarum\Frontend\Document;
-use Flarum\Locale\TranslatorInterface;
 use Flarum\Http\UrlGenerator;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
