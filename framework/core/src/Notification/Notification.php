@@ -60,16 +60,11 @@ class Notification extends AbstractModel
      * represents that a user's discussion was renamed, has the subject model
      * class 'Flarum\Discussion\Discussion'.
      *
-     * @var array
+     * @var array<string, class-string<AbstractModel>>
      */
-    protected static $subjectModels = [];
+    protected static array $subjectModels = [];
 
-    /**
-     * Mark a notification as read.
-     *
-     * @return void
-     */
-    public function read()
+    public function read(): void
     {
         $this->read_at = Carbon::now();
     }
@@ -103,17 +98,11 @@ class Notification extends AbstractModel
         return $this->type ? Arr::get(static::$subjectModels, $this->type) : null;
     }
 
-    /**
-     * @return BelongsTo<User, self>
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * @return BelongsTo<User, self>
-     */
     public function fromUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'from_user_id');
@@ -164,19 +153,17 @@ class Notification extends AbstractModel
     public function scopeWhereSubject(Builder $query, AbstractModel $model): Builder
     {
         return $query->whereSubjectModel(get_class($model))
-            ->where('subject_id', $model->id);
+            ->where('subject_id', $model->getAttribute('id'));
     }
 
     /**
      * Scope the query to include only notification types that use the given
      * subject model.
-     *
-     * @param class-string<AbstractModel> $class
      */
     public function scopeWhereSubjectModel(Builder $query, string $class): Builder
     {
-        $notificationTypes = array_filter(self::getSubjectModels(), function ($modelClass) use ($class) {
-            return $modelClass === $class or is_subclass_of($class, $modelClass);
+        $notificationTypes = array_filter(self::getSubjectModels(), function (string $modelClass) use ($class) {
+            return $modelClass === $class || is_subclass_of($class, $modelClass);
         });
 
         return $query->whereIn('type', array_keys($notificationTypes));
@@ -235,7 +222,7 @@ class Notification extends AbstractModel
         return [
             'type' => $blueprint::getType(),
             'from_user_id' => ($fromUser = $blueprint->getFromUser()) ? $fromUser->id : null,
-            'subject_id' => ($subject = $blueprint->getSubject()) ? $subject->id : null,
+            'subject_id' => ($subject = $blueprint->getSubject()) ? $subject->getAttribute('id') : null,
             'data' => ($data = $blueprint->getData()) ? json_encode($data) : null
         ];
     }

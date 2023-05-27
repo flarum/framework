@@ -48,7 +48,8 @@ class ModelPrivate implements ExtenderInterface
     /**
      * Add a model privacy checker.
      *
-     * @param (callable(AbstractModel $instance): ?bool)|class-string $callback
+     * @template T of AbstractModel
+     * @param (callable(T $instance): ?bool)|class-string $callback
      *
      * The callback can be a closure or invokable class, and should accept:
      * - \Flarum\Database\AbstractModel $instance: An instance of the model.

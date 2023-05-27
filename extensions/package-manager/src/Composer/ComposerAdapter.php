@@ -22,12 +22,14 @@ use Symfony\Component\Console\Output\BufferedOutput;
  */
 class ComposerAdapter
 {
+    private readonly BufferedOutput $output;
+
     public function __construct(
         private readonly Application $application,
         private readonly OutputLogger $logger,
-        private readonly Paths $paths,
-        private readonly BufferedOutput $output
+        private readonly Paths $paths
     ) {
+        $this->output = new BufferedOutput();
     }
 
     public function run(InputInterface $input, ?Task $task = null): ComposerOutput

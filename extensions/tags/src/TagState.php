@@ -31,17 +31,11 @@ class TagState extends AbstractModel
 
     protected $dates = ['marked_as_read_at'];
 
-    /**
-     * @return BelongsTo<Tag, self>
-     */
     public function tag(): BelongsTo
     {
         return $this->belongsTo(Tag::class);
     }
 
-    /**
-     * @return BelongsTo<User, self>
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

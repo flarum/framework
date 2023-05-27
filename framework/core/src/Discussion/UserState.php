@@ -67,17 +67,11 @@ class UserState extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return BelongsTo<Discussion, self>
-     */
     public function discussion(): BelongsTo
     {
         return $this->belongsTo(Discussion::class);
     }
 
-    /**
-     * @return BelongsTo<User, self>
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

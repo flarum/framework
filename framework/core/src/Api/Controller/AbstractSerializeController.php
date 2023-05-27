@@ -74,12 +74,12 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     protected static Container $container;
 
     /**
-     * @var callable[]
+     * @var array<class-string<self>, callable[]>
      */
     protected static array $beforeDataCallbacks = [];
 
     /**
-     * @var callable[]
+     * @var array<class-string<self>, callable[]>
      */
     protected static array $beforeSerializationCallbacks = [];
 

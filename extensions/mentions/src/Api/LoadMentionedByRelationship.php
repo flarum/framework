@@ -9,6 +9,7 @@
 
 namespace Flarum\Mentions\Api;
 
+use Flarum\Api\Controller\AbstractSerializeController;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\Post;
@@ -24,11 +25,11 @@ class LoadMentionedByRelationship
 {
     public static int $maxMentionedBy = 4;
 
-    public static function mutateRelation(BelongsToMany $query, ServerRequestInterface $request): BelongsToMany
+    public static function mutateRelation(BelongsToMany $query, ServerRequestInterface $request): void
     {
         $actor = RequestUtil::getActor($request);
 
-        return $query
+        $query
             ->with(['mentionsPosts', 'mentionsPosts.user', 'mentionsUsers'])
             ->whereVisibleTo($actor)
             ->oldest()
@@ -41,13 +42,15 @@ class LoadMentionedByRelationship
     /**
      * Called using the @see ApiController::prepareDataForSerialization extender.
      */
-    public static function countRelation($controller, $data, ServerRequestInterface $request): void
+    public static function countRelation(AbstractSerializeController $controller, mixed $data, ServerRequestInterface $request): array
     {
         $actor = RequestUtil::getActor($request);
         $loadable = null;
 
         if ($data instanceof Discussion) {
-            $loadable = $data->newCollection($data->posts)->filter(function ($post) {
+            // We do this because the ShowDiscussionController manipulates the posts
+            // in a way that some of them are just ids.
+            $loadable = $data->posts->filter(function ($post) {
                 return $post instanceof Post;
             });
         } elseif ($data instanceof Collection) {
@@ -63,5 +66,7 @@ class LoadMentionedByRelationship
                 }
             ]);
         }
+
+        return [];
     }
 }

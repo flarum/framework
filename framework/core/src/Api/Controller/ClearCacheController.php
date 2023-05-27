@@ -50,7 +50,5 @@ class ClearCacheController extends AbstractDeleteController
         if ($exitCode !== 0) {
             throw new IOException();
         }
-
-        return new EmptyResponse(204);
     }
 }

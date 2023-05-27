@@ -233,7 +233,7 @@ abstract class AbstractModel extends Eloquent
         return $result;
     }
 
-    public function newCollection($models = [])
+    public function newCollection(array $models = []): Collection
     {
         return new Collection($models);
     }

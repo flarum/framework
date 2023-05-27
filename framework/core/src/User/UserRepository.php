@@ -10,7 +10,11 @@
 namespace Flarum\User;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @template T of User
+ */
 class UserRepository
 {
     /**
@@ -25,9 +29,11 @@ class UserRepository
      * Find a user by ID, optionally making sure it is visible to a certain
      * user, or throw an exception.
      *
+     * @return T
+     *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function findOrFail(int|string $id, User $actor = null): User
+    public function findOrFail(int|string $id, User $actor = null): Model
     {
         $query = $this->query()->where('id', $id);
 
@@ -38,9 +44,11 @@ class UserRepository
      * Find a user by username, optionally making sure it is visible to a certain
      * user, or throw an exception.
      *
+     * @return T
+     *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function findOrFailByUsername(string $username, User $actor = null): User
+    public function findOrFailByUsername(string $username, User $actor = null): Model
     {
         $query = $this->query()->where('username', $username);
 
@@ -49,15 +57,20 @@ class UserRepository
 
     /**
      * Find a user by an identification (username or email).
+     *
+     * @return ?T
      */
-    public function findByIdentification(string $identification): ?User
+    public function findByIdentification(string $identification): ?Model
     {
         $field = filter_var($identification, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
         return $this->query()->where($field, $identification)->first();
     }
 
-    public function findByEmail(string $email): ?User
+    /**
+     * @return ?T
+     */
+    public function findByEmail(string $email): ?Model
     {
         return $this->query()->where('email', $email)->first();
     }
@@ -91,6 +104,9 @@ class UserRepository
         return $this->scopeVisibleTo($query, $actor)->pluck('id')->all();
     }
 
+    /**
+     * @return Builder<User>
+     */
     protected function scopeVisibleTo(Builder $query, User $actor = null): Builder
     {
         if ($actor !== null) {

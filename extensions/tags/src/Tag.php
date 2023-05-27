@@ -94,9 +94,6 @@ class Tag extends AbstractModel
         return $tag;
     }
 
-    /**
-     * @return BelongsTo<self, self>
-     */
     public function parent(): BelongsTo
     {
         return $this->belongsTo(self::class);
@@ -110,17 +107,11 @@ class Tag extends AbstractModel
         return $this->hasMany(self::class, 'parent_id');
     }
 
-    /**
-     * @return BelongsTo<Discussion, self>
-     */
     public function lastPostedDiscussion(): BelongsTo
     {
         return $this->belongsTo(Discussion::class, 'last_posted_discussion_id');
     }
 
-    /**
-     * @return BelongsTo<User, self>
-     */
     public function lastPostedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'last_posted_user_id');
@@ -154,9 +145,6 @@ class Tag extends AbstractModel
         return $this;
     }
 
-    /**
-     * @return HasOne<TagState>
-     */
     public function state(): HasOne
     {
         return $this->hasOne(TagState::class);

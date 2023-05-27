@@ -170,7 +170,9 @@ class Model implements ExtenderInterface
      * @param string $name: The name of the relation. This doesn't have to be anything in particular,
      *                      but has to be unique from other relation names for this model, and should
      *                      work as the name of a method.
-     * @param (callable(AbstractModel $instance): Relation)|class-string $callback
+     * @template T of AbstractModel
+     * @template R of Relation
+     * @param (callable(T $instance): R)|class-string $callback
      *
      * The callable can be a closure or invokable class, and should accept:
      * - $instance: An instance of this model.

@@ -34,8 +34,10 @@ class ApiSerializer implements ExtenderInterface
     /**
      * Add a single attribute to this serializer.
      *
+     * @template T of AbstractModel
+     * @template S of AbstractSerializer
      * @param string $name: The name of the attribute.
-     * @param (callable(AbstractSerializer $serializer, AbstractModel $model, array $attributes): mixed)|class-string $callback
+     * @param (callable(S $serializer, T $model, array $attributes): mixed)|class-string $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
      * - $serializer: An instance of this serializer.
@@ -116,7 +118,9 @@ class ApiSerializer implements ExtenderInterface
      *
      * @param string $name: The name of the relation. Has to be unique from other relation names.
      *                      The relation has to exist in the model handled by this serializer.
-     * @param (callable(AbstractSerializer $serializer, AbstractModel $model): Relationship)|class-string $callback
+     * @template T of AbstractModel
+     * @template S of AbstractSerializer
+     * @param (callable(S $serializer, T $model): Relationship)|class-string $callback
      *
      * The callable can be a closure or an invokable class, and should accept:
      * - $serializer: An instance of this serializer.

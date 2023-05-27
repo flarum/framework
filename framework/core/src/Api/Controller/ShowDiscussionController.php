@@ -14,6 +14,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\SlugManager;
+use Flarum\Post\Post;
 use Flarum\Post\PostRepository;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -88,7 +89,7 @@ class ShowDiscussionController extends AbstractShowController
 
         array_splice($allPosts, $offset, $limit, $loadedPosts);
 
-        $discussion->setRelation('posts', $allPosts);
+        $discussion->setRelation('posts', (new Post)->newCollection($allPosts));
     }
 
     private function loadPostIds(Discussion $discussion, User $actor): array
@@ -134,6 +135,7 @@ class ShowDiscussionController extends AbstractShowController
 
         $posts = $query->get();
 
+        /** @var Post $post */
         foreach ($posts as $post) {
             $post->discussion = $discussion;
         }

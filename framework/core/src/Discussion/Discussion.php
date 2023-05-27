@@ -211,8 +211,9 @@ class Discussion extends AbstractModel
      * DiscussionRenamedPost, and delete if the title has been reverted
      * completely.)
      *
-     * @param MergeableInterface $post The post to save.
-     * @return MergeableInterface The resulting post. It may or may not be the same post as
+     * @template T of MergeableInterface
+     * @param T $post The post to save.
+     * @return T The resulting post. It may or may not be the same post as
      *     was originally intended to be saved. It also may not exist, if the
      *     merge logic resulted in deletion.
      */
@@ -270,41 +271,26 @@ class Discussion extends AbstractModel
             ->distinct();
     }
 
-    /**
-     * @return BelongsTo<Post, self>
-     */
     public function firstPost(): BelongsTo
     {
         return $this->belongsTo(Post::class, 'first_post_id');
     }
 
-    /**
-     * @return BelongsTo<User, self>
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /**
-     * @return BelongsTo<Post, self>
-     */
     public function lastPost(): BelongsTo
     {
         return $this->belongsTo(Post::class, 'last_post_id');
     }
 
-    /**
-     * @return BelongsTo<User, self>
-     */
     public function lastPostedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'last_posted_user_id');
     }
 
-    /**
-     * @return BelongsTo<Post, self>
-     */
     public function mostRelevantPost(): BelongsTo
     {
         return $this->belongsTo(Post::class, 'most_relevant_post_id');
@@ -321,9 +307,6 @@ class Discussion extends AbstractModel
     /**
      * If no user is passed (i.e. in the case of eager loading the 'state'
      * relation), then the static `$stateUser` property is used.
-     *
-     * @param User|null $user
-     * @return HasOne<UserState, self>
      *
      * @see Discussion::setStateUser()
      */

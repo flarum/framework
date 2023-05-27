@@ -100,11 +100,14 @@ class ModelVisibility implements ExtenderInterface
 
         foreach ($this->scopers as $ability => $scopers) {
             foreach ($scopers as $scoper) {
+                // @todo: we can't define class-string<Trait>, introduce interfaces for scopers.
+                // @phpstan-ignore-next-line
                 $this->modelClass::registerVisibilityScoper(ContainerUtil::wrapCallback($scoper, $container), $ability);
             }
         }
 
         foreach ($this->allScopers as $scoper) {
+            // @phpstan-ignore-next-line
             $this->modelClass::registerVisibilityScoper(ContainerUtil::wrapCallback($scoper, $container));
         }
     }

@@ -28,9 +28,6 @@ class Permission extends AbstractModel
      */
     protected $dates = ['created_at'];
 
-    /**
-     * @return BelongsTo<Group, self>
-     */
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);

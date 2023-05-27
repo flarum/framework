@@ -124,33 +124,21 @@ class Post extends AbstractModel
         return (bool) $this->newQuery()->whereVisibleTo($user)->find($this->id);
     }
 
-    /**
-     * @return BelongsTo<Discussion, self>
-     */
     public function discussion(): BelongsTo
     {
         return $this->belongsTo(Discussion::class);
     }
 
-    /**
-     * @return BelongsTo<User, self>
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * @return BelongsTo<User, self>
-     */
     public function editedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'edited_user_id');
     }
 
-    /**
-     * @return BelongsTo<User, self>
-     */
     public function hiddenUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'hidden_user_id');

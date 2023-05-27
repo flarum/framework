@@ -14,6 +14,8 @@ use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Eloquent\Builder;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -44,7 +46,8 @@ class ApiController implements ExtenderInterface
     }
 
     /**
-     * @param (callable(AbstractSerializeController $controller): void)|class-string $callback
+     * @template S of AbstractSerializeController
+     * @param (callable(S $controller): void)|class-string $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
@@ -59,7 +62,8 @@ class ApiController implements ExtenderInterface
     }
 
     /**
-     * @param (callable(AbstractSerializeController $controller, array $data, ServerRequestInterface $request, Document $document): array)|class-string $callback
+     * @template S of AbstractSerializeController
+     * @param (callable(S $controller, mixed $data, ServerRequestInterface $request, Document $document): array)|class-string $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
@@ -83,8 +87,9 @@ class ApiController implements ExtenderInterface
     /**
      * Set the serializer that will serialize data for the endpoint.
      *
+     * @template S of AbstractSerializeController
      * @param class-string<AbstractSerializer> $serializerClass: The ::class attribute of the serializer.
-     * @param (callable(AbstractSerializeController $controller): bool)|string|null $callback
+     * @param (callable(S $controller): bool)|string|null $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
@@ -104,8 +109,9 @@ class ApiController implements ExtenderInterface
     /**
      * Include the given relationship by default.
      *
+     * @template S of AbstractSerializeController
      * @param array|string $name: The name of the relation.
-     * @param (callable(AbstractSerializeController $controller): bool)|class-string|null $callback
+     * @param (callable(S $controller): bool)|class-string|null $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
@@ -126,7 +132,8 @@ class ApiController implements ExtenderInterface
      * Don't include the given relationship by default.
      *
      * @param array|string $name: The name of the relation.
-     * @param (callable(AbstractSerializeController $controller): bool)|class-string|null $callback
+     * @template S of AbstractSerializeController
+     * @param (callable(S $controller): bool)|class-string|null $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
@@ -147,7 +154,8 @@ class ApiController implements ExtenderInterface
      * Make the given relationship available for inclusion.
      *
      * @param array|string $name: The name of the relation.
-     * @param (callable(AbstractSerializeController $controller): bool)|class-string|null $callback
+     * @template S of AbstractSerializeController
+     * @param (callable(S $controller): bool)|class-string|null $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
@@ -168,7 +176,8 @@ class ApiController implements ExtenderInterface
      * Don't allow the given relationship to be included.
      *
      * @param array|string $name: The name of the relation.
-     * @param (callable(AbstractSerializeController $controller): bool)|class-string|null $callback
+     * @template S of AbstractSerializeController
+     * @param (callable(S $controller): bool)|class-string|null $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
@@ -189,7 +198,8 @@ class ApiController implements ExtenderInterface
      * Set the default number of results.
      *
      * @param int $limit
-     * @param (callable(AbstractSerializeController $controller): bool)|class-string|null $callback
+     * @template S of AbstractSerializeController
+     * @param (callable(S $controller): bool)|class-string|null $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
@@ -210,7 +220,8 @@ class ApiController implements ExtenderInterface
      * Set the maximum number of results.
      *
      * @param int $max
-     * @param (callable(AbstractSerializeController $controller): bool)|class-string|null $callback
+     * @template S of AbstractSerializeController
+     * @param (callable(S $controller): bool)|class-string|null $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
@@ -231,7 +242,8 @@ class ApiController implements ExtenderInterface
      * Allow sorting results by the given field.
      *
      * @param array|string $field
-     * @param (callable(AbstractSerializeController $controller): bool)|class-string|null $callback
+     * @template S of AbstractSerializeController
+     * @param (callable(S $controller): bool)|class-string|null $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
@@ -252,7 +264,8 @@ class ApiController implements ExtenderInterface
      * Disallow sorting results by the given field.
      *
      * @param array|string $field
-     * @param (callable(AbstractSerializeController $controller): bool)|class-string|null $callback
+     * @template S of AbstractSerializeController
+     * @param (callable(S $controller): bool)|class-string|null $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
@@ -273,7 +286,8 @@ class ApiController implements ExtenderInterface
      * Set the default sort order for the results.
      *
      * @param array $sort
-     * @param (callable(AbstractSerializeController $controller): bool)|class-string|null $callback
+     * @template S of AbstractSerializeController
+     * @param (callable(S $controller): bool)|class-string|null $callback
      *
      * The optional callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
@@ -315,10 +329,11 @@ class ApiController implements ExtenderInterface
      * Allows loading a relationship with additional query modification.
      *
      * @param string $relation: Relationship name, see load method description.
-     * @param (callable(\Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Relations\Relation, \Psr\Http\Message\ServerRequestInterface|null, array): void) $callback
+     * @template R of Relation
+     * @param (callable(Builder|R, \Psr\Http\Message\ServerRequestInterface|null, array): void) $callback
      *
      * The callback to modify the query, should accept:
-     * - \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Relations\Relation $query: A query object.
+     * - \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\Relation $query: A query object.
      * - \Psr\Http\Message\ServerRequestInterface|null $request: An instance of the request.
      * - array $relations: An array of relations that are to be loaded.
      *

@@ -33,17 +33,11 @@ class Flag extends AbstractModel
 
     protected $dates = ['created_at'];
 
-    /**
-     * @return BelongsTo<Post, self>
-     */
     public function post(): BelongsTo
     {
         return $this->belongsTo(Post::class);
     }
 
-    /**
-     * @return BelongsTo<User, self>
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

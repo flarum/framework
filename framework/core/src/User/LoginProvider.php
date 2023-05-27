@@ -31,11 +31,6 @@ class LoginProvider extends AbstractModel
 
     protected $fillable = ['provider', 'identifier'];
 
-    /**
-     * Get the user that the login provider belongs to.
-     *
-     * @return BelongsTo<User, self>
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

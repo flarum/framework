@@ -50,7 +50,6 @@ class Server
      * We catch all exceptions happening during this process and format them to
      * prevent exposure of sensitive information.
      *
-     * @return \Psr\Http\Server\RequestHandlerInterface|void
      * @throws Throwable
      */
     private function safelyBootAndGetHandler()

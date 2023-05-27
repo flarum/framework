@@ -119,9 +119,6 @@ class AccessToken extends AbstractModel
         return $this->save();
     }
 
-    /**
-     * @return BelongsTo<User, self>
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

@@ -52,9 +52,6 @@ class EmailToken extends AbstractModel
         return $token;
     }
 
-    /**
-     * @return BelongsTo<User, self>
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

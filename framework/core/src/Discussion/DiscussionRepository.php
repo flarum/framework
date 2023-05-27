@@ -15,6 +15,9 @@ use Illuminate\Database\Eloquent\Collection;
 
 class DiscussionRepository
 {
+    /**
+     * @return Builder<Discussion>
+     */
     public function query(): Builder
     {
         return Discussion::query();
