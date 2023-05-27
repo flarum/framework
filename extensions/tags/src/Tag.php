@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 
 /**
  * @property int $id
@@ -192,7 +193,7 @@ class Tag extends AbstractModel
         Permission::where('permission', 'like', "tag{$this->id}.%")->delete();
     }
 
-    protected static function buildPermissionSubquery(Builder $base, bool $isAdmin, bool $hasGlobalPermission, iterable $tagIdsWithPermission): void
+    protected static function buildPermissionSubquery(QueryBuilder $base, bool $isAdmin, bool $hasGlobalPermission, iterable $tagIdsWithPermission): void
     {
         $base
             ->from('tags as perm_tags')
