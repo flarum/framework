@@ -81,7 +81,7 @@ class Tag extends AbstractModel
         });
     }
 
-    public static function build(string $name, string $slug, string $description, string $color, string $icon, bool $isHidden): static
+    public static function build(?string $name, ?string $slug, ?string $description, ?string $color, ?string $icon, ?bool $isHidden): static
     {
         $tag = new static;
 

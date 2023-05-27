@@ -24,17 +24,17 @@ class Document implements Renderable
     /**
      * The title of the document, displayed in the <title> tag.
      */
-    public ?string $title;
+    public ?string $title = null;
 
     /**
      * The language of the document, displayed as the value of the attribute `lang` in the <html> tag.
      */
-    public ?string $language;
+    public ?string $language = null;
 
     /**
      * The text direction of the document, displayed as the value of the attribute `dir` in the <html> tag.
      */
-    public ?string $direction;
+    public ?string $direction = null;
 
     /**
      * The name of the frontend app view to display.
@@ -73,21 +73,21 @@ class Document implements Renderable
      * content, if it can be found under multiple addresses. This is an
      * important tool to tackle duplicate content.
      */
-    public ?string $canonicalUrl;
+    public ?string $canonicalUrl = null;
 
     /**
      * Which page of content are we on?
      *
      * This is used to build prev/next meta links for SEO.
      */
-    public ?int $page;
+    public ?int $page = null;
 
     /**
      * Is there a next page?
      *
      * This is used with $page to build next meta links for SEO.
      */
-    public ?bool $hasNextPage;
+    public ?bool $hasNextPage = null;
 
     /**
      * An array of strings to append to the page's <head>.

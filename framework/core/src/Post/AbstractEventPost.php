@@ -25,7 +25,7 @@ abstract class AbstractEventPost extends Post
     /**
      * Serialize the content attribute to be stored in the database as JSON.
      */
-    public function setContentAttribute(string $value): void
+    public function setContentAttribute(mixed $value): void
     {
         $this->attributes['content'] = json_encode($value);
     }
