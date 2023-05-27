@@ -9,11 +9,11 @@
 
 namespace Flarum\User;
 
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\Registered;
 use Illuminate\Contracts\Queue\Queue;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AccountActivationMailer
 {

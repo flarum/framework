@@ -9,18 +9,17 @@
 
 namespace Flarum\Notification;
 
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Contracts\Mail\Mailer;
-use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Mail\Message;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class NotificationMailer
 {
     public function __construct(
         protected Mailer $mailer,
-        protected TranslatorInterface&Translator $translator,
+        protected TranslatorInterface $translator,
         protected SettingsRepositoryInterface $settings
     ) {
     }

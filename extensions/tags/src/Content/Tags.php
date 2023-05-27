@@ -12,12 +12,12 @@ namespace Flarum\Tags\Content;
 use Flarum\Api\Client;
 use Flarum\Frontend\Document;
 use Flarum\Http\UrlGenerator;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\TagRepository;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Tags
 {

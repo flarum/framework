@@ -9,11 +9,11 @@
 
 namespace Flarum\Foundation;
 
+use Flarum\Locale\TranslatorInterface;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 abstract class AbstractValidator
 {

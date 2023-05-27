@@ -11,13 +11,13 @@ namespace Flarum\User;
 
 use Flarum\Foundation\AbstractValidator;
 use Flarum\Foundation\ValidationException;
+use Flarum\Locale\TranslatorInterface;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\Validator;
 use Intervention\Image\Exception\NotReadableException;
 use Intervention\Image\ImageManager;
 use Psr\Http\Message\UploadedFileInterface;
 use Symfony\Component\Mime\MimeTypes;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AvatarValidator extends AbstractValidator
 {

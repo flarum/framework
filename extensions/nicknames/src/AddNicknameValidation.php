@@ -9,10 +9,10 @@
 
 namespace Flarum\Nicknames;
 
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\UserValidator;
 use Illuminate\Validation\Validator;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AddNicknameValidation
 {

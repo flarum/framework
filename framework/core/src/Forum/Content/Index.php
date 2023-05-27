@@ -11,12 +11,12 @@ namespace Flarum\Forum\Content;
 
 use Flarum\Api\Client;
 use Flarum\Frontend\Document;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Index
 {

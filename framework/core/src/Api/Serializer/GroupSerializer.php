@@ -10,8 +10,8 @@
 namespace Flarum\Api\Serializer;
 
 use Flarum\Group\Group;
+use Flarum\Locale\TranslatorInterface;
 use InvalidArgumentException;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class GroupSerializer extends AbstractSerializer
 {

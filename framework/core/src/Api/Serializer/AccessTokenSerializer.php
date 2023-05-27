@@ -10,9 +10,9 @@
 namespace Flarum\Api\Serializer;
 
 use Flarum\Http\AccessToken;
+use Flarum\Locale\TranslatorInterface;
 use InvalidArgumentException;
 use Jenssegers\Agent\Agent;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AccessTokenSerializer extends AbstractSerializer
 {

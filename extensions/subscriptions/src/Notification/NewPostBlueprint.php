@@ -11,11 +11,11 @@ namespace Flarum\Subscriptions\Notification;
 
 use Flarum\Database\AbstractModel;
 use Flarum\Discussion\Discussion;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\MailableInterface;
 use Flarum\Post\Post;
 use Flarum\User\User;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class NewPostBlueprint implements BlueprintInterface, MailableInterface
 {

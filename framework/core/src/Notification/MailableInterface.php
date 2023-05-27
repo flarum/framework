@@ -9,7 +9,7 @@
 
 namespace Flarum\Notification;
 
-use Symfony\Contracts\Translation\TranslatorInterface;
+use Flarum\Locale\TranslatorInterface;
 
 interface MailableInterface
 {

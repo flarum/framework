@@ -9,10 +9,10 @@
 
 namespace Flarum\Mentions\Formatter;
 
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Post\Post;
 use Flarum\User\User;
 use s9e\TextFormatter\Utils;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UnparseUserMentions
 {

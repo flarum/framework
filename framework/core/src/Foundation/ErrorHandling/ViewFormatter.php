@@ -9,12 +9,12 @@
 
 namespace Flarum\Foundation\ErrorHandling;
 
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Laminas\Diactoros\Response\HtmlResponse;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * A formatter for turning caught exceptions into "pretty" HTML error pages.

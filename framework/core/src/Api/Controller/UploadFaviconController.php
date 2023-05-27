@@ -10,12 +10,12 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Foundation\ValidationException;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Factory;
 use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
 use Psr\Http\Message\UploadedFileInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UploadFaviconController extends UploadImageController
 {

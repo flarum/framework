@@ -9,8 +9,8 @@
 
 namespace Flarum\BBCode;
 
+use Flarum\Locale\TranslatorInterface;
 use s9e\TextFormatter\Renderer;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Render
 {

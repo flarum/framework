@@ -10,11 +10,11 @@
 namespace Flarum\Mentions\Notification;
 
 use Flarum\Database\AbstractModel;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\MailableInterface;
 use Flarum\Post\Post;
 use Flarum\User\User;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UserMentionedBlueprint implements BlueprintInterface, MailableInterface
 {

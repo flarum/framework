@@ -11,6 +11,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AccountActivationMailerTrait;
 use Flarum\User\Exception\PermissionDeniedException;
@@ -20,7 +21,6 @@ use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SendConfirmationEmailController implements RequestHandlerInterface
 {

@@ -10,9 +10,9 @@
 namespace Flarum\Frontend\Driver;
 
 use Flarum\Frontend\Document;
+use Flarum\Locale\TranslatorInterface;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BasicTitleDriver implements TitleDriverInterface
 {

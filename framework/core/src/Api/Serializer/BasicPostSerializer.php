@@ -11,10 +11,10 @@ namespace Flarum\Api\Serializer;
 
 use Exception;
 use Flarum\Foundation\ErrorHandling\LogReporter;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Post\CommentPost;
 use Flarum\Post\Post;
 use InvalidArgumentException;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Tobscure\JsonApi\Relationship;
 
 class BasicPostSerializer extends AbstractSerializer

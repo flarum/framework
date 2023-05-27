@@ -9,8 +9,8 @@
 
 namespace Flarum\Mentions\Formatter;
 
+use Flarum\Locale\TranslatorInterface;
 use s9e\TextFormatter\Utils;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UnparsePostMentions
 {

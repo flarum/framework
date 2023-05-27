@@ -10,10 +10,10 @@
 namespace Flarum\Mentions\Formatter;
 
 use Flarum\Group\Group;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Post\Post;
 use s9e\TextFormatter\Renderer;
 use s9e\TextFormatter\Utils;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FormatGroupMentions
 {

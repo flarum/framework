@@ -9,10 +9,10 @@
 
 namespace Flarum\Mentions\Formatter;
 
+use Flarum\Locale\TranslatorInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use s9e\TextFormatter\Renderer;
 use s9e\TextFormatter\Utils;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FormatPostMentions
 {
