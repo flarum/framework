@@ -54,7 +54,7 @@ class Document implements Renderable
     /**
      * The SEO content of the page, displayed within the layout in <noscript> tags.
      */
-    public string|Renderable $content;
+    public string|Renderable|null $content = null;
 
     /**
      * Other variables to preload into the Flarum JS.
