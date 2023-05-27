@@ -266,7 +266,7 @@ class ExtensionManager
      *
      * @internal
      */
-    public function migrate(Extension $extension, string $direction = 'up'): int
+    public function migrate(Extension $extension, string $direction = 'up'): ?int
     {
         $this->container->bind(Builder::class, function ($container) {
             return $container->make(ConnectionInterface::class)->getSchemaBuilder();

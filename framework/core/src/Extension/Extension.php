@@ -433,7 +433,7 @@ class Extension implements Arrayable
     /**
      * @internal
      */
-    public function migrate(Migrator $migrator, $direction = 'up'): int|null
+    public function migrate(Migrator $migrator, $direction = 'up'): ?int
     {
         if (! $this->hasMigrations()) {
             return null;
