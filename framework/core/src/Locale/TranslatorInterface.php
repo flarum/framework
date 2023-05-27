@@ -10,10 +10,8 @@
 namespace Flarum\Locale;
 
 use Illuminate\Contracts\Translation\Translator;
+use Symfony\Contracts\Translation\TranslatorInterface as SymfonyTranslatorInterface;
 
-/**
- * @mixin \Symfony\Contracts\Translation\TranslatorInterface
- */
-interface TranslatorInterface extends Translator
+interface TranslatorInterface extends Translator, SymfonyTranslatorInterface
 {
 }
