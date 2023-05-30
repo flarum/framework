@@ -23,31 +23,14 @@ use SessionHandlerInterface;
 
 class StartSession implements Middleware
 {
-    /**
-     * @var SessionHandlerInterface
-     */
-    protected $handler;
+    protected array $config;
 
-    /**
-     * @var CookieFactory
-     */
-    protected $cookie;
-
-    /**
-     * @var array
-     */
-    protected $config;
-
-    /**
-     * @param SessionHandlerInterface $handler
-     * @param CookieFactory $cookie
-     * @param ConfigRepository $config
-     */
-    public function __construct(SessionHandlerInterface $handler, CookieFactory $cookie, ConfigRepository $config)
-    {
-        $this->handler = $handler;
-        $this->cookie = $cookie;
-        $this->config = $config->get('session');
+    public function __construct(
+        protected SessionHandlerInterface $handler,
+        protected CookieFactory $cookie,
+        ConfigRepository $config
+    ) {
+        $this->config = (array) $config->get('session');
     }
 
     public function process(Request $request, Handler $handler): Response

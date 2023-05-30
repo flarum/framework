@@ -20,17 +20,9 @@ use Psr\Http\Message\ResponseInterface;
 
 class ResponseFactory
 {
-    /**
-     * @var Rememberer
-     */
-    protected $rememberer;
-
-    /**
-     * @param Rememberer $rememberer
-     */
-    public function __construct(Rememberer $rememberer)
-    {
-        $this->rememberer = $rememberer;
+    public function __construct(
+        protected Rememberer $rememberer
+    ) {
     }
 
     public function make(string $provider, string $identifier, callable $configureRegistration): ResponseInterface
@@ -72,7 +64,7 @@ class ResponseFactory
         return new HtmlResponse($content);
     }
 
-    private function makeLoggedInResponse(User $user)
+    private function makeLoggedInResponse(User $user): ResponseInterface
     {
         $response = $this->makeResponse(['loggedIn' => true]);
 

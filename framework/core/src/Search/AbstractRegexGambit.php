@@ -14,12 +14,9 @@ abstract class AbstractRegexGambit implements GambitInterface
     /**
      * The regex pattern to match the bit against.
      */
-    abstract protected function getGambitPattern();
+    abstract protected function getGambitPattern(): string;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function apply(SearchState $search, $bit)
+    public function apply(SearchState $search, string $bit): bool
     {
         if ($matches = $this->match($bit)) {
             list($negate) = array_splice($matches, 1, 1);
@@ -32,11 +29,8 @@ abstract class AbstractRegexGambit implements GambitInterface
 
     /**
      * Match the bit against this gambit.
-     *
-     * @param string $bit
-     * @return array|null
      */
-    protected function match($bit)
+    protected function match(string $bit): ?array
     {
         if (! empty($bit) && preg_match('/^(-?)'.$this->getGambitPattern().'$/i', $bit, $matches)) {
             return $matches;
@@ -48,11 +42,8 @@ abstract class AbstractRegexGambit implements GambitInterface
     /**
      * Apply conditions to the search, given that the gambit was matched.
      *
-     * @param SearchState $search The search object.
      * @param array $matches An array of matches from the search bit.
-     * @param bool $negate Whether or not the bit was negated, and thus whether
-     *     or not the conditions should be negated.
-     * @return mixed
+     * @param bool $negate Whether the bit was negated, and thus whether the conditions should be negated.
      */
-    abstract protected function conditions(SearchState $search, array $matches, $negate);
+    abstract protected function conditions(SearchState $search, array $matches, bool $negate): void;
 }

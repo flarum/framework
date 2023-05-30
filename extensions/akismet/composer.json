@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^1.7",
+        "flarum/core": "^1.8",
         "flarum/approval": "^1.7"
     },
     "autoload": {

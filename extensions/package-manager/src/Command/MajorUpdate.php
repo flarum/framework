@@ -14,20 +14,10 @@ use Flarum\User\User;
 
 class MajorUpdate extends AbstractActionCommand
 {
-    /**
-     * @var \Flarum\User\User
-     */
-    public $actor;
-
-    /**
-     * @var bool
-     */
-    public $dryRun;
-
-    public function __construct(User $actor, bool $dryRun)
-    {
-        $this->actor = $actor;
-        $this->dryRun = $dryRun;
+    public function __construct(
+        public User $actor,
+        public bool $dryRun
+    ) {
     }
 
     public function getOperationName(): string

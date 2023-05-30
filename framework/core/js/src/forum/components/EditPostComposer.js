@@ -86,21 +86,20 @@ export default class EditPostComposer extends ComposerBody {
         // Otherwise, we'll create an alert message to inform the user that
         // their edit has been made, containing a button which will
         // transition to their edited post when clicked.
-        let alert;
-        const viewButton = Button.component(
-          {
-            className: 'Button Button--link',
-            onclick: () => {
-              m.route.set(app.route.post(post));
-              app.alerts.dismiss(alert);
-            },
-          },
-          app.translator.trans('core.forum.composer_edit.view_button')
-        );
-        alert = app.alerts.show(
+        const alert = app.alerts.show(
           {
             type: 'success',
-            controls: [viewButton],
+            controls: [
+              <Button
+                className="Button Button--link"
+                onclick={() => {
+                  m.route.set(app.route.post(post));
+                  app.alerts.dismiss(alert);
+                }}
+              >
+                {app.translator.trans('core.forum.composer_edit.view_button')}
+              </Button>,
+            ],
           },
           app.translator.trans('core.forum.composer_edit.edited_message')
         );

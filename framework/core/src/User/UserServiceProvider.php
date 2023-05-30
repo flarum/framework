@@ -35,10 +35,7 @@ use Illuminate\Support\Arr;
 
 class UserServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    public function register(): void
     {
         $this->registerDisplayNameDrivers();
         $this->registerPasswordCheckers();
@@ -67,7 +64,7 @@ class UserServiceProvider extends AbstractServiceProvider
         });
     }
 
-    protected function registerDisplayNameDrivers()
+    protected function registerDisplayNameDrivers(): void
     {
         $this->container->singleton('flarum.user.display_name.supported_drivers', function () {
             return [
@@ -90,7 +87,7 @@ class UserServiceProvider extends AbstractServiceProvider
         $this->container->alias('flarum.user.display_name.driver', DriverInterface::class);
     }
 
-    protected function registerPasswordCheckers()
+    protected function registerPasswordCheckers(): void
     {
         $this->container->singleton('flarum.user.password_checkers', function (Container $container) {
             return [
@@ -103,10 +100,7 @@ class UserServiceProvider extends AbstractServiceProvider
         });
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function boot(Container $container, Dispatcher $events)
+    public function boot(Container $container, Dispatcher $events): void
     {
         foreach ($container->make('flarum.user.group_processors') as $callback) {
             User::addGroupProcessor(ContainerUtil::wrapCallback($callback, $container));

@@ -927,9 +927,9 @@ class ApiControllerTest extends TestCase
 
 class CustomDiscussionSerializer extends DiscussionSerializer
 {
-    protected function getDefaultAttributes($discussion)
+    protected function getDefaultAttributes(object|array $model): array
     {
-        return parent::getDefaultAttributes($discussion) + [
+        return parent::getDefaultAttributes($model) + [
             'customSerializer' => true
         ];
     }
@@ -937,9 +937,9 @@ class CustomDiscussionSerializer extends DiscussionSerializer
 
 class CustomDiscussionSerializer2 extends DiscussionSerializer
 {
-    protected function getDefaultAttributes($discussion)
+    protected function getDefaultAttributes(object|array $model): array
     {
-        return parent::getDefaultAttributes($discussion) + [
+        return parent::getDefaultAttributes($model) + [
             'customSerializer2' => true
         ];
     }
@@ -947,9 +947,9 @@ class CustomDiscussionSerializer2 extends DiscussionSerializer
 
 class CustomUserSerializer extends UserSerializer
 {
-    protected function getDefaultAttributes($user)
+    protected function getDefaultAttributes(object|array $model): array
     {
-        return parent::getDefaultAttributes($user) + [
+        return parent::getDefaultAttributes($model) + [
             'customSerializer' => true
         ];
     }
@@ -957,9 +957,9 @@ class CustomUserSerializer extends UserSerializer
 
 class CustomPostSerializer extends PostSerializer
 {
-    protected function getDefaultAttributes($post)
+    protected function getDefaultAttributes(object|array $model): array
     {
-        return parent::getDefaultAttributes($post) + [
+        return parent::getDefaultAttributes($model) + [
             'customSerializer' => true
         ];
     }

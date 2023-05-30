@@ -10,13 +10,11 @@
 namespace Flarum\Locale;
 
 use Symfony\Component\Translation\Loader\YamlFileLoader;
+use Symfony\Component\Translation\MessageCatalogue;
 
 class PrefixedYamlFileLoader extends YamlFileLoader
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function load($resource, $locale, $domain = 'messages')
+    public function load($resource, $locale, $domain = 'messages'): MessageCatalogue
     {
         $catalogue = parent::load($resource['file'], $locale, $domain);
 

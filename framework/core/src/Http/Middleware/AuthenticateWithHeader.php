@@ -58,12 +58,14 @@ class AuthenticateWithHeader implements Middleware
         return $handler->handle($request);
     }
 
-    private function getUser($string)
+    private function getUser($string): ?User
     {
         $parts = explode('=', trim($string));
 
         if (isset($parts[0]) && $parts[0] === 'userId') {
             return User::find($parts[1]);
         }
+
+        return null;
     }
 }

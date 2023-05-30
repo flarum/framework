@@ -10,6 +10,7 @@
 namespace Flarum\Tags\Command;
 
 use Flarum\Tags\Event\Saving;
+use Flarum\Tags\Tag;
 use Flarum\Tags\TagRepository;
 use Flarum\Tags\TagValidator;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -17,39 +18,14 @@ use Illuminate\Support\Arr;
 
 class EditTagHandler
 {
-    /**
-     * @var TagRepository
-     */
-    protected $tags;
-
-    /**
-     * @var TagValidator
-     */
-    protected $validator;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @param TagRepository $tags
-     * @param TagValidator $validator
-     * @param Dispatcher $events
-     */
-    public function __construct(TagRepository $tags, TagValidator $validator, Dispatcher $events)
-    {
-        $this->tags = $tags;
-        $this->validator = $validator;
-        $this->events = $events;
+    public function __construct(
+        protected TagRepository $tags,
+        protected TagValidator $validator,
+        protected Dispatcher $events
+    ) {
     }
 
-    /**
-     * @param EditTag $command
-     * @return \Flarum\Tags\Tag
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     */
-    public function handle(EditTag $command)
+    public function handle(EditTag $command): Tag
     {
         $actor = $command->actor;
         $data = $command->data;

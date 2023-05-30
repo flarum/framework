@@ -16,23 +16,12 @@ use Flarum\Subscriptions\Notification\NewPostBlueprint;
 
 class DeleteNotificationWhenPostIsHiddenOrDeleted
 {
-    /**
-     * @var NotificationSyncer
-     */
-    protected $notifications;
-
-    /**
-     * @param NotificationSyncer $notifications
-     */
-    public function __construct(NotificationSyncer $notifications)
-    {
-        $this->notifications = $notifications;
+    public function __construct(
+        protected NotificationSyncer $notifications
+    ) {
     }
 
-    /**
-     * @param Hidden|Deleted $event
-     */
-    public function handle($event)
+    public function handle(Deleted|Hidden $event): void
     {
         $this->notifications->delete(new NewPostBlueprint($event->post));
     }

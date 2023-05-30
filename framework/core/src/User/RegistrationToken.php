@@ -12,6 +12,7 @@ namespace Flarum\User;
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\User\Exception\InvalidConfirmationTokenException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 /**
@@ -45,21 +46,12 @@ class RegistrationToken extends AbstractModel
      */
     public $incrementing = false;
 
-    /**
-     * {@inheritdoc}
-     */
     protected $primaryKey = 'token';
 
     /**
      * Generate an auth token for the specified user.
-     *
-     * @param string $provider
-     * @param string $identifier
-     * @param array $attributes
-     * @param array $payload
-     * @return static
      */
-    public static function generate(string $provider, string $identifier, array $attributes, array $payload)
+    public static function generate(string $provider, string $identifier, array $attributes, array $payload): static
     {
         $token = new static;
 
@@ -76,14 +68,9 @@ class RegistrationToken extends AbstractModel
     /**
      * Find the token with the given ID, and assert that it has not expired.
      *
-     * @param \Illuminate\Database\Eloquent\Builder<self> $query
-     * @param string $token
-     *
      * @throws InvalidConfirmationTokenException
-     *
-     * @return RegistrationToken
      */
-    public function scopeValidOrFail($query, string $token)
+    public function scopeValidOrFail(Builder $query, string $token): ?RegistrationToken
     {
         /** @var RegistrationToken|null $token */
         $token = $query->find($token);

@@ -13,16 +13,8 @@ use Flarum\Discussion\UserState;
 
 class UserDataSaving
 {
-    /**
-     * @var \Flarum\Discussion\UserState
-     */
-    public $state;
-
-    /**
-     * @param \Flarum\Discussion\UserState $state
-     */
-    public function __construct(UserState $state)
-    {
-        $this->state = $state;
+    public function __construct(
+        public UserState $state
+    ) {
     }
 }

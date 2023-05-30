@@ -17,10 +17,7 @@ use Illuminate\Database\Query\Expression;
 
 class FulltextGambit implements GambitInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function apply(SearchState $search, $bit)
+    public function apply(SearchState $search, string $bit): bool
     {
         // Replace all non-word characters with spaces.
         // We do this to prevent MySQL fulltext search boolean mode from taking

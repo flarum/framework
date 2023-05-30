@@ -23,57 +23,17 @@ use Symfony\Component\Console\Input\StringInput;
 
 class UpdateExtensionHandler
 {
-    /**
-     * @var ComposerAdapter
-     */
-    protected $composer;
-
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    /**
-     * @var UpdateExtensionValidator
-     */
-    protected $validator;
-
-    /**
-     * @var LastUpdateCheck
-     */
-    protected $lastUpdateCheck;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @var Paths
-     */
-    protected $paths;
-
     public function __construct(
-        ComposerAdapter $composer,
-        ExtensionManager $extensions,
-        UpdateExtensionValidator $validator,
-        LastUpdateCheck $lastUpdateCheck,
-        Dispatcher $events,
-        Paths $paths
+        public ComposerAdapter $composer,
+        public ExtensionManager $extensions,
+        public UpdateExtensionValidator $validator,
+        public LastUpdateCheck $lastUpdateCheck,
+        public Dispatcher $events,
+        public Paths $paths
     ) {
-        $this->composer = $composer;
-        $this->extensions = $extensions;
-        $this->validator = $validator;
-        $this->lastUpdateCheck = $lastUpdateCheck;
-        $this->events = $events;
-        $this->paths = $paths;
     }
 
-    /**
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     * @throws \Exception
-     */
-    public function handle(UpdateExtension $command)
+    public function handle(UpdateExtension $command): void
     {
         $command->actor->assertAdmin();
 

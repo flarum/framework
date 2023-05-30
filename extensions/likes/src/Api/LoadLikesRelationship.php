@@ -9,6 +9,7 @@
 
 namespace Flarum\Likes\Api;
 
+use Flarum\Api\Controller\AbstractSerializeController;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\Post;
@@ -19,15 +20,15 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class LoadLikesRelationship
 {
-    public static $maxLikes = 4;
+    public static int $maxLikes = 4;
 
-    public static function mutateRelation(BelongsToMany $query, ServerRequestInterface $request): BelongsToMany
+    public static function mutateRelation(BelongsToMany $query, ServerRequestInterface $request): void
     {
         $actor = RequestUtil::getActor($request);
 
         $grammar = $query->getQuery()->getGrammar();
 
-        return $query
+        $query
             // So that we can tell if the current user has liked the post.
             ->orderBy(new Expression($grammar->wrap('user_id').' = '.$actor->id), 'desc')
             // Limiting a relationship results is only possible because
@@ -39,13 +40,14 @@ class LoadLikesRelationship
     /**
      * Called using the @see ApiController::prepareDataForSerialization extender.
      */
-    public static function countRelation($controller, $data): void
+    public static function countRelation(AbstractSerializeController $controller, mixed $data): array
     {
         $loadable = null;
 
         if ($data instanceof Discussion) {
-            // @phpstan-ignore-next-line
-            $loadable = $data->newCollection($data->posts)->filter(function ($post) {
+            // We do this because the ShowDiscussionController manipulates the posts
+            // in a way that some of them are just ids.
+            $loadable = $data->posts->filter(function ($post) {
                 return $post instanceof Post;
             });
         } elseif ($data instanceof Collection) {
@@ -57,5 +59,7 @@ class LoadLikesRelationship
         if ($loadable) {
             $loadable->loadCount('likes');
         }
+
+        return [];
     }
 }

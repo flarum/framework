@@ -1,4 +1,4 @@
-import type Mithril from 'mithril';
+import Mithril from 'mithril';
 
 import app from '../../admin/app';
 
@@ -17,6 +17,7 @@ import classList from '../../common/utils/classList';
 import extractText from '../../common/utils/extractText';
 import AdminPage from './AdminPage';
 import { debounce } from '../../common/utils/throttleDebounce';
+import CreateUserModal from './CreateUserModal';
 
 type ColumnData = {
   /**
@@ -107,7 +108,7 @@ export default class UserListPage extends AdminPage {
       this.loadPage(this.pageNumber);
 
       return [
-        <section class="UserListPage-grid UserListPage-grid--loading">
+        <section className="UserListPage-grid UserListPage-grid--loading">
           <LoadingIndicator containerClassName="LoadingIndicator--block" size="large" />
         </section>,
       ];
@@ -116,21 +117,9 @@ export default class UserListPage extends AdminPage {
     const columns = this.columns().toArray();
 
     return [
-      <div className="Search-input">
-        <input
-          className="FormControl SearchBar"
-          type="search"
-          placeholder={app.translator.trans('core.admin.users.search_placeholder')}
-          oninput={(e: InputEvent) => {
-            this.isLoadingPage = true;
-            this.query = (e?.target as HTMLInputElement)?.value;
-            this.throttledSearch();
-          }}
-        />
-      </div>,
-      <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.users.total_users', { count: this.userCount })}</p>,
+      <div className="UserListPage-header">{this.headerItems().toArray()}</div>,
       <section
-        class={classList(['UserListPage-grid', this.isLoadingPage ? 'UserListPage-grid--loadingPage' : 'UserListPage-grid--loaded'])}
+        className={classList(['UserListPage-grid', this.isLoadingPage ? 'UserListPage-grid--loadingPage' : 'UserListPage-grid--loaded'])}
         style={{ '--columns': columns.length }}
         role="table"
         // +1 to account for header
@@ -141,7 +130,7 @@ export default class UserListPage extends AdminPage {
       >
         {/* Render columns */}
         {columns.map((column, colIndex) => (
-          <div class="UserListPage-grid-header" role="columnheader" aria-colindex={colIndex + 1} aria-rowindex={1}>
+          <div className="UserListPage-grid-header" role="columnheader" aria-colindex={colIndex + 1} aria-rowindex={1}>
             {column.name}
           </div>
         ))}
@@ -153,7 +142,7 @@ export default class UserListPage extends AdminPage {
 
             return (
               <div
-                class={classList(['UserListPage-grid-rowItem', rowIndex % 2 > 0 && 'UserListPage-grid-rowItem--shaded'])}
+                className={classList(['UserListPage-grid-rowItem', rowIndex % 2 > 0 && 'UserListPage-grid-rowItem--shaded'])}
                 data-user-id={user.id()}
                 data-column-name={col.itemName}
                 aria-colindex={colIndex + 1}
@@ -170,7 +159,7 @@ export default class UserListPage extends AdminPage {
         {/* Loading spinner that shows when a new page is being loaded */}
         {this.isLoadingPage && <LoadingIndicator size="large" />}
       </section>,
-      <nav class="UserListPage-gridPagination">
+      <nav className="UserListPage-gridPagination">
         <Button
           disabled={this.pageNumber === 0}
           title={app.translator.trans('core.admin.users.pagination.first_page_button')}
@@ -185,7 +174,7 @@ export default class UserListPage extends AdminPage {
           icon="fas fa-chevron-left"
           className="Button Button--icon UserListPage-backBtn"
         />
-        <span class="UserListPage-pageNumber">
+        <span className="UserListPage-pageNumber">
           {app.translator.trans('core.admin.users.pagination.page_counter', {
             // https://technology.blog.gov.uk/2020/02/24/why-the-gov-uk-design-system-team-changed-the-input-type-for-numbers/
             current: (
@@ -243,6 +232,51 @@ export default class UserListPage extends AdminPage {
     ];
   }
 
+  headerItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add(
+      'search',
+      <div className="Search-input">
+        <input
+          className="FormControl SearchBar"
+          type="search"
+          placeholder={app.translator.trans('core.admin.users.search_placeholder')}
+          oninput={(e: InputEvent) => {
+            this.isLoadingPage = true;
+            this.query = (e?.target as HTMLInputElement)?.value;
+            this.throttledSearch();
+          }}
+        />
+      </div>,
+      100
+    );
+
+    items.add(
+      'totalUsers',
+      <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.users.total_users', { count: this.userCount })}</p>,
+      90
+    );
+
+    items.add('actions', <div className="UserListPage-actions">{this.actionItems().toArray()}</div>, 80);
+
+    return items;
+  }
+
+  actionItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add(
+      'createUser',
+      <Button className="Button UserListPage-createUserBtn" icon="fas fa-user-plus" onclick={() => app.modal.show(CreateUserModal)}>
+        {app.translator.trans('core.admin.users.create_user_button')}
+      </Button>,
+      100
+    );
+
+    return items;
+  }
+
   /**
    * Build an item list of columns to show for each user.
    *
@@ -260,7 +294,7 @@ export default class UserListPage extends AdminPage {
       'id',
       {
         name: app.translator.trans('core.admin.users.grid.columns.user_id.title'),
-        content: (user: User) => user.id() ?? '',
+        content: (user: User) => user.id() ?? null,
       },
       100
     );
@@ -300,7 +334,7 @@ export default class UserListPage extends AdminPage {
       {
         name: app.translator.trans('core.admin.users.grid.columns.join_time.title'),
         content: (user: User) => (
-          <span class="UserList-joinDate" title={user.joinTime()}>
+          <span className="UserList-joinDate" title={user.joinTime()}>
             {dayjs(user.joinTime()).format('LLL')}
           </span>
         ),
@@ -372,13 +406,13 @@ export default class UserListPage extends AdminPage {
           }
 
           return (
-            <div class="UserList-email" key={user.id()} data-email-shown="false">
-              <span class="UserList-emailAddress" aria-hidden="true" onclick={() => setEmailVisibility(true)}>
+            <div className="UserList-email" key={user.id()} data-email-shown="false">
+              <span className="UserList-emailAddress" aria-hidden="true" onclick={() => setEmailVisibility(true)}>
                 {user.email()}
               </span>
               <button
                 onclick={toggleEmailVisibility}
-                class="Button Button--text UserList-emailIconBtn"
+                className="Button Button--text UserList-emailIconBtn"
                 title={app.translator.trans('core.admin.users.grid.columns.email.visibility_show')}
               >
                 {icon('far fa-eye-slash fa-fw', { className: 'icon' })}

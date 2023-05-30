@@ -87,14 +87,9 @@ export default class ForgotPasswordModal<CustomAttrs extends IForgotPasswordModa
     items.add(
       'submit',
       <div className="Form-group">
-        {Button.component(
-          {
-            className: 'Button Button--primary Button--block',
-            type: 'submit',
-            loading: this.loading,
-          },
-          app.translator.trans('core.forum.forgot_password.submit_button')
-        )}
+        <Button className="Button Button--primary Button--block" type="submit" loading={this.loading}>
+          {app.translator.trans('core.forum.forgot_password.submit_button')}
+        </Button>
       </div>,
       -10
     );

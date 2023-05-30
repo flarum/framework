@@ -9,24 +9,23 @@
 
 namespace Flarum\Http;
 
+use Flarum\Database\AbstractModel;
 use Illuminate\Support\Arr;
 
 class SlugManager
 {
-    protected $drivers = [];
-
-    public function __construct(array $drivers)
-    {
-        $this->drivers = $drivers;
+    public function __construct(
+        protected array $drivers = []
+    ) {
     }
 
     /**
-     * @template T of \Flarum\Database\AbstractModel
+     * @template T of AbstractModel
      * @param class-string<T> $resourceName
      * @return SlugDriverInterface<T>
      */
     public function forResource(string $resourceName): SlugDriverInterface
     {
-        return Arr::get($this->drivers, $resourceName, null);
+        return Arr::get($this->drivers, $resourceName);
     }
 }

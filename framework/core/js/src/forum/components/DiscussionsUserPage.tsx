@@ -27,6 +27,10 @@ export default class DiscussionsUserPage extends UserPage<IUserPageAttrs, Discus
   }
 
   content() {
-    return <div className="DiscussionsUserPage">{DiscussionList.component({ state: this.state })}</div>;
+    return (
+      <div className="DiscussionsUserPage">
+        <DiscussionList state={this.state} />
+      </div>
+    );
   }
 }

@@ -17,18 +17,11 @@ namespace Flarum\Settings\Event;
  */
 class Deserializing
 {
-    /**
-     * The settings array to be unserialized.
-     *
-     * @var array
-     */
-    public $settings;
-
-    /**
-     * @param array $settings The settings array to be unserialized.
-     */
-    public function __construct(&$settings)
-    {
-        $this->settings = &$settings;
+    public function __construct(
+        /**
+         * The settings array to be unserialized.
+         */
+        public array &$settings
+    ) {
     }
 }

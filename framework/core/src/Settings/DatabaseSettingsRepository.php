@@ -13,11 +13,9 @@ use Illuminate\Database\ConnectionInterface;
 
 class DatabaseSettingsRepository implements SettingsRepositoryInterface
 {
-    protected $database;
-
-    public function __construct(ConnectionInterface $connection)
-    {
-        $this->database = $connection;
+    public function __construct(
+        protected ConnectionInterface $database
+    ) {
     }
 
     public function all(): array
@@ -25,7 +23,7 @@ class DatabaseSettingsRepository implements SettingsRepositoryInterface
         return $this->database->table('settings')->pluck('value', 'key')->all();
     }
 
-    public function get($key, $default = null)
+    public function get(string $key, $default = null): mixed
     {
         if (is_null($value = $this->database->table('settings')->where('key', $key)->value('value'))) {
             return $default;
@@ -34,7 +32,7 @@ class DatabaseSettingsRepository implements SettingsRepositoryInterface
         return $value;
     }
 
-    public function set($key, $value)
+    public function set(string $key, mixed $value): void
     {
         $query = $this->database->table('settings')->where('key', $key);
 
@@ -43,8 +41,8 @@ class DatabaseSettingsRepository implements SettingsRepositoryInterface
         $query->$method(compact('key', 'value'));
     }
 
-    public function delete($key)
+    public function delete(string $keyLike): void
     {
-        $this->database->table('settings')->where('key', $key)->delete();
+        $this->database->table('settings')->where('key', $keyLike)->delete();
     }
 }

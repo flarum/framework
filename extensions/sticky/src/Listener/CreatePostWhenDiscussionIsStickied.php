@@ -17,28 +17,17 @@ use Flarum\User\User;
 
 class CreatePostWhenDiscussionIsStickied
 {
-    /**
-     * @param DiscussionWasStickied $event
-     */
-    public static function whenDiscussionWasStickied(DiscussionWasStickied $event)
+    public static function whenDiscussionWasStickied(DiscussionWasStickied $event): void
     {
         static::stickyChanged($event->discussion, $event->user, true);
     }
 
-    /**
-     * @param DiscussionWasUnstickied $event
-     */
-    public static function whenDiscussionWasUnstickied(DiscussionWasUnstickied $event)
+    public static function whenDiscussionWasUnstickied(DiscussionWasUnstickied $event): void
     {
         static::stickyChanged($event->discussion, $event->user, false);
     }
 
-    /**
-     * @param Discussion $discussion
-     * @param User $user
-     * @param bool $isSticky
-     */
-    protected static function stickyChanged(Discussion $discussion, User $user, $isSticky)
+    protected static function stickyChanged(Discussion $discussion, User $user, bool $isSticky): void
     {
         $post = DiscussionStickiedPost::reply(
             $discussion->id,

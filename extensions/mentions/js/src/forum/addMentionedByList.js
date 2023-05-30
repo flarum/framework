@@ -41,13 +41,10 @@ export default function addMentionedByList() {
           <>
             {replies.map((reply) => (
               <li data-number={reply.number()}>
-                {PostPreview.component({
-                  post: reply,
-                  onclick: hidePreview.bind(this),
-                })}
+                <PostPreview post={reply} onclick={hidePreview.bind(this)} />
               </li>
             ))}
-            {replies.length < post.mentionedByCount() ? (
+            {replies.length < post.mentionedByCount() && (
               <li className="Post-mentionedBy-preview-more">
                 <Button
                   className="PostPreview Button"
@@ -64,7 +61,7 @@ export default function addMentionedByList() {
                   </span>
                 </Button>
               </li>
-            ) : null}
+            )}
           </>
         );
 
@@ -149,7 +146,7 @@ export default function addMentionedByList() {
         <div className="Post-mentionedBy">
           <span className="Post-mentionedBy-summary">
             {icon('fas fa-reply')}
-            {app.translator.trans('flarum-mentions.forum.post.mentioned_by' + (repliers[0].user() === app.session.user ? '_self' : '') + '_text', {
+            {app.translator.trans(`flarum-mentions.forum.post.mentioned_by${repliers[0].user() === app.session.user ? '_self' : ''}_text`, {
               count: names.length,
               users: punctuateSeries(names),
             })}

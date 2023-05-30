@@ -13,10 +13,7 @@ use Flarum\Post\Event\Deleted;
 
 class DeleteFlags
 {
-    /**
-     * @param Deleted $event
-     */
-    public function handle(Deleted $event)
+    public function handle(Deleted $event): void
     {
         $event->post->flags()->delete();
     }

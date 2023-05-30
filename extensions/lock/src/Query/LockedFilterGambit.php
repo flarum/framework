@@ -17,14 +17,14 @@ use Illuminate\Database\Query\Builder;
 
 class LockedFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
-    protected function getGambitPattern()
+    protected function getGambitPattern(): string
     {
         return 'is:locked';
     }
 
-    protected function conditions(SearchState $searchState, array $matches, $negate)
+    protected function conditions(SearchState $search, array $matches, bool $negate): void
     {
-        $this->constrain($searchState->getQuery(), $negate);
+        $this->constrain($search->getQuery(), $negate);
     }
 
     public function getFilterKey(): string
@@ -32,12 +32,12 @@ class LockedFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'locked';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $this->constrain($filterState->getQuery(), $negate);
     }
 
-    protected function constrain(Builder $query, bool $negate)
+    protected function constrain(Builder $query, bool $negate): void
     {
         $query->where('is_locked', ! $negate);
     }

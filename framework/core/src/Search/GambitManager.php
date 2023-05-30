@@ -16,38 +16,22 @@ use LogicException;
  */
 class GambitManager
 {
-    /**
-     * @var array
-     */
-    protected $gambits = [];
+    protected array $gambits = [];
 
-    /**
-     * @var GambitInterface
-     */
-    protected $fulltextGambit;
-
-    public function __construct(GambitInterface $fulltextGambit)
-    {
-        $this->fulltextGambit = $fulltextGambit;
+    public function __construct(
+        protected GambitInterface $fulltextGambit
+    ) {
     }
 
-    /**
-     * Add a gambit.
-     *
-     * @param GambitInterface $gambit
-     */
-    public function add(GambitInterface $gambit)
+    public function add(GambitInterface $gambit): void
     {
         $this->gambits[] = $gambit;
     }
 
     /**
      * Apply gambits to a search, given a search query.
-     *
-     * @param SearchState $search
-     * @param string $query
      */
-    public function apply(SearchState $search, $query)
+    public function apply(SearchState $search, string $query): void
     {
         $query = $this->applyGambits($search, $query);
 
@@ -58,21 +42,13 @@ class GambitManager
 
     /**
      * Explode a search query into an array of bits.
-     *
-     * @param string $query
-     * @return array
      */
-    protected function explode($query)
+    protected function explode(string $query): array
     {
         return str_getcsv($query, ' ');
     }
 
-    /**
-     * @param SearchState $search
-     * @param string $query
-     * @return string
-     */
-    protected function applyGambits(SearchState $search, $query)
+    protected function applyGambits(SearchState $search, string $query): string
     {
         $bits = $this->explode($query);
 
@@ -99,11 +75,7 @@ class GambitManager
         return implode(' ', $bits);
     }
 
-    /**
-     * @param SearchState $search
-     * @param string $query
-     */
-    protected function applyFulltext(SearchState $search, $query)
+    protected function applyFulltext(SearchState $search, string $query): void
     {
         $search->addActiveGambit($this->fulltextGambit);
         $this->fulltextGambit->apply($search, $query);

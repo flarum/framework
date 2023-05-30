@@ -21,10 +21,7 @@ use Illuminate\Database\Schema\Builder;
  */
 abstract class Migration
 {
-    /**
-     * Create a table.
-     */
-    public static function createTable($name, callable $definition)
+    public static function createTable($name, callable $definition): array
     {
         return [
             'up' => function (Builder $schema) use ($name, $definition) {
@@ -38,10 +35,7 @@ abstract class Migration
         ];
     }
 
-    /**
-     * Create a table if it doesn't already exist.
-     */
-    public static function createTableIfNotExists($name, callable $definition)
+    public static function createTableIfNotExists($name, callable $definition): array
     {
         return [
             'up' => function (Builder $schema) use ($name, $definition) {
@@ -57,10 +51,7 @@ abstract class Migration
         ];
     }
 
-    /**
-     * Rename a table.
-     */
-    public static function renameTable($from, $to)
+    public static function renameTable($from, $to): array
     {
         return [
             'up' => function (Builder $schema) use ($from, $to) {
@@ -72,10 +63,7 @@ abstract class Migration
         ];
     }
 
-    /**
-     * Add columns to a table.
-     */
-    public static function addColumns($tableName, array $columnDefinitions)
+    public static function addColumns($tableName, array $columnDefinitions): array
     {
         return [
             'up' => function (Builder $schema) use ($tableName, $columnDefinitions) {
@@ -94,10 +82,7 @@ abstract class Migration
         ];
     }
 
-    /**
-     * Drop columns from a table.
-     */
-    public static function dropColumns($tableName, array $columnDefinitions)
+    public static function dropColumns($tableName, array $columnDefinitions): array
     {
         $inverse = static::addColumns($tableName, $columnDefinitions);
 
@@ -107,18 +92,12 @@ abstract class Migration
         ];
     }
 
-    /**
-     * Rename a column.
-     */
-    public static function renameColumn($tableName, $from, $to)
+    public static function renameColumn($tableName, $from, $to): array
     {
         return static::renameColumns($tableName, [$from => $to]);
     }
 
-    /**
-     * Rename multiple columns.
-     */
-    public static function renameColumns($tableName, array $columnNames)
+    public static function renameColumns($tableName, array $columnNames): array
     {
         return [
             'up' => function (Builder $schema) use ($tableName, $columnNames) {
@@ -144,7 +123,7 @@ abstract class Migration
      * @deprecated Use the Settings extender's `default` method instead to register settings.
      * @see Settings::default()
      */
-    public static function addSettings(array $defaults)
+    public static function addSettings(array $defaults): array
     {
         return [
             'up' => function (Builder $schema) use ($defaults) {
@@ -168,10 +147,7 @@ abstract class Migration
         ];
     }
 
-    /**
-     * Add default permissions.
-     */
-    public static function addPermissions(array $permissions)
+    public static function addPermissions(array $permissions): array
     {
         $rows = [];
 

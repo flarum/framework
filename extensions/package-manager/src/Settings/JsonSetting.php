@@ -11,7 +11,7 @@ namespace Flarum\PackageManager\Settings;
 
 interface JsonSetting
 {
-    public function with(string $key, $value): self;
+    public function with(string $key, mixed $value): self;
 
     public function save(): array;
 

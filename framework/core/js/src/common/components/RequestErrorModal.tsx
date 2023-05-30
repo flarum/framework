@@ -12,7 +12,7 @@ export default class RequestErrorModal<CustomAttrs extends IRequestErrorModalAtt
   }
 
   title() {
-    return this.attrs.error.xhr ? `${this.attrs.error.xhr.status} ${this.attrs.error.xhr.statusText}` : '';
+    return !!this.attrs.error.xhr && `${this.attrs.error.xhr.status} ${this.attrs.error.xhr.statusText}`;
   }
 
   content() {

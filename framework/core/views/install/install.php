@@ -93,6 +93,9 @@
               button.textContent = 'Install Flarum';
             });
           }
+        })
+        .catch(error => {
+          console.error('Error:', error);
         });
 
       return false;

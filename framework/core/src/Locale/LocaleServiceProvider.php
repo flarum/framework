@@ -14,14 +14,11 @@ use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Translation\Translator as TranslatorContract;
-use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface as SymfonyTranslatorInterface;
 
 class LocaleServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    public function register(): void
     {
         $this->container->singleton(LocaleManager::class, function (Container $container) {
             $locales = new LocaleManager(
@@ -54,6 +51,7 @@ class LocaleServiceProvider extends AbstractServiceProvider
 
         $this->container->alias('translator', Translator::class);
         $this->container->alias('translator', TranslatorContract::class);
+        $this->container->alias('translator', SymfonyTranslatorInterface::class);
         $this->container->alias('translator', TranslatorInterface::class);
     }
 

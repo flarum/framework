@@ -10,6 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\GroupSerializer;
+use Flarum\Group\Group;
 use Flarum\Group\GroupRepository;
 use Flarum\Http\RequestUtil;
 use Illuminate\Support\Arr;
@@ -18,28 +19,14 @@ use Tobscure\JsonApi\Document;
 
 class ShowGroupController extends AbstractShowController
 {
-    /**
-     * @var GroupRepository
-     */
-    protected $groups;
+    public ?string $serializer = GroupSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = GroupSerializer::class;
-
-    /**
-     * @param \Flarum\Group\GroupRepository $groups
-     */
-    public function __construct(GroupRepository $groups)
-    {
-        $this->groups = $groups;
+    public function __construct(
+        protected GroupRepository $groups
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): Group
     {
         $id = Arr::get($request->getQueryParams(), 'id');
         $actor = RequestUtil::getActor($request);

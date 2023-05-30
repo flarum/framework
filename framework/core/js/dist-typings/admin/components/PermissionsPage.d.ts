@@ -8,5 +8,5 @@ export default class PermissionsPage extends AdminPage {
         title: import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
         description: import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
     };
-    content(): JSX.Element[];
+    content(): JSX.Element;
 }

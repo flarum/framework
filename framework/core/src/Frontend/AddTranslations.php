@@ -9,6 +9,7 @@
 
 namespace Flarum\Frontend;
 
+use Closure;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Locale\LocaleManager;
 use Illuminate\Support\Arr;
@@ -18,23 +19,13 @@ use Illuminate\Support\Arr;
  */
 class AddTranslations
 {
-    /**
-     * @var LocaleManager
-     */
-    protected $locales;
-
-    /**
-     * @var callable
-     */
-    protected $filter;
-
-    public function __construct(LocaleManager $locales, callable $filter = null)
-    {
-        $this->locales = $locales;
-        $this->filter = $filter;
+    public function __construct(
+        protected LocaleManager $locales,
+        protected ?Closure $filter = null
+    ) {
     }
 
-    public function forFrontend(string $name)
+    public function forFrontend(string $name): static
     {
         $this->filter = function (string $id) use ($name) {
             return preg_match('/^.+(?:\.|::)(?:'.$name.'|lib)\./', $id);
@@ -43,7 +34,7 @@ class AddTranslations
         return $this;
     }
 
-    public function to(Assets $assets)
+    public function to(Assets $assets): void
     {
         $assets->localeJs(function (SourceCollector $sources, string $locale) {
             $sources->addString(function () use ($locale) {
@@ -54,7 +45,7 @@ class AddTranslations
         });
     }
 
-    private function getTranslations(string $locale)
+    private function getTranslations(string $locale): array
     {
         $catalogue = $this->locales->getTranslator()->getCatalogue($locale);
         $translations = $catalogue->all('messages');

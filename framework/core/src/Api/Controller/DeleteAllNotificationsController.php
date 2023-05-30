@@ -16,23 +16,12 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class DeleteAllNotificationsController extends AbstractDeleteController
 {
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
-
-    /**
-     * @param Dispatcher $bus
-     */
-    public function __construct(Dispatcher $bus)
-    {
-        $this->bus = $bus;
+    public function __construct(
+        protected Dispatcher $bus
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function delete(ServerRequestInterface $request)
+    protected function delete(ServerRequestInterface $request): void
     {
         $this->bus->dispatch(
             new DeleteAllNotifications(RequestUtil::getActor($request))

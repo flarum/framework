@@ -13,7 +13,7 @@ use Flarum\Post\Event\Posted;
 
 class FollowAfterReply
 {
-    public function handle(Posted $event)
+    public function handle(Posted $event): void
     {
         $actor = $event->actor;
 

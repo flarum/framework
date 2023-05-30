@@ -18,19 +18,13 @@ use Flarum\User\User;
  */
 class Utf8SlugDriver implements SlugDriverInterface
 {
-    /**
-     * @var DiscussionRepository
-     */
-    protected $discussions;
-
-    public function __construct(DiscussionRepository $discussions)
-    {
-        $this->discussions = $discussions;
+    public function __construct(
+        protected DiscussionRepository $discussions
+    ) {
     }
 
     /**
      * @param Discussion $instance
-     * @return string
      */
     public function toSlug(AbstractModel $instance): string
     {
@@ -42,8 +36,6 @@ class Utf8SlugDriver implements SlugDriverInterface
     }
 
     /**
-     * @param string $slug
-     * @param User $actor
      * @return Discussion
      */
     public function fromSlug(string $slug, User $actor): AbstractModel

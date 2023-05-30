@@ -14,16 +14,12 @@ use Flarum\User\User;
 
 class AddNewFlagCountAttribute
 {
-    public function __invoke(CurrentUserSerializer $serializer, User $user)
+    public function __invoke(CurrentUserSerializer $serializer, User $user): int
     {
-        return (int) $this->getNewFlagCount($user);
+        return $this->getNewFlagCount($user);
     }
 
-    /**
-     * @param User $actor
-     * @return int
-     */
-    protected function getNewFlagCount(User $actor)
+    protected function getNewFlagCount(User $actor): int
     {
         $query = Flag::whereVisibleTo($actor);
 

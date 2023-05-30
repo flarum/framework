@@ -19,28 +19,15 @@ use Tobscure\JsonApi\Document;
 
 class ListTasksController extends AbstractListController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = TaskSerializer::class;
+    public ?string $serializer = TaskSerializer::class;
 
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @var TaskRepository
-     */
-    protected $repository;
-
-    public function __construct(UrlGenerator $url, TaskRepository $repository)
-    {
-        $this->url = $url;
-        $this->repository = $repository;
+    public function __construct(
+        protected UrlGenerator $url,
+        protected TaskRepository $repository
+    ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
 

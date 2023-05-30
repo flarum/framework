@@ -7,6 +7,7 @@ import extractText from 'flarum/common/utils/extractText';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Placeholder from 'flarum/common/components/Placeholder';
 import icon from 'flarum/common/helpers/icon';
+import classList from 'flarum/common/utils/classList';
 
 import DashboardWidget, { IDashboardWidgetAttrs } from 'flarum/admin/components/DashboardWidget';
 
@@ -277,7 +278,7 @@ export default class StatisticsWidget extends DashboardWidget {
 
             return (
               <button
-                className={'Button--ua-reset StatisticsWidget-entity' + (this.selectedEntity === entity ? ' active' : '')}
+                className={classList('Button--ua-reset StatisticsWidget-entity', { active: this.selectedEntity === entity })}
                 onclick={this.changeEntity.bind(this, entity)}
               >
                 <h3 className="StatisticsWidget-heading">{app.translator.trans('flarum-statistics.admin.statistics.' + entity + '_heading')}</h3>

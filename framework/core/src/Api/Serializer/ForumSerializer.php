@@ -19,9 +19,6 @@ use Tobscure\JsonApi\Relationship;
 
 class ForumSerializer extends AbstractSerializer
 {
-    /**
-     * {@inheritdoc}
-     */
     protected $type = 'forums';
 
     /**
@@ -58,18 +55,15 @@ class ForumSerializer extends AbstractSerializer
         $this->url = $url;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getId($model)
     {
         return '1';
     }
 
     /**
-     * {@inheritdoc}
+     * @param array $model
      */
-    protected function getDefaultAttributes($model): array
+    protected function getDefaultAttributes(object|array $model): array
     {
         $attributes = [
             'title' => $this->settings->get('forum_title'),
@@ -106,17 +100,11 @@ class ForumSerializer extends AbstractSerializer
         return $attributes;
     }
 
-    /**
-     * @return Relationship
-     */
-    protected function groups($model): Relationship
+    protected function groups($model): ?Relationship
     {
         return $this->hasMany($model, GroupSerializer::class);
     }
 
-    /**
-     * @return null|string
-     */
     protected function getLogoUrl(): ?string
     {
         $logoPath = $this->settings->get('logo_path');
@@ -124,9 +112,6 @@ class ForumSerializer extends AbstractSerializer
         return $logoPath ? $this->getAssetUrl($logoPath) : null;
     }
 
-    /**
-     * @return null|string
-     */
     protected function getFaviconUrl(): ?string
     {
         $faviconPath = $this->settings->get('favicon_path');
@@ -139,9 +124,6 @@ class ForumSerializer extends AbstractSerializer
         return $this->assetsFilesystem->url($assetPath);
     }
 
-    /**
-     * @return Relationship|null
-     */
     protected function actor($model): ?Relationship
     {
         return $this->hasOne($model, CurrentUserSerializer::class);

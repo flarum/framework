@@ -15,7 +15,7 @@ use Flarum\Tags\Tag;
 
 class HideHiddenTagsFromAllDiscussionsPage
 {
-    public function __invoke(FilterState $filter, QueryCriteria $queryCriteria)
+    public function __invoke(FilterState $filter, QueryCriteria $queryCriteria): void
     {
         if (count($filter->getActiveFilters()) > 0) {
             return;

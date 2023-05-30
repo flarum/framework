@@ -16,6 +16,7 @@ use Flarum\Foundation\Paths;
 use Flarum\Testing\integration\Extend\BeginTransactionAndSetDatabase;
 use Flarum\Testing\integration\Extend\OverrideExtensionManagerForTests;
 use Flarum\Testing\integration\Extend\SetSettingsBeforeBoot;
+use Illuminate\Contracts\Cache\Store;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\ServerRequest;
@@ -36,6 +37,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         parent::tearDown();
 
         $this->database()->rollBack();
+        $this->app()->getContainer()->make(Store::class)->flush();
     }
 
     /**

@@ -46,12 +46,14 @@ export default class Composer extends Component {
     // Set up a handler so that clicks on the content will show the composer.
     const showIfMinimized = this.state.position === ComposerState.Position.MINIMIZED ? this.state.show.bind(this.state) : undefined;
 
+    const ComposerBody = body.componentClass;
+
     return (
       <div className={'Composer ' + classList(classes)}>
         <div className="Composer-handle" oncreate={this.configHandle.bind(this)} />
         <ul className="Composer-controls">{listItems(this.controlItems().toArray())}</ul>
         <div className="Composer-content" onclick={showIfMinimized}>
-          {body.componentClass ? body.componentClass.component({ ...body.attrs, composer: this.state, disabled: classes.minimized }) : ''}
+          {ComposerBody && <ComposerBody {...body.attrs} composer={this.state} disabled={classes.minimized} />}
         </div>
       </div>
     );
@@ -325,41 +327,41 @@ export default class Composer extends Component {
     if (this.state.position === ComposerState.Position.FULLSCREEN) {
       items.add(
         'exitFullScreen',
-        ComposerButton.component({
-          icon: 'fas fa-compress',
-          title: app.translator.trans('core.forum.composer.exit_full_screen_tooltip'),
-          onclick: this.state.exitFullScreen.bind(this.state),
-        })
+        <ComposerButton
+          icon="fas fa-compress"
+          title={app.translator.trans('core.forum.composer.exit_full_screen_tooltip')}
+          onclick={this.state.exitFullScreen.bind(this.state)}
+        />
       );
     } else {
       if (this.state.position !== ComposerState.Position.MINIMIZED) {
         items.add(
           'minimize',
-          ComposerButton.component({
-            icon: 'fas fa-minus minimize',
-            title: app.translator.trans('core.forum.composer.minimize_tooltip'),
-            onclick: this.state.minimize.bind(this.state),
-            itemClassName: 'App-backControl',
-          })
+          <ComposerButton
+            icon="fas fa-minus minimize"
+            title={app.translator.trans('core.forum.composer.minimize_tooltip')}
+            onclick={this.state.minimize.bind(this.state)}
+            itemClassName="App-backControl"
+          />
         );
 
         items.add(
           'fullScreen',
-          ComposerButton.component({
-            icon: 'fas fa-expand',
-            title: app.translator.trans('core.forum.composer.full_screen_tooltip'),
-            onclick: this.state.fullScreen.bind(this.state),
-          })
+          <ComposerButton
+            icon="fas fa-expand"
+            title={app.translator.trans('core.forum.composer.full_screen_tooltip')}
+            onclick={this.state.fullScreen.bind(this.state)}
+          />
         );
       }
 
       items.add(
         'close',
-        ComposerButton.component({
-          icon: 'fas fa-times',
-          title: app.translator.trans('core.forum.composer.close_tooltip'),
-          onclick: this.state.close.bind(this.state),
-        })
+        <ComposerButton
+          icon="fas fa-times"
+          title={app.translator.trans('core.forum.composer.close_tooltip')}
+          onclick={this.state.close.bind(this.state)}
+        />
       );
     }
 

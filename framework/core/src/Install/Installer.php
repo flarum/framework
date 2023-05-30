@@ -17,23 +17,16 @@ use Flarum\Http\Middleware as HttpMiddleware;
 use Flarum\Install\Console\InstallCommand;
 use Illuminate\Contracts\Container\Container;
 use Laminas\Stratigility\MiddlewarePipe;
+use Psr\Http\Server\RequestHandlerInterface;
 
 class Installer implements AppInterface
 {
-    /**
-     * @var Container
-     */
-    protected $container;
-
-    public function __construct(Container $container)
-    {
-        $this->container = $container;
+    public function __construct(
+        protected Container $container
+    ) {
     }
 
-    /**
-     * @return \Psr\Http\Server\RequestHandlerInterface
-     */
-    public function getRequestHandler()
+    public function getRequestHandler(): RequestHandlerInterface
     {
         $pipe = new MiddlewarePipe;
         $pipe->pipe(new HttpMiddleware\HandleErrors(
@@ -53,7 +46,7 @@ class Installer implements AppInterface
     /**
      * @return \Symfony\Component\Console\Command\Command[]
      */
-    public function getConsoleCommands()
+    public function getConsoleCommands(): array
     {
         return [
             new InstallCommand(

@@ -20,27 +20,13 @@ class CreateGroupHandler
 {
     use DispatchEventsTrait;
 
-    /**
-     * @var \Flarum\Group\GroupValidator
-     */
-    protected $validator;
-
-    /**
-     * @param Dispatcher $events
-     * @param \Flarum\Group\GroupValidator $validator
-     */
-    public function __construct(Dispatcher $events, GroupValidator $validator)
-    {
-        $this->events = $events;
-        $this->validator = $validator;
+    public function __construct(
+        protected Dispatcher $events,
+        protected GroupValidator $validator
+    ) {
     }
 
-    /**
-     * @param CreateGroup $command
-     * @return \Flarum\Group\Group
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     */
-    public function handle(CreateGroup $command)
+    public function handle(CreateGroup $command): Group
     {
         $actor = $command->actor;
         $data = $command->data;

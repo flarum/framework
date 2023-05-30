@@ -40,6 +40,7 @@
             "Flarum\\": "framework/core/src",
             "Flarum\\Akismet\\": "extensions/akismet/src",
             "Flarum\\Approval\\": "extensions/approval/src",
+            "Flarum\\BBCode\\": "extensions/bbcode/src",
             "Flarum\\Flags\\": "extensions/flags/src",
             "Flarum\\Likes\\": "extensions/likes/src",
             "Flarum\\Lock\\": "extensions/lock/src",
@@ -104,7 +105,7 @@
         "flarum/testing": "self.version"
     },
     "require": {
-        "php": ">=7.3",
+        "php": "^8.1",
         "ext-json": "*",
         "components/font-awesome": "^5.14.0",
         "composer/composer": "^2.0",

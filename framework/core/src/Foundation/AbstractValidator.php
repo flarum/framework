@@ -9,54 +9,39 @@
 
 namespace Flarum\Foundation;
 
+use Flarum\Locale\TranslatorInterface;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
-use Symfony\Contracts\Translation\TranslatorInterface;
+use Illuminate\Validation\Validator;
 
 abstract class AbstractValidator
 {
     /**
+     * @var callable[]
+     */
+    protected array $configuration = [];
+
+    /**
      * @var array
      */
-    protected $configuration = [];
+    protected array $rules = [];
 
-    public function addConfiguration($callable)
+    public function __construct(
+        protected Factory $validator,
+        protected TranslatorInterface $translator
+    ) {
+    }
+
+    public function addConfiguration($callable): void
     {
         $this->configuration[] = $callable;
     }
 
     /**
-     * @var array
-     */
-    protected $rules = [];
-
-    /**
-     * @var Factory
-     */
-    protected $validator;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @param Factory $validator
-     * @param TranslatorInterface $translator
-     */
-    public function __construct(Factory $validator, TranslatorInterface $translator)
-    {
-        $this->validator = $validator;
-        $this->translator = $translator;
-    }
-
-    /**
      * Throw an exception if a model is not valid.
-     *
-     * @param array $attributes
      */
-    public function assertValid(array $attributes)
+    public function assertValid(array $attributes): void
     {
         $validator = $this->makeValidator($attributes);
 
@@ -65,29 +50,17 @@ abstract class AbstractValidator
         }
     }
 
-    /**
-     * @return array
-     */
-    protected function getRules()
+    protected function getRules(): array
     {
         return $this->rules;
     }
 
-    /**
-     * @return array
-     */
-    protected function getMessages()
+    protected function getMessages(): array
     {
         return [];
     }
 
-    /**
-     * Make a new validator instance for this model.
-     *
-     * @param array $attributes
-     * @return \Illuminate\Validation\Validator
-     */
-    protected function makeValidator(array $attributes)
+    protected function makeValidator(array $attributes): Validator
     {
         $rules = Arr::only($this->getRules(), array_keys($attributes));
 

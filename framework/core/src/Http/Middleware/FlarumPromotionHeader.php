@@ -18,11 +18,11 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class FlarumPromotionHeader implements Middleware
 {
-    protected $enabled = true;
+    protected bool $enabled = true;
 
     public function __construct(Config $config)
     {
-        $this->enabled = Arr::get($config, 'headers.poweredByHeader') ?? true;
+        $this->enabled = (bool) (Arr::get($config, 'headers.poweredByHeader') ?? true);
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

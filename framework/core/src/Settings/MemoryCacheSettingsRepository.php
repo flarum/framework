@@ -13,15 +13,12 @@ use Illuminate\Support\Arr;
 
 class MemoryCacheSettingsRepository implements SettingsRepositoryInterface
 {
-    protected $inner;
+    protected bool $isCached = false;
+    protected array $cache = [];
 
-    protected $isCached;
-
-    protected $cache = [];
-
-    public function __construct(SettingsRepositoryInterface $inner)
-    {
-        $this->inner = $inner;
+    public function __construct(
+        protected SettingsRepositoryInterface $inner
+    ) {
     }
 
     public function all(): array
@@ -34,7 +31,7 @@ class MemoryCacheSettingsRepository implements SettingsRepositoryInterface
         return $this->cache;
     }
 
-    public function get($key, $default = null)
+    public function get(string $key, $default = null): mixed
     {
         if (array_key_exists($key, $this->cache)) {
             return $this->cache[$key];
@@ -45,17 +42,17 @@ class MemoryCacheSettingsRepository implements SettingsRepositoryInterface
         return $default;
     }
 
-    public function set($key, $value)
+    public function set(string $key, mixed $value): void
     {
         $this->cache[$key] = $value;
 
         $this->inner->set($key, $value);
     }
 
-    public function delete($key)
+    public function delete(string $keyLike): void
     {
-        unset($this->cache[$key]);
+        unset($this->cache[$keyLike]);
 
-        $this->inner->delete($key);
+        $this->inner->delete($keyLike);
     }
 }

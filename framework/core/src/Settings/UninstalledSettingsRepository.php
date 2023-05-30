@@ -16,17 +16,17 @@ class UninstalledSettingsRepository implements SettingsRepositoryInterface
         return [];
     }
 
-    public function get($key, $default = null)
+    public function get(string $key, $default = null): mixed
     {
         return $default;
     }
 
-    public function set($key, $value)
+    public function set(string $key, mixed $value): void
     {
         // Do nothing
     }
 
-    public function delete($keyLike)
+    public function delete(string $keyLike): void
     {
         // Do nothing
     }

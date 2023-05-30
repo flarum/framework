@@ -9,61 +9,40 @@
 
 namespace Flarum\Lock\Notification;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Discussion\Discussion;
 use Flarum\Lock\Post\DiscussionLockedPost;
 use Flarum\Notification\Blueprint\BlueprintInterface;
+use Flarum\User\User;
 
 class DiscussionLockedBlueprint implements BlueprintInterface
 {
-    /**
-     * @var DiscussionLockedPost
-     */
-    protected $post;
-
-    /**
-     * @param DiscussionLockedPost $post
-     */
-    public function __construct(DiscussionLockedPost $post)
-    {
-        $this->post = $post;
+    public function __construct(
+        protected DiscussionLockedPost $post
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getFromUser()
+    public function getFromUser(): ?User
     {
         return $this->post->user;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getSubject()
+    public function getSubject(): ?AbstractModel
     {
         return $this->post->discussion;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getData()
+    public function getData(): array
     {
         return ['postNumber' => (int) $this->post->number];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getType()
+    public static function getType(): string
     {
         return 'discussionLocked';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubjectModel()
+    public static function getSubjectModel(): string
     {
         return Discussion::class;
     }

@@ -13,7 +13,7 @@ use Flarum\Foundation\AbstractValidator;
 
 class GroupValidator extends AbstractValidator
 {
-    protected $rules = [
+    protected array $rules = [
         'name_singular' => ['required'],
         'name_plural' => ['required']
     ];

@@ -13,6 +13,7 @@ use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Discussion\Command\ReadDiscussion;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\Command\PostReply;
+use Flarum\Post\CommentPost;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
@@ -20,38 +21,21 @@ use Tobscure\JsonApi\Document;
 
 class CreatePostController extends AbstractCreateController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = PostSerializer::class;
+    public ?string $serializer = PostSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $include = [
+    public array $include = [
         'user',
         'discussion',
         'discussion.posts',
         'discussion.lastPostedUser'
     ];
 
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
-
-    /**
-     * @param Dispatcher $bus
-     */
-    public function __construct(Dispatcher $bus)
-    {
-        $this->bus = $bus;
+    public function __construct(
+        protected Dispatcher $bus
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): CommentPost
     {
         $actor = RequestUtil::getActor($request);
         $data = Arr::get($request->getParsedBody(), 'data', []);

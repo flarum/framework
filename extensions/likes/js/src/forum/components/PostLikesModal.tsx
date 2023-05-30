@@ -7,8 +7,8 @@ import type { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import type Post from 'flarum/common/models/Post';
 import type Mithril from 'mithril';
 import PostLikesModalState from '../states/PostLikesModalState';
-import Button from '@flarum/core/src/common/components/Button';
-import LoadingIndicator from '@flarum/core/src/common/components/LoadingIndicator';
+import Button from 'flarum/common/components/Button';
+import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 
 export interface IPostLikesModalAttrs extends IInternalModalAttrs {
   post: Post;

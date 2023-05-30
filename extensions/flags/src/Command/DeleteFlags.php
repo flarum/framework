@@ -13,34 +13,10 @@ use Flarum\User\User;
 
 class DeleteFlags
 {
-    /**
-     * The ID of the post to delete flags for.
-     *
-     * @var int
-     */
-    public $postId;
-
-    /**
-     * The user performing the action.
-     *
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * @var array
-     */
-    public $data;
-
-    /**
-     * @param int $postId The ID of the post to delete flags for.
-     * @param User $actor The user performing the action.
-     * @param array $data
-     */
-    public function __construct($postId, User $actor, array $data = [])
-    {
-        $this->postId = $postId;
-        $this->actor = $actor;
-        $this->data = $data;
+    public function __construct(
+        public int $postId,
+        public User $actor,
+        public array $data = []
+    ) {
     }
 }

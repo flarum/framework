@@ -9,40 +9,31 @@
 
 namespace Flarum\Queue;
 
+use Closure;
 use Illuminate\Contracts\Queue\Factory;
+use Illuminate\Contracts\Queue\Queue;
 
 class QueueFactory implements Factory
 {
     /**
-     * @var callable
-     */
-    private $factory;
-
-    /**
      * The cached queue instance.
-     *
-     * @var \Illuminate\Contracts\Queue\Queue|null
      */
-    private $queue;
+    private ?Queue $queue;
 
     /**
-     * QueueFactory constructor.
-     *
      * Expects a callback that will be called to instantiate the queue adapter,
      * once requested by the application.
-     *
-     * @param callable $factory
      */
-    public function __construct(callable $factory)
-    {
-        $this->factory = $factory;
+    public function __construct(
+        private readonly Closure $factory
+    ) {
     }
 
     /**
      * Resolve a queue connection instance.
      *
      * @param string $name
-     * @return \Illuminate\Contracts\Queue\Queue
+     * @return Queue
      */
     public function connection($name = null)
     {

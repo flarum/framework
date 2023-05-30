@@ -9,6 +9,8 @@
 
 namespace Flarum\Frontend\Compiler\Source;
 
+use Closure;
+
 /**
  * @internal
  */
@@ -17,24 +19,16 @@ class SourceCollector
     /**
      * @var SourceInterface[]
      */
-    protected $sources = [];
+    protected array $sources = [];
 
-    /**
-     * @param string $file
-     * @return $this
-     */
-    public function addFile(string $file, string $extensionId = null)
+    public function addFile(string $file, string $extensionId = null): static
     {
         $this->sources[] = new FileSource($file, $extensionId);
 
         return $this;
     }
 
-    /**
-     * @param callable $callback
-     * @return $this
-     */
-    public function addString(callable $callback)
+    public function addString(Closure $callback): static
     {
         $this->sources[] = new StringSource($callback);
 
@@ -44,7 +38,7 @@ class SourceCollector
     /**
      * @return SourceInterface[]
      */
-    public function getSources()
+    public function getSources(): array
     {
         return $this->sources;
     }

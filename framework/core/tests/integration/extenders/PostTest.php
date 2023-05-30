@@ -41,15 +41,9 @@ class PostTest extends TestCase
 
 class PostTestCustomPost extends AbstractEventPost implements MergeableInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static $type = 'customPost';
+    public static string $type = 'customPost';
 
-    /**
-     * {@inheritdoc}
-     */
-    public function saveAfter(Post $previous = null)
+    public function saveAfter(Post $previous = null): static
     {
         $this->save();
 

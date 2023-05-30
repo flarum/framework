@@ -1,6 +1,7 @@
 import type Mithril from 'mithril';
 import type { ComponentAttrs } from '../Component';
 import User from '../models/User';
+import classList from '../utils/classList';
 
 export interface AvatarAttrs extends ComponentAttrs {}
 
@@ -11,7 +12,7 @@ export interface AvatarAttrs extends ComponentAttrs {}
  * @param attrs Attributes to apply to the avatar element
  */
 export default function avatar(user: User | null, attrs: ComponentAttrs = {}): Mithril.Vnode {
-  attrs.className = 'Avatar ' + (attrs.className || '');
+  attrs.className = classList('Avatar', attrs.className);
   attrs.loading ??= 'lazy';
   let content: string = '';
 

@@ -71,7 +71,7 @@ export default class StatisticsWidgetDateSelectionModal extends Modal<IStatistic
   }
 
   content(): Mithril.Children {
-    return <div class="Modal-body">{this.items().toArray()}</div>;
+    return <div className="Modal-body">{this.items().toArray()}</div>;
   }
 
   items(): ItemList<Mithril.Children> {
@@ -81,7 +81,7 @@ export default class StatisticsWidgetDateSelectionModal extends Modal<IStatistic
 
     items.add(
       'date_start',
-      <div class="Form-group">
+      <div className="Form-group">
         <label htmlFor={this.state.ids.startDate}>{app.translator.trans('flarum-statistics.admin.date_selection_modal.start_date')}</label>
         <input
           type="date"
@@ -96,7 +96,7 @@ export default class StatisticsWidgetDateSelectionModal extends Modal<IStatistic
 
     items.add(
       'date_end',
-      <div class="Form-group">
+      <div className="Form-group">
         <label htmlFor={this.state.ids.endDate}>{app.translator.trans('flarum-statistics.admin.date_selection_modal.end_date')}</label>
         <input
           type="date"
@@ -111,7 +111,7 @@ export default class StatisticsWidgetDateSelectionModal extends Modal<IStatistic
 
     items.add(
       'submit',
-      <Button class="Button Button--primary" type="submit">
+      <Button className="Button Button--primary" type="submit">
         {app.translator.trans('flarum-statistics.admin.date_selection_modal.submit_button')}
       </Button>,
       0

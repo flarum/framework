@@ -21,70 +21,32 @@ use Tobscure\JsonApi\Document;
 
 class ListDiscussionsController extends AbstractListController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = DiscussionSerializer::class;
+    public ?string $serializer = DiscussionSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $include = [
+    public array $include = [
         'user',
         'lastPostedUser',
         'mostRelevantPost',
         'mostRelevantPost.user'
     ];
 
-    /**
-     * {@inheritdoc}
-     */
-    public $optionalInclude = [
+    public array $optionalInclude = [
         'firstPost',
         'lastPost'
     ];
 
-    /**
-     * {@inheritDoc}
-     */
-    public $sort = ['lastPostedAt' => 'desc'];
+    public ?array $sort = ['lastPostedAt' => 'desc'];
 
-    /**
-     * {@inheritdoc}
-     */
-    public $sortFields = ['lastPostedAt', 'commentCount', 'createdAt'];
+    public array $sortFields = ['lastPostedAt', 'commentCount', 'createdAt'];
 
-    /**
-     * @var DiscussionFilterer
-     */
-    protected $filterer;
-
-    /**
-     * @var DiscussionSearcher
-     */
-    protected $searcher;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @param DiscussionFilterer $filterer
-     * @param DiscussionSearcher $searcher
-     * @param UrlGenerator $url
-     */
-    public function __construct(DiscussionFilterer $filterer, DiscussionSearcher $searcher, UrlGenerator $url)
-    {
-        $this->filterer = $filterer;
-        $this->searcher = $searcher;
-        $this->url = $url;
+    public function __construct(
+        protected DiscussionFilterer $filterer,
+        protected DiscussionSearcher $searcher,
+        protected UrlGenerator $url
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
         $filters = $this->extractFilter($request);

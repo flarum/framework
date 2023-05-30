@@ -13,31 +13,19 @@ use Flarum\Foundation\AbstractValidator;
 
 class UserValidator extends AbstractValidator
 {
-    /**
-     * @var User|null
-     */
-    protected $user;
+    protected ?User $user = null;
 
-    /**
-     * @return User
-     */
-    public function getUser()
+    public function getUser(): ?User
     {
         return $this->user;
     }
 
-    /**
-     * @param User $user
-     */
-    public function setUser(User $user)
+    public function setUser(User $user): void
     {
         $this->user = $user;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getRules()
+    protected function getRules(): array
     {
         $idSuffix = $this->user ? ','.$this->user->id : '';
 
@@ -61,10 +49,7 @@ class UserValidator extends AbstractValidator
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getMessages()
+    protected function getMessages(): array
     {
         return [
             'username.regex' => $this->translator->trans('core.api.invalid_username_message')

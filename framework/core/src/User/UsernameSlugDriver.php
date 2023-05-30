@@ -17,14 +17,9 @@ use Flarum\Http\SlugDriverInterface;
  */
 class UsernameSlugDriver implements SlugDriverInterface
 {
-    /**
-     * @var UserRepository
-     */
-    protected $users;
-
-    public function __construct(UserRepository $users)
-    {
-        $this->users = $users;
+    public function __construct(
+        protected UserRepository $users
+    ) {
     }
 
     /**

@@ -20,28 +20,12 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class SetSettingsController implements RequestHandlerInterface
 {
-    /**
-     * @var \Flarum\Settings\SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $dispatcher;
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     */
-    public function __construct(SettingsRepositoryInterface $settings, Dispatcher $dispatcher)
-    {
-        $this->settings = $settings;
-        $this->dispatcher = $dispatcher;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings,
+        protected Dispatcher $dispatcher
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         RequestUtil::getActor($request)->assertAdmin();

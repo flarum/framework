@@ -13,29 +13,25 @@ use Illuminate\Support\Collection;
 
 class DefaultSettingsRepository implements SettingsRepositoryInterface
 {
-    protected $defaults;
-
-    private $inner;
-
-    public function __construct(SettingsRepositoryInterface $inner, Collection $defaults)
-    {
-        $this->inner = $inner;
-        $this->defaults = $defaults;
+    public function __construct(
+        private readonly SettingsRepositoryInterface $inner,
+        protected Collection $defaults
+    ) {
     }
 
-    public function get($key, $default = null)
+    public function get(string $key, $default = null): mixed
     {
         // Global default overrules local default because local default is deprecated,
         // and will be removed in 2.0
         return $this->inner->get($key, $this->defaults->get($key, $default));
     }
 
-    public function set($key, $value)
+    public function set(string $key, mixed $value): void
     {
         $this->inner->set($key, $value);
     }
 
-    public function delete($keyLike)
+    public function delete(string $keyLike): void
     {
         $this->inner->delete($keyLike);
     }

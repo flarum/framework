@@ -18,23 +18,13 @@ use Pusher;
 
 class PushNewPost
 {
-    /**
-     * @var Pusher
-     */
-    protected $pusher;
-
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    public function __construct(Pusher $pusher, ExtensionManager $extensions)
-    {
-        $this->pusher = $pusher;
-        $this->extensions = $extensions;
+    public function __construct(
+        protected Pusher $pusher,
+        protected ExtensionManager $extensions
+    ) {
     }
 
-    public function handle(Posted $event)
+    public function handle(Posted $event): void
     {
         $channels = [];
 

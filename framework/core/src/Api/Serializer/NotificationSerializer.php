@@ -11,78 +11,55 @@ namespace Flarum\Api\Serializer;
 
 use Flarum\Notification\Notification;
 use InvalidArgumentException;
+use Tobscure\JsonApi\Relationship;
 
 class NotificationSerializer extends AbstractSerializer
 {
-    /**
-     * {@inheritdoc}
-     */
     protected $type = 'notifications';
 
     /**
      * A map of notification types (key) to the serializer that should be used
      * to output the notification's subject (value).
-     *
-     * @var array
      */
-    protected static $subjectSerializers = [];
+    protected static array $subjectSerializers = [];
 
     /**
-     * {@inheritdoc}
-     *
-     * @param \Flarum\Notification\Notification $notification
      * @throws InvalidArgumentException
      */
-    protected function getDefaultAttributes($notification)
+    protected function getDefaultAttributes(object|array $model): array
     {
-        if (! ($notification instanceof Notification)) {
+        if (! ($model instanceof Notification)) {
             throw new InvalidArgumentException(
                 get_class($this).' can only serialize instances of '.Notification::class
             );
         }
 
         return [
-            'contentType' => $notification->type,
-            'content'     => $notification->data,
-            'createdAt'   => $this->formatDate($notification->created_at),
-            'isRead'      => (bool) $notification->read_at
+            'contentType' => $model->type,
+            'content'     => $model->data,
+            'createdAt'   => $this->formatDate($model->created_at),
+            'isRead'      => (bool) $model->read_at
         ];
     }
 
-    /**
-     * @param Notification $notification
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function user($notification)
+    protected function user(Notification $notification): ?Relationship
     {
         return $this->hasOne($notification, BasicUserSerializer::class);
     }
 
-    /**
-     * @param Notification $notification
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function fromUser($notification)
+    protected function fromUser(Notification $notification): ?Relationship
     {
         return $this->hasOne($notification, BasicUserSerializer::class);
     }
 
-    /**
-     * @param Notification $notification
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function subject($notification)
+    protected function subject(Notification $notification): ?Relationship
     {
-        return $this->hasOne($notification, function ($notification) {
+        return $this->hasOne($notification, function (Notification $notification) {
             return static::$subjectSerializers[$notification->type];
         });
     }
 
-    /**
-     * @param $type
-     * @param $serializer
-     */
-    public static function setSubjectSerializer($type, $serializer)
+    public static function setSubjectSerializer(string $type, string $serializer): void
     {
         static::$subjectSerializers[$type] = $serializer;
     }

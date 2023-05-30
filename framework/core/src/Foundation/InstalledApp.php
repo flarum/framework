@@ -18,34 +18,22 @@ use Laminas\Stratigility\MiddlewarePipe;
 use Middlewares\BasePath;
 use Middlewares\BasePathRouter;
 use Middlewares\RequestHandler;
+use Psr\Http\Server\RequestHandlerInterface;
 
 class InstalledApp implements AppInterface
 {
-    /**
-     * @var Container
-     */
-    protected $container;
-
-    /**
-     * @var Config
-     */
-    protected $config;
-
-    public function __construct(Container $container, Config $config)
-    {
-        $this->container = $container;
-        $this->config = $config;
+    public function __construct(
+        protected Container $container,
+        protected Config $config
+    ) {
     }
 
-    public function getContainer()
+    public function getContainer(): Container
     {
         return $this->container;
     }
 
-    /**
-     * @return \Psr\Http\Server\RequestHandlerInterface
-     */
-    public function getRequestHandler()
+    public function getRequestHandler(): RequestHandlerInterface
     {
         if ($this->config->inMaintenanceMode()) {
             return $this->container->make('flarum.maintenance.handler');
@@ -78,10 +66,7 @@ class InstalledApp implements AppInterface
         return $version !== Application::VERSION;
     }
 
-    /**
-     * @return \Psr\Http\Server\RequestHandlerInterface
-     */
-    protected function getUpdaterHandler()
+    protected function getUpdaterHandler(): RequestHandlerInterface|MiddlewarePipe
     {
         $pipe = new MiddlewarePipe;
         $pipe->pipe(new BasePath($this->basePath()));
@@ -103,10 +88,7 @@ class InstalledApp implements AppInterface
         return '/'.($this->config['paths'][$pathName] ?? $pathName);
     }
 
-    /**
-     * @return \Symfony\Component\Console\Command\Command[]
-     */
-    public function getConsoleCommands()
+    public function getConsoleCommands(): array
     {
         return array_map(function ($command) {
             $command = $this->container->make($command);

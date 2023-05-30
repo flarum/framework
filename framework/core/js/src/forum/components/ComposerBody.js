@@ -50,21 +50,21 @@ export default class ComposerBody extends Component {
   view() {
     return (
       <ConfirmDocumentUnload when={this.hasChanges.bind(this)}>
-        <div className={'ComposerBody ' + (this.attrs.className || '')}>
+        <div className={classList('ComposerBody', this.attrs.className)}>
           {avatar(this.attrs.user, { className: 'ComposerBody-avatar' })}
           <div className="ComposerBody-content">
             <ul className="ComposerBody-header">{listItems(this.headerItems().toArray())}</ul>
             <div className="ComposerBody-editor">
-              {TextEditor.component({
-                submitLabel: this.attrs.submitLabel,
-                placeholder: this.attrs.placeholder,
-                disabled: this.loading || this.attrs.disabled,
-                composer: this.composer,
-                preview: this.jumpToPreview && this.jumpToPreview.bind(this),
-                onchange: this.composer.fields.content,
-                onsubmit: this.onsubmit.bind(this),
-                value: this.composer.fields.content(),
-              })}
+              <TextEditor
+                submitLabel={this.attrs.submitLabel}
+                placeholder={this.attrs.placeholder}
+                disabled={this.loading || this.attrs.disabled}
+                composer={this.composer}
+                preview={this.jumpToPreview?.bind(this)}
+                onchange={this.composer.fields.content}
+                onsubmit={this.onsubmit.bind(this)}
+                value={this.composer.fields.content()}
+              />
             </div>
           </div>
           <LoadingIndicator display="unset" containerClassName={classList('ComposerBody-loading', this.loading && 'active')} size="large" />

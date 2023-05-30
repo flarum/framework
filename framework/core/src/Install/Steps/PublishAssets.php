@@ -14,28 +14,18 @@ use Illuminate\Filesystem\Filesystem;
 
 class PublishAssets implements ReversibleStep
 {
-    /**
-     * @var string
-     */
-    private $vendorPath;
-
-    /**
-     * @var string
-     */
-    private $assetPath;
-
-    public function __construct($vendorPath, $assetPath)
-    {
-        $this->vendorPath = $vendorPath;
-        $this->assetPath = $assetPath;
+    public function __construct(
+        private readonly string $vendorPath,
+        private readonly string $assetPath
+    ) {
     }
 
-    public function getMessage()
+    public function getMessage(): string
     {
         return 'Publishing all assets';
     }
 
-    public function run()
+    public function run(): void
     {
         (new Filesystem)->copyDirectory(
             "$this->vendorPath/components/font-awesome/webfonts",
@@ -43,12 +33,12 @@ class PublishAssets implements ReversibleStep
         );
     }
 
-    public function revert()
+    public function revert(): void
     {
         (new Filesystem)->deleteDirectory($this->targetPath());
     }
 
-    private function targetPath()
+    private function targetPath(): string
     {
         return "$this->assetPath/fonts";
     }

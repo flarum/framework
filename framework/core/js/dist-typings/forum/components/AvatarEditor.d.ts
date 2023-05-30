@@ -72,7 +72,7 @@ export default class AvatarEditor extends Component<import("../../common/Compone
     remove(): void;
     /**
      * After a successful upload/removal, push the updated user data into the
-     * store, and force a recomputation of the user's avatar color.
+     * store, and force a re-computation of the user's avatar color.
      *
      * @param {object} response
      * @protected

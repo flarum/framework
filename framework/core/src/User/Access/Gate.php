@@ -27,39 +27,23 @@ class Gate
     ];
 
     /**
-     * @var Container
+     * @var AbstractPolicy[]
      */
-    protected $container;
+    protected array $policies = [];
 
-    /**
-     * @var array
-     */
-    protected $policyClasses;
-
-    /**
-     * @var array
-     */
-    protected $policies;
-
-    /**
-     * @param Container $container
-     * @param array $policyClasses
-     */
-    public function __construct(Container $container, array $policyClasses)
-    {
-        $this->container = $container;
-        $this->policyClasses = $policyClasses;
+    public function __construct(
+        protected Container $container,
+        /** @var class-string<AbstractPolicy>[] $policyClasses */
+        protected array $policyClasses
+    ) {
     }
 
     /**
      * Determine if the given ability should be granted for the current user.
      *
-     * @param  User $actor
-     * @param  string  $ability
-     * @param  string|AbstractModel $model
-     * @return bool
+     * @param class-string<AbstractModel>|AbstractModel|null $model
      */
-    public function allows(User $actor, string $ability, $model): bool
+    public function allows(User $actor, string $ability, string|AbstractModel|null $model): bool
     {
         $results = [];
         $appliedPolicies = [];
@@ -97,9 +81,10 @@ class Gate
     /**
      * Get all policies for a given model and ability.
      */
-    protected function getPolicies(string $model)
+    protected function getPolicies(string $model): array
     {
         $compiledPolicies = Arr::get($this->policies, $model);
+
         if (is_null($compiledPolicies)) {
             $policyClasses = Arr::get($this->policyClasses, $model, []);
             $compiledPolicies = array_map(function ($policyClass) {

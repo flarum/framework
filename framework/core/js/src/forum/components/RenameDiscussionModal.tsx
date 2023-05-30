@@ -42,14 +42,9 @@ export default class RenameDiscussionModal<CustomAttrs extends IRenameDiscussion
             <input className="FormControl" bidi={this.newTitle} type="text" />
           </div>
           <div className="Form-group">
-            {Button.component(
-              {
-                className: 'Button Button--primary Button--block',
-                type: 'submit',
-                loading: this.loading,
-              },
-              app.translator.trans('core.forum.rename_discussion.submit_button')
-            )}
+            <Button className="Button Button--primary Button--block" type="submit" loading={this.loading}>
+              {app.translator.trans('core.forum.rename_discussion.submit_button')}
+            </Button>
           </div>
         </div>
       </div>

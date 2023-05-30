@@ -16,17 +16,12 @@ use Illuminate\Support\Arr;
 
 class DefaultLanguagePackGuard
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
-        $this->settings = $settings;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings
+    ) {
     }
 
-    public function handle(Disabling $event)
+    public function handle(Disabling $event): void
     {
         if (! in_array('flarum-locale', $event->extension->extra)) {
             return;
