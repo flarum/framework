@@ -106,7 +106,7 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
         if (Arr::get($package, 'type') === 'flarum-extension') {
             $current = new Extension($packagePath, $package);
             $current->setInstalled(true);
-            $current->setVersion(Arr::get($package, 'version'));
+            $current->setVersion(Arr::get($package, 'version', '0.0'));
             $current->calculateDependencies([]);
 
             $extensions->put($current->getId(), $current);
