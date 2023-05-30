@@ -9,5 +9,8 @@
             "maxSize": "30KB"
         }
     ],
-    "defaultCompression": "gzip"
+    "defaultCompression": "gzip",
+    "ci": {
+        "trackBranches": ["2.x"]
+    }
 }
