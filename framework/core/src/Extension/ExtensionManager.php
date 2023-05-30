@@ -467,7 +467,7 @@ class ExtensionManager
 
         // Per default all extensions are installed if they are registered in composer.
         $extension->setInstalled(true);
-        $extension->setVersion(Arr::get($package, 'version'));
+        $extension->setVersion(Arr::get($package, 'version', '0.0'));
 
         return $extension;
     }
