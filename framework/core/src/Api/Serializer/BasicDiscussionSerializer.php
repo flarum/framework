@@ -12,96 +12,65 @@ namespace Flarum\Api\Serializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\SlugManager;
 use InvalidArgumentException;
+use Tobscure\JsonApi\Relationship;
 
 class BasicDiscussionSerializer extends AbstractSerializer
 {
-    /**
-     * {@inheritdoc}
-     */
     protected $type = 'discussions';
 
-    /**
-     * @var SlugManager
-     */
-    protected $slugManager;
-
-    public function __construct(SlugManager $slugManager)
-    {
-        $this->slugManager = $slugManager;
+    public function __construct(
+        protected SlugManager $slugManager
+    ) {
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @param Discussion $discussion
      * @throws InvalidArgumentException
      */
-    protected function getDefaultAttributes($discussion)
+    protected function getDefaultAttributes(object|array $model): array
     {
-        if (! ($discussion instanceof Discussion)) {
+        if (! ($model instanceof Discussion)) {
             throw new InvalidArgumentException(
                 get_class($this).' can only serialize instances of '.Discussion::class
             );
         }
 
         return [
-            'title' => $discussion->title,
-            'slug' =>  $this->slugManager->forResource(Discussion::class)->toSlug($discussion),
+            'title' => $model->title,
+            'slug' =>  $this->slugManager->forResource(Discussion::class)->toSlug($model),
         ];
     }
 
-    /**
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function user($discussion)
+    protected function user($discussion): ?Relationship
     {
         return $this->hasOne($discussion, BasicUserSerializer::class);
     }
 
-    /**
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function firstPost($discussion)
+    protected function firstPost($discussion): ?Relationship
     {
         return $this->hasOne($discussion, BasicPostSerializer::class);
     }
 
-    /**
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function lastPostedUser($discussion)
+    protected function lastPostedUser($discussion): ?Relationship
     {
         return $this->hasOne($discussion, BasicUserSerializer::class);
     }
 
-    /**
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function lastPost($discussion)
+    protected function lastPost($discussion): ?Relationship
     {
         return $this->hasOne($discussion, BasicPostSerializer::class);
     }
 
-    /**
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function posts($discussion)
+    protected function posts($discussion): ?Relationship
     {
         return $this->hasMany($discussion, PostSerializer::class);
     }
 
-    /**
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function mostRelevantPost($discussion)
+    protected function mostRelevantPost($discussion): ?Relationship
     {
         return $this->hasOne($discussion, PostSerializer::class);
     }
 
-    /**
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function hiddenUser($discussion)
+    protected function hiddenUser($discussion): ?Relationship
     {
         return $this->hasOne($discussion, BasicUserSerializer::class);
     }

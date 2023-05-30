@@ -22,7 +22,7 @@ class DiscussionFilter implements FilterInterface
         return 'discussion';
     }
 
-    public function filter(FilterState $filterState, $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $discussionId = $this->asInt($filterValue);
 

@@ -30,23 +30,13 @@ class ConfigureMentions
     public const GROUP_MENTION_WITH_NAME_REGEX = '/\B@["“](?<groupname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#g(?<id>[0-9]+)\b/';
     public const TAG_MENTION_WITH_SLUG_REGEX = '/(?:[^“"]|^)\B#(?<slug>[-_\p{L}\p{N}\p{M}]+)\b/ui';
 
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    public function __construct(UrlGenerator $url, ExtensionManager $extensions)
-    {
-        $this->url = $url;
-        $this->extensions = $extensions;
+    public function __construct(
+        protected UrlGenerator $url,
+        protected ExtensionManager $extensions
+    ) {
     }
 
-    public function __invoke(Configurator $config)
+    public function __invoke(Configurator $config): void
     {
         $this->configureUserMentions($config);
         $this->configurePostMentions($config);

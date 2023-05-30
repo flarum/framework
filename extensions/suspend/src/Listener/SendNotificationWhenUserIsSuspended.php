@@ -15,20 +15,12 @@ use Flarum\Suspend\Notification\UserSuspendedBlueprint;
 
 class SendNotificationWhenUserIsSuspended
 {
-    /**
-     * @var NotificationSyncer
-     */
-    protected $notifications;
-
-    /**
-     * @param NotificationSyncer $notifications
-     */
-    public function __construct(NotificationSyncer $notifications)
-    {
-        $this->notifications = $notifications;
+    public function __construct(
+        protected NotificationSyncer $notifications
+    ) {
     }
 
-    public function handle(Suspended $event)
+    public function handle(Suspended $event): void
     {
         $this->notifications->sync(
             new UserSuspendedBlueprint($event->user),

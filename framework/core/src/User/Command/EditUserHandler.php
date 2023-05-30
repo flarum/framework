@@ -17,41 +17,19 @@ use Flarum\User\UserRepository;
 use Flarum\User\UserValidator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
-use Illuminate\Validation\ValidationException;
 
 class EditUserHandler
 {
     use DispatchEventsTrait;
 
-    /**
-     * @var \Flarum\User\UserRepository
-     */
-    protected $users;
-
-    /**
-     * @var UserValidator
-     */
-    protected $validator;
-
-    /**
-     * @param Dispatcher $events
-     * @param \Flarum\User\UserRepository $users
-     * @param UserValidator $validator
-     */
-    public function __construct(Dispatcher $events, UserRepository $users, UserValidator $validator)
-    {
-        $this->events = $events;
-        $this->users = $users;
-        $this->validator = $validator;
+    public function __construct(
+        protected Dispatcher $events,
+        protected UserRepository $users,
+        protected UserValidator $validator
+    ) {
     }
 
-    /**
-     * @param EditUser $command
-     * @return User
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     * @throws ValidationException
-     */
-    public function handle(EditUser $command)
+    public function handle(EditUser $command): User
     {
         $actor = $command->actor;
         $data = $command->data;

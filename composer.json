@@ -85,7 +85,7 @@
         "flarum/testing": "self.version"
     },
     "require": {
-        "php": ">=7.3",
+        "php": "^8.1",
         "ext-json": "*",
         "components/font-awesome": "^5.14.0",
         "composer/composer": "^2.0",

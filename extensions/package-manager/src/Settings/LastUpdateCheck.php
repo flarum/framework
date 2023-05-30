@@ -15,19 +15,14 @@ use Illuminate\Support\Arr;
 
 class LastUpdateCheck implements JsonSetting
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
+    protected array $data = [];
 
-    protected $data = [];
-
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
-        $this->settings = $settings;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings
+    ) {
     }
 
-    public function with(string $key, $value): JsonSetting
+    public function with(string $key, mixed $value): JsonSetting
     {
         $this->data[$key] = $value;
 

@@ -18,14 +18,9 @@ use Flarum\User\User;
  */
 class IdWithTransliteratedSlugDriver implements SlugDriverInterface
 {
-    /**
-     * @var DiscussionRepository
-     */
-    protected $discussions;
-
-    public function __construct(DiscussionRepository $discussions)
-    {
-        $this->discussions = $discussions;
+    public function __construct(
+        protected DiscussionRepository $discussions
+    ) {
     }
 
     /**

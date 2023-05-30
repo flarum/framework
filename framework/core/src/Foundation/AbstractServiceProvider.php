@@ -20,23 +20,12 @@ abstract class AbstractServiceProvider extends ServiceProvider
      */
     protected $app;
 
-    /**
-     * @var Container
-     */
-    protected $container;
-
-    /**
-     * @param Container $container
-     */
-    public function __construct(Container $container)
-    {
-        $this->app = $container;
-        $this->container = $container;
+    public function __construct(
+        protected Container $container
+    ) {
+        parent::__construct($container);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function register()
     {
     }

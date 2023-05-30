@@ -22,7 +22,7 @@ class TypeFilter implements FilterInterface
         return 'type';
     }
 
-    public function filter(FilterState $filterState, $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $type = $this->asString($filterValue);
 

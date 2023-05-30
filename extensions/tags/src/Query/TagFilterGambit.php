@@ -24,22 +24,17 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
     use ValidateFilterTrait;
 
-    /**
-     * @var SlugManager
-     */
-    protected $slugger;
-
-    public function __construct(SlugManager $slugger)
-    {
-        $this->slugger = $slugger;
+    public function __construct(
+        protected SlugManager $slugger
+    ) {
     }
 
-    protected function getGambitPattern()
+    protected function getGambitPattern(): string
     {
         return 'tag:(.+)';
     }
 
-    protected function conditions(SearchState $search, array $matches, $negate)
+    protected function conditions(SearchState $search, array $matches, bool $negate): void
     {
         $this->constrain($search->getQuery(), $matches[1], $negate, $search->getActor());
     }
@@ -49,12 +44,12 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'tag';
     }
 
-    public function filter(FilterState $filterState, $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $this->constrain($filterState->getQuery(), $filterValue, $negate, $filterState->getActor());
     }
 
-    protected function constrain(Builder $query, $rawSlugs, $negate, User $actor)
+    protected function constrain(Builder $query, string|array $rawSlugs, $negate, User $actor): void
     {
         $slugs = $this->asStringArray($rawSlugs);
 

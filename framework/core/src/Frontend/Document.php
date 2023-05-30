@@ -23,66 +23,48 @@ class Document implements Renderable
 {
     /**
      * The title of the document, displayed in the <title> tag.
-     *
-     * @var null|string
      */
-    public $title;
+    public ?string $title = null;
 
     /**
      * The language of the document, displayed as the value of the attribute `lang` in the <html> tag.
-     *
-     * @var null|string
      */
-    public $language;
+    public ?string $language = null;
 
     /**
      * The text direction of the document, displayed as the value of the attribute `dir` in the <html> tag.
-     *
-     * @var null|string
      */
-    public $direction;
+    public ?string $direction = null;
 
     /**
      * The name of the frontend app view to display.
-     *
-     * @var string
      */
-    public $appView = 'flarum::frontend.app';
+    public string $appView = 'flarum::frontend.app';
 
     /**
      * The name of the frontend layout view to display.
-     *
-     * @var string
      */
-    public $layoutView;
+    public string $layoutView;
 
     /**
      * The name of the frontend content view to display.
-     *
-     * @var string
      */
-    public $contentView = 'flarum::frontend.content';
+    public string $contentView = 'flarum::frontend.content';
 
     /**
      * The SEO content of the page, displayed within the layout in <noscript> tags.
-     *
-     * @var string|Renderable
      */
-    public $content;
+    public string|Renderable|null $content = null;
 
     /**
      * Other variables to preload into the Flarum JS.
-     *
-     * @var array
      */
-    public $payload = [];
+    public array $payload = [];
 
     /**
      * An array of meta tags to append to the page's <head>.
-     *
-     * @var array
      */
-    public $meta = [];
+    public array $meta = [];
 
     /**
      * The canonical URL for this page.
@@ -90,56 +72,42 @@ class Document implements Renderable
      * This will signal to search engines what URL should be used for this
      * content, if it can be found under multiple addresses. This is an
      * important tool to tackle duplicate content.
-     *
-     * @var null|string
      */
-    public $canonicalUrl;
+    public ?string $canonicalUrl = null;
 
     /**
      * Which page of content are we on?
      *
      * This is used to build prev/next meta links for SEO.
-     *
-     * @var null|int
      */
-    public $page;
+    public ?int $page = null;
 
     /**
      * Is there a next page?
      *
      * This is used with $page to build next meta links for SEO.
-     *
-     * @var null|bool
      */
-    public $hasNextPage;
+    public ?bool $hasNextPage = null;
 
     /**
      * An array of strings to append to the page's <head>.
-     *
-     * @var array
      */
-    public $head = [];
+    public array $head = [];
 
     /**
      * An array of strings to prepend before the page's </body>.
-     *
-     * @var array
      */
-    public $foot = [];
+    public array $foot = [];
 
     /**
      * An array of JavaScript URLs to load.
-     *
-     * @var array
      */
-    public $js = [];
+    public array $js = [];
 
     /**
      * An array of CSS URLs to load.
-     *
-     * @var array
      */
-    public $css = [];
+    public array $css = [];
 
     /**
      * An array of preloaded assets.
@@ -161,33 +129,16 @@ class Document implements Renderable
      *
      * @var array
      */
-    public $preloads = [];
+    public array $preloads = [];
 
-    /**
-     * @var Factory
-     */
-    protected $view;
-
-    /**
-     * @var array
-     */
-    protected $forumApiDocument;
-
-    /**
-     * @var Request
-     */
-    protected $request;
-
-    public function __construct(Factory $view, array $forumApiDocument, Request $request)
-    {
-        $this->view = $view;
-        $this->forumApiDocument = $forumApiDocument;
-        $this->request = $request;
+    public function __construct(
+        protected Factory $view,
+        protected array $forumApiDocument,
+        protected Request $request,
+        protected TitleDriverInterface $titleDriver
+    ) {
     }
 
-    /**
-     * @return string
-     */
     public function render(): string
     {
         $this->view->share('forum', Arr::get($this->forumApiDocument, 'data.attributes'));
@@ -195,9 +146,6 @@ class Document implements Renderable
         return $this->makeView()->render();
     }
 
-    /**
-     * @return View
-     */
     protected function makeView(): View
     {
         return $this->view->make($this->appView)->with([
@@ -212,13 +160,9 @@ class Document implements Renderable
         ]);
     }
 
-    /**
-     * @return string
-     */
     protected function makeTitle(): string
     {
-        // @todo v2.0 inject as dependency instead
-        return resolve(TitleDriverInterface::class)->makeTitle($this, $this->request, $this->forumApiDocument);
+        return $this->titleDriver->makeTitle($this, $this->request, $this->forumApiDocument);
     }
 
     protected function makeLayout(): ?View
@@ -230,9 +174,6 @@ class Document implements Renderable
         return null;
     }
 
-    /**
-     * @return View
-     */
     protected function makeContent(): View
     {
         return $this->view->make($this->contentView)->with('content', $this->content);
@@ -251,9 +192,6 @@ class Document implements Renderable
         }, $this->preloads);
     }
 
-    /**
-     * @return string
-     */
     protected function makeHead(): string
     {
         $head = array_map(function ($url) {
@@ -282,9 +220,6 @@ class Document implements Renderable
         return implode("\n", array_merge($head, $this->head));
     }
 
-    /**
-     * @return string
-     */
     protected function makeJs(): string
     {
         return implode("\n", array_map(function ($url) {
@@ -292,31 +227,22 @@ class Document implements Renderable
         }, $this->js));
     }
 
-    /**
-     * @return string
-     */
     protected function makeFoot(): string
     {
         return implode("\n", $this->foot);
     }
 
-    /**
-     * @return array
-     */
     public function getForumApiDocument(): array
     {
         return $this->forumApiDocument;
     }
 
-    /**
-     * @param array $forumApiDocument
-     */
-    public function setForumApiDocument(array $forumApiDocument)
+    public function setForumApiDocument(array $forumApiDocument): void
     {
         $this->forumApiDocument = $forumApiDocument;
     }
 
-    public static function setPageParam(string $url, ?int $page)
+    public static function setPageParam(string $url, ?int $page): string
     {
         if (! $page || $page === 1) {
             return self::setQueryParam($url, 'page', null);
@@ -328,7 +254,7 @@ class Document implements Renderable
     /**
      * Set or override a query param on a string URL to a particular value.
      */
-    protected static function setQueryParam(string $url, string $key, ?string $value)
+    protected static function setQueryParam(string $url, string $key, ?string $value): string
     {
         if (filter_var($url, FILTER_VALIDATE_URL)) {
             $urlParts = parse_url($url);

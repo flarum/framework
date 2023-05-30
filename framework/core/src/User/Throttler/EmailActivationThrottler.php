@@ -20,15 +20,12 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class EmailActivationThrottler
 {
-    public static $timeout = 300;
+    public static int $timeout = 300;
 
-    /**
-     * @return bool|void
-     */
-    public function __invoke(ServerRequestInterface $request)
+    public function __invoke(ServerRequestInterface $request): ?bool
     {
         if ($request->getAttribute('routeName') !== 'users.confirmation.send') {
-            return;
+            return null;
         }
 
         $actor = RequestUtil::getActor($request);
@@ -40,5 +37,7 @@ class EmailActivationThrottler
             ->exists()) {
             return true;
         }
+
+        return null;
     }
 }

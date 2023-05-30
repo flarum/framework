@@ -23,91 +23,23 @@ use SessionHandlerInterface;
 
 class ApplicationInfoProvider
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var Translator
-     */
-    protected $translator;
-
-    /**
-     * @var Schedule
-     */
-    protected $schedule;
-
-    /**
-     * @var ConnectionInterface
-     */
-    protected $db;
-
-    /**
-     * @var Config
-     */
-    protected $config;
-
-    /**
-     * @var SessionManager
-     */
-    protected $session;
-
-    /**
-     * @var SessionHandlerInterface
-     */
-    protected $sessionHandler;
-
-    /**
-     * @var Queue
-     */
-    protected $queue;
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     * @param Translator $translator
-     * @param Schedule $schedule
-     * @param ConnectionInterface $db
-     * @param Config $config
-     * @param SessionManager $session
-     * @param SessionHandlerInterface $sessionHandler
-     * @param Queue $queue
-     */
     public function __construct(
-        SettingsRepositoryInterface $settings,
-        Translator $translator,
-        Schedule $schedule,
-        ConnectionInterface $db,
-        Config $config,
-        SessionManager $session,
-        SessionHandlerInterface $sessionHandler,
-        Queue $queue
+        protected SettingsRepositoryInterface $settings,
+        protected Translator $translator,
+        protected Schedule $schedule,
+        protected ConnectionInterface $db,
+        protected Config $config,
+        protected SessionManager $session,
+        protected SessionHandlerInterface $sessionHandler,
+        protected Queue $queue
     ) {
-        $this->settings = $settings;
-        $this->translator = $translator;
-        $this->schedule = $schedule;
-        $this->db = $db;
-        $this->config = $config;
-        $this->session = $session;
-        $this->sessionHandler = $sessionHandler;
-        $this->queue = $queue;
     }
 
-    /**
-     * Identify if any tasks are registered with the scheduler.
-     *
-     * @return bool
-     */
     public function scheduledTasksRegistered(): bool
     {
         return count($this->schedule->events()) > 0;
     }
 
-    /**
-     * Gets the current status of the scheduler.
-     *
-     * @return string
-     */
     public function getSchedulerStatus(): string
     {
         $status = $this->settings->get('schedule.last_run');
@@ -122,11 +54,6 @@ class ApplicationInfoProvider
             : $this->translator->trans('core.admin.dashboard.status.scheduler.inactive');
     }
 
-    /**
-     * Identify the queue driver in use.
-     *
-     * @return string
-     */
     public function identifyQueueDriver(): string
     {
         // Get class name
@@ -141,11 +68,6 @@ class ApplicationInfoProvider
         return $queue;
     }
 
-    /**
-     * Identify the version of the database we are connected to.
-     *
-     * @return string
-     */
     public function identifyDatabaseVersion(): string
     {
         return $this->db->selectOne('select version() as version')->version;
@@ -200,11 +122,6 @@ class ApplicationInfoProvider
         return $driver;
     }
 
-    /**
-     * Identifiy the current PHP version.
-     *
-     * @return string
-     */
     public function identifyPHPVersion(): string
     {
         return PHP_VERSION;

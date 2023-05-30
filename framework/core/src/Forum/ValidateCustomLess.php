@@ -28,35 +28,15 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 class ValidateCustomLess
 {
-    /**
-     * @var Assets
-     */
-    protected $assets;
-
-    /**
-     * @var LocaleManager
-     */
-    protected $locales;
-
-    /**
-     * @var Container
-     */
-    protected $container;
-
-    /**
-     * @var array
-     */
-    protected $customLessSettings;
-
-    public function __construct(Assets $assets, LocaleManager $locales, Container $container, array $customLessSettings = [])
-    {
-        $this->assets = $assets;
-        $this->locales = $locales;
-        $this->container = $container;
-        $this->customLessSettings = $customLessSettings;
+    public function __construct(
+        protected Assets $assets,
+        protected LocaleManager $locales,
+        protected Container $container,
+        protected array $customLessSettings = []
+    ) {
     }
 
-    public function whenSettingsSaving(Saving $event)
+    public function whenSettingsSaving(Saving $event): void
     {
         if (! isset($event->settings['custom_less']) && ! $this->hasDirtyCustomLessSettings($event)) {
             return;
@@ -104,7 +84,7 @@ class ValidateCustomLess
         $this->container->instance(SettingsRepositoryInterface::class, $settings);
     }
 
-    public function whenSettingsSaved(Saved $event)
+    public function whenSettingsSaved(Saved $event): void
     {
         if (! isset($event->settings['custom_less']) && ! $this->hasDirtyCustomLessSettings($event)) {
             return;
@@ -117,11 +97,7 @@ class ValidateCustomLess
         }
     }
 
-    /**
-     * @param Saved|Saving $event
-     * @return bool
-     */
-    protected function hasDirtyCustomLessSettings($event): bool
+    protected function hasDirtyCustomLessSettings(Saved|Saving $event): bool
     {
         if (empty($this->customLessSettings)) {
             return false;

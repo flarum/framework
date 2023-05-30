@@ -37,7 +37,7 @@ class Collection extends BaseCollection
      *
      * @link https://github.com/flarum/framework/pull/3780
      */
-    public function loadAggregate($relations, $column, $function = null)
+    public function loadAggregate($relations, $column, $function = null): self
     {
         if ($this->isEmpty()) {
             return $this;

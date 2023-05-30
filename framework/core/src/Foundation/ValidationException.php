@@ -13,25 +13,21 @@ use Exception;
 
 class ValidationException extends Exception
 {
-    protected $attributes;
-    protected $relationships;
-
-    public function __construct(array $attributes, array $relationships = [])
-    {
-        $this->attributes = $attributes;
-        $this->relationships = $relationships;
-
+    public function __construct(
+        protected array $attributes,
+        protected array $relationships = []
+    ) {
         $messages = [implode("\n", $attributes), implode("\n", $relationships)];
 
         parent::__construct(implode("\n", $messages));
     }
 
-    public function getAttributes()
+    public function getAttributes(): array
     {
         return $this->attributes;
     }
 
-    public function getRelationships()
+    public function getRelationships(): array
     {
         return $this->relationships;
     }

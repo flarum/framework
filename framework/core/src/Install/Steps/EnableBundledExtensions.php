@@ -24,7 +24,7 @@ use League\Flysystem\Filesystem;
 
 class EnableBundledExtensions implements Step
 {
-    const EXTENSION_WHITELIST = [
+    public const EXTENSION_WHITELIST = [
         'flarum-approval',
         'flarum-bbcode',
         'flarum-emoji',
@@ -42,44 +42,27 @@ class EnableBundledExtensions implements Step
     ];
 
     /**
-     * @var ConnectionInterface
+     * @var string[]
      */
-    private $database;
+    private array $enabledExtensions;
 
-    /**
-     * @var string
-     */
-    private $vendorPath;
+    private ?Migrator $migrator;
 
-    /**
-     * @var string
-     */
-    private $assetPath;
-
-    /**
-     * @var string[]|null
-     */
-    private $enabledExtensions;
-
-    /**
-     * @var Migrator|null
-     */
-    private $migrator;
-
-    public function __construct(ConnectionInterface $database, $vendorPath, $assetPath, $enabledExtensions = null)
-    {
-        $this->database = $database;
-        $this->vendorPath = $vendorPath;
-        $this->assetPath = $assetPath;
+    public function __construct(
+        private readonly ConnectionInterface $database,
+        private readonly string $vendorPath,
+        private readonly string $assetPath,
+        ?array $enabledExtensions = null
+    ) {
         $this->enabledExtensions = $enabledExtensions ?? self::EXTENSION_WHITELIST;
     }
 
-    public function getMessage()
+    public function getMessage(): string
     {
         return 'Enabling bundled extensions';
     }
 
-    public function run()
+    public function run(): void
     {
         $extensions = ExtensionManager::resolveExtensionOrder($this->loadExtensions()->all())['valid'];
 
@@ -98,9 +81,9 @@ class EnableBundledExtensions implements Step
     }
 
     /**
-     * @return \Illuminate\Support\Collection<Extension>
+     * @return Collection<Extension>
      */
-    private function loadExtensions()
+    private function loadExtensions(): Collection
     {
         $json = file_get_contents("$this->vendorPath/composer/installed.json");
         $installed = json_decode($json, true);

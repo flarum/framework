@@ -9,29 +9,20 @@
 
 namespace Flarum\Nicknames;
 
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\UserValidator;
 use Illuminate\Validation\Validator;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AddNicknameValidation
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    public function __construct(SettingsRepositoryInterface $settings, TranslatorInterface $translator)
-    {
-        $this->settings = $settings;
-        $this->translator = $translator;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings,
+        protected TranslatorInterface $translator
+    ) {
     }
 
-    public function __invoke($flarumValidator, Validator $validator)
+    public function __invoke(UserValidator $flarumValidator, Validator $validator): void
     {
         $idSuffix = $flarumValidator->getUser() ? ','.$flarumValidator->getUser()->id : '';
         $rules = $validator->getRules();

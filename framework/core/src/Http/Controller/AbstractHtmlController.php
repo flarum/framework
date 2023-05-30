@@ -17,10 +17,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 abstract class AbstractHtmlController implements RequestHandlerInterface
 {
-    /**
-     * @param Request $request
-     * @return HtmlResponse
-     */
     public function handle(Request $request): ResponseInterface
     {
         $view = $this->render($request);
@@ -32,9 +28,5 @@ abstract class AbstractHtmlController implements RequestHandlerInterface
         return new HtmlResponse($view);
     }
 
-    /**
-     * @param Request $request
-     * @return string|Renderable
-     */
-    abstract protected function render(Request $request);
+    abstract protected function render(Request $request): Renderable|string;
 }

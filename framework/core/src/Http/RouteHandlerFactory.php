@@ -21,14 +21,9 @@ use Psr\Http\Server\RequestHandlerInterface as Handler;
  */
 class RouteHandlerFactory
 {
-    /**
-     * @var Container
-     */
-    protected $container;
-
-    public function __construct(Container $container)
-    {
-        $this->container = $container;
+    public function __construct(
+        protected Container $container
+    ) {
     }
 
     public function toController($controller): Closure
@@ -42,11 +37,7 @@ class RouteHandlerFactory
         };
     }
 
-    /**
-     * @param string $frontend
-     * @param string|callable|null $content
-     */
-    public function toFrontend(string $frontend, $content = null): Closure
+    public function toFrontend(string $frontend, callable|string|null $content = null): Closure
     {
         return $this->toController(function (Container $container) use ($frontend, $content) {
             $frontend = $container->make("flarum.frontend.$frontend");

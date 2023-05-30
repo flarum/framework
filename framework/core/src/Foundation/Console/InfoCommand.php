@@ -16,66 +16,30 @@ use Flarum\Foundation\ApplicationInfoProvider;
 use Flarum\Foundation\Config;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Database\ConnectionInterface;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableStyle;
 
 class InfoCommand extends AbstractCommand
 {
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    /**
-     * @var Config
-     */
-    protected $config;
-
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var ConnectionInterface
-     */
-    protected $db;
-
-    /**
-     * @var ApplicationInfoProvider
-     */
-    private $appInfo;
-
     public function __construct(
-        ExtensionManager $extensions,
-        Config $config,
-        SettingsRepositoryInterface $settings,
-        ConnectionInterface $db,
-        ApplicationInfoProvider $appInfo
+        protected ExtensionManager $extensions,
+        protected Config $config,
+        protected SettingsRepositoryInterface $settings,
+        protected ConnectionInterface $db,
+        protected ApplicationInfoProvider $appInfo
     ) {
-        $this->extensions = $extensions;
-        $this->config = $config;
-        $this->settings = $settings;
-        $this->db = $db;
-        $this->appInfo = $appInfo;
-
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('info')
             ->setDescription("Gather information about Flarum's core and installed extensions");
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function fire()
+    protected function fire(): int
     {
         $coreVersion = $this->findPackageVersion(__DIR__.'/../../../', Application::VERSION);
         $this->output->writeln("<info>Flarum core:</info> $coreVersion");
@@ -106,9 +70,11 @@ class InfoCommand extends AbstractCommand
                 "Don't forget to turn off debug mode! It should never be turned on in a production system."
             );
         }
+
+        return Command::SUCCESS;
     }
 
-    private function getExtensionTable()
+    private function getExtensionTable(): Table
     {
         $table = (new Table($this->output))
             ->setHeaders([

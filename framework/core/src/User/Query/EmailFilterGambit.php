@@ -20,10 +20,7 @@ class EmailFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
     use ValidateFilterTrait;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function apply(SearchState $search, $bit)
+    public function apply(SearchState $search, string $bit): bool
     {
         if (! $search->getActor()->hasPermission('user.edit')) {
             return false;
@@ -32,18 +29,12 @@ class EmailFilterGambit extends AbstractRegexGambit implements FilterInterface
         return parent::apply($search, $bit);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getGambitPattern()
+    public function getGambitPattern(): string
     {
         return 'email:(.+)';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function conditions(SearchState $search, array $matches, $negate)
+    protected function conditions(SearchState $search, array $matches, bool $negate): void
     {
         $this->constrain($search->getQuery(), $matches[1], $negate);
     }
@@ -53,7 +44,7 @@ class EmailFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'email';
     }
 
-    public function filter(FilterState $filterState, $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         if (! $filterState->getActor()->hasPermission('user.edit')) {
             return;
@@ -62,7 +53,7 @@ class EmailFilterGambit extends AbstractRegexGambit implements FilterInterface
         $this->constrain($filterState->getQuery(), $filterValue, $negate);
     }
 
-    protected function constrain(Builder $query, $rawEmail, bool $negate)
+    protected function constrain(Builder $query, $rawEmail, bool $negate): void
     {
         $email = $this->asString($rawEmail);
 

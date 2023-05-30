@@ -13,33 +13,17 @@ use Flarum\Foundation\Application;
 
 class UrlGenerator
 {
-    /**
-     * @var array
-     */
-    protected $routes = [];
+    protected array $routes = [];
 
-    /**
-     * @var Application
-     */
-    protected $app;
-
-    /**
-     * @param Application $app
-     */
-    public function __construct(Application $app)
-    {
-        $this->app = $app;
+    public function __construct(
+        protected Application $app
+    ) {
     }
 
     /**
      * Register a named route collection for URL generation.
-     *
-     * @param string $key
-     * @param RouteCollection $routes
-     * @param string $prefix
-     * @return static
      */
-    public function addCollection($key, RouteCollection $routes, $prefix = null)
+    public function addCollection(string $key, RouteCollection $routes, ?string $prefix = null): static
     {
         $this->routes[$key] = new RouteCollectionUrlGenerator(
             $this->app->url($prefix),
@@ -50,12 +34,9 @@ class UrlGenerator
     }
 
     /**
-     * Retrieve an URL generator instance for the given named route collection.
-     *
-     * @param string $collection
-     * @return RouteCollectionUrlGenerator
+     * Retrieve a URL generator instance for the given named route collection.
      */
-    public function to($collection)
+    public function to(string $collection): RouteCollectionUrlGenerator
     {
         return $this->routes[$collection];
     }

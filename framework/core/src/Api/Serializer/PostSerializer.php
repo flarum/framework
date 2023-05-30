@@ -10,77 +10,67 @@
 namespace Flarum\Api\Serializer;
 
 use Flarum\Post\CommentPost;
+use Flarum\Post\Post;
+use Tobscure\JsonApi\Relationship;
 
 class PostSerializer extends BasicPostSerializer
 {
     /**
-     * {@inheritdoc}
+     * @param Post $model
      */
-    protected function getDefaultAttributes($post)
+    protected function getDefaultAttributes(object|array $model): array
     {
-        $attributes = parent::getDefaultAttributes($post);
+        $attributes = parent::getDefaultAttributes($model);
 
         unset($attributes['content']);
 
-        $canEdit = $this->actor->can('edit', $post);
+        $canEdit = $this->actor->can('edit', $model);
 
-        if ($post instanceof CommentPost) {
+        if ($model instanceof CommentPost) {
             if ($canEdit) {
-                $attributes['content'] = $post->content;
+                $attributes['content'] = $model->content;
             }
-            if ($this->actor->can('viewIps', $post)) {
-                $attributes['ipAddress'] = $post->ip_address;
+            if ($this->actor->can('viewIps', $model)) {
+                $attributes['ipAddress'] = $model->ip_address;
             }
         } else {
-            $attributes['content'] = $post->content;
+            $attributes['content'] = $model->content;
         }
 
-        if ($post->edited_at) {
-            $attributes['editedAt'] = $this->formatDate($post->edited_at);
+        if ($model->edited_at) {
+            $attributes['editedAt'] = $this->formatDate($model->edited_at);
         }
 
-        if ($post->hidden_at) {
+        if ($model->hidden_at) {
             $attributes['isHidden'] = true;
-            $attributes['hiddenAt'] = $this->formatDate($post->hidden_at);
+            $attributes['hiddenAt'] = $this->formatDate($model->hidden_at);
         }
 
         $attributes += [
             'canEdit'   => $canEdit,
-            'canDelete' => $this->actor->can('delete', $post),
-            'canHide'   => $this->actor->can('hide', $post)
+            'canDelete' => $this->actor->can('delete', $model),
+            'canHide'   => $this->actor->can('hide', $model)
         ];
 
         return $attributes;
     }
 
-    /**
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function user($post)
+    protected function user(Post $post): ?Relationship
     {
         return $this->hasOne($post, UserSerializer::class);
     }
 
-    /**
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function discussion($post)
+    protected function discussion(Post $post): ?Relationship
     {
         return $this->hasOne($post, BasicDiscussionSerializer::class);
     }
 
-    /**
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function editedUser($post)
+    protected function editedUser(Post $post): ?Relationship
     {
         return $this->hasOne($post, BasicUserSerializer::class);
     }
 
-    /**
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function hiddenUser($post)
+    protected function hiddenUser(Post $post): ?Relationship
     {
         return $this->hasOne($post, BasicUserSerializer::class);
     }

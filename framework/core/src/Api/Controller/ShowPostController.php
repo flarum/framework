@@ -11,6 +11,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Http\RequestUtil;
+use Flarum\Post\Post;
 use Flarum\Post\PostRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
@@ -19,15 +20,9 @@ use Tobscure\JsonApi\Document;
 
 class ShowPostController extends AbstractShowController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = PostSerializer::class;
+    public ?string $serializer = PostSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $include = [
+    public array $include = [
         'user',
         'user.groups',
         'editedUser',
@@ -35,23 +30,12 @@ class ShowPostController extends AbstractShowController
         'discussion'
     ];
 
-    /**
-     * @var \Flarum\Post\PostRepository
-     */
-    protected $posts;
-
-    /**
-     * @param \Flarum\Post\PostRepository $posts
-     */
-    public function __construct(PostRepository $posts)
-    {
-        $this->posts = $posts;
+    public function __construct(
+        protected PostRepository $posts
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): Post
     {
         $post = $this->posts->findOrFail(Arr::get($request->getQueryParams(), 'id'), RequestUtil::getActor($request));
 

@@ -18,23 +18,13 @@ use Throwable;
 
 class ComposerCommandJob extends AbstractJob
 {
-    /**
-     * @var AbstractActionCommand
-     */
-    protected $command;
-
-    /**
-     * @var string
-     */
-    protected $phpVersion;
-
-    public function __construct(AbstractActionCommand $command, string $phpVersion)
-    {
-        $this->command = $command;
-        $this->phpVersion = $phpVersion;
+    public function __construct(
+        protected AbstractActionCommand $command,
+        protected string $phpVersion
+    ) {
     }
 
-    public function handle(Dispatcher $bus)
+    public function handle(Dispatcher $bus): void
     {
         try {
             ComposerAdapter::setPhpVersion($this->phpVersion);
@@ -49,7 +39,7 @@ class ComposerCommandJob extends AbstractJob
         }
     }
 
-    public function abort(Throwable $exception)
+    public function abort(Throwable $exception): void
     {
         if (! $this->command->task->output) {
             $this->command->task->output = $exception->getMessage();
@@ -60,7 +50,7 @@ class ComposerCommandJob extends AbstractJob
         $this->fail($exception);
     }
 
-    public function middleware()
+    public function middleware(): array
     {
         return [
             new WithoutOverlapping(),

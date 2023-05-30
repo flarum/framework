@@ -10,24 +10,19 @@
 namespace Flarum\User\Job;
 
 use Flarum\Http\UrlGenerator;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Mail\Job\SendRawEmailJob;
 use Flarum\Queue\AbstractJob;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\PasswordToken;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Queue\Queue;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RequestPasswordResetJob extends AbstractJob
 {
-    /**
-     * @var string
-     */
-    protected $email;
-
-    public function __construct(string $email)
-    {
-        $this->email = $email;
+    public function __construct(
+        protected string $email
+    ) {
     }
 
     public function handle(
@@ -36,7 +31,7 @@ class RequestPasswordResetJob extends AbstractJob
         TranslatorInterface $translator,
         UserRepository $users,
         Queue $queue
-    ) {
+    ): void {
         $user = $users->findByEmail($this->email);
 
         if (! $user) {

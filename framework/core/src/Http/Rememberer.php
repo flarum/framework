@@ -16,26 +16,15 @@ class Rememberer
 {
     const COOKIE_NAME = 'remember';
 
-    /**
-     * @var CookieFactory
-     */
-    protected $cookie;
-
-    /**
-     * @param CookieFactory $cookie
-     */
-    public function __construct(CookieFactory $cookie)
-    {
-        $this->cookie = $cookie;
+    public function __construct(
+        protected CookieFactory $cookie
+    ) {
     }
 
     /**
      * Sets the remember cookie on a response.
-     * @param ResponseInterface $response
-     * @param RememberAccessToken $token The remember token to set on the response.
-     * @return ResponseInterface
      */
-    public function remember(ResponseInterface $response, RememberAccessToken $token)
+    public function remember(ResponseInterface $response, RememberAccessToken $token): ResponseInterface
     {
         return FigResponseCookies::set(
             $response,
@@ -43,7 +32,7 @@ class Rememberer
         );
     }
 
-    public function forget(ResponseInterface $response)
+    public function forget(ResponseInterface $response): ResponseInterface
     {
         return FigResponseCookies::set(
             $response,

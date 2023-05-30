@@ -10,42 +10,17 @@
 namespace Flarum\Database;
 
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Query\Builder;
 
 class DatabaseMigrationRepository implements MigrationRepositoryInterface
 {
-    /**
-     * The name of the database connection to use.
-     *
-     * @var ConnectionInterface
-     */
-    protected $connection;
-
-    /**
-     * The name of the migration table.
-     *
-     * @var string
-     */
-    protected $table;
-
-    /**
-     * Create a new database migration repository instance.
-     *
-     * @param  ConnectionInterface $connection
-     * @param  string $table
-     */
-    public function __construct(ConnectionInterface $connection, $table)
-    {
-        $this->connection = $connection;
-        $this->table = $table;
+    public function __construct(
+        protected ConnectionInterface $connection,
+        protected string $table
+    ) {
     }
 
-    /**
-     * Get the ran migrations.
-     *
-     * @param string $extension
-     * @return array
-     */
-    public function getRan($extension = null)
+    public function getRan(?string $extension = null): array
     {
         return $this->table()
                 ->where('extension', $extension)
@@ -54,28 +29,14 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
                 ->toArray();
     }
 
-    /**
-     * Log that a migration was run.
-     *
-     * @param string $file
-     * @param string $extension
-     * @return void
-     */
-    public function log($file, $extension = null)
+    public function log(string $file, ?string $extension = null): void
     {
         $record = ['migration' => $file, 'extension' => $extension];
 
         $this->table()->insert($record);
     }
 
-    /**
-     * Remove a migration from the log.
-     *
-     * @param string $file
-     * @param string $extension
-     * @return void
-     */
-    public function delete($file, $extension = null)
+    public function delete(string $file, ?string $extension = null): void
     {
         $query = $this->table()->where('migration', $file);
 
@@ -88,12 +49,7 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
         $query->delete();
     }
 
-    /**
-     * Determine if the migration repository exists.
-     *
-     * @return bool
-     */
-    public function repositoryExists()
+    public function repositoryExists(): bool
     {
         $schema = $this->connection->getSchemaBuilder();
 
@@ -102,10 +58,8 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
 
     /**
      * Get a query builder for the migration table.
-     *
-     * @return \Illuminate\Database\Query\Builder
      */
-    protected function table()
+    protected function table(): Builder
     {
         return $this->connection->table($this->table);
     }

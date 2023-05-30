@@ -16,15 +16,9 @@ use Flarum\Post\Post;
 
 class DiscussionTaggedPost extends AbstractEventPost implements MergeableInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static $type = 'discussionTagged';
+    public static string $type = 'discussionTagged';
 
-    /**
-     * {@inheritdoc}
-     */
-    public function saveAfter(Post $previous = null)
+    public function saveAfter(Post $previous = null): static
     {
         // If the previous post is another 'discussion tagged' post, and it's
         // by the same user, then we can merge this post into it. If we find
@@ -53,16 +47,7 @@ class DiscussionTaggedPost extends AbstractEventPost implements MergeableInterfa
         return $this;
     }
 
-    /**
-     * Create a new instance in reply to a discussion.
-     *
-     * @param int $discussionId
-     * @param int $userId
-     * @param array $oldTagIds
-     * @param array $newTagIds
-     * @return static
-     */
-    public static function reply($discussionId, $userId, array $oldTagIds, array $newTagIds)
+    public static function reply(int $discussionId, int $userId, array $oldTagIds, array $newTagIds): static
     {
         $post = new static;
 
@@ -74,15 +59,8 @@ class DiscussionTaggedPost extends AbstractEventPost implements MergeableInterfa
         return $post;
     }
 
-    /**
-     * Build the content attribute.
-     *
-     * @param array $oldTagIds
-     * @param array $newTagIds
-     * @return array
-     */
-    public static function buildContent(array $oldTagIds, array $newTagIds)
+    public static function buildContent(array $oldTagIds, array $newTagIds): array
     {
-        return [array_map('intval', $oldTagIds), array_map('intval', $newTagIds)];
+        return [array_map(intval(...), $oldTagIds), array_map(intval(...), $newTagIds)];
     }
 }

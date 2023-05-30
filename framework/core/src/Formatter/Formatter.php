@@ -13,44 +13,28 @@ use Flarum\User\User;
 use Illuminate\Contracts\Cache\Repository;
 use Psr\Http\Message\ServerRequestInterface;
 use s9e\TextFormatter\Configurator;
+use s9e\TextFormatter\Parser;
 use s9e\TextFormatter\Renderer;
 use s9e\TextFormatter\Unparser;
 use s9e\TextFormatter\Utils;
 
 class Formatter
 {
-    protected $configurationCallbacks = [];
+    protected array $configurationCallbacks = [];
+    protected array $parsingCallbacks = [];
+    protected array $unparsingCallbacks = [];
+    protected array $renderingCallbacks = [];
 
-    protected $parsingCallbacks = [];
-
-    protected $unparsingCallbacks = [];
-
-    protected $renderingCallbacks = [];
-
-    /**
-     * @var Repository
-     */
-    protected $cache;
-
-    /**
-     * @var string
-     */
-    protected $cacheDir;
-
-    /**
-     * @param Repository $cache
-     * @param string $cacheDir
-     */
-    public function __construct(Repository $cache, $cacheDir)
-    {
-        $this->cache = $cache;
-        $this->cacheDir = $cacheDir;
+    public function __construct(
+        protected Repository $cache,
+        protected string $cacheDir
+    ) {
     }
 
     /**
      * @internal
      */
-    public function addConfigurationCallback($callback)
+    public function addConfigurationCallback(callable $callback): void
     {
         $this->configurationCallbacks[] = $callback;
     }
@@ -58,7 +42,7 @@ class Formatter
     /**
      * @internal
      */
-    public function addParsingCallback($callback)
+    public function addParsingCallback(callable $callback): void
     {
         $this->parsingCallbacks[] = $callback;
     }
@@ -66,7 +50,7 @@ class Formatter
     /**
      * @internal
      */
-    public function addUnparsingCallback($callback)
+    public function addUnparsingCallback(callable $callback): void
     {
         $this->unparsingCallbacks[] = $callback;
     }
@@ -74,20 +58,12 @@ class Formatter
     /**
      * @internal
      */
-    public function addRenderingCallback($callback)
+    public function addRenderingCallback(callable $callback): void
     {
         $this->renderingCallbacks[] = $callback;
     }
 
-    /**
-     * Parse text.
-     *
-     * @param string $text
-     * @param mixed $context
-     * @param User|null $user
-     * @return string the parsed XML
-     */
-    public function parse($text, $context = null, User $user = null)
+    public function parse(string $text, mixed $context = null, User $user = null): string
     {
         $parser = $this->getParser($context);
 
@@ -105,15 +81,7 @@ class Formatter
         return $parser->parse($text);
     }
 
-    /**
-     * Render parsed XML.
-     *
-     * @param string $xml
-     * @param mixed|null $context
-     * @param ServerRequestInterface|null $request
-     * @return string
-     */
-    public function render($xml, $context = null, ServerRequestInterface $request = null)
+    public function render(string $xml, mixed $context = null, ServerRequestInterface $request = null): string
     {
         $renderer = $this->getRenderer();
 
@@ -121,19 +89,12 @@ class Formatter
             $xml = $callback($renderer, $context, $xml, $request);
         }
 
-        $xml = $this->configureDefaultsOnLinks($renderer, $xml, $context, $request);
+        $xml = $this->configureDefaultsOnLinks($xml);
 
         return $renderer->render($xml);
     }
 
-    /**
-     * Unparse XML.
-     *
-     * @param string $xml
-     * @param mixed $context
-     * @return string
-     */
-    public function unparse($xml, $context = null)
+    public function unparse(string $xml, $context = null): string
     {
         foreach ($this->unparsingCallbacks as $callback) {
             $xml = $callback($context, $xml);
@@ -145,15 +106,12 @@ class Formatter
     /**
      * Flush the cache so that the formatter components are regenerated.
      */
-    public function flush()
+    public function flush(): void
     {
         $this->cache->forget('flarum.formatter');
     }
 
-    /**
-     * @return Configurator
-     */
-    protected function getConfigurator()
+    protected function getConfigurator(): Configurator
     {
         $configurator = new Configurator;
 
@@ -182,10 +140,7 @@ class Formatter
         return $configurator;
     }
 
-    /**
-     * @param Configurator $configurator
-     */
-    protected function configureExternalLinks(Configurator $configurator)
+    protected function configureExternalLinks(Configurator $configurator): void
     {
         /**
          * @var Configurator\Items\TemplateDocument $dom
@@ -202,12 +157,9 @@ class Formatter
     }
 
     /**
-     * Get a TextFormatter component.
-     *
-     * @param string $name "renderer" or "parser" or "js"
-     * @return mixed
+     * Get a TextFormatter component ("renderer" or "parser" or "js").
      */
-    protected function getComponent($name)
+    protected function getComponent(string $name): mixed
     {
         $formatter = $this->cache->rememberForever('flarum.formatter', function () {
             return $this->getConfigurator()->finalize();
@@ -216,13 +168,7 @@ class Formatter
         return $formatter[$name];
     }
 
-    /**
-     * Get the parser.
-     *
-     * @param mixed $context
-     * @return \s9e\TextFormatter\Parser
-     */
-    protected function getParser($context = null)
+    protected function getParser(mixed $context = null): Parser
     {
         $parser = $this->getComponent('parser');
 
@@ -231,12 +177,7 @@ class Formatter
         return $parser;
     }
 
-    /**
-     * Get the renderer.
-     *
-     * @return Renderer
-     */
-    protected function getRenderer()
+    protected function getRenderer(): Renderer
     {
         spl_autoload_register(function ($class) {
             if (file_exists($file = $this->cacheDir.'/'.$class.'.php')) {
@@ -249,20 +190,14 @@ class Formatter
 
     /**
      * Get the formatter JavaScript.
-     *
-     * @return string
      */
-    public function getJs()
+    public function getJs(): string
     {
         return $this->getComponent('js');
     }
 
-    protected function configureDefaultsOnLinks(
-        Renderer $renderer,
-        string $xml,
-        $context = null,
-        ServerRequestInterface $request = null
-    ): string {
+    protected function configureDefaultsOnLinks(string $xml): string
+    {
         return Utils::replaceAttributes($xml, 'URL', function ($attributes) {
             $attributes['rel'] = $attributes['rel'] ?? 'ugc nofollow';
 

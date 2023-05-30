@@ -15,20 +15,12 @@ use Flarum\Subscriptions\Notification\NewPostBlueprint;
 
 class RestoreNotificationWhenPostIsRestored
 {
-    /**
-     * @var NotificationSyncer
-     */
-    protected $notifications;
-
-    /**
-     * @param NotificationSyncer $notifications
-     */
-    public function __construct(NotificationSyncer $notifications)
-    {
-        $this->notifications = $notifications;
+    public function __construct(
+        protected NotificationSyncer $notifications
+    ) {
     }
 
-    public function handle(Restored $event)
+    public function handle(Restored $event): void
     {
         $this->notifications->restore(new NewPostBlueprint($event->post));
     }

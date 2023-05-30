@@ -10,6 +10,7 @@
 namespace Flarum\User;
 
 use Flarum\Database\AbstractModel;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
@@ -30,20 +31,13 @@ class LoginProvider extends AbstractModel
 
     protected $fillable = ['provider', 'identifier'];
 
-    /**
-     * Get the user that the login provider belongs to.
-     */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
     /**
      * Get the user associated with the provider so that they can be logged in.
-     *
-     * @param string $provider
-     * @param string $identifier
-     * @return User|null
      */
     public static function logIn(string $provider, string $identifier): ?User
     {

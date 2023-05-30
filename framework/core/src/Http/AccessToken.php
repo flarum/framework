@@ -14,6 +14,7 @@ use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Psr\Http\Message\ServerRequestInterface;
@@ -43,10 +44,8 @@ class AccessToken extends AbstractModel
 
     /**
      * A map of access token types, as specified in the `type` column, to their classes.
-     *
-     * @var array
      */
-    protected static $models = [];
+    protected static array $models = [];
 
     /**
      * The type of token this is, to be stored in the access tokens table.
@@ -54,17 +53,15 @@ class AccessToken extends AbstractModel
      * Should be overwritten by subclasses with the value that is
      * to be stored in the database, which will then be used for
      * mapping the hydrated model instance to the proper subtype.
-     *
-     * @var string
      */
-    public static $type = '';
+    public static string $type = '';
 
     /**
      * How long this access token should be valid from the time of last activity.
      * This value will be used in the validity and expiration checks.
      * @var int Lifetime in seconds. Zero means it will never expire.
      */
-    protected static $lifetime = 0;
+    protected static int $lifetime = 0;
 
     /**
      * Difference from the current `last_activity_at` attribute value before `updateLastSeen()`
@@ -74,11 +71,8 @@ class AccessToken extends AbstractModel
 
     /**
      * Generate an access token for the specified user.
-     *
-     * @param int $userId
-     * @return static
      */
-    public static function generate($userId)
+    public static function generate(int $userId): static
     {
         if (static::class === self::class) {
             throw new \Exception('Use of AccessToken::generate() is not allowed: use the `generate` method on one of the subclasses.');
@@ -99,10 +93,8 @@ class AccessToken extends AbstractModel
     /**
      * Update the time of last usage of a token.
      * If a request object is provided, the IP address and User Agent will also be logged.
-     * @param ServerRequestInterface|null $request
-     * @return bool
      */
-    public function touch(ServerRequestInterface $request = null)
+    public function touch(?ServerRequestInterface $request = null): bool
     {
         $now = Carbon::now();
 
@@ -127,12 +119,7 @@ class AccessToken extends AbstractModel
         return $this->save();
     }
 
-    /**
-     * Define the relationship with the owner of this access token.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
@@ -140,10 +127,8 @@ class AccessToken extends AbstractModel
     /**
      * Filters which tokens are valid at the given date for this particular token type.
      * Uses the static::$lifetime value by default, can be overridden by children classes.
-     * @param Builder $query
-     * @param Carbon $date
      */
-    protected static function scopeValid(Builder $query, Carbon $date)
+    protected static function scopeValid(Builder $query, Carbon $date): void
     {
         if (static::$lifetime > 0) {
             $query->where('last_activity_at', '>', $date->clone()->subSeconds(static::$lifetime));
@@ -153,10 +138,8 @@ class AccessToken extends AbstractModel
     /**
      * Filters which tokens are expired at the given date and ready for garbage collection.
      * Uses the static::$lifetime value by default, can be overridden by children classes.
-     * @param Builder $query
-     * @param Carbon $date
      */
-    protected static function scopeExpired(Builder $query, Carbon $date)
+    protected static function scopeExpired(Builder $query, Carbon $date): void
     {
         if (static::$lifetime > 0) {
             $query->where('last_activity_at', '<', $date->clone()->subSeconds(static::$lifetime));
@@ -168,19 +151,16 @@ class AccessToken extends AbstractModel
     /**
      * Shortcut to find a valid token.
      * @param string $token Token as sent by the user. We allow non-string values like null so we can directly feed any value from a request.
-     * @return AccessToken|null
      */
-    public static function findValid($token): ?AccessToken
+    public static function findValid(string $token): ?AccessToken
     {
         return static::query()->whereValid()->where('token', $token)->first();
     }
 
     /**
      * This query scope is intended to be used on the base AccessToken object to query for valid tokens of any type.
-     * @param Builder $query
-     * @param Carbon|null $date
      */
-    public function scopeWhereValid(Builder $query, Carbon $date = null)
+    public function scopeWhereValid(Builder $query, ?Carbon $date = null): void
     {
         if (is_null($date)) {
             $date = Carbon::now();
@@ -198,10 +178,8 @@ class AccessToken extends AbstractModel
 
     /**
      * This query scope is intended to be used on the base AccessToken object to query for expired tokens of any type.
-     * @param Builder $query
-     * @param Carbon|null $date
      */
-    public function scopeWhereExpired(Builder $query, Carbon $date = null)
+    public function scopeWhereExpired(Builder $query, Carbon $date = null): void
     {
         if (is_null($date)) {
             $date = Carbon::now();
@@ -246,10 +224,8 @@ class AccessToken extends AbstractModel
 
     /**
      * Get the type-to-model map.
-     *
-     * @return array
      */
-    public static function getModels()
+    public static function getModels(): array
     {
         return static::$models;
     }
@@ -257,11 +233,9 @@ class AccessToken extends AbstractModel
     /**
      * Set the model for the given access token type.
      *
-     * @param string $type The access token type.
-     * @param string $model The class name of the model for that type.
-     * @return void
+     * @param class-string<self> $model The class name of the model for that type.
      */
-    public static function setModel(string $type, string $model)
+    public static function setModel(string $type, string $model): void
     {
         static::$models[$type] = $model;
     }

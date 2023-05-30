@@ -25,91 +25,59 @@ class Assets
     /**
      * @var array
      */
-    public $sources = [
+    public array $sources = [
         'js' => [],
         'css' => [],
         'localeJs' => [],
         'localeCss' => []
     ];
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected array $lessImportOverrides = [];
+    protected array $fileSourceOverrides = [];
 
-    /**
-     * @var Cloud
-     */
-    protected $assetsDir;
-
-    /**
-     * @var string
-     */
-    protected $cacheDir;
-
-    /**
-     * @var array
-     */
-    protected $lessImportDirs;
-
-    /**
-     * @var array
-     */
-    protected $lessImportOverrides = [];
-
-    /**
-     * @var array
-     */
-    protected $fileSourceOverrides = [];
-
-    /**
-     * @var array
-     */
-    protected $customFunctions = [];
-
-    public function __construct(string $name, Cloud $assetsDir, string $cacheDir = null, array $lessImportDirs = null, array $customFunctions = [])
-    {
-        $this->name = $name;
-        $this->assetsDir = $assetsDir;
-        $this->cacheDir = $cacheDir;
-        $this->lessImportDirs = $lessImportDirs;
-        $this->customFunctions = $customFunctions;
+    public function __construct(
+        protected string $name,
+        protected Cloud $assetsDir,
+        protected ?string $cacheDir = null,
+        protected ?array $lessImportDirs = null,
+        protected array $customFunctions = []
+    ) {
     }
 
-    public function js($sources)
+    public function js($sources): static
     {
         $this->addSources('js', $sources);
 
         return $this;
     }
 
-    public function css($callback)
+    public function css($callback): static
     {
         $this->addSources('css', $callback);
 
         return $this;
     }
 
-    public function localeJs($callback)
+    public function localeJs($callback): static
     {
         $this->addSources('localeJs', $callback);
 
         return $this;
     }
 
-    public function localeCss($callback)
+    public function localeCss($callback): static
     {
         $this->addSources('localeCss', $callback);
 
         return $this;
     }
 
-    private function addSources($type, $callback)
+    private function addSources($type, $callback): void
     {
         $this->sources[$type][] = $callback;
     }
 
-    private function populate(CompilerInterface $compiler, string $type, string $locale = null)
+    private function populate(CompilerInterface $compiler, string $type, string $locale = null): void
     {
         $compiler->addSources(function (SourceCollector $sources) use ($type, $locale) {
             foreach ($this->sources[$type] as $callback) {

@@ -13,6 +13,7 @@ use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\AvatarUploader;
 use Flarum\User\AvatarValidator;
 use Flarum\User\Event\AvatarSaving;
+use Flarum\User\User;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Intervention\Image\ImageManager;
@@ -21,48 +22,16 @@ class UploadAvatarHandler
 {
     use DispatchEventsTrait;
 
-    /**
-     * @var \Flarum\User\UserRepository
-     */
-    protected $users;
-
-    /**
-     * @var AvatarUploader
-     */
-    protected $uploader;
-
-    /**
-     * @var \Flarum\User\AvatarValidator
-     */
-    protected $validator;
-
-    /**
-     * @var ImageManager
-     */
-    protected $imageManager;
-
-    /**
-     * @param Dispatcher $events
-     * @param UserRepository $users
-     * @param AvatarUploader $uploader
-     * @param AvatarValidator $validator
-     */
-    public function __construct(Dispatcher $events, UserRepository $users, AvatarUploader $uploader, AvatarValidator $validator, ImageManager $imageManager)
-    {
-        $this->events = $events;
-        $this->users = $users;
-        $this->uploader = $uploader;
-        $this->validator = $validator;
-        $this->imageManager = $imageManager;
+    public function __construct(
+        protected Dispatcher $events,
+        protected UserRepository $users,
+        protected AvatarUploader $uploader,
+        protected AvatarValidator $validator,
+        protected ImageManager $imageManager
+    ) {
     }
 
-    /**
-     * @param UploadAvatar $command
-     * @return \Flarum\User\User
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     * @throws \Flarum\Foundation\ValidationException
-     */
-    public function handle(UploadAvatar $command)
+    public function handle(UploadAvatar $command): User
     {
         $actor = $command->actor;
 

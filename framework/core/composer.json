@@ -36,7 +36,7 @@
         "chat": "https://flarum.org/chat"
     },
     "require": {
-        "php": ">=7.3 || ^8.0",
+        "php": "^8.1",
         "components/font-awesome": "^5.14.0",
         "dflydev/fig-cookies": "^3.0.0",
         "doctrine/dbal": "^2.7",

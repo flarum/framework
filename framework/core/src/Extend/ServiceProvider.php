@@ -10,11 +10,12 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
+use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Contracts\Container\Container;
 
 class ServiceProvider implements ExtenderInterface
 {
-    private $providers = [];
+    private array $providers = [];
 
     /**
      * Register a service provider.
@@ -23,7 +24,7 @@ class ServiceProvider implements ExtenderInterface
      * Please read our documentation about service providers for recommendations.
      * @see https://docs.flarum.org/extend/service-provider/
      *
-     * @param string $serviceProviderClass The ::class attribute of the service provider class.
+     * @param class-string<AbstractServiceProvider> $serviceProviderClass The ::class attribute of the service provider class.
      * @return self
      */
     public function register(string $serviceProviderClass): self
@@ -33,7 +34,7 @@ class ServiceProvider implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         $app = $container->make('flarum');
 

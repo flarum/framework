@@ -15,11 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ScopeTagVisibility
 {
-    /**
-     * @param User $actor
-     * @param Builder $query
-     */
-    public function __invoke(User $actor, Builder $query)
+    public function __invoke(User $actor, Builder $query): void
     {
         $query->whereIn('id', function ($query) use ($actor) {
             Tag::query()->setQuery($query->from('tags'))->whereHasPermission($actor, 'viewForum')->select('tags.id');

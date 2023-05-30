@@ -14,36 +14,10 @@ use Flarum\User\User;
 
 class Deleting
 {
-    /**
-     * The post that is going to be deleted.
-     *
-     * @var \Flarum\Post\Post
-     */
-    public $post;
-
-    /**
-     * The user who is performing the action.
-     *
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * Any user input associated with the command.
-     *
-     * @var array
-     */
-    public $data;
-
-    /**
-     * @param \Flarum\Post\Post $post
-     * @param User $actor
-     * @param array $data
-     */
-    public function __construct(Post $post, User $actor, array $data)
-    {
-        $this->post = $post;
-        $this->actor = $actor;
-        $this->data = $data;
+    public function __construct(
+        public Post $post,
+        public User $actor,
+        public array $data
+    ) {
     }
 }

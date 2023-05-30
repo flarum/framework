@@ -26,19 +26,17 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
         'validation',
     ];
 
-    private $path;
-
     /**
      * LanguagePack constructor.
      *
      * @param string $path: Path to yaml language files.
      */
-    public function __construct(string $path = '/locale')
-    {
-        $this->path = $path;
+    public function __construct(
+        private readonly string $path = '/locale'
+    ) {
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         if (is_null($extension)) {
             throw new InvalidArgumentException(
@@ -63,7 +61,7 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
         );
     }
 
-    private function registerLocale(Container $container, LocaleManager $locales, Extension $extension, $locale, $title)
+    private function registerLocale(Container $container, LocaleManager $locales, Extension $extension, $locale, $title): void
     {
         $locales->addLocale($locale, $title);
 
@@ -90,7 +88,7 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
         }
     }
 
-    private function shouldLoad(SplFileInfo $file, Container $container)
+    private function shouldLoad(SplFileInfo $file, Container $container): bool
     {
         if (! $file->isFile()) {
             return false;
@@ -122,12 +120,12 @@ class LanguagePack implements ExtenderInterface, LifecycleInterface
         return $extensions->isEnabled($slug);
     }
 
-    public function onEnable(Container $container, Extension $extension)
+    public function onEnable(Container $container, Extension $extension): void
     {
         $container->make('flarum.locales')->clearCache();
     }
 
-    public function onDisable(Container $container, Extension $extension)
+    public function onDisable(Container $container, Extension $extension): void
     {
         $container->make('flarum.locales')->clearCache();
     }

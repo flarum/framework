@@ -13,7 +13,7 @@ use s9e\TextFormatter\Configurator;
 
 class Configure
 {
-    public function __invoke(Configurator $config)
+    public function __invoke(Configurator $config): void
     {
         $this->addTagsFromRepositories($config);
         $this->adaptHighlightJs($config);

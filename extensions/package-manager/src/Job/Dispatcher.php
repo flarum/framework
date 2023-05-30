@@ -19,34 +19,17 @@ use Illuminate\Queue\SyncQueue;
 class Dispatcher
 {
     /**
-     * @var Bus
-     */
-    protected $bus;
-
-    /**
-     * @var Queue
-     */
-    protected $queue;
-
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
      * Overrides the user setting for execution mode if set.
      * Runs synchronously regardless of user setting if set true.
      * Asynchronously if set false.
-     *
-     * @var bool|null
      */
-    protected $runSyncOverride;
+    protected ?bool $runSyncOverride;
 
-    public function __construct(Bus $bus, Queue $queue, SettingsRepositoryInterface $settings)
-    {
-        $this->bus = $bus;
-        $this->queue = $queue;
-        $this->settings = $settings;
+    public function __construct(
+        protected Bus $bus,
+        protected Queue $queue,
+        protected SettingsRepositoryInterface $settings
+    ) {
     }
 
     public function sync(): self

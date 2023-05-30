@@ -21,23 +21,19 @@ use Throwable;
  */
 class Registry
 {
-    private $statusMap;
-    private $classMap;
-    private $handlerMap;
-
-    public function __construct(array $statusMap, array $classMap, array $handlerMap)
-    {
-        $this->statusMap = $statusMap;
-        $this->classMap = $classMap;
-        $this->handlerMap = $handlerMap;
+    public function __construct(
+        private readonly array $statusMap,
+        private readonly array $classMap,
+        private readonly array $handlerMap
+    ) {
     }
 
     /**
      * Map exceptions to handled errors.
      *
-     * This can map internal ({@see \Flarum\Foundation\KnownError}) as well as
+     * This can map internal ({@see KnownError}) as well as
      * external exceptions (any classes inheriting from \Throwable) to instances
-     * of {@see \Flarum\Foundation\ErrorHandling\HandledError}.
+     * of {@see HandledError}.
      *
      * Even for unknown exceptions, a generic fallback will always be returned.
      *

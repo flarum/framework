@@ -28,10 +28,7 @@ use Illuminate\Contracts\Container\Container;
 
 class ConsoleServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    public function register(): void
     {
         // Used by Laravel to proxy artisan commands to its binary.
         // Flarum uses a similar binary, but it's called flarum.
@@ -76,10 +73,7 @@ class ConsoleServiceProvider extends AbstractServiceProvider
         });
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function boot(Container $container)
+    public function boot(Container $container): void
     {
         $schedule = $container->make(LaravelSchedule::class);
 

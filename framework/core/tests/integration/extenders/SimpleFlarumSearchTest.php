@@ -173,30 +173,23 @@ class SimpleFlarumSearchTest extends TestCase
 
 class NoResultFullTextGambit implements GambitInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function apply(SearchState $search, $searchValue)
+    public function apply(SearchState $search, string $bit): bool
     {
         $search->getQuery()
             ->whereRaw('0=1');
+
+        return true;
     }
 }
 
 class NoResultFilterGambit extends AbstractRegexGambit
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getGambitPattern()
+    public function getGambitPattern(): string
     {
         return 'noResult:(.+)';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function conditions(SearchState $search, array $matches, $negate)
+    public function conditions(SearchState $search, array $matches, bool $negate): void
     {
         $noResults = trim($matches[1], ' ');
         if ($noResults == '1') {
@@ -225,7 +218,8 @@ class CustomSearcher extends AbstractSearcher
 
 class CustomFullTextGambit implements GambitInterface
 {
-    public function apply(SearchState $search, $bit)
+    public function apply(SearchState $search, string $bit): bool
     {
+        return true;
     }
 }

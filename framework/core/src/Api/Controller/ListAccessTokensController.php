@@ -19,28 +19,15 @@ use Tobscure\JsonApi\Document;
 
 class ListAccessTokensController extends AbstractListController
 {
-    public $serializer = AccessTokenSerializer::class;
+    public ?string $serializer = AccessTokenSerializer::class;
 
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @var AccessTokenFilterer
-     */
-    protected $filterer;
-
-    public function __construct(UrlGenerator $url, AccessTokenFilterer $filterer)
-    {
-        $this->url = $url;
-        $this->filterer = $filterer;
+    public function __construct(
+        protected UrlGenerator $url,
+        protected AccessTokenFilterer $filterer
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
 

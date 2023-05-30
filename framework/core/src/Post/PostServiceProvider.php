@@ -16,10 +16,7 @@ use Illuminate\Contracts\Container\Container;
 
 class PostServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    public function register(): void
     {
         $this->container->extend('flarum.api.throttlers', function (array $throttlers, Container $container) {
             $throttlers['postTimeout'] = $container->make(PostCreationThrottler::class);
@@ -28,7 +25,7 @@ class PostServiceProvider extends AbstractServiceProvider
         });
     }
 
-    public function boot(Formatter $formatter)
+    public function boot(Formatter $formatter): void
     {
         CommentPost::setFormatter($formatter);
 
@@ -37,7 +34,7 @@ class PostServiceProvider extends AbstractServiceProvider
         Post::registerVisibilityScoper(new ScopePostVisibility(), 'view');
     }
 
-    protected function setPostTypes()
+    protected function setPostTypes(): void
     {
         $models = [
             CommentPost::class,

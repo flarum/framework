@@ -13,13 +13,13 @@ interface CompilerInterface
 {
     public function getFilename(): string;
 
-    public function setFilename(string $filename);
+    public function setFilename(string $filename): void;
 
-    public function addSources(callable $callback);
+    public function addSources(callable $callback): void;
 
-    public function commit(bool $force = false);
+    public function commit(bool $force = false): void;
 
     public function getUrl(): ?string;
 
-    public function flush();
+    public function flush(): void;
 }

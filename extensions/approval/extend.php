@@ -37,7 +37,7 @@ return [
         ->cast('is_approved', 'bool'),
 
     (new Extend\ApiSerializer(BasicDiscussionSerializer::class))
-        ->attribute('isApproved', function ($serializer, Discussion $discussion) {
+        ->attribute('isApproved', function (BasicDiscussionSerializer $serializer, Discussion $discussion): bool {
             return $discussion->is_approved;
         }),
 
@@ -65,8 +65,8 @@ return [
         ->scope(Access\ScopePrivateDiscussionVisibility::class, 'viewPrivate'),
 
     (new Extend\ModelPrivate(Discussion::class))
-        ->checker([Listener\UnapproveNewContent::class, 'markUnapprovedContentAsPrivate']),
+        ->checker(Listener\UnapproveNewContent::markUnapprovedContentAsPrivate(...)),
 
     (new Extend\ModelPrivate(CommentPost::class))
-        ->checker([Listener\UnapproveNewContent::class, 'markUnapprovedContentAsPrivate']),
+        ->checker(Listener\UnapproveNewContent::markUnapprovedContentAsPrivate(...)),
 ];

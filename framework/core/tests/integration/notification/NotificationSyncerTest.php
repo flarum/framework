@@ -91,27 +91,27 @@ class CustomNotificationType implements BlueprintInterface
         $this->subject = $subject;
     }
 
-    public function getFromUser()
+    public function getFromUser(): ?User
     {
         return null;
     }
 
-    public function getSubject()
+    public function getSubject(): ?AbstractModel
     {
         return $this->subject;
     }
 
-    public function getData()
+    public function getData(): array
     {
         return [];
     }
 
-    public static function getType()
+    public static function getType(): string
     {
         return 'customNotificationType';
     }
 
-    public static function getSubjectModel()
+    public static function getSubjectModel(): string
     {
         return self::$subjectModel;
     }

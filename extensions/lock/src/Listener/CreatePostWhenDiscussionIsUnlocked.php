@@ -16,17 +16,12 @@ use Flarum\Notification\NotificationSyncer;
 
 class CreatePostWhenDiscussionIsUnlocked
 {
-    /**
-     * @var NotificationSyncer
-     */
-    protected $notifications;
-
-    public function __construct(NotificationSyncer $notifications)
-    {
-        $this->notifications = $notifications;
+    public function __construct(
+        protected NotificationSyncer $notifications
+    ) {
     }
 
-    public function handle(DiscussionWasUnlocked $event)
+    public function handle(DiscussionWasUnlocked $event): void
     {
         $post = DiscussionLockedPost::reply(
             $event->discussion->id,

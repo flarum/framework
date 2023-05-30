@@ -23,14 +23,12 @@ use Throwable;
 
 class Server
 {
-    private $site;
-
-    public function __construct(SiteInterface $site)
-    {
-        $this->site = $site;
+    public function __construct(
+        private readonly SiteInterface $site
+    ) {
     }
 
-    public function listen()
+    public function listen(): void
     {
         $runner = new RequestHandlerRunner(
             $this->safelyBootAndGetHandler(),
@@ -42,6 +40,7 @@ class Server
                 return $generator($e, new ServerRequest, new Response);
             }
         );
+
         $runner->run();
     }
 
@@ -51,7 +50,7 @@ class Server
      * We catch all exceptions happening during this process and format them to
      * prevent exposure of sensitive information.
      *
-     * @return \Psr\Http\Server\RequestHandlerInterface|void
+     * @throws Throwable
      */
     private function safelyBootAndGetHandler()
     {
@@ -78,8 +77,9 @@ class Server
      * for example if the container bindings aren't present
      * or if there is a filesystem error.
      * @param Throwable $error
+     * @throws Throwable
      */
-    private function cleanBootExceptionLog(Throwable $error)
+    private function cleanBootExceptionLog(Throwable $error): void
     {
         $container = resolve(Container::class);
 
@@ -114,10 +114,10 @@ ERROR;
     /**
      * If the clean logging doesn't work, then we have a last opportunity.
      * Here we need to be extra careful not to include anything that might be sensitive on the page.
-     * @param Throwable $error
+     *
      * @throws Throwable
      */
-    private function fallbackBootExceptionLog(Throwable $error)
+    private function fallbackBootExceptionLog(Throwable $error): void
     {
         echo 'Flarum encountered a boot error. Details have been logged to the system PHP log file.<br />';
 

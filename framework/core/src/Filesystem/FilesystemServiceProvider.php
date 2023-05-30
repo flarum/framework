@@ -23,10 +23,7 @@ class FilesystemServiceProvider extends AbstractServiceProvider
 {
     protected const INTERVENTION_DRIVERS = ['gd' => 'gd', 'imagick' => 'imagick'];
 
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    public function register(): void
     {
         $this->container->singleton('files', function () {
             return new Filesystem;

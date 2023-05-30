@@ -17,7 +17,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class PrepareFlagsApiData
 {
-    public function __invoke(Controller\AbstractSerializeController $controller, $data, ServerRequestInterface $request)
+    public function __invoke(Controller\AbstractSerializeController $controller, mixed $data, ServerRequestInterface $request): void
     {
         // For any API action that allows the 'flags' relationship to be
         // included, we need to preload this relationship onto the data (Post

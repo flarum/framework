@@ -21,20 +21,13 @@ use Symfony\Component\Console\Question\Question;
 
 class UserDataProvider implements DataProviderInterface
 {
-    protected $input;
+    protected BaseUrl $baseUrl;
 
-    protected $output;
-
-    protected $questionHelper;
-
-    /** @var BaseUrl */
-    protected $baseUrl;
-
-    public function __construct(InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper)
-    {
-        $this->input = $input;
-        $this->output = $output;
-        $this->questionHelper = $questionHelper;
+    public function __construct(
+        protected InputInterface $input,
+        protected OutputInterface $output,
+        protected QuestionHelper $questionHelper
+    ) {
     }
 
     public function configure(Installation $installation): Installation
@@ -104,7 +97,7 @@ class UserDataProvider implements DataProviderInterface
         }
     }
 
-    private function getSettings()
+    private function getSettings(): array
     {
         $title = $this->ask('Forum title:');
 
@@ -115,14 +108,14 @@ class UserDataProvider implements DataProviderInterface
         ];
     }
 
-    private function ask($question, $default = null)
+    private function ask($question, $default = null): mixed
     {
         $question = new Question("<question>$question</question> ", $default);
 
         return $this->questionHelper->ask($this->input, $this->output, $question);
     }
 
-    private function secret($question)
+    private function secret($question): mixed
     {
         $question = new Question("<question>$question</question> ");
 
@@ -131,7 +124,7 @@ class UserDataProvider implements DataProviderInterface
         return $this->questionHelper->ask($this->input, $this->output, $question);
     }
 
-    private function validationError($message)
+    private function validationError($message): void
     {
         $this->output->writeln("<error>$message</error>");
         $this->output->writeln('Please try again.');
