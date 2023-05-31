@@ -28,7 +28,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "1.x-dev"
+            "dev-main": "2.x-dev"
         },
         "flarum-extension": {
             "title": "Subscriptions",
@@ -89,7 +89,7 @@
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
-        "flarum/testing": "^1.0.0",
+        "flarum/testing": "^2.0",
         "flarum/approval": "@dev"
     }
 }
