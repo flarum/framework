@@ -13,6 +13,7 @@ use Flarum\Foundation\AbstractValidator;
 use Flarum\Foundation\ValidationException;
 use Illuminate\Validation\Factory;
 use Intervention\Image\Exception\NotReadableException;
+use Intervention\Image\Exceptions\DecoderException;
 use Intervention\Image\ImageManager;
 use Psr\Http\Message\UploadedFileInterface;
 use Symfony\Component\Mime\MimeTypes;
@@ -89,6 +90,8 @@ class AvatarValidator extends AbstractValidator
         try {
             $this->imageManager->make($file->getStream()->getMetadata('uri'));
         } catch (NotReadableException $_e) {
+            $this->raise('image');
+        } catch (DecoderException $_e) {
             $this->raise('image');
         }
     }

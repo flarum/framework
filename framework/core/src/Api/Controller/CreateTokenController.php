@@ -78,7 +78,7 @@ class CreateTokenController implements RequestHandlerInterface
         }
 
         // We do a first update here to log the IP/agent of the token creator, even if the token is never used afterwards
-        $token->touch($request);
+        $token->touch(null, $request);
 
         return new JsonResponse([
             'token' => $token->token,

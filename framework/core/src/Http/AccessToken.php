@@ -36,9 +36,9 @@ class AccessToken extends AbstractModel
 
     protected $table = 'access_tokens';
 
-    protected $dates = [
-        'created_at',
-        'last_activity_at',
+    protected $casts = [
+        'created_at' => 'datetime',
+        'last_activity_at' => 'datetime',
     ];
 
     /**
@@ -102,7 +102,7 @@ class AccessToken extends AbstractModel
      * @param ServerRequestInterface|null $request
      * @return bool
      */
-    public function touch(ServerRequestInterface $request = null)
+    public function touch($attribute = null, ServerRequestInterface $request = null)
     {
         $now = Carbon::now();
 

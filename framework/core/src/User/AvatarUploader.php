@@ -13,6 +13,7 @@ use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 use Intervention\Image\Image;
+use Intervention\Image\ImageManager;
 
 class AvatarUploader
 {
@@ -21,22 +22,26 @@ class AvatarUploader
      */
     protected $uploadDir;
 
-    public function __construct(Factory $filesystemFactory)
+    public function __construct(Factory $filesystemFactory, protected ImageManager $imageManager)
     {
         $this->uploadDir = $filesystemFactory->disk('flarum-avatars');
     }
 
     /**
      * @param User $user
-     * @param Image $image
+     * @param Image $uploadedImage
      */
-    public function upload(User $user, Image $image)
+    public function upload(User $user, Image $uploadedImage)
     {
         if (extension_loaded('exif')) {
-            $image->orientate();
+            $uploadedImage->orientate();
         }
 
-        $encodedImage = $image->fit(100, 100)->encode('png');
+        $image = $this->imageManager->make($uploadedImage);
+
+        
+
+        $encodedImage = $image->fitDown(100, 100)->toPng();
 
         $avatarPath = Str::random().'.png';
 

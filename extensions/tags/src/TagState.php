@@ -34,7 +34,7 @@ class TagState extends AbstractModel
     /**
      * {@inheritdoc}
      */
-    protected $dates = ['marked_as_read_at'];
+    protected $casts = ['marked_as_read_at' => 'datetime'];
 
     /**
      * Define the relationship with the tag that this state is for.

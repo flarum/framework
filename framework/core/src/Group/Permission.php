@@ -28,7 +28,7 @@ class Permission extends AbstractModel
      *
      * @var array
      */
-    protected $dates = ['created_at'];
+    protected $casts = ['created_at' => 'datetime'];
 
     /**
      * Define the relationship with the group that this permission is for.

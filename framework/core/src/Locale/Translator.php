@@ -31,7 +31,7 @@ class Translator extends BaseTranslator implements TranslatorContract
     /**
      * {@inheritdoc}
      */
-    public function getCatalogue($locale = null)
+    public function getCatalogue(?string $locale = null): MessageCatalogueInterface 
     {
         if (null === $locale) {
             $locale = $this->getLocale();

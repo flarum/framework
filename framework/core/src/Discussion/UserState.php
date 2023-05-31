@@ -44,7 +44,7 @@ class UserState extends AbstractModel
      *
      * @var array
      */
-    protected $dates = ['last_read_at'];
+    protected $casts = ['last_read_at' => 'datetime'];
 
     /**
      * The attributes that are mass assignable.

@@ -20,6 +20,7 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\FilesystemAdapter;
 use League\Flysystem\Adapter\NullAdapter;
 use League\Flysystem\Filesystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use Less_Exception_Parser;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -88,7 +89,10 @@ class ValidateCustomLess
         );
 
         $assetsDir = $this->assets->getAssetsDir();
-        $this->assets->setAssetsDir(new FilesystemAdapter(new Filesystem(new NullAdapter)));
+        
+        $adaptor = new InMemoryFilesystemAdapter();
+        $filesystem = new Filesystem($adaptor);
+        $this->assets->setAssetsDir(new FilesystemAdapter($filesystem, $adaptor));
 
         try {
             $this->assets->makeCss()->commit();

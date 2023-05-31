@@ -10,8 +10,8 @@
 namespace Flarum\Mail\Job;
 
 use Flarum\Queue\AbstractJob;
-use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
+use Illuminate\Mail\Mailer;
 
 class SendRawEmailJob extends AbstractJob
 {

@@ -16,8 +16,8 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Support\MessageBag;
-use Swift_NullTransport;
-use Swift_Transport;
+use Symfony\Component\Mailer\Transport\NullTransport;
+use Symfony\Component\Mailer\Transport\TransportInterface;
 
 class MailTest extends TestCase
 {
@@ -110,8 +110,8 @@ class CustomDriver implements DriverInterface
         return false;
     }
 
-    public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport
+    public function buildTransport(SettingsRepositoryInterface $settings): TransportInterface
     {
-        return new Swift_NullTransport;
+        return new NullTransport();
     }
 }

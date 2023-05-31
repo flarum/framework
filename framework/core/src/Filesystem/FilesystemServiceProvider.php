@@ -29,7 +29,7 @@ class FilesystemServiceProvider extends AbstractServiceProvider
     public function register()
     {
         $this->container->singleton('files', function () {
-            return new Filesystem;
+            return new Filesystem();
         });
 
         $this->container->singleton('flarum.filesystem.disks', function () {
@@ -83,9 +83,7 @@ class FilesystemServiceProvider extends AbstractServiceProvider
                 throw new RuntimeException("intervention/image: $driver is not valid");
             }
 
-            return new ImageManager([
-                'driver' => $driver
-            ]);
+            return new ImageManager($driver);
         });
     }
 }
