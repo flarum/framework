@@ -88,7 +88,7 @@ class Discussion extends AbstractModel
     /**
      * The user for which the state relationship should be loaded.
      */
-    protected static ?User $stateUser;
+    protected static ?User $stateUser = null;
 
     public static function boot()
     {
