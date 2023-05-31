@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^1.8"
+        "flarum/core": "^2.0"
     },
     "autoload": {
         "psr-4": {
@@ -33,7 +33,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "1.x-dev"
+            "dev-main": "2.x-dev"
         },
         "flarum-extension": {
             "title": "Tags",
