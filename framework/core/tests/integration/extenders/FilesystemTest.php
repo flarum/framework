@@ -48,14 +48,10 @@ class FilesystemTest extends TestCase
             ];
         }));
 
-        //* @var FilesystemAdapter $uploadsDisk
         /** @var FilesystemAdapter $uploadsDisk */
         $uploadsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-uploads');
-        $operator = $uploadsDisk->getDriver();
-        //$adapter = $operator->getAdapter();
-        //$operator = $operator->getAdapter();
 
-        $this->assertEquals(get_class($uploadsDisk->getClient()), LocalFilesystemAdapter::class);
+        $this->assertEquals(get_class($uploadsDisk->getAdapter()), LocalFilesystemAdapter::class);
     }
 
     /**
@@ -65,9 +61,10 @@ class FilesystemTest extends TestCase
     {
         $this->extend((new Extend\Filesystem)->disk('flarum-uploads', UploadsDisk::class));
 
+        /** @var FilesystemAdapter $uploadsDisk */
         $uploadsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-uploads');
 
-        $this->assertEquals(get_class($uploadsDisk->getClient()), LocalFilesystemAdapter::class);
+        $this->assertEquals(get_class($uploadsDisk->getAdapter()), LocalFilesystemAdapter::class);
     }
 
     /**
@@ -77,9 +74,10 @@ class FilesystemTest extends TestCase
     {
         $this->app()->getContainer()->make(SettingsRepositoryInterface::class)->set('disk_driver.flarum-assets', 'nonexistent_driver');
 
+        /** @var FilesystemAdapter $assetsDisk */
         $assetsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets');
 
-        $this->assertEquals(get_class($assetsDisk->getClient()), LocalFilesystemAdapter::class);
+        $this->assertEquals(get_class($assetsDisk->getAdapter()), LocalFilesystemAdapter::class);
     }
 
     /**
@@ -89,9 +87,10 @@ class FilesystemTest extends TestCase
     {
         $this->config('disk_driver.flarum-assets', 'null');
 
+        /** @var FilesystemAdapter $assetsDisk */
         $assetsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets');
 
-        $this->assertEquals(get_class($assetsDisk->getClient()), LocalFilesystemAdapter::class);
+        $this->assertEquals(get_class($assetsDisk->getAdapter()), LocalFilesystemAdapter::class);
     }
 
     /**
@@ -105,9 +104,10 @@ class FilesystemTest extends TestCase
 
         $this->app()->getContainer()->make(SettingsRepositoryInterface::class)->set('disk_driver.flarum-assets', 'null');
 
+        /** @var FilesystemAdapter $assetsDisk */
         $assetsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets');
 
-        $this->assertEquals(get_class($assetsDisk->getClient()), InMemoryFilesystemAdapter::class);
+        $this->assertEquals(get_class($assetsDisk->getAdapter()), InMemoryFilesystemAdapter::class);
     }
 
     /**
@@ -121,9 +121,10 @@ class FilesystemTest extends TestCase
 
         $this->config('disk_driver.flarum-assets', 'null');
 
+        /** @var FilesystemAdapter $assetsDisk */
         $assetsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets');
 
-        $this->assertEquals(get_class($assetsDisk->getClient()), InMemoryFilesystemAdapter::class);
+        $this->assertEquals(get_class($assetsDisk->getAdapter()), InMemoryFilesystemAdapter::class);
     }
 }
 
