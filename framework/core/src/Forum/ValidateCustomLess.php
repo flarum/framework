@@ -18,7 +18,6 @@ use Flarum\Settings\OverrideSettingsRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\FilesystemAdapter;
-use League\Flysystem\Adapter\NullAdapter;
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use Less_Exception_Parser;
@@ -89,7 +88,7 @@ class ValidateCustomLess
         );
 
         $assetsDir = $this->assets->getAssetsDir();
-        
+
         $adaptor = new InMemoryFilesystemAdapter();
         $filesystem = new Filesystem($adaptor);
         $this->assets->setAssetsDir(new FilesystemAdapter($filesystem, $adaptor));

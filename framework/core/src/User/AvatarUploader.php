@@ -39,8 +39,6 @@ class AvatarUploader
 
         $image = $this->imageManager->make($uploadedImage);
 
-        
-
         $encodedImage = $image->fitDown(100, 100)->toPng();
 
         $avatarPath = Str::random().'.png';

@@ -13,7 +13,6 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Support\MessageBag;
 use Symfony\Component\Mailer\Transport\Dsn;
-use Symfony\Component\Mailer\Transport\SendmailTransport;
 use Symfony\Component\Mailer\Transport\SendmailTransportFactory;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 

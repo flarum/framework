@@ -20,10 +20,8 @@ use Flarum\Testing\integration\TestCase;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Filesystem\FilesystemAdapter;
 use InvalidArgumentException;
-use League\Flysystem\Local\LocalFilesystemAdapter;
-use League\Flysystem\Adapter\NullAdapter;
-use League\Flysystem\Filesystem as LeagueFilesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use League\Flysystem\Local\LocalFilesystemAdapter;
 
 class FilesystemTest extends TestCase
 {

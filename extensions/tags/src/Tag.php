@@ -53,7 +53,7 @@ class Tag extends AbstractModel
         'is_hidden' => 'bool',
         'is_restricted' => 'bool',
         'last_posted_at' => 'datetime',
-        'created_at' => 'datetime', 
+        'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
 
