@@ -78,7 +78,7 @@
     "require-dev": {
         "flarum/core": "*@dev",
         "flarum/tags": "*@dev",
-        "flarum/testing": "^1.0.0"
+        "flarum/testing": "^2.0"
     },
     "repositories": [
         {
