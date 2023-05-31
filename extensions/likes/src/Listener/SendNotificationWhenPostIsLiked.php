@@ -15,20 +15,12 @@ use Flarum\Notification\NotificationSyncer;
 
 class SendNotificationWhenPostIsLiked
 {
-    /**
-     * @var NotificationSyncer
-     */
-    protected $notifications;
-
-    /**
-     * @param NotificationSyncer $notifications
-     */
-    public function __construct(NotificationSyncer $notifications)
-    {
-        $this->notifications = $notifications;
+    public function __construct(
+        protected NotificationSyncer $notifications
+    ) {
     }
 
-    public function handle(PostWasLiked $event)
+    public function handle(PostWasLiked $event): void
     {
         if ($event->post->user && $event->post->user->id != $event->user->id) {
             $this->notifications->sync(

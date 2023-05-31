@@ -22,8 +22,6 @@ use LogicException;
  * Adds the ability for custom relations to be added to a model during runtime.
  * These relations behave in the same way that you would expect; they can be
  * queried, eager loaded, and accessed as an attribute.
- *
- * @property-read int|null $id
  */
 abstract class AbstractModel extends Eloquent
 {
@@ -39,41 +37,37 @@ abstract class AbstractModel extends Eloquent
      *
      * @var callable[]
      */
-    protected $afterSaveCallbacks = [];
+    protected array $afterSaveCallbacks = [];
 
     /**
      * An array of callbacks to be run once after the model is deleted.
      *
      * @var callable[]
      */
-    protected $afterDeleteCallbacks = [];
+    protected array $afterDeleteCallbacks = [];
 
     /**
      * @internal
      */
-    public static $customRelations = [];
+    public static array $customRelations = [];
 
     /**
      * @internal
      */
-    public static $customCasts = [];
+    public static array $customCasts = [];
 
     /**
      * @internal
      */
-    public static $defaults = [];
+    public static array $defaults = [];
 
     /**
      * An alias for the table name, used in queries.
      *
-     * @var string|null
      * @internal
      */
-    protected $tableAlias = null;
+    protected ?string $tableAlias = null;
 
-    /**
-     * {@inheritdoc}
-     */
     public static function boot()
     {
         parent::boot();
@@ -91,9 +85,6 @@ abstract class AbstractModel extends Eloquent
         });
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __construct(array $attributes = [])
     {
         $this->attributes = [];
@@ -109,10 +100,7 @@ abstract class AbstractModel extends Eloquent
         parent::__construct($attributes);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCasts()
+    public function getCasts(): array
     {
         $casts = parent::getCasts();
 
@@ -126,9 +114,6 @@ abstract class AbstractModel extends Eloquent
     /**
      * Get an attribute from the model. If nothing is found, attempt to load
      * a custom relation method with this key.
-     *
-     * @param string $key
-     * @return mixed
      */
     public function getAttribute($key)
     {
@@ -148,42 +133,37 @@ abstract class AbstractModel extends Eloquent
 
             return $this->relations[$key] = $relation->getResults();
         }
+
+        return null;
     }
 
     /**
      * Get a custom relation object.
-     *
-     * @param string $name
-     * @return mixed
      */
-    protected function getCustomRelation($name)
+    protected function getCustomRelation(string $name): mixed
     {
         foreach (array_merge([static::class], class_parents($this)) as $class) {
-            $relation = Arr::get(static::$customRelations, $class.".$name", null);
+            $relation = Arr::get(static::$customRelations, $class.".$name");
             if (! is_null($relation)) {
                 return $relation($this);
             }
         }
+
+        return null;
     }
 
     /**
      * Register a callback to be run once after the model is saved.
-     *
-     * @param callable $callback
-     * @return void
      */
-    public function afterSave($callback)
+    public function afterSave(callable $callback): void
     {
         $this->afterSaveCallbacks[] = $callback;
     }
 
     /**
      * Register a callback to be run once after the model is deleted.
-     *
-     * @param callable $callback
-     * @return void
      */
-    public function afterDelete($callback)
+    public function afterDelete(callable $callback): void
     {
         $this->afterDeleteCallbacks[] = $callback;
     }
@@ -191,7 +171,7 @@ abstract class AbstractModel extends Eloquent
     /**
      * @return callable[]
      */
-    public function releaseAfterSaveCallbacks()
+    public function releaseAfterSaveCallbacks(): array
     {
         $callbacks = $this->afterSaveCallbacks;
 
@@ -203,7 +183,7 @@ abstract class AbstractModel extends Eloquent
     /**
      * @return callable[]
      */
-    public function releaseAfterDeleteCallbacks()
+    public function releaseAfterDeleteCallbacks(): array
     {
         $callbacks = $this->afterDeleteCallbacks;
 
@@ -212,16 +192,13 @@ abstract class AbstractModel extends Eloquent
         return $callbacks;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __call($method, $arguments)
+    public function __call($method, $parameters)
     {
         if ($relation = $this->getCustomRelation($method)) {
             return $relation;
         }
 
-        return parent::__call($method, $arguments);
+        return parent::__call($method, $parameters);
     }
 
     public function newModelQuery()
@@ -244,7 +221,7 @@ abstract class AbstractModel extends Eloquent
         return ($this->tableAlias ?? $this->getTable()).'.'.$column;
     }
 
-    public function withTableAlias(callable $callback)
+    public function withTableAlias(callable $callback): mixed
     {
         static $aliasCount = 0;
         $this->tableAlias = 'flarum_reserved_'.++$aliasCount;
@@ -256,10 +233,7 @@ abstract class AbstractModel extends Eloquent
         return $result;
     }
 
-    /**
-     * @param \Illuminate\Support\Collection|array $models
-     */
-    public function newCollection($models = [])
+    public function newCollection(array $models = []): Collection
     {
         return new Collection($models);
     }

@@ -28,7 +28,7 @@ class TagPolicy extends AbstractPolicy
         }
     }
 
-    public function addToDiscussion(User $actor, Tag $tag)
+    public function addToDiscussion(User $actor, Tag $tag): bool
     {
         return $actor->can('startDiscussion', $tag);
     }

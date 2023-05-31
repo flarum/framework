@@ -13,20 +13,19 @@ use Flarum\Extension\Extension;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Illuminate\Contracts\Container\Container;
+use Psr\Http\Server\RequestHandlerInterface;
 
 class Routes implements ExtenderInterface
 {
-    private $appName;
-
-    private $routes = [];
-    private $removedRoutes = [];
+    private array $routes = [];
+    private array $removedRoutes = [];
 
     /**
      * @param string $appName: Name of the app (api, forum, admin).
      */
-    public function __construct(string $appName)
-    {
-        $this->appName = $appName;
+    public function __construct(
+        private readonly string $appName
+    ) {
     }
 
     /**
@@ -34,7 +33,7 @@ class Routes implements ExtenderInterface
      *
      * @param string $path: The path of the route
      * @param string $name: The name of the route, must be unique.
-     * @param callable|string $handler: ::class attribute of the controller class, or a closure.
+     * @param callable|class-string<RequestHandlerInterface> $handler: ::class attribute of the controller class, or a closure.
      *
      * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
      * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
@@ -48,7 +47,7 @@ class Routes implements ExtenderInterface
      *
      * @return self
      */
-    public function get(string $path, string $name, $handler): self
+    public function get(string $path, string $name, callable|string $handler): self
     {
         return $this->route('GET', $path, $name, $handler);
     }
@@ -58,7 +57,7 @@ class Routes implements ExtenderInterface
      *
      * @param string $path: The path of the route
      * @param string $name: The name of the route, must be unique.
-     * @param callable|string $handler: ::class attribute of the controller class, or a closure.
+     * @param callable|class-string<RequestHandlerInterface> $handler: ::class attribute of the controller class, or a closure.
      *
      * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
      * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
@@ -72,7 +71,7 @@ class Routes implements ExtenderInterface
      *
      * @return self
      */
-    public function post(string $path, string $name, $handler): self
+    public function post(string $path, string $name, callable|string $handler): self
     {
         return $this->route('POST', $path, $name, $handler);
     }
@@ -82,7 +81,7 @@ class Routes implements ExtenderInterface
      *
      * @param string $path: The path of the route
      * @param string $name: The name of the route, must be unique.
-     * @param callable|string $handler: ::class attribute of the controller class, or a closure.
+     * @param callable|class-string<RequestHandlerInterface> $handler: ::class attribute of the controller class, or a closure.
      *
      * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
      * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
@@ -96,7 +95,7 @@ class Routes implements ExtenderInterface
      *
      * @return self
      */
-    public function put(string $path, string $name, $handler): self
+    public function put(string $path, string $name, callable|string $handler): self
     {
         return $this->route('PUT', $path, $name, $handler);
     }
@@ -106,7 +105,7 @@ class Routes implements ExtenderInterface
      *
      * @param string $path: The path of the route
      * @param string $name: The name of the route, must be unique.
-     * @param callable|string $handler: ::class attribute of the controller class, or a closure.
+     * @param callable|class-string<RequestHandlerInterface> $handler: ::class attribute of the controller class, or a closure.
      *
      * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
      * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
@@ -120,7 +119,7 @@ class Routes implements ExtenderInterface
      *
      * @return self
      */
-    public function patch(string $path, string $name, $handler): self
+    public function patch(string $path, string $name, callable|string $handler): self
     {
         return $this->route('PATCH', $path, $name, $handler);
     }
@@ -130,7 +129,7 @@ class Routes implements ExtenderInterface
      *
      * @param string $path: The path of the route
      * @param string $name: The name of the route, must be unique.
-     * @param callable|string $handler: ::class attribute of the controller class, or a closure.
+     * @param callable|class-string<RequestHandlerInterface> $handler: ::class attribute of the controller class, or a closure.
      *
      * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
      * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
@@ -144,7 +143,7 @@ class Routes implements ExtenderInterface
      *
      * @return self
      */
-    public function delete(string $path, string $name, $handler): self
+    public function delete(string $path, string $name, callable|string $handler): self
     {
         return $this->route('DELETE', $path, $name, $handler);
     }
@@ -175,7 +174,7 @@ class Routes implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         if (empty($this->routes) && empty($this->removedRoutes)) {
             return;

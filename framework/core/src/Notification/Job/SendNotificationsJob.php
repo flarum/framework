@@ -16,23 +16,14 @@ use Flarum\User\User;
 
 class SendNotificationsJob extends AbstractJob
 {
-    /**
-     * @var BlueprintInterface
-     */
-    private $blueprint;
-
-    /**
-     * @var User[]
-     */
-    private $recipients;
-
-    public function __construct(BlueprintInterface $blueprint, array $recipients = [])
-    {
-        $this->blueprint = $blueprint;
-        $this->recipients = $recipients;
+    public function __construct(
+        private readonly BlueprintInterface $blueprint,
+        /** @var User[] */
+        private readonly array $recipients = []
+    ) {
     }
 
-    public function handle()
+    public function handle(): void
     {
         Notification::notify($this->recipients, $this->blueprint);
     }

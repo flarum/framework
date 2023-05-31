@@ -16,6 +16,8 @@ use Flarum\Group\Event\Created;
 use Flarum\Group\Event\Deleted;
 use Flarum\Group\Event\Renamed;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
@@ -32,24 +34,9 @@ class Group extends AbstractModel
     use EventGeneratorTrait;
     use ScopeVisibilityTrait;
 
-    /**
-     * The ID of the administrator group.
-     */
     const ADMINISTRATOR_ID = 1;
-
-    /**
-     * The ID of the guest group.
-     */
     const GUEST_ID = 2;
-
-    /**
-     * The ID of the member group.
-     */
     const MEMBER_ID = 3;
-
-    /**
-     * The ID of the mod group.
-     */
     const MODERATOR_ID = 4;
 
     /**
@@ -62,11 +49,6 @@ class Group extends AbstractModel
         'updated_at' => 'datetime',
     ];
 
-    /**
-     * Boot the model.
-     *
-     * @return void
-     */
     public static function boot()
     {
         parent::boot();
@@ -76,17 +58,7 @@ class Group extends AbstractModel
         });
     }
 
-    /**
-     * Create a new group.
-     *
-     * @param string $nameSingular
-     * @param string $namePlural
-     * @param string $color
-     * @param string $icon
-     * @param bool   $isHidden
-     * @return static
-     */
-    public static function build($nameSingular, $namePlural, $color = null, $icon = null, bool $isHidden = false): self
+    public static function build(?string $nameSingular, ?string $namePlural, ?string $color = null, ?string $icon = null, bool $isHidden = false): static
     {
         $group = new static;
 
@@ -101,14 +73,7 @@ class Group extends AbstractModel
         return $group;
     }
 
-    /**
-     * Rename the group.
-     *
-     * @param string $nameSingular
-     * @param string $namePlural
-     * @return $this
-     */
-    public function rename($nameSingular, $namePlural)
+    public function rename(string $nameSingular, string $namePlural): static
     {
         $this->name_singular = $nameSingular;
         $this->name_plural = $namePlural;
@@ -119,32 +84,22 @@ class Group extends AbstractModel
     }
 
     /**
-     * Define the relationship with the group's users.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany<User>
      */
-    public function users()
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class);
     }
 
     /**
-     * Define the relationship with the group's permissions.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function permissions()
+    public function permissions(): HasMany
     {
         return $this->hasMany(Permission::class);
     }
 
-    /**
-     * Check whether the group has a certain permission.
-     *
-     * @param string $permission
-     * @return bool
-     */
-    public function hasPermission($permission)
+    public function hasPermission(string $permission): bool
     {
         if ($this->id == self::ADMINISTRATOR_ID) {
             return true;

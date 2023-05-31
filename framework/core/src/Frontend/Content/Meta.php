@@ -16,20 +16,12 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Meta
 {
-    /**
-     * @var LocaleManager
-     */
-    private $locales;
-
-    /**
-     * @param LocaleManager $locales
-     */
-    public function __construct(LocaleManager $locales)
-    {
-        $this->locales = $locales;
+    public function __construct(
+        private readonly LocaleManager $locales
+    ) {
     }
 
-    public function __invoke(Document $document, Request $request)
+    public function __invoke(Document $document, Request $request): void
     {
         $document->language = $this->locales->getLocale();
         $document->direction = 'ltr';
@@ -38,20 +30,18 @@ class Meta
         $document->head = array_merge($document->head, $this->buildHead($document));
     }
 
-    private function buildMeta(Document $document)
+    private function buildMeta(Document $document): array
     {
         $forumApiDocument = $document->getForumApiDocument();
 
-        $meta = [
+        return [
             'viewport' => 'width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1',
             'description' => Arr::get($forumApiDocument, 'data.attributes.description'),
             'theme-color' => Arr::get($forumApiDocument, 'data.attributes.themePrimaryColor')
         ];
-
-        return $meta;
     }
 
-    private function buildHead(Document $document)
+    private function buildHead(Document $document): array
     {
         $head = [];
 

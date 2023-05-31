@@ -12,6 +12,7 @@ namespace Flarum\Api;
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 /**
@@ -28,12 +29,7 @@ class ApiKey extends AbstractModel
 {
     protected $casts = ['last_activity_at' => 'datetime'];
 
-    /**
-     * Generate an API key.
-     *
-     * @return static
-     */
-    public static function generate()
+    public static function generate(): static
     {
         $key = new static;
 
@@ -42,14 +38,14 @@ class ApiKey extends AbstractModel
         return $key;
     }
 
-    public function touch($attribute = null)
+    public function touch($attribute = null): bool
     {
         $this->last_activity_at = Carbon::now();
 
         return $this->save();
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

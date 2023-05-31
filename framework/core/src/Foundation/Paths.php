@@ -19,7 +19,7 @@ use InvalidArgumentException;
  */
 class Paths
 {
-    private $paths;
+    private array $paths;
 
     public function __construct(array $paths)
     {

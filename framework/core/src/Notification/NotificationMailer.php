@@ -9,45 +9,22 @@
 
 namespace Flarum\Notification;
 
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Contracts\Mail\Mailer;
-use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Mail\Message;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class NotificationMailer
 {
-    /**
-     * @var Mailer
-     */
-    protected $mailer;
-
-    /**
-     * @var TranslatorInterface&Translator
-     */
-    protected $translator;
-
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @param TranslatorInterface&Translator $translator
-     */
-    public function __construct(Mailer $mailer, TranslatorInterface $translator, SettingsRepositoryInterface $settings)
-    {
-        $this->mailer = $mailer;
-        $this->translator = $translator;
-        $this->settings = $settings;
+    public function __construct(
+        protected Mailer $mailer,
+        protected TranslatorInterface $translator,
+        protected SettingsRepositoryInterface $settings
+    ) {
     }
 
-    /**
-     * @param MailableInterface $blueprint
-     * @param User $user
-     */
-    public function send(MailableInterface $blueprint, User $user)
+    public function send(MailableInterface $blueprint, User $user): void
     {
         // Ensure that notifications are delivered to the user in their default language, if they've selected one.
         // If the selected locale is no longer available, the forum default will be used instead.

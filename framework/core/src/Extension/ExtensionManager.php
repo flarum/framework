@@ -29,52 +29,19 @@ use Illuminate\Support\Collection;
 
 class ExtensionManager
 {
-    protected $config;
-
-    /**
-     * @var Paths
-     */
-    protected $paths;
-
-    protected $container;
-
-    protected $migrator;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $dispatcher;
-
-    /**
-     * @var Filesystem
-     */
-    protected $filesystem;
-
-    /**
-     * @var Collection|null
-     */
-    protected $extensions;
+    protected ?Collection $extensions = null;
 
     public function __construct(
-        SettingsRepositoryInterface $config,
-        Paths $paths,
-        Container $container,
-        Migrator $migrator,
-        Dispatcher $dispatcher,
-        Filesystem $filesystem
+        protected SettingsRepositoryInterface $config,
+        protected Paths $paths,
+        protected Container $container,
+        protected Migrator $migrator,
+        protected Dispatcher $dispatcher,
+        protected Filesystem $filesystem
     ) {
-        $this->config = $config;
-        $this->paths = $paths;
-        $this->container = $container;
-        $this->migrator = $migrator;
-        $this->dispatcher = $dispatcher;
-        $this->filesystem = $filesystem;
     }
 
-    /**
-     * @return Collection
-     */
-    public function getExtensions()
+    public function getExtensions(): Collection
     {
         if (is_null($this->extensions) && $this->filesystem->exists($this->paths->vendor.'/composer/installed.json')) {
             $extensions = new Collection();
@@ -165,25 +132,15 @@ class ExtensionManager
         });
     }
 
-    /**
-     * Loads an Extension with all information.
-     *
-     * @param string $name
-     * @return Extension|null
-     */
-    public function getExtension($name)
+    public function getExtension(string $name): ?Extension
     {
         return $this->getExtensions()->get($name);
     }
 
     /**
-     * Enables the extension.
-     *
-     * @param string $name
-     *
      * @internal
      */
-    public function enable($name)
+    public function enable(string $name): void
     {
         if ($this->isEnabled($name)) {
             return;
@@ -219,13 +176,9 @@ class ExtensionManager
     }
 
     /**
-     * Disables an extension.
-     *
-     * @param string $name
-     *
      * @internal
      */
-    public function disable($name)
+    public function disable(string $name): void
     {
         $extension = $this->getExtension($name);
         $enabledExtensions = $this->getEnabledExtensions();
@@ -257,12 +210,9 @@ class ExtensionManager
     }
 
     /**
-     * Uninstalls an extension.
-     *
-     * @param string $name
      * @internal
      */
-    public function uninstall($name)
+    public function uninstall(string $name): void
     {
         $extension = $this->getExtension($name);
 
@@ -279,38 +229,30 @@ class ExtensionManager
 
     /**
      * Copy the assets from an extension's assets directory into public view.
-     *
-     * @param Extension $extension
      */
-    protected function publishAssets(Extension $extension)
+    protected function publishAssets(Extension $extension): void
     {
         $extension->copyAssetsTo($this->getAssetsFilesystem());
     }
 
     /**
      * Delete an extension's assets from public view.
-     *
-     * @param Extension $extension
      */
-    protected function unpublishAssets(Extension $extension)
+    protected function unpublishAssets(Extension $extension): void
     {
         $this->getAssetsFilesystem()->deleteDirectory('extensions/'.$extension->getId());
     }
 
     /**
      * Get the path to an extension's published asset.
-     *
-     * @param Extension $extension
-     * @param string    $path
-     * @return string
      */
-    public function getAsset(Extension $extension, $path)
+    public function getAsset(Extension $extension, string $path): string
     {
         return $this->getAssetsFilesystem()->url($extension->getId()."/$path");
     }
 
     /**
-     * Get an instance of the assets filesystem.
+     * Get an instance of the `assets` filesystem.
      * This is resolved dynamically because Flarum's filesystem configuration
      * might not be booted yet when the ExtensionManager singleton initializes.
      */
@@ -322,13 +264,9 @@ class ExtensionManager
     /**
      * Runs the database migrations for the extension.
      *
-     * @param Extension $extension
-     * @param string $direction
-     * @return int
-     *
      * @internal
      */
-    public function migrate(Extension $extension, $direction = 'up')
+    public function migrate(Extension $extension, string $direction = 'up'): ?int
     {
         $this->container->bind(Builder::class, function ($container) {
             return $container->make(ConnectionInterface::class)->getSchemaBuilder();
@@ -340,32 +278,25 @@ class ExtensionManager
     /**
      * Runs the database migrations to reset the database to its old state.
      *
-     * @param Extension $extension
-     * @return void
-     *
      * @internal
      */
-    public function migrateDown(Extension $extension)
+    public function migrateDown(Extension $extension): void
     {
         $this->migrate($extension, 'down');
     }
 
     /**
      * The database migrator.
-     *
-     * @return Migrator
      */
-    public function getMigrator()
+    public function getMigrator(): Migrator
     {
         return $this->migrator;
     }
 
     /**
-     * Get only enabled extensions.
-     *
-     * @return array|Extension[]
+     * @return Extension[]
      */
-    public function getEnabledExtensions()
+    public function getEnabledExtensions(): array
     {
         $enabled = [];
         $extensions = $this->getExtensions();
@@ -381,10 +312,8 @@ class ExtensionManager
 
     /**
      * Call on all enabled extensions to extend the Flarum application.
-     *
-     * @param Container $container
      */
-    public function extend(Container $container)
+    public function extend(Container $container): void
     {
         foreach ($this->getEnabledExtensions() as $extension) {
             $extension->extend($container);
@@ -394,9 +323,9 @@ class ExtensionManager
     /**
      * The id's of the enabled extensions.
      *
-     * @return array
+     * @return string[]
      */
-    public function getEnabled()
+    public function getEnabled(): array
     {
         return json_decode($this->config->get('extensions_enabled'), true) ?? [];
     }
@@ -404,10 +333,10 @@ class ExtensionManager
     /**
      * Persist the currently enabled extensions.
      *
-     * @param array $enabledExtensions
+     * @param Extension[] $enabledExtensions
      * @throws CircularDependenciesException
      */
-    protected function setEnabledExtensions(array $enabledExtensions)
+    protected function setEnabledExtensions(array $enabledExtensions): void
     {
         $resolved = static::resolveExtensionOrder($enabledExtensions);
 
@@ -426,13 +355,7 @@ class ExtensionManager
         $this->config->set('extensions_enabled', json_encode($sortedEnabledIds));
     }
 
-    /**
-     * Whether the extension is enabled.
-     *
-     * @param $extension
-     * @return bool
-     */
-    public function isEnabled($extension)
+    public function isEnabled(string $extension): bool
     {
         $enabled = $this->getEnabledExtensions();
 
@@ -442,14 +365,14 @@ class ExtensionManager
     /**
      * Returns the titles of the extensions passed.
      *
-     * @param array $exts
+     * @param Extension[] $extensions
      * @return string[]
      */
-    public static function pluckTitles(array $exts)
+    public static function pluckTitles(array $extensions): array
     {
         return array_map(function (Extension $extension) {
             return $extension->getTitle();
-        }, $exts);
+        }, $extensions);
     }
 
     /**
@@ -467,7 +390,7 @@ class ExtensionManager
      *
      * @internal
      */
-    public static function resolveExtensionOrder($extensionList)
+    public static function resolveExtensionOrder(array $extensionList): array
     {
         $extensionIdMapping = []; // Used for caching so we don't rerun ->getExtensions every time.
 

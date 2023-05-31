@@ -20,28 +20,17 @@ use Illuminate\Database\Query\Builder;
 
 class SuspendedFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
-    /**
-     * @var \Flarum\User\UserRepository
-     */
-    protected $users;
-
-    /**
-     * @param \Flarum\User\UserRepository $users
-     */
-    public function __construct(UserRepository $users)
-    {
-        $this->users = $users;
+    public function __construct(
+        protected UserRepository $users
+    ) {
     }
 
-    protected function getGambitPattern()
+    protected function getGambitPattern(): string
     {
         return 'is:suspended';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function apply(SearchState $search, $bit)
+    public function apply(SearchState $search, string $bit): bool
     {
         if (! $search->getActor()->can('suspend', new Guest())) {
             return false;
@@ -50,10 +39,7 @@ class SuspendedFilterGambit extends AbstractRegexGambit implements FilterInterfa
         return parent::apply($search, $bit);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function conditions(SearchState $search, array $matches, $negate)
+    protected function conditions(SearchState $search, array $matches, bool $negate): void
     {
         $this->constrain($search->getQuery(), $negate);
     }
@@ -63,16 +49,16 @@ class SuspendedFilterGambit extends AbstractRegexGambit implements FilterInterfa
         return 'suspended';
     }
 
-    public function filter(FilterState $filterState, $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         if (! $filterState->getActor()->can('suspend', new Guest())) {
-            return false;
+            return;
         }
 
         $this->constrain($filterState->getQuery(), $negate);
     }
 
-    protected function constrain(Builder $query, bool $negate)
+    protected function constrain(Builder $query, bool $negate): void
     {
         $query->where(function ($query) use ($negate) {
             if ($negate) {

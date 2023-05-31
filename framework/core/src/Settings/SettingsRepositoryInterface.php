@@ -14,15 +14,11 @@ interface SettingsRepositoryInterface
     public function all(): array;
 
     /**
-     * @todo remove $default in 2.0
-     *
-     * @param $key
-     * @param mixed $default: Deprecated
-     * @return mixed
+     * @todo remove deprecated $default in 2.0
      */
-    public function get($key, $default = null);
+    public function get(string $key, $default = null): mixed;
 
-    public function set($key, $value);
+    public function set(string $key, mixed $value): void;
 
-    public function delete($keyLike);
+    public function delete(string $keyLike): void;
 }

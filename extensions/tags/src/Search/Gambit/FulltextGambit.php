@@ -16,14 +16,9 @@ use Illuminate\Database\Eloquent\Builder;
 
 class FulltextGambit implements GambitInterface
 {
-    /**
-     * @var TagRepository
-     */
-    protected $tags;
-
-    public function __construct(TagRepository $tags)
-    {
-        $this->tags = $tags;
+    public function __construct(
+        protected TagRepository $tags
+    ) {
     }
 
     private function getTagSearchSubQuery(string $searchValue): Builder
@@ -35,12 +30,12 @@ class FulltextGambit implements GambitInterface
             ->orWhere('slug', 'like', "$searchValue%");
     }
 
-    public function apply(SearchState $search, $searchValue)
+    public function apply(SearchState $search, string $bit): bool
     {
         $search->getQuery()
             ->whereIn(
                 'id',
-                $this->getTagSearchSubQuery($searchValue)
+                $this->getTagSearchSubQuery($bit)
             );
 
         return true;

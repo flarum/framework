@@ -13,10 +13,7 @@ use Flarum\Foundation\AbstractValidator;
 
 class UpdateExtensionValidator extends AbstractValidator
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $rules = [
+    protected array $rules = [
         'extensionId' => 'required|string'
     ];
 }

@@ -23,100 +23,38 @@ class Application
      */
     const VERSION = '2.0-dev';
 
-    /**
-     * The IoC container for the Flarum application.
-     *
-     * @var Container
-     */
-    private $container;
+    protected bool $booted = false;
 
-    /**
-     * The paths for the Flarum installation.
-     *
-     * @var Paths
-     */
-    protected $paths;
+    protected array $bootingCallbacks = [];
 
-    /**
-     * Indicates if the application has "booted".
-     *
-     * @var bool
-     */
-    protected $booted = false;
+    protected array $bootedCallbacks = [];
 
-    /**
-     * The array of booting callbacks.
-     *
-     * @var array
-     */
-    protected $bootingCallbacks = [];
+    protected array $serviceProviders = [];
 
-    /**
-     * The array of booted callbacks.
-     *
-     * @var array
-     */
-    protected $bootedCallbacks = [];
+    protected array $loadedProviders = [];
 
-    /**
-     * All of the registered service providers.
-     *
-     * @var array
-     */
-    protected $serviceProviders = [];
-
-    /**
-     * The names of the loaded service providers.
-     *
-     * @var array
-     */
-    protected $loadedProviders = [];
-
-    /**
-     * Create a new Flarum application instance.
-     *
-     * @param Container $container
-     * @param Paths $paths
-     */
-    public function __construct(Container $container, Paths $paths)
-    {
-        $this->container = $container;
-        $this->paths = $paths;
-
+    public function __construct(
+        private readonly Container $container,
+        protected Paths $paths
+    ) {
         $this->registerBaseBindings();
         $this->registerBaseServiceProviders();
         $this->registerCoreContainerAliases();
     }
 
-    /**
-     * @param string $key
-     * @param mixed $default
-     * @return mixed
-     */
-    public function config($key, $default = null)
+    public function config(string $key, mixed $default = null): mixed
     {
         $config = $this->container->make('flarum.config');
 
         return $config[$key] ?? $default;
     }
 
-    /**
-     * Check if Flarum is in debug mode.
-     *
-     * @return bool
-     */
-    public function inDebugMode()
+    public function inDebugMode(): bool
     {
         return $this->config('debug', true);
     }
 
-    /**
-     * Get the URL to the Flarum installation.
-     *
-     * @param string $path
-     * @return string
-     */
-    public function url($path = null)
+    public function url(string $path = null): string
     {
         $config = $this->container->make('flarum.config');
         $url = (string) $config->url();
@@ -128,10 +66,7 @@ class Application
         return $url;
     }
 
-    /**
-     * Register the basic bindings into the container.
-     */
-    protected function registerBaseBindings()
+    protected function registerBaseBindings(): void
     {
         \Illuminate\Container\Container::setInstance($this->container);
 
@@ -152,23 +87,12 @@ class Application
         $this->container->alias('flarum.paths', Paths::class);
     }
 
-    /**
-     * Register all of the base service providers.
-     */
-    protected function registerBaseServiceProviders()
+    protected function registerBaseServiceProviders(): void
     {
         $this->register(new EventServiceProvider($this->container));
     }
 
-    /**
-     * Register a service provider with the application.
-     *
-     * @param ServiceProvider|string $provider
-     * @param array $options
-     * @param bool $force
-     * @return ServiceProvider
-     */
-    public function register($provider, $options = [], $force = false)
+    public function register(string|ServiceProvider $provider, array $options = [], bool $force = false): ServiceProvider
     {
         if (($registered = $this->getProvider($provider)) && ! $force) {
             return $registered;
@@ -202,13 +126,7 @@ class Application
         return $provider;
     }
 
-    /**
-     * Get the registered service provider instance if it exists.
-     *
-     * @param ServiceProvider|string $provider
-     * @return ServiceProvider|null
-     */
-    public function getProvider($provider)
+    public function getProvider(string|ServiceProvider $provider): ?ServiceProvider
     {
         $name = is_string($provider) ? $provider : get_class($provider);
 
@@ -220,21 +138,14 @@ class Application
     /**
      * Resolve a service provider instance from the class name.
      *
-     * @param string $provider
-     * @return ServiceProvider
+     * @param class-string<ServiceProvider> $provider
      */
-    public function resolveProviderClass($provider)
+    public function resolveProviderClass(string $provider): ServiceProvider
     {
         return new $provider($this->container);
     }
 
-    /**
-     * Mark the given provider as registered.
-     *
-     * @param ServiceProvider $provider
-     * @return void
-     */
-    protected function markAsRegistered($provider)
+    protected function markAsRegistered(ServiceProvider $provider): void
     {
         $this->container['events']->dispatch($class = get_class($provider), [$provider]);
 
@@ -243,22 +154,12 @@ class Application
         $this->loadedProviders[$class] = true;
     }
 
-    /**
-     * Determine if the application has booted.
-     *
-     * @return bool
-     */
-    public function isBooted()
+    public function isBooted(): bool
     {
         return $this->booted;
     }
 
-    /**
-     * Boot the application's service providers.
-     *
-     * @return void
-     */
-    public function boot()
+    public function boot(): void
     {
         if ($this->booted) {
             return;
@@ -278,37 +179,21 @@ class Application
         $this->fireAppCallbacks($this->bootedCallbacks);
     }
 
-    /**
-     * Boot the given service provider.
-     *
-     * @param ServiceProvider $provider
-     * @return mixed
-     */
-    protected function bootProvider(ServiceProvider $provider)
+    protected function bootProvider(ServiceProvider $provider): mixed
     {
         if (method_exists($provider, 'boot')) {
             return $this->container->call([$provider, 'boot']);
         }
+
+        return null;
     }
 
-    /**
-     * Register a new boot listener.
-     *
-     * @param mixed $callback
-     * @return void
-     */
-    public function booting($callback)
+    public function booting(mixed $callback): void
     {
         $this->bootingCallbacks[] = $callback;
     }
 
-    /**
-     * Register a new "booted" listener.
-     *
-     * @param mixed $callback
-     * @return void
-     */
-    public function booted($callback)
+    public function booted(mixed $callback): void
     {
         $this->bootedCallbacks[] = $callback;
 
@@ -317,23 +202,14 @@ class Application
         }
     }
 
-    /**
-     * Call the booting callbacks for the application.
-     *
-     * @param array $callbacks
-     * @return void
-     */
-    protected function fireAppCallbacks(array $callbacks)
+    protected function fireAppCallbacks(array $callbacks): void
     {
         foreach ($callbacks as $callback) {
             call_user_func($callback, $this);
         }
     }
 
-    /**
-     * Register the core class aliases in the container.
-     */
-    public function registerCoreContainerAliases()
+    public function registerCoreContainerAliases(): void
     {
         $aliases = [
             'app'                  => [\Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class,  \Psr\Container\ContainerInterface::class],
@@ -354,8 +230,8 @@ class Application
             'view'                 => [\Illuminate\View\Factory::class, \Illuminate\Contracts\View\Factory::class],
         ];
 
-        foreach ($aliases as $key => $aliases) {
-            foreach ((array) $aliases as $alias) {
+        foreach ($aliases as $key => $aliasGroup) {
+            foreach ($aliasGroup as $alias) {
                 $this->container->alias($key, $alias);
             }
         }

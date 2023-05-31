@@ -16,20 +16,12 @@ use Flarum\User\User;
 
 class AddCanFlagAttribute
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     */
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
-        $this->settings = $settings;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings
+    ) {
     }
 
-    public function __invoke(PostSerializer $serializer, Post $post)
+    public function __invoke(PostSerializer $serializer, Post $post): bool
     {
         return $serializer->getActor()->can('flag', $post) && $this->checkFlagOwnPostSetting($serializer->getActor(), $post);
     }

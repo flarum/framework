@@ -21,20 +21,14 @@ use InvalidArgumentException;
 
 class FilesystemManager extends LaravelFilesystemManager
 {
-    protected $diskLocalConfig = [];
-    protected $drivers = [];
-
-    public function __construct(Container $app, array $diskLocalConfig, array $drivers)
-    {
+    public function __construct(
+        Container $app,
+        protected array $diskLocalConfig,
+        protected array $drivers
+    ) {
         parent::__construct($app);
-
-        $this->diskLocalConfig = $diskLocalConfig;
-        $this->drivers = $drivers;
     }
 
-    /**
-     * @inheritDoc
-     */
     protected function resolve($name, $config = null): Filesystem
     {
         $localConfig = $config ?? $this->getLocalConfig($name);
@@ -55,10 +49,7 @@ class FilesystemManager extends LaravelFilesystemManager
         return $driver->build($name, $settings, $config, $localConfig);
     }
 
-    /**
-     * @return string|DriverInterface
-     */
-    protected function getDriver(string $name)
+    protected function getDriver(string $name): string|DriverInterface
     {
         $config = $this->app->make(Config::class);
         $settings = $this->app->make(SettingsRepositoryInterface::class);

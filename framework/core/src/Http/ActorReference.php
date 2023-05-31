@@ -13,12 +13,9 @@ use Flarum\User\User;
 
 class ActorReference
 {
-    /**
-     * @var User
-     */
-    private $actor;
+    private User $actor;
 
-    public function setActor(User $actor)
+    public function setActor(User $actor): void
     {
         $this->actor = $actor;
     }

@@ -21,18 +21,12 @@ class CreatedFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
     use ValidateFilterTrait;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getGambitPattern()
+    public function getGambitPattern(): string
     {
         return 'created:(\d{4}\-\d\d\-\d\d)(\.\.(\d{4}\-\d\d\-\d\d))?';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function conditions(SearchState $search, array $matches, $negate)
+    protected function conditions(SearchState $search, array $matches, bool $negate): void
     {
         $this->constrain($search->getQuery(), Arr::get($matches, 1), Arr::get($matches, 3), $negate);
     }
@@ -42,7 +36,7 @@ class CreatedFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'created';
     }
 
-    public function filter(FilterState $filterState, $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $filterValue = $this->asString($filterValue);
 

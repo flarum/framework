@@ -16,14 +16,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class Controller implements RequestHandlerInterface
 {
-    /**
-     * @var Frontend
-     */
-    protected $frontend;
-
-    public function __construct(Frontend $frontend)
-    {
-        $this->frontend = $frontend;
+    public function __construct(
+        protected Frontend $frontend
+    ) {
     }
 
     public function handle(Request $request): Response

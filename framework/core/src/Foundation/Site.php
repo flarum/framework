@@ -14,11 +14,7 @@ use RuntimeException;
 
 class Site
 {
-    /**
-     * @param array $paths
-     * @return SiteInterface
-     */
-    public static function fromPaths(array $paths)
+    public static function fromPaths(array $paths): SiteInterface
     {
         $paths = new Paths($paths);
 
@@ -38,7 +34,7 @@ class Site
         )->extendWith(static::loadExtenders($paths->base));
     }
 
-    protected static function hasConfigFile($basePath)
+    protected static function hasConfigFile($basePath): bool
     {
         return file_exists("$basePath/config.php");
     }

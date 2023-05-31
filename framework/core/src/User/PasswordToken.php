@@ -11,6 +11,7 @@ namespace Flarum\User;
 
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 /**
@@ -34,18 +35,12 @@ class PasswordToken extends AbstractModel
      */
     public $incrementing = false;
 
-    /**
-     * {@inheritdoc}
-     */
     protected $primaryKey = 'token';
 
     /**
      * Generate a password token for the specified user.
-     *
-     * @param int $userId
-     * @return static
      */
-    public static function generate(int $userId)
+    public static function generate(int $userId): static
     {
         $token = new static;
 
@@ -56,12 +51,7 @@ class PasswordToken extends AbstractModel
         return $token;
     }
 
-    /**
-     * Define the relationship with the owner of this password token.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

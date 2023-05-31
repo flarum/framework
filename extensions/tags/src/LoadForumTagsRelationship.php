@@ -15,12 +15,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class LoadForumTagsRelationship
 {
-    /**
-     * @param ShowForumController $controller
-     * @param $data
-     * @param ServerRequestInterface $request
-     */
-    public function __invoke(ShowForumController $controller, &$data, ServerRequestInterface $request)
+    public function __invoke(ShowForumController $controller, array &$data, ServerRequestInterface $request): void
     {
         $actor = RequestUtil::getActor($request);
 

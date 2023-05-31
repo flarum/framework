@@ -22,15 +22,9 @@ use Tobscure\JsonApi\Exception\InvalidParameterException;
 
 class ListPostsController extends AbstractListController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = PostSerializer::class;
+    public ?string $serializer = PostSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $include = [
+    public array $include = [
         'user',
         'user.groups',
         'editedUser',
@@ -38,42 +32,16 @@ class ListPostsController extends AbstractListController
         'discussion'
     ];
 
-    /**
-     * {@inheritdoc}
-     */
-    public $sortFields = ['number', 'createdAt'];
+    public array $sortFields = ['number', 'createdAt'];
 
-    /**
-     * @var PostFilterer
-     */
-    protected $filterer;
-
-    /**
-     * @var PostRepository
-     */
-    protected $posts;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @param PostFilterer $filterer
-     * @param PostRepository $posts
-     * @param UrlGenerator $url
-     */
-    public function __construct(PostFilterer $filterer, PostRepository $posts, UrlGenerator $url)
-    {
-        $this->filterer = $filterer;
-        $this->posts = $posts;
-        $this->url = $url;
+    public function __construct(
+        protected PostFilterer $filterer,
+        protected PostRepository $posts,
+        protected UrlGenerator $url
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
 
@@ -116,7 +84,7 @@ class ListPostsController extends AbstractListController
     /**
      * @link https://github.com/flarum/framework/pull/3506
      */
-    protected function extractSort(ServerRequestInterface $request)
+    protected function extractSort(ServerRequestInterface $request): ?array
     {
         $sort = [];
 
@@ -127,10 +95,7 @@ class ListPostsController extends AbstractListController
         return $sort;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function extractOffset(ServerRequestInterface $request)
+    protected function extractOffset(ServerRequestInterface $request): int
     {
         $actor = RequestUtil::getActor($request);
         $queryParams = $request->getQueryParams();

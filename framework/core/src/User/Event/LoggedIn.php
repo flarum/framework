@@ -14,13 +14,9 @@ use Flarum\User\User;
 
 class LoggedIn
 {
-    public $user;
-
-    public $token;
-
-    public function __construct(User $user, AccessToken $token)
-    {
-        $this->user = $user;
-        $this->token = $token;
+    public function __construct(
+        public User $user,
+        public AccessToken $token
+    ) {
     }
 }

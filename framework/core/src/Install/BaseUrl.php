@@ -13,8 +13,7 @@ use Psr\Http\Message\UriInterface;
 
 final class BaseUrl
 {
-    /** @var string */
-    private $normalized;
+    private string $normalized;
 
     private function __construct(string $baseUrl)
     {
@@ -41,9 +40,6 @@ final class BaseUrl
      *
      * This uses the given mailbox name and our already normalized host name to
      * construct an email address.
-     *
-     * @param string $mailbox
-     * @return string
      */
     public function toEmail(string $mailbox): string
     {

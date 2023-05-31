@@ -15,7 +15,7 @@ use Flarum\Tags\Query\TagFilterGambit;
 
 class PinStickiedDiscussionsToTop
 {
-    public function __invoke(FilterState $filterState, QueryCriteria $criteria)
+    public function __invoke(FilterState $filterState, QueryCriteria $criteria): void
     {
         if ($criteria->sortIsDefault) {
             $query = $filterState->getQuery();

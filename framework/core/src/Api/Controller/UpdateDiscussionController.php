@@ -12,6 +12,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Command\EditDiscussion;
 use Flarum\Discussion\Command\ReadDiscussion;
+use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Database\Eloquent\Collection;
@@ -21,28 +22,14 @@ use Tobscure\JsonApi\Document;
 
 class UpdateDiscussionController extends AbstractShowController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = DiscussionSerializer::class;
+    public ?string $serializer = DiscussionSerializer::class;
 
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
-
-    /**
-     * @param Dispatcher $bus
-     */
-    public function __construct(Dispatcher $bus)
-    {
-        $this->bus = $bus;
+    public function __construct(
+        protected Dispatcher $bus
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): Discussion
     {
         $actor = RequestUtil::getActor($request);
         $discussionId = Arr::get($request->getQueryParams(), 'id');

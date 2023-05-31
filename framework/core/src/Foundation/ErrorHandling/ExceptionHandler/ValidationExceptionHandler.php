@@ -14,7 +14,7 @@ use Flarum\Foundation\ValidationException;
 
 class ValidationExceptionHandler
 {
-    public function handle(ValidationException $e)
+    public function handle(ValidationException $e): HandledError
     {
         return (new HandledError(
             $e,

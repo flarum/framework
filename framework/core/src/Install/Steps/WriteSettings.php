@@ -16,28 +16,18 @@ use Illuminate\Database\ConnectionInterface;
 
 class WriteSettings implements Step
 {
-    /**
-     * @var ConnectionInterface
-     */
-    private $database;
-
-    /**
-     * @var array
-     */
-    private $custom;
-
-    public function __construct(ConnectionInterface $database, array $custom)
-    {
-        $this->database = $database;
-        $this->custom = $custom;
+    public function __construct(
+        private readonly ConnectionInterface $database,
+        private readonly array $custom
+    ) {
     }
 
-    public function getMessage()
+    public function getMessage(): string
     {
         return 'Writing default settings';
     }
 
-    public function run()
+    public function run(): void
     {
         $repo = new DatabaseSettingsRepository($this->database);
 
@@ -48,12 +38,12 @@ class WriteSettings implements Step
         }
     }
 
-    private function getSettings()
+    private function getSettings(): array
     {
         return $this->custom + $this->getDefaults();
     }
 
-    private function getDefaults()
+    private function getDefaults(): array
     {
         return [
             'allow_hide_own_posts' => 'reply',

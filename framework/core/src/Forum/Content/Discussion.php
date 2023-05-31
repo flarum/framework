@@ -19,34 +19,14 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Discussion
 {
-    /**
-     * @var Client
-     */
-    protected $api;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @var Factory
-     */
-    protected $view;
-
-    /**
-     * @param Client $api
-     * @param UrlGenerator $url
-     * @param Factory $view
-     */
-    public function __construct(Client $api, UrlGenerator $url, Factory $view)
-    {
-        $this->api = $api;
-        $this->url = $url;
-        $this->view = $view;
+    public function __construct(
+        protected Client $api,
+        protected UrlGenerator $url,
+        protected Factory $view
+    ) {
     }
 
-    public function __invoke(Document $document, Request $request)
+    public function __invoke(Document $document, Request $request): Document
     {
         $queryParams = $request->getQueryParams();
         $id = Arr::get($queryParams, 'id');

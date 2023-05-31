@@ -13,20 +13,12 @@ use Exception;
 
 class ComposerCommandFailedException extends Exception
 {
-    /**
-     * @var string
-     */
-    public $packageName;
+    public array $details = [];
 
-    /**
-     * @var array
-     */
-    public $details = [];
-
-    public function __construct(string $packageName, string $output)
-    {
-        $this->packageName = $packageName;
-
+    public function __construct(
+        public string $packageName,
+        string $output,
+    ) {
         parent::__construct($output);
     }
 

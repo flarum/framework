@@ -13,11 +13,9 @@ use Illuminate\Support\Collection;
 
 class PhpVersion implements PrerequisiteInterface
 {
-    protected $minVersion;
-
-    public function __construct($minVersion)
-    {
-        $this->minVersion = $minVersion;
+    public function __construct(
+        protected string $minVersion
+    ) {
     }
 
     public function problems(): Collection

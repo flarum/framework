@@ -12,6 +12,7 @@ namespace Flarum\Http\Middleware;
 use Flarum\Http\AccessToken;
 use Flarum\Http\RequestUtil;
 use Flarum\User\Guest;
+use Flarum\User\User;
 use Illuminate\Contracts\Session\Session;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -31,7 +32,7 @@ class AuthenticateWithSession implements Middleware
         return $handler->handle($request);
     }
 
-    private function getActor(Session $session, Request $request)
+    private function getActor(Session $session, Request $request): Guest|User
     {
         if ($session->has('access_token')) {
             $token = AccessToken::findValid($session->get('access_token'));

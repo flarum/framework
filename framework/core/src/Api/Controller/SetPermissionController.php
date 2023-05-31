@@ -19,9 +19,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class SetPermissionController implements RequestHandlerInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         RequestUtil::getActor($request)->assertAdmin();

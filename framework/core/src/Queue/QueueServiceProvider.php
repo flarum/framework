@@ -31,7 +31,7 @@ use Illuminate\Queue\Worker;
 
 class QueueServiceProvider extends AbstractServiceProvider
 {
-    protected $commands = [
+    protected array $commands = [
         Commands\FlushFailedCommand::class,
         Commands\ForgetFailedCommand::class,
         Console\ListenCommand::class,
@@ -41,7 +41,7 @@ class QueueServiceProvider extends AbstractServiceProvider
         Console\WorkCommand::class,
     ];
 
-    public function register()
+    public function register(): void
     {
         // Register a simple connection factory that always returns the same
         // connection, as that is enough for our purposes.
@@ -134,7 +134,7 @@ class QueueServiceProvider extends AbstractServiceProvider
         $this->registerCommands();
     }
 
-    protected function registerCommands()
+    protected function registerCommands(): void
     {
         $this->container->extend('flarum.console.commands', function ($commands, Container $container) {
             $queue = $container->make(Queue::class);
@@ -150,7 +150,7 @@ class QueueServiceProvider extends AbstractServiceProvider
         });
     }
 
-    public function boot(Dispatcher $events, Container $container)
+    public function boot(Dispatcher $events, Container $container): void
     {
         $events->listen(JobFailed::class, function (JobFailed $event) use ($container) {
             /** @var Registry $registry */

@@ -11,25 +11,17 @@ namespace Flarum\Extension\Console;
 
 use Flarum\Console\AbstractCommand;
 use Flarum\Extension\ExtensionManager;
+use Symfony\Component\Console\Command\Command;
 
 class ToggleExtensionCommand extends AbstractCommand
 {
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensionManager;
-
-    public function __construct(ExtensionManager $extensionManager)
-    {
-        $this->extensionManager = $extensionManager;
-
+    public function __construct(
+        protected ExtensionManager $extensionManager
+    ) {
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('extension:enable')
@@ -38,10 +30,7 @@ class ToggleExtensionCommand extends AbstractCommand
             ->addArgument('extension-id', null, 'The ID of the extension to enable or disable.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function fire()
+    protected function fire(): int
     {
         $name = $this->input->getArgument('extension-id');
         $enabling = $this->input->getFirstArgument() === 'extension:enable';
@@ -49,30 +38,29 @@ class ToggleExtensionCommand extends AbstractCommand
         if ($this->extensionManager->getExtension($name) === null) {
             $this->error("There are no extensions by the ID of '$name'.");
 
-            return;
+            return Command::INVALID;
         }
 
-        switch ($enabling) {
-            case true:
-                if ($this->extensionManager->isEnabled($name)) {
-                    $this->info("The '$name' extension is already enabled.");
+        if ($enabling) {
+            if ($this->extensionManager->isEnabled($name)) {
+                $this->info("The '$name' extension is already enabled.");
 
-                    return;
-                } else {
-                    $this->info("Enabling '$name' extension...");
-                    $this->extensionManager->enable($name);
-                }
-                break;
-            case false:
-                if (! $this->extensionManager->isEnabled($name)) {
-                    $this->info("The '$name' extension is already disabled.");
+                return Command::FAILURE;
+            } else {
+                $this->info("Enabling '$name' extension...");
+                $this->extensionManager->enable($name);
+            }
+        } else {
+            if (! $this->extensionManager->isEnabled($name)) {
+                $this->info("The '$name' extension is already disabled.");
 
-                    return;
-                } else {
-                    $this->info("Disabling '$name' extension...");
-                    $this->extensionManager->disable($name);
-                }
-                break;
+                return Command::FAILURE;
+            } else {
+                $this->info("Disabling '$name' extension...");
+                $this->extensionManager->disable($name);
+            }
         }
+
+        return Command::SUCCESS;
     }
 }

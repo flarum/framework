@@ -27,35 +27,26 @@ use Illuminate\Support\Arr;
 
 class UpdateTagMetadata
 {
-    /**
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
+    public function subscribe(Dispatcher $events): void
     {
-        $events->listen(Started::class, [$this, 'whenDiscussionIsStarted']);
-        $events->listen(DiscussionWasTagged::class, [$this, 'whenDiscussionWasTagged']);
-        $events->listen(Deleted::class, [$this, 'whenDiscussionIsDeleted']);
-        $events->listen(Hidden::class, [$this, 'whenDiscussionIsHidden']);
-        $events->listen(Restored::class, [$this, 'whenDiscussionIsRestored']);
+        $events->listen(Started::class, $this->whenDiscussionIsStarted(...));
+        $events->listen(DiscussionWasTagged::class, $this->whenDiscussionWasTagged(...));
+        $events->listen(Deleted::class, $this->whenDiscussionIsDeleted(...));
+        $events->listen(Hidden::class, $this->whenDiscussionIsHidden(...));
+        $events->listen(Restored::class, $this->whenDiscussionIsRestored(...));
 
-        $events->listen(Posted::class, [$this, 'whenPostIsPosted']);
-        $events->listen(PostDeleted::class, [$this, 'whenPostIsDeleted']);
-        $events->listen(PostHidden::class, [$this, 'whenPostIsHidden']);
-        $events->listen(PostRestored::class, [$this, 'whenPostIsRestored']);
+        $events->listen(Posted::class, $this->whenPostIsPosted(...));
+        $events->listen(PostDeleted::class, $this->whenPostIsDeleted(...));
+        $events->listen(PostHidden::class, $this->whenPostIsHidden(...));
+        $events->listen(PostRestored::class, $this->whenPostIsRestored(...));
     }
 
-    /**
-     * @param Started $event
-     */
-    public function whenDiscussionIsStarted(Started $event)
+    public function whenDiscussionIsStarted(Started $event): void
     {
         $this->updateTags($event->discussion, 1);
     }
 
-    /**
-     * @param DiscussionWasTagged $event
-     */
-    public function whenDiscussionWasTagged(DiscussionWasTagged $event)
+    public function whenDiscussionWasTagged(DiscussionWasTagged $event): void
     {
         $oldTags = Tag::whereIn('id', Arr::pluck($event->oldTags, 'id'))->get();
 
@@ -63,10 +54,7 @@ class UpdateTagMetadata
         $this->updateTags($event->discussion, 1);
     }
 
-    /**
-     * @param Deleted $event
-     */
-    public function whenDiscussionIsDeleted(Deleted $event)
+    public function whenDiscussionIsDeleted(Deleted $event): void
     {
         // If already soft deleted when permanently deleted, the -1 delta has already been applied in Hidden listener
         $delta = $event->discussion->hidden_at ? 0 : -1;
@@ -75,63 +63,42 @@ class UpdateTagMetadata
         $event->discussion->tags()->detach();
     }
 
-    /**
-     * @param Hidden $event
-     */
-    public function whenDiscussionIsHidden(Hidden $event)
+    public function whenDiscussionIsHidden(Hidden $event): void
     {
         $this->updateTags($event->discussion, -1);
     }
 
-    /**
-     * @param Restored $event
-     */
-    public function whenDiscussionIsRestored(Restored $event)
+    public function whenDiscussionIsRestored(Restored $event): void
     {
         $this->updateTags($event->discussion, 1);
     }
 
-    /**
-     * @param Posted $event
-     */
-    public function whenPostIsPosted(Posted $event)
+    public function whenPostIsPosted(Posted $event): void
     {
         $this->updateTags($event->post->discussion);
     }
 
-    /**
-     * @param PostDeleted $event
-     */
-    public function whenPostIsDeleted(PostDeleted $event)
+    public function whenPostIsDeleted(PostDeleted $event): void
     {
         $discussion = $event->post->discussion;
         $delta = ! $discussion->exists && $discussion->hidden_at === null ? -1 : 0;
         $this->updateTags($discussion, $delta);
     }
 
-    /**
-     * @param PostHidden $event
-     */
-    public function whenPostIsHidden(PostHidden $event)
+    public function whenPostIsHidden(PostHidden $event): void
+    {
+        $this->updateTags($event->post->discussion, 0, null, $event->post);
+    }
+
+    public function whenPostIsRestored(PostRestored $event): void
     {
         $this->updateTags($event->post->discussion, 0, null, $event->post);
     }
 
     /**
-     * @param PostRestored $event
+     * @param Post|null $post This is only used when a post has been hidden
      */
-    public function whenPostIsRestored(PostRestored $event)
-    {
-        $this->updateTags($event->post->discussion, 0, null, $event->post);
-    }
-
-    /**
-     * @param Discussion $discussion
-     * @param int $delta
-     * @param Collection<Tag>|null $tags
-     * @param Post $post: This is only used when a post has been hidden
-     */
-    protected function updateTags(Discussion $discussion, $delta = 0, $tags = null, $post = null)
+    protected function updateTags(Discussion $discussion, int $delta = 0, ?Collection $tags = null, ?Post $post = null): void
     {
         if (! $tags) {
             $tags = $discussion->tags;

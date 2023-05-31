@@ -22,7 +22,7 @@ class IdFilter implements FilterInterface
         return 'id';
     }
 
-    public function filter(FilterState $filterState, $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $ids = $this->asIntArray($filterValue);
 

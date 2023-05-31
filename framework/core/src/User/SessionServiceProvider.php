@@ -17,10 +17,7 @@ use SessionHandlerInterface;
 
 class SessionServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    public function register(): void
     {
         $this->container->singleton('flarum.session.drivers', function () {
             return [];

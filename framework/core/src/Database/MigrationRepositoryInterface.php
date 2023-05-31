@@ -13,34 +13,21 @@ interface MigrationRepositoryInterface
 {
     /**
      * Get the ran migrations for the given extension.
-     *
-     * @param string $extension
-     * @return array
      */
-    public function getRan($extension = null);
+    public function getRan(?string $extension = null): array;
 
     /**
      * Log that a migration was run.
-     *
-     * @param string $file
-     * @param string $extension
-     * @return void
      */
-    public function log($file, $extension = null);
+    public function log(string $file, ?string $extension = null): void;
 
     /**
      * Remove a migration from the log.
-     *
-     * @param string $file
-     * @param string $extension
-     * @return void
      */
-    public function delete($file, $extension = null);
+    public function delete(string $file, ?string $extension = null): void;
 
     /**
      * Determine if the migration repository exists.
-     *
-     * @return bool
      */
-    public function repositoryExists();
+    public function repositoryExists(): bool;
 }

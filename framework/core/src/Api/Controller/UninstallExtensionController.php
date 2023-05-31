@@ -16,20 +16,12 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class UninstallExtensionController extends AbstractDeleteController
 {
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    /**
-     * @param \Flarum\Extension\ExtensionManager $extensions
-     */
-    public function __construct(ExtensionManager $extensions)
-    {
-        $this->extensions = $extensions;
+    public function __construct(
+        protected ExtensionManager $extensions
+    ) {
     }
 
-    protected function delete(ServerRequestInterface $request)
+    protected function delete(ServerRequestInterface $request): void
     {
         RequestUtil::getActor($request)->assertAdmin();
 

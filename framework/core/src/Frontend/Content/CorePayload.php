@@ -16,20 +16,12 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class CorePayload
 {
-    /**
-     * @var LocaleManager
-     */
-    private $locales;
-
-    /**
-     * @param LocaleManager $locales
-     */
-    public function __construct(LocaleManager $locales)
-    {
-        $this->locales = $locales;
+    public function __construct(
+        private readonly LocaleManager $locales
+    ) {
     }
 
-    public function __invoke(Document $document, Request $request)
+    public function __invoke(Document $document, Request $request): void
     {
         $document->payload = array_merge(
             $document->payload,
@@ -37,7 +29,7 @@ class CorePayload
         );
     }
 
-    private function buildPayload(Document $document, Request $request)
+    private function buildPayload(Document $document, Request $request): array
     {
         $data = $this->getDataFromApiDocument($document->getForumApiDocument());
 

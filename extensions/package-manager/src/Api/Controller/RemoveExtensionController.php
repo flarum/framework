@@ -21,14 +21,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class RemoveExtensionController implements RequestHandlerInterface
 {
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
-
-    public function __construct(Dispatcher $bus)
-    {
-        $this->bus = $bus;
+    public function __construct(
+        protected Dispatcher $bus
+    ) {
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface

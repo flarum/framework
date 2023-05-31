@@ -18,14 +18,9 @@ use Symfony\Component\Mailer\Transport\TransportInterface;
 
 class LogDriver implements DriverInterface
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
+    public function __construct(
+        private readonly LoggerInterface $logger
+    ) {
     }
 
     public function availableSettings(): array

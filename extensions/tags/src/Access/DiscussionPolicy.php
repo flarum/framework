@@ -17,26 +17,12 @@ use Flarum\User\User;
 
 class DiscussionPolicy extends AbstractPolicy
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     */
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
-        $this->settings = $settings;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings
+    ) {
     }
 
-    /**
-     * @param User $actor
-     * @param string $ability
-     * @param Discussion $discussion
-     * @return string|void
-     */
-    public function can(User $actor, $ability, Discussion $discussion)
+    public function can(User $actor, string $ability, Discussion $discussion)
     {
         // Wrap all discussion permission checks with some logic pertaining to
         // the discussion's tags. If the discussion has a tag that has been
@@ -65,10 +51,6 @@ class DiscussionPolicy extends AbstractPolicy
     /**
      * This method checks, if the user is still allowed to edit the tags
      * based on the configuration item.
-     *
-     * @param User $actor
-     * @param Discussion $discussion
-     * @return string|void
      */
     public function tag(User $actor, Discussion $discussion)
     {

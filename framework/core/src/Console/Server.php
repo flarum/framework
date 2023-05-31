@@ -20,14 +20,12 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class Server
 {
-    private $site;
-
-    public function __construct(SiteInterface $site)
-    {
-        $this->site = $site;
+    public function __construct(
+        private readonly SiteInterface $site
+    ) {
     }
 
-    public function listen()
+    public function listen(): never
     {
         $app = $this->site->bootApp();
 
@@ -42,7 +40,7 @@ class Server
         exit($console->run());
     }
 
-    private function handleErrors(Application $console)
+    private function handleErrors(Application $console): void
     {
         $dispatcher = new EventDispatcher();
 

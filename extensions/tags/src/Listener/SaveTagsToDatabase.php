@@ -11,48 +11,23 @@ namespace Flarum\Tags\Listener;
 
 use Flarum\Discussion\Event\Saving;
 use Flarum\Foundation\ValidationException;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Event\DiscussionWasTagged;
 use Flarum\Tags\Tag;
 use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Validation\Factory;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SaveTagsToDatabase
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var Factory
-     */
-    protected $validator;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     * @param Factory $validator
-     * @param TranslatorInterface $translator
-     */
-    public function __construct(SettingsRepositoryInterface $settings, Factory $validator, TranslatorInterface $translator)
-    {
-        $this->settings = $settings;
-        $this->validator = $validator;
-        $this->translator = $translator;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings,
+        protected Factory $validator,
+        protected TranslatorInterface $translator
+    ) {
     }
 
-    /**
-     * @param Saving $event
-     * @throws PermissionDeniedException
-     * @throws ValidationException
-     */
-    public function handle(Saving $event)
+    public function handle(Saving $event): void
     {
         $discussion = $event->discussion;
         $actor = $event->actor;
@@ -123,12 +98,7 @@ class SaveTagsToDatabase
         }
     }
 
-    /**
-     * @param string $type
-     * @param int $count
-     * @throws ValidationException
-     */
-    protected function validateTagCount($type, $count)
+    protected function validateTagCount(string $type, int $count): void
     {
         $min = $this->settings->get('flarum-tags.min_'.$type.'_tags');
         $max = $this->settings->get('flarum-tags.max_'.$type.'_tags');

@@ -14,12 +14,8 @@ use Illuminate\Support\Str;
 
 class WritablePaths implements PrerequisiteInterface
 {
-    /**
-     * @var Collection
-     */
-    private $paths;
-
-    private $wildcards = [];
+    private Collection $paths;
+    private array $wildcards = [];
 
     public function __construct(array $paths)
     {

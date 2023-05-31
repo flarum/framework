@@ -15,11 +15,7 @@ use Illuminate\Support\Arr;
 
 class CreatePostWhenTagsAreChanged
 {
-    /**
-     * @param DiscussionWasTagged $event
-     * @return void
-     */
-    public function handle(DiscussionWasTagged $event)
+    public function handle(DiscussionWasTagged $event): void
     {
         $post = DiscussionTaggedPost::reply(
             $event->discussion->id,

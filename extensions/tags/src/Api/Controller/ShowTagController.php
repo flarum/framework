@@ -21,9 +21,9 @@ use Tobscure\JsonApi\Document;
 
 class ShowTagController extends AbstractShowController
 {
-    public $serializer = TagSerializer::class;
+    public ?string $serializer = TagSerializer::class;
 
-    public $optionalInclude = [
+    public array $optionalInclude = [
         'children',
         'children.parent',
         'lastPostedDiscussion',
@@ -33,26 +33,13 @@ class ShowTagController extends AbstractShowController
         'state'
     ];
 
-    /**
-     * @var TagRepository
-     */
-    protected $tags;
-
-    /**
-     * @var SlugManager
-     */
-    protected $slugger;
-
-    public function __construct(TagRepository $tags, SlugManager $slugger)
-    {
-        $this->tags = $tags;
-        $this->slugger = $slugger;
+    public function __construct(
+        protected TagRepository $tags,
+        protected SlugManager $slugger
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): Tag
     {
         $slug = Arr::get($request->getQueryParams(), 'slug');
         $actor = RequestUtil::getActor($request);

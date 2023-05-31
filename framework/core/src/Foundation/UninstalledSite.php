@@ -30,26 +30,14 @@ use Psr\Log\LoggerInterface;
 
 class UninstalledSite implements SiteInterface
 {
-    /**
-     * @var Paths
-     */
-    protected $paths;
-
-    /**
-     * @var string
-     */
-    private $baseUrl;
-
-    public function __construct(Paths $paths, string $baseUrl)
-    {
-        $this->paths = $paths;
-        $this->baseUrl = $baseUrl;
+    public function __construct(
+        protected Paths $paths,
+        private readonly string $baseUrl
+    ) {
     }
 
     /**
      * Create and boot a Flarum application instance.
-     *
-     * @return AppInterface
      */
     public function bootApp(): AppInterface
     {
@@ -104,10 +92,7 @@ class UninstalledSite implements SiteInterface
         return $container;
     }
 
-    /**
-     * @return ConfigRepository
-     */
-    protected function getIlluminateConfig()
+    protected function getIlluminateConfig(): ConfigRepository
     {
         return new ConfigRepository([
             'session' => [
@@ -121,7 +106,7 @@ class UninstalledSite implements SiteInterface
         ]);
     }
 
-    protected function registerLogger(Container $container)
+    protected function registerLogger(Container $container): void
     {
         $logPath = $this->paths->storage.'/logs/flarum-installer.log';
         $handler = new StreamHandler($logPath, Logger::DEBUG);

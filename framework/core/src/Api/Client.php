@@ -19,34 +19,14 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class Client
 {
-    /**
-     * @var MiddlewarePipeInterface
-     */
-    protected $pipe;
+    protected ?User $actor = null;
+    protected ?ServerRequestInterface $parent = null;
+    protected array $queryParams = [];
+    protected array $body = [];
 
-    /**
-     * @var User|null
-     */
-    protected $actor;
-
-    /**
-     * @var ServerRequestInterface|null
-     */
-    protected $parent;
-
-    /**
-     * @var array
-     */
-    protected $queryParams = [];
-
-    /**
-     * @var array
-     */
-    protected $body = [];
-
-    public function __construct(MiddlewarePipeInterface $pipe)
-    {
-        $this->pipe = $pipe;
+    public function __construct(
+        protected MiddlewarePipeInterface $pipe
+    ) {
     }
 
     /**
@@ -113,10 +93,6 @@ class Client
 
     /**
      * Execute the given API action class, pass the input and return its response.
-     *
-     * @param string $method
-     * @param string $path
-     * @return ResponseInterface
      *
      * @internal
      */

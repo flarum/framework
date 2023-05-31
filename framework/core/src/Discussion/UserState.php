@@ -15,6 +15,7 @@ use Flarum\Discussion\Event\UserRead;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Models a discussion-user state record in the database.
@@ -25,18 +26,15 @@ use Illuminate\Database\Eloquent\Builder;
  *
  * @property int $user_id
  * @property int $discussion_id
- * @property \Carbon\Carbon|null $last_read_at
+ * @property Carbon|null $last_read_at
  * @property int|null $last_read_post_number
  * @property Discussion $discussion
- * @property \Flarum\User\User $user
+ * @property User $user
  */
 class UserState extends AbstractModel
 {
     use EventGeneratorTrait;
 
-    /**
-     * {@inheritdoc}
-     */
     protected $table = 'discussion_user';
 
     /**
@@ -56,11 +54,8 @@ class UserState extends AbstractModel
     /**
      * Mark the discussion as being read up to a certain point. Raises the
      * DiscussionWasRead event.
-     *
-     * @param int $number
-     * @return $this
      */
-    public function read($number)
+    public function read(int $number): static
     {
         if ($number > $this->last_read_post_number) {
             $this->last_read_post_number = $number;
@@ -72,22 +67,12 @@ class UserState extends AbstractModel
         return $this;
     }
 
-    /**
-     * Define the relationship with the discussion that this state is for.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function discussion()
+    public function discussion(): BelongsTo
     {
         return $this->belongsTo(Discussion::class);
     }
 
-    /**
-     * Define the relationship with the user that this state is for.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
@@ -100,8 +85,9 @@ class UserState extends AbstractModel
      */
     protected function setKeysForSaveQuery($query)
     {
-        $query->where('discussion_id', $this->discussion_id)
-              ->where('user_id', $this->user_id);
+        $query
+            ->where('discussion_id', $this->discussion_id)
+            ->where('user_id', $this->user_id);
 
         return $query;
     }

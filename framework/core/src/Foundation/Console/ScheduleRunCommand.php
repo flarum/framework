@@ -16,25 +16,13 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class ScheduleRunCommand extends \Illuminate\Console\Scheduling\ScheduleRunCommand
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
+    public function __construct(
+        protected SettingsRepositoryInterface $settings
+    ) {
         parent::__construct();
-
-        $this->settings = $settings;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function handle(Schedule $schedule, Dispatcher $dispatcher, ExceptionHandler $handler)
+    public function handle(Schedule $schedule, Dispatcher $dispatcher, ExceptionHandler $handler): void
     {
         parent::handle($schedule, $dispatcher, $handler);
 

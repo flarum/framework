@@ -26,60 +26,37 @@ use Tobscure\JsonApi\SerializerInterface;
 
 abstract class AbstractSerializer extends BaseAbstractSerializer
 {
-    /**
-     * @var Request
-     */
-    protected $request;
-
-    /**
-     * @var User
-     */
-    protected $actor;
-
-    /**
-     * @var Container
-     */
-    protected static $container;
+    protected Request $request;
+    protected User $actor;
+    protected static Container $container;
 
     /**
      * @var array<string, callable[]>
      */
-    protected static $attributeMutators = [];
+    protected static array $attributeMutators = [];
 
     /**
      * @var array<string, array<string, callable>>
      */
-    protected static $customRelations = [];
+    protected static array $customRelations = [];
 
-    /**
-     * @return Request
-     */
-    public function getRequest()
+    public function getRequest(): Request
     {
         return $this->request;
     }
 
-    /**
-     * @param Request $request
-     */
-    public function setRequest(Request $request)
+    public function setRequest(Request $request): void
     {
         $this->request = $request;
         $this->actor = RequestUtil::getActor($request);
     }
 
-    /**
-     * @return User
-     */
-    public function getActor()
+    public function getActor(): User
     {
         return $this->actor;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getAttributes($model, array $fields = null)
+    public function getAttributes(mixed $model, array $fields = null): array
     {
         if (! is_object($model) && ! is_array($model)) {
             return [];
@@ -103,26 +80,14 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
 
     /**
      * Get the default set of serialized attributes for a model.
-     *
-     * @param object|array $model
-     * @return array
      */
-    abstract protected function getDefaultAttributes($model);
+    abstract protected function getDefaultAttributes(object|array $model): array;
 
-    /**
-     * @param DateTime|null $date
-     * @return string|null
-     */
-    public function formatDate(DateTime $date = null)
+    public function formatDate(DateTime $date = null): ?string
     {
-        if ($date) {
-            return $date->format(DateTime::RFC3339);
-        }
+        return $date?->format(DateTime::RFC3339);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getRelationship($model, $name)
     {
         if ($relationship = $this->getCustomRelationship($model, $name)) {
@@ -134,12 +99,8 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
 
     /**
      * Get a custom relationship.
-     *
-     * @param mixed $model
-     * @param string $name
-     * @return Relationship|null
      */
-    protected function getCustomRelationship($model, $name)
+    protected function getCustomRelationship(object|array $model, string $name): ?Relationship
     {
         foreach (array_merge([static::class], class_parents($this)) as $class) {
             $callback = Arr::get(static::$customRelations, "$class.$name");
@@ -156,42 +117,27 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
                 return $relationship;
             }
         }
+
+        return null;
     }
 
     /**
      * Get a relationship builder for a has-one relationship.
-     *
-     * @param mixed $model
-     * @param string|Closure|\Tobscure\JsonApi\SerializerInterface $serializer
-     * @param string|Closure|null $relation
-     * @return Relationship
      */
-    public function hasOne($model, $serializer, $relation = null)
+    public function hasOne(object|array $model, SerializerInterface|Closure|string $serializer, string $relation = null): ?Relationship
     {
         return $this->buildRelationship($model, $serializer, $relation);
     }
 
     /**
      * Get a relationship builder for a has-many relationship.
-     *
-     * @param mixed $model
-     * @param string|Closure|\Tobscure\JsonApi\SerializerInterface $serializer
-     * @param string|null $relation
-     * @return Relationship
      */
-    public function hasMany($model, $serializer, $relation = null)
+    public function hasMany(object|array $model, SerializerInterface|Closure|string $serializer, string $relation = null): ?Relationship
     {
         return $this->buildRelationship($model, $serializer, $relation, true);
     }
 
-    /**
-     * @param mixed $model
-     * @param string|Closure|\Tobscure\JsonApi\SerializerInterface $serializer
-     * @param string|null $relation
-     * @param bool $many
-     * @return Relationship|null
-     */
-    protected function buildRelationship($model, $serializer, $relation = null, $many = false)
+    protected function buildRelationship(object|array $model, SerializerInterface|Closure|string $serializer, string $relation = null, bool $many = false): ?Relationship
     {
         if (is_null($relation)) {
             list(, , $caller) = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 3);
@@ -214,28 +160,21 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
         return null;
     }
 
-    /**
-     * @param mixed $model
-     * @param string $relation
-     * @return mixed
-     */
-    protected function getRelationshipData($model, $relation)
+    protected function getRelationshipData(object|array $model, string $relation): mixed
     {
         if (is_object($model)) {
             return $model->$relation;
         } elseif (is_array($model)) {
             return $model[$relation];
         }
+
+        return null;
     }
 
     /**
-     * @param mixed $serializer
-     * @param mixed $model
-     * @param mixed $data
-     * @return SerializerInterface
      * @throws InvalidArgumentException
      */
-    protected function resolveSerializer($serializer, $model, $data)
+    protected function resolveSerializer(SerializerInterface|Closure|string $serializer, object|array $model, mixed $data): SerializerInterface
     {
         if ($serializer instanceof Closure) {
             $serializer = call_user_func($serializer, $model, $data);
@@ -253,11 +192,7 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
         return $serializer;
     }
 
-    /**
-     * @param string $class
-     * @return object
-     */
-    protected function resolveSerializerClass($class)
+    protected function resolveSerializerClass(string $class): object
     {
         $serializer = static::$container->make($class);
 
@@ -266,28 +201,20 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
         return $serializer;
     }
 
-    /**
-     * @return Container
-     */
-    public static function getContainer()
+    public static function getContainer(): Container
     {
         return static::$container;
     }
 
     /**
-     * @param Container $container
-     *
      * @internal
      */
-    public static function setContainer(Container $container)
+    public static function setContainer(Container $container): void
     {
         static::$container = $container;
     }
 
     /**
-     * @param string $serializerClass
-     * @param callable $callback
-     *
      * @internal
      */
     public static function addAttributeMutator(string $serializerClass, callable $callback): void
@@ -300,10 +227,6 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     }
 
     /**
-     * @param string $serializerClass
-     * @param string $relation
-     * @param callable $callback
-     *
      * @internal
      */
     public static function setRelationship(string $serializerClass, string $relation, callable $callback): void

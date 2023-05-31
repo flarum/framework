@@ -19,44 +19,21 @@ use Tobscure\JsonApi\Document;
 
 class ListNotificationsController extends AbstractListController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = NotificationSerializer::class;
+    public ?string $serializer = NotificationSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $include = [
+    public array $include = [
         'fromUser',
         'subject',
         'subject.discussion'
     ];
 
-    /**
-     * @var NotificationRepository
-     */
-    protected $notifications;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @param NotificationRepository $notifications
-     * @param UrlGenerator $url
-     */
-    public function __construct(NotificationRepository $notifications, UrlGenerator $url)
-    {
-        $this->notifications = $notifications;
-        $this->url = $url;
+    public function __construct(
+        protected NotificationRepository $notifications,
+        protected UrlGenerator $url
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
 
@@ -103,7 +80,7 @@ class ListNotificationsController extends AbstractListController
     /**
      * @param \Flarum\Notification\Notification[] $notifications
      */
-    private function loadSubjectDiscussions(array $notifications)
+    private function loadSubjectDiscussions(array $notifications): void
     {
         $ids = [];
 

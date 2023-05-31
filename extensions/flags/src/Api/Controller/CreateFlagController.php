@@ -12,6 +12,7 @@ namespace Flarum\Flags\Api\Controller;
 use Flarum\Api\Controller\AbstractCreateController;
 use Flarum\Flags\Api\Serializer\FlagSerializer;
 use Flarum\Flags\Command\CreateFlag;
+use Flarum\Flags\Flag;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
@@ -20,37 +21,20 @@ use Tobscure\JsonApi\Document;
 
 class CreateFlagController extends AbstractCreateController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = FlagSerializer::class;
+    public ?string $serializer = FlagSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $include = [
+    public array $include = [
         'post',
         'post.flags',
         'user'
     ];
 
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
-
-    /**
-     * @param Dispatcher $bus
-     */
-    public function __construct(Dispatcher $bus)
-    {
-        $this->bus = $bus;
+    public function __construct(
+        protected Dispatcher $bus
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): Flag
     {
         return $this->bus->dispatch(
             new CreateFlag(RequestUtil::getActor($request), Arr::get($request->getParsedBody(), 'data', []))

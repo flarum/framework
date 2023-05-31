@@ -17,26 +17,13 @@ use Flarum\Post\Event\Hidden;
 
 class UpdateMentionsMetadataWhenInvisible
 {
-    /**
-     * @var NotificationSyncer
-     */
-    protected $notifications;
-
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    public function __construct(NotificationSyncer $notifications, ExtensionManager $extensions)
-    {
-        $this->notifications = $notifications;
-        $this->extensions = $extensions;
+    public function __construct(
+        protected NotificationSyncer $notifications,
+        protected ExtensionManager $extensions
+    ) {
     }
 
-    /**
-     * @param Deleted|Hidden $event
-     */
-    public function handle($event)
+    public function handle(Deleted|Hidden $event): void
     {
         // Remove user mentions
         $event->post->mentionsUsers()->sync([]);

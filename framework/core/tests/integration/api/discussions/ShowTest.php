@@ -97,7 +97,7 @@ class ShowTest extends TestCase
 
         $json = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertNull(Arr::get($json, 'data.relationships.posts'));
+        $this->assertEmpty(Arr::get($json, 'data.relationships.posts.data'));
     }
 
     /**

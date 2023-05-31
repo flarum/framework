@@ -14,14 +14,9 @@ use Flarum\User\User;
 
 class MinorUpdate extends AbstractActionCommand
 {
-    /**
-     * @var \Flarum\User\User
-     */
-    public $actor;
-
-    public function __construct(User $actor)
-    {
-        $this->actor = $actor;
+    public function __construct(
+        public User $actor
+    ) {
     }
 
     public function getOperationName(): string

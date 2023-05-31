@@ -9,42 +9,25 @@
 
 namespace Flarum\Mentions\Formatter;
 
+use Flarum\Locale\TranslatorInterface;
 use s9e\TextFormatter\Utils;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UnparsePostMentions
 {
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    public function __construct(TranslatorInterface $translator)
-    {
-        $this->translator = $translator;
+    public function __construct(
+        private readonly TranslatorInterface $translator
+    ) {
     }
 
-    /**
-     * Configure rendering for user mentions.
-     *
-     * @param string $xml
-     * @param mixed $context
-     * @return string $xml to be unparsed
-     */
-    public function __invoke($context, string $xml)
+    public function __invoke(mixed $context, string $xml): string
     {
-        $xml = $this->updatePostMentionTags($context, $xml);
-        $xml = $this->unparsePostMentionTags($xml);
-
-        return $xml;
+        return $this->unparsePostMentionTags(
+            $this->updatePostMentionTags($context, $xml)
+        );
     }
 
     /**
      * Updates XML post mention tags before unparsing so that unparsing uses new display names.
-     *
-     * @param mixed $context
-     * @param string $xml : Parsed text.
-     * @return string $xml : Updated XML tags;
      */
     protected function updatePostMentionTags($context, string $xml): string
     {
@@ -74,9 +57,6 @@ class UnparsePostMentions
 
     /**
      * Transforms post mention tags from XML to raw unparsed content with updated format and display name.
-     *
-     * @param string $xml : Parsed text.
-     * @return string : Unparsed text.
      */
     protected function unparsePostMentionTags(string $xml): string
     {

@@ -18,10 +18,7 @@ use Illuminate\Database\ConnectionResolverInterface;
 
 class DatabaseServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    public function register(): void
     {
         $this->container->singleton(Manager::class, function (ContainerImplementation $container) {
             $manager = new Manager($container);
@@ -66,7 +63,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
         });
     }
 
-    public function boot(Container $container)
+    public function boot(Container $container): void
     {
         AbstractModel::setConnectionResolver($container->make(ConnectionResolverInterface::class));
         AbstractModel::setEventDispatcher($container->make('events'));

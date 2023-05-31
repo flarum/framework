@@ -17,16 +17,12 @@ use Illuminate\Database\Eloquent\Builder;
 
 class TagSearcher extends AbstractSearcher
 {
-    /**
-     * @var TagRepository
-     */
-    protected $tags;
-
-    public function __construct(TagRepository $tags, GambitManager $gambits, array $searchMutators)
-    {
+    public function __construct(
+        protected TagRepository $tags,
+        GambitManager $gambits,
+        array $searchMutators
+    ) {
         parent::__construct($gambits, $searchMutators);
-
-        $this->tags = $tags;
     }
 
     protected function getQuery(User $actor): Builder

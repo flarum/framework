@@ -13,11 +13,9 @@ use Illuminate\Support\Collection;
 
 class PhpExtensions implements PrerequisiteInterface
 {
-    protected $extensions;
-
-    public function __construct(array $extensions)
-    {
-        $this->extensions = $extensions;
+    public function __construct(
+        protected array $extensions
+    ) {
     }
 
     public function problems(): Collection
