@@ -50,7 +50,7 @@ class GambitManager
 
     protected function applyGambits(SearchState $search, string $query): string
     {
-        $bits = array_filter($this->explode($query));
+        $bits = $this->explode($query);
 
         if (! $bits) {
             return '';

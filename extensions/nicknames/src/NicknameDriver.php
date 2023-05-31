@@ -16,6 +16,6 @@ class NicknameDriver implements DriverInterface
 {
     public function displayName(User $user): string
     {
-        return $user->nickname ?: $user->username;
+        return $user->nickname ?? $user->username;
     }
 }
