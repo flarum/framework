@@ -109,6 +109,7 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
     {
         $adaptor = new LocalFilesystemAdapter($this->paths->public.'/assets');
         $filesystem = new \League\Flysystem\Filesystem($adaptor);
+
         return new FilesystemAdapter($filesystem, $adaptor);
     }
 }
