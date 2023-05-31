@@ -85,6 +85,7 @@
         "symfony/event-dispatcher": "^6.3",
         "symfony/http-client": "^6.3",
         "symfony/mailer": "^6.3",
+        "symfony/mailgun-mailer": "^6.3",
         "symfony/mime": "^6.3",
         "symfony/polyfill-intl-messageformatter": "^1.27",
         "symfony/postmark-mailer": "^6.3",
