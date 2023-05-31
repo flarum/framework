@@ -27,9 +27,6 @@ class Translator extends BaseTranslator implements TranslatorInterface
         return $this->trans($key, $replace, null, $locale);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getCatalogue(?string $locale = null): MessageCatalogueInterface
     {
         if (null === $locale) {
@@ -76,7 +73,7 @@ class Translator extends BaseTranslator implements TranslatorInterface
         return $translation;
     }
 
-    public function setLocale($locale)
+    public function setLocale($locale): string
     {
         parent::setLocale($locale);
     }
