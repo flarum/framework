@@ -42,7 +42,7 @@
         "doctrine/dbal": "^3.6",
         "dragonmantank/cron-expression": "*",
         "franzl/whoops-middleware": "V2.0",
-        "guzzlehttp/guzzle": "*",
+        "guzzlehttp/guzzle": "^7.7",
         "illuminate/bus": "^10.0",
         "illuminate/cache": "^10.0",
         "illuminate/config": "^10.0",
