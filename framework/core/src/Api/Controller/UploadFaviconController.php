@@ -15,7 +15,6 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Factory;
 use Intervention\Image\EncodedImage;
 use Intervention\Image\ImageManager;
-use Intervention\Image\Interfaces\ImageInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
 class UploadFaviconController extends UploadImageController

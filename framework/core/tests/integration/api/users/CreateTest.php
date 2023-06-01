@@ -14,7 +14,6 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
-use Intervention\Image\Exceptions\DecoderException;
 
 class CreateTest extends TestCase
 {

@@ -16,7 +16,6 @@ use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Intervention\Image\EncodedImage;
-use Intervention\Image\Interfaces\ImageInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Tobscure\JsonApi\Document;
