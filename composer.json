@@ -146,9 +146,9 @@
     "require-dev": {
         "mockery/mockery": "^1.4",
         "phpunit/phpunit": "^9.0",
-        "phpstan/phpstan": "*",
-        "nunomaduro/larastan": "*",
-        "symfony/var-dumper": "*"
+        "phpstan/phpstan": "^1.10.0",
+        "nunomaduro/larastan": "^2.6",
+        "symfony/var-dumper": "^6.3"
     },
     "config": {
         "sort-packages": true
