@@ -30,7 +30,9 @@ class UploadLogoController extends UploadImageController
 
     protected function makeImage(UploadedFileInterface $file): Image
     {
-        $encodedImage = $this->imageManager->make($file->getStream()->getMetadata('uri'))->scale(height: 60)->encode('png');
+        $encodedImage = $this->imageManager->make($file->getStream()->getMetadata('uri'))->heighten(60, function ($constraint) {
+            $constraint->upsize();
+        })->encode('png');
 
         return $encodedImage;
     }
