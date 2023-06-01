@@ -24,15 +24,13 @@ class AvatarUploader
         $this->uploadDir = $filesystemFactory->disk('flarum-avatars');
     }
 
-    public function upload(User $user, Image $uploadedImage): void
+    public function upload(User $user, Image $image): void
     {
         if (extension_loaded('exif')) {
-            $uploadedImage->orientate();
+            $image->orientate();
         }
 
-        $image = $this->imageManager->make($uploadedImage);
-
-        $encodedImage = $image->fitDown(100, 100)->toPng();
+        $encodedImage = $image->fit(100, 100)->encode('png');
 
         $avatarPath = Str::random().'.png';
 

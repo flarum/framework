@@ -80,7 +80,9 @@ class FilesystemServiceProvider extends AbstractServiceProvider
                 throw new RuntimeException("intervention/image: $driver is not valid");
             }
 
-            return new ImageManager($driver);
+            return new ImageManager([
+                'driver' => $driver
+            ]);
         });
     }
 }

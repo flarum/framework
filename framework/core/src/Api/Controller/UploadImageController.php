@@ -15,7 +15,8 @@ use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Intervention\Image\Image;
+use Intervention\Image\EncodedImage;
+use Intervention\Image\Interfaces\ImageInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Tobscure\JsonApi\Document;
@@ -55,5 +56,5 @@ abstract class UploadImageController extends ShowForumController
         return parent::data($request, $document);
     }
 
-    abstract protected function makeImage(UploadedFileInterface $file): Image;
+    abstract protected function makeImage(UploadedFileInterface $file): EncodedImage;
 }

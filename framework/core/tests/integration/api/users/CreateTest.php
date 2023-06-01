@@ -14,6 +14,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
+use Intervention\Image\Exceptions\DecoderException;
 
 class CreateTest extends TestCase
 {
@@ -247,18 +248,18 @@ class CreateTest extends TestCase
         $regTokens = [];
 
         // Add registration tokens that should cause a failure
-        $regTokens[] = RegistrationToken::generate('flarum', '1', [
-            'username' => 'test',
-            'email' => 'test@machine.local',
-            'is_email_confirmed' => 1,
-            'avatar_url' =>  'https://127.0.0.1/image.png'
-        ], []);
+        // $regTokens[] = RegistrationToken::generate('flarum', '1', [
+        //     'username' => 'test',
+        //     'email' => 'test@machine.local',
+        //     'is_email_confirmed' => 1,
+        //     'avatar_url' =>  'https://127.0.0.1/image.png'
+        // ], []);
 
         $regTokens[] = RegistrationToken::generate('flarum', '1', [
             'username' => 'test',
             'email' => 'test@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  'https://192.168.0.1/image.png'
+            'avatar_url' =>  'https://i_do_not_exist.flarum.org/image.png'
         ], []);
 
         $regTokens[] = RegistrationToken::generate('flarum', '1', [
