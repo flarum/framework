@@ -30,6 +30,15 @@
     "@flarum/prettier-config": "^1.0.0"
   },
   "scripts": {
-    "format": "prettier --write ."
+    "dev": "echo 'skipping..'",
+    "build": "echo 'skipping..'",
+    "analyze": "echo 'skipping..'",
+    "format": "prettier --write .",
+    "format-check": "prettier --check .",
+    "clean-typings": "echo 'skipping..'",
+    "build-typings": "echo 'skipping..'",
+    "post-build-typings": "echo 'skipping..'",
+    "check-typings": "echo 'skipping..'",
+    "check-typings-coverage": "echo 'skipping..'"
   }
 }

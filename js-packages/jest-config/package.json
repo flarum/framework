@@ -19,5 +19,17 @@
     },
     "devDependencies": {
         "prettier": "^2.4.1"
+    },
+    "scripts": {
+        "dev": "echo 'skipping..'",
+        "build": "echo 'skipping..'",
+        "analyze": "echo 'skipping..'",
+        "format": "prettier --write .",
+        "format-check": "prettier --check .",
+        "clean-typings": "echo 'skipping..'",
+        "build-typings": "echo 'skipping..'",
+        "post-build-typings": "echo 'skipping..'",
+        "check-typings": "echo 'skipping..'",
+        "check-typings-coverage": "echo 'skipping..'"
     }
 }
