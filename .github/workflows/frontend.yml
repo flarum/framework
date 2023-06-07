@@ -10,7 +10,7 @@ jobs:
       backend_directory: ./
       js_package_manager: yarn
       cache_dependency_path: ./yarn.lock
-      main_git_branch: main
+      main_git_branch: 2.x
       enable_tests: true
       enable_bundlewatch: true
 
