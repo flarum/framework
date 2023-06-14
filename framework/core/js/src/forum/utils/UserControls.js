@@ -9,7 +9,7 @@ import ItemList from '../../common/utils/ItemList';
  * The `UserControls` utility constructs a list of buttons for a user which
  * perform actions on it.
  */
-export default {
+const UserControls = {
   /**
    * Get a list of controls for a user.
    *
@@ -146,3 +146,5 @@ export default {
     app.modal.show(EditUserModal, { user });
   },
 };
+
+export default UserControls;

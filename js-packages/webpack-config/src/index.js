@@ -70,11 +70,14 @@ module.exports = function (options = {}) {
     module: {
       rules: [
         {
+          include: /src/, // Only apply this loader to files in the src directory
+          loader: path.resolve(__dirname, './autoExportLoader.js'),
+        },
+        {
           // Matches .js, .jsx, .ts, .tsx
-          // See: https://regexr.com/5snjd
           test: /\.[jt]sx?$/,
           loader: require.resolve('babel-loader'),
-          options: require('./babel.config'),
+          options: require('../babel.config'),
           resolve: {
             fullySpecified: false,
           },
@@ -91,33 +94,27 @@ module.exports = function (options = {}) {
 
     externals: [
       {
+        // @todo: remove when dropping compat api
         '@flarum/core/forum': 'flarum.core',
         '@flarum/core/admin': 'flarum.core',
         jquery: 'jQuery',
       },
 
-      (function () {
-        const externals = {};
-
-        if (options.useExtensions) {
-          for (const extension of options.useExtensions) {
-            externals['@' + extension] =
-              externals['@' + extension + '/forum'] =
-              externals['@' + extension + '/admin'] =
-                "flarum.extensions['" + extension + "']";
-          }
-        }
-
-        return externals;
-      })(),
-
-      // Support importing old-style core modules.
       function ({ request }, callback) {
+        let namespace;
+        let id;
         let matches;
         if ((matches = /^flarum\/(.+)$/.exec(request))) {
-          return callback(null, "root flarum.core.compat['" + matches[1] + "']");
+          namespace = 'core';
+          id = matches[1];
+        } else if ((matches = /^ext:([^\/]+)\/(?:flarum-(?:ext-)?)?([^\/]+)(?:\/(.+))?$/.exec(request))) {
+          namespace = `${matches[1]}-${matches[2]}`;
+          id = matches[3];
+        } else {
+          return callback();
         }
-        callback();
+
+        return callback(null, `root flarum.reg.get('${namespace}', '${id}')`);
       },
     ],
 
