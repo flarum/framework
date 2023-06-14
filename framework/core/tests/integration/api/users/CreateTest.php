@@ -247,12 +247,12 @@ class CreateTest extends TestCase
         $regTokens = [];
 
         // Add registration tokens that should cause a failure
-        // $regTokens[] = RegistrationToken::generate('flarum', '1', [
-        //     'username' => 'test',
-        //     'email' => 'test@machine.local',
-        //     'is_email_confirmed' => 1,
-        //     'avatar_url' =>  'https://127.0.0.1/image.png'
-        // ], []);
+        $regTokens[] = RegistrationToken::generate('flarum', '1', [
+            'username' => 'test',
+            'email' => 'test@machine.local',
+            'is_email_confirmed' => 1,
+            'avatar_url' =>  'https://127.0.0.1/image.png'
+        ], []);
 
         $regTokens[] = RegistrationToken::generate('flarum', '1', [
             'username' => 'test',
