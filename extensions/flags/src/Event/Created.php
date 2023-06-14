@@ -14,30 +14,10 @@ use Flarum\User\User;
 
 class Created
 {
-    /**
-     * @var Flag
-     */
-    public $flag;
-
-    /**
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * @var array
-     */
-    public $data;
-
-    /**
-     * @param Flag $flag
-     * @param User $actor
-     * @param array $data
-     */
-    public function __construct(Flag $flag, User $actor, array $data = [])
-    {
-        $this->flag = $flag;
-        $this->actor = $actor;
-        $this->data = $data;
+    public function __construct(
+        public Flag $flag,
+        public User $actor,
+        public array $data = []
+    ) {
     }
 }

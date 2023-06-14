@@ -16,31 +16,16 @@ use Illuminate\Support\Carbon;
 
 class ReadAllNotificationsHandler
 {
-    /**
-     * @var NotificationRepository
-     */
-    protected $notifications;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @param NotificationRepository $notifications
-     * @param Dispatcher $events
-     */
-    public function __construct(NotificationRepository $notifications, Dispatcher $events)
-    {
-        $this->notifications = $notifications;
-        $this->events = $events;
+    public function __construct(
+        protected NotificationRepository $notifications,
+        protected Dispatcher $events
+    ) {
     }
 
     /**
-     * @param ReadAllNotifications $command
-     * @throws \Flarum\User\Exception\PermissionDeniedException
+     * @throws \Flarum\User\Exception\NotAuthenticatedException
      */
-    public function handle(ReadAllNotifications $command)
+    public function handle(ReadAllNotifications $command): void
     {
         $actor = $command->actor;
 

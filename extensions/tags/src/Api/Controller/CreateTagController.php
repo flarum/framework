@@ -13,6 +13,7 @@ use Flarum\Api\Controller\AbstractCreateController;
 use Flarum\Http\RequestUtil;
 use Flarum\Tags\Api\Serializer\TagSerializer;
 use Flarum\Tags\Command\CreateTag;
+use Flarum\Tags\Tag;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
@@ -20,33 +21,16 @@ use Tobscure\JsonApi\Document;
 
 class CreateTagController extends AbstractCreateController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = TagSerializer::class;
+    public ?string $serializer = TagSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $include = ['parent'];
+    public array $include = ['parent'];
 
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
-
-    /**
-     * @param Dispatcher $bus
-     */
-    public function __construct(Dispatcher $bus)
-    {
-        $this->bus = $bus;
+    public function __construct(
+        protected Dispatcher $bus
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): Tag
     {
         return $this->bus->dispatch(
             new CreateTag(RequestUtil::getActor($request), Arr::get($request->getParsedBody(), 'data', []))

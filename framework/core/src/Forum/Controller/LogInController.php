@@ -25,56 +25,16 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class LogInController implements RequestHandlerInterface
 {
-    /**
-     * @var \Flarum\User\UserRepository
-     */
-    protected $users;
-
-    /**
-     * @var Client
-     */
-    protected $apiClient;
-
-    /**
-     * @var SessionAuthenticator
-     */
-    protected $authenticator;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @var Rememberer
-     */
-    protected $rememberer;
-
-    /**
-     * @var LogInValidator
-     */
-    protected $validator;
-
-    /**
-     * @param \Flarum\User\UserRepository $users
-     * @param Client $apiClient
-     * @param SessionAuthenticator $authenticator
-     * @param Rememberer $rememberer
-     * @param LogInValidator $validator
-     */
-    public function __construct(UserRepository $users, Client $apiClient, SessionAuthenticator $authenticator, Dispatcher $events, Rememberer $rememberer, LogInValidator $validator)
-    {
-        $this->users = $users;
-        $this->apiClient = $apiClient;
-        $this->authenticator = $authenticator;
-        $this->events = $events;
-        $this->rememberer = $rememberer;
-        $this->validator = $validator;
+    public function __construct(
+        protected UserRepository $users,
+        protected Client $apiClient,
+        protected SessionAuthenticator $authenticator,
+        protected Dispatcher $events,
+        protected Rememberer $rememberer,
+        protected LogInValidator $validator
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handle(Request $request): ResponseInterface
     {
         $body = $request->getParsedBody();

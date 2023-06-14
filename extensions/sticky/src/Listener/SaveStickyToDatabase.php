@@ -15,10 +15,7 @@ use Flarum\Sticky\Event\DiscussionWasUnstickied;
 
 class SaveStickyToDatabase
 {
-    /**
-     * @param Saving $event
-     */
-    public function handle(Saving $event)
+    public function handle(Saving $event): void
     {
         if (isset($event->data['attributes']['isSticky'])) {
             $isSticky = (bool) $event->data['attributes']['isSticky'];

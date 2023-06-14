@@ -18,30 +18,11 @@ use Illuminate\Support\Arr;
  */
 class RouteCollection
 {
-    /**
-     * @var array
-     */
-    protected $reverse = [];
-
-    /**
-     * @var DataGenerator
-     */
-    protected $dataGenerator;
-
-    /**
-     * @var RouteParser
-     */
-    protected $routeParser;
-
-    /**
-     * @var array
-     */
-    protected $routes = [];
-
-    /**
-     * @var array
-     */
-    protected $pendingRoutes = [];
+    protected array $reverse = [];
+    protected DataGenerator $dataGenerator;
+    protected RouteParser $routeParser;
+    protected array $routes = [];
+    protected array $pendingRoutes = [];
 
     public function __construct()
     {
@@ -49,32 +30,32 @@ class RouteCollection
         $this->routeParser = new RouteParser\Std;
     }
 
-    public function get($path, $name, $handler)
+    public function get($path, $name, $handler): self
     {
         return $this->addRoute('GET', $path, $name, $handler);
     }
 
-    public function post($path, $name, $handler)
+    public function post($path, $name, $handler): self
     {
         return $this->addRoute('POST', $path, $name, $handler);
     }
 
-    public function put($path, $name, $handler)
+    public function put($path, $name, $handler): self
     {
         return $this->addRoute('PUT', $path, $name, $handler);
     }
 
-    public function patch($path, $name, $handler)
+    public function patch($path, $name, $handler): self
     {
         return $this->addRoute('PATCH', $path, $name, $handler);
     }
 
-    public function delete($path, $name, $handler)
+    public function delete($path, $name, $handler): self
     {
         return $this->addRoute('DELETE', $path, $name, $handler);
     }
 
-    public function addRoute($method, $path, $name, $handler)
+    public function addRoute($method, $path, $name, $handler): self
     {
         if (isset($this->routes[$name])) {
             throw new \RuntimeException("Route $name already exists");
@@ -112,7 +93,7 @@ class RouteCollection
         return $this->routes;
     }
 
-    public function getRouteData()
+    public function getRouteData(): array
     {
         if (! empty($this->pendingRoutes)) {
             $this->applyRoutes();
@@ -121,7 +102,7 @@ class RouteCollection
         return $this->dataGenerator->getData();
     }
 
-    protected function fixPathPart($part, array $parameters, string $routeName)
+    protected function fixPathPart(mixed $part, array $parameters, string $routeName)
     {
         if (! is_array($part)) {
             return $part;
@@ -134,7 +115,7 @@ class RouteCollection
         return $parameters[$part[0]];
     }
 
-    public function getPath($name, array $parameters = [])
+    public function getPath(string $name, array $parameters = []): string
     {
         if (! empty($this->pendingRoutes)) {
             $this->applyRoutes();

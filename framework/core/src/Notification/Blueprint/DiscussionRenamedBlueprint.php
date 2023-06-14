@@ -9,60 +9,39 @@
 
 namespace Flarum\Notification\Blueprint;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Discussion\Discussion;
 use Flarum\Post\DiscussionRenamedPost;
+use Flarum\User\User;
 
 class DiscussionRenamedBlueprint implements BlueprintInterface
 {
-    /**
-     * @var \Flarum\Post\DiscussionRenamedPost
-     */
-    protected $post;
-
-    /**
-     * @param DiscussionRenamedPost $post
-     */
-    public function __construct(DiscussionRenamedPost $post)
-    {
-        $this->post = $post;
+    public function __construct(
+        protected DiscussionRenamedPost $post
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getFromUser()
+    public function getFromUser(): ?User
     {
         return $this->post->user;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getSubject()
+    public function getSubject(): ?AbstractModel
     {
         return $this->post->discussion;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getData()
+    public function getData(): array
     {
         return ['postNumber' => (int) $this->post->number];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getType()
+    public static function getType(): string
     {
         return 'discussionRenamed';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubjectModel()
+    public static function getSubjectModel(): string
     {
         return Discussion::class;
     }

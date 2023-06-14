@@ -81,29 +81,25 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
           options: Object.keys(this.driverFields!).reduce((memo, val) => ({ ...memo, [val]: val }), {}),
           label: app.translator.trans('core.admin.email.driver_heading'),
         })}
-        {this.status!.sending ||
-          Alert.component(
-            {
-              dismissible: false,
-            },
-            app.translator.trans('core.admin.email.not_sending_message')
-          )}
+        {this.status!.sending || <Alert dismissible={false}>{app.translator.trans('core.admin.email.not_sending_message')}</Alert>}
 
-        {fieldKeys.length > 0 && (
+        {!!fieldKeys.length && (
           <FieldSet label={app.translator.trans(`core.admin.email.${this.setting('mail_driver')()}_heading`)} className="MailPage-MailSettings">
             <div className="MailPage-MailSettings-input">
               {fieldKeys.map((field) => {
                 const fieldInfo = fields[field];
 
-                return [
-                  this.buildSettingComponent({
-                    type: typeof fieldInfo === 'string' ? 'text' : 'select',
-                    label: app.translator.trans(`core.admin.email.${field}_label`),
-                    setting: field,
-                    options: fieldInfo,
-                  }),
-                  this.status!.errors[field] && <p className="ValidationError">{this.status!.errors[field]}</p>,
-                ];
+                return (
+                  <>
+                    {this.buildSettingComponent({
+                      type: typeof fieldInfo === 'string' ? 'text' : 'select',
+                      label: app.translator.trans(`core.admin.email.${field}_label`),
+                      setting: field,
+                      options: fieldInfo,
+                    })}
+                    {this.status!.errors[field] && <p className="ValidationError">{this.status!.errors[field]}</p>}
+                  </>
+                );
               })}
             </div>
           </FieldSet>
@@ -112,14 +108,9 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
 
         <FieldSet label={app.translator.trans('core.admin.email.send_test_mail_heading')} className="MailPage-MailSettings">
           <div className="helpText">{app.translator.trans('core.admin.email.send_test_mail_text', { email: app.session.user!.email() })}</div>
-          {Button.component(
-            {
-              className: 'Button Button--primary',
-              disabled: this.sendingTest || this.isChanged(),
-              onclick: () => this.sendTestEmail(),
-            },
-            app.translator.trans('core.admin.email.send_test_mail_button')
-          )}
+          <Button className="Button Button--primary" disabled={this.sendingTest || this.isChanged()} onclick={() => this.sendTestEmail()}>
+            {app.translator.trans('core.admin.email.send_test_mail_button')}
+          </Button>
         </FieldSet>
       </div>
     );

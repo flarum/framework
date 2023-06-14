@@ -11,91 +11,49 @@ namespace Flarum\Forum\Auth;
 
 class Registration
 {
-    /**
-     * @var array
-     */
-    protected $provided = [];
+    protected array $provided = [];
+    protected array $suggested = [];
+    protected mixed $payload;
 
-    /**
-     * @var array
-     */
-    protected $suggested = [];
-
-    /**
-     * @var mixed
-     */
-    protected $payload;
-
-    /**
-     * @return array
-     */
     public function getProvided(): array
     {
         return $this->provided;
     }
 
-    /**
-     * @return array
-     */
     public function getSuggested(): array
     {
         return $this->suggested;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getPayload()
+    public function getPayload(): mixed
     {
         return $this->payload;
     }
 
-    /**
-     * @param string $key
-     * @param mixed $value
-     * @return $this
-     */
-    public function provide(string $key, $value): self
+    public function provide(string $key, mixed $value): self
     {
         $this->provided[$key] = $value;
 
         return $this;
     }
 
-    /**
-     * @param string $email
-     * @return $this
-     */
     public function provideTrustedEmail(string $email): self
     {
         return $this->provide('email', $email);
     }
 
-    /**
-     * @param string $url
-     * @return $this
-     */
     public function provideAvatar(string $url): self
     {
         return $this->provide('avatar_url', $url);
     }
 
-    /**
-     * @param string $key
-     * @param mixed $value
-     * @return $this
-     */
-    public function suggest(string $key, $value): self
+    public function suggest(string $key, mixed $value): self
     {
         $this->suggested[$key] = $value;
 
         return $this;
     }
 
-    /**
-     * @param string $username
-     * @return $this
-     */
     public function suggestUsername(string $username): self
     {
         $username = preg_replace('/[^a-z0-9-_]/i', '', $username);
@@ -103,19 +61,11 @@ class Registration
         return $this->suggest('username', $username);
     }
 
-    /**
-     * @param string $email
-     * @return $this
-     */
     public function suggestEmail(string $email): self
     {
         return $this->suggest('email', $email);
     }
 
-    /**
-     * @param mixed $payload
-     * @return $this
-     */
     public function setPayload($payload): self
     {
         $this->payload = $payload;

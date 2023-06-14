@@ -23,34 +23,14 @@ class StartDiscussionHandler
 {
     use DispatchEventsTrait;
 
-    /**
-     * @var BusDispatcher
-     */
-    protected $bus;
-
-    /**
-     * @var \Flarum\Discussion\DiscussionValidator
-     */
-    protected $validator;
-
-    /**
-     * @param EventDispatcher $events
-     * @param BusDispatcher $bus
-     * @param \Flarum\Discussion\DiscussionValidator $validator
-     */
-    public function __construct(EventDispatcher $events, BusDispatcher $bus, DiscussionValidator $validator)
-    {
-        $this->events = $events;
-        $this->bus = $bus;
-        $this->validator = $validator;
+    public function __construct(
+        protected EventDispatcher $events,
+        protected BusDispatcher $bus,
+        protected DiscussionValidator $validator
+    ) {
     }
 
-    /**
-     * @param StartDiscussion $command
-     * @return mixed
-     * @throws Exception
-     */
-    public function handle(StartDiscussion $command)
+    public function handle(StartDiscussion $command): Discussion
     {
         $actor = $command->actor;
         $data = $command->data;

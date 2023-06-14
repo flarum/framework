@@ -11,17 +11,20 @@ namespace Flarum\Likes\Query;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
+use Flarum\Filter\ValidateFilterTrait;
 
 class LikedByFilter implements FilterInterface
 {
+    use ValidateFilterTrait;
+
     public function getFilterKey(): string
     {
         return 'likedBy';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
-        $likedId = trim($filterValue, '"');
+        $likedId = $this->asInt($filterValue);
 
         $filterState
             ->getQuery()

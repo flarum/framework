@@ -9,79 +9,52 @@
 
 namespace Flarum\Subscriptions\Notification;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Discussion\Discussion;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\MailableInterface;
 use Flarum\Post\Post;
-use Symfony\Contracts\Translation\TranslatorInterface;
+use Flarum\User\User;
 
 class NewPostBlueprint implements BlueprintInterface, MailableInterface
 {
-    /**
-     * @var Post
-     */
-    public $post;
-
-    /**
-     * @param Post $post
-     */
-    public function __construct(Post $post)
-    {
-        $this->post = $post;
+    public function __construct(
+        public Post $post
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getSubject()
+    public function getSubject(): ?AbstractModel
     {
         return $this->post->discussion;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getFromUser()
+    public function getFromUser(): ?User
     {
         return $this->post->user;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getData()
+    public function getData(): array
     {
         return ['postNumber' => (int) $this->post->number];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getEmailView()
+    public function getEmailView(): string|array
     {
         return ['text' => 'flarum-subscriptions::emails.newPost'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getEmailSubject(TranslatorInterface $translator)
+    public function getEmailSubject(TranslatorInterface $translator): string
     {
         return $translator->trans('flarum-subscriptions.email.new_post.subject', ['{title}' => $this->post->discussion->title]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getType()
+    public static function getType(): string
     {
         return 'newPost';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubjectModel()
+    public static function getSubjectModel(): string
     {
         return Discussion::class;
     }

@@ -22,36 +22,12 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class GlobalLogOutController implements RequestHandlerInterface
 {
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @var SessionAuthenticator
-     */
-    protected $authenticator;
-
-    /**
-     * @var Rememberer
-     */
-    protected $rememberer;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
     public function __construct(
-        Dispatcher $events,
-        SessionAuthenticator $authenticator,
-        Rememberer $rememberer,
-        UrlGenerator $url
+        protected Dispatcher $events,
+        protected SessionAuthenticator $authenticator,
+        protected Rememberer $rememberer,
+        protected UrlGenerator $url
     ) {
-        $this->events = $events;
-        $this->authenticator = $authenticator;
-        $this->rememberer = $rememberer;
-        $this->url = $url;
     }
 
     public function handle(Request $request): ResponseInterface

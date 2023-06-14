@@ -140,11 +140,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     items.add(
       'poststream',
       <div className="DiscussionPage-stream">
-        {PostStream.component({
-          discussion: this.discussion,
-          stream: this.stream,
-          onPositionChange: this.positionChanged.bind(this),
-        })}
+        <PostStream discussion={this.discussion} stream={this.stream} onPositionChange={this.positionChanged.bind(this)} />
       </div>,
       10
     );
@@ -241,27 +237,19 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     if (this.discussion) {
       items.add(
         'controls',
-        SplitDropdown.component(
-          {
-            icon: 'fas fa-ellipsis-v',
-            className: 'App-primaryControl',
-            buttonClassName: 'Button--primary',
-            accessibleToggleLabel: app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label'),
-          },
-          DiscussionControls.controls(this.discussion, this).toArray()
-        ),
+        <SplitDropdown
+          icon="fas fa-ellipsis-v"
+          className="App-primaryControl"
+          buttonClassName="Button--primary"
+          accessibleToggleLabel={app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label')}
+        >
+          {DiscussionControls.controls(this.discussion, this).toArray()}
+        </SplitDropdown>,
         100
       );
     }
 
-    items.add(
-      'scrubber',
-      PostStreamScrubber.component({
-        stream: this.stream,
-        className: 'App-titleControl',
-      }),
-      -100
-    );
+    items.add('scrubber', <PostStreamScrubber stream={this.stream} className="App-titleControl" />, -100);
 
     return items;
   }

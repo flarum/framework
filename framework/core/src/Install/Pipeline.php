@@ -17,38 +17,30 @@ class Pipeline
     /**
      * @var callable[]
      */
-    private $steps;
+    private array $callbacks;
+    private SplStack $successfulSteps;
 
-    /**
-     * @var callable[]
-     */
-    private $callbacks;
-
-    /**
-     * @var SplStack
-     */
-    private $successfulSteps;
-
-    public function __construct(array $steps = [])
-    {
-        $this->steps = $steps;
+    public function __construct(
+        /** @var callable[] */
+        private array $steps = []
+    ) {
     }
 
-    public function pipe(callable $factory)
+    public function pipe(callable $factory): self
     {
         $this->steps[] = $factory;
 
         return $this;
     }
 
-    public function on($event, callable $callback)
+    public function on($event, callable $callback): self
     {
         $this->callbacks[$event] = $callback;
 
         return $this;
     }
 
-    public function run()
+    public function run(): void
     {
         $this->successfulSteps = new SplStack;
 
@@ -64,12 +56,11 @@ class Pipeline
     }
 
     /**
-     * @param callable $factory
+     * @param callable(): Step $factory
      * @throws StepFailed
      */
-    private function runStep(callable $factory)
+    private function runStep(callable $factory): void
     {
-        /** @var Step $step */
         $step = $factory();
 
         $this->fireCallbacks('start', $step);
@@ -86,7 +77,7 @@ class Pipeline
         }
     }
 
-    private function revertReversibleSteps()
+    private function revertReversibleSteps(): void
     {
         foreach ($this->successfulSteps as $step) {
             if ($step instanceof ReversibleStep) {
@@ -97,7 +88,7 @@ class Pipeline
         }
     }
 
-    private function fireCallbacks($event, Step $step)
+    private function fireCallbacks($event, Step $step): void
     {
         if (isset($this->callbacks[$event])) {
             ($this->callbacks[$event])($step);

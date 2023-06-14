@@ -79,7 +79,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
         <div className="container">
           <div className="ExtensionTitle">
             <span className="ExtensionIcon" style={this.extension.icon}>
-              {this.extension.icon ? icon(this.extension.icon.name) : ''}
+              {!!this.extension.icon && icon(this.extension.icon.name)}
             </span>
             <div className="ExtensionName">
               <h2>{this.extension.extra['flarum-extension'].title}</h2>
@@ -111,7 +111,8 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
 
     items.add('content', this.content(vnode));
 
-    items.add('permissions', [
+    items.add(
+      'permissions',
       <div className="ExtensionPage-permissions">
         <div className="ExtensionPage-permissions-header">
           <div className="container">
@@ -120,13 +121,13 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
         </div>
         <div className="container">
           {app.extensionData.extensionHasPermissions(this.extension.id) ? (
-            ExtensionPermissionGrid.component({ extensionId: this.extension.id })
+            <ExtensionPermissionGrid extensionId={this.extension.id} />
           ) : (
             <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_permissions')}</h3>
           )}
         </div>
-      </div>,
-    ]);
+      </div>
+    );
 
     return items;
   }
@@ -210,16 +211,9 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     const extension = this.extension;
     items.add(
       'readme',
-      Button.component(
-        {
-          icon: 'fab fa-readme',
-          class: 'Button Button--text',
-          onclick() {
-            app.modal.show(ReadmeModal, { extension });
-          },
-        },
-        app.translator.trans('core.admin.extension.readme.button_label')
-      ),
+      <Button icon="fab fa-readme" className="Button Button--text" onclick={() => app.modal.show(ReadmeModal, { extension })}>
+        {app.translator.trans('core.admin.extension.readme.button_label')}
+      </Button>,
       10
     );
 

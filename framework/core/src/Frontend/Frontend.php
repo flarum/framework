@@ -10,6 +10,7 @@
 namespace Flarum\Frontend;
 
 use Flarum\Api\Client;
+use Flarum\Frontend\Driver\TitleDriverInterface;
 use Illuminate\Contracts\View\Factory;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -17,30 +18,18 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class Frontend
 {
     /**
-     * @var Factory
-     */
-    protected $view;
-
-    /**
-     * @var Client
-     */
-    protected $api;
-
-    /**
      * @var callable[]
      */
-    protected $content = [];
+    protected array $content = [];
 
-    public function __construct(Factory $view, Client $api)
-    {
-        $this->view = $view;
-        $this->api = $api;
+    public function __construct(
+        protected Factory $view,
+        protected Client $api,
+        protected TitleDriverInterface $titleDriver
+    ) {
     }
 
-    /**
-     * @param callable $content
-     */
-    public function content(callable $content)
+    public function content(callable $content): void
     {
         $this->content[] = $content;
     }
@@ -49,14 +38,14 @@ class Frontend
     {
         $forumDocument = $this->getForumDocument($request);
 
-        $document = new Document($this->view, $forumDocument, $request);
+        $document = new Document($this->view, $forumDocument, $request, $this->titleDriver);
 
         $this->populate($document, $request);
 
         return $document;
     }
 
-    protected function populate(Document $document, Request $request)
+    protected function populate(Document $document, Request $request): void
     {
         foreach ($this->content as $content) {
             $content($document, $request);

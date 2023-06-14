@@ -33,6 +33,7 @@ import EditGroupModal from './components/EditGroupModal';
 import routes from './routes';
 import AdminApplication from './AdminApplication';
 import generateElementId from './utils/generateElementId';
+import CreateUserModal from './components/CreateUserModal';
 declare const _default: {
     extenders: {
         Model: typeof import("../common/extenders/Model").default;
@@ -172,6 +173,7 @@ declare const _default: {
     'components/AdminHeader': typeof AdminHeader;
     'components/EditCustomCssModal': typeof EditCustomCssModal;
     'components/EditGroupModal': typeof EditGroupModal;
+    'components/CreateUserModal': typeof CreateUserModal;
     routes: typeof routes;
     AdminApplication: typeof AdminApplication;
 };

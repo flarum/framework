@@ -113,7 +113,7 @@ class AccessTokenLifecycleTest extends TestCase
 
         /** @var AccessToken $token */
         $token = AccessToken::whereToken('a')->firstOrFail();
-        $token->touch((new ServerRequest([
+        $token->touch(request: (new ServerRequest([
             'HTTP_USER_AGENT' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36',
         ]))->withAttribute('ipAddress', '8.8.8.8'));
 
@@ -132,7 +132,7 @@ class AccessTokenLifecycleTest extends TestCase
 
         /** @var AccessToken $token */
         $token = AccessToken::whereToken('a')->firstOrFail();
-        $token->touch(new ServerRequest([
+        $token->touch(request: new ServerRequest([
             'HTTP_USER_AGENT' => str_repeat('a', 500),
         ]));
 

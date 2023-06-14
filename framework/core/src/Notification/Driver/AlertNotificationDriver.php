@@ -16,19 +16,11 @@ use Illuminate\Contracts\Queue\Queue;
 
 class AlertNotificationDriver implements NotificationDriverInterface
 {
-    /**
-     * @var Queue
-     */
-    private $queue;
-
-    public function __construct(Queue $queue)
-    {
-        $this->queue = $queue;
+    public function __construct(
+        private readonly Queue $queue
+    ) {
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function send(BlueprintInterface $blueprint, array $users): void
     {
         if (count($users)) {
@@ -36,14 +28,11 @@ class AlertNotificationDriver implements NotificationDriverInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function registerType(string $blueprintClass, array $driversEnabledByDefault): void
     {
         User::registerPreference(
             User::getNotificationPreferenceKey($blueprintClass::getType(), 'alert'),
-            'boolval',
+            boolval(...),
             in_array('alert', $driversEnabledByDefault)
         );
     }

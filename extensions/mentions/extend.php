@@ -40,6 +40,7 @@ return [
 
     (new Extend\Formatter)
         ->configure(ConfigureMentions::class)
+        ->parse(Formatter\EagerLoadMentionedModels::class)
         ->render(Formatter\FormatPostMentions::class)
         ->render(Formatter\FormatUserMentions::class)
         ->render(Formatter\FormatGroupMentions::class)
@@ -79,8 +80,8 @@ return [
             'posts.mentionsUsers', 'posts.mentionsPosts', 'posts.mentionsPosts.user',
             'posts.mentionsGroups'
         ])
-        ->loadWhere('posts.mentionedBy', [LoadMentionedByRelationship::class, 'mutateRelation'])
-        ->prepareDataForSerialization([LoadMentionedByRelationship::class, 'countRelation']),
+        ->loadWhere('posts.mentionedBy', LoadMentionedByRelationship::mutateRelation(...))
+        ->prepareDataForSerialization(LoadMentionedByRelationship::countRelation(...)),
 
     (new Extend\ApiController(Controller\ListDiscussionsController::class))
         ->load([
@@ -92,14 +93,14 @@ return [
         ->addInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion'])
         // We wouldn't normally need to eager load on a single model,
         // but we do so here for visibility scoping.
-        ->loadWhere('mentionedBy', [LoadMentionedByRelationship::class, 'mutateRelation'])
-        ->prepareDataForSerialization([LoadMentionedByRelationship::class, 'countRelation']),
+        ->loadWhere('mentionedBy', LoadMentionedByRelationship::mutateRelation(...))
+        ->prepareDataForSerialization(LoadMentionedByRelationship::countRelation(...)),
 
     (new Extend\ApiController(Controller\ListPostsController::class))
         ->addInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion'])
         ->load(['mentionsUsers', 'mentionsPosts', 'mentionsPosts.user', 'mentionsGroups'])
-        ->loadWhere('mentionedBy', [LoadMentionedByRelationship::class, 'mutateRelation'])
-        ->prepareDataForSerialization([LoadMentionedByRelationship::class, 'countRelation']),
+        ->loadWhere('mentionedBy', LoadMentionedByRelationship::mutateRelation(...))
+        ->prepareDataForSerialization(LoadMentionedByRelationship::countRelation(...)),
 
     (new Extend\Settings)
         ->serializeToForum('allowUsernameMentionFormat', 'flarum-mentions.allow_username_format', 'boolval'),

@@ -20,19 +20,11 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class GlobalUpdateController implements RequestHandlerInterface
 {
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
-
-    public function __construct(Dispatcher $bus)
-    {
-        $this->bus = $bus;
+    public function __construct(
+        protected Dispatcher $bus
+    ) {
     }
 
-    /**
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);

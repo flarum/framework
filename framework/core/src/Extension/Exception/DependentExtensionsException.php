@@ -19,18 +19,14 @@ use Flarum\Extension\ExtensionManager;
  */
 class DependentExtensionsException extends Exception
 {
-    public $extension;
-    public $dependent_extensions;
-
     /**
      * @param $extension: The extension we are attempting to disable.
      * @param $dependent_extensions: Enabled Flarum extensions that depend on this extension.
      */
-    public function __construct(Extension $extension, array $dependent_extensions)
-    {
-        $this->extension = $extension;
-        $this->dependent_extensions = $dependent_extensions;
-
+    public function __construct(
+        public Extension $extension,
+        public array $dependent_extensions
+    ) {
         parent::__construct($extension->getTitle().' could not be disabled, because it is a dependency of: '.implode(', ', ExtensionManager::pluckTitles($dependent_extensions)));
     }
 }

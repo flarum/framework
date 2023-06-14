@@ -15,15 +15,11 @@ use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
-use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ServerRequestInterface;
 
 class DeleteAccessTokenController extends AbstractDeleteController
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function delete(ServerRequestInterface $request)
+    protected function delete(ServerRequestInterface $request): void
     {
         $actor = RequestUtil::getActor($request);
         $id = Arr::get($request->getQueryParams(), 'id');
@@ -46,7 +42,5 @@ class DeleteAccessTokenController extends AbstractDeleteController
         }
 
         $token->delete();
-
-        return new EmptyResponse(204);
     }
 }

@@ -23,7 +23,7 @@ export default class PostEdited extends Component {
 
     return (
       <Tooltip text={editedInfo}>
-        <span class="PostEdited">{app.translator.trans('core.forum.post.edited_text')}</span>
+        <span className="PostEdited">{app.translator.trans('core.forum.post.edited_text')}</span>
       </Tooltip>
     );
   }

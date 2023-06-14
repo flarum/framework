@@ -10,6 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\JsonApiResponse;
+use Flarum\Api\Serializer\AbstractSerializer;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
@@ -19,6 +20,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Tobscure\JsonApi\Document;
+use Tobscure\JsonApi\ElementInterface;
 use Tobscure\JsonApi\Parameters;
 use Tobscure\JsonApi\SerializerInterface;
 
@@ -27,80 +29,70 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * The name of the serializer class to output results with.
      *
-     * @var string
+     * @var class-string<AbstractSerializer>|null
      */
-    public $serializer;
+    public ?string $serializer;
 
     /**
      * The relationships that are included by default.
      *
-     * @var array
+     * @var string[]
      */
-    public $include = [];
+    public array $include = [];
 
     /**
      * The relationships that are available to be included.
      *
-     * @var array
+     * @var string[]
      */
-    public $optionalInclude = [];
+    public array $optionalInclude = [];
 
     /**
      * The maximum number of records that can be requested.
-     *
-     * @var int
      */
-    public $maxLimit = 50;
+    public int $maxLimit = 50;
 
     /**
      * The number of records included by default.
-     *
-     * @var int
      */
-    public $limit = 20;
+    public int $limit = 20;
 
     /**
      * The fields that are available to be sorted by.
      *
-     * @var array
+     * @var string[]
      */
-    public $sortFields = [];
+    public array $sortFields = [];
 
     /**
-     * The default sort field and order to user.
+     * The default sort field and order to use.
      *
-     * @var array|null
+     * @var array<string, string>|null
      */
-    public $sort;
+    public ?array $sort = null;
+
+    protected static Container $container;
 
     /**
-     * @var Container
+     * @var array<class-string<self>, callable[]>
      */
-    protected static $container;
+    protected static array $beforeDataCallbacks = [];
 
     /**
-     * @var array
+     * @var array<class-string<self>, callable[]>
      */
-    protected static $beforeDataCallbacks = [];
-
-    /**
-     * @var array
-     */
-    protected static $beforeSerializationCallbacks = [];
+    protected static array $beforeSerializationCallbacks = [];
 
     /**
      * @var string[][]
      */
-    protected static $loadRelations = [];
+    protected static array $loadRelations = [];
 
     /**
      * @var array<string, callable>
      */
-    protected static $loadRelationCallables = [];
+    protected static array $loadRelationCallables = [];
 
-    /**
-     * {@inheritdoc}
-     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $document = new Document;
@@ -141,21 +133,13 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
 
     /**
      * Get the data to be serialized and assigned to the response document.
-     *
-     * @param ServerRequestInterface $request
-     * @param Document $document
-     * @return mixed
      */
-    abstract protected function data(ServerRequestInterface $request, Document $document);
+    abstract protected function data(ServerRequestInterface $request, Document $document): mixed;
 
     /**
      * Create a PHP JSON-API Element for output in the document.
-     *
-     * @param mixed $data
-     * @param SerializerInterface $serializer
-     * @return \Tobscure\JsonApi\ElementInterface
      */
-    abstract protected function createElement($data, SerializerInterface $serializer);
+    abstract protected function createElement(mixed $data, SerializerInterface $serializer): ElementInterface;
 
     /**
      * Returns the relations to load added by extenders.
@@ -211,7 +195,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
             });
 
             foreach ($addedRelations as $relation) {
-                if (strpos($relation, '.') !== false) {
+                if (str_contains($relation, '.')) {
                     $parentRelation = Str::beforeLast($relation, '.');
 
                     if (! in_array($parentRelation, $relations, true)) {
@@ -252,69 +236,50 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     }
 
     /**
-     * @param ServerRequestInterface $request
-     * @return array
      * @throws \Tobscure\JsonApi\Exception\InvalidParameterException
      */
-    protected function extractInclude(ServerRequestInterface $request)
+    protected function extractInclude(ServerRequestInterface $request): array
     {
         $available = array_merge($this->include, $this->optionalInclude);
 
         return $this->buildParameters($request)->getInclude($available) ?: $this->include;
     }
 
-    /**
-     * @param ServerRequestInterface $request
-     * @return array
-     */
-    protected function extractFields(ServerRequestInterface $request)
+    protected function extractFields(ServerRequestInterface $request): array
     {
         return $this->buildParameters($request)->getFields();
     }
 
     /**
-     * @param ServerRequestInterface $request
-     * @return array|null
      * @throws \Tobscure\JsonApi\Exception\InvalidParameterException
      */
-    protected function extractSort(ServerRequestInterface $request)
+    protected function extractSort(ServerRequestInterface $request): ?array
     {
         return $this->buildParameters($request)->getSort($this->sortFields) ?: $this->sort;
     }
 
     /**
-     * @param ServerRequestInterface $request
-     * @return int
      * @throws \Tobscure\JsonApi\Exception\InvalidParameterException
      */
-    protected function extractOffset(ServerRequestInterface $request)
+    protected function extractOffset(ServerRequestInterface $request): int
     {
         return (int) $this->buildParameters($request)->getOffset($this->extractLimit($request)) ?: 0;
     }
 
     /**
-     * @param ServerRequestInterface $request
-     * @return int
+     * @throws \Tobscure\JsonApi\Exception\InvalidParameterException
      */
-    protected function extractLimit(ServerRequestInterface $request)
+    protected function extractLimit(ServerRequestInterface $request): int
     {
         return (int) $this->buildParameters($request)->getLimit($this->maxLimit) ?: $this->limit;
     }
 
-    /**
-     * @param ServerRequestInterface $request
-     * @return array
-     */
-    protected function extractFilter(ServerRequestInterface $request)
+    protected function extractFilter(ServerRequestInterface $request): array
     {
         return $this->buildParameters($request)->getFilter() ?: [];
     }
 
-    /**
-     * @param ServerRequestInterface $request
-     * @return Parameters
-     */
-    protected function buildParameters(ServerRequestInterface $request)
+    protected function buildParameters(ServerRequestInterface $request): Parameters
     {
         return new Parameters($request->getQueryParams());
     }
@@ -326,129 +291,101 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
 
     /**
      * Set the serializer that will serialize data for the endpoint.
-     *
-     * @param string $serializer
      */
-    public function setSerializer(string $serializer)
+    public function setSerializer(string $serializer): void
     {
         $this->serializer = $serializer;
     }
 
     /**
      * Include the given relationship by default.
-     *
-     * @param string|array $name
      */
-    public function addInclude($name)
+    public function addInclude(array|string $name): void
     {
         $this->include = array_merge($this->include, (array) $name);
     }
 
     /**
      * Don't include the given relationship by default.
-     *
-     * @param string|array $name
      */
-    public function removeInclude($name)
+    public function removeInclude(array|string $name): void
     {
         $this->include = array_diff($this->include, (array) $name);
     }
 
     /**
      * Make the given relationship available for inclusion.
-     *
-     * @param string|array $name
      */
-    public function addOptionalInclude($name)
+    public function addOptionalInclude(array|string $name): void
     {
         $this->optionalInclude = array_merge($this->optionalInclude, (array) $name);
     }
 
     /**
      * Don't allow the given relationship to be included.
-     *
-     * @param string|array $name
      */
-    public function removeOptionalInclude($name)
+    public function removeOptionalInclude(array|string $name): void
     {
         $this->optionalInclude = array_diff($this->optionalInclude, (array) $name);
     }
 
     /**
      * Set the default number of results.
-     *
-     * @param int $limit
      */
-    public function setLimit(int $limit)
+    public function setLimit(int $limit): void
     {
         $this->limit = $limit;
     }
 
     /**
      * Set the maximum number of results.
-     *
-     * @param int $max
      */
-    public function setMaxLimit(int $max)
+    public function setMaxLimit(int $max): void
     {
         $this->maxLimit = $max;
     }
 
     /**
      * Allow sorting results by the given field.
-     *
-     * @param string|array $field
      */
-    public function addSortField($field)
+    public function addSortField(array|string $field): void
     {
         $this->sortFields = array_merge($this->sortFields, (array) $field);
     }
 
     /**
      * Disallow sorting results by the given field.
-     *
-     * @param string|array $field
      */
-    public function removeSortField($field)
+    public function removeSortField(array|string $field): void
     {
         $this->sortFields = array_diff($this->sortFields, (array) $field);
     }
 
     /**
      * Set the default sort order for the results.
-     *
-     * @param array $sort
      */
-    public function setSort(array $sort)
+    public function setSort(array $sort): void
     {
         $this->sort = $sort;
     }
 
-    /**
-     * @return Container
-     */
-    public static function getContainer()
+    public static function getContainer(): Container
     {
         return static::$container;
     }
 
     /**
-     * @param Container $container
-     *
      * @internal
      */
-    public static function setContainer(Container $container)
+    public static function setContainer(Container $container): void
     {
         static::$container = $container;
     }
 
     /**
-     * @param string $controllerClass
-     * @param callable $callback
-     *
      * @internal
      */
-    public static function addDataPreparationCallback(string $controllerClass, callable $callback)
+    public static function addDataPreparationCallback(string $controllerClass, callable $callback): void
     {
         if (! isset(static::$beforeDataCallbacks[$controllerClass])) {
             static::$beforeDataCallbacks[$controllerClass] = [];
@@ -458,12 +395,9 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     }
 
     /**
-     * @param string $controllerClass
-     * @param callable $callback
-     *
      * @internal
      */
-    public static function addSerializationPreparationCallback(string $controllerClass, callable $callback)
+    public static function addSerializationPreparationCallback(string $controllerClass, callable $callback): void
     {
         if (! isset(static::$beforeSerializationCallbacks[$controllerClass])) {
             static::$beforeSerializationCallbacks[$controllerClass] = [];
@@ -475,7 +409,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * @internal
      */
-    public static function setLoadRelations(string $controllerClass, array $relations)
+    public static function setLoadRelations(string $controllerClass, array $relations): void
     {
         if (! isset(static::$loadRelations[$controllerClass])) {
             static::$loadRelations[$controllerClass] = [];
@@ -487,7 +421,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * @internal
      */
-    public static function setLoadRelationCallables(string $controllerClass, array $relations)
+    public static function setLoadRelationCallables(string $controllerClass, array $relations): void
     {
         if (! isset(static::$loadRelationCallables[$controllerClass])) {
             static::$loadRelationCallables[$controllerClass] = [];

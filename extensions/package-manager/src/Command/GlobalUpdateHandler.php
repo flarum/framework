@@ -18,32 +18,14 @@ use Symfony\Component\Console\Input\StringInput;
 
 class GlobalUpdateHandler
 {
-    /**
-     * @var ComposerAdapter
-     */
-    protected $composer;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @var FlarumDispatcher
-     */
-    protected $commandDispatcher;
-
-    public function __construct(ComposerAdapter $composer, Dispatcher $events, FlarumDispatcher $commandDispatcher)
-    {
-        $this->composer = $composer;
-        $this->events = $events;
-        $this->commandDispatcher = $commandDispatcher;
+    public function __construct(
+        protected ComposerAdapter $composer,
+        protected Dispatcher $events,
+        protected FlarumDispatcher $commandDispatcher
+    ) {
     }
 
-    /**
-     * @throws \Flarum\User\Exception\PermissionDeniedException|ComposerUpdateFailedException
-     */
-    public function handle(GlobalUpdate $command)
+    public function handle(GlobalUpdate $command): void
     {
         $command->actor->assertAdmin();
 

@@ -20,7 +20,7 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
     /**
      * Get the component to display as the hero.
      */
-    hero(): Mithril.Vnode<{}, {}>;
+    hero(): JSX.Element;
     /**
      * Build an item list for the sidebar of the index page. By default this is a
      * "New Discussion" button, and then a DropdownSelect component containing a

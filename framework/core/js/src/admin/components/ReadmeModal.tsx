@@ -39,14 +39,20 @@ export default class ReadmeModal<CustomAttrs extends IReadmeModalAttrs = IReadme
   }
 
   content() {
-    const text = app.translator.trans('core.admin.extension.readme.no_readme');
-
     return (
       <div className="Modal-body">
         {this.loading ? (
-          <div className="ReadmeModal-loading">{LoadingIndicator.component()}</div>
+          <div className="ReadmeModal-loading">
+            <LoadingIndicator />
+          </div>
         ) : (
-          <div>{this.readme.content() ? m.trust(this.readme.content()) : Placeholder.component({ text })}</div>
+          <div>
+            {this.readme.content() ? (
+              m.trust(this.readme.content())
+            ) : (
+              <Placeholder text={app.translator.trans('core.admin.extension.readme.no_readme')} />
+            )}
+          </div>
         )}
       </div>
     );

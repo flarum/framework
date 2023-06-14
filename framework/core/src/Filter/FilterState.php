@@ -16,14 +16,14 @@ class FilterState extends AbstractQueryState
     /**
      * @var FilterInterface[]
      */
-    protected $activeFilters = [];
+    protected array $activeFilters = [];
 
     /**
      * Get a list of the filters that are active.
      *
      * @return FilterInterface[]
      */
-    public function getActiveFilters()
+    public function getActiveFilters(): array
     {
         return $this->activeFilters;
     }
@@ -34,7 +34,7 @@ class FilterState extends AbstractQueryState
      * @param FilterInterface $filter
      * @return void
      */
-    public function addActiveFilter(FilterInterface $filter)
+    public function addActiveFilter(FilterInterface $filter): void
     {
         $this->activeFilters[] = $filter;
     }

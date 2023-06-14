@@ -20,13 +20,9 @@ app.initializers.add('flarum-suspend', () => {
     if (user.canSuspend()) {
       items.add(
         'suspend',
-        Button.component(
-          {
-            icon: 'fas fa-ban',
-            onclick: () => app.modal.show(SuspendUserModal, { user }),
-          },
-          app.translator.trans('flarum-suspend.forum.user_controls.suspend_button')
-        )
+        <Button icon="fas fa-ban" onclick={() => app.modal.show(SuspendUserModal, { user })}>
+          {app.translator.trans('flarum-suspend.forum.user_controls.suspend_button')}
+        </Button>
       );
     }
   });
@@ -37,11 +33,8 @@ app.initializers.add('flarum-suspend', () => {
     if (new Date() < until) {
       items.add(
         'suspended',
-        Badge.component({
-          icon: 'fas fa-ban',
-          type: 'suspended',
-          label: app.translator.trans('flarum-suspend.forum.user_badge.suspended_tooltip'),
-        })
+        <Badge icon="fas fa-ban" type="suspended" label={app.translator.trans('flarum-suspend.forum.user_badge.suspended_tooltip')} />,
+        100
       );
     }
   });

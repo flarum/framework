@@ -22,37 +22,13 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class ConfirmEmailController implements RequestHandlerInterface
 {
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @var SessionAuthenticator
-     */
-    protected $authenticator;
-
-    /**
-     * @param Dispatcher $bus
-     * @param UrlGenerator $url
-     * @param SessionAuthenticator $authenticator
-     */
-    public function __construct(Dispatcher $bus, UrlGenerator $url, SessionAuthenticator $authenticator)
-    {
-        $this->bus = $bus;
-        $this->url = $url;
-        $this->authenticator = $authenticator;
+    public function __construct(
+        protected Dispatcher $bus,
+        protected UrlGenerator $url,
+        protected SessionAuthenticator $authenticator
+    ) {
     }
 
-    /**
-     * @param Request $request
-     * @return ResponseInterface
-     */
     public function handle(Request $request): ResponseInterface
     {
         $token = Arr::get($request->getQueryParams(), 'token');

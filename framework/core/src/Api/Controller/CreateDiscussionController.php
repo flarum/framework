@@ -12,6 +12,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Command\ReadDiscussion;
 use Flarum\Discussion\Command\StartDiscussion;
+use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Database\Eloquent\Collection;
@@ -21,15 +22,9 @@ use Tobscure\JsonApi\Document;
 
 class CreateDiscussionController extends AbstractCreateController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = DiscussionSerializer::class;
+    public ?string $serializer = DiscussionSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $include = [
+    public array $include = [
         'posts',
         'user',
         'lastPostedUser',
@@ -37,23 +32,12 @@ class CreateDiscussionController extends AbstractCreateController
         'lastPost'
     ];
 
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
-
-    /**
-     * @param Dispatcher $bus
-     */
-    public function __construct(Dispatcher $bus)
-    {
-        $this->bus = $bus;
+    public function __construct(
+        protected Dispatcher $bus
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): Discussion
     {
         $actor = RequestUtil::getActor($request);
         $ipAddress = $request->getAttribute('ipAddress');
@@ -63,7 +47,7 @@ class CreateDiscussionController extends AbstractCreateController
         );
 
         // After creating the discussion, we assume that the user has seen all
-        // of the posts in the discussion; thus, we will mark the discussion
+        // the posts in the discussion; thus, we will mark the discussion
         // as read if they are logged in.
         if ($actor->exists) {
             $this->bus->dispatch(

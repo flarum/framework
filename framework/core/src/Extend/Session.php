@@ -10,11 +10,12 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
+use Flarum\User\SessionDriverInterface;
 use Illuminate\Contracts\Container\Container;
 
 class Session implements ExtenderInterface
 {
-    private $drivers = [];
+    private array $drivers = [];
 
     /**
      * Register a new session driver.
@@ -22,7 +23,7 @@ class Session implements ExtenderInterface
      * A driver can currently be selected by setting `session.driver` in `config.php`.
      *
      * @param string $name: The name of the driver.
-     * @param string $driverClass: The ::class attribute of the driver.
+     * @param class-string<SessionDriverInterface> $driverClass: The ::class attribute of the driver.
      *                             Driver must implement `\Flarum\User\SessionDriverInterface`.
      * @return self
      */
@@ -33,7 +34,7 @@ class Session implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         $container->extend('flarum.session.drivers', function ($drivers) {
             return array_merge($drivers, $this->drivers);

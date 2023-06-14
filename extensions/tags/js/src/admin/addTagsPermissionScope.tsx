@@ -53,21 +53,18 @@ export default function () {
           label: tagLabel(tag),
           onremove: () => tag.save({ isRestricted: false }),
           render: (item) => {
-            if ('setting' in item) return '';
+            if ('setting' in item) return null;
 
             if (
               item.permission === 'viewForum' ||
               item.permission === 'startDiscussion' ||
-              (item.permission && item.permission.indexOf('discussion.') === 0 && item.tagScoped !== false) ||
+              (item.permission.startsWith('discussion.') && item.tagScoped !== false) ||
               item.tagScoped
             ) {
-              return PermissionDropdown.component({
-                permission: 'tag' + tag.id() + '.' + item.permission,
-                allowGuest: item.allowGuest,
-              });
+              return <PermissionDropdown permission={`tag${tag.id()}.${item.permission}`} allowGuest={item.allowGuest} />;
             }
 
-            return '';
+            return null;
           },
         })
       );

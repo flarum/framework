@@ -118,7 +118,13 @@ export default class NotificationList extends Component {
               <ul className="NotificationGroup-content">
                 {group.notifications.map((notification) => {
                   const NotificationComponent = app.notificationComponents[notification.contentType()];
-                  return NotificationComponent ? <li>{NotificationComponent.component({ notification })}</li> : '';
+                  return (
+                    !!NotificationComponent && (
+                      <li>
+                        <NotificationComponent notification={notification} />
+                      </li>
+                    )
+                  );
                 })}
               </ul>
             </div>

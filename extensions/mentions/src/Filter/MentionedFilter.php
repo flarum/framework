@@ -11,17 +11,20 @@ namespace Flarum\Mentions\Filter;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
+use Flarum\Filter\ValidateFilterTrait;
 
 class MentionedFilter implements FilterInterface
 {
+    use ValidateFilterTrait;
+
     public function getFilterKey(): string
     {
         return 'mentioned';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
-        $mentionedId = trim($filterValue, '"');
+        $mentionedId = $this->asInt($filterValue);
 
         $filterState
             ->getQuery()

@@ -21,11 +21,9 @@ use Tobscure\JsonApi\Document;
  */
 class JsonApiFormatter implements HttpFormatter
 {
-    private $includeTrace;
-
-    public function __construct($includeTrace = false)
-    {
-        $this->includeTrace = $includeTrace;
+    public function __construct(
+        private readonly bool $includeTrace = false
+    ) {
     }
 
     public function format(HandledError $error, Request $request): Response

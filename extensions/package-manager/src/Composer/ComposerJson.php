@@ -15,32 +15,19 @@ use Illuminate\Support\Str;
 
 class ComposerJson
 {
-    /**
-     * @var Paths
-     */
-    protected $paths;
+    protected array $initialJson;
 
-    /**
-     * @var Filesystem
-     */
-    protected $filesystem;
-
-    /**
-     * @var array
-     */
-    protected $initialJson;
-
-    public function __construct(Paths $paths, Filesystem $filesystem)
-    {
-        $this->paths = $paths;
-        $this->filesystem = $filesystem;
+    public function __construct(
+        protected Paths $paths,
+        protected Filesystem $filesystem
+    ) {
     }
 
     public function require(string $packageName, string $version): void
     {
         $composerJson = $this->get();
 
-        if (strpos($packageName, '*') === false) {
+        if (! str_contains($packageName, '*')) {
             $composerJson['require'][$packageName] = $version;
         } else {
             foreach ($composerJson['require'] as $p => $v) {

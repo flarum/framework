@@ -14,6 +14,7 @@ use Flarum\Extend;
 use Flarum\Testing\integration\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
+use Tobscure\JsonApi\ElementInterface;
 use Tobscure\JsonApi\SerializerInterface;
 
 class AbstractSerializeControllerTest extends TestCase
@@ -38,14 +39,14 @@ class AbstractSerializeControllerTest extends TestCase
 
 class DummySerializeController extends AbstractSerializeController
 {
-    public $serializer = null;
+    public ?string $serializer = null;
 
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): mixed
     {
         return [];
     }
 
-    protected function createElement($data, SerializerInterface $serializer)
+    protected function createElement(mixed $data, SerializerInterface $serializer): ElementInterface
     {
         return $data;
     }

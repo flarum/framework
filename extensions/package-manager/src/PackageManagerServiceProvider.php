@@ -29,7 +29,7 @@ use Monolog\Logger;
 
 class PackageManagerServiceProvider extends AbstractServiceProvider
 {
-    public function register()
+    public function register(): void
     {
         $this->container->singleton(ComposerAdapter::class, function (Container $container) {
             // This should only ever be resolved when running composer commands,
@@ -67,7 +67,7 @@ class PackageManagerServiceProvider extends AbstractServiceProvider
         });
     }
 
-    public function boot(Container $container)
+    public function boot(Container $container): void
     {
         /** @var Dispatcher $events */
         $events = $container->make('events');

@@ -9,9 +9,9 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Bus\Dispatcher;
 use Flarum\Extension\Command\ToggleExtension;
 use Flarum\Http\RequestUtil;
+use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -20,19 +20,11 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class UpdateExtensionController implements RequestHandlerInterface
 {
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
-
-    public function __construct(Dispatcher $bus)
-    {
-        $this->bus = $bus;
+    public function __construct(
+        protected Dispatcher $bus
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);

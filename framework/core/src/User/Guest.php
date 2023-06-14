@@ -10,6 +10,7 @@
 namespace Flarum\User;
 
 use Flarum\Group\Group;
+use Illuminate\Database\Eloquent\Collection;
 
 class Guest extends User
 {
@@ -18,14 +19,12 @@ class Guest extends User
      *
      * @var int
      */
-    public $id = 0;
+    public int $id = 0;
 
     /**
      * Get the guest's group, containing only the 'guests' group model.
-     *
-     * @return \Flarum\Group\Group
      */
-    public function getGroupsAttribute()
+    public function getGroupsAttribute(): Collection
     {
         if (! isset($this->attributes['groups'])) {
             $this->attributes['groups'] = $this->relations['groups'] = Group::where('id', Group::GUEST_ID)->get();
@@ -34,10 +33,7 @@ class Guest extends User
         return $this->attributes['groups'];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isGuest()
+    public function isGuest(): bool
     {
         return true;
     }

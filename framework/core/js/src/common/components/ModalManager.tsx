@@ -37,7 +37,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
           return (
             <div
               key={modal.key}
-              class="ModalManager modal"
+              className="ModalManager modal"
               data-modal-key={modal.key}
               data-modal-number={i}
               role="dialog"
@@ -62,7 +62,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
 
         {this.attrs.state.backdropShown && (
           <div
-            class="Modal-backdrop backdrop"
+            className="Modal-backdrop backdrop"
             ontransitionend={this.onBackdropTransitionEnd.bind(this)}
             data-showing={!!this.attrs.state.modalList.length}
             style={{ '--modal-count': this.attrs.state.modalList.length }}

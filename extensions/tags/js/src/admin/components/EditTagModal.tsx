@@ -140,20 +140,14 @@ export default class EditTagModal extends Modal<EditTagModalAttrs> {
     items.add(
       'submit',
       <div className="Form-group">
-        {Button.component(
-          {
-            type: 'submit',
-            className: 'Button Button--primary EditTagModal-save',
-            loading: this.loading,
-          },
-          app.translator.trans('flarum-tags.admin.edit_tag.submit_button')
-        )}
-        {this.tag.exists ? (
+        <Button type="submit" className="Button Button--primary EditTagModal-save" loading={this.loading}>
+          {app.translator.trans('flarum-tags.admin.edit_tag.submit_button')}
+        </Button>
+
+        {this.tag.exists && (
           <button type="button" className="Button EditTagModal-delete" onclick={this.delete.bind(this)}>
             {app.translator.trans('flarum-tags.admin.edit_tag.delete_tag_button')}
           </button>
-        ) : (
-          ''
         )}
       </div>,
       -10

@@ -56,21 +56,21 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
           help: app.translator.trans('core.admin.basics.forum_description_text'),
         })}
 
-        {Object.keys(this.localeOptions).length > 1
-          ? [
-              this.buildSettingComponent({
-                type: 'select',
-                setting: 'default_locale',
-                options: this.localeOptions,
-                label: app.translator.trans('core.admin.basics.default_language_heading'),
-              }),
-              this.buildSettingComponent({
-                type: 'switch',
-                setting: 'show_language_selector',
-                label: app.translator.trans('core.admin.basics.show_language_selector_label'),
-              }),
-            ]
-          : ''}
+        {Object.keys(this.localeOptions).length > 1 && (
+          <>
+            {this.buildSettingComponent({
+              type: 'select',
+              setting: 'default_locale',
+              options: this.localeOptions,
+              label: app.translator.trans('core.admin.basics.default_language_heading'),
+            })}
+            {this.buildSettingComponent({
+              type: 'switch',
+              setting: 'show_language_selector',
+              label: app.translator.trans('core.admin.basics.show_language_selector_label'),
+            })}
+          </>
+        )}
 
         <FieldSet className="BasicsPage-homePage Form-group" label={app.translator.trans('core.admin.basics.home_page_heading')}>
           <div className="helpText">{app.translator.trans('core.admin.basics.home_page_text')}</div>
@@ -91,15 +91,14 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
           <textarea className="FormControl" bidi={this.setting('welcome_message')} />
         </div>
 
-        {Object.keys(this.displayNameOptions).length > 1
-          ? this.buildSettingComponent({
-              type: 'select',
-              setting: 'display_name_driver',
-              options: this.displayNameOptions,
-              label: app.translator.trans('core.admin.basics.display_name_heading'),
-              help: app.translator.trans('core.admin.basics.display_name_text'),
-            })
-          : ''}
+        {Object.keys(this.displayNameOptions).length > 1 &&
+          this.buildSettingComponent({
+            type: 'select',
+            setting: 'display_name_driver',
+            options: this.displayNameOptions,
+            label: app.translator.trans('core.admin.basics.display_name_heading'),
+            help: app.translator.trans('core.admin.basics.display_name_text'),
+          })}
 
         {Object.keys(this.slugDriverOptions).map((model) => {
           const options = this.slugDriverOptions[model];

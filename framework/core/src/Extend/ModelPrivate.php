@@ -9,6 +9,7 @@
 
 namespace Flarum\Extend;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
@@ -33,22 +34,22 @@ use Illuminate\Contracts\Container\Container;
  */
 class ModelPrivate implements ExtenderInterface
 {
-    private $modelClass;
     private $checkers = [];
 
     /**
-     * @param string $modelClass: The ::class attribute of the model you are applying private checkers to.
+     * @param class-string<AbstractModel> $modelClass: The ::class attribute of the model you are applying private checkers to.
      *                           This model must have a `is_private` field.
      */
-    public function __construct(string $modelClass)
-    {
-        $this->modelClass = $modelClass;
+    public function __construct(
+        private readonly string $modelClass
+    ) {
     }
 
     /**
      * Add a model privacy checker.
      *
-     * @param callable|string $callback
+     * @template T of AbstractModel
+     * @param (callable(T $instance): ?bool)|class-string $callback
      *
      * The callback can be a closure or invokable class, and should accept:
      * - \Flarum\Database\AbstractModel $instance: An instance of the model.
@@ -57,14 +58,14 @@ class ModelPrivate implements ExtenderInterface
      *
      * @return self
      */
-    public function checker($callback): self
+    public function checker(callable|string $callback): self
     {
         $this->checkers[] = $callback;
 
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         if (! class_exists($this->modelClass)) {
             return;

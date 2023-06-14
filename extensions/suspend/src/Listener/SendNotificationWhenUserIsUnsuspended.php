@@ -15,20 +15,12 @@ use Flarum\Suspend\Notification\UserUnsuspendedBlueprint;
 
 class SendNotificationWhenUserIsUnsuspended
 {
-    /**
-     * @var NotificationSyncer
-     */
-    protected $notifications;
-
-    /**
-     * @param NotificationSyncer $notifications
-     */
-    public function __construct(NotificationSyncer $notifications)
-    {
-        $this->notifications = $notifications;
+    public function __construct(
+        protected NotificationSyncer $notifications
+    ) {
     }
 
-    public function handle(Unsuspended $event)
+    public function handle(Unsuspended $event): void
     {
         $this->notifications->sync(
             new UserUnsuspendedBlueprint($event->user),

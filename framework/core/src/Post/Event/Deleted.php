@@ -14,22 +14,9 @@ use Flarum\User\User;
 
 class Deleted
 {
-    /**
-     * @var \Flarum\Post\Post
-     */
-    public $post;
-
-    /**
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * @param \Flarum\Post\Post $post
-     */
-    public function __construct(Post $post, User $actor = null)
-    {
-        $this->post = $post;
-        $this->actor = $actor;
+    public function __construct(
+        public Post $post,
+        public ?User $actor = null
+    ) {
     }
 }

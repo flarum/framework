@@ -11,6 +11,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AccountActivationMailerTrait;
 use Flarum\User\Exception\PermissionDeniedException;
@@ -20,49 +21,19 @@ use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SendConfirmationEmailController implements RequestHandlerInterface
 {
     use AccountActivationMailerTrait;
 
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var Queue
-     */
-    protected $queue;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @param \Flarum\Settings\SettingsRepositoryInterface $settings
-     * @param Queue $queue
-     * @param UrlGenerator $url
-     * @param TranslatorInterface $translator
-     */
-    public function __construct(SettingsRepositoryInterface $settings, Queue $queue, UrlGenerator $url, TranslatorInterface $translator)
-    {
-        $this->settings = $settings;
-        $this->queue = $queue;
-        $this->url = $url;
-        $this->translator = $translator;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings,
+        protected Queue $queue,
+        protected UrlGenerator $url,
+        protected TranslatorInterface $translator
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $id = Arr::get($request->getQueryParams(), 'id');

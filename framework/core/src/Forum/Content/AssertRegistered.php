@@ -15,7 +15,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AssertRegistered
 {
-    public function __invoke(Document $document, Request $request)
+    public function __invoke(Document $document, Request $request): void
     {
         RequestUtil::getActor($request)->assertRegistered();
     }

@@ -120,10 +120,8 @@ export default class TagsPage extends Page {
           {tag.icon() && tagIcon(tag, {}, { useColor: false })}
           <h3 className="TagTile-name">{tag.name()}</h3>
           <p className="TagTile-description">{tag.description()}</p>
-          {children ? (
+          {!!children && (
             <div className="TagTile-children">{children.map((child) => [<Link href={app.route.tag(child)}>{child.name()}</Link>, ' '])}</div>
-          ) : (
-            ''
           )}
         </Link>
         {lastPostedDiscussion ? (

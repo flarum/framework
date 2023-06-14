@@ -10,31 +10,34 @@
 namespace Flarum\Extend;
 
 use Flarum\Api\Serializer\AbstractSerializer;
+use Flarum\Database\AbstractModel;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
+use Tobscure\JsonApi\Relationship;
 
 class ApiSerializer implements ExtenderInterface
 {
-    private $serializerClass;
-    private $attribute = [];
-    private $attributes = [];
-    private $relationships = [];
+    private array $attribute = [];
+    private array $attributes = [];
+    private array $relationships = [];
 
     /**
-     * @param string $serializerClass The ::class attribute of the serializer you are modifying.
+     * @param class-string<AbstractSerializer> $serializerClass The ::class attribute of the serializer you are modifying.
      *                                This serializer should extend from \Flarum\Api\Serializer\AbstractSerializer.
      */
-    public function __construct(string $serializerClass)
-    {
-        $this->serializerClass = $serializerClass;
+    public function __construct(
+        private readonly string $serializerClass
+    ) {
     }
 
     /**
      * Add a single attribute to this serializer.
      *
+     * @template T of AbstractModel
+     * @template S of AbstractSerializer
      * @param string $name: The name of the attribute.
-     * @param callable|string $callback
+     * @param (callable(S $serializer, T $model, array $attributes): mixed)|class-string $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
      * - $serializer: An instance of this serializer.
@@ -46,7 +49,7 @@ class ApiSerializer implements ExtenderInterface
      *
      * @return self
      */
-    public function attribute(string $name, $callback): self
+    public function attribute(string $name, callable|string $callback): self
     {
         $this->attribute[$name] = $callback;
 
@@ -56,7 +59,7 @@ class ApiSerializer implements ExtenderInterface
     /**
      * Add to or modify the attributes array of this serializer.
      *
-     * @param callable|string $callback
+     * @param (callable(AbstractSerializer $serializer, AbstractModel $model, array $attributes): array)|string $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
      * - $serializer: An instance of this serializer.
@@ -69,7 +72,7 @@ class ApiSerializer implements ExtenderInterface
      *
      * @return self
      */
-    public function attributes($callback): self
+    public function attributes(callable|string $callback): self
     {
         $this->attributes[] = $callback;
 
@@ -115,7 +118,9 @@ class ApiSerializer implements ExtenderInterface
      *
      * @param string $name: The name of the relation. Has to be unique from other relation names.
      *                      The relation has to exist in the model handled by this serializer.
-     * @param callable|string $callback
+     * @template T of AbstractModel
+     * @template S of AbstractSerializer
+     * @param (callable(S $serializer, T $model): Relationship)|class-string $callback
      *
      * The callable can be a closure or an invokable class, and should accept:
      * - $serializer: An instance of this serializer.
@@ -126,14 +131,14 @@ class ApiSerializer implements ExtenderInterface
      *
      * @return self
      */
-    public function relationship(string $name, $callback): self
+    public function relationship(string $name, callable|string $callback): self
     {
         $this->relationships[$this->serializerClass][$name] = $callback;
 
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         if (! empty($this->attribute)) {
             $this->attributes[] = function ($serializer, $model, $attributes) use ($container) {

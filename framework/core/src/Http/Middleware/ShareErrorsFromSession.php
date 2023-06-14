@@ -23,17 +23,9 @@ use Psr\Http\Server\RequestHandlerInterface as Handler;
  */
 class ShareErrorsFromSession implements Middleware
 {
-    /**
-     * @var ViewFactory
-     */
-    protected $view;
-
-    /**
-     * @param ViewFactory $view
-     */
-    public function __construct(ViewFactory $view)
-    {
-        $this->view = $view;
+    public function __construct(
+        protected ViewFactory $view
+    ) {
     }
 
     public function process(Request $request, Handler $handler): Response

@@ -1,0 +1,8 @@
+/*!
+ * Includes modified code from GitHub Markdown Toolbar Element
+ * https://github.com/github/markdown-toolbar-element/
+ *
+ * Original Copyright GitHub, Inc.
+ * Released under the MIT license
+ * https://github.com/github/markdown-toolbar-element/blob/master/LICENSE
+ */

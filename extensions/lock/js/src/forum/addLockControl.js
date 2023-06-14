@@ -9,15 +9,9 @@ export default function addLockControl() {
     if (discussion.canLock()) {
       items.add(
         'lock',
-        Button.component(
-          {
-            icon: 'fas fa-lock',
-            onclick: this.lockAction.bind(discussion),
-          },
-          app.translator.trans(
-            discussion.isLocked() ? 'flarum-lock.forum.discussion_controls.unlock_button' : 'flarum-lock.forum.discussion_controls.lock_button'
-          )
-        )
+        <Button icon="fas fa-lock" onclick={this.lockAction.bind(discussion)}>
+          {app.translator.trans(`flarum-lock.forum.discussion_controls.${discussion.isLocked() ? 'unlock' : 'lock'}_button`)}
+        </Button>
       );
     }
   });

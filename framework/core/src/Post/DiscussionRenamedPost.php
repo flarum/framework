@@ -19,15 +19,9 @@ use Carbon\Carbon;
  */
 class DiscussionRenamedPost extends AbstractEventPost implements MergeableInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static $type = 'discussionRenamed';
+    public static string $type = 'discussionRenamed';
 
-    /**
-     * {@inheritdoc}
-     */
-    public function saveAfter(Post $previous = null)
+    public function saveAfter(Post $previous = null): static
     {
         // If the previous post is another 'discussion renamed' post, and it's
         // by the same user, then we can merge this post into it. If we find
@@ -50,16 +44,7 @@ class DiscussionRenamedPost extends AbstractEventPost implements MergeableInterf
         return $this;
     }
 
-    /**
-     * Create a new instance in reply to a discussion.
-     *
-     * @param int $discussionId
-     * @param int $userId
-     * @param string $oldTitle
-     * @param string $newTitle
-     * @return static
-     */
-    public static function reply($discussionId, $userId, $oldTitle, $newTitle)
+    public static function reply(int $discussionId, int $userId, string $oldTitle, string $newTitle): static
     {
         $post = new static;
 
@@ -71,14 +56,7 @@ class DiscussionRenamedPost extends AbstractEventPost implements MergeableInterf
         return $post;
     }
 
-    /**
-     * Build the content attribute.
-     *
-     * @param string $oldTitle The old title of the discussion.
-     * @param string $newTitle The new title of the discussion.
-     * @return array
-     */
-    protected static function buildContent($oldTitle, $newTitle)
+    protected static function buildContent(string $oldTitle, string $newTitle): array
     {
         return [$oldTitle, $newTitle];
     }

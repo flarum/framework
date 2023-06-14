@@ -19,47 +19,19 @@ use Tobscure\JsonApi\Document;
 
 class ListGroupsController extends AbstractListController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = GroupSerializer::class;
+    public ?string $serializer = GroupSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $sortFields = ['nameSingular', 'namePlural', 'isHidden'];
+    public array $sortFields = ['nameSingular', 'namePlural', 'isHidden'];
 
-    /**
-     * {@inheritdoc}
-     *
-     * @var int
-     */
-    public $limit = -1;
+    public int $limit = -1;
 
-    /**
-     * @var GroupFilterer
-     */
-    protected $filterer;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @param GroupFilterer $filterer
-     * @param UrlGenerator $url
-     */
-    public function __construct(GroupFilterer $filterer, UrlGenerator $url)
-    {
-        $this->filterer = $filterer;
-        $this->url = $url;
+    public function __construct(
+        protected GroupFilterer $filterer,
+        protected UrlGenerator $url
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
 

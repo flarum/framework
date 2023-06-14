@@ -9,6 +9,6 @@ export default class LoadingModal<ModalAttrs extends ILoadingModalAttrs = ILoadi
     static readonly isDismissible: boolean;
     className(): string;
     title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
-    content(): string;
+    content(): null;
     onsubmit(e: Event): void;
 }

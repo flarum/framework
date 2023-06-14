@@ -11,6 +11,7 @@ namespace Flarum\Discussion\Query;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
+use Flarum\Filter\ValidateFilterTrait;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\SearchState;
 use Illuminate\Database\Query\Builder;
@@ -18,18 +19,14 @@ use Illuminate\Support\Arr;
 
 class CreatedFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getGambitPattern()
+    use ValidateFilterTrait;
+
+    public function getGambitPattern(): string
     {
         return 'created:(\d{4}\-\d\d\-\d\d)(\.\.(\d{4}\-\d\d\-\d\d))?';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function conditions(SearchState $search, array $matches, $negate)
+    protected function conditions(SearchState $search, array $matches, bool $negate): void
     {
         $this->constrain($search->getQuery(), Arr::get($matches, 1), Arr::get($matches, 3), $negate);
     }
@@ -39,8 +36,10 @@ class CreatedFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'created';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
+        $filterValue = $this->asString($filterValue);
+
         preg_match('/^'.$this->getGambitPattern().'$/i', 'created:'.$filterValue, $matches);
 
         $this->constrain($filterState->getQuery(), Arr::get($matches, 1), Arr::get($matches, 3), $negate);

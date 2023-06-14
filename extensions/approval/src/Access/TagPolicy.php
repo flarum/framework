@@ -15,10 +15,7 @@ use Flarum\User\User;
 
 class TagPolicy extends AbstractPolicy
 {
-    /**
-     * @return bool|null
-     */
-    public function addToDiscussion(User $actor, Tag $tag)
+    public function addToDiscussion(User $actor, Tag $tag): bool
     {
         return $actor->can('discussion.startWithoutApproval', $tag);
     }

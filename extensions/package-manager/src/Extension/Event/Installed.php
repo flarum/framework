@@ -11,13 +11,8 @@ namespace Flarum\PackageManager\Extension\Event;
 
 class Installed
 {
-    /**
-     * @var string
-     */
-    public $extensionId;
-
-    public function __construct(string $extensionId)
-    {
-        $this->extensionId = $extensionId;
+    public function __construct(
+        public string $extensionId
+    ) {
     }
 }

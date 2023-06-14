@@ -22,31 +22,13 @@ use Symfony\Component\Console\Output\BufferedOutput;
  */
 class ComposerAdapter
 {
-    /**
-     * @var Application
-     */
-    private $application;
+    private readonly BufferedOutput $output;
 
-    /**
-     * @var OutputLogger
-     */
-    private $logger;
-
-    /**
-     * @var BufferedOutput
-     */
-    private $output;
-
-    /**
-     * @var Paths
-     */
-    private $paths;
-
-    public function __construct(Application $application, OutputLogger $logger, Paths $paths)
-    {
-        $this->application = $application;
-        $this->logger = $logger;
-        $this->paths = $paths;
+    public function __construct(
+        private readonly Application $application,
+        private readonly OutputLogger $logger,
+        private readonly Paths $paths
+    ) {
         $this->output = new BufferedOutput();
     }
 
@@ -73,7 +55,7 @@ class ComposerAdapter
         return new ComposerOutput($exitCode, $output);
     }
 
-    public static function setPhpVersion(string $phpVersion)
+    public static function setPhpVersion(string $phpVersion): void
     {
         Config::$defaultConfig['platform']['php'] = $phpVersion;
     }

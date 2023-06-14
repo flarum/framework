@@ -16,31 +16,21 @@ use Illuminate\Contracts\Container\Container;
 
 class InstallServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    public function register(): void
     {
         $this->container->singleton('flarum.install.routes', function () {
             return new RouteCollection;
         });
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function boot(Container $container, RouteHandlerFactory $route)
+    public function boot(Container $container, RouteHandlerFactory $route): void
     {
         $this->loadViewsFrom(__DIR__.'/../../views/install', 'flarum.install');
 
         $this->populateRoutes($container->make('flarum.install.routes'), $route);
     }
 
-    /**
-     * @param RouteCollection     $routes
-     * @param RouteHandlerFactory $route
-     */
-    protected function populateRoutes(RouteCollection $routes, RouteHandlerFactory $route)
+    protected function populateRoutes(RouteCollection $routes, RouteHandlerFactory $route): void
     {
         $routes->get(
             '/{path:.*}',

@@ -9,7 +9,7 @@ export default class TagsPage extends Page<import("flarum/common/components/Page
     mainContent(): ItemList<any>;
     content(): JSX.Element;
     contentItems(): ItemList<any>;
-    hero(): import("mithril").Vnode<{}, {}>;
+    hero(): JSX.Element;
     sidebar(): JSX.Element;
     sidebarItems(): ItemList<import("mithril").Children>;
     tagTileListView(pinned: any): JSX.Element;

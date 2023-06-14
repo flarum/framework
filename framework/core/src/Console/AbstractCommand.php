@@ -16,20 +16,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class AbstractCommand extends Command
 {
-    /**
-     * @var InputInterface
-     */
-    protected $input;
+    protected InputInterface $input;
+    protected OutputInterface $output;
 
-    /**
-     * @var OutputInterface
-     */
-    protected $output;
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->input = $input;
         $this->output = $output;
@@ -37,40 +27,23 @@ abstract class AbstractCommand extends Command
         return $this->fire() ?: 0;
     }
 
-    /**
-     * Fire the command.
-     */
-    abstract protected function fire();
+    abstract protected function fire(): int;
 
-    /**
-     * Did the user pass the given option?
-     *
-     * @param string $name
-     * @return bool
-     */
-    protected function hasOption($name)
+    protected function hasOption(string $name): bool
     {
         return $this->input->hasOption($name);
     }
 
-    /**
-     * Send an info message to the user.
-     *
-     * @param string $message
-     */
-    protected function info($message)
+    protected function info(string $message): void
     {
         $this->output->writeln("<info>$message</info>");
     }
 
     /**
      * Send an error or warning message to the user.
-     *
      * If possible, this will send the message via STDERR.
-     *
-     * @param string $message
      */
-    protected function error($message)
+    protected function error(string $message): void
     {
         if ($this->output instanceof ConsoleOutputInterface) {
             $this->output->getErrorOutput()->writeln("<error>$message</error>");

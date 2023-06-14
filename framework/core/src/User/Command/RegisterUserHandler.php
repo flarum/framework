@@ -30,48 +30,22 @@ class RegisterUserHandler
 {
     use DispatchEventsTrait;
 
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var UserValidator
-     */
-    protected $userValidator;
-
-    /**
-     * @var AvatarUploader
-     */
-    protected $avatarUploader;
-    /**
-     * @var Factory
-     */
-    private $validator;
-
-    /**
-     * @var ImageManager
-     */
-    protected $imageManager;
-
-    public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings, UserValidator $userValidator, AvatarUploader $avatarUploader, Factory $validator, ImageManager $imageManager)
-    {
-        $this->events = $events;
-        $this->settings = $settings;
-        $this->userValidator = $userValidator;
-        $this->avatarUploader = $avatarUploader;
-        $this->validator = $validator;
-        $this->imageManager = $imageManager;
+    public function __construct(
+        protected Dispatcher $events,
+        protected SettingsRepositoryInterface $settings,
+        protected UserValidator $userValidator,
+        protected AvatarUploader $avatarUploader,
+        private readonly Factory $validator,
+        protected ImageManager $imageManager
+    ) {
     }
 
     /**
-     * @param RegisterUser $command
-     * @return User
      * @throws PermissionDeniedException if signup is closed and the actor is
      *     not an administrator.
      * @throws ValidationException
      */
-    public function handle(RegisterUser $command)
+    public function handle(RegisterUser $command): User
     {
         $actor = $command->actor;
         $data = $command->data;
@@ -145,7 +119,7 @@ class RegisterUserHandler
     /**
      * @throws InvalidArgumentException
      */
-    private function uploadAvatarFromUrl(User $user, string $url)
+    private function uploadAvatarFromUrl(User $user, string $url): void
     {
         $urlValidator = $this->validator->make(compact('url'), [
             'url' => 'required|active_url',
@@ -166,7 +140,7 @@ class RegisterUserHandler
         $this->avatarUploader->upload($user, $image);
     }
 
-    private function fulfillToken(User $user, RegistrationToken $token)
+    private function fulfillToken(User $user, RegistrationToken $token): void
     {
         $token->delete();
 

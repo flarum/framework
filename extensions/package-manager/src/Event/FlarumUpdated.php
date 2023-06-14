@@ -17,19 +17,9 @@ class FlarumUpdated
     public const MINOR = 'minor';
     public const MAJOR = 'major';
 
-    /**
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * @var string
-     */
-    public $type;
-
-    public function __construct(User $actor, string $type)
-    {
-        $this->actor = $actor;
-        $this->type = $type;
+    public function __construct(
+        public User $actor,
+        public string $type
+    ) {
     }
 }

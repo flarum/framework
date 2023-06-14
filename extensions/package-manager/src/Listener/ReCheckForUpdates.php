@@ -18,31 +18,14 @@ use Flarum\PackageManager\Settings\LastUpdateRun;
 
 class ReCheckForUpdates
 {
-    /**
-     * @var LastUpdateRun
-     */
-    private $lastUpdateRun;
-    /**
-     * @var LastUpdateCheck
-     */
-    private $lastUpdateCheck;
-
-    /**
-     * @var Dispatcher
-     */
-    private $bus;
-
-    public function __construct(LastUpdateRun $lastUpdateRun, LastUpdateCheck $lastUpdateCheck, Dispatcher $bus)
-    {
-        $this->lastUpdateRun = $lastUpdateRun;
-        $this->lastUpdateCheck = $lastUpdateCheck;
-        $this->bus = $bus;
+    public function __construct(
+        private readonly LastUpdateRun $lastUpdateRun,
+        private readonly LastUpdateCheck $lastUpdateCheck,
+        private readonly Dispatcher $bus
+    ) {
     }
 
-    /**
-     * @param FlarumUpdated|Updated $event
-     */
-    public function handle($event): void
+    public function handle(FlarumUpdated|Updated $event): void
     {
         $previousUpdateCheck = $this->lastUpdateCheck->get();
 

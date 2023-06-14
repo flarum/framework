@@ -14,8 +14,10 @@ use Flarum\Discussion\Discussion;
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\SlugManager;
+use Flarum\Post\Post;
 use Flarum\Post\PostRepository;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -24,30 +26,9 @@ use Tobscure\JsonApi\Document;
 
 class ShowDiscussionController extends AbstractShowController
 {
-    /**
-     * @var \Flarum\Discussion\DiscussionRepository
-     */
-    protected $discussions;
+    public ?string $serializer = DiscussionSerializer::class;
 
-    /**
-     * @var PostRepository
-     */
-    protected $posts;
-
-    /**
-     * @var SlugManager
-     */
-    protected $slugManager;
-
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = DiscussionSerializer::class;
-
-    /**
-     * {@inheritdoc}
-     */
-    public $include = [
+    public array $include = [
         'user',
         'posts',
         'posts.discussion',
@@ -57,32 +38,21 @@ class ShowDiscussionController extends AbstractShowController
         'posts.hiddenUser'
     ];
 
-    /**
-     * {@inheritdoc}
-     */
-    public $optionalInclude = [
+    public array $optionalInclude = [
         'user',
         'lastPostedUser',
         'firstPost',
         'lastPost'
     ];
 
-    /**
-     * @param \Flarum\Discussion\DiscussionRepository $discussions
-     * @param \Flarum\Post\PostRepository $posts
-     * @param \Flarum\Http\SlugManager $slugManager
-     */
-    public function __construct(DiscussionRepository $discussions, PostRepository $posts, SlugManager $slugManager)
-    {
-        $this->discussions = $discussions;
-        $this->posts = $posts;
-        $this->slugManager = $slugManager;
+    public function __construct(
+        protected DiscussionRepository $discussions,
+        protected PostRepository $posts,
+        protected SlugManager $slugManager
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): Discussion
     {
         $discussionId = Arr::get($request->getQueryParams(), 'id');
         $actor = RequestUtil::getActor($request);
@@ -108,12 +78,7 @@ class ShowDiscussionController extends AbstractShowController
         return $discussion;
     }
 
-    /**
-     * @param Discussion $discussion
-     * @param ServerRequestInterface $request
-     * @param array $include
-     */
-    private function includePosts(Discussion $discussion, ServerRequestInterface $request, array $include)
+    private function includePosts(Discussion $discussion, ServerRequestInterface $request, array $include): void
     {
         $actor = RequestUtil::getActor($request);
         $limit = $this->extractLimit($request);
@@ -124,15 +89,10 @@ class ShowDiscussionController extends AbstractShowController
 
         array_splice($allPosts, $offset, $limit, $loadedPosts);
 
-        $discussion->setRelation('posts', $allPosts);
+        $discussion->setRelation('posts', (new Post)->newCollection($allPosts));
     }
 
-    /**
-     * @param Discussion $discussion
-     * @param User $actor
-     * @return array
-     */
-    private function loadPostIds(Discussion $discussion, User $actor)
+    private function loadPostIds(Discussion $discussion, User $actor): array
     {
         return $discussion->posts()->whereVisibleTo($actor)->orderBy('number')->pluck('id')->all();
     }
@@ -151,13 +111,7 @@ class ShowDiscussionController extends AbstractShowController
         return $relationships;
     }
 
-    /**
-     * @param ServerRequestInterface $request
-     * @param Discussion$discussion
-     * @param int $limit
-     * @return int
-     */
-    private function getPostsOffset(ServerRequestInterface $request, Discussion $discussion, $limit)
+    private function getPostsOffset(ServerRequestInterface $request, Discussion $discussion, int $limit): int
     {
         $queryParams = $request->getQueryParams();
         $actor = RequestUtil::getActor($request);
@@ -172,22 +126,16 @@ class ShowDiscussionController extends AbstractShowController
         return $offset;
     }
 
-    /**
-     * @param Discussion $discussion
-     * @param User $actor
-     * @param int $offset
-     * @param int $limit
-     * @param array $include
-     * @return mixed
-     */
-    private function loadPosts($discussion, $actor, $offset, $limit, array $include, ServerRequestInterface $request)
+    private function loadPosts(Discussion $discussion, User $actor, int $offset, int $limit, array $include, ServerRequestInterface $request): array
     {
+        /** @var Builder $query */
         $query = $discussion->posts()->whereVisibleTo($actor);
 
         $query->orderBy('number')->skip($offset)->take($limit);
 
         $posts = $query->get();
 
+        /** @var Post $post */
         foreach ($posts as $post) {
             $post->discussion = $discussion;
         }

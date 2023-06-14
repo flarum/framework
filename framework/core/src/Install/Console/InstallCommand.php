@@ -13,32 +13,21 @@ use Flarum\Console\AbstractCommand;
 use Flarum\Install\Installation;
 use Flarum\Install\Pipeline;
 use Flarum\Install\Step;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputOption;
 
 class InstallCommand extends AbstractCommand
 {
-    /**
-     * @var Installation
-     */
-    protected $installation;
+    protected DataProviderInterface $dataSource;
 
-    /**
-     * @var DataProviderInterface
-     */
-    protected $dataSource;
-
-    /**
-     * @param Installation $installation
-     */
-    public function __construct(Installation $installation)
-    {
-        $this->installation = $installation;
-
+    public function __construct(
+        protected Installation $installation
+    ) {
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('install')
@@ -57,10 +46,7 @@ class InstallCommand extends AbstractCommand
             );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function fire()
+    protected function fire(): int
     {
         $this->init();
 
@@ -77,9 +63,11 @@ class InstallCommand extends AbstractCommand
 
             return 1;
         }
+
+        return Command::SUCCESS;
     }
 
-    protected function init()
+    protected function init(): void
     {
         if ($this->input->getOption('file')) {
             $this->dataSource = new FileDataProvider($this->input);
@@ -90,7 +78,7 @@ class InstallCommand extends AbstractCommand
         }
     }
 
-    protected function install()
+    protected function install(): void
     {
         $pipeline = $this->dataSource->configure(
             $this->installation->configPath($this->input->getOption('config'))
@@ -99,7 +87,7 @@ class InstallCommand extends AbstractCommand
         $this->runPipeline($pipeline);
     }
 
-    private function runPipeline(Pipeline $pipeline)
+    private function runPipeline(Pipeline $pipeline): void
     {
         $pipeline
             ->on('start', function (Step $step) {
@@ -115,7 +103,7 @@ class InstallCommand extends AbstractCommand
             ->run();
     }
 
-    protected function showProblems($problems)
+    protected function showProblems($problems): void
     {
         $this->output->writeln(
             '<error>Please fix the following problems before we can continue with the installation.</error>'

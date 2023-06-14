@@ -14,18 +14,14 @@ use Illuminate\Support\Arr;
 
 class FileVersioner implements VersionerInterface
 {
-    /**
-     * @var Filesystem
-     */
-    protected $filesystem;
     const REV_MANIFEST = 'rev-manifest.json';
 
-    public function __construct(Filesystem $filesystem)
-    {
-        $this->filesystem = $filesystem;
+    public function __construct(
+        protected Filesystem $filesystem
+    ) {
     }
 
-    public function putRevision(string $file, ?string $revision)
+    public function putRevision(string $file, ?string $revision): void
     {
         if ($this->filesystem->exists(static::REV_MANIFEST)) {
             $manifest = json_decode($this->filesystem->get(static::REV_MANIFEST), true);

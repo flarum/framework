@@ -15,11 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ScopePostVisibility
 {
-    /**
-     * @param User $actor
-     * @param Builder $query
-     */
-    public function __invoke(User $actor, $query)
+    public function __invoke(User $actor, Builder $query): void
     {
         // Make sure the post's discussion is visible as well.
         $query->whereExists(function ($query) use ($actor) {

@@ -19,5 +19,5 @@ interface Reporter
      * @param Throwable $error
      * @return void
      */
-    public function report(Throwable $error);
+    public function report(Throwable $error): void;
 }

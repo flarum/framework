@@ -26,7 +26,7 @@ class BeginTransactionAndSetDatabase implements ExtenderInterface
         $this->setDbOnTestCase = $setDbOnTestCase;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         $db = $container->make(ConnectionInterface::class);
 

@@ -13,48 +13,28 @@ use Flarum\Console\AbstractCommand;
 use Flarum\Foundation\Paths;
 use Illuminate\Database\Connection;
 use Illuminate\Database\MySqlConnection;
+use Symfony\Component\Console\Command\Command;
 
 class GenerateDumpCommand extends AbstractCommand
 {
-    /**
-     * @var Connection
-     */
-    protected $connection;
-
-    /**
-     * @var Paths
-     */
-    protected $paths;
-
-    /**
-     * @param Connection $connection
-     * @param Paths $paths
-     */
-    public function __construct(Connection $connection, Paths $paths)
-    {
-        $this->connection = $connection;
-        $this->paths = $paths;
-
+    public function __construct(
+        protected Connection $connection,
+        protected Paths $paths
+    ) {
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('schema:dump')
             ->setDescription('Dump DB schema');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function fire()
+    protected function fire(): int
     {
         $dumpPath = __DIR__.'/../../../migrations/install.dump';
-        /** @var Connection&MySqlConnection */
+        /** @var Connection&MySqlConnection $connection */
         $connection = resolve('db.connection');
 
         $connection
@@ -76,7 +56,7 @@ class GenerateDumpCommand extends AbstractCommand
         $dump = file($dumpPath);
         foreach ($dump as $line) {
             foreach ($coreDataMigrations as $excludeMigrationId) {
-                if (strpos($line, $excludeMigrationId) !== false) {
+                if (str_contains($line, $excludeMigrationId)) {
                     continue 2;
                 }
             }
@@ -84,5 +64,7 @@ class GenerateDumpCommand extends AbstractCommand
         }
 
         file_put_contents($dumpPath, implode($newDump));
+
+        return Command::SUCCESS;
     }
 }

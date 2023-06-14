@@ -9,17 +9,9 @@ export default function addStickyControl() {
     if (discussion.canSticky()) {
       items.add(
         'sticky',
-        Button.component(
-          {
-            icon: 'fas fa-thumbtack',
-            onclick: this.stickyAction.bind(discussion),
-          },
-          app.translator.trans(
-            discussion.isSticky()
-              ? 'flarum-sticky.forum.discussion_controls.unsticky_button'
-              : 'flarum-sticky.forum.discussion_controls.sticky_button'
-          )
-        )
+        <Button icon="fas fa-thumbtack" onclick={this.stickyAction.bind(discussion)}>
+          {app.translator.trans(`flarum-sticky.forum.discussion_controls.${discussion.isSticky() ? 'unsticky' : 'sticky'}_button`)}
+        </Button>
       );
     }
   });

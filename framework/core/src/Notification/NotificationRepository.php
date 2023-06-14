@@ -11,18 +11,11 @@ namespace Flarum\Notification;
 
 use Carbon\Carbon;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Collection;
 
 class NotificationRepository
 {
-    /**
-     * Find a user's notifications.
-     *
-     * @param User $user
-     * @param int|null $limit
-     * @param int $offset
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function findByUser(User $user, $limit = null, $offset = 0)
+    public function findByUser(User $user, ?int $limit = null, int $offset = 0): Collection
     {
         $primaries = Notification::query()
             ->selectRaw('MAX(id) AS id')
@@ -43,22 +36,16 @@ class NotificationRepository
             ->get();
     }
 
-    /**
-     * Mark all of a user's notifications as read.
-     *
-     * @param User $user
-     *
-     * @return void
-     */
-    public function markAllAsRead(User $user)
+    public function markAllAsRead(User $user): void
     {
-        Notification::where('user_id', $user->id)
+        Notification::query()
+            ->where('user_id', $user->id)
             ->whereNull('read_at')
             ->update(['read_at' => Carbon::now()]);
     }
 
-    public function deleteAll(User $user)
+    public function deleteAll(User $user): void
     {
-        Notification::where('user_id', $user->id)->delete();
+        Notification::query()->where('user_id', $user->id)->delete();
     }
 }

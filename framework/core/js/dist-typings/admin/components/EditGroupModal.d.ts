@@ -1,4 +1,3 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
 import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
 import Group from '../../common/models/Group';
 import ItemList from '../../common/utils/ItemList';
@@ -20,9 +19,9 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
     isHidden: Stream<boolean>;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     className(): string;
-    title(): (Mithril.Vnode<{}, {}> | import("@askvortsov/rich-icu-message-formatter").NestedStringArray)[];
+    title(): JSX.Element;
     content(): JSX.Element;
-    fields(): ItemList<unknown>;
+    fields(): ItemList<Mithril.Children>;
     submitData(): {
         nameSingular: string;
         namePlural: string;

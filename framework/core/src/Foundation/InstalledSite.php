@@ -15,6 +15,7 @@ use Flarum\Bus\BusServiceProvider;
 use Flarum\Console\ConsoleServiceProvider;
 use Flarum\Database\DatabaseServiceProvider;
 use Flarum\Discussion\DiscussionServiceProvider;
+use Flarum\Extend\ExtenderInterface;
 use Flarum\Extension\ExtensionServiceProvider;
 use Flarum\Filesystem\FilesystemServiceProvider;
 use Flarum\Filter\FilterServiceProvider;
@@ -38,37 +39,27 @@ use Illuminate\Cache\Repository as CacheRepository;
 use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Cache\Store;
-use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Hashing\HashServiceProvider;
 use Illuminate\Validation\ValidationServiceProvider;
 use Illuminate\View\ViewServiceProvider;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\RotatingFileHandler;
+use Monolog\Level;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 
 class InstalledSite implements SiteInterface
 {
     /**
-     * @var Paths
+     * @var ExtenderInterface[]
      */
-    protected $paths;
+    protected array $extenders = [];
 
-    /**
-     * @var Config
-     */
-    protected $config;
-
-    /**
-     * @var \Flarum\Extend\ExtenderInterface[]
-     */
-    protected $extenders = [];
-
-    public function __construct(Paths $paths, Config $config)
-    {
-        $this->paths = $paths;
-        $this->config = $config;
+    public function __construct(
+        protected Paths $paths,
+        protected Config $config
+    ) {
     }
 
     /**
@@ -85,7 +76,7 @@ class InstalledSite implements SiteInterface
     }
 
     /**
-     * @param \Flarum\Extend\ExtenderInterface[] $extenders
+     * @param ExtenderInterface[] $extenders
      * @return InstalledSite
      */
     public function extendWith(array $extenders): self
@@ -97,7 +88,7 @@ class InstalledSite implements SiteInterface
 
     protected function bootLaravel(): Container
     {
-        $container = new \Illuminate\Container\Container;
+        $container = new Container;
         $laravel = new Application($container, $this->paths);
 
         $container->instance('env', 'production');
@@ -153,10 +144,7 @@ class InstalledSite implements SiteInterface
         return $container;
     }
 
-    /**
-     * @return ConfigRepository
-     */
-    protected function getIlluminateConfig()
+    protected function getIlluminateConfig(): ConfigRepository
     {
         return new ConfigRepository([
             'app' => [
@@ -174,10 +162,10 @@ class InstalledSite implements SiteInterface
         ]);
     }
 
-    protected function registerLogger(Container $container)
+    protected function registerLogger(Container $container): void
     {
         $logPath = $this->paths->storage.'/logs/flarum.log';
-        $logLevel = $this->config->inDebugMode() ? Logger::DEBUG : Logger::INFO;
+        $logLevel = $this->config->inDebugMode() ? Level::Debug : Level::Info;
         $handler = new RotatingFileHandler($logPath, 0, $logLevel);
         $handler->setFormatter(new LineFormatter(null, null, true, true));
 
@@ -185,7 +173,7 @@ class InstalledSite implements SiteInterface
         $container->alias('log', LoggerInterface::class);
     }
 
-    protected function registerCache(Container $container)
+    protected function registerCache(Container $container): void
     {
         $container->singleton('cache.store', function ($container) {
             return new CacheRepository($container->make('cache.filestore'));
