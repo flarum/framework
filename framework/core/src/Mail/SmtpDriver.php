@@ -18,8 +18,9 @@ use Symfony\Component\Mailer\Transport\TransportInterface;
 
 class SmtpDriver implements DriverInterface
 {
-    public function __construct(protected EsmtpTransportFactory $factory)
-    {
+    public function __construct(
+        protected EsmtpTransportFactory $factory
+    ) {
     }
 
     public function availableSettings(): array
