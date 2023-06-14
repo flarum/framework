@@ -11,7 +11,6 @@ namespace Flarum\Mail;
 
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Validation\Factory;
-use Illuminate\Mail\Transport\LogTransport;
 use Illuminate\Support\MessageBag;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\Transport\TransportInterface;
@@ -40,6 +39,6 @@ class LogDriver implements DriverInterface
 
     public function buildTransport(SettingsRepositoryInterface $settings): TransportInterface
     {
-        return new LogTransport($this->logger);
+        return new FlarumLogTransport($this->logger);
     }
 }
