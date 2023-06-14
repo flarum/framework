@@ -13,6 +13,7 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Validation\Factory;
+use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Mail\Mailer;
 use Illuminate\Support\Arr;
 use Symfony\Component\Mailer\Transport\TransportInterface;
@@ -60,7 +61,7 @@ class MailServiceProvider extends AbstractServiceProvider
             );
         });
 
-        $this->container->singleton('mailer', function (Container $container): Mailer {
+        $this->container->singleton('mailer', function (Container $container): MailerContract {
             $mailer = new Mailer(
                 'flarum',
                 $container['view'],
@@ -78,6 +79,6 @@ class MailServiceProvider extends AbstractServiceProvider
             return $mailer;
         });
 
-        $this->container->alias('mailer', Mailer::class);
+        $this->container->alias('mailer', MailerContract::class);
     }
 }
