@@ -23,7 +23,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class LoginProvider extends AbstractModel
 {
-    protected $casts = ['created_at' => 'datetime', 'last_login_at' => 'datetime'];
+    protected $casts = [
+        'created_at' => 'datetime',
+        'last_login_at' => 'datetime',
+    ];
 
     public $timestamps = true;
 
