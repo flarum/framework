@@ -107,9 +107,8 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
      */
     protected function getAssetsFilesystem(): Cloud
     {
-        $adaptor = new LocalFilesystemAdapter($this->paths->public.'/assets');
-        $filesystem = new \League\Flysystem\Filesystem($adaptor);
+        $adapter = new LocalFilesystemAdapter($this->paths->public.'/assets');
 
-        return new FilesystemAdapter($filesystem, $adaptor);
+        return new FilesystemAdapter(new \League\Flysystem\Filesystem($adapter), $adapter);
     }
 }

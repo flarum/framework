@@ -69,9 +69,8 @@ class ValidateCustomLess
 
         $assetsDir = $this->assets->getAssetsDir();
 
-        $adaptor = new InMemoryFilesystemAdapter();
-        $filesystem = new Filesystem($adaptor);
-        $this->assets->setAssetsDir(new FilesystemAdapter($filesystem, $adaptor));
+        $adapter = new InMemoryFilesystemAdapter();
+        $this->assets->setAssetsDir(new FilesystemAdapter(new Filesystem($adapter), $adapter));
 
         try {
             $this->assets->makeCss()->commit();
