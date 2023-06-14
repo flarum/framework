@@ -13,13 +13,12 @@ use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 use Intervention\Image\Image;
-use Intervention\Image\ImageManager;
 
 class AvatarUploader
 {
     protected Filesystem $uploadDir;
 
-    public function __construct(Factory $filesystemFactory, protected ImageManager $imageManager)
+    public function __construct(Factory $filesystemFactory)
     {
         $this->uploadDir = $filesystemFactory->disk('flarum-avatars');
     }
