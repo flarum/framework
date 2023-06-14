@@ -16,7 +16,6 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Database\Eloquent\Model;
-use Intervention\Image\ImageManager;
 use Intervention\Image\ImageManagerStatic;
 use Mockery as m;
 
@@ -39,9 +38,7 @@ class AvatarUploaderTest extends TestCase
         $this->filesystem = m::mock(Filesystem::class);
         $this->filesystemFactory = m::mock(Factory::class);
         $this->filesystemFactory->shouldReceive('disk')->with('flarum-avatars')->andReturn($this->filesystem);
-        $this->uploader = new AvatarUploader($this->filesystemFactory, new ImageManager([
-            'driver' => 'gd'
-        ]));
+        $this->uploader = new AvatarUploader($this->filesystemFactory);
     }
 
     public function test_removing_avatar_removes_file()
