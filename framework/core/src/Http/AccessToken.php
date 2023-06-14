@@ -37,9 +37,9 @@ class AccessToken extends AbstractModel
 
     protected $table = 'access_tokens';
 
-    protected $dates = [
-        'created_at',
-        'last_activity_at',
+    protected $casts = [
+        'created_at' => 'datetime',
+        'last_activity_at' => 'datetime',
     ];
 
     /**
@@ -94,7 +94,7 @@ class AccessToken extends AbstractModel
      * Update the time of last usage of a token.
      * If a request object is provided, the IP address and User Agent will also be logged.
      */
-    public function touch(?ServerRequestInterface $request = null): bool
+    public function touch($attribute = null, ServerRequestInterface $request = null): bool
     {
         $now = Carbon::now();
 

@@ -39,13 +39,13 @@ use Illuminate\Cache\Repository as CacheRepository;
 use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Cache\Store;
-use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Hashing\HashServiceProvider;
 use Illuminate\Validation\ValidationServiceProvider;
 use Illuminate\View\ViewServiceProvider;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\RotatingFileHandler;
+use Monolog\Level;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 
@@ -88,7 +88,7 @@ class InstalledSite implements SiteInterface
 
     protected function bootLaravel(): Container
     {
-        $container = new \Illuminate\Container\Container;
+        $container = new Container;
         $laravel = new Application($container, $this->paths);
 
         $container->instance('env', 'production');
@@ -165,7 +165,7 @@ class InstalledSite implements SiteInterface
     protected function registerLogger(Container $container): void
     {
         $logPath = $this->paths->storage.'/logs/flarum.log';
-        $logLevel = $this->config->inDebugMode() ? Logger::DEBUG : Logger::INFO;
+        $logLevel = $this->config->inDebugMode() ? Level::Debug : Level::Info;
         $handler = new RotatingFileHandler($logPath, 0, $logLevel);
         $handler->setFormatter(new LineFormatter(null, null, true, true));
 

@@ -26,7 +26,7 @@ class Permission extends AbstractModel
      *
      * @var array
      */
-    protected $dates = ['created_at'];
+    protected $casts = ['created_at' => 'datetime'];
 
     public function group(): BelongsTo
     {

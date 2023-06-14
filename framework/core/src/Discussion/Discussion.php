@@ -70,19 +70,15 @@ class Discussion extends AbstractModel
     protected array $modifiedPosts = [];
 
     /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['created_at', 'last_posted_at', 'hidden_at'];
-
-    /**
      * The attributes that should be cast to native types.
      *
      * @var array
      */
     protected $casts = [
-        'is_private' => 'boolean'
+        'is_private' => 'boolean',
+        'created_at' => 'datetime',
+        'last_posted_at' => 'datetime',
+        'hidden_at' => 'datetime',
     ];
 
     /**

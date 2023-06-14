@@ -29,7 +29,7 @@ class EmailToken extends AbstractModel
      *
      * @var array
      */
-    protected $dates = ['created_at'];
+    protected $casts = ['created_at' => 'datetime'];
 
     /**
      * Use a custom primary key for this model.

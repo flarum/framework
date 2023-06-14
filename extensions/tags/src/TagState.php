@@ -29,7 +29,7 @@ class TagState extends AbstractModel
 
     protected $table = 'tag_user';
 
-    protected $dates = ['marked_as_read_at'];
+    protected $casts = ['marked_as_read_at' => 'datetime'];
 
     public function tag(): BelongsTo
     {

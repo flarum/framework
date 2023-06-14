@@ -62,16 +62,11 @@ class User extends AbstractModel
     use ScopeVisibilityTrait;
     use HasEagerLimit;
 
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = [
-        'joined_at',
-        'last_seen_at',
-        'marked_all_as_read_at',
-        'read_notifications_at'
+    protected $casts = [
+        'joined_at' => 'datetime',
+        'last_seen_at' => 'datetime',
+        'marked_all_as_read_at' => 'datetime',
+        'read_notifications_at' => 'datetime',
     ];
 
     /**

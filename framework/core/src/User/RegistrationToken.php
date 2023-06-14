@@ -27,16 +27,10 @@ use Illuminate\Support\Str;
  */
 class RegistrationToken extends AbstractModel
 {
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['created_at'];
-
     protected $casts = [
         'user_attributes' => 'array',
-        'payload' => 'array'
+        'payload' => 'array',
+        'created_at' => 'datetime'
     ];
 
     /**

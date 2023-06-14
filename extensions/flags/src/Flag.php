@@ -31,7 +31,7 @@ class Flag extends AbstractModel
 {
     use ScopeVisibilityTrait;
 
-    protected $dates = ['created_at'];
+    protected $casts = ['created_at' => 'datetime'];
 
     public function post(): BelongsTo
     {

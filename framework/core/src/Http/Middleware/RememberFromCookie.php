@@ -33,7 +33,7 @@ class RememberFromCookie implements Middleware
             $token = AccessToken::findValid($id);
 
             if ($token && $token instanceof RememberAccessToken) {
-                $token->touch($request);
+                $token->touch(request: $request);
 
                 /** @var \Illuminate\Contracts\Session\Session $session */
                 $session = $request->getAttribute('session');

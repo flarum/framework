@@ -18,7 +18,7 @@ trait ScopeVisibilityTrait
     /**
      * @todo: define clear scoper interfaces.
      *
-     * @var array<string, array<string, callable(User, Builder, ?string $ability): void>>
+     * @var array<string, array<string, callable(User, Builder, ?string): void>>
      */
     protected static array $visibilityScopers = [];
 

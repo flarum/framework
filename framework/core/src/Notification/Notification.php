@@ -52,7 +52,7 @@ class Notification extends AbstractModel
      *
      * @var array
      */
-    protected $dates = ['created_at', 'read_at'];
+    protected $casts = ['created_at' => 'datetime', 'read_at' => 'datetime'];
 
     /**
      * A map of notification types and the model classes to use for their

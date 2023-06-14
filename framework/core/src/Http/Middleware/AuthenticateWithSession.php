@@ -41,7 +41,7 @@ class AuthenticateWithSession implements Middleware
                 $actor = $token->user;
                 $actor->updateLastSeen()->save();
 
-                $token->touch($request);
+                $token->touch(request: $request);
 
                 return $actor;
             }

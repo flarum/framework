@@ -14,7 +14,7 @@ use Symfony\Component\Translation\MessageCatalogue;
 
 class PrefixedYamlFileLoader extends YamlFileLoader
 {
-    public function load($resource, $locale, $domain = 'messages'): MessageCatalogue
+    public function load(mixed $resource, $locale, $domain = 'messages'): MessageCatalogue
     {
         $catalogue = parent::load($resource['file'], $locale, $domain);
 

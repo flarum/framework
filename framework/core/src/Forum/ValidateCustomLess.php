@@ -18,8 +18,8 @@ use Flarum\Settings\OverrideSettingsRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\FilesystemAdapter;
-use League\Flysystem\Adapter\NullAdapter;
 use League\Flysystem\Filesystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use Less_Exception_Parser;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -68,7 +68,9 @@ class ValidateCustomLess
         );
 
         $assetsDir = $this->assets->getAssetsDir();
-        $this->assets->setAssetsDir(new FilesystemAdapter(new Filesystem(new NullAdapter)));
+
+        $adapter = new InMemoryFilesystemAdapter();
+        $this->assets->setAssetsDir(new FilesystemAdapter(new Filesystem($adapter), $adapter));
 
         try {
             $this->assets->makeCss()->commit();

@@ -21,8 +21,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\Filesystem as FlysystemFilesystem;
+use League\Flysystem\Local\LocalFilesystemAdapter;
 
 class ExtensionManagerIncludeCurrent extends ExtensionManager
 {
@@ -108,6 +107,8 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
      */
     protected function getAssetsFilesystem(): Cloud
     {
-        return new FilesystemAdapter(new FlysystemFilesystem(new Local($this->paths->public.'/assets'), ['url' => resolve('flarum.config')->url().'/assets']));
+        $adapter = new LocalFilesystemAdapter($this->paths->public.'/assets');
+
+        return new FilesystemAdapter(new \League\Flysystem\Filesystem($adapter), $adapter);
     }
 }

@@ -54,16 +54,12 @@ class Tag extends AbstractModel
 
     protected $table = 'tags';
 
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['last_posted_at', 'created_at', 'updated_at'];
-
     protected $casts = [
         'is_hidden' => 'bool',
-        'is_restricted' => 'bool'
+        'is_restricted' => 'bool',
+        'last_posted_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public static function boot()

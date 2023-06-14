@@ -12,11 +12,17 @@ namespace Flarum\Mail;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Support\MessageBag;
-use Swift_SmtpTransport;
-use Swift_Transport;
+use Symfony\Component\Mailer\Transport\Dsn;
+use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory;
+use Symfony\Component\Mailer\Transport\TransportInterface;
 
 class SmtpDriver implements DriverInterface
 {
+    public function __construct(
+        protected EsmtpTransportFactory $factory
+    ) {
+    }
+
     public function availableSettings(): array
     {
         return [
@@ -44,17 +50,14 @@ class SmtpDriver implements DriverInterface
         return true;
     }
 
-    public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport
+    public function buildTransport(SettingsRepositoryInterface $settings): TransportInterface
     {
-        $transport = new Swift_SmtpTransport(
+        return $this->factory->create(new Dsn(
+            $settings->get('mail_encryption') === 'tls' ? 'smtps' : '',
             $settings->get('mail_host'),
-            $settings->get('mail_port'),
-            $settings->get('mail_encryption')
-        );
-
-        $transport->setUsername($settings->get('mail_username'));
-        $transport->setPassword($settings->get('mail_password'));
-
-        return $transport;
+            $settings->get('mail_username'),
+            $settings->get('mail_password'),
+            $settings->get('mail_port')
+        ));
     }
 }

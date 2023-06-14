@@ -27,7 +27,7 @@ use Illuminate\Support\Str;
  */
 class ApiKey extends AbstractModel
 {
-    protected $dates = ['last_activity_at'];
+    protected $casts = ['last_activity_at' => 'datetime'];
 
     public static function generate(): static
     {
@@ -38,7 +38,7 @@ class ApiKey extends AbstractModel
         return $key;
     }
 
-    public function touch(): bool
+    public function touch($attribute = null): bool
     {
         $this->last_activity_at = Carbon::now();
 
