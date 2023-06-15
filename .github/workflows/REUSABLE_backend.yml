@@ -94,24 +94,10 @@ jobs:
             prefix: flarum_
             prefixStr: (prefix)
 
-          # @TODO: remove in 2.0
-          # Include testing PHP 8.2 with deprecation warnings disabled.
-          - php: 8.2
-            php_ini_values: error_reporting=E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED
-
         # To reduce number of actions, we exclude some PHP versions from running with some DB versions.
         exclude:
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
             service: 'mysql:8.0.30'
-          - php: ${{ fromJSON(inputs.php_versions)[2] }}
-            service: 'mysql:8.0.30'
-          - php: ${{ fromJSON(inputs.php_versions)[3] }}
-            service: 'mysql:8.0.30'
-
-          # @TODO: remove in 2.0
-          # Exclude testing PHP 8.2 with deprecation warnings enabled.
-          - php: 8.2
-            php_ini_values: error_reporting=E_ALL
 
     services:
       mysql:
@@ -137,14 +123,10 @@ jobs:
           tools: phpunit, composer:v2
           ini-values: ${{ matrix.php_ini_values }}
 
-      # The authentication alter is necessary because newer mysql versions use the `caching_sha2_password` driver,
-      # which isn't supported prior to PHP7.4
-      # When we drop support for PHP7.3, we should remove this from the setup.
       - name: Create MySQL Database
         run: |
           sudo systemctl start mysql
           mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 13306
-          mysql -uroot -proot -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';" --port 13306
 
       - name: Install Composer dependencies
         run: composer install
@@ -180,6 +162,12 @@ jobs:
       matrix:
         php: ${{ fromJSON(inputs.php_versions) }}
 
+    services:
+      mysql:
+        image: mysql:8.0.30
+        ports:
+          - 33306:3306
+
     name: 'PHPStan PHP ${{ matrix.php }}'
 
     if: >-
@@ -202,5 +190,15 @@ jobs:
         run: composer install
         working-directory: ${{ inputs.backend_directory }}
 
+      - name: Create MySQL Database
+        run: |
+          sudo systemctl start mysql
+          mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 33306
+
       - name: Run PHPStan
         run: composer analyse:phpstan
+        env:
+          DB_PORT: 33306
+          DB_PASSWORD: root
+          COMPOSER_PROCESS_TIMEOUT: 600
+          FLARUM_TEST_TMP_DIR_LOCAL: ./tmp
