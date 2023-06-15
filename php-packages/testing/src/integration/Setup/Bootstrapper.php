@@ -33,8 +33,20 @@ class Bootstrapper
     ) {
     }
 
+    public function setupOnce(): void
+    {
+        $tmp = $this->tmpDir();
+
+        if (! file_exists("$tmp/config.php")) {
+            $setup = new SetupScript();
+            $setup->run();
+        }
+    }
+
     public function run(): InstalledSite
     {
+        $this->setupOnce();
+
         $tmp = $this->tmpDir();
 
         $config = include "$tmp/config.php";
