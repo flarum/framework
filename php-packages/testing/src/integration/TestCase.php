@@ -21,6 +21,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
+    use UsesTmpDir;
     use BuildsHttpRequests;
 
     /**
