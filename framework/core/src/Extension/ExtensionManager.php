@@ -73,31 +73,18 @@ class ExtensionManager
                     $composerJsonConfs[$packagePath] = $package;
                 }
 
-                if ($subextPaths = Arr::get($package, 'extra.flarum-subextensions', [])) {
-                    foreach ($subextPaths as $subExtPath) {
-                        $subPackagePath = "$packagePath/$subExtPath";
-                        $conf = json_decode($this->filesystem->get("$subPackagePath/composer.json"), true);
-
-                        if (Arr::get($conf, 'type') === 'flarum-extension') {
-                            $composerJsonConfs[$subPackagePath] = $conf;
-                        }
-                    }
+                if ($subExtConfs = $this->subExtensionConfsFromJson($package, $packagePath)) {
+                    $composerJsonConfs = array_merge($composerJsonConfs, $subExtConfs);
                 }
             }
 
             foreach ($composerJsonConfs as $path => $package) {
                 $installedSet[Arr::get($package, 'name')] = true;
-
-                // Instantiates an Extension object using the package path and composer.json file.
-                $extension = new Extension($path, $package);
-
-                // Per default all extensions are installed if they are registered in composer.
-                $extension->setInstalled(true);
-                $extension->setVersion(Arr::get($package, 'version'));
-
+                $extension = $this->extensionFromJson($package, $path);
                 $extensions->put($extension->getId(), $extension);
             }
 
+            /** @var Extension $extension */
             foreach ($extensions as $extension) {
                 $extension->calculateDependencies($installedSet);
             }
@@ -471,5 +458,37 @@ class ExtensionManager
             'missingDependencies' => $missingDependencies,
             'circularDependencies' => $circularDependencies
         ];
+    }
+
+    protected function extensionFromJson(array $package, string $path): Extension
+    {
+        // Instantiates an Extension object using the package path and composer.json file.
+        $extension = new Extension($path, $package);
+
+        // Per default all extensions are installed if they are registered in composer.
+        $extension->setInstalled(true);
+        $extension->setVersion(Arr::get($package, 'version', '0.0'));
+
+        return $extension;
+    }
+
+    protected function subExtensionConfsFromJson(array $package, string $packagePath): ?array
+    {
+        if (! ($subExtPaths = Arr::get($package, 'extra.flarum-subextensions', []))) {
+            return null;
+        }
+
+        $subExtConfs = [];
+
+        foreach ($subExtPaths as $subExtPath) {
+            $subPackagePath = "$packagePath/$subExtPath";
+            $conf = json_decode($this->filesystem->get("$subPackagePath/composer.json"), true);
+
+            if (Arr::get($conf, 'type') === 'flarum-extension') {
+                $subExtConfs[$subPackagePath] = $conf;
+            }
+        }
+
+        return $subExtConfs;
     }
 }

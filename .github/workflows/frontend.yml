@@ -1,4 +1,4 @@
-name: Framework JS
+name: Frontend Workflow
 
 on: [workflow_dispatch, push, pull_request]
 
