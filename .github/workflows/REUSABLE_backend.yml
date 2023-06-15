@@ -202,5 +202,14 @@ jobs:
         run: composer install
         working-directory: ${{ inputs.backend_directory }}
 
+      - name: Bootstrap Flarum
+        run: composer test:setup
+        working-directory: ${{ inputs.backend_directory }}
+        env:
+          DB_PORT: 13306
+          DB_PASSWORD: root
+          DB_PREFIX: ${{ matrix.prefix }}
+          COMPOSER_PROCESS_TIMEOUT: 600
+
       - name: Run PHPStan
         run: composer analyse:phpstan
