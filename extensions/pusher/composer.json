@@ -20,7 +20,7 @@
     ],
     "require": {
         "flarum/core": "^2.0",
-        "pusher/pusher-php-server": "^2.2"
+        "pusher/pusher-php-server": "^7.2"
     },
     "require-dev": {
         "flarum/tags": "^1.0"

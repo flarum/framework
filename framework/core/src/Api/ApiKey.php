@@ -21,13 +21,18 @@ use Illuminate\Support\Str;
  * @property string|null $allowed_ips
  * @property string|null $scopes
  * @property int|null $user_id
- * @property \Flarum\User\User|null $user
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon|null $last_activity_at
+ * @property-read \Flarum\User\User|null $user
  */
 class ApiKey extends AbstractModel
 {
-    protected $casts = ['last_activity_at' => 'datetime'];
+    protected $casts = [
+        'id' => 'integer',
+        'user_id' => 'integer',
+        'created_at' => 'datetime',
+        'last_activity_at' => 'datetime'
+    ];
 
     public static function generate(): static
     {

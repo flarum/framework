@@ -28,8 +28,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $discussion_id
  * @property Carbon|null $last_read_at
  * @property int|null $last_read_post_number
- * @property Discussion $discussion
- * @property User $user
+ * @property-read Discussion $discussion
+ * @property-read User $user
  */
 class UserState extends AbstractModel
 {
@@ -37,12 +37,12 @@ class UserState extends AbstractModel
 
     protected $table = 'discussion_user';
 
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $casts = ['last_read_at' => 'datetime'];
+    protected $casts = [
+        'user_id' => 'integer',
+        'discussion_id' => 'integer',
+        'last_read_post_number' => 'integer',
+        'last_read_at' => 'datetime'
+    ];
 
     /**
      * The attributes that are mass assignable.

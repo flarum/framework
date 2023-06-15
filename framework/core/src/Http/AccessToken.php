@@ -29,7 +29,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @property string $title
  * @property string|null $last_ip_address
  * @property string|null $last_user_agent
- * @property \Flarum\User\User|null $user
+ * @property-read \Flarum\User\User|null $user
  */
 class AccessToken extends AbstractModel
 {
@@ -38,6 +38,8 @@ class AccessToken extends AbstractModel
     protected $table = 'access_tokens';
 
     protected $casts = [
+        'id' => 'integer',
+        'user_id' => 'integer',
         'created_at' => 'datetime',
         'last_activity_at' => 'datetime',
     ];

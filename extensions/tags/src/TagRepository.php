@@ -71,7 +71,7 @@ class TagRepository
      * Find all tags, optionally making sure they are visible to a
      * certain user.
      *
-     * @return Collection<Tag>
+     * @return Collection<int, Tag>
      */
     public function all(User $user = null): Collection
     {

@@ -12,7 +12,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Http\RememberAccessToken;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\SessionAccessToken;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Psr\Http\Message\ServerRequestInterface;
 
 class TerminateAllOtherSessionsController extends AbstractDeleteController

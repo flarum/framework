@@ -33,12 +33,12 @@ use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
  * @property int|null $edited_user_id
  * @property \Carbon\Carbon|null $hidden_at
  * @property int|null $hidden_user_id
- * @property \Flarum\Discussion\Discussion|null $discussion
- * @property User|null $user
- * @property User|null $editedUser
- * @property User|null $hiddenUser
  * @property string $ip_address
  * @property bool $is_private
+ * @property-read Discussion|null $discussion
+ * @property-read User|null $user
+ * @property-read User|null $editedUser
+ * @property-read User|null $hiddenUser
  */
 class Post extends AbstractModel
 {
@@ -48,12 +48,13 @@ class Post extends AbstractModel
 
     protected $table = 'posts';
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
     protected $casts = [
+        'id' => 'integer',
+        'discussion_id' => 'integer',
+        'number' => 'integer',
+        'user_id' => 'integer',
+        'edited_user_id' => 'integer',
+        'hidden_user_id' => 'integer',
         'is_private' => 'boolean',
         'created_at' => 'datetime',
         'edited_at' => 'datetime',

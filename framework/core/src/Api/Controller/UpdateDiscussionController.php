@@ -14,6 +14,7 @@ use Flarum\Discussion\Command\EditDiscussion;
 use Flarum\Discussion\Command\ReadDiscussion;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
+use Flarum\Post\Post;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
@@ -35,6 +36,7 @@ class UpdateDiscussionController extends AbstractShowController
         $discussionId = Arr::get($request->getQueryParams(), 'id');
         $data = Arr::get($request->getParsedBody(), 'data', []);
 
+        /** @var Discussion $discussion */
         $discussion = $this->bus->dispatch(
             new EditDiscussion($discussionId, $actor, $data)
         );
@@ -50,6 +52,7 @@ class UpdateDiscussionController extends AbstractShowController
         }
 
         if ($posts = $discussion->getModifiedPosts()) {
+            /** @var Collection<int, Post> $posts */
             $posts = (new Collection($posts))->load('discussion', 'user');
             $discussionPosts = $discussion->posts()->whereVisibleTo($actor)->oldest()->pluck('id')->all();
 

@@ -37,22 +37,27 @@ use Illuminate\Support\Arr;
  * @property int|null $from_user_id
  * @property string $type
  * @property int|null $subject_id
- * @property mixed|null $data
+ * @property array|null $data
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $read_at
  * @property \Carbon\Carbon $deleted_at
- * @property \Flarum\User\User|null $user
- * @property \Flarum\User\User|null $fromUser
- * @property \Flarum\Database\AbstractModel|\Flarum\Post\Post|\Flarum\Discussion\Discussion|null $subject
+ * @property-read \Flarum\User\User|null $user
+ * @property-read \Flarum\User\User|null $fromUser
+ * @property-read \Flarum\Database\AbstractModel|\Flarum\Post\Post|\Flarum\Discussion\Discussion|null $subject
+ * @method static \Illuminate\Database\Eloquent\Builder<Notification> matchingBlueprint(BlueprintInterface $blueprint)
  */
 class Notification extends AbstractModel
 {
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $casts = ['created_at' => 'datetime', 'read_at' => 'datetime'];
+    protected $casts = [
+        'id' => 'integer',
+        'user_id' => 'integer',
+        'from_user_id' => 'integer',
+        'subject_id' => 'integer',
+        'data' => 'array',
+        'created_at' => 'datetime',
+        'read_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
 
     /**
      * A map of notification types and the model classes to use for their
@@ -67,26 +72,6 @@ class Notification extends AbstractModel
     public function read(): void
     {
         $this->read_at = Carbon::now();
-    }
-
-    /**
-     * When getting the data attribute, unserialize the JSON stored in the
-     * database into a plain array.
-     */
-    public function getDataAttribute(?string $value): mixed
-    {
-        return $value !== null
-            ? json_decode($value, true)
-            : null;
-    }
-
-    /**
-     * When setting the data attribute, serialize it into JSON for storage in
-     * the database.
-     */
-    public function setDataAttribute(mixed $value): void
-    {
-        $this->attributes['data'] = json_encode($value);
     }
 
     /**

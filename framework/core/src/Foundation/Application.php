@@ -236,4 +236,17 @@ class Application
             }
         }
     }
+
+    public function version(): string
+    {
+        return static::VERSION;
+    }
+
+    public function terminating(): void
+    {
+    }
+
+    public function terminate(): void
+    {
+    }
 }

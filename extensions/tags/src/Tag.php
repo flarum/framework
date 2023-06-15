@@ -43,8 +43,8 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  *
  * @property TagState $state
  * @property Tag|null $parent
- * @property-read Collection<Tag> $children
- * @property-read Collection<Discussion> $discussions
+ * @property-read Collection<int, Tag> $children
+ * @property-read Collection<int, Discussion> $discussions
  * @property Discussion|null $lastPostedDiscussion
  * @property User|null $lastPostedUser
  */

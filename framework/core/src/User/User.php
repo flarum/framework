@@ -63,6 +63,8 @@ class User extends AbstractModel
     use HasEagerLimit;
 
     protected $casts = [
+        'id' => 'integer',
+        'is_email_confirmed' => 'boolean',
         'joined_at' => 'datetime',
         'last_seen_at' => 'datetime',
         'marked_all_as_read_at' => 'datetime',

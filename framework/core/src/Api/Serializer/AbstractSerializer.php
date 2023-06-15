@@ -164,11 +164,9 @@ abstract class AbstractSerializer extends BaseAbstractSerializer
     {
         if (is_object($model)) {
             return $model->$relation;
-        } elseif (is_array($model)) {
-            return $model[$relation];
         }
 
-        return null;
+        return $model[$relation];
     }
 
     /**

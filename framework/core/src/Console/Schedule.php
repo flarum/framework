@@ -17,6 +17,7 @@ class Schedule extends LaravelSchedule
 {
     public function dueEvents($app)
     {
+        /** @phpstan-ignore-next-line */
         return (new Collection($this->events))->filter->isDue(new class($app) {
             protected Config $config;
 

@@ -38,7 +38,7 @@ class DiscussionRepository
      * Get the IDs of discussions which a user has read completely.
      *
      * @param User $user
-     * @return Collection<Discussion>
+     * @return Collection<int, Discussion>
      * @deprecated 1.3 Use `getReadIdsQuery` instead
      */
     public function getReadIds(User $user): Collection

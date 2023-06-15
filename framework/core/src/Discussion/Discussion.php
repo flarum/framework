@@ -46,16 +46,16 @@ use Illuminate\Support\Str;
  * @property int|null $last_post_number
  * @property \Carbon\Carbon|null $hidden_at
  * @property int|null $hidden_user_id
- * @property UserState|null $state
- * @property \Illuminate\Database\Eloquent\Collection $posts
- * @property \Illuminate\Database\Eloquent\Collection $comments
- * @property \Illuminate\Database\Eloquent\Collection $participants
- * @property Post|null $firstPost
- * @property User|null $user
- * @property Post|null $lastPost
- * @property User|null $lastPostedUser
- * @property \Illuminate\Database\Eloquent\Collection $readers
  * @property bool $is_private
+ * @property-read UserState|null $state
+ * @property-read \Illuminate\Database\Eloquent\Collection $posts
+ * @property-read \Illuminate\Database\Eloquent\Collection $comments
+ * @property-read \Illuminate\Database\Eloquent\Collection $participants
+ * @property-read Post|null $firstPost
+ * @property-read User|null $user
+ * @property-read Post|null $lastPost
+ * @property-read User|null $lastPostedUser
+ * @property-read \Illuminate\Database\Eloquent\Collection $readers
  */
 class Discussion extends AbstractModel
 {
@@ -69,12 +69,16 @@ class Discussion extends AbstractModel
      */
     protected array $modifiedPosts = [];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
     protected $casts = [
+        'id' => 'integer',
+        'comment_count' => 'integer',
+        'participant_count' => 'integer',
+        'user_id' => 'integer',
+        'first_post_id' => 'integer',
+        'last_posted_user_id' => 'integer',
+        'last_post_id' => 'integer',
+        'last_post_number' => 'integer',
+        'hidden_user_id' => 'integer',
         'is_private' => 'boolean',
         'created_at' => 'datetime',
         'last_posted_at' => 'datetime',
@@ -224,6 +228,8 @@ class Discussion extends AbstractModel
 
     /**
      * Get the posts that have been modified during this request.
+     *
+     * @return Post[]
      */
     public function getModifiedPosts(): array
     {

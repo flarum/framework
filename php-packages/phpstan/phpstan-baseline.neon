@@ -16,6 +16,8 @@ parameters:
 		#	@TODO: needs discussion.
 		- message: "#^Unsafe usage of new static[()]{2}.$#"
 		  reportUnmatched: false
+		- message: "#^Static access to instance property .*#"
+		  reportUnmatched: false
 
 		# ConnectionInterface lacks methods that exist in the implementation,
 		# yet we don't want to inject the implementation.

@@ -96,6 +96,7 @@ class UpdateTagMetadata
     }
 
     /**
+     * @param Collection<int, Tag>|null $tags
      * @param Post|null $post This is only used when a post has been hidden
      */
     protected function updateTags(Discussion $discussion, int $delta = 0, ?Collection $tags = null, ?Post $post = null): void

@@ -19,8 +19,8 @@ use Illuminate\Database\ConnectionInterface;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
+use League\Flysystem\Local\LocalFilesystemAdapter;
 
 class EnableBundledExtensions implements Step
 {
@@ -68,8 +68,9 @@ class EnableBundledExtensions implements Step
 
         foreach ($extensions as $extension) {
             $extension->migrate($this->getMigrator());
+            $adapter = new LocalFilesystemAdapter($this->assetPath);
             $extension->copyAssetsTo(
-                new FilesystemAdapter(new Filesystem(new Local($this->assetPath)))
+                new FilesystemAdapter(new Filesystem($adapter), $adapter)
             );
         }
 
@@ -81,7 +82,7 @@ class EnableBundledExtensions implements Step
     }
 
     /**
-     * @return Collection<Extension>
+     * @return Collection<string, Extension>
      */
     private function loadExtensions(): Collection
     {

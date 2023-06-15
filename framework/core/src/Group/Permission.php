@@ -21,12 +21,10 @@ class Permission extends AbstractModel
 {
     protected $table = 'group_permission';
 
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $casts = ['created_at' => 'datetime'];
+    protected $casts = [
+        'group_id' => 'integer',
+        'created_at' => 'datetime'
+    ];
 
     public function group(): BelongsTo
     {
