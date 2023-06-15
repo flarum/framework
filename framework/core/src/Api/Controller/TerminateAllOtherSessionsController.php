@@ -13,6 +13,7 @@ use Flarum\Http\RememberAccessToken;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\SessionAccessToken;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Psr\Http\Message\ServerRequestInterface;
 
 class TerminateAllOtherSessionsController extends AbstractDeleteController
@@ -30,7 +31,7 @@ class TerminateAllOtherSessionsController extends AbstractDeleteController
         $actor
             ->accessTokens()
             ->where('token', '!=', $sessionAccessToken)
-            ->where(function (Builder $query) {
+            ->where(function (HasMany $query) {
                 $query
                     ->where('type', SessionAccessToken::$type)
                     ->orWhere('type', RememberAccessToken::$type);

@@ -137,7 +137,7 @@ class ShowDiscussionController extends AbstractShowController
 
         /** @var Post $post */
         foreach ($posts as $post) {
-            $post->discussion = $discussion;
+            $post->setRelation('discussion', $discussion);
         }
 
         $this->loadRelations($posts, $include, $request);

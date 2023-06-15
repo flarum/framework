@@ -11,7 +11,7 @@ namespace Flarum\Pusher\Provider;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Pusher;
+use Pusher\Pusher;
 
 class PusherProvider extends AbstractServiceProvider
 {
@@ -30,7 +30,6 @@ class PusherProvider extends AbstractServiceProvider
                 $settings->get('flarum-pusher.app_key'),
                 $settings->get('flarum-pusher.app_secret'),
                 $settings->get('flarum-pusher.app_id'),
-                // @phpstan-ignore-next-line
                 $options
             );
         });

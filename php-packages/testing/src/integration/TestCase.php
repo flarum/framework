@@ -10,12 +10,7 @@
 namespace Flarum\Testing\integration;
 
 use Flarum\Extend\ExtenderInterface;
-use Flarum\Foundation\Config;
-use Flarum\Foundation\InstalledSite;
-use Flarum\Foundation\Paths;
-use Flarum\Testing\integration\Extend\BeginTransactionAndSetDatabase;
-use Flarum\Testing\integration\Extend\OverrideExtensionManagerForTests;
-use Flarum\Testing\integration\Extend\SetSettingsBeforeBoot;
+use Flarum\Testing\integration\Setup\Bootstrapper;
 use Illuminate\Contracts\Cache\Store;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Arr;
@@ -27,7 +22,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
     use BuildsHttpRequests;
-    use UsesTmpDir;
 
     /**
      * @inheritDoc
@@ -51,35 +45,16 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     protected function app()
     {
         if (is_null($this->app)) {
-            $tmp = $this->tmpDir();
-
-            $config = include "$tmp/config.php";
-
-            foreach ($this->config as $key => $value) {
-                Arr::set($config, $key, $value);
-            }
-
-            $site = new InstalledSite(
-                new Paths([
-                    'base' => $tmp,
-                    'public' => "$tmp/public",
-                    'storage' => "$tmp/storage",
-                    'vendor' => getcwd().'/vendor',
-                ]),
-                new Config($config)
+            $bootstrapper = new Bootstrapper(
+                $this->config,
+                $this->extensions,
+                $this->settings,
+                $this->extenders
             );
 
-            $extenders = array_merge([
-                new OverrideExtensionManagerForTests($this->extensions),
-                new BeginTransactionAndSetDatabase(function (ConnectionInterface $db) {
-                    $this->database = $db;
-                }),
-                new SetSettingsBeforeBoot($this->settings),
-            ], $this->extenders);
+            $this->database = $bootstrapper->database;
 
-            $site->extendWith($extenders);
-
-            $this->app = $site->bootApp();
+            $this->app = $bootstrapper->run()->bootApp();
 
             $this->populateDatabase();
         }

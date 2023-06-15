@@ -16,6 +16,7 @@ use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\PropertyReflection;
 use PHPStan\TrinaryLogic;
 use PHPStan\Type\Generic\GenericObjectType;
+use PHPStan\Type\IntegerType;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\Type;
 
@@ -59,18 +60,14 @@ class RelationProperty implements PropertyReflection
 
     public function getReadableType(): Type
     {
-        switch ($this->methodCall->methodName) {
-            case 'hasMany':
-            case 'belongsToMany':
-                return new GenericObjectType(Collection::class, [new ObjectType($this->methodCall->arguments[1]->class->toString())]);
-
-            case 'hasOne':
-            case 'belongsTo':
-                return new ObjectType($this->methodCall->arguments[1]->class->toString());
-
-            default:
-                throw new Exception('Unknown relationship type for relation: '.$this->methodCall->methodName);
-        }
+        return match ($this->methodCall->methodName) {
+            'hasMany', 'belongsToMany' => new GenericObjectType(Collection::class, [
+                new IntegerType(),
+                new ObjectType($this->methodCall->arguments[1]->class->toString())
+            ]),
+            'hasOne', 'belongsTo' => new ObjectType($this->methodCall->arguments[1]->class->toString()),
+            default => throw new Exception('Unknown relationship type for relation: ' . $this->methodCall->methodName),
+        };
     }
 
     public function getWritableType(): Type

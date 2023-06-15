@@ -12,6 +12,7 @@ namespace Flarum\Mentions;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Group\Group;
 use Flarum\Http\UrlGenerator;
+use Flarum\Post\Post;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Tag;
 use Flarum\User\User;
@@ -80,10 +81,10 @@ class ConfigureMentions
 
     /**
      * @param FormatterTag $tag
-     * @param array<string, Collection> $mentions
+     * @param array{users: Collection<int, User>} $mentions
      * @return bool|void
      */
-    public static function addUserId($tag, array $mentions)
+    public static function addUserId(FormatterTag $tag, array $mentions)
     {
         $allow_username_format = (bool) resolve(SettingsRepositoryInterface::class)->get('flarum-mentions.allow_username_format');
 
@@ -139,10 +140,10 @@ class ConfigureMentions
 
     /**
      * @param FormatterTag $tag
-     * @param array<string, Collection> $mentions
+     * @param array{posts: Collection<int, Post>} $mentions
      * @return bool|void
      */
-    public static function addPostId($tag, array $mentions)
+    public static function addPostId(FormatterTag $tag, array $mentions)
     {
         $post = $mentions['posts']->where('id', $tag->getAttribute('id'))->first();
 
@@ -212,7 +213,7 @@ class ConfigureMentions
     /**
      * @param FormatterTag $tag
      * @param User $actor
-     * @param array<string, Collection> $mentions
+     * @param array{groups: Collection<int, Group>} $mentions
      * @return bool|void
      */
     public static function addGroupId(FormatterTag $tag, User $actor, array $mentions)
@@ -228,7 +229,7 @@ class ConfigureMentions
         $group = $mentions['groups']->where('id', $id)->first();
 
         if ($group) {
-            $tag->setAttribute('id', $group->id);
+            $tag->setAttribute('id', (string) $group->id);
             $tag->setAttribute('groupname', $group->name_plural);
 
             return true;
@@ -301,7 +302,7 @@ class ConfigureMentions
 
     /**
      * @param FormatterTag $tag
-     * @param array<string, Collection> $mentions
+     * @param array{tags: Collection<int, Tag>} $mentions
      * @return true|void
      */
     public static function addTagId(FormatterTag $tag, array $mentions)

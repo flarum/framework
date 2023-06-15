@@ -108,7 +108,7 @@ class ExtensionManager
                 $extension = $extensions->get($enabledKey);
                 if (is_null($extension)) {
                     $needsReset = true;
-                } else {
+                } else { // @phpstan-ignore-line
                     $enabledExtensions[] = $extension;
                 }
             }

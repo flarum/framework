@@ -14,4 +14,5 @@ use Symfony\Contracts\Translation\TranslatorInterface as SymfonyTranslatorInterf
 
 interface TranslatorInterface extends Translator, SymfonyTranslatorInterface
 {
+    public function getLocale(): string;
 }

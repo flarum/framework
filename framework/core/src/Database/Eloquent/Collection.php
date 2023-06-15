@@ -9,8 +9,15 @@
 
 namespace Flarum\Database\Eloquent;
 
+use Flarum\Database\AbstractModel;
 use Illuminate\Database\Eloquent\Collection as BaseCollection;
 
+/**
+ * @template TKey of array-key
+ * @template TModel of AbstractModel
+ *
+ * @extends BaseCollection<TKey, TModel>
+ */
 class Collection extends BaseCollection
 {
     /**

@@ -15,6 +15,9 @@ use Illuminate\Database\Eloquent\Collection;
 
 class NotificationRepository
 {
+    /**
+     * @return Collection<int, Notification>
+     */
     public function findByUser(User $user, ?int $limit = null, int $offset = 0): Collection
     {
         $primaries = Notification::query()

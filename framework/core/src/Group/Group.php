@@ -26,8 +26,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $color
  * @property string|null $icon
  * @property bool $is_hidden
- * @property \Illuminate\Database\Eloquent\Collection $users
- * @property \Illuminate\Database\Eloquent\Collection $permissions
+ * @property-read \Illuminate\Database\Eloquent\Collection $users
+ * @property-read \Illuminate\Database\Eloquent\Collection $permissions
  */
 class Group extends AbstractModel
 {
@@ -39,12 +39,9 @@ class Group extends AbstractModel
     const MEMBER_ID = 3;
     const MODERATOR_ID = 4;
 
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
     protected $casts = [
+        'id' => 'integer',
+        'is_hidden' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

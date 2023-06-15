@@ -136,6 +136,8 @@
         "symfony/console": "^6.3",
         "symfony/event-dispatcher": "^6.3",
         "symfony/http-client": "^6.3",
+        "symfony/mailer": "^6.3",
+        "symfony/mailgun-mailer": "^6.3",
         "symfony/mime": "^6.3",
         "symfony/polyfill-intl-messageformatter": "^1.27",
         "symfony/postmark-mailer": "^6.3",
@@ -144,7 +146,7 @@
         "wikimedia/less.php": "^3.0"
     },
     "require-dev": {
-        "mockery/mockery": "^1.4",
+        "mockery/mockery": "^1.5",
         "phpunit/phpunit": "^9.0",
         "phpstan/phpstan": "^1.10.0",
         "nunomaduro/larastan": "^2.6",
@@ -187,6 +189,7 @@
         }
     },
     "scripts": {
+        "test:setup": "@php tests/integration/setup.php",
         "analyse:phpstan": "phpstan analyse",
         "clear-cache:phpstan": "phpstan clear-result-cache"
     },

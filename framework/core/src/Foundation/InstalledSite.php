@@ -39,6 +39,7 @@ use Illuminate\Cache\Repository as CacheRepository;
 use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Cache\Store;
+use Illuminate\Contracts\Container\Container as LaravelContainer;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Hashing\HashServiceProvider;
 use Illuminate\Validation\ValidationServiceProvider;
@@ -86,7 +87,7 @@ class InstalledSite implements SiteInterface
         return $this;
     }
 
-    protected function bootLaravel(): Container
+    protected function bootLaravel(): LaravelContainer
     {
         $container = new Container;
         $laravel = new Application($container, $this->paths);
@@ -95,7 +96,7 @@ class InstalledSite implements SiteInterface
         $container->instance('flarum.config', $this->config);
         $container->alias('flarum.config', Config::class);
         $container->instance('flarum.debug', $this->config->inDebugMode());
-        $container->instance('config', $config = $this->getIlluminateConfig());
+        $container->instance('config', $this->getIlluminateConfig());
         $container->instance('flarum.maintenance.handler', new MaintenanceModeHandler);
 
         $this->registerLogger($container);

@@ -21,18 +21,11 @@ use Illuminate\Support\Str;
  */
 class PasswordToken extends AbstractModel
 {
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $casts = ['created_at' => 'datetime'];
+    protected $casts = [
+        'created_at' => 'datetime',
+        'user_id' => 'integer',
+    ];
 
-    /**
-     * Use a custom primary key for this model.
-     *
-     * @var bool
-     */
     public $incrementing = false;
 
     protected $primaryKey = 'token';

@@ -12,7 +12,7 @@ namespace Flarum\Pusher;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Queue\AbstractJob;
 use Flarum\User\User;
-use Pusher;
+use Pusher\Pusher;
 
 class SendPusherNotificationsJob extends AbstractJob
 {
