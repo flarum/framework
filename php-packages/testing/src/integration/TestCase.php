@@ -52,9 +52,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                 $this->extenders
             );
 
-            $this->database = $bootstrapper->database;
-
             $this->app = $bootstrapper->run()->bootApp();
+
+            $this->database = $bootstrapper->database;
 
             $this->populateDatabase();
         }
