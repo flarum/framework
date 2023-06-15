@@ -13,10 +13,7 @@ trait EventGeneratorTrait
 {
     protected array $pendingEvents = [];
 
-    /**
-     * Raise a new event.
-     */
-    public function raise($event): void
+    public function raise(object $event): void
     {
         $this->pendingEvents[] = $event;
     }

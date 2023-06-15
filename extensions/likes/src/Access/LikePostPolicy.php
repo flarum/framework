@@ -21,10 +21,12 @@ class LikePostPolicy extends AbstractPolicy
     ) {
     }
 
-    public function like(User $actor, Post $post)
+    public function like(User $actor, Post $post): ?string
     {
         if ($actor->id === $post->user_id && ! (bool) $this->settings->get('flarum-likes.like_own_post')) {
             return $this->deny();
         }
+
+        return null;
     }
 }

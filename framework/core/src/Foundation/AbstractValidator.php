@@ -33,7 +33,7 @@ abstract class AbstractValidator
     ) {
     }
 
-    public function addConfiguration($callable): void
+    public function addConfiguration(callable $callable): void
     {
         $this->configuration[] = $callable;
     }

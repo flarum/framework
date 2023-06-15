@@ -26,7 +26,7 @@ class RouteHandlerFactory
     ) {
     }
 
-    public function toController($controller): Closure
+    public function toController(callable|string $controller): Closure
     {
         return function (Request $request, array $routeParams) use ($controller) {
             $controller = $this->resolveController($controller);
@@ -60,7 +60,7 @@ class RouteHandlerFactory
         return $this->toFrontend('admin', $content);
     }
 
-    private function resolveController($controller): Handler
+    private function resolveController(callable|string $controller): Handler
     {
         if (is_callable($controller)) {
             $controller = $this->container->call($controller);

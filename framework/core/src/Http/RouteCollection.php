@@ -30,32 +30,32 @@ class RouteCollection
         $this->routeParser = new RouteParser\Std;
     }
 
-    public function get($path, $name, $handler): self
+    public function get(string $path, string $name, callable|string $handler): self
     {
         return $this->addRoute('GET', $path, $name, $handler);
     }
 
-    public function post($path, $name, $handler): self
+    public function post(string $path, string $name, callable|string $handler): self
     {
         return $this->addRoute('POST', $path, $name, $handler);
     }
 
-    public function put($path, $name, $handler): self
+    public function put(string $path, string $name, callable|string $handler): self
     {
         return $this->addRoute('PUT', $path, $name, $handler);
     }
 
-    public function patch($path, $name, $handler): self
+    public function patch(string $path, string $name, callable|string $handler): self
     {
         return $this->addRoute('PATCH', $path, $name, $handler);
     }
 
-    public function delete($path, $name, $handler): self
+    public function delete(string $path, string $name, callable|string $handler): self
     {
         return $this->addRoute('DELETE', $path, $name, $handler);
     }
 
-    public function addRoute($method, $path, $name, $handler): self
+    public function addRoute(string $method, string $path, string $name, callable|string $handler): self
     {
         if (isset($this->routes[$name])) {
             throw new \RuntimeException("Route $name already exists");
@@ -102,7 +102,7 @@ class RouteCollection
         return $this->dataGenerator->getData();
     }
 
-    protected function fixPathPart(mixed $part, array $parameters, string $routeName)
+    protected function fixPathPart(mixed $part, array $parameters, string $routeName): string
     {
         if (! is_array($part)) {
             return $part;

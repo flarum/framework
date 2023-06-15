@@ -40,8 +40,8 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     $paths->vendor.'/components/font-awesome/less' => ''
                 ]);
 
-                $assets->css([$this, 'addBaseCss']);
-                $assets->localeCss([$this, 'addBaseCss']);
+                $assets->css($this->addBaseCss(...));
+                $assets->localeCss($this->addBaseCss(...));
 
                 return $assets;
             };

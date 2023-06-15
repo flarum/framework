@@ -45,7 +45,7 @@ class CreatedFilterGambit extends AbstractRegexGambit implements FilterInterface
         $this->constrain($filterState->getQuery(), Arr::get($matches, 1), Arr::get($matches, 3), $negate);
     }
 
-    public function constrain(Builder $query, ?string $firstDate, ?string $secondDate, $negate)
+    public function constrain(Builder $query, ?string $firstDate, ?string $secondDate, bool $negate): void
     {
         // If we've just been provided with a single YYYY-MM-DD date, then find
         // discussions that were started on that exact date. But if we've been

@@ -18,6 +18,7 @@ use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Laminas\HttpHandlerRunner\RequestHandlerRunner;
 use Laminas\Stratigility\Middleware\ErrorResponseGenerator;
+use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -52,7 +53,7 @@ class Server
      *
      * @throws Throwable
      */
-    private function safelyBootAndGetHandler()
+    private function safelyBootAndGetHandler() // @phpstan-ignore-line
     {
         try {
             return $this->site->bootApp()->getRequestHandler();

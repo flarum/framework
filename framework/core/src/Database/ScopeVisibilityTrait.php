@@ -22,7 +22,7 @@ trait ScopeVisibilityTrait
      */
     protected static array $visibilityScopers = [];
 
-    public static function registerVisibilityScoper($scoper, ?string $ability = null): void
+    public static function registerVisibilityScoper(callable $scoper, ?string $ability = null): void
     {
         $model = static::class;
 

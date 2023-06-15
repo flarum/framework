@@ -51,7 +51,7 @@ class Filesystem implements ExtenderInterface
      *   });
      * ```
      *
-     * @see https://laravel.com/docs/8.x/filesystem#configuration
+     * @see https://laravel.com/docs/10.x/filesystem#configuration
      *
      * @return self
      */

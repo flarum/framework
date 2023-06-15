@@ -11,6 +11,7 @@ namespace Flarum\Console;
 
 use Flarum\Foundation\Config;
 use Illuminate\Console\Scheduling\Schedule as LaravelSchedule;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Collection;
 
 class Schedule extends LaravelSchedule
@@ -21,7 +22,7 @@ class Schedule extends LaravelSchedule
         return (new Collection($this->events))->filter->isDue(new class($app) {
             protected Config $config;
 
-            public function __construct($app)
+            public function __construct(Container $app)
             {
                 $this->config = $app->make(Config::class);
             }

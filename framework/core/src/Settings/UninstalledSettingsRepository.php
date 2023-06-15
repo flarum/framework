@@ -16,7 +16,7 @@ class UninstalledSettingsRepository implements SettingsRepositoryInterface
         return [];
     }
 
-    public function get(string $key, $default = null): mixed
+    public function get(string $key, mixed $default = null): mixed
     {
         return $default;
     }

@@ -15,7 +15,7 @@ use Flarum\User\User;
 
 class TagPolicy extends AbstractPolicy
 {
-    public function can(User $actor, string $ability, Tag $tag)
+    public function can(User $actor, string $ability, Tag $tag): string|bool|null
     {
         if ($tag->parent_id !== null && ! $actor->can($ability, $tag->parent)) {
             return $this->deny();
@@ -26,6 +26,8 @@ class TagPolicy extends AbstractPolicy
 
             return $actor->hasPermission("tag$id.$ability");
         }
+
+        return null;
     }
 
     public function addToDiscussion(User $actor, Tag $tag): bool

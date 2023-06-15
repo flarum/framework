@@ -9,6 +9,7 @@
 
 namespace Flarum\User\Access;
 
+use Flarum\Database\AbstractModel;
 use Flarum\User\User;
 
 abstract class AbstractPolicy
@@ -39,7 +40,7 @@ abstract class AbstractPolicy
         return static::FORCE_DENY;
     }
 
-    public function checkAbility(User $actor, string $ability, $instance)
+    public function checkAbility(User $actor, string $ability, string|AbstractModel|null $instance): ?string
     {
         // If a specific method for this ability is defined,
         // call that and return any non-null results
@@ -55,6 +56,8 @@ abstract class AbstractPolicy
         if (method_exists($this, 'can')) {
             return $this->sanitizeResult(call_user_func_array([$this, 'can'], [$actor, $ability, $instance]));
         }
+
+        return null;
     }
 
     /**

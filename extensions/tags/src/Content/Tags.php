@@ -34,14 +34,14 @@ class Tags
     public function __invoke(Document $document, Request $request): Document
     {
         $apiDocument = $this->getTagsDocument($request);
-        $tags = collect(Arr::get($apiDocument, 'data', []));
+        $tags = collect((array) Arr::get($apiDocument, 'data', []));
 
         $childTags = $tags->where('attributes.isChild', true);
         $primaryTags = $tags->where('attributes.isChild', false)->where('attributes.position', '!==', null)->sortBy('attributes.position');
         $secondaryTags = $tags->where('attributes.isChild', false)->where('attributes.position', '===', null)->sortBy('attributes.name');
 
         $children = $primaryTags->mapWithKeys(function ($tag) use ($childTags) {
-            $childIds = collect(Arr::get($tag, 'relationships.children.data'))->pluck('id');
+            $childIds = collect((array) Arr::get($tag, 'relationships.children.data'))->pluck('id');
 
             return [$tag['id'] => $childTags->whereIn('id', $childIds)->sortBy('position')];
         });
@@ -56,7 +56,7 @@ class Tags
         return $document;
     }
 
-    protected function getTagsDocument(Request $request)
+    protected function getTagsDocument(Request $request): array
     {
         return json_decode($this->api->withParentRequest($request)->withQueryParams([
             'include' => 'children,lastPostedDiscussion,parent'

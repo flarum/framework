@@ -96,7 +96,7 @@ class RegisterUserHandler
         return $user;
     }
 
-    private function applyToken(User $user, RegistrationToken $token)
+    private function applyToken(User $user, RegistrationToken $token): void
     {
         foreach ($token->user_attributes as $k => $v) {
             if ($k === 'avatar_url') {

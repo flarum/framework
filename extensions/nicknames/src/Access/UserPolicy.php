@@ -20,7 +20,7 @@ class UserPolicy extends AbstractPolicy
     ) {
     }
 
-    public function editNickname(User $actor, User $user)
+    public function editNickname(User $actor, User $user): ?string
     {
         if ($actor->isGuest() && ! $user->exists && $this->settings->get('flarum-nicknames.set_on_registration')) {
             return $this->allow();
@@ -29,5 +29,7 @@ class UserPolicy extends AbstractPolicy
         } elseif ($actor->can('edit', $user)) {
             return $this->allow();
         }
+
+        return null;
     }
 }

@@ -44,35 +44,35 @@ class Assets
     ) {
     }
 
-    public function js($sources): static
+    public function js(callable $callback): static
     {
-        $this->addSources('js', $sources);
+        $this->addSources('js', $callback);
 
         return $this;
     }
 
-    public function css($callback): static
+    public function css(callable $callback): static
     {
         $this->addSources('css', $callback);
 
         return $this;
     }
 
-    public function localeJs($callback): static
+    public function localeJs(callable $callback): static
     {
         $this->addSources('localeJs', $callback);
 
         return $this;
     }
 
-    public function localeCss($callback): static
+    public function localeCss(callable $callback): static
     {
         $this->addSources('localeCss', $callback);
 
         return $this;
     }
 
-    private function addSources($type, $callback): void
+    private function addSources(string $type, callable $callback): void
     {
         $this->sources[$type][] = $callback;
     }
@@ -122,7 +122,7 @@ class Assets
         return $compiler;
     }
 
-    protected function makeJsCompiler(string $filename)
+    protected function makeJsCompiler(string $filename): JsCompiler
     {
         return resolve(JsCompiler::class, [
             'assetsDir' => $this->assetsDir,
@@ -163,7 +163,7 @@ class Assets
         return $this->name;
     }
 
-    public function setName(string $name)
+    public function setName(string $name): void
     {
         $this->name = $name;
     }
@@ -173,7 +173,7 @@ class Assets
         return $this->assetsDir;
     }
 
-    public function setAssetsDir(Cloud $assetsDir)
+    public function setAssetsDir(Cloud $assetsDir): void
     {
         $this->assetsDir = $assetsDir;
     }
@@ -183,7 +183,7 @@ class Assets
         return $this->cacheDir;
     }
 
-    public function setCacheDir(?string $cacheDir)
+    public function setCacheDir(?string $cacheDir): void
     {
         $this->cacheDir = $cacheDir;
     }
@@ -193,17 +193,17 @@ class Assets
         return $this->lessImportDirs;
     }
 
-    public function setLessImportDirs(array $lessImportDirs)
+    public function setLessImportDirs(array $lessImportDirs): void
     {
         $this->lessImportDirs = $lessImportDirs;
     }
 
-    public function addLessImportOverrides(array $lessImportOverrides)
+    public function addLessImportOverrides(array $lessImportOverrides): void
     {
         $this->lessImportOverrides = array_merge($this->lessImportOverrides, $lessImportOverrides);
     }
 
-    public function addFileSourceOverrides(array $fileSourceOverrides)
+    public function addFileSourceOverrides(array $fileSourceOverrides): void
     {
         $this->fileSourceOverrides = array_merge($this->fileSourceOverrides, $fileSourceOverrides);
     }

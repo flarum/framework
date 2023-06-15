@@ -148,7 +148,7 @@ class Routes implements ExtenderInterface
         return $this->route('DELETE', $path, $name, $handler);
     }
 
-    private function route(string $httpMethod, string $path, string $name, $handler): self
+    private function route(string $httpMethod, string $path, string $name, callable|string $handler): self
     {
         $this->routes[] = [
             'method' => $httpMethod,

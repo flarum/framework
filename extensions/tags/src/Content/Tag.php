@@ -89,12 +89,12 @@ class Tag
     /**
      * Get the result of an API request to list discussions.
      */
-    protected function getApiDocument(Request $request, array $params)
+    protected function getApiDocument(Request $request, array $params): object
     {
         return json_decode($this->api->withParentRequest($request)->withQueryParams($params)->get('/discussions')->getBody());
     }
 
-    protected function getTagsDocument(Request $request, string $slug)
+    protected function getTagsDocument(Request $request, string $slug): object
     {
         return json_decode($this->api->withParentRequest($request)->withQueryParams([
             'include' => 'children,children.parent,parent,parent.children.parent,state'

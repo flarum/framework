@@ -14,7 +14,7 @@ use Flarum\User\User;
 class EditDiscussion
 {
     public function __construct(
-        public $discussionId,
+        public int $discussionId,
         public User $actor,
         public array $data
     ) {

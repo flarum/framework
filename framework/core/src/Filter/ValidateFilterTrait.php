@@ -18,7 +18,7 @@ trait ValidateFilterTrait
      * @throws FlarumValidationException
      * @return array<string>|array<array>
      */
-    protected function asStringArray($filterValue, bool $multidimensional = false): array
+    protected function asStringArray(string|array $filterValue, bool $multidimensional = false): array
     {
         if (is_array($filterValue)) {
             $value = array_map(function ($subValue) use ($multidimensional) {
@@ -40,7 +40,7 @@ trait ValidateFilterTrait
     /**
      * @throws FlarumValidationException
      */
-    protected function asString($filterValue): string
+    protected function asString(string|array $filterValue): string
     {
         if (is_array($filterValue)) {
             $this->throwValidationException('core.api.invalid_filter_type.must_not_be_array_message');
@@ -52,7 +52,7 @@ trait ValidateFilterTrait
     /**
      * @throws FlarumValidationException
      */
-    protected function asInt($filterValue): int
+    protected function asInt(string|array $filterValue): int
     {
         if (! is_numeric($filterValue)) {
             $this->throwValidationException('core.api.invalid_filter_type.must_be_numeric_message');
@@ -65,7 +65,7 @@ trait ValidateFilterTrait
      * @throws FlarumValidationException
      * @return array<int>
      */
-    protected function asIntArray($filterValue): array
+    protected function asIntArray(string|array $filterValue): array
     {
         return array_map(function ($value) {
             return $this->asInt($value);
@@ -75,7 +75,7 @@ trait ValidateFilterTrait
     /**
      * @throws FlarumValidationException
      */
-    protected function asBool($filterValue): bool
+    protected function asBool(string|array $filterValue): bool
     {
         return $this->asString($filterValue) === '1';
     }

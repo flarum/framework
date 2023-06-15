@@ -2,7 +2,7 @@ includes:
   - php-packages/phpstan/extension.neon
 
 parameters:
-	level: 5
+	level: 6
 	paths:
 	  - framework/core/src
 	  - extensions/akismet/src
@@ -36,4 +36,5 @@ parameters:
 	excludePaths:
 		- *.blade.php
 	checkMissingIterableValueType: false
+	checkGenericClassInNonGenericObjectType: false
 	databaseMigrationsPath: ['framework/core/migrations']

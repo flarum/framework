@@ -14,10 +14,12 @@ use Flarum\User\User;
 
 class GroupPolicy extends AbstractPolicy
 {
-    public function can(User $actor, string $ability)
+    public function can(User $actor, string $ability): ?string
     {
         if ($actor->hasPermission('group.'.$ability)) {
             return $this->allow();
         }
+
+        return null;
     }
 }

@@ -16,6 +16,7 @@ use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\Paths;
 use Illuminate\Container\Container as ContainerImplementation;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;
+use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandling;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -91,29 +92,24 @@ class QueueServiceProvider extends AbstractServiceProvider
         // Bind a simple cache manager that returns the cache store.
         $this->container->singleton('cache', function (Container $container) {
             return new class($container) implements CacheFactory {
-                /**
-                 * @var Container
-                 */
-                private $container;
-
-                public function __construct(Container $container)
-                {
-                    $this->container = $container;
+                public function __construct(
+                    private readonly Container $container
+                ) {
                 }
 
-                public function driver()
+                public function driver(): Repository
                 {
                     return $this->container['cache.store'];
                 }
 
                 // We have to define this explicitly
                 // so that we implement the interface.
-                public function store($name = null)
+                public function store($name = null): mixed
                 {
                     return $this->__call($name, null);
                 }
 
-                public function __call($name, $arguments)
+                public function __call(string $name, ?array $arguments): mixed
                 {
                     return call_user_func_array([$this->driver(), $name], $arguments);
                 }

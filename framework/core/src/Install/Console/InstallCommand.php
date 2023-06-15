@@ -103,7 +103,7 @@ class InstallCommand extends AbstractCommand
             ->run();
     }
 
-    protected function showProblems($problems): void
+    protected function showProblems(iterable $problems): void
     {
         $this->output->writeln(
             '<error>Please fix the following problems before we can continue with the installation.</error>'

@@ -20,7 +20,7 @@ class Container extends LaravelContainer
      *
      * @TODO: Implement the Application contract and merge the container into it.
      */
-    public function __call(string $name, array $arguments)
+    public function __call(string $name, array $arguments): mixed
     {
         return $this->get('flarum')->$name(...$arguments);
     }

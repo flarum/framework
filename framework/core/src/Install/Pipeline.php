@@ -33,7 +33,7 @@ class Pipeline
         return $this;
     }
 
-    public function on($event, callable $callback): self
+    public function on(string $event, callable $callback): self
     {
         $this->callbacks[$event] = $callback;
 
@@ -88,7 +88,7 @@ class Pipeline
         }
     }
 
-    private function fireCallbacks($event, Step $step): void
+    private function fireCallbacks(string $event, Step $step): void
     {
         if (isset($this->callbacks[$event])) {
             ($this->callbacks[$event])($step);

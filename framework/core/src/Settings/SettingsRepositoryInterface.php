@@ -16,7 +16,7 @@ interface SettingsRepositoryInterface
     /**
      * @todo remove deprecated $default in 2.0
      */
-    public function get(string $key, $default = null): mixed;
+    public function get(string $key, mixed $default = null): mixed;
 
     public function set(string $key, mixed $value): void;
 

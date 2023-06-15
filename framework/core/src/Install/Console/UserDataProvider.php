@@ -76,7 +76,7 @@ class UserDataProvider implements DataProviderInterface
         );
     }
 
-    private function askForAdminPassword()
+    private function askForAdminPassword(): string
     {
         while (true) {
             $password = $this->secret('Admin password (required >= 8 characters):');
@@ -108,14 +108,14 @@ class UserDataProvider implements DataProviderInterface
         ];
     }
 
-    private function ask($question, $default = null): mixed
+    private function ask(string $question, string $default = null): mixed
     {
         $question = new Question("<question>$question</question> ", $default);
 
         return $this->questionHelper->ask($this->input, $this->output, $question);
     }
 
-    private function secret($question): mixed
+    private function secret(string $question): mixed
     {
         $question = new Question("<question>$question</question> ");
 
@@ -124,7 +124,7 @@ class UserDataProvider implements DataProviderInterface
         return $this->questionHelper->ask($this->input, $this->output, $question);
     }
 
-    private function validationError($message): void
+    private function validationError(string $message): void
     {
         $this->output->writeln("<error>$message</error>");
         $this->output->writeln('Please try again.');

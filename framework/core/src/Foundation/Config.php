@@ -39,7 +39,7 @@ class Config implements ArrayAccess
         return $this->data['offline'] ?? false;
     }
 
-    private function requireKeys(...$keys): void
+    private function requireKeys(mixed ...$keys): void
     {
         foreach ($keys as $key) {
             if (! array_key_exists($key, $this->data)) {
