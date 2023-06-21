@@ -1,8 +1,9 @@
 {
   "name": "flarum-webpack-config",
+  "type": "module",
   "version": "2.0.2",
   "description": "Webpack config for Flarum JS and TS transpilation.",
-  "main": "src/index.js",
+  "main": "src/index.cjs",
   "author": "Flarum Team",
   "license": "MIT",
   "prettier": "@flarum/prettier-config",
@@ -28,8 +29,11 @@
     "webpack-bundle-analyzer": "^4.7.0"
   },
   "devDependencies": {
-    "prettier": "^2.8.0",
-    "@flarum/prettier-config": "^1.0.0"
+    "@flarum/prettier-config": "^1.0.0",
+    "babel-jest": "^29.5.0",
+    "jest": "^29.5.0",
+    "memfs": "^3.5.3",
+    "prettier": "^2.8.0"
   },
   "scripts": {
     "dev": "echo 'skipping..'",
@@ -41,6 +45,10 @@
     "build-typings": "echo 'skipping..'",
     "post-build-typings": "echo 'skipping..'",
     "check-typings": "echo 'skipping..'",
-    "check-typings-coverage": "echo 'skipping..'"
+    "check-typings-coverage": "echo 'skipping..'",
+    "test": "jest"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }

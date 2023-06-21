@@ -71,13 +71,13 @@ module.exports = function (options = {}) {
       rules: [
         {
           include: /src/, // Only apply this loader to files in the src directory
-          loader: path.resolve(__dirname, './autoExportLoader.js'),
+          loader: path.resolve(__dirname, './autoExportLoader.cjs'),
         },
         {
           // Matches .js, .jsx, .ts, .tsx
           test: /\.[jt]sx?$/,
           loader: require.resolve('babel-loader'),
-          options: require('../babel.config'),
+          options: require('../babel.config.cjs'),
           resolve: {
             fullySpecified: false,
           },
