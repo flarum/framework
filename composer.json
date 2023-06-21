@@ -163,7 +163,7 @@
         "symfony/postmark-mailer": "^6.3",
         "symfony/translation": "^6.3",
         "symfony/yaml": "^6.3",
-        "wikimedia/less.php": "^3.0"
+        "wikimedia/less.php": "^4.1"
     },
     "require-dev": {
         "mockery/mockery": "^1.5",
