@@ -52,7 +52,7 @@ class Server
      *
      * @throws Throwable
      */
-    private function safelyBootAndGetHandler()
+    private function safelyBootAndGetHandler() // @phpstan-ignore-line
     {
         try {
             return $this->site->bootApp()->getRequestHandler();

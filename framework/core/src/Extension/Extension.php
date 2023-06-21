@@ -84,7 +84,7 @@ class Extension implements Arrayable
         $this->assignId();
     }
 
-    protected static function nameToId($name): string
+    protected static function nameToId(string $name): string
     {
         [$vendor, $package] = explode('/', $name);
         $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
@@ -114,12 +114,12 @@ class Extension implements Arrayable
         }
     }
 
-    public function __get($name)
+    public function __get(string $name): mixed
     {
         return $this->composerJsonAttribute(Str::snake($name, '-'));
     }
 
-    public function __isset($name)
+    public function __isset(string $name): bool
     {
         return isset($this->{$name}) || $this->composerJsonAttribute(Str::snake($name, '-'));
     }
@@ -127,12 +127,9 @@ class Extension implements Arrayable
     /**
      * Dot notation getter for composer.json attributes.
      *
-     * @see https://laravel.com/docs/8.x/helpers#arrays
-     *
-     * @param $name
-     * @return mixed
+     * @see https://laravel.com/docs/10.x/helpers#arrays
      */
-    public function composerJsonAttribute($name): mixed
+    public function composerJsonAttribute(string $name): mixed
     {
         return Arr::get($this->composerJson, $name);
     }
@@ -433,7 +430,7 @@ class Extension implements Arrayable
     /**
      * @internal
      */
-    public function migrate(Migrator $migrator, $direction = 'up'): ?int
+    public function migrate(Migrator $migrator, string $direction = 'up'): ?int
     {
         if (! $this->hasMigrations()) {
             return null;

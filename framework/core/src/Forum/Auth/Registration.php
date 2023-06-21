@@ -66,7 +66,7 @@ class Registration
         return $this->suggest('email', $email);
     }
 
-    public function setPayload($payload): self
+    public function setPayload(mixed $payload): self
     {
         $this->payload = $payload;
 

@@ -83,7 +83,7 @@ class InstalledApp implements AppInterface
         return $this->config->url()->getPath() ?: '/';
     }
 
-    protected function subPath($pathName): string
+    protected function subPath(string $pathName): string
     {
         return '/'.($this->config['paths'][$pathName] ?? $pathName);
     }

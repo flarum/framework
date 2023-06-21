@@ -37,7 +37,7 @@ class Paths
         $this->paths['vendor'] = $this->vendor ?? $this->base.'/vendor';
     }
 
-    public function __get($name): ?string
+    public function __get(string $name): ?string
     {
         return $this->paths[$name] ?? null;
     }

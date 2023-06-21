@@ -22,7 +22,7 @@ class DiscussionPolicy extends AbstractPolicy
     ) {
     }
 
-    public function can(User $actor, string $ability, Discussion $discussion)
+    public function can(User $actor, string $ability, Discussion $discussion): ?string
     {
         // Wrap all discussion permission checks with some logic pertaining to
         // the discussion's tags. If the discussion has a tag that has been
@@ -46,13 +46,15 @@ class DiscussionPolicy extends AbstractPolicy
                 return $this->allow();
             }
         }
+
+        return null;
     }
 
     /**
      * This method checks, if the user is still allowed to edit the tags
      * based on the configuration item.
      */
-    public function tag(User $actor, Discussion $discussion)
+    public function tag(User $actor, Discussion $discussion): ?string
     {
         if ($discussion->user_id == $actor->id && $actor->can('reply', $discussion)) {
             $allowEditTags = $this->settings->get('allow_tag_change');
@@ -65,5 +67,7 @@ class DiscussionPolicy extends AbstractPolicy
                 return $this->allow();
             }
         }
+
+        return null;
     }
 }

@@ -36,7 +36,7 @@ class OverrideSettingsRepository implements SettingsRepositoryInterface
         return array_merge($this->inner->all(), $this->overrides);
     }
 
-    public function get(string $key, $default = null): mixed
+    public function get(string $key, mixed $default = null): mixed
     {
         if (array_key_exists($key, $this->overrides)) {
             return $this->overrides[$key];

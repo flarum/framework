@@ -52,7 +52,7 @@ class UnreadFilterGambit extends AbstractRegexGambit implements FilterInterface
         $this->constrain($filterState->getQuery(), $filterState->getActor(), $negate);
     }
 
-    protected function constrain(Builder $query, User $actor, bool $negate)
+    protected function constrain(Builder $query, User $actor, bool $negate): void
     {
         if ($actor->exists) {
             $readIds = $this->discussions->getReadIdsQuery($actor);

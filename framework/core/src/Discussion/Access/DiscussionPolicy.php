@@ -21,14 +21,16 @@ class DiscussionPolicy extends AbstractPolicy
     ) {
     }
 
-    public function can(User $actor, string $ability)
+    public function can(User $actor, string $ability): ?string
     {
         if ($actor->hasPermission('discussion.'.$ability)) {
             return $this->allow();
         }
+
+        return null;
     }
 
-    public function rename(User $actor, Discussion $discussion)
+    public function rename(User $actor, Discussion $discussion): ?string
     {
         if ($discussion->user_id == $actor->id && $actor->can('reply', $discussion)) {
             $allowRenaming = $this->settings->get('allow_renaming');
@@ -39,9 +41,11 @@ class DiscussionPolicy extends AbstractPolicy
                 return $this->allow();
             }
         }
+
+        return null;
     }
 
-    public function hide(User $actor, Discussion $discussion)
+    public function hide(User $actor, Discussion $discussion): ?string
     {
         if ($discussion->user_id == $actor->id
             && $discussion->participant_count <= 1
@@ -50,5 +54,7 @@ class DiscussionPolicy extends AbstractPolicy
         ) {
             return $this->allow();
         }
+
+        return null;
     }
 }

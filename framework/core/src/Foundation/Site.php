@@ -34,12 +34,12 @@ class Site
         )->extendWith(static::loadExtenders($paths->base));
     }
 
-    protected static function hasConfigFile($basePath): bool
+    protected static function hasConfigFile(string $basePath): bool
     {
         return file_exists("$basePath/config.php");
     }
 
-    protected static function loadConfig($basePath): Config
+    protected static function loadConfig(string $basePath): Config
     {
         $config = include "$basePath/config.php";
 
@@ -50,7 +50,7 @@ class Site
         return new Config($config);
     }
 
-    protected static function loadExtenders($basePath): array
+    protected static function loadExtenders(string $basePath): array
     {
         $extenderFile = "$basePath/extend.php";
 

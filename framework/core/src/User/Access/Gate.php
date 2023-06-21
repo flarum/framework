@@ -46,6 +46,7 @@ class Gate
     public function allows(User $actor, string $ability, string|AbstractModel|null $model): bool
     {
         $results = [];
+        /** @var AbstractPolicy[] $appliedPolicies */
         $appliedPolicies = [];
 
         if ($model) {

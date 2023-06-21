@@ -21,7 +21,7 @@ class GlobalPolicy extends AbstractPolicy
     ) {
     }
 
-    public function can(User $actor, string $ability)
+    public function can(User $actor, string $ability): ?string
     {
         static $enoughPrimary;
         static $enoughSecondary;
@@ -67,5 +67,7 @@ class GlobalPolicy extends AbstractPolicy
                 return $this->deny();
             }
         }
+
+        return null;
     }
 }

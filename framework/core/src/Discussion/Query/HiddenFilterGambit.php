@@ -37,7 +37,7 @@ class HiddenFilterGambit extends AbstractRegexGambit implements FilterInterface
         $this->constrain($filterState->getQuery(), $negate);
     }
 
-    protected function constrain(Builder $query, bool $negate)
+    protected function constrain(Builder $query, bool $negate): void
     {
         $query->where(function ($query) use ($negate) {
             if ($negate) {

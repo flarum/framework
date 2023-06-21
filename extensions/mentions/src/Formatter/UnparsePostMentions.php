@@ -29,7 +29,7 @@ class UnparsePostMentions
     /**
      * Updates XML post mention tags before unparsing so that unparsing uses new display names.
      */
-    protected function updatePostMentionTags($context, string $xml): string
+    protected function updatePostMentionTags(mixed $context, string $xml): string
     {
         $post = $context;
 

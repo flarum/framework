@@ -49,7 +49,7 @@ class LocaleManager
         return isset($this->locales[$locale]);
     }
 
-    public function addTranslations(string $locale, $file, string $module = null): void
+    public function addTranslations(string $locale, string $file, string $module = null): void
     {
         $prefix = $module ? $module.'::' : '';
 

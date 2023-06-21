@@ -31,7 +31,7 @@ class MemoryCacheSettingsRepository implements SettingsRepositoryInterface
         return $this->cache;
     }
 
-    public function get(string $key, $default = null): mixed
+    public function get(string $key, mixed $default = null): mixed
     {
         if (array_key_exists($key, $this->cache)) {
             return $this->cache[$key];

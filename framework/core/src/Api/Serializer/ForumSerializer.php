@@ -100,7 +100,7 @@ class ForumSerializer extends AbstractSerializer
         return $attributes;
     }
 
-    protected function groups($model): ?Relationship
+    protected function groups(array $model): ?Relationship
     {
         return $this->hasMany($model, GroupSerializer::class);
     }
@@ -119,12 +119,12 @@ class ForumSerializer extends AbstractSerializer
         return $faviconPath ? $this->getAssetUrl($faviconPath) : null;
     }
 
-    public function getAssetUrl($assetPath): string
+    public function getAssetUrl(string $assetPath): string
     {
         return $this->assetsFilesystem->url($assetPath);
     }
 
-    protected function actor($model): ?Relationship
+    protected function actor(array $model): ?Relationship
     {
         return $this->hasOne($model, CurrentUserSerializer::class);
     }

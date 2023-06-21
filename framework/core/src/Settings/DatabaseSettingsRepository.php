@@ -23,7 +23,7 @@ class DatabaseSettingsRepository implements SettingsRepositoryInterface
         return $this->database->table('settings')->pluck('value', 'key')->all();
     }
 
-    public function get(string $key, $default = null): mixed
+    public function get(string $key, mixed $default = null): mixed
     {
         if (is_null($value = $this->database->table('settings')->where('key', $key)->value('value'))) {
             return $default;

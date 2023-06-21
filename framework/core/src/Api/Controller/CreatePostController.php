@@ -39,9 +39,10 @@ class CreatePostController extends AbstractCreateController
     {
         $actor = RequestUtil::getActor($request);
         $data = Arr::get($request->getParsedBody(), 'data', []);
-        $discussionId = Arr::get($data, 'relationships.discussion.data.id');
+        $discussionId = (int) Arr::get($data, 'relationships.discussion.data.id');
         $ipAddress = $request->getAttribute('ipAddress');
 
+        /** @var CommentPost $post */
         $post = $this->bus->dispatch(
             new PostReply($discussionId, $actor, $data, $ipAddress)
         );
@@ -56,7 +57,7 @@ class CreatePostController extends AbstractCreateController
         }
 
         $discussion = $post->discussion;
-        $discussion->posts = $discussion->posts()->whereVisibleTo($actor)->orderBy('created_at')->pluck('id');
+        $discussion->setRelation('posts', $discussion->posts()->whereVisibleTo($actor)->orderBy('created_at')->pluck('id'));
 
         $this->loadRelations($post->newCollection([$post]), $this->extractInclude($request), $request);
 

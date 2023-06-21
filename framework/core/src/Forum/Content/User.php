@@ -44,7 +44,7 @@ class User
      *
      * @throws ModelNotFoundException
      */
-    protected function getApiDocument(Request $request, string $username)
+    protected function getApiDocument(Request $request, string $username): object
     {
         $response = $this->api->withParentRequest($request)->withQueryParams(['bySlug' => true])->get("/users/$username");
         $statusCode = $response->getStatusCode();

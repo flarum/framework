@@ -42,7 +42,7 @@ class BasicUserSerializer extends AbstractSerializer
         ];
     }
 
-    protected function groups($user): Relationship
+    protected function groups(User $user): Relationship
     {
         if ($this->getActor()->can('viewHiddenGroups')) {
             return $this->hasMany($user, GroupSerializer::class);

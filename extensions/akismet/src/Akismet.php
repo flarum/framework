@@ -15,21 +15,18 @@ use Psr\Http\Message\ResponseInterface;
 
 class Akismet
 {
-    private $apiKey;
-    private $apiUrl;
-    private $flarumVersion;
-    private $extensionVersion;
+    private string $apiUrl;
+    private array $params = [];
 
-    private $params = [];
-
-    public function __construct(string $apiKey, string $homeUrl, string $flarumVersion, string $extensionVersion, bool $inDebugMode = false)
-    {
-        $this->apiKey = $apiKey;
+    public function __construct(
+        private readonly string $apiKey,
+        string $homeUrl,
+        private readonly string $flarumVersion,
+        private readonly string $extensionVersion,
+        bool $inDebugMode = false
+    ) {
         $this->apiUrl = "https://$apiKey.rest.akismet.com/1.1";
         $this->params['blog'] = $homeUrl;
-
-        $this->flarumVersion = $flarumVersion;
-        $this->extensionVersion = $extensionVersion;
 
         if ($inDebugMode) {
             $this->params['is_test'] = true;
@@ -73,7 +70,7 @@ class Akismet
     /**
      * @throws GuzzleException
      */
-    public function submitSpam()
+    public function submitSpam(): void
     {
         $this->sendRequest('submit-spam');
     }
@@ -81,7 +78,7 @@ class Akismet
     /**
      * @throws GuzzleException
      */
-    public function submitHam()
+    public function submitHam(): void
     {
         $this->sendRequest('submit-ham');
     }
@@ -90,7 +87,7 @@ class Akismet
      * Allows you to set additional parameter
      * This lets you use Akismet features not supported directly in this util.
      */
-    public function withParam(string $key, $value): Akismet
+    public function withParam(string $key, mixed $value): Akismet
     {
         $new = clone $this;
         $new->params[$key] = $value;

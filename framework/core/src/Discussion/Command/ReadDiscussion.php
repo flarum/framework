@@ -14,11 +14,11 @@ use Flarum\User\User;
 class ReadDiscussion
 {
     public function __construct(
-        public $discussionId,
+        public int $discussionId,
         /** The user to mark the discussion as read for */
         public User $actor,
         /**  The number of the post to mark as read */
-        public $lastReadPostNumber
+        public int $lastReadPostNumber
     ) {
     }
 }

@@ -34,7 +34,7 @@ use Illuminate\Contracts\Container\Container;
  */
 class ModelPrivate implements ExtenderInterface
 {
-    private $checkers = [];
+    private array $checkers = [];
 
     /**
      * @param class-string<AbstractModel> $modelClass: The ::class attribute of the model you are applying private checkers to.

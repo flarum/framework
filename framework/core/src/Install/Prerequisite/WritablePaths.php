@@ -54,7 +54,7 @@ class WritablePaths implements PrerequisiteInterface
             });
     }
 
-    private function getAbsolutePath($path)
+    private function getAbsolutePath(string $path): string
     {
         $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
         $parts = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');

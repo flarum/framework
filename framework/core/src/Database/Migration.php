@@ -21,7 +21,7 @@ use Illuminate\Database\Schema\Builder;
  */
 abstract class Migration
 {
-    public static function createTable($name, callable $definition): array
+    public static function createTable(string $name, callable $definition): array
     {
         return [
             'up' => function (Builder $schema) use ($name, $definition) {
@@ -35,7 +35,7 @@ abstract class Migration
         ];
     }
 
-    public static function createTableIfNotExists($name, callable $definition): array
+    public static function createTableIfNotExists(string $name, callable $definition): array
     {
         return [
             'up' => function (Builder $schema) use ($name, $definition) {
@@ -51,7 +51,7 @@ abstract class Migration
         ];
     }
 
-    public static function renameTable($from, $to): array
+    public static function renameTable(string $from, string $to): array
     {
         return [
             'up' => function (Builder $schema) use ($from, $to) {
@@ -63,7 +63,7 @@ abstract class Migration
         ];
     }
 
-    public static function addColumns($tableName, array $columnDefinitions): array
+    public static function addColumns(string $tableName, array $columnDefinitions): array
     {
         return [
             'up' => function (Builder $schema) use ($tableName, $columnDefinitions) {
@@ -82,7 +82,7 @@ abstract class Migration
         ];
     }
 
-    public static function dropColumns($tableName, array $columnDefinitions): array
+    public static function dropColumns(string $tableName, array $columnDefinitions): array
     {
         $inverse = static::addColumns($tableName, $columnDefinitions);
 
@@ -92,12 +92,12 @@ abstract class Migration
         ];
     }
 
-    public static function renameColumn($tableName, $from, $to): array
+    public static function renameColumn(string $tableName, string $from, string $to): array
     {
         return static::renameColumns($tableName, [$from => $to]);
     }
 
-    public static function renameColumns($tableName, array $columnNames): array
+    public static function renameColumns(string $tableName, array $columnNames): array
     {
         return [
             'up' => function (Builder $schema) use ($tableName, $columnNames) {

@@ -53,7 +53,7 @@ class EmailFilterGambit extends AbstractRegexGambit implements FilterInterface
         $this->constrain($filterState->getQuery(), $filterValue, $negate);
     }
 
-    protected function constrain(Builder $query, $rawEmail, bool $negate): void
+    protected function constrain(Builder $query, string|array $rawEmail, bool $negate): void
     {
         $email = $this->asString($rawEmail);
 

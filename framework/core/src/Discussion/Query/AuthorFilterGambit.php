@@ -46,7 +46,7 @@ class AuthorFilterGambit extends AbstractRegexGambit implements FilterInterface
         $this->constrain($filterState->getQuery(), $filterValue, $negate);
     }
 
-    protected function constrain(Builder $query, string|array $rawUsernames, $negate)
+    protected function constrain(Builder $query, string|array $rawUsernames, bool $negate): void
     {
         $usernames = $this->asStringArray($rawUsernames);
 
