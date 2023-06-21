@@ -163,7 +163,7 @@ class SimpleFlarumSearchTest extends TestCase
 
         try {
             $this->app()->getContainer()->make(CustomSearcher::class);
-        } catch (BindingResolutionException $e) {
+        } catch (BindingResolutionException) {
             $anExceptionWasThrown = true;
         }
 

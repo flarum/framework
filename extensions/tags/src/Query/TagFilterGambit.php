@@ -64,7 +64,7 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
                     // @TODO: grab all IDs first instead of multiple queries.
                     try {
                         $id = $this->slugger->forResource(Tag::class)->fromSlug($slug, $actor)->id;
-                    } catch (ModelNotFoundException $e) {
+                    } catch (ModelNotFoundException) {
                         $id = null;
                     }
 
