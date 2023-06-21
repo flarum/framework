@@ -92,7 +92,7 @@ class ApplicationInfoProvider
             // Try to get the configured driver instance.
             // Driver instances are created on demand.
             $this->session->driver($configuredDriver);
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             // An exception is thrown if the configured driver is not a valid driver.
             // So we fallback to the default driver.
             $driver = $defaultDriver;
