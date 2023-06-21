@@ -9,7 +9,6 @@
 
 namespace Flarum\Foundation;
 
-use Flarum\Database\AbstractModel;
 use Flarum\User\User;
 
 trait DispatchEventsTrait
