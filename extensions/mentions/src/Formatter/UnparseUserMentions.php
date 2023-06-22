@@ -38,7 +38,7 @@ class UnparseUserMentions
                 ? $context->mentionsUsers->find($attributes['id'])
                 : User::find($attributes['id']);
 
-            $attributes['displayname'] = $user ? $user->display_name : $this->translator->trans('core.lib.username.deleted_text');
+            $attributes['displayname'] = $user?->display_name ?? $this->translator->trans('core.lib.username.deleted_text');
 
             if (strpos($attributes['displayname'], '"#') !== false) {
                 $attributes['displayname'] = preg_replace('/"#[a-z]{0,3}[0-9]+/', '_', $attributes['displayname']);
