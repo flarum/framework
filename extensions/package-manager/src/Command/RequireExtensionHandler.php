@@ -45,7 +45,7 @@ class RequireExtensionHandler
         $packageName = $command->package;
 
         // Auto append :* if not requiring a specific version.
-        if (strpos($packageName, ':') === false) {
+        if (! str_contains($packageName, ':')) {
             $packageName .= ':*';
         }
 
