@@ -55,7 +55,7 @@ if (useBundleAnalyzer) {
   plugins.push(new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)());
 }
 
-module.exports = function (options = {}) {
+module.exports = function () {
   return {
     // Set up entry points for each of the forum + admin apps, but only
     // if they exist.
@@ -94,9 +94,6 @@ module.exports = function (options = {}) {
 
     externals: [
       {
-        // @todo: remove when dropping compat api
-        '@flarum/core/forum': 'flarum.core',
-        '@flarum/core/admin': 'flarum.core',
         jquery: 'jQuery',
       },
 
