@@ -26,21 +26,21 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\ListAccessTokensController::class)
     );
 
-    // List access tokens
+    // Create access token
     $map->post(
         '/access-tokens',
         'access-tokens.create',
         $route->toController(Controller\CreateAccessTokenController::class)
     );
 
-    // List access tokens
+    // Delete access token
     $map->delete(
         '/access-tokens/{id}',
         'access-tokens.delete',
         $route->toController(Controller\DeleteAccessTokenController::class)
     );
 
-    // Retrieve authentication token
+    // Create authentication token
     $map->post(
         '/token',
         'token',
