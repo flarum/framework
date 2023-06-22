@@ -1,10 +1,10 @@
 import app from 'flarum/forum/app';
-import Modal from 'flarum/components/Modal';
-import Button from 'flarum/components/Button';
-
-import Stream from 'flarum/utils/Stream';
-import withAttr from 'flarum/utils/withAttr';
+import Modal from 'flarum/common/components/Modal';
+import Button from 'flarum/common/components/Button';
+import Stream from 'flarum/common/utils/Stream';
+import withAttr from 'flarum/common/utils/withAttr';
 import ItemList from 'flarum/common/utils/ItemList';
+
 import { getPermanentSuspensionDate } from '../helpers/suspensionHelper';
 
 export default class SuspendUserModal extends Modal {
