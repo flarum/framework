@@ -13,5 +13,6 @@ use Flarum\Extend;
 
 return [
     (new Extend\Settings)->serializeToForum('notARealSetting', 'not.a.real.setting'),
-    (new Extend\Frontend('forum'))->route('/added-by-extension', 'added-by-extension')
+    (new Extend\Frontend('forum'))->route('/added-by-extension', 'added-by-extension'),
+    (new Extend\Frontend('admin'))->route('/added-by-extension', 'admin.added-by-extension'),
 ];

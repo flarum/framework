@@ -194,6 +194,20 @@ class TestCaseTest extends TestCase
     }
 
     /**
+     * @test
+     */
+    public function authenticated_as_works_with_admin_routes()
+    {
+        $this->extension('flarum-testing-tests');
+
+        $response = $this->send(
+            $this->request('GET', '/admin/added-by-extension', ['authenticatedAs' => 1])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    /**
      * Disabled failing test for now.
      */
     public function extension_url_correct()
