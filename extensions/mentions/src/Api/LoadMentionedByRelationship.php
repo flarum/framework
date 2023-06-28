@@ -50,6 +50,16 @@ class LoadMentionedByRelationship
             $loadable = $data->newCollection($data->posts)->filter(function ($post) {
                 return $post instanceof Post;
             });
+
+            // firstPost and lastPost might have been included in the API response,
+            // so we have to make sure counts are also loaded for them.
+            if ($data->firstPost) {
+                $loadable->push($data->firstPost);
+            }
+
+            if ($data->lastPost) {
+                $loadable->push($data->lastPost);
+            }
         } elseif ($data instanceof Collection) {
             $loadable = $data;
         } elseif ($data instanceof Post) {
