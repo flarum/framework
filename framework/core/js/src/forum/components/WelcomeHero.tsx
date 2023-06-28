@@ -1,7 +1,8 @@
 import app from '../app';
 import Component from '../../common/Component';
 import Button from '../../common/components/Button';
-import type Mithril from 'mithril';
+import Mithril from 'mithril';
+import ItemList from '../../common/utils/ItemList';
 
 export interface IWelcomeHeroAttrs {}
 
@@ -39,8 +40,8 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
           />
 
           <div className="containerNarrow">
-            <h1 className="Hero-title">{app.forum.attribute('welcomeTitle')}</h1>
-            <div className="Hero-subtitle">{m.trust(app.forum.attribute('welcomeMessage'))}</div>
+            {this.titleItems().toArray()}
+            {this.subtitleItems().toArray()}
           </div>
         </div>
       </header>
@@ -65,5 +66,21 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
     if (this.hidden) return true;
 
     return false;
+  }
+
+  titleItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add('hero-title', <h1 className="Hero-title">{app.forum.attribute('welcomeTitle')}</h1>, 10);
+
+    return items;
+  }
+
+  subtitleItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add('hero-subtitle', <div className="Hero-subtitle">{m.trust(app.forum.attribute('welcomeMessage'))}</div>, 10);
+
+    return items;
   }
 }
