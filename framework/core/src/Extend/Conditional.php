@@ -36,7 +36,7 @@ class Conditional implements ExtenderInterface
     public function whenExtensionDisabled(string $extensionId, array $extenders): self
     {
         return $this->when(function (ExtensionManager $extensions) use ($extensionId) {
-            return !$extensions->isEnabled($extensionId);
+            return ! $extensions->isEnabled($extensionId);
         }, $extenders);
     }
 
