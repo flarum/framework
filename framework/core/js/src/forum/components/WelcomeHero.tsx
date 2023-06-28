@@ -1,7 +1,7 @@
 import app from '../app';
 import Component from '../../common/Component';
 import Button from '../../common/components/Button';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
 import ItemList from '../../common/utils/ItemList';
 
 export interface IWelcomeHeroAttrs {}
