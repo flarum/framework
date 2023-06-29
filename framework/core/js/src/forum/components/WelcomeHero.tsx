@@ -40,8 +40,7 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
           />
 
           <div className="containerNarrow">
-            {this.titleItems().toArray()}
-            {this.subtitleItems().toArray()}
+            {this.welcomeItems().toArray()}
           </div>
         </div>
       </header>
@@ -68,17 +67,10 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
     return false;
   }
 
-  titleItems(): ItemList<Mithril.Children> {
+  welcomeItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
-    items.add('hero-title', <h1 className="Hero-title">{app.forum.attribute('welcomeTitle')}</h1>, 10);
-
-    return items;
-  }
-
-  subtitleItems(): ItemList<Mithril.Children> {
-    const items = new ItemList<Mithril.Children>();
-
+    items.add('hero-title', <h1 className="Hero-title">{app.forum.attribute('welcomeTitle')}</h1>, 20);
     items.add('hero-subtitle', <div className="Hero-subtitle">{m.trust(app.forum.attribute('welcomeMessage'))}</div>, 10);
 
     return items;
