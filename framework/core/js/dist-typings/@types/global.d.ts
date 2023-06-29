@@ -98,6 +98,8 @@ interface FlarumObject {
    * }
    */
   extensions: Readonly<Record<string, ESModule>>;
+
+  reg: any;
 }
 
 declare const flarum: FlarumObject;
