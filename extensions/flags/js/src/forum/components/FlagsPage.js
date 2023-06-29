@@ -1,5 +1,5 @@
 import app from 'flarum/forum/app';
-import Page from 'flarum/components/Page';
+import Page from 'flarum/common/components/Page';
 
 import FlagList from './FlagList';
 

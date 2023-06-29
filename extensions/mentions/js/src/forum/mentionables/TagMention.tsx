@@ -1,7 +1,7 @@
 import app from 'flarum/forum/app';
 import Badge from 'flarum/common/components/Badge';
 import highlight from 'flarum/common/helpers/highlight';
-import type Tag from 'flarum/tags/common/models/Tag';
+import type Tag from 'ext:flarum/tags/common/models/Tag';
 import type Mithril from 'mithril';
 import MentionableModel from './MentionableModel';
 import type HashMentionFormat from './formats/HashMentionFormat';

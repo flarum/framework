@@ -20,8 +20,4 @@ app.initializers.add('flarum-tags', function () {
   addTagComposer();
 });
 
-// Expose compat API
-import tagsCompat from './compat';
-import { compat } from '@flarum/core/forum';
-
-Object.assign(compat, tagsCompat);
+import './forum';
