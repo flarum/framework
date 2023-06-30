@@ -5,12 +5,9 @@ import TextEditorButton from 'flarum/common/components/TextEditorButton';
 import KeyboardNavigatable from 'flarum/common/utils/KeyboardNavigatable';
 
 import AutocompleteDropdown from './fragments/AutocompleteDropdown';
-import MentionFormats from './mentionables/formats/MentionFormats';
 import MentionableModels from './mentionables/MentionableModels';
 
 export default function addComposerAutocomplete() {
-  app.mentionFormats = new MentionFormats();
-
   const $container = $('<div class="ComposerBody-mentionsDropdownContainer"></div>');
   const dropdown = new AutocompleteDropdown();
 

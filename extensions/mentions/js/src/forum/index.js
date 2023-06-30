@@ -13,10 +13,13 @@ import addComposerAutocomplete from './addComposerAutocomplete';
 import PostMentionedNotification from './components/PostMentionedNotification';
 import UserMentionedNotification from './components/UserMentionedNotification';
 import GroupMentionedNotification from './components/GroupMentionedNotification';
+import MentionFormats from './mentionables/formats/MentionFormats';
 import UserPage from 'flarum/forum/components/UserPage';
 import LinkButton from 'flarum/common/components/LinkButton';
 import User from 'flarum/common/models/User';
 import Model from 'flarum/common/Model';
+
+app.mentionFormats = new MentionFormats();
 
 export { default as extend } from './extend';
 
