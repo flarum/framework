@@ -29,7 +29,7 @@ class LoadMentionedByRelationship
         $actor = RequestUtil::getActor($request);
 
         return $query
-            ->with(['mentionsPosts', 'mentionsPosts.user', 'mentionsUsers'])
+            ->with(['mentionsPosts', 'mentionsPosts.user', 'mentionsPosts.discussion', 'mentionsUsers'])
             ->whereVisibleTo($actor)
             ->oldest()
             // Limiting a relationship results is only possible because

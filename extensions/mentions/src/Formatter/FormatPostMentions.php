@@ -9,6 +9,9 @@
 
 namespace Flarum\Mentions\Formatter;
 
+use Flarum\Discussion\Discussion;
+use Flarum\Http\SlugManager;
+use Flarum\Post\CommentPost;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use s9e\TextFormatter\Renderer;
 use s9e\TextFormatter\Utils;
@@ -21,9 +24,15 @@ class FormatPostMentions
      */
     private $translator;
 
-    public function __construct(TranslatorInterface $translator)
+    /**
+     * @var SlugManager
+     */
+    private $slugManager;
+
+    public function __construct(TranslatorInterface $translator, SlugManager $slugManager)
     {
         $this->translator = $translator;
+        $this->slugManager = $slugManager;
     }
 
     /**
@@ -54,6 +63,12 @@ class FormatPostMentions
 
             if ($post && ! $post->user) {
                 $attributes['displayname'] = $this->translator->trans('core.lib.username.deleted_text');
+            }
+
+            if ($post) {
+                $attributes['discussionid'] = $this->slugManager
+                    ->forResource(Discussion::class)
+                    ->toSlug($post->discussion);
             }
 
             return $attributes;
