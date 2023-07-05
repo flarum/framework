@@ -9,7 +9,6 @@
 
 namespace Flarum\Queue;
 
-use Exception;
 use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandling;
 use Psr\Log\LoggerInterface;
 use Throwable;
