@@ -9,15 +9,15 @@
 
 namespace Flarum\Foundation;
 
+use Psr\Http\Server\RequestHandlerInterface;
+use Symfony\Component\Console\Command\Command;
+
 interface AppInterface
 {
-    /**
-     * @return \Psr\Http\Server\RequestHandlerInterface
-     */
-    public function getRequestHandler();
+    public function getRequestHandler(): RequestHandlerInterface;
 
     /**
-     * @return \Symfony\Component\Console\Command\Command[]
+     * @return Command[]
      */
-    public function getConsoleCommands();
+    public function getConsoleCommands(): array;
 }

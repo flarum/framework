@@ -12,6 +12,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Serializer\CurrentUserSerializer;
 use Flarum\Http\RequestUtil;
 use Flarum\User\Command\RegisterUser;
+use Flarum\User\User;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
@@ -19,28 +20,14 @@ use Tobscure\JsonApi\Document;
 
 class CreateUserController extends AbstractCreateController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = CurrentUserSerializer::class;
+    public ?string $serializer = CurrentUserSerializer::class;
 
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
-
-    /**
-     * @param Dispatcher $bus
-     */
-    public function __construct(Dispatcher $bus)
-    {
-        $this->bus = $bus;
+    public function __construct(
+        protected Dispatcher $bus
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): User
     {
         return $this->bus->dispatch(
             new RegisterUser(RequestUtil::getActor($request), Arr::get($request->getParsedBody(), 'data', []))

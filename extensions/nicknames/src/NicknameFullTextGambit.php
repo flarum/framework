@@ -19,27 +19,16 @@ namespace Flarum\Nicknames;
 use Flarum\Search\GambitInterface;
 use Flarum\Search\SearchState;
 use Flarum\User\UserRepository;
+use Illuminate\Database\Eloquent\Builder;
 
 class NicknameFullTextGambit implements GambitInterface
 {
-    /**
-     * @var UserRepository
-     */
-    protected $users;
-
-    /**
-     * @param \Flarum\User\UserRepository $users
-     */
-    public function __construct(UserRepository $users)
-    {
-        $this->users = $users;
+    public function __construct(
+        protected UserRepository $users
+    ) {
     }
 
-    /**
-     * @param $searchValue
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    private function getUserSearchSubQuery($searchValue)
+    private function getUserSearchSubQuery(string $searchValue): Builder
     {
         return $this->users
             ->query()
@@ -48,15 +37,12 @@ class NicknameFullTextGambit implements GambitInterface
             ->orWhere('nickname', 'like', "{$searchValue}%");
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function apply(SearchState $search, $searchValue)
+    public function apply(SearchState $search, string $bit): bool
     {
         $search->getQuery()
             ->whereIn(
                 'id',
-                $this->getUserSearchSubQuery($searchValue)
+                $this->getUserSearchSubQuery($bit)
             );
 
         return true;

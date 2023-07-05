@@ -14,19 +14,9 @@ use Flarum\User\User;
 
 class ReadAll
 {
-    /**
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * @var DateTime
-     */
-    public $timestamp;
-
-    public function __construct(User $user, DateTime $timestamp)
-    {
-        $this->actor = $user;
-        $this->timestamp = $timestamp;
+    public function __construct(
+        public User $actor,
+        public DateTime $timestamp
+    ) {
     }
 }

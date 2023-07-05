@@ -42,12 +42,7 @@ export default class UserMention extends MentionableModel<User, AtMentionFormat>
   }
 
   suggestion(model: User, typed: string): Mithril.Children {
-    const username = usernameHelper(model);
-
-    if (typed) {
-      username.children = [highlight((username.text ?? '') as string, typed)];
-      delete username.text;
-    }
+    const username = usernameHelper(model, (name: string) => highlight(name, typed));
 
     return (
       <>

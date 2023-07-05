@@ -12,6 +12,7 @@ namespace Flarum\Mentions;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Group\Group;
 use Flarum\Http\UrlGenerator;
+use Flarum\Post\Post;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Tag;
 use Flarum\User\User;
@@ -30,23 +31,13 @@ class ConfigureMentions
     public const GROUP_MENTION_WITH_NAME_REGEX = '/\B@["“](?<groupname>((?!"#[a-z]{0,3}[0-9]+).)+)["|”]#g(?<id>[0-9]+)\b/';
     public const TAG_MENTION_WITH_SLUG_REGEX = '/(?:[^“"]|^)\B#(?<slug>[-_\p{L}\p{N}\p{M}]+)\b/ui';
 
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    public function __construct(UrlGenerator $url, ExtensionManager $extensions)
-    {
-        $this->url = $url;
-        $this->extensions = $extensions;
+    public function __construct(
+        protected UrlGenerator $url,
+        protected ExtensionManager $extensions
+    ) {
     }
 
-    public function __invoke(Configurator $config)
+    public function __invoke(Configurator $config): void
     {
         $this->configureUserMentions($config);
         $this->configurePostMentions($config);
@@ -90,10 +81,10 @@ class ConfigureMentions
 
     /**
      * @param FormatterTag $tag
-     * @param array<string, Collection> $mentions
-     * @return bool|void
+     * @param array{users: Collection<int, User>} $mentions
+     * @return bool|null
      */
-    public static function addUserId($tag, array $mentions)
+    public static function addUserId(FormatterTag $tag, array $mentions): ?bool
     {
         $allow_username_format = (bool) resolve(SettingsRepositoryInterface::class)->get('flarum-mentions.allow_username_format');
 
@@ -111,6 +102,8 @@ class ConfigureMentions
         }
 
         $tag->invalidate();
+
+        return null;
     }
 
     private function configurePostMentions(Configurator $config): void
@@ -149,10 +142,10 @@ class ConfigureMentions
 
     /**
      * @param FormatterTag $tag
-     * @param array<string, Collection> $mentions
-     * @return bool|void
+     * @param array{posts: Collection<int, Post>} $mentions
+     * @return bool|null
      */
-    public static function addPostId($tag, array $mentions)
+    public static function addPostId(FormatterTag $tag, array $mentions): ?bool
     {
         $post = $mentions['posts']->where('id', $tag->getAttribute('id'))->first();
 
@@ -166,9 +159,11 @@ class ConfigureMentions
 
             return true;
         }
+
+        return null;
     }
 
-    private function configureGroupMentions(Configurator $config)
+    private function configureGroupMentions(Configurator $config): void
     {
         $tagName = 'GROUPMENTION';
 
@@ -222,10 +217,10 @@ class ConfigureMentions
     /**
      * @param FormatterTag $tag
      * @param User $actor
-     * @param array<string, Collection> $mentions
-     * @return bool|void
+     * @param array{groups: Collection<int, Group>} $mentions
+     * @return bool|null
      */
-    public static function addGroupId(FormatterTag $tag, User $actor, array $mentions)
+    public static function addGroupId(FormatterTag $tag, User $actor, array $mentions): ?bool
     {
         $id = $tag->getAttribute('id');
 
@@ -238,16 +233,18 @@ class ConfigureMentions
         $group = $mentions['groups']->where('id', $id)->first();
 
         if ($group) {
-            $tag->setAttribute('id', $group->id);
+            $tag->setAttribute('id', (string) $group->id);
             $tag->setAttribute('groupname', $group->name_plural);
 
             return true;
         }
 
         $tag->invalidate();
+
+        return null;
     }
 
-    private function configureTagMentions(Configurator $config)
+    private function configureTagMentions(Configurator $config): void
     {
         $config->rendering->parameters['TAG_URL'] = $this->url->to('forum')->route('tag', ['slug' => '']);
 
@@ -311,10 +308,10 @@ class ConfigureMentions
 
     /**
      * @param FormatterTag $tag
-     * @param array<string, Collection> $mentions
-     * @return true|void
+     * @param array{tags: Collection<int, Tag>} $mentions
+     * @return bool|null
      */
-    public static function addTagId(FormatterTag $tag, array $mentions)
+    public static function addTagId(FormatterTag $tag, array $mentions): ?bool
     {
         /** @var Tag|null $model */
         $model = $mentions['tags']->where('slug', $tag->getAttribute('slug'))->first();
@@ -325,6 +322,8 @@ class ConfigureMentions
 
             return true;
         }
+
+        return null;
     }
 
     /**

@@ -10,20 +10,22 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
+use Flarum\Filter\AbstractFilterer;
+use Flarum\Filter\FilterState;
+use Flarum\Query\QueryCriteria;
 use Illuminate\Contracts\Container\Container;
 
 class Filter implements ExtenderInterface
 {
-    private $filtererClass;
-    private $filters = [];
-    private $filterMutators = [];
+    private array $filters = [];
+    private array $filterMutators = [];
 
     /**
-     * @param string $filtererClass: The ::class attribute of the filterer to extend.
+     * @param class-string<AbstractFilterer> $filtererClass: The ::class attribute of the filterer to extend.
      */
-    public function __construct($filtererClass)
-    {
-        $this->filtererClass = $filtererClass;
+    public function __construct(
+        private readonly string $filtererClass
+    ) {
     }
 
     /**
@@ -42,7 +44,7 @@ class Filter implements ExtenderInterface
     /**
      * Add a callback through which to run all filter queries after filters have been applied.
      *
-     * @param callable|string $callback
+     * @param (callable(FilterState $filter, QueryCriteria $criteria): void)|class-string $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
      * - Flarum\Filter\FilterState $filter
@@ -52,14 +54,14 @@ class Filter implements ExtenderInterface
      *
      * @return self
      */
-    public function addFilterMutator($callback): self
+    public function addFilterMutator(callable|string $callback): self
     {
         $this->filterMutators[] = $callback;
 
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         $container->extend('flarum.filter.filters', function ($originalFilters) {
             foreach ($this->filters as $filter) {
@@ -68,6 +70,7 @@ class Filter implements ExtenderInterface
 
             return $originalFilters;
         });
+
         $container->extend('flarum.filter.filter_mutators', function ($originalMutators) {
             foreach ($this->filterMutators as $mutator) {
                 $originalMutators[$this->filtererClass][] = $mutator;

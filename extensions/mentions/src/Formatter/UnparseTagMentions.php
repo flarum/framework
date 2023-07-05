@@ -15,29 +15,17 @@ use s9e\TextFormatter\Utils;
 
 class UnparseTagMentions
 {
-    /**
-     * Configure rendering for user mentions.
-     *
-     * @param string $xml
-     * @param mixed $context
-     * @return string $xml to be unparsed
-     */
-    public function __invoke($context, string $xml)
+    public function __invoke(mixed $context, string $xml): string
     {
-        $xml = $this->updateTagMentionTags($context, $xml);
-        $xml = $this->unparseTagMentionTags($xml);
-
-        return $xml;
+        return $this->unparseTagMentionTags(
+            $this->updateTagMentionTags($context, $xml)
+        );
     }
 
     /**
      * Updates XML user mention tags before unparsing so that unparsing uses new tag names.
-     *
-     * @param mixed $context
-     * @param string $xml : Parsed text.
-     * @return string $xml : Updated XML tags;
      */
-    protected function updateTagMentionTags($context, string $xml): string
+    protected function updateTagMentionTags(mixed $context, string $xml): string
     {
         return Utils::replaceAttributes($xml, 'TAGMENTION', function (array $attributes) use ($context) {
             /** @var Tag|null $tag */
@@ -56,9 +44,6 @@ class UnparseTagMentions
 
     /**
      * Transforms tag mention tags from XML to raw unparsed content with updated name.
-     *
-     * @param string $xml : Parsed text.
-     * @return string : Unparsed text.
      */
     protected function unparseTagMentionTags(string $xml): string
     {

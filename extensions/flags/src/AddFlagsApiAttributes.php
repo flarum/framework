@@ -15,20 +15,12 @@ use Flarum\User\User;
 
 class AddFlagsApiAttributes
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     */
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
-        $this->settings = $settings;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings
+    ) {
     }
 
-    public function __invoke(ForumSerializer $serializer)
+    public function __invoke(ForumSerializer $serializer): array
     {
         $attributes = [
             'canViewFlags' => $serializer->getActor()->hasPermissionLike('discussion.viewFlags')
@@ -41,11 +33,7 @@ class AddFlagsApiAttributes
         return $attributes;
     }
 
-    /**
-     * @param User $actor
-     * @return int
-     */
-    protected function getFlagCount(User $actor)
+    protected function getFlagCount(User $actor): int
     {
         return Flag::whereVisibleTo($actor)->distinct()->count('flags.post_id');
     }

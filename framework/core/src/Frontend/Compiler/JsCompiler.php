@@ -65,10 +65,7 @@ class JsCompiler extends RevisionCompiler
         return preg_replace('~//# sourceMappingURL.*$~m', '', $string)."\n";
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function delete(string $file)
+    protected function delete(string $file): void
     {
         parent::delete($file);
 

@@ -23,18 +23,12 @@ class UserFilter implements FilterInterface
 {
     use ValidateFilterTrait;
 
-    /**
-     * @inheritDoc
-     */
     public function getFilterKey(): string
     {
         return 'user';
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function filter(FilterState $filterState, $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $filterValue = $this->asInt($filterValue);
 

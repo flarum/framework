@@ -9,6 +9,7 @@
 
 namespace Flarum\User\Access;
 
+use Flarum\Database\AbstractModel;
 use Flarum\User\User;
 
 abstract class AbstractPolicy
@@ -19,30 +20,27 @@ abstract class AbstractPolicy
     public const FORCE_ALLOW = 'FORCE_ALLOW';
     public const FORCE_DENY = 'FORCE_DENY';
 
-    protected function allow()
+    protected function allow(): string
     {
         return static::ALLOW;
     }
 
-    protected function deny()
+    protected function deny(): string
     {
         return static::DENY;
     }
 
-    protected function forceAllow()
+    protected function forceAllow(): string
     {
         return static::FORCE_ALLOW;
     }
 
-    protected function forceDeny()
+    protected function forceDeny(): string
     {
         return static::FORCE_DENY;
     }
 
-    /**
-     * @return string|void
-     */
-    public function checkAbility(User $actor, string $ability, $instance)
+    public function checkAbility(User $actor, string $ability, string|AbstractModel|null $instance): ?string
     {
         // If a specific method for this ability is defined,
         // call that and return any non-null results
@@ -58,6 +56,8 @@ abstract class AbstractPolicy
         if (method_exists($this, 'can')) {
             return $this->sanitizeResult(call_user_func_array([$this, 'can'], [$actor, $ability, $instance]));
         }
+
+        return null;
     }
 
     /**
@@ -69,11 +69,8 @@ abstract class AbstractPolicy
      *
      * WITH THIS:
      * `return SOME_BOOLEAN_LOGIC;
-     *
-     * @param mixed $result
-     * @return string|void|null
      */
-    public function sanitizeResult($result)
+    public function sanitizeResult(string|bool|null $result): ?string
     {
         if ($result === true) {
             return $this->allow();

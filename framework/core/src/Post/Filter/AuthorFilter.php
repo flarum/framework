@@ -18,14 +18,9 @@ class AuthorFilter implements FilterInterface
 {
     use ValidateFilterTrait;
 
-    /**
-     * @var \Flarum\User\UserRepository
-     */
-    protected $users;
-
-    public function __construct(UserRepository $users)
-    {
-        $this->users = $users;
+    public function __construct(
+        protected UserRepository $users
+    ) {
     }
 
     public function getFilterKey(): string
@@ -33,7 +28,7 @@ class AuthorFilter implements FilterInterface
         return 'author';
     }
 
-    public function filter(FilterState $filterState, $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $usernames = $this->asStringArray($filterValue);
 

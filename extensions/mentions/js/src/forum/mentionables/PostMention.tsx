@@ -58,12 +58,7 @@ export default class PostMention extends MentionableModel<Post, AtMentionFormat>
 
   suggestion(model: Post, typed: string): Mithril.Children {
     const user = model.user() || null;
-    const username = usernameHelper(user);
-
-    if (typed) {
-      username.children = [highlight((username.text ?? '') as string, typed)];
-      delete username.text;
-    }
+    const username = usernameHelper(user, (name: string) => highlight(name, typed));
 
     return (
       <>

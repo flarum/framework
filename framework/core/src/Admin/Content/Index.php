@@ -18,26 +18,11 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Index
 {
-    /**
-     * @var Factory
-     */
-    protected $view;
-
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    public function __construct(Factory $view, ExtensionManager $extensions, SettingsRepositoryInterface $settings)
-    {
-        $this->view = $view;
-        $this->extensions = $extensions;
-        $this->settings = $settings;
+    public function __construct(
+        protected Factory $view,
+        protected ExtensionManager $extensions,
+        protected SettingsRepositoryInterface $settings
+    ) {
     }
 
     public function __invoke(Document $document, Request $request): Document

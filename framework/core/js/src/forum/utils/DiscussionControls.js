@@ -12,7 +12,7 @@ import extractText from '../../common/utils/extractText';
  * The `DiscussionControls` utility constructs a list of buttons for a
  * discussion which perform actions on it.
  */
-export default {
+const DiscussionControls = {
   /**
    * Get a list of controls for a discussion.
    *
@@ -240,3 +240,5 @@ export default {
     });
   },
 };
+
+export default DiscussionControls;

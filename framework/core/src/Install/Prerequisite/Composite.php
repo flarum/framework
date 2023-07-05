@@ -16,7 +16,7 @@ class Composite implements PrerequisiteInterface
     /**
      * @var PrerequisiteInterface[]
      */
-    protected $prerequisites = [];
+    protected array $prerequisites = [];
 
     public function __construct(PrerequisiteInterface $first)
     {

@@ -6,6 +6,7 @@ import 'bootstrap/js/dropdown';
 import 'bootstrap/js/tooltip';
 import 'bootstrap/js/transition';
 import 'jquery.hotkeys/jquery.hotkeys';
+import './registry';
 import app from './app';
 export { app };
 import './utils/arrayFlatPolyfill';

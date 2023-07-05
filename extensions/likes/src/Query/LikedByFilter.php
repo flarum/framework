@@ -22,7 +22,7 @@ class LikedByFilter implements FilterInterface
         return 'likedBy';
     }
 
-    public function filter(FilterState $filterState, $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $likedId = $this->asInt($filterValue);
 

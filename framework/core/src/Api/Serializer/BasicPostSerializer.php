@@ -11,56 +11,42 @@ namespace Flarum\Api\Serializer;
 
 use Exception;
 use Flarum\Foundation\ErrorHandling\LogReporter;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Post\CommentPost;
 use Flarum\Post\Post;
 use InvalidArgumentException;
-use Symfony\Contracts\Translation\TranslatorInterface;
+use Tobscure\JsonApi\Relationship;
 
 class BasicPostSerializer extends AbstractSerializer
 {
-    /**
-     * @var LogReporter
-     */
-    protected $log;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    public function __construct(LogReporter $log, TranslatorInterface $translator)
-    {
-        $this->log = $log;
-        $this->translator = $translator;
-    }
-    /**
-     * {@inheritdoc}
-     */
     protected $type = 'posts';
 
+    public function __construct(
+        protected LogReporter $log,
+        protected TranslatorInterface $translator
+    ) {
+    }
+
     /**
-     * {@inheritdoc}
-     *
-     * @param \Flarum\Post\Post $post
      * @throws InvalidArgumentException
      */
-    protected function getDefaultAttributes($post)
+    protected function getDefaultAttributes(object|array $model): array
     {
-        if (! ($post instanceof Post)) {
+        if (! ($model instanceof Post)) {
             throw new InvalidArgumentException(
                 get_class($this).' can only serialize instances of '.Post::class
             );
         }
 
         $attributes = [
-            'number'      => (int) $post->number,
-            'createdAt'   => $this->formatDate($post->created_at),
-            'contentType' => $post->type
+            'number'      => (int) $model->number,
+            'createdAt'   => $this->formatDate($model->created_at),
+            'contentType' => $model->type
         ];
 
-        if ($post instanceof CommentPost) {
+        if ($model instanceof CommentPost) {
             try {
-                $attributes['contentHtml'] = $post->formatContent($this->request);
+                $attributes['contentHtml'] = $model->formatContent($this->request);
                 $attributes['renderFailed'] = false;
             } catch (Exception $e) {
                 $attributes['contentHtml'] = $this->translator->trans('core.lib.error.render_failed_message');
@@ -68,24 +54,18 @@ class BasicPostSerializer extends AbstractSerializer
                 $attributes['renderFailed'] = true;
             }
         } else {
-            $attributes['content'] = $post->content;
+            $attributes['content'] = $model->content;
         }
 
         return $attributes;
     }
 
-    /**
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function user($post)
+    protected function user(Post $post): ?Relationship
     {
         return $this->hasOne($post, BasicUserSerializer::class);
     }
 
-    /**
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function discussion($post)
+    protected function discussion(Post $post): ?Relationship
     {
         return $this->hasOne($post, BasicDiscussionSerializer::class);
     }

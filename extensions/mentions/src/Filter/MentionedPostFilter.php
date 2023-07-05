@@ -19,7 +19,7 @@ class MentionedPostFilter implements FilterInterface
         return 'mentionedPost';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $mentionedId = trim($filterValue, '"');
 

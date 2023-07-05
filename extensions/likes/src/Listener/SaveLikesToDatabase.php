@@ -17,19 +17,13 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class SaveLikesToDatabase
 {
-    /**
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
+    public function subscribe(Dispatcher $events): void
     {
-        $events->listen(Saving::class, [$this, 'whenPostIsSaving']);
-        $events->listen(Deleted::class, [$this, 'whenPostIsDeleted']);
+        $events->listen(Saving::class, $this->whenPostIsSaving(...));
+        $events->listen(Deleted::class, $this->whenPostIsDeleted(...));
     }
 
-    /**
-     * @param Saving $event
-     */
-    public function whenPostIsSaving(Saving $event)
+    public function whenPostIsSaving(Saving $event): void
     {
         $post = $event->post;
         $data = $event->data;
@@ -54,10 +48,7 @@ class SaveLikesToDatabase
         }
     }
 
-    /**
-     * @param Deleted $event
-     */
-    public function whenPostIsDeleted(Deleted $event)
+    public function whenPostIsDeleted(Deleted $event): void
     {
         $event->post->likes()->detach();
     }

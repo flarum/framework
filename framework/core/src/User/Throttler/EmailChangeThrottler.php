@@ -21,19 +21,16 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class EmailChangeThrottler
 {
-    public static $timeout = 300;
+    public static int $timeout = 300;
 
-    /**
-     * @return bool|void
-     */
-    public function __invoke(ServerRequestInterface $request)
+    public function __invoke(ServerRequestInterface $request): ?bool
     {
         if ($request->getAttribute('routeName') !== 'users.update') {
-            return;
+            return null;
         }
 
         if (! Arr::has($request->getParsedBody(), 'data.attributes.email')) {
-            return;
+            return null;
         }
 
         $actor = RequestUtil::getActor($request);
@@ -42,5 +39,7 @@ class EmailChangeThrottler
         if (EmailToken::query()->where('user_id', $actor->id)->where('created_at', '>=', Carbon::now()->subSeconds(self::$timeout))->exists()) {
             return true;
         }
+
+        return null;
     }
 }

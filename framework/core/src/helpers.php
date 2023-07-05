@@ -7,8 +7,8 @@
  * LICENSE file that was distributed with this source code.
  */
 
+use Flarum\Foundation\Container;
 use Flarum\Foundation\Paths;
-use Illuminate\Container\Container;
 use Illuminate\Contracts\Config\Repository;
 
 if (! function_exists('resolve')) {
@@ -114,7 +114,7 @@ if (! function_exists('config')) {
     /**
      * @deprecated do not use, will be transferred to flarum/laravel-helpers.
      */
-    function config(string $key, $default = null)
+    function config(string $key, mixed $default = null): mixed
     {
         return resolve(Repository::class)->get($key, $default);
     }

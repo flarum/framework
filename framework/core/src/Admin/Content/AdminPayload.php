@@ -25,69 +25,18 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AdminPayload
 {
-    /**
-     * @var Container;
-     */
-    protected $container;
-
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    /**
-     * @var ConnectionInterface
-     */
-    protected $db;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @var Config
-     */
-    protected $config;
-
-    /**
-     * @var ApplicationInfoProvider
-     */
-    protected $appInfo;
-
-    /**
-     * @param Container $container
-     * @param SettingsRepositoryInterface $settings
-     * @param ExtensionManager $extensions
-     * @param ConnectionInterface $db
-     * @param Dispatcher $events
-     * @param Config $config
-     * @param ApplicationInfoProvider $appInfo
-     */
     public function __construct(
-        Container $container,
-        SettingsRepositoryInterface $settings,
-        ExtensionManager $extensions,
-        ConnectionInterface $db,
-        Dispatcher $events,
-        Config $config,
-        ApplicationInfoProvider $appInfo
+        protected Container $container,
+        protected SettingsRepositoryInterface $settings,
+        protected ExtensionManager $extensions,
+        protected ConnectionInterface $db,
+        protected Dispatcher $events,
+        protected Config $config,
+        protected ApplicationInfoProvider $appInfo
     ) {
-        $this->container = $container;
-        $this->settings = $settings;
-        $this->extensions = $extensions;
-        $this->db = $db;
-        $this->events = $events;
-        $this->config = $config;
-        $this->appInfo = $appInfo;
     }
 
-    public function __invoke(Document $document, Request $request)
+    public function __invoke(Document $document, Request $request): void
     {
         $settings = $this->settings->all();
 
@@ -124,7 +73,7 @@ class AdminPayload
          */
         $document->payload['modelStatistics'] = [
             'users' => [
-                'total' => User::count()
+                'total' => User::query()->count()
             ]
         ];
     }

@@ -14,15 +14,12 @@ use Flarum\User\User;
 
 class UserPolicy extends AbstractPolicy
 {
-    /**
-     * @param User $actor
-     * @param User $user
-     * @return bool|null
-     */
-    public function suspend(User $actor, User $user)
+    public function suspend(User $actor, User $user): ?string
     {
         if ($user->isAdmin() || $user->id === $actor->id) {
             return $this->deny();
         }
+
+        return null;
     }
 }

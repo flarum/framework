@@ -15,29 +15,20 @@ use Flarum\Install\ReversibleStep;
 
 class StoreConfig implements ReversibleStep
 {
-    private $debugMode;
-
-    private $dbConfig;
-
-    private $baseUrl;
-
-    private $configFile;
-
-    public function __construct($debugMode, DatabaseConfig $dbConfig, BaseUrl $baseUrl, $configFile)
-    {
-        $this->debugMode = $debugMode;
-        $this->dbConfig = $dbConfig;
-        $this->baseUrl = $baseUrl;
-
-        $this->configFile = $configFile;
+    public function __construct(
+        private readonly bool $debugMode,
+        private readonly DatabaseConfig $dbConfig,
+        private readonly BaseUrl $baseUrl,
+        private readonly string $configFile
+    ) {
     }
 
-    public function getMessage()
+    public function getMessage(): string
     {
         return 'Writing config file';
     }
 
-    public function run()
+    public function run(): void
     {
         file_put_contents(
             $this->configFile,
@@ -45,12 +36,12 @@ class StoreConfig implements ReversibleStep
         );
     }
 
-    public function revert()
+    public function revert(): void
     {
         @unlink($this->configFile);
     }
 
-    private function buildConfig()
+    private function buildConfig(): array
     {
         return [
             'debug'    => $this->debugMode,
@@ -64,7 +55,7 @@ class StoreConfig implements ReversibleStep
         ];
     }
 
-    private function getPathsConfig()
+    private function getPathsConfig(): array
     {
         return [
             'api'   => 'api',

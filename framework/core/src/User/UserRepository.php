@@ -10,15 +10,17 @@
 namespace Flarum\User;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @template T of User
+ */
 class UserRepository
 {
     /**
-     * Get a new query builder for the users table.
-     *
      * @return Builder<User>
      */
-    public function query()
+    public function query(): Builder
     {
         return User::query();
     }
@@ -27,13 +29,11 @@ class UserRepository
      * Find a user by ID, optionally making sure it is visible to a certain
      * user, or throw an exception.
      *
-     * @param int|string $id
-     * @param User|null $actor
-     * @return User
+     * @return T
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function findOrFail($id, User $actor = null)
+    public function findOrFail(int|string $id, User $actor = null): Model
     {
         $query = $this->query()->where('id', $id);
 
@@ -44,13 +44,11 @@ class UserRepository
      * Find a user by username, optionally making sure it is visible to a certain
      * user, or throw an exception.
      *
-     * @param string $username
-     * @param User|null $actor
-     * @return User
+     * @return T
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function findOrFailByUsername($username, User $actor = null)
+    public function findOrFailByUsername(string $username, User $actor = null): Model
     {
         $query = $this->query()->where('username', $username);
 
@@ -60,10 +58,9 @@ class UserRepository
     /**
      * Find a user by an identification (username or email).
      *
-     * @param string $identification
-     * @return User|null
+     * @return ?T
      */
-    public function findByIdentification($identification)
+    public function findByIdentification(string $identification): ?Model
     {
         $field = filter_var($identification, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
@@ -71,24 +68,14 @@ class UserRepository
     }
 
     /**
-     * Find a user by email.
-     *
-     * @param string $email
-     * @return User|null
+     * @return ?T
      */
-    public function findByEmail($email)
+    public function findByEmail(string $email): ?Model
     {
         return $this->query()->where('email', $email)->first();
     }
 
-    /**
-     * Get the ID of a user with the given username.
-     *
-     * @param string $username
-     * @param User|null $actor
-     * @return int|null
-     */
-    public function getIdForUsername($username, User $actor = null)
+    public function getIdForUsername(string $username, User $actor = null): ?int
     {
         $query = $this->query()->where('username', $username);
 
@@ -105,12 +92,8 @@ class UserRepository
     /**
      * Find users by matching a string of words against their username,
      * optionally making sure they are visible to a certain user.
-     *
-     * @param string $string
-     * @param User|null $actor
-     * @return array
      */
-    public function getIdsForUsername($string, User $actor = null)
+    public function getIdsForUsername(string $string, User $actor = null): array
     {
         $string = $this->escapeLikeString($string);
 
@@ -122,13 +105,9 @@ class UserRepository
     }
 
     /**
-     * Scope a query to only include records that are visible to a user.
-     *
-     * @param Builder<User> $query
-     * @param User|null $actor
      * @return Builder<User>
      */
-    protected function scopeVisibleTo(Builder $query, User $actor = null)
+    protected function scopeVisibleTo(Builder $query, User $actor = null): Builder
     {
         if ($actor !== null) {
             $query->whereVisibleTo($actor);
@@ -139,11 +118,8 @@ class UserRepository
 
     /**
      * Escape special characters that can be used as wildcards in a LIKE query.
-     *
-     * @param string $string
-     * @return string
      */
-    private function escapeLikeString($string)
+    private function escapeLikeString(string $string): string
     {
         return str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $string);
     }

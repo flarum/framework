@@ -129,7 +129,7 @@ class ConfigTest extends TestCase
 
         try {
             $config['custom_a'] = 'c';
-        } catch (RuntimeException $_) {
+        } catch (RuntimeException) {
         }
 
         // Ensure the value was not changed
@@ -146,7 +146,7 @@ class ConfigTest extends TestCase
 
         try {
             unset($config['custom_a']);
-        } catch (RuntimeException $_) {
+        } catch (RuntimeException) {
         }
 
         // Ensure the value was not changed

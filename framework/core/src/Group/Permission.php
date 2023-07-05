@@ -11,6 +11,7 @@ namespace Flarum\Group;
 
 use Flarum\Database\AbstractModel;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $group_id
@@ -18,24 +19,14 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class Permission extends AbstractModel
 {
-    /**
-     * {@inheritdoc}
-     */
     protected $table = 'group_permission';
 
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['created_at'];
+    protected $casts = [
+        'group_id' => 'integer',
+        'created_at' => 'datetime'
+    ];
 
-    /**
-     * Define the relationship with the group that this permission is for.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function group()
+    public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);
     }
@@ -59,7 +50,7 @@ class Permission extends AbstractModel
      *
      * @return array[]
      */
-    public static function map()
+    public static function map(): array
     {
         $permissions = [];
 

@@ -25,91 +25,59 @@ class Assets
     /**
      * @var array
      */
-    public $sources = [
+    public array $sources = [
         'js' => [],
         'css' => [],
         'localeJs' => [],
         'localeCss' => []
     ];
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected array $lessImportOverrides = [];
+    protected array $fileSourceOverrides = [];
 
-    /**
-     * @var Cloud
-     */
-    protected $assetsDir;
-
-    /**
-     * @var string
-     */
-    protected $cacheDir;
-
-    /**
-     * @var array
-     */
-    protected $lessImportDirs;
-
-    /**
-     * @var array
-     */
-    protected $lessImportOverrides = [];
-
-    /**
-     * @var array
-     */
-    protected $fileSourceOverrides = [];
-
-    /**
-     * @var array
-     */
-    protected $customFunctions = [];
-
-    public function __construct(string $name, Cloud $assetsDir, string $cacheDir = null, array $lessImportDirs = null, array $customFunctions = [])
-    {
-        $this->name = $name;
-        $this->assetsDir = $assetsDir;
-        $this->cacheDir = $cacheDir;
-        $this->lessImportDirs = $lessImportDirs;
-        $this->customFunctions = $customFunctions;
+    public function __construct(
+        protected string $name,
+        protected Cloud $assetsDir,
+        protected ?string $cacheDir = null,
+        protected ?array $lessImportDirs = null,
+        protected array $customFunctions = []
+    ) {
     }
 
-    public function js($sources)
+    public function js(callable $callback): static
     {
-        $this->addSources('js', $sources);
+        $this->addSources('js', $callback);
 
         return $this;
     }
 
-    public function css($callback)
+    public function css(callable $callback): static
     {
         $this->addSources('css', $callback);
 
         return $this;
     }
 
-    public function localeJs($callback)
+    public function localeJs(callable $callback): static
     {
         $this->addSources('localeJs', $callback);
 
         return $this;
     }
 
-    public function localeCss($callback)
+    public function localeCss(callable $callback): static
     {
         $this->addSources('localeCss', $callback);
 
         return $this;
     }
 
-    private function addSources($type, $callback)
+    private function addSources(string $type, callable $callback): void
     {
         $this->sources[$type][] = $callback;
     }
 
-    private function populate(CompilerInterface $compiler, string $type, string $locale = null)
+    private function populate(CompilerInterface $compiler, string $type, string $locale = null): void
     {
         $compiler->addSources(function (SourceCollector $sources) use ($type, $locale) {
             foreach ($this->sources[$type] as $callback) {
@@ -154,7 +122,7 @@ class Assets
         return $compiler;
     }
 
-    protected function makeJsCompiler(string $filename)
+    protected function makeJsCompiler(string $filename): JsCompiler
     {
         return resolve(JsCompiler::class, [
             'assetsDir' => $this->assetsDir,
@@ -195,7 +163,7 @@ class Assets
         return $this->name;
     }
 
-    public function setName(string $name)
+    public function setName(string $name): void
     {
         $this->name = $name;
     }
@@ -205,7 +173,7 @@ class Assets
         return $this->assetsDir;
     }
 
-    public function setAssetsDir(Cloud $assetsDir)
+    public function setAssetsDir(Cloud $assetsDir): void
     {
         $this->assetsDir = $assetsDir;
     }
@@ -215,7 +183,7 @@ class Assets
         return $this->cacheDir;
     }
 
-    public function setCacheDir(?string $cacheDir)
+    public function setCacheDir(?string $cacheDir): void
     {
         $this->cacheDir = $cacheDir;
     }
@@ -225,17 +193,17 @@ class Assets
         return $this->lessImportDirs;
     }
 
-    public function setLessImportDirs(array $lessImportDirs)
+    public function setLessImportDirs(array $lessImportDirs): void
     {
         $this->lessImportDirs = $lessImportDirs;
     }
 
-    public function addLessImportOverrides(array $lessImportOverrides)
+    public function addLessImportOverrides(array $lessImportOverrides): void
     {
         $this->lessImportOverrides = array_merge($this->lessImportOverrides, $lessImportOverrides);
     }
 
-    public function addFileSourceOverrides(array $fileSourceOverrides)
+    public function addFileSourceOverrides(array $fileSourceOverrides): void
     {
         $this->fileSourceOverrides = array_merge($this->fileSourceOverrides, $fileSourceOverrides);
     }

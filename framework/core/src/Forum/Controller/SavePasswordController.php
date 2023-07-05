@@ -29,45 +29,15 @@ class SavePasswordController implements RequestHandlerInterface
 {
     use DispatchEventsTrait;
 
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @var \Flarum\User\UserValidator
-     */
-    protected $validator;
-
-    /**
-     * @var SessionAuthenticator
-     */
-    protected $authenticator;
-
-    /**
-     * @var Factory
-     */
-    protected $validatorFactory;
-
-    /**
-     * @param UrlGenerator $url
-     * @param SessionAuthenticator $authenticator
-     * @param UserValidator $validator
-     * @param Factory $validatorFactory
-     */
-    public function __construct(UrlGenerator $url, SessionAuthenticator $authenticator, UserValidator $validator, Factory $validatorFactory, Dispatcher $events)
-    {
-        $this->url = $url;
-        $this->authenticator = $authenticator;
-        $this->validator = $validator;
-        $this->validatorFactory = $validatorFactory;
-        $this->events = $events;
+    public function __construct(
+        protected UrlGenerator $url,
+        protected SessionAuthenticator $authenticator,
+        protected UserValidator $validator,
+        protected Factory $validatorFactory,
+        protected Dispatcher $events
+    ) {
     }
 
-    /**
-     * @param Request $request
-     * @return ResponseInterface
-     */
     public function handle(Request $request): ResponseInterface
     {
         $input = $request->getParsedBody();

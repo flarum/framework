@@ -14,27 +14,21 @@ use InvalidArgumentException;
 
 class MailSettingsSerializer extends AbstractSerializer
 {
-    /**
-     * {@inheritdoc}
-     */
     protected $type = 'mail-settings';
 
     /**
-     * {@inheritdoc}
-     *
-     * @param array $settings
      * @throws InvalidArgumentException
      */
-    protected function getDefaultAttributes($settings)
+    protected function getDefaultAttributes(object|array $model): array
     {
         return [
-            'fields' => array_map([$this, 'serializeDriver'], $settings['drivers']),
-            'sending' => $settings['sending'],
-            'errors' => $settings['errors'],
+            'fields' => array_map([$this, 'serializeDriver'], $model['drivers']),
+            'sending' => $model['sending'],
+            'errors' => $model['errors'],
         ];
     }
 
-    private function serializeDriver(DriverInterface $driver)
+    private function serializeDriver(DriverInterface $driver): array
     {
         return $driver->availableSettings();
     }

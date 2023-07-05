@@ -13,10 +13,7 @@ use Flarum\Foundation\AbstractValidator;
 
 class SuspendValidator extends AbstractValidator
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $rules = [
+    protected array $rules = [
         'suspendedUntil' => ['nullable', 'date'],
     ];
 }

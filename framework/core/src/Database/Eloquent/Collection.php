@@ -9,8 +9,15 @@
 
 namespace Flarum\Database\Eloquent;
 
+use Flarum\Database\AbstractModel;
 use Illuminate\Database\Eloquent\Collection as BaseCollection;
 
+/**
+ * @template TKey of array-key
+ * @template TModel of AbstractModel
+ *
+ * @extends BaseCollection<TKey, TModel>
+ */
 class Collection extends BaseCollection
 {
     /**
@@ -37,7 +44,7 @@ class Collection extends BaseCollection
      *
      * @link https://github.com/flarum/framework/pull/3780
      */
-    public function loadAggregate($relations, $column, $function = null)
+    public function loadAggregate($relations, $column, $function = null): self
     {
         if ($this->isEmpty()) {
             return $this;

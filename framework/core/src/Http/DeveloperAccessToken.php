@@ -11,7 +11,7 @@ namespace Flarum\Http;
 
 class DeveloperAccessToken extends AccessToken
 {
-    public static $type = 'developer';
+    public static string $type = 'developer';
 
-    protected static $lifetime = 0;
+    protected static int $lifetime = 0;
 }

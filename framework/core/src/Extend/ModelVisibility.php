@@ -10,9 +10,12 @@
 namespace Flarum\Extend;
 
 use Exception;
+use Flarum\Database\AbstractModel;
+use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Model visibility scoping allows us to scope queries based on the current user.
@@ -31,28 +34,26 @@ use Illuminate\Contracts\Container\Container;
  */
 class ModelVisibility implements ExtenderInterface
 {
-    private $modelClass;
-    private $scopers = [];
-    private $allScopers = [];
+    private array $scopers = [];
+    private array $allScopers = [];
 
     /**
-     * @param string $modelClass: The ::class attribute of the model you are applying scopers to.
+     * @param class-string<AbstractModel> $modelClass: The ::class attribute of the model you are applying scopers to.
      *                           This model must extend from \Flarum\Database\AbstractModel,
      *                           and use \Flarum\Database\ScopeVisibilityTrait.
      */
-    public function __construct(string $modelClass)
-    {
-        $this->modelClass = $modelClass;
-
-        if (class_exists($this->modelClass) && ! is_callable([$modelClass, 'registerVisibilityScoper'])) {
-            throw new Exception("Model $modelClass cannot be visibility scoped as it does not use Flarum\Database\ScopeVisibilityTrait.");
+    public function __construct(
+        private readonly string $modelClass
+    ) {
+        if (class_exists($modelClass) && ! is_callable([$modelClass, 'registerVisibilityScoper'])) {
+            throw new Exception("Model $modelClass cannot be visibility scoped as it does not use ".ScopeVisibilityTrait::class.'.');
         }
     }
 
     /**
      * Add a scoper for a given ability.
      *
-     * @param callable|string $callback
+     * @param (callable(\Flarum\User\User $actor, Builder $query): void)|class-string $callback
      * @param string $ability: Defaults to 'view'.
      *
      * The callback can be a closure or invokable class, and should accept:
@@ -63,7 +64,7 @@ class ModelVisibility implements ExtenderInterface
      *
      * @return self
      */
-    public function scope($callback, string $ability = 'view'): self
+    public function scope(callable|string $callback, string $ability = 'view'): self
     {
         $this->scopers[$ability][] = $callback;
 
@@ -71,9 +72,9 @@ class ModelVisibility implements ExtenderInterface
     }
 
     /**
-     * Add a scoper scoper that will always run for this model, regardless of requested ability.
+     * Add a scoper that will always run for this model, regardless of requested ability.
      *
-     * @param callable|string $callback
+     * @param (callable(\Flarum\User\User $actor, Builder $query, string $ability): void)|class-string $callback
      *
      * The callback can be a closure or invokable class, and should accept:
      * - \Flarum\User\User $actor
@@ -84,14 +85,14 @@ class ModelVisibility implements ExtenderInterface
      *
      * @return self
      */
-    public function scopeAll($callback): self
+    public function scopeAll(callable|string $callback): self
     {
         $this->allScopers[] = $callback;
 
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         if (! class_exists($this->modelClass)) {
             return;
@@ -99,11 +100,14 @@ class ModelVisibility implements ExtenderInterface
 
         foreach ($this->scopers as $ability => $scopers) {
             foreach ($scopers as $scoper) {
+                // @todo: we can't define class-string<Trait>, introduce interfaces for scopers.
+                // @phpstan-ignore-next-line
                 $this->modelClass::registerVisibilityScoper(ContainerUtil::wrapCallback($scoper, $container), $ability);
             }
         }
 
         foreach ($this->allScopers as $scoper) {
+            // @phpstan-ignore-next-line
             $this->modelClass::registerVisibilityScoper(ContainerUtil::wrapCallback($scoper, $container));
         }
     }

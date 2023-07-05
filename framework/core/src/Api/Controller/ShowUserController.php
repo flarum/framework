@@ -21,40 +21,17 @@ use Tobscure\JsonApi\Document;
 
 class ShowUserController extends AbstractShowController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = UserSerializer::class;
+    public ?string $serializer = UserSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $include = ['groups'];
+    public array $include = ['groups'];
 
-    /**
-     * @var SlugManager
-     */
-    protected $slugManager;
-
-    /**
-     * @var UserRepository
-     */
-    protected $users;
-
-    /**
-     * @param SlugManager $slugManager
-     * @param UserRepository $users
-     */
-    public function __construct(SlugManager $slugManager, UserRepository $users)
-    {
-        $this->slugManager = $slugManager;
-        $this->users = $users;
+    public function __construct(
+        protected SlugManager $slugManager,
+        protected UserRepository $users
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): User
     {
         $id = Arr::get($request->getQueryParams(), 'id');
         $actor = RequestUtil::getActor($request);

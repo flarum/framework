@@ -16,12 +16,13 @@ class ContainerUtil
     /**
      * Wraps a callback so that string-based invokable classes get resolved only when actually used.
      *
-     * @internal Backwards compatability not guaranteed.
-     *
-     * @param callable|string $callback: A callable, global function, or a ::class attribute of an invokable class
+     * @param callable|class-string $callback : A callable, global function, or a ::class attribute of an invokable class
      * @param Container $container
+     *
+     * @return callable
+     * @internal Backwards compatability not guaranteed.
      */
-    public static function wrapCallback($callback, Container $container)
+    public static function wrapCallback(callable|string $callback, Container $container): callable
     {
         if (is_string($callback) && ! is_callable($callback)) {
             $callback = function (&...$args) use ($container, $callback) {

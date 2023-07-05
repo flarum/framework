@@ -14,10 +14,7 @@ use Flarum\Group\Access\ScopeGroupVisibility;
 
 class GroupServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function boot()
+    public function boot(): void
     {
         Group::registerVisibilityScoper(new ScopeGroupVisibility(), 'view');
     }

@@ -13,58 +13,26 @@ use Carbon\Carbon;
 use Flarum\Flags\Event\Created;
 use Flarum\Flags\Flag;
 use Flarum\Foundation\ValidationException;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Post\CommentPost;
 use Flarum\Post\PostRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Arr;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Tobscure\JsonApi\Exception\InvalidParameterException;
 
 class CreateFlagHandler
 {
-    /**
-     * @var PostRepository
-     */
-    protected $posts;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @param PostRepository $posts
-     * @param TranslatorInterface $translator
-     * @param SettingsRepositoryInterface $settings
-     * @param Dispatcher $events
-     */
-    public function __construct(PostRepository $posts, TranslatorInterface $translator, SettingsRepositoryInterface $settings, Dispatcher $events)
-    {
-        $this->posts = $posts;
-        $this->translator = $translator;
-        $this->settings = $settings;
-        $this->events = $events;
+    public function __construct(
+        protected PostRepository $posts,
+        protected TranslatorInterface $translator,
+        protected SettingsRepositoryInterface $settings,
+        protected Dispatcher $events
+    ) {
     }
 
-    /**
-     * @param CreateFlag $command
-     * @return Flag
-     * @throws InvalidParameterException
-     * @throws ValidationException
-     */
-    public function handle(CreateFlag $command)
+    public function handle(CreateFlag $command): Flag
     {
         $actor = $command->actor;
         $data = $command->data;

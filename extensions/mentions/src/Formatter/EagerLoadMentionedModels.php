@@ -20,38 +20,15 @@ use s9e\TextFormatter\Parser;
 
 class EagerLoadMentionedModels
 {
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    /**
-     * @var PostRepository
-     */
-    protected $posts;
-
-    /**
-     * @var GroupRepository
-     */
-    protected $groups;
-
-    /**
-     * @var TagRepository
-     */
-    protected $tags;
-
-    public function __construct(ExtensionManager $extensions, PostRepository $posts, GroupRepository $groups, TagRepository $tags)
-    {
-        $this->extensions = $extensions;
-        $this->posts = $posts;
-        $this->groups = $groups;
-        $this->tags = $tags;
+    public function __construct(
+        protected ExtensionManager $extensions,
+        protected PostRepository $posts,
+        protected GroupRepository $groups,
+        protected TagRepository $tags
+    ) {
     }
 
-    /**
-     * @param mixed|\Flarum\Post\CommentPost|null $context
-     */
-    public function __invoke(Parser $parser, $context, string $text, ?User $actor): string
+    public function __invoke(Parser $parser, mixed $context, string $text, ?User $actor): string
     {
         $callables = $this->getEagerLoaders();
 

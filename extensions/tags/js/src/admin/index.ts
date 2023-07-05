@@ -21,8 +21,4 @@ app.initializers.add('flarum-tags', (app) => {
   addTagSelectionSettingComponent();
 });
 
-// Expose compat API
-import tagsCompat from './compat';
-import { compat } from '@flarum/core/admin';
-
-Object.assign(compat, tagsCompat);
+import './admin';

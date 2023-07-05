@@ -16,17 +16,12 @@ use Flarum\Post\DiscussionRenamedPost;
 
 class DiscussionRenamedLogger
 {
-    /**
-     * @var NotificationSyncer
-     */
-    protected $notifications;
-
-    public function __construct(NotificationSyncer $notifications)
-    {
-        $this->notifications = $notifications;
+    public function __construct(
+        protected NotificationSyncer $notifications
+    ) {
     }
 
-    public function handle(Renamed $event)
+    public function handle(Renamed $event): void
     {
         $post = DiscussionRenamedPost::reply(
             $event->discussion->id,
@@ -35,6 +30,7 @@ class DiscussionRenamedLogger
             $event->discussion->title
         );
 
+        /** @var DiscussionRenamedPost $post */
         $post = $event->discussion->mergePost($post);
 
         if ($event->discussion->user_id !== $event->actor->id) {

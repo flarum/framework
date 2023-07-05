@@ -21,36 +21,28 @@ interface BlueprintInterface
 {
     /**
      * Get the user that sent the notification.
-     *
-     * @return User|null
      */
-    public function getFromUser();
+    public function getFromUser(): ?User;
 
     /**
      * Get the model that is the subject of this activity.
-     *
-     * @return AbstractModel|null
      */
-    public function getSubject();
+    public function getSubject(): ?AbstractModel;
 
     /**
      * Get the data to be stored in the notification.
-     *
-     * @return mixed
      */
-    public function getData();
+    public function getData(): mixed;
 
     /**
      * Get the serialized type of this activity.
-     *
-     * @return string
      */
-    public static function getType();
+    public static function getType(): string;
 
     /**
      * Get the name of the model class for the subject of this activity.
      *
-     * @return string
+     * @return class-string<AbstractModel>
      */
-    public static function getSubjectModel();
+    public static function getSubjectModel(): string;
 }

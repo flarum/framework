@@ -22,45 +22,19 @@ use Tobscure\JsonApi\Document;
 
 abstract class UploadImageController extends ShowForumController
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
+    protected Filesystem $uploadDir;
+    protected string $fileExtension = 'png';
+    protected string $filePathSettingKey = '';
+    protected string $filenamePrefix = '';
 
-    /**
-     * @var Filesystem
-     */
-    protected $uploadDir;
-
-    /**
-     * @var string
-     */
-    protected $fileExtension = 'png';
-
-    /**
-     * @var string
-     */
-    protected $filePathSettingKey = '';
-
-    /**
-     * @var string
-     */
-    protected $filenamePrefix = '';
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     * @param Factory $filesystemFactory
-     */
-    public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory)
-    {
-        $this->settings = $settings;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings,
+        Factory $filesystemFactory
+    ) {
         $this->uploadDir = $filesystemFactory->disk('flarum-assets');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function data(ServerRequestInterface $request, Document $document)
+    public function data(ServerRequestInterface $request, Document $document): array
     {
         RequestUtil::getActor($request)->assertAdmin();
 
@@ -81,9 +55,5 @@ abstract class UploadImageController extends ShowForumController
         return parent::data($request, $document);
     }
 
-    /**
-     * @param UploadedFileInterface $file
-     * @return Image
-     */
     abstract protected function makeImage(UploadedFileInterface $file): Image;
 }

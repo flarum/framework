@@ -14,19 +14,9 @@ use Flarum\User\User;
 
 class Updated
 {
-    /**
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * @var Extension
-     */
-    public $extension;
-
-    public function __construct(User $actor, Extension $extension)
-    {
-        $this->actor = $actor;
-        $this->extension = $extension;
+    public function __construct(
+        public User $actor,
+        public Extension $extension
+    ) {
     }
 }

@@ -14,80 +14,61 @@ use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Http\SlugManager;
 use Flarum\Tags\Tag;
 use InvalidArgumentException;
+use Tobscure\JsonApi\Relationship;
 
 class TagSerializer extends AbstractSerializer
 {
-    /**
-     * {@inheritdoc}
-     */
     protected $type = 'tags';
 
-    /**
-     * @var SlugManager
-     */
-    protected $slugManager;
-
-    public function __construct(SlugManager $slugManager)
-    {
-        $this->slugManager = $slugManager;
+    public function __construct(
+        protected SlugManager $slugManager
+    ) {
     }
 
-    /**
-     * Get the default set of serialized attributes for a model.
-     *
-     * @param Tag $tag
-     * @return array
-     */
-    protected function getDefaultAttributes($tag)
+    protected function getDefaultAttributes(object|array $model): array
     {
-        if (! ($tag instanceof Tag)) {
+        if (! ($model instanceof Tag)) {
             throw new InvalidArgumentException(
                 get_class($this).' can only serialize instances of '.Tag::class
             );
         }
 
         $attributes = [
-            'name'               => $tag->name,
-            'description'        => $tag->description,
-            'slug'               => $this->slugManager->forResource(Tag::class)->toSlug($tag),
-            'color'              => $tag->color,
-            'backgroundUrl'      => $tag->background_path,
-            'backgroundMode'     => $tag->background_mode,
-            'icon'               => $tag->icon,
-            'discussionCount'    => (int) $tag->discussion_count,
-            'position'           => $tag->position === null ? null : (int) $tag->position,
-            'defaultSort'        => $tag->default_sort,
-            'isChild'            => (bool) $tag->parent_id,
-            'isHidden'           => (bool) $tag->is_hidden,
-            'lastPostedAt'       => $this->formatDate($tag->last_posted_at),
-            'canStartDiscussion' => $this->actor->can('startDiscussion', $tag),
-            'canAddToDiscussion' => $this->actor->can('addToDiscussion', $tag)
+            'name'               => $model->name,
+            'description'        => $model->description,
+            'slug'               => $this->slugManager->forResource(Tag::class)->toSlug($model),
+            'color'              => $model->color,
+            'backgroundUrl'      => $model->background_path,
+            'backgroundMode'     => $model->background_mode,
+            'icon'               => $model->icon,
+            'discussionCount'    => (int) $model->discussion_count,
+            'position'           => $model->position === null ? null : (int) $model->position,
+            'defaultSort'        => $model->default_sort,
+            'isChild'            => (bool) $model->parent_id,
+            'isHidden'           => (bool) $model->is_hidden,
+            'lastPostedAt'       => $this->formatDate($model->last_posted_at),
+            'canStartDiscussion' => $this->actor->can('startDiscussion', $model),
+            'canAddToDiscussion' => $this->actor->can('addToDiscussion', $model)
         ];
 
         if ($this->actor->isAdmin()) {
-            $attributes['isRestricted'] = (bool) $tag->is_restricted;
+            $attributes['isRestricted'] = (bool) $model->is_restricted;
         }
 
         return $attributes;
     }
 
-    /**
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function parent($tag)
+    protected function parent(Tag $tag): ?Relationship
     {
         return $this->hasOne($tag, self::class);
     }
 
-    protected function children($tag)
+    protected function children(Tag $tag): ?Relationship
     {
         return $this->hasMany($tag, self::class);
     }
 
-    /**
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function lastPostedDiscussion($tag)
+    protected function lastPostedDiscussion(Tag $tag): ?Relationship
     {
         return $this->hasOne($tag, DiscussionSerializer::class);
     }

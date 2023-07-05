@@ -12,56 +12,24 @@ namespace Flarum\Forum\Content;
 use Flarum\Api\Client;
 use Flarum\Frontend\Document;
 use Flarum\Http\UrlGenerator;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Index
 {
-    /**
-     * @var Client
-     */
-    protected $api;
-
-    /**
-     * @var Factory
-     */
-    protected $view;
-
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @param Client $api
-     * @param Factory $view
-     * @param SettingsRepositoryInterface $settings
-     * @param UrlGenerator $url
-     * @param TranslatorInterface $translator
-     */
-    public function __construct(Client $api, Factory $view, SettingsRepositoryInterface $settings, UrlGenerator $url, TranslatorInterface $translator)
-    {
-        $this->api = $api;
-        $this->view = $view;
-        $this->settings = $settings;
-        $this->url = $url;
-        $this->translator = $translator;
+    public function __construct(
+        protected Client $api,
+        protected Factory $view,
+        protected SettingsRepositoryInterface $settings,
+        protected UrlGenerator $url,
+        protected TranslatorInterface $translator
+    ) {
     }
 
-    public function __invoke(Document $document, Request $request)
+    public function __invoke(Document $document, Request $request): Document
     {
         $queryParams = $request->getQueryParams();
 
@@ -98,12 +66,8 @@ class Index
 
     /**
      * Get the result of an API request to list discussions.
-     *
-     * @param Request $request
-     * @param array $params
-     * @return object
      */
-    protected function getApiDocument(Request $request, array $params)
+    protected function getApiDocument(Request $request, array $params): object
     {
         return json_decode($this->api->withParentRequest($request)->withQueryParams($params)->get('/discussions')->getBody());
     }

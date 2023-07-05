@@ -22,7 +22,7 @@ class NumberFilter implements FilterInterface
         return 'number';
     }
 
-    public function filter(FilterState $filterState, $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $number = $this->asInt($filterValue);
 

@@ -52,35 +52,19 @@ class Extension implements Arrayable
     ];
 
     /**
-     * Unique Id of the extension.
+     * Unique ID of the extension.
+     * Constructed from vendor/packageName to vendor-packageName.
      *
-     * @info    Identical to the directory in the extensions directory.
      * @example flarum-suspend
-     *
-     * @var string
      */
-    protected $id;
-
-    /**
-     * The directory of this extension.
-     *
-     * @var string
-     */
-    protected $path;
-
-    /**
-     * Composer json of the package.
-     *
-     * @var array
-     */
-    protected $composerJson;
+    protected string $id;
 
     /**
      * The IDs of all Flarum extensions that this extension depends on.
      *
      * @var string[]
      */
-    protected $extensionDependencyIds;
+    protected array $extensionDependencyIds;
 
     /**
      * The IDs of all Flarum extensions that this extension should be booted after
@@ -88,34 +72,19 @@ class Extension implements Arrayable
      *
      * @var string[]
      */
-    protected $optionalDependencyIds;
+    protected array $optionalDependencyIds;
 
-    /**
-     * Whether the extension is installed.
-     *
-     * @var bool
-     */
-    protected $installed = true;
+    protected bool $installed = true;
+    protected string $version;
 
-    /**
-     * The installed version of the extension.
-     *
-     * @var string
-     */
-    protected $version;
-
-    /**
-     * @param       $path
-     * @param array $composerJson
-     */
-    public function __construct($path, $composerJson)
-    {
-        $this->path = $path;
-        $this->composerJson = $composerJson;
+    public function __construct(
+        protected string $path,
+        protected array $composerJson
+    ) {
         $this->assignId();
     }
 
-    protected static function nameToId($name)
+    protected static function nameToId(string $name): string
     {
         [$vendor, $package] = explode('/', $name);
         $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
@@ -126,7 +95,7 @@ class Extension implements Arrayable
     /**
      * Assigns the id for the extension used globally.
      */
-    protected function assignId()
+    protected function assignId(): void
     {
         $this->id = static::nameToId($this->name);
     }
@@ -134,7 +103,7 @@ class Extension implements Arrayable
     /**
      * @internal
      */
-    public function extend(Container $container)
+    public function extend(Container $container): void
     {
         foreach ($this->getExtenders() as $extender) {
             try {
@@ -145,18 +114,12 @@ class Extension implements Arrayable
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __get($name)
+    public function __get(string $name): mixed
     {
         return $this->composerJsonAttribute(Str::snake($name, '-'));
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __isset($name)
+    public function __isset(string $name): bool
     {
         return isset($this->{$name}) || $this->composerJsonAttribute(Str::snake($name, '-'));
     }
@@ -164,23 +127,17 @@ class Extension implements Arrayable
     /**
      * Dot notation getter for composer.json attributes.
      *
-     * @see https://laravel.com/docs/8.x/helpers#arrays
-     *
-     * @param $name
-     * @return mixed
+     * @see https://laravel.com/docs/10.x/helpers#arrays
      */
-    public function composerJsonAttribute($name)
+    public function composerJsonAttribute(string $name): mixed
     {
         return Arr::get($this->composerJson, $name);
     }
 
     /**
-     * @param bool $installed
-     * @return Extension
-     *
      * @internal
      */
-    public function setInstalled($installed)
+    public function setInstalled(bool $installed): static
     {
         $this->installed = $installed;
 
@@ -190,18 +147,15 @@ class Extension implements Arrayable
     /**
      * @return bool
      */
-    public function isInstalled()
+    public function isInstalled(): bool
     {
         return $this->installed;
     }
 
     /**
-     * @param string $version
-     * @return Extension
-     *
      * @internal
      */
-    public function setVersion($version)
+    public function setVersion(string $version): static
     {
         $this->version = $version;
 
@@ -216,7 +170,7 @@ class Extension implements Arrayable
      *                             are flarum extensions.
      * @internal
      */
-    public function calculateDependencies($extensionSet)
+    public function calculateDependencies(array $extensionSet): void
     {
         $this->extensionDependencyIds = (new Collection(Arr::get($this->composerJson, 'require', [])))
             ->keys()
@@ -235,20 +189,12 @@ class Extension implements Arrayable
             ->toArray();
     }
 
-    /**
-     * @return string|null
-     */
-    public function getVersion()
+    public function getVersion(): ?string
     {
         return $this->version;
     }
 
-    /**
-     * Loads the icon information from the composer.json.
-     *
-     * @return array|null
-     */
-    public function getIcon()
+    public function getIcon(): ?array
     {
         $icon = $this->composerJsonAttribute('extra.flarum-extension.icon');
         $file = Arr::get($icon, 'image');
@@ -298,7 +244,7 @@ class Extension implements Arrayable
     /**
      * @internal
      */
-    public function enable(Container $container)
+    public function enable(Container $container): void
     {
         foreach ($this->getLifecycleExtenders() as $extender) {
             $extender->onEnable($container, $this);
@@ -308,7 +254,7 @@ class Extension implements Arrayable
     /**
      * @internal
      */
-    public function disable(Container $container)
+    public function disable(Container $container): void
     {
         foreach ($this->getLifecycleExtenders() as $extender) {
             $extender->onDisable($container, $this);
@@ -320,7 +266,7 @@ class Extension implements Arrayable
      *
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
@@ -328,7 +274,7 @@ class Extension implements Arrayable
     /**
      * @return string
      */
-    public function getTitle()
+    public function getTitle(): string
     {
         return $this->composerJsonAttribute('extra.flarum-extension.title');
     }
@@ -336,7 +282,7 @@ class Extension implements Arrayable
     /**
      * @return string
      */
-    public function getPath()
+    public function getPath(): string
     {
         return $this->path;
     }
@@ -394,7 +340,7 @@ class Extension implements Arrayable
 
     private function getExtenderFile(): ?string
     {
-        $filename = "{$this->path}/extend.php";
+        $filename = "$this->path/extend.php";
 
         if (file_exists($filename)) {
             return $filename;
@@ -406,7 +352,7 @@ class Extension implements Arrayable
     /**
      * Compile a list of links for this extension.
      */
-    public function getLinks()
+    public function getLinks(): array
     {
         $links = [];
 
@@ -448,10 +394,8 @@ class Extension implements Arrayable
 
     /**
      * Tests whether the extension has assets.
-     *
-     * @return bool
      */
-    public function hasAssets()
+    public function hasAssets(): bool
     {
         return realpath($this->path.'/assets/') !== false;
     }
@@ -459,7 +403,7 @@ class Extension implements Arrayable
     /**
      * @internal
      */
-    public function copyAssetsTo(FilesystemInterface $target)
+    public function copyAssetsTo(FilesystemInterface $target): void
     {
         if (! $this->hasAssets()) {
             return;
@@ -477,22 +421,19 @@ class Extension implements Arrayable
 
     /**
      * Tests whether the extension has migrations.
-     *
-     * @return bool
      */
-    public function hasMigrations()
+    public function hasMigrations(): bool
     {
         return realpath($this->path.'/migrations/') !== false;
     }
 
     /**
-     * @return int|void
      * @internal
      */
-    public function migrate(Migrator $migrator, $direction = 'up')
+    public function migrate(Migrator $migrator, string $direction = 'up'): ?int
     {
         if (! $this->hasMigrations()) {
-            return;
+            return null;
         }
 
         if ($direction == 'up') {
@@ -500,6 +441,8 @@ class Extension implements Arrayable
         } else {
             return $migrator->reset($this->getPath().'/migrations', $this);
         }
+
+        return null;
     }
 
     /**
@@ -507,7 +450,7 @@ class Extension implements Arrayable
      *
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return (array) array_merge([
             'id'                     => $this->getId(),

@@ -17,12 +17,12 @@ use Illuminate\Database\Query\Builder;
 
 class StickyFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
-    protected function getGambitPattern()
+    protected function getGambitPattern(): string
     {
         return 'is:sticky';
     }
 
-    protected function conditions(SearchState $search, array $matches, $negate)
+    protected function conditions(SearchState $search, array $matches, bool $negate): void
     {
         $this->constrain($search->getQuery(), $negate);
     }
@@ -32,12 +32,12 @@ class StickyFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'sticky';
     }
 
-    public function filter(FilterState $filterState, $filterValue, $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $this->constrain($filterState->getQuery(), $negate);
     }
 
-    protected function constrain(Builder $query, bool $negate)
+    protected function constrain(Builder $query, bool $negate): void
     {
         $query->where('is_sticky', ! $negate);
     }

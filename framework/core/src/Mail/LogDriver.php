@@ -13,18 +13,13 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Support\MessageBag;
 use Psr\Log\LoggerInterface;
-use Swift_Transport;
+use Symfony\Component\Mailer\Transport\TransportInterface;
 
 class LogDriver implements DriverInterface
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
+    public function __construct(
+        private readonly LoggerInterface $logger
+    ) {
     }
 
     public function availableSettings(): array
@@ -42,7 +37,7 @@ class LogDriver implements DriverInterface
         return false;
     }
 
-    public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport
+    public function buildTransport(SettingsRepositoryInterface $settings): TransportInterface
     {
         return new FlarumLogTransport($this->logger);
     }

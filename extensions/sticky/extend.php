@@ -34,7 +34,7 @@ return [
         ->type(DiscussionStickiedPost::class),
 
     (new Extend\ApiSerializer(DiscussionSerializer::class))
-        ->attribute('isSticky', function (DiscussionSerializer $serializer, $discussion) {
+        ->attribute('isSticky', function (DiscussionSerializer $serializer, Discussion $discussion) {
             return (bool) $discussion->is_sticky;
         })
         ->attribute('canSticky', function (DiscussionSerializer $serializer, $discussion) {

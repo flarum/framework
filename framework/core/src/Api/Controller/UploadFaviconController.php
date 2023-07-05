@@ -10,44 +10,27 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Foundation\ValidationException;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Factory;
 use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
 use Psr\Http\Message\UploadedFileInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UploadFaviconController extends UploadImageController
 {
-    protected $filePathSettingKey = 'favicon_path';
+    protected string $filePathSettingKey = 'favicon_path';
+    protected string $filenamePrefix = 'favicon';
 
-    protected $filenamePrefix = 'favicon';
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @var ImageManager
-     */
-    protected $imageManager;
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     * @param Factory $filesystemFactory
-     */
-    public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory, TranslatorInterface $translator, ImageManager $imageManager)
-    {
+    public function __construct(
+        SettingsRepositoryInterface $settings,
+        Factory $filesystemFactory,
+        protected TranslatorInterface $translator,
+        protected ImageManager $imageManager
+    ) {
         parent::__construct($settings, $filesystemFactory);
-
-        $this->translator = $translator;
-        $this->imageManager = $imageManager;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function makeImage(UploadedFileInterface $file): Image
     {
         $this->fileExtension = pathinfo($file->getClientFilename(), PATHINFO_EXTENSION);

@@ -12,6 +12,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Serializer\NotificationSerializer;
 use Flarum\Http\RequestUtil;
 use Flarum\Notification\Command\ReadNotification;
+use Flarum\Notification\Notification;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
@@ -19,28 +20,14 @@ use Tobscure\JsonApi\Document;
 
 class UpdateNotificationController extends AbstractShowController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = NotificationSerializer::class;
+    public ?string $serializer = NotificationSerializer::class;
 
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
-
-    /**
-     * @param Dispatcher $bus
-     */
-    public function __construct(Dispatcher $bus)
-    {
-        $this->bus = $bus;
+    public function __construct(
+        protected Dispatcher $bus
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): Notification
     {
         $id = Arr::get($request->getQueryParams(), 'id');
         $actor = RequestUtil::getActor($request);

@@ -15,10 +15,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class ExtensionServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    public function register(): void
     {
         $this->container->singleton(ExtensionManager::class);
         $this->container->alias(ExtensionManager::class, 'flarum.extensions');
@@ -32,10 +29,7 @@ class ExtensionServiceProvider extends AbstractServiceProvider
         });
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function boot(Dispatcher $events)
+    public function boot(Dispatcher $events): void
     {
         $events->listen(
             Disabling::class,

@@ -20,9 +20,8 @@ use Flarum\Testing\integration\TestCase;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Filesystem\FilesystemAdapter;
 use InvalidArgumentException;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\Adapter\NullAdapter;
-use League\Flysystem\Filesystem as LeagueFilesystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use League\Flysystem\Local\LocalFilesystemAdapter;
 
 class FilesystemTest extends TestCase
 {
@@ -49,9 +48,10 @@ class FilesystemTest extends TestCase
             ];
         }));
 
+        /** @var FilesystemAdapter $uploadsDisk */
         $uploadsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-uploads');
 
-        $this->assertEquals(get_class($uploadsDisk->getDriver()->getAdapter()), Local::class);
+        $this->assertEquals(get_class($uploadsDisk->getAdapter()), LocalFilesystemAdapter::class);
     }
 
     /**
@@ -61,9 +61,10 @@ class FilesystemTest extends TestCase
     {
         $this->extend((new Extend\Filesystem)->disk('flarum-uploads', UploadsDisk::class));
 
+        /** @var FilesystemAdapter $uploadsDisk */
         $uploadsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-uploads');
 
-        $this->assertEquals(get_class($uploadsDisk->getDriver()->getAdapter()), Local::class);
+        $this->assertEquals(get_class($uploadsDisk->getAdapter()), LocalFilesystemAdapter::class);
     }
 
     /**
@@ -73,9 +74,10 @@ class FilesystemTest extends TestCase
     {
         $this->app()->getContainer()->make(SettingsRepositoryInterface::class)->set('disk_driver.flarum-assets', 'nonexistent_driver');
 
+        /** @var FilesystemAdapter $assetsDisk */
         $assetsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets');
 
-        $this->assertEquals(get_class($assetsDisk->getDriver()->getAdapter()), Local::class);
+        $this->assertEquals(get_class($assetsDisk->getAdapter()), LocalFilesystemAdapter::class);
     }
 
     /**
@@ -85,9 +87,10 @@ class FilesystemTest extends TestCase
     {
         $this->config('disk_driver.flarum-assets', 'null');
 
+        /** @var FilesystemAdapter $assetsDisk */
         $assetsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets');
 
-        $this->assertEquals(get_class($assetsDisk->getDriver()->getAdapter()), Local::class);
+        $this->assertEquals(get_class($assetsDisk->getAdapter()), LocalFilesystemAdapter::class);
     }
 
     /**
@@ -101,9 +104,10 @@ class FilesystemTest extends TestCase
 
         $this->app()->getContainer()->make(SettingsRepositoryInterface::class)->set('disk_driver.flarum-assets', 'null');
 
+        /** @var FilesystemAdapter $assetsDisk */
         $assetsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets');
 
-        $this->assertEquals(get_class($assetsDisk->getDriver()->getAdapter()), NullAdapter::class);
+        $this->assertEquals(get_class($assetsDisk->getAdapter()), InMemoryFilesystemAdapter::class);
     }
 
     /**
@@ -117,9 +121,10 @@ class FilesystemTest extends TestCase
 
         $this->config('disk_driver.flarum-assets', 'null');
 
+        /** @var FilesystemAdapter $assetsDisk */
         $assetsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets');
 
-        $this->assertEquals(get_class($assetsDisk->getDriver()->getAdapter()), NullAdapter::class);
+        $this->assertEquals(get_class($assetsDisk->getAdapter()), InMemoryFilesystemAdapter::class);
     }
 }
 
@@ -127,7 +132,13 @@ class NullFilesystemDriver implements DriverInterface
 {
     public function build(string $diskName, SettingsRepositoryInterface $settings, Config $config, array $localConfig): Cloud
     {
-        return new FilesystemAdapter(new LeagueFilesystem(new NullAdapter()));
+        // The internal adapter
+        $adapter = new InMemoryFilesystemAdapter();
+
+        // The FilesystemOperator
+        $filesystem = new \League\Flysystem\Filesystem($adapter);
+
+        return new FilesystemAdapter($filesystem, $adapter);
     }
 }
 

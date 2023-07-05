@@ -32,10 +32,7 @@ use Laminas\Stratigility\MiddlewarePipe;
 
 class AdminServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    public function register(): void
     {
         $this->container->extend(UrlGenerator::class, function (UrlGenerator $url, Container $container) {
             return $url->addCollection('admin', $container->make('flarum.admin.routes'), 'admin');
@@ -118,10 +115,7 @@ class AdminServiceProvider extends AbstractServiceProvider
         });
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function boot()
+    public function boot(): void
     {
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.admin');
 
@@ -150,10 +144,7 @@ class AdminServiceProvider extends AbstractServiceProvider
         );
     }
 
-    /**
-     * @param RouteCollection $routes
-     */
-    protected function populateRoutes(RouteCollection $routes)
+    protected function populateRoutes(RouteCollection $routes): void
     {
         $factory = $this->container->make(RouteHandlerFactory::class);
 

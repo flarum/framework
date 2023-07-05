@@ -22,7 +22,7 @@ class HiddenFilter implements FilterInterface
         return 'hidden';
     }
 
-    public function filter(FilterState $filterState, $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $hidden = $this->asBool($filterValue);
 

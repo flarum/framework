@@ -18,8 +18,6 @@ interface FilterInterface
 
     /**
      * Filters a query.
-     *
-     * @todo: 2.0 change the $filterValue type to mixed, as it can be an array.
      */
-    public function filter(FilterState $filterState, string $filterValue, bool $negate);
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void;
 }

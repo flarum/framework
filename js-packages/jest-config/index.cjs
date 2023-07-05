@@ -6,7 +6,7 @@ module.exports = (options = {}) => ({
   transform: {
     '^.+\\.[tj]sx?$': [
       'babel-jest',
-      require('flarum-webpack-config/babel.config.js'),
+      require('flarum-webpack-config/babel.config.cjs'),
     ],
     '^.+\\.tsx?$': [
       'ts-jest',

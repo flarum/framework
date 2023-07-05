@@ -14,20 +14,10 @@ use Flarum\User\User;
 
 class RequireExtension extends AbstractActionCommand
 {
-    /**
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * @var string
-     */
-    public $package;
-
-    public function __construct(User $actor, string $package)
-    {
-        $this->actor = $actor;
-        $this->package = $package;
+    public function __construct(
+        public User $actor,
+        public ?string $package
+    ) {
     }
 
     public function getOperationName(): string

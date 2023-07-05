@@ -23,45 +23,15 @@ class PostReplyHandler
 {
     use DispatchEventsTrait;
 
-    /**
-     * @var DiscussionRepository
-     */
-    protected $discussions;
-
-    /**
-     * @var \Flarum\Notification\NotificationSyncer
-     */
-    protected $notifications;
-
-    /**
-     * @var \Flarum\Post\PostValidator
-     */
-    protected $validator;
-
-    /**
-     * @param Dispatcher $events
-     * @param DiscussionRepository $discussions
-     * @param \Flarum\Notification\NotificationSyncer $notifications
-     * @param PostValidator $validator
-     */
     public function __construct(
-        Dispatcher $events,
-        DiscussionRepository $discussions,
-        NotificationSyncer $notifications,
-        PostValidator $validator
+        protected Dispatcher $events,
+        protected DiscussionRepository $discussions,
+        protected NotificationSyncer $notifications,
+        protected PostValidator $validator
     ) {
-        $this->events = $events;
-        $this->discussions = $discussions;
-        $this->notifications = $notifications;
-        $this->validator = $validator;
     }
 
-    /**
-     * @param PostReply $command
-     * @return CommentPost
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     */
-    public function handle(PostReply $command)
+    public function handle(PostReply $command): CommentPost
     {
         $actor = $command->actor;
 

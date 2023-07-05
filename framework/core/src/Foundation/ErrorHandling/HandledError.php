@@ -20,22 +20,18 @@ use Throwable;
  */
 class HandledError
 {
-    private $error;
-    private $type;
-    private $statusCode;
+    private array $details = [];
 
-    private $details = [];
-
-    public static function unknown(Throwable $error)
+    public static function unknown(Throwable $error): static
     {
         return new static($error, 'unknown', 500);
     }
 
-    public function __construct(Throwable $error, $type, $statusCode)
-    {
-        $this->error = $error;
-        $this->type = $type;
-        $this->statusCode = $statusCode;
+    public function __construct(
+        private readonly Throwable $error,
+        private readonly string $type,
+        private readonly int $statusCode
+    ) {
     }
 
     public function withDetails(array $details): self

@@ -17,6 +17,7 @@ use Flarum\Notification\Notification;
 use Flarum\Post\Event\Deleted;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Query\Expression;
 use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
@@ -32,12 +33,12 @@ use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
  * @property int|null $edited_user_id
  * @property \Carbon\Carbon|null $hidden_at
  * @property int|null $hidden_user_id
- * @property \Flarum\Discussion\Discussion|null $discussion
- * @property User|null $user
- * @property User|null $editedUser
- * @property User|null $hiddenUser
  * @property string $ip_address
  * @property bool $is_private
+ * @property-read Discussion|null $discussion
+ * @property-read User|null $user
+ * @property-read User|null $editedUser
+ * @property-read User|null $hiddenUser
  */
 class Post extends AbstractModel
 {
@@ -47,29 +48,26 @@ class Post extends AbstractModel
 
     protected $table = 'posts';
 
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['created_at', 'edited_at', 'hidden_at'];
-
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
     protected $casts = [
-        'is_private' => 'boolean'
+        'id' => 'integer',
+        'discussion_id' => 'integer',
+        'number' => 'integer',
+        'user_id' => 'integer',
+        'edited_user_id' => 'integer',
+        'hidden_user_id' => 'integer',
+        'is_private' => 'boolean',
+        'created_at' => 'datetime',
+        'edited_at' => 'datetime',
+        'hidden_at' => 'datetime'
     ];
 
     /**
      * A map of post types, as specified in the `type` column, to their
      * classes.
      *
-     * @var array
+     * @var array<string, class-string<Post>>
      */
-    protected static $models = [];
+    protected static array $models = [];
 
     /**
      * The type of post this is, to be stored in the posts table.
@@ -77,14 +75,9 @@ class Post extends AbstractModel
      * Should be overwritten by subclasses with the value that is
      * to be stored in the database, which will then be used for
      * mapping the hydrated model instance to the proper subtype.
-     *
-     * @var string
      */
-    public static $type = '';
+    public static string $type = '';
 
-    /**
-     * {@inheritdoc}
-     */
     public static function boot()
     {
         parent::boot();
@@ -121,52 +114,29 @@ class Post extends AbstractModel
     }
 
     /**
-     * Determine whether or not this post is visible to the given user.
-     *
-     * @param User $user
-     * @return bool
+     * Determine whether this post is visible to the given user.
      */
-    public function isVisibleTo(User $user)
+    public function isVisibleTo(User $user): bool
     {
         return (bool) $this->newQuery()->whereVisibleTo($user)->find($this->id);
     }
 
-    /**
-     * Define the relationship with the post's discussion.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function discussion()
+    public function discussion(): BelongsTo
     {
         return $this->belongsTo(Discussion::class);
     }
 
-    /**
-     * Define the relationship with the post's author.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Define the relationship with the user who edited the post.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function editedUser()
+    public function editedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'edited_user_id');
     }
 
-    /**
-     * Define the relationship with the user who hid the post.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function hiddenUser()
+    public function hiddenUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'hidden_user_id');
     }
@@ -174,11 +144,8 @@ class Post extends AbstractModel
     /**
      * Get all posts, regardless of their type, by removing the
      * `RegisteredTypesScope` global scope constraints applied on this model.
-     *
-     * @param Builder $query
-     * @return Builder
      */
-    public function scopeAllTypes(Builder $query)
+    public function scopeAllTypes(Builder $query): Builder
     {
         return $query->withoutGlobalScopes();
     }
@@ -210,26 +177,15 @@ class Post extends AbstractModel
         return parent::newFromBuilder($attributes, $connection);
     }
 
-    /**
-     * Get the type-to-model map.
-     *
-     * @return array
-     */
-    public static function getModels()
+    public static function getModels(): array
     {
         return static::$models;
     }
 
     /**
-     * Set the model for the given post type.
-     *
-     * @param string $type The post type.
-     * @param string $model The class name of the model for that type.
-     * @return void
-     *
      * @internal
      */
-    public static function setModel(string $type, string $model)
+    public static function setModel(string $type, string $model): void
     {
         static::$models[$type] = $model;
     }

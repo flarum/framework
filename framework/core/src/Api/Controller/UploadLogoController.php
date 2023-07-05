@@ -17,25 +17,17 @@ use Psr\Http\Message\UploadedFileInterface;
 
 class UploadLogoController extends UploadImageController
 {
-    protected $filePathSettingKey = 'logo_path';
+    protected string $filePathSettingKey = 'logo_path';
+    protected string $filenamePrefix = 'logo';
 
-    protected $filenamePrefix = 'logo';
-
-    /**
-     * @var ImageManager
-     */
-    protected $imageManager;
-
-    public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory, ImageManager $imageManager)
-    {
+    public function __construct(
+        SettingsRepositoryInterface $settings,
+        Factory $filesystemFactory,
+        protected ImageManager $imageManager
+    ) {
         parent::__construct($settings, $filesystemFactory);
-
-        $this->imageManager = $imageManager;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function makeImage(UploadedFileInterface $file): Image
     {
         $encodedImage = $this->imageManager->make($file->getStream()->getMetadata('uri'))->heighten(60, function ($constraint) {
