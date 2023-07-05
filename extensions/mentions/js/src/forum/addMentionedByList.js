@@ -118,7 +118,7 @@ export default function addMentionedByList() {
         });
 
       const limit = 4;
-      const overLimit = repliers.length > limit;
+      const overLimit = post.mentionedByCount() > limit;
 
       // Create a list of unique users who have replied. So even if a user has
       // replied twice, they will only be in this array once.
@@ -136,7 +136,7 @@ export default function addMentionedByList() {
       // others" name to the end of the list. Clicking on it will display a modal
       // with a full list of names.
       if (overLimit) {
-        const count = repliers.length - names.length;
+        const count = post.mentionedByCount() - names.length;
 
         names.push(app.translator.trans('flarum-mentions.forum.post.others_text', { count }));
       }

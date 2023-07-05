@@ -4,7 +4,7 @@ import TagMention from '../TagMention';
 
 export default class HashMentionFormat extends MentionFormat {
   public mentionables: (new (...args: any[]) => MentionableModel)[] = [TagMention];
-  protected extendable: boolean = false;
+  protected extendable: boolean = true;
 
   public trigger(): string {
     return '#';

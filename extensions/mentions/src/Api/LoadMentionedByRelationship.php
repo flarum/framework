@@ -30,7 +30,7 @@ class LoadMentionedByRelationship
         $actor = RequestUtil::getActor($request);
 
         $query
-            ->with(['mentionsPosts', 'mentionsPosts.user', 'mentionsUsers'])
+            ->with(['mentionsPosts', 'mentionsPosts.user', 'mentionsPosts.discussion', 'mentionsUsers'])
             ->whereVisibleTo($actor)
             ->oldest()
             // Limiting a relationship results is only possible because
@@ -53,6 +53,16 @@ class LoadMentionedByRelationship
             $loadable = $data->posts->filter(function ($post) {
                 return $post instanceof Post;
             });
+
+            // firstPost and lastPost might have been included in the API response,
+            // so we have to make sure counts are also loaded for them.
+            if ($data->firstPost) {
+                $loadable->push($data->firstPost);
+            }
+
+            if ($data->lastPost) {
+                $loadable->push($data->lastPost);
+            }
         } elseif ($data instanceof Collection) {
             $loadable = $data;
         } elseif ($data instanceof Post) {

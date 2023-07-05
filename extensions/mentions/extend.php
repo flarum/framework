@@ -78,15 +78,17 @@ return [
         ->addInclude(['posts.mentionedBy', 'posts.mentionedBy.user', 'posts.mentionedBy.discussion'])
         ->load([
             'posts.mentionsUsers', 'posts.mentionsPosts', 'posts.mentionsPosts.user',
-            'posts.mentionsGroups'
+            'posts.mentionsPosts.discussion', 'posts.mentionsGroups'
         ])
         ->loadWhere('posts.mentionedBy', LoadMentionedByRelationship::mutateRelation(...))
         ->prepareDataForSerialization(LoadMentionedByRelationship::countRelation(...)),
 
     (new Extend\ApiController(Controller\ListDiscussionsController::class))
         ->load([
-            'firstPost.mentionsUsers', 'firstPost.mentionsPosts', 'firstPost.mentionsPosts.user', 'firstPost.mentionsGroups',
-            'lastPost.mentionsUsers', 'lastPost.mentionsPosts', 'lastPost.mentionsPosts.user', 'lastPost.mentionsGroups',
+            'firstPost.mentionsUsers', 'firstPost.mentionsPosts',
+            'firstPost.mentionsPosts.user', 'firstPost.mentionsPosts.discussion', 'firstPost.mentionsGroups',
+            'lastPost.mentionsUsers', 'lastPost.mentionsPosts',
+            'lastPost.mentionsPosts.user', 'lastPost.mentionsPosts.discussion', 'lastPost.mentionsGroups',
         ]),
 
     (new Extend\ApiController(Controller\ShowPostController::class))
@@ -98,7 +100,7 @@ return [
 
     (new Extend\ApiController(Controller\ListPostsController::class))
         ->addInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion'])
-        ->load(['mentionsUsers', 'mentionsPosts', 'mentionsPosts.user', 'mentionsGroups'])
+        ->load(['mentionsUsers', 'mentionsPosts', 'mentionsPosts.user', 'mentionsPosts.discussion', 'mentionsGroups'])
         ->loadWhere('mentionedBy', LoadMentionedByRelationship::mutateRelation(...))
         ->prepareDataForSerialization(LoadMentionedByRelationship::countRelation(...)),
 
