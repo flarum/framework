@@ -14,7 +14,7 @@ use Illuminate\Database\ConnectionInterface;
 
 class Installation
 {
-    private string $configPath;
+    private ?string $configPath = null;
     private bool $debug = false;
     private BaseUrl $baseUrl;
     private array $customSettings = [];
@@ -33,7 +33,7 @@ class Installation
     ) {
     }
 
-    public function configPath(string $path): self
+    public function configPath(?string $path): self
     {
         $this->configPath = $path;
 
