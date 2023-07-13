@@ -252,6 +252,7 @@ core:
     # These translations are used generically in setting fields.
     settings:
       saved_message: Your changes were saved.
+      select_dropdown_custom_label: Custom
       submit_button: => core.ref.save_changes
 
     # These translations are used in image upload buttons.
