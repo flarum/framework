@@ -18,7 +18,6 @@ import './states/UserSecurityPageState';
 import './components/AffixedSidebar';
 import './components/DiscussionPage';
 import './components/DiscussionListPane';
-import './components/LogInModal';
 import './components/ComposerBody';
 import './components/ForgotPasswordModal';
 import './components/Notification';

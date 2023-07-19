@@ -1,7 +1,6 @@
 import app from '../../forum/app';
 import DiscussionPage from '../components/DiscussionPage';
 import ReplyComposer from '../components/ReplyComposer';
-import LogInModal from '../components/LogInModal';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
 import RenameDiscussionModal from '../components/RenameDiscussionModal';
@@ -185,7 +184,7 @@ const DiscussionControls = {
         }
       }
 
-      app.modal.show(LogInModal);
+      app.modal.show(() => import('../components/LogInModal'));
 
       return reject();
     });

@@ -5,7 +5,6 @@ import listItems from '../../common/helpers/listItems';
 import DiscussionList from './DiscussionList';
 import WelcomeHero from './WelcomeHero';
 import DiscussionComposer from './DiscussionComposer';
-import LogInModal from './LogInModal';
 import DiscussionPage from './DiscussionPage';
 import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
@@ -289,7 +288,7 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
 
         return resolve(app.composer);
       } else {
-        app.modal.show(LogInModal);
+        app.modal.show(() => import('./LogInModal'));
 
         return reject();
       }

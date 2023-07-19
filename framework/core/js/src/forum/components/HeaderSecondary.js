@@ -1,7 +1,6 @@
 import app from '../../forum/app';
 import Component from '../../common/Component';
 import Button from '../../common/components/Button';
-import LogInModal from './LogInModal';
 import SignUpModal from './SignUpModal';
 import SessionDropdown from './SessionDropdown';
 import SelectDropdown from '../../common/components/SelectDropdown';
@@ -80,7 +79,7 @@ export default class HeaderSecondary extends Component {
 
       items.add(
         'logIn',
-        <Button className="Button Button--link" onclick={() => app.modal.show(LogInModal)}>
+        <Button className="Button Button--link" onclick={() => app.modal.show(() => import('./LogInModal'))}>
           {app.translator.trans('core.forum.header.log_in_link')}
         </Button>,
         0
