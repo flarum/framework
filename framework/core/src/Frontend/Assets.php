@@ -11,6 +11,7 @@ namespace Flarum\Frontend;
 
 use Flarum\Frontend\Compiler\CompilerInterface;
 use Flarum\Frontend\Compiler\JsCompiler;
+use Flarum\Frontend\Compiler\JsDirectoryCompiler;
 use Flarum\Frontend\Compiler\LessCompiler;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Illuminate\Contracts\Filesystem\Cloud;
@@ -29,7 +30,8 @@ class Assets
         'js' => [],
         'css' => [],
         'localeJs' => [],
-        'localeCss' => []
+        'localeCss' => [],
+        'jsDirectory' => [],
     ];
 
     protected array $lessImportOverrides = [];
@@ -68,6 +70,13 @@ class Assets
     public function localeCss(callable $callback): static
     {
         $this->addSources('localeCss', $callback);
+
+        return $this;
+    }
+
+    public function jsDirectory(callable $callback): static
+    {
+        $this->addSources('jsDirectory', $callback);
 
         return $this;
     }
@@ -122,6 +131,15 @@ class Assets
         return $compiler;
     }
 
+    public function makeJsDirectory(): JsDirectoryCompiler
+    {
+        $compiler = $this->makeJsDirectoryCompiler('js'.DIRECTORY_SEPARATOR.'{ext}'.DIRECTORY_SEPARATOR.$this->name);
+
+        $this->populate($compiler, 'jsDirectory');
+
+        return $compiler;
+    }
+
     protected function makeJsCompiler(string $filename): JsCompiler
     {
         return resolve(JsCompiler::class, [
@@ -156,6 +174,14 @@ class Assets
         $compiler->setCustomFunctions($this->customFunctions);
 
         return $compiler;
+    }
+
+    protected function makeJsDirectoryCompiler(string $string): JsDirectoryCompiler
+    {
+        return resolve(JsDirectoryCompiler::class, [
+            'assetsDir' => $this->assetsDir,
+            'destinationPath' => $string
+        ]);
     }
 
     public function getName(): string

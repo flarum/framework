@@ -11,7 +11,7 @@ namespace Flarum\Frontend\Compiler;
 
 interface CompilerInterface
 {
-    public function getFilename(): string;
+    public function getFilename(): ?string;
 
     public function setFilename(string $filename): void;
 

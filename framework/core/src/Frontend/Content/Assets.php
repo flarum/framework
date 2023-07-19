@@ -60,7 +60,7 @@ class Assets
     protected function assembleCompilers(?string $locale): array
     {
         return [
-            'js' => [$this->assets->makeJs(), $this->assets->makeLocaleJs($locale)],
+            'js' => [$this->assets->makeJs(), $this->assets->makeLocaleJs($locale), $this->assets->makeJsDirectory()],
             'css' => [$this->assets->makeCss(), $this->assets->makeLocaleCss($locale)]
         ];
     }

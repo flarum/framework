@@ -53,5 +53,7 @@ class RecompileFrontendAssets
         foreach ($this->locales->getLocales() as $locale => $name) {
             $this->assets->makeLocaleJs($locale)->flush();
         }
+
+        $this->assets->makeJsDirectory()->flush();
     }
 }
