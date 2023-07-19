@@ -31,12 +31,17 @@ type Chunk = {
    * The relative URL path to the chunk.
    */
   urlPath: string;
+  /**
+   * An array of modules included in the chunk, by relative module path.
+   */
+  modules?: string[];
 };
 
 export default class ExportRegistry implements IExportRegistry {
   moduleExports = new Map<string, Map<string, any>>();
   onLoads = new Map<string, Map<string, Function[]>>();
   chunks = new Map<string, Chunk>();
+  moduleToChunk = new Map<string, string>();
 
   add(namespace: string, id: string, object: any): void {
     this.moduleExports.set(namespace, this.moduleExports.get(namespace) || new Map());
@@ -68,11 +73,21 @@ export default class ExportRegistry implements IExportRegistry {
     return module;
   }
 
-  addChunk(chunkId: number|string, namespace: string, urlPath: string): void {
-    this.chunks.set(chunkId.toString(), {namespace, urlPath});
+  addChunkModule(chunkId: number | string, namespace: string, urlPath: string): void {
+    if (!this.chunks.has(chunkId.toString())) {
+      this.chunks.set(chunkId.toString(), {
+        namespace,
+        urlPath,
+        modules: [urlPath],
+      });
+      this.moduleToChunk.set(`${namespace}:${urlPath}`, chunkId.toString());
+    } else {
+      this.chunks.get(chunkId.toString())?.modules?.push(urlPath);
+      this.moduleToChunk.set(`${namespace}:${urlPath}`, chunkId.toString());
+    }
   }
 
-  getChunk(chunkId: number|string): Chunk | null {
+  getChunk(chunkId: number | string): Chunk | null {
     const chunk = this.chunks.get(chunkId.toString()) ?? null;
 
     if (!chunk) {

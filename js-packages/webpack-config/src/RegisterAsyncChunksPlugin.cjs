@@ -21,8 +21,10 @@ class RegisterAsyncChunksPlugin {
           alreadyOptimized = true;
 
           const chunks = Array.from(compilation.chunks);
+          const chunkModuleMemory = [];
 
           for (const chunk of chunks) {
+
             for (const module of compilation.chunkGraph.getChunkModulesIterable(chunk)) {
               // If the module source has an async webpack chunk, add the chunk id to flarum.reg
               // at the end of the module source.
@@ -36,18 +38,40 @@ class RegisterAsyncChunksPlugin {
                   const thisComposerJson = require(path.resolve(process.cwd(), '../composer.json'));
                   const namespace = extensionId(thisComposerJson.name);
 
-                  // For some reason, sometimes the module is nowhere to be found in any chunks.
+                  const chunkModules = (c) => Array.from(compilation.chunkGraph.getChunkModulesIterable(c));
+
                   const relevantChunk = chunks.find(
-                    (chunk) => compilation.chunkGraph.getChunkModules(chunk).find(
-                      (module) => module.resource?.includes(importPathResolved)
+                    (chunk) => chunkModules(chunk)?.find(
+                      (module) => module.resource?.includes(importPathResolved) || module.rootModule?.resource?.includes(importPathResolved)
                     )
-                  ) || chunks.find(c => c.name === urlPath);
+                  );
+
+                  let concatenatedModule;
+                  const registrableModulesUrlPaths = new Map();
+                  registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, namespace, urlPath]);
+
+                  if ((concatenatedModule = chunkModules(relevantChunk)[0])?.rootModule) {
+                    // This is a chunk with many modules, we need to register all of them.
+                    concatenatedModule.modules?.forEach((module) => {
+                      // The path right after the src/ directory, without the extension.
+                      const urlPath = module.resource.replace(/.*\/src\/(.*)\..*/, '$1');
+
+                      if (! registrableModulesUrlPaths.has(urlPath)) {
+                        registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, namespace, urlPath]);
+                      }
+                    });
+                  }
 
                   if (! relevantChunk) {
                     throw new Error(`Could not find chunk for ${importPathResolved}`);
                   }
 
-                  reg.push(`flarum.reg.addChunk('${relevantChunk.id}', '${namespace}', '${urlPath}');`);
+                  registrableModulesUrlPaths.forEach(([chunkId, namespace, urlPath]) => {
+                    if (! chunkModuleMemory.includes(urlPath)) {
+                      reg.push(`flarum.reg.addChunkModule('${chunkId}', '${namespace}', '${urlPath}');`);
+                      chunkModuleMemory.push(urlPath);
+                    }
+                  });
 
                   return `${match}`;
                 });
