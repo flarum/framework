@@ -22,9 +22,21 @@ export interface IExportRegistry {
   get(namespace: string, id: string): any;
 }
 
+type Chunk = {
+  /**
+   * The extension id of the chunk or 'core'.
+   */
+  namespace: string;
+  /**
+   * The relative URL path to the chunk.
+   */
+  urlPath: string;
+};
+
 export default class ExportRegistry implements IExportRegistry {
   moduleExports = new Map<string, Map<string, any>>();
   onLoads = new Map<string, Map<string, Function[]>>();
+  chunks = new Map<string, Chunk>();
 
   add(namespace: string, id: string, object: any): void {
     this.moduleExports.set(namespace, this.moduleExports.get(namespace) || new Map());
@@ -54,5 +66,20 @@ export default class ExportRegistry implements IExportRegistry {
     }
 
     return module;
+  }
+
+  addChunk(chunkId: number|string, namespace: string, urlPath: string): void {
+    this.chunks.set(chunkId.toString(), {namespace, urlPath});
+  }
+
+  getChunk(chunkId: number|string): Chunk | null {
+    const chunk = this.chunks.get(chunkId.toString()) ?? null;
+
+    if (!chunk) {
+      console.warn(`[Export Registry] No chunk by the ID ${chunkId} found.`);
+      return null;
+    }
+
+    return chunk;
   }
 }
