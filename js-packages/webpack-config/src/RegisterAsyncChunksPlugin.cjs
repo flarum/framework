@@ -42,7 +42,7 @@ class RegisterAsyncChunksPlugin {
 
                   const relevantChunk = chunks.find(
                     (chunk) => chunkModules(chunk)?.find(
-                      (module) => module.resource?.includes(importPathResolved) || module.rootModule?.resource?.includes(importPathResolved)
+                      (module) => module.resource?.split('.')[0] === importPathResolved || module.rootModule?.resource?.split('.')[0] === importPathResolved
                     )
                   );
 

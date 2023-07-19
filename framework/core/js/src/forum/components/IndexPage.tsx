@@ -4,7 +4,6 @@ import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import DiscussionList from './DiscussionList';
 import WelcomeHero from './WelcomeHero';
-import DiscussionComposer from './DiscussionComposer';
 import DiscussionPage from './DiscussionPage';
 import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
@@ -283,8 +282,7 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
   newDiscussionAction(): Promise<unknown> {
     return new Promise((resolve, reject) => {
       if (app.session.user) {
-        app.composer.load(DiscussionComposer, { user: app.session.user });
-        app.composer.show();
+        app.composer.load(() => import('./DiscussionComposer'), { user: app.session.user }).then(() => app.composer.show());
 
         return resolve(app.composer);
       } else {

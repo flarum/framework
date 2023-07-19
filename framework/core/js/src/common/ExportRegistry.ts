@@ -73,6 +73,12 @@ export default class ExportRegistry implements IExportRegistry {
     return module;
   }
 
+  public check(namespace: string, id: string): any | false {
+    const exists = (this.moduleExports.has(namespace) && this.moduleExports.get(namespace)?.has(id)) || false;
+
+    return exists ? this.get(namespace, id) : false;
+  }
+
   addChunkModule(chunkId: number | string, namespace: string, urlPath: string): void {
     if (!this.chunks.has(chunkId.toString())) {
       this.chunks.set(chunkId.toString(), {
