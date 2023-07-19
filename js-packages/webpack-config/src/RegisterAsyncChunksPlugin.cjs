@@ -33,9 +33,19 @@ class RegisterAsyncChunksPlugin {
                 module._source._value.replaceAll(/^(.*) webpackChunkName: '([^']*)'.* \*\/ '(.*)'.*$/gm, (match, _, urlPath, importPath) => {
                   // Import path is relative to module.resource, so we need to resolve it
                   const importPathResolved = path.resolve(path.dirname(module.resource), importPath);
-                  const relevantChunk = chunks.find((chunk) => compilation.chunkGraph.getChunkModules(chunk).find((module) => module.resource?.includes(importPathResolved)));
                   const thisComposerJson = require(path.resolve(process.cwd(), '../composer.json'));
                   const namespace = extensionId(thisComposerJson.name);
+
+                  // For some reason, sometimes the module is nowhere to be found in any chunks.
+                  const relevantChunk = chunks.find(
+                    (chunk) => compilation.chunkGraph.getChunkModules(chunk).find(
+                      (module) => module.resource?.includes(importPathResolved)
+                    )
+                  ) || chunks.find(c => c.name === urlPath);
+
+                  if (! relevantChunk) {
+                    throw new Error(`Could not find chunk for ${importPathResolved}`);
+                  }
 
                   reg.push(`flarum.reg.addChunk('${relevantChunk.id}', '${namespace}', '${urlPath}');`);
 
