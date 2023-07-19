@@ -27,7 +27,7 @@ class RegisterAsyncChunksPlugin {
               // If the module source has an async webpack chunk, add the chunk id to flarum.reg
               // at the end of the module source.
 
-              if (module.resource && module.resource.includes("/src/") && module._source._value.includes("webpackChunkName: ")) {
+              if (module.resource && module.resource.includes("/src/") && module._source?._value.includes("webpackChunkName: ")) {
                 const reg = [];
 
                 module._source._value.replaceAll(/^(.*) webpackChunkName: '([^']*)'.* \*\/ '(.*)'.*$/gm, (match, _, urlPath, importPath) => {

@@ -1,6 +1,7 @@
 import type Mithril from 'mithril';
-import type { RouteResolver } from '../Application';
-import type { default as Component, ComponentAttrs } from '../Component';
+import type { AsyncNewComponent, NewComponent, RouteResolver } from '../Application';
+import type { ComponentAttrs } from '../Component';
+import Component from '../Component';
 
 /**
  * Generates a route resolver for a given component.
@@ -15,10 +16,10 @@ export default class DefaultResolver<
   RouteArgs extends Record<string, unknown> = {}
 > implements RouteResolver<Attrs, Comp, RouteArgs>
 {
-  component: new () => Comp;
+  component: NewComponent<Comp> | AsyncNewComponent<Comp>;
   routeName: string;
 
-  constructor(component: new () => Comp, routeName: string) {
+  constructor(component: NewComponent<Comp> | AsyncNewComponent<Comp>, routeName: string) {
     this.component = component;
     this.routeName = routeName;
   }
@@ -39,8 +40,8 @@ export default class DefaultResolver<
     };
   }
 
-  onmatch(args: RouteArgs, requestedPath: string, route: string): { new (): Comp } {
-    return this.component;
+  async onmatch(args: RouteArgs, requestedPath: string, route: string): Promise<{ new (): Comp }> {
+    return this.component.prototype instanceof Component ? this.component : (await (this.component as AsyncNewComponent<Comp>)()).default;
   }
 
   render(vnode: Mithril.Vnode<Attrs, Comp>): Mithril.Children {

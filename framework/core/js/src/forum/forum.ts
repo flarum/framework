@@ -46,7 +46,6 @@ import './components/UserPage';
 import './components/PostUser';
 import './components/UserCard';
 import './components/UsersSearchSource';
-import './components/UserSecurityPage';
 import './components/NotificationGrid';
 import './components/PostPreview';
 import './components/EventPost';
