@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { NormalModuleReplacementPlugin } = require('webpack');
+const RegisterAsyncChunksPlugin = require("./RegisterAsyncChunksPlugin.cjs");
 
 const entryPointNames = ['forum', 'admin'];
 const entryPointExts = ['js', 'ts'];
@@ -55,6 +56,13 @@ if (useBundleAnalyzer) {
   plugins.push(new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)());
 }
 
+/**
+ * This plugin allows us to register each async chunk with flarum.reg.addChunk.
+ * This works hand-in-hand with the autoChunkNameLoader, which adds a comment
+ * inside each async import with the chunk name and other webpack config.
+ */
+plugins.push(new RegisterAsyncChunksPlugin());
+
 module.exports = function () {
   return {
     // Set up entry points for each of the forum + admin apps, but only
@@ -70,8 +78,12 @@ module.exports = function () {
     module: {
       rules: [
         {
-          include: /src/, // Only apply this loader to files in the src directory
+          include: /src/,
           loader: path.resolve(__dirname, './autoExportLoader.cjs'),
+        },
+        {
+          include: /src/,
+          loader: path.resolve(__dirname, './autoChunkNameLoader.cjs'),
         },
         {
           // Matches .js, .jsx, .ts, .tsx
