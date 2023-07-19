@@ -3,7 +3,6 @@ import app from './app';
 import History from './utils/History';
 import Pane from './utils/Pane';
 import DiscussionPage from './components/DiscussionPage';
-import SignUpModal from './components/SignUpModal';
 import HeaderPrimary from './components/HeaderPrimary';
 import HeaderSecondary from './components/HeaderSecondary';
 import Composer from './components/Composer';
@@ -164,7 +163,7 @@ export default class ForumApplication extends Application {
     if (payload.loggedIn) {
       window.location.reload();
     } else {
-      this.modal.show(SignUpModal, payload);
+      this.modal.show(() => import('./components/SignUpModal'), payload);
     }
   }
 }

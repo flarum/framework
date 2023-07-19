@@ -57,7 +57,6 @@ import './components/DiscussionComposer';
 import './components/LogInButtons';
 import './components/NotificationList';
 import './components/WelcomeHero';
-import './components/SignUpModal';
 import './components/CommentPost';
 import './components/ComposerPostPreview';
 import './components/ReplyComposer';
