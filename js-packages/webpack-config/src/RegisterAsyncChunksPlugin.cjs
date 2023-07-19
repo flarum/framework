@@ -63,7 +63,8 @@ class RegisterAsyncChunksPlugin {
                   }
 
                   if (! relevantChunk) {
-                    throw new Error(`Could not find chunk for ${importPathResolved}`);
+                    console.error(`Could not find chunk for ${importPathResolved}`);
+                    return match;
                   }
 
                   registrableModulesUrlPaths.forEach(([chunkId, namespace, urlPath]) => {
@@ -73,7 +74,7 @@ class RegisterAsyncChunksPlugin {
                     }
                   });
 
-                  return `${match}`;
+                  return match;
                 });
 
                 module._source._value += reg.join('\n');
