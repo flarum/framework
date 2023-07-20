@@ -21,6 +21,8 @@
 
         {!! $js !!}
 
+        <script id="flarum-rev-manifest" type="application/json">@json($revisions)</script>
+
         <script id="flarum-json-payload" type="application/json">@json($payload)</script>
 
         <script>

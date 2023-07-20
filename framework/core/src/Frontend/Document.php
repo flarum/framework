@@ -9,7 +9,10 @@
 
 namespace Flarum\Frontend;
 
+use Flarum\Frontend\Compiler\FileVersioner;
+use Flarum\Frontend\Compiler\VersionerInterface;
 use Flarum\Frontend\Driver\TitleDriverInterface;
+use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -131,12 +134,21 @@ class Document implements Renderable
      */
     public array $preloads = [];
 
+    /**
+     * We need the versioner to get the revisions of split chunks.
+     */
+    protected VersionerInterface $versioner;
+
     public function __construct(
         protected Factory $view,
         protected array $forumApiDocument,
         protected Request $request,
-        protected TitleDriverInterface $titleDriver
+        protected TitleDriverInterface $titleDriver,
+        FilesystemFactory $filesystem
     ) {
+        $this->versioner = new FileVersioner(
+            $filesystem->disk('flarum-assets')
+        );
     }
 
     public function render(): string
@@ -157,6 +169,7 @@ class Document implements Renderable
             'js' => $this->makeJs(),
             'head' => $this->makeHead(),
             'foot' => $this->makeFoot(),
+            'revisions' => $this->versioner->allRevisions(),
         ]);
     }
 

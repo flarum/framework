@@ -48,4 +48,13 @@ class FileVersioner implements VersionerInterface
 
         return null;
     }
+
+    public function allRevisions(): array
+    {
+        if ($contents = $this->filesystem->get(static::REV_MANIFEST)) {
+            return json_decode($contents, true);
+        }
+
+        return [];
+    }
 }
