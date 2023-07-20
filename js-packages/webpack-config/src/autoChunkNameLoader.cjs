@@ -14,7 +14,7 @@ const optionsSchema = {
 
 let namespace;
 
-module.exports = function autoExportLoader(source) {
+module.exports = function autoChunkNameLoader(source) {
   const options = getOptions(this) || {};
 
   validate(optionsSchema, options, {
