@@ -67,8 +67,7 @@ class Assets
         ];
 
         $commonCompilers = [
-            'js' => [$this->commonAssets->makeJs(), $this->commonAssets->makeJsDirectory()],
-            'css' => [$this->commonAssets->makeCss()]
+            'js' => [$this->commonAssets->makeJsDirectory()],
         ];
 
         return array_merge_recursive($commonCompilers, $frontendCompilers);
