@@ -163,6 +163,17 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 return [];
             }
         );
+
+        $this->container->bind('flarum.assets.common', function (Container $container) {
+            /** @var \Flarum\Frontend\Assets $assets */
+            $assets = $container->make('flarum.assets.factory')('common');
+
+            $assets->jsDirectory(function (SourceCollector $sources) use ($container) {
+                $sources->addDirectory(__DIR__.'/../../js/dist/common', 'core');
+            });
+
+            return $assets;
+        });
     }
 
     public function boot(Container $container, ViewFactory $views): void

@@ -95,6 +95,10 @@ class AdminServiceProvider extends AbstractServiceProvider
                 $sources->addFile(__DIR__.'/../../js/dist/admin.js');
             });
 
+            $assets->jsDirectory(function (SourceCollector $sources) use ($container) {
+                $sources->addDirectory(__DIR__.'/../../js/dist/admin', 'core');
+            });
+
             $assets->css(function (SourceCollector $sources) {
                 $sources->addFile(__DIR__.'/../../less/admin.less');
             });
