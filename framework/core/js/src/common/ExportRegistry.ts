@@ -7,6 +7,7 @@ export interface IExportRegistry {
 
   /**
    * Add an instance to the registry.
+   * Identified by a namespace (extension ID) and an ID (module path).
    */
   add(namespace: string, id: string, object: any): void;
 
@@ -17,9 +18,34 @@ export interface IExportRegistry {
   onLoad(namespace: string, id: string, handler: Function): void;
 
   /**
-   * Retrieve an object of type `id` from the registry.
+   * Retrieve a module from the registry by namespace and ID.
    */
   get(namespace: string, id: string): any;
+}
+
+/**
+ * @internal
+ */
+export interface IChunkRegistry {
+  chunks: Map<string, Chunk>;
+  moduleToChunk: Map<string, string>;
+
+  /**
+   * Check if a module has been loaded.
+   * Return the module if so, false otherwise.
+   */
+  checkModule(namespace: string, id: string): any | false;
+
+  /**
+   * Register a module by the chunk ID it belongs to, the namespace (extension ID),
+   * and its ID (module path).
+   */
+  addChunkModule(chunkId: number | string, namespace: string, urlPath: string): void;
+
+  /**
+   * Get a registered chunk. Each chunk has at least one module (the default one).
+   */
+  getChunk(chunkId: number | string): Chunk | null;
 }
 
 type Chunk = {
@@ -37,7 +63,7 @@ type Chunk = {
   modules?: string[];
 };
 
-export default class ExportRegistry implements IExportRegistry {
+export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
   moduleExports = new Map<string, Map<string, any>>();
   onLoads = new Map<string, Map<string, Function[]>>();
   chunks = new Map<string, Chunk>();
@@ -73,7 +99,7 @@ export default class ExportRegistry implements IExportRegistry {
     return module;
   }
 
-  public check(namespace: string, id: string): any | false {
+  public checkModule(namespace: string, id: string): any | false {
     const exists = (this.moduleExports.has(namespace) && this.moduleExports.get(namespace)?.has(id)) || false;
 
     return exists ? this.get(namespace, id) : false;

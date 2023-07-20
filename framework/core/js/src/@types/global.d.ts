@@ -98,8 +98,12 @@ interface FlarumObject {
    * }
    */
   extensions: Readonly<Record<string, ESModule>>;
-
-  reg: any;
+  /**
+   * Contains a registry of all exported modules,
+   * as well as chunks that can be imported and the modules
+   * each chunk contains.
+   */
+  reg: import('../common/ExportRegistry').default;
 }
 
 declare const flarum: FlarumObject;

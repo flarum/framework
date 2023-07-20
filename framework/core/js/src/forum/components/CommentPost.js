@@ -87,7 +87,7 @@ export default class CommentPost extends Post {
   }
 
   isEditing() {
-    const EditPostComposer = flarum.reg.check('core', 'forum/components/EditPostComposer');
+    const EditPostComposer = flarum.reg.checkModule('core', 'forum/components/EditPostComposer');
 
     if (!EditPostComposer) return false;
 

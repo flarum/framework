@@ -203,7 +203,7 @@ class ComposerState {
    * @return {boolean}
    */
   composingReplyTo(discussion) {
-    const ReplyComposer = flarum.reg.check('core', 'forum/components/ReplyComposer');
+    const ReplyComposer = flarum.reg.checkModule('core', 'forum/components/ReplyComposer');
 
     if (!ReplyComposer) return false;
 
