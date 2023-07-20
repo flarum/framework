@@ -24,10 +24,19 @@
  * @param callback A callback which mutates the method's output
  */
 export function extend<T extends Record<string, any>, K extends KeyOfType<T, Function>>(
-  object: T,
+  object: T | string,
   methods: K | K[],
   callback: (this: T, val: ReturnType<T[K]>, ...args: Parameters<T[K]>) => void
 ) {
+  // A lazy loaded module, only apply the extend function after the module is loaded.
+  if (typeof object === 'string') {
+    let [namespace, id] = flarum.reg.namespaceAndIdFromPath(object);
+
+    return flarum.reg.onLoad(namespace, id, (module) => {
+      extend(module.prototype, methods, callback);
+    });
+  }
+
   const allMethods = Array.isArray(methods) ? methods : [methods];
 
   allMethods.forEach((method: K) => {
@@ -73,10 +82,19 @@ export function extend<T extends Record<string, any>, K extends KeyOfType<T, Fun
  * @param newMethod The method to replace it with
  */
 export function override<T extends Record<any, any>, K extends KeyOfType<T, Function>>(
-  object: T,
+  object: T | string,
   methods: K | K[],
   newMethod: (this: T, orig: T[K], ...args: Parameters<T[K]>) => void
 ) {
+  // A lazy loaded module, only apply the extend function after the module is loaded.
+  if (typeof object === 'string') {
+    let [namespace, id] = flarum.reg.namespaceAndIdFromPath(object);
+
+    return flarum.reg.onLoad(namespace, id, (module) => {
+      override(module.prototype, methods, newMethod);
+    });
+  }
+
   const allMethods = Array.isArray(methods) ? methods : [methods];
 
   allMethods.forEach((method) => {

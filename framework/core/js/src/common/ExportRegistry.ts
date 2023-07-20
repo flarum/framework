@@ -79,7 +79,7 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
       ?.forEach((handler) => handler(object));
   }
 
-  onLoad(namespace: string, id: string, handler: Function): void {
+  onLoad(namespace: string, id: string, handler: (module: any) => void): void {
     if (this.moduleExports.has(namespace) && this.moduleExports.get(namespace)?.has(id)) {
       handler(this.moduleExports.get(namespace)?.get(id));
     } else {
@@ -132,5 +132,11 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     }
 
     return chunk;
+  }
+
+  namespaceAndIdFromPath(path: string): [string, string] {
+    let [namespace, id] = path.replace('flarum/', 'core:').split(':');
+
+    return [namespace, id];
   }
 }
