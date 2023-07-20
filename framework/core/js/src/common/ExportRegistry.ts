@@ -46,6 +46,11 @@ export interface IChunkRegistry {
    * Get a registered chunk. Each chunk has at least one module (the default one).
    */
   getChunk(chunkId: number | string): Chunk | null;
+
+  /**
+   * The chunk loader which overrides the default Webpack chunk loader.
+   */
+  loadChunk(original: Function, url: string, done: () => Promise<void>, key: number, chunkId: number | string): Promise<void>;
 }
 
 type Chunk = {
@@ -68,6 +73,7 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
   onLoads = new Map<string, Map<string, Function[]>>();
   chunks = new Map<string, Chunk>();
   moduleToChunk = new Map<string, string>();
+  private _revisions: any = null;
 
   add(namespace: string, id: string, object: any): void {
     this.moduleExports.set(namespace, this.moduleExports.get(namespace) || new Map());
@@ -138,5 +144,28 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     let [namespace, id] = path.replace('flarum/', 'core:').split(':');
 
     return [namespace, id];
+  }
+
+  async loadChunk(original: Function, url: string, done: () => Promise<void>, key: number, chunkId: number | string): Promise<void> {
+    return await original(this.chunkUrl(chunkId) || url, done, key, chunkId);
+  }
+
+  chunkUrl(chunkId: number | string): string | null {
+    const chunk = this.getChunk(chunkId.toString());
+
+    if (!chunk) return null;
+
+    this._revisions ??= JSON.parse(document.getElementById('flarum-rev-manifest')?.textContent ?? '{}');
+
+    // @ts-ignore cannot import the app object here, so we use the global one.
+    const path = `${app.forum.attribute('jsChunksBaseUrl')}/${chunk.namespace}/${chunk.urlPath}.js`;
+
+    // The paths in the revision are stored as (relative path from the assets path) + the path.
+    // @ts-ignore
+    const assetsPath = app.forum.attribute<string>('assetsBaseUrl');
+    const key = path.replace(assetsPath, '').replace(/^\//, '');
+    const revision = this._revisions[key];
+
+    return revision ? `${path}?v=${revision}` : path;
   }
 }

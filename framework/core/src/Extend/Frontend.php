@@ -198,7 +198,7 @@ class Frontend implements ExtenderInterface
 
     private function registerAssets(Container $container, string $moduleName): void
     {
-        if (empty($this->css) && empty($this->js)) {
+        if (empty($this->css) && empty($this->js) && empty($this->jsDirectory)) {
             return;
         }
 

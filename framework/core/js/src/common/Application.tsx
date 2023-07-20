@@ -242,7 +242,6 @@ export default class Application {
 
   private _title: string = '';
   private _titleCount: number = 0;
-  private _revisions: any = null;
 
   private set title(val: string) {
     this._title = val;
@@ -647,21 +646,5 @@ export default class Application {
     const prefix = m.route.prefix === '' ? this.forum.attribute('basePath') : '';
 
     return prefix + url + (queryString ? '?' + queryString : '');
-  }
-
-  chunkUrl(chunkId: number | string): string | null {
-    const chunk = flarum.reg.getChunk(chunkId.toString());
-
-    if (!chunk) return null;
-
-    this._revisions ??= JSON.parse(document.getElementById('flarum-rev-manifest')?.textContent ?? '{}');
-    const path = `${this.forum.attribute('jsChunksBaseUrl')}/${chunk.namespace}/${chunk.urlPath}.js`;
-
-    // The paths in the revision are stored as (relative path from the assets path) + the path.
-    const assetsPath = this.forum.attribute<string>('assetsBaseUrl');
-    const key = path.replace(assetsPath, '').replace(/^\//, '');
-    const revision = this._revisions[key];
-
-    return revision ? `${path}?v=${revision}` : path;
   }
 }

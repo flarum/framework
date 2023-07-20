@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { NormalModuleReplacementPlugin } = require('webpack');
 const RegisterAsyncChunksPlugin = require("./RegisterAsyncChunksPlugin.cjs");
+const OverrideChunkLoaderFunction = require("./OverrideChunkLoaderFunction.cjs");
 
 const entryPointNames = ['forum', 'admin'];
 const entryPointExts = ['js', 'ts'];
@@ -62,6 +63,7 @@ if (useBundleAnalyzer) {
  * inside each async import with the chunk name and other webpack config.
  */
 plugins.push(new RegisterAsyncChunksPlugin());
+plugins.push(new OverrideChunkLoaderFunction());
 
 module.exports = function () {
   return {

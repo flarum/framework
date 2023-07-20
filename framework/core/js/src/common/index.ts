@@ -9,8 +9,6 @@ import 'bootstrap/js/tooltip';
 import 'bootstrap/js/transition';
 import 'jquery.hotkeys/jquery.hotkeys';
 
-import './chunkLoader';
-
 import relativeTime from 'dayjs/plugin/relativeTime';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 
