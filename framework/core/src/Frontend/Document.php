@@ -9,6 +9,7 @@
 
 namespace Flarum\Frontend;
 
+use Flarum\Foundation\Config;
 use Flarum\Frontend\Compiler\FileVersioner;
 use Flarum\Frontend\Compiler\VersionerInterface;
 use Flarum\Frontend\Driver\TitleDriverInterface;
@@ -144,6 +145,7 @@ class Document implements Renderable
         protected array $forumApiDocument,
         protected Request $request,
         protected TitleDriverInterface $titleDriver,
+        protected Config $config,
         FilesystemFactory $filesystem
     ) {
         $this->versioner = new FileVersioner(
@@ -170,6 +172,7 @@ class Document implements Renderable
             'head' => $this->makeHead(),
             'foot' => $this->makeFoot(),
             'revisions' => $this->versioner->allRevisions(),
+            'debug' => $this->config->inDebugMode(),
         ]);
     }
 

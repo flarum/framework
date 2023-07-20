@@ -91,9 +91,13 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
 
   get(namespace: string, id: string): any {
     const module = this.moduleExports.get(namespace)?.get(id);
+    const error = `No module found for ${namespace}:${id}`;
 
-    if (!module) {
-      console.warn(`No module found for ${namespace}:${id}`);
+    // @ts-ignore
+    if (!module && flarum.debug) {
+      throw new Error(error);
+    } else if (!module) {
+      console.warn(error);
     }
 
     return module;

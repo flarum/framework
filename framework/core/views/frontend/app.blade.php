@@ -16,7 +16,7 @@
 
         <script>
             document.getElementById('flarum-loading').style.display = 'block';
-            var flarum = {extensions: {}};
+            var flarum = {extensions: {}, debug: @js($debug)};
         </script>
 
         {!! $js !!}

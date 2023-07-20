@@ -104,6 +104,10 @@ interface FlarumObject {
    * each chunk contains.
    */
   reg: import('../common/ExportRegistry').default;
+  /**
+   * For early operations, this object stores whether we are in debug mode or not.
+   */
+  debug: boolean;
 }
 
 declare const flarum: FlarumObject;
