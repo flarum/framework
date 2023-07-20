@@ -2,11 +2,10 @@ import { extend, override } from 'flarum/common/extend';
 import IndexPage from 'flarum/forum/components/IndexPage';
 import classList from 'flarum/common/utils/classList';
 
-import TagDiscussionModal from './components/TagDiscussionModal';
 import tagsLabel from '../common/helpers/tagsLabel';
 import getSelectableTags from './utils/getSelectableTags';
 
-export default function () {
+export default function addTagComposer() {
   extend(IndexPage.prototype, 'newDiscussionAction', function (promise) {
     // From `addTagFilter
     const tag = this.currentTag();
@@ -29,7 +28,7 @@ export default function () {
 
       if (!selectableTags.length) return;
 
-      app.modal.show(TagDiscussionModal, {
+      app.modal.show(() => import('./components/TagDiscussionModal'), {
         selectedTags: (this.composer.fields.tags || []).slice(0),
         onsubmit: (tags) => {
           this.composer.fields.tags = tags;
@@ -75,7 +74,7 @@ export default function () {
         chosenSecondaryTags.length < minSecondaryTags) &&
       selectableTags.length
     ) {
-      app.modal.show(TagDiscussionModal, {
+      app.modal.show(() => import('./components/TagDiscussionModal'), {
         selectedTags: chosenTags,
         onsubmit: (tags) => {
           this.composer.fields.tags = tags;
