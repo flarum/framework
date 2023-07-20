@@ -5,8 +5,6 @@ import Page, { IPageAttrs } from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import DiscussionHero from './DiscussionHero';
 import DiscussionListPane from './DiscussionListPane';
-import PostStream from './PostStream';
-import PostStreamScrubber from './PostStreamScrubber';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import SplitDropdown from '../../common/components/SplitDropdown';
 import listItems from '../../common/helpers/listItems';
@@ -26,6 +24,11 @@ export interface IDiscussionPageAttrs extends IPageAttrs {
  * the discussion list pane, the hero, the posts, and the sidebar.
  */
 export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = IDiscussionPageAttrs> extends Page<CustomAttrs> {
+  protected loading: boolean = true;
+
+  protected PostStream: any = null;
+  protected PostStreamScrubber: any = null;
+
   /**
    * The discussion that is being viewed.
    */
@@ -83,7 +86,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     return (
       <div className="DiscussionPage">
         <DiscussionListPane state={app.discussions} />
-        <div className="DiscussionPage-discussion">{this.discussion ? this.pageContent().toArray() : this.loadingItems().toArray()}</div>
+        <div className="DiscussionPage-discussion">{!this.loading ? this.pageContent().toArray() : this.loadingItems().toArray()}</div>
       </div>
     );
   }
@@ -140,7 +143,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     items.add(
       'poststream',
       <div className="DiscussionPage-stream">
-        <PostStream discussion={this.discussion} stream={this.stream} onPositionChange={this.positionChanged.bind(this)} />
+        <this.PostStream discussion={this.discussion} stream={this.stream} onPositionChange={this.positionChanged.bind(this)} />
       </div>,
       10
     );
@@ -152,18 +155,23 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
    * Load the discussion from the API or use the preloaded one.
    */
   load(): void {
-    const preloadedDiscussion = app.preloadedApiDocument<Discussion>();
-    if (preloadedDiscussion) {
-      // We must wrap this in a setTimeout because if we are mounting this
-      // component for the first time on page load, then any calls to m.redraw
-      // will be ineffective and thus any configs (scroll code) will be run
-      // before stuff is drawn to the page.
-      setTimeout(this.show.bind(this, preloadedDiscussion), 0);
-    } else {
-      const params = this.requestParams();
+    Promise.all([import('./PostStream'), import('./PostStreamScrubber')]).then(([PostStreamImport, PostStreamScrubberImport]) => {
+      this.PostStream = PostStreamImport.default;
+      this.PostStreamScrubber = PostStreamScrubberImport.default;
 
-      app.store.find<Discussion>('discussions', m.route.param('id'), params).then(this.show.bind(this));
-    }
+      const preloadedDiscussion = app.preloadedApiDocument<Discussion>();
+      if (preloadedDiscussion) {
+        // We must wrap this in a setTimeout because if we are mounting this
+        // component for the first time on page load, then any calls to m.redraw
+        // will be ineffective and thus any configs (scroll code) will be run
+        // before stuff is drawn to the page.
+        setTimeout(this.show.bind(this, preloadedDiscussion), 0);
+      } else {
+        const params = this.requestParams();
+
+        app.store.find<Discussion>('discussions', m.route.param('id'), params).then(this.show.bind(this));
+      }
+    });
 
     m.redraw();
   }
@@ -183,6 +191,8 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
    * Initialize the component to display the given discussion.
    */
   show(discussion: ApiResponseSingle<Discussion>): void {
+    this.loading = false;
+
     app.history.push('discussion', discussion.title());
     app.setTitle(discussion.title());
     app.setTitleCount(0);
@@ -249,7 +259,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
       );
     }
 
-    items.add('scrubber', <PostStreamScrubber stream={this.stream} className="App-titleControl" />, -100);
+    items.add('scrubber', <this.PostStreamScrubber stream={this.stream} className="App-titleControl" />, -100);
 
     return items;
   }

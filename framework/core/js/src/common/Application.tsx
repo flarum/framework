@@ -651,6 +651,6 @@ export default class Application {
   chunkUrl(chunkId: number | string): string | null {
     const chunk = flarum.reg.getChunk(chunkId.toString());
 
-    return `${this.forum.attribute('jsChunksBaseUrl')}/${chunk.namespace}/${chunk.urlPath}.js`;
+    return chunk && `${this.forum.attribute('jsChunksBaseUrl')}/${chunk.namespace}/${chunk.urlPath}.js`;
   }
 }

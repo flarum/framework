@@ -66,7 +66,6 @@ import './components/Modal';
 import './components/GroupBadge';
 import './components/TextEditor';
 import './components/TextEditorButton';
-import './components/EditUserModal';
 import './components/Tooltip';
 
 import './helpers/fullTime';

@@ -2,7 +2,6 @@ import Mithril from 'mithril';
 
 import app from '../../admin/app';
 
-import EditUserModal from '../../common/components/EditUserModal';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';
 
@@ -432,7 +431,7 @@ export default class UserListPage extends AdminPage {
           <Button
             className="Button UserList-editModalBtn"
             title={app.translator.trans('core.admin.users.grid.columns.edit_user.tooltip', { username: user.username() })}
-            onclick={() => app.modal.show(EditUserModal, { user })}
+            onclick={() => app.modal.show(() => import('../../common/components/EditUserModal'), { user })}
           >
             {app.translator.trans('core.admin.users.grid.columns.edit_user.button')}
           </Button>

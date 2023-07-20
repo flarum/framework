@@ -1,7 +1,7 @@
 import app from '../../forum/app';
 import Component from '../../common/Component';
 import ScrollListener from '../../common/utils/ScrollListener';
-import PostLoading from './LoadingPost';
+import LoadingPost from './LoadingPost';
 import ReplyPlaceholder from './ReplyPlaceholder';
 import Button from '../../common/components/Button';
 import ItemList from '../../common/utils/ItemList';
@@ -75,7 +75,7 @@ export default class PostStream extends Component {
       } else {
         attrs.key = 'post' + postIds[this.stream.visibleStart + i];
 
-        content = <PostLoading />;
+        content = <LoadingPost />;
       }
 
       return (
