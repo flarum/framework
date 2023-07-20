@@ -41,12 +41,16 @@ module.exports = function autoExportLoader(source) {
   // Get the absolute path to this module
   const pathToThisModule = this.resourcePath;
 
-  // Replace all `import('path/to/module')` with `import(/* webpackChunkName: "relative/path/to/module/from/src" */ 'relative/path/to/module')`.
-  const importPattern = /(^(?!\s+\* @.*).*)import\(['"](.*)['"]\)/gm;
-  const matches = [...source.matchAll(importPattern)];
+  // Find all lines that have an async import.
+  source = source.replaceAll(/^.*import\(['"].*['"]\).*$/gm, (match) => {
+    // Skip if this is inside a jsDoc comment.
+    if (/^\s*\*\s*@.*/.test(match)) {
+      return match;
+    }
 
-  if (matches.length) {
-    source = source.replaceAll(importPattern, (match, pre, relativePathToImport) => {
+    // Replace all `import('path/to/module')` with `import(/* webpackChunkName: "relative/path/to/module/from/src" */ 'relative/path/to/module')`
+    // in this line.
+    return match.replaceAll(/(.*?)import\(['"]([^'"]*)['"]\)/gm, (match, pre, relativePathToImport) => {
       // Compute the absolute path from src to the module being imported
       // based on the path of the file being imported from.
       const absolutePathToImport = path.resolve(path.dirname(pathToThisModule), relativePathToImport);
@@ -66,7 +70,7 @@ module.exports = function autoExportLoader(source) {
       // Return the new import statement
       return `${pre}import(/* ${comment} */ '${relativePathToImport}')`;
     });
-  }
+  });
 
   return source;
 };

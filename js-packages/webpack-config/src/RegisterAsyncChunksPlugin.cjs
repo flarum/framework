@@ -46,6 +46,11 @@ class RegisterAsyncChunksPlugin {
                     )
                   );
 
+                  if (! relevantChunk) {
+                    console.error(`Could not find chunk for ${importPathResolved}`);
+                    return match;
+                  }
+
                   let concatenatedModule;
                   const registrableModulesUrlPaths = new Map();
                   registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, namespace, urlPath]);
@@ -60,11 +65,6 @@ class RegisterAsyncChunksPlugin {
                         registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, namespace, urlPath]);
                       }
                     });
-                  }
-
-                  if (! relevantChunk) {
-                    console.error(`Could not find chunk for ${importPathResolved}`);
-                    return match;
                   }
 
                   registrableModulesUrlPaths.forEach(([chunkId, namespace, urlPath]) => {
