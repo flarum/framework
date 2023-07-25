@@ -45,7 +45,12 @@ class GambitManager
      */
     protected function explode(string $query): array
     {
-        return str_getcsv($query, ' ');
+        // Fixed Deprecated: str_getcsv(): Passing null to parameter #1 ($string) of type string is deprecated on php 8.x
+        if ($query !== null && is_string($query)) {
+            return str_getcsv($query, ' ');
+        } else {
+            return [];
+        }
     }
 
     protected function applyGambits(SearchState $search, string $query): string
