@@ -48,27 +48,34 @@ module.exports = function autoChunkNameLoader(source) {
       return match;
     }
 
-    // Replace all `import('path/to/module')` with `import(/* webpackChunkName: "relative/path/to/module/from/src" */ 'relative/path/to/module')`
-    // in this line.
+    // In this line.
+    // Replace all `import('path/to/module')` with `import(/* webpackChunkName: "relative/path/to/module/from/src" */ 'relative/path/to/module')`.
+    // Or, if attempting to import an external (from core or an extension) replace with a call to the right method that will compute the URL.
     return match.replaceAll(/(.*?)import\(['"]([^'"]*)['"]\)/gm, (match, pre, relativePathToImport) => {
-      // Compute the absolute path from src to the module being imported
-      // based on the path of the file being imported from.
-      const absolutePathToImport = path.resolve(path.dirname(pathToThisModule), relativePathToImport);
-      let chunkPath = relativePathToImport;
+      const externalImport = relativePathToImport.match(/^(flarum\/|ext:)/);
 
-      if (absolutePathToImport.includes('src')) {
-        chunkPath = absolutePathToImport.split('src/')[1];
+      if (externalImport) {
+        return `${pre}flarum.reg.asyncModuleImport('${relativePathToImport}')`;
+      } else {
+        // Compute the absolute path from src to the module being imported
+        // based on the path of the file being imported from.
+        const absolutePathToImport = path.resolve(path.dirname(pathToThisModule), relativePathToImport);
+        let chunkPath = relativePathToImport;
+
+        if (absolutePathToImport.includes('src')) {
+          chunkPath = absolutePathToImport.split('src/')[1];
+        }
+
+        const webpackCommentOptions = {
+          webpackChunkName: chunkPath,
+          webpackMode: 'lazy-once',
+        };
+
+        const comment = Object.entries(webpackCommentOptions).map(([key, value]) => `${key}: '${value}'`).join(', ');
+
+        // Return the new import statement
+        return `${pre}import(/* ${comment} */ '${relativePathToImport}')`;
       }
-
-      const webpackCommentOptions = {
-        webpackChunkName: chunkPath,
-        webpackMode: 'lazy-once',
-      };
-
-      const comment = Object.entries(webpackCommentOptions).map(([key, value]) => `${key}: '${value}'`).join(', ');
-
-      // Return the new import statement
-      return `${pre}import(/* ${comment} */ '${relativePathToImport}')`;
     });
   });
 

@@ -70,25 +70,26 @@ class RegisterAsyncChunksPlugin {
                     return match;
                   }
 
-                  let concatenatedModule;
+                  let concatenatedModule = chunkModules(relevantChunk)[0];
+                  const moduleId = compilation.chunkGraph.getModuleId(concatenatedModule);
                   const registrableModulesUrlPaths = new Map();
-                  registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, namespace, urlPath]);
+                  registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, moduleId, namespace, urlPath]);
 
-                  if ((concatenatedModule = chunkModules(relevantChunk)[0])?.rootModule) {
+                  if (concatenatedModule?.rootModule) {
                     // This is a chunk with many modules, we need to register all of them.
                     concatenatedModule.modules?.forEach((module) => {
                       // The path right after the src/ directory, without the extension.
                       const urlPath = module.resource.replace(/.*\/src\/(.*)\..*/, '$1');
 
                       if (! registrableModulesUrlPaths.has(urlPath)) {
-                        registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, namespace, urlPath]);
+                        registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, moduleId, namespace, urlPath]);
                       }
                     });
                   }
 
-                  registrableModulesUrlPaths.forEach(([chunkId, namespace, urlPath]) => {
+                  registrableModulesUrlPaths.forEach(([chunkId, moduleId, namespace, urlPath]) => {
                     if (! chunkModuleMemory.includes(urlPath)) {
-                      reg.push(`flarum.reg.addChunkModule('${chunkId}', '${namespace}', '${urlPath}');`);
+                      reg.push(`flarum.reg.addChunkModule('${chunkId}', '${moduleId}', '${namespace}', '${urlPath}');`);
                       chunkModuleMemory.push(urlPath);
                     }
                   });

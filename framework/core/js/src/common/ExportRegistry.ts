@@ -28,7 +28,7 @@ export interface IExportRegistry {
  */
 export interface IChunkRegistry {
   chunks: Map<string, Chunk>;
-  moduleToChunk: Map<string, string>;
+  chunkModules: Map<string, Module>;
 
   /**
    * Check if a module has been loaded.
@@ -37,10 +37,10 @@ export interface IChunkRegistry {
   checkModule(namespace: string, id: string): any | false;
 
   /**
-   * Register a module by the chunk ID it belongs to, the namespace (extension ID),
-   * and its ID (module path).
+   * Register a module by the chunk ID it belongs to, the webpack module ID it belongs to,
+   * the namespace (extension ID), and its path.
    */
-  addChunkModule(chunkId: number | string, namespace: string, urlPath: string): void;
+  addChunkModule(chunkId: number | string, moduleId: number | string, namespace: string, urlPath: string): void;
 
   /**
    * Get a registered chunk. Each chunk has at least one module (the default one).
@@ -51,6 +51,12 @@ export interface IChunkRegistry {
    * The chunk loader which overrides the default Webpack chunk loader.
    */
   loadChunk(original: Function, url: string, done: () => Promise<void>, key: number, chunkId: number | string): Promise<void>;
+
+  /**
+   * Responsible for loading external chunks.
+   * Called automatically when an extension/package tries to async import a chunked module.
+   */
+  asyncModuleImport(path: string): Promise<any>;
 }
 
 type Chunk = {
@@ -68,11 +74,22 @@ type Chunk = {
   modules?: string[];
 };
 
+type Module = {
+  /**
+   * The chunk ID the module belongs to.
+   */
+  chunkId: string;
+  /**
+   * The module ID. Not unique, as most chunk modules are concatenated into one module.
+   */
+  moduleId: string;
+};
+
 export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
   moduleExports = new Map<string, Map<string, any>>();
   onLoads = new Map<string, Map<string, Function[]>>();
   chunks = new Map<string, Chunk>();
-  moduleToChunk = new Map<string, string>();
+  chunkModules = new Map<string, Module>();
   private _revisions: any = null;
 
   add(namespace: string, id: string, object: any): void {
@@ -115,18 +132,21 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     return exists ? this.get(namespace, id) : false;
   }
 
-  addChunkModule(chunkId: number | string, namespace: string, urlPath: string): void {
+  addChunkModule(chunkId: number | string, moduleId: number | string, namespace: string, urlPath: string): void {
     if (!this.chunks.has(chunkId.toString())) {
       this.chunks.set(chunkId.toString(), {
         namespace,
         urlPath,
         modules: [urlPath],
       });
-      this.moduleToChunk.set(`${namespace}:${urlPath}`, chunkId.toString());
     } else {
       this.chunks.get(chunkId.toString())?.modules?.push(urlPath);
-      this.moduleToChunk.set(`${namespace}:${urlPath}`, chunkId.toString());
     }
+
+    this.chunkModules.set(`${namespace}:${urlPath}`, {
+      chunkId: chunkId.toString(),
+      moduleId: moduleId.toString(),
+    });
   }
 
   getChunk(chunkId: number | string): Chunk | null {
@@ -138,12 +158,6 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     }
 
     return chunk;
-  }
-
-  namespaceAndIdFromPath(path: string): [string, string] {
-    let [namespace, id] = path.replace('flarum/', 'core:').split(':');
-
-    return [namespace, id];
   }
 
   async loadChunk(original: Function, url: string, done: () => Promise<void>, key: number, chunkId: number | string): Promise<void> {
@@ -158,7 +172,7 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     this._revisions ??= JSON.parse(document.getElementById('flarum-rev-manifest')?.textContent ?? '{}');
 
     // @ts-ignore cannot import the app object here, so we use the global one.
-    const path = `${app.forum.attribute('jsChunksBaseUrl')}/${chunk.namespace}/${chunk.urlPath}.js`;
+    const path = `${app.forum.attribute<string>('jsChunksBaseUrl')}/${chunk.namespace}/${chunk.urlPath}.js`;
 
     // The paths in the revision are stored as (relative path from the assets path) + the path.
     // @ts-ignore
@@ -167,5 +181,40 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     const revision = this._revisions[key];
 
     return revision ? `${path}?v=${revision}` : path;
+  }
+
+  async asyncModuleImport(path: string): Promise<any> {
+    const [namespace, id] = this.namespaceAndIdFromPath(path);
+    const module = this.chunkModules.get(`${namespace}:${id}`);
+
+    if (!module) {
+      throw new Error(`No chunk found for module ${namespace}:${id}`);
+    }
+
+    // @ts-ignore
+    const wr = __webpack_require__;
+
+    return await wr.e(module.chunkId).then(() => {
+      // Needed to make sure the module is loaded.
+      // Taken care of by webpack.
+      wr.bind(wr, module.moduleId)();
+
+      const moduleExport = this.get(namespace, id);
+
+      // For consistent access to async modules.
+      moduleExport.default = moduleExport.default || moduleExport;
+
+      return moduleExport;
+    });
+  }
+
+  namespaceAndIdFromPath(path: string): [string, string] {
+    // Either we get a path like `flarum/forum/components/LogInModal` or `ext:flarum-tags/forum/components/TagPage`.
+    let [namespace, ...id] = path
+      .replace(/^ext:/, '')
+      .replace(/^flarum\//, 'core/')
+      .split('/');
+
+    return [namespace, id.join('/')];
   }
 }
