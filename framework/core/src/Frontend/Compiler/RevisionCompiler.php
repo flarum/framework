@@ -24,7 +24,7 @@ class RevisionCompiler implements CompilerInterface
 
     const EMPTY_REVISION = 'empty';
 
-    protected VersionerInterface|FileVersioner $versioner;
+    protected VersionerInterface $versioner;
 
     public function __construct(
         protected Cloud $assetsDir,

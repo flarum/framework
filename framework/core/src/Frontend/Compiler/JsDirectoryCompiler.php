@@ -18,10 +18,13 @@ class JsDirectoryCompiler implements CompilerInterface
 {
     use HasSources;
 
+    protected VersionerInterface $versioner;
+
     public function __construct(
         protected Cloud $assetsDir,
         protected string $destinationPath
     ) {
+        $this->versioner = new FileVersioner($assetsDir);
     }
 
     public function getFilename(): ?string
@@ -69,6 +72,20 @@ class JsDirectoryCompiler implements CompilerInterface
     protected function flushSource(DirectorySource $source): void
     {
         $this->eachFile($source, fn (JsCompiler $compiler) => $compiler->flush());
+
+        $destinationDir = $this->destinationFor($source);
+
+        // Destination can still contain stale chunks.
+        $this->assetsDir->deleteDirectory($destinationDir);
+
+        // Delete stale revisions.
+        $remainingRevisions = $this->versioner->allRevisions();
+
+        foreach ($remainingRevisions as $filename => $revision) {
+            if (str_starts_with($filename, $destinationDir)) {
+                $this->versioner->putRevision($filename, null);
+            }
+        }
     }
 
     protected function eachFile(DirectorySource $source, callable $callback): void
@@ -86,17 +103,15 @@ class JsDirectoryCompiler implements CompilerInterface
         }
     }
 
-    protected function compilerFor(DirectorySource $source, FilesystemAdapter $filesystem, mixed $relativeFilePath): JsCompiler
+    protected function compilerFor(DirectorySource $source, FilesystemAdapter $filesystem, string $relativeFilePath): JsCompiler
     {
         // Filesystem's root is the actual directory we want to copy.
         // The destination path is relative to the assets' filesystem.
 
-        $extensionId = $source->getExtensionId() ?? 'core';
-
         $jsCompiler = resolve(JsCompiler::class, [
             'assetsDir' => $this->assetsDir,
             // We put each file in `js/extensionId/frontend` (path provided) `/relativeFilePath` (such as `components/LogInModal.js`).
-            'filename' => str_replace('{ext}', $extensionId, $this->destinationPath).DIRECTORY_SEPARATOR.$relativeFilePath,
+            'filename' => $this->destinationFor($source, $relativeFilePath),
         ]);
 
         $jsCompiler->addSources(
@@ -104,5 +119,12 @@ class JsDirectoryCompiler implements CompilerInterface
         );
 
         return $jsCompiler;
+    }
+
+    protected function destinationFor(DirectorySource $source, ?string $relativeFilePath = null): string
+    {
+        $extensionId = $source->getExtensionId() ?? 'core';
+
+        return str_replace('{ext}', $extensionId, $this->destinationPath).DIRECTORY_SEPARATOR.$relativeFilePath;
     }
 }
