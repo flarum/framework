@@ -10,7 +10,6 @@
 namespace Flarum\Frontend\Compiler\Source;
 
 use Illuminate\Filesystem\FilesystemAdapter;
-use InvalidArgumentException;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Local\LocalFilesystemAdapter;
 
