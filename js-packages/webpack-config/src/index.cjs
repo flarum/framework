@@ -99,6 +99,16 @@ module.exports = function () {
       ],
     },
 
+    optimization: {
+      splitChunks: {
+        chunks: 'async',
+        cacheGroups: {
+          // Avoid node_modules being split into separate chunks
+          defaultVendors: false,
+        }
+      }
+    },
+
     output: {
       path: path.resolve(process.cwd(), 'dist'),
       library: 'module.exports',

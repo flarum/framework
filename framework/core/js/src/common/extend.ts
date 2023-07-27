@@ -28,7 +28,7 @@ export function extend<T extends Record<string, any>, K extends KeyOfType<T, Fun
   methods: K | K[],
   callback: (this: T, val: ReturnType<T[K]>, ...args: Parameters<T[K]>) => void
 ) {
-  // A lazy loaded module, only apply the extend function after the module is loaded.
+  // A lazy loaded module, only apply the function after the module is loaded.
   if (typeof object === 'string') {
     let [namespace, id] = flarum.reg.namespaceAndIdFromPath(object);
 
@@ -86,7 +86,7 @@ export function override<T extends Record<any, any>, K extends KeyOfType<T, Func
   methods: K | K[],
   newMethod: (this: T, orig: T[K], ...args: Parameters<T[K]>) => void
 ) {
-  // A lazy loaded module, only apply the extend function after the module is loaded.
+  // A lazy loaded module, only apply the function after the module is loaded.
   if (typeof object === 'string') {
     let [namespace, id] = flarum.reg.namespaceAndIdFromPath(object);
 
@@ -101,7 +101,7 @@ export function override<T extends Record<any, any>, K extends KeyOfType<T, Func
     const original: Function = object[method];
 
     object[method] = function (this: T, ...args: Parameters<T[K]>) {
-      return newMethod.apply(this, [original.bind(this), ...args]);
+      return newMethod.apply(this, [original?.bind(this), ...args]);
     } as T[K];
 
     Object.assign(object[method], original);

@@ -1,5 +1,6 @@
 import type Mithril from 'mithril';
 import Alert, { AlertAttrs } from '../components/Alert';
+import app from '../app';
 
 /**
  * Returned by `AlertManagerState.show`. Used to dismiss alerts.
@@ -17,6 +18,7 @@ export interface AlertState {
 export default class AlertManagerState {
   protected activeAlerts: AlertArray = {};
   protected alertId: AlertIdentifier = 0;
+  protected loadingPool: number = 0;
 
   getActiveAlerts() {
     return this.activeAlerts;
@@ -70,5 +72,31 @@ export default class AlertManagerState {
   clear(): void {
     this.activeAlerts = {};
     m.redraw();
+  }
+
+  /**
+   * Shows a loading alert.
+   */
+  showLoading(): AlertIdentifier | null {
+    this.loadingPool++;
+
+    if (this.loadingPool > 1) return null;
+
+    return this.show(
+      {
+        type: 'warning',
+        dismissible: false,
+      },
+      app.translator.trans('core.lib.loading_indicator.accessible_label')
+    );
+  }
+
+  /**
+   * Hides a loading alert.
+   */
+  clearLoading(): void {
+    this.loadingPool--;
+
+    if (this.loadingPool === 0) this.clear();
   }
 }

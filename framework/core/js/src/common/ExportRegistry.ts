@@ -160,8 +160,21 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     return chunk;
   }
 
-  async loadChunk(original: Function, url: string, done: () => Promise<void>, key: number, chunkId: number | string): Promise<void> {
-    return await original(this.chunkUrl(chunkId) || url, done, key, chunkId);
+  async loadChunk(original: Function, url: string, done: (...args: any) => Promise<void>, key: number, chunkId: number | string): Promise<void> {
+    // @ts-ignore
+    app.alerts.showLoading();
+
+    return await original(
+      this.chunkUrl(chunkId) || url,
+      (...args: any) => {
+        // @ts-ignore
+        app.alerts.clearLoading();
+
+        return done(...args);
+      },
+      key,
+      chunkId
+    );
   }
 
   chunkUrl(chunkId: number | string): string | null {

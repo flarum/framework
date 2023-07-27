@@ -54,7 +54,7 @@ declare type VnodeElementTag<Attrs = Record<string, unknown>, C extends Componen
  * import app from 'flarum/common/app';
  * ```
  */
-declare const app: never;
+declare const app: import('../common/Application').default;
 
 declare const m: import('mithril').Static;
 declare const dayjs: typeof import('dayjs');
