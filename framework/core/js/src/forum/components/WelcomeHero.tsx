@@ -39,9 +39,7 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
             aria-label={app.translator.trans('core.forum.welcome_hero.hide')}
           />
 
-          <div className="containerNarrow">
-            {this.welcomeItems().toArray()}
-          </div>
+          <div className="containerNarrow">{this.welcomeItems().toArray()}</div>
         </div>
       </header>
     );
