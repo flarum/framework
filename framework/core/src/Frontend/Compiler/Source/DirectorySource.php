@@ -22,10 +22,6 @@ class DirectorySource implements SourceInterface
         protected string $path,
         protected ?string $extensionId = null
     ) {
-        if (! is_dir($path)) {
-            throw new InvalidArgumentException("Directory not found at path: $path");
-        }
-
         $this->filesystem = new FilesystemAdapter(
             new Filesystem($adapter = new LocalFilesystemAdapter($path)),
             $adapter,
