@@ -5,7 +5,15 @@
             "maxSize": "150KB"
         },
         {
+            "path": "./framework/core/js/dist/**/*.js",
+            "maxSize": "30KB"
+        },
+        {
             "path": "./extensions/*/js/dist/*.js",
+            "maxSize": "30KB"
+        },
+        {
+            "path": "./extensions/*/js/dist/**/*.js",
             "maxSize": "30KB"
         }
     ],
