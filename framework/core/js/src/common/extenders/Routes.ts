@@ -1,4 +1,4 @@
-import Application, { FlarumGenericRoute } from '../Application';
+import Application, { AsyncNewComponent, FlarumGenericRoute, NewComponent } from '../Application';
 import IExtender, { IExtensionModule } from './IExtender';
 
 type HelperRoute = (...args: any) => string;
@@ -14,7 +14,7 @@ export default class Routes implements IExtender {
    * @param path The path of the route.
    * @param component must extend `Page` component.
    */
-  add(name: string, path: `/${string}`, component: any): Routes {
+  add(name: string, path: `/${string}`, component: NewComponent<any> | AsyncNewComponent<any>): Routes {
     this.routes[name] = { path, component };
 
     return this;
