@@ -179,7 +179,9 @@ module.exports = function autoExportLoader(source) {
   // Get the path of the module to be exported
   // relative to the src directory.
   // Example: src/forum/components/UserCard.js => forum/components
-  const pathToModule = this.resourcePath.replace(path.resolve(this.rootContext, 'src') + '/', '').replace(/[A-Za-z_]+\.[A-Za-z_]+$/, '');
+  const pathToModule = path.relative(path.resolve(this.rootContext, 'src'), this.resourcePath)
+    .replaceAll(path.sep, '/')
+    .replace(/[A-Za-z_]+\.[A-Za-z_]+$/, '');
 
   return addAutoExports(source, pathToModule, moduleName);
 };
