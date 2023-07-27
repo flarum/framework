@@ -21,7 +21,7 @@ export default class SettingDropdown<CustomAttrs extends ISettingDropdownAttrs =
     attrs.className = 'SettingDropdown';
     attrs.buttonClassName = 'Button Button--text';
     attrs.caretIcon = 'fas fa-caret-down';
-    attrs.defaultLabel = 'Custom';
+    attrs.defaultLabel ||= app.translator.trans('core.admin.settings.select_dropdown_custom_label');
 
     if ('key' in attrs) {
       attrs.setting = attrs.key?.toString();

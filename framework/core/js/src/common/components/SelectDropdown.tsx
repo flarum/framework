@@ -28,7 +28,7 @@ function isActive(vnode: Mithril.Children): boolean {
 }
 
 export interface ISelectDropdownAttrs extends IDropdownAttrs {
-  defaultLabel: string;
+  defaultLabel: Mithril.Children;
 }
 
 /**
@@ -48,9 +48,6 @@ export default class SelectDropdown<CustomAttrs extends ISelectDropdownAttrs = I
   getButtonContent(children: Mithril.ChildArray): Mithril.ChildArray {
     const activeChild = children.find(isActive);
     let label = (activeChild && typeof activeChild === 'object' && 'children' in activeChild && activeChild.children) || this.attrs.defaultLabel;
-
-    // @ts-ignore
-    if (Array.isArray(label)) label = label[0];
 
     return [<span className="Button-label">{label}</span>, this.attrs.caretIcon ? icon(this.attrs.caretIcon, { className: 'Button-caret' }) : null];
   }
