@@ -199,7 +199,7 @@ class Formatter
     protected function configureDefaultsOnLinks(string $xml): string
     {
         return Utils::replaceAttributes($xml, 'URL', function ($attributes) {
-            $attributes['rel'] = $attributes['rel'] ?? 'ugc nofollow';
+            $attributes['rel'] ??= 'ugc nofollow';
 
             return $attributes;
         });

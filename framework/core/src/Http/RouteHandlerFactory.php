@@ -62,11 +62,9 @@ class RouteHandlerFactory
 
     private function resolveController(callable|string $controller): Handler
     {
-        if (is_callable($controller)) {
-            $controller = $this->container->call($controller);
-        } else {
-            $controller = $this->container->make($controller);
-        }
+        $controller = is_callable($controller)
+            ? $this->container->call($controller)
+            : $this->container->make($controller);
 
         if (! $controller instanceof Handler) {
             throw new InvalidArgumentException('Controller must be an instance of '.Handler::class);

@@ -34,11 +34,7 @@ class SaveNicknameToDatabase
 
             // If the user sets their nickname back to the username
             // set the nickname to null so that it just falls back to the username
-            if ($user->username === $nickname) {
-                $user->nickname = null;
-            } else {
-                $user->nickname = $nickname;
-            }
+            $user->nickname = $user->username === $nickname ? null : $nickname;
         }
     }
 }
