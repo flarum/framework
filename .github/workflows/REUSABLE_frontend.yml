@@ -152,4 +152,3 @@ jobs:
         env:
           BUNDLEWATCH_GITHUB_TOKEN: ${{ secrets.bundlewatch_github_token }}
           CI_COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
-          CI_BRANCH_BASE: ${{ github.event.pull_request.base.ref }}
