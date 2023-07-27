@@ -2,6 +2,8 @@ import type Mithril from 'mithril';
 import type { AsyncNewComponent, NewComponent, RouteResolver } from '../Application';
 import type { ComponentAttrs } from '../Component';
 import Component from '../Component';
+import app from '../app';
+import LoadingIndicator from '../components/LoadingIndicator';
 
 /**
  * Generates a route resolver for a given component.
@@ -40,8 +42,24 @@ export default class DefaultResolver<
     };
   }
 
-  async onmatch(args: RouteArgs, requestedPath: string, route: string): Promise<{ new (): Comp }> {
-    return this.component.prototype instanceof Component ? this.component : (await (this.component as AsyncNewComponent<Comp>)()).default;
+  async onmatch(args: RouteArgs, requestedPath: string, route: string): Promise<NewComponent<Comp>> {
+    if (this.component.prototype instanceof Component) {
+      return this.component as NewComponent<Comp>;
+    }
+
+    app.alerts.show(
+      {
+        type: 'warning',
+        dismissible: false,
+      },
+      <LoadingIndicator size="small" display="inline" />
+    );
+
+    const component = (await (this.component as AsyncNewComponent<Comp>)()).default;
+
+    app.alerts.clear();
+
+    return component;
   }
 
   render(vnode: Mithril.Vnode<Attrs, Comp>): Mithril.Children {
