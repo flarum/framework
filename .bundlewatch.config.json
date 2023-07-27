@@ -9,5 +9,9 @@
             "maxSize": "30KB"
         }
     ],
-    "defaultCompression": "gzip"
+    "defaultCompression": "gzip",
+    "ci": {
+        "repoBranchBase": "2.x",
+        "trackBranches": ["2.x"]
+    }
 }
