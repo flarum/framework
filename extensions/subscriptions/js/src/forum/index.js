@@ -1,8 +1,5 @@
 import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
-import Model from 'flarum/common/Model';
-import Discussion from 'flarum/common/models/Discussion';
-import NotificationGrid from 'flarum/forum/components/NotificationGrid';
 
 import addSubscriptionBadge from './addSubscriptionBadge';
 import addSubscriptionControls from './addSubscriptionControls';
@@ -21,7 +18,7 @@ app.initializers.add('subscriptions', function () {
   addSubscriptionFilter();
   addSubscriptionSettings();
 
-  extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
+  extend('flarum/forum/components/NotificationGrid', 'notificationTypes', function (items) {
     items.add('newPost', {
       name: 'newPost',
       icon: 'fas fa-star',

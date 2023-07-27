@@ -1,6 +1,5 @@
 import app from 'flarum/forum/app';
 import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
-import EditPostComposer from 'flarum/forum/components/EditPostComposer';
 
 export function insertMention(post, composer, quote) {
   return new Promise((resolve) => {
@@ -27,7 +26,9 @@ export function insertMention(post, composer, quote) {
 }
 
 export default function reply(post, quote) {
-  if (app.composer.bodyMatches(EditPostComposer) && app.composer.body.attrs.post.discussion() === post.discussion()) {
+  const EditPostComposer = flarum.reg.checkModule('core', 'forum/components/EditPostComposer');
+
+  if (EditPostComposer && app.composer.bodyMatches(EditPostComposer) && app.composer.body.attrs.post.discussion() === post.discussion()) {
     // If we're already editing a post in the discussion of post we're quoting,
     // insert the mention directly.
     return insertMention(post, app.composer, quote);

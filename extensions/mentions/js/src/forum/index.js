@@ -1,6 +1,5 @@
 import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
-import NotificationGrid from 'flarum/forum/components/NotificationGrid';
 import { getPlainContent } from 'flarum/common/utils/string';
 import textContrastClass from 'flarum/common/helpers/textContrastClass';
 import Post from 'flarum/forum/components/Post';
@@ -46,7 +45,7 @@ app.initializers.add('flarum-mentions', function () {
   app.notificationComponents.groupMentioned = GroupMentionedNotification;
 
   // Add notification preferences.
-  extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
+  extend('flarum/forum/components/NotificationGrid', 'notificationTypes', function (items) {
     items.add('postMentioned', {
       name: 'postMentioned',
       icon: 'fas fa-reply',

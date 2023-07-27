@@ -4,8 +4,6 @@ import { override, extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
 import Stream from 'flarum/common/utils/Stream';
 import ForumApplication from 'flarum/forum/ForumApplication';
-import Composer from 'flarum/forum/components/Composer';
-import PostStream from 'flarum/forum/components/PostStream';
 import ModalManager from 'flarum/common/components/ModalManager';
 import PostMeta from 'flarum/forum/components/PostMeta';
 
@@ -13,7 +11,7 @@ import DiscussionPage from 'flarum/forum/components/DiscussionPage';
 
 extend(ForumApplication.prototype, 'mount', function () {
   if (m.route.param('hideFirstPost')) {
-    extend(PostStream.prototype, 'view', (vdom) => {
+    extend('flarum/forum/components/PostStream', 'view', (vdom) => {
       if (vdom.children[0].attrs['data-number'] === 1) {
         vdom.children.splice(0, 1);
       }
@@ -42,7 +40,7 @@ const reposition = function () {
 };
 
 extend(ModalManager.prototype, 'show', reposition);
-extend(Composer.prototype, 'show', reposition);
+extend('flarum/forum/components/Composer', 'show', reposition);
 
 window.iFrameResizer = {
   readyCallback: function () {
@@ -50,7 +48,7 @@ window.iFrameResizer = {
   },
 };
 
-extend(PostStream.prototype, 'goToNumber', function (promise, number) {
+extend('flarum/forum/components/PostStream', 'goToNumber', function (promise, number) {
   if (number === 'reply' && 'parentIFrame' in window && app.composer.isFullScreen()) {
     const itemTop = this.$('.PostStream-item:last').offset().top;
     window.parentIFrame.scrollToOffset(0, itemTop);
