@@ -173,7 +173,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
             /** @var \Flarum\Frontend\Assets $assets */
             $assets = $container->make('flarum.assets.factory')('common');
 
-            $assets->jsDirectory(function (SourceCollector $sources) use ($container) {
+            $assets->jsDirectory(function (SourceCollector $sources) {
                 $sources->addDirectory(__DIR__.'/../../js/dist/common', 'core');
             });
 

@@ -110,7 +110,7 @@ class ForumServiceProvider extends AbstractServiceProvider
                 });
             });
 
-            $assets->jsDirectory(function (SourceCollector $sources) use ($container) {
+            $assets->jsDirectory(function (SourceCollector $sources) {
                 $sources->addDirectory(__DIR__.'/../../js/dist/forum', 'core');
             });
 
