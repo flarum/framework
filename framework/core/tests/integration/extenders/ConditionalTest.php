@@ -159,4 +159,119 @@ class ConditionalTest extends TestCase
 
         $this->app();
     }
+
+    /** @test */
+    public function conditional_disabled_extension_not_enabled_applies_extender_array()
+    {
+        $this->extend(
+            (new Extend\Conditional())
+                ->whenExtensionDisabled('flarum-dummy-extension', [
+                    (new Extend\ApiSerializer(ForumSerializer::class))
+                        ->attributes(function () {
+                            return [
+                                'customConditionalAttribute' => true
+                            ];
+                        })
+                ])
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    /** @test */
+    public function conditional_disabled_extension_enabled_does_not_apply_extender_array()
+    {
+        $this->extension('flarum-tags');
+
+        $this->extend(
+            (new Extend\Conditional())
+                ->whenExtensionDisabled('flarum-tags', [
+                    (new Extend\ApiSerializer(ForumSerializer::class))
+                        ->attributes(function () {
+                            return [
+                                'customConditionalAttribute' => true
+                            ];
+                        })
+                ])
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    /** @test */
+    public function conditional_enabled_extension_disabled_does_not_apply_extender_array()
+    {
+        $this->extend(
+            (new Extend\Conditional())
+                ->whenExtensionEnabled('flarum-dummy-extension', [
+                    (new Extend\ApiSerializer(ForumSerializer::class))
+                        ->attributes(function () {
+                            return [
+                                'customConditionalAttribute' => true
+                            ];
+                        })
+                ])
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    /** @test */
+    public function conditional_enabled_extension_enabled_applies_extender_array()
+    {
+        $this->extension('flarum-tags');
+        $this->extend(
+            (new Extend\Conditional())
+                ->whenExtensionEnabled('flarum-tags', [
+                    (new Extend\ApiSerializer(ForumSerializer::class))
+                        ->attributes(function () {
+                            return [
+                                'customConditionalAttribute' => true
+                            ];
+                        })
+                ])
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
 }
