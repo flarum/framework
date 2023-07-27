@@ -104,6 +104,7 @@ module.exports = function () {
       library: 'module.exports',
       libraryTarget: 'assign',
       devtoolNamespace: require(path.resolve(process.cwd(), 'package.json')).name,
+      clean: true,
     },
 
     externals: [
