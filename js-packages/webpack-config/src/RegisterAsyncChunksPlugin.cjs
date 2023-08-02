@@ -27,14 +27,14 @@ class RegisterAsyncChunksPlugin {
           for (const chunk of chunks) {
             for (const module of compilation.chunkGraph.getChunkModulesIterable(chunk)) {
               // A normal module.
-              if (module?.resource && module.resource.includes("/src/") && module._source?._value.includes("webpackChunkName: ")) {
+              if (module?.resource && module.resource.split(path.sep).includes('src') && module._source?._value.includes("webpackChunkName: ")) {
                 modulesToCheck.push(module);
               }
 
               // A ConcatenatedModule.
               if (module?.modules) {
                 module.modules.forEach((module) => {
-                  if (module.resource && module.resource.includes("/src/") && module._source?._value.includes("webpackChunkName: ")) {
+                  if (module.resource && module.resource.split(path.sep).includes('src') && module._source?._value.includes("webpackChunkName: ")) {
                     modulesToCheck.push(module);
                   }
                 });
@@ -79,7 +79,8 @@ class RegisterAsyncChunksPlugin {
                     // This is a chunk with many modules, we need to register all of them.
                     concatenatedModule.modules?.forEach((module) => {
                       // The path right after the src/ directory, without the extension.
-                      const urlPath = module.resource.replace(/.*\/src\/(.*)\..*/, '$1');
+                      const regPathSep = `\\${path.sep}`;
+                      const urlPath = module.resource.replace(`/.*${regPathSep}src(.*)${regPathSep}\..*/`, '$1');
 
                       if (! registrableModulesUrlPaths.has(urlPath)) {
                         registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, moduleId, namespace, urlPath]);
