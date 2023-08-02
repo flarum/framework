@@ -48,9 +48,13 @@ $eagerLoadTagState = function ($query, ?ServerRequestInterface $request, array $
 return [
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
+        ->jsDirectory(__DIR__.'/js/dist/forum')
         ->css(__DIR__.'/less/forum.less')
         ->route('/t/{slug}', 'tag', Content\Tag::class)
         ->route('/tags', 'tags', Content\Tags::class),
+
+    (new Extend\Frontend('common'))
+        ->jsDirectory(__DIR__.'/js/dist/common'),
 
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js')

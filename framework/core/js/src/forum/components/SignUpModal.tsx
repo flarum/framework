@@ -1,6 +1,5 @@
 import app from '../../forum/app';
 import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
-import LogInModal from './LogInModal';
 import Button from '../../common/components/Button';
 import LogInButtons from './LogInButtons';
 import extractText from '../../common/utils/extractText';
@@ -151,7 +150,7 @@ export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignup
       identification: this.email() || this.username(),
     };
 
-    app.modal.show(LogInModal, attrs);
+    app.modal.show(() => import('./LogInModal'), attrs);
   }
 
   onready() {

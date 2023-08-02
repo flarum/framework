@@ -17,6 +17,7 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Intervention\Image\ImageManager;
+use League\Flysystem\Visibility;
 use RuntimeException;
 
 class FilesystemServiceProvider extends AbstractServiceProvider
@@ -33,8 +34,9 @@ class FilesystemServiceProvider extends AbstractServiceProvider
             return [
                 'flarum-assets' => function (Paths $paths, UrlGenerator $url) {
                     return [
-                        'root'   => "$paths->public/assets",
-                        'url'    => $url->to('forum')->path('assets')
+                        'root'       => "$paths->public/assets",
+                        'url'        => $url->to('forum')->path('assets'),
+                        'visibility' => Visibility::PUBLIC
                     ];
                 },
                 'flarum-avatars' => function (Paths $paths, UrlGenerator $url) {

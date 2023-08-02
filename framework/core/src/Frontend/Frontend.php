@@ -10,8 +10,7 @@
 namespace Flarum\Frontend;
 
 use Flarum\Api\Client;
-use Flarum\Frontend\Driver\TitleDriverInterface;
-use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -23,9 +22,8 @@ class Frontend
     protected array $content = [];
 
     public function __construct(
-        protected Factory $view,
         protected Client $api,
-        protected TitleDriverInterface $titleDriver
+        protected Container $container
     ) {
     }
 
@@ -36,9 +34,9 @@ class Frontend
 
     public function document(Request $request): Document
     {
-        $forumDocument = $this->getForumDocument($request);
+        $forumApiDocument = $this->getForumDocument($request);
 
-        $document = new Document($this->view, $forumDocument, $request, $this->titleDriver);
+        $document = $this->container->makeWith(Document::class, compact('forumApiDocument', 'request'));
 
         $this->populate($document, $request);
 

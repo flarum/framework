@@ -13,7 +13,7 @@ import { ComponentAttrs } from 'flarum/common/Component';
 
 const findTag = (slug: string) => app.store.all<Tag>('tags').find((tag) => tag.slug().localeCompare(slug, undefined, { sensitivity: 'base' }) === 0);
 
-export default function () {
+export default function addTagFilter() {
   IndexPage.prototype.currentTag = function () {
     if (this.currentActiveTag) {
       return this.currentActiveTag;

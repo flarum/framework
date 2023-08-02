@@ -1,10 +1,10 @@
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
-import SettingsPage from 'flarum/forum/components/SettingsPage';
+import type SettingsPage from 'flarum/forum/components/SettingsPage';
 import Switch from 'flarum/common/components/Switch';
 
 export default function () {
-  extend(SettingsPage.prototype, 'notificationsItems', function (this: SettingsPage, items) {
+  extend('flarum/forum/components/SettingsPage', 'notificationsItems', function (this: SettingsPage, items) {
     items.add(
       'followAfterReply',
       <Switch

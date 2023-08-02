@@ -1,7 +1,4 @@
-import emojiMap from 'simple-emoji-map';
-
 import { extend } from 'flarum/common/extend';
-import TextEditor from 'flarum/common/components/TextEditor';
 import TextEditorButton from 'flarum/common/components/TextEditorButton';
 import KeyboardNavigatable from 'flarum/common/utils/KeyboardNavigatable';
 
@@ -10,11 +7,15 @@ import getEmojiIconCode from './helpers/getEmojiIconCode';
 import cdn from './cdn';
 
 export default function addComposerAutocomplete() {
-  const emojiKeys = Object.keys(emojiMap);
   const $container = $('<div class="ComposerBody-emojiDropdownContainer"></div>');
   const dropdown = new AutocompleteDropdown();
+  let emojiMap = null;
 
-  extend(TextEditor.prototype, 'oncreate', function () {
+  extend('flarum/common/components/TextEditor', 'oninit', function () {
+    this._loaders.push(async () => await import('./emojiMap').then((m) => (emojiMap = m.default)));
+  });
+
+  extend('flarum/common/components/TextEditor', 'onbuild', function () {
     const $editor = this.$('.TextEditor-editor').wrap('<div class="ComposerBody-emojiWrapper"></div>');
 
     this.navigator = new KeyboardNavigatable();
@@ -29,7 +30,9 @@ export default function addComposerAutocomplete() {
     $editor.after($container);
   });
 
-  extend(TextEditor.prototype, 'buildEditorParams', function (params) {
+  extend('flarum/common/components/TextEditor', 'buildEditorParams', function (params) {
+    const emojiKeys = Object.keys(emojiMap);
+
     let relEmojiStart;
     let absEmojiStart;
     let typed;
@@ -166,7 +169,7 @@ export default function addComposerAutocomplete() {
     });
   });
 
-  extend(TextEditor.prototype, 'toolbarItems', function (items) {
+  extend('flarum/common/components/TextEditor', 'toolbarItems', function (items) {
     items.add(
       'emoji',
       <TextEditorButton onclick={() => this.attrs.composer.editor.insertAtCursor(' :')} icon="far fa-smile">

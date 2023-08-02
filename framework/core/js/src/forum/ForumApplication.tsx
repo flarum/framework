@@ -3,10 +3,8 @@ import app from './app';
 import History from './utils/History';
 import Pane from './utils/Pane';
 import DiscussionPage from './components/DiscussionPage';
-import SignUpModal from './components/SignUpModal';
 import HeaderPrimary from './components/HeaderPrimary';
 import HeaderSecondary from './components/HeaderSecondary';
-import Composer from './components/Composer';
 import DiscussionRenamedNotification from './components/DiscussionRenamedNotification';
 import CommentPost from './components/CommentPost';
 import DiscussionRenamedPost from './components/DiscussionRenamedPost';
@@ -119,7 +117,6 @@ export default class ForumApplication extends Application {
     m.mount(document.getElementById('header-navigation')!, Navigation);
     m.mount(document.getElementById('header-primary')!, HeaderPrimary);
     m.mount(document.getElementById('header-secondary')!, HeaderSecondary);
-    m.mount(document.getElementById('composer')!, { view: () => <Composer state={this.composer} /> });
 
     alertEmailConfirmation(this);
 
@@ -164,7 +161,7 @@ export default class ForumApplication extends Application {
     if (payload.loggedIn) {
       window.location.reload();
     } else {
-      this.modal.show(SignUpModal, payload);
+      this.modal.show(() => import('./components/SignUpModal'), payload);
     }
   }
 }

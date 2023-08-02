@@ -36,6 +36,7 @@ class Frontend implements ExtenderInterface
     private array $content = [];
     private array $preloadArrs = [];
     private ?string $titleDriver = null;
+    private array $jsDirectory = [];
 
     /**
      * @param string $frontend: The name of the frontend.
@@ -67,6 +68,20 @@ class Frontend implements ExtenderInterface
     public function js(string $path): self
     {
         $this->js = $path;
+
+        return $this;
+    }
+
+    /**
+     * Add a directory of JavaScript files to include in the JS assets public directory.
+     * Primarily used to copy JS chunks.
+     *
+     * @param string $path The path to the specific frontend chunks directory.
+     * @return $this
+     */
+    public function jsDirectory(string $path): self
+    {
+        $this->jsDirectory[] = $path;
 
         return $this;
     }
@@ -183,7 +198,7 @@ class Frontend implements ExtenderInterface
 
     private function registerAssets(Container $container, string $moduleName): void
     {
-        if (empty($this->css) && empty($this->js)) {
+        if (empty($this->css) && empty($this->js) && empty($this->jsDirectory)) {
             return;
         }
 
@@ -206,6 +221,14 @@ class Frontend implements ExtenderInterface
                 $assets->css(function (SourceCollector $sources) use ($moduleName) {
                     foreach ($this->css as $path) {
                         $sources->addFile($path, $moduleName);
+                    }
+                });
+            }
+
+            if (! empty($this->jsDirectory)) {
+                $assets->jsDirectory(function (SourceCollector $sources) use ($moduleName) {
+                    foreach ($this->jsDirectory as $path) {
+                        $sources->addDirectory($path, $moduleName);
                     }
                 });
             }

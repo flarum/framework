@@ -4,7 +4,6 @@ import classList from '../../common/utils/classList';
 import PostUser from './PostUser';
 import PostMeta from './PostMeta';
 import PostEdited from './PostEdited';
-import EditPostComposer from './EditPostComposer';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
@@ -88,6 +87,10 @@ export default class CommentPost extends Post {
   }
 
   isEditing() {
+    const EditPostComposer = flarum.reg.checkModule('core', 'forum/components/EditPostComposer');
+
+    if (!EditPostComposer) return false;
+
     return app.composer.bodyMatches(EditPostComposer, { post: this.attrs.post });
   }
 

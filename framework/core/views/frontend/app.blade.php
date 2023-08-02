@@ -16,10 +16,12 @@
 
         <script>
             document.getElementById('flarum-loading').style.display = 'block';
-            var flarum = {extensions: {}};
+            var flarum = {extensions: {}, debug: @js($debug)};
         </script>
 
         {!! $js !!}
+
+        <script id="flarum-rev-manifest" type="application/json">@json($revisions)</script>
 
         <script id="flarum-json-payload" type="application/json">@json($payload)</script>
 

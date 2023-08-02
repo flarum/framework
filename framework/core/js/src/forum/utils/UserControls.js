@@ -1,7 +1,6 @@
 import app from '../../forum/app';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
-import EditUserModal from '../../common/components/EditUserModal';
 import UserPage from '../components/UserPage';
 import ItemList from '../../common/utils/ItemList';
 
@@ -143,7 +142,7 @@ const UserControls = {
    * @param {import('../../common/models/User').default} user
    */
   editAction(user) {
-    app.modal.show(EditUserModal, { user });
+    app.modal.show(() => import('../../common/components/EditUserModal'), { user });
   },
 };
 

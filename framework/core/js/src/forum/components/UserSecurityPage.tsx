@@ -8,7 +8,6 @@ import AccessTokensList from './AccessTokensList';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';
 import NewAccessTokenModal from './NewAccessTokenModal';
-import { camelCaseToSnakeCase } from '../../common/utils/string';
 import type AccessToken from '../../common/models/AccessToken';
 import type Mithril from 'mithril';
 import Tooltip from '../../common/components/Tooltip';

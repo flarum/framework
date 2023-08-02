@@ -9,7 +9,6 @@
 
 import app from 'flarum/common/app';
 import { extend, override } from 'flarum/common/extend';
-import TextEditor from 'flarum/common/components/TextEditor';
 import BasicEditorDriver from 'flarum/common/utils/BasicEditorDriver';
 import styleSelectedText from 'flarum/common/utils/styleSelectedText';
 
@@ -89,13 +88,9 @@ export function initialize(app) {
     items.add('italic', makeShortcut('italic', 'i', this));
   });
 
-  if (TextEditor.prototype.markdownToolbarItems) {
-    override(TextEditor.prototype, 'markdownToolbarItems', markdownToolbarItems);
-  } else {
-    TextEditor.prototype.markdownToolbarItems = markdownToolbarItems;
-  }
+  override('flarum/common/components/TextEditor', 'markdownToolbarItems', markdownToolbarItems);
 
-  extend(TextEditor.prototype, 'toolbarItems', function (items) {
+  extend('flarum/common/components/TextEditor', 'toolbarItems', function (items) {
     items.add(
       'markdown',
       <MarkdownToolbar for={this.textareaId} setShortcutHandler={(handler) => (shortcutHandler = handler)}>

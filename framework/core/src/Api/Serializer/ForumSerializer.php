@@ -90,6 +90,7 @@ class ForumSerializer extends AbstractSerializer
             'canCreateAccessToken' => $this->actor->can('createAccessToken'),
             'canModerateAccessTokens' => $this->actor->can('moderateAccessTokens'),
             'assetsBaseUrl' => rtrim($this->assetsFilesystem->url(''), '/'),
+            'jsChunksBaseUrl' => $this->assetsFilesystem->url('js'),
         ];
 
         if ($this->actor->can('administrate')) {

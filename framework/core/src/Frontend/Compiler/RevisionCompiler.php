@@ -9,8 +9,10 @@
 
 namespace Flarum\Frontend\Compiler;
 
-use Flarum\Frontend\Compiler\Source\SourceCollector;
+use Flarum\Frontend\Compiler\Concerns\HasSources;
+use Flarum\Frontend\Compiler\Source\FileSource;
 use Flarum\Frontend\Compiler\Source\SourceInterface;
+use Flarum\Frontend\Compiler\Source\StringSource;
 use Illuminate\Contracts\Filesystem\Cloud;
 
 /**
@@ -18,38 +20,17 @@ use Illuminate\Contracts\Filesystem\Cloud;
  */
 class RevisionCompiler implements CompilerInterface
 {
+    use HasSources;
+
     const EMPTY_REVISION = 'empty';
 
-    /**
-     * @var Cloud
-     */
-    protected $assetsDir;
+    protected VersionerInterface $versioner;
 
-    /**
-     * @var VersionerInterface
-     */
-    protected $versioner;
-
-    /**
-     * @var string
-     */
-    protected $filename;
-
-    /**
-     * @var callable[]
-     */
-    protected $sourcesCallbacks = [];
-
-    /**
-     * @param Cloud $assetsDir
-     * @param string $filename
-     * @param VersionerInterface|null $versioner @deprecated nullable will be removed at v2.0
-     */
-    public function __construct(Cloud $assetsDir, string $filename, VersionerInterface $versioner = null)
-    {
-        $this->assetsDir = $assetsDir;
-        $this->filename = $filename;
-        $this->versioner = $versioner ?: new FileVersioner($assetsDir);
+    public function __construct(
+        protected Cloud $assetsDir,
+        protected string $filename,
+    ) {
+        $this->versioner = new FileVersioner($assetsDir);
     }
 
     public function getFilename(): string
@@ -82,25 +63,6 @@ class RevisionCompiler implements CompilerInterface
 
             $this->versioner->putRevision($this->filename, $newRevision);
         }
-    }
-
-    public function addSources(callable $callback): void
-    {
-        $this->sourcesCallbacks[] = $callback;
-    }
-
-    /**
-     * @return SourceInterface[]
-     */
-    protected function getSources(): array
-    {
-        $sources = new SourceCollector;
-
-        foreach ($this->sourcesCallbacks as $callback) {
-            $callback($sources);
-        }
-
-        return $sources->getSources();
     }
 
     public function getUrl(): ?string
@@ -196,5 +158,10 @@ class RevisionCompiler implements CompilerInterface
         if ($this->assetsDir->exists($file)) {
             $this->assetsDir->delete($file);
         }
+    }
+
+    protected function allowedSourceTypes(): array
+    {
+        return [FileSource::class, StringSource::class];
     }
 }

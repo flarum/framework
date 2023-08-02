@@ -1,8 +1,6 @@
 import app from '../../forum/app';
 import Component from '../../common/Component';
 import Button from '../../common/components/Button';
-import LogInModal from './LogInModal';
-import SignUpModal from './SignUpModal';
 import SessionDropdown from './SessionDropdown';
 import SelectDropdown from '../../common/components/SelectDropdown';
 import NotificationsDropdown from './NotificationsDropdown';
@@ -71,7 +69,7 @@ export default class HeaderSecondary extends Component {
       if (app.forum.attribute('allowSignUp')) {
         items.add(
           'signUp',
-          <Button className="Button Button--link" onclick={() => app.modal.show(SignUpModal)}>
+          <Button className="Button Button--link" onclick={() => app.modal.show(() => import('./SignUpModal'))}>
             {app.translator.trans('core.forum.header.sign_up_link')}
           </Button>,
           10
@@ -80,7 +78,7 @@ export default class HeaderSecondary extends Component {
 
       items.add(
         'logIn',
-        <Button className="Button Button--link" onclick={() => app.modal.show(LogInModal)}>
+        <Button className="Button Button--link" onclick={() => app.modal.show(() => import('./LogInModal'))}>
           {app.translator.trans('core.forum.header.log_in_link')}
         </Button>,
         0

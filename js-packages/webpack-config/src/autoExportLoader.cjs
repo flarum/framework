@@ -8,6 +8,7 @@ const path = require('path');
 const fs = require('fs');
 const { validate } = require('schema-utils');
 const { getOptions, interpolateName } = require('loader-utils');
+const extensionId = require('./extensionId.cjs');
 
 const optionsSchema = {
   type: 'object',
@@ -33,7 +34,7 @@ function addAutoExports(source, pathToModule, moduleName) {
     const id = pathToModule.substring(0, pathToModule.length - 1);
 
     // Add code at the end of the file to add the file to registry
-    addition += `\nflarum.reg.add('${namespace}', '${id}', ${defaultExport})`;
+    addition += `\nflarum.reg.add('${namespace}', '${id}', ${defaultExport});`;
   }
 
   // In a normal case, we do one of two things:
@@ -43,7 +44,7 @@ function addAutoExports(source, pathToModule, moduleName) {
     //              and can be imported using `import Foo from 'flarum/../Foo'`.
     if (defaultExport) {
       // Add code at the end of the file to add the file to registry
-      addition += `\nflarum.reg.add('${namespace}', '${pathToModule}${moduleName}', ${defaultExport})`;
+      addition += `\nflarum.reg.add('${namespace}', '${pathToModule}${moduleName}', ${defaultExport});`;
     }
 
     // 2. If there is no default export, then there are named exports,
@@ -67,7 +68,7 @@ function addAutoExports(source, pathToModule, moduleName) {
           return `import { ${defaultExport} } from '${path}';\nexport default ${defaultExport}`;
         });
 
-        addition += `\nflarum.reg.add('${namespace}', '${pathToModule}${moduleName}', ${objectDefaultExport})`;
+        addition += `\nflarum.reg.add('${namespace}', '${pathToModule}${moduleName}', ${objectDefaultExport});`;
       }
       // 2.2. If there is no default export, check for direct exports from other modules.
       //      We add the module to the registry with the map of named exports.
@@ -117,7 +118,7 @@ function addAutoExports(source, pathToModule, moduleName) {
           }, '');
 
           // Add code at the end of the file to add the file to registry
-          if (map) addition += `\nflarum.reg.add('${namespace}', '${pathToModule}${moduleName}', { ${map} })`;
+          if (map) addition += `\nflarum.reg.add('${namespace}', '${pathToModule}${moduleName}', { ${map} });`;
         }
       }
     }
@@ -147,8 +148,7 @@ module.exports = function autoExportLoader(source) {
     const composerJson = JSON.parse(fs.readFileSync(composerJsonPath, 'utf8'));
 
     // Get the value of the 'name' property
-    namespace =
-      composerJson.name === 'flarum/core' ? 'core' : composerJson.name.replace('/flarum-ext-', '-').replace('/flarum-', '').replace('/', '-');
+    namespace = extensionId(composerJson.name);
   }
 
   // Get the type of the module to be exported

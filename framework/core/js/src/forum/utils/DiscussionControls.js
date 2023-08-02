@@ -1,7 +1,5 @@
 import app from '../../forum/app';
 import DiscussionPage from '../components/DiscussionPage';
-import ReplyComposer from '../components/ReplyComposer';
-import LogInModal from '../components/LogInModal';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
 import RenameDiscussionModal from '../components/RenameDiscussionModal';
@@ -168,12 +166,15 @@ const DiscussionControls = {
       if (app.session.user) {
         if (this.canReply()) {
           if (!app.composer.composingReplyTo(this) || forceRefresh) {
-            app.composer.load(ReplyComposer, {
-              user: app.session.user,
-              discussion: this,
-            });
+            app.composer
+              .load(() => import('../components/ReplyComposer'), {
+                user: app.session.user,
+                discussion: this,
+              })
+              .then(() => app.composer.show());
+          } else {
+            app.composer.show();
           }
-          app.composer.show();
 
           if (goToLast && app.viewingDiscussion(this) && !app.composer.isFullScreen()) {
             app.current.get('stream').goToNumber('reply');
@@ -185,7 +186,7 @@ const DiscussionControls = {
         }
       }
 
-      app.modal.show(LogInModal);
+      app.modal.show(() => import('../components/LogInModal'));
 
       return reject();
     });

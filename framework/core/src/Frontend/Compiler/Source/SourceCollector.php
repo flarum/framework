@@ -16,6 +16,11 @@ use Closure;
  */
 class SourceCollector
 {
+    public function __construct(
+        protected array $allowedSourceTypes = []
+    ) {
+    }
+
     /**
      * @var SourceInterface[]
      */
@@ -23,14 +28,27 @@ class SourceCollector
 
     public function addFile(string $file, string $extensionId = null): static
     {
-        $this->sources[] = new FileSource($file, $extensionId);
+        $this->sources[] = $this->validateSourceType(
+            new FileSource($file, $extensionId)
+        );
 
         return $this;
     }
 
     public function addString(Closure $callback): static
     {
-        $this->sources[] = new StringSource($callback);
+        $this->sources[] = $this->validateSourceType(
+            new StringSource($callback)
+        );
+
+        return $this;
+    }
+
+    public function addDirectory(string $directory, string $extensionId = null): static
+    {
+        $this->sources[] = $this->validateSourceType(
+            new DirectorySource($directory, $extensionId)
+        );
 
         return $this;
     }
@@ -41,5 +59,29 @@ class SourceCollector
     public function getSources(): array
     {
         return $this->sources;
+    }
+
+    protected function validateSourceType(SourceInterface $source): SourceInterface
+    {
+        // allowedSourceTypes is an array of class names (or interface names)
+        // so we need to check if the $source is an instance of one of those classes/interfaces (could be a parent class as well)
+        $isInstanceOfOneOfTheAllowedSourceTypes = false;
+
+        foreach ($this->allowedSourceTypes as $allowedSourceType) {
+            if ($source instanceof $allowedSourceType) {
+                $isInstanceOfOneOfTheAllowedSourceTypes = true;
+                break;
+            }
+        }
+
+        if (! empty($this->allowedSourceTypes) && ! $isInstanceOfOneOfTheAllowedSourceTypes) {
+            throw new \InvalidArgumentException(sprintf(
+                'Source type %s is not allowed for this collector. Allowed types are: %s',
+                get_class($source),
+                implode(', ', $this->allowedSourceTypes)
+            ));
+        }
+
+        return $source;
     }
 }

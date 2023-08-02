@@ -1,6 +1,5 @@
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
-import TextEditor from 'flarum/common/components/TextEditor';
 import TextEditorButton from 'flarum/common/components/TextEditorButton';
 import KeyboardNavigatable from 'flarum/common/utils/KeyboardNavigatable';
 
@@ -11,7 +10,7 @@ export default function addComposerAutocomplete() {
   const $container = $('<div class="ComposerBody-mentionsDropdownContainer"></div>');
   const dropdown = new AutocompleteDropdown();
 
-  extend(TextEditor.prototype, 'oncreate', function () {
+  extend('flarum/common/components/TextEditor', 'onbuild', function () {
     const $editor = this.$('.TextEditor-editor').wrap('<div class="ComposerBody-mentionsWrapper"></div>');
 
     this.navigator = new KeyboardNavigatable();
@@ -26,7 +25,7 @@ export default function addComposerAutocomplete() {
     $editor.after($container);
   });
 
-  extend(TextEditor.prototype, 'buildEditorParams', function (params) {
+  extend('flarum/common/components/TextEditor', 'buildEditorParams', function (params) {
     let relMentionStart;
     let absMentionStart;
     let matchTyped;
@@ -128,7 +127,7 @@ export default function addComposerAutocomplete() {
     params.inputListeners.push(suggestionsInputListener);
   });
 
-  extend(TextEditor.prototype, 'toolbarItems', function (items) {
+  extend('flarum/common/components/TextEditor', 'toolbarItems', function (items) {
     items.add(
       'mention',
       <TextEditorButton onclick={() => this.attrs.composer.editor.insertAtCursor(' @')} icon="fas fa-at">

@@ -16,7 +16,7 @@ export default class ExtensionPageResolver<
     const extensionPage = app.extensionData.getPage<Attrs>(args.id);
 
     if (extensionPage) {
-      return extensionPage;
+      return Promise.resolve(extensionPage);
     }
 
     return super.onmatch(args, requestedPath, route);

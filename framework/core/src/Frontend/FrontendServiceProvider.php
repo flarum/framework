@@ -9,15 +9,20 @@
 
 namespace Flarum\Frontend;
 
+use Flarum\Extension\Event\Disabled;
+use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Foundation\Paths;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Driver\BasicTitleDriver;
 use Flarum\Frontend\Driver\TitleDriverInterface;
 use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
+use Flarum\Locale\LocaleManager;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 
 class FrontendServiceProvider extends AbstractServiceProvider
@@ -163,9 +168,20 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 return [];
             }
         );
+
+        $this->container->bind('flarum.assets.common', function (Container $container) {
+            /** @var \Flarum\Frontend\Assets $assets */
+            $assets = $container->make('flarum.assets.factory')('common');
+
+            $assets->jsDirectory(function (SourceCollector $sources) {
+                $sources->addDirectory(__DIR__.'/../../js/dist/common', 'core');
+            });
+
+            return $assets;
+        });
     }
 
-    public function boot(Container $container, ViewFactory $views): void
+    public function boot(Container $container, Dispatcher $events, ViewFactory $views): void
     {
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum');
 
@@ -174,6 +190,17 @@ class FrontendServiceProvider extends AbstractServiceProvider
             'url' => $container->make(UrlGenerator::class),
             'slugManager' => $container->make(SlugManager::class)
         ]);
+
+        $events->listen(
+            [Enabled::class, Disabled::class, ClearingCache::class],
+            function () use ($container) {
+                $recompile = new RecompileFrontendAssets(
+                    $container->make('flarum.assets.common'),
+                    $container->make(LocaleManager::class)
+                );
+                $recompile->flush();
+            }
+        );
     }
 
     public function addBaseCss(SourceCollector $sources): void

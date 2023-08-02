@@ -1,5 +1,4 @@
 import app from '../../forum/app';
-import EditPostComposer from '../components/EditPostComposer';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
 import ItemList from '../../common/utils/ItemList';
@@ -121,8 +120,7 @@ const PostControls = {
    */
   editAction() {
     return new Promise((resolve) => {
-      app.composer.load(EditPostComposer, { post: this });
-      app.composer.show();
+      app.composer.load(() => import('../components/EditPostComposer'), { post: this }).then(() => app.composer.show());
 
       return resolve();
     });

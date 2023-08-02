@@ -6,8 +6,6 @@ import usernameHelper from 'flarum/common/helpers/username';
 import avatar from 'flarum/common/helpers/avatar';
 import highlight from 'flarum/common/helpers/highlight';
 import { truncate } from 'flarum/common/utils/string';
-import ReplyComposer from 'flarum/forum/components/ReplyComposer';
-import EditPostComposer from 'flarum/forum/components/EditPostComposer';
 import getCleanDisplayName from '../utils/getCleanDisplayName';
 import type AtMentionFormat from './formats/AtMentionFormat';
 
@@ -23,7 +21,10 @@ export default class PostMention extends MentionableModel<Post, AtMentionFormat>
    * match any username characters that have been typed.
    */
   initialResults(): Post[] {
-    if (!app.composer.bodyMatches(ReplyComposer) && !app.composer.bodyMatches(EditPostComposer)) {
+    const EditPostComposer = flarum.reg.checkModule('core', 'forum/components/EditPostComposer');
+    const ReplyComposer = flarum.reg.checkModule('core', 'forum/components/ReplyComposer');
+
+    if ((!ReplyComposer || !app.composer.bodyMatches(ReplyComposer)) && (!EditPostComposer || !app.composer.bodyMatches(EditPostComposer))) {
       return [];
     }
 

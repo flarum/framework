@@ -60,6 +60,9 @@ export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.Request
   modifyText?: (responseText: string) => string;
 }
 
+export type NewComponent<Comp> = new () => Comp;
+export type AsyncNewComponent<Comp> = () => Promise<any & { default: NewComponent<Comp> }>;
+
 /**
  * A valid route definition.
  */
@@ -82,14 +85,14 @@ export type RouteItem<
       /**
        * The component to render when this route matches.
        */
-      component: new () => Comp;
+      component: NewComponent<Comp> | AsyncNewComponent<Comp>;
       /**
        * A custom resolver class.
        *
        * This should be the class itself, and **not** an instance of the
        * class.
        */
-      resolverClass?: new (component: new () => Comp, routeName: string) => DefaultResolver<Attrs, Comp, RouteArgs>;
+      resolverClass?: new (component: NewComponent<Comp> | AsyncNewComponent<Comp>, routeName: string) => DefaultResolver<Attrs, Comp, RouteArgs>;
     }
   | {
       /**
@@ -113,7 +116,7 @@ export interface RouteResolver<
    *
    * @see https://mithril.js.org/route.html#routeresolveronmatch
    */
-  onmatch(this: this, args: RouteArgs, requestedPath: string, route: string): { new (): Comp };
+  onmatch(this: this, args: RouteArgs, requestedPath: string, route: string): Promise<{ new (): Comp }>;
   /**
    * A function which renders the provided component.
    *

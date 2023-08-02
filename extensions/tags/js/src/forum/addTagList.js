@@ -8,7 +8,7 @@ import TagsPage from './components/TagsPage';
 import app from 'flarum/forum/app';
 import sortTags from '../common/utils/sortTags';
 
-export default function () {
+export default function addTagList() {
   // Add a link to the tags page, as well as a list of all the tags,
   // to the index page's sidebar.
   extend(IndexPage.prototype, 'navItems', function (items) {

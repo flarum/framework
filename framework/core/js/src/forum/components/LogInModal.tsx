@@ -1,7 +1,5 @@
 import app from '../../forum/app';
 import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
-import ForgotPasswordModal from './ForgotPasswordModal';
-import SignUpModal from './SignUpModal';
 import Button from '../../common/components/Button';
 import LogInButtons from './LogInButtons';
 import extractText from '../../common/utils/extractText';
@@ -141,7 +139,7 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
     const email = this.identification();
     const attrs = email.includes('@') ? { email } : undefined;
 
-    app.modal.show(ForgotPasswordModal, attrs);
+    app.modal.show(() => import('./ForgotPasswordModal'), attrs);
   }
 
   /**
@@ -155,7 +153,7 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
       [identification.includes('@') ? 'email' : 'username']: identification,
     };
 
-    app.modal.show(SignUpModal, attrs);
+    app.modal.show(() => import('./SignUpModal'), attrs);
   }
 
   onready() {

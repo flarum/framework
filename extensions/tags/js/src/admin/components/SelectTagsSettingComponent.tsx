@@ -2,7 +2,6 @@ import app from 'flarum/admin/app';
 import Component from 'flarum/common/Component';
 import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
-import TagSelectionModal from '../../common/components/TagSelectionModal';
 import tagsLabel from '../../common/helpers/tagsLabel';
 
 import type { CommonSettingsItemOptions } from 'flarum/admin/components/AdminPage';
@@ -46,7 +45,7 @@ export default class SelectTagsSettingComponent<
           <Button
             className="Button Button--text"
             onclick={() =>
-              app.modal.show(TagSelectionModal, {
+              app.modal.show(() => import('../../common/components/TagSelectionModal'), {
                 selectedTags: this.tags,
                 onsubmit: (tags: Tag[]) => {
                   this.tags = tags;
