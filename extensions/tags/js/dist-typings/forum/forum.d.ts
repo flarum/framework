@@ -1,7 +1,6 @@
 import '../common/common';
 import './utils/getSelectableTags';
 import './components/TagHero';
-import './components/TagDiscussionModal';
 import './components/TagsPage';
 import './components/DiscussionTaggedPost';
 import './components/TagLinkButton';

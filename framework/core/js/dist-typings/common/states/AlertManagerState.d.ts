@@ -15,6 +15,7 @@ export interface AlertState {
 export default class AlertManagerState {
     protected activeAlerts: AlertArray;
     protected alertId: AlertIdentifier;
+    protected loadingPool: number;
     getActiveAlerts(): AlertArray;
     /**
      * Show an Alert in the alerts area.
@@ -32,4 +33,12 @@ export default class AlertManagerState {
      * Clear all alerts.
      */
     clear(): void;
+    /**
+     * Shows a loading alert.
+     */
+    showLoading(): AlertIdentifier | null;
+    /**
+     * Hides a loading alert.
+     */
+    clearLoading(): void;
 }

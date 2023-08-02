@@ -6,5 +6,5 @@ import ExtensionPage, { ExtensionPageAttrs } from '../components/ExtensionPage';
  */
 export default class ExtensionPageResolver<Attrs extends ExtensionPageAttrs = ExtensionPageAttrs, RouteArgs extends Record<string, unknown> = {}> extends DefaultResolver<Attrs, ExtensionPage<Attrs>, RouteArgs> {
     static extension: string | null;
-    onmatch(args: Attrs & RouteArgs, requestedPath: string, route: string): new () => ExtensionPage<Attrs>;
+    onmatch(args: Attrs & RouteArgs, requestedPath: string, route: string): Promise<import("../../common/Application").NewComponent<ExtensionPage<Attrs>>>;
 }

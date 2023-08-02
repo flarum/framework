@@ -13,6 +13,9 @@ export interface IDiscussionPageAttrs extends IPageAttrs {
  * the discussion list pane, the hero, the posts, and the sidebar.
  */
 export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = IDiscussionPageAttrs> extends Page<CustomAttrs> {
+    protected loading: boolean;
+    protected PostStream: any;
+    protected PostStreamScrubber: any;
     /**
      * The discussion that is being viewed.
      */
