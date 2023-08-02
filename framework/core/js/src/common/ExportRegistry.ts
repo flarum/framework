@@ -222,12 +222,18 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
   }
 
   namespaceAndIdFromPath(path: string): [string, string] {
-    // Either we get a path like `flarum/forum/components/LogInModal` or `ext:flarum-tags/forum/components/TagPage`.
-    let [namespace, ...id] = path
-      .replace(/^ext:/, '')
-      .replace(/^flarum\//, 'core/')
-      .split('/');
+    // Either we get a path like `flarum/forum/components/LogInModal` or `ext:flarum/tags/forum/components/TagPage`.
+    const matches = /^(?:ext:([^\/]+)\/(?:flarum-(?:ext-)?)?([^\/]+)|(flarum))(?:\/(.+))?$/.exec(path);
 
-    return [namespace, id.join('/')];
+    const id = matches![4];
+    let namespace;
+
+    if (matches![1]) {
+      namespace = `${matches![1]}-${matches![2]}`;
+    } else {
+      namespace = 'core';
+    }
+
+    return [namespace, id];
   }
 }
