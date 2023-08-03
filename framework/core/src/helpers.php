@@ -7,8 +7,8 @@
  * LICENSE file that was distributed with this source code.
  */
 
-use Flarum\Foundation\Container;
 use Flarum\Foundation\Paths;
+use Illuminate\Container\Container;
 use Illuminate\Contracts\Config\Repository;
 
 if (! function_exists('resolve')) {

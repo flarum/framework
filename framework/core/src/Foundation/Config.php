@@ -69,4 +69,9 @@ class Config implements ArrayAccess
     {
         throw new RuntimeException('The Config is immutable');
     }
+
+    public function environment()
+    {
+        return $this->data['env'] ?? 'production';
+    }
 }
