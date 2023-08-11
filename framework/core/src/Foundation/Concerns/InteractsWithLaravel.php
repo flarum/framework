@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Foundation\Concerns;
 
 use Flarum\Locale\LocaleManager;
@@ -49,7 +56,8 @@ trait InteractsWithLaravel
     public function bootstrapPath($path = ''): string
     {
         return $this->joinPaths(
-            $this->joinPaths($this->paths->base, 'bootstrap'), $path
+            $this->joinPaths($this->paths->base, 'bootstrap'),
+            $path
         );
     }
 
@@ -59,7 +67,8 @@ trait InteractsWithLaravel
     public function configPath($path = ''): string
     {
         return $this->joinPaths(
-            $this->joinPaths($this->paths->storage, 'config'), $path
+            $this->joinPaths($this->paths->storage, 'config'),
+            $path
         );
     }
 
@@ -69,7 +78,8 @@ trait InteractsWithLaravel
     public function databasePath($path = ''): string
     {
         return $this->joinPaths(
-            $this->joinPaths($this->paths->base, 'database'), $path
+            $this->joinPaths($this->paths->base, 'database'),
+            $path
         );
     }
 
@@ -79,7 +89,8 @@ trait InteractsWithLaravel
     public function langPath($path = ''): string
     {
         return $this->joinPaths(
-            $this->joinPaths($this->paths->base, 'lang'), $path
+            $this->joinPaths($this->paths->base, 'lang'),
+            $path
         );
     }
 
@@ -89,7 +100,8 @@ trait InteractsWithLaravel
     public function resourcePath($path = ''): string
     {
         return $this->joinPaths(
-            $this->joinPaths($this->paths->base, 'resources'), $path
+            $this->joinPaths($this->paths->base, 'resources'),
+            $path
         );
     }
 
