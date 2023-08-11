@@ -9,34 +9,29 @@
 
 namespace Flarum\Foundation;
 
-use Flarum\Http\Middleware as HttpMiddleware;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 use Laminas\Stratigility\Middleware\OriginalMessages;
-use Laminas\Stratigility\MiddlewarePipe;
 use Middlewares\BasePath;
-use Middlewares\BasePathRouter;
-use Middlewares\RequestHandler;
-use Psr\Http\Server\RequestHandlerInterface;
 
 class InstalledApp implements AppInterface
 {
     public function __construct(
-        protected Container $container,
+        protected ApplicationContract $app,
         protected Config $config
     ) {
     }
 
-    public function getContainer(): Container
+    public function getContainer(): ApplicationContract
     {
-        return $this->container;
+        return $this->app;
     }
 
     public function getMiddlewareStack(): array
     {
 //        if ($this->config->inMaintenanceMode()) {
-//            return $this->container->make('flarum.maintenance.handler');
+//            return $this->app->make('flarum.maintenance.handler');
 //        }
 
         return match ($this->needsUpdate()) {
@@ -47,7 +42,7 @@ class InstalledApp implements AppInterface
 
     protected function needsUpdate(): bool
     {
-        $settings = $this->container->make(SettingsRepositoryInterface::class);
+        $settings = $this->app->make(SettingsRepositoryInterface::class);
         $version = $settings->get('version');
 
         return $version !== Application::VERSION;
@@ -76,13 +71,13 @@ class InstalledApp implements AppInterface
     public function getConsoleCommands(): array
     {
         return array_map(function ($command) {
-            $command = $this->container->make($command);
+            $command = $this->app->make($command);
 
             if ($command instanceof Command) {
-                $command->setLaravel($this->container);
+                $command->setLaravel($this->app);
             }
 
             return $command;
-        }, $this->container->make('flarum.console.commands'));
+        }, $this->app->make('flarum.console.commands'));
     }
 }

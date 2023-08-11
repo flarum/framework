@@ -10,14 +10,14 @@
 namespace Flarum\Testing\integration;
 
 use Flarum\Extend\ExtenderInterface;
+use Flarum\Http\Server;
 use Flarum\Testing\integration\Setup\Bootstrapper;
 use Illuminate\Contracts\Cache\Store;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Laminas\Diactoros\ServerRequest;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
@@ -156,10 +156,10 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected $server;
 
-    protected function server(): RequestHandlerInterface
+    protected function server(): Server
     {
         if (is_null($this->server)) {
-            $this->server = $this->app()->getRequestHandler();
+            $this->server = new Server();
         }
 
         return $this->server;
@@ -213,9 +213,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     /**
      * Send a full HTTP request through Flarum's middleware stack.
      */
-    protected function send(ServerRequestInterface $request): ResponseInterface
+    protected function send(Request $request): Response
     {
-        return $this->server()->handle($request);
+        return $this->server()->send($request, $this->app->getContainer(), []);
     }
 
     /**
@@ -240,11 +240,11 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      *     interaction. All cookies returned from the server in that response
      *     (via the "Set-Cookie" header) will be copied to the cookie params of
      *     the new request.
-     * @return ServerRequestInterface
+     * @return Request
      */
-    protected function request(string $method, string $path, array $options = []): ServerRequestInterface
+    protected function request(string $method, string $path, array $options = []): Request
     {
-        $request = new ServerRequest([], [], $path, $method);
+        $request = Request::create($path, $method);
 
         // Do we want a JSON request body?
         if (isset($options['json'])) {

@@ -13,30 +13,36 @@ use Flarum\Foundation\AppInterface;
 use Flarum\Foundation\ErrorHandling\LogReporter;
 use Flarum\Foundation\SiteInterface;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Pipeline;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 class Server
 {
     public function __construct(
-        private readonly SiteInterface $site
+        private readonly ?SiteInterface $site = null
     ) {
     }
 
     public function listen(): void
     {
-        $request = Request::capture();
         $siteApp = $this->safelyBoot();
-        $container = $siteApp->getContainer();
+        $app = $siteApp->getContainer();
         $globalMiddleware = $siteApp->getMiddlewareStack();
 
-        (new Pipeline($container))
+        $this->send(Request::capture(), $app, $globalMiddleware);
+    }
+
+    public function send(Request $request, Application $app, array $globalMiddleware): Response
+    {
+        return (new Pipeline($app))
             ->send($request)
             ->through($globalMiddleware)
-            ->then(function (Request $request) use ($container) {
-                return $container->make(Router::class)->dispatch($request);
+            ->then(function (Request $request) use ($app) {
+                return $app->make(Router::class)->dispatch($request);
             });
     }
 

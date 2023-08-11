@@ -9,12 +9,12 @@
 
 namespace Flarum\Foundation;
 
-use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 use Symfony\Component\Console\Command\Command;
 
 interface AppInterface
 {
-    public function getContainer(): Container;
+    public function getContainer(): ApplicationContract;
 
     public function getMiddlewareStack(): array;
 

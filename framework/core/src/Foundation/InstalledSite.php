@@ -40,6 +40,7 @@ use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Cache\Store;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Hashing\HashServiceProvider;
 use Illuminate\Validation\ValidationServiceProvider;
@@ -87,7 +88,7 @@ class InstalledSite implements SiteInterface
         return $this;
     }
 
-    protected function bootLaravel(): Container
+    protected function bootLaravel(): ApplicationContract
     {
         $app = new Application($this->paths);
 

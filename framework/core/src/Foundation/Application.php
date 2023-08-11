@@ -12,6 +12,7 @@ namespace Flarum\Foundation;
 use Flarum\Foundation\Concerns\InteractsWithLaravel;
 use Flarum\Http\RoutingServiceProvider;
 use Illuminate\Container\Container as IlluminateContainer;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Foundation\Application as LaravelApplication;
 use Illuminate\Events\EventServiceProvider;
 use Illuminate\Support\Arr;
@@ -70,7 +71,7 @@ class Application extends IlluminateContainer implements LaravelApplication
         IlluminateContainer::setInstance($this);
 
         $this->instance('app', $this);
-        $this->instance('container', $this);
+        $this->instance(Container::class, $this);
         $this->instance('flarum', $this);
         $this->instance('flarum.paths', $this->paths);
     }

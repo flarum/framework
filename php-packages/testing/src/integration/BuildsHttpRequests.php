@@ -10,12 +10,11 @@
 namespace Flarum\Testing\integration;
 
 use Carbon\Carbon;
-use Dflydev\FigCookies\SetCookie;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Laminas\Diactoros\CallbackStream;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * A collection of helpers for building PSR-7 requests for integration tests.
@@ -24,13 +23,10 @@ trait BuildsHttpRequests
 {
     protected function requestWithJsonBody(Request $req, array $json): Request
     {
-        return $req
-            ->withHeader('Content-Type', 'application/json')
-            ->withBody(
-                new CallbackStream(function () use ($json) {
-                    return json_encode($json);
-                })
-            );
+        $req->headers->set('Content-Type', 'application/json');
+        $req->setJson(new ParameterBag($json));
+
+        return $req;
     }
 
     protected function requestAsUser(Request $req, int $userId): Request
@@ -49,36 +45,41 @@ trait BuildsHttpRequests
             'type' => 'session'
         ]);
 
-        return $req
-            ->withAddedHeader('Authorization', "Token {$token}")
-            // We save the token as an attribute so that we can retrieve it for test purposes.
-            ->withAttribute('tests_token', $token);
+        $req->headers->set('Authorization', "Token {$token}");
+
+        // We save the token as an attribute so that we can retrieve it for test purposes.
+        $req->attributes->set('tests_token', $token);
+
+        return $req;
     }
 
     protected function requestWithCookiesFrom(Request $req, Response $previous): Request
     {
         $cookies = array_reduce(
-            $previous->getHeader('Set-Cookie'),
+            $previous->headers->all('Set-Cookie'),
             function ($memo, $setCookieString) {
-                $setCookie = SetCookie::fromSetCookieString($setCookieString);
-                $memo[$setCookie->getName()] = $setCookie->getValue();
+                $cookie = Cookie::fromString($setCookieString);
+                $memo[$cookie->getName()] = $cookie->getValue();
 
                 return $memo;
             },
             []
         );
 
-        return $req->withCookieParams($cookies);
+        $req->cookies->add($cookies);
+
+        return $req;
     }
 
-    protected function requestWithCsrfToken(ServerRequestInterface $request): ServerRequestInterface
+    protected function requestWithCsrfToken(Request $request): Request
     {
         $initial = $this->send(
             $this->request('GET', '/')
         );
 
-        $token = $initial->getHeaderLine('X-CSRF-Token');
+        $token = $initial->headers->get('X-CSRF-Token');
+        $request->headers->set('X-CSRF-Token', $token);
 
-        return $this->requestWithCookiesFrom($request->withHeader('X-CSRF-Token', $token), $initial);
+        return $this->requestWithCookiesFrom($request, $initial);
     }
 }
