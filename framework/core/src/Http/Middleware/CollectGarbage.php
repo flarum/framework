@@ -10,18 +10,17 @@
 namespace Flarum\Http\Middleware;
 
 use Carbon\Carbon;
+use Closure;
 use Flarum\Http\AccessToken;
 use Flarum\User\EmailToken;
 use Flarum\User\PasswordToken;
 use Flarum\User\RegistrationToken;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\MiddlewareInterface as Middleware;
-use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Illuminate\Http\Request;
 use SessionHandlerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
-class CollectGarbage implements Middleware
+class CollectGarbage implements IlluminateMiddlewareInterface
 {
     protected array $sessionConfig;
 
@@ -32,11 +31,11 @@ class CollectGarbage implements Middleware
         $this->sessionConfig = (array) $config->get('session');
     }
 
-    public function process(Request $request, Handler $handler): Response
+    public function handle(Request $request, Closure $next): Response
     {
         $this->collectGarbageSometimes();
 
-        return $handler->handle($request);
+        return $next($request);
     }
 
     private function collectGarbageSometimes(): void

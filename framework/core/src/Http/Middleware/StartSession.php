@@ -9,19 +9,17 @@
 
 namespace Flarum\Http\Middleware;
 
-use Dflydev\FigCookies\FigResponseCookies;
+use Closure;
 use Flarum\Http\CookieFactory;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Session\Session;
+use Illuminate\Http\Request;
 use Illuminate\Session\Store;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\MiddlewareInterface as Middleware;
-use Psr\Http\Server\RequestHandlerInterface as Handler;
 use SessionHandlerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
-class StartSession implements Middleware
+class StartSession implements IlluminateMiddlewareInterface
 {
     protected array $config;
 
@@ -33,20 +31,21 @@ class StartSession implements Middleware
         $this->config = (array) $config->get('session');
     }
 
-    public function process(Request $request, Handler $handler): Response
+    public function handle(Request $request, Closure $next): Response
     {
-        $request = $request->withAttribute(
+        $request->attributes->set(
             'session',
             $session = $this->makeSession($request)
         );
 
         $session->start();
-        $response = $handler->handle($request);
+        $response = $next($request);
         $session->save();
 
-        $response = $this->withCsrfTokenHeader($response, $session);
+        $this->setCsrfTokenHeader($response, $session);
+        $this->setSessionCookie($response, $session);
 
-        return $this->withSessionCookie($response, $session);
+        return $response;
     }
 
     private function makeSession(Request $request): Session
@@ -58,15 +57,14 @@ class StartSession implements Middleware
         );
     }
 
-    private function withCsrfTokenHeader(Response $response, Session $session): Response
+    private function setCsrfTokenHeader(Response $response, Session $session): void
     {
-        return $response->withHeader('X-CSRF-Token', $session->token());
+        $response->headers->set('X-CSRF-Token', $session->token());
     }
 
-    private function withSessionCookie(Response $response, Session $session): Response
+    private function setSessionCookie(Response $response, Session $session): void
     {
-        return FigResponseCookies::set(
-            $response,
+        $response->headers->setCookie(
             $this->cookie->make($session->getName(), $session->getId(), $this->getSessionLifetimeInSeconds())
         );
     }

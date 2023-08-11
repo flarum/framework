@@ -9,23 +9,26 @@
 
 namespace Flarum\Http\Middleware;
 
+use Closure;
 use Flarum\Api\ApiKey;
 use Flarum\Http\AccessToken;
 use Flarum\Http\RequestUtil;
 use Flarum\User\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\MiddlewareInterface as Middleware;
-use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Symfony\Component\HttpFoundation\Response;
 
-class AuthenticateWithHeader implements Middleware
+class AuthenticateWithHeader implements IlluminateMiddlewareInterface
 {
     const TOKEN_PREFIX = 'Token ';
 
-    public function process(Request $request, Handler $handler): Response
+    public function handle(Request $request, Closure $next): Response
     {
-        $headerLine = $request->getHeaderLine('authorization');
+        $headerLine = $request->header('Authorization');
+
+        if (is_array($headerLine)) {
+            $headerLine = implode(',', $headerLine);
+        }
 
         $parts = explode(';', $headerLine);
 
@@ -55,7 +58,7 @@ class AuthenticateWithHeader implements Middleware
             }
         }
 
-        return $handler->handle($request);
+        return $next($request);
     }
 
     private function getUser(string $string): ?User

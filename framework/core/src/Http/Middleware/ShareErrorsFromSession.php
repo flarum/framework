@@ -9,28 +9,27 @@
 
 namespace Flarum\Http\Middleware;
 
+use Closure;
 use Illuminate\Contracts\View\Factory as ViewFactory;
+use Illuminate\Http\Request;
 use Illuminate\Support\ViewErrorBag;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\MiddlewareInterface as Middleware;
-use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Inspired by Illuminate\View\Middleware\ShareErrorsFromSession.
  *
  * @author Taylor Otwell
  */
-class ShareErrorsFromSession implements Middleware
+class ShareErrorsFromSession implements IlluminateMiddlewareInterface
 {
     public function __construct(
         protected ViewFactory $view
     ) {
     }
 
-    public function process(Request $request, Handler $handler): Response
+    public function handle(Request $request, Closure $next): Response
     {
-        $session = $request->getAttribute('session');
+        $session = $request->attributes->get('session');
 
         // If the current session has an "errors" variable bound to it, we will share
         // its value with all view instances so the views can easily access errors
@@ -46,6 +45,6 @@ class ShareErrorsFromSession implements Middleware
 
         $session->remove('errors');
 
-        return $handler->handle($request);
+        return $next($request);
     }
 }

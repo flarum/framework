@@ -9,12 +9,11 @@
 
 namespace Flarum\Http\Middleware;
 
+use Closure;
 use Flarum\Foundation\ErrorHandling\HttpFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\MiddlewareInterface as Middleware;
-use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 /**
@@ -24,7 +23,7 @@ use Throwable;
  * unknown errors will be passed on to one or multiple
  * {@see \Flarum\Foundation\ErrorHandling\Reporter} instances.
  */
-class HandleErrors implements Middleware
+class HandleErrors implements IlluminateMiddlewareInterface
 {
     public function __construct(
         protected Registry $registry,
@@ -37,10 +36,10 @@ class HandleErrors implements Middleware
     /**
      * Catch all errors that happen during further middleware execution.
      */
-    public function process(Request $request, Handler $handler): Response
+    public function handle(Request $request, Closure $next): Response
     {
         try {
-            return $handler->handle($request);
+            return $next($request);
         } catch (Throwable $e) {
             $error = $this->registry->handle($e);
 

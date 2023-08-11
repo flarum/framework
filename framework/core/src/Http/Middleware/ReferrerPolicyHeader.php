@@ -9,14 +9,13 @@
 
 namespace Flarum\Http\Middleware;
 
+use Closure;
 use Flarum\Foundation\Config;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface as Middleware;
-use Psr\Http\Server\RequestHandlerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
-class ReferrerPolicyHeader implements Middleware
+class ReferrerPolicyHeader implements IlluminateMiddlewareInterface
 {
     protected string $policy = '';
 
@@ -25,10 +24,15 @@ class ReferrerPolicyHeader implements Middleware
         $this->policy = strval(Arr::get($config, 'headers.referrerPolicy') ?? 'same-origin');
     }
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    /**
+     * @inheritDoc
+     */
+    public function handle(Request $request, Closure $next): Response
     {
-        $response = $handler->handle($request);
+        $response = $next($request);
 
-        return $response->withAddedHeader('Referrer-Policy', $this->policy);
+        $response->headers->set('Referrer-Policy', $this->policy);
+
+        return $response;
     }
 }
