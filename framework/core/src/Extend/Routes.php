@@ -9,22 +9,20 @@
 
 namespace Flarum\Extend;
 
+use Flarum\Extend\Concerns\ExtendsRoutes;
 use Flarum\Extension\Extension;
-use Flarum\Http\RouteCollection;
-use Flarum\Http\RouteHandlerFactory;
+use Flarum\Http\Controller\AbstractController;
 use Illuminate\Contracts\Container\Container;
-use Psr\Http\Server\RequestHandlerInterface;
 
 class Routes implements ExtenderInterface
 {
-    private array $routes = [];
-    private array $removedRoutes = [];
+    use ExtendsRoutes;
 
     /**
-     * @param string $appName: Name of the app (api, forum, admin).
+     * @param string $frontend: Name of the app (api, forum, admin).
      */
     public function __construct(
-        private readonly string $appName
+        private readonly string $frontend
     ) {
     }
 
@@ -33,9 +31,9 @@ class Routes implements ExtenderInterface
      *
      * @param string $path: The path of the route
      * @param string $name: The name of the route, must be unique.
-     * @param callable|class-string<RequestHandlerInterface> $handler: ::class attribute of the controller class, or a closure.
+     * @param callable|class-string<AbstractController> $handler: ::class attribute of the controller class, or a closure.
      *
-     * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
+     * If the handler is a controller class, it should extend \Flarum\Http\Controller,
      * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
      *
      * The handler should accept:
@@ -57,9 +55,9 @@ class Routes implements ExtenderInterface
      *
      * @param string $path: The path of the route
      * @param string $name: The name of the route, must be unique.
-     * @param callable|class-string<RequestHandlerInterface> $handler: ::class attribute of the controller class, or a closure.
+     * @param callable|class-string<AbstractController> $handler: ::class attribute of the controller class, or a closure.
      *
-     * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
+     * If the handler is a controller class, it should extend \Flarum\Http\Controller,
      * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
      *
      * The handler should accept:
@@ -81,9 +79,9 @@ class Routes implements ExtenderInterface
      *
      * @param string $path: The path of the route
      * @param string $name: The name of the route, must be unique.
-     * @param callable|class-string<RequestHandlerInterface> $handler: ::class attribute of the controller class, or a closure.
+     * @param callable|class-string<AbstractController> $handler: ::class attribute of the controller class, or a closure.
      *
-     * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
+     * If the handler is a controller class, it should extend \Flarum\Http\Controller,
      * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
      *
      * The handler should accept:
@@ -105,9 +103,9 @@ class Routes implements ExtenderInterface
      *
      * @param string $path: The path of the route
      * @param string $name: The name of the route, must be unique.
-     * @param callable|class-string<RequestHandlerInterface> $handler: ::class attribute of the controller class, or a closure.
+     * @param callable|class-string<AbstractController> $handler: ::class attribute of the controller class, or a closure.
      *
-     * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
+     * If the handler is a controller class, it should extend \Flarum\Http\Controller,
      * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
      *
      * The handler should accept:
@@ -129,9 +127,9 @@ class Routes implements ExtenderInterface
      *
      * @param string $path: The path of the route
      * @param string $name: The name of the route, must be unique.
-     * @param callable|class-string<RequestHandlerInterface> $handler: ::class attribute of the controller class, or a closure.
+     * @param callable|class-string<AbstractController> $handler: ::class attribute of the controller class, or a closure.
      *
-     * If the handler is a controller class, it should implement \Psr\Http\Server\RequestHandlerInterface,
+     * If the handler is a controller class, it should extend \Flarum\Http\Controller,
      * or extend one of the Flarum Api controllers within \Flarum\Api\Controller.
      *
      * The handler should accept:
@@ -176,29 +174,6 @@ class Routes implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null): void
     {
-        if (empty($this->routes) && empty($this->removedRoutes)) {
-            return;
-        }
-
-        $container->resolving(
-            "flarum.{$this->appName}.routes",
-            function (RouteCollection $collection, Container $container) {
-                /** @var RouteHandlerFactory $factory */
-                $factory = $container->make(RouteHandlerFactory::class);
-
-                foreach ($this->removedRoutes as $routeName) {
-                    $collection->removeRoute($routeName);
-                }
-
-                foreach ($this->routes as $route) {
-                    $collection->addRoute(
-                        $route['method'],
-                        $route['path'],
-                        $route['name'],
-                        $factory->toController($route['handler'])
-                    );
-                }
-            }
-        );
+        $this->registerRoutes($container);
     }
 }

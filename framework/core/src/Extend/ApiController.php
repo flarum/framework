@@ -16,7 +16,7 @@ use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class ApiController implements ExtenderInterface
@@ -63,12 +63,12 @@ class ApiController implements ExtenderInterface
 
     /**
      * @template S of AbstractSerializeController
-     * @param (callable(S $controller, mixed $data, ServerRequestInterface $request, Document $document): array)|class-string $callback
+     * @param (callable(S $controller, mixed $data, Request $request, Document $document): array)|class-string $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
      * - $controller: An instance of this controller.
      * - $data: Mixed, can be an array of data or an object (like an instance of Collection or AbstractModel).
-     * - $request: An instance of \Psr\Http\Message\ServerRequestInterface.
+     * - $request: An instance of \Illuminate\Http\Request.
      * - $document: An instance of \Tobscure\JsonApi\Document.
      *
      * The callable should return:
@@ -330,11 +330,11 @@ class ApiController implements ExtenderInterface
      *
      * @param string $relation: Relationship name, see load method description.
      * @template R of Relation
-     * @param (callable(Builder|R, \Psr\Http\Message\ServerRequestInterface|null, array): void) $callback
+     * @param (callable(Builder|R, \Illuminate\Http\Request|null, array): void) $callback
      *
      * The callback to modify the query, should accept:
      * - \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\Relation $query: A query object.
-     * - \Psr\Http\Message\ServerRequestInterface|null $request: An instance of the request.
+     * - \Illuminate\Http\Request|null $request: An instance of the request.
      * - array $relations: An array of relations that are to be loaded.
      *
      * @return self
