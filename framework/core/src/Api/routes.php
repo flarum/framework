@@ -8,58 +8,45 @@
  */
 
 use Flarum\Api\Controller;
-use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
+use Flarum\Http\Router;
 
-return function (RouteCollection $map, RouteHandlerFactory $route) {
+return function (Router $router, RouteHandlerFactory $factory) {
+
     // Get forum information
-    $map->get(
-        '/',
-        'forum.show',
-        $route->toController(Controller\ShowForumController::class)
-    );
+    $router
+        ->get('/', $factory->toController(Controller\ShowForumController::class))
+        ->name('forum.show');
 
     // List access tokens
-    $map->get(
-        '/access-tokens',
-        'access-tokens.index',
-        $route->toController(Controller\ListAccessTokensController::class)
-    );
+    $router
+        ->get('/access-tokens', $factory->toController(Controller\ListAccessTokensController::class))
+        ->name('access-tokens.index');
 
     // Create access token
-    $map->post(
-        '/access-tokens',
-        'access-tokens.create',
-        $route->toController(Controller\CreateAccessTokenController::class)
-    );
+    $router
+        ->post('/access-tokens', $factory->toController(Controller\CreateAccessTokenController::class))
+        ->name('access-tokens.create');
 
     // Delete access token
-    $map->delete(
-        '/access-tokens/{id}',
-        'access-tokens.delete',
-        $route->toController(Controller\DeleteAccessTokenController::class)
-    );
+    $router
+        ->delete('/access-tokens/{id}', $factory->toController(Controller\DeleteAccessTokenController::class))
+        ->name('access-tokens.delete');
 
     // Create authentication token
-    $map->post(
-        '/token',
-        'token',
-        $route->toController(Controller\CreateTokenController::class)
-    );
+    $router
+        ->post('/token', $factory->toController(Controller\CreateTokenController::class))
+        ->name('token');
 
     // Terminate all other sessions
-    $map->delete(
-        '/sessions',
-        'sessions.delete',
-        $route->toController(Controller\TerminateAllOtherSessionsController::class)
-    );
+    $router
+        ->delete('/sessions', $factory->toController(Controller\TerminateAllOtherSessionsController::class))
+        ->name('sessions.delete');
 
     // Send forgot password email
-    $map->post(
-        '/forgot',
-        'forgot',
-        $route->toController(Controller\ForgotPasswordController::class)
-    );
+    $router
+        ->post('/forgot', $factory->toController(Controller\ForgotPasswordController::class))
+        ->name('forgot');
 
     /*
     |--------------------------------------------------------------------------
@@ -68,60 +55,50 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     */
 
     // List users
-    $map->get(
-        '/users',
-        'users.index',
-        $route->toController(Controller\ListUsersController::class)
-    );
+    $router
+        ->get('/users', $factory->toController(Controller\ListUsersController::class))
+        ->name('users.index');
 
     // Register a user
-    $map->post(
-        '/users',
-        'users.create',
-        $route->toController(Controller\CreateUserController::class)
-    );
+    $router
+        ->post('/users', $factory->toController(Controller\CreateUserController::class))
+        ->name('users.create');
 
     // Get a single user
-    $map->get(
-        '/users/{id}',
-        'users.show',
-        $route->toController(Controller\ShowUserController::class)
-    );
+    $router
+        ->get('/users/{id}', $factory->toController(Controller\ShowUserController::class))
+        ->name('users.show')
+        ->whereNumber('id');
 
     // Edit a user
-    $map->patch(
-        '/users/{id}',
-        'users.update',
-        $route->toController(Controller\UpdateUserController::class)
-    );
+    $router
+        ->patch('/users/{id}', $factory->toController(Controller\UpdateUserController::class))
+        ->name('users.update')
+        ->whereNumber('id');
 
     // Delete a user
-    $map->delete(
-        '/users/{id}',
-        'users.delete',
-        $route->toController(Controller\DeleteUserController::class)
-    );
+    $router
+        ->delete('/users/{id}', $factory->toController(Controller\DeleteUserController::class))
+        ->name('users.delete')
+        ->whereNumber('id');
 
     // Upload avatar
-    $map->post(
-        '/users/{id}/avatar',
-        'users.avatar.upload',
-        $route->toController(Controller\UploadAvatarController::class)
-    );
+    $router
+        ->post('/users/{id}/avatar', $factory->toController(Controller\UploadAvatarController::class))
+        ->name('users.avatar.upload')
+        ->whereNumber('id');
 
     // Remove avatar
-    $map->delete(
-        '/users/{id}/avatar',
-        'users.avatar.delete',
-        $route->toController(Controller\DeleteAvatarController::class)
-    );
+    $router
+        ->delete('/users/{id}/avatar', $factory->toController(Controller\DeleteAvatarController::class))
+        ->name('users.avatar.delete')
+        ->whereNumber('id');
 
     // send confirmation email
-    $map->post(
-        '/users/{id}/send-confirmation',
-        'users.confirmation.send',
-        $route->toController(Controller\SendConfirmationEmailController::class)
-    );
+    $router
+        ->post('/users/{id}/send-confirmation', $factory->toController(Controller\SendConfirmationEmailController::class))
+        ->name('users.confirmation.send')
+        ->whereNumber('id');
 
     /*
     |--------------------------------------------------------------------------
@@ -130,32 +107,25 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     */
 
     // List notifications for the current user
-    $map->get(
-        '/notifications',
-        'notifications.index',
-        $route->toController(Controller\ListNotificationsController::class)
-    );
+    $router
+        ->get('/notifications', $factory->toController(Controller\ListNotificationsController::class))
+        ->name('notifications.index');
 
     // Mark all notifications as read
-    $map->post(
-        '/notifications/read',
-        'notifications.readAll',
-        $route->toController(Controller\ReadAllNotificationsController::class)
-    );
+    $router
+        ->post('/notifications/read', $factory->toController(Controller\ReadAllNotificationsController::class))
+        ->name('notifications.readAll');
 
     // Mark a single notification as read
-    $map->patch(
-        '/notifications/{id}',
-        'notifications.update',
-        $route->toController(Controller\UpdateNotificationController::class)
-    );
+    $router
+        ->patch('/notifications/{id}', $factory->toController(Controller\UpdateNotificationController::class))
+        ->name('notifications.update')
+        ->whereNumber('id');
 
     // Delete all notifications for the current user.
-    $map->delete(
-        '/notifications',
-        'notifications.deleteAll',
-        $route->toController(Controller\DeleteAllNotificationsController::class)
-    );
+    $router
+        ->delete('/notifications', $factory->toController(Controller\DeleteAllNotificationsController::class))
+        ->name('notifications.deleteAll');
 
     /*
     |--------------------------------------------------------------------------
@@ -164,39 +134,32 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     */
 
     // List discussions
-    $map->get(
-        '/discussions',
-        'discussions.index',
-        $route->toController(Controller\ListDiscussionsController::class)
-    );
+    $router
+        ->get('/discussions', $factory->toController(Controller\ListDiscussionsController::class))
+        ->name('discussions.index');
 
     // Create a discussion
-    $map->post(
-        '/discussions',
-        'discussions.create',
-        $route->toController(Controller\CreateDiscussionController::class)
-    );
+    $router
+        ->post('/discussions', $factory->toController(Controller\CreateDiscussionController::class))
+        ->name('discussions.create');
 
     // Show a single discussion
-    $map->get(
-        '/discussions/{id}',
-        'discussions.show',
-        $route->toController(Controller\ShowDiscussionController::class)
-    );
+    $router
+        ->get('/discussions/{id}', $factory->toController(Controller\ShowDiscussionController::class))
+        ->name('discussions.show')
+        ->whereNumber('id');
 
     // Edit a discussion
-    $map->patch(
-        '/discussions/{id}',
-        'discussions.update',
-        $route->toController(Controller\UpdateDiscussionController::class)
-    );
+    $router
+        ->patch('/discussions/{id}', $factory->toController(Controller\UpdateDiscussionController::class))
+        ->name('discussions.update')
+        ->whereNumber('id');
 
     // Delete a discussion
-    $map->delete(
-        '/discussions/{id}',
-        'discussions.delete',
-        $route->toController(Controller\DeleteDiscussionController::class)
-    );
+    $router
+        ->delete('/discussions/{id}', $factory->toController(Controller\DeleteDiscussionController::class))
+        ->name('discussions.delete')
+        ->whereNumber('id');
 
     /*
     |--------------------------------------------------------------------------
@@ -205,39 +168,32 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     */
 
     // List posts, usually for a discussion
-    $map->get(
-        '/posts',
-        'posts.index',
-        $route->toController(Controller\ListPostsController::class)
-    );
+    $router
+        ->get('/posts', $factory->toController(Controller\ListPostsController::class))
+        ->name('posts.index');
 
     // Create a post
-    $map->post(
-        '/posts',
-        'posts.create',
-        $route->toController(Controller\CreatePostController::class)
-    );
+    $router
+        ->post('/posts', $factory->toController(Controller\CreatePostController::class))
+        ->name('posts.create');
 
     // Show a single or multiple posts by ID
-    $map->get(
-        '/posts/{id}',
-        'posts.show',
-        $route->toController(Controller\ShowPostController::class)
-    );
+    $router
+        ->get('/posts/{id}', $factory->toController(Controller\ShowPostController::class))
+        ->name('posts.show')
+        ->whereNumber('id');
 
     // Edit a post
-    $map->patch(
-        '/posts/{id}',
-        'posts.update',
-        $route->toController(Controller\UpdatePostController::class)
-    );
+    $router
+        ->patch('/posts/{id}', $factory->toController(Controller\UpdatePostController::class))
+        ->name('posts.update')
+        ->whereNumber('id');
 
     // Delete a post
-    $map->delete(
-        '/posts/{id}',
-        'posts.delete',
-        $route->toController(Controller\DeletePostController::class)
-    );
+    $router
+        ->delete('/posts/{id}', $factory->toController(Controller\DeletePostController::class))
+        ->name('posts.delete')
+        ->whereNumber('id');
 
     /*
     |--------------------------------------------------------------------------
@@ -246,39 +202,32 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     */
 
     // List groups
-    $map->get(
-        '/groups',
-        'groups.index',
-        $route->toController(Controller\ListGroupsController::class)
-    );
+    $router
+        ->get('/groups', $factory->toController(Controller\ListGroupsController::class))
+        ->name('groups.index');
 
     // Create a group
-    $map->post(
-        '/groups',
-        'groups.create',
-        $route->toController(Controller\CreateGroupController::class)
-    );
+    $router
+        ->post('/groups', $factory->toController(Controller\CreateGroupController::class))
+        ->name('groups.create');
 
     // Show a single group
-    $map->get(
-        '/groups/{id}',
-        'groups.show',
-        $route->toController(Controller\ShowGroupController::class)
-    );
+    $router
+        ->get('/groups/{id}', $factory->toController(Controller\ShowGroupController::class))
+        ->name('groups.show')
+        ->whereNumber('id');
 
     // Edit a group
-    $map->patch(
-        '/groups/{id}',
-        'groups.update',
-        $route->toController(Controller\UpdateGroupController::class)
-    );
+    $router
+        ->patch('/groups/{id}', $factory->toController(Controller\UpdateGroupController::class))
+        ->name('groups.update')
+        ->whereNumber('id');
 
     // Delete a group
-    $map->delete(
-        '/groups/{id}',
-        'groups.delete',
-        $route->toController(Controller\DeleteGroupController::class)
-    );
+    $router
+        ->delete('/groups/{id}', $factory->toController(Controller\DeleteGroupController::class))
+        ->name('groups.delete')
+        ->whereNumber('id');
 
     /*
     |--------------------------------------------------------------------------
@@ -287,86 +236,63 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     */
 
     // Toggle an extension
-    $map->patch(
-        '/extensions/{name}',
-        'extensions.update',
-        $route->toController(Controller\UpdateExtensionController::class)
-    );
+    $router
+        ->patch('/extensions/{name}', $factory->toController(Controller\UpdateExtensionController::class))
+        ->name('extensions.update');
 
     // Uninstall an extension
-    $map->delete(
-        '/extensions/{name}',
-        'extensions.delete',
-        $route->toController(Controller\UninstallExtensionController::class)
-    );
+    $router
+        ->delete('/extensions/{name}', $factory->toController(Controller\UninstallExtensionController::class))
+        ->name('extensions.delete');
 
     // Get readme for an extension
-    $map->get(
-        '/extension-readmes/{name}',
-        'extension-readmes.show',
-        $route->toController(Controller\ShowExtensionReadmeController::class)
-    );
+    $router
+        ->get('/extension-readmes/{name}', $factory->toController(Controller\ShowExtensionReadmeController::class))
+        ->name('extension-readmes.show');
 
     // Update settings
-    $map->post(
-        '/settings',
-        'settings',
-        $route->toController(Controller\SetSettingsController::class)
-    );
+    $router
+        ->post('/settings', $factory->toController(Controller\SetSettingsController::class))
+        ->name('settings');
 
     // Update a permission
-    $map->post(
-        '/permission',
-        'permission',
-        $route->toController(Controller\SetPermissionController::class)
-    );
+    $router
+        ->post('/permission', $factory->toController(Controller\SetPermissionController::class))
+        ->name('permission');
 
     // Upload a logo
-    $map->post(
-        '/logo',
-        'logo',
-        $route->toController(Controller\UploadLogoController::class)
-    );
+    $router
+        ->post('/logo', $factory->toController(Controller\UploadLogoController::class))
+        ->name('logo');
 
     // Remove the logo
-    $map->delete(
-        '/logo',
-        'logo.delete',
-        $route->toController(Controller\DeleteLogoController::class)
-    );
+    $router
+        ->delete('/logo', $factory->toController(Controller\DeleteLogoController::class))
+        ->name('logo.delete');
 
     // Upload a favicon
-    $map->post(
-        '/favicon',
-        'favicon',
-        $route->toController(Controller\UploadFaviconController::class)
-    );
+    $router
+        ->post('/favicon', $factory->toController(Controller\UploadFaviconController::class))
+        ->name('favicon');
 
     // Remove the favicon
-    $map->delete(
-        '/favicon',
-        'favicon.delete',
-        $route->toController(Controller\DeleteFaviconController::class)
-    );
+    $router
+        ->delete('/favicon', $factory->toController(Controller\DeleteFaviconController::class))
+        ->name('favicon.delete');
 
     // Clear the cache
-    $map->delete(
-        '/cache',
-        'cache.clear',
-        $route->toController(Controller\ClearCacheController::class)
-    );
+    $router
+        ->delete('/cache', $factory->toController(Controller\ClearCacheController::class))
+        ->name('cache.clear');
 
     // List available mail drivers, available fields and validation status
-    $map->get(
-        '/mail/settings',
-        'mailSettings.index',
-        $route->toController(Controller\ShowMailSettingsController::class)
-    );
+    $router
+        ->get('/mail/settings', $factory->toController(Controller\ShowMailSettingsController::class))
+        ->name('mailSettings.index');
 
     // Send test mail post
-    $map->post(
-        '/mail/test',
-        'mailTest',
-        $route->toController(Controller\SendTestMailController::class)
-    );
+    $router
+        ->post('/mail/test', $factory->toController(Controller\SendTestMailController::class))
+        ->name('mailTest');
+
 };

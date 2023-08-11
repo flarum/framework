@@ -9,26 +9,26 @@
 
 namespace Flarum\Api\Middleware;
 
+use Closure;
+use Flarum\Http\Middleware\IlluminateMiddlewareInterface;
 use Flarum\Post\Exception\FloodingException;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\MiddlewareInterface as Middleware;
-use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class ThrottleApi implements Middleware
+class ThrottleApi implements IlluminateMiddlewareInterface
 {
     public function __construct(
         protected array $throttlers
     ) {
     }
 
-    public function process(Request $request, Handler $handler): Response
+    public function handle(Request $request, Closure $next): Response
     {
         if ($this->throttle($request)) {
             throw new FloodingException;
         }
 
-        return $handler->handle($request);
+        return $next($request);
     }
 
     public function throttle(Request $request): bool

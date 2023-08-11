@@ -13,6 +13,7 @@ use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Formatter\Formatter;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Config;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\ErrorHandling\ViewFormatter;
@@ -24,9 +25,8 @@ use Flarum\Frontend\Assets;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Http\Middleware as HttpMiddleware;
-use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
-use Flarum\Http\UrlGenerator;
+use Flarum\Http\Router;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 use Flarum\Settings\Event\Saving;
@@ -34,39 +34,41 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
-use Laminas\Stratigility\MiddlewarePipe;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ForumServiceProvider extends AbstractServiceProvider
 {
     public function register(): void
     {
-        $this->container->extend(UrlGenerator::class, function (UrlGenerator $url, Container $container) {
-            return $url->addCollection('forum', $container->make('flarum.forum.routes'));
-        });
+        $this->booted(function (Container $container) {
+            /** @var Router $router */
+            $router = $container->make(Router::class);
+            /** @var Config $config */
+            $config = $container->make(Config::class);
 
-        $this->container->singleton('flarum.forum.routes', function (Container $container) {
-            $routes = new RouteCollection;
-            $this->populateRoutes($routes, $container);
+            $router->middlewareGroup('forum', $container->make('flarum.forum.middleware'));
 
-            return $routes;
-        });
+            $factory = $container->make(RouteHandlerFactory::class);
 
-        $this->container->afterResolving('flarum.forum.routes', function (RouteCollection $routes, Container $container) {
-            $this->setDefaultRoute($routes, $container);
+            $router->middleware('forum')->prefix($config->path('forum'))->group(
+                fn (Router $router) => (include __DIR__.'/routes.php')($router, $factory)
+            );
+
+            $this->setDefaultRoute(
+                $router,
+                $container->make(SettingsRepositoryInterface::class)
+            );
         });
 
         $this->container->singleton('flarum.forum.middleware', function () {
             return [
                 HttpMiddleware\InjectActorReference::class,
                 'flarum.forum.error_handler',
-                HttpMiddleware\ParseJsonBody::class,
                 HttpMiddleware\CollectGarbage::class,
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\RememberFromCookie::class,
                 HttpMiddleware\AuthenticateWithSession::class,
                 HttpMiddleware\SetLocale::class,
-                'flarum.forum.route_resolver',
                 HttpMiddleware\CheckCsrfToken::class,
                 HttpMiddleware\ShareErrorsFromSession::class,
                 HttpMiddleware\FlarumPromotionHeader::class,
@@ -81,22 +83,6 @@ class ForumServiceProvider extends AbstractServiceProvider
                 $container['flarum.config']->inDebugMode() ? $container->make(WhoopsFormatter::class) : $container->make(ViewFormatter::class),
                 $container->tagged(Reporter::class)
             );
-        });
-
-        $this->container->bind('flarum.forum.route_resolver', function (Container $container) {
-            return new HttpMiddleware\ResolveRoute($container->make('flarum.forum.routes'));
-        });
-
-        $this->container->singleton('flarum.forum.handler', function (Container $container) {
-            $pipe = new MiddlewarePipe;
-
-            foreach ($container->make('flarum.forum.middleware') as $middleware) {
-                $pipe->pipe($container->make($middleware));
-            }
-
-            $pipe->pipe(new HttpMiddleware\ExecuteRoute());
-
-            return $pipe;
         });
 
         $this->container->bind('flarum.assets.forum', function (Container $container) {
@@ -194,29 +180,10 @@ class ForumServiceProvider extends AbstractServiceProvider
         );
     }
 
-    protected function populateRoutes(RouteCollection $routes, Container $container): void
+    protected function setDefaultRoute(Router $router, SettingsRepositoryInterface $settings): void
     {
-        $factory = $container->make(RouteHandlerFactory::class);
-
-        $callback = include __DIR__.'/routes.php';
-        $callback($routes, $factory);
-    }
-
-    protected function setDefaultRoute(RouteCollection $routes, Container $container): void
-    {
-        $factory = $container->make(RouteHandlerFactory::class);
-        $defaultRoute = $container->make('flarum.settings')->get('default_route');
-
-        if (isset($routes->getRouteData()[0]['GET'][$defaultRoute]['handler'])) {
-            $toDefaultController = $routes->getRouteData()[0]['GET'][$defaultRoute]['handler'];
-        } else {
-            $toDefaultController = $factory->toForum(Content\Index::class);
-        }
-
-        $routes->get(
-            '/',
-            'default',
-            $toDefaultController
-        );
+        $defaultRoute = $settings->get('default_route');
+        $action = $router->getRoutes()->getByName($defaultRoute)?->getAction() ?? 'index';
+        $router->get('/', $action)->name('default');
     }
 }

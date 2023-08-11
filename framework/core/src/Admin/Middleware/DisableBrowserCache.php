@@ -9,17 +9,22 @@
 
 namespace Flarum\Admin\Middleware;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\MiddlewareInterface as Middleware;
-use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Closure;
+use Flarum\Http\Middleware\IlluminateMiddlewareInterface;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class DisableBrowserCache implements Middleware
+class DisableBrowserCache implements IlluminateMiddlewareInterface
 {
-    public function process(Request $request, Handler $handler): Response
+    /**
+     * @inheritDoc
+     */
+    public function handle(Request $request, Closure $next): Response
     {
-        $response = $handler->handle($request);
+        $response = $next($request);
 
-        return $response->withHeader('Cache-Control', 'max-age=0, no-store');
+        $response->headers->set('Cache-Control', 'max-age=0, no-store');
+
+        return $response;
     }
 }

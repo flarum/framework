@@ -9,85 +9,64 @@
 
 use Flarum\Forum\Content;
 use Flarum\Forum\Controller;
-use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
+use Flarum\Http\Router;
 
-return function (RouteCollection $map, RouteHandlerFactory $route) {
-    $map->get(
-        '/all',
-        'index',
-        $route->toForum(Content\Index::class)
-    );
+return function (Router $router, RouteHandlerFactory $factory) {
 
-    $map->get(
-        '/d/{id:\d+(?:-[^/]*)?}[/{near:[^/]*}]',
-        'discussion',
-        $route->toForum(Content\Discussion::class)
-    );
+    $router
+        ->get('/all', $factory->toForum(Content\Index::class))
+        ->name('index');
 
-    $map->get(
-        '/u/{username}[/{filter:[^/]*}]',
-        'user',
-        $route->toForum(Content\User::class)
-    );
+    $router
+        ->get('/d/{id}/{near?}', $factory->toForum(Content\Discussion::class))
+        ->where('id', '\d+(?:-[^/]*)?')
+        ->where('near', '[^/]*')
+        ->name('discussion');
 
-    $map->get(
-        '/settings',
-        'settings',
-        $route->toForum(Content\AssertRegistered::class)
-    );
+    $router
+        ->get('/u/{username}/{filter?}', $factory->toForum(Content\User::class))
+        ->where('filter', '[^/]*')
+        ->name('user');
 
-    $map->get(
-        '/notifications',
-        'notifications',
-        $route->toForum(Content\AssertRegistered::class)
-    );
+    $router
+        ->get('/settings', $factory->toForum(Content\AssertRegistered::class))
+        ->name('settings');
 
-    $map->get(
-        '/logout',
-        'logout',
-        $route->toController(Controller\LogOutController::class)
-    );
+    $router
+        ->get('/notifications', $factory->toForum(Content\AssertRegistered::class))
+        ->name('notifications');
 
-    $map->post(
-        '/global-logout',
-        'globalLogout',
-        $route->toController(Controller\GlobalLogOutController::class)
-    );
+    $router
+        ->get('/logout', $factory->toController(Controller\LogOutController::class))
+        ->name('logout');
 
-    $map->post(
-        '/login',
-        'login',
-        $route->toController(Controller\LogInController::class)
-    );
+    $router
+        ->post('/global-logout', $factory->toController(Controller\GlobalLogOutController::class))
+        ->name('globalLogout');
 
-    $map->post(
-        '/register',
-        'register',
-        $route->toController(Controller\RegisterController::class)
-    );
+    $router
+        ->post('/login', $factory->toController(Controller\LogInController::class))
+        ->name('login');
 
-    $map->get(
-        '/confirm/{token}',
-        'confirmEmail',
-        $route->toController(Controller\ConfirmEmailViewController::class),
-    );
+    $router
+        ->post('/register', $factory->toController(Controller\RegisterController::class))
+        ->name('register');
 
-    $map->post(
-        '/confirm/{token}',
-        'confirmEmail.submit',
-        $route->toController(Controller\ConfirmEmailController::class),
-    );
+    $router
+        ->get('/confirm/{token}', $factory->toController(Controller\ConfirmEmailViewController::class))
+        ->name('confirmEmail');
 
-    $map->get(
-        '/reset/{token}',
-        'resetPassword',
-        $route->toController(Controller\ResetPasswordController::class)
-    );
+    $router
+        ->post('/confirm/{token}', $factory->toController(Controller\ConfirmEmailController::class))
+        ->name('confirmEmail.submit');
 
-    $map->post(
-        '/reset',
-        'savePassword',
-        $route->toController(Controller\SavePasswordController::class)
-    );
+    $router
+        ->get('/reset/{token}', $factory->toController(Controller\ResetPasswordController::class))
+        ->name('resetPassword');
+
+    $router
+        ->post('/reset', $factory->toController(Controller\SavePasswordController::class))
+        ->name('savePassword');
+
 };

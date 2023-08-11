@@ -9,15 +9,12 @@
 
 namespace Flarum\Http;
 
+use Flarum\Foundation\AppInterface;
 use Flarum\Foundation\ErrorHandling\LogReporter;
 use Flarum\Foundation\SiteInterface;
 use Illuminate\Contracts\Container\Container;
-use Laminas\Diactoros\Response;
-use Laminas\Diactoros\ServerRequest;
-use Laminas\Diactoros\ServerRequestFactory;
-use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
-use Laminas\HttpHandlerRunner\RequestHandlerRunner;
-use Laminas\Stratigility\Middleware\ErrorResponseGenerator;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Pipeline;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -30,18 +27,17 @@ class Server
 
     public function listen(): void
     {
-        $runner = new RequestHandlerRunner(
-            $this->safelyBootAndGetHandler(),
-            new SapiEmitter,
-            [ServerRequestFactory::class, 'fromGlobals'],
-            function (Throwable $e) {
-                $generator = new ErrorResponseGenerator;
+        $request = Request::capture();
+        $siteApp = $this->safelyBoot();
+        $container = $siteApp->getContainer();
+        $globalMiddleware = $siteApp->getMiddlewareStack();
 
-                return $generator($e, new ServerRequest, new Response);
-            }
-        );
-
-        $runner->run();
+        (new Pipeline($container))
+            ->send($request)
+            ->through($globalMiddleware)
+            ->then(function (Request $request) use ($container) {
+                return $container->make(Router::class)->dispatch($request);
+            });
     }
 
     /**
@@ -52,10 +48,10 @@ class Server
      *
      * @throws Throwable
      */
-    private function safelyBootAndGetHandler() // @phpstan-ignore-line
+    private function safelyBoot(): AppInterface
     {
         try {
-            return $this->site->bootApp()->getRequestHandler();
+            return $this->site->bootApp();
         } catch (Throwable $e) {
             // Apply response code first so whatever happens, it's set before anything is printed
             http_response_code(500);

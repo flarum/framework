@@ -9,23 +9,23 @@
 
 namespace Flarum\Api\Middleware;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\MiddlewareInterface as Middleware;
-use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Closure;
+use Flarum\Http\Middleware\IlluminateMiddlewareInterface;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class FakeHttpMethods implements Middleware
+class FakeHttpMethods implements IlluminateMiddlewareInterface
 {
     const HEADER_NAME = 'x-http-method-override';
 
-    public function process(Request $request, Handler $handler): Response
+    public function handle(Request $request, Closure $next): Response
     {
         if ($request->getMethod() === 'POST' && $request->hasHeader(self::HEADER_NAME)) {
-            $fakeMethod = $request->getHeaderLine(self::HEADER_NAME);
+            $fakeMethod = $request->header(self::HEADER_NAME);
 
-            $request = $request->withMethod(strtoupper($fakeMethod));
+            $request->setMethod(strtoupper($fakeMethod));
         }
 
-        return $handler->handle($request);
+        return $next($request);
     }
 }

@@ -33,29 +33,16 @@ class InstalledApp implements AppInterface
         return $this->container;
     }
 
-    public function getRequestHandler(): RequestHandlerInterface
+    public function getMiddlewareStack(): array
     {
-        if ($this->config->inMaintenanceMode()) {
-            return $this->container->make('flarum.maintenance.handler');
-        } elseif ($this->needsUpdate()) {
-            return $this->getUpdaterHandler();
-        }
+//        if ($this->config->inMaintenanceMode()) {
+//            return $this->container->make('flarum.maintenance.handler');
+//        }
 
-        $pipe = new MiddlewarePipe;
-
-        $pipe->pipe(new HttpMiddleware\ProcessIp());
-        $pipe->pipe(new BasePath($this->basePath()));
-        $pipe->pipe(new OriginalMessages);
-        $pipe->pipe(
-            new BasePathRouter([
-                $this->subPath('api') => 'flarum.api.handler',
-                $this->subPath('admin') => 'flarum.admin.handler',
-                '/' => 'flarum.forum.handler',
-            ])
-        );
-        $pipe->pipe(new RequestHandler($this->container));
-
-        return $pipe;
+        return match ($this->needsUpdate()) {
+            true => $this->getUpdaterMiddlewareStack(),
+            false => $this->getStandardMiddlewareStack(),
+        };
     }
 
     protected function needsUpdate(): bool
@@ -66,26 +53,24 @@ class InstalledApp implements AppInterface
         return $version !== Application::VERSION;
     }
 
-    protected function getUpdaterHandler(): RequestHandlerInterface|MiddlewarePipe
+    protected function getUpdaterMiddlewareStack(): array
     {
-        $pipe = new MiddlewarePipe;
-        $pipe->pipe(new BasePath($this->basePath()));
-        $pipe->pipe(
-            new HttpMiddleware\ResolveRoute($this->container->make('flarum.update.routes'))
-        );
-        $pipe->pipe(new HttpMiddleware\ExecuteRoute());
+        return [
+            new BasePath($this->basePath()),
+        ];
+    }
 
-        return $pipe;
+    protected function getStandardMiddlewareStack(): array
+    {
+        return [
+            new BasePath($this->basePath()),
+            new OriginalMessages,
+        ];
     }
 
     protected function basePath(): string
     {
         return $this->config->url()->getPath() ?: '/';
-    }
-
-    protected function subPath(string $pathName): string
-    {
-        return '/'.($this->config['paths'][$pathName] ?? $pathName);
     }
 
     public function getConsoleCommands(): array

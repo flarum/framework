@@ -10,6 +10,7 @@
 namespace Flarum\Foundation;
 
 use Flarum\Foundation\Concerns\InteractsWithLaravel;
+use Flarum\Http\RoutingServiceProvider;
 use Illuminate\Container\Container as IlluminateContainer;
 use Illuminate\Contracts\Foundation\Application as LaravelApplication;
 use Illuminate\Events\EventServiceProvider;
@@ -69,21 +70,15 @@ class Application extends IlluminateContainer implements LaravelApplication
         IlluminateContainer::setInstance($this);
 
         $this->instance('app', $this);
-        $this->alias('app', IlluminateContainer::class);
-
         $this->instance('container', $this);
-        $this->alias('container', IlluminateContainer::class);
-
         $this->instance('flarum', $this);
-        $this->alias('flarum', self::class);
-
         $this->instance('flarum.paths', $this->paths);
-        $this->alias('flarum.paths', Paths::class);
     }
 
     protected function registerBaseServiceProviders(): void
     {
         $this->register(new EventServiceProvider($this));
+        $this->register(new RoutingServiceProvider($this));
     }
 
     public function register($provider, $force = false): ServiceProvider
@@ -166,13 +161,15 @@ class Application extends IlluminateContainer implements LaravelApplication
         $this->fireAppCallbacks($this->bootedCallbacks);
     }
 
-    protected function bootProvider(ServiceProvider $provider): mixed
+    protected function bootProvider(ServiceProvider $provider): void
     {
+        $provider->callBootingCallbacks();
+
         if (method_exists($provider, 'boot')) {
-            return $this->call([$provider, 'boot']);
+            $this->call([$provider, 'boot']);
         }
 
-        return null;
+        $provider->callBootedCallbacks();
     }
 
     public function booting(mixed $callback): void
@@ -199,11 +196,12 @@ class Application extends IlluminateContainer implements LaravelApplication
     public function registerCoreContainerAliases(): void
     {
         $aliases = [
-            'app'                  => [\Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class,  \Psr\Container\ContainerInterface::class],
+            'app'                  => [\Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class, \Psr\Container\ContainerInterface::class],
             'blade.compiler'       => [\Illuminate\View\Compilers\BladeCompiler::class],
             'cache'                => [\Illuminate\Cache\CacheManager::class, \Illuminate\Contracts\Cache\Factory::class],
             'cache.store'          => [\Illuminate\Cache\Repository::class, \Illuminate\Contracts\Cache\Repository::class],
             'config'               => [\Illuminate\Config\Repository::class, \Illuminate\Contracts\Config\Repository::class],
+            'container'            => [\Illuminate\Contracts\Container\Container::class, \Psr\Container\ContainerInterface::class],
             'db'                   => [\Illuminate\Database\DatabaseManager::class],
             'db.connection'        => [\Illuminate\Database\Connection::class, \Illuminate\Database\ConnectionInterface::class],
             'events'               => [\Illuminate\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
@@ -211,8 +209,13 @@ class Application extends IlluminateContainer implements LaravelApplication
             'filesystem'           => [\Illuminate\Filesystem\FilesystemManager::class, \Illuminate\Contracts\Filesystem\Factory::class],
             'filesystem.disk'      => [\Illuminate\Contracts\Filesystem\Filesystem::class],
             'filesystem.cloud'     => [\Illuminate\Contracts\Filesystem\Cloud::class],
+            'flarum'               => [\Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class, \Psr\Container\ContainerInterface::class, self::class],
+            'flarum.paths'         => [Paths::class],
             'hash'                 => [\Illuminate\Contracts\Hashing\Hasher::class],
             'mailer'               => [\Illuminate\Mail\Mailer::class, \Illuminate\Contracts\Mail\Mailer::class, \Illuminate\Contracts\Mail\MailQueue::class],
+            'router'               => [\Flarum\Http\Router::class, \Illuminate\Routing\Router::class, \Illuminate\Contracts\Routing\Registrar::class, \Illuminate\Contracts\Routing\BindingRegistrar::class],
+            'session'              => [\Illuminate\Session\SessionManager::class],
+            'session.store'        => [\Illuminate\Session\Store::class, \Illuminate\Contracts\Session\Session::class],
             'validator'            => [\Illuminate\Validation\Factory::class, \Illuminate\Contracts\Validation\Factory::class],
             'view'                 => [\Illuminate\View\Factory::class, \Illuminate\Contracts\View\Factory::class],
         ];

@@ -9,22 +9,22 @@
 
 namespace Flarum\Foundation;
 
+use Flarum\Http\Controller\AbstractController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Laminas\Diactoros\Response\HtmlResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 use Tobscure\JsonApi\Document;
 
-class MaintenanceModeHandler implements RequestHandlerInterface
+class MaintenanceModeHandler extends AbstractController
 {
     const MESSAGE = 'Currently down for maintenance. Please come back later.';
 
     /**
      * Handle the request and return a response.
      */
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function __invoke(Request $request): ResponseInterface
     {
         // Special handling for API requests: they get a proper API response
         if ($this->isApiRequest($request)) {
@@ -35,10 +35,10 @@ class MaintenanceModeHandler implements RequestHandlerInterface
         return new HtmlResponse(self::MESSAGE, 503);
     }
 
-    private function isApiRequest(ServerRequestInterface $request): bool
+    private function isApiRequest(Request $request): bool
     {
         return Str::contains(
-            $request->getHeaderLine('Accept'),
+            $request->header('Accept'),
             'application/vnd.api+json'
         );
     }

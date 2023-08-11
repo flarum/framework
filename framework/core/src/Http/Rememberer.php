@@ -9,8 +9,7 @@
 
 namespace Flarum\Http;
 
-use Dflydev\FigCookies\FigResponseCookies;
-use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 class Rememberer
 {
@@ -24,19 +23,21 @@ class Rememberer
     /**
      * Sets the remember cookie on a response.
      */
-    public function remember(ResponseInterface $response, RememberAccessToken $token): ResponseInterface
+    public function remember(Response $response, RememberAccessToken $token): Response
     {
-        return FigResponseCookies::set(
-            $response,
+        $response->headers->setCookie(
             $this->cookie->make(self::COOKIE_NAME, $token->token, RememberAccessToken::rememberCookieLifeTime())
         );
+
+        return $response;
     }
 
-    public function forget(ResponseInterface $response): ResponseInterface
+    public function forget(Response $response): Response
     {
-        return FigResponseCookies::set(
-            $response,
+        $response->headers->setCookie(
             $this->cookie->expire(self::COOKIE_NAME)
         );
+
+        return $response;
     }
 }

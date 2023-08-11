@@ -10,14 +10,13 @@
 namespace Flarum\Foundation;
 
 use Illuminate\Contracts\Container\Container;
-use Psr\Http\Server\RequestHandlerInterface;
 use Symfony\Component\Console\Command\Command;
 
 interface AppInterface
 {
     public function getContainer(): Container;
 
-    public function getRequestHandler(): RequestHandlerInterface;
+    public function getMiddlewareStack(): array;
 
     /**
      * @return Command[]

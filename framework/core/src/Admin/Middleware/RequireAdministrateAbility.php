@@ -9,18 +9,18 @@
 
 namespace Flarum\Admin\Middleware;
 
+use Closure;
+use Flarum\Http\Middleware\IlluminateMiddlewareInterface;
 use Flarum\Http\RequestUtil;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\MiddlewareInterface as Middleware;
-use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class RequireAdministrateAbility implements Middleware
+class RequireAdministrateAbility implements IlluminateMiddlewareInterface
 {
-    public function process(Request $request, Handler $handler): Response
+    public function handle(Request $request, Closure $next): Response
     {
         RequestUtil::getActor($request)->assertAdmin();
 
-        return $handler->handle($request);
+        return $next($request);
     }
 }

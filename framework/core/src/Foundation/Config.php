@@ -39,6 +39,15 @@ class Config implements ArrayAccess
         return $this->data['offline'] ?? false;
     }
 
+    public function path(string $frontend): string
+    {
+        return match(true) {
+            isset($this->data['paths'][$frontend]) => $this->data['paths'][$frontend],
+            $frontend === 'forum' => '/',
+            default => $frontend,
+        };
+    }
+
     private function requireKeys(mixed ...$keys): void
     {
         foreach ($keys as $key) {

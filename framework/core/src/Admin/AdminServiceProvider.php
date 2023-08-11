@@ -12,6 +12,7 @@ namespace Flarum\Admin;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Config;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\ErrorHandling\ViewFormatter;
@@ -22,39 +23,39 @@ use Flarum\Frontend\AddTranslations;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Http\Middleware as HttpMiddleware;
-use Flarum\Http\RouteCollection;
+use Flarum\Http\Router;
 use Flarum\Http\RouteHandlerFactory;
-use Flarum\Http\UrlGenerator;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 use Illuminate\Contracts\Container\Container;
-use Laminas\Stratigility\MiddlewarePipe;
 
 class AdminServiceProvider extends AbstractServiceProvider
 {
     public function register(): void
     {
-        $this->container->extend(UrlGenerator::class, function (UrlGenerator $url, Container $container) {
-            return $url->addCollection('admin', $container->make('flarum.admin.routes'), 'admin');
-        });
+        $this->booted(function (Container $container) {
+            /** @var Router $router */
+            $router = $container->make(Router::class);
+            /** @var Config $config */
+            $config = $container->make(Config::class);
 
-        $this->container->singleton('flarum.admin.routes', function () {
-            $routes = new RouteCollection;
-            $this->populateRoutes($routes);
+            $router->middlewareGroup('admin', $container->make('flarum.admin.middleware'));
 
-            return $routes;
+            $factory = $container->make(RouteHandlerFactory::class);
+
+            $router->middleware('admin')->prefix($config->path('admin'))->group(
+                fn (Router $router) => (include __DIR__.'/routes.php')($router, $factory)
+            );
         });
 
         $this->container->singleton('flarum.admin.middleware', function () {
             return [
                 HttpMiddleware\InjectActorReference::class,
                 'flarum.admin.error_handler',
-                HttpMiddleware\ParseJsonBody::class,
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\RememberFromCookie::class,
                 HttpMiddleware\AuthenticateWithSession::class,
                 HttpMiddleware\SetLocale::class,
-                'flarum.admin.route_resolver',
                 HttpMiddleware\CheckCsrfToken::class,
                 Middleware\RequireAdministrateAbility::class,
                 HttpMiddleware\ReferrerPolicyHeader::class,
@@ -69,22 +70,6 @@ class AdminServiceProvider extends AbstractServiceProvider
                 $container['flarum.config']->inDebugMode() ? $container->make(WhoopsFormatter::class) : $container->make(ViewFormatter::class),
                 $container->tagged(Reporter::class)
             );
-        });
-
-        $this->container->bind('flarum.admin.route_resolver', function (Container $container) {
-            return new HttpMiddleware\ResolveRoute($container->make('flarum.admin.routes'));
-        });
-
-        $this->container->singleton('flarum.admin.handler', function (Container $container) {
-            $pipe = new MiddlewarePipe;
-
-            foreach ($container->make('flarum.admin.middleware') as $middleware) {
-                $pipe->pipe($container->make($middleware));
-            }
-
-            $pipe->pipe(new HttpMiddleware\ExecuteRoute());
-
-            return $pipe;
         });
 
         $this->container->bind('flarum.assets.admin', function (Container $container) {
@@ -142,13 +127,5 @@ class AdminServiceProvider extends AbstractServiceProvider
                 $recompile->whenSettingsSaved($event);
             }
         );
-    }
-
-    protected function populateRoutes(RouteCollection $routes): void
-    {
-        $factory = $this->container->make(RouteHandlerFactory::class);
-
-        $callback = include __DIR__.'/routes.php';
-        $callback($routes, $factory);
     }
 }
