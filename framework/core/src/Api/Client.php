@@ -10,22 +10,25 @@
 namespace Flarum\Api;
 
 use Flarum\Http\RequestUtil;
+use Flarum\Http\Router;
 use Flarum\User\User;
-use Laminas\Diactoros\ServerRequestFactory;
-use Laminas\Diactoros\Uri;
-use Laminas\Stratigility\MiddlewarePipeInterface;
-use Psr\Http\Message\ResponseInterface;
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Routing\Pipeline;
 use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 class Client
 {
     protected ?User $actor = null;
-    protected ?ServerRequestInterface $parent = null;
+    protected ?Request $parent = null;
     protected array $queryParams = [];
     protected array $body = [];
 
     public function __construct(
-        protected MiddlewarePipeInterface $pipe
+        protected array $middlewareStack,
+        protected Container $container
     ) {
     }
 
@@ -42,9 +45,15 @@ class Client
         return $new;
     }
 
-    public function withParentRequest(ServerRequestInterface $parent): Client
+    public function withParentRequest(ServerRequestInterface|Request $parent): Client
     {
         $new = clone $this;
+
+        // Convert the PSR-7 request to an Illuminate request.
+        if ($parent instanceof ServerRequestInterface) {
+            $parent = RequestUtil::toIlluminate($parent);
+        }
+
         $new->parent = $parent;
 
         return $new;
@@ -66,27 +75,27 @@ class Client
         return $new;
     }
 
-    public function get(string $path): ResponseInterface
+    public function get(string $path): Response
     {
         return $this->send('GET', $path);
     }
 
-    public function post(string $path): ResponseInterface
+    public function post(string $path): Response
     {
         return $this->send('POST', $path);
     }
 
-    public function put(string $path): ResponseInterface
+    public function put(string $path): Response
     {
         return $this->send('PUT', $path);
     }
 
-    public function patch(string $path): ResponseInterface
+    public function patch(string $path): Response
     {
         return $this->send('PATCH', $path);
     }
 
-    public function delete(string $path): ResponseInterface
+    public function delete(string $path): Response
     {
         return $this->send('DELETE', $path);
     }
@@ -96,16 +105,19 @@ class Client
      *
      * @internal
      */
-    public function send(string $method, string $path): ResponseInterface
+    public function send(string $method, string $path): Response
     {
-        $request = ServerRequestFactory::fromGlobals(null, $this->queryParams, $this->body)
-            ->withMethod($method)
-            ->withUri(new Uri($path));
+        $parent = $this->parent ?: Request::createFromGlobals();
+
+        $symfonyRequest = SymfonyRequest::create(
+            $path, $method, $this->queryParams, $parent->cookies->all(), $parent->files->all(), $parent->server->all(), $this->body
+        );
+
+        $request = Request::createFromBase($symfonyRequest);
 
         if ($this->parent) {
-            $request = $request
-                ->withAttribute('ipAddress', $this->parent->getAttribute('ipAddress'))
-                ->withAttribute('session', $this->parent->getAttribute('session'));
+            $request->attributes->set('ipAddress', $this->parent->attributes->get('ipAddress'));
+            $request->attributes->set('session', $this->parent->attributes->get('session'));
             $request = RequestUtil::withActor($request, RequestUtil::getActor($this->parent));
         }
 
@@ -114,6 +126,11 @@ class Client
             $request = RequestUtil::withActor($request, $this->actor);
         }
 
-        return $this->pipe->handle($request);
+        return (new Pipeline($this->container))
+            ->send($request)
+            ->through($this->middlewareStack)
+            ->then(function (Request $request) {
+                return $this->container->make(Router::class)->dispatch($request);
+            });
     }
 }

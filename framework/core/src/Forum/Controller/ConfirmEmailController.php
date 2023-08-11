@@ -9,18 +9,17 @@
 
 namespace Flarum\Forum\Controller;
 
+use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\SessionAccessToken;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\Http\UrlGenerator;
 use Flarum\User\Command\ConfirmEmail;
 use Illuminate\Contracts\Bus\Dispatcher;
-use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
 use Laminas\Diactoros\Response\RedirectResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface;
 
-class ConfirmEmailController implements RequestHandlerInterface
+class ConfirmEmailController extends AbstractController
 {
     public function __construct(
         protected Dispatcher $bus,
@@ -29,15 +28,15 @@ class ConfirmEmailController implements RequestHandlerInterface
     ) {
     }
 
-    public function handle(Request $request): ResponseInterface
+    public function __invoke(Request $request): ResponseInterface
     {
-        $token = Arr::get($request->getQueryParams(), 'token');
+        $token = $request->query('token');
 
         $user = $this->bus->dispatch(
             new ConfirmEmail($token)
         );
 
-        $session = $request->getAttribute('session');
+        $session = $request->attributes->get('session');
         $token = SessionAccessToken::generate($user->id);
         $this->authenticator->logIn($session, $token);
 

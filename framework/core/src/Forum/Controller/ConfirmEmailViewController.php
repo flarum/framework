@@ -13,8 +13,7 @@ use Flarum\Http\Controller\AbstractHtmlController;
 use Flarum\User\EmailToken;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Illuminate\Http\Request;
 
 class ConfirmEmailViewController extends AbstractHtmlController
 {
@@ -25,12 +24,12 @@ class ConfirmEmailViewController extends AbstractHtmlController
 
     public function render(Request $request): View
     {
-        $token = Arr::get($request->getQueryParams(), 'token');
+        $token = $request->query('token');
 
         EmailToken::validOrFail($token);
 
         return $this->view
             ->make('flarum.forum::confirm-email')
-            ->with('csrfToken', $request->getAttribute('session')->token());
+            ->with('csrfToken', $request->attributes->get('session')->token());
     }
 }

@@ -15,7 +15,7 @@ use Flarum\Http\RequestUtil;
 use Flarum\Post\Post;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 
 /**
  * Apply visibility permissions to API data's mentionedBy relationship.
@@ -25,7 +25,7 @@ class LoadMentionedByRelationship
 {
     public static int $maxMentionedBy = 4;
 
-    public static function mutateRelation(BelongsToMany $query, ServerRequestInterface $request): void
+    public static function mutateRelation(BelongsToMany $query, Request $request): void
     {
         $actor = RequestUtil::getActor($request);
 
@@ -42,7 +42,7 @@ class LoadMentionedByRelationship
     /**
      * Called using the @see ApiController::prepareDataForSerialization extender.
      */
-    public static function countRelation(AbstractSerializeController $controller, mixed $data, ServerRequestInterface $request): array
+    public static function countRelation(AbstractSerializeController $controller, mixed $data, Request $request): array
     {
         $actor = RequestUtil::getActor($request);
         $loadable = null;

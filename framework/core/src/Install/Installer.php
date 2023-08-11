@@ -31,21 +31,16 @@ class Installer implements AppInterface
         return $this->container;
     }
 
-    public function getRequestHandler(): RequestHandlerInterface
+    public function getMiddlewareStack(): array
     {
-        $pipe = new MiddlewarePipe;
-        $pipe->pipe(new HttpMiddleware\HandleErrors(
-            $this->container->make(Registry::class),
-            $this->container->make(WhoopsFormatter::class),
-            $this->container->tagged(Reporter::class)
-        ));
-        $pipe->pipe($this->container->make(HttpMiddleware\StartSession::class));
-        $pipe->pipe(
-            new HttpMiddleware\ResolveRoute($this->container->make('flarum.install.routes'))
-        );
-        $pipe->pipe(new HttpMiddleware\ExecuteRoute());
-
-        return $pipe;
+        return [
+            new HttpMiddleware\HandleErrors(
+                $this->container->make(Registry::class),
+                $this->container->make(WhoopsFormatter::class),
+                $this->container->tagged(Reporter::class)
+            ),
+            $this->container->make(HttpMiddleware\StartSession::class),
+        ];
     }
 
     /**

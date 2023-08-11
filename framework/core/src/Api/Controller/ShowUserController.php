@@ -15,8 +15,7 @@ use Flarum\Http\RequestUtil;
 use Flarum\Http\SlugManager;
 use Flarum\User\User;
 use Flarum\User\UserRepository;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class ShowUserController extends AbstractShowController
@@ -31,12 +30,12 @@ class ShowUserController extends AbstractShowController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): User
+    protected function data(Request $request, Document $document): User
     {
-        $id = Arr::get($request->getQueryParams(), 'id');
+        $id = $request->query('id');
         $actor = RequestUtil::getActor($request);
 
-        if (Arr::get($request->getQueryParams(), 'bySlug', false)) {
+        if ($request->query('bySlug', false)) {
             $user = $this->slugManager->forResource(User::class)->fromSlug($id, $actor);
         } else {
             $user = $this->users->findOrFail($id, $actor);

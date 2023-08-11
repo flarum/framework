@@ -12,7 +12,7 @@ namespace Flarum\Update\Controller;
 use Flarum\Http\Controller\AbstractHtmlController;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Contracts\View\Factory;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Illuminate\Http\Request;
 
 class IndexController extends AbstractHtmlController
 {

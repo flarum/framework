@@ -9,7 +9,7 @@
 
 use Flarum\Extend;
 use Flarum\Frontend\Document;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Illuminate\Http\Request;
 
 return [
     (new Extend\Frontend('forum'))

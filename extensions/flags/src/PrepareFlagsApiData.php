@@ -13,11 +13,11 @@ use Flarum\Api\Controller;
 use Flarum\Flags\Api\Controller\CreateFlagController;
 use Flarum\Http\RequestUtil;
 use Illuminate\Database\Eloquent\Collection;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 
 class PrepareFlagsApiData
 {
-    public function __invoke(Controller\AbstractSerializeController $controller, mixed $data, ServerRequestInterface $request): void
+    public function __invoke(Controller\AbstractSerializeController $controller, mixed $data, Request $request): void
     {
         // For any API action that allows the 'flags' relationship to be
         // included, we need to preload this relationship onto the data (Post

@@ -12,18 +12,18 @@ namespace Flarum\Forum\Controller;
 use Flarum\Api\Client;
 use Flarum\Forum\LogInValidator;
 use Flarum\Http\AccessToken;
+use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\RememberAccessToken;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\User\Event\LoggedIn;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
-class LogInController implements RequestHandlerInterface
+class LogInController extends AbstractController
 {
     public function __construct(
         protected UserRepository $users,
@@ -35,9 +35,9 @@ class LogInController implements RequestHandlerInterface
     ) {
     }
 
-    public function handle(Request $request): ResponseInterface
+    public function __invoke(Request $request): Response
     {
-        $body = $request->getParsedBody();
+        $body = $request->json()->all();
         $params = Arr::only($body, ['identification', 'password', 'remember']);
 
         $this->validator->assertValid($body);
@@ -49,7 +49,7 @@ class LogInController implements RequestHandlerInterface
 
             $token = AccessToken::findValid($data->token);
 
-            $session = $request->getAttribute('session');
+            $session = $request->attributes->get('session');
             $this->authenticator->logIn($session, $token);
 
             $this->events->dispatch(new LoggedIn($this->users->findOrFail($data->userId), $token));

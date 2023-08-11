@@ -16,7 +16,7 @@ use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
 use Flarum\Post\Event\Revised;
 use Flarum\User\User;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 
 /**
  * A standard comment in a discussion.
@@ -109,7 +109,7 @@ class CommentPost extends Post
     /**
      * Get the content rendered as HTML.
      */
-    public function formatContent(?ServerRequestInterface $request = null): string
+    public function formatContent(?Request $request = null): string
     {
         return static::$formatter->render($this->attributes['content'], $this, $request);
     }

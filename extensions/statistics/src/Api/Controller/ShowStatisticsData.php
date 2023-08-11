@@ -12,6 +12,7 @@ namespace Flarum\Statistics\Api\Controller;
 use Carbon\Carbon;
 use DateTime;
 use Flarum\Discussion\Discussion;
+use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\Post;
 use Flarum\Post\RegisteredTypesScope;
@@ -19,14 +20,13 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 use Tobscure\JsonApi\Exception\InvalidParameterException;
 
-class ShowStatisticsData implements RequestHandlerInterface
+class ShowStatisticsData extends AbstractController
 {
     /**
      * The amount of time to cache lifetime statistics data for in seconds.
@@ -51,7 +51,7 @@ class ShowStatisticsData implements RequestHandlerInterface
         ];
     }
 
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function __invoke(Request $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
 
@@ -59,11 +59,9 @@ class ShowStatisticsData implements RequestHandlerInterface
         // control panel.
         $actor->assertAdmin();
 
-        $query = $request->getQueryParams();
-
-        $reportingPeriod = Arr::get($query, 'period');
-        $model = Arr::get($query, 'model');
-        $customDateRange = Arr::get($query, 'dateRange');
+        $reportingPeriod = $request->query('period');
+        $model = $request->query('model');
+        $customDateRange = $request->query('dateRange');
 
         return new JsonResponse($this->getResponse($model, $reportingPeriod, $customDateRange));
     }

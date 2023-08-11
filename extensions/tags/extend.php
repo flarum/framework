@@ -37,9 +37,9 @@ use Flarum\Tags\Tag;
 use Flarum\Tags\Utf8SlugDriver;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 
-$eagerLoadTagState = function ($query, ?ServerRequestInterface $request, array $relations) {
+$eagerLoadTagState = function ($query, ?Request $request, array $relations) {
     if ($request && in_array('tags.state', $relations, true)) {
         $query->withStateFor(RequestUtil::getActor($request));
     }
@@ -177,7 +177,7 @@ return [
     (new Extend\ApiController(FlarumController\ListPostsController::class))
         ->addInclude('eventPostMentionsTags')
         // Restricted tags should still appear as `deleted` to unauthorized users.
-        ->loadWhere('eventPostMentionsTags', function (Relation|Builder $query, ?ServerRequestInterface $request) {
+        ->loadWhere('eventPostMentionsTags', function (Relation|Builder $query, ?Request $request) {
             if ($request) {
                 $actor = RequestUtil::getActor($request);
                 $query->whereVisibleTo($actor);

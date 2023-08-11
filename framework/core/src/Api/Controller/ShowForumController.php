@@ -12,7 +12,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Group\Group;
 use Flarum\Http\RequestUtil;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class ShowForumController extends AbstractShowController
@@ -21,7 +21,7 @@ class ShowForumController extends AbstractShowController
 
     public array $include = ['groups', 'actor', 'actor.groups'];
 
-    protected function data(ServerRequestInterface $request, Document $document): array
+    protected function data(Request $request, Document $document): array
     {
         $actor = RequestUtil::getActor($request);
 

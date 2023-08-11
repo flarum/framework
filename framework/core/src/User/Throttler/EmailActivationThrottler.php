@@ -12,7 +12,7 @@ namespace Flarum\User\Throttler;
 use Carbon\Carbon;
 use Flarum\Http\RequestUtil;
 use Flarum\User\EmailToken;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 
 /**
  * Unactivated users can request a confirmation email,
@@ -22,9 +22,9 @@ class EmailActivationThrottler
 {
     public static int $timeout = 300;
 
-    public function __invoke(ServerRequestInterface $request): ?bool
+    public function __invoke(Request $request): ?bool
     {
-        if ($request->getAttribute('routeName') !== 'users.confirmation.send') {
+        if ($request->routeIs('users.confirmation.send')) {
             return null;
         }
 

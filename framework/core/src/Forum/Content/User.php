@@ -13,8 +13,8 @@ use Flarum\Api\Client;
 use Flarum\Frontend\Document;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface as Request;
 
 class User
 {
@@ -26,8 +26,7 @@ class User
 
     public function __invoke(Document $document, Request $request): Document
     {
-        $queryParams = $request->getQueryParams();
-        $username = Arr::get($queryParams, 'username');
+        $username = $request->query('username');
 
         $apiDocument = $this->getApiDocument($request, $username);
         $user = $apiDocument->data->attributes;
@@ -53,6 +52,6 @@ class User
             throw new ModelNotFoundException;
         }
 
-        return json_decode($response->getBody());
+        return json_decode($response->content());
     }
 }

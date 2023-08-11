@@ -11,8 +11,8 @@ namespace Flarum\Frontend\Driver;
 
 use Flarum\Frontend\Document;
 use Flarum\Locale\TranslatorInterface;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
 
 class BasicTitleDriver implements TitleDriverInterface
 {
@@ -21,9 +21,9 @@ class BasicTitleDriver implements TitleDriverInterface
     ) {
     }
 
-    public function makeTitle(Document $document, ServerRequestInterface $request, array $forumApiDocument): string
+    public function makeTitle(Document $document, Request $request, array $forumApiDocument): string
     {
-        $onHomePage = rtrim($request->getUri()->getPath(), '/') === '';
+        $onHomePage = rtrim($request->getUri(), '/') === '';
 
         $params = [
             'pageTitle' => $document->title ?? '',

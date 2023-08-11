@@ -14,8 +14,8 @@ use Flarum\Group\Command\EditGroup;
 use Flarum\Group\Group;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 class UpdateGroupController extends AbstractShowController
@@ -27,11 +27,11 @@ class UpdateGroupController extends AbstractShowController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): Group
+    protected function data(Request $request, Document $document): Group
     {
-        $id = Arr::get($request->getQueryParams(), 'id');
+        $id = $request->query('id');
         $actor = RequestUtil::getActor($request);
-        $data = Arr::get($request->getParsedBody(), 'data', []);
+        $data = $request->json()->all();
 
         return $this->bus->dispatch(
             new EditGroup($id, $actor, $data)

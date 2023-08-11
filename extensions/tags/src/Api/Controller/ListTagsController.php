@@ -16,7 +16,7 @@ use Flarum\Query\QueryCriteria;
 use Flarum\Tags\Api\Serializer\TagSerializer;
 use Flarum\Tags\Search\TagSearcher;
 use Flarum\Tags\TagRepository;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class ListTagsController extends AbstractListController
@@ -40,7 +40,7 @@ class ListTagsController extends AbstractListController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): iterable
+    protected function data(Request $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
         $include = $this->extractInclude($request);
@@ -58,7 +58,7 @@ class ListTagsController extends AbstractListController
 
             $document->addPaginationLinks(
                 $this->url->to('api')->route('tags.index'),
-                $request->getQueryParams(),
+                $request->query(),
                 $offset,
                 $limit,
                 $results->areMoreResults() ? null : 0

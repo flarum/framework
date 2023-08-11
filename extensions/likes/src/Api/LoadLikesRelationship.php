@@ -16,13 +16,13 @@ use Flarum\Post\Post;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Query\Expression;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 
 class LoadLikesRelationship
 {
     public static int $maxLikes = 4;
 
-    public static function mutateRelation(BelongsToMany $query, ServerRequestInterface $request): void
+    public static function mutateRelation(BelongsToMany $query, Request $request): void
     {
         $actor = RequestUtil::getActor($request);
 

@@ -15,8 +15,7 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Illuminate\Http\Request;
 
 class Index
 {
@@ -31,12 +30,10 @@ class Index
 
     public function __invoke(Document $document, Request $request): Document
     {
-        $queryParams = $request->getQueryParams();
-
-        $sort = Arr::pull($queryParams, 'sort');
-        $q = Arr::pull($queryParams, 'q');
-        $page = max(1, intval(Arr::pull($queryParams, 'page')));
-        $filters = Arr::pull($queryParams, 'filter', []);
+        $sort = $request->query('sort');
+        $q = $request->query('q');
+        $page = max(1, intval($request->query('page')));
+        $filters = $request->query('filter', []);
 
         $sortMap = resolve('flarum.forum.discussions.sortmap');
 

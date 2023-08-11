@@ -14,8 +14,8 @@ use Flarum\Http\RequestUtil;
 use Flarum\User\Command\UploadAvatar;
 use Flarum\User\User;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 class UploadAvatarController extends AbstractShowController
@@ -27,11 +27,11 @@ class UploadAvatarController extends AbstractShowController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): User
+    protected function data(Request $request, Document $document): User
     {
-        $id = Arr::get($request->getQueryParams(), 'id');
+        $id = $request->query('id');
         $actor = RequestUtil::getActor($request);
-        $file = Arr::get($request->getUploadedFiles(), 'avatar');
+        $file = $request->file('avatar');
 
         return $this->bus->dispatch(
             new UploadAvatar($id, $file, $actor)

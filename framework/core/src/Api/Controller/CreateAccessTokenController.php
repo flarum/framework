@@ -15,8 +15,8 @@ use Flarum\Http\Event\DeveloperTokenCreated;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Validation\Factory;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 /**
@@ -33,7 +33,7 @@ class CreateAccessTokenController extends AbstractCreateController
     ) {
     }
 
-    public function data(ServerRequestInterface $request, Document $document): DeveloperAccessToken
+    public function data(Request $request, Document $document): DeveloperAccessToken
     {
         $actor = RequestUtil::getActor($request);
 

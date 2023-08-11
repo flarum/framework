@@ -9,7 +9,7 @@
 
 namespace Flarum\Api\Controller;
 
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Collection;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\ElementInterface;
@@ -22,5 +22,5 @@ abstract class AbstractListController extends AbstractSerializeController
         return new Collection($data, $serializer);
     }
 
-    abstract protected function data(ServerRequestInterface $request, Document $document): iterable;
+    abstract protected function data(Request $request, Document $document): iterable;
 }

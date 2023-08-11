@@ -15,7 +15,7 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Query\QueryCriteria;
 use Flarum\User\Filter\UserFilterer;
 use Flarum\User\Search\UserSearcher;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class ListUsersController extends AbstractListController
@@ -39,7 +39,7 @@ class ListUsersController extends AbstractListController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): iterable
+    protected function data(Request $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
 
@@ -69,7 +69,7 @@ class ListUsersController extends AbstractListController
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('users.index'),
-            $request->getQueryParams(),
+            $request->query(),
             $offset,
             $limit,
             $results->areMoreResults() ? null : 0

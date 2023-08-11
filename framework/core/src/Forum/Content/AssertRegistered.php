@@ -11,7 +11,7 @@ namespace Flarum\Forum\Content;
 
 use Flarum\Frontend\Document;
 use Flarum\Http\RequestUtil;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Illuminate\Http\Request;
 
 class AssertRegistered
 {

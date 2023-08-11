@@ -14,8 +14,8 @@ use Flarum\Group\Command\CreateGroup;
 use Flarum\Group\Group;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 class CreateGroupController extends AbstractCreateController
@@ -27,7 +27,7 @@ class CreateGroupController extends AbstractCreateController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): Group
+    protected function data(Request $request, Document $document): Group
     {
         return $this->bus->dispatch(
             new CreateGroup(RequestUtil::getActor($request), Arr::get($request->getParsedBody(), 'data', []))

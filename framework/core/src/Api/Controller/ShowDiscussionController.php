@@ -19,9 +19,8 @@ use Flarum\Post\PostRepository;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 class ShowDiscussionController extends AbstractShowController
@@ -52,13 +51,13 @@ class ShowDiscussionController extends AbstractShowController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): Discussion
+    protected function data(Request $request, Document $document): Discussion
     {
-        $discussionId = Arr::get($request->getQueryParams(), 'id');
+        $discussionId = $request->query('id');
         $actor = RequestUtil::getActor($request);
         $include = $this->extractInclude($request);
 
-        if (Arr::get($request->getQueryParams(), 'bySlug', false)) {
+        if ($request->query('bySlug', false)) {
             $discussion = $this->slugManager->forResource(Discussion::class)->fromSlug($discussionId, $actor);
         } else {
             $discussion = $this->discussions->findOrFail($discussionId, $actor);
@@ -78,7 +77,7 @@ class ShowDiscussionController extends AbstractShowController
         return $discussion;
     }
 
-    private function includePosts(Discussion $discussion, ServerRequestInterface $request, array $include): void
+    private function includePosts(Discussion $discussion, Request $request, array $include): void
     {
         $actor = RequestUtil::getActor($request);
         $limit = $this->extractLimit($request);
@@ -111,12 +110,11 @@ class ShowDiscussionController extends AbstractShowController
         return $relationships;
     }
 
-    private function getPostsOffset(ServerRequestInterface $request, Discussion $discussion, int $limit): int
+    private function getPostsOffset(Request $request, Discussion $discussion, int $limit): int
     {
-        $queryParams = $request->getQueryParams();
         $actor = RequestUtil::getActor($request);
 
-        if (($near = Arr::get($queryParams, 'page.near')) > 1) {
+        if (($near = $request->query('page.near')) > 1) {
             $offset = $this->posts->getIndexForNumber($discussion->id, $near, $actor);
             $offset = max(0, $offset - $limit / 2);
         } else {
@@ -126,7 +124,7 @@ class ShowDiscussionController extends AbstractShowController
         return $offset;
     }
 
-    private function loadPosts(Discussion $discussion, User $actor, int $offset, int $limit, array $include, ServerRequestInterface $request): array
+    private function loadPosts(Discussion $discussion, User $actor, int $offset, int $limit, array $include, Request $request): array
     {
         /** @var Builder $query */
         $query = $discussion->posts()->whereVisibleTo($actor);

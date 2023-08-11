@@ -10,22 +10,21 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Group\Permission;
+use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\RequestUtil;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 
-class SetPermissionController implements RequestHandlerInterface
+class SetPermissionController extends AbstractController
 {
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function __invoke(Request $request): ResponseInterface
     {
         RequestUtil::getActor($request)->assertAdmin();
 
-        $body = $request->getParsedBody();
-        $permission = Arr::get($body, 'permission');
-        $groupIds = Arr::get($body, 'groupIds');
+        $permission = $request->json('permission');
+        $groupIds = $request->json('groupIds');
 
         Permission::where('permission', $permission)->delete();
 

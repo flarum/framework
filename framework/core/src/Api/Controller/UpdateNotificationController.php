@@ -14,8 +14,8 @@ use Flarum\Http\RequestUtil;
 use Flarum\Notification\Command\ReadNotification;
 use Flarum\Notification\Notification;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 class UpdateNotificationController extends AbstractShowController
@@ -27,9 +27,9 @@ class UpdateNotificationController extends AbstractShowController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): Notification
+    protected function data(Request $request, Document $document): Notification
     {
-        $id = Arr::get($request->getQueryParams(), 'id');
+        $id = $request->query('id');
         $actor = RequestUtil::getActor($request);
 
         return $this->bus->dispatch(

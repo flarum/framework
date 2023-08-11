@@ -14,6 +14,7 @@ use Flarum\Frontend\Document;
 use Flarum\Frontend\Driver\TitleDriverInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 use Psr\Http\Message\ServerRequestInterface;
 
 class FrontendTitleTest extends TestCase
@@ -67,7 +68,7 @@ class FrontendTitleTest extends TestCase
 
 class CustomTitleDriver implements TitleDriverInterface
 {
-    public function makeTitle(Document $document, ServerRequestInterface $request, array $forumApiDocument): string
+    public function makeTitle(Document $document, Request $request, array $forumApiDocument): string
     {
         return 'CustomTitle';
     }

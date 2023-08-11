@@ -16,7 +16,7 @@ use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Query\QueryCriteria;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class ListDiscussionsController extends AbstractListController
@@ -46,7 +46,7 @@ class ListDiscussionsController extends AbstractListController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): iterable
+    protected function data(Request $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
         $filters = $this->extractFilter($request);
@@ -66,7 +66,7 @@ class ListDiscussionsController extends AbstractListController
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('discussions.index'),
-            $request->getQueryParams(),
+            $request->query(),
             $offset,
             $limit,
             $results->areMoreResults() ? null : 0

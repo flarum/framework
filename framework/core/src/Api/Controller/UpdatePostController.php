@@ -14,8 +14,7 @@ use Flarum\Http\RequestUtil;
 use Flarum\Post\Command\EditPost;
 use Flarum\Post\Post;
 use Illuminate\Contracts\Bus\Dispatcher;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class UpdatePostController extends AbstractShowController
@@ -32,11 +31,11 @@ class UpdatePostController extends AbstractShowController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): Post
+    protected function data(Request $request, Document $document): Post
     {
-        $id = Arr::get($request->getQueryParams(), 'id');
+        $id = $request->query('id');
         $actor = RequestUtil::getActor($request);
-        $data = Arr::get($request->getParsedBody(), 'data', []);
+        $data = $request->json()->all();
 
         $post = $this->bus->dispatch(
             new EditPost($id, $actor, $data)

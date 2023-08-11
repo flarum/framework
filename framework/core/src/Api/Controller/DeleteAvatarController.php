@@ -13,8 +13,7 @@ use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Http\RequestUtil;
 use Flarum\User\Command\DeleteAvatar;
 use Illuminate\Contracts\Bus\Dispatcher;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class DeleteAvatarController extends AbstractShowController
@@ -26,10 +25,10 @@ class DeleteAvatarController extends AbstractShowController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): mixed
+    protected function data(Request $request, Document $document): mixed
     {
         return $this->bus->dispatch(
-            new DeleteAvatar(Arr::get($request->getQueryParams(), 'id'), RequestUtil::getActor($request))
+            new DeleteAvatar($request->query( 'id'), RequestUtil::getActor($request))
         );
     }
 }

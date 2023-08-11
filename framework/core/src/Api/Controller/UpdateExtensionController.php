@@ -10,26 +10,24 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Extension\Command\ToggleExtension;
+use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Bus\Dispatcher;
-use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 
-class UpdateExtensionController implements RequestHandlerInterface
+class UpdateExtensionController extends AbstractController
 {
     public function __construct(
         protected Dispatcher $bus
     ) {
     }
 
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function __invoke(Request $request, string $name): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
-        $enabled = (bool) (int) Arr::get($request->getParsedBody(), 'enabled');
-        $name = Arr::get($request->getQueryParams(), 'name');
+        $enabled = (bool) (int) $request->json('enabled');
 
         $this->bus->dispatch(
             new ToggleExtension($actor, $name, $enabled)

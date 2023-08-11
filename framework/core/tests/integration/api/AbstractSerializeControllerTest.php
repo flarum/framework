@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\api;
 use Flarum\Api\Controller\AbstractSerializeController;
 use Flarum\Extend;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\ElementInterface;
@@ -41,7 +42,7 @@ class DummySerializeController extends AbstractSerializeController
 {
     public ?string $serializer = null;
 
-    protected function data(ServerRequestInterface $request, Document $document): mixed
+    protected function data(Request $request, Document $document): mixed
     {
         return [];
     }

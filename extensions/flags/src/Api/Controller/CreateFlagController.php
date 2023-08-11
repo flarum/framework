@@ -15,8 +15,8 @@ use Flarum\Flags\Command\CreateFlag;
 use Flarum\Flags\Flag;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 class CreateFlagController extends AbstractCreateController
@@ -34,7 +34,7 @@ class CreateFlagController extends AbstractCreateController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): Flag
+    protected function data(Request $request, Document $document): Flag
     {
         return $this->bus->dispatch(
             new CreateFlag(RequestUtil::getActor($request), Arr::get($request->getParsedBody(), 'data', []))

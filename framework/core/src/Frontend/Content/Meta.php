@@ -11,8 +11,8 @@ namespace Flarum\Frontend\Content;
 
 use Flarum\Frontend\Document;
 use Flarum\Locale\LocaleManager;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Meta
 {

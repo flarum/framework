@@ -14,8 +14,8 @@ use Flarum\Frontend\Assets as FrontendAssets;
 use Flarum\Frontend\Compiler\CompilerInterface;
 use Flarum\Frontend\Document;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Assets
 {
@@ -43,7 +43,7 @@ class Assets
 
     public function __invoke(Document $document, Request $request): void
     {
-        $locale = $request->getAttribute('locale');
+        $locale = $request->attributes->get('locale');
 
         $compilers = $this->assembleCompilers($locale);
 

@@ -16,8 +16,8 @@ use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 class CreateDiscussionController extends AbstractCreateController
@@ -37,7 +37,7 @@ class CreateDiscussionController extends AbstractCreateController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): Discussion
+    protected function data(Request $request, Document $document): Discussion
     {
         $actor = RequestUtil::getActor($request);
         $ipAddress = $request->getAttribute('ipAddress');

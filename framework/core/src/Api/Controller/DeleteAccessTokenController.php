@@ -14,15 +14,15 @@ use Flarum\Http\RequestUtil;
 use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
 
 class DeleteAccessTokenController extends AbstractDeleteController
 {
-    protected function delete(ServerRequestInterface $request): void
+    protected function delete(Request $request): void
     {
         $actor = RequestUtil::getActor($request);
-        $id = Arr::get($request->getQueryParams(), 'id');
+        $id = $request->query('id');
 
         $actor->assertRegistered();
 

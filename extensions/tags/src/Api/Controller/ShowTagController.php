@@ -15,8 +15,7 @@ use Flarum\Http\SlugManager;
 use Flarum\Tags\Api\Serializer\TagSerializer;
 use Flarum\Tags\Tag;
 use Flarum\Tags\TagRepository;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class ShowTagController extends AbstractShowController
@@ -39,9 +38,9 @@ class ShowTagController extends AbstractShowController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): Tag
+    protected function data(Request $request, Document $document): Tag
     {
-        $slug = Arr::get($request->getQueryParams(), 'slug');
+        $slug = $request->query('slug');
         $actor = RequestUtil::getActor($request);
         $include = $this->extractInclude($request);
         $setParentOnChildren = false;

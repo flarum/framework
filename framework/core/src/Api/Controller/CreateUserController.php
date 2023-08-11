@@ -14,8 +14,8 @@ use Flarum\Http\RequestUtil;
 use Flarum\User\Command\RegisterUser;
 use Flarum\User\User;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 class CreateUserController extends AbstractCreateController
@@ -27,7 +27,7 @@ class CreateUserController extends AbstractCreateController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): User
+    protected function data(Request $request, Document $document): User
     {
         return $this->bus->dispatch(
             new RegisterUser(RequestUtil::getActor($request), Arr::get($request->getParsedBody(), 'data', []))

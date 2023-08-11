@@ -9,18 +9,17 @@
 
 namespace Flarum\Forum\Controller;
 
+use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\Rememberer;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\SessionAuthenticator;
 use Flarum\Http\UrlGenerator;
 use Flarum\User\Event\LoggedOut;
 use Illuminate\Contracts\Events\Dispatcher;
-use Laminas\Diactoros\Response\EmptyResponse;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class GlobalLogOutController implements RequestHandlerInterface
+class GlobalLogOutController extends AbstractController
 {
     public function __construct(
         protected Dispatcher $events,
@@ -30,9 +29,9 @@ class GlobalLogOutController implements RequestHandlerInterface
     ) {
     }
 
-    public function handle(Request $request): ResponseInterface
+    public function __invoke(Request $request): Response
     {
-        $session = $request->getAttribute('session');
+        $session = $request->attributes->get('session');
         $actor = RequestUtil::getActor($request);
 
         $actor->assertRegistered();
@@ -45,6 +44,6 @@ class GlobalLogOutController implements RequestHandlerInterface
 
         $this->events->dispatch(new LoggedOut($actor, true));
 
-        return $this->rememberer->forget(new EmptyResponse());
+        return $this->rememberer->forget(new Response(null, 204));
     }
 }

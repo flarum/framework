@@ -9,6 +9,7 @@
 
 namespace Flarum\Install\Controller;
 
+use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\RememberAccessToken;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
@@ -18,14 +19,14 @@ use Flarum\Install\DatabaseConfig;
 use Flarum\Install\Installation;
 use Flarum\Install\StepFailed;
 use Flarum\Install\ValidationFailed;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Laminas\Diactoros\Response;
+use Laminas\Diactoros\Response as PsrResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
-class InstallController implements RequestHandlerInterface
+class InstallController extends AbstractController
 {
     public function __construct(
         protected Installation $installation,
@@ -34,10 +35,10 @@ class InstallController implements RequestHandlerInterface
     ) {
     }
 
-    public function handle(Request $request): ResponseInterface
+    public function __invoke(Request $request): ResponseInterface|Response
     {
-        $input = $request->getParsedBody();
-        $baseUrl = BaseUrl::fromUri($request->getUri());
+        $input = $request->input();
+        $baseUrl = BaseUrl::fromString($request->getUri());
 
         // An access token we will use to auto-login the admin at the end of installation
         $accessToken = Str::random(40);
@@ -55,23 +56,24 @@ class InstallController implements RequestHandlerInterface
                 ])
                 ->build();
         } catch (ValidationFailed $e) {
-            return new Response\HtmlResponse($e->getMessage(), 500);
+            return new PsrResponse\HtmlResponse($e->getMessage(), 500);
         }
 
         try {
             $pipeline->run();
         } catch (StepFailed $e) {
-            return new Response\HtmlResponse($e->getPrevious()->getMessage(), 500);
+            return new PsrResponse\HtmlResponse($e->getPrevious()->getMessage(), 500);
         }
 
-        $session = $request->getAttribute('session');
+        $session = $request->attributes->get('session');
+
         // Because the Eloquent models cannot be used yet, we create a temporary in-memory object
         // that won't interact with the database but can be passed to the authenticator and rememberer
         $token = new RememberAccessToken();
         $token->token = $accessToken;
         $this->authenticator->logIn($session, $token);
 
-        return $this->rememberer->remember(new Response\EmptyResponse, $token);
+        return $this->rememberer->remember(new Response(null, 204), $token);
     }
 
     private function makeDatabaseConfig(array $input): DatabaseConfig

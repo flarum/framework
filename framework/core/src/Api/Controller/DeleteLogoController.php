@@ -13,7 +13,7 @@ use Flarum\Http\RequestUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 
 class DeleteLogoController extends AbstractDeleteController
 {
@@ -26,7 +26,7 @@ class DeleteLogoController extends AbstractDeleteController
         $this->uploadDir = $filesystemFactory->disk('flarum-assets');
     }
 
-    protected function delete(ServerRequestInterface $request): void
+    protected function delete(Request $request): void
     {
         RequestUtil::getActor($request)->assertAdmin();
 

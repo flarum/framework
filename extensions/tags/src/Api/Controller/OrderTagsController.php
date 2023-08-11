@@ -9,21 +9,21 @@
 
 namespace Flarum\Tags\Api\Controller;
 
+use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\RequestUtil;
 use Flarum\Tags\Tag;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 
-class OrderTagsController implements RequestHandlerInterface
+class OrderTagsController extends AbstractController
 {
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function __invoke(Request $request): ResponseInterface
     {
         RequestUtil::getActor($request)->assertAdmin();
 
-        $order = Arr::get($request->getParsedBody(), 'order');
+        $order = $request->json('order');
 
         if ($order === null) {
             return new EmptyResponse(422);
@@ -37,7 +37,7 @@ class OrderTagsController implements RequestHandlerInterface
         foreach ($order as $i => $parent) {
             $parentId = Arr::get($parent, 'id');
 
-            Tag::where('id', $parentId)->update(['position' => $i]);
+            Tag::query()->where('id', $parentId)->update(['position' => $i]);
 
             if (isset($parent['children']) && is_array($parent['children'])) {
                 foreach ($parent['children'] as $j => $childId) {

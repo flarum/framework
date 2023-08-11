@@ -9,27 +9,27 @@
 
 namespace Flarum\PackageManager\Api\Controller;
 
+use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\RequestUtil;
 use Flarum\PackageManager\Command\WhyNot;
 use Flarum\PackageManager\Job\Dispatcher;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 
-class WhyNotController implements RequestHandlerInterface
+class WhyNotController extends AbstractController
 {
     public function __construct(
         protected Dispatcher $bus
     ) {
     }
 
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function __invoke(Request $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
-        $package = Arr::get($request->getParsedBody(), 'data.package', '');
-        $version = Arr::get($request->getParsedBody(), 'data.version', '*');
+        $package = $request->json('data.package', '');
+        $version = $request->json('data.version', '*');
 
         $whyNot = $this->bus->sync()->dispatch(
             new WhyNot($actor, $package, $version)

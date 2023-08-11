@@ -9,13 +9,13 @@
 
 namespace Flarum\Api\Controller;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 abstract class AbstractCreateController extends AbstractShowController
 {
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function __invoke(Request $request): JsonResponse
     {
-        return parent::handle($request)->withStatus(201);
+        return parent::__invoke($request)->setStatusCode(201);
     }
 }

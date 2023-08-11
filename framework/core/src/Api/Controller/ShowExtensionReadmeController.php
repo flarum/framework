@@ -13,8 +13,8 @@ use Flarum\Api\Serializer\ExtensionReadmeSerializer;
 use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Http\RequestUtil;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 class ShowExtensionReadmeController extends AbstractShowController
@@ -26,9 +26,9 @@ class ShowExtensionReadmeController extends AbstractShowController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): ?Extension
+    protected function data(Request $request, Document $document): ?Extension
     {
-        $extensionName = Arr::get($request->getQueryParams(), 'name');
+        $extensionName = $request->query('name');
 
         RequestUtil::getActor($request)->assertAdmin();
 
