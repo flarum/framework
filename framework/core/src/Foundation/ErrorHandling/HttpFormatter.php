@@ -9,8 +9,8 @@
 
 namespace Flarum\Foundation\ErrorHandling;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 interface HttpFormatter
 {

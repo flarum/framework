@@ -12,9 +12,9 @@ namespace Flarum\Foundation\ErrorHandling;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\View\Factory as ViewFactory;
+use Illuminate\Http\Request;
 use Laminas\Diactoros\Response\HtmlResponse;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * A formatter for turning caught exceptions into "pretty" HTML error pages.
@@ -45,7 +45,7 @@ class ViewFormatter implements HttpFormatter
             ->with('error', $error->getException())
             ->with('message', $this->getMessage($error));
 
-        return new HtmlResponse($view->render(), $error->getStatusCode());
+        return new \Illuminate\Http\Response($view->render(), $error->getStatusCode());
     }
 
     private function determineView(HandledError $error): string
