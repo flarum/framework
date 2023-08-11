@@ -32,7 +32,7 @@ class User
         $user = $apiDocument->data->attributes;
 
         $document->title = $user->displayName;
-        $document->canonicalUrl = $this->url->to('forum')->route('user', ['username' => $user->slug]);
+        $document->canonicalUrl = $this->url->route('forum.user', ['username' => $user->slug]);
         $document->payload['apiDocument'] = $apiDocument;
 
         return $document;

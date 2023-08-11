@@ -47,7 +47,7 @@ class ListGroupsController extends AbstractListController
         $queryResults = $this->filterer->filter($criteria, $limit, $offset);
 
         $document->addPaginationLinks(
-            $this->url->to('api')->route('groups.index'),
+            $this->url->route('api.groups.index'),
             $request->query(),
             $offset,
             $limit,

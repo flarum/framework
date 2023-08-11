@@ -57,7 +57,7 @@ class ListTagsController extends AbstractListController
             $tags = $results->getResults();
 
             $document->addPaginationLinks(
-                $this->url->to('api')->route('tags.index'),
+                $this->url->route('api.tags.index'),
                 $request->query(),
                 $offset,
                 $limit,

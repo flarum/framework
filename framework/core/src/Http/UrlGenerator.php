@@ -1,43 +1,32 @@
 <?php
 
-/*
- * This file is part of Flarum.
- *
- * For detailed copyright and license information, please view the
- * LICENSE file that was distributed with this source code.
- */
-
 namespace Flarum\Http;
 
-use Flarum\Foundation\Application;
+use Flarum\Foundation\Config;
+use Illuminate\Routing\UrlGenerator as IlluminateUrlGenerator;
 
-class UrlGenerator
+class UrlGenerator extends IlluminateUrlGenerator
 {
-    protected array $routes = [];
+    protected Config $config;
 
-    public function __construct(
-        protected Application $app
-    ) {
+    public function setConfig(Config $config): void
+    {
+        $this->config = $config;
     }
 
-    /**
-     * Register a named route collection for URL generation.
-     */
-    public function addCollection(string $key, RouteCollection $routes, ?string $prefix = null): static
+    public function base(string $frontend): string
     {
-        $this->routes[$key] = new RouteCollectionUrlGenerator(
-            $this->app->url($prefix),
-            $routes
-        );
+        $url = $this->config->url();
 
-        return $this;
+        if ($frontend) {
+            $url .= '/'.$this->config->path($frontend);
+        }
+
+        return $url;
     }
 
-    /**
-     * Retrieve a URL generator instance for the given named route collection.
-     */
-    public function to(string $collection): RouteCollectionUrlGenerator
+    public function path(string $frontend, string $path): string
     {
-        return $this->routes[$collection];
+        return $this->base($frontend).'/'.ltrim($path, '/');
     }
 }

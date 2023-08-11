@@ -56,7 +56,7 @@ class ListPostsController extends AbstractListController
         $results = $this->filterer->filter(new QueryCriteria($actor, $filters, $sort, $sortIsDefault), $limit, $offset);
 
         $document->addPaginationLinks(
-            $this->url->to('api')->route('posts.index'),
+            $this->url->route('api.posts.index'),
             $request->query(),
             $offset,
             $limit,

@@ -48,7 +48,7 @@ class ListTasksController extends AbstractListController
         $document->addMeta('total', (string) $total);
 
         $document->addPaginationLinks(
-            $this->url->to('api')->route('package-manager.tasks.index'),
+            $this->url->route('api.package-manager.tasks.index'),
             $request->query(),
             $offset,
             $limit,

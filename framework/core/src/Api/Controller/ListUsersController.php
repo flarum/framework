@@ -68,7 +68,7 @@ class ListUsersController extends AbstractListController
         }
 
         $document->addPaginationLinks(
-            $this->url->to('api')->route('users.index'),
+            $this->url->route('api.users.index'),
             $request->query(),
             $offset,
             $limit,

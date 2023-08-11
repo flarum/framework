@@ -34,6 +34,6 @@ class UpdateExtensionController extends AbstractController
             new ToggleExtension($actor, $name, $enabled)
         );
 
-        return new RedirectResponse($this->url->to('admin')->base());
+        return new RedirectResponse($this->url->base('admin'));
     }
 }

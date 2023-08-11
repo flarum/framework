@@ -60,7 +60,7 @@ class Discussion
 
             $queryString = http_build_query($newQueryParams);
 
-            return $this->url->to('forum')->route('discussion', ['id' => $apiDocument->data->attributes->slug]).
+            return $this->url->route('forum.discussion', ['id' => $apiDocument->data->attributes->slug]).
                 ($queryString ? '?'.$queryString : '');
         };
 

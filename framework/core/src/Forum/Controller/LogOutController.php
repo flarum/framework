@@ -39,7 +39,7 @@ class LogOutController extends AbstractController
         $session = $request->attributes->get('session');
         $actor = RequestUtil::getActor($request);
 
-        $url = $request->query('return', $this->url->to('forum')->base());
+        $url = $request->query('return', $this->url->base('forum'));
 
         // If there is no user logged in, return to the index.
         if ($actor->isGuest()) {
@@ -54,7 +54,7 @@ class LogOutController extends AbstractController
             $return = $request->query('return');
 
             $view = $this->view->make('flarum.forum::log-out')
-                ->with('url', $this->url->to('forum')->route('logout').'?token='.$csrfToken.($return ? '&return='.urlencode($return) : ''));
+                ->with('url', $this->url->route('forum.logout').'?token='.$csrfToken.($return ? '&return='.urlencode($return) : ''));
 
             return new HtmlResponse($view->render());
         }

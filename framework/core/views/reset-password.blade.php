@@ -14,7 +14,7 @@
     </div>
   @endif
 
-  <form class="form" method="POST" action="{{ $url->to('forum')->route('savePassword') }}">
+  <form class="form" method="POST" action="{{ $url->route('forum.savePassword') }}">
     <input type="hidden" name="csrfToken" value="{{ $csrfToken }}">
     <input type="hidden" name="passwordToken" value="{{ $passwordToken }}">
 

@@ -34,9 +34,10 @@ class ApiServiceProvider extends AbstractServiceProvider
 
             $router->middlewareGroup('api', $container->make('flarum.api.middleware'));
 
-            $router->middleware('api')->prefix($config->path('api'))->group(
-                fn (Router $router) => (include __DIR__.'/routes.php')($router)
-            );
+            $router->middleware('api')
+                ->prefix($config->path('api'))
+                ->name('api.')
+                ->group(fn (Router $router) => (include __DIR__.'/routes.php')($router));
         });
 
         $this->container->singleton('flarum.api.throttlers', function () {

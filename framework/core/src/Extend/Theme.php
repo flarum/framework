@@ -119,7 +119,7 @@ class Theme implements ExtenderInterface
      * (new Extend\Theme())
      *   ->addCustomLessVariable('my-extension__asset_path', function () {
      *     $url = resolve(UrlGenerator::class);
-     *     $assetUrl = $url->to('forum')->base().'/assets/extensions/my-extension/my-asset.jpg';
+     *     $assetUrl = $url->base('forum').'/assets/extensions/my-extension/my-asset.jpg';
      *     return "\"$assetUrl\"";
      *   })
      * ```

@@ -5,7 +5,7 @@
     {{ $message }}
   </p>
   <p>
-    <a href="{{ $url->to('forum')->base() }}">
+    <a href="{{ $url->base('forum') }}">
       {{ $translator->trans('core.views.error.not_found_return_link', ['forum' => $settings->get('forum_title')]) }}
     </a>
   </p>

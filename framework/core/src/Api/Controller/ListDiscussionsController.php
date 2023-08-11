@@ -65,7 +65,7 @@ class ListDiscussionsController extends AbstractListController
         }
 
         $document->addPaginationLinks(
-            $this->url->to('api')->route('discussions.index'),
+            $this->url->route('api.discussions.index'),
             $request->query(),
             $offset,
             $limit,

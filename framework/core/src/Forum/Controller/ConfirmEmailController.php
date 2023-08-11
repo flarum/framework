@@ -40,6 +40,6 @@ class ConfirmEmailController extends AbstractController
         $token = SessionAccessToken::generate($user->id);
         $this->authenticator->logIn($session, $token);
 
-        return new RedirectResponse($this->url->to('forum')->base());
+        return new RedirectResponse($this->url->base('forum'));
     }
 }

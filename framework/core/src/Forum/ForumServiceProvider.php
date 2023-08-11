@@ -50,9 +50,10 @@ class ForumServiceProvider extends AbstractServiceProvider
 
             $factory = $container->make(RouteHandlerFactory::class);
 
-            $router->middleware('forum')->prefix($config->path('forum'))->group(
-                fn (Router $router) => (include __DIR__.'/routes.php')($router, $factory)
-            );
+            $router->middleware('forum')
+                ->prefix($config->path('forum'))
+                ->name('forum.')
+                ->group(fn (Router $router) => (include __DIR__.'/routes.php')($router, $factory));
 
             $this->setDefaultRoute(
                 $router,

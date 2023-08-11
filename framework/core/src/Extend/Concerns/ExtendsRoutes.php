@@ -43,7 +43,7 @@ trait ExtendsRoutes
                     $router
                         ->addRoute($route['method'], $route['path'], $action)
                         ->prefix($config->path($this->frontend))
-                        ->name($route['name']);
+                        ->name("$this->frontend.{$route['name']}");
                 }
             }
         );

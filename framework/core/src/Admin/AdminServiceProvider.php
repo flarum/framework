@@ -43,9 +43,10 @@ class AdminServiceProvider extends AbstractServiceProvider
 
             $factory = $container->make(RouteHandlerFactory::class);
 
-            $router->middleware('admin')->prefix($config->path('admin'))->group(
-                fn (Router $router) => (include __DIR__.'/routes.php')($router, $factory)
-            );
+            $router->middleware('admin')
+                ->prefix($config->path('admin'))
+                ->name('admin.')
+                ->group(fn (Router $router) => (include __DIR__.'/routes.php')($router, $factory));
         });
 
         $this->container->singleton('flarum.admin.middleware', function () {
