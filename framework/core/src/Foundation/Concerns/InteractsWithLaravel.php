@@ -12,15 +12,11 @@ use Illuminate\Support\Str;
  */
 trait InteractsWithLaravel
 {
-    protected array $terminatingCallbacks = [];
-
     /**
      * @deprecated Not actually used/has no meaning in Flarum.
      */
     public function terminating($callback): static
     {
-        $this->terminatingCallbacks[] = $callback;
-
         return $this;
     }
 
@@ -29,13 +25,7 @@ trait InteractsWithLaravel
      */
     public function terminate(): void
     {
-        $index = 0;
-
-        while ($index < count($this->terminatingCallbacks)) {
-            $this->call($this->terminatingCallbacks[$index]);
-
-            $index++;
-        }
+        //
     }
 
     public function basePath($path = ''): string
