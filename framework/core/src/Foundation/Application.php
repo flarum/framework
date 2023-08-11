@@ -68,10 +68,6 @@ class Application extends IlluminateContainer implements LaravelApplication
     {
         IlluminateContainer::setInstance($this);
 
-        /**
-         * Needed for the laravel framework code.
-         * Use container inside flarum instead.
-         */
         $this->instance('app', $this);
         $this->alias('app', IlluminateContainer::class);
 

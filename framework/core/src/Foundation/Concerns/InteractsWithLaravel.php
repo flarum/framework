@@ -13,8 +13,10 @@ use Illuminate\Support\Str;
 trait InteractsWithLaravel
 {
     protected array $terminatingCallbacks = [];
-    protected ?bool $isRunningInConsole = null;
 
+    /**
+     * @deprecated Not actually used/has no meaning in Flarum.
+     */
     public function terminating($callback): static
     {
         $this->terminatingCallbacks[] = $callback;
@@ -22,6 +24,9 @@ trait InteractsWithLaravel
         return $this;
     }
 
+    /**
+     * @deprecated Not actually used/has no meaning in Flarum.
+     */
     public function terminate(): void
     {
         $index = 0;
@@ -48,7 +53,9 @@ trait InteractsWithLaravel
         return $this->joinPaths($this->paths->storage, $path);
     }
 
-    /** Not actually used/has no meaning in Flarum. */
+    /**
+     * @deprecated Not actually used/has no meaning in Flarum.
+     */
     public function bootstrapPath($path = ''): string
     {
         return $this->joinPaths(
@@ -56,7 +63,9 @@ trait InteractsWithLaravel
         );
     }
 
-    /** Not actually used/has no meaning in Flarum. */
+    /**
+     * @deprecated Not actually used/has no meaning in Flarum.
+     */
     public function configPath($path = ''): string
     {
         return $this->joinPaths(
@@ -64,7 +73,9 @@ trait InteractsWithLaravel
         );
     }
 
-    /** Not actually used/has no meaning in Flarum. */
+    /**
+     * @deprecated Not actually used/has no meaning in Flarum.
+     */
     public function databasePath($path = ''): string
     {
         return $this->joinPaths(
@@ -72,7 +83,9 @@ trait InteractsWithLaravel
         );
     }
 
-    /** Not actually used/has no meaning in Flarum. */
+    /**
+     * @deprecated Not actually used/has no meaning in Flarum.
+     */
     public function langPath($path = ''): string
     {
         return $this->joinPaths(
@@ -80,7 +93,9 @@ trait InteractsWithLaravel
         );
     }
 
-    /** Not actually used/has no meaning in Flarum. */
+    /**
+     * @deprecated Not actually used/has no meaning in Flarum.
+     */
     public function resourcePath($path = ''): string
     {
         return $this->joinPaths(
@@ -88,7 +103,7 @@ trait InteractsWithLaravel
         );
     }
 
-    public function environment(...$environments)
+    public function environment(...$environments): bool|string
     {
         if (count($environments) > 0) {
             $patterns = is_array($environments[0]) ? $environments[0] : $environments;
@@ -101,11 +116,7 @@ trait InteractsWithLaravel
 
     public function runningInConsole(): bool
     {
-        if ($this->isRunningInConsole === null) {
-            $this->isRunningInConsole = \PHP_SAPI === 'cli' || \PHP_SAPI === 'phpdbg';
-        }
-
-        return $this->isRunningInConsole;
+        return \PHP_SAPI === 'cli' || \PHP_SAPI === 'phpdbg';
     }
 
     public function runningUnitTests(): bool
@@ -118,28 +129,43 @@ trait InteractsWithLaravel
         return $this->config('debug', true);
     }
 
+    /**
+     * @deprecated Not actually used/has no meaning in Flarum.
+     */
     public function maintenanceMode()
     {
         // TODO: Implement maintenanceMode() method.
         return null;
     }
 
+    /**
+     * @deprecated Not actually used/has no meaning in Flarum.
+     */
     public function isDownForMaintenance(): bool
     {
         // TODO: Implement isDownForMaintenance() method.
         return false;
     }
 
+    /**
+     * @deprecated Not actually used/has no meaning in Flarum.
+     */
     public function registerConfiguredProviders()
     {
         //
     }
 
+    /**
+     * @deprecated Not actually used/has no meaning in Flarum.
+     */
     public function registerDeferredProvider($provider, $service = null)
     {
         //
     }
 
+    /**
+     * @deprecated Not actually used/has no meaning in Flarum.
+     */
     public function bootstrapWith(array $bootstrappers)
     {
         //
@@ -162,11 +188,17 @@ trait InteractsWithLaravel
         return Arr::where($this->serviceProviders, fn ($value) => $value instanceof $name);
     }
 
+    /**
+     * @deprecated Not actually used/has no meaning in Flarum.
+     */
     public function hasBeenBootstrapped()
     {
         //
     }
 
+    /**
+     * @deprecated Not actually used/has no meaning in Flarum.
+     */
     public function loadDeferredProviders()
     {
         //
@@ -177,6 +209,9 @@ trait InteractsWithLaravel
         $this->make(LocaleManager::class)->setLocale($locale);
     }
 
+    /**
+     * @deprecated Not actually used/has no meaning in Flarum.
+     */
     public function shouldSkipMiddleware()
     {
         //
