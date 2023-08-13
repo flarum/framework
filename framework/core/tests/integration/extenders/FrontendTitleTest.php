@@ -60,7 +60,7 @@ class FrontendTitleTest extends TestCase
     {
         $response = $this->send($this->request('GET', '/d/1'));
 
-        preg_match('/\<title\>(?<title>[^<]+)\<\/title\>/m', $response->getBody()->getContents(), $matches);
+        preg_match('/\<title\>(?<title>[^<]+)\<\/title\>/m', $response->getContent(), $matches);
 
         $this->assertEquals($title, $matches['title']);
     }

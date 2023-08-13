@@ -16,6 +16,7 @@ use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 
 class FilterTest extends TestCase
 {
@@ -41,15 +42,18 @@ class FilterTest extends TestCase
     public function filterDiscussions($filters, $limit = null)
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'filter' => $filters,
-                'include' => 'mostRelevantPost',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'filter' => $filters,
+                    'include' => 'mostRelevantPost',
+                ])
+            )
         );
 
-        return json_decode($response->getBody()->getContents(), true)['data'];
+        return json_decode($response->getContent(), true)['data'];
     }
 
     /**

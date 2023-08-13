@@ -20,7 +20,7 @@ class ServiceProviderTest extends TestCase
      */
     public function providers_dont_work_by_default()
     {
-        $this->app();
+        $this->bootstrap();
 
         $this->assertIsArray(
             $this->app->getContainer()->make('flarum.forum.middleware')
@@ -37,7 +37,7 @@ class ServiceProviderTest extends TestCase
                 ->register(CustomServiceProvider::class)
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $this->assertEquals(
             'overriden_by_custom_provider_register',
@@ -56,7 +56,7 @@ class ServiceProviderTest extends TestCase
                 ->register(SecondCustomServiceProvider::class)
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $this->assertEquals(
             'overriden_by_second_custom_provider_register',
@@ -76,7 +76,7 @@ class ServiceProviderTest extends TestCase
                 ->register(SecondCustomServiceProvider::class)
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $this->assertEquals(
             'overriden_by_third_custom_provider_boot',

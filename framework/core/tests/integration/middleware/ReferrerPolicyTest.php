@@ -22,7 +22,7 @@ class ReferrerPolicyTest extends TestCase
             $this->request('GET', '/')
         );
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertArrayHasKey('Referrer-Policy', $response->getHeaders());
+        $this->assertArrayHasKey('Referrer-Policy', $response->headers->all());
     }
 
     /**
@@ -34,6 +34,6 @@ class ReferrerPolicyTest extends TestCase
             $this->request('GET', '/')
         );
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('same-origin', $response->getHeader('Referrer-Policy')[0]);
+        $this->assertEquals('same-origin', $response->headers->get('Referrer-Policy'));
     }
 }

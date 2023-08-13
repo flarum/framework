@@ -23,7 +23,7 @@ class IndexTest extends TestCase
     protected function setUp(): void
     {
         $this->extend(
-            (new Extend\Csrf)->exemptRoute('login')
+            (new Extend\Csrf)->exemptRoute('forum.login')
         );
 
         $this->prepareDatabase([
@@ -43,7 +43,7 @@ class IndexTest extends TestCase
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertStringNotContainsString('preferences', $response->getBody()->getContents());
+        $this->assertStringNotContainsString('preferences', $response->getContent());
     }
 
     /**
@@ -67,6 +67,6 @@ class IndexTest extends TestCase
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertStringContainsString('preferences', $response->getBody()->getContents());
+        $this->assertStringContainsString('preferences', $response->getContent());
     }
 }

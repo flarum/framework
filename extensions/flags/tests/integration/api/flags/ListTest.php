@@ -75,7 +75,7 @@ class ListTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
         $this->assertEqualsCanonicalizing(['1', '4', '5'], $ids);
@@ -94,7 +94,7 @@ class ListTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
         $this->assertEqualsCanonicalizing(['2', '4'], $ids);
@@ -113,7 +113,7 @@ class ListTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
         $this->assertEqualsCanonicalizing(['1', '4', '5'], $ids);

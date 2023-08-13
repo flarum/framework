@@ -92,7 +92,7 @@ class TestCase extends \Flarum\Testing\integration\TestCase
 
     protected function errorDetails(ResponseInterface $response): array
     {
-        $json = json_decode((string) $response->getBody(), true);
+        $json = json_decode((string) $response->getContent(), true);
 
         return $json['errors'] ? ($json['errors'][0] ?? []) : [];
     }

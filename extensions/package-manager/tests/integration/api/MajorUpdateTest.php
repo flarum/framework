@@ -75,7 +75,7 @@ class MajorUpdateTest extends TestCase
         );
 
         $newMinorCoreVersion = array_filter(
-            json_decode((string) $lastUpdateCheck->getBody(), true)['updates']['installed'],
+            json_decode((string) $lastUpdateCheck->getContent(), true)['updates']['installed'],
             function ($package) {
                 return $package['name'] === 'flarum/core';
             }

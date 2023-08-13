@@ -13,6 +13,7 @@ use Flarum\Group\Group;
 use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class ListTest extends TestCase
@@ -54,7 +55,7 @@ class ListTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
         $this->assertEquals(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14'], $ids);
@@ -73,7 +74,7 @@ class ListTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // 5 isnt included because parent access doesnt necessarily give child access
         // 6, 7, 8 aren't included because child access shouldnt work unless parent
@@ -89,16 +90,19 @@ class ListTest extends TestCase
     public function user_sees_where_allowed_with_included_tags(string $include, array $expectedIncludes)
     {
         $response = $this->send(
-            $this->request('GET', '/api/tags', [
-                'authenticatedAs' => 2,
-            ])->withQueryParams([
-                'include' => $include
-            ])
+            tap(
+                $this->request('GET', '/api/tags', [
+                    'authenticatedAs' => 2,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'include' => $include
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $responseBody = json_decode($response->getBody()->getContents(), true);
+        $responseBody = json_decode($response->getContent(), true);
 
         $data = $responseBody['data'];
         $included = $responseBody['included'];
@@ -121,7 +125,7 @@ class ListTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
         $this->assertEquals(['1', '2', '3', '4', '9', '10'], $ids);

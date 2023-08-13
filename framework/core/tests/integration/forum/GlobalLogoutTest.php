@@ -28,8 +28,8 @@ class GlobalLogoutTest extends TestCase
     {
         $this->extend(
             (new Extend\Csrf)
-                ->exemptRoute('globalLogout')
-                ->exemptRoute('login')
+                ->exemptRoute('forum.globalLogout')
+                ->exemptRoute('forum.login')
         );
 
         $this->prepareDatabase([

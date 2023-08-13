@@ -49,7 +49,7 @@ class RemembererTest extends TestCase
 
         Carbon::setTestNow();
 
-        $data = json_decode($response->getBody(), true);
+        $data = json_decode($response->getContent(), true);
         $this->assertFalse($data['data']['attributes']['canSearchUsers']);
     }
 
@@ -70,7 +70,7 @@ class RemembererTest extends TestCase
 
         Carbon::setTestNow();
 
-        $data = json_decode($response->getBody(), true);
+        $data = json_decode($response->getContent(), true);
         $this->assertFalse($data['data']['attributes']['canSearchUsers']);
     }
 
@@ -91,7 +91,7 @@ class RemembererTest extends TestCase
 
         Carbon::setTestNow();
 
-        $data = json_decode($response->getBody(), true);
+        $data = json_decode($response->getContent(), true);
         $this->assertTrue($data['data']['attributes']['canSearchUsers']);
     }
 }

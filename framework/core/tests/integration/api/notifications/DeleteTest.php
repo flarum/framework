@@ -50,7 +50,7 @@ class DeleteTest extends TestCase
      */
     public function user_can_delete_all_notifications(int $authenticatedAs)
     {
-        $this->app();
+        $this->bootstrap();
 
         $this->assertEquals(2, User::query()->find($authenticatedAs)->notifications()->count());
 

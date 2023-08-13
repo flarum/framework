@@ -12,6 +12,7 @@ namespace Flarum\Tags\Tests\integration\api\discussions;
 use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class ListTest extends TestCase
@@ -118,7 +119,7 @@ class ListTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
         $this->assertEqualsCanonicalizing(['1', '2', '3', '4', '5', '6'], $ids);
@@ -137,7 +138,7 @@ class ListTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
         $this->assertEqualsCanonicalizing(['1', '2', '3', '4'], $ids);
@@ -154,7 +155,7 @@ class ListTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
         $this->assertEqualsCanonicalizing(['1', '2'], $ids);
@@ -190,7 +191,7 @@ class ListTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
         $this->assertEqualsCanonicalizing($expectedDiscussions, $ids);
@@ -221,17 +222,19 @@ class ListTest extends TestCase
     public function can_filter_by_authorized_tags(int $authenticatedAs, string $tags, array $expectedDiscussionIds)
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions', compact('authenticatedAs'))
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/discussions', compact('authenticatedAs')),
+                fn (Request $request) => $request->query->add([
                     'filter' => [
                         'tag' => $tags
                     ]
                 ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
         $this->assertEqualsCanonicalizing($expectedDiscussionIds, array_map('intval', $ids));

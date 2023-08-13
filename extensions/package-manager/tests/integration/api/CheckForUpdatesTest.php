@@ -38,6 +38,6 @@ class CheckForUpdatesTest extends TestCase
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals(['flarum/tags'], Arr::pluck(json_decode((string) $response->getBody(), true)['updates']['installed'], 'name'));
+        $this->assertEquals(['flarum/tags'], Arr::pluck(json_decode((string) $response->getContent(), true)['updates']['installed'], 'name'));
     }
 }

@@ -139,7 +139,7 @@ class PolicyTest extends TestCase
      */
     public function regular_user_can_start_discussions_by_default()
     {
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(2);
 
@@ -156,7 +156,7 @@ class PolicyTest extends TestCase
             ->globalPolicy(GlobalStartDiscussionPolicy::class)
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(2);
 
@@ -173,7 +173,7 @@ class PolicyTest extends TestCase
                 ->globalPolicy(GlobalStartDiscussionPolicy::class)
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(2);
 
@@ -185,7 +185,7 @@ class PolicyTest extends TestCase
      */
     public function unrelated_user_cant_hide_post_by_default()
     {
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(2);
 
@@ -200,7 +200,7 @@ class PolicyTest extends TestCase
         $this->extend(
             (new Extend\Policy)->modelPolicy(CommentPost::class, CommentPostChildClassPolicy::class)
         );
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(2);
 
@@ -216,7 +216,7 @@ class PolicyTest extends TestCase
             (new Extend\Policy)->modelPolicy(Post::class, PostParentClassPolicy::class),
             (new Extend\Policy)->modelPolicy(CommentPost::class, CommentPostChildClassPolicy::class)
         );
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(2);
 

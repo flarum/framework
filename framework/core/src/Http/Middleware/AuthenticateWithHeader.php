@@ -41,8 +41,8 @@ class AuthenticateWithHeader implements IlluminateMiddlewareInterface
                 $userId = $parts[1] ?? '';
                 $actor = $key->user ?? $this->getUser($userId);
 
-                $request = $request->withAttribute('apiKey', $key);
-                $request = $request->withAttribute('bypassThrottling', true);
+                $request->attributes->set('apiKey', $key);
+                $request->attributes->set('bypassThrottling', true);
             } elseif ($token = AccessToken::findValid($id)) {
                 $token->touch(request: $request);
 
@@ -53,8 +53,8 @@ class AuthenticateWithHeader implements IlluminateMiddlewareInterface
                 $actor->updateLastSeen()->save();
 
                 $request = RequestUtil::withActor($request, $actor);
-                $request = $request->withAttribute('bypassCsrfToken', true);
-                $request = $request->withoutAttribute('session');
+                $request->attributes->set('bypassCsrfToken', true);
+                $request->attributes->remove('session');
             }
         }
 

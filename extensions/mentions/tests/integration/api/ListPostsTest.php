@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Mentions\Api\LoadMentionedByRelationship;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class ListPostsTest extends TestCase
@@ -55,13 +56,15 @@ class ListPostsTest extends TestCase
     public function mentioned_filter_works()
     {
         $response = $this->send(
-            $this->request('GET', '/api/posts')
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/posts'),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['mentioned' => 1],
                 ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $ids = Arr::pluck($data, 'id');
@@ -74,13 +77,15 @@ class ListPostsTest extends TestCase
     public function mentioned_filter_works_negated()
     {
         $response = $this->send(
-            $this->request('GET', '/api/posts')
-            ->withQueryParams([
-                'filter' => ['-mentioned' => 1],
-            ])
+            tap(
+                $this->request('GET', '/api/posts'),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['-mentioned' => 1],
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $ids = Arr::pluck($data, 'id');
@@ -93,14 +98,16 @@ class ListPostsTest extends TestCase
     public function mentioned_filter_works_with_sort()
     {
         $response = $this->send(
-            $this->request('GET', '/api/posts')
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/posts'),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['mentioned' => 1],
                     'sort' => '-createdAt'
                 ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -153,14 +160,17 @@ class ListPostsTest extends TestCase
 
         // List posts endpoint
         $response = $this->send(
-            $this->request('GET', '/api/posts/101', [
-                'authenticatedAs' => 2,
-            ])->withQueryParams([
-                'include' => 'mentionedBy',
-            ])
+            tap(
+                $this->request('GET', '/api/posts/101', [
+                    'authenticatedAs' => 2,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'include' => 'mentionedBy',
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -179,15 +189,18 @@ class ListPostsTest extends TestCase
 
         // List posts endpoint
         $response = $this->send(
-            $this->request('GET', '/api/posts', [
-                'authenticatedAs' => 2,
-            ])->withQueryParams([
-                'filter' => ['discussion' => 100],
-                'include' => 'mentionedBy',
-            ])
+            tap(
+                $this->request('GET', '/api/posts', [
+                    'authenticatedAs' => 2,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['discussion' => 100],
+                    'include' => 'mentionedBy',
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -209,14 +222,17 @@ class ListPostsTest extends TestCase
 
         // Show discussion endpoint
         $response = $this->send(
-            $this->request('GET', '/api/discussions/100', [
-                'authenticatedAs' => 2,
-            ])->withQueryParams([
-                'include' => $include,
-            ])
+            tap(
+                $this->request('GET', '/api/discussions/100', [
+                    'authenticatedAs' => 2,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'include' => $include,
+                ])
+            )
         );
 
-        $included = json_decode($response->getBody()->getContents(), true)['included'];
+        $included = json_decode($response->getContent(), true)['included'];
 
         $mentionedBy = collect($included)
             ->where('type', 'posts')
@@ -250,7 +266,7 @@ class ListPostsTest extends TestCase
             ])
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $this->assertEquals(200, $response->getStatusCode());
 

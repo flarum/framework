@@ -21,7 +21,7 @@ class BeginTransactionAndSetDatabase implements ExtenderInterface
      */
     protected $setDbOnTestCase;
 
-    public function __construct(callable $setDbOnTestCase)
+    public function __construct(?callable $setDbOnTestCase)
     {
         $this->setDbOnTestCase = $setDbOnTestCase;
     }
@@ -32,6 +32,8 @@ class BeginTransactionAndSetDatabase implements ExtenderInterface
 
         $db->beginTransaction();
 
-        ($this->setDbOnTestCase)($db);
+        if ($this->setDbOnTestCase) {
+            ($this->setDbOnTestCase)($db);
+        }
     }
 }

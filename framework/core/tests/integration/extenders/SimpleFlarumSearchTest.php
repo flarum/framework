@@ -64,7 +64,7 @@ class SimpleFlarumSearchTest extends TestCase
 
     public function searchDiscussions($query, $limit = null)
     {
-        $this->app();
+        $this->bootstrap();
 
         $actor = User::find(1);
 

@@ -16,6 +16,7 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Http\Request;
 
 class ReplyNotificationTest extends TestCase
 {
@@ -67,7 +68,7 @@ class ReplyNotificationTest extends TestCase
      */
     public function replying_to_a_discussion_with_comment_post_as_last_post_sends_reply_notification(int $userId, int $discussionId, int $newNotificationCount)
     {
-        $this->app();
+        $this->bootstrap();
 
         /** @var User $mainUser */
         $mainUser = User::query()->find($userId);
@@ -76,7 +77,7 @@ class ReplyNotificationTest extends TestCase
 
         for ($i = 0; $i < 5; $i++) {
             $this->send(
-                $this->request('POST', '/api/posts', [
+                tap($this->request('POST', '/api/posts', [
                     'authenticatedAs' => 4,
                     'json' => [
                         'data' => [
@@ -88,7 +89,7 @@ class ReplyNotificationTest extends TestCase
                             ],
                         ],
                     ],
-                ])->withAttribute('bypassThrottling', true)
+                ]), fn (Request $request ) => $request->attributes->set('bypassThrottling', true))
             );
         }
 
@@ -108,7 +109,7 @@ class ReplyNotificationTest extends TestCase
     /** @test */
     public function replying_to_a_discussion_with_event_post_as_last_post_sends_reply_notification()
     {
-        $this->app();
+        $this->bootstrap();
 
         /** @var User $mainUser */
         $mainUser = User::query()->find(1);
@@ -231,7 +232,7 @@ class ReplyNotificationTest extends TestCase
         // Flags was only specified because it is required for approval.
         $this->extensions = ['flarum-flags', 'flarum-approval', 'flarum-subscriptions'];
 
-        $this->app();
+        $this->bootstrap();
 
         $this->database()
             ->table('group_permission')
@@ -262,7 +263,7 @@ class ReplyNotificationTest extends TestCase
 
         $this->assertEquals(0, $mainUser->getUnreadNotificationCount());
 
-        $json = json_decode($response->getBody()->getContents(), true);
+        $json = json_decode($response->getContent(), true);
 
         // Approve the previous post
         $this->send(
@@ -295,7 +296,7 @@ class ReplyNotificationTest extends TestCase
                 })
         );
 
-        $this->app();
+        $this->bootstrap();
 
         /** @var User $allowedUser */
         $allowedUser = User::query()->find(1);

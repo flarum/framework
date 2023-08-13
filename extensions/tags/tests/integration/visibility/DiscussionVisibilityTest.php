@@ -85,7 +85,7 @@ class DiscussionVisibilityTest extends TestCase
      */
     public function admin_sees_all()
     {
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(1);
         $discussions = Discussion::whereVisibleTo($user, 'arbitraryAbility')->get();
@@ -99,7 +99,7 @@ class DiscussionVisibilityTest extends TestCase
      */
     public function user_sees_where_allowed()
     {
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(2);
         $discussions = Discussion::whereVisibleTo($user, 'arbitraryAbility')->get();
@@ -127,7 +127,7 @@ class DiscussionVisibilityTest extends TestCase
      */
     public function guest_can_see_where_allowed()
     {
-        $this->app();
+        $this->bootstrap();
 
         $user = new Guest();
         $discussions = Discussion::whereVisibleTo($user, 'arbitraryAbility')->get();

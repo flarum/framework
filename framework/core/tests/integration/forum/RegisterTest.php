@@ -21,7 +21,7 @@ class RegisterTest extends TestCase
     protected function setUp(): void
     {
         $this->extend(
-            (new Extend\Csrf)->exemptRoute('register')
+            (new Extend\Csrf)->exemptRoute('forum.register')
         );
     }
 
@@ -37,7 +37,7 @@ class RegisterTest extends TestCase
         $this->assertEquals(422, $response->getStatusCode());
 
         // The response body should contain details about the failed validation
-        $body = (string) $response->getBody();
+        $body = (string) $response->getContent();
         $this->assertJson($body);
         $this->assertEquals([
             'errors' => [

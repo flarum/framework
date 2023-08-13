@@ -12,6 +12,7 @@ namespace Flarum\Statistics\tests\integration\api;
 use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 
 class CanRequestLifetimeStatisticsTest extends TestCase
 {
@@ -62,12 +63,15 @@ class CanRequestLifetimeStatisticsTest extends TestCase
     public function can_request_lifetime_stats()
     {
         $response = $this->send(
-            $this->request('GET', '/api/statistics', ['authenticatedAs' => 1])->withQueryParams([
-                'period' => 'lifetime',
-            ])
+            tap(
+                $this->request('GET', '/api/statistics', ['authenticatedAs' => 1]),
+                fn (Request $request) => $request->query->add([
+                    'period' => 'lifetime',
+                ])
+            )
         );
 
-        $body = json_decode($response->getBody()->getContents(), true);
+        $body = json_decode($response->getContent(), true);
 
         $db = $this->getDatabaseData();
 

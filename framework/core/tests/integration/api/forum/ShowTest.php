@@ -42,7 +42,7 @@ class ShowTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $json = json_decode($response->getBody()->getContents(), true);
+        $json = json_decode($response->getContent(), true);
 
         $this->assertArrayNotHasKey('actor', Arr::get($json, 'data.relationships'));
     }
@@ -60,7 +60,7 @@ class ShowTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $json = json_decode($response->getBody()->getContents(), true);
+        $json = json_decode($response->getContent(), true);
 
         $this->assertEquals(true, Arr::get($json, 'data.attributes.debug'));
         $this->assertEquals('http://localhost', Arr::get($json, 'data.attributes.baseUrl'));
@@ -84,7 +84,7 @@ class ShowTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $json = json_decode($response->getBody()->getContents(), true);
+        $json = json_decode($response->getContent(), true);
 
         $this->assertEquals(true, Arr::get($json, 'data.attributes.debug'));
         $this->assertEquals('http://localhost', Arr::get($json, 'data.attributes.baseUrl'));

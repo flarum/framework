@@ -70,7 +70,7 @@ class GroupMentionsTest extends TestCase
             $this->request('GET', '/api/posts/4')
         );
 
-        $contents = $response->getBody()->getContents();
+        $contents = $response->getContent();
 
         $this->assertEquals(200, $response->getStatusCode(), $contents);
 
@@ -104,7 +104,7 @@ class GroupMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('@"InvalidGroup"#g99', $response['data']['attributes']['content']);
         $this->assertStringNotContainsString('GroupMention', $response['data']['attributes']['contentHtml']);
@@ -126,7 +126,7 @@ class GroupMentionsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString("@$deleted_text", $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('GroupMention', $response['data']['attributes']['contentHtml']);
@@ -148,7 +148,7 @@ class GroupMentionsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('@Fresh Name', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('GroupMention', $response['data']['attributes']['contentHtml']);
@@ -179,7 +179,7 @@ class GroupMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('@Mods', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('fas fa-bolt', $response['data']['attributes']['contentHtml']);
@@ -211,7 +211,7 @@ class GroupMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('@Admins', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('@Mods', $response['data']['attributes']['contentHtml']);
@@ -245,7 +245,7 @@ class GroupMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringNotContainsString('@Members', $response['data']['attributes']['contentHtml']);
         $this->assertStringNotContainsString('@Guests', $response['data']['attributes']['contentHtml']);
@@ -301,7 +301,7 @@ class GroupMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringNotContainsString('@Mods', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('@"Mods"#g4', $response['data']['attributes']['content']);
@@ -332,7 +332,7 @@ class GroupMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('@Mods', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('@"Mods"#g4', $response['data']['attributes']['content']);
@@ -363,7 +363,7 @@ class GroupMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringNotContainsString('@Ninjas', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('@"Ninjas"#g10', $response['data']['attributes']['content']);
@@ -391,7 +391,7 @@ class GroupMentionsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('@Mods', $response['data']['attributes']['contentHtml']);
         $this->assertEquals('New content with @"Mods"#g4 mention', $response['data']['attributes']['content']);

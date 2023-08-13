@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Http\AccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class ListTest extends TestCase
@@ -62,9 +63,9 @@ class ListTest extends TestCase
             $request = $this->request('GET', '/api/access-tokens', compact('authenticatedAs'))
         );
 
-        $data = Arr::get(json_decode($response->getBody()->getContents(), true), 'data');
+        $data = Arr::get(json_decode($response->getContent(), true), 'data');
 
-        $testsTokenId = AccessToken::findValid($request->getAttribute('tests_token'))->id;
+        $testsTokenId = AccessToken::findValid($request->attributes->get('tests_token'))->id;
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEqualsCanonicalizing(array_merge($canViewIds, [$testsTokenId]), Arr::pluck($data, 'id'));
@@ -83,12 +84,13 @@ class ListTest extends TestCase
         }
 
         $response = $this->send(
-            $this
-                ->request('GET', '/api/access-tokens', compact('authenticatedAs'))
-                ->withQueryParams($filters ?? [])
+            tap(
+                $this->request('GET', '/api/access-tokens', compact('authenticatedAs')),
+                fn (Request $request) => $request->query->add([$filters ?? []])
+            )
         );
 
-        $data = Arr::get(json_decode($response->getBody()->getContents(), true), 'data');
+        $data = Arr::get(json_decode($response->getContent(), true), 'data');
 
         // There is always an additional null value to refer to the current session.
         if (! $userId || $authenticatedAs === $userId) {
@@ -106,14 +108,16 @@ class ListTest extends TestCase
     public function user_needs_permissions_to_use_user_filter(int $authenticatedAs, int $userId, array $canViewIds)
     {
         $response = $this->send(
-            $request = $this->request('GET', '/api/access-tokens', compact('authenticatedAs'))
-                ->withQueryParams([
+            $request = tap(
+                $this->request('GET', '/api/access-tokens', compact('authenticatedAs')),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['user' => $userId]
                 ])
+            )
         );
 
-        $data = Arr::get(json_decode($response->getBody()->getContents(), true), 'data');
-        $testsTokenId = AccessToken::findValid($request->getAttribute('tests_token'))->id;
+        $data = Arr::get(json_decode($response->getContent(), true), 'data');
+        $testsTokenId = AccessToken::findValid($request->attributes->get('tests_token'))->id;
 
         if ($authenticatedAs === $userId) {
             $canViewIds[] = $testsTokenId;

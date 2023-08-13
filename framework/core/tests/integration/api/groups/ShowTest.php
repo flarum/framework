@@ -41,7 +41,7 @@ class ShowTest extends TestCase
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         // Default group created by the installer should be returned
         $this->assertEquals('1', Arr::get($data, 'data.id'));
@@ -59,7 +59,7 @@ class ShowTest extends TestCase
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         // Default group created by the installer should be returned
         $this->assertEquals('1', Arr::get($data, 'data.id'));
@@ -90,7 +90,7 @@ class ShowTest extends TestCase
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         // Hidden group should be returned for admin
         $this->assertEquals('10', Arr::get($data, 'data.id'));

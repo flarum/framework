@@ -13,6 +13,7 @@ use Flarum\Group\Group;
 use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class ShowTest extends TestCase
@@ -92,16 +93,19 @@ class ShowTest extends TestCase
     public function user_sees_tag_relations_where_allowed(string $include, array $expectedIncludes)
     {
         $response = $this->send(
-            $this->request('GET', '/api/tags/primary-2-child-2', [
-                'authenticatedAs' => 2,
-            ])->withQueryParams([
-                'include' => $include
-            ])
+            tap(
+                $this->request('GET', '/api/tags/primary-2-child-2', [
+                    'authenticatedAs' => 2,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'include' => $include
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $responseBody = json_decode($response->getBody()->getContents(), true);
+        $responseBody = json_decode($response->getContent(), true);
 
         $included = $responseBody['included'] ?? [];
         $this->assertEqualsCanonicalizing($expectedIncludes, Arr::pluck($included, 'id'));

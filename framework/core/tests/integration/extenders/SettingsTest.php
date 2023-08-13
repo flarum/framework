@@ -45,7 +45,7 @@ class SettingsTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayNotHasKey('customPrefix.customSetting', $payload['data']['attributes']);
     }
@@ -66,7 +66,7 @@ class SettingsTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customPrefix.customSetting', $payload['data']['attributes']);
         $this->assertEquals('customValue', $payload['data']['attributes']['customPrefix.customSetting']);
@@ -90,7 +90,7 @@ class SettingsTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customPrefix.customSetting', $payload['data']['attributes']);
         $this->assertEquals('customValueModified', $payload['data']['attributes']['customPrefix.customSetting']);
@@ -112,7 +112,7 @@ class SettingsTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customPrefix.customSetting2', $payload['data']['attributes']);
         $this->assertEquals('customValueModifiedByInvokable', $payload['data']['attributes']['customPrefix.customSetting2']);
@@ -134,7 +134,7 @@ class SettingsTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customPrefix.noCustomSetting', $payload['data']['attributes']);
         $this->assertEquals('customDefault', $payload['data']['attributes']['customPrefix.noCustomSetting']);
@@ -158,7 +158,7 @@ class SettingsTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customPrefix.noCustomSetting', $payload['data']['attributes']);
         $this->assertEquals('customDefaultModified2', $payload['data']['attributes']['customPrefix.noCustomSetting']);

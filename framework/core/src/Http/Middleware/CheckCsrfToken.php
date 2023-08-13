@@ -48,6 +48,10 @@ class CheckCsrfToken implements IlluminateMiddlewareInterface
 
         $provided = $request->json('csrfToken', $request->header('X-CSRF-Token'));
 
+        if (! is_string($provided)) {
+            return false;
+        }
+
         return hash_equals($expected, $provided);
     }
 }

@@ -40,7 +40,7 @@ class ShowTagController extends AbstractShowController
 
     protected function data(Request $request, Document $document): Tag
     {
-        $slug = $request->query('slug');
+        $slug = $request->route('slug');
         $actor = RequestUtil::getActor($request);
         $include = $this->extractInclude($request);
         $setParentOnChildren = false;

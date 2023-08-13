@@ -32,7 +32,7 @@ class PasswordEmailTokensTest extends TestCase
     /** @test */
     public function actor_has_no_tokens_by_default()
     {
-        $this->app();
+        $this->bootstrap();
 
         $this->assertEquals(0, PasswordToken::query()->where('user_id', 2)->count());
         $this->assertEquals(0, EmailToken::query()->where('user_id', 2)->count());
@@ -57,7 +57,7 @@ class PasswordEmailTokensTest extends TestCase
     /** @test */
     public function password_tokens_are_deleted_after_password_reset()
     {
-        $this->app();
+        $this->bootstrap();
 
         // Request password change to generate a token.
         $response = $this->send(
@@ -119,7 +119,7 @@ class PasswordEmailTokensTest extends TestCase
     /** @test */
     public function email_tokens_are_deleted_when_confirming_email()
     {
-        $this->app();
+        $this->bootstrap();
 
         EmailToken::generate('new-normal2@machine.local', 2)->save();
         EmailToken::generate('new-normal3@machine.local', 2)->save();
@@ -141,7 +141,7 @@ class PasswordEmailTokensTest extends TestCase
     /** @test */
     public function email_tokens_are_deleted_after_password_reset()
     {
-        $this->app();
+        $this->bootstrap();
 
         // Request password change to generate a token.
         $response = $this->send(
@@ -180,7 +180,7 @@ class PasswordEmailTokensTest extends TestCase
     /** @test */
     public function password_tokens_are_deleted_when_confirming_email()
     {
-        $this->app();
+        $this->bootstrap();
 
         PasswordToken::generate(2)->save();
         PasswordToken::generate(2)->save();

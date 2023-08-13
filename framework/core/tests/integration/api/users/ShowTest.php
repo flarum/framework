@@ -11,6 +11,7 @@ namespace Flarum\Tests\integration\api\users;
 
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 
 class ShowTest extends TestCase
 {
@@ -60,11 +61,14 @@ class ShowTest extends TestCase
     public function admin_can_see_user_via_slug()
     {
         $response = $this->send(
-            $this->request('GET', '/api/users/normal', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'bySlug' => true
-            ])
+            tap(
+                $this->request('GET', '/api/users/normal', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'bySlug' => true
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -88,9 +92,12 @@ class ShowTest extends TestCase
     public function guest_can_see_user_by_slug_by_default()
     {
         $response = $this->send(
-            $this->request('GET', '/api/users/normal')->withQueryParams([
-                'bySlug' => true
-            ])
+            tap(
+                $this->request('GET', '/api/users/normal'),
+                fn (Request $request) => $request->query->add([
+                    'bySlug' => true
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -118,9 +125,12 @@ class ShowTest extends TestCase
         $this->forbidGuestsFromSeeingForum();
 
         $response = $this->send(
-            $this->request('GET', '/api/users/normal')->withQueryParams([
-                'bySlug' => true
-            ])
+            tap(
+                $this->request('GET', '/api/users/normal'),
+                fn (Request $request) => $request->query->add([
+                    'bySlug' => true
+                ])
+            )
         );
 
         $this->assertEquals(404, $response->getStatusCode());
@@ -146,11 +156,14 @@ class ShowTest extends TestCase
     public function user_can_see_themselves_via_slug()
     {
         $response = $this->send(
-            $this->request('GET', '/api/users/normal', [
-                'authenticatedAs' => 2,
-            ])->withQueryParams([
-                'bySlug' => true
-            ])
+            tap(
+                $this->request('GET', '/api/users/normal', [
+                    'authenticatedAs' => 2,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'bySlug' => true
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -176,11 +189,14 @@ class ShowTest extends TestCase
     public function user_can_see_others_by_default_via_slug()
     {
         $response = $this->send(
-            $this->request('GET', '/api/users/admin', [
-                'authenticatedAs' => 2,
-            ])->withQueryParams([
-                'bySlug' => true
-            ])
+            tap(
+                $this->request('GET', '/api/users/admin', [
+                    'authenticatedAs' => 2,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'bySlug' => true
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -194,11 +210,14 @@ class ShowTest extends TestCase
         $this->forbidMembersFromSearchingUsers();
 
         $response = $this->send(
-            $this->request('GET', '/api/users/admin', [
-                'authenticatedAs' => 2,
-            ])->withQueryParams([
-                'bySlug' => true
-            ])
+            tap(
+                $this->request('GET', '/api/users/admin', [
+                    'authenticatedAs' => 2,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'bySlug' => true
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());

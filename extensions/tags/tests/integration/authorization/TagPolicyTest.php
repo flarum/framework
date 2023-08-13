@@ -47,7 +47,7 @@ class TagPolicyTest extends TestCase
      */
     public function has_ability_when_allowed_in_restricted_tag()
     {
-        $this->app();
+        $this->bootstrap();
 
         $tag = Tag::find(6);
 
@@ -59,7 +59,7 @@ class TagPolicyTest extends TestCase
      */
     public function has_ability_in_child_when_allowed_in_top_tag_and_child()
     {
-        $this->app();
+        $this->bootstrap();
 
         $tag = Tag::find(8);
 
@@ -71,7 +71,7 @@ class TagPolicyTest extends TestCase
      */
     public function doesnt_have_ability_in_child_when_allowed_in_child_but_not_parent()
     {
-        $this->app();
+        $this->bootstrap();
 
         $this->database()->table('group_permission')->where('permission', 'tag6.arbitraryAbility!')->delete();
 
@@ -91,7 +91,7 @@ class TagPolicyTest extends TestCase
             ]
         ]);
 
-        $this->app();
+        $this->bootstrap();
 
         $tag = Tag::find(1);
 
@@ -103,7 +103,7 @@ class TagPolicyTest extends TestCase
      */
     public function nonrestricted_tag_falls_back_to_global_when_not_allowed()
     {
-        $this->app();
+        $this->bootstrap();
 
         $tag = Tag::find(1);
 

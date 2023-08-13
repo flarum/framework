@@ -25,7 +25,7 @@ class DeleteTagController extends AbstractDeleteController
     protected function delete(Request $request): void
     {
         $this->bus->dispatch(
-            new DeleteTag($request->query('id'), RequestUtil::getActor($request))
+            new DeleteTag($request->route('id'), RequestUtil::getActor($request))
         );
     }
 }

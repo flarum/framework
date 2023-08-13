@@ -34,7 +34,7 @@ class Tag
     {
         $actor = RequestUtil::getActor($request);
 
-        $slug = $request->query('slug');
+        $slug = $request->route('slug');
         $sort = $request->query('sort');
         $q = $request->query('q', '');
         $page = $request->query('page', 1);

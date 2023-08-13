@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\api\posts;
 use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class ListTests extends TestCase
@@ -57,7 +58,7 @@ class ListTests extends TestCase
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         $this->assertEqualsCanonicalizing([], $data['data']);
     }
@@ -72,7 +73,7 @@ class ListTests extends TestCase
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         $this->assertEquals(5, count($data['data']));
     }
@@ -83,14 +84,16 @@ class ListTests extends TestCase
     public function author_filter_works()
     {
         $response = $this->send(
-            $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/posts', ['authenticatedAs' => 1]),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['author' => 'admin'],
                 ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         $this->assertEqualsCanonicalizing(['1', '2'], Arr::pluck($data['data'], 'id'));
     }
@@ -101,14 +104,16 @@ class ListTests extends TestCase
     public function author_filter_works_with_multiple_values()
     {
         $response = $this->send(
-            $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/posts', ['authenticatedAs' => 1]),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['author' => 'admin,normal'],
                 ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         $this->assertEqualsCanonicalizing(['1', '2', '3', '4', '5'], Arr::pluck($data['data'], 'id'));
     }
@@ -119,14 +124,16 @@ class ListTests extends TestCase
     public function discussion_filter_works()
     {
         $response = $this->send(
-            $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
-            ->withQueryParams([
-                'filter' => ['discussion' => '1'],
-            ])
+            tap(
+                $this->request('GET', '/api/posts', ['authenticatedAs' => 1]),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['discussion' => '1'],
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         $this->assertEqualsCanonicalizing(['1', '3'], Arr::pluck($data['data'], 'id'));
     }
@@ -137,14 +144,16 @@ class ListTests extends TestCase
     public function type_filter_works()
     {
         $response = $this->send(
-            $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/posts', ['authenticatedAs' => 1]),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['type' => 'discussionRenamed'],
                 ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         $this->assertEqualsCanonicalizing(['5'], Arr::pluck($data['data'], 'id'));
     }
@@ -155,14 +164,16 @@ class ListTests extends TestCase
     public function number_filter_works()
     {
         $response = $this->send(
-            $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/posts', ['authenticatedAs' => 1]),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['number' => '2'],
                 ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         $this->assertEqualsCanonicalizing(['3', '4'], Arr::pluck($data['data'], 'id'));
     }
@@ -173,14 +184,16 @@ class ListTests extends TestCase
     public function id_filter_works()
     {
         $response = $this->send(
-            $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/posts', ['authenticatedAs' => 1]),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['id' => '4'],
                 ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         $this->assertEqualsCanonicalizing(['4'], Arr::pluck($data['data'], 'id'));
     }
@@ -191,14 +204,16 @@ class ListTests extends TestCase
     public function id_filter_works_with_multiple_ids()
     {
         $response = $this->send(
-            $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/posts', ['authenticatedAs' => 1]),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['id' => '1,3,5'],
                 ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         $this->assertEqualsCanonicalizing(['1', '3', '5'], Arr::pluck($data['data'], 'id'));
     }

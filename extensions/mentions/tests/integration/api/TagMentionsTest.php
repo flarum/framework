@@ -81,7 +81,7 @@ class TagMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('TagMention', $response['data']['attributes']['contentHtml']);
         $this->assertStringNotContainsString('TagMention--deleted', $response['data']['attributes']['contentHtml']);
@@ -109,7 +109,7 @@ class TagMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('Tatakai', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('TagMention', $response['data']['attributes']['contentHtml']);
@@ -138,7 +138,7 @@ class TagMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertEquals('#franzofflarum', $response['data']['attributes']['content']);
         $this->assertStringNotContainsString('TagMention', $response['data']['attributes']['contentHtml']);
@@ -168,7 +168,7 @@ class TagMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertEquals('#test', $response['data']['attributes']['content']);
         $this->assertStringNotContainsString('TagMention', $response['data']['attributes']['contentHtml']);
@@ -196,7 +196,7 @@ class TagMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertEquals('#dev', $response['data']['attributes']['content']);
         $this->assertStringNotContainsString('TagMention', $response['data']['attributes']['contentHtml']);
@@ -224,7 +224,7 @@ class TagMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertEquals('#dev', $response['data']['attributes']['content']);
         $this->assertStringContainsString('TagMention', $response['data']['attributes']['contentHtml']);
@@ -252,7 +252,7 @@ class TagMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('Test', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('Flarum', $response['data']['attributes']['contentHtml']);
@@ -273,7 +273,7 @@ class TagMentionsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('Test', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('TagMention', $response['data']['attributes']['contentHtml']);
@@ -305,7 +305,7 @@ class TagMentionsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('#test', $response['data']['attributes']['content']);
         $this->assertCount(1, CommentPost::find($response['data']['id'])->mentionsTags);
@@ -325,7 +325,7 @@ class TagMentionsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString($deleted_text, $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString("#$deleted_text", $response['data']['attributes']['content']);
@@ -348,7 +348,7 @@ class TagMentionsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('Support', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString("#$deleted_text", $response['data']['attributes']['content']);
@@ -375,7 +375,7 @@ class TagMentionsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('Laravel "#t6 Tag', $response['data']['attributes']['contentHtml']);
         $this->assertEquals('#laravel', $response['data']['attributes']['content']);

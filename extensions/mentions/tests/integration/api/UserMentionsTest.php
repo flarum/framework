@@ -85,7 +85,7 @@ class UserMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringNotContainsString('@POTATO$', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('@potato', $response['data']['attributes']['content']);
@@ -118,7 +118,7 @@ class UserMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('@POTATO$', $response['data']['attributes']['contentHtml']);
         $this->assertEquals('@"POTATO$"#3', $response['data']['attributes']['content']);
@@ -149,7 +149,7 @@ class UserMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('@POTATO$', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('@"POTATO$"#3', $response['data']['attributes']['content']);
@@ -180,7 +180,7 @@ class UserMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('@POTATO$', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('@"POTATO$"#3', $response['data']['attributes']['content']);
@@ -211,7 +211,7 @@ class UserMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringNotContainsString('@FRANZOFFLARUM$', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('@"franzofflarum"#82', $response['data']['attributes']['content']);
@@ -242,7 +242,7 @@ class UserMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('@TOBY$', $response['data']['attributes']['contentHtml']);
         $this->assertStringNotContainsString('@FRANZOFFLARUM$', $response['data']['attributes']['contentHtml']);
@@ -265,7 +265,7 @@ class UserMentionsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('@TOBY$', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('UserMention', $response['data']['attributes']['contentHtml']);
@@ -295,7 +295,7 @@ class UserMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('@POTATO$', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('UserMention', $response['data']['attributes']['contentHtml']);
@@ -325,7 +325,7 @@ class UserMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('@"POTATO$"#3', $response['data']['attributes']['content']);
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsUsers->find(3));
@@ -346,7 +346,7 @@ class UserMentionsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString("@$deleted_text", $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('@"'.$deleted_text.'"#2021', $response['data']['attributes']['content']);
@@ -380,7 +380,7 @@ class UserMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringNotContainsString('Bad "#p6 User', $response['data']['attributes']['contentHtml']);
         $this->assertNotEquals('@"Bad "#p6 User"#5', $response['data']['attributes']['content']);
@@ -401,7 +401,7 @@ class UserMentionsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('Bad "#p6 User', $response['data']['attributes']['contentHtml']);
         $this->assertStringContainsString('@"Bad _ User"#5', $response['data']['attributes']['content']);
@@ -432,7 +432,7 @@ class UserMentionsTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('Bad "#p6 User', $response['data']['attributes']['contentHtml']);
         $this->assertEquals('@"Bad _ User"#5', $response['data']['attributes']['content']);
@@ -460,7 +460,7 @@ class UserMentionsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('Bad "#p6 User', $response['data']['attributes']['contentHtml']);
         $this->assertEquals('@"Bad _ User"#5', $response['data']['attributes']['content']);
@@ -488,7 +488,7 @@ class UserMentionsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $response = json_decode($response->getBody(), true);
+        $response = json_decode($response->getContent(), true);
 
         $this->assertStringContainsString('Bad "#p6 User', $response['data']['attributes']['contentHtml']);
         $this->assertEquals('@"Bad _ User"#5', $response['data']['attributes']['content']);

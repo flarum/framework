@@ -62,7 +62,7 @@ class RequireCsrfTokenTest extends TestCase
         $this->assertEquals(400, $response->getStatusCode());
 
         // The response body should contain proper error details
-        $body = (string) $response->getBody();
+        $body = (string) $response->getContent();
         $this->assertJson($body);
 
         $json = json_decode($body, true);

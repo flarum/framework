@@ -35,7 +35,7 @@ class ConditionalTest extends TestCase
                 ])
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -43,7 +43,7 @@ class ConditionalTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
@@ -63,7 +63,7 @@ class ConditionalTest extends TestCase
                 ])
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -71,7 +71,7 @@ class ConditionalTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
@@ -93,7 +93,7 @@ class ConditionalTest extends TestCase
                 ])
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -101,7 +101,7 @@ class ConditionalTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
@@ -123,7 +123,7 @@ class ConditionalTest extends TestCase
                 ])
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -131,7 +131,7 @@ class ConditionalTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
@@ -157,7 +157,7 @@ class ConditionalTest extends TestCase
                 ])
         );
 
-        $this->app();
+        $this->bootstrap();
     }
 
     /** @test */
@@ -175,7 +175,7 @@ class ConditionalTest extends TestCase
                 ])
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -183,7 +183,7 @@ class ConditionalTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
@@ -205,7 +205,7 @@ class ConditionalTest extends TestCase
                 ])
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -213,7 +213,7 @@ class ConditionalTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
@@ -233,7 +233,7 @@ class ConditionalTest extends TestCase
                 ])
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -241,7 +241,7 @@ class ConditionalTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
@@ -262,7 +262,7 @@ class ConditionalTest extends TestCase
                 ])
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -270,7 +270,7 @@ class ConditionalTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }

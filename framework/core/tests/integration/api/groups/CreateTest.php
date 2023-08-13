@@ -71,7 +71,7 @@ class CreateTest extends TestCase
         $this->assertEquals(201, $response->getStatusCode());
 
         // Verify API response body
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
         $this->assertEquals('flarumite', Arr::get($data, 'data.attributes.nameSingular'));
         $this->assertEquals('flarumites', Arr::get($data, 'data.attributes.namePlural'));
         $this->assertEquals('test', Arr::get($data, 'data.attributes.icon'));

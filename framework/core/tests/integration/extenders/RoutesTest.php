@@ -45,7 +45,7 @@ class RoutesTest extends TestCase
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('Hello Flarumites!', $response->getBody());
+        $this->assertEquals('Hello Flarumites!', $response->getContent());
     }
 
     /**
@@ -80,7 +80,7 @@ class RoutesTest extends TestCase
             $this->request('GET', '/api')
         );
 
-        $this->assertEquals('Hello Flarumites!', $response->getBody());
+        $this->assertEquals('Hello Flarumites!', $response->getContent());
     }
 }
 

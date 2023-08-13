@@ -49,7 +49,7 @@ class UserTest extends TestCase
      */
     public function username_display_name_driver_used_by_default()
     {
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(1);
 
@@ -66,7 +66,7 @@ class UserTest extends TestCase
                 ->displayNameDriver('custom', CustomDisplayNameDriver::class)
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(1);
 
@@ -78,7 +78,7 @@ class UserTest extends TestCase
      */
     public function user_has_permissions_for_expected_groups_if_no_processors_added()
     {
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(2);
 
@@ -96,7 +96,7 @@ class UserTest extends TestCase
             });
         }));
 
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(2);
 
@@ -110,7 +110,7 @@ class UserTest extends TestCase
     {
         $this->extend((new Extend\User)->permissionGroups(CustomGroupProcessorClass::class));
 
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(2);
 
@@ -124,7 +124,7 @@ class UserTest extends TestCase
     {
         $this->registerTestPreference();
 
-        $this->app();
+        $this->bootstrap();
 
         /** @var User $user */
         $user = User::find(2);
@@ -138,7 +138,7 @@ class UserTest extends TestCase
     {
         $this->registerTestPreference();
 
-        $this->app();
+        $this->bootstrap();
 
         /** @var User $user */
         $user = User::find(2);
@@ -155,7 +155,7 @@ class UserTest extends TestCase
     {
         $this->registerTestPreference();
 
-        $this->app();
+        $this->bootstrap();
 
         /** @var User $user */
         $user = User::find(2);

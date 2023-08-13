@@ -141,7 +141,7 @@ class GlobalPolicyTest extends TestCase
             ]
         ]);
 
-        $this->app();
+        $this->bootstrap();
 
         $this->assertTrue(User::find(2)->can('startDiscussion'));
     }

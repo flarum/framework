@@ -29,7 +29,7 @@ class UpdateTagController extends AbstractShowController
 
     protected function data(Request $request, Document $document): Tag
     {
-        $id = $request->query('id');
+        $id = $request->route('id');
         $actor = RequestUtil::getActor($request);
         $data = $request->json('data', []);
 

@@ -26,7 +26,7 @@ class HttpServiceProvider extends AbstractServiceProvider
     public function register(): void
     {
         $this->container->singleton('flarum.http.csrfExemptPaths', function () {
-            return ['token'];
+            return ['api.token'];
         });
 
         $this->container->bind(Middleware\CheckCsrfToken::class, function (Container $container) {

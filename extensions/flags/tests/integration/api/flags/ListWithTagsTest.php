@@ -108,7 +108,7 @@ class ListWithTagsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
         $this->assertEqualsCanonicalizing(['1', '4', '5', '6', '7', '8', '9'], $ids);
@@ -127,7 +127,7 @@ class ListWithTagsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
         $this->assertEqualsCanonicalizing(['2', '4'], $ids);
@@ -146,7 +146,7 @@ class ListWithTagsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
         // 7 is included, even though mods can't view discussions.

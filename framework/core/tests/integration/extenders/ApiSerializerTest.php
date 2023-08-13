@@ -55,7 +55,7 @@ class ApiSerializerTest extends TestCase
      */
     public function custom_attributes_dont_exist_by_default()
     {
-        $this->app();
+        $this->bootstrap();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -63,7 +63,7 @@ class ApiSerializerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayNotHasKey('customAttribute', $payload['data']['attributes']);
     }
@@ -82,7 +82,7 @@ class ApiSerializerTest extends TestCase
                 })
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -90,7 +90,7 @@ class ApiSerializerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customAttribute', $payload['data']['attributes']);
     }
@@ -105,7 +105,7 @@ class ApiSerializerTest extends TestCase
                 ->attributes(CustomAttributesInvokableClass::class)
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -113,7 +113,7 @@ class ApiSerializerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customAttributeFromInvokable', $payload['data']['attributes']);
     }
@@ -132,7 +132,7 @@ class ApiSerializerTest extends TestCase
                 })
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $response = $this->send(
             $this->request('GET', '/api/users/2', [
@@ -140,7 +140,7 @@ class ApiSerializerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customAttribute', $payload['data']['attributes']);
     }
@@ -165,7 +165,7 @@ class ApiSerializerTest extends TestCase
                 })
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $response = $this->send(
             $this->request('GET', '/api/users/2', [
@@ -173,7 +173,7 @@ class ApiSerializerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customAttribute', $payload['data']['attributes']);
         $this->assertEquals('newValue', $payload['data']['attributes']['customAttribute']);
@@ -193,7 +193,7 @@ class ApiSerializerTest extends TestCase
                 })
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -201,7 +201,7 @@ class ApiSerializerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customSingleAttribute', $payload['data']['attributes']);
         $this->assertArrayHasKey('customSingleAttribute_0', $payload['data']['attributes']);
@@ -218,7 +218,7 @@ class ApiSerializerTest extends TestCase
                 ->attribute('customSingleAttribute_1', CustomSingleAttributeInvokableClass::class)
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $response = $this->send(
             $this->request('GET', '/api', [
@@ -226,7 +226,7 @@ class ApiSerializerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customSingleAttribute_1', $payload['data']['attributes']);
     }
@@ -243,7 +243,7 @@ class ApiSerializerTest extends TestCase
                 })
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $response = $this->send(
             $this->request('GET', '/api/users/2', [
@@ -251,7 +251,7 @@ class ApiSerializerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customSingleAttribute_2', $payload['data']['attributes']);
     }
@@ -272,7 +272,7 @@ class ApiSerializerTest extends TestCase
                 })
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $response = $this->send(
             $this->request('GET', '/api/users/2', [
@@ -280,7 +280,7 @@ class ApiSerializerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customSingleAttribute_3', $payload['data']['attributes']);
         $this->assertEquals('newValue', $payload['data']['attributes']['customSingleAttribute_3']);
@@ -305,7 +305,7 @@ class ApiSerializerTest extends TestCase
                 })
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $response = $this->send(
             $this->request('GET', '/api/users/2', [
@@ -313,7 +313,7 @@ class ApiSerializerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('someCustomAttribute', $payload['data']['attributes']);
         $this->assertEquals('newValue', $payload['data']['attributes']['someCustomAttribute']);
@@ -337,7 +337,7 @@ class ApiSerializerTest extends TestCase
             ])
         );
 
-        $responseJson = json_decode($response->getBody(), true);
+        $responseJson = json_decode($response->getContent(), true);
 
         $this->assertArrayNotHasKey('customSerializerRelation', $responseJson['data']['relationships']);
         $this->assertArrayNotHasKey('postCustomRelation', $responseJson['data']['relationships']);
@@ -364,7 +364,7 @@ class ApiSerializerTest extends TestCase
             ])
         );
 
-        $responseJson = json_decode($response->getBody(), true);
+        $responseJson = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customSerializerRelation', $responseJson['data']['relationships']);
         $this->assertCount(3, $responseJson['data']['relationships']['customSerializerRelation']['data']);
@@ -390,7 +390,7 @@ class ApiSerializerTest extends TestCase
             ])
         );
 
-        $responseJson = json_decode($response->getBody(), true);
+        $responseJson = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customSerializerRelation', $responseJson['data']['relationships']);
         $this->assertEquals('discussions', $responseJson['data']['relationships']['customSerializerRelation']['data']['type']);
@@ -418,7 +418,7 @@ class ApiSerializerTest extends TestCase
             ])
         );
 
-        $responseJson = json_decode($response->getBody(), true);
+        $responseJson = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customSerializerRelation', $responseJson['data']['relationships']);
         $this->assertEquals('discussions', $responseJson['data']['relationships']['customSerializerRelation']['data']['type']);
@@ -444,7 +444,7 @@ class ApiSerializerTest extends TestCase
             ])
         );
 
-        $responseJson = json_decode($response->getBody(), true);
+        $responseJson = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customSerializerRelation', $responseJson['data']['relationships']);
         $this->assertEquals('discussions', $responseJson['data']['relationships']['customSerializerRelation']['data']['type']);
@@ -470,7 +470,7 @@ class ApiSerializerTest extends TestCase
             ])
         );
 
-        $responseJson = json_decode($response->getBody(), true);
+        $responseJson = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('anotherCustomRelation', $responseJson['data']['relationships']);
         $this->assertCount(3, $responseJson['data']['relationships']['anotherCustomRelation']['data']);
@@ -502,7 +502,7 @@ class ApiSerializerTest extends TestCase
             ])
         );
 
-        $responseJson = json_decode($response->getBody(), true);
+        $responseJson = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('postCustomRelation', $responseJson['data']['relationships']);
         $this->assertEquals('discussions', $responseJson['data']['relationships']['postCustomRelation']['data']['type']);

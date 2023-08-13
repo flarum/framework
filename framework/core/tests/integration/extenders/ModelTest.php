@@ -56,7 +56,7 @@ class ModelTest extends TestCase
      */
     public function custom_relationship_does_not_exist_by_default()
     {
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(1);
 
@@ -74,7 +74,7 @@ class ModelTest extends TestCase
                 ->hasOne('customRelation', Discussion::class, 'user_id')
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(1);
 
@@ -91,7 +91,7 @@ class ModelTest extends TestCase
                 ->hasMany('customRelation', Discussion::class, 'user_id')
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(1);
 
@@ -108,7 +108,7 @@ class ModelTest extends TestCase
                 ->belongsTo('customRelation', Discussion::class, 'user_id')
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(1);
 
@@ -127,7 +127,7 @@ class ModelTest extends TestCase
                 })
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(1);
 
@@ -144,7 +144,7 @@ class ModelTest extends TestCase
                 ->relationship('customRelation', CustomRelationClass::class)
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(1);
 
@@ -169,7 +169,7 @@ class ModelTest extends TestCase
             ]
         ]);
 
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(1);
 
@@ -189,7 +189,7 @@ class ModelTest extends TestCase
 
         $this->prepPostsHierarchy();
 
-        $this->app();
+        $this->bootstrap();
 
         $post = CommentPost::find(1);
 
@@ -211,7 +211,7 @@ class ModelTest extends TestCase
 
         $this->prepPostsHierarchy();
 
-        $this->app();
+        $this->bootstrap();
 
         $post = DiscussionRenamedPost::find(1);
 
@@ -233,7 +233,7 @@ class ModelTest extends TestCase
 
         $this->prepPostsHierarchy();
 
-        $this->app();
+        $this->bootstrap();
 
         $post = DiscussionRenamedPost::find(1);
 
@@ -253,7 +253,7 @@ class ModelTest extends TestCase
                 })
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $group = Group::find(1);
 
@@ -268,7 +268,7 @@ class ModelTest extends TestCase
     {
         $group = new Group;
 
-        $this->app();
+        $this->bootstrap();
 
         $this->assertNotEquals('Custom Default', $group->name_singular);
     }
@@ -283,7 +283,7 @@ class ModelTest extends TestCase
                 ->default('name_singular', 'Custom Default')
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $group = new Group;
 
@@ -304,7 +304,7 @@ class ModelTest extends TestCase
                 })
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $group1 = new Group;
         $group2 = new Group;
@@ -323,7 +323,7 @@ class ModelTest extends TestCase
                 ->default('answer', 42)
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $post = new CommentPost;
 
@@ -344,7 +344,7 @@ class ModelTest extends TestCase
                 ->default('answer', 'ni!')
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $post = new ModelTestCustomPost;
 
@@ -365,7 +365,7 @@ class ModelTest extends TestCase
                 ->default('name_singular', 'Custom Default')
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $user = new User;
 
@@ -379,7 +379,7 @@ class ModelTest extends TestCase
     {
         $post = new Post;
 
-        $this->app();
+        $this->bootstrap();
 
         $this->assertFalse($post->hasCast('custom'));
     }
@@ -394,7 +394,7 @@ class ModelTest extends TestCase
                 ->cast('custom', 'datetime')
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $post = new Post;
 
@@ -411,7 +411,7 @@ class ModelTest extends TestCase
                 ->cast('custom', 'boolean')
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $post = new CommentPost;
 
@@ -428,7 +428,7 @@ class ModelTest extends TestCase
                 ->cast('custom', 'integer')
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $discussion = new Discussion;
 

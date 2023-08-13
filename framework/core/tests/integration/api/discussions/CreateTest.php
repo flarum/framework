@@ -54,7 +54,7 @@ class CreateTest extends TestCase
         $this->assertEquals(422, $response->getStatusCode());
 
         // The response body should contain details about the failed validation
-        $body = (string) $response->getBody();
+        $body = (string) $response->getContent();
         $this->assertJson($body);
         $this->assertEquals([
             'errors' => [
@@ -90,7 +90,7 @@ class CreateTest extends TestCase
         $this->assertEquals(422, $response->getStatusCode());
 
         // The response body should contain details about the failed validation
-        $body = (string) $response->getBody();
+        $body = (string) $response->getContent();
         $this->assertJson($body);
         $this->assertEquals([
             'errors' => [
@@ -127,7 +127,7 @@ class CreateTest extends TestCase
 
         /** @var Discussion $discussion */
         $discussion = Discussion::firstOrFail();
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         $this->assertEquals('test - too-obscure', $discussion->title);
         $this->assertEquals('test - too-obscure', Arr::get($data, 'data.attributes.title'));

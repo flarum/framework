@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 class Server
 {
     public function __construct(
-        private readonly ?SiteInterface $site = null
+        private readonly SiteInterface $site
     ) {
     }
 
