@@ -28,7 +28,7 @@ class Discussion
 
     public function __invoke(Document $document, Request $request): Document
     {
-        $id = $request->query('id');
+        $id = $request->route('id');
         $near = intval($request->query('near'));
         $page = max(1, intval($request->query('page')), 1 + intdiv($near, 20));
 

@@ -33,7 +33,7 @@ class UpdateDiscussionController extends AbstractShowController
     protected function data(Request $request, Document $document): Discussion
     {
         $actor = RequestUtil::getActor($request);
-        $discussionId = (int) $request->query('id');
+        $discussionId = (int) $request->route('id');
         $data = $request->json()->all();
 
         /** @var Discussion $discussion */

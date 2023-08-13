@@ -28,7 +28,7 @@ class DeleteAvatarController extends AbstractShowController
     protected function data(Request $request, Document $document): mixed
     {
         return $this->bus->dispatch(
-            new DeleteAvatar($request->query( 'id'), RequestUtil::getActor($request))
+            new DeleteAvatar($request->route( 'id'), RequestUtil::getActor($request))
         );
     }
 }

@@ -28,7 +28,7 @@ class ShowExtensionReadmeController extends AbstractShowController
 
     protected function data(Request $request, Document $document): ?Extension
     {
-        $extensionName = $request->query('name');
+        $extensionName = $request->route('name');
 
         RequestUtil::getActor($request)->assertAdmin();
 

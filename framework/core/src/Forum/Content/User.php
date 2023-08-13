@@ -26,7 +26,7 @@ class User
 
     public function __invoke(Document $document, Request $request): Document
     {
-        $username = $request->query('username');
+        $username = $request->route('username');
 
         $apiDocument = $this->getApiDocument($request, $username);
         $user = $apiDocument->data->attributes;

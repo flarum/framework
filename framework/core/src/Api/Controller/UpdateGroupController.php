@@ -29,7 +29,7 @@ class UpdateGroupController extends AbstractShowController
 
     protected function data(Request $request, Document $document): Group
     {
-        $id = $request->query('id');
+        $id = $request->route('id');
         $actor = RequestUtil::getActor($request);
         $data = $request->json()->all();
 

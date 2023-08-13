@@ -25,7 +25,7 @@ class UninstallExtensionController extends AbstractDeleteController
     {
         RequestUtil::getActor($request)->assertAdmin();
 
-        $name = $request->query('name');
+        $name = $request->route('name');
 
         if ($this->extensions->getExtension($name) == null) {
             return;

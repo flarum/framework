@@ -40,7 +40,7 @@ class ExceptionHandler implements ExceptionHandling
      */
     public function render($request, Throwable $e) /** @phpstan-ignore-line */
     {
-        // TODO: Implement render() method.
+//        dd($e);
     }
 
     /**

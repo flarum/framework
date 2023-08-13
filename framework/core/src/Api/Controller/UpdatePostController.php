@@ -33,7 +33,7 @@ class UpdatePostController extends AbstractShowController
 
     protected function data(Request $request, Document $document): Post
     {
-        $id = $request->query('id');
+        $id = $request->route('id');
         $actor = RequestUtil::getActor($request);
         $data = $request->json()->all();
 

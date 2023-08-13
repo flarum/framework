@@ -22,7 +22,7 @@ class DeleteAccessTokenController extends AbstractDeleteController
     protected function delete(Request $request): void
     {
         $actor = RequestUtil::getActor($request);
-        $id = $request->query('id');
+        $id = $request->route('id');
 
         $actor->assertRegistered();
 

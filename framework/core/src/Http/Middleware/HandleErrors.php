@@ -49,6 +49,8 @@ class HandleErrors implements IlluminateMiddlewareInterface
                 }
             }
 
+//            dump($e);
+
             return $this->formatter->format($error, $request);
         }
     }

@@ -24,7 +24,7 @@ class DeleteUserController extends AbstractDeleteController
     protected function delete(Request $request): void
     {
         $this->bus->dispatch(
-            new DeleteUser($request->query('id'), RequestUtil::getActor($request))
+            new DeleteUser($request->route('id'), RequestUtil::getActor($request))
         );
     }
 }

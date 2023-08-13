@@ -24,7 +24,7 @@ class DeletePostController extends AbstractDeleteController
     protected function delete(Request $request): void
     {
         $this->bus->dispatch(
-            new DeletePost($request->query('id'), RequestUtil::getActor($request))
+            new DeletePost($request->route('id'), RequestUtil::getActor($request))
         );
     }
 }

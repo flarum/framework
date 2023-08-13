@@ -53,7 +53,7 @@ class ShowDiscussionController extends AbstractShowController
 
     protected function data(Request $request, Document $document): Discussion
     {
-        $discussionId = $request->query('id');
+        $discussionId = $request->route('id');
         $actor = RequestUtil::getActor($request);
         $include = $this->extractInclude($request);
 

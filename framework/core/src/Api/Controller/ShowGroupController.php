@@ -27,7 +27,7 @@ class ShowGroupController extends AbstractShowController
 
     protected function data(Request $request, Document $document): Group
     {
-        $id = $request->query('id');
+        $id = $request->route('id');
         $actor = RequestUtil::getActor($request);
 
         $group = $this->groups->findOrFail($id, $actor);

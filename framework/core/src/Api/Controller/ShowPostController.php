@@ -36,7 +36,7 @@ class ShowPostController extends AbstractShowController
 
     protected function data(Request $request, Document $document): Post
     {
-        $post = $this->posts->findOrFail($request->query('id'), RequestUtil::getActor($request));
+        $post = $this->posts->findOrFail($request->route('id'), RequestUtil::getActor($request));
 
         $include = $this->extractInclude($request);
 

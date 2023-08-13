@@ -32,15 +32,21 @@ class Server
 
     public function listen(): never
     {
-        $app = $this->site->bootApp();
+        $siteApp = $this->site->init();
 
         $console = new Application('Flarum', \Flarum\Foundation\Application::VERSION);
 
-        foreach ($app->getConsoleCommands() as $command) {
+        foreach ($siteApp->getConsoleCommands() as $command) {
             $console->add($command);
         }
 
-        $this->handleEvents($console, $app->getContainer());
+        $app = $siteApp->getContainer();
+
+        $app->bootstrapWith(
+            $this->site->bootstrappers()
+        );
+
+        $this->handleEvents($console, $app);
 
         exit($console->run());
     }

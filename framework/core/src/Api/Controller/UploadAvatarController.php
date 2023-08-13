@@ -29,7 +29,7 @@ class UploadAvatarController extends AbstractShowController
 
     protected function data(Request $request, Document $document): User
     {
-        $id = $request->query('id');
+        $id = $request->route('id');
         $actor = RequestUtil::getActor($request);
         $file = $request->file('avatar');
 

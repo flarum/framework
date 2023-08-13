@@ -26,7 +26,7 @@ class DeleteFlagsController extends AbstractDeleteController
     protected function delete(Request $request): void
     {
         $this->bus->dispatch(
-            new DeleteFlags($request->query('id'), RequestUtil::getActor($request), $request->json()->all())
+            new DeleteFlags($request->route('id'), RequestUtil::getActor($request), $request->json()->all())
         );
     }
 }

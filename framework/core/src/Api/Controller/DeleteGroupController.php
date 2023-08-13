@@ -24,7 +24,7 @@ class DeleteGroupController extends AbstractDeleteController
     protected function delete(Request $request): void
     {
         $this->bus->dispatch(
-            new DeleteGroup($request->query('id'), RequestUtil::getActor($request))
+            new DeleteGroup($request->route('id'), RequestUtil::getActor($request))
         );
     }
 }

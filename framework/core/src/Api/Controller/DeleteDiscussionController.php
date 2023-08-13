@@ -24,7 +24,7 @@ class DeleteDiscussionController extends AbstractDeleteController
 
     protected function delete(Request $request): void
     {
-        $id = $request->query('id');
+        $id = $request->route('id');
         $actor = RequestUtil::getActor($request);
         $input = $request->json()->all();
 
