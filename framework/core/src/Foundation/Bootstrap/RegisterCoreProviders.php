@@ -42,7 +42,6 @@ class RegisterCoreProviders implements IlluminateBootstrapperInterface
         $app->register(ConsoleServiceProvider::class);
         $app->register(DiscussionServiceProvider::class);
         $app->register(ExtensionServiceProvider::class);
-        $app->register(ErrorServiceProvider::class);
         $app->register(FilesystemServiceProvider::class);
         $app->register(FilterServiceProvider::class);
         $app->register(FormatterServiceProvider::class);

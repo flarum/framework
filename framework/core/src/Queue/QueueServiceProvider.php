@@ -61,10 +61,6 @@ class QueueServiceProvider extends AbstractServiceProvider
             return $queue;
         });
 
-        $this->container->singleton(ExceptionHandling::class, function (Container $container) {
-            return new ExceptionHandler($container['log']);
-        });
-
         $this->container->singleton(Worker::class, function (Container $container) {
             /** @var Config $config */
             $config = $container->make(Config::class);

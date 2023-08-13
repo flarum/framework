@@ -37,7 +37,6 @@ class AdminServiceProvider extends AbstractServiceProvider
         $this->container->singleton('flarum.admin.middleware', function () {
             return [
                 HttpMiddleware\InjectActorReference::class,
-                'flarum.admin.error_handler',
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\RememberFromCookie::class,
                 HttpMiddleware\AuthenticateWithSession::class,
@@ -48,14 +47,6 @@ class AdminServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\ContentTypeOptionsHeader::class,
                 Middleware\DisableBrowserCache::class,
             ];
-        });
-
-        $this->container->bind('flarum.admin.error_handler', function (Container $container) {
-            return new HttpMiddleware\HandleErrors(
-                $container->make(Registry::class),
-                $container['flarum.config']->inDebugMode() ? $container->make(WhoopsFormatter::class) : $container->make(ViewFormatter::class),
-                $container->tagged(Reporter::class)
-            );
         });
 
         $this->container->bind('flarum.assets.admin', function (Container $container) {

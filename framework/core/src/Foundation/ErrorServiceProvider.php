@@ -11,6 +11,9 @@ namespace Flarum\Foundation;
 
 use Flarum\Extension\Exception as ExtensionException;
 use Flarum\Foundation\ErrorHandling as Handling;
+use Flarum\Foundation\ErrorHandling\ExceptionHandler;
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandlerContract;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException as IlluminateValidationException;
 use Tobscure\JsonApi\Exception\InvalidParameterException;
@@ -19,6 +22,13 @@ class ErrorServiceProvider extends AbstractServiceProvider
 {
     public function register(): void
     {
+        $this->container->singleton(ExceptionHandlerContract::class, function (Container $container) {
+            return $container->make(ExceptionHandler::class, [
+                'formatters' => $container->tagged(Handling\HttpFormatter::class),
+                'reporters' => $container->tagged(Handling\Reporter::class),
+            ]);
+        });
+
         $this->container->singleton('flarum.error.statuses', function () {
             return [
                 // 400 Bad Request
@@ -73,5 +83,11 @@ class ErrorServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->tag(Handling\LogReporter::class, Handling\Reporter::class);
+
+        $this->container->tag([
+            Handling\JsonApiFormatter::class,
+            Handling\ViewFormatter::class,
+            Handling\WhoopsFormatter::class,
+        ], Handling\HttpFormatter::class);
     }
 }

@@ -16,13 +16,13 @@ class UrlGenerator extends IlluminateUrlGenerator
 
     public function base(string $frontend): string
     {
-        $url = $this->config->url();
+        $url = rtrim($this->config->url(), '/');
 
         if ($frontend) {
             $url .= '/'.$this->config->path($frontend);
         }
 
-        return $url;
+        return rtrim($url, '/');
     }
 
     public function path(string $frontend, string $path): string

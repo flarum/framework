@@ -88,6 +88,7 @@
         "symfony/mime": "^6.3",
         "symfony/polyfill-intl-messageformatter": "^1.27",
         "symfony/postmark-mailer": "^6.3",
+        "symfony/psr-http-message-bridge": "^2.3",
         "symfony/translation": "^6.3",
         "symfony/translation-contracts": "^2.5",
         "symfony/yaml": "^6.3",

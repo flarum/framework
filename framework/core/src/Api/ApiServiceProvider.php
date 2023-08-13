@@ -45,7 +45,6 @@ class ApiServiceProvider extends AbstractServiceProvider
         $this->container->singleton('flarum.api.middleware', function () {
             return [
                 HttpMiddleware\InjectActorReference::class,
-                'flarum.api.error_handler',
                 Middleware\FakeHttpMethods::class,
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\RememberFromCookie::class,
@@ -55,14 +54,6 @@ class ApiServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\CheckCsrfToken::class,
                 Middleware\ThrottleApi::class
             ];
-        });
-
-        $this->container->bind('flarum.api.error_handler', function (Container $container) {
-            return new HttpMiddleware\HandleErrors(
-                $container->make(Registry::class),
-                new JsonApiFormatter($container['flarum.config']->inDebugMode()),
-                $container->tagged(Reporter::class)
-            );
         });
 
         $this->container->singleton('flarum.api.notification_serializers', function () {

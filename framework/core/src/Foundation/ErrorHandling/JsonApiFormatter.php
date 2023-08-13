@@ -10,6 +10,7 @@
 namespace Flarum\Foundation\ErrorHandling;
 
 use Flarum\Api\JsonApiResponse;
+use Flarum\Foundation\Config;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Tobscure\JsonApi\Document;
@@ -22,7 +23,7 @@ use Tobscure\JsonApi\Document;
 class JsonApiFormatter implements HttpFormatter
 {
     public function __construct(
-        private readonly bool $includeTrace = false
+        private readonly Config $config
     ) {
     }
 
@@ -46,7 +47,7 @@ class JsonApiFormatter implements HttpFormatter
             'code' => $error->getType(),
         ];
 
-        if ($this->includeTrace) {
+        if ($this->config->inDebugMode()) {
             $default['detail'] = (string) $error->getException();
         }
 

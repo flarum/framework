@@ -44,7 +44,6 @@ class ForumServiceProvider extends AbstractServiceProvider
         $this->container->singleton('flarum.forum.middleware', function () {
             return [
                 HttpMiddleware\InjectActorReference::class,
-                'flarum.forum.error_handler',
                 HttpMiddleware\CollectGarbage::class,
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\RememberFromCookie::class,
@@ -56,14 +55,6 @@ class ForumServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\ReferrerPolicyHeader::class,
                 HttpMiddleware\ContentTypeOptionsHeader::class
             ];
-        });
-
-        $this->container->bind('flarum.forum.error_handler', function (Container $container) {
-            return new HttpMiddleware\HandleErrors(
-                $container->make(Registry::class),
-                $container['flarum.config']->inDebugMode() ? $container->make(WhoopsFormatter::class) : $container->make(ViewFormatter::class),
-                $container->tagged(Reporter::class)
-            );
         });
 
         $this->container->bind('flarum.assets.forum', function (Container $container) {

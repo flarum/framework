@@ -83,6 +83,7 @@ class Application extends IlluminateContainer implements LaravelApplication
     protected function registerBaseServiceProviders(): void
     {
         $this->register(new EventServiceProvider($this));
+        $this->register(new ErrorServiceProvider($this));
         $this->register(new RoutingServiceProvider($this));
 
         // Because we need to check very early if the version of the app
