@@ -9,12 +9,13 @@
 
 namespace Flarum\Api;
 
+use Flarum\Foundation\Config;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\Router;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Routing\Pipeline;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
@@ -75,27 +76,27 @@ class Client
         return $new;
     }
 
-    public function get(string $path): Response
+    public function get(string $path): JsonResponse
     {
         return $this->send('GET', $path);
     }
 
-    public function post(string $path): Response
+    public function post(string $path): JsonResponse
     {
         return $this->send('POST', $path);
     }
 
-    public function put(string $path): Response
+    public function put(string $path): JsonResponse
     {
         return $this->send('PUT', $path);
     }
 
-    public function patch(string $path): Response
+    public function patch(string $path): JsonResponse
     {
         return $this->send('PATCH', $path);
     }
 
-    public function delete(string $path): Response
+    public function delete(string $path): JsonResponse
     {
         return $this->send('DELETE', $path);
     }
@@ -105,18 +106,19 @@ class Client
      *
      * @internal
      */
-    public function send(string $method, string $path): Response
+    public function send(string $method, string $path): JsonResponse
     {
         $parent = $this->parent ?: Request::createFromGlobals();
+        /** @var Config $config */
+        $config = $this->container->make(Config::class);
 
         $symfonyRequest = SymfonyRequest::create(
-            $path, $method, $this->queryParams, $parent->cookies->all(), $parent->files->all(), $parent->server->all(), $this->body
+            $config->path('api').$path, $method, $this->queryParams, $parent->cookies->all(), $parent->files->all(), $parent->server->all(), json_encode($this->body)
         );
 
         $request = Request::createFromBase($symfonyRequest);
 
         if ($this->parent) {
-            $request->attributes->set('ipAddress', $this->parent->attributes->get('ipAddress'));
             $request->attributes->set('session', $this->parent->attributes->get('session'));
             $request = RequestUtil::withActor($request, RequestUtil::getActor($this->parent));
         }

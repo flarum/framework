@@ -38,9 +38,9 @@ class CreatePostController extends AbstractCreateController
     protected function data(Request $request, Document $document): CommentPost
     {
         $actor = RequestUtil::getActor($request);
-        $data = Arr::get($request->getParsedBody(), 'data', []);
+        $data = $request->json('data', []);
         $discussionId = (int) Arr::get($data, 'relationships.discussion.data.id');
-        $ipAddress = $request->getAttribute('ipAddress');
+        $ipAddress = $request->ip();
 
         /** @var CommentPost $post */
         $post = $this->bus->dispatch(

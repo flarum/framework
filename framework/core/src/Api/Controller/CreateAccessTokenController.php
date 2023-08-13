@@ -16,7 +16,6 @@ use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Tobscure\JsonApi\Document;
 
 /**
@@ -40,7 +39,7 @@ class CreateAccessTokenController extends AbstractCreateController
         $actor->assertRegistered();
         $actor->assertCan('createAccessToken');
 
-        $title = Arr::get($request->getParsedBody(), 'data.attributes.title');
+        $title = $request->json('data.attributes.title');
 
         $this->validation->make(compact('title'), [
             'title' => 'required|string|max:255',

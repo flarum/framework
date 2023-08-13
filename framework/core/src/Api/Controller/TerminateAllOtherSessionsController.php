@@ -23,7 +23,7 @@ class TerminateAllOtherSessionsController extends AbstractDeleteController
 
         $actor->assertRegistered();
 
-        $session = $request->getAttribute('session');
+        $session = $request->attributes->get('session');
         $sessionAccessToken = $session ? $session->get('access_token') : null;
 
         // Delete all session access tokens except for this one.

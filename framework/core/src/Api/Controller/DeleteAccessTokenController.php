@@ -29,7 +29,7 @@ class DeleteAccessTokenController extends AbstractDeleteController
         $token = AccessToken::query()->findOrFail($id);
 
         /** @var Session|null $session */
-        $session = $request->getAttribute('session');
+        $session = $request->attributes->get('session');
 
         // Current session should only be terminated through logout.
         if ($session && $token->token === $session->get('access_token')) {

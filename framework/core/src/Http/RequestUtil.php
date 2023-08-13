@@ -15,6 +15,7 @@ use Laminas\Diactoros\ResponseFactory;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Diactoros\StreamFactory;
 use Laminas\Diactoros\UploadedFileFactory;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
@@ -80,7 +81,7 @@ class RequestUtil
         return $psrHttpFactory->createRequest($request);
     }
 
-    public static function responseToSymfony(\Psr\Http\Message\ResponseInterface $response): SymfonyResponse
+    public static function responseToSymfony(ResponseInterface $response): SymfonyResponse
     {
         return (new HttpFoundationFactory())->createResponse($response);
     }

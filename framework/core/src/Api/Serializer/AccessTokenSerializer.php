@@ -31,7 +31,7 @@ class AccessTokenSerializer extends AbstractSerializer
             );
         }
 
-        $session = $this->request->getAttribute('session');
+        $session = $this->request->attributes->get('session');
 
         $agent = new Agent();
         $agent->setUserAgent($model->last_user_agent);
