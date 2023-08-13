@@ -24,7 +24,7 @@ class EmailActivationThrottler
 
     public function __invoke(Request $request): ?bool
     {
-        if ($request->routeIs('users.confirmation.send')) {
+        if ($request->routeIs('api.users.confirmation.send')) {
             return null;
         }
 
