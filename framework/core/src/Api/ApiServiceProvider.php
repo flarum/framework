@@ -19,31 +19,19 @@ use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Http\Middleware as HttpMiddleware;
+use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\Router;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Http\Request;
 
 class ApiServiceProvider extends AbstractServiceProvider
 {
     public function register(): void
     {
-        $this->booted(function (Container $container) {
-            /** @var Router $router */
-            $router = $container->make(Router::class);
-            /** @var Config $config */
-            $config = $container->make(Config::class);
-
-            $router->middlewareGroup('api', $container->make('flarum.api.middleware'));
-
-            $router->middleware('api')
-                ->prefix($config->path('api'))
-                ->name('api.')
-                ->group(fn (Router $router) => (include __DIR__.'/routes.php')($router));
-        });
-
         $this->container->singleton('flarum.api.throttlers', function () {
             return [
-                'bypassThrottlingAttribute' => function ($request) {
-                    if ($request->getAttribute('bypassThrottling')) {
+                'bypassThrottlingAttribute' => function (Request $request) {
+                    if ($request->attributes->get('bypassThrottling')) {
                         return false;
                     }
                 }
@@ -108,6 +96,7 @@ class ApiServiceProvider extends AbstractServiceProvider
 
     public function boot(Container $container): void
     {
+        $this->addRoutes($container);
         $this->setNotificationSerializers();
 
         AbstractSerializeController::setContainer($container);
@@ -122,5 +111,22 @@ class ApiServiceProvider extends AbstractServiceProvider
         foreach ($serializers as $type => $serializer) {
             NotificationSerializer::setSubjectSerializer($type, $serializer);
         }
+    }
+
+    protected function addRoutes(Container $container)
+    {
+        /** @var Router $router */
+        $router = $container->make(Router::class);
+        /** @var Config $config */
+        $config = $container->make(Config::class);
+
+        $router->middlewareGroup('api', $container->make('flarum.api.middleware'));
+
+        $factory = $container->make(RouteHandlerFactory::class);
+
+        $router->middleware('api')
+            ->prefix($config->path('api'))
+            ->name('api.')
+            ->group(fn (Router $router) => (include __DIR__.'/routes.php')($router, $factory));
     }
 }

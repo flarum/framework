@@ -12,6 +12,7 @@ namespace Flarum\Http;
 use Closure;
 use Flarum\Frontend\Controller as FrontendController;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Http\Request;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /**
@@ -38,13 +39,18 @@ class RouteHandlerFactory
 
     public function toFrontend(string $frontend, callable|string|null $content = null): callable
     {
-        $frontend = $this->container->make("flarum.frontend.$frontend");
+        return function (Request $request) use ($frontend, $content): mixed {
+            $frontend = $this->container->make("flarum.frontend.$frontend");
 
-        if ($content) {
-            $frontend->content(is_callable($content) ? $content : $this->container->make($content));
-        }
+            if ($content) {
+                $frontend->content(is_callable($content) ? $content : $this->container->make($content));
+            }
 
-        return new FrontendController($frontend);
+            return $this->container->call(
+                $this->container->make(FrontendController::class, compact('frontend')),
+                compact('request')
+            );
+        };
     }
 
     public function toForum(string $content = null): Closure

@@ -32,7 +32,7 @@ class RegisterController extends AbstractController
 
         $response = $this->api->withParentRequest($request)->withBody($params)->post('/users');
 
-        $body = json_decode($response->getBody());
+        $body = $response->getData();
 
         if (isset($body->data)) {
             $userId = $body->data->id;

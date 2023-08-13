@@ -9,47 +9,9 @@
 
 namespace Flarum\Foundation;
 
-use Flarum\Admin\AdminServiceProvider;
-use Flarum\Api\ApiServiceProvider;
-use Flarum\Bus\BusServiceProvider;
-use Flarum\Console\ConsoleServiceProvider;
-use Flarum\Database\DatabaseServiceProvider;
-use Flarum\Discussion\DiscussionServiceProvider;
 use Flarum\Extend\ExtenderInterface;
-use Flarum\Extension\ExtensionServiceProvider;
-use Flarum\Filesystem\FilesystemServiceProvider;
-use Flarum\Filter\FilterServiceProvider;
-use Flarum\Formatter\FormatterServiceProvider;
-use Flarum\Forum\ForumServiceProvider;
-use Flarum\Frontend\FrontendServiceProvider;
-use Flarum\Group\GroupServiceProvider;
-use Flarum\Http\HttpServiceProvider;
-use Flarum\Locale\LocaleServiceProvider;
-use Flarum\Mail\MailServiceProvider;
-use Flarum\Notification\NotificationServiceProvider;
-use Flarum\Post\PostServiceProvider;
-use Flarum\Queue\QueueServiceProvider;
-use Flarum\Search\SearchServiceProvider;
-use Flarum\Settings\SettingsServiceProvider;
-use Flarum\Update\UpdateServiceProvider;
-use Flarum\User\SessionServiceProvider;
-use Flarum\User\UserServiceProvider;
-use Illuminate\Cache\FileStore;
-use Illuminate\Cache\Repository as CacheRepository;
 use Illuminate\Config\Repository as ConfigRepository;
-use Illuminate\Contracts\Cache\Repository;
-use Illuminate\Contracts\Cache\Store;
-use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Foundation\Application as ApplicationContract;
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Hashing\HashServiceProvider;
-use Illuminate\Validation\ValidationServiceProvider;
-use Illuminate\View\ViewServiceProvider;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\RotatingFileHandler;
-use Monolog\Level;
-use Monolog\Logger;
-use Psr\Log\LoggerInterface;
 
 class InstalledSite implements SiteInterface
 {
@@ -69,11 +31,10 @@ class InstalledSite implements SiteInterface
      *
      * @return InstalledApp
      */
-    public function bootApp(): AppInterface
+    public function init(): AppInterface
     {
         return new InstalledApp(
-            $this->bootLaravel(),
-            $this->config
+            $this->createApp()
         );
     }
 
@@ -88,48 +49,14 @@ class InstalledSite implements SiteInterface
         return $this;
     }
 
-    protected function bootLaravel(): ApplicationContract
+    protected function createApp(): ApplicationContract
     {
         $app = new Application($this->paths);
 
         $app->instance('env', $this->config->environment());
         $app->instance('flarum.config', $this->config);
-        $app->alias('flarum.config', Config::class);
         $app->instance('flarum.debug', $this->config->inDebugMode());
         $app->instance('config', $this->getIlluminateConfig());
-        $app->instance('flarum.maintenance.handler', new MaintenanceModeHandler);
-
-        $this->registerLogger($app);
-        $this->registerCache($app);
-
-        $app->register(AdminServiceProvider::class);
-        $app->register(ApiServiceProvider::class);
-        $app->register(BusServiceProvider::class);
-        $app->register(ConsoleServiceProvider::class);
-        $app->register(DatabaseServiceProvider::class);
-        $app->register(DiscussionServiceProvider::class);
-        $app->register(ExtensionServiceProvider::class);
-        $app->register(ErrorServiceProvider::class);
-        $app->register(FilesystemServiceProvider::class);
-        $app->register(FilterServiceProvider::class);
-        $app->register(FormatterServiceProvider::class);
-        $app->register(ForumServiceProvider::class);
-        $app->register(FrontendServiceProvider::class);
-        $app->register(GroupServiceProvider::class);
-        $app->register(HashServiceProvider::class);
-        $app->register(HttpServiceProvider::class);
-        $app->register(LocaleServiceProvider::class);
-        $app->register(MailServiceProvider::class);
-        $app->register(NotificationServiceProvider::class);
-        $app->register(PostServiceProvider::class);
-        $app->register(QueueServiceProvider::class);
-        $app->register(SearchServiceProvider::class);
-        $app->register(SessionServiceProvider::class);
-        $app->register(SettingsServiceProvider::class);
-        $app->register(UpdateServiceProvider::class);
-        $app->register(UserServiceProvider::class);
-        $app->register(ValidationServiceProvider::class);
-        $app->register(ViewServiceProvider::class);
 
         $app->booting(function () use ($app) {
             // Run all local-site extenders before booting service providers
@@ -140,9 +67,18 @@ class InstalledSite implements SiteInterface
             }
         });
 
-        $app->boot();
-
         return $app;
+    }
+
+    public function bootstrappers(): array
+    {
+        return [
+            \Flarum\Foundation\Bootstrap\RegisterMaintenanceHandler::class,
+            \Flarum\Foundation\Bootstrap\RegisterLogger::class,
+            \Flarum\Foundation\Bootstrap\RegisterCache::class,
+            \Flarum\Foundation\Bootstrap\RegisterCoreProviders::class,
+            \Flarum\Foundation\Bootstrap\BootProviders::class,
+        ];
     }
 
     protected function getIlluminateConfig(): ConfigRepository
@@ -161,29 +97,5 @@ class InstalledSite implements SiteInterface
                 'cookie' => 'session'
             ]
         ]);
-    }
-
-    protected function registerLogger(Container $container): void
-    {
-        $logPath = $this->paths->storage.'/logs/flarum.log';
-        $logLevel = $this->config->inDebugMode() ? Level::Debug : Level::Info;
-        $handler = new RotatingFileHandler($logPath, 0, $logLevel);
-        $handler->setFormatter(new LineFormatter(null, null, true, true));
-
-        $container->instance('log', new Logger('flarum', [$handler]));
-        $container->alias('log', LoggerInterface::class);
-    }
-
-    protected function registerCache(Container $container): void
-    {
-        $container->singleton('cache.store', function ($container) {
-            return new CacheRepository($container->make('cache.filestore'));
-        });
-        $container->alias('cache.store', Repository::class);
-
-        $container->singleton('cache.filestore', function () {
-            return new FileStore(new Filesystem, $this->paths->storage.'/cache');
-        });
-        $container->alias('cache.filestore', Store::class);
     }
 }

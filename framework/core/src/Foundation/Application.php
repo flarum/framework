@@ -9,8 +9,10 @@
 
 namespace Flarum\Foundation;
 
+use Flarum\Database\DatabaseServiceProvider;
 use Flarum\Foundation\Concerns\InteractsWithLaravel;
 use Flarum\Http\RoutingServiceProvider;
+use Flarum\Settings\SettingsServiceProvider;
 use Illuminate\Container\Container as IlluminateContainer;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Foundation\Application as LaravelApplication;
@@ -38,6 +40,8 @@ class Application extends IlluminateContainer implements LaravelApplication
     protected array $serviceProviders = [];
 
     protected array $loadedProviders = [];
+
+    protected bool $hasBeenBootstrapped = false;
 
     public function __construct(
         protected Paths $paths
@@ -80,6 +84,13 @@ class Application extends IlluminateContainer implements LaravelApplication
     {
         $this->register(new EventServiceProvider($this));
         $this->register(new RoutingServiceProvider($this));
+
+        // Because we need to check very early if the version of the app
+        // in the settings table matches the current version, we need
+        // to register the settings provider and therefore the database
+        // provider very early on.
+        $this->register(new DatabaseServiceProvider($this));
+        $this->register(new SettingsServiceProvider($this));
     }
 
     public function register($provider, $force = false): ServiceProvider
@@ -194,16 +205,35 @@ class Application extends IlluminateContainer implements LaravelApplication
         }
     }
 
+    public function bootstrapWith(array $bootstrappers): void
+    {
+        $this->hasBeenBootstrapped = true;
+
+        foreach ($bootstrappers as $bootstrapper) {
+            $this['events']->dispatch('bootstrapping: '.$bootstrapper, [$this]);
+
+            $this->make($bootstrapper)->bootstrap($this);
+
+            $this['events']->dispatch('bootstrapped: '.$bootstrapper, [$this]);
+        }
+    }
+
+    public function hasBeenBootstrapped(): bool
+    {
+        return $this->hasBeenBootstrapped;
+    }
+
     public function registerCoreContainerAliases(): void
     {
         $aliases = [
             'app'                  => [\Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class, \Psr\Container\ContainerInterface::class],
             'blade.compiler'       => [\Illuminate\View\Compilers\BladeCompiler::class],
             'cache'                => [\Illuminate\Cache\CacheManager::class, \Illuminate\Contracts\Cache\Factory::class],
+            'cache.filestore'      => [\Illuminate\Cache\FileStore::class, \Illuminate\Contracts\Cache\Store::class],
             'cache.store'          => [\Illuminate\Cache\Repository::class, \Illuminate\Contracts\Cache\Repository::class],
             'config'               => [\Illuminate\Config\Repository::class, \Illuminate\Contracts\Config\Repository::class],
             'container'            => [\Illuminate\Contracts\Container\Container::class, \Psr\Container\ContainerInterface::class],
-            'db'                   => [\Illuminate\Database\DatabaseManager::class],
+            'db'                   => [\Illuminate\Database\ConnectionResolverInterface::class, \Illuminate\Database\DatabaseManager::class],
             'db.connection'        => [\Illuminate\Database\Connection::class, \Illuminate\Database\ConnectionInterface::class],
             'events'               => [\Illuminate\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
             'files'                => [\Illuminate\Filesystem\Filesystem::class],
@@ -211,9 +241,12 @@ class Application extends IlluminateContainer implements LaravelApplication
             'filesystem.disk'      => [\Illuminate\Contracts\Filesystem\Filesystem::class],
             'filesystem.cloud'     => [\Illuminate\Contracts\Filesystem\Cloud::class],
             'flarum'               => [self::class, \Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class, \Psr\Container\ContainerInterface::class],
+            'flarum.config'        => [Config::class],
             'flarum.paths'         => [Paths::class],
+            'flarum.settings'      => [\Flarum\Settings\SettingsRepositoryInterface::class],
             'hash'                 => [\Illuminate\Contracts\Hashing\Hasher::class],
             'mailer'               => [\Illuminate\Mail\Mailer::class, \Illuminate\Contracts\Mail\Mailer::class, \Illuminate\Contracts\Mail\MailQueue::class],
+            'request'              => [\Illuminate\Http\Request::class, \Symfony\Component\HttpFoundation\Request::class],
             'router'               => [\Flarum\Http\Router::class, \Illuminate\Routing\Router::class, \Illuminate\Contracts\Routing\Registrar::class, \Illuminate\Contracts\Routing\BindingRegistrar::class],
             'session'              => [\Illuminate\Session\SessionManager::class],
             'session.store'        => [\Illuminate\Session\Store::class, \Illuminate\Contracts\Session\Session::class],

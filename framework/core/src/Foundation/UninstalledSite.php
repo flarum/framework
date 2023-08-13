@@ -10,23 +10,8 @@
 namespace Flarum\Foundation;
 
 use Flarum\Install\Installer;
-use Flarum\Install\InstallServiceProvider;
-use Flarum\Locale\LocaleServiceProvider;
-use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Settings\UninstalledSettingsRepository;
-use Flarum\User\SessionServiceProvider;
 use Illuminate\Config\Repository as ConfigRepository;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Filesystem\FilesystemServiceProvider;
-use Illuminate\Validation\ValidationServiceProvider;
-use Illuminate\View\Engines\EngineResolver;
-use Illuminate\View\Engines\PhpEngine;
-use Illuminate\View\FileViewFinder;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
-use Psr\Log\LoggerInterface;
+use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 
 class UninstalledSite implements SiteInterface
 {
@@ -36,17 +21,14 @@ class UninstalledSite implements SiteInterface
     ) {
     }
 
-    /**
-     * Create and boot a Flarum application instance.
-     */
-    public function bootApp(): AppInterface
+    public function init(): AppInterface
     {
         return new Installer(
-            $this->bootLaravel()
+            $this->createApp()
         );
     }
 
-    protected function bootLaravel(): Container
+    protected function createApp(): ApplicationContract
     {
         $app = new Application($this->paths);
 
@@ -54,41 +36,17 @@ class UninstalledSite implements SiteInterface
         $app->instance('flarum.config', new Config(['url' => $this->baseUrl]));
         $app->alias('flarum.config', Config::class);
         $app->instance('flarum.debug', true);
-        $app->instance('config', $config = $this->getIlluminateConfig());
-
-        $this->registerLogger($app);
-
-        $app->register(ErrorServiceProvider::class);
-        $app->register(LocaleServiceProvider::class);
-        $app->register(FilesystemServiceProvider::class);
-        $app->register(SessionServiceProvider::class);
-        $app->register(ValidationServiceProvider::class);
-
-        $app->register(InstallServiceProvider::class);
-
-        $app->singleton(
-            SettingsRepositoryInterface::class,
-            UninstalledSettingsRepository::class
-        );
-
-        $app->singleton('view', function ($app) {
-            $engines = new EngineResolver();
-            $engines->register('php', function () use ($app) {
-                return $app->make(PhpEngine::class);
-            });
-            $finder = new FileViewFinder($app->make('files'), []);
-            $dispatcher = $app->make(Dispatcher::class);
-
-            return new \Illuminate\View\Factory(
-                $engines,
-                $finder,
-                $dispatcher
-            );
-        });
-
-        $app->boot();
+        $app->instance('config', $this->getIlluminateConfig());
 
         return $app;
+    }
+
+    public function bootstrappers(): array
+    {
+        return [
+            \Flarum\Foundation\Bootstrap\PrepareInstaller::class,
+            \Flarum\Foundation\Bootstrap\BootProviders::class,
+        ];
     }
 
     protected function getIlluminateConfig(): ConfigRepository
@@ -103,15 +61,5 @@ class UninstalledSite implements SiteInterface
                 'paths' => [],
             ],
         ]);
-    }
-
-    protected function registerLogger(Container $container): void
-    {
-        $logPath = $this->paths->storage.'/logs/flarum-installer.log';
-        $handler = new StreamHandler($logPath, Logger::DEBUG);
-        $handler->setFormatter(new LineFormatter(null, null, true, true));
-
-        $container->instance('log', new Logger('Flarum Installer', [$handler]));
-        $container->alias('log', LoggerInterface::class);
     }
 }

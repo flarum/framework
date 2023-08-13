@@ -2,6 +2,7 @@
 
 namespace Flarum\Http;
 
+use Flarum\Foundation\Config;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Routing\RoutingServiceProvider as IlluminateRoutingServiceProvider;
 
@@ -11,6 +12,11 @@ class RoutingServiceProvider extends IlluminateRoutingServiceProvider
     {
         $this->app->singleton('router', function (Container $container) {
             return new Router($container['events'], $container);
+        });
+
+        $this->app->booted(function (Container $container) {
+            $container['router']->getRoutes()->refreshNameLookups();
+            $container['router']->getRoutes()->refreshActionLookups();
         });
     }
 
@@ -24,11 +30,17 @@ class RoutingServiceProvider extends IlluminateRoutingServiceProvider
             // and all the registered routes will be available to the generator.
             $container->instance('routes', $routes);
 
-            return new UrlGenerator(
+            $url = new UrlGenerator(
                 $routes, $container->rebinding(
                     'request', $this->requestRebinder()
                 ), $container['config']['app.asset_url']
             );
+
+            $url->setConfig(
+                $container->make(Config::class)
+            );
+
+            return $url;
         });
     }
 }

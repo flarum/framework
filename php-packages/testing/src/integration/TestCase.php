@@ -55,7 +55,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                 $this->extenders
             );
 
-            $this->app = $bootstrapper->run()->bootApp();
+            $this->app = $bootstrapper->run()->init();
 
             $this->database = $bootstrapper->database;
 
@@ -215,7 +215,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected function send(Request $request): Response
     {
-        return $this->server()->send($request, $this->app->getContainer(), []);
+        return $this->server()->handle($request, $this->app->getContainer(), []);
     }
 
     /**

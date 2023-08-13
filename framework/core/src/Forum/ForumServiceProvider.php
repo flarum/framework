@@ -34,33 +34,13 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Support\Arr;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ForumServiceProvider extends AbstractServiceProvider
 {
     public function register(): void
     {
-        $this->booted(function (Container $container) {
-            /** @var Router $router */
-            $router = $container->make(Router::class);
-            /** @var Config $config */
-            $config = $container->make(Config::class);
-
-            $router->middlewareGroup('forum', $container->make('flarum.forum.middleware'));
-
-            $factory = $container->make(RouteHandlerFactory::class);
-
-            $router->middleware('forum')
-                ->prefix($config->path('forum'))
-                ->name('forum.')
-                ->group(fn (Router $router) => (include __DIR__.'/routes.php')($router, $factory));
-
-            $this->setDefaultRoute(
-                $router,
-                $container->make(SettingsRepositoryInterface::class)
-            );
-        });
-
         $this->container->singleton('flarum.forum.middleware', function () {
             return [
                 HttpMiddleware\InjectActorReference::class,
@@ -130,6 +110,7 @@ class ForumServiceProvider extends AbstractServiceProvider
 
     public function boot(Container $container, Dispatcher $events, Factory $view): void
     {
+        $this->addRoutes($container);
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.forum');
 
         $view->share([
@@ -181,10 +162,33 @@ class ForumServiceProvider extends AbstractServiceProvider
         );
     }
 
+    protected function addRoutes(Container $container): void
+    {
+        /** @var Router $router */
+        $router = $container->make(Router::class);
+        /** @var Config $config */
+        $config = $container->make(Config::class);
+
+        $router->middlewareGroup('forum', $container->make('flarum.forum.middleware'));
+
+        $factory = $container->make(RouteHandlerFactory::class);
+
+        $router->middleware('forum')
+            ->prefix($config->path('forum'))
+            ->name('forum.')
+            ->group(fn (Router $router) => (include __DIR__.'/routes.php')($router, $factory));
+
+        $this->setDefaultRoute(
+            $router,
+            $container->make(SettingsRepositoryInterface::class)
+        );
+    }
+
     protected function setDefaultRoute(Router $router, SettingsRepositoryInterface $settings): void
     {
-        $defaultRoute = $settings->get('default_route');
-        $action = $router->getRoutes()->getByName($defaultRoute)?->getAction() ?? 'index';
-        $router->get('/', $action)->name('default');
+        $defaultRoutePath = ltrim($settings->get('default_route', '/all'), '/');
+        /** @var \Illuminate\Routing\Route $route */
+        $route = $router->getRoutes()->getRoutesByMethod()['GET'][$defaultRoutePath];
+        $router->get('/', Arr::except($route->getAction(), ['as']))->name('forum.default');
     }
 }

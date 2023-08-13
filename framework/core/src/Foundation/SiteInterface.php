@@ -14,5 +14,10 @@ interface SiteInterface
     /**
      * Create and boot a Flarum application instance.
      */
-    public function bootApp(): AppInterface;
+    public function init(): AppInterface;
+
+    /**
+     * Bootstrappers make up the booting process of the Application.
+     */
+    public function bootstrappers(): array;
 }

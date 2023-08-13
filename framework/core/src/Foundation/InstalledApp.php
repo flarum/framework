@@ -12,14 +12,11 @@ namespace Flarum\Foundation;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Foundation\Application as ApplicationContract;
-use Laminas\Stratigility\Middleware\OriginalMessages;
-use Middlewares\BasePath;
 
 class InstalledApp implements AppInterface
 {
     public function __construct(
         protected ApplicationContract $app,
-        protected Config $config
     ) {
     }
 
@@ -51,21 +48,15 @@ class InstalledApp implements AppInterface
     protected function getUpdaterMiddlewareStack(): array
     {
         return [
-            new BasePath($this->basePath()),
+            //
         ];
     }
 
     protected function getStandardMiddlewareStack(): array
     {
         return [
-            new BasePath($this->basePath()),
-            new OriginalMessages,
+            //
         ];
-    }
-
-    protected function basePath(): string
-    {
-        return $this->config->url()->getPath() ?: '/';
     }
 
     public function getConsoleCommands(): array

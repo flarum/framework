@@ -45,7 +45,7 @@ class LogInController extends AbstractController
         $response = $this->apiClient->withParentRequest($request)->withBody($params)->post('/token');
 
         if ($response->getStatusCode() === 200) {
-            $data = json_decode($response->getBody());
+            $data = $response->getData();
 
             $token = AccessToken::findValid($data->token);
 

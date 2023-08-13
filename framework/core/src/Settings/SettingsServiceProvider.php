@@ -27,7 +27,7 @@ class SettingsServiceProvider extends AbstractServiceProvider
             ]);
         });
 
-        $this->container->singleton(SettingsRepositoryInterface::class, function (Container $container) {
+        $this->container->singleton('flarum.settings', function (Container $container) {
             return new DefaultSettingsRepository(
                 new MemoryCacheSettingsRepository(
                     new DatabaseSettingsRepository(
@@ -37,8 +37,6 @@ class SettingsServiceProvider extends AbstractServiceProvider
                 $container->make('flarum.settings.default')
             );
         });
-
-        $this->container->alias(SettingsRepositoryInterface::class, 'flarum.settings');
     }
 
     public function boot(Dispatcher $events, SettingsValidator $settingsValidator): void

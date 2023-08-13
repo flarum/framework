@@ -15,7 +15,6 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Http\Request;
 use Illuminate\Session\Store;
-use Illuminate\Support\Arr;
 use SessionHandlerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -53,7 +52,7 @@ class StartSession implements IlluminateMiddlewareInterface
         return new Store(
             $this->config['cookie'],
             $this->handler,
-            Arr::get($request->getCookieParams(), $this->cookie->getName($this->config['cookie']))
+            $request->cookie($this->cookie->getName($this->config['cookie']))
         );
     }
 

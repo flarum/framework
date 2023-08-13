@@ -104,6 +104,6 @@ class Discussion
             throw new RouteNotFoundException;
         }
 
-        return json_decode($response->getBody());
+        return $response->getData();
     }
 }

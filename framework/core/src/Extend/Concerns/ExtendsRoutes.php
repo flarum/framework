@@ -26,6 +26,7 @@ trait ExtendsRoutes
                 /** @var Router $router */
                 $router = $container->make(Router::class);
                 /** @var Config $config */
+                $config = $container->make(Config::class);
 
                 foreach ($this->removedRoutes as $routeName) {
                     $router->forgetRoute($routeName);

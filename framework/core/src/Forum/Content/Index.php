@@ -54,7 +54,7 @@ class Index
         $document->content = $this->view->make('flarum.forum::frontend.content.index', compact('apiDocument', 'page'));
         $document->payload['apiDocument'] = $apiDocument;
 
-        $document->canonicalUrl = $this->url->base('forum').($defaultRoute === '/all' ? '' : $request->getUri()->getPath());
+        $document->canonicalUrl = $this->url->base('forum').($defaultRoute === '/all' ? '' : $request->getUri());
         $document->page = $page;
         $document->hasNextPage = isset($apiDocument->links->next);
 
@@ -66,6 +66,6 @@ class Index
      */
     protected function getApiDocument(Request $request, array $params): object
     {
-        return json_decode($this->api->withParentRequest($request)->withQueryParams($params)->get('/discussions')->getBody());
+        return $this->api->withParentRequest($request)->withQueryParams($params)->get('/discussions')->getData();
     }
 }

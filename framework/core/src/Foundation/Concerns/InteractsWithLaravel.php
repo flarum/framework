@@ -165,14 +165,6 @@ trait InteractsWithLaravel
         //
     }
 
-    /**
-     * @deprecated Not actually used/has no meaning in Flarum.
-     */
-    public function bootstrapWith(array $bootstrappers)
-    {
-        //
-    }
-
     public function getLocale()
     {
         return $this->make(LocaleManager::class)->getLocale();
@@ -188,14 +180,6 @@ trait InteractsWithLaravel
         $name = is_string($provider) ? $provider : get_class($provider);
 
         return Arr::where($this->serviceProviders, fn ($value) => $value instanceof $name);
-    }
-
-    /**
-     * @deprecated Not actually used/has no meaning in Flarum.
-     */
-    public function hasBeenBootstrapped()
-    {
-        //
     }
 
     /**

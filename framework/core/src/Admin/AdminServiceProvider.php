@@ -28,27 +28,12 @@ use Flarum\Http\RouteHandlerFactory;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class AdminServiceProvider extends AbstractServiceProvider
 {
     public function register(): void
     {
-        $this->booted(function (Container $container) {
-            /** @var Router $router */
-            $router = $container->make(Router::class);
-            /** @var Config $config */
-            $config = $container->make(Config::class);
-
-            $router->middlewareGroup('admin', $container->make('flarum.admin.middleware'));
-
-            $factory = $container->make(RouteHandlerFactory::class);
-
-            $router->middleware('admin')
-                ->prefix($config->path('admin'))
-                ->name('admin.')
-                ->group(fn (Router $router) => (include __DIR__.'/routes.php')($router, $factory));
-        });
-
         $this->container->singleton('flarum.admin.middleware', function () {
             return [
                 HttpMiddleware\InjectActorReference::class,
@@ -101,18 +86,17 @@ class AdminServiceProvider extends AbstractServiceProvider
         });
     }
 
-    public function boot(): void
+    public function boot(Container $container, Dispatcher $events): void
     {
+        $this->addRoutes($container);
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.admin');
-
-        $events = $this->container->make('events');
 
         $events->listen(
             [Enabled::class, Disabled::class, ClearingCache::class],
-            function () {
+            function () use ($container) {
                 $recompile = new RecompileFrontendAssets(
-                    $this->container->make('flarum.assets.admin'),
-                    $this->container->make(LocaleManager::class)
+                    $container->make('flarum.assets.admin'),
+                    $container->make(LocaleManager::class)
                 );
                 $recompile->flush();
             }
@@ -120,13 +104,30 @@ class AdminServiceProvider extends AbstractServiceProvider
 
         $events->listen(
             Saved::class,
-            function (Saved $event) {
+            function (Saved $event) use ($container) {
                 $recompile = new RecompileFrontendAssets(
-                    $this->container->make('flarum.assets.admin'),
-                    $this->container->make(LocaleManager::class)
+                    $container->make('flarum.assets.admin'),
+                    $container->make(LocaleManager::class)
                 );
                 $recompile->whenSettingsSaved($event);
             }
         );
+    }
+
+    protected function addRoutes(Container $container)
+    {
+        /** @var Router $router */
+        $router = $container->make(Router::class);
+        /** @var Config $config */
+        $config = $container->make(Config::class);
+
+        $router->middlewareGroup('admin', $container->make('flarum.admin.middleware'));
+
+        $factory = $container->make(RouteHandlerFactory::class);
+
+        $router->middleware('admin')
+            ->prefix($config->path('admin'))
+            ->name('admin.')
+            ->group(fn (Router $router) => (include __DIR__.'/routes.php')($router, $factory));
     }
 }
