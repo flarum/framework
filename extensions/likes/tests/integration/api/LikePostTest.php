@@ -143,7 +143,7 @@ class LikePostTest extends TestCase
                 $this->request('GET', '/')
             );
 
-            $token = $initial->getHeaderLine('X-CSRF-Token');
+            $token = $initial->headers->get('X-CSRF-Token');
         }
 
         $request = $this->request('PATCH', "/api/posts/$postId", [
@@ -159,7 +159,7 @@ class LikePostTest extends TestCase
         ]);
 
         if (! isset($authenticatedAs)) {
-            $request = $request->withHeader('X-CSRF-Token', $token);
+            $request->headers->set('X-CSRF-Token', $token);
         }
 
         return $this->send($request);

@@ -41,7 +41,7 @@ class ServiceProviderTest extends TestCase
 
         $this->assertEquals(
             'overriden_by_custom_provider_register',
-            $this->app->getContainer()->make('flarum.forum.middleware')
+            $this->app->getContainer()->make('flarum.forum.middleware')[0]
         );
     }
 
@@ -60,7 +60,7 @@ class ServiceProviderTest extends TestCase
 
         $this->assertEquals(
             'overriden_by_second_custom_provider_register',
-            $this->app->getContainer()->make('flarum.forum.middleware')
+            $this->app->getContainer()->make('flarum.forum.middleware')[0]
         );
     }
 
@@ -80,7 +80,7 @@ class ServiceProviderTest extends TestCase
 
         $this->assertEquals(
             'overriden_by_third_custom_provider_boot',
-            $this->app->getContainer()->make('flarum.forum.middleware')
+            $this->app->getContainer()->make('flarum.forum.middleware')[0]
         );
     }
 }
@@ -91,7 +91,7 @@ class CustomServiceProvider extends AbstractServiceProvider
     {
         // First we override the singleton here.
         $this->app->extend('flarum.forum.middleware', function () {
-            return 'overriden_by_custom_provider_register';
+            return ['overriden_by_custom_provider_register'];
         });
     }
 }
@@ -102,7 +102,7 @@ class SecondCustomServiceProvider extends AbstractServiceProvider
     {
         // Second we check that the singleton was overriden here.
         $this->app->extend('flarum.forum.middleware', function ($forumRoutes) {
-            return 'overriden_by_second_custom_provider_register';
+            return ['overriden_by_second_custom_provider_register'];
         });
     }
 }
@@ -113,7 +113,7 @@ class ThirdCustomProvider extends AbstractServiceProvider
     {
         // Third we override one last time here, to make sure this is the final result.
         $this->app->extend('flarum.forum.middleware', function ($forumRoutes) {
-            return 'overriden_by_third_custom_provider_boot';
+            return ['overriden_by_third_custom_provider_boot'];
         });
     }
 }

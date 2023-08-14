@@ -11,6 +11,7 @@ namespace Flarum\Tests\integration\api\csrf_protection;
 
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 
 class RequireCsrfTokenTest extends TestCase
 {
@@ -80,30 +81,28 @@ class RequireCsrfTokenTest extends TestCase
             $this->request('GET', '/')
         );
 
-        $token = $initial->getHeaderLine('X-CSRF-Token');
+        $token = $initial->headers->get('X-CSRF-Token');
 
         $auth = $this->send(
-            $this->request(
-                'POST',
-                '/login',
-                [
+            tap(
+                $this->request('POST', '/login', [
                     'cookiesFrom' => $initial,
                     'json' => ['identification' => 'admin', 'password' => 'password'],
-                ]
-            )->withHeader('X-CSRF-Token', $token)
+                ]),
+                fn (Request $request) => $request->headers->set('X-CSRF-Token', $token),
+            )
         );
 
-        $token = $auth->getHeaderLine('X-CSRF-Token');
+        $token = $auth->headers->get('X-CSRF-Token');
 
         $response = $this->send(
-            $this->request(
-                'POST',
-                '/api/settings',
-                [
+            tap(
+                $this->request('POST', '/api/settings', [
                     'cookiesFrom' => $auth,
                     'json' => ['csrf_test' => 2],
-                ]
-            )->withHeader('X-CSRF-Token', $token)
+                ]),
+                fn (Request $request) => $request->headers->set('X-CSRF-Token', $token),
+            )
         );
 
         // Successful response?
@@ -125,29 +124,27 @@ class RequireCsrfTokenTest extends TestCase
             $this->request('GET', '/')
         );
 
-        $token = $initial->getHeaderLine('X-CSRF-Token');
+        $token = $initial->headers->get('X-CSRF-Token');
 
         $auth = $this->send(
-            $this->request(
-                'POST',
-                '/login',
-                [
+            tap(
+                $this->request('POST', '/login', [
                     'cookiesFrom' => $initial,
                     'json' => ['identification' => 'admin', 'password' => 'password', 'csrfToken' => $token],
-                ]
+                ]),
+                fn (Request $request) => $request->headers->set('X-CSRF-Token', $token),
             )
         );
 
-        $token = $auth->getHeaderLine('X-CSRF-Token');
+        $token = $auth->headers->get('X-CSRF-Token');
 
         $response = $this->send(
-            $this->request(
-                'POST',
-                '/api/settings',
-                [
+            tap(
+                $this->request('POST', '/api/settings', [
                     'cookiesFrom' => $auth,
                     'json' => ['csrf_test' => 2, 'csrfToken' => $token],
-                ]
+                ]),
+                fn (Request $request) => $request->headers->set('X-CSRF-Token', $token),
             )
         );
 
@@ -167,13 +164,12 @@ class RequireCsrfTokenTest extends TestCase
     public function master_api_token_does_not_need_csrf_token()
     {
         $response = $this->send(
-            $this->request(
-                'POST',
-                '/api/settings',
-                [
+            tap(
+                $this->request('POST', '/api/settings', [
                     'json' => ['csrf_test' => 2],
-                ]
-            )->withHeader('Authorization', 'Token superadmin')
+                ]),
+                fn (Request $request) => $request->headers->set('Authorization', 'Token superadmin')
+            )
         );
 
         // Successful response?
@@ -196,13 +192,12 @@ class RequireCsrfTokenTest extends TestCase
         );
 
         $response = $this->send(
-            $this->request(
-                'POST',
-                '/api/settings',
-                [
+            tap(
+                $this->request('POST', '/api/settings', [
                     'json' => ['csrf_test' => 2],
-                ]
-            )->withHeader('Authorization', 'Token myaccesstoken')
+                ]),
+                fn (Request $request) => $request->headers->set('Authorization', 'Token myaccesstoken')
+            )
         );
 
         // Successful response?

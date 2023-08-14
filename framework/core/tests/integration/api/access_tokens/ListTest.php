@@ -86,7 +86,7 @@ class ListTest extends TestCase
         $response = $this->send(
             tap(
                 $this->request('GET', '/api/access-tokens', compact('authenticatedAs')),
-                fn (Request $request) => $request->query->add([$filters ?? []])
+                fn (Request $request) => $request->query->add($filters ?? [])
             )
         );
 

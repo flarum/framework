@@ -22,7 +22,7 @@ class ContentTypeOptionsTest extends TestCase
             $this->request('GET', '/')
         );
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertArrayHasKey('X-Content-Type-Options', $response->getHeaders());
-        $this->assertEquals('nosniff', $response->getHeader('X-Content-Type-Options')[0]);
+        $this->assertNotNull($response->headers->get('X-Content-Type-Options'));
+        $this->assertEquals('nosniff', $response->headers->get('X-Content-Type-Options'));
     }
 }

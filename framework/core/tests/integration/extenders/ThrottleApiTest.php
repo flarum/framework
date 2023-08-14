@@ -92,7 +92,12 @@ class ThrottleApiTest extends TestCase
             }
         }));
 
-        $response = $this->send($this->request('POST', '/register')->withAttribute('bypassCsrfToken', true));
+        $response = $this->send(
+            tap(
+                $this->request('POST', '/register'),
+                fn (Request $request) => $request->attributes->set('bypassCsrfToken', true)
+            )
+        );
 
         $this->assertEquals(429, $response->getStatusCode());
     }

@@ -22,7 +22,7 @@ class ReferrerPolicyTest extends TestCase
             $this->request('GET', '/')
         );
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertArrayHasKey('Referrer-Policy', $response->headers->all());
+        $this->assertNotNull($response->headers->get('Referrer-Policy'));
     }
 
     /**

@@ -16,6 +16,7 @@ use Flarum\Http\RememberAccessToken;
 use Flarum\Http\SessionAccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 
 class DeleteTest extends TestCase
 {
@@ -106,10 +107,13 @@ class DeleteTest extends TestCase
             ->latest()
             ->first();
 
-        $csrfToken = $responseWithSession->getHeaderLine('X-CSRF-Token');
+        $csrfToken = $responseWithSession->headers->get('X-CSRF-Token');
 
         $request = $this->requestWithCookiesFrom(
-            $this->request('DELETE', "/api/access-tokens/$sessionToken->id")->withHeader('X-CSRF-Token', $csrfToken),
+            tap(
+                $this->request('DELETE', "/api/access-tokens/$sessionToken->id"),
+                fn (Request $request) => $request->headers->set('X-CSRF-Token', $csrfToken),
+            ),
             $responseWithSession
         );
 
@@ -140,10 +144,13 @@ class DeleteTest extends TestCase
             ->latest()
             ->first();
 
-        $csrfToken = $responseWithSession->getHeaderLine('X-CSRF-Token');
+        $csrfToken = $responseWithSession->headers->get('X-CSRF-Token');
 
         $request = $this->requestWithCookiesFrom(
-            $this->request('DELETE', '/api/sessions')->withHeader('X-CSRF-Token', $csrfToken),
+            tap(
+                $this->request('DELETE', '/api/sessions'),
+                fn (Request $request) => $request->headers->set('X-CSRF-Token', $csrfToken)
+            ),
             $responseWithSession
         );
 

@@ -13,6 +13,8 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\EmailToken;
 use Flarum\User\PasswordToken;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
 class PasswordEmailTokensTest extends TestCase
 {
@@ -78,14 +80,17 @@ class PasswordEmailTokensTest extends TestCase
 
         // Use a token to reset password
         $response = $this->send(
-            $request = $this->requestWithCsrfToken(
-                $this->request('POST', '/reset', [
-                    'authenticatedAs' => 2,
-                ])->withParsedBody([
-                    'passwordToken' => PasswordToken::query()->latest()->first()->token,
-                    'password' => 'new-password',
-                    'password_confirmation' => 'new-password',
-                ])
+            $this->requestWithCsrfToken(
+                tap(
+                    $this->request('POST', '/reset', [
+                        'authenticatedAs' => 2,
+                    ]),
+                    fn (Request $request) => $request->setJson(new ParameterBag([
+                        'passwordToken' => PasswordToken::query()->latest()->first()->token,
+                        'password' => 'new-password',
+                        'password_confirmation' => 'new-password',
+                    ]))
+                )
             )
         );
 
@@ -162,14 +167,17 @@ class PasswordEmailTokensTest extends TestCase
 
         // Use a token to reset password
         $response = $this->send(
-            $request = $this->requestWithCsrfToken(
-                $this->request('POST', '/reset', [
-                    'authenticatedAs' => 2,
-                ])->withParsedBody([
-                    'passwordToken' => PasswordToken::query()->latest()->first()->token,
-                    'password' => 'new-password',
-                    'password_confirmation' => 'new-password',
-                ])
+            $this->requestWithCsrfToken(
+                tap(
+                    $this->request('POST', '/reset', [
+                        'authenticatedAs' => 2,
+                    ]),
+                    fn (Request $request) => $request->setJson(new ParameterBag([
+                        'passwordToken' => PasswordToken::query()->latest()->first()->token,
+                        'password' => 'new-password',
+                        'password_confirmation' => 'new-password',
+                    ]))
+                )
             )
         );
 
