@@ -13,7 +13,6 @@ use Flarum\Group\Permission;
 use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\RequestUtil;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 

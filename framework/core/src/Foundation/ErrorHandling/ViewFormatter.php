@@ -13,7 +13,6 @@ use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Http\Request;
-use Laminas\Diactoros\Response\HtmlResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

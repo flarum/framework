@@ -14,7 +14,6 @@ use Flarum\Frontend\Document;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 
 class User
 {

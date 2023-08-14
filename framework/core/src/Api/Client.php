@@ -113,7 +113,13 @@ class Client
         $config = $this->container->make(Config::class);
 
         $symfonyRequest = SymfonyRequest::create(
-            $config->path('api').$path, $method, $this->queryParams, $parent->cookies->all(), $parent->files->all(), $parent->server->all(), json_encode($this->body)
+            $config->path('api').$path,
+            $method,
+            $this->queryParams,
+            $parent->cookies->all(),
+            $parent->files->all(),
+            $parent->server->all(),
+            json_encode($this->body)
         );
 
         $request = Request::createFromBase($symfonyRequest);

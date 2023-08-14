@@ -13,7 +13,6 @@ use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\Router;
 
 return function (Router $router, RouteHandlerFactory $factory) {
-
     $router
         ->get('/all', $factory->toForum(Content\Index::class))
         ->name('index');
@@ -68,5 +67,4 @@ return function (Router $router, RouteHandlerFactory $factory) {
     $router
         ->post('/reset', $factory->toController(Controller\SavePasswordController::class))
         ->name('savePassword');
-
 };

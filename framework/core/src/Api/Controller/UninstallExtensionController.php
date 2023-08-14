@@ -12,7 +12,6 @@ namespace Flarum\Api\Controller;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Http\RequestUtil;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 
 class UninstallExtensionController extends AbstractDeleteController
 {

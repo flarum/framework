@@ -16,7 +16,6 @@ use Flarum\Post\Filter\PostFilterer;
 use Flarum\Post\PostRepository;
 use Flarum\Query\QueryCriteria;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\Exception\InvalidParameterException;
 

@@ -14,7 +14,6 @@ use Flarum\Http\RequestUtil;
 use Flarum\PackageManager\Command\RemoveExtension;
 use Flarum\PackageManager\Job\Dispatcher;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;

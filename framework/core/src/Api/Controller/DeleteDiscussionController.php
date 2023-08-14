@@ -13,7 +13,6 @@ use Flarum\Discussion\Command\DeleteDiscussion;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 
 class DeleteDiscussionController extends AbstractDeleteController
 {

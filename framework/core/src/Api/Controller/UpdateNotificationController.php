@@ -15,7 +15,6 @@ use Flarum\Notification\Command\ReadNotification;
 use Flarum\Notification\Notification;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Tobscure\JsonApi\Document;
 
 class UpdateNotificationController extends AbstractShowController

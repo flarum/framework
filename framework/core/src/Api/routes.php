@@ -12,7 +12,6 @@ use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\Router;
 
 return function (Router $router, RouteHandlerFactory $factory) {
-
     // Get forum information
     $router
         ->get('/', $factory->toController(Controller\ShowForumController::class))
@@ -292,5 +291,4 @@ return function (Router $router, RouteHandlerFactory $factory) {
     $router
         ->post('/mail/test', $factory->toController(Controller\SendTestMailController::class))
         ->name('mailTest');
-
 };

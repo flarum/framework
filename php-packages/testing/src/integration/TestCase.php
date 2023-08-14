@@ -18,7 +18,6 @@ use Illuminate\Contracts\Cache\Store;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Server\RequestHandlerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase

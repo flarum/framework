@@ -1,15 +1,20 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Http;
 
 use Flarum\Foundation\Config;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Routing\RoutingServiceProvider as IlluminateRoutingServiceProvider;
 use Laminas\Diactoros\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 
 class RoutingServiceProvider extends IlluminateRoutingServiceProvider
 {
@@ -36,9 +41,12 @@ class RoutingServiceProvider extends IlluminateRoutingServiceProvider
             $container->instance('routes', $routes);
 
             $url = new UrlGenerator(
-                $routes, $container->rebinding(
-                    'request', $this->requestRebinder()
-                ), $container['config']['app.asset_url']
+                $routes,
+                $container->rebinding(
+                    'request',
+                    $this->requestRebinder()
+                ),
+                $container['config']['app.asset_url']
             );
 
             $url->setConfig(

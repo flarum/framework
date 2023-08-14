@@ -89,7 +89,7 @@ class ReplyNotificationTest extends TestCase
                             ],
                         ],
                     ],
-                ]), fn (Request $request ) => $request->attributes->set('bypassThrottling', true))
+                ]), fn (Request $request) => $request->attributes->set('bypassThrottling', true))
             );
         }
 

@@ -15,7 +15,6 @@ use Flarum\User\Command\UploadAvatar;
 use Flarum\User\User;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Tobscure\JsonApi\Document;
 
 class UploadAvatarController extends AbstractShowController

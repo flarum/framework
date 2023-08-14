@@ -14,7 +14,6 @@ use Flarum\Http\AccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Http\Request;
-use Laminas\Diactoros\ServerRequest;
 
 class AccessTokenLifecycleTest extends TestCase
 {

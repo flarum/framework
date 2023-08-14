@@ -75,7 +75,10 @@ class RequestUtil
     public static function toPsr7(SymfonyRequest $request): ServerRequestInterface
     {
         $psrHttpFactory = new PsrHttpFactory(
-            new ServerRequestFactory(), new StreamFactory(), new UploadedFileFactory(), new ResponseFactory()
+            new ServerRequestFactory(),
+            new StreamFactory(),
+            new UploadedFileFactory(),
+            new ResponseFactory()
         );
 
         return $psrHttpFactory->createRequest($request);

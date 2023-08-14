@@ -14,7 +14,6 @@ use Flarum\Flags\Command\DeleteFlags;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 
 class DeleteFlagsController extends AbstractDeleteController
 {

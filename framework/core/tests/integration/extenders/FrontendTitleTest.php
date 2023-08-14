@@ -15,7 +15,6 @@ use Flarum\Frontend\Driver\TitleDriverInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Http\Request;
-use Psr\Http\Message\ServerRequestInterface;
 
 class FrontendTitleTest extends TestCase
 {

@@ -14,10 +14,6 @@ use Flarum\Extension\Event\Enabled;
 use Flarum\Formatter\Formatter;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Config;
-use Flarum\Foundation\ErrorHandling\Registry;
-use Flarum\Foundation\ErrorHandling\Reporter;
-use Flarum\Foundation\ErrorHandling\ViewFormatter;
-use Flarum\Foundation\ErrorHandling\WhoopsFormatter;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Frontend\AddLocaleAssets;
 use Flarum\Frontend\AddTranslations;
@@ -181,7 +177,7 @@ class ForumServiceProvider extends AbstractServiceProvider
         /** @var \Illuminate\Routing\Route $route */
         $route = $router->getRoutes()->getRoutesByMethod()['GET'][$defaultRoutePath] ?? null;
 
-        if (!$route) {
+        if (! $route) {
             $route = $router->getRoutes()->getRoutesByMethod()['GET']['all'];
         }
 

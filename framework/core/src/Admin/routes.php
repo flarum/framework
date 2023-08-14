@@ -9,11 +9,10 @@
 
 use Flarum\Admin\Content\Index;
 use Flarum\Admin\Controller\UpdateExtensionController;
-use Flarum\Http\Router;
 use Flarum\Http\RouteHandlerFactory;
+use Flarum\Http\Router;
 
 return function (Router $router, RouteHandlerFactory $factory) {
-
     $router
         ->get('/', $factory->toAdmin(Index::class))
         ->name('index');
@@ -21,5 +20,4 @@ return function (Router $router, RouteHandlerFactory $factory) {
     $router
         ->post('/extensions/{name}', $factory->toController(UpdateExtensionController::class))
         ->name('extensions.update');
-
 };

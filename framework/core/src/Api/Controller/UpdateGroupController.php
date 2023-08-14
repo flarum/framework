@@ -15,7 +15,6 @@ use Flarum\Group\Group;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Tobscure\JsonApi\Document;
 
 class UpdateGroupController extends AbstractShowController

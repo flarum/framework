@@ -15,7 +15,6 @@ use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 
 class DeleteAccessTokenController extends AbstractDeleteController
 {

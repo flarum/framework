@@ -13,7 +13,6 @@ use Flarum\Api\Controller\AbstractSerializeController;
 use Flarum\Extend;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Http\Request;
-use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\ElementInterface;
 use Tobscure\JsonApi\SerializerInterface;

@@ -14,7 +14,6 @@ use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Http\RequestUtil;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Tobscure\JsonApi\Document;
 
 class ShowExtensionReadmeController extends AbstractShowController

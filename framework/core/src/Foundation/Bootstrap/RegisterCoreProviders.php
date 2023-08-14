@@ -1,19 +1,24 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Foundation\Bootstrap;
 
 use Flarum\Admin\AdminServiceProvider;
 use Flarum\Api\ApiServiceProvider;
 use Flarum\Bus\BusServiceProvider;
 use Flarum\Console\ConsoleServiceProvider;
-use Flarum\Database\DatabaseServiceProvider;
 use Flarum\Discussion\DiscussionServiceProvider;
 use Flarum\Extension\ExtensionServiceProvider;
 use Flarum\Filesystem\FilesystemServiceProvider;
 use Flarum\Filter\FilterServiceProvider;
 use Flarum\Formatter\FormatterServiceProvider;
 use Flarum\Forum\ForumServiceProvider;
-use Flarum\Foundation\ErrorServiceProvider;
 use Flarum\Frontend\FrontendServiceProvider;
 use Flarum\Group\GroupServiceProvider;
 use Flarum\Http\HttpServiceProvider;
@@ -23,7 +28,6 @@ use Flarum\Notification\NotificationServiceProvider;
 use Flarum\Post\PostServiceProvider;
 use Flarum\Queue\QueueServiceProvider;
 use Flarum\Search\SearchServiceProvider;
-use Flarum\Settings\SettingsServiceProvider;
 use Flarum\Update\UpdateServiceProvider;
 use Flarum\User\SessionServiceProvider;
 use Flarum\User\UserServiceProvider;

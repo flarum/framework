@@ -51,7 +51,8 @@ class ExceptionHandler implements ExceptionHandling
     public function render($request, Throwable $e): Response /** @phpstan-ignore-line */
     {
         return $this->resolveFormatter($request)->format(
-            $this->getHandledError($e), $request
+            $this->getHandledError($e),
+            $request
         );
     }
 

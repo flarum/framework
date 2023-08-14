@@ -17,7 +17,6 @@ use Flarum\Testing\integration\Extend\BeginTransactionAndSetDatabase;
 use Flarum\Testing\integration\Extend\OverrideExtensionManagerForTests;
 use Flarum\Testing\integration\Extend\SetSettingsBeforeBoot;
 use Flarum\Testing\integration\UsesTmpDir;
-use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Arr;
 
 class Bootstrapper

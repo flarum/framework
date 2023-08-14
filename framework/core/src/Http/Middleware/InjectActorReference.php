@@ -19,7 +19,9 @@ class InjectActorReference implements IlluminateMiddlewareInterface
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (isset($GLOBALS['testing'])) dump('i', $request);
+        if (isset($GLOBALS['testing'])) {
+            dump('i', $request);
+        }
         $request = RequestUtil::withActor($request, new Guest);
 
         return $next($request);
