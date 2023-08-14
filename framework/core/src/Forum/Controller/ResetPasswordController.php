@@ -26,7 +26,7 @@ class ResetPasswordController extends AbstractHtmlController
 
     public function render(Request $request): View
     {
-        $token = $request->query('token');
+        $token = $request->route('token');
 
         $token = PasswordToken::findOrFail($token);
 

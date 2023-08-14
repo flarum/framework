@@ -34,7 +34,7 @@ class UpdateDiscussionController extends AbstractShowController
     {
         $actor = RequestUtil::getActor($request);
         $discussionId = (int) $request->route('id');
-        $data = $request->json()->all();
+        $data = $request->json('data', []);
 
         /** @var Discussion $discussion */
         $discussion = $this->bus->dispatch(

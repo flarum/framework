@@ -46,7 +46,9 @@ class CheckCsrfToken implements IlluminateMiddlewareInterface
     {
         $expected = (string) $request->attributes->get('session')->token();
 
-        $provided = $request->json('csrfToken', $request->header('X-CSRF-Token'));
+        $provided = $request->isJson()
+            ? $request->json('csrfToken', $request->header('X-CSRF-Token'))
+            : $request->header('X-CSRF-Token');
 
         if (! is_string($provided)) {
             return false;

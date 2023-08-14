@@ -31,7 +31,7 @@ class UpdateGroupController extends AbstractShowController
     {
         $id = $request->route('id');
         $actor = RequestUtil::getActor($request);
-        $data = $request->json()->all();
+        $data = $request->json('data', []);
 
         return $this->bus->dispatch(
             new EditGroup($id, $actor, $data)

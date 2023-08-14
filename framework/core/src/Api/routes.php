@@ -67,8 +67,7 @@ return function (Router $router, RouteHandlerFactory $factory) {
     // Get a single user
     $router
         ->get('/users/{id}', $factory->toController(Controller\ShowUserController::class))
-        ->name('users.show')
-        ->whereNumber('id');
+        ->name('users.show');
 
     // Edit a user
     $router
@@ -146,8 +145,7 @@ return function (Router $router, RouteHandlerFactory $factory) {
     // Show a single discussion
     $router
         ->get('/discussions/{id}', $factory->toController(Controller\ShowDiscussionController::class))
-        ->name('discussions.show')
-        ->whereNumber('id');
+        ->name('discussions.show');
 
     // Edit a discussion
     $router

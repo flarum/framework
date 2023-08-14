@@ -24,7 +24,7 @@ class EmailChangeThrottler
 
     public function __invoke(Request $request): ?bool
     {
-        if ($request->routeIs('api.users.update')) {
+        if (! $request->routeIs('api.users.update')) {
             return null;
         }
 

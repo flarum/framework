@@ -35,7 +35,7 @@ class UpdatePostController extends AbstractShowController
     {
         $id = $request->route('id');
         $actor = RequestUtil::getActor($request);
-        $data = $request->json()->all();
+        $data = $request->json('data', []);
 
         $post = $this->bus->dispatch(
             new EditPost($id, $actor, $data)

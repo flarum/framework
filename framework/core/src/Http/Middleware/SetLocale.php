@@ -24,6 +24,7 @@ class SetLocale implements IlluminateMiddlewareInterface
 
     public function handle(Request $request, Closure $next): Response
     {
+        if (isset($GLOBALS['testing'])) dump('sl', $request);
         $actor = RequestUtil::getActor($request);
 
         if ($actor->exists) {

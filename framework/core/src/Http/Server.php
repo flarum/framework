@@ -43,6 +43,8 @@ class Server
             ->send($request)
             ->through($globalMiddleware)
             ->then(function (Request $request) use ($app) {
+                $app->instance('request', $request);
+
                 return $app->make(Router::class)->dispatch($request);
             });
     }

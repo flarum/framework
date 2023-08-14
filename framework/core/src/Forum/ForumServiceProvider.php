@@ -179,7 +179,12 @@ class ForumServiceProvider extends AbstractServiceProvider
     {
         $defaultRoutePath = ltrim($settings->get('default_route', '/all'), '/');
         /** @var \Illuminate\Routing\Route $route */
-        $route = $router->getRoutes()->getRoutesByMethod()['GET'][$defaultRoutePath];
+        $route = $router->getRoutes()->getRoutesByMethod()['GET'][$defaultRoutePath] ?? null;
+
+        if (!$route) {
+            $route = $router->getRoutes()->getRoutesByMethod()['GET']['all'];
+        }
+
         $router->get('/', Arr::except($route->getAction(), ['as']))->name('forum.default');
     }
 }

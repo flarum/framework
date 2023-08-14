@@ -83,11 +83,13 @@ class ExceptionHandler implements ExceptionHandling
 
     protected function resolveFormatter(Request $request): HttpFormatter
     {
+        $isApiFrontend = explode('/', trim($request->path(), '/'))[0] === $this->config->path('api');
+
         return match (true) {
             $request->expectsJson(),
-            $request->routeIs('api.*')  => Arr::first($this->formatters, fn (HttpFormatter $formatter) => $formatter instanceof JsonApiFormatter),
-            $this->config->inDebugMode()         => Arr::first($this->formatters, fn (HttpFormatter $formatter) => $formatter instanceof WhoopsFormatter),
-            default                              => Arr::first($this->formatters, fn (HttpFormatter $formatter) => $formatter instanceof ViewFormatter),
+            $isApiFrontend                      => Arr::first($this->formatters, fn (HttpFormatter $formatter) => $formatter instanceof JsonApiFormatter),
+            $this->config->inDebugMode()        => Arr::first($this->formatters, fn (HttpFormatter $formatter) => $formatter instanceof WhoopsFormatter),
+            default                             => Arr::first($this->formatters, fn (HttpFormatter $formatter) => $formatter instanceof ViewFormatter),
         };
     }
 }

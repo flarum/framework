@@ -3,8 +3,13 @@
 namespace Flarum\Http;
 
 use Flarum\Foundation\Config;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Routing\RoutingServiceProvider as IlluminateRoutingServiceProvider;
+use Laminas\Diactoros\Response;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 
 class RoutingServiceProvider extends IlluminateRoutingServiceProvider
 {
@@ -41,6 +46,20 @@ class RoutingServiceProvider extends IlluminateRoutingServiceProvider
             );
 
             return $url;
+        });
+    }
+
+    protected function registerPsrRequest(): void
+    {
+        $this->app->bind(ServerRequestInterface::class, function ($app) {
+            return RequestUtil::toPsr7($app->make('request'));
+        });
+    }
+
+    protected function registerPsrResponse(): void
+    {
+        $this->app->bind(ResponseInterface::class, function () {
+            return new Response();
         });
     }
 }

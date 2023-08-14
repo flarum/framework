@@ -30,7 +30,7 @@ class ConfirmEmailController extends AbstractController
 
     public function __invoke(Request $request): ResponseInterface
     {
-        $token = $request->query('token');
+        $token = $request->route('token');
 
         $user = $this->bus->dispatch(
             new ConfirmEmail($token)

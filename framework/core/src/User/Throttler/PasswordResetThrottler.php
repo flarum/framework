@@ -25,7 +25,7 @@ class PasswordResetThrottler
 
     public function __invoke(Request $request): ?bool
     {
-        if ($request->routeIs('forum.forgot')) {
+        if (! $request->routeIs('forum.forgot')) {
             return null;
         }
 

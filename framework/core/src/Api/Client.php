@@ -128,11 +128,27 @@ class Client
             $request = RequestUtil::withActor($request, $this->actor);
         }
 
+        $originalRequest = $this->container->make('request');
+
         return (new Pipeline($this->container))
             ->send($request)
-            ->through($this->middlewareStack)
-            ->then(function (Request $request) {
-                return $this->container->make(Router::class)->dispatch($request);
+            ->then(function (Request $request) use ($originalRequest) {
+                $this->container->instance('request', $request);
+
+                /** @var Router $router */
+                $router = $this->container->make(Router::class);
+
+                $originalMiddlewareGroup = $router->getMiddlewareGroups()['api'];
+
+                $router->middlewareGroup('api', $this->middlewareStack);
+
+                $response = $router->dispatch($request);
+
+                $router->middlewareGroup('api', $originalMiddlewareGroup);
+
+                $this->container->instance('request', $originalRequest);
+
+                return $response;
             });
     }
 }

@@ -24,7 +24,7 @@ class ConfirmEmailViewController extends AbstractHtmlController
 
     public function render(Request $request): View
     {
-        $token = $request->query('token');
+        $token = $request->route('token');
 
         EmailToken::validOrFail($token);
 

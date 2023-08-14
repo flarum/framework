@@ -16,6 +16,7 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandlerContract;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException as IlluminateValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tobscure\JsonApi\Exception\InvalidParameterException;
 
 class ErrorServiceProvider extends AbstractServiceProvider
@@ -61,6 +62,7 @@ class ErrorServiceProvider extends AbstractServiceProvider
             return [
                 InvalidParameterException::class => 'invalid_parameter',
                 ModelNotFoundException::class => 'not_found',
+                NotFoundHttpException::class => 'not_found',
             ];
         });
 
