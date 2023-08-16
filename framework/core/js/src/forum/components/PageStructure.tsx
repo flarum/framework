@@ -45,7 +45,7 @@ export default class PageStructure<CustomAttrs extends PageStructureAttrs = Page
   loadingItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
-    items.add('spinner', <LoadingIndicator />, 100);
+    items.add('spinner', <LoadingIndicator display="block" />, 100);
 
     return items;
   }
