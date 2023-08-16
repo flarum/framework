@@ -7,8 +7,6 @@ import WelcomeHero from './WelcomeHero';
 import DiscussionPage from './DiscussionPage';
 import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
-import LinkButton from '../../common/components/LinkButton';
-import SelectDropdown from '../../common/components/SelectDropdown';
 import extractText from '../../common/utils/extractText';
 import type Mithril from 'mithril';
 import type Discussion from '../../common/models/Discussion';

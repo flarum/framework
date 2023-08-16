@@ -2,7 +2,6 @@ import app from '../../forum/app';
 import Page, { IPageAttrs } from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import UserCard from './UserCard';
-import LoadingIndicator from '../../common/components/LoadingIndicator';
 import SelectDropdown from '../../common/components/SelectDropdown';
 import LinkButton from '../../common/components/LinkButton';
 import Separator from '../../common/components/Separator';
