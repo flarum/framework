@@ -1,14 +1,15 @@
+import app from 'flarum/forum/app';
 import { extend, override } from 'flarum/common/extend';
-import IndexPage from 'flarum/forum/components/IndexPage';
+import IndexSidebar from 'flarum/forum/components/IndexSidebar';
 import classList from 'flarum/common/utils/classList';
 
 import tagsLabel from '../common/helpers/tagsLabel';
 import getSelectableTags from './utils/getSelectableTags';
 
 export default function addTagComposer() {
-  extend(IndexPage.prototype, 'newDiscussionAction', function (promise) {
+  extend(IndexSidebar.prototype, 'newDiscussionAction', function (promise) {
     // From `addTagFilter
-    const tag = this.currentTag();
+    const tag = app.currentTag();
 
     if (tag) {
       const parent = tag.parent();

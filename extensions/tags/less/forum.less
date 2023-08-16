@@ -72,11 +72,13 @@
 }
 @media @desktop-up {
   .TagsPage {
+    --sidebar-width: 100%;
+    --gap: 30px;
+
     .sideNav {
       .sideNav--horizontal();
-      float: none;
       width: auto;
-      padding-top: 0;
+      padding: 0;
 
       &:after {
         display: none;
@@ -86,8 +88,13 @@
         width: 190px;
       }
     }
-    .sideNavOffset {
-      margin: 15px 0 0;
+
+    .Page-container {
+      flex-direction: column;
+    }
+
+    .Page-content {
+      margin-top: 0;
     }
   }
 }
