@@ -23,15 +23,17 @@
   }
 }
 @media @tablet-up {
-  .DiscussionPage-discussion {
-    > .container {
-      display: grid;
-      grid-gap: 75px;
-      grid-template-columns: 1fr 150px;
-      grid-template-areas: 'stream nav';
+  .DiscussionPage {
+    --sidebar-width: 150px;
+    --gap: 75px;
 
-      &::before, &::after {
-        content: none;
+    .Page {
+      &-container {
+        flex-direction: row-reverse;
+      }
+
+      &-content {
+        margin-top: 10px;
       }
     }
   }
@@ -39,7 +41,6 @@
   .DiscussionPage-nav {
     align-self: start;
     position: sticky;
-    grid-area: nav;
     top: var(--header-height);
     padding-top: 32px;
     z-index: 1;
@@ -60,12 +61,6 @@
         width: 22%;
       }
     }
-  }
-
-  .DiscussionPage-stream {
-    grid-area: stream;
-    max-width: 100%;
-    min-width: 0;
   }
 }
 

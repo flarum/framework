@@ -52,7 +52,7 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
 
   view() {
     return (
-      <PageStructure className="IndexPage" hero={this.hero()} sidebar={this.sidebar()}>
+      <PageStructure className="IndexPage" hero={this.hero.bind(this)} sidebar={this.sidebar.bind(this)}>
         <div className="IndexPage-toolbar">
           <ul className="IndexPage-toolbar-view">{listItems(this.viewItems().toArray())}</ul>
           <ul className="IndexPage-toolbar-action">{listItems(this.actionItems().toArray())}</ul>

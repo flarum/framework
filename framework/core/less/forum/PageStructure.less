@@ -1,17 +1,26 @@
 .Page {
+  --content-width: 100%;
+  --sidebar-width: 190px;
+  --gap: 50px;
+
   @media @desktop-up {
     &-container {
       display: flex;
+      gap: var(--gap);
 
       &::before, &::after {
-        display: none;
+        content: none;
       }
     }
 
     &-content {
       margin-top: 30px;
-      flex: 1;
-      min-width: 0;
+      width: var(--content-width);
+    }
+
+    &-sidebar {
+      width: var(--sidebar-width);
+      flex-shrink: 0;
     }
   }
 

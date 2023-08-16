@@ -3,11 +3,14 @@ import type { ComponentAttrs } from '../../common/Component';
 import type Mithril from 'mithril';
 import classList from '../../common/utils/classList';
 import ItemList from '../../common/utils/ItemList';
+import LoadingIndicator from '../../common/components/LoadingIndicator';
 
 export interface PageStructureAttrs extends ComponentAttrs {
-  hero?: Mithril.Children;
-  sidebar?: Mithril.Children;
-  rootItems?: (items: ItemList<Mithril.Children>) => void;
+  hero?: () => Mithril.Children;
+  sidebar?: () => Mithril.Children;
+  pane?: () => Mithril.Children;
+  loading?: boolean;
+  className: string;
 }
 
 export default class PageStructure<CustomAttrs extends PageStructureAttrs = PageStructureAttrs> extends Component<CustomAttrs> {
@@ -24,11 +27,8 @@ export default class PageStructure<CustomAttrs extends PageStructureAttrs = Page
   rootItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
-    items.add('main', this.main(), 100);
-
-    if (this.attrs.rootItems) {
-      this.attrs.rootItems(items);
-    }
+    items.add('pane', this.providedPane(), 100);
+    items.add('main', this.main(), 10);
 
     return items;
   }
@@ -42,8 +42,16 @@ export default class PageStructure<CustomAttrs extends PageStructureAttrs = Page
     return items;
   }
 
+  loadingItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add('spinner', <LoadingIndicator />, 100);
+
+    return items;
+  }
+
   main(): Mithril.Children {
-    return <div className="Page-main">{this.mainItems().toArray()}</div>;
+    return <div className="Page-main">{this.attrs.loading ? this.loadingItems().toArray() : this.mainItems().toArray()}</div>;
   }
 
   containerItems(): ItemList<Mithril.Children> {
@@ -62,7 +70,7 @@ export default class PageStructure<CustomAttrs extends PageStructureAttrs = Page
   sidebarItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
-    items.add('sidebar', this.attrs.sidebar, 100);
+    items.add('sidebar', (this.attrs.sidebar && this.attrs.sidebar()) || null, 100);
 
     return items;
   }
@@ -71,8 +79,12 @@ export default class PageStructure<CustomAttrs extends PageStructureAttrs = Page
     return <div className="Page-sidebar">{this.sidebarItems().toArray()}</div>;
   }
 
+  providedPane(): Mithril.Children {
+    return <div className="Page-pane">{(this.attrs.pane && this.attrs.pane()) || null}</div>;
+  }
+
   providedHero(): Mithril.Children {
-    return <div className="Page-hero">{this.attrs.hero}</div>;
+    return <div className="Page-hero">{(this.attrs.hero && this.attrs.hero()) || null}</div>;
   }
 
   providedContent(): Mithril.Children {
