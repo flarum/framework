@@ -1,0 +1,23 @@
+.Page {
+  @media @desktop-up {
+    &-container {
+      display: flex;
+
+      &::before, &::after {
+        display: none;
+      }
+    }
+
+    &-content {
+      margin-top: 30px;
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  @media @phone, @tablet {
+    &-content {
+      margin-top: 15px;
+    }
+  }
+}

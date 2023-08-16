@@ -12,6 +12,7 @@ import SelectDropdown from '../../common/components/SelectDropdown';
 import extractText from '../../common/utils/extractText';
 import type Mithril from 'mithril';
 import type Discussion from '../../common/models/Discussion';
+import PageStructure from './PageStructure';
 
 export interface IIndexPageAttrs extends IPageAttrs {}
 
@@ -51,23 +52,13 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
 
   view() {
     return (
-      <div className="IndexPage">
-        {this.hero()}
-        <div className="container">
-          <div className="sideNavContainer">
-            <nav className="IndexPage-nav sideNav">
-              <ul>{listItems(this.sidebarItems().toArray())}</ul>
-            </nav>
-            <div className="IndexPage-results sideNavOffset">
-              <div className="IndexPage-toolbar">
-                <ul className="IndexPage-toolbar-view">{listItems(this.viewItems().toArray())}</ul>
-                <ul className="IndexPage-toolbar-action">{listItems(this.actionItems().toArray())}</ul>
-              </div>
-              <DiscussionList state={app.discussions} />
-            </div>
-          </div>
+      <PageStructure className="IndexPage" hero={this.hero()} sidebar={this.sidebar()}>
+        <div className="IndexPage-toolbar">
+          <ul className="IndexPage-toolbar-view">{listItems(this.viewItems().toArray())}</ul>
+          <ul className="IndexPage-toolbar-action">{listItems(this.actionItems().toArray())}</ul>
         </div>
-      </div>
+        <DiscussionList state={app.discussions} />
+      </PageStructure>
     );
   }
 
@@ -180,6 +171,14 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
     );
 
     return items;
+  }
+
+  sidebar() {
+    return (
+      <nav className="IndexPage-nav sideNav">
+        <ul>{listItems(this.sidebarItems().toArray())}</ul>
+      </nav>
+    );
   }
 
   /**
