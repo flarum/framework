@@ -124,28 +124,39 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
   contentItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
-    items.add('authorAvatar', this.authorAvatarView(), 100);
-    items.add('badges', this.badgesView(), 90);
+    items.add('author', this.authorView(), 100);
     items.add('main', this.mainView(), 80);
-    items.add('replyCount', this.replyCountItem(), 70);
+    items.add('stats', this.statsView(), 70);
 
     return items;
   }
 
-  authorAvatarView(): Mithril.Children {
+  authorView(): Mithril.Children {
+    return <div className="DiscussionListItem-author">{this.authorItems().toArray()}</div>;
+  }
+
+  authorItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
     const discussion = this.attrs.discussion;
     const user = discussion.user();
 
-    return (
+    items.add(
+      'avatar',
       <Tooltip
         text={app.translator.trans('core.forum.discussion_list.started_text', { user, ago: humanTime(discussion.createdAt()) })}
         position="right"
       >
-        <Link className="DiscussionListItem-author" href={user ? app.route.user(user) : '#'}>
+        <Link className="DiscussionListItem-author-avatar" href={user ? app.route.user(user) : '#'}>
           {avatar(user || null, { title: '' })}
         </Link>
-      </Tooltip>
+      </Tooltip>,
+      100
     );
+
+    items.add('badges', this.badgesView(), 90);
+
+    return items;
   }
 
   badgesView(): Mithril.Children {
@@ -263,30 +274,54 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     return items;
   }
 
+  statsView(): Mithril.Children {
+    return <div className="DiscussionListItem-stats">{this.statsItems().toArray()}</div>;
+  }
+
+  statsItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add('replyCount', this.replyCountItem(), 70);
+
+    return items;
+  }
+
   replyCountItem() {
     const discussion = this.attrs.discussion;
     const showUnread = !this.showRepliesCount() && discussion.isUnread();
-
-    if (showUnread) {
-      return (
-        <button className="Button--ua-reset DiscussionListItem-count" onclick={this.markAsRead.bind(this)}>
-          <span aria-hidden="true">{abbreviateNumber(discussion.unreadCount())}</span>
-
-          <span className="visually-hidden">
-            {app.translator.trans('core.forum.discussion_list.unread_replies_a11y_label', { count: discussion.replyCount() })}
-          </span>
-        </button>
-      );
-    }
+    const a11yKey = showUnread ? 'core.forum.discussion_list.unread_replies_a11y_label' : 'core.forum.discussion_list.total_replies_a11y_label';
 
     return (
-      <span className="DiscussionListItem-count">
-        <span aria-hidden="true">{abbreviateNumber(discussion.replyCount())}</span>
+      <DiscussionListItemStatsItem
+        className="DiscussionListItem-count"
+        icon={showUnread ? [icon('fas fa-check _checkmark'), icon('fas fa-comment _comment')] : icon('far fa-comment')}
+        label={showUnread ? abbreviateNumber(discussion.unreadCount()) : abbreviateNumber(discussion.replyCount())}
+        a11yLabel={app.translator.trans(a11yKey, { count: discussion.replyCount() })}
+        onclick={showUnread ? this.markAsRead.bind(this) : undefined}
+      />
+    );
+  }
+}
 
-        <span className="visually-hidden">
-          {app.translator.trans('core.forum.discussion_list.total_replies_a11y_label', { count: discussion.replyCount() })}
+export interface DiscussionListItemStatsItemAttrs extends ComponentAttrs {
+  icon: string;
+  label: string;
+  a11yLabel?: string;
+}
+
+export class DiscussionListItemStatsItem extends Component<DiscussionListItemStatsItemAttrs> {
+  view(vnode: Mithril.Vnode<DiscussionListItemStatsItemAttrs>) {
+    const { icon, label, a11yLabel, className, ...attrs } = vnode.attrs;
+    const Tag = attrs.onclick ? 'button' : 'span';
+
+    return (
+      <Tag className={classList('DiscussionListItem-stats-item', className, { 'Button--ua-reset': Tag === 'button' })} {...attrs}>
+        <span className="DiscussionListItem-stats-item-icon">{icon}</span>
+        <span className="DiscussionListItem-stats-item-label">
+          <span aria-hidden="true">{label}</span>
+          <span className="visually-hidden">{a11yLabel ?? label}</span>
         </span>
-      </span>
+      </Tag>
     );
   }
 }
