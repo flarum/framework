@@ -44,6 +44,12 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     );
 
     $map->get(
+        '/notifications/unsubscribe/{userId}/{token}',
+        'notifications.unsubscribe',
+        $route->toController(Controller\UnsubscribeController::class)
+    );
+
+    $map->get(
         '/logout',
         'logout',
         $route->toController(Controller\LogOutController::class)

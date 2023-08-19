@@ -38,9 +38,11 @@ class GroupMentionedBlueprint implements BlueprintInterface, MailableInterface
         return null;
     }
 
-    public function getEmailView(): string|array
+    public function getEmailView(): array
     {
-        return ['text' => 'flarum-mentions::emails.groupMentioned'];
+        return [
+            'text' => 'flarum-mentions::emails.plain.groupMentioned',
+            'html' => 'flarum-mentions::emails.html.groupMentioned',];
     }
 
     public function getEmailSubject(TranslatorInterface $translator): string
