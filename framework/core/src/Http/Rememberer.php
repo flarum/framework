@@ -14,7 +14,7 @@ use Psr\Http\Message\ResponseInterface;
 
 class Rememberer
 {
-    const COOKIE_NAME = 'remember';
+    public const COOKIE_NAME = 'remember';
 
     public function __construct(
         protected CookieFactory $cookie

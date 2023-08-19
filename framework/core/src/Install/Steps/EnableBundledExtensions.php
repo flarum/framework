@@ -126,7 +126,7 @@ class EnableBundledExtensions implements Step
         return $this->migrator = $this->migrator ?? new Migrator(
             new DatabaseMigrationRepository($this->database, 'migrations'),
             $this->database,
-            new \Illuminate\Filesystem\Filesystem
+            new \Illuminate\Filesystem\Filesystem()
         );
     }
 }

@@ -42,7 +42,7 @@ class Pipeline
 
     public function run(): void
     {
-        $this->successfulSteps = new SplStack;
+        $this->successfulSteps = new SplStack();
 
         try {
             foreach ($this->steps as $factory) {

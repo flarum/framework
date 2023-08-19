@@ -55,7 +55,7 @@ class QueueServiceProvider extends AbstractServiceProvider
         // Extensions can override this binding if they want to make Flarum use
         // a different queuing backend.
         $this->container->singleton('flarum.queue.connection', function (ContainerImplementation $container) {
-            $queue = new SyncQueue;
+            $queue = new SyncQueue();
             $queue->setContainer($container);
 
             return $queue;
@@ -91,7 +91,7 @@ class QueueServiceProvider extends AbstractServiceProvider
 
         // Bind a simple cache manager that returns the cache store.
         $this->container->singleton('cache', function (Container $container) {
-            return new class($container) implements CacheFactory {
+            return new class ($container) implements CacheFactory {
                 public function __construct(
                     private readonly Container $container
                 ) {

@@ -42,7 +42,7 @@ class SendConfirmationEmailController implements RequestHandlerInterface
         $actor->assertRegistered();
 
         if ($actor->id != $id || $actor->is_email_confirmed) {
-            throw new PermissionDeniedException;
+            throw new PermissionDeniedException();
         }
 
         $token = $this->generateToken($actor, $actor->email);
@@ -50,6 +50,6 @@ class SendConfirmationEmailController implements RequestHandlerInterface
 
         $this->sendConfirmationEmail($actor, $data);
 
-        return new EmptyResponse;
+        return new EmptyResponse();
     }
 }

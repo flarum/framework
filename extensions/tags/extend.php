@@ -124,10 +124,10 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
-    (new Extend\View)
+    (new Extend\View())
         ->namespace('tags', __DIR__.'/views'),
 
-    (new Extend\Post)
+    (new Extend\Post())
         ->type(DiscussionTaggedPost::class),
 
     (new Extend\Event())

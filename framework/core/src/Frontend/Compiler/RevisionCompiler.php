@@ -22,7 +22,7 @@ class RevisionCompiler implements CompilerInterface
 {
     use HasSources;
 
-    const EMPTY_REVISION = 'empty';
+    public const EMPTY_REVISION = 'empty';
 
     protected VersionerInterface $versioner;
 

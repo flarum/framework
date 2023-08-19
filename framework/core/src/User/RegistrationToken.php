@@ -47,7 +47,7 @@ class RegistrationToken extends AbstractModel
      */
     public static function generate(string $provider, string $identifier, array $attributes, array $payload): static
     {
-        $token = new static;
+        $token = new static();
 
         $token->token = Str::random(40);
         $token->provider = $provider;
@@ -70,7 +70,7 @@ class RegistrationToken extends AbstractModel
         $token = $query->find($token);
 
         if (! $token || $token->created_at->lessThan(Carbon::now()->subDay())) {
-            throw new InvalidConfirmationTokenException;
+            throw new InvalidConfirmationTokenException();
         }
 
         return $token;

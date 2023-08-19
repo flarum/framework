@@ -27,7 +27,7 @@ class GlobalLogoutTest extends TestCase
     protected function setUp(): void
     {
         $this->extend(
-            (new Extend\Csrf)
+            (new Extend\Csrf())
                 ->exemptRoute('globalLogout')
                 ->exemptRoute('login')
         );

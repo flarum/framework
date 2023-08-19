@@ -39,7 +39,7 @@ class AdminServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->singleton('flarum.admin.routes', function () {
-            $routes = new RouteCollection;
+            $routes = new RouteCollection();
             $this->populateRoutes($routes);
 
             return $routes;
@@ -76,7 +76,7 @@ class AdminServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->singleton('flarum.admin.handler', function (Container $container) {
-            $pipe = new MiddlewarePipe;
+            $pipe = new MiddlewarePipe();
 
             foreach ($container->make('flarum.admin.middleware') as $middleware) {
                 $pipe->pipe($container->make($middleware));

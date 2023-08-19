@@ -43,7 +43,7 @@ class DiscussionLockedPost extends AbstractEventPost implements MergeableInterfa
 
     public static function reply(int $discussionId, int $userId, bool $isLocked): static
     {
-        $post = new static;
+        $post = new static();
 
         $post->content = static::buildContent($isLocked);
         $post->created_at = Carbon::now();

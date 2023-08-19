@@ -62,7 +62,7 @@ class UserTest extends TestCase
     public function can_use_custom_display_name_driver()
     {
         $this->extend(
-            (new Extend\User)
+            (new Extend\User())
                 ->displayNameDriver('custom', CustomDisplayNameDriver::class)
         );
 
@@ -90,7 +90,7 @@ class UserTest extends TestCase
      */
     public function processor_can_restrict_user_groups()
     {
-        $this->extend((new Extend\User)->permissionGroups(function (User $user, array $groupIds) {
+        $this->extend((new Extend\User())->permissionGroups(function (User $user, array $groupIds) {
             return array_filter($groupIds, function ($id) {
                 return $id != 3;
             });
@@ -108,7 +108,7 @@ class UserTest extends TestCase
      */
     public function processor_can_be_invokable_class()
     {
-        $this->extend((new Extend\User)->permissionGroups(CustomGroupProcessorClass::class));
+        $this->extend((new Extend\User())->permissionGroups(CustomGroupProcessorClass::class));
 
         $this->app();
 

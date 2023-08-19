@@ -37,7 +37,7 @@ class ShareErrorsFromSession implements Middleware
         // without having to bind. An empty bag is set when there aren't errors.
         $this->view->share(
             'errors',
-            $session->get('errors', new ViewErrorBag)
+            $session->get('errors', new ViewErrorBag())
         );
 
         // Putting the errors in the view for every view allows the developer to just

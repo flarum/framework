@@ -22,7 +22,7 @@ class ValidationExceptionHandlerTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->handler = new ValidationExceptionHandler;
+        $this->handler = new ValidationExceptionHandler();
     }
 
     public function test_managing_exceptions()

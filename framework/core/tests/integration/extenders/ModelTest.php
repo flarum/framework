@@ -266,7 +266,7 @@ class ModelTest extends TestCase
      */
     public function custom_default_attribute_doesnt_exist_if_not_set()
     {
-        $group = new Group;
+        $group = new Group();
 
         $this->app();
 
@@ -285,7 +285,7 @@ class ModelTest extends TestCase
 
         $this->app();
 
-        $group = new Group;
+        $group = new Group();
 
         $this->assertEquals('Custom Default', $group->name_singular);
     }
@@ -306,8 +306,8 @@ class ModelTest extends TestCase
 
         $this->app();
 
-        $group1 = new Group;
-        $group2 = new Group;
+        $group1 = new Group();
+        $group2 = new Group();
 
         $this->assertEquals(1, $group1->counter);
         $this->assertEquals(2, $group2->counter);
@@ -325,7 +325,7 @@ class ModelTest extends TestCase
 
         $this->app();
 
-        $post = new CommentPost;
+        $post = new CommentPost();
 
         $this->assertEquals(42, $post->answer);
     }
@@ -346,11 +346,11 @@ class ModelTest extends TestCase
 
         $this->app();
 
-        $post = new ModelTestCustomPost;
+        $post = new ModelTestCustomPost();
 
         $this->assertEquals(42, $post->answer);
 
-        $commentPost = new DiscussionRenamedPost;
+        $commentPost = new DiscussionRenamedPost();
 
         $this->assertEquals('ni!', $commentPost->answer);
     }
@@ -367,7 +367,7 @@ class ModelTest extends TestCase
 
         $this->app();
 
-        $user = new User;
+        $user = new User();
 
         $this->assertNotEquals('Custom Default', $user->name_singular);
     }
@@ -377,7 +377,7 @@ class ModelTest extends TestCase
      */
     public function custom_cast_attribute_doesnt_exist_by_default()
     {
-        $post = new Post;
+        $post = new Post();
 
         $this->app();
 
@@ -396,7 +396,7 @@ class ModelTest extends TestCase
 
         $this->app();
 
-        $post = new Post;
+        $post = new Post();
 
         $this->assertTrue($post->hasCast('custom', 'datetime'));
     }
@@ -413,7 +413,7 @@ class ModelTest extends TestCase
 
         $this->app();
 
-        $post = new CommentPost;
+        $post = new CommentPost();
 
         $this->assertTrue($post->hasCast('custom', 'boolean'));
     }
@@ -430,7 +430,7 @@ class ModelTest extends TestCase
 
         $this->app();
 
-        $discussion = new Discussion;
+        $discussion = new Discussion();
 
         $this->assertFalse($discussion->hasCast('custom', 'integer'));
     }

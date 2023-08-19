@@ -44,7 +44,7 @@ use Throwable;
  */
 class Extension implements Arrayable
 {
-    const LOGO_MIMETYPES = [
+    public const LOGO_MIMETYPES = [
         'svg' => 'image/svg+xml',
         'png' => 'image/png',
         'jpeg' => 'image/jpeg',

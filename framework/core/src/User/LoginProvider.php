@@ -30,7 +30,7 @@ class LoginProvider extends AbstractModel
 
     public $timestamps = true;
 
-    const UPDATED_AT = 'last_login_at';
+    public const UPDATED_AT = 'last_login_at';
 
     protected $fillable = ['provider', 'identifier'];
 

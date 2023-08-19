@@ -119,7 +119,7 @@ class Notification extends AbstractModel
                     $query->whereIn('type', $types)
                         ->whereExists(function ($query) use ($class, $actor) {
                             $query->selectRaw(1)
-                                ->from((new $class)->getTable())
+                                ->from((new $class())->getTable())
                                 ->whereColumn('id', 'subject_id');
 
                             if (method_exists($class, 'registerVisibilityScoper')) {

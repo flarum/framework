@@ -41,11 +41,11 @@ class InstalledApp implements AppInterface
             return $this->getUpdaterHandler();
         }
 
-        $pipe = new MiddlewarePipe;
+        $pipe = new MiddlewarePipe();
 
         $pipe->pipe(new HttpMiddleware\ProcessIp());
         $pipe->pipe(new BasePath($this->basePath()));
-        $pipe->pipe(new OriginalMessages);
+        $pipe->pipe(new OriginalMessages());
         $pipe->pipe(
             new BasePathRouter([
                 $this->subPath('api') => 'flarum.api.handler',
@@ -68,7 +68,7 @@ class InstalledApp implements AppInterface
 
     protected function getUpdaterHandler(): RequestHandlerInterface|MiddlewarePipe
     {
-        $pipe = new MiddlewarePipe;
+        $pipe = new MiddlewarePipe();
         $pipe->pipe(new BasePath($this->basePath()));
         $pipe->pipe(
             new HttpMiddleware\ResolveRoute($this->container->make('flarum.update.routes'))

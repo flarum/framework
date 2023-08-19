@@ -56,10 +56,10 @@ return [
         ->default(LastUpdateRun::key(), json_encode(LastUpdateRun::default()))
         ->default('flarum-package-manager.queue_jobs', false),
 
-    (new Extend\ServiceProvider)
+    (new Extend\ServiceProvider())
         ->register(PackageManagerServiceProvider::class),
 
-    (new Extend\ErrorHandling)
+    (new Extend\ErrorHandling())
         ->handler(ComposerCommandFailedException::class, ExceptionHandler::class)
         ->handler(ComposerRequireFailedException::class, ExceptionHandler::class)
         ->handler(ComposerUpdateFailedException::class, ExceptionHandler::class)

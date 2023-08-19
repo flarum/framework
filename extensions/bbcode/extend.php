@@ -14,7 +14,7 @@ use Flarum\Extend;
 return [
     new Extend\Locales(__DIR__.'/locale'),
 
-    (new Extend\Formatter)
+    (new Extend\Formatter())
         ->render(Render::class)
         ->configure(Configure::class),
 ];

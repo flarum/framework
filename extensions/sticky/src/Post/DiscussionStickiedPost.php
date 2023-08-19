@@ -43,7 +43,7 @@ class DiscussionStickiedPost extends AbstractEventPost implements MergeableInter
 
     public static function reply(int $discussionId, int $userId, bool $isSticky): static
     {
-        $post = new static;
+        $post = new static();
 
         $post->content = static::buildContent($isSticky);
         $post->created_at = Carbon::now();

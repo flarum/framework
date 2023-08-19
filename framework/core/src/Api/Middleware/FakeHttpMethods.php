@@ -16,7 +16,7 @@ use Psr\Http\Server\RequestHandlerInterface as Handler;
 
 class FakeHttpMethods implements Middleware
 {
-    const HEADER_NAME = 'x-http-method-override';
+    public const HEADER_NAME = 'x-http-method-override';
 
     public function process(Request $request, Handler $handler): Response
     {

@@ -23,7 +23,7 @@ class IndexTest extends TestCase
     protected function setUp(): void
     {
         $this->extend(
-            (new Extend\Csrf)->exemptRoute('login')
+            (new Extend\Csrf())->exemptRoute('login')
         );
 
         $this->prepareDatabase([
