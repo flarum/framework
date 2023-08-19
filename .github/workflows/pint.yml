@@ -7,7 +7,7 @@ jobs:
     name: PHP Code Formatting
     runs-on: ubuntu-latest
 
-    step:
+    steps:
       - name: Check out code
         uses: actions/checkout@v3
 
