@@ -95,6 +95,11 @@ jobs:
             db: MariaDB
             prefix: flarum_
             prefixStr: (prefix)
+          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+            service: 'mysql:8.1.0'
+            db: MySQL 8.1
+            prefix: flarum_
+            prefixStr: (prefix)
 
         # To reduce number of actions, we exclude some PHP versions from running with some DB versions.
         exclude:
