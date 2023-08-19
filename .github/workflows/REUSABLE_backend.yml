@@ -43,7 +43,7 @@ on:
         description: Versions of databases to test with. Should be array of strings encoded as JSON array
         type: string
         required: false
-        default: '["mysql:5.7", "mysql:8.0.30", "mariadb"]'
+        default: '["mysql:5.7", "mysql:8.0.30", "mysql:8.1.0", "mariadb"]'
 
       php_ini_values:
         description: PHP ini values
