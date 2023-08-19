@@ -15,13 +15,13 @@ interface MailableInterface
 {
     /**
      * Get the name of the view to construct a notification email with.
-     * 
+     *
      * To provide the best experince for the user, provide both a `text` and `html` view.
-     * 
+     *
      * Example:
      * ```php
      * return [
-     *  'text' => 'flarum-subscriptions::emails.plain.newPost', 
+     *  'text' => 'flarum-subscriptions::emails.plain.newPost',
      *  'html' => 'flarum-subscriptions::emails.html.newPost'
      * ];
      * ```

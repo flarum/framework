@@ -52,7 +52,7 @@ class UserSuspendedBlueprint implements BlueprintInterface, MailableInterface
     {
         return [
             'text' => 'flarum-suspend::emails.plain.suspended',
-            'html' => 'flarum-suspend::emails.html.suspended',];
+            'html' => 'flarum-suspend::emails.html.suspended', ];
     }
 
     public function getEmailSubject(TranslatorInterface $translator): string

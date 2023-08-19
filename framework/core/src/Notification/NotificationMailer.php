@@ -1,11 +1,18 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Notification;
 
+use Flarum\Http\UrlGenerator;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
-use Flarum\Http\UrlGenerator;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
 use Illuminate\Support\Str;
@@ -44,7 +51,7 @@ class NotificationMailer
                 $message->to($user->email, $user->display_name)
                         ->subject($blueprint->getEmailSubject($this->translator))
                         ->getHeaders()
-                        ->addTextHeader('List-Unsubscribe', '<' . $unsubscribeLink . '>');
+                        ->addTextHeader('List-Unsubscribe', '<'.$unsubscribeLink.'>');
             }
         );
     }

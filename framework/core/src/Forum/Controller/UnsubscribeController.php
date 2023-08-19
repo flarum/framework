@@ -1,11 +1,18 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Forum\Controller;
 
 use Flarum\Http\Controller\AbstractHtmlController;
+use Flarum\Http\UrlGenerator;
 use Flarum\Notification\UnsubscribeToken;
 use Flarum\User\User;
-use Flarum\Http\UrlGenerator;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Arr;
@@ -31,7 +38,7 @@ class UnsubscribeController extends AbstractHtmlController
             ->first();
 
         // If record exists and has not been used before
-        if ($unsubscribeRecord && !$unsubscribeRecord->unsubscribed_at) {
+        if ($unsubscribeRecord && ! $unsubscribeRecord->unsubscribed_at) {
             // Mark as unsubscribed
             $unsubscribeRecord->unsubscribed_at = Carbon::now();
             $unsubscribeRecord->save();
@@ -39,7 +46,7 @@ class UnsubscribeController extends AbstractHtmlController
             // Update user preferences
             /** @var User $user */
             $user = User::find($userId);
-            $user->setPreference('notify_' . $unsubscribeRecord->email_type . '_email', false);
+            $user->setPreference('notify_'.$unsubscribeRecord->email_type.'_email', false);
             $user->save();
 
             $message = 'You have successfully unsubscribed from this type of email notification. If you wish to receive it again, please update your settings.';

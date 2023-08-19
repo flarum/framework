@@ -43,7 +43,7 @@ class NewPostBlueprint implements BlueprintInterface, MailableInterface
     {
         return [
             'text' => 'flarum-subscriptions::emails.plain.newPost',
-            'html' => 'flarum-subscriptions::emails.html.newPost',];
+            'html' => 'flarum-subscriptions::emails.html.newPost', ];
     }
 
     public function getEmailSubject(TranslatorInterface $translator): string
