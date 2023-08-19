@@ -76,6 +76,8 @@ jobs:
             db: MySQL 8.0
           - service: mariadb
             db: MariaDB
+          - service: 'mysql:8.1.0'
+            db: MySQL 8.1
 
           # Include Database prefix tests with only one PHP version.
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
