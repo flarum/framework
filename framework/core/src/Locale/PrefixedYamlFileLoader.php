@@ -18,7 +18,7 @@ class PrefixedYamlFileLoader extends YamlFileLoader
     {
         $catalogue = parent::load($resource['file'], $locale, $domain);
 
-        if (!empty($resource['prefix'])) {
+        if (! empty($resource['prefix'])) {
             $messages = $catalogue->all($domain);
 
             $prefixedKeys = array_map(function ($k) use ($resource) {
