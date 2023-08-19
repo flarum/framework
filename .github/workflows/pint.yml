@@ -1,0 +1,31 @@
+name: PHP Code Formatting
+
+on: [workflow_dispatch, push, pull_request]
+
+jobs:
+  pint:
+    name: PHP Code Formatting
+    runs-on: ubuntu-latest
+
+    step:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction
+
+      - name: Run Pint
+        run: ./vendor/bin/pint
+
+      - name: Pull changes
+        run: git pull
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+            commit_message: "Fix coding style for commit ${{ github.sha }}"

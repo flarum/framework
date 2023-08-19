@@ -47,7 +47,7 @@ class UpdateUserController extends AbstractShowController
             $password = (string) Arr::get($request->getParsedBody(), 'meta.password');
 
             if (! $actor->checkPassword($password)) {
-                throw new NotAuthenticatedException;
+                throw new NotAuthenticatedException();
             }
         }
 

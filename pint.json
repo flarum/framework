@@ -1,0 +1,6 @@
+{
+    "preset": "per",
+    "rules": {
+        "not_operator_with_successor_space": true
+    }
+}

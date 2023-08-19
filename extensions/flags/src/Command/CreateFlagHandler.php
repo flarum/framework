@@ -41,7 +41,7 @@ class CreateFlagHandler
         $post = $this->posts->findOrFail($postId, $actor);
 
         if (! ($post instanceof CommentPost)) {
-            throw new InvalidParameterException;
+            throw new InvalidParameterException();
         }
 
         $actor->assertCan('flag', $post);

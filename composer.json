@@ -165,10 +165,11 @@
         "wikimedia/less.php": "^4.1"
     },
     "require-dev": {
+        "laravel/pint": "^v1.11.0",
         "mockery/mockery": "^1.5",
-        "phpunit/phpunit": "^9.0",
-        "phpstan/phpstan": "^1.10.0",
         "nunomaduro/larastan": "^2.6",
+        "phpstan/phpstan": "^1.10.0",
+        "phpunit/phpunit": "^9.0",
         "symfony/var-dumper": "^6.3"
     },
     "config": {

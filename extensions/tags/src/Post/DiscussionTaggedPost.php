@@ -49,7 +49,7 @@ class DiscussionTaggedPost extends AbstractEventPost implements MergeableInterfa
 
     public static function reply(int $discussionId, int $userId, array $oldTagIds, array $newTagIds): static
     {
-        $post = new static;
+        $post = new static();
 
         $post->content = static::buildContent($oldTagIds, $newTagIds);
         $post->created_at = Carbon::now();

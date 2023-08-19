@@ -19,7 +19,7 @@ return [
         ->js(__DIR__.'/js/dist/admin.js')
         ->css(__DIR__.'/less/common.less'),
 
-    (new Extend\Formatter)
+    (new Extend\Formatter())
         ->configure(function (Configurator $config) {
             $config->Litedown;
 

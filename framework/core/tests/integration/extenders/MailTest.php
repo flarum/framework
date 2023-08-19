@@ -55,7 +55,7 @@ class MailTest extends TestCase
     public function added_driver_appears_in_mail_settings()
     {
         $this->extend(
-            (new Extend\Mail)
+            (new Extend\Mail())
                 ->driver('custom', CustomDriver::class)
         );
 
@@ -77,7 +77,7 @@ class MailTest extends TestCase
     public function adding_driver_with_duplicate_name_overrides_fields()
     {
         $this->extend(
-            (new Extend\Mail)
+            (new Extend\Mail())
                 ->driver('smtp', CustomDriver::class)
         );
 
@@ -102,7 +102,7 @@ class CustomDriver implements DriverInterface
 
     public function validate(SettingsRepositoryInterface $settings, Factory $validator): MessageBag
     {
-        return new MessageBag;
+        return new MessageBag();
     }
 
     public function canSend(): bool

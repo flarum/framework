@@ -89,7 +89,7 @@ class ShowDiscussionController extends AbstractShowController
 
         array_splice($allPosts, $offset, $limit, $loadedPosts);
 
-        $discussion->setRelation('posts', (new Post)->newCollection($allPosts));
+        $discussion->setRelation('posts', (new Post())->newCollection($allPosts));
     }
 
     private function loadPostIds(Discussion $discussion, User $actor): array

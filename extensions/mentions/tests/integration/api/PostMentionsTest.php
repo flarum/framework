@@ -65,7 +65,7 @@ class PostMentionsTest extends TestCase
         $this->setting('display_name_driver', 'custom_display_name_driver');
 
         $this->extend(
-            (new Extend\User)
+            (new Extend\User())
                 ->displayNameDriver('custom_display_name_driver', CustomOtherDisplayNameDriver::class)
         );
     }

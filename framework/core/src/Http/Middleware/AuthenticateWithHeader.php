@@ -21,7 +21,7 @@ use Psr\Http\Server\RequestHandlerInterface as Handler;
 
 class AuthenticateWithHeader implements Middleware
 {
-    const TOKEN_PREFIX = 'Token ';
+    public const TOKEN_PREFIX = 'Token ';
 
     public function process(Request $request, Handler $handler): Response
     {

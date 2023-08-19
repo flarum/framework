@@ -30,7 +30,7 @@ class ViewTest extends TestCase
     public function custom_view_namespace_can_be_added_by_extender()
     {
         $this->extend(
-            (new Extend\View)
+            (new Extend\View())
                 ->namespace('integration.test', dirname(__FILE__, 3).'/fixtures/views')
         );
 
@@ -43,7 +43,7 @@ class ViewTest extends TestCase
     public function can_add_view_to_namespace_by_prepend_extender()
     {
         $this->extend(
-            (new Extend\View)
+            (new Extend\View())
                 ->extendNamespace('flarum', dirname(__FILE__, 3).'/fixtures/views')
         );
 
@@ -56,7 +56,7 @@ class ViewTest extends TestCase
     public function can_override_view_in_namespace_by_prepend_extender()
     {
         $this->extend(
-            (new Extend\View)
+            (new Extend\View())
                 ->extendNamespace('flarum', dirname(__FILE__, 3).'/fixtures/views/override')
         );
 

@@ -25,7 +25,7 @@ class IlluminateValidationExceptionHandlerTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->handler = new IlluminateValidationExceptionHandler;
+        $this->handler = new IlluminateValidationExceptionHandler();
     }
 
     public function test_it_creates_the_desired_output()

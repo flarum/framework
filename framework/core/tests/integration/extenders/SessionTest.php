@@ -96,7 +96,7 @@ class SessionTest extends TestCase
     public function uses_custom_driver_from_config_file_if_configured_and_available()
     {
         $this->extend(
-            (new Extend\Session)->driver('flarum-acme', AcmeSessionDriver::class)
+            (new Extend\Session())->driver('flarum-acme', AcmeSessionDriver::class)
         );
 
         $this->config('session.driver', 'flarum-acme');

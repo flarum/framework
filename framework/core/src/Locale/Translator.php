@@ -14,7 +14,7 @@ use Symfony\Component\Translation\Translator as BaseTranslator;
 
 class Translator extends BaseTranslator implements TranslatorInterface
 {
-    const REFERENCE_REGEX = '/^=>\s*([a-z0-9_\-\.]+)$/i';
+    public const REFERENCE_REGEX = '/^=>\s*([a-z0-9_\-\.]+)$/i';
 
     public function get($key, array $replace = [], $locale = null): string
     {

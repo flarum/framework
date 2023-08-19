@@ -38,7 +38,7 @@ class FormatterTest extends TestCase
      */
     public function custom_formatter_config_works_if_added_with_closure()
     {
-        $this->extend((new Extend\Formatter)->configure(function ($config) {
+        $this->extend((new Extend\Formatter())->configure(function ($config) {
             $config->BBCodes->addFromRepository('B');
         }));
 
@@ -52,7 +52,7 @@ class FormatterTest extends TestCase
      */
     public function custom_formatter_config_works_if_added_with_invokable_class()
     {
-        $this->extend((new Extend\Formatter)->configure(InvokableConfig::class));
+        $this->extend((new Extend\Formatter())->configure(InvokableConfig::class));
 
         $formatter = $this->getFormatter();
 
@@ -72,7 +72,7 @@ class FormatterTest extends TestCase
      */
     public function custom_formatter_parsing_works_if_added_with_closure()
     {
-        $this->extend((new Extend\Formatter)->parse(function ($parser, $context, $text) {
+        $this->extend((new Extend\Formatter())->parse(function ($parser, $context, $text) {
             return 'ReplacedText<a>';
         }));
 
@@ -84,7 +84,7 @@ class FormatterTest extends TestCase
      */
     public function custom_formatter_parsing_works_if_added_with_invokable_class()
     {
-        $this->extend((new Extend\Formatter)->parse(InvokableParsing::class));
+        $this->extend((new Extend\Formatter())->parse(InvokableParsing::class));
 
         $this->assertEquals('<t>ReplacedText&lt;a&gt;</t>', $this->getFormatter()->parse('Text<a>'));
     }
@@ -102,7 +102,7 @@ class FormatterTest extends TestCase
      */
     public function custom_formatter_unparsing_works_if_added_with_closure()
     {
-        $this->extend((new Extend\Formatter)->unparse(function ($context, $xml) {
+        $this->extend((new Extend\Formatter())->unparse(function ($context, $xml) {
             return '<t>ReplacedText&lt;a&gt;</t>';
         }));
 
@@ -114,7 +114,7 @@ class FormatterTest extends TestCase
      */
     public function custom_formatter_unparsing_works_if_added_with_invokable_class()
     {
-        $this->extend((new Extend\Formatter)->unparse(InvokableUnparsing::class));
+        $this->extend((new Extend\Formatter())->unparse(InvokableUnparsing::class));
 
         $this->assertEquals('ReplacedText<a>', $this->getFormatter()->unparse('<t>Text&lt;a&gt;</t>'));
     }
@@ -132,7 +132,7 @@ class FormatterTest extends TestCase
      */
     public function custom_formatter_rendering_works_if_added_with_closure()
     {
-        $this->extend((new Extend\Formatter)->render(function ($renderer, $context, $xml, $request) {
+        $this->extend((new Extend\Formatter())->render(function ($renderer, $context, $xml, $request) {
             return '<html>ReplacedText</html>';
         }));
 
@@ -144,7 +144,7 @@ class FormatterTest extends TestCase
      */
     public function custom_formatter_rendering_works_if_added_with_invokable_class()
     {
-        $this->extend((new Extend\Formatter)->render(InvokableRendering::class));
+        $this->extend((new Extend\Formatter())->render(InvokableRendering::class));
 
         $this->assertEquals('ReplacedText', $this->getFormatter()->render('<html>Text</html>'));
     }

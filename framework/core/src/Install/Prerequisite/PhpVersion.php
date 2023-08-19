@@ -20,7 +20,7 @@ class PhpVersion implements PrerequisiteInterface
 
     public function problems(): Collection
     {
-        $collection = new Collection;
+        $collection = new Collection();
 
         if (version_compare(PHP_VERSION, $this->minVersion, '<')) {
             $collection->push([
