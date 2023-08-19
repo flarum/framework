@@ -41,7 +41,7 @@ return [
     (new Extend\Model(UserState::class))
         ->cast('subscription', 'string'),
 
-    (new Extend\View())
+    (new Extend\View)
         ->namespace('flarum-subscriptions', __DIR__.'/views'),
 
     (new Extend\Notification())

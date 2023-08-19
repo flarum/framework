@@ -52,6 +52,6 @@ class SelfDemotionGuard
         }
 
         // If we get to this point, we have to prohibit the edit
-        throw new PermissionDeniedException();
+        throw new PermissionDeniedException;
     }
 }

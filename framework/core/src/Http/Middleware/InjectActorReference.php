@@ -20,7 +20,7 @@ class InjectActorReference implements Middleware
 {
     public function process(Request $request, Handler $handler): Response
     {
-        $request = RequestUtil::withActor($request, new Guest());
+        $request = RequestUtil::withActor($request, new Guest);
 
         return $handler->handle($request);
     }

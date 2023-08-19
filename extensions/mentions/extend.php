@@ -38,7 +38,7 @@ return [
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js'),
 
-    (new Extend\Formatter())
+    (new Extend\Formatter)
         ->configure(ConfigureMentions::class)
         ->parse(Formatter\EagerLoadMentionedModels::class)
         ->render(Formatter\FormatPostMentions::class)
@@ -56,7 +56,7 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
-    (new Extend\View())
+    (new Extend\View)
         ->namespace('flarum-mentions', __DIR__.'/views'),
 
     (new Extend\Notification())
@@ -104,7 +104,7 @@ return [
         ->loadWhere('mentionedBy', LoadMentionedByRelationship::mutateRelation(...))
         ->prepareDataForSerialization(LoadMentionedByRelationship::countRelation(...)),
 
-    (new Extend\Settings())
+    (new Extend\Settings)
         ->serializeToForum('allowUsernameMentionFormat', 'flarum-mentions.allow_username_format', 'boolval'),
 
     (new Extend\Event())
@@ -127,7 +127,7 @@ return [
     // Tag mentions
     (new Extend\Conditional())
         ->whenExtensionEnabled('flarum-tags', [
-            (new Extend\Formatter())
+            (new Extend\Formatter)
                 ->render(Formatter\FormatTagMentions::class)
                 ->unparse(Formatter\UnparseTagMentions::class),
 

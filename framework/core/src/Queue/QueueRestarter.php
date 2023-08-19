@@ -41,7 +41,7 @@ class QueueRestarter
 
         $this->command->run(
             new ArrayInput([]),
-            new NullOutput()
+            new NullOutput
         );
     }
 }

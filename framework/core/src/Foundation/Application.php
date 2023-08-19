@@ -21,7 +21,7 @@ class Application
      *
      * @var string
      */
-    public const VERSION = '2.0-dev';
+    const VERSION = '2.0-dev';
 
     protected bool $booted = false;
 

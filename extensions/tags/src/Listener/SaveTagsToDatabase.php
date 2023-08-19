@@ -60,7 +60,7 @@ class SaveTagsToDatabase
 
             foreach ($newTags as $tag) {
                 if (! in_array($tag->id, $oldTagIds) && $actor->cannot('addToDiscussion', $tag)) {
-                    throw new PermissionDeniedException();
+                    throw new PermissionDeniedException;
                 }
             }
 
@@ -72,7 +72,7 @@ class SaveTagsToDatabase
         if (! $discussion->exists || isset($event->data['relationships']['tags']['data'])) {
             foreach ($newTags as $tag) {
                 if (! $discussion->exists && $actor->cannot('startDiscussion', $tag)) {
-                    throw new PermissionDeniedException();
+                    throw new PermissionDeniedException;
                 }
 
                 if ($tag->position !== null && $tag->parent_id === null) {
@@ -83,7 +83,7 @@ class SaveTagsToDatabase
             }
 
             if (! $discussion->exists && $primaryCount === 0 && $secondaryCount === 0 && ! $actor->hasPermission('startDiscussion')) {
-                throw new PermissionDeniedException();
+                throw new PermissionDeniedException;
             }
 
             if (! $actor->can('bypassTagCounts', $discussion)) {

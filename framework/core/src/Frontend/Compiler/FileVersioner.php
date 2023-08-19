@@ -14,7 +14,7 @@ use Illuminate\Support\Arr;
 
 class FileVersioner implements VersionerInterface
 {
-    public const REV_MANIFEST = 'rev-manifest.json';
+    const REV_MANIFEST = 'rev-manifest.json';
 
     public function __construct(
         protected Filesystem $filesystem

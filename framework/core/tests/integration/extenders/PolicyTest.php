@@ -152,7 +152,7 @@ class PolicyTest extends TestCase
     public function regular_user_cant_start_discussions_if_blocked_by_global_policy()
     {
         $this->extend(
-            (new Extend\Policy())
+            (new Extend\Policy)
             ->globalPolicy(GlobalStartDiscussionPolicy::class)
         );
 
@@ -169,7 +169,7 @@ class PolicyTest extends TestCase
     public function global_policy_doesnt_apply_if_argument_provided()
     {
         $this->extend(
-            (new Extend\Policy())
+            (new Extend\Policy)
                 ->globalPolicy(GlobalStartDiscussionPolicy::class)
         );
 
@@ -198,7 +198,7 @@ class PolicyTest extends TestCase
     public function unrelated_user_can_hide_post_if_allowed()
     {
         $this->extend(
-            (new Extend\Policy())->modelPolicy(CommentPost::class, CommentPostChildClassPolicy::class)
+            (new Extend\Policy)->modelPolicy(CommentPost::class, CommentPostChildClassPolicy::class)
         );
         $this->app();
 
@@ -213,8 +213,8 @@ class PolicyTest extends TestCase
     public function policies_are_inherited_to_child_classes()
     {
         $this->extend(
-            (new Extend\Policy())->modelPolicy(Post::class, PostParentClassPolicy::class),
-            (new Extend\Policy())->modelPolicy(CommentPost::class, CommentPostChildClassPolicy::class)
+            (new Extend\Policy)->modelPolicy(Post::class, PostParentClassPolicy::class),
+            (new Extend\Policy)->modelPolicy(CommentPost::class, CommentPostChildClassPolicy::class)
         );
         $this->app();
 

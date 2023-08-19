@@ -45,7 +45,7 @@ class CsrfTest extends TestCase
     public function create_user_post_doesnt_need_csrf_token_if_whitelisted()
     {
         $this->extend(
-            (new Extend\Csrf())
+            (new Extend\Csrf)
                 ->exemptRoute('users.create')
         );
 

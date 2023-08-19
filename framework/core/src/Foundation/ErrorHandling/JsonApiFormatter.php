@@ -28,7 +28,7 @@ class JsonApiFormatter implements HttpFormatter
 
     public function format(HandledError $error, Request $request): Response
     {
-        $document = new Document();
+        $document = new Document;
 
         if ($error->hasDetails()) {
             $document->setErrors($this->withDetails($error));

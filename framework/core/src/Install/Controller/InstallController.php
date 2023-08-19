@@ -71,7 +71,7 @@ class InstallController implements RequestHandlerInterface
         $token->token = $accessToken;
         $this->authenticator->logIn($session, $token);
 
-        return $this->rememberer->remember(new Response\EmptyResponse(), $token);
+        return $this->rememberer->remember(new Response\EmptyResponse, $token);
     }
 
     private function makeDatabaseConfig(array $input): DatabaseConfig

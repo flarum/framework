@@ -35,7 +35,7 @@ class PasswordToken extends AbstractModel
      */
     public static function generate(int $userId): static
     {
-        $token = new static();
+        $token = new static;
 
         $token->token = Str::random(40);
         $token->user_id = $userId;

@@ -33,7 +33,7 @@ class ApiServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->singleton('flarum.api.routes', function () {
-            $routes = new RouteCollection();
+            $routes = new RouteCollection;
             $this->populateRoutes($routes);
 
             return $routes;
@@ -83,7 +83,7 @@ class ApiServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->singleton('flarum.api.handler', function (Container $container) {
-            $pipe = new MiddlewarePipe();
+            $pipe = new MiddlewarePipe;
 
             foreach ($this->container->make('flarum.api.middleware') as $middleware) {
                 $pipe->pipe($container->make($middleware));
@@ -114,7 +114,7 @@ class ApiServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->singleton(Client::class, function ($container) {
-            $pipe = new MiddlewarePipe();
+            $pipe = new MiddlewarePipe;
 
             $exclude = $container->make('flarum.api_client.exclude_middleware');
 

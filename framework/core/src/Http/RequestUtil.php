@@ -24,7 +24,7 @@ class RequestUtil
         $actorReference = $request->getAttribute('actorReference');
 
         if (! $actorReference) {
-            $actorReference = new ActorReference();
+            $actorReference = new ActorReference;
             $request = $request->withAttribute('actorReference', $actorReference);
         }
 

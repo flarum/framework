@@ -62,7 +62,7 @@ class Task extends AbstractModel
 
     public static function build(string $operation, ?string $package): self
     {
-        $task = new static();
+        $task = new static;
 
         $task->operation = $operation;
         $task->package = $package;

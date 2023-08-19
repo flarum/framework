@@ -141,7 +141,7 @@ class TestCaseTest extends TestCase
     public function can_apply_extenders()
     {
         $this->extend(
-            (new Extend\Settings())->serializeToForum('notARealSetting', 'not.a.real.setting')
+            (new Extend\Settings)->serializeToForum('notARealSetting', 'not.a.real.setting')
         );
 
         $response = $this->send(

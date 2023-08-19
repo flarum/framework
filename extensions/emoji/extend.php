@@ -16,7 +16,7 @@ return [
         ->css(__DIR__.'/less/forum.less')
         ->jsDirectory(__DIR__.'/js/dist/forum'),
 
-    (new Extend\Formatter())
+    (new Extend\Formatter)
         ->configure(function (Configurator $config) {
             $config->Emoticons->add(':)', '🙂');
             $config->Emoticons->add(':D', '😃');

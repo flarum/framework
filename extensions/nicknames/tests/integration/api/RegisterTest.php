@@ -22,7 +22,7 @@ class RegisterTest extends TestCase
     {
         $this->extension('flarum-nicknames');
         $this->extend(
-            (new Extend\Csrf())->exemptRoute('register')
+            (new Extend\Csrf)->exemptRoute('register')
         );
     }
 

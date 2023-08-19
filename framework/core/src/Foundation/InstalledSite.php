@@ -89,7 +89,7 @@ class InstalledSite implements SiteInterface
 
     protected function bootLaravel(): LaravelContainer
     {
-        $container = new Container();
+        $container = new Container;
         $laravel = new Application($container, $this->paths);
 
         $container->instance('env', 'production');
@@ -97,7 +97,7 @@ class InstalledSite implements SiteInterface
         $container->alias('flarum.config', Config::class);
         $container->instance('flarum.debug', $this->config->inDebugMode());
         $container->instance('config', $this->getIlluminateConfig());
-        $container->instance('flarum.maintenance.handler', new MaintenanceModeHandler());
+        $container->instance('flarum.maintenance.handler', new MaintenanceModeHandler);
 
         $this->registerLogger($container);
         $this->registerCache($container);
@@ -182,7 +182,7 @@ class InstalledSite implements SiteInterface
         $container->alias('cache.store', Repository::class);
 
         $container->singleton('cache.filestore', function () {
-            return new FileStore(new Filesystem(), $this->paths->storage.'/cache');
+            return new FileStore(new Filesystem, $this->paths->storage.'/cache');
         });
         $container->alias('cache.filestore', Store::class);
     }

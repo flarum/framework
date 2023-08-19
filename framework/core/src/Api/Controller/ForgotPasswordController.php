@@ -38,6 +38,6 @@ class ForgotPasswordController implements RequestHandlerInterface
         // Prevents leaking user existence by duration by using a queued job.
         $this->queue->push(new RequestPasswordResetJob($email));
 
-        return new EmptyResponse();
+        return new EmptyResponse;
     }
 }

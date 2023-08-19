@@ -79,7 +79,7 @@ class AccessToken extends AbstractModel
         if (static::class === self::class) {
             throw new \Exception('Use of AccessToken::generate() is not allowed: use the `generate` method on one of the subclasses.');
         } else {
-            $token = new static();
+            $token = new static;
             $token->type = static::$type;
         }
 
@@ -213,7 +213,7 @@ class AccessToken extends AbstractModel
             && class_exists($class = static::$models[$attributes['type']])
         ) {
             /** @var AccessToken $instance */
-            $instance = new $class();
+            $instance = new $class;
             $instance->exists = true;
             $instance->setRawAttributes($attributes, true);
             $instance->setConnection($connection ?: $this->connection);

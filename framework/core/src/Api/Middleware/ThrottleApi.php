@@ -25,7 +25,7 @@ class ThrottleApi implements Middleware
     public function process(Request $request, Handler $handler): Response
     {
         if ($this->throttle($request)) {
-            throw new FloodingException();
+            throw new FloodingException;
         }
 
         return $handler->handle($request);

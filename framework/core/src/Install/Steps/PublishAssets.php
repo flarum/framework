@@ -27,7 +27,7 @@ class PublishAssets implements ReversibleStep
 
     public function run(): void
     {
-        (new Filesystem())->copyDirectory(
+        (new Filesystem)->copyDirectory(
             "$this->vendorPath/components/font-awesome/webfonts",
             $this->targetPath()
         );
@@ -35,7 +35,7 @@ class PublishAssets implements ReversibleStep
 
     public function revert(): void
     {
-        (new Filesystem())->deleteDirectory($this->targetPath());
+        (new Filesystem)->deleteDirectory($this->targetPath());
     }
 
     private function targetPath(): string

@@ -114,7 +114,7 @@ class Installation
 
     public function build(): Pipeline
     {
-        $pipeline = new Pipeline();
+        $pipeline = new Pipeline;
 
         $pipeline->pipe(function () {
             return new Steps\ConnectToDatabase(

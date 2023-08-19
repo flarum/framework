@@ -42,7 +42,7 @@ class RunMigrations implements Step
             $this->database,
             'migrations'
         );
-        $files = new Filesystem();
+        $files = new Filesystem;
 
         return new Migrator($repository, $this->database, $files);
     }

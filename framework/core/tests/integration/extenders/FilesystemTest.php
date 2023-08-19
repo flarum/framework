@@ -41,7 +41,7 @@ class FilesystemTest extends TestCase
      */
     public function custom_disk_exists_if_added_and_uses_local_adapter_by_default()
     {
-        $this->extend((new Extend\Filesystem())->disk('flarum-uploads', function (Paths $paths, UrlGenerator $url) {
+        $this->extend((new Extend\Filesystem)->disk('flarum-uploads', function (Paths $paths, UrlGenerator $url) {
             return [
                 'root' => "$paths->public/assets/uploads",
                 'url'  => $url->to('forum')->path('assets/uploads')
@@ -59,7 +59,7 @@ class FilesystemTest extends TestCase
      */
     public function custom_disk_exists_if_added_via_invokable_class_and_uses_local_adapter_by_default()
     {
-        $this->extend((new Extend\Filesystem())->disk('flarum-uploads', UploadsDisk::class));
+        $this->extend((new Extend\Filesystem)->disk('flarum-uploads', UploadsDisk::class));
 
         /** @var FilesystemAdapter $uploadsDisk */
         $uploadsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-uploads');
@@ -99,7 +99,7 @@ class FilesystemTest extends TestCase
     public function disk_uses_custom_adapter_if_configured_and_available()
     {
         $this->extend(
-            (new Extend\Filesystem())->driver('null', NullFilesystemDriver::class)
+            (new Extend\Filesystem)->driver('null', NullFilesystemDriver::class)
         );
 
         $this->app()->getContainer()->make(SettingsRepositoryInterface::class)->set('disk_driver.flarum-assets', 'null');
@@ -116,7 +116,7 @@ class FilesystemTest extends TestCase
     public function disk_uses_custom_adapter_from_config_file_if_configured_and_available()
     {
         $this->extend(
-            (new Extend\Filesystem())->driver('null', NullFilesystemDriver::class)
+            (new Extend\Filesystem)->driver('null', NullFilesystemDriver::class)
         );
 
         $this->config('disk_driver.flarum-assets', 'null');

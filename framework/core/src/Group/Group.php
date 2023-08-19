@@ -34,10 +34,10 @@ class Group extends AbstractModel
     use EventGeneratorTrait;
     use ScopeVisibilityTrait;
 
-    public const ADMINISTRATOR_ID = 1;
-    public const GUEST_ID = 2;
-    public const MEMBER_ID = 3;
-    public const MODERATOR_ID = 4;
+    const ADMINISTRATOR_ID = 1;
+    const GUEST_ID = 2;
+    const MEMBER_ID = 3;
+    const MODERATOR_ID = 4;
 
     protected $casts = [
         'id' => 'integer',
@@ -57,7 +57,7 @@ class Group extends AbstractModel
 
     public static function build(?string $nameSingular, ?string $namePlural, ?string $color = null, ?string $icon = null, bool $isHidden = false): static
     {
-        $group = new static();
+        $group = new static;
 
         $group->name_singular = $nameSingular;
         $group->name_plural = $namePlural;

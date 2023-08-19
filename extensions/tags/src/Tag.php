@@ -79,7 +79,7 @@ class Tag extends AbstractModel
 
     public static function build(?string $name, ?string $slug, ?string $description, ?string $color, ?string $icon, ?bool $isHidden): static
     {
-        $tag = new static();
+        $tag = new static;
 
         $tag->name = $name;
         $tag->slug = $slug;
@@ -156,7 +156,7 @@ class Tag extends AbstractModel
         $state = $this->state()->where('user_id', $user->id)->first();
 
         if (! $state) {
-            $state = new TagState();
+            $state = new TagState;
             $state->tag_id = $this->id;
             $state->user_id = $user->id;
         }

@@ -95,7 +95,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $document = new Document();
+        $document = new Document;
 
         foreach (array_reverse(array_merge([static::class], class_parents($this))) as $class) {
             if (isset(static::$beforeDataCallbacks[$class])) {

@@ -46,7 +46,7 @@ class UnapproveNewContent
                     $post->discussion->save();
                 }
 
-                $flag = new Flag();
+                $flag = new Flag;
 
                 $flag->post_id = $post->id;
                 $flag->type = 'approval';

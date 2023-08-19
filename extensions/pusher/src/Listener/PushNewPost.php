@@ -28,7 +28,7 @@ class PushNewPost
     {
         $channels = [];
 
-        if ($event->post->isVisibleTo(new Guest())) {
+        if ($event->post->isVisibleTo(new Guest)) {
             $channels[] = 'public';
         } else {
             // Retrieve private channels, used for each user.

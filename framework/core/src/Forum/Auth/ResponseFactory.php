@@ -31,7 +31,7 @@ class ResponseFactory
             return $this->makeLoggedInResponse($user);
         }
 
-        $configureRegistration($registration = new Registration());
+        $configureRegistration($registration = new Registration);
 
         $provided = $registration->getProvided();
 

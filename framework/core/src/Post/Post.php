@@ -110,7 +110,7 @@ class Post extends AbstractModel
             Notification::whereSubject($post)->delete();
         });
 
-        static::addGlobalScope(new RegisteredTypesScope());
+        static::addGlobalScope(new RegisteredTypesScope);
     }
 
     /**
@@ -166,7 +166,7 @@ class Post extends AbstractModel
             && class_exists($class = static::$models[$attributes['type']])
         ) {
             /** @var Post $instance */
-            $instance = new $class();
+            $instance = new $class;
             $instance->exists = true;
             $instance->setRawAttributes($attributes, true);
             $instance->setConnection($connection ?: $this->connection);

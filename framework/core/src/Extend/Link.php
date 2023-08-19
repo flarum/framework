@@ -40,7 +40,7 @@ class Link implements ExtenderInterface
     {
         $siteUrl = $container->make(Config::class)->url();
 
-        (new Formatter())->render(function (Renderer $renderer, $context, string $xml) use ($siteUrl) {
+        (new Formatter)->render(function (Renderer $renderer, $context, string $xml) use ($siteUrl) {
             return Utils::replaceAttributes($xml, 'URL', function ($attributes) use ($siteUrl) {
                 $uri = isset($attributes['url'])
                     ? new Uri($attributes['url'])
