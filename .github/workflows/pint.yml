@@ -7,6 +7,9 @@ jobs:
     name: PHP Code Formatting
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -20,7 +23,7 @@ jobs:
         run: composer install --no-interaction
 
       - name: Run Pint
-        run: ./vendor/bin/pint
+        run: ./vendor/bin/pint ${{ s
 
       - name: Pull changes
         run: git pull
@@ -28,4 +31,6 @@ jobs:
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-            commit_message: "Fix coding style for commit ${{ github.sha }}"
+          commit_message: "Fix coding style for commit ${{ github.sha }}"
+          commit_user_name: "flarum-bot"
+          commit_user_email: "bot@flarum.org"
