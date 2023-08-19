@@ -23,7 +23,7 @@ jobs:
         run: composer install --no-interaction
 
       - name: Run Pint
-        run: ./vendor/bin/pint ${{ s
+        run: ./vendor/bin/pint
 
       - name: Pull changes
         run: git pull
