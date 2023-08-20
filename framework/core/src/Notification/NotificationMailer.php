@@ -15,6 +15,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class NotificationMailer
@@ -71,7 +72,7 @@ class NotificationMailer
         $views = $blueprint->getEmailViews();
 
         // check that both text and html views are provided
-        if (! isset($views['text'], $views['html'])) {
+        if (! Arr::has($views, ['text', 'html'])) {
             throw new \InvalidArgumentException('Both text and html views must be provided to send an email notification of type'.$blueprint::getType().'.');
         }
 
