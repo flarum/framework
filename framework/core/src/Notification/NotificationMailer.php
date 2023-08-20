@@ -72,7 +72,7 @@ class NotificationMailer
 
         // check that both text and html views are provided
         if (! isset($views['text'], $views['html'])) {
-            throw new \InvalidArgumentException('Both text and html views must be provided to send an email notification of type' . $blueprint::getType() . '.');
+            throw new \InvalidArgumentException('Both text and html views must be provided to send an email notification of type'.$blueprint::getType().'.');
         }
 
         return $views;
