@@ -39,7 +39,7 @@ class UnsubscribeController extends AbstractHtmlController
             ->first();
 
         // If record exists and has not been used before
-        if ($unsubscribeRecord && ! $unsubscribeRecord->unsubscribed_at) {
+        if ($unsubscribeRecord && empty($unsubscribeRecord->unsubscribed_at)) {
             // Mark as unsubscribed
             $unsubscribeRecord->unsubscribed_at = Carbon::now();
             $unsubscribeRecord->save();
