@@ -57,14 +57,12 @@ class UnsubscribeController extends AbstractHtmlController
             $user->setNotificationPreference($unsubscribeRecord->email_type, 'email', false);
             $user->save();
 
-            //$message = 'You have successfully unsubscribed from this type of email notification. If you wish to receive it again, please update your settings.';
             $message = $this->translator->trans('core.views.unsubscribe_email.success_message', [
                 'settingsLink' => $settingsLink,
                 'forumTitle' => $forumTitle
             ]);
         } else {
             // If the token doesn't exist or has already been used
-            //$message = 'This unsubscribe link is invalid or has already been used. Please check your settings if you wish to manage your email notifications.';
             $message = $this->translator->trans('core.views.unsubscribe_email.invalid_message', [
                 'settingsLink' => $settingsLink,
                 'forumTitle' => $forumTitle
