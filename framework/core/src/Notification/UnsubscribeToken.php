@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $user_id
  * @property string $email_type
  * @property string $token
- * @property \Carbon\Carbon $$unsubscribed_at
+ * @property \Carbon\Carbon $unsubscribed_at
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property-read \Flarum\User\User|null $user
