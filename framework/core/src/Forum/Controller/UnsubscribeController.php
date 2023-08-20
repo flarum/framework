@@ -9,6 +9,7 @@
 
 namespace Flarum\Forum\Controller;
 
+use Carbon\Carbon;
 use Flarum\Http\Controller\AbstractHtmlController;
 use Flarum\Http\UrlGenerator;
 use Flarum\Notification\UnsubscribeToken;
@@ -16,7 +17,6 @@ use Flarum\User\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Carbon;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class UnsubscribeController extends AbstractHtmlController
