@@ -39,7 +39,7 @@ class PostMentionedBlueprint implements BlueprintInterface, MailableInterface
         return ['replyNumber' => (int) $this->reply->number];
     }
 
-    public function getEmailView(): array
+    public function getEmailViews(): array
     {
         return [
             'text' => 'flarum-mentions::emails.plain.postMentioned',

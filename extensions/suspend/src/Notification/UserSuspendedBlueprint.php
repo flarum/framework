@@ -48,7 +48,7 @@ class UserSuspendedBlueprint implements BlueprintInterface, MailableInterface
         return User::class;
     }
 
-    public function getEmailView(): array
+    public function getEmailViews(): array
     {
         return [
             'text' => 'flarum-suspend::emails.plain.suspended',

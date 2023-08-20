@@ -1,12 +1,17 @@
+@php
+  $primaryColor = $settings->get('theme_primary_color');
+  $secondaryColor = $settings->get('theme_secondary_color');
+@endphp
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ $translator->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $settings->get('forum_title') }} Notification</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
             font-size: 14px;
             line-height: 1.5;
             color: #333;

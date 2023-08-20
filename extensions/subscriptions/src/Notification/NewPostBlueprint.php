@@ -39,7 +39,7 @@ class NewPostBlueprint implements BlueprintInterface, MailableInterface
         return ['postNumber' => (int) $this->post->number];
     }
 
-    public function getEmailView(): array
+    public function getEmailViews(): array
     {
         return [
             'text' => 'flarum-subscriptions::emails.plain.newPost',

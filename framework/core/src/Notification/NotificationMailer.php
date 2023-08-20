@@ -45,7 +45,7 @@ class NotificationMailer
         $settingsLink = $this->url->to('forum')->route('settings');
 
         $this->mailer->send(
-            $blueprint->getEmailView(),
+            $blueprint->getEmailViews(),
             compact('blueprint', 'user', 'unsubscribeLink', 'settingsLink'),
             function (Message $message) use ($blueprint, $user, $unsubscribeLink) {
                 $message->to($user->email, $user->display_name)
