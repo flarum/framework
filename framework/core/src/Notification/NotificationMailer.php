@@ -45,7 +45,7 @@ class NotificationMailer
         $settingsLink = $this->url->to('forum')->route('settings');
 
         $this->mailer->send(
-            $blueprint->getEmailViews(),
+            $this->getEmailViews($blueprint),
             compact('blueprint', 'user', 'unsubscribeLink', 'settingsLink'),
             function (Message $message) use ($blueprint, $user, $unsubscribeLink) {
                 $message->to($user->email, $user->display_name)
@@ -54,5 +54,27 @@ class NotificationMailer
                         ->addTextHeader('List-Unsubscribe', '<'.$unsubscribeLink.'>');
             }
         );
+    }
+
+    /**
+     * Retrives the email views from the blueprint, and enforces that both a
+     * plain text and HTML view are provided.
+     *
+     * @param MailableInterface $blueprint
+     * @return array{
+     *     text: string,
+     *     html: string
+     * }
+     */
+    protected function getEmailViews(MailableInterface $blueprint): array
+    {
+        $views = $blueprint->getEmailViews();
+
+        // check that both text and html views are provided
+        if (! isset($views['text'], $views['html'])) {
+            throw new \InvalidArgumentException('Both text and html views must be provided to send an email notification of type' . $blueprint::getType() . '.');
+        }
+
+        return $views;
     }
 }
