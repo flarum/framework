@@ -16,15 +16,12 @@ interface MailableInterface
     /**
      * Get the name of the view to construct a notification email with.
      *
-     * To provide the best experince for the user, provide both a `text` and `html` view.
+     * To provide the best experience for the user, Flarum expects both a `text` and `html` view.
      *
-     * Example:
-     * ```php
-     * return [
-     *  'text' => 'flarum-subscriptions::emails.plain.newPost',
-     *  'html' => 'flarum-subscriptions::emails.html.newPost'
-     * ];
-     * ```
+     * @return array{
+     *     text: string,
+     *     html: string
+     * }
      */
     public function getEmailView(): array;
 
