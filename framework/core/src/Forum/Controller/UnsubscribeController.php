@@ -33,6 +33,7 @@ class UnsubscribeController extends AbstractHtmlController
         $token = Arr::get($request->getQueryParams(), 'token');
 
         // Fetch the unsubscribe token record
+        /** @var UnsubscribeToken|null $unsubscribeRecord */
         $unsubscribeRecord = UnsubscribeToken::where('user_id', $userId)
             ->where('token', $token)
             ->first();
@@ -46,7 +47,7 @@ class UnsubscribeController extends AbstractHtmlController
             // Update user preferences
             /** @var User $user */
             $user = User::find($userId);
-            $user->setPreference('notify_'.$unsubscribeRecord->email_type.'_email', false);
+            $user->setNotificationPreference($unsubscribeRecord->email_type, 'email', false);
             $user->save();
 
             $message = 'You have successfully unsubscribed from this type of email notification. If you wish to receive it again, please update your settings.';
