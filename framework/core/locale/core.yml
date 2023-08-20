@@ -731,6 +731,8 @@ core:
     unsubscribe_email:
       title: Unsubscribe Confirmation
       return_to_forum: Back to {forumTitle}
+      success_message: "You have successfully unsubscribed from this type of email notification from {forumTitle}. If you wish to receive it again, please <a href=\"{settingsLink}\">update your settings</a>."
+      invalid_message: "This unsubscribe link is invalid or has already been used. For any changes in your email notifications from {forumTitle}, please <a href=\"{settingsLink}\">check your settings</a>."
 
   # Translations in this namespace are used in messages output by the API.
   api:

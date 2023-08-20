@@ -12,7 +12,9 @@ namespace Flarum\Forum\Controller;
 use Carbon\Carbon;
 use Flarum\Http\Controller\AbstractHtmlController;
 use Flarum\Http\UrlGenerator;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Notification\UnsubscribeToken;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -23,7 +25,9 @@ class UnsubscribeController extends AbstractHtmlController
 {
     public function __construct(
         protected UrlGenerator $url,
-        protected Factory $view
+        protected Factory $view,
+        protected TranslatorInterface $translator,
+        protected SettingsRepositoryInterface $settings
     ) {
     }
 
@@ -38,6 +42,9 @@ class UnsubscribeController extends AbstractHtmlController
             ->where('token', $token)
             ->first();
 
+        $settingsLink = $this->url->to('forum')->route('settings');
+        $forumTitle = $this->settings->get('forum_title');
+
         // If record exists and has not been used before
         if ($unsubscribeRecord && empty($unsubscribeRecord->unsubscribed_at)) {
             // Mark as unsubscribed
@@ -50,10 +57,18 @@ class UnsubscribeController extends AbstractHtmlController
             $user->setNotificationPreference($unsubscribeRecord->email_type, 'email', false);
             $user->save();
 
-            $message = 'You have successfully unsubscribed from this type of email notification. If you wish to receive it again, please update your settings.';
+            //$message = 'You have successfully unsubscribed from this type of email notification. If you wish to receive it again, please update your settings.';
+            $message = $this->translator->trans('core.views.unsubscribe_email.success_message', [
+                'settingsLink' => $settingsLink,
+                'forumTitle' => $forumTitle
+            ]);
         } else {
             // If the token doesn't exist or has already been used
-            $message = 'This unsubscribe link is invalid or has already been used. Please check your settings if you wish to manage your email notifications.';
+            //$message = 'This unsubscribe link is invalid or has already been used. Please check your settings if you wish to manage your email notifications.';
+            $message = $this->translator->trans('core.views.unsubscribe_email.invalid_message', [
+                'settingsLink' => $settingsLink,
+                'forumTitle' => $forumTitle
+            ]);
         }
 
         return $this->view->make('flarum.forum::unsubscribe-confirmation')->with('message', $message);
