@@ -1,4 +1,4 @@
-@extends('flarum.forum::notification.html.base')
+@extends('flarum.forum::email.html.notification.base')
 
 @section('content')
 {!! $translator->trans('flarum-mentions.email.user_mentioned.body', [

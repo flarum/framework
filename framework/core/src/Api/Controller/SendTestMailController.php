@@ -11,6 +11,7 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
 use Laminas\Diactoros\Response\EmptyResponse;
@@ -22,7 +23,8 @@ class SendTestMailController implements RequestHandlerInterface
 {
     public function __construct(
         protected Mailer $mailer,
-        protected TranslatorInterface $translator
+        protected TranslatorInterface $translator,
+        protected SettingsRepositoryInterface $settings
     ) {
     }
 
@@ -31,12 +33,23 @@ class SendTestMailController implements RequestHandlerInterface
         $actor = RequestUtil::getActor($request);
         $actor->assertAdmin();
 
-        $body = $this->translator->trans('core.email.send_test.body', ['username' => $actor->username]);
+        $infoContent = $this->translator->trans('core.email.send_test.body', ['username' => $actor->username]);
 
-        $this->mailer->raw($body, function (Message $message) use ($actor) {
-            $message->to($actor->email);
-            $message->subject($this->translator->trans('core.email.send_test.subject'));
-        });
+        $title = $this->translator->trans('core.email.send_test.subject');
+        $forumTitle = $this->settings->get('forum_title');
+        $userEmail = $actor->email;
+
+        $this->mailer->send(
+            [
+                'plain' => 'flarum.forum::email.information.plain.base',
+                'html' => 'flarum.forum::email.information.html.base'
+            ],
+            compact('infoContent', 'userEmail', 'forumTitle', 'title'),
+            function (Message $message) use ($actor) {
+                $message->to($actor->email);
+                $message->subject($this->translator->trans('core.email.send_test.subject'));
+            }
+        );
 
         return new EmptyResponse();
     }

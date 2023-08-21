@@ -1,4 +1,4 @@
-@extends('flarum.forum::email.plain.information.base')
+@extends('flarum.forum::email.html.information.base')
 
 @section('content')
 {!! $translator->trans('flarum-suspend.email.suspended.body', [

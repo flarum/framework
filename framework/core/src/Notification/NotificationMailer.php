@@ -38,10 +38,12 @@ class NotificationMailer
 
         $unsubscribeLink = $this->url->to('forum')->route('notifications.unsubscribe', ['userId' => $user->id, 'token' => $unsubscribeRecord->token]);
         $settingsLink = $this->url->to('forum')->route('settings');
+        $type = $blueprint::getType();
+        $forumTitle = $this->settings->get('forum_title');
 
         $this->mailer->send(
             $this->getEmailViews($blueprint),
-            compact('blueprint', 'user', 'unsubscribeLink', 'settingsLink'),
+            compact('blueprint', 'user', 'unsubscribeLink', 'settingsLink', 'type', 'forumTitle'),
             function (Message $message) use ($blueprint, $user) {
                 $message->to($user->email, $user->display_name)
                         ->subject($blueprint->getEmailSubject($this->translator));

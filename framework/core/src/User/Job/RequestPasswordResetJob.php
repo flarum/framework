@@ -11,6 +11,7 @@ namespace Flarum\User\Job;
 
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\TranslatorInterface;
+use Flarum\Mail\Job\SendInformationalEmailJob;
 use Flarum\Mail\Job\SendRawEmailJob;
 use Flarum\Queue\AbstractJob;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -50,6 +51,6 @@ class RequestPasswordResetJob extends AbstractJob
         $body = $translator->trans('core.email.reset_password.body', $data);
         $subject = $translator->trans('core.email.reset_password.subject');
 
-        $queue->push(new SendRawEmailJob($user->email, $subject, $body));
+        $queue->push(new SendInformationalEmailJob($user->email, $subject, $body, $settings->get('forum_title')));
     }
 }

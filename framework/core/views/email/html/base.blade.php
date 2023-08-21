@@ -6,9 +6,8 @@
 <!DOCTYPE html>
 <html lang="{{ $translator->getLocale() }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $settings->get('forum_title') }} Notification</title>
+    <meta charset="utf-8">
+    <title>{{ $title ?? 'Flarum Email' }}</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -34,15 +33,21 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>{{ $settings->get('forum_title') }} Notification</h2>
-        <hr>
-        @yield('content')
-        <hr>
-        <div class="footer">
-            If you'd like to stop receiving this type of notification, <a href="{{ $unsubscribeLink }}">unsubscribe here</a>.<br>
-            Manage your notification settings <a href="{{ $settingsLink }}">here</a>.
-        </div>
-    </div>
+
+<div class="header">
+    <!-- Email Header -->
+    @yield('header')
+</div>
+
+<div class="content">
+    <!-- Main Email Content -->
+    @yield('content')
+</div>
+
+<div class="footer">
+    <!-- Email Footer -->
+    @yield('footer')
+</div>
+
 </body>
 </html>
