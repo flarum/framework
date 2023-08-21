@@ -2,7 +2,7 @@
 
 @section('header')
     <!-- Specific header for informational emails -->
-    <h2>{{ $title ?? 'Information' }}</h2>
+    <h2>{{ $title ?? $translator->trans('core.email.informational.default_title') }}</h2>
 @endsection
 
 @section('content')
@@ -12,5 +12,5 @@
 
 @section('footer')
     <!-- Specific footer for informational emails -->
-    <p>This email was sent to {{ $userEmail}} as an informational service related to your account on {{ $forumTitle }}.</p>
+    <p>{!! $translator->trans('core.email.informational.footer', ['userEmail' => $userEmail, 'forumTitle' => '<a href="' . $url->to('forum')->base() . '">' . $settings->get('forum_title') . '</a>']) !!}</p>
 @endsection

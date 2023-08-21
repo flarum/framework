@@ -52,8 +52,6 @@ flarum-subscriptions:
     new_post:
       subject: "[New Post] {title}"
       body: |
-        Hey {recipient_display_name}!
-
         {poster_display_name} made a post in a discussion you're following: {title}.
 
         To view the new activity, check out the following link:

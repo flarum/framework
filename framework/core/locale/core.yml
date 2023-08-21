@@ -747,13 +747,25 @@ core:
 
   # Translations in this namespace are used in emails sent by the forum.
   email:
+    greeting: "Hey {displayName}!"
+
+    # These translations are used by the "informational" email template.
+    informational:
+      default_title: "Information"
+      footer: "This email was sent to {userEmail} as an informational service related to your account on {forumTitle}."#
+
+    # These translations are used by the "notification" email template.
+    notification:
+        default_title: "Notification"
+        footer:
+          main_text: "This email was sent to {email} because you are subscribed to \"{type}\" notifications on {forumTitle}."
+          unsubscribe_text: "If you'd like to stop receiving this type of notification, <a href=\"{unsubscribeLink}\">unsubscribe here</a>."
+          settings_text: "Manage your notification settings <a href=\"{settingsLink}\">here</a>."
 
     # These translations are used in emails sent when users register new accounts.
     activate_account:
       subject: Activate Your New Account
       body: |
-        Hey {username}!
-
         Someone (hopefully you!) has signed up to {forum} with this email address.
 
         If this was you, simply click the following link and your account will be activated:
@@ -765,8 +777,6 @@ core:
     confirm_email:
       subject: Confirm Your New Email Address
       body: |
-        Hey {username}!
-
         Someone (hopefully you!) has changed their email address on {forum} to this one.
 
         If this was you, simply click the following link and your email will be confirmed:
@@ -778,8 +788,6 @@ core:
     reset_password:
       subject: => core.ref.reset_your_password
       body: |
-        Hey {username}!
-
         Someone (hopefully you!) has submitted a forgotten password request for your account on {forum}.
 
         If this was you, click the following link to reset your password:
@@ -791,8 +799,6 @@ core:
     send_test:
       subject: Flarum Email Test
       body: |
-        Hey {username}!
-
         This is a test email to confirm that your Flarum email configuration is working properly.
 
         If this was you, this email means that your configuration works!

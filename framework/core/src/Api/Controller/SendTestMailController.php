@@ -38,13 +38,14 @@ class SendTestMailController implements RequestHandlerInterface
         $title = $this->translator->trans('core.email.send_test.subject');
         $forumTitle = $this->settings->get('forum_title');
         $userEmail = $actor->email;
+        $username = $actor->display_name;
 
         $this->mailer->send(
             [
                 'plain' => 'flarum.forum::email.plain.information.base',
                 'html' => 'flarum.forum::email.html.information.base'
             ],
-            compact('infoContent', 'userEmail', 'forumTitle', 'title'),
+            compact('infoContent', 'userEmail', 'forumTitle', 'title', 'username'),
             function (Message $message) use ($actor) {
                 $message->to($actor->email);
                 $message->subject($this->translator->trans('core.email.send_test.subject'));

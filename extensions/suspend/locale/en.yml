@@ -53,8 +53,6 @@ flarum-suspend:
     suspended:
       subject: Your account has been suspended
       body: |
-        Hey {recipient_display_name},
-
         You have been suspended for the following reason:
 
         ---
@@ -64,8 +62,6 @@ flarum-suspend:
     unsuspended:
       subject: Your account has been unsuspended
       body: |
-        Hey {recipient_display_name},
-
         You have been unsuspended. You can head back to the forum by clicking on the following link:
 
         {forum_url}

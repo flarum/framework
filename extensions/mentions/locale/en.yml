@@ -71,8 +71,6 @@ flarum-mentions:
     post_mentioned:
       subject: "{replier_display_name} replied to your post in {title}"
       body: |
-        Hey {recipient_display_name}!
-
         {replier_display_name} replied to your post (#{post_number}) in {title}.
 
         {url}
@@ -85,8 +83,6 @@ flarum-mentions:
     user_mentioned:
       subject: "{mentioner_display_name} mentioned you in {title}"
       body: |
-        Hey {recipient_display_name}!
-
         {mentioner_display_name} mentioned you in a post in {title}.
 
         {url}
@@ -98,8 +94,6 @@ flarum-mentions:
     group_mentioned:
       subject: "{mentioner_display_name} mentioned a group you're a member of in {title}"
       body: |
-        Hey {recipient_display_name}!
-
         {mentioner_display_name} mentioned a group you're a member of in {title}.
 
         {url}

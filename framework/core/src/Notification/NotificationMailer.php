@@ -40,10 +40,11 @@ class NotificationMailer
         $settingsLink = $this->url->to('forum')->route('settings');
         $type = $blueprint::getType();
         $forumTitle = $this->settings->get('forum_title');
+        $username = $user->display_name;
 
         $this->mailer->send(
             $this->getEmailViews($blueprint),
-            compact('blueprint', 'user', 'unsubscribeLink', 'settingsLink', 'type', 'forumTitle'),
+            compact('blueprint', 'user', 'unsubscribeLink', 'settingsLink', 'type', 'forumTitle', 'username'),
             function (Message $message) use ($blueprint, $user) {
                 $message->to($user->email, $user->display_name)
                         ->subject($blueprint->getEmailSubject($this->translator));

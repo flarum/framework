@@ -1,3 +1,5 @@
+@inject('url', 'Flarum\Http\UrlGenerator')
+
 @php
   $primaryColor = $settings->get('theme_primary_color');
   $secondaryColor = $settings->get('theme_secondary_color');
@@ -41,7 +43,12 @@
 
 <div class="content">
     <!-- Main Email Content -->
-    @yield('content')
+    <div class="greeting">
+        {!! $translator->trans('core.email.greeting', ['displayName' => $username]) !!}
+    </div>
+    <div class="main-content">
+        @yield('content')
+    </div>
 </div>
 
 <div class="footer">

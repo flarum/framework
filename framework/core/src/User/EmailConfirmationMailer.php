@@ -15,6 +15,7 @@ use Flarum\Mail\Job\SendInformationalEmailJob;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\EmailChangeRequested;
 use Illuminate\Contracts\Queue\Queue;
+use Illuminate\Support\Arr;
 
 class EmailConfirmationMailer
 {
@@ -34,7 +35,7 @@ class EmailConfirmationMailer
         $body = $this->translator->trans('core.email.confirm_email.body', $data);
         $subject = $this->translator->trans('core.email.confirm_email.subject');
 
-        $this->queue->push(new SendInformationalEmailJob($email, $subject, $body, $this->settings->get('forum_title')));
+        $this->queue->push(new SendInformationalEmailJob($email, $subject, $body, Arr::get($data, 'forum')));
     }
 
     protected function generateToken(User $user, string $email): EmailToken
