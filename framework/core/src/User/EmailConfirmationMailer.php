@@ -35,7 +35,13 @@ class EmailConfirmationMailer
         $body = $this->translator->trans('core.email.confirm_email.body', $data);
         $subject = $this->translator->trans('core.email.confirm_email.subject');
 
-        $this->queue->push(new SendInformationalEmailJob(email: $email, subject:$subject, body: $body, forumTitle: Arr::get($data, 'forum'), displayName: Arr::get($data, 'username')));
+        $this->queue->push(new SendInformationalEmailJob(
+            email: $email, 
+            subject:$subject, 
+            body: $body, 
+            forumTitle: Arr::get($data, 'forum'), 
+            displayName: Arr::get($data, 'username')
+        ));
     }
 
     protected function generateToken(User $user, string $email): EmailToken

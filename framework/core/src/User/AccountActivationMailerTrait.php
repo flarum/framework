@@ -39,6 +39,12 @@ trait AccountActivationMailerTrait
         $body = $this->translator->trans('core.email.activate_account.body', $data);
         $subject = $this->translator->trans('core.email.activate_account.subject');
 
-        $this->queue->push(new SendInformationalEmailJob(email: $user->email, subject: $subject, body: $body, forumTitle: Arr::get($data, 'forum'), displayName: Arr::get($data, 'username')));
+        $this->queue->push(new SendInformationalEmailJob(
+            email: $user->email,
+            subject: $subject,
+            body: $body,
+            forumTitle: Arr::get($data, 'forum'),
+            displayName: Arr::get($data, 'username')
+        ));
     }
 }
