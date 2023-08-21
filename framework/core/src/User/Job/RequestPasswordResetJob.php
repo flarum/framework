@@ -17,6 +17,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\PasswordToken;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Queue\Queue;
+use Illuminate\Support\Arr;
 
 class RequestPasswordResetJob extends AbstractJob
 {
@@ -50,6 +51,6 @@ class RequestPasswordResetJob extends AbstractJob
         $body = $translator->trans('core.email.reset_password.body', $data);
         $subject = $translator->trans('core.email.reset_password.subject');
 
-        $queue->push(new SendInformationalEmailJob($user->email, $subject, $body, $settings->get('forum_title')));
+        $queue->push(new SendInformationalEmailJob($user->email, $subject, $body, Arr::get($data, 'forum')));
     }
 }
