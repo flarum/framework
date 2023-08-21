@@ -748,6 +748,7 @@ core:
   # Translations in this namespace are used in emails sent by the forum.
   email:
     greeting: "Hey {displayName}!"
+    signoff: "{forumTitle} team"
 
     # These translations are used by the "informational" email template.
     informational:

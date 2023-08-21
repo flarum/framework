@@ -38,7 +38,11 @@
             margin: 15px 0;
             border: 1px solid #e1e1e1;
             border-radius: 5px;
-}
+        }
+        .signoff {
+            margin-top: 20px;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -55,6 +59,9 @@
     </div>
     <div class="main-content">
         @yield('content')
+    </div>
+    <div class="signoff">
+        <p>{!! $translator->trans('core.email.signoff', ['forumTitle' => $settings->get('forum_title')]) !!}</p>
     </div>
 </div>
 
