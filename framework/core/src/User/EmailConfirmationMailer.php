@@ -36,10 +36,10 @@ class EmailConfirmationMailer
         $subject = $this->translator->trans('core.email.confirm_email.subject');
 
         $this->queue->push(new SendInformationalEmailJob(
-            email: $email, 
-            subject:$subject, 
-            body: $body, 
-            forumTitle: Arr::get($data, 'forum'), 
+            email: $email,
+            subject:$subject,
+            body: $body,
+            forumTitle: Arr::get($data, 'forum'),
             displayName: Arr::get($data, 'username')
         ));
     }
