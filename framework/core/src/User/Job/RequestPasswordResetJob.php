@@ -52,10 +52,10 @@ class RequestPasswordResetJob extends AbstractJob
         $subject = $translator->trans('core.email.reset_password.subject');
 
         $queue->push(new SendInformationalEmailJob(
-            email: $user->email, 
-            subject: $subject, 
-            body: $body, 
-            forumTitle: Arr::get($data, 'forum'), 
+            email: $user->email,
+            subject: $subject,
+            body: $body,
+            forumTitle: Arr::get($data, 'forum'),
             displayName: Arr::get($data, 'username'),
             bodyTitle: $subject
         ));
