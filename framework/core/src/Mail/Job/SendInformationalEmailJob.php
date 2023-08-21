@@ -17,13 +17,14 @@ class SendInformationalEmailJob extends AbstractJob
 {
     public function __construct(
         private readonly string $email,
+        private readonly string $displayName,
         private readonly string $subject,
         private readonly string $body,
         private readonly string $forumTitle,
         private readonly ?string $bodyTitle = null,
         protected array $views = [
-            'plain' => 'flarum.forum::email.information.plain.base',
-            'html' => 'flarum.forum::email.information.html.base'
+            'plain' => 'flarum.forum::email.plain.information.base',
+            'html' => 'flarum.forum::email.html.information.base'
         ]
     ) {
     }
@@ -34,10 +35,11 @@ class SendInformationalEmailJob extends AbstractJob
         $infoContent = $this->body;
         $userEmail = $this->email;
         $title = $this->bodyTitle;
+        $username = $this->displayName;
 
         $mailer->send(
             $this->views,
-            compact('forumTitle', 'infoContent', 'userEmail', 'title'),
+            compact('forumTitle', 'infoContent', 'userEmail', 'title', 'username'),
             function (Message $message) {
                 $message->to($this->email);
                 $message->subject($this->subject);
