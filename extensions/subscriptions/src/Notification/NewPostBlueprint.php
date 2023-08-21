@@ -21,7 +21,7 @@ use Flarum\User\User;
 class NewPostBlueprint implements BlueprintInterface, MailableInterface
 {
     use RendersContent;
-    
+
     public function __construct(
         public Post $post
     ) {

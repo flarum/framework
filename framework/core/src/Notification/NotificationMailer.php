@@ -16,7 +16,6 @@ use Flarum\User\User;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
 use Illuminate\Support\Arr;
-use s9e\TextFormatter\Bundles\Fatdown;
 
 class NotificationMailer
 {

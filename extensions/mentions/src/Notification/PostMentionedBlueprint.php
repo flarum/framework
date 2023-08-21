@@ -20,7 +20,7 @@ use Flarum\User\User;
 class PostMentionedBlueprint implements BlueprintInterface, MailableInterface
 {
     use RendersContent;
-    
+
     public function __construct(
         public Post $post,
         public Post $reply
