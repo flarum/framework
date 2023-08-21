@@ -42,7 +42,7 @@ class SendTestMailController implements RequestHandlerInterface
 
         $this->mailer->send(
             [
-                'plain' => 'flarum.forum::email.plain.information.base',
+                'text' => 'flarum.forum::email.plain.information.base',
                 'html' => 'flarum.forum::email.html.information.base'
             ],
             compact('infoContent', 'userEmail', 'forumTitle', 'title', 'username'),

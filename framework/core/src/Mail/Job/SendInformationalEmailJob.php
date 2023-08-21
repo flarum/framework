@@ -23,7 +23,7 @@ class SendInformationalEmailJob extends AbstractJob
         private readonly string $forumTitle,
         private readonly ?string $bodyTitle = null,
         protected array $views = [
-            'plain' => 'flarum.forum::email.plain.information.base',
+            'text' => 'flarum.forum::email.plain.information.base',
             'html' => 'flarum.forum::email.html.information.base'
         ]
     ) {
