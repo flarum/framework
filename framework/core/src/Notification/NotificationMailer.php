@@ -45,9 +45,6 @@ class NotificationMailer
             function (Message $message) use ($blueprint, $user) {
                 $message->to($user->email, $user->display_name)
                         ->subject($blueprint->getEmailSubject($this->translator));
-                //->getHeaders()
-                //->addTextHeader('List-Unsubscribe', '<'.$unsubscribeLink.'>');
-                //->addTextHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
             }
         );
     }
