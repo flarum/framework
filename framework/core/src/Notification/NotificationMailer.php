@@ -16,7 +16,6 @@ use Flarum\User\User;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 
 class NotificationMailer
 {
@@ -43,12 +42,12 @@ class NotificationMailer
         $this->mailer->send(
             $this->getEmailViews($blueprint),
             compact('blueprint', 'user', 'unsubscribeLink', 'settingsLink'),
-            function (Message $message) use ($blueprint, $user, $unsubscribeLink) {
+            function (Message $message) use ($blueprint, $user) {
                 $message->to($user->email, $user->display_name)
                         ->subject($blueprint->getEmailSubject($this->translator));
-                        //->getHeaders()
-                        //->addTextHeader('List-Unsubscribe', '<'.$unsubscribeLink.'>');
-                        //->addTextHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
+                //->getHeaders()
+                //->addTextHeader('List-Unsubscribe', '<'.$unsubscribeLink.'>');
+                //->addTextHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
             }
         );
     }

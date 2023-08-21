@@ -1,9 +1,15 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Forum\Controller;
 
 use Carbon\Carbon;
-use Flarum\Http\SessionAuthenticator;
 use Flarum\Http\UrlGenerator;
 use Flarum\Notification\Command\UnsubscribeEmail;
 use Flarum\Notification\UnsubscribeToken;
