@@ -8,6 +8,9 @@
 @section('content')
     <!-- Content specific to notification emails -->
     @yield('notificationContent')
+    <div class="content-preview">
+        @yield('contentPreview')
+    </div>
 @endsection
 
 @section('footer')

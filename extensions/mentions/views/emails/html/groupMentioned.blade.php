@@ -9,3 +9,7 @@
 '{content}' => $blueprint->post->content
 ]))) !!}
 @endsection
+
+@section('contentPreview')
+    {!! $blueprint->renderContent($blueprint->post->content) !!}
+@endsection

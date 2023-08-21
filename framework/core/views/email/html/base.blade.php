@@ -32,6 +32,13 @@
             font-size: 12px;
             color: #777;
         }
+        .content-preview {
+            background-color: #f7f7f7; /* Light gray background */
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid #e1e1e1;
+            border-radius: 5px;
+}
     </style>
 </head>
 <body>
