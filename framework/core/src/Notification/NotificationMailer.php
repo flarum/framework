@@ -34,15 +34,10 @@ class NotificationMailer
         $this->translator->setLocale($user->getPreference('locale') ?? $this->settings->get('default_locale'));
 
         // Generate and save the unsubscribe token:
-        $token = Str::random(60);
-        $unsubscribeRecord = new UnsubscribeToken([
-            'user_id'    => $user->id,
-            'email_type' => $blueprint::getType(),
-            'token'      => $token
-        ]);
+        $unsubscribeRecord = UnsubscribeToken::generate($user->id, $blueprint::getType());
         $unsubscribeRecord->save();
 
-        $unsubscribeLink = $this->url->to('forum')->route('notifications.unsubscribe', ['userId' => $user->id, 'token' => $token]);
+        $unsubscribeLink = $this->url->to('forum')->route('notifications.unsubscribe', ['userId' => $user->id, 'token' => $unsubscribeRecord->token]);
         $settingsLink = $this->url->to('forum')->route('settings');
 
         $this->mailer->send(
@@ -50,9 +45,10 @@ class NotificationMailer
             compact('blueprint', 'user', 'unsubscribeLink', 'settingsLink'),
             function (Message $message) use ($blueprint, $user, $unsubscribeLink) {
                 $message->to($user->email, $user->display_name)
-                        ->subject($blueprint->getEmailSubject($this->translator))
-                        ->getHeaders()
-                        ->addTextHeader('List-Unsubscribe', '<'.$unsubscribeLink.'>');
+                        ->subject($blueprint->getEmailSubject($this->translator));
+                        //->getHeaders()
+                        //->addTextHeader('List-Unsubscribe', '<'.$unsubscribeLink.'>');
+                        //->addTextHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
             }
         );
     }

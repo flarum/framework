@@ -9,9 +9,11 @@
 
 namespace Flarum\Notification;
 
+use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 /**
  * @property int $id
@@ -33,6 +35,20 @@ class UnsubscribeToken extends AbstractModel
     ];
 
     protected $fillable = ['user_id', 'email_type', 'token'];
+
+    const TOKEN_LENGTH = 60;
+
+    public static function generate(int $userId, string $emailType): static
+    {
+        $token = new static;
+
+        $token->token = Str::random(self::TOKEN_LENGTH);
+        $token->user_id = $userId;
+        $token->email_type = $emailType;
+        $token->created_at = Carbon::now();
+
+        return $token;
+    }
 
     public function user(): BelongsTo
     {

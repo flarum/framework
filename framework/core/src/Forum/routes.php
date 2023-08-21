@@ -46,7 +46,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     $map->get(
         '/notifications/unsubscribe/{userId}/{token}',
         'notifications.unsubscribe',
-        $route->toController(Controller\UnsubscribeController::class)
+        $route->toController(Controller\UnsubscribeViewController::class)
+    );
+
+    $map->post(
+        '/notifications/unsubscribe/confirm',
+        'notifications.unsubscribe.confirm',
+        $route->toController(Controller\UnsubscribeActionController::class)
     );
 
     $map->get(
