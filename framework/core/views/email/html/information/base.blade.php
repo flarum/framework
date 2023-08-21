@@ -7,7 +7,7 @@
 
 @section('content')
     <!-- Content specific to informational emails -->
-    <p>{{ $infoContent }}<p>
+    <p>{!! nl2br(e($infoContent)) !!}<p>
 @endsection
 
 @section('footer')

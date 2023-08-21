@@ -44,7 +44,7 @@
 <div class="content">
     <!-- Main Email Content -->
     <div class="greeting">
-        {!! $translator->trans('core.email.greeting', ['displayName' => $username]) !!}
+        <p>{!! $translator->trans('core.email.greeting', ['displayName' => $username]) !!}</p>
     </div>
     <div class="main-content">
         @yield('content')
