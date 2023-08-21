@@ -33,7 +33,7 @@ class SendTestMailController implements RequestHandlerInterface
         $actor = RequestUtil::getActor($request);
         $actor->assertAdmin();
 
-        $infoContent = $this->translator->trans('core.email.send_test.body', ['username' => $actor->username]);
+        $infoContent = $this->translator->trans('core.email.send_test.body');
 
         $title = $this->translator->trans('core.email.send_test.subject');
         $forumTitle = $this->settings->get('forum_title');
