@@ -2,7 +2,7 @@
 
 @section('header')
     <!-- Specific header for notification emails -->
-    {{ $title ?? 'Notification' }}
+    {{ $title ?? $translator->trans('core.email.notification.default_title') }}
 @endsection
 
 @section('content')

@@ -7,7 +7,7 @@
 
 @section('content')
     <!-- Content specific to notification emails -->
-    <p>@yield('notificationContent')</p>
+    <p>{!! $notificationContent !!}</p>
 @endsection
 
 @section('footer')

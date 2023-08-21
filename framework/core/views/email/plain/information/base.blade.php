@@ -2,7 +2,7 @@
 
 @section('header')
     <!-- Specific header for informational emails -->
-    {{ $title ?? 'Information' }}
+    {{ $title ?? $translator->trans('core.email.informational.default_title') }}
 @endsection
 
 @section('content')
