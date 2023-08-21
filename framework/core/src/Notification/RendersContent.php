@@ -9,14 +9,12 @@
 
 namespace Flarum\Notification;
 
+use s9e\TextFormatter\Bundles\Fatdown;
+
 trait RendersContent
 {
-    public function __construct(protected ContentRenderer $renderer)
-    {
-    }
-
     public function renderContent(string $content): string
     {
-        return $this->renderer->render($content);
+        return Fatdown::render(Fatdown::parse($content));
     }
 }
