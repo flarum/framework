@@ -12,7 +12,6 @@ namespace Flarum\User;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Mail\Job\SendInformationalEmailJob;
-use Flarum\Mail\Job\SendRawEmailJob;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\EmailChangeRequested;
 use Illuminate\Contracts\Queue\Queue;
