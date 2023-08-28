@@ -3,9 +3,11 @@
   .light-contents();
   background-size: 100% 100%;
 }
+.UserCard .container {
+  display: grid;
+  grid-template-columns: 1fr auto;
+}
 .UserCard-controls {
-  float: right;
-
   .Dropdown-menu {
     left: auto;
     right: 0;
@@ -26,15 +28,16 @@
     font-size: 22px;
   }
 }
-
 .UserCard-profile {
+  display: grid;
+  grid-template-columns: 130px 1fr;
   text-align: left;
-  padding-left: 130px;
-  max-width: 800px;
+  padding-right: 20px;
 
   @media @phone {
-    padding-left: 0;
+    grid-template-columns: 1fr;
     text-align: center;
+    padding-right: 0;
   }
 }
 .UserCard-identity {
@@ -43,9 +46,6 @@
   vertical-align: middle;
 }
 .UserCard-avatar {
-  float: left;
-  margin-left: -130px;
-
   @media @phone {
     display: block;
     float: none;
