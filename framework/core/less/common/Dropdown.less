@@ -47,6 +47,7 @@
       .Button-icon {
         width: 16px;
         text-align: center;
+        flex-shrink: 0;
       }
 
       &.disabled {
@@ -130,7 +131,7 @@
   }
 
   @media @tablet-up {
-    .Dropdown-menu li:first-child {
+    &:not(.Dropdown--withMainAction) .Dropdown-menu li:first-child {
       &, + li.Dropdown-separator {
         display: none;
       }

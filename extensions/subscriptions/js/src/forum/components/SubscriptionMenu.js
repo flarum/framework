@@ -1,12 +1,9 @@
 import app from 'flarum/forum/app';
 import Dropdown from 'flarum/common/components/Dropdown';
 import Button from 'flarum/common/components/Button';
-import Tooltip from 'flarum/common/components/Tooltip';
-import icon from 'flarum/common/helpers/icon';
 import extractText from 'flarum/common/utils/extractText';
-import classList from 'flarum/common/utils/classList';
-
-import SubscriptionMenuItem from './SubscriptionMenuItem';
+import DetailedDropdownItem from 'flarum/common/components/DetailedDropdownItem';
+import SplitDropdown from 'flarum/common/components/SplitDropdown';
 
 export default class SubscriptionMenu extends Dropdown {
   oninit(vnode) {
@@ -68,42 +65,29 @@ export default class SubscriptionMenu extends Dropdown {
 
     const shouldShowTooltip = (notifyEmail || notifyAlert) && subscription === null;
 
-    const button = (
-      <Button
-        className={classList('Button', 'SubscriptionMenu-button', buttonClass)}
-        icon={buttonIcon}
-        onclick={this.saveSubscription.bind(this, discussion, ['follow', 'ignore'].indexOf(subscription) !== -1 ? null : 'follow')}
-      >
-        {buttonLabel}
-      </Button>
-    );
-
     return (
-      <div className="Dropdown ButtonGroup SubscriptionMenu">
-        {shouldShowTooltip ? (
-          <Tooltip text={tooltipText} position="bottom">
-            {button}
-          </Tooltip>
-        ) : (
-          button
-        )}
-
-        <button className={classList('Dropdown-toggle Button Button--icon', buttonClass)} data-toggle="dropdown">
-          {icon('fas fa-caret-down', { className: 'Button-icon' })}
-        </button>
-
-        <ul className="Dropdown-menu dropdown-menu Dropdown-menu--right">
-          {this.options.map((attrs) => (
-            <li>
-              <SubscriptionMenuItem
-                {...attrs}
-                onclick={this.saveSubscription.bind(this, discussion, attrs.subscription)}
-                active={subscription === attrs.subscription}
-              />
-            </li>
-          ))}
-        </ul>
-      </div>
+      <SplitDropdown
+        className="SubscriptionMenu"
+        buttonClassName={buttonClass}
+        tooltip={shouldShowTooltip ? tooltipText : null}
+        mainAction={
+          <Button
+            className={'SubscriptionMenu-button'}
+            icon={buttonIcon}
+            onclick={this.saveSubscription.bind(this, discussion, ['follow', 'ignore'].indexOf(subscription) !== -1 ? null : 'follow')}
+          >
+            {buttonLabel}
+          </Button>
+        }
+      >
+        {this.options.map((attrs) => (
+          <DetailedDropdownItem
+            {...attrs}
+            onclick={this.saveSubscription.bind(this, discussion, attrs.subscription)}
+            active={subscription === attrs.subscription}
+          />
+        ))}
+      </SplitDropdown>
     );
   }
 
