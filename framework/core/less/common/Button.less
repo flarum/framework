@@ -5,12 +5,14 @@
 // Make the div behave like a button
 .ButtonGroup {
   position: relative;
-  display: inline-block;
-  vertical-align: middle;
+  display: inline-flex;
+  gap: 1px;
 
   > .Button {
     position: relative;
-    float: left;
+    flex-shrink: 0;
+    flex-grow: 0;
+
     // Bring the "active" button to the front
     &:hover,
     &:focus,
@@ -19,22 +21,18 @@
       z-index: 2;
     }
 
-    &:not(:first-child):not(:last-child):not(.Dropdown-toggle) {
+    &:not(:first-of-type):not(:last-of-type):not(.Dropdown-toggle) {
       border-radius: 0;
     }
-    &:first-child:not(:last-child):not(.Dropdown-toggle) {
+    &:first-of-type:not(:last-of-type):not(.Dropdown-toggle) {
       margin-left: 0;
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
     }
-    &:last-child:not(:first-child), &.Dropdown-toggle:not(:first-child) {
+    &:last-of-type:not(:first-of-type), &.Dropdown-toggle:not(:first-of-type) {
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
     }
-  }
-
-  .Button + .Button {
-    margin-left: 1px;
   }
 }
 

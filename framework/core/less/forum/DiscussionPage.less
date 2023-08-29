@@ -54,11 +54,11 @@
         margin-bottom: 10px;
       }
     }
-    .ButtonGroup, .Button {
+    .ButtonGroup, :not(.ButtonGroup) > .Button {
       width: 100%;
     }
     .ButtonGroup:not(.itemCount1) {
-      .Button:first-child {
+      .Button:first-of-type {
         width: 77%;
       }
       .Dropdown-toggle {

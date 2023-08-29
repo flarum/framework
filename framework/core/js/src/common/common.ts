@@ -49,6 +49,7 @@ import './components/LoadingIndicator';
 import './components/Placeholder';
 import './components/Separator';
 import './components/Dropdown';
+import './components/DetailedDropdownItem';
 import './components/SplitDropdown';
 import './components/RequestErrorModal';
 import './components/FieldSet';
