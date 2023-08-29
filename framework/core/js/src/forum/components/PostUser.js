@@ -22,9 +22,7 @@ export default class PostUser extends Component {
     if (!user) {
       return (
         <div className="PostUser">
-          <h3 className="PostUser-name">
-            {avatar(user, { className: 'PostUser-avatar' })} {username(user)}
-          </h3>
+          <h3 className="PostUser-name">{username(user)}</h3>
         </div>
       );
     }
@@ -33,53 +31,12 @@ export default class PostUser extends Component {
       <div className="PostUser">
         <h3 className="PostUser-name">
           <Link href={app.route.user(user)}>
-            {avatar(user, { className: 'PostUser-avatar' })}
             {userOnline(user)}
             {username(user)}
           </Link>
         </h3>
         <ul className="PostUser-badges badges">{listItems(user.badges().toArray())}</ul>
-
-        {!post.isHidden() && this.attrs.cardVisible && (
-          <UserCard user={user} className="UserCard--popover" controlsButtonClassName="Button Button--icon Button--flat" />
-        )}
       </div>
     );
-  }
-
-  oncreate(vnode) {
-    super.oncreate(vnode);
-
-    let timeout;
-
-    this.$()
-      .on('mouseover', '.PostUser-name a, .UserCard', () => {
-        clearTimeout(timeout);
-        timeout = setTimeout(this.showCard.bind(this), 500);
-      })
-      .on('mouseout', '.PostUser-name a, .UserCard', () => {
-        clearTimeout(timeout);
-        timeout = setTimeout(this.hideCard.bind(this), 250);
-      });
-  }
-
-  /**
-   * Show the user card.
-   */
-  showCard() {
-    this.attrs.oncardshow();
-
-    setTimeout(() => this.$('.UserCard').addClass('in'));
-  }
-
-  /**
-   * Hide the user card.
-   */
-  hideCard() {
-    this.$('.UserCard')
-      .removeClass('in')
-      .one('transitionend webkitTransitionEnd oTransitionEnd', () => {
-        this.attrs.oncardhide();
-      });
   }
 }
