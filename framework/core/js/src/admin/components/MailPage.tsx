@@ -106,8 +106,11 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
         )}
         {this.submitButton()}
 
-        <FieldSet label={app.translator.trans('core.admin.email.send_test_mail_heading')} className="MailPage-MailSettings">
-          <div className="helpText">{app.translator.trans('core.admin.email.send_test_mail_text', { email: app.session.user!.email() })}</div>
+        <FieldSet
+          label={app.translator.trans('core.admin.email.send_test_mail_heading')}
+          className="MailPage-MailSettings"
+          description={app.translator.trans('core.admin.email.send_test_mail_text', { email: app.session.user!.email() })}
+        >
           <Button className="Button Button--primary" disabled={this.sendingTest || this.isChanged()} onclick={() => this.sendTestEmail()}>
             {app.translator.trans('core.admin.email.send_test_mail_button')}
           </Button>

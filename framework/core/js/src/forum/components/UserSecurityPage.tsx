@@ -75,8 +75,11 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
     if (this.user!.id() === app.session.user!.id()) {
       items.add(
         'globalLogout',
-        <FieldSet className="UserSecurityPage-globalLogout" label={app.translator.trans('core.forum.security.global_logout.heading')}>
-          <span className="helpText">{app.translator.trans('core.forum.security.global_logout.help_text')}</span>
+        <FieldSet
+          className="UserSecurityPage-globalLogout"
+          label={app.translator.trans('core.forum.security.global_logout.heading')}
+          description={app.translator.trans('core.forum.security.global_logout.help_text')}
+        >
           <Button
             className="Button"
             icon="fas fa-sign-out-alt"

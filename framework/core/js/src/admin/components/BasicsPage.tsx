@@ -72,8 +72,11 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
           </>
         )}
 
-        <FieldSet className="BasicsPage-homePage Form-group" label={app.translator.trans('core.admin.basics.home_page_heading')}>
-          <div className="helpText">{app.translator.trans('core.admin.basics.home_page_text')}</div>
+        <FieldSet
+          className="BasicsPage-homePage Form-group"
+          label={app.translator.trans('core.admin.basics.home_page_heading')}
+          description={app.translator.trans('core.admin.basics.home_page_text')}
+        >
           {this.homePageItems()
             .toArray()
             .map(({ path, label }) => (
@@ -87,8 +90,10 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
         <div className="Form-group BasicsPage-welcomeBanner-input">
           <label>{app.translator.trans('core.admin.basics.welcome_banner_heading')}</label>
           <div className="helpText">{app.translator.trans('core.admin.basics.welcome_banner_text')}</div>
-          <input type="text" className="FormControl" bidi={this.setting('welcome_title')} />
-          <textarea className="FormControl" bidi={this.setting('welcome_message')} />
+          <div className="StackedFormControl">
+            <input type="text" className="FormControl" bidi={this.setting('welcome_title')} />
+            <textarea className="FormControl" bidi={this.setting('welcome_message')} cols={80} rows={6} />
+          </div>
         </div>
 
         {Object.keys(this.displayNameOptions).length > 1 &&

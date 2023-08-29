@@ -32,10 +32,26 @@
   }
 }
 
-.Form-group > label {
+.Form-group, .FieldSet, .FieldSet-items {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.FieldSet-items {
+  width: 100%;
+}
+
+.Form-group > label, .FieldSet-label {
   font-size: 14px;
   font-weight: bold;
-  margin-bottom: 10px;
   color: var(--text-color);
   display: block;
+}
+
+.helpText {
+  font-size: 12px;
+  line-height: 1.5em;
+  color: var(--muted-color);
 }
