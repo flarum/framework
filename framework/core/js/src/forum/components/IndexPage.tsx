@@ -7,11 +7,11 @@ import WelcomeHero from './WelcomeHero';
 import DiscussionPage from './DiscussionPage';
 import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
-import LinkButton from '../../common/components/LinkButton';
-import SelectDropdown from '../../common/components/SelectDropdown';
 import extractText from '../../common/utils/extractText';
 import type Mithril from 'mithril';
 import type Discussion from '../../common/models/Discussion';
+import PageStructure from './PageStructure';
+import IndexSidebar from './IndexSidebar';
 
 export interface IIndexPageAttrs extends IPageAttrs {}
 
@@ -51,23 +51,13 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
 
   view() {
     return (
-      <div className="IndexPage">
-        {this.hero()}
-        <div className="container">
-          <div className="sideNavContainer">
-            <nav className="IndexPage-nav sideNav">
-              <ul>{listItems(this.sidebarItems().toArray())}</ul>
-            </nav>
-            <div className="IndexPage-results sideNavOffset">
-              <div className="IndexPage-toolbar">
-                <ul className="IndexPage-toolbar-view">{listItems(this.viewItems().toArray())}</ul>
-                <ul className="IndexPage-toolbar-action">{listItems(this.actionItems().toArray())}</ul>
-              </div>
-              <DiscussionList state={app.discussions} />
-            </div>
-          </div>
+      <PageStructure className="IndexPage" hero={this.hero.bind(this)} sidebar={this.sidebar.bind(this)}>
+        <div className="IndexPage-toolbar">
+          <ul className="IndexPage-toolbar-view">{listItems(this.viewItems().toArray())}</ul>
+          <ul className="IndexPage-toolbar-action">{listItems(this.actionItems().toArray())}</ul>
         </div>
-      </div>
+        <DiscussionList state={app.discussions} />
+      </PageStructure>
     );
   }
 
@@ -142,63 +132,8 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
     return <WelcomeHero />;
   }
 
-  /**
-   * Build an item list for the sidebar of the index page. By default this is a
-   * "New Discussion" button, and then a DropdownSelect component containing a
-   * list of navigation items.
-   */
-  sidebarItems() {
-    const items = new ItemList<Mithril.Children>();
-    const canStartDiscussion = app.forum.attribute('canStartDiscussion') || !app.session.user;
-
-    items.add(
-      'newDiscussion',
-      <Button
-        icon="fas fa-edit"
-        className="Button Button--primary IndexPage-newDiscussion"
-        itemClassName="App-primaryControl"
-        onclick={() => {
-          // If the user is not logged in, the promise rejects, and a login modal shows up.
-          // Since that's already handled, we dont need to show an error message in the console.
-          return this.newDiscussionAction().catch(() => {});
-        }}
-        disabled={!canStartDiscussion}
-      >
-        {app.translator.trans(`core.forum.index.${canStartDiscussion ? 'start_discussion_button' : 'cannot_start_discussion_button'}`)}
-      </Button>
-    );
-
-    items.add(
-      'nav',
-      <SelectDropdown
-        buttonClassName="Button"
-        className="App-titleControl"
-        accessibleToggleLabel={app.translator.trans('core.forum.index.toggle_sidenav_dropdown_accessible_label')}
-      >
-        {this.navItems().toArray()}
-      </SelectDropdown>
-    );
-
-    return items;
-  }
-
-  /**
-   * Build an item list for the navigation in the sidebar of the index page. By
-   * default this is just the 'All Discussions' link.
-   */
-  navItems() {
-    const items = new ItemList<Mithril.Children>();
-    const params = app.search.stickyParams();
-
-    items.add(
-      'allDiscussions',
-      <LinkButton href={app.route('index', params)} icon="far fa-comments">
-        {app.translator.trans('core.forum.index.all_discussions_link')}
-      </LinkButton>,
-      100
-    );
-
-    return items;
+  sidebar() {
+    return <IndexSidebar />;
   }
 
   /**
@@ -274,23 +209,6 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
     }
 
     return items;
-  }
-
-  /**
-   * Open the composer for a new discussion or prompt the user to login.
-   */
-  newDiscussionAction(): Promise<unknown> {
-    return new Promise((resolve, reject) => {
-      if (app.session.user) {
-        app.composer.load(() => import('./DiscussionComposer'), { user: app.session.user }).then(() => app.composer.show());
-
-        return resolve(app.composer);
-      } else {
-        app.modal.show(() => import('./LogInModal'));
-
-        return reject();
-      }
-    });
   }
 
   /**

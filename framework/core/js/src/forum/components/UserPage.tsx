@@ -2,7 +2,6 @@ import app from '../../forum/app';
 import Page, { IPageAttrs } from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import UserCard from './UserCard';
-import LoadingIndicator from '../../common/components/LoadingIndicator';
 import SelectDropdown from '../../common/components/SelectDropdown';
 import LinkButton from '../../common/components/LinkButton';
 import Separator from '../../common/components/Separator';
@@ -10,6 +9,7 @@ import listItems from '../../common/helpers/listItems';
 import AffixedSidebar from './AffixedSidebar';
 import type User from '../../common/models/User';
 import type Mithril from 'mithril';
+import PageStructure from './PageStructure';
 
 export interface IUserPageAttrs extends IPageAttrs {}
 
@@ -37,28 +37,30 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
    */
   view() {
     return (
-      <div className="UserPage">
-        {this.user
-          ? [
-              <UserCard
-                user={this.user}
-                className="Hero UserHero"
-                editable={this.user.canEdit() || this.user === app.session.user}
-                controlsButtonClassName="Button"
-              />,
-              <div className="container">
-                <div className="sideNavContainer">
-                  <AffixedSidebar>
-                    <nav className="sideNav UserPage-nav">
-                      <ul>{listItems(this.sidebarItems().toArray())}</ul>
-                    </nav>
-                  </AffixedSidebar>
-                  <div className="sideNavOffset UserPage-content">{this.content()}</div>
-                </div>
-              </div>,
-            ]
-          : [<LoadingIndicator display="block" />]}
-      </div>
+      <PageStructure className="UserPage" hero={this.hero.bind(this)} sidebar={this.sidebar.bind(this)} loading={!this.user}>
+        {this.user && this.content()}
+      </PageStructure>
+    );
+  }
+
+  hero() {
+    return (
+      <UserCard
+        user={this.user}
+        className="Hero UserHero"
+        editable={this.user!.canEdit() || this.user === app.session.user}
+        controlsButtonClassName="Button"
+      />
+    );
+  }
+
+  sidebar() {
+    return (
+      <AffixedSidebar>
+        <nav className="sideNav UserPage-nav">
+          <ul>{listItems(this.sidebarItems().toArray())}</ul>
+        </nav>
+      </AffixedSidebar>
     );
   }
 

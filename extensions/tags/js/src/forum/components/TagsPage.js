@@ -1,12 +1,15 @@
+import app from 'flarum/forum/app';
 import Page from 'flarum/common/components/Page';
-import IndexPage from 'flarum/forum/components/IndexPage';
+import PageStructure from 'flarum/forum/components/PageStructure';
+import WelcomeHero from 'flarum/forum/components/WelcomeHero';
+import IndexSidebar from 'flarum/forum/components/IndexSidebar';
 import Link from 'flarum/common/components/Link';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
-import listItems from 'flarum/common/helpers/listItems';
 import ItemList from 'flarum/common/utils/ItemList';
 import humanTime from 'flarum/common/helpers/humanTime';
 import textContrastClass from 'flarum/common/helpers/textContrastClass';
 import classList from 'flarum/common/utils/classList';
+import extractText from 'flarum/common/utils/extractText';
 
 import tagIcon from '../../common/helpers/tagIcon';
 import tagLabel from '../../common/helpers/tagLabel';
@@ -16,7 +19,7 @@ export default class TagsPage extends Page {
   oninit(vnode) {
     super.oninit(vnode);
 
-    app.history.push('tags', app.translator.trans('flarum-tags.forum.header.back_to_tags_tooltip'));
+    app.history.push('tags', extractText(app.translator.trans('flarum-tags.forum.header.back_to_tags_tooltip')));
 
     this.tags = [];
 
@@ -46,29 +49,11 @@ export default class TagsPage extends Page {
   }
 
   view() {
-    return <div className="TagsPage">{this.pageContent().toArray()}</div>;
-  }
-
-  pageContent() {
-    const items = new ItemList();
-
-    items.add('hero', this.hero(), 100);
-    items.add('main', <div className="container">{this.mainContent().toArray()}</div>, 10);
-
-    return items;
-  }
-
-  mainContent() {
-    const items = new ItemList();
-
-    items.add('sidebar', this.sidebar(), 100);
-    items.add('content', this.content(), 10);
-
-    return items;
-  }
-
-  content() {
-    return <div className="TagsPage-content sideNavOffset">{this.contentItems().toArray()}</div>;
+    return (
+      <PageStructure className="TagsPage" hero={this.hero.bind(this)} sidebar={this.sidebar.bind(this)}>
+        {this.contentItems().toArray()}
+      </PageStructure>
+    );
   }
 
   contentItems() {
@@ -91,19 +76,11 @@ export default class TagsPage extends Page {
   }
 
   hero() {
-    return IndexPage.prototype.hero();
+    return <WelcomeHero />;
   }
 
   sidebar() {
-    return (
-      <nav className="TagsPage-nav IndexPage-nav sideNav">
-        <ul>{listItems(this.sidebarItems().toArray())}</ul>
-      </nav>
-    );
-  }
-
-  sidebarItems() {
-    return IndexPage.prototype.sidebarItems();
+    return <IndexSidebar />;
   }
 
   tagTileListView(pinned) {

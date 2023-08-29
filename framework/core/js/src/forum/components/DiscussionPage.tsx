@@ -13,6 +13,7 @@ import PostStreamState from '../states/PostStreamState';
 import Discussion from '../../common/models/Discussion';
 import Post from '../../common/models/Post';
 import { ApiResponseSingle } from '../../common/Store';
+import PageStructure from './PageStructure';
 
 export interface IDiscussionPageAttrs extends IPageAttrs {
   id: string;
@@ -84,22 +85,20 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
 
   view() {
     return (
-      <div className="DiscussionPage">
-        <DiscussionListPane state={app.discussions} />
-        <div className="DiscussionPage-discussion">{!this.loading ? this.pageContent().toArray() : this.loadingItems().toArray()}</div>
-      </div>
+      <PageStructure
+        className="DiscussionPage"
+        loading={this.loading}
+        hero={this.hero.bind(this)}
+        sidebar={this.sidebar.bind(this)}
+        pane={() => <DiscussionListPane state={app.discussions} />}
+      >
+        {this.loading || (
+          <div className="DiscussionPage-stream">
+            <this.PostStream discussion={this.discussion} stream={this.stream} onPositionChange={this.positionChanged.bind(this)} />
+          </div>
+        )}
+      </PageStructure>
     );
-  }
-
-  /**
-   * List of components shown while the discussion is loading.
-   */
-  loadingItems(): ItemList<Mithril.Children> {
-    const items = new ItemList<Mithril.Children>();
-
-    items.add('spinner', <LoadingIndicator />, 100);
-
-    return items;
   }
 
   /**
@@ -118,37 +117,6 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
    */
   hero(): Mithril.Children {
     return <DiscussionHero discussion={this.discussion} />;
-  }
-
-  /**
-   * List of items rendered as the main page content.
-   */
-  pageContent(): ItemList<Mithril.Children> {
-    const items = new ItemList<Mithril.Children>();
-
-    items.add('hero', this.hero(), 100);
-    items.add('main', <div className="container">{this.mainContent().toArray()}</div>, 10);
-
-    return items;
-  }
-
-  /**
-   * List of items rendered inside the main page content container.
-   */
-  mainContent(): ItemList<Mithril.Children> {
-    const items = new ItemList<Mithril.Children>();
-
-    items.add('sidebar', this.sidebar(), 100);
-
-    items.add(
-      'poststream',
-      <div className="DiscussionPage-stream">
-        <this.PostStream discussion={this.discussion} stream={this.stream} onPositionChange={this.positionChanged.bind(this)} />
-      </div>,
-      10
-    );
-
-    return items;
   }
 
   /**

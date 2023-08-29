@@ -2,24 +2,25 @@ import app from 'flarum/forum/app';
 import type Mithril from 'mithril';
 import { extend, override } from 'flarum/common/extend';
 import IndexPage from 'flarum/forum/components/IndexPage';
+import IndexSidebar from 'flarum/forum/components/IndexSidebar';
 import DiscussionListState from 'flarum/forum/states/DiscussionListState';
 import GlobalSearchState from 'flarum/forum/states/GlobalSearchState';
 import classList from 'flarum/common/utils/classList';
 import textContrastClass from 'flarum/common/helpers/textContrastClass';
+import type { ComponentAttrs } from 'flarum/common/Component';
 
 import TagHero from './components/TagHero';
-import Tag from '../common/models/Tag';
-import { ComponentAttrs } from 'flarum/common/Component';
+import type Tag from '../common/models/Tag';
 
 const findTag = (slug: string) => app.store.all<Tag>('tags').find((tag) => tag.slug().localeCompare(slug, undefined, { sensitivity: 'base' }) === 0);
 
 export default function addTagFilter() {
-  IndexPage.prototype.currentTag = function () {
-    if (this.currentActiveTag) {
+  app.currentTag = function (reload?: boolean) {
+    if (this.currentActiveTag && !reload) {
       return this.currentActiveTag;
     }
 
-    const slug = app.search.params().tags;
+    const slug = this.search.params().tags;
     let tag = null;
 
     if (slug) {
@@ -37,7 +38,7 @@ export default function addTagFilter() {
       // a child tag page, then either:
       //    - We loaded in that child tag (and its siblings) in the API document
       //    - We first navigated to the current tag's parent, which would have loaded in the current tag's siblings.
-      app.store
+      this.store
         .find('tags', slug, { include: 'children,children.parent,parent,state' })
         .then(() => {
           this.currentActiveTag = findTag(slug);
@@ -54,12 +55,18 @@ export default function addTagFilter() {
       return this.currentActiveTag;
     }
 
+    this.currentActiveTag = undefined;
+
     return;
   };
 
+  extend(IndexPage.prototype, 'view', function (vdom: Mithril.Vnode<ComponentAttrs, {}>) {
+    app.currentTag(true);
+  });
+
   // If currently viewing a tag, insert a tag hero at the top of the view.
   override(IndexPage.prototype, 'hero', function (original) {
-    const tag = this.currentTag();
+    const tag = app.currentTag();
 
     if (tag) return <TagHero model={tag} />;
 
@@ -67,13 +74,13 @@ export default function addTagFilter() {
   });
 
   extend(IndexPage.prototype, 'view', function (vdom: Mithril.Vnode<ComponentAttrs, {}>) {
-    const tag = this.currentTag();
+    const tag = app.currentTag();
 
     if (tag) vdom.attrs.className += ' IndexPage--tag' + tag.id();
   });
 
   extend(IndexPage.prototype, 'setTitle', function () {
-    const tag = this.currentTag();
+    const tag = app.currentTag();
 
     if (tag) {
       app.setTitle(tag.name());
@@ -82,8 +89,8 @@ export default function addTagFilter() {
 
   // If currently viewing a tag, restyle the 'new discussion' button to use
   // the tag's color, and disable if the user isn't allowed to edit.
-  extend(IndexPage.prototype, 'sidebarItems', function (items) {
-    const tag = this.currentTag();
+  extend(IndexSidebar.prototype, 'items', function (items) {
+    const tag = app.currentTag();
 
     if (tag) {
       const color = tag.color();

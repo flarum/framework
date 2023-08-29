@@ -1,0 +1,35 @@
+.Page {
+  --content-width: 100%;
+  --sidebar-width: 190px;
+  --gap: 50px;
+
+  @media @desktop-up {
+    &-container {
+      display: flex;
+      gap: var(--gap);
+
+      &::before, &::after {
+        content: none;
+      }
+    }
+
+    &-content {
+      width: var(--content-width);
+    }
+
+    &-sidebar {
+      width: var(--sidebar-width);
+      flex-shrink: 0;
+    }
+
+    &-content, &-sidebar {
+      margin-top: 30px;
+    }
+  }
+
+  @media @phone, @tablet {
+    &-content {
+      margin-top: 15px;
+    }
+  }
+}
