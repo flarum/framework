@@ -41,7 +41,10 @@
 // --------------------------------------------------
 
 .Button {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   margin-bottom: 0; // For input.btn
   text-align: center;
   vertical-align: middle;
@@ -157,10 +160,6 @@
   font-weight: bold;
   padding-left: 20px;
   padding-right: 20px;
-
-  .Button-icon {
-    display: none;
-  }
 }
 .Button--inverted {
   .Button--color-auto('button-inverted');
@@ -177,7 +176,7 @@
   }
 }
 .Button--block {
-  display: block;
+  display: flex;
   width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -210,8 +209,11 @@
     .Avatar--size(24px);
   }
 }
+.Button-label {
+  line-height: inherit;
+}
 .Button-icon {
-  margin-right: 7px;
+  line-height: inherit;
 }
 .Button-icon,
 .Button-caret {
