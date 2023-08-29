@@ -61,18 +61,16 @@
   &:before {
     .fas();
     content: @fa-var-search;
-    float: left;
     margin-right: -36px;
     width: 36px;
     font-size: 14px;
     text-align: center;
-    position: relative;
+    position: absolute;
     padding: 8px 0;
     line-height: 1.5;
     pointer-events: none;
   }
   input {
-    float: left;
     width: 225px;
     padding-left: 32px;
     padding-right: 32px;
@@ -85,7 +83,9 @@
   }
 
   .Button {
-    float: left;
+    position: absolute;
+    right: 0;
+    top: 0;
     margin-left: -36px;
     width: 36px !important;
 
