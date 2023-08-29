@@ -3,7 +3,14 @@
 
 .PostStream-item {
   &:not(:last-child) {
-    border-bottom: 1px solid var(--control-bg);
+    &::after {
+      content: "";
+      display: block;
+      width: calc(~"100% - 40px");
+      height: 1px;
+      background-color: var(--control-bg);
+      margin: 0 auto;
+    }
 
     @media @phone {
       margin: 0 -15px;

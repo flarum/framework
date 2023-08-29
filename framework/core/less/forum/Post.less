@@ -3,7 +3,6 @@
 
 .Post {
   padding: 20px;
-  margin: -1px -20px;
   transition: 0.2s box-shadow, top 0.2s, opacity 0.2s;
   position: relative;
   top: 0;
@@ -18,7 +17,6 @@
 
 .Post-header {
   margin-bottom: 15px;
-  color: var(--muted-color);
 
   &, a {
     color: var(--muted-color);
@@ -33,6 +31,22 @@
       margin-right: 10px;
     }
   }
+
+  .UserCard {
+    position: absolute;
+    top: 15px;
+    left: 16px;
+    z-index: var(--zindex-dropdown);
+    transition: opacity 0.2s, transform 0.2s;
+    transform: scale(0.95);
+    transform-origin: left top;
+    opacity: 0;
+
+    &.in {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
 }
 .PostUser {
   margin: 0;
@@ -40,13 +54,9 @@
   font-weight: normal;
   position: relative;
 
-  // TODO: remove styles for h3 on Flarum 2.0 cleanup - they may be used by extensions, but they should target `.PostUser-name` class instead
-  h3,
   .PostUser-name {
     display: inline;
   }
-  // TODO: remove styles for h3 on Flarum 2.0 cleanup - they may be used by extensions, but they should target `.PostUser-name` class instead
-  h3, h3 a,
   .PostUser-name, .PostUser-name a {
     color: var(--heading-color);
     font-weight: bold;
@@ -61,22 +71,6 @@
     }
     & .fa-circle {
       color: var(--online-user-circle-color);
-    }
-  }
-
-  .UserCard {
-    position: absolute;
-    top: -10px;
-    left: -100px;
-    z-index: var(--zindex-dropdown);
-    transition: opacity 0.2s, transform 0.2s;
-    transform: scale(0.95);
-    transform-origin: left top;
-    opacity: 0;
-
-    &.in {
-      transform: scale(1);
-      opacity: 1;
     }
   }
 }
@@ -195,8 +189,6 @@
 
 .Post--hidden {
   .Post-header, .Post-header a,
-  // TODO: remove styles for h3 on Flarum 2.0 cleanup - they may be used by extensions, but they should target `.PostUser-name` class instead
-  .PostUser h3, .PostUser h3 a,
   .PostUser .PostUser-name, .PostUser .PostUser-name a {
     color: var(--muted-more-color);
   }
@@ -206,18 +198,14 @@
     }
     .Post-body,
     .Post-footer,
-    // TODO: remove styles for h3 on Flarum 2.0 cleanup - they may be used by extensions, but they should target `.PostUser-name` class instead
-    h3 .Avatar,
-    .PostUser-name .Avatar,
+    .Post-side > *,
     .PostUser-badges {
       display: none;
     }
   }
   .Post-body,
   .Post-footer,
-  // TODO: remove styles for h3 on Flarum 2.0 cleanup - they may be used by extensions, but they should target `.PostUser-name` class instead
-  h3 .Avatar,
-  .PostUser-name .Avatar,
+  .Post-side > *,
   .PostUser-badges {
     opacity: 0.5;
   }
@@ -406,27 +394,26 @@
 @avatar-column-width: 85px;
 
 @media @tablet-up {
-  .Post {
-    padding-left: 20px + @avatar-column-width;
+  .Post-container {
+    --avatar-column-width: 85px;
+    display: grid;
+    grid-template-columns: var(--avatar-column-width) 1fr;
   }
   .CommentPost:not(.Post--hidden), .ReplyPlaceholder {
     min-height: 64px + 40px; // avatar height + padding
   }
-  .PostUser-avatar {
-    left: -@avatar-column-width;
-    position: absolute;
+  .Post-avatar {
     .Avatar--size(64px);
   }
   .PostUser-badges {
     float: left;
     position: relative;
-    margin-left: -@avatar-column-width + 5px;
+    margin-left: calc(~"5px - var(--avatar-column-width)");
     margin-top: -3px;
     width: 64px;
   }
   .EventPost-icon {
     text-align: right;
-    margin-left: -@avatar-column-width;
     width: 64px;
     font-size: 22px;
   }
