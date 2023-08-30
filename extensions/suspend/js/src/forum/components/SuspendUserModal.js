@@ -6,6 +6,7 @@ import withAttr from 'flarum/common/utils/withAttr';
 import ItemList from 'flarum/common/utils/ItemList';
 
 import { getPermanentSuspensionDate } from '../helpers/suspensionHelper';
+import Form from '@flarum/core/src/common/components/Form';
 
 export default class SuspendUserModal extends Modal {
   oninit(vnode) {
@@ -40,18 +41,18 @@ export default class SuspendUserModal extends Modal {
   content() {
     return (
       <div className="Modal-body">
-        <div className="Form">
+        <Form>
           <div className="Form-group">
             <label>{app.translator.trans('flarum-suspend.forum.suspend_user.status_heading')}</label>
             <div>{this.formItems().toArray()}</div>
           </div>
 
-          <div className="Form-group">
+          <div className="Form-group Form-controls">
             <Button className="Button Button--primary" loading={this.loading} type="submit">
               {app.translator.trans('flarum-suspend.forum.suspend_user.submit_button')}
             </Button>
           </div>
-        </div>
+        </Form>
       </div>
     );
   }

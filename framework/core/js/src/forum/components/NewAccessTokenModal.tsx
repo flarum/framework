@@ -5,6 +5,7 @@ import Stream from '../../common/utils/Stream';
 import type AccessToken from '../../common/models/AccessToken';
 import type { SaveAttributes } from '../../common/Model';
 import type Mithril from 'mithril';
+import Form from '../../common/components/Form';
 
 export interface INewAccessTokenModalAttrs extends IInternalModalAttrs {
   onsuccess: (token: AccessToken) => void;
@@ -26,16 +27,16 @@ export default class NewAccessTokenModal<CustomAttrs extends INewAccessTokenModa
 
     return (
       <div className="Modal-body">
-        <div className="Form Form--centered">
+        <Form className="Form--centered">
           <div className="Form-group">
             <input type="text" className="FormControl" bidi={this.titleInput} placeholder={titleLabel} aria-label={titleLabel} />
           </div>
-          <div className="Form-group">
+          <div className="Form-group Form-controls">
             <Button className="Button Button--primary Button--block" type="submit" loading={this.loading}>
               {app.translator.trans('core.forum.security.new_access_token_modal.submit_button')}
             </Button>
           </div>
-        </div>
+        </Form>
       </div>
     );
   }

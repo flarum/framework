@@ -5,6 +5,7 @@ import ExtensionPage from 'flarum/admin/components/ExtensionPage';
 import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import withAttr from 'flarum/common/utils/withAttr';
+import Form from 'flarum/common/components/Form';
 
 import EditTagModal from './EditTagModal';
 import tagIcon from '../../common/helpers/tagIcon';
@@ -86,8 +87,7 @@ export default class TagsPage extends ExtensionPage {
                   {app.translator.trans('flarum-tags.admin.tags.create_secondary_tag_button')}
                 </Button>
               </div>
-              <div className="Form">
-                <label>{app.translator.trans('flarum-tags.admin.tags.settings_heading')}</label>
+              <Form label={app.translator.trans('flarum-tags.admin.tags.settings_heading')}>
                 <div className="Form-group">
                   <label>{app.translator.trans('flarum-tags.admin.tag_settings.required_primary_heading')}</label>
                   <div className="helpText">{app.translator.trans('flarum-tags.admin.tag_settings.required_primary_text')}</div>
@@ -118,8 +118,8 @@ export default class TagsPage extends ExtensionPage {
                     <input className="FormControl" type="number" min={minSecondaryTags()} bidi={maxSecondaryTags} />
                   </div>
                 </div>
-                <div className="Form-group">{this.submitButton()}</div>
-              </div>
+                <div className="Form-group Form-controls">{this.submitButton()}</div>
+              </Form>
             </div>
             <div className="TagsContent-footer">
               <p>{app.translator.trans('flarum-tags.admin.tags.about_tags_text')}</p>

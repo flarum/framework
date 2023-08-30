@@ -4,6 +4,7 @@ import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
 import type { IPageAttrs } from '../../common/components/Page';
 import type Mithril from 'mithril';
+import Form from '../../common/components/Form';
 
 export type HomePageItem = { path: string; label: Mithril.Children };
 
@@ -43,7 +44,7 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
 
   content() {
     return [
-      <div className="Form">
+      <Form>
         {this.buildSettingComponent({
           type: 'text',
           setting: 'forum_title',
@@ -121,8 +122,8 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
           return null;
         })}
 
-        {this.submitButton()}
-      </div>,
+        <div className="Form-group Form-controls">{this.submitButton()}</div>
+      </Form>,
     ];
   }
 

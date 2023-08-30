@@ -6,6 +6,7 @@ import type Post from 'flarum/common/models/Post';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Button from 'flarum/common/components/Button';
 import MentionedByModalState from '../state/MentionedByModalState';
+import Form from 'flarum/common/components/Form';
 
 export interface IMentionedByModalAttrs extends IInternalModalAttrs {
   post: Post;
@@ -58,13 +59,13 @@ export default class MentionedByModal<CustomAttrs extends IMentionedByModalAttrs
         </div>
         {this.state.hasNext() && (
           <div className="Modal-footer">
-            <div className="Form Form--centered">
+            <Form className="Form--centered">
               <div className="Form-group">
                 <Button className="Button Button--block" onclick={() => this.state.loadNext()} loading={this.state.isLoadingNext()}>
                   {app.translator.trans('flarum-mentions.forum.mentioned_by.load_more_button')}
                 </Button>
               </div>
-            </div>
+            </Form>
           </div>
         )}
       </>

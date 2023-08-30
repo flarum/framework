@@ -9,6 +9,7 @@ import type Mithril from 'mithril';
 import PostLikesModalState from '../states/PostLikesModalState';
 import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+import Form from 'flarum/common/components/Form';
 
 export interface IPostLikesModalAttrs extends IInternalModalAttrs {
   post: Post;
@@ -57,13 +58,13 @@ export default class PostLikesModal<CustomAttrs extends IPostLikesModalAttrs = I
         </div>
         {this.state.hasNext() ? (
           <div className="Modal-footer">
-            <div className="Form Form--centered">
+            <Form className="Form--centered">
               <div className="Form-group">
                 <Button className="Button Button--block" onclick={() => this.state.loadNext()} loading={this.state.isLoadingNext()}>
                   {app.translator.trans('flarum-likes.forum.post_likes.load_more_button')}
                 </Button>
               </div>
-            </div>
+            </Form>
           </div>
         ) : null}
       </>

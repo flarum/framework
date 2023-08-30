@@ -10,6 +10,7 @@ import ChangeEmailModal from './ChangeEmailModal';
 import listItems from '../../common/helpers/listItems';
 import extractText from '../../common/utils/extractText';
 import type Mithril from 'mithril';
+import classList from '../../common/utils/classList';
 
 /**
  * The `SettingsPage` component displays the user's settings control panel, in
@@ -45,7 +46,10 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
 
       items.add(
         section,
-        <FieldSet className={`Settings-${section}`} label={app.translator.trans(`core.forum.settings.${section}_heading`)}>
+        <FieldSet
+          className={classList(`Settings-${section}`, { 'FieldSet--col': section === 'account' })}
+          label={app.translator.trans(`core.forum.settings.${section}_heading`)}
+        >
           {this[sectionItems]().toArray()}
         </FieldSet>,
         100 - index * 10

@@ -4,7 +4,6 @@ import classList from '../utils/classList';
 import Mithril from 'mithril';
 
 export interface IFieldSetAttrs extends ComponentAttrs {
-  className?: string;
   label: string;
   description?: string;
 }

@@ -76,7 +76,7 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
       items.add(
         'globalLogout',
         <FieldSet
-          className="UserSecurityPage-globalLogout"
+          className="FieldSet--col UserSecurityPage-globalLogout"
           label={app.translator.trans('core.forum.security.global_logout.heading')}
           description={app.translator.trans('core.forum.security.global_logout.help_text')}
         >
@@ -123,20 +123,22 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
     if (this.user!.id() === app.session.user!.id()) {
       items.add(
         'newAccessToken',
-        <Button
-          className="Button"
-          disabled={!app.forum.attribute<boolean>('canCreateAccessToken')}
-          onclick={() =>
-            app.modal.show(NewAccessTokenModal, {
-              onsuccess: (token: AccessToken) => {
-                this.state.pushToken(token);
-                m.redraw();
-              },
-            })
-          }
-        >
-          {app.translator.trans('core.forum.security.new_access_token_button')}
-        </Button>
+        <div className="UserSecurityPage-controls">
+          <Button
+            className="Button"
+            disabled={!app.forum.attribute<boolean>('canCreateAccessToken')}
+            onclick={() =>
+              app.modal.show(NewAccessTokenModal, {
+                onsuccess: (token: AccessToken) => {
+                  this.state.pushToken(token);
+                  m.redraw();
+                },
+              })
+            }
+          >
+            {app.translator.trans('core.forum.security.new_access_token_button')}
+          </Button>
+        </div>
       );
     }
 
@@ -189,7 +191,7 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
         );
       }
 
-      items.add('terminateAllOtherSessions', terminateAllOthersButton);
+      items.add('terminateAllOtherSessions', <div className="UserSecurityPage-controls">{terminateAllOthersButton}</div>);
     }
 
     return items;
