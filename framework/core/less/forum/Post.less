@@ -2,7 +2,7 @@
 // Posts
 
 .Post {
-  padding: 20px;
+  padding: var(--post-padding) var(--post-padding) var(--post-padding) 0;
   transition: 0.2s box-shadow, top 0.2s, opacity 0.2s;
   position: relative;
   top: 0;
@@ -391,11 +391,8 @@
   }
 }
 
-@avatar-column-width: 85px;
-
 @media @tablet-up {
   .Post-container {
-    --avatar-column-width: 85px;
     display: grid;
     grid-template-columns: var(--avatar-column-width) 1fr;
   }

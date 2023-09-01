@@ -6,10 +6,10 @@
     &::after {
       content: "";
       display: block;
-      width: calc(~"100% - 40px");
+      width: calc(~"100% - var(--post-padding)");
       height: 1px;
       background-color: var(--control-bg);
-      margin: 0 auto;
+      margin-right: auto;
     }
 
     @media @phone {
@@ -50,7 +50,7 @@
   text-transform: uppercase;
   font-weight: bold;
   color: var(--muted-color);
-  padding: 20px 20px 20px @avatar-column-width;
+  padding: 20px 20px 20px calc(~"var(--avatar-column-width) + 20px");
   font-size: 12px;
 
   @media @phone {

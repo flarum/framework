@@ -1,6 +1,9 @@
 .Post--flagged {
+  --border-width: 2px;
   padding-top: 0 !important;
-  border: 2px solid @primary-color;
+  padding-left: var(--post-padding);
+  margin-left: calc(~"0px - var(--post-padding)");
+  border: var(--border-width) solid @primary-color;
 }
 
 .Post-header .item-flagged {
@@ -9,10 +12,10 @@
 }
 .Post-flagged {
   background: @primary-color;
-  margin-top: -2px;
-  margin-bottom: 20px;
-  margin-left: -22px;
-  margin-right: -22px;
+  margin-top: calc(~"0px - var(--border-width)");
+  margin-bottom: var(--post-padding);
+  margin-left: calc(~"0px - var(--border-width) - var(--post-padding)");
+  margin-right: calc(~"0px - var(--border-width) - var(--post-padding)");
   padding: 10px;
   border-radius: @border-radius @border-radius 0 0;
   overflow: hidden;
