@@ -295,7 +295,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
           <Switch state={!!value && value !== '0'} onchange={this.settings[setting]} {...componentAttrs}>
             {label}
           </Switch>
-          <div className="helpText">{help}</div>
+          {help ? <div className="helpText">{help}</div> : null}
         </div>
       );
     } else if ((SelectSettingTypes as readonly string[]).includes(type)) {
@@ -334,9 +334,11 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
     return (
       <div className="Form-group">
         {label && <label for={inputId}>{label}</label>}
-        <div id={helpTextId} className="helpText">
-          {help}
-        </div>
+        {help && (
+          <div id={helpTextId} className="helpText">
+            {help}
+          </div>
+        )}
         {settingElement}
       </div>
     );

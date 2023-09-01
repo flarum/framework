@@ -3,6 +3,7 @@ import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
 import Button from '../../common/components/Button';
 import Mithril from 'mithril';
 import ItemList from '../../common/utils/ItemList';
+import Form from '../../common/components/Form';
 
 /**
  * The `ChangePasswordModal` component shows a modal dialog which allows the
@@ -20,7 +21,7 @@ export default class ChangePasswordModal<CustomAttrs extends IInternalModalAttrs
   content() {
     return (
       <div className="Modal-body">
-        <div className="Form Form--centered">{this.fields().toArray()}</div>
+        <Form className="Form--centered">{this.fields().toArray()}</Form>
       </div>
     );
   }
@@ -32,7 +33,7 @@ export default class ChangePasswordModal<CustomAttrs extends IInternalModalAttrs
 
     fields.add(
       'submit',
-      <div className="Form-group">
+      <div className="Form-group Form-controls">
         <Button className="Button Button--primary Button--block" type="submit" loading={this.loading}>
           {app.translator.trans('core.forum.change_password.send_button')}
         </Button>

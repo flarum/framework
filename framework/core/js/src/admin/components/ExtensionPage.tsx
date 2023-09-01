@@ -17,6 +17,7 @@ import { Extension } from '../AdminApplication';
 import { IPageAttrs } from '../../common/components/Page';
 import type Mithril from 'mithril';
 import extractText from '../../common/utils/extractText';
+import Form from '../../common/components/Form';
 
 export interface ExtensionPageAttrs extends IPageAttrs {
   id: string;
@@ -139,10 +140,10 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
       <div className="ExtensionPage-settings">
         <div className="container">
           {settings ? (
-            <div className="Form">
+            <Form>
               {settings.map(this.buildSettingComponent.bind(this))}
-              <div className="Form-group">{this.submitButton()}</div>
-            </div>
+              <div className="Form-group Form-controls">{this.submitButton()}</div>
+            </Form>
           ) : (
             <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_settings')}</h3>
           )}

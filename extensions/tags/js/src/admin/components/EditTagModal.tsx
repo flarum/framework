@@ -5,12 +5,12 @@ import ColorPreviewInput from 'flarum/common/components/ColorPreviewInput';
 import ItemList from 'flarum/common/utils/ItemList';
 import { slug } from 'flarum/common/utils/string';
 import Stream from 'flarum/common/utils/Stream';
+import extractText from 'flarum/common/utils/extractText';
+import Form from 'flarum/common/components/Form';
+import type Mithril from 'mithril';
 
 import tagLabel from '../../common/helpers/tagLabel';
-import type Mithril from 'mithril';
 import type Tag from '../../common/models/Tag';
-import extractText from 'flarum/common/utils/extractText';
-import { ModelIdentifier } from 'flarum/common/Model';
 
 export interface EditTagModalAttrs extends IInternalModalAttrs {
   primary?: boolean;
@@ -59,7 +59,7 @@ export default class EditTagModal extends Modal<EditTagModalAttrs> {
   content() {
     return (
       <div className="Modal-body">
-        <div className="Form">{this.fields().toArray()}</div>
+        <Form>{this.fields().toArray()}</Form>
       </div>
     );
   }
@@ -139,7 +139,7 @@ export default class EditTagModal extends Modal<EditTagModalAttrs> {
 
     items.add(
       'submit',
-      <div className="Form-group">
+      <div className="Form-group Form-controls">
         <Button type="submit" className="Button Button--primary EditTagModal-save" loading={this.loading}>
           {app.translator.trans('flarum-tags.admin.edit_tag.submit_button')}
         </Button>
