@@ -19,16 +19,20 @@ export default class ReplyPlaceholder extends Component {
     if (app.composer.composingReplyTo(this.attrs.discussion)) {
       return (
         <article className="Post CommentPost editing" aria-busy="true">
-          <header className="Post-header">
-            <div className="PostUser">
-              <h3 className="PostUser-name">
-                {avatar(app.session.user, { className: 'PostUser-avatar' })}
-                {username(app.session.user)}
-              </h3>
-              <ul className="PostUser-badges badges">{listItems(app.session.user.badges().toArray())}</ul>
+          <div className="Post-container">
+            <div className="Post-side">{avatar(app.session.user, { className: 'Post-avatar' })}</div>
+            <div className="Post-main">
+              <header className="Post-header">
+                <div className="PostUser">
+                  <h3 className="PostUser-name">{username(app.session.user)}</h3>
+                  <ul className="PostUser-badges badges">{listItems(app.session.user.badges().toArray())}</ul>
+                </div>
+              </header>
+              <div className="Post-body">
+                <ComposerPostPreview className="Post-body" composer={app.composer} surround={this.anchorPreview.bind(this)} />
+              </div>
             </div>
-          </header>
-          <ComposerPostPreview className="Post-body" composer={app.composer} surround={this.anchorPreview.bind(this)} />
+          </div>
         </article>
       );
     }
@@ -39,9 +43,12 @@ export default class ReplyPlaceholder extends Component {
 
     return (
       <button className="Post ReplyPlaceholder" onclick={reply}>
-        <span className="Post-header">
-          {avatar(app.session.user, { className: 'PostUser-avatar' })} {app.translator.trans('core.forum.post_stream.reply_placeholder')}
-        </span>
+        <div className="Post-container">
+          <div className="Post-side">{avatar(app.session.user, { className: 'Post-avatar' })}</div>
+          <div className="Post-main">
+            <span className="Post-header">{app.translator.trans('core.forum.post_stream.reply_placeholder')}</span>
+          </div>
+        </div>
       </button>
     );
   }
