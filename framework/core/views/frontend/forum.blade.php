@@ -26,6 +26,8 @@
     </div>
 
     <main class="App-content">
+        <div id="notices"></div>
+
         <div id="content"></div>
 
         {!! $content !!}
