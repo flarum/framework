@@ -1,4 +1,4 @@
-.NotificationList {
+.HeaderList {
   overflow: hidden;
 
   .App-primaryControl > button:not(:last-of-type) {
@@ -28,7 +28,7 @@
       padding: 0;
       text-decoration: none;
 
-      // The NotificationList may be displayed inside of the drawer as a
+      // The HeaderList may be displayed inside of the drawer as a
       // dropdown menu – but the drawer may have .light-contents() applied to
       // it. In this case we will need to reset the button's styles back to
       // normal.
@@ -59,7 +59,7 @@
   }
 }
 
-.NotificationGroup {
+.HeaderListGroup {
   border-top: 1px solid var(--control-bg);
   margin-top: -1px;
 
@@ -69,7 +69,6 @@
 
   &-header {
     font-weight: bold;
-    color: var(--heading-color) !important;
     padding: 8px 16px;
     white-space: nowrap;
 
@@ -82,6 +81,9 @@
     &, span {
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+    &, a {
+      color: var(--heading-color) !important;
     }
   }
 
@@ -105,7 +107,7 @@
   }
 }
 
-.Notification {
+.HeaderListItem {
   padding: 8px 16px;
   color: var(--muted-color) !important; // required to override .light-contents applied to header
   overflow: hidden;
@@ -114,7 +116,7 @@
   grid-template-columns: auto auto 1fr auto;
 
   grid-template-areas:
-    "avatar icon title   button"
+    "avatar icon title   actions"
     "x      x    excerpt excerpt";
 
   align-items: baseline;
@@ -134,7 +136,7 @@
     text-decoration: none;
     background: var(--control-bg);
 
-    .Notification-action {
+    .HeaderListItem-actions > .Button {
       opacity: 1;
     }
   }
@@ -175,37 +177,37 @@
     }
   }
 
-  time {
-    line-height: inherit;
+  &-time {
     font-size: 11px;
     line-height: 19px;
     font-weight: bold;
     text-transform: uppercase;
   }
 
-  &-action {
-    line-height: inherit;
-    padding: 0;
-    opacity: 0;
+  &-actions {
+    grid-area: actions;
 
-    .add-keyboard-focus-ring();
-    .add-keyboard-focus-ring-offset(4px);
+    > .Button {
+      line-height: inherit;
+      padding: 0;
+      opacity: 0;
 
-    grid-area: button;
+      .add-keyboard-focus-ring();
+      .add-keyboard-focus-ring-offset(4px);
 
-    // Needs more specificity to fix hover/focus styles not applying in dropdown
-    .Notification & when (@config-colored-header = true) {
-      color: var(--control-color);
+      // Needs more specificity to fix hover/focus styles not applying in dropdown
+      .HeaderListItem & when (@config-colored-header = true) {
+        color: var(--control-color);
 
-      &:hover,
-      &:focus {
-        color: var(--link-color);
+        &:hover,
+        &:focus {
+          color: var(--link-color);
+        }
       }
-    }
 
-    .icon {
-      font-size: 13px;
-      margin-right: 0;
+      .icon {
+        font-size: 13px;
+      }
     }
   }
 
