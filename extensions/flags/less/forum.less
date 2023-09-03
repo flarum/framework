@@ -12,24 +12,21 @@
 }
 .Post-flagged {
   background: var(--primary-color);
-  margin-top: calc(~"0px - var(--border-width)");
-  margin-bottom: var(--post-padding);
-  margin-left: calc(~"0px - var(--border-width) - var(--post-padding)");
-  margin-right: calc(~"0px - var(--border-width) - var(--post-padding)");
+  margin: calc(~"0px - var(--border-width)") calc(~"0px - var(--border-width) - var(--post-padding)") var(--post-padding);
   padding: 10px;
   border-radius: var(--border-radius) var(--border-radius) 0 0;
   overflow: hidden;
   .light-contents(@color: @body-bg; @control-color: @body-bg);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
   &, a {
     color: var(--body-bg) !important;
   }
 }
 .Post-flagged-flags {
-  @media @tablet-up {
-    float: left;
-  }
-
   font-size: 14px;
   margin: 7px 10px;
   text-align: left;
@@ -41,12 +38,10 @@
   font-weight: normal;
 }
 .Post-flagged-actions {
-  @media @tablet-up {
-    float: right;
-  }
-}
-.Post-flagged-actions .Button {
-  margin-left: 5px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 
 .FlagPostModal {
