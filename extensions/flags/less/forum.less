@@ -3,7 +3,7 @@
   padding-top: 0 !important;
   padding-left: var(--post-padding);
   margin-left: calc(~"0px - var(--post-padding)");
-  border: var(--border-width) solid @primary-color;
+  border: var(--border-width) solid var(--primary-color);
 }
 
 .Post-header .item-flagged {
@@ -11,18 +11,18 @@
   margin: 0;
 }
 .Post-flagged {
-  background: @primary-color;
+  background: var(--primary-color);
   margin-top: calc(~"0px - var(--border-width)");
   margin-bottom: var(--post-padding);
   margin-left: calc(~"0px - var(--border-width) - var(--post-padding)");
   margin-right: calc(~"0px - var(--border-width) - var(--post-padding)");
   padding: 10px;
-  border-radius: @border-radius @border-radius 0 0;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
   overflow: hidden;
   .light-contents(@color: @body-bg; @control-color: @body-bg);
 
   &, a {
-    color: @body-bg !important;
+    color: var(--body-bg) !important;
   }
 }
 .Post-flagged-flags {
@@ -58,7 +58,7 @@
 
     strong {
       display: block;
-      color: @text-color;
+      color: var(--text-color);
     }
   }
 }
