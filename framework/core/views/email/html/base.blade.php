@@ -48,12 +48,19 @@
 <body>
 
 <div class="header">
-    <!-- Email Header -->
+    <div class="Header-title">
+        <a href="{{ $url->to('forum')->base() }}" id="home-link">
+            @if ($settings->get('logo_path'))
+                <img src="{{ $url->to('forum')->base() . '/assets/' . $settings->get('logo_path') }}" alt="{{ $settings->get('forum_title') }}" class="Header-logo">
+            @else
+                {{ $settings->get('forum_title') }}
+            @endif
+        </a>
+    </div>
     @yield('header')
 </div>
 
 <div class="content">
-    <!-- Main Email Content -->
     <div class="greeting">
         <p>{!! $translator->trans('core.email.greeting', ['displayName' => $username]) !!}</p>
     </div>
@@ -66,7 +73,6 @@
 </div>
 
 <div class="footer">
-    <!-- Email Footer -->
     @yield('footer')
 </div>
 
