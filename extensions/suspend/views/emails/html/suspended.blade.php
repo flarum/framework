@@ -1,8 +1,12 @@
 @extends('flarum.forum::email.html.information.base')
 
 @section('content')
-{!! nl2br(e($translator->trans('flarum-suspend.email.suspended.body', [
+{!! $html->render($translator->trans('flarum-suspend.email.suspended.html.body', [
 '{recipient_display_name}' => $user->display_name,
-'{suspension_message}' => $blueprint->user->suspend_message ?? $translator->trans('flarum-suspend.email.no_reason_given'),
-]))) !!}
+'{forumTitle}' => $settings->get('forum_title')
+])) !!}
+@endsection
+
+@section('contentPreview')
+    {!! $html->render(($blueprint->user->suspend_message ?? $translator->trans('flarum-suspend.email.no_reason_given'))) !!}
 @endsection

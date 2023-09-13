@@ -1,7 +1,7 @@
 @extends('flarum.forum::email.plain.notification.base')
 
 @section('content')
-{!! $translator->trans('flarum-subscriptions.email.new_post.body', [
+{!! $translator->trans('flarum-subscriptions.email.new_post.plain.body', [
 '{recipient_display_name}' => $user->display_name,
 '{poster_display_name}' => $blueprint->post->user->display_name,
 '{title}' => $blueprint->post->discussion->title,

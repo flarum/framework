@@ -747,8 +747,8 @@ core:
 
   # Translations in this namespace are used in emails sent by the forum.
   email:
-    greeting: "Hey {displayName}!"
-    signoff: "{forumTitle} team"
+    greeting: "Hey {displayName},"
+    signoff: "The {forumTitle} team"
 
     # These translations are used by the "informational" email template.
     informational:
@@ -761,7 +761,9 @@ core:
         footer:
           main_text: "This email was sent to {email} because you are subscribed to \"{type}\" notifications on {forumTitle}."
           unsubscribe_text: "If you'd like to stop receiving this type of notification, <a href=\"{unsubscribeLink}\">unsubscribe here</a>."
+          unsubscribe_text_plain: "If you'd like to stop receiving this type of notification, unsubscribe here: {unsubscribeLink}"
           settings_text: "Manage your notification settings <a href=\"{settingsLink}\">here</a>."
+          settings_text_plain: "Manage your notification settings <a href=\"{settingsLink}\">here</a>."
 
     # These translations are used in emails sent when users register new accounts.
     activate_account:

@@ -1,7 +1,7 @@
 @extends('flarum.forum::email.plain.notification.base')
 
 @section('content')
-{!! $translator->trans('flarum-mentions.email.group_mentioned.body', [
+{!! $translator->trans('flarum-mentions.email.group_mentioned.plain.body', [
 '{recipient_display_name}' => $user->display_name,
 '{mentioner_display_name}' => $blueprint->post->user->display_name,
 '{title}' => $blueprint->post->discussion->title,

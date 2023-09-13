@@ -9,9 +9,9 @@
 @endsection
 
 @section('footer')
-This email was sent to {{ $user->email }} because you are subcribed to "{{ $type }}" notifications on {{ $forumTitle }}.
+{!! $translator->trans('core.email.notification.footer.main_text', ['email' => $user->email, 'type' => $type, 'forumTitle' => $forumTitle]) !!}
 
-If you'd like to stop receiving this type of notification, unsubscribe here: {{ $unsubscribeLink }}
+{!! $translator->trans('core.email.notification.footer.unsubscribe_text_plain', ['unsubscribeLink' => $unsubscribeLink]) !!}
 
-Manage your notification settings: {{ $settingsLink }}
+{!! $translator->trans('core.email.notification.footer.settings_text_plain', ['settingsLink' => $settingsLink]) !!}
 @endsection

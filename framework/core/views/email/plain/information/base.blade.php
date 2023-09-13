@@ -9,5 +9,5 @@
 @endsection
 
 @section('footer')
-This email was sent to {{ $userEmail}} as an informational service related to your account on {{ $forumTitle }}.
+{!! $translator->trans('core.email.informational.footer', ['userEmail' => $userEmail, 'forumTitle' => $forumTitle]) !!}
 @endsection

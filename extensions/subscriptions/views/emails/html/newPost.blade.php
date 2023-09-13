@@ -1,15 +1,14 @@
 @extends('flarum.forum::email.html.notification.base')
 
 @section('notificationContent')
-{!! nl2br(e($translator->trans('flarum-subscriptions.email.new_post.body', [
+{!! $html->render($translator->trans('flarum-subscriptions.email.new_post.html.body', [
 '{recipient_display_name}' => $user->display_name,
 '{poster_display_name}' => $blueprint->post->user->display_name,
 '{title}' => $blueprint->post->discussion->title,
-'{url}' => $url->to('forum')->route('discussion', ['id' => $blueprint->post->discussion_id, 'near' => $blueprint->post->number]),
-'{content}' => $blueprint->post->content
-]))) !!}
+'{url}' => $url->to('forum')->route('discussion', ['id' => $blueprint->post->discussion_id, 'near' => $blueprint->post->number])
+])) !!}
 @endsection
 
 @section('contentPreview')
-    {!! $blueprint->renderContent($blueprint->post->content) !!}
+    {!! $html->render($blueprint->post->content) !!}
 @endsection

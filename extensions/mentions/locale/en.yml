@@ -70,34 +70,43 @@ flarum-mentions:
     # These translations are used in emails sent when a post is replied to
     post_mentioned:
       subject: "{replier_display_name} replied to your post in {title}"
-      body: |
-        {replier_display_name} replied to your post (#{post_number}) in {title}.
+      plain:
+        body: |
+          {replier_display_name} replied to your post (#{post_number}) in {title}.
 
-        {url}
+          {url}
 
-        ---
+          ---
 
-        {content}
+          {content}
+      html:
+        body: "{replier_display_name} replied to your post (#{post_number}) in [{title}]({url})."
 
     # These translations are used in emails sent when a user is mentioned
     user_mentioned:
       subject: "{mentioner_display_name} mentioned you in {title}"
-      body: |
-        {mentioner_display_name} mentioned you in a post in {title}.
+      plain:
+        body: |
+          {mentioner_display_name} mentioned you in a post in {title}.
 
-        {url}
+          {url}
 
-        ---
+          ---
 
-        {content}
+          {content}
+      html:
+        body: "{mentioner_display_name} mentioned you in a post in [{title}]({url})."
     # These translations are used in emails sent when a group is mentioned
     group_mentioned:
       subject: "{mentioner_display_name} mentioned a group you're a member of in {title}"
-      body: |
-        {mentioner_display_name} mentioned a group you're a member of in {title}.
+      plain:
+        body: |
+          {mentioner_display_name} mentioned a group you're a member of in {title}.
 
-        {url}
+          {url}
 
-        ---
+          ---
 
-        {content}
+          {content}
+      html:
+        body: "{mentioner_display_name} mentioned a group you're a member of in [{title}]({url})."

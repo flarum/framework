@@ -13,14 +13,11 @@ use Flarum\Database\AbstractModel;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\MailableInterface;
-use Flarum\Notification\RendersContent;
 use Flarum\Post\Post;
 use Flarum\User\User;
 
 class PostMentionedBlueprint implements BlueprintInterface, MailableInterface
 {
-    use RendersContent;
-
     public function __construct(
         public Post $post,
         public Post $reply
