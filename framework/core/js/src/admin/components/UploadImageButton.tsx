@@ -1,35 +1,45 @@
 import app from '../../admin/app';
 import Button from '../../common/components/Button';
+import type { IButtonAttrs } from '../../common/components/Button';
 import classList from '../../common/utils/classList';
+import type Mithril from 'mithril';
+import Component from '../../common/Component';
 
-export default class UploadImageButton extends Button {
+export interface IUploadImageButtonAttrs extends IButtonAttrs {
+  name: string;
+}
+
+export default class UploadImageButton<CustomAttrs extends IUploadImageButtonAttrs = IUploadImageButtonAttrs> extends Component<CustomAttrs> {
   loading = false;
 
-  view(vnode) {
-    this.attrs.loading = this.loading;
-    this.attrs.className = classList(this.attrs.className, 'Button');
+  view(vnode: Mithril.Vnode<CustomAttrs, this>) {
+    const { name, ...attrs } = vnode.attrs as IButtonAttrs;
 
-    if (app.data.settings[this.attrs.name + '_path']) {
-      this.attrs.onclick = this.remove.bind(this);
+    attrs.loading = this.loading;
+    attrs.className = classList(attrs.className, 'Button');
 
+    if (app.data.settings[name + '_path']) {
       return (
         <div>
           <p>
-            <img src={app.forum.attribute(this.attrs.name + 'Url')} alt="" />
+            <img src={app.forum.attribute(name + 'Url')} alt="" />
           </p>
-          <p>{super.view({ ...vnode, children: app.translator.trans('core.admin.upload_image.remove_button') })}</p>
+          <p>
+            <Button onclick={this.remove.bind(this)} {...attrs}>
+              {app.translator.trans('core.admin.upload_image.remove_button')}
+            </Button>
+          </p>
         </div>
       );
-    } else {
-      this.attrs.onclick = this.upload.bind(this);
     }
 
-    return super.view({ ...vnode, children: app.translator.trans('core.admin.upload_image.upload_button') });
+    return (
+      <Button onclick={this.upload.bind(this)} {...attrs}>
+        {app.translator.trans('core.admin.upload_image.upload_button')}
+      </Button>
+    );
   }
 
-  /**
-   * Prompt the user to upload an image.
-   */
   upload() {
     if (this.loading) return;
 
@@ -41,6 +51,7 @@ export default class UploadImageButton extends Button {
       .trigger('click')
       .on('change', (e) => {
         const body = new FormData();
+        // @ts-ignore
         body.append(this.attrs.name, $(e.target)[0].files[0]);
 
         this.loading = true;
@@ -57,9 +68,6 @@ export default class UploadImageButton extends Button {
       });
   }
 
-  /**
-   * Remove the logo.
-   */
   remove() {
     this.loading = true;
     m.redraw();
@@ -78,21 +86,15 @@ export default class UploadImageButton extends Button {
 
   /**
    * After a successful upload/removal, reload the page.
-   *
-   * @param {object} response
-   * @protected
    */
-  success(response) {
+  protected success(response: any) {
     window.location.reload();
   }
 
   /**
    * If upload/removal fails, stop loading.
-   *
-   * @param {object} response
-   * @protected
    */
-  failure(response) {
+  protected failure(response: any) {
     this.loading = false;
     m.redraw();
   }
