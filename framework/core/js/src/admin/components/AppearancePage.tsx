@@ -37,13 +37,13 @@ export default class AppearancePage extends AdminPage {
           <div className="Form-group">
             <label>{app.translator.trans('core.admin.appearance.logo_heading')}</label>
             <div className="helpText">{app.translator.trans('core.admin.appearance.logo_text')}</div>
-            <UploadImageButton name="logo" />
+            <UploadImageButton name="logo" routePath="logo" value={app.data.settings.logo_path} url={app.forum.attribute('logoUrl')} />
           </div>
 
           <div className="Form-group">
             <label>{app.translator.trans('core.admin.appearance.favicon_heading')}</label>
             <div className="helpText">{app.translator.trans('core.admin.appearance.favicon_text')}</div>
-            <UploadImageButton name="favicon" />
+            <UploadImageButton name="favicon" routePath="favicon" value={app.data.settings.favicon_path} url={app.forum.attribute('faviconUrl')} />
           </div>
 
           <div className="Form-group">

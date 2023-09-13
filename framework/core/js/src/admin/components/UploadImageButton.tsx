@@ -7,36 +7,37 @@ import Component from '../../common/Component';
 
 export interface IUploadImageButtonAttrs extends IButtonAttrs {
   name: string;
+  routePath: string;
+  value?: string | null;
+  url?: string | null;
 }
 
 export default class UploadImageButton<CustomAttrs extends IUploadImageButtonAttrs = IUploadImageButtonAttrs> extends Component<CustomAttrs> {
   loading = false;
 
   view(vnode: Mithril.Vnode<CustomAttrs, this>) {
-    const { name, ...attrs } = vnode.attrs as IButtonAttrs;
+    const { name, value, url, ...attrs } = vnode.attrs as IButtonAttrs;
 
     attrs.loading = this.loading;
     attrs.className = classList(attrs.className, 'Button');
 
-    if (app.data.settings[name + '_path']) {
-      return (
-        <div>
-          <p>
-            <img src={app.forum.attribute(name + 'Url')} alt="" />
-          </p>
-          <p>
+    return (
+      <div className="UploadImageButton">
+        {value ? (
+          <>
+            <div className="UploadImageButton-image">
+              <img src={url} alt={name} />
+            </div>
             <Button onclick={this.remove.bind(this)} {...attrs}>
               {app.translator.trans('core.admin.upload_image.remove_button')}
             </Button>
-          </p>
-        </div>
-      );
-    }
-
-    return (
-      <Button onclick={this.upload.bind(this)} {...attrs}>
-        {app.translator.trans('core.admin.upload_image.upload_button')}
-      </Button>
+          </>
+        ) : (
+          <Button onclick={this.upload.bind(this)} {...attrs}>
+            {app.translator.trans('core.admin.upload_image.upload_button')}
+          </Button>
+        )}
+      </div>
     );
   }
 
@@ -81,7 +82,7 @@ export default class UploadImageButton<CustomAttrs extends IUploadImageButtonAtt
   }
 
   resourceUrl() {
-    return app.forum.attribute('apiUrl') + '/' + this.attrs.name;
+    return app.forum.attribute('apiUrl') + '/' + this.attrs.routePath;
   }
 
   /**
