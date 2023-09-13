@@ -6,7 +6,7 @@ import classList from '../../common/utils/classList';
 import type Mithril from 'mithril';
 import HeaderListItem from './HeaderListItem';
 import ItemList from '../../common/utils/ItemList';
-import Avatar from "../../common/components/Avatar";
+import Avatar from '../../common/components/Avatar';
 
 export interface INotificationAttrs extends ComponentAttrs {
   notification: NotificationModel;
@@ -25,7 +25,7 @@ export default abstract class Notification<CustomAttrs extends INotificationAttr
     return (
       <HeaderListItem
         className={classList('Notification', `Notification--${notification.contentType()}`, [!notification.isRead() && 'unread'])}
-        avatar=<Avatar user={fromUser || null}/>
+        avatar={<Avatar user={fromUser || null} />}
         icon={this.icon()}
         content={this.content()}
         excerpt={this.excerpt()}
