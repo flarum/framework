@@ -1,7 +1,6 @@
 import app from '../../forum/app';
 import Component, { ComponentAttrs } from '../../common/Component';
 import Link from '../../common/components/Link';
-import avatar from '../../common/helpers/avatar';
 import listItems from '../../common/helpers/listItems';
 import highlight from '../../common/helpers/highlight';
 import humanTime from '../../common/utils/humanTime';
@@ -20,6 +19,7 @@ import type Discussion from '../../common/models/Discussion';
 import type Mithril from 'mithril';
 import type { DiscussionListParams } from '../states/DiscussionListState';
 import Icon from '../../common/components/Icon';
+import Avatar from '../../common/components/Avatar';
 
 export interface IDiscussionListItemAttrs extends ComponentAttrs {
   discussion: Discussion;
@@ -149,7 +149,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
         position="right"
       >
         <Link className="DiscussionListItem-author-avatar" href={user ? app.route.user(user) : '#'}>
-          {avatar(user || null, { title: '' })}
+          <Avatar user={user || null} title="" />
         </Link>
       </Tooltip>,
       100

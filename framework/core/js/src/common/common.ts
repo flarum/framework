@@ -70,7 +70,7 @@ import './components/TextEditorButton';
 import './components/Tooltip';
 
 import './helpers/fullTime';
-import './helpers/avatar';
+import './components/Avatar';
 import './helpers/humanTime';
 import './helpers/punctuateSeries';
 import './helpers/highlight';

@@ -3,7 +3,6 @@ import Component from '../../common/Component';
 import humanTime from '../../common/utils/humanTime';
 import ItemList from '../../common/utils/ItemList';
 import UserControls from '../utils/UserControls';
-import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
 import Dropdown from '../../common/components/Dropdown';
 import Link from '../../common/components/Link';
@@ -11,6 +10,7 @@ import AvatarEditor from './AvatarEditor';
 import listItems from '../../common/helpers/listItems';
 import classList from '../../common/utils/classList';
 import Icon from '../../common/components/Icon';
+import Avatar from '../../common/components/Avatar';
 
 /**
  * The `UserCard` component displays a user's profile card. This is used both on
@@ -57,7 +57,9 @@ export default class UserCard extends Component {
       <AvatarEditor user={user} className="UserCard-avatar" />
     ) : (
       <Link href={app.route.user(user)}>
-        <div className="UserCard-avatar">{avatar(user, { loading: 'eager' })}</div>
+        <div className="UserCard-avatar">
+          <Avatar user={user} loading="eager" />
+        </div>
       </Link>
     );
   }

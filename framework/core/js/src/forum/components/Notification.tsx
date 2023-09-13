@@ -1,12 +1,12 @@
 import app from '../../forum/app';
 import type NotificationModel from '../../common/models/Notification';
 import Component, { ComponentAttrs } from '../../common/Component';
-import avatar from '../../common/helpers/avatar';
 import Button from '../../common/components/Button';
 import classList from '../../common/utils/classList';
 import type Mithril from 'mithril';
 import HeaderListItem from './HeaderListItem';
 import ItemList from '../../common/utils/ItemList';
+import Avatar from "../../common/components/Avatar";
 
 export interface INotificationAttrs extends ComponentAttrs {
   notification: NotificationModel;
@@ -25,7 +25,7 @@ export default abstract class Notification<CustomAttrs extends INotificationAttr
     return (
       <HeaderListItem
         className={classList('Notification', `Notification--${notification.contentType()}`, [!notification.isRead() && 'unread'])}
-        avatar={avatar(fromUser || null)}
+        avatar=<Avatar user={fromUser || null}/>
         icon={this.icon()}
         content={this.content()}
         excerpt={this.excerpt()}

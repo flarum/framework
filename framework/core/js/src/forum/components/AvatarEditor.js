@@ -1,12 +1,12 @@
 import app from '../../forum/app';
 import Component from '../../common/Component';
-import avatar from '../../common/helpers/avatar';
 import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
 import classList from '../../common/utils/classList';
 import Button from '../../common/components/Button';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Icon from '../../common/components/Icon';
+import Avatar from '../../common/components/Avatar';
 
 /**
  * The `AvatarEditor` component displays a user's avatar along with a dropdown
@@ -41,7 +41,7 @@ export default class AvatarEditor extends Component {
 
     return (
       <div className={classList(['AvatarEditor', 'Dropdown', this.attrs.className, this.loading && 'loading', this.isDraggedOver && 'dragover'])}>
-        {avatar(user, { loading: 'eager' })}
+        <Avatar user={user} loading="eager" />
         <a
           className={user.avatarUrl() ? 'Dropdown-toggle' : 'Dropdown-toggle AvatarEditor--noAvatar'}
           title={app.translator.trans('core.forum.user.avatar_upload_tooltip')}

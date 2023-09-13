@@ -1,7 +1,7 @@
 import app from 'flarum/forum/app';
 import Component from 'flarum/common/Component';
 import type { ComponentAttrs } from 'flarum/common/Component';
-import avatar from 'flarum/common/helpers/avatar';
+import Avatar from 'flarum/common/components/Avatar';
 import username from 'flarum/common/helpers/username';
 import HeaderList from 'flarum/forum/components/HeaderList';
 import HeaderListItem from 'flarum/forum/components/HeaderListItem';
@@ -39,7 +39,7 @@ export default class FlagList<CustomAttrs extends IFlagListAttrs = IFlagListAttr
                 <li>
                   <HeaderListItem
                     className="Flag"
-                    avatar={avatar(post.user() || null)}
+                    avatar={<Avatar user={post.user() || null} />}
                     icon="fas fa-flag"
                     content={app.translator.trans('flarum-flags.forum.flagged_posts.item_text', {
                       username: username(post.user()),
