@@ -8,18 +8,26 @@ import Component from '../../common/Component';
 export interface IUploadImageButtonAttrs extends IButtonAttrs {
   name: string;
   routePath: string;
-  value?: string | null;
-  url?: string | null;
+  value?: string | null | (() => string | null);
+  url?: string | null | (() => string | null);
 }
 
 export default class UploadImageButton<CustomAttrs extends IUploadImageButtonAttrs = IUploadImageButtonAttrs> extends Component<CustomAttrs> {
   loading = false;
 
   view(vnode: Mithril.Vnode<CustomAttrs, this>) {
-    const { name, value, url, ...attrs } = vnode.attrs as IButtonAttrs;
+    let { name, value, url, ...attrs } = vnode.attrs as IButtonAttrs;
 
     attrs.loading = this.loading;
     attrs.className = classList(attrs.className, 'Button');
+
+    if (typeof value === 'function') {
+      value = value();
+    }
+
+    if (typeof url === 'function') {
+      url = url();
+    }
 
     return (
       <div className="UploadImageButton">
