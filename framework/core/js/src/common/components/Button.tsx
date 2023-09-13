@@ -1,10 +1,10 @@
 import type Mithril from 'mithril';
 import Component, { ComponentAttrs } from '../Component';
 import fireDebugWarning from '../helpers/fireDebugWarning';
-import icon from '../helpers/icon';
 import classList from '../utils/classList';
 import extractText from '../utils/extractText';
 import LoadingIndicator from './LoadingIndicator';
+import Icon from './Icon';
 
 export interface IButtonAttrs extends ComponentAttrs {
   /**
@@ -122,7 +122,7 @@ export default class Button<CustomAttrs extends IButtonAttrs = IButtonAttrs> ext
     const iconName = this.attrs.icon;
 
     return [
-      iconName && icon(iconName, { className: 'Button-icon' }),
+      iconName && <Icon name={iconName} className="Button-icon" />,
       children && <span className="Button-label">{children}</span>,
       this.attrs.loading && <LoadingIndicator size="small" display="inline" />,
     ];

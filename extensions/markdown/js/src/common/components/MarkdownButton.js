@@ -1,5 +1,5 @@
 import Component from 'flarum/common/Component';
-import icon from 'flarum/common/helpers/icon';
+import Icon from 'flarum/common/components/Icon';
 import Tooltip from 'flarum/common/components/Tooltip';
 
 export default class MarkdownButton extends Component {
@@ -16,7 +16,7 @@ export default class MarkdownButton extends Component {
         onkeydown={this.keydown.bind(this)}
         onclick={this.attrs.onclick}
       >
-        {icon(this.attrs.icon)}
+        <Icon name={this.attrs.icon} />
       </button>
     );
 

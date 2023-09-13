@@ -5,7 +5,7 @@ import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Button from 'flarum/common/components/Button';
 import Tooltip from 'flarum/common/components/Tooltip';
 import { Extension } from 'flarum/admin/AdminApplication';
-import icon from 'flarum/common/helpers/icon';
+import Icon from 'flarum/common/components/Icon';
 import ItemList from 'flarum/common/utils/ItemList';
 import extractText from 'flarum/common/utils/extractText';
 
@@ -75,7 +75,7 @@ export default class QueueSection extends Component<{}> {
           return extension ? (
             <div className="PackageManager-queueTable-package">
               <div className="PackageManager-queueTable-package-icon ExtensionIcon" style={extension.icon}>
-                {!!extension.icon && icon(extension.icon.name)}
+                {!!extension.icon && <Icon name={extension.icon.name} />}
               </div>
               <div className="PackageManager-queueTable-package-details">
                 <span className="PackageManager-queueTable-package-title">{extension.extra['flarum-extension'].title}</span>
@@ -199,17 +199,17 @@ export default class QueueSection extends Component<{}> {
   }
 
   operationIcon(operation: TaskOperations): Mithril.Children {
-    return icon(
-      {
-        update_check: 'fas fa-sync-alt',
-        update_major: 'fas fa-play',
-        update_minor: 'fas fa-play',
-        update_global: 'fas fa-play',
-        extension_install: 'fas fa-download',
-        extension_remove: 'fas fa-times',
-        extension_update: 'fas fa-arrow-alt-circle-up',
-        why_not: 'fas fa-exclamation-circle',
-      }[operation]
-    );
+    const iconName = {
+      update_check: 'fas fa-sync-alt',
+      update_major: 'fas fa-play',
+      update_minor: 'fas fa-play',
+      update_global: 'fas fa-play',
+      extension_install: 'fas fa-download',
+      extension_remove: 'fas fa-times',
+      extension_update: 'fas fa-arrow-alt-circle-up',
+      why_not: 'fas fa-exclamation-circle',
+    }[operation];
+
+    return <Icon name={iconName} />;
   }
 }

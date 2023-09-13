@@ -45,6 +45,7 @@ import './components/AlertManager';
 import './components/Page';
 import './components/Switch';
 import './components/Badge';
+import './components/Icon';
 import './components/LoadingIndicator';
 import './components/Placeholder';
 import './components/Separator';
@@ -70,7 +71,6 @@ import './components/Tooltip';
 
 import './helpers/fullTime';
 import './helpers/avatar';
-import './helpers/icon';
 import './helpers/humanTime';
 import './helpers/punctuateSeries';
 import './helpers/highlight';

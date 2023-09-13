@@ -5,12 +5,12 @@ import ItemList from '../../common/utils/ItemList';
 import UserControls from '../utils/UserControls';
 import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
-import icon from '../../common/helpers/icon';
 import Dropdown from '../../common/components/Dropdown';
 import Link from '../../common/components/Link';
 import AvatarEditor from './AvatarEditor';
 import listItems from '../../common/helpers/listItems';
 import classList from '../../common/utils/classList';
+import Icon from '../../common/components/Icon';
 
 /**
  * The `UserCard` component displays a user's profile card. This is used both on
@@ -100,8 +100,8 @@ export default class UserCard extends Component {
         'lastSeen',
         <span className={classList('UserCard-lastSeen', { online })}>
           {online
-            ? [icon('fas fa-circle'), ' ', app.translator.trans('core.forum.user.online_text')]
-            : [icon('far fa-clock'), ' ', humanTime(lastSeenAt)]}
+            ? [<Icon name={'fas fa-circle'} />, ' ', app.translator.trans('core.forum.user.online_text')]
+            : [<Icon name={'far fa-clock'} />, ' ', humanTime(lastSeenAt)]}
         </span>,
         100
       );

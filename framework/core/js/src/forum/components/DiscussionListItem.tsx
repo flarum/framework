@@ -4,7 +4,6 @@ import Link from '../../common/components/Link';
 import avatar from '../../common/helpers/avatar';
 import listItems from '../../common/helpers/listItems';
 import highlight from '../../common/helpers/highlight';
-import icon from '../../common/helpers/icon';
 import humanTime from '../../common/utils/humanTime';
 import ItemList from '../../common/utils/ItemList';
 import abbreviateNumber from '../../common/utils/abbreviateNumber';
@@ -20,6 +19,7 @@ import Tooltip from '../../common/components/Tooltip';
 import type Discussion from '../../common/models/Discussion';
 import type Mithril from 'mithril';
 import type { DiscussionListParams } from '../states/DiscussionListState';
+import Icon from '../../common/components/Icon';
 
 export interface IDiscussionListItemAttrs extends ComponentAttrs {
   discussion: Discussion;
@@ -105,7 +105,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
         className={classList('Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic', { disabled: !isUnread })}
         onclick={this.markAsRead.bind(this)}
       >
-        {icon('fas fa-check')}
+        <Icon name={'fas fa-check'} />
       </span>
     );
   }
@@ -295,7 +295,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     return (
       <DiscussionListItemStatsItem
         className="DiscussionListItem-count"
-        icon={showUnread ? [icon('fas fa-check _checkmark'), icon('fas fa-comment _comment')] : icon('far fa-comment')}
+        icon={showUnread ? [<Icon name={'fas fa-check _checkmark'} />, <Icon name={'fas fa-comment _comment'} />] : <Icon name={'far fa-comment'} />}
         label={showUnread ? abbreviateNumber(discussion.unreadCount()) : abbreviateNumber(discussion.replyCount())}
         a11yLabel={app.translator.trans(a11yKey, { count: discussion.replyCount() })}
         onclick={showUnread ? this.markAsRead.bind(this) : undefined}

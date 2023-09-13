@@ -6,7 +6,7 @@ import abbreviateNumber from 'flarum/common/utils/abbreviateNumber';
 import extractText from 'flarum/common/utils/extractText';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Placeholder from 'flarum/common/components/Placeholder';
-import icon from 'flarum/common/helpers/icon';
+import Icon from 'flarum/common/components/Icon';
 import classList from 'flarum/common/utils/classList';
 
 import DashboardWidget, { IDashboardWidgetAttrs } from 'flarum/admin/components/DashboardWidget';
@@ -291,7 +291,7 @@ export default class StatisticsWidget extends DashboardWidget {
                     <>
                       {' '}
                       <span className={'StatisticsWidget-change StatisticsWidget-change--' + (periodChange > 0 ? 'up' : 'down')}>
-                        {icon('fas fa-arrow-' + (periodChange > 0 ? 'up' : 'down'))}
+                        <Icon name={'fas fa-arrow-' + (periodChange > 0 ? 'up' : 'down')} />
                         {Math.abs(periodChange).toFixed(1)}%
                       </span>
                     </>

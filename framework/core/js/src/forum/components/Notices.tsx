@@ -3,8 +3,8 @@ import Component from '../../common/Component';
 import type Mithril from 'mithril';
 import ItemList from '../../common/utils/ItemList';
 import Alert from '../../common/components/Alert';
-import icon from '../../common/helpers/icon';
 import Button from '../../common/components/Button';
+import Icon from '../../common/components/Icon';
 
 export default class Notices extends Component {
   private loading: boolean = false;
@@ -27,7 +27,7 @@ export default class Notices extends Component {
           controls={[
             <Button className="Button Button--link" onclick={this.onclickEmailConfirmation.bind(this)} loading={this.loading} disabled={this.sent}>
               {this.sent
-                ? [icon('fas fa-check'), ' ', app.translator.trans('core.forum.user_email_confirmation.sent_message')]
+                ? [<Icon name={'fas fa-check'} />, ' ', app.translator.trans('core.forum.user_email_confirmation.sent_message')]
                 : app.translator.trans('core.forum.user_email_confirmation.resend_button')}
             </Button>,
           ]}
