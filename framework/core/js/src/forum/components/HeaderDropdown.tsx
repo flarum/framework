@@ -4,7 +4,8 @@ import type { IDropdownAttrs } from '../../common/components/Dropdown';
 import extractText from '../../common/utils/extractText';
 import type Mithril from 'mithril';
 import classList from '../../common/utils/classList';
-import icon from '../../common/helpers/icon';
+
+import Icon from '../../common/components/Icon';
 
 export interface IHeaderDropdownAttrs extends IDropdownAttrs {
   state: any;
@@ -41,7 +42,7 @@ export default abstract class HeaderDropdown<CustomAttrs extends IHeaderDropdown
     const unread = this.getUnreadCount();
 
     return [
-      this.attrs.icon ? icon(this.attrs.icon, { className: 'Button-icon' }) : null,
+      this.attrs.icon ? <Icon name={this.attrs.icon} className="Button-icon" /> : null,
       unread !== 0 && <span className="HeaderDropdown-unread">{unread}</span>,
       <span className="Button-label">{this.attrs.label}</span>,
     ];

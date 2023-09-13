@@ -3,7 +3,7 @@
   padding-top: 0 !important;
   padding-left: var(--post-padding);
   margin-left: calc(~"0px - var(--post-padding)");
-  border: var(--border-width) solid @primary-color;
+  border: var(--border-width) solid var(--primary-color);
 }
 
 .Post-header .item-flagged {
@@ -11,25 +11,22 @@
   margin: 0;
 }
 .Post-flagged {
-  background: @primary-color;
-  margin-top: calc(~"0px - var(--border-width)");
-  margin-bottom: var(--post-padding);
-  margin-left: calc(~"0px - var(--border-width) - var(--post-padding)");
-  margin-right: calc(~"0px - var(--border-width) - var(--post-padding)");
+  background: var(--primary-color);
+  margin: calc(~"0px - var(--border-width)") calc(~"0px - var(--border-width) - var(--post-padding)") var(--post-padding);
   padding: 10px;
-  border-radius: @border-radius @border-radius 0 0;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
   overflow: hidden;
   .light-contents(@color: @body-bg; @control-color: @body-bg);
 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
   &, a {
-    color: @body-bg !important;
+    color: var(--body-bg) !important;
   }
 }
 .Post-flagged-flags {
-  @media @tablet-up {
-    float: left;
-  }
-
   font-size: 14px;
   margin: 7px 10px;
   text-align: left;
@@ -41,12 +38,10 @@
   font-weight: normal;
 }
 .Post-flagged-actions {
-  @media @tablet-up {
-    float: right;
-  }
-}
-.Post-flagged-actions .Button {
-  margin-left: 5px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 
 .FlagPostModal {
@@ -58,7 +53,7 @@
 
     strong {
       display: block;
-      color: @text-color;
+      color: var(--text-color);
     }
   }
 }

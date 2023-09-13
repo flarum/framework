@@ -1,12 +1,12 @@
 .TagSelectionModal {
   @media @tablet-up {
     .Modal-header {
-      background: @control-bg;
+      background: var(--control-bg);
       padding: 20px 20px 0;
 
       & h3 {
         text-align: left;
-        color: @control-color;
+        color: var(--control-color);
         font-size: 16px;
       }
     }
@@ -103,7 +103,7 @@
       }
     }
     &.pinned + li:not(.pinned) {
-      border-top: 2px solid @control-bg;
+      border-top: 2px solid var(--control-bg);
     }
     &.child {
       padding-left: 45px;
@@ -113,7 +113,7 @@
       }
     }
     &.active {
-      background: @control-bg;
+      background: var(--control-bg);
     }
 
     .icon::before {
@@ -127,7 +127,7 @@
       .icon::before {
         .fas();
         content: @fa-var-check !important;
-        color: @muted-color;
+        color: var(--muted-color);
         font-size: 14px;
         text-align: center;
         vertical-align: 1px;
@@ -159,7 +159,7 @@
   }
 }
 .SelectTagListItem-description {
-  color: @muted-color;
+  color: var(--muted-color);
   font-size: 12px;
   width: 370px;
   display: inline-block;

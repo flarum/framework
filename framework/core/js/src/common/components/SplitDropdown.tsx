@@ -1,9 +1,9 @@
 import Dropdown, { IDropdownAttrs } from './Dropdown';
 import Button from './Button';
-import icon from '../helpers/icon';
 import Mithril from 'mithril';
 import classList from '../utils/classList';
 import Tooltip from './Tooltip';
+import Icon from './Icon';
 
 export interface ISplitDropdownAttrs extends IDropdownAttrs {
   /** An optional main control button, which will be displayed instead of the first child. */
@@ -50,8 +50,8 @@ export default class SplitDropdown<CustomAttrs extends ISplitDropdownAttrs = ISp
           aria-label={this.attrs.accessibleToggleLabel}
           data-toggle="dropdown"
         >
-          {this.attrs.icon ? icon(this.attrs.icon, { className: 'Button-icon' }) : null}
-          {icon('fas fa-caret-down', { className: 'Button-caret' })}
+          {this.attrs.icon ? <Icon name={this.attrs.icon} className="Button-icon" /> : null}
+          <Icon name="fas fa-caret-down" className="Button-caret" />
         </button>
       </>
     );

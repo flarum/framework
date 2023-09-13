@@ -8,9 +8,9 @@ import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
 import ComposerPostPreview from './ComposerPostPreview';
-import avatar from '../../common/helpers/avatar';
 import Link from '../../common/components/Link';
 import UserCard from './UserCard.js';
+import Avatar from '../../common/components/Avatar';
 
 /**
  * The `CommentPost` component displays a standard `comment`-typed post. This
@@ -50,7 +50,7 @@ export default class CommentPost extends Post {
 
   avatar() {
     const user = this.attrs.post.user();
-    const view = avatar(user, { className: 'Post-avatar' });
+    const view = <Avatar user={user} className="Post-avatar" />;
 
     if (user) {
       return <Link href={app.route.user(user)}>{view}</Link>;

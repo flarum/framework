@@ -1,7 +1,7 @@
 import app from 'flarum/forum/app';
 import Modal from 'flarum/common/components/Modal';
 import Link from 'flarum/common/components/Link';
-import avatar from 'flarum/common/helpers/avatar';
+import Avatar from 'flarum/common/components/Avatar';
 import username from 'flarum/common/helpers/username';
 import type { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import type Post from 'flarum/common/models/Post';
@@ -48,7 +48,7 @@ export default class PostLikesModal<CustomAttrs extends IPostLikesModalAttrs = I
                 page.items.map((user) => (
                   <li>
                     <Link href={app.route.user(user)}>
-                      {avatar(user)} {username(user)}
+                      <Avatar user={user} /> {username(user)}
                     </Link>
                   </li>
                 ))

@@ -1,10 +1,10 @@
 import app from '../../common/app';
 import Component, { ComponentAttrs } from '../Component';
-import icon from '../helpers/icon';
 import listItems, { ModdedChildrenWithItemName } from '../helpers/listItems';
 import extractText from '../utils/extractText';
 import type Mithril from 'mithril';
 import Tooltip from './Tooltip';
+import Icon from './Icon';
 
 export interface IDropdownAttrs extends ComponentAttrs {
   /** A class name to apply to the dropdown toggle button. */
@@ -153,9 +153,9 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
    */
   getButtonContent(children: Mithril.ChildArray): Mithril.ChildArray {
     return [
-      this.attrs.icon ? icon(this.attrs.icon, { className: 'Button-icon' }) : '',
+      this.attrs.icon ? <Icon name={this.attrs.icon} className="Button-icon" /> : '',
       <span className="Button-label">{this.attrs.label}</span>,
-      this.attrs.caretIcon ? icon(this.attrs.caretIcon, { className: 'Button-caret' }) : '',
+      this.attrs.caretIcon ? <Icon name={this.attrs.caretIcon} className="Button-caret" /> : '',
     ];
   }
 

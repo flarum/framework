@@ -4,7 +4,8 @@ import Component from '../../common/Component';
 import classList from '../../common/utils/classList';
 import Link from '../../common/components/Link';
 import humanTime from '../../common/helpers/humanTime';
-import icon from '../../common/helpers/icon';
+
+import Icon from '../../common/components/Icon';
 
 export interface IHeaderListItemAttrs extends ComponentAttrs {
   avatar: Mithril.Children;
@@ -24,7 +25,7 @@ export default class HeaderListItem<CustomAttrs extends IHeaderListItemAttrs = I
     return (
       <Link className={classList('HeaderListItem', className)} href={href} external={href.includes('://')} onclick={onclick}>
         {avatar}
-        {icon(iconName, { className: 'HeaderListItem-icon' })}
+        <Icon name={iconName} className="HeaderListItem-icon" />
         <span className="HeaderListItem-title">
           <span className="HeaderListItem-content">{content}</span>
           <span className="HeaderListItem-title-spring" />

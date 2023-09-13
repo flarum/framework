@@ -2,7 +2,7 @@ import app from 'flarum/forum/app';
 import type Mithril from 'mithril';
 import type User from 'flarum/common/models/User';
 import usernameHelper from 'flarum/common/helpers/username';
-import avatar from 'flarum/common/helpers/avatar';
+import Avatar from 'flarum/common/components/Avatar';
 import highlight from 'flarum/common/helpers/highlight';
 import MentionableModel from './MentionableModel';
 import getCleanDisplayName, { shouldUseOldFormat } from '../utils/getCleanDisplayName';
@@ -46,7 +46,7 @@ export default class UserMention extends MentionableModel<User, AtMentionFormat>
 
     return (
       <>
-        {avatar(model)}
+        <Avatar user={model} />
         {username}
       </>
     );

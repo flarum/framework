@@ -2,10 +2,10 @@ import app from '../../forum/app';
 import Post from './Post';
 import { ucfirst } from '../../common/utils/string';
 import usernameHelper from '../../common/helpers/username';
-import icon from '../../common/helpers/icon';
 import Link from '../../common/components/Link';
 import humanTime from '../../common/helpers/humanTime';
 import classList from '../../common/utils/classList';
+import Icon from '../../common/components/Icon';
 
 /**
  * The `EventPost` component displays a post which indicating a discussion
@@ -28,7 +28,7 @@ export default class EventPost extends Post {
   }
 
   avatar() {
-    return icon(this.icon(), { className: 'EventPost-icon' });
+    return <Icon name={this.icon()} className="EventPost-icon" />;
   }
 
   content() {

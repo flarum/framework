@@ -5,7 +5,7 @@ import Link from 'flarum/common/components/Link';
 import PostPreview from 'flarum/forum/components/PostPreview';
 import punctuateSeries from 'flarum/common/helpers/punctuateSeries';
 import username from 'flarum/common/helpers/username';
-import icon from 'flarum/common/helpers/icon';
+import Icon from 'flarum/common/components/Icon';
 import Button from 'flarum/common/components/Button';
 import MentionedByModal from './components/MentionedByModal';
 
@@ -54,7 +54,9 @@ export default function addMentionedByList() {
                   }}
                 >
                   <span className="PostPreview-content">
-                    <span className="PostPreview-badge Avatar">{icon('fas fa-reply-all')}</span>
+                    <span className="PostPreview-badge Avatar">
+                      <Icon name={'fas fa-reply-all'} />
+                    </span>
                     <span>
                       {app.translator.trans('flarum-mentions.forum.post.mentioned_by_more_text', { count: post.mentionedByCount() - replies.length })}
                     </span>
@@ -145,7 +147,7 @@ export default function addMentionedByList() {
         'replies',
         <div className="Post-mentionedBy">
           <span className="Post-mentionedBy-summary">
-            {icon('fas fa-reply')}
+            <Icon name={'fas fa-reply'} />
             {app.translator.trans(`flarum-mentions.forum.post.mentioned_by${repliers[0].user() === app.session.user ? '_self' : ''}_text`, {
               count: names.length,
               users: punctuateSeries(names),
