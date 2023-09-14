@@ -123,7 +123,7 @@ trait InteractsWithLaravel
 
     public function runningUnitTests(): bool
     {
-        return $this->bound('env') && $this['env'] === 'testing';
+        return $this->bound('env') && $this->environment('testing');
     }
 
     public function hasDebugModeEnabled(): bool
@@ -134,10 +134,9 @@ trait InteractsWithLaravel
     /**
      * @deprecated Not actually used/has no meaning in Flarum.
      */
-    public function maintenanceMode() // @phpstan-ignore-line
+    public function maintenanceMode()
     {
-        // TODO: Implement maintenanceMode() method.
-        return null;
+        return null; // @phpstan-ignore-line
     }
 
     /**
@@ -219,7 +218,7 @@ trait InteractsWithLaravel
         return false;
     }
 
-    public function joinPaths($basePath, $path = ''): string
+    public function joinPaths(string $basePath, string $path = ''): string
     {
         return $basePath.($path != '' ? DIRECTORY_SEPARATOR.ltrim($path, DIRECTORY_SEPARATOR) : '');
     }
