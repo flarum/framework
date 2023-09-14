@@ -39,6 +39,8 @@
         </div>
     </main>
 
+    <footer class="App-footer" id="footer"></footer>
+
 </div>
 
 {!! $forum['footerHtml'] !!}
