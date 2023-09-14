@@ -134,7 +134,7 @@ trait InteractsWithLaravel
     /**
      * @deprecated Not actually used/has no meaning in Flarum.
      */
-    public function maintenanceMode()
+    public function maintenanceMode() // @phpstan-ignore-line
     {
         // TODO: Implement maintenanceMode() method.
         return null;
@@ -152,7 +152,7 @@ trait InteractsWithLaravel
     /**
      * @deprecated Not actually used/has no meaning in Flarum.
      */
-    public function registerConfiguredProviders()
+    public function registerConfiguredProviders(): void
     {
         //
     }
@@ -160,7 +160,7 @@ trait InteractsWithLaravel
     /**
      * @deprecated Not actually used/has no meaning in Flarum.
      */
-    public function registerDeferredProvider($provider, $service = null)
+    public function registerDeferredProvider($provider, $service = null): void
     {
         //
     }
@@ -168,12 +168,12 @@ trait InteractsWithLaravel
     /**
      * @deprecated Not actually used/has no meaning in Flarum.
      */
-    public function bootstrapWith(array $bootstrappers)
+    public function bootstrapWith(array $bootstrappers): void
     {
         //
     }
 
-    public function getLocale()
+    public function getLocale(): string
     {
         return $this->make(LocaleManager::class)->getLocale();
     }
@@ -193,15 +193,15 @@ trait InteractsWithLaravel
     /**
      * @deprecated Not actually used/has no meaning in Flarum.
      */
-    public function hasBeenBootstrapped()
+    public function hasBeenBootstrapped(): bool
     {
-        //
+        return true;
     }
 
     /**
      * @deprecated Not actually used/has no meaning in Flarum.
      */
-    public function loadDeferredProviders()
+    public function loadDeferredProviders(): void
     {
         //
     }
@@ -214,9 +214,9 @@ trait InteractsWithLaravel
     /**
      * @deprecated Not actually used/has no meaning in Flarum.
      */
-    public function shouldSkipMiddleware()
+    public function shouldSkipMiddleware(): bool
     {
-        //
+        return false;
     }
 
     public function joinPaths($basePath, $path = ''): string
