@@ -24,6 +24,7 @@ import type NotificationModel from '../common/models/Notification';
 import type PostModel from '../common/models/Post';
 import extractText from '../common/utils/extractText';
 import Notices from './components/Notices';
+import Footer from './components/Footer';
 
 export interface ForumApplicationData extends ApplicationData {}
 
@@ -118,6 +119,7 @@ export default class ForumApplication extends Application {
     m.mount(document.getElementById('header-primary')!, HeaderPrimary);
     m.mount(document.getElementById('header-secondary')!, HeaderSecondary);
     m.mount(document.getElementById('notices')!, Notices);
+    m.mount(document.getElementById('footer')!, Footer);
 
     // Route the home link back home when clicked. We do not want it to register
     // if the user is opening it in a new tab, however.
