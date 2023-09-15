@@ -40,7 +40,7 @@ class RouteHandlerFactory
     public function toFrontend(string $frontend, callable|string|null $content = null): Closure
     {
         return $this->toController(function (Container $container) use ($frontend, $content) {
-            $frontend = $container->make("flarum.frontend.$frontend", [$content]);
+            $frontend = $container->make("flarum.frontend.$frontend", compact('content'));
 
             return new FrontendController($frontend);
         });
