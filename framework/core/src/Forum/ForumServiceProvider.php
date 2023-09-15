@@ -22,6 +22,7 @@ use Flarum\Frontend\AddLocaleAssets;
 use Flarum\Frontend\AddTranslations;
 use Flarum\Frontend\Assets;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
+use Flarum\Frontend\Frontend;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Http\Middleware as HttpMiddleware;
 use Flarum\Http\RouteCollection;
@@ -128,10 +129,11 @@ class ForumServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->bind('flarum.frontend.forum', function (Container $container, array $parameters = []) {
+            /** @var Frontend $frontend */
             $frontend = $container->make('flarum.frontend.factory')('forum');
 
             if (isset($parameters['content'])) {
-                $frontend->content(is_callable($parameters['content']) ? $parameters['content'] : $container->make($parameters['content']));
+                $frontend->content(is_callable($parameters['content']) ? $parameters['content'] : $container->make($parameters['content']), 100);
             }
 
             return $frontend;

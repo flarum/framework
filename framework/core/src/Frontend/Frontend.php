@@ -17,7 +17,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class Frontend
 {
     /**
-     * @var callable[]
+     * @var array<array{callback: callable, priority: int}>
      */
     protected array $content = [];
 
@@ -27,9 +27,9 @@ class Frontend
     ) {
     }
 
-    public function content(callable $content): void
+    public function content(callable $callback, int $priority): void
     {
-        $this->content[] = $content;
+        $this->content[] = compact('callback', 'priority');
     }
 
     public function document(Request $request): Document
@@ -45,8 +45,14 @@ class Frontend
 
     protected function populate(Document $document, Request $request): void
     {
-        foreach ($this->content as $content) {
-            $content($document, $request);
+        $content = $this->content;
+
+        usort($content, function ($a, $b) {
+            return $b['priority'] <=> $a['priority'];
+        });
+
+        foreach ($content as $item) {
+            $item['callback']($document, $request);
         }
     }
 

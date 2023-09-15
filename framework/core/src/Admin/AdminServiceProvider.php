@@ -109,7 +109,7 @@ class AdminServiceProvider extends AbstractServiceProvider
             /** @var \Flarum\Frontend\Frontend $frontend */
             $frontend = $container->make('flarum.frontend.factory')('admin');
 
-            $frontend->content($container->make(Content\AdminPayload::class));
+            $frontend->content($container->make(Content\AdminPayload::class), 100);
 
             return $frontend;
         });
