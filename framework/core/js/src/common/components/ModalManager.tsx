@@ -6,6 +6,7 @@ import { disableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock';
 
 import type ModalManagerState from '../states/ModalManagerState';
 import type Mithril from 'mithril';
+import LoadingIndicator from './LoadingIndicator';
 
 interface IModalManagerAttrs {
   state: ModalManagerState;
@@ -37,7 +38,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
           return (
             <div
               key={modal.key}
-              class="ModalManager modal"
+              className="ModalManager modal"
               data-modal-key={modal.key}
               data-modal-number={i}
               role="dialog"
@@ -60,13 +61,15 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
           );
         })}
 
-        {this.attrs.state.backdropShown && (
+        {(this.attrs.state.backdropShown || this.attrs.state.loadingModal) && (
           <div
-            class="Modal-backdrop backdrop"
+            className="Modal-backdrop backdrop"
             ontransitionend={this.onBackdropTransitionEnd.bind(this)}
-            data-showing={!!this.attrs.state.modalList.length}
-            style={{ '--modal-count': this.attrs.state.modalList.length }}
-          />
+            data-showing={!!this.attrs.state.modalList.length || this.attrs.state.loadingModal}
+            style={{ '--modal-count': this.attrs.state.modalList.length + Number(this.attrs.state.loadingModal) }}
+          >
+            {this.attrs.state.loadingModal && <LoadingIndicator />}
+          </div>
         )}
       </>
     );

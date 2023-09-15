@@ -21,17 +21,12 @@ use Psr\Http\Server\RequestHandlerInterface as Handler;
  */
 class RouteHandlerFactory
 {
-    /**
-     * @var Container
-     */
-    protected $container;
-
-    public function __construct(Container $container)
-    {
-        $this->container = $container;
+    public function __construct(
+        protected Container $container
+    ) {
     }
 
-    public function toController($controller): Closure
+    public function toController(callable|string $controller): Closure
     {
         return function (Request $request, array $routeParams) use ($controller) {
             $controller = $this->resolveController($controller);
@@ -42,11 +37,7 @@ class RouteHandlerFactory
         };
     }
 
-    /**
-     * @param string $frontend
-     * @param string|callable|null $content
-     */
-    public function toFrontend(string $frontend, $content = null): Closure
+    public function toFrontend(string $frontend, callable|string|null $content = null): Closure
     {
         return $this->toController(function (Container $container) use ($frontend, $content) {
             $frontend = $container->make("flarum.frontend.$frontend", [$content]);
@@ -65,13 +56,11 @@ class RouteHandlerFactory
         return $this->toFrontend('admin', $content);
     }
 
-    private function resolveController($controller): Handler
+    private function resolveController(callable|string $controller): Handler
     {
-        if (is_callable($controller)) {
-            $controller = $this->container->call($controller);
-        } else {
-            $controller = $this->container->make($controller);
-        }
+        $controller = is_callable($controller)
+            ? $this->container->call($controller)
+            : $this->container->make($controller);
 
         if (! $controller instanceof Handler) {
             throw new InvalidArgumentException('Controller must be an instance of '.Handler::class);

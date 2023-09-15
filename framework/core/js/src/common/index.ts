@@ -15,6 +15,8 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
 
+import './registry';
+
 import patchMithril from './utils/patchMithril';
 
 patchMithril(window);

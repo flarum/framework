@@ -12,6 +12,8 @@ namespace Flarum\User;
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\User\Exception\InvalidConfirmationTokenException;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 /**
@@ -22,12 +24,10 @@ use Illuminate\Support\Str;
  */
 class EmailToken extends AbstractModel
 {
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['created_at'];
+    protected $casts = [
+        'user_id' => 'integer',
+        'created_at' => 'datetime',
+    ];
 
     /**
      * Use a custom primary key for this model.
@@ -36,20 +36,9 @@ class EmailToken extends AbstractModel
      */
     public $incrementing = false;
 
-    /**
-     * {@inheritdoc}
-     */
     protected $primaryKey = 'token';
 
-    /**
-     * Generate an email token for the specified user.
-     *
-     * @param string $email
-     * @param int $userId
-     *
-     * @return static
-     */
-    public static function generate($email, $userId)
+    public static function generate(string $email, int $userId): static
     {
         $token = new static;
 
@@ -61,12 +50,7 @@ class EmailToken extends AbstractModel
         return $token;
     }
 
-    /**
-     * Define the relationship with the owner of this email token.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
@@ -74,12 +58,9 @@ class EmailToken extends AbstractModel
     /**
      * Find the token with the given ID, and assert that it has not expired.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $id
-     * @return static
      * @throws InvalidConfirmationTokenException
      */
-    public function scopeValidOrFail($query, $id)
+    public function scopeValidOrFail(Builder $query, string $id): static
     {
         /** @var static|null $token */
         $token = $query->find($id);

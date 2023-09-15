@@ -18,15 +18,9 @@ use Tobscure\JsonApi\Document;
 
 class ShowMailSettingsController extends AbstractShowController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = MailSettingsSerializer::class;
+    public ?string $serializer = MailSettingsSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): array
     {
         RequestUtil::getActor($request)->assertAdmin();
 

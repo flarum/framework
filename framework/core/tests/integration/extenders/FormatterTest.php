@@ -11,16 +11,16 @@ namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
 use Flarum\Formatter\Formatter;
+use Flarum\Testing\integration\RefreshesFormatterCache;
 use Flarum\Testing\integration\TestCase;
 
 class FormatterTest extends TestCase
 {
+    use RefreshesFormatterCache;
+
     protected function getFormatter()
     {
-        $formatter = $this->app()->getContainer()->make(Formatter::class);
-        $formatter->flush();
-
-        return $formatter;
+        return $this->app()->getContainer()->make(Formatter::class);
     }
 
     /**

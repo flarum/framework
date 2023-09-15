@@ -11,6 +11,7 @@ namespace Flarum\Tags\Query;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
+use Flarum\Filter\ValidateFilterTrait;
 use Flarum\Http\SlugManager;
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\SearchState;
@@ -21,22 +22,19 @@ use Illuminate\Database\Query\Builder;
 
 class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
 {
-    /**
-     * @var SlugManager
-     */
-    protected $slugger;
+    use ValidateFilterTrait;
 
-    public function __construct(SlugManager $slugger)
-    {
-        $this->slugger = $slugger;
+    public function __construct(
+        protected SlugManager $slugger
+    ) {
     }
 
-    protected function getGambitPattern()
+    protected function getGambitPattern(): string
     {
         return 'tag:(.+)';
     }
 
-    protected function conditions(SearchState $search, array $matches, $negate)
+    protected function conditions(SearchState $search, array $matches, bool $negate): void
     {
         $this->constrain($search->getQuery(), $matches[1], $negate, $search->getActor());
     }
@@ -46,14 +44,14 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'tag';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $this->constrain($filterState->getQuery(), $filterValue, $negate, $filterState->getActor());
     }
 
-    protected function constrain(Builder $query, $rawSlugs, $negate, User $actor)
+    protected function constrain(Builder $query, string|array $rawSlugs, bool $negate, User $actor): void
     {
-        $slugs = explode(',', trim($rawSlugs, '"'));
+        $slugs = $this->asStringArray($rawSlugs);
 
         $query->where(function (Builder $query) use ($slugs, $negate, $actor) {
             foreach ($slugs as $slug) {
@@ -66,7 +64,7 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
                     // @TODO: grab all IDs first instead of multiple queries.
                     try {
                         $id = $this->slugger->forResource(Tag::class)->fromSlug($slug, $actor)->id;
-                    } catch (ModelNotFoundException $e) {
+                    } catch (ModelNotFoundException) {
                         $id = null;
                     }
 

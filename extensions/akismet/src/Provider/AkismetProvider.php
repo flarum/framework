@@ -20,7 +20,7 @@ use Illuminate\Container\Container;
 
 class AkismetProvider extends AbstractServiceProvider
 {
-    public function register()
+    public function register(): void
     {
         $this->container->bind(Akismet::class, function (Container $container) {
             /** @var SettingsRepositoryInterface $settings */

@@ -31,7 +31,7 @@ class SessionManager extends IlluminateSessionManager
 
         try {
             $driverInstance = parent::driver($driverName);
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             $defaultDriverName = $this->getDefaultDriver();
             $driverInstance = parent::driver($defaultDriverName);
 

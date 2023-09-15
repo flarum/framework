@@ -438,10 +438,7 @@ class ModelTest extends TestCase
 
 class ModelTestCustomPost extends AbstractEventPost
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static $type = 'customPost';
+    public static string $type = 'customPost';
 }
 
 class CustomRelationClass

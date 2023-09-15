@@ -14,20 +14,10 @@ use Flarum\User\User;
 
 class UpdateExtension extends AbstractActionCommand
 {
-    /**
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * @var string
-     */
-    public $extensionId;
-
-    public function __construct(User $actor, string $extensionId)
-    {
-        $this->actor = $actor;
-        $this->extensionId = $extensionId;
+    public function __construct(
+        public User $actor,
+        public string $extensionId
+    ) {
     }
 
     public function getOperationName(): string

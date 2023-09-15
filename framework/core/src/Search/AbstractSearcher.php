@@ -19,32 +19,15 @@ abstract class AbstractSearcher
 {
     use ApplyQueryParametersTrait;
 
-    /**
-     * @var GambitManager
-     */
-    protected $gambits;
-
-    /**
-     * @var array
-     */
-    protected $searchMutators;
-
-    public function __construct(GambitManager $gambits, array $searchMutators)
-    {
-        $this->gambits = $gambits;
-        $this->searchMutators = $searchMutators;
+    public function __construct(
+        protected GambitManager $gambits,
+        protected array $searchMutators
+    ) {
     }
 
     abstract protected function getQuery(User $actor): Builder;
 
-    /**
-     * @param QueryCriteria $criteria
-     * @param int|null $limit
-     * @param int $offset
-     *
-     * @return QueryResults
-     */
-    public function search(QueryCriteria $criteria, $limit = null, $offset = 0): QueryResults
+    public function search(QueryCriteria $criteria, ?int $limit = null, int $offset = 0): QueryResults
     {
         $actor = $criteria->actor;
 

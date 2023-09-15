@@ -14,23 +14,9 @@ use Flarum\User\User;
 
 class Created
 {
-    /**
-     * @var \Flarum\Group\Group
-     */
-    public $group;
-
-    /**
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * @param Group $group
-     * @param User $actor
-     */
-    public function __construct(Group $group, User $actor = null)
-    {
-        $this->group = $group;
-        $this->actor = $actor;
+    public function __construct(
+        public Group $group,
+        public ?User $actor = null
+    ) {
     }
 }

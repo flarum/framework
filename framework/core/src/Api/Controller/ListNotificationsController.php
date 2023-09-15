@@ -19,49 +19,21 @@ use Tobscure\JsonApi\Document;
 
 class ListNotificationsController extends AbstractListController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = NotificationSerializer::class;
+    public ?string $serializer = NotificationSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $include = [
+    public array $include = [
         'fromUser',
         'subject',
         'subject.discussion'
     ];
 
-    /**
-     * {@inheritdoc}
-     */
-    public $limit = 10;
-
-    /**
-     * @var NotificationRepository
-     */
-    protected $notifications;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @param NotificationRepository $notifications
-     * @param UrlGenerator $url
-     */
-    public function __construct(NotificationRepository $notifications, UrlGenerator $url)
-    {
-        $this->notifications = $notifications;
-        $this->url = $url;
+    public function __construct(
+        protected NotificationRepository $notifications,
+        protected UrlGenerator $url
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
 
@@ -108,21 +80,21 @@ class ListNotificationsController extends AbstractListController
     /**
      * @param \Flarum\Notification\Notification[] $notifications
      */
-    private function loadSubjectDiscussions(array $notifications)
+    private function loadSubjectDiscussions(array $notifications): void
     {
         $ids = [];
 
         foreach ($notifications as $notification) {
-            if ($notification->subject && property_exists($notification->subject, 'discussion_id')) {
-                $ids[] = $notification->subject->discussion_id;
+            if ($notification->subject && ($discussionId = $notification->subject->getAttribute('discussion_id'))) {
+                $ids[] = $discussionId;
             }
         }
 
         $discussions = Discussion::query()->find(array_unique($ids));
 
         foreach ($notifications as $notification) {
-            if ($notification->subject && property_exists($notification->subject, 'discussion_id')) {
-                $notification->subject->setRelation('discussion', $discussions->find($notification->subject->discussion_id));
+            if ($notification->subject && ($discussionId = $notification->subject->getAttribute('discussion_id'))) {
+                $notification->subject->setRelation('discussion', $discussions->find($discussionId));
             }
         }
     }

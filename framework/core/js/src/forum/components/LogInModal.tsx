@@ -1,7 +1,5 @@
 import app from '../../forum/app';
 import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
-import ForgotPasswordModal from './ForgotPasswordModal';
-import SignUpModal from './SignUpModal';
 import Button from '../../common/components/Button';
 import LogInButtons from './LogInButtons';
 import extractText from '../../common/utils/extractText';
@@ -110,14 +108,9 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
     items.add(
       'submit',
       <div className="Form-group">
-        {Button.component(
-          {
-            className: 'Button Button--primary Button--block',
-            type: 'submit',
-            loading: this.loading,
-          },
-          app.translator.trans('core.forum.log_in.submit_button')
-        )}
+        <Button className="Button Button--primary Button--block" type="submit" loading={this.loading}>
+          {app.translator.trans('core.forum.log_in.submit_button')}
+        </Button>
       </div>,
       -10
     );
@@ -126,17 +119,16 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
   }
 
   footer() {
-    return [
-      <p className="LogInModal-forgotPassword">
-        <a onclick={this.forgotPassword.bind(this)}>{app.translator.trans('core.forum.log_in.forgot_password_link')}</a>
-      </p>,
-
-      app.forum.attribute('allowSignUp') ? (
-        <p className="LogInModal-signUp">{app.translator.trans('core.forum.log_in.sign_up_text', { a: <a onclick={this.signUp.bind(this)} /> })}</p>
-      ) : (
-        ''
-      ),
-    ];
+    return (
+      <>
+        <p className="LogInModal-forgotPassword">
+          <a onclick={this.forgotPassword.bind(this)}>{app.translator.trans('core.forum.log_in.forgot_password_link')}</a>
+        </p>
+        {app.forum.attribute<boolean>('allowSignUp') && (
+          <p className="LogInModal-signUp">{app.translator.trans('core.forum.log_in.sign_up_text', { a: <a onclick={this.signUp.bind(this)} /> })}</p>
+        )}
+      </>
+    );
   }
 
   /**
@@ -147,7 +139,7 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
     const email = this.identification();
     const attrs = email.includes('@') ? { email } : undefined;
 
-    app.modal.show(ForgotPasswordModal, attrs);
+    app.modal.show(() => import('./ForgotPasswordModal'), attrs);
   }
 
   /**
@@ -161,11 +153,11 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
       [identification.includes('@') ? 'email' : 'username']: identification,
     };
 
-    app.modal.show(SignUpModal, attrs);
+    app.modal.show(() => import('./SignUpModal'), attrs);
   }
 
   onready() {
-    this.$('[name=' + (this.identification() ? 'password' : 'identification') + ']').select();
+    this.$('[name=' + (this.identification() ? 'password' : 'identification') + ']').trigger('select');
   }
 
   onsubmit(e: SubmitEvent) {

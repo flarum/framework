@@ -18,12 +18,9 @@ use RuntimeException;
 
 class Config implements ArrayAccess
 {
-    private $data;
-
-    public function __construct(array $data)
-    {
-        $this->data = $data;
-
+    public function __construct(
+        private readonly array $data
+    ) {
         $this->requireKeys('url');
     }
 
@@ -42,7 +39,7 @@ class Config implements ArrayAccess
         return $this->data['offline'] ?? false;
     }
 
-    private function requireKeys(...$keys)
+    private function requireKeys(mixed ...$keys): void
     {
         foreach ($keys as $key) {
             if (! array_key_exists($key, $this->data)) {
@@ -53,8 +50,7 @@ class Config implements ArrayAccess
         }
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return Arr::get($this->data, $offset);
     }
@@ -72,5 +68,10 @@ class Config implements ArrayAccess
     public function offsetUnset($offset): void
     {
         throw new RuntimeException('The Config is immutable');
+    }
+
+    public function environment(): string
+    {
+        return $this->data['env'] ?? 'production';
     }
 }

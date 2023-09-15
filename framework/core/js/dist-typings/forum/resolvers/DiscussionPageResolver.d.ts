@@ -20,6 +20,6 @@ export default class DiscussionPageResolver<Attrs extends IDiscussionPageAttrs =
      * @inheritdoc
      */
     makeKey(): string;
-    onmatch(args: Attrs & RouteArgs, requestedPath: string, route: string): new () => DiscussionPage<Attrs>;
+    onmatch(args: Attrs & RouteArgs, requestedPath: string, route: string): Promise<import("../../common/Application").NewComponent<DiscussionPage<Attrs>>>;
     render(vnode: Mithril.Vnode<Attrs, DiscussionPage<Attrs>>): Mithril.Children;
 }

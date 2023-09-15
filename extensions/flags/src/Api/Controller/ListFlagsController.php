@@ -19,25 +19,16 @@ use Tobscure\JsonApi\Document;
 
 class ListFlagsController extends AbstractListController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = FlagSerializer::class;
+    public ?string $serializer = FlagSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $include = [
+    public array $include = [
         'user',
         'post',
         'post.user',
         'post.discussion'
     ];
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
         $include = $this->extractInclude($request);

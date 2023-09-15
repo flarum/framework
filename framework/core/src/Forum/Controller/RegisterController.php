@@ -19,36 +19,13 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class RegisterController implements RequestHandlerInterface
 {
-    /**
-     * @var Client
-     */
-    protected $api;
-
-    /**
-     * @var SessionAuthenticator
-     */
-    protected $authenticator;
-
-    /**
-     * @var Rememberer
-     */
-    protected $rememberer;
-
-    /**
-     * @param Client $api
-     * @param SessionAuthenticator $authenticator
-     * @param Rememberer $rememberer
-     */
-    public function __construct(Client $api, SessionAuthenticator $authenticator, Rememberer $rememberer)
-    {
-        $this->api = $api;
-        $this->authenticator = $authenticator;
-        $this->rememberer = $rememberer;
+    public function __construct(
+        protected Client $api,
+        protected SessionAuthenticator $authenticator,
+        protected Rememberer $rememberer
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handle(Request $request): ResponseInterface
     {
         $params = ['data' => ['attributes' => $request->getParsedBody()]];

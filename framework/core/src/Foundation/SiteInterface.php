@@ -13,8 +13,6 @@ interface SiteInterface
 {
     /**
      * Create and boot a Flarum application instance.
-     *
-     * @return AppInterface
      */
     public function bootApp(): AppInterface;
 }

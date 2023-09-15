@@ -16,22 +16,12 @@ use Flarum\User\User;
 
 class GlobalPolicy extends AbstractPolicy
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
-        $this->settings = $settings;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings
+    ) {
     }
 
-    /**
-     * @param User $actor
-     * @param string $ability
-     * @return string|void
-     */
-    public function can(User $actor, string $ability)
+    public function can(User $actor, string $ability): ?string
     {
         static $enoughPrimary;
         static $enoughSecondary;
@@ -77,5 +67,7 @@ class GlobalPolicy extends AbstractPolicy
                 return $this->deny();
             }
         }
+
+        return null;
     }
 }

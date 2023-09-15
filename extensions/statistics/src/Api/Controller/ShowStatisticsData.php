@@ -31,30 +31,19 @@ class ShowStatisticsData implements RequestHandlerInterface
     /**
      * The amount of time to cache lifetime statistics data for in seconds.
      */
-    public static $lifetimeStatsCacheTtl = 300;
+    public static int $lifetimeStatsCacheTtl = 300;
 
     /**
      * The amount of time to cache timed statistics data for in seconds.
      */
-    public static $timedStatsCacheTtl = 900;
+    public static int $timedStatsCacheTtl = 900;
 
-    protected $entities = [];
+    protected array $entities = [];
 
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var CacheRepository
-     */
-    protected $cache;
-
-    public function __construct(SettingsRepositoryInterface $settings, CacheRepository $cache)
-    {
-        $this->settings = $settings;
-        $this->cache = $cache;
-
+    public function __construct(
+        protected SettingsRepositoryInterface $settings,
+        protected CacheRepository $cache
+    ) {
         $this->entities = [
             'users' => [User::query(), 'joined_at'],
             'discussions' => [Discussion::query(), 'created_at'],
@@ -108,7 +97,7 @@ class ShowStatisticsData implements RequestHandlerInterface
         return $this->getTimedStatistics($model);
     }
 
-    private function getLifetimeStatistics()
+    private function getLifetimeStatistics(): array
     {
         return $this->cache->remember('flarum-subscriptions.lifetime_stats', self::$lifetimeStatsCacheTtl, function () {
             return array_map(function ($entity) {
@@ -117,14 +106,14 @@ class ShowStatisticsData implements RequestHandlerInterface
         });
     }
 
-    private function getTimedStatistics(string $model)
+    private function getTimedStatistics(string $model): array
     {
         return $this->cache->remember("flarum-subscriptions.timed_stats.$model", self::$lifetimeStatsCacheTtl, function () use ($model) {
             return $this->getTimedCounts($this->entities[$model][0], $this->entities[$model][1]);
         });
     }
 
-    private function getTimedCounts(Builder $query, string $column, ?DateTime $startDate = null, ?DateTime $endDate = null)
+    private function getTimedCounts(Builder $query, string $column, ?DateTime $startDate = null, ?DateTime $endDate = null): array
     {
         $diff = $startDate && $endDate ? $startDate->diff($endDate) : null;
 

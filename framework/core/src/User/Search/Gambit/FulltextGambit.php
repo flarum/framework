@@ -11,44 +11,34 @@ namespace Flarum\User\Search\Gambit;
 
 use Flarum\Search\GambitInterface;
 use Flarum\Search\SearchState;
+use Flarum\User\User;
 use Flarum\User\UserRepository;
+use Illuminate\Database\Eloquent\Builder;
 
 class FulltextGambit implements GambitInterface
 {
-    /**
-     * @var UserRepository
-     */
-    protected $users;
-
-    /**
-     * @param \Flarum\User\UserRepository $users
-     */
-    public function __construct(UserRepository $users)
-    {
-        $this->users = $users;
+    public function __construct(
+        protected UserRepository $users
+    ) {
     }
 
     /**
-     * @param $searchValue
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder<User>
      */
-    private function getUserSearchSubQuery($searchValue)
+    private function getUserSearchSubQuery(string $searchValue): Builder
     {
         return $this->users
             ->query()
             ->select('id')
-            ->where('username', 'like', "{$searchValue}%");
+            ->where('username', 'like', "$searchValue%");
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function apply(SearchState $search, $searchValue)
+    public function apply(SearchState $search, string $bit): bool
     {
         $search->getQuery()
             ->whereIn(
                 'id',
-                $this->getUserSearchSubQuery($searchValue)
+                $this->getUserSearchSubQuery($bit)
             );
 
         return true;

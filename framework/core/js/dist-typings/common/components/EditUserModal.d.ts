@@ -23,9 +23,9 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
     activate(): void;
     data(): SaveAttributes;
     onsubmit(e: SubmitEvent): void;
-    nonAdminEditingAdmin(): boolean | null;
+    nonAdminEditingAdmin(): boolean;
     /**
      * @internal
      */
-    protected userIsAdmin(user: User | null): boolean | null;
+    protected userIsAdmin(user: User | null): boolean;
 }

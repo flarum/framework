@@ -4,6 +4,7 @@ import isExtensionEnabled from '../utils/isExtensionEnabled';
 import getCategorizedExtensions from '../utils/getCategorizedExtensions';
 import Link from '../../common/components/Link';
 import icon from '../../common/helpers/icon';
+import classList from '../../common/utils/classList';
 
 export default class ExtensionsWidget extends DashboardWidget {
   oninit(vnode) {
@@ -21,7 +22,7 @@ export default class ExtensionsWidget extends DashboardWidget {
 
     return (
       <div className="ExtensionsWidget-list">
-        {Object.keys(categories).map((category) => (this.categorizedExtensions[category] ? this.extensionCategory(category) : ''))}
+        {Object.keys(categories).map((category) => !!this.categorizedExtensions[category] && this.extensionCategory(category))}
       </div>
     );
   }
@@ -37,11 +38,11 @@ export default class ExtensionsWidget extends DashboardWidget {
 
   extensionWidget(extension) {
     return (
-      <li className={'ExtensionListItem ' + (!isExtensionEnabled(extension.id) ? 'disabled' : '')}>
+      <li className={classList('ExtensionListItem', { disabled: !isExtensionEnabled(extension.id) })}>
         <Link href={app.route('extension', { id: extension.id })}>
           <div className="ExtensionListItem-content">
             <span className="ExtensionListItem-icon ExtensionIcon" style={extension.icon}>
-              {extension.icon ? icon(extension.icon.name) : ''}
+              {!!extension.icon && icon(extension.icon.name)}
             </span>
             <span className="ExtensionListItem-title">{extension.extra['flarum-extension'].title}</span>
           </div>

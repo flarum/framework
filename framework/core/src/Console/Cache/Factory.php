@@ -15,23 +15,12 @@ use Illuminate\Contracts\Container\Container;
 
 class Factory implements FactoryContract
 {
-    /**
-     * @var Container
-     */
-    private $container;
-
-    public function __construct(Container $container)
-    {
-        $this->container = $container;
+    public function __construct(
+        protected Container $container
+    ) {
     }
 
-    /**
-     * Get a cache store instance by name.
-     *
-     * @param  string|null $name
-     * @return Repository
-     */
-    public function store($name = null)
+    public function store($name = null): Repository
     {
         return $this->container['cache.store'];
     }

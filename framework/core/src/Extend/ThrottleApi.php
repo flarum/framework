@@ -12,17 +12,18 @@ namespace Flarum\Extend;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
+use Psr\Http\Message\ServerRequestInterface;
 
 class ThrottleApi implements ExtenderInterface
 {
-    private $setThrottlers = [];
-    private $removeThrottlers = [];
+    private array $setThrottlers = [];
+    private array $removeThrottlers = [];
 
     /**
      * Add a new throttler (or override one with the same name).
      *
      * @param string $name: The name of the throttler.
-     * @param string|callable $callback
+     * @param (callable(ServerRequestInterface $request): bool)|class-string $callback
      *
      * The callable can be a closure or invokable class, and should accept:
      *   - $request: The current `\Psr\Http\Message\ServerRequestInterface` request object.
@@ -38,7 +39,7 @@ class ThrottleApi implements ExtenderInterface
      *
      * @return self
      */
-    public function set(string $name, $callback): self
+    public function set(string $name, callable|string $callback): self
     {
         $this->setThrottlers[$name] = $callback;
 
@@ -58,7 +59,7 @@ class ThrottleApi implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         $container->extend('flarum.api.throttlers', function ($throttlers) use ($container) {
             $throttlers = array_diff_key($throttlers, array_flip($this->removeThrottlers));

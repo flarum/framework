@@ -13,13 +13,8 @@ use Flarum\Extension\Extension;
 
 class Removed
 {
-    /**
-     * @var Extension
-     */
-    public $extension;
-
-    public function __construct(Extension $extension)
-    {
-        $this->extension = $extension;
+    public function __construct(
+        public Extension $extension
+    ) {
     }
 }

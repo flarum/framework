@@ -12,6 +12,7 @@ namespace Flarum\User\Command;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\AvatarUploader;
 use Flarum\User\Event\AvatarDeleting;
+use Flarum\User\User;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -19,34 +20,14 @@ class DeleteAvatarHandler
 {
     use DispatchEventsTrait;
 
-    /**
-     * @var UserRepository
-     */
-    protected $users;
-
-    /**
-     * @var AvatarUploader
-     */
-    protected $uploader;
-
-    /**
-     * @param Dispatcher $events
-     * @param UserRepository $users
-     * @param AvatarUploader $uploader
-     */
-    public function __construct(Dispatcher $events, UserRepository $users, AvatarUploader $uploader)
-    {
-        $this->events = $events;
-        $this->users = $users;
-        $this->uploader = $uploader;
+    public function __construct(
+        protected Dispatcher $events,
+        protected UserRepository $users,
+        protected AvatarUploader $uploader
+    ) {
     }
 
-    /**
-     * @param DeleteAvatar $command
-     * @return \Flarum\User\User
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     */
-    public function handle(DeleteAvatar $command)
+    public function handle(DeleteAvatar $command): User
     {
         $actor = $command->actor;
 

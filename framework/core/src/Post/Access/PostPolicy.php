@@ -17,38 +17,21 @@ use Flarum\User\User;
 
 class PostPolicy extends AbstractPolicy
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     */
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
-        $this->settings = $settings;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings
+    ) {
     }
 
-    /**
-     * @param User $actor
-     * @param string $ability
-     * @param \Flarum\Post\Post $post
-     * @return bool|null
-     */
-    public function can(User $actor, $ability, Post $post)
+    public function can(User $actor, string $ability, Post $post): ?string
     {
         if ($actor->can($ability.'Posts', $post->discussion)) {
             return $this->allow();
         }
+
+        return null;
     }
 
-    /**
-     * @param User $actor
-     * @param Post $post
-     * @return bool|null
-     */
-    public function edit(User $actor, Post $post)
+    public function edit(User $actor, Post $post): ?string
     {
         // A post is allowed to be edited if the user is the author, the post
         // hasn't been deleted by someone else, and the user is allowed to
@@ -62,15 +45,22 @@ class PostPolicy extends AbstractPolicy
                 return $this->allow();
             }
         }
+
+        return null;
     }
 
-    /**
-     * @param User $actor
-     * @param Post $post
-     * @return bool|null
-     */
-    public function hide(User $actor, Post $post)
+    public function hide(User $actor, Post $post): ?string
     {
-        return $this->edit($actor, $post);
+        if ($post->user_id == $actor->id && (! $post->hidden_at || $post->hidden_user_id == $actor->id) && $actor->can('reply', $post->discussion)) {
+            $allowHiding = $this->settings->get('allow_hide_own_posts');
+
+            if ($allowHiding === '-1'
+                || ($allowHiding === 'reply' && $post->number >= $post->discussion->last_post_number)
+                || (is_numeric($allowHiding) && $post->created_at->diffInMinutes(new Carbon) < $allowHiding)) {
+                return $this->allow();
+            }
+        }
+
+        return null;
     }
 }

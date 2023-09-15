@@ -16,11 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ScopePrivatePostVisibility
 {
-    /**
-     * @param Builder $query
-     * @param User $actor
-     */
-    public function __invoke(User $actor, Builder $query)
+    public function __invoke(User $actor, Builder $query): void
     {
         // All statements need to be wrapped in an orWhere, since we're adding a
         // subset of private posts that should be visible, not restricting the visible

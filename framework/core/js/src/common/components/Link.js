@@ -13,11 +13,9 @@ export default class Link extends Component {
   view(vnode) {
     let { options = {}, ...attrs } = vnode.attrs;
 
-    attrs.href = attrs.href || '';
+    attrs.href ||= '';
 
-    // For some reason, m.route.Link does not like vnode.text, so if present, we
-    // need to convert it to text vnodes and store it in children.
-    const children = vnode.children || { tag: '#', children: vnode.text };
+    const children = vnode.children;
 
     if (attrs.external) {
       return <a {...attrs}>{children}</a>;

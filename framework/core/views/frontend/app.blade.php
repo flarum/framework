@@ -16,10 +16,12 @@
 
         <script>
             document.getElementById('flarum-loading').style.display = 'block';
-            var flarum = {extensions: {}};
+            var flarum = {extensions: {}, debug: @js($debug)};
         </script>
 
         {!! $js !!}
+
+        <script id="flarum-rev-manifest" type="application/json">@json($revisions)</script>
 
         <script id="flarum-json-payload" type="application/json">@json($payload)</script>
 
@@ -28,9 +30,9 @@
             document.getElementById('flarum-loading').style.display = 'none';
 
             try {
-                flarum.core.app.load(data);
-                flarum.core.app.bootExtensions(flarum.extensions);
-                flarum.core.app.boot();
+                app.load(data);
+                app.bootExtensions(flarum.extensions);
+                app.boot();
             } catch (e) {
                 var error = document.getElementById('flarum-loading-error');
                 error.innerHTML += document.getElementById('flarum-content').textContent;

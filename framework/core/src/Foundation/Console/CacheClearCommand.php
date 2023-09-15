@@ -14,51 +14,26 @@ use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Foundation\Paths;
 use Illuminate\Contracts\Cache\Store;
 use Illuminate\Contracts\Events\Dispatcher;
+use Symfony\Component\Console\Command\Command;
 
 class CacheClearCommand extends AbstractCommand
 {
-    /**
-     * @var Store
-     */
-    protected $cache;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @var Paths
-     */
-    protected $paths;
-
-    /**
-     * @param Store $cache
-     * @param Paths $paths
-     */
-    public function __construct(Store $cache, Dispatcher $events, Paths $paths)
-    {
-        $this->cache = $cache;
-        $this->events = $events;
-        $this->paths = $paths;
-
+    public function __construct(
+        protected Store $cache,
+        protected Dispatcher $events,
+        protected Paths $paths
+    ) {
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('cache:clear')
             ->setDescription('Remove all temporary and generated files');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function fire()
+    protected function fire(): int
     {
         $this->info('Clearing the cache...');
 
@@ -67,7 +42,7 @@ class CacheClearCommand extends AbstractCommand
         if (! $succeeded) {
             $this->error('Could not clear contents of `storage/cache`. Please adjust file permissions and try again. This can frequently be fixed by clearing cache via the `Tools` dropdown on the Administration Dashboard page.');
 
-            return 1;
+            return Command::FAILURE;
         }
 
         $storagePath = $this->paths->storage;
@@ -76,5 +51,7 @@ class CacheClearCommand extends AbstractCommand
         array_map('unlink', glob($storagePath.'/views/*'));
 
         $this->events->dispatch(new ClearingCache);
+
+        return Command::SUCCESS;
     }
 }

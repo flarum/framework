@@ -9,33 +9,22 @@
 
 namespace Flarum\Mentions\Formatter;
 
+use Flarum\Discussion\Discussion;
+use Flarum\Http\SlugManager;
+use Flarum\Locale\TranslatorInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use s9e\TextFormatter\Renderer;
 use s9e\TextFormatter\Utils;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FormatPostMentions
 {
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    public function __construct(TranslatorInterface $translator)
-    {
-        $this->translator = $translator;
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+        private readonly SlugManager $slugManager
+    ) {
     }
 
-    /**
-     * Configure rendering for post mentions.
-     *
-     * @param \s9e\TextFormatter\Renderer $renderer
-     * @param mixed $context
-     * @param string|null $xml
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @return string
-     */
-    public function __invoke(Renderer $renderer, $context, $xml, Request $request = null)
+    public function __invoke(Renderer $renderer, mixed $context, ?string $xml, Request $request = null): string
     {
         $post = $context;
 
@@ -54,6 +43,12 @@ class FormatPostMentions
 
             if ($post && ! $post->user) {
                 $attributes['displayname'] = $this->translator->trans('core.lib.username.deleted_text');
+            }
+
+            if ($post) {
+                $attributes['discussionid'] = $this->slugManager
+                    ->forResource(Discussion::class)
+                    ->toSlug($post->discussion);
             }
 
             return $attributes;

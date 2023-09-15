@@ -1,6 +1,5 @@
 import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
-import NotificationGrid from 'flarum/forum/components/NotificationGrid';
 
 import addLikeAction from './addLikeAction';
 import addLikesList from './addLikesList';
@@ -16,7 +15,7 @@ app.initializers.add('flarum-likes', () => {
   addLikesList();
   addLikesTabToUserProfile();
 
-  extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
+  extend('flarum/forum/components/NotificationGrid', 'notificationTypes', function (items) {
     items.add('postLiked', {
       name: 'postLiked',
       icon: 'far fa-thumbs-up',

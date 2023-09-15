@@ -13,7 +13,7 @@ use Flarum\Discussion\Event\Saving;
 
 class SaveSubscriptionToDatabase
 {
-    public function handle(Saving $event)
+    public function handle(Saving $event): void
     {
         $discussion = $event->discussion;
         $data = $event->data;

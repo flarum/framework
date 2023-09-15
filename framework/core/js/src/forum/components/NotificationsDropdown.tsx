@@ -48,7 +48,7 @@ export default class NotificationsDropdown<CustomAttrs extends IDropdownAttrs = 
   getMenu() {
     return (
       <div className={classList('Dropdown-menu', this.attrs.menuClassName)} onclick={this.menuClick.bind(this)}>
-        {this.showing && NotificationList.component({ state: this.attrs.state })}
+        {this.showing && <NotificationList state={this.attrs.state} />}
       </div>
     );
   }

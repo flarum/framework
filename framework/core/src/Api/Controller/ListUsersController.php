@@ -20,20 +20,11 @@ use Tobscure\JsonApi\Document;
 
 class ListUsersController extends AbstractListController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = UserSerializer::class;
+    public ?string $serializer = UserSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $include = ['groups'];
+    public array $include = ['groups'];
 
-    /**
-     * {@inheritdoc}
-     */
-    public $sortFields = [
+    public array $sortFields = [
         'username',
         'commentCount',
         'discussionCount',
@@ -41,37 +32,14 @@ class ListUsersController extends AbstractListController
         'joinedAt'
     ];
 
-    /**
-     * @var UserFilterer
-     */
-    protected $filterer;
-
-    /**
-     * @var UserSearcher
-     */
-    protected $searcher;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @param UserFilterer $filterer
-     * @param UserSearcher $searcher
-     * @param UrlGenerator $url
-     */
-    public function __construct(UserFilterer $filterer, UserSearcher $searcher, UrlGenerator $url)
-    {
-        $this->filterer = $filterer;
-        $this->searcher = $searcher;
-        $this->url = $url;
+    public function __construct(
+        protected UserFilterer $filterer,
+        protected UserSearcher $searcher,
+        protected UrlGenerator $url
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
 

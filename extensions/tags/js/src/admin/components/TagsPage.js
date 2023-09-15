@@ -16,20 +16,14 @@ function tagItem(tag) {
       <div className="TagListItem-info">
         {tagIcon(tag)}
         <span className="TagListItem-name">{tag.name()}</span>
-        {Button.component({
-          className: 'Button Button--link',
-          icon: 'fas fa-pencil-alt',
-          onclick: () => app.modal.show(EditTagModal, { model: tag }),
-        })}
+        <Button className="Button Button--link" icon="fas fa-pencil-alt" onclick={() => app.modal.show(EditTagModal, { model: tag })} />
       </div>
-      {!tag.isChild() && tag.position() !== null ? (
+      {!tag.isChild() && tag.position() !== null && (
         <ol className="TagListItem-children TagList">
           {sortTags(app.store.all('tags'))
             .filter((child) => child.parent() === tag)
             .map(tagItem)}
         </ol>
-      ) : (
-        ''
       )}
     </li>
   );
@@ -75,14 +69,9 @@ export default class TagsPage extends ExtensionPage {
               <div className="TagGroup">
                 <label>{app.translator.trans('flarum-tags.admin.tags.primary_heading')}</label>
                 <ol className="TagList TagList--primary">{tags.filter((tag) => tag.position() !== null && !tag.isChild()).map(tagItem)}</ol>
-                {Button.component(
-                  {
-                    className: 'Button TagList-button',
-                    icon: 'fas fa-plus',
-                    onclick: () => app.modal.show(EditTagModal, { primary: true }),
-                  },
-                  app.translator.trans('flarum-tags.admin.tags.create_primary_tag_button')
-                )}
+                <Button className="Button TagList-button" icon="fas fa-plus" onclick={() => app.modal.show(EditTagModal, { primary: true })}>
+                  {app.translator.trans('flarum-tags.admin.tags.create_primary_tag_button')}
+                </Button>
               </div>
 
               <div className="TagGroup TagGroup--secondary">
@@ -93,14 +82,9 @@ export default class TagsPage extends ExtensionPage {
                     .sort((a, b) => a.name().localeCompare(b.name()))
                     .map(tagItem)}
                 </ul>
-                {Button.component(
-                  {
-                    className: 'Button TagList-button',
-                    icon: 'fas fa-plus',
-                    onclick: () => app.modal.show(EditTagModal, { primary: false }),
-                  },
-                  app.translator.trans('flarum-tags.admin.tags.create_secondary_tag_button')
-                )}
+                <Button className="Button TagList-button" icon="fas fa-plus" onclick={() => app.modal.show(EditTagModal, { primary: false })}>
+                  {app.translator.trans('flarum-tags.admin.tags.create_secondary_tag_button')}
+                </Button>
               </div>
               <div className="Form">
                 <label>{app.translator.trans('flarum-tags.admin.tags.settings_heading')}</label>

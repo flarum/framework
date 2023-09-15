@@ -14,23 +14,9 @@ use Flarum\User\User;
 
 class PostWasUnliked
 {
-    /**
-     * @var Post
-     */
-    public $post;
-
-    /**
-     * @var User
-     */
-    public $user;
-
-    /**
-     * @param Post $post
-     * @param User $user
-     */
-    public function __construct(Post $post, User $user)
-    {
-        $this->post = $post;
-        $this->user = $user;
+    public function __construct(
+        public Post $post,
+        public User $user
+    ) {
     }
 }

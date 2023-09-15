@@ -11,5 +11,5 @@ namespace Flarum\Install;
 
 interface ReversibleStep extends Step
 {
-    public function revert();
+    public function revert(): void;
 }

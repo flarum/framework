@@ -1,5 +1,6 @@
 import app from 'flarum/forum/app';
-import Notification from 'flarum/components/Notification';
+import Notification from 'flarum/forum/components/Notification';
+
 import { isPermanentSuspensionDate } from '../helpers/suspensionHelper';
 
 export default class UserSuspendedNotification extends Notification {

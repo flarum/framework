@@ -19,39 +19,15 @@ use Symfony\Component\Console\Input\StringInput;
 
 class MinorUpdateHandler
 {
-    /**
-     * @var ComposerAdapter
-     */
-    protected $composer;
-
-    /**
-     * @var \Flarum\PackageManager\Settings\LastUpdateCheck
-     */
-    protected $lastUpdateCheck;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @var ComposerJson
-     */
-    protected $composerJson;
-
-    public function __construct(ComposerAdapter $composer, LastUpdateCheck $lastUpdateCheck, Dispatcher $events, ComposerJson $composerJson)
-    {
-        $this->composer = $composer;
-        $this->lastUpdateCheck = $lastUpdateCheck;
-        $this->events = $events;
-        $this->composerJson = $composerJson;
+    public function __construct(
+        protected ComposerAdapter $composer,
+        protected LastUpdateCheck $lastUpdateCheck,
+        protected Dispatcher $events,
+        protected ComposerJson $composerJson
+    ) {
     }
 
-    /**
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     * @throws ComposerUpdateFailedException
-     */
-    public function handle(MinorUpdate $command)
+    public function handle(MinorUpdate $command): void
     {
         $command->actor->assertAdmin();
 

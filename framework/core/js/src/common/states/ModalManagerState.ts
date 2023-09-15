@@ -10,6 +10,12 @@ import Modal, { IDismissibleOptions } from '../components/Modal';
  */
 type UnsafeModalClass = ComponentClass<any, Modal> & { get dismissibleOptions(): IDismissibleOptions; component: typeof Component.component };
 
+/**
+ * Alternatively, `show` takes an async function that returns a modal class.
+ * This is useful for lazy-loading modals.
+ */
+type AsyncModalClass = () => Promise<any & { default: UnsafeModalClass }>;
+
 type ModalItem = {
   componentClass: UnsafeModalClass;
   attrs?: Record<string, unknown>;
@@ -38,6 +44,11 @@ export default class ModalManagerState {
   backdropShown: boolean = false;
 
   /**
+   * @internal
+   */
+  loadingModal: boolean = false;
+
+  /**
    * Used to force re-initialization of modals if a modal
    * is replaced by another of the same type.
    */
@@ -61,12 +72,22 @@ export default class ModalManagerState {
    * @example <caption>Stacking modals</caption>
    * app.modal.show(MyCoolStackedModal, { attr: 'value' }, true);
    */
-  show(componentClass: UnsafeModalClass, attrs: Record<string, unknown> = {}, stackModal: boolean = false): void {
-    if (!(componentClass.prototype instanceof Modal)) {
+  async show(componentClass: UnsafeModalClass | AsyncModalClass, attrs: Record<string, unknown> = {}, stackModal: boolean = false): Promise<void> {
+    if (!(componentClass.prototype instanceof Modal) && typeof componentClass !== 'function') {
       // This is duplicated so that if the error is caught, an error message still shows up in the debug console.
       const invalidModalWarning = 'The ModalManager can only show Modals.';
       console.error(invalidModalWarning);
       throw new Error(invalidModalWarning);
+    }
+
+    if (!(componentClass.prototype instanceof Modal)) {
+      this.loadingModal = true;
+      m.redraw.sync();
+
+      componentClass = componentClass as AsyncModalClass;
+      componentClass = (await componentClass()).default;
+
+      this.loadingModal = false;
     }
 
     this.backdropShown = true;
@@ -79,6 +100,8 @@ export default class ModalManagerState {
     // skip this RAF call, the hook will attempt to add a focus trap as well as lock scroll
     // onto the newly added modal before it's in the DOM, creating an extra scrollbar.
     requestAnimationFrame(() => {
+      componentClass = componentClass as UnsafeModalClass;
+
       // Set current modal
       this.modal = { componentClass, attrs, key: this.key++ };
 

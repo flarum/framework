@@ -9,44 +9,27 @@
 
 namespace Flarum\Mentions\Formatter;
 
+use Flarum\Locale\TranslatorInterface;
 use s9e\TextFormatter\Utils;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UnparsePostMentions
 {
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    public function __construct(TranslatorInterface $translator)
-    {
-        $this->translator = $translator;
+    public function __construct(
+        private readonly TranslatorInterface $translator
+    ) {
     }
 
-    /**
-     * Configure rendering for user mentions.
-     *
-     * @param string $xml
-     * @param mixed $context
-     * @return string $xml to be unparsed
-     */
-    public function __invoke($context, string $xml)
+    public function __invoke(mixed $context, string $xml): string
     {
-        $xml = $this->updatePostMentionTags($context, $xml);
-        $xml = $this->unparsePostMentionTags($xml);
-
-        return $xml;
+        return $this->unparsePostMentionTags(
+            $this->updatePostMentionTags($context, $xml)
+        );
     }
 
     /**
      * Updates XML post mention tags before unparsing so that unparsing uses new display names.
-     *
-     * @param mixed $context
-     * @param string $xml : Parsed text.
-     * @return string $xml : Updated XML tags;
      */
-    protected function updatePostMentionTags($context, string $xml): string
+    protected function updatePostMentionTags(mixed $context, string $xml): string
     {
         $post = $context;
 
@@ -64,7 +47,7 @@ class UnparsePostMentions
                 $attributes['displayname'] = $this->translator->trans('core.lib.username.deleted_text');
             }
 
-            if (strpos($attributes['displayname'], '"#') !== false) {
+            if (str_contains($attributes['displayname'], '"#')) {
                 $attributes['displayname'] = preg_replace('/"#[a-z]{0,3}[0-9]+/', '_', $attributes['displayname']);
             }
 
@@ -74,15 +57,12 @@ class UnparsePostMentions
 
     /**
      * Transforms post mention tags from XML to raw unparsed content with updated format and display name.
-     *
-     * @param string $xml : Parsed text.
-     * @return string : Unparsed text.
      */
     protected function unparsePostMentionTags(string $xml): string
     {
         $tagName = 'POSTMENTION';
 
-        if (strpos($xml, $tagName) === false) {
+        if (! str_contains($xml, $tagName)) {
             return $xml;
         }
 

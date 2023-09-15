@@ -36,7 +36,7 @@ export default class TagDiscussionModal extends TagSelectionModal<TagDiscussionM
       },
     };
     attrs.requireParentTag = true;
-    attrs.selectableTags = () => getSelectableTags(attrs.discussion);
+    attrs.selectableTags = () => getSelectableTags(attrs.discussion!);
     attrs.selectedTags ??= (attrs.discussion?.tags() as Tag[]) || [];
     attrs.canSelect = (tag) => tag.canStartDiscussion();
 

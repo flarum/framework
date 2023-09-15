@@ -108,7 +108,7 @@ export default function () {
           user,
           reason,
         }),
-        detail ? <span className="Post-flagged-detail">{detail}</span> : '',
+        !!detail && <span className="Post-flagged-detail">{detail}</span>,
       ];
     }
   };

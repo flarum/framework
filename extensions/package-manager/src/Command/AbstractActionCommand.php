@@ -13,15 +13,8 @@ use Flarum\PackageManager\Task\Task;
 
 abstract class AbstractActionCommand
 {
-    /**
-     * @var Task|null
-     */
-    public $task = null;
-
-    /**
-     * @var string|null
-     */
-    public $package = null;
+    public ?Task $task = null;
+    public ?string $package = null;
 
     abstract public function getOperationName(): string;
 }

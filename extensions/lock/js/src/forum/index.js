@@ -1,6 +1,5 @@
 import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
-import NotificationGrid from 'flarum/forum/components/NotificationGrid';
 
 import DiscussionLockedNotification from './components/DiscussionLockedNotification';
 import addLockBadge from './addLockBadge';
@@ -14,7 +13,7 @@ app.initializers.add('flarum-lock', () => {
   addLockBadge();
   addLockControl();
 
-  extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
+  extend('flarum/forum/components/NotificationGrid', 'notificationTypes', function (items) {
     items.add('discussionLocked', {
       name: 'discussionLocked',
       icon: 'fas fa-lock',

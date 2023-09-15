@@ -10,53 +10,40 @@
 namespace Flarum\Frontend;
 
 use Flarum\Api\Client;
-use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Frontend
 {
     /**
-     * @var Factory
-     */
-    protected $view;
-
-    /**
-     * @var Client
-     */
-    protected $api;
-
-    /**
      * @var callable[]
      */
-    protected $content = [];
+    protected array $content = [];
 
-    public function __construct(Factory $view, Client $api)
-    {
-        $this->view = $view;
-        $this->api = $api;
+    public function __construct(
+        protected Client $api,
+        protected Container $container
+    ) {
     }
 
-    /**
-     * @param callable $content
-     */
-    public function content(callable $content)
+    public function content(callable $content): void
     {
         $this->content[] = $content;
     }
 
     public function document(Request $request): Document
     {
-        $forumDocument = $this->getForumDocument($request);
+        $forumApiDocument = $this->getForumDocument($request);
 
-        $document = new Document($this->view, $forumDocument, $request);
+        $document = $this->container->makeWith(Document::class, compact('forumApiDocument', 'request'));
 
         $this->populate($document, $request);
 
         return $document;
     }
 
-    protected function populate(Document $document, Request $request)
+    protected function populate(Document $document, Request $request): void
     {
         foreach ($this->content as $content) {
             $content($document, $request);

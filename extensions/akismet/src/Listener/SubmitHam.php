@@ -14,17 +14,12 @@ use Flarum\Approval\Event\PostWasApproved;
 
 class SubmitHam
 {
-    /**
-     * @var Akismet
-     */
-    protected $akismet;
-
-    public function __construct(Akismet $akismet)
-    {
-        $this->akismet = $akismet;
+    public function __construct(
+        protected Akismet $akismet
+    ) {
     }
 
-    public function handle(PostWasApproved $event)
+    public function handle(PostWasApproved $event): void
     {
         if (! $this->akismet->isConfigured()) {
             return;

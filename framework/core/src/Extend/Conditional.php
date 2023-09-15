@@ -18,7 +18,7 @@ class Conditional implements ExtenderInterface
     /**
      * @var array<array{condition: bool|callable, extenders: ExtenderInterface[]}>
      */
-    protected $conditions = [];
+    protected array $conditions = [];
 
     /**
      * @param ExtenderInterface[] $extenders
@@ -31,10 +31,16 @@ class Conditional implements ExtenderInterface
     }
 
     /**
-     * @param bool|callable $condition
      * @param ExtenderInterface[] $extenders
      */
-    public function when($condition, array $extenders): self
+    public function whenExtensionDisabled(string $extensionId, array $extenders): self
+    {
+        return $this->when(function (ExtensionManager $extensions) use ($extensionId) {
+            return ! $extensions->isEnabled($extensionId);
+        }, $extenders);
+    }
+
+    public function when(callable|bool $condition, array $extenders): self
     {
         $this->conditions[] = [
             'condition' => $condition,
@@ -44,7 +50,7 @@ class Conditional implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         foreach ($this->conditions as $condition) {
             if (is_callable($condition['condition'])) {

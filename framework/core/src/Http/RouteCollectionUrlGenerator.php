@@ -14,34 +14,13 @@ namespace Flarum\Http;
  */
 class RouteCollectionUrlGenerator
 {
-    /**
-     * @var string|null
-     */
-    protected $baseUrl;
-
-    /**
-     * @var RouteCollection
-     */
-    protected $routes;
-
-    /**
-     * @param string $baseUrl
-     * @param RouteCollection $routes
-     */
-    public function __construct($baseUrl, RouteCollection $routes)
-    {
-        $this->baseUrl = $baseUrl;
-        $this->routes = $routes;
+    public function __construct(
+        protected string $baseUrl,
+        protected RouteCollection $routes
+    ) {
     }
 
-    /**
-     * Generate a URL to a named route.
-     *
-     * @param string $name
-     * @param array $parameters
-     * @return string
-     */
-    public function route($name, $parameters = [])
+    public function route(string $name, array $parameters = []): string
     {
         $path = $this->routes->getPath($name, $parameters);
         $path = ltrim($path, '/');
@@ -49,23 +28,12 @@ class RouteCollectionUrlGenerator
         return $this->baseUrl.'/'.$path;
     }
 
-    /**
-     * Generate a URL to a path.
-     *
-     * @param string $path
-     * @return string
-     */
-    public function path($path)
+    public function path(string $path): string
     {
         return $this->baseUrl.'/'.$path;
     }
 
-    /**
-     * Generate a URL to base with UrlGenerator's prefix.
-     *
-     * @return string
-     */
-    public function base()
+    public function base(): string
     {
         return $this->baseUrl;
     }

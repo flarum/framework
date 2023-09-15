@@ -7,4 +7,4 @@
  * standards, but we use a custom threshold for each light and dark modes
  * to preserve design consistency.
  */
-export default function isDark(hexcolor: string): boolean;
+export default function isDark(hexcolor: string | null): boolean;

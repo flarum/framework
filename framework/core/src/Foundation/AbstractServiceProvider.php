@@ -9,35 +9,17 @@
 
 namespace Flarum\Foundation;
 
-use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 use Illuminate\Support\ServiceProvider;
 
 abstract class AbstractServiceProvider extends ServiceProvider
 {
-    /**
-     * @deprecated perpetually, not removed because Laravel needs it.
-     * @var Container
-     */
-    protected $app;
+    protected ApplicationContract $container;
 
-    /**
-     * @var Container
-     */
-    protected $container;
-
-    /**
-     * @param Container $container
-     */
-    public function __construct(Container $container)
+    public function __construct(ApplicationContract $app)
     {
-        $this->app = $container;
-        $this->container = $container;
-    }
+        parent::__construct($app);
 
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
-    {
+        $this->container = $app;
     }
 }

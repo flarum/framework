@@ -17,27 +17,26 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Intervention\Image\ImageManager;
+use League\Flysystem\Visibility;
 use RuntimeException;
 
 class FilesystemServiceProvider extends AbstractServiceProvider
 {
     protected const INTERVENTION_DRIVERS = ['gd' => 'gd', 'imagick' => 'imagick'];
 
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    public function register(): void
     {
         $this->container->singleton('files', function () {
-            return new Filesystem;
+            return new Filesystem();
         });
 
         $this->container->singleton('flarum.filesystem.disks', function () {
             return [
                 'flarum-assets' => function (Paths $paths, UrlGenerator $url) {
                     return [
-                        'root'   => "$paths->public/assets",
-                        'url'    => $url->to('forum')->path('assets')
+                        'root'       => "$paths->public/assets",
+                        'url'        => $url->to('forum')->path('assets'),
+                        'visibility' => Visibility::PUBLIC
                     ];
                 },
                 'flarum-avatars' => function (Paths $paths, UrlGenerator $url) {

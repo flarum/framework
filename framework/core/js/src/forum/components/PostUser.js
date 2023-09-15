@@ -22,26 +22,16 @@ export default class PostUser extends Component {
     if (!user) {
       return (
         <div className="PostUser">
-          <h3 class="PostUser-name">
+          <h3 className="PostUser-name">
             {avatar(user, { className: 'PostUser-avatar' })} {username(user)}
           </h3>
         </div>
       );
     }
 
-    let card = '';
-
-    if (!post.isHidden() && this.attrs.cardVisible) {
-      card = UserCard.component({
-        user,
-        className: 'UserCard--popover',
-        controlsButtonClassName: 'Button Button--icon Button--flat',
-      });
-    }
-
     return (
       <div className="PostUser">
-        <h3 class="PostUser-name">
+        <h3 className="PostUser-name">
           <Link href={app.route.user(user)}>
             {avatar(user, { className: 'PostUser-avatar' })}
             {userOnline(user)}
@@ -49,7 +39,10 @@ export default class PostUser extends Component {
           </Link>
         </h3>
         <ul className="PostUser-badges badges">{listItems(user.badges().toArray())}</ul>
-        {card}
+
+        {!post.isHidden() && this.attrs.cardVisible && (
+          <UserCard user={user} className="UserCard--popover" controlsButtonClassName="Button Button--icon Button--flat" />
+        )}
       </div>
     );
   }

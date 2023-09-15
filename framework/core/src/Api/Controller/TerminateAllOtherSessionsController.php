@@ -12,16 +12,12 @@ namespace Flarum\Api\Controller;
 use Flarum\Http\RememberAccessToken;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\SessionAccessToken;
-use Illuminate\Database\Eloquent\Builder;
-use Laminas\Diactoros\Response\EmptyResponse;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Psr\Http\Message\ServerRequestInterface;
 
 class TerminateAllOtherSessionsController extends AbstractDeleteController
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function delete(ServerRequestInterface $request)
+    protected function delete(ServerRequestInterface $request): void
     {
         $actor = RequestUtil::getActor($request);
 
@@ -39,7 +35,5 @@ class TerminateAllOtherSessionsController extends AbstractDeleteController
                     ->where('type', SessionAccessToken::$type)
                     ->orWhere('type', RememberAccessToken::$type);
             })->delete();
-
-        return new EmptyResponse(204);
     }
 }

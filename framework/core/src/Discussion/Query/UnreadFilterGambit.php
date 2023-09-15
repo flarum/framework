@@ -32,18 +32,12 @@ class UnreadFilterGambit extends AbstractRegexGambit implements FilterInterface
         $this->discussions = $discussions;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getGambitPattern()
+    public function getGambitPattern(): string
     {
         return 'is:unread';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function conditions(SearchState $search, array $matches, $negate)
+    protected function conditions(SearchState $search, array $matches, bool $negate): void
     {
         $this->constrain($search->getQuery(), $search->getActor(), $negate);
     }
@@ -53,12 +47,12 @@ class UnreadFilterGambit extends AbstractRegexGambit implements FilterInterface
         return 'unread';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
         $this->constrain($filterState->getQuery(), $filterState->getActor(), $negate);
     }
 
-    protected function constrain(Builder $query, User $actor, bool $negate)
+    protected function constrain(Builder $query, User $actor, bool $negate): void
     {
         if ($actor->exists) {
             $readIds = $this->discussions->getReadIdsQuery($actor);

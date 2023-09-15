@@ -16,20 +16,10 @@ use Symfony\Component\Console\Input\ArrayInput;
 
 class CheckForUpdatesHandler
 {
-    /**
-     * @var ComposerAdapter
-     */
-    protected $composer;
-
-    /**
-     * @var \Flarum\PackageManager\Settings\LastUpdateCheck
-     */
-    protected $lastUpdateCheck;
-
-    public function __construct(ComposerAdapter $composer, LastUpdateCheck $lastUpdateCheck)
-    {
-        $this->composer = $composer;
-        $this->lastUpdateCheck = $lastUpdateCheck;
+    public function __construct(
+        private ComposerAdapter $composer,
+        private LastUpdateCheck $lastUpdateCheck
+    ) {
     }
 
     /**
@@ -50,7 +40,7 @@ class CheckForUpdatesHandler
      *
      * @throws ComposerCommandFailedException
      */
-    public function handle(CheckForUpdates $command)
+    public function handle(CheckForUpdates $command): array
     {
         $firstOutput = $this->runComposerCommand(false, $command);
         $firstOutput = json_decode($this->cleanJson($firstOutput), true);

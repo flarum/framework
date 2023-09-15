@@ -1,7 +1,7 @@
 import app from '../../forum/app';
 import Component from '../../common/Component';
 import ScrollListener from '../../common/utils/ScrollListener';
-import PostLoading from './LoadingPost';
+import LoadingPost from './LoadingPost';
 import ReplyPlaceholder from './ReplyPlaceholder';
 import Button from '../../common/components/Button';
 import ItemList from '../../common/utils/ItemList';
@@ -48,7 +48,7 @@ export default class PostStream extends Component {
       if (post) {
         const time = post.createdAt();
         const PostComponent = app.postComponents[post.contentType()];
-        content = PostComponent ? PostComponent.component({ post }) : '';
+        content = !!PostComponent && <PostComponent post={post} />;
 
         attrs.key = 'post' + post.id();
         attrs.oncreate = postFadeIn;
@@ -75,7 +75,7 @@ export default class PostStream extends Component {
       } else {
         attrs.key = 'post' + postIds[this.stream.visibleStart + i];
 
-        content = PostLoading.component();
+        content = <LoadingPost />;
       }
 
       return (
@@ -105,7 +105,7 @@ export default class PostStream extends Component {
     if (viewingEnd && (!app.session.user || this.discussion.canReply())) {
       items.push(
         <div className="PostStream-item" key="reply" data-index={this.stream.count()} oncreate={postFadeIn}>
-          {ReplyPlaceholder.component({ discussion: this.discussion })}
+          <ReplyPlaceholder discussion={this.discussion} />
         </div>
       );
     }

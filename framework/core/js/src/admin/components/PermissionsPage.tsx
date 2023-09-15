@@ -17,28 +17,28 @@ export default class PermissionsPage extends AdminPage {
   }
 
   content() {
-    return [
-      <div className="PermissionsPage-groups">
-        {app.store
-          .all<Group>('groups')
-          .filter((group) => [Group.GUEST_ID, Group.MEMBER_ID].indexOf(group.id()!) === -1)
-          .map((group) => (
-            <button className="Button Group" onclick={() => app.modal.show(EditGroupModal, { group })}>
-              {GroupBadge.component({
-                group,
-                className: 'Group-icon',
-                label: null,
-              })}
-              <span className="Group-name">{group.namePlural()}</span>
-            </button>
-          ))}
-        <button className="Button Group Group--add" onclick={() => app.modal.show(EditGroupModal)}>
-          {icon('fas fa-plus', { className: 'Group-icon' })}
-          <span className="Group-name">{app.translator.trans('core.admin.permissions.new_group_button')}</span>
-        </button>
-      </div>,
+    return (
+      <>
+        <div className="PermissionsPage-groups">
+          {app.store
+            .all<Group>('groups')
+            .filter((group) => [Group.GUEST_ID, Group.MEMBER_ID].indexOf(group.id()!) === -1)
+            .map((group) => (
+              <button className="Button Group" onclick={() => app.modal.show(EditGroupModal, { group })}>
+                <GroupBadge group={group} className="Group-icon" label={null} />
+                <span className="Group-name">{group.namePlural()}</span>
+              </button>
+            ))}
+          <button className="Button Group Group--add" onclick={() => app.modal.show(EditGroupModal)}>
+            {icon('fas fa-plus', { className: 'Group-icon' })}
+            <span className="Group-name">{app.translator.trans('core.admin.permissions.new_group_button')}</span>
+          </button>
+        </div>
 
-      <div className="PermissionsPage-permissions">{PermissionGrid.component()}</div>,
-    ];
+        <div className="PermissionsPage-permissions">
+          <PermissionGrid />
+        </div>
+      </>
+    );
   }
 }

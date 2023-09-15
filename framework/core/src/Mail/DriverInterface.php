@@ -12,7 +12,7 @@ namespace Flarum\Mail;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Support\MessageBag;
-use Swift_Transport;
+use Symfony\Component\Mailer\Transport\TransportInterface;
 
 /**
  * An interface for a mail service.
@@ -56,5 +56,5 @@ interface DriverInterface
     /**
      * Build a mail transport based on Flarum's current settings.
      */
-    public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport;
+    public function buildTransport(SettingsRepositoryInterface $settings): TransportInterface;
 }

@@ -35,6 +35,7 @@ flarum-likes:
     # These translations are used by the Users Who Like This modal dialog.
     post_likes:
       title: Users Who Like This
+      load_more_button: => core.ref.load_more
 
     # These translations are used in the Settings page.
     settings:

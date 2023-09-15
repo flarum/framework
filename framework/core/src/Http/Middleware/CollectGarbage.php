@@ -23,20 +23,13 @@ use SessionHandlerInterface;
 
 class CollectGarbage implements Middleware
 {
-    /**
-     * @var SessionHandlerInterface
-     */
-    protected $sessionHandler;
+    protected array $sessionConfig;
 
-    /**
-     * @var array
-     */
-    protected $sessionConfig;
-
-    public function __construct(SessionHandlerInterface $handler, ConfigRepository $config)
-    {
-        $this->sessionHandler = $handler;
-        $this->sessionConfig = $config->get('session');
+    public function __construct(
+        protected SessionHandlerInterface $sessionHandler,
+        ConfigRepository $config
+    ) {
+        $this->sessionConfig = (array) $config->get('session');
     }
 
     public function process(Request $request, Handler $handler): Response
@@ -46,7 +39,7 @@ class CollectGarbage implements Middleware
         return $handler->handle($request);
     }
 
-    private function collectGarbageSometimes()
+    private function collectGarbageSometimes(): void
     {
         // In order to save performance, we only execute this query
         // from time to time (with 2% chance).
@@ -67,12 +60,12 @@ class CollectGarbage implements Middleware
         $this->sessionHandler->gc($this->getSessionLifetimeInSeconds());
     }
 
-    private function hit()
+    private function hit(): bool
     {
         return mt_rand(1, 100) <= 2;
     }
 
-    private function getSessionLifetimeInSeconds()
+    private function getSessionLifetimeInSeconds(): float|int
     {
         return $this->sessionConfig['lifetime'] * 60;
     }

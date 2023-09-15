@@ -9,63 +9,41 @@
 
 namespace Flarum\Query;
 
+use Closure;
 use Flarum\User\User;
 use Illuminate\Database\Query\Builder;
 
 abstract class AbstractQueryState
 {
-    /**
-     * @var Builder
-     */
-    protected $query;
-
-    /**
-     * @var User
-     */
-    protected $actor;
-
-    /**
-     * @var mixed
-     */
-    protected $defaultSort = [];
-
-    /**
-     * @param Builder $query
-     * @param User $actor
-     */
-    public function __construct(Builder $query, User $actor, $defaultSort = [])
-    {
-        $this->query = $query;
-        $this->actor = $actor;
-        $this->defaultSort = $defaultSort;
+    public function __construct(
+        protected Builder $query,
+        protected User $actor,
+        /**
+         * An array of sort-order pairs, where the column
+         *     is the key, and the order is the value. The order may be 'asc',
+         *     'desc', or an array of IDs to order by.
+         *     Alternatively, a callable may be used.
+         *
+         * @var array<string, string|int[]>|Closure $defaultSort
+         */
+        protected array|Closure $defaultSort = []
+    ) {
     }
 
     /**
      * Get the query builder for the search results query.
-     *
-     * @return Builder
      */
-    public function getQuery()
+    public function getQuery(): Builder
     {
         return $this->query;
     }
 
-    /**
-     * Get the user who is performing the search.
-     *
-     * @return User
-     */
-    public function getActor()
+    public function getActor(): User
     {
         return $this->actor;
     }
 
-    /**
-     * Get the default sort order for the search.
-     *
-     * @return array
-     */
-    public function getDefaultSort()
+    public function getDefaultSort(): array|Closure
     {
         return $this->defaultSort;
     }
@@ -73,14 +51,8 @@ abstract class AbstractQueryState
     /**
      * Set the default sort order for the search. This will only be applied if
      * a sort order has not been specified in the search criteria.
-     *
-     * @param mixed $defaultSort An array of sort-order pairs, where the column
-     *     is the key, and the order is the value. The order may be 'asc',
-     *     'desc', or an array of IDs to order by.
-     *     Alternatively, a callable may be used.
-     * @return mixed
      */
-    public function setDefaultSort($defaultSort)
+    public function setDefaultSort(array|Closure $defaultSort): void
     {
         $this->defaultSort = $defaultSort;
     }

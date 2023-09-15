@@ -39,10 +39,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ForumServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    public function register(): void
     {
         $this->container->extend(UrlGenerator::class, function (UrlGenerator $url, Container $container) {
             return $url->addCollection('forum', $container->make('flarum.forum.routes'));
@@ -113,6 +110,10 @@ class ForumServiceProvider extends AbstractServiceProvider
                 });
             });
 
+            $assets->jsDirectory(function (SourceCollector $sources) {
+                $sources->addDirectory(__DIR__.'/../../js/dist/forum', 'core');
+            });
+
             $assets->css(function (SourceCollector $sources) use ($container) {
                 $sources->addFile(__DIR__.'/../../less/forum.less');
                 $sources->addString(function () use ($container) {
@@ -146,7 +147,7 @@ class ForumServiceProvider extends AbstractServiceProvider
         });
     }
 
-    public function boot(Container $container, Dispatcher $events, Factory $view)
+    public function boot(Container $container, Dispatcher $events, Factory $view): void
     {
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.forum');
 
@@ -199,13 +200,7 @@ class ForumServiceProvider extends AbstractServiceProvider
         );
     }
 
-    /**
-     * Populate the forum client routes.
-     *
-     * @param RouteCollection $routes
-     * @param Container       $container
-     */
-    protected function populateRoutes(RouteCollection $routes, Container $container)
+    protected function populateRoutes(RouteCollection $routes, Container $container): void
     {
         $factory = $container->make(RouteHandlerFactory::class);
 
@@ -213,13 +208,7 @@ class ForumServiceProvider extends AbstractServiceProvider
         $callback($routes, $factory);
     }
 
-    /**
-     * Determine the default route.
-     *
-     * @param RouteCollection $routes
-     * @param Container       $container
-     */
-    protected function setDefaultRoute(RouteCollection $routes, Container $container)
+    protected function setDefaultRoute(RouteCollection $routes, Container $container): void
     {
         $factory = $container->make(RouteHandlerFactory::class);
         $defaultRoute = $container->make('flarum.settings')->get('default_route');

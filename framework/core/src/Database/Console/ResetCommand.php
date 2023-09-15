@@ -11,29 +11,18 @@ namespace Flarum\Database\Console;
 
 use Flarum\Console\AbstractCommand;
 use Flarum\Extension\ExtensionManager;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 
 class ResetCommand extends AbstractCommand
 {
-    /**
-     * @var ExtensionManager
-     */
-    protected $manager;
-
-    /**
-     * @param ExtensionManager $manager
-     */
-    public function __construct(ExtensionManager $manager)
-    {
-        $this->manager = $manager;
-
+    public function __construct(
+        protected ExtensionManager $manager
+    ) {
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('migrate:reset')
@@ -46,17 +35,14 @@ class ResetCommand extends AbstractCommand
             );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function fire()
+    protected function fire(): int
     {
         $extensionName = $this->input->getOption('extension');
 
         if (! $extensionName) {
             $this->info('No extension specified. Please check command syntax.');
 
-            return;
+            return Command::INVALID;
         }
 
         $extension = $this->manager->getExtension($extensionName);
@@ -64,7 +50,7 @@ class ResetCommand extends AbstractCommand
         if (! $extension) {
             $this->info('Could not find extension '.$extensionName);
 
-            return;
+            return Command::FAILURE;
         }
 
         $this->info('Rolling back extension: '.$extensionName);
@@ -73,5 +59,7 @@ class ResetCommand extends AbstractCommand
         $this->manager->migrateDown($extension);
 
         $this->info('DONE.');
+
+        return Command::SUCCESS;
     }
 }

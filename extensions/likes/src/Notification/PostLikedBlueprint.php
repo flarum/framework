@@ -9,67 +9,40 @@
 
 namespace Flarum\Likes\Notification;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Post\Post;
 use Flarum\User\User;
 
 class PostLikedBlueprint implements BlueprintInterface
 {
-    /**
-     * @var Post
-     */
-    public $post;
-
-    /**
-     * @var User
-     */
-    public $user;
-
-    /**
-     * @param Post $post
-     * @param User $user
-     */
-    public function __construct(Post $post, User $user)
-    {
-        $this->post = $post;
-        $this->user = $user;
+    public function __construct(
+        public Post $post,
+        public User $user
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getSubject()
+    public function getSubject(): ?AbstractModel
     {
         return $this->post;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getFromUser()
+    public function getFromUser(): ?User
     {
         return $this->user;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getData()
+    public function getData(): mixed
     {
+        return null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getType()
+    public static function getType(): string
     {
         return 'postLiked';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubjectModel()
+    public static function getSubjectModel(): string
     {
         return Post::class;
     }

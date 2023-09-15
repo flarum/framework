@@ -1,12 +1,13 @@
 import extract from 'flarum/common/utils/extract';
 import tagLabel from './tagLabel';
 import sortTags from '../utils/sortTags';
+import classList from 'flarum/common/utils/classList';
 
 export default function tagsLabel(tags, attrs = {}) {
   const children = [];
-  const link = extract(attrs, 'link');
+  const { link, ...otherAttrs } = attrs;
 
-  attrs.className = 'TagsLabel ' + (attrs.className || '');
+  otherAttrs.className = classList('TagsLabel', otherAttrs.className);
 
   if (tags) {
     sortTags(tags).forEach((tag) => {
@@ -18,5 +19,5 @@ export default function tagsLabel(tags, attrs = {}) {
     children.push(tagLabel());
   }
 
-  return <span {...attrs}>{children}</span>;
+  return <span {...otherAttrs}>{children}</span>;
 }

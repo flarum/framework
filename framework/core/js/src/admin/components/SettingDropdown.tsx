@@ -21,7 +21,7 @@ export default class SettingDropdown<CustomAttrs extends ISettingDropdownAttrs =
     attrs.className = 'SettingDropdown';
     attrs.buttonClassName = 'Button Button--text';
     attrs.caretIcon = 'fas fa-caret-down';
-    attrs.defaultLabel = 'Custom';
+    attrs.defaultLabel ||= app.translator.trans('core.admin.settings.select_dropdown_custom_label');
 
     if ('key' in attrs) {
       attrs.setting = attrs.key?.toString();
@@ -35,13 +35,10 @@ export default class SettingDropdown<CustomAttrs extends ISettingDropdownAttrs =
       children: this.attrs.options.map(({ value, label }) => {
         const active = app.data.settings[this.attrs.setting!] === value;
 
-        return Button.component(
-          {
-            icon: active ? 'fas fa-check' : true,
-            onclick: saveSettings.bind(this, { [this.attrs.setting!]: value }),
-            active,
-          },
-          label
+        return (
+          <Button icon={active ? 'fas fa-check' : true} onclick={saveSettings.bind(this, { [this.attrs.setting!]: value })} active={active}>
+            {label}
+          </Button>
         );
       }),
     });

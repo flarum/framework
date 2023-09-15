@@ -1,0 +1,25 @@
+{
+    "files": [
+        {
+            "path": "./framework/core/js/dist/*.js",
+            "maxSize": "150KB"
+        },
+        {
+            "path": "./framework/core/js/dist/*/**/*.js",
+            "maxSize": "30KB"
+        },
+        {
+            "path": "./extensions/*/js/dist/*.js",
+            "maxSize": "30KB"
+        },
+        {
+            "path": "./extensions/*/js/dist/*/**/*.js",
+            "maxSize": "30KB"
+        }
+    ],
+    "defaultCompression": "gzip",
+    "ci": {
+        "repoBranchBase": "2.x",
+        "trackBranches": ["2.x"]
+    }
+}

@@ -15,10 +15,12 @@ use Flarum\User\User;
 
 class AccessTokenPolicy extends AbstractPolicy
 {
-    public function revoke(User $actor, AccessToken $token)
+    public function revoke(User $actor, AccessToken $token): ?string
     {
         if ($token->user_id === $actor->id || $actor->hasPermission('moderateAccessTokens')) {
             return $this->allow();
         }
+
+        return null;
     }
 }

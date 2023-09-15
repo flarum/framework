@@ -14,7 +14,6 @@ use Flarum\Group\Event\Saving;
 use Flarum\Group\Group;
 use Flarum\Group\GroupRepository;
 use Flarum\Group\GroupValidator;
-use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
@@ -22,34 +21,14 @@ class EditGroupHandler
 {
     use DispatchEventsTrait;
 
-    /**
-     * @var \Flarum\Group\GroupRepository
-     */
-    protected $groups;
-
-    /**
-     * @var GroupValidator
-     */
-    protected $validator;
-
-    /**
-     * @param Dispatcher $events
-     * @param GroupRepository $groups
-     * @param GroupValidator $validator
-     */
-    public function __construct(Dispatcher $events, GroupRepository $groups, GroupValidator $validator)
-    {
-        $this->events = $events;
-        $this->groups = $groups;
-        $this->validator = $validator;
+    public function __construct(
+        protected Dispatcher $events,
+        protected GroupRepository $groups,
+        protected GroupValidator $validator
+    ) {
     }
 
-    /**
-     * @param EditGroup $command
-     * @return Group
-     * @throws PermissionDeniedException
-     */
-    public function handle(EditGroup $command)
+    public function handle(EditGroup $command): Group
     {
         $actor = $command->actor;
         $data = $command->data;

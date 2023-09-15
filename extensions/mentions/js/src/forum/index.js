@@ -1,6 +1,5 @@
 import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
-import NotificationGrid from 'flarum/forum/components/NotificationGrid';
 import { getPlainContent } from 'flarum/common/utils/string';
 import textContrastClass from 'flarum/common/helpers/textContrastClass';
 import Post from 'flarum/forum/components/Post';
@@ -13,10 +12,11 @@ import addComposerAutocomplete from './addComposerAutocomplete';
 import PostMentionedNotification from './components/PostMentionedNotification';
 import UserMentionedNotification from './components/UserMentionedNotification';
 import GroupMentionedNotification from './components/GroupMentionedNotification';
+import MentionFormats from './mentionables/formats/MentionFormats';
 import UserPage from 'flarum/forum/components/UserPage';
 import LinkButton from 'flarum/common/components/LinkButton';
-import User from 'flarum/common/models/User';
-import Model from 'flarum/common/Model';
+
+app.mentionFormats = new MentionFormats();
 
 export { default as extend } from './extend';
 
@@ -45,7 +45,7 @@ app.initializers.add('flarum-mentions', function () {
   app.notificationComponents.groupMentioned = GroupMentionedNotification;
 
   // Add notification preferences.
-  extend(NotificationGrid.prototype, 'notificationTypes', function (items) {
+  extend('flarum/forum/components/NotificationGrid', 'notificationTypes', function (items) {
     items.add('postMentioned', {
       name: 'postMentioned',
       icon: 'fas fa-reply',
@@ -70,14 +70,9 @@ app.initializers.add('flarum-mentions', function () {
     const user = this.user;
     items.add(
       'mentions',
-      LinkButton.component(
-        {
-          href: app.route('user.mentions', { username: user.slug() }),
-          name: 'mentions',
-          icon: 'fas fa-at',
-        },
-        app.translator.trans('flarum-mentions.forum.user.mentions_link')
-      ),
+      <LinkButton href={app.route('user.mentions', { username: user.slug() })} name="mentions" icon="fas fa-at">
+        {app.translator.trans('flarum-mentions.forum.user.mentions_link')}
+      </LinkButton>,
       80
     );
   });
@@ -87,16 +82,12 @@ app.initializers.add('flarum-mentions', function () {
 
   // Apply color contrast fix on group mentions.
   extend(Post.prototype, 'oncreate', function () {
-    this.$('.GroupMention--colored').each(function () {
-      this.classList.add(textContrastClass(getComputedStyle(this).getPropertyValue('--group-color')));
+    this.$('.GroupMention--colored, .TagMention--colored').each(function () {
+      this.classList.add(textContrastClass(getComputedStyle(this).getPropertyValue('--color')));
     });
   });
 });
 
 export * from './utils/textFormatter';
 
-// Expose compat API
-import mentionsCompat from './compat';
-import { compat } from '@flarum/core/forum';
-
-Object.assign(compat, mentionsCompat);
+import './forum';

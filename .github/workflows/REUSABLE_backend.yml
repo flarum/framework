@@ -21,11 +21,17 @@ on:
         required: false
         default: '.'
 
+      # Only relevant in mono-repos.
+      monorepo_tests:
+        description: "The list of directories to test in a monorepo. This should be a space-separated list of directories relative to the backend directory."
+        type: string
+        required: false
+
       php_versions:
         description: Versions of PHP to test with. Should be array of strings encoded as JSON array
         type: string
         required: false
-        default: '["7.3", "7.4", "8.0", "8.1", "8.2"]'
+        default: '["8.1", "8.2"]'
 
       php_extensions:
         description: PHP extensions to install.
@@ -37,7 +43,7 @@ on:
         description: Versions of databases to test with. Should be array of strings encoded as JSON array
         type: string
         required: false
-        default: '["mysql:5.7", "mysql:8.0.30", "mariadb"]'
+        default: '["mysql:5.7", "mysql:8.0.30", "mysql:8.1.0", "mariadb"]'
 
       php_ini_values:
         description: PHP ini values
@@ -47,6 +53,7 @@ on:
 
 env:
   COMPOSER_ROOT_VERSION: dev-main
+  # `inputs.composer_directory` defaults to `inputs.backend_directory`
   FLARUM_TEST_TMP_DIR_LOCAL: tests/integration/tmp
 
 jobs:
@@ -69,6 +76,8 @@ jobs:
             db: MySQL 8.0
           - service: mariadb
             db: MariaDB
+          - service: 'mysql:8.1.0'
+            db: MySQL 8.1
 
           # Include Database prefix tests with only one PHP version.
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
@@ -86,25 +95,16 @@ jobs:
             db: MariaDB
             prefix: flarum_
             prefixStr: (prefix)
-
-          # @TODO: remove in 2.0
-          # Include testing PHP 8.2 with deprecation warnings disabled.
-          - php: 8.2
-            php_ini_values: error_reporting=E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED
+          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+            service: 'mysql:8.1.0'
+            db: MySQL 8.1
+            prefix: flarum_
+            prefixStr: (prefix)
 
         # To reduce number of actions, we exclude some PHP versions from running with some DB versions.
         exclude:
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
             service: 'mysql:8.0.30'
-          - php: ${{ fromJSON(inputs.php_versions)[2] }}
-            service: 'mysql:8.0.30'
-          - php: ${{ fromJSON(inputs.php_versions)[3] }}
-            service: 'mysql:8.0.30'
-
-          # @TODO: remove in 2.0
-          # Exclude testing PHP 8.2 with deprecation warnings enabled.
-          - php: 8.2
-            php_ini_values: error_reporting=E_ALL
 
     services:
       mysql:
@@ -130,31 +130,36 @@ jobs:
           tools: phpunit, composer:v2
           ini-values: ${{ matrix.php_ini_values }}
 
-      # The authentication alter is necessary because newer mysql versions use the `caching_sha2_password` driver,
-      # which isn't supported prior to PHP7.4
-      # When we drop support for PHP7.3, we should remove this from the setup.
       - name: Create MySQL Database
         run: |
           sudo systemctl start mysql
           mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 13306
-          mysql -uroot -proot -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';" --port 13306
 
       - name: Install Composer dependencies
         run: composer install
         working-directory: ${{ inputs.backend_directory }}
 
-      - name: Setup Composer tests
-        run: composer test:setup
+      # If we have a `inputs.monorepo_tests`, we will run tests for each item of the provided array in a ::group::item
+      # If we don't have a `inputs.monorepo_tests`, we will run tests for the current repository
+      # We also have to run the `composer test:setup` script first before running each test
+      - name: Run tests
+        run: |
+          if [ -z "${{ inputs.monorepo_tests }}" ]; then
+            composer test:setup
+            composer test
+          else
+            for test in ${{ inputs.monorepo_tests }}; do
+              echo "::group::Running tests for $test"
+              composer test:setup --working-dir=$test
+              composer test --working-dir=$test
+              echo "::endgroup::"
+            done
+          fi
         working-directory: ${{ inputs.backend_directory }}
         env:
           DB_PORT: 13306
           DB_PASSWORD: root
           DB_PREFIX: ${{ matrix.prefix }}
-
-      - name: Run Composer tests
-        run: composer test
-        working-directory: ${{ inputs.backend_directory }}
-        env:
           COMPOSER_PROCESS_TIMEOUT: 600
 
   phpstan:
@@ -163,6 +168,12 @@ jobs:
     strategy:
       matrix:
         php: ${{ fromJSON(inputs.php_versions) }}
+
+    services:
+      mysql:
+        image: mysql:8.0.30
+        ports:
+          - 33306:3306
 
     name: 'PHPStan PHP ${{ matrix.php }}'
 
@@ -186,5 +197,15 @@ jobs:
         run: composer install
         working-directory: ${{ inputs.backend_directory }}
 
+      - name: Create MySQL Database
+        run: |
+          sudo systemctl start mysql
+          mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 33306
+
       - name: Run PHPStan
         run: composer analyse:phpstan
+        env:
+          DB_PORT: 33306
+          DB_PASSWORD: root
+          COMPOSER_PROCESS_TIMEOUT: 600
+          FLARUM_TEST_TMP_DIR_LOCAL: ./tmp

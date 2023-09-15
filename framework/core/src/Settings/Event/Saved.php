@@ -11,16 +11,8 @@ namespace Flarum\Settings\Event;
 
 class Saved
 {
-    /**
-     * @var array
-     */
-    public $settings;
-
-    /**
-     * @param array $settings
-     */
-    public function __construct(array $settings)
-    {
-        $this->settings = $settings;
+    public function __construct(
+        public array $settings
+    ) {
     }
 }

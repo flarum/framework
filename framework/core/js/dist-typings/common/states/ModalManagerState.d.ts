@@ -11,6 +11,13 @@ declare type UnsafeModalClass = ComponentClass<any, Modal> & {
     get dismissibleOptions(): IDismissibleOptions;
     component: typeof Component.component;
 };
+/**
+ * Alternatively, `show` takes an async function that returns a modal class.
+ * This is useful for lazy-loading modals.
+ */
+declare type AsyncModalClass = () => Promise<any & {
+    default: UnsafeModalClass;
+}>;
 declare type ModalItem = {
     componentClass: UnsafeModalClass;
     attrs?: Record<string, unknown>;
@@ -35,6 +42,10 @@ export default class ModalManagerState {
      */
     backdropShown: boolean;
     /**
+     * @internal
+     */
+    loadingModal: boolean;
+    /**
      * Used to force re-initialization of modals if a modal
      * is replaced by another of the same type.
      */
@@ -57,7 +68,7 @@ export default class ModalManagerState {
      * @example <caption>Stacking modals</caption>
      * app.modal.show(MyCoolStackedModal, { attr: 'value' }, true);
      */
-    show(componentClass: UnsafeModalClass, attrs?: Record<string, unknown>, stackModal?: boolean): void;
+    show(componentClass: UnsafeModalClass | AsyncModalClass, attrs?: Record<string, unknown>, stackModal?: boolean): Promise<void>;
     /**
      * Closes the topmost currently open dialog, if one is open.
      */

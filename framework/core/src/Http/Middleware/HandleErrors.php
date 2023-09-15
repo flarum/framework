@@ -26,26 +26,12 @@ use Throwable;
  */
 class HandleErrors implements Middleware
 {
-    /**
-     * @var Registry
-     */
-    protected $registry;
-
-    /**
-     * @var HttpFormatter
-     */
-    protected $formatter;
-
-    /**
-     * @var \Flarum\Foundation\ErrorHandling\Reporter[]
-     */
-    protected $reporters;
-
-    public function __construct(Registry $registry, HttpFormatter $formatter, iterable $reporters)
-    {
-        $this->registry = $registry;
-        $this->formatter = $formatter;
-        $this->reporters = $reporters;
+    public function __construct(
+        protected Registry $registry,
+        protected HttpFormatter $formatter,
+        /** @var \Flarum\Foundation\ErrorHandling\Reporter[] $reporters */
+        protected iterable $reporters
+    ) {
     }
 
     /**

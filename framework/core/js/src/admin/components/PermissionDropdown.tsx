@@ -10,7 +10,7 @@ import Mithril from 'mithril';
 function badgeForId(id: string) {
   const group = app.store.getById('groups', id);
 
-  return group ? GroupBadge.component({ group, label: null }) : '';
+  return !!group && <GroupBadge group={group} label={null} />;
 }
 
 function filterByRequiredPermissions(groupIds: string[], permission: string) {
@@ -57,9 +57,9 @@ export default class PermissionDropdown<CustomAttrs extends IPermissionDropdownA
     const adminGroup = app.store.getById<Group>('groups', Group.ADMINISTRATOR_ID)!;
 
     if (everyone) {
-      this.attrs.label = Badge.component({ icon: 'fas fa-globe' });
+      this.attrs.label = <Badge icon="fas fa-globe" />;
     } else if (members) {
-      this.attrs.label = Badge.component({ icon: 'fas fa-user' });
+      this.attrs.label = <Badge icon="fas fa-user" />;
     } else {
       this.attrs.label = [badgeForId(Group.ADMINISTRATOR_ID), groupIds.map(badgeForId)];
     }
@@ -67,40 +67,29 @@ export default class PermissionDropdown<CustomAttrs extends IPermissionDropdownA
     if (this.showing) {
       if (this.attrs.allowGuest) {
         children.push(
-          Button.component(
-            {
-              icon: everyone ? 'fas fa-check' : true,
-              onclick: () => this.save([Group.GUEST_ID]),
-              disabled: this.isGroupDisabled(Group.GUEST_ID),
-            },
-            [Badge.component({ icon: 'fas fa-globe' }), ' ', app.translator.trans('core.admin.permissions_controls.everyone_button')]
-          )
+          <Button icon={everyone ? 'fas fa-check' : true} onclick={() => this.save([Group.GUEST_ID])} disabled={this.isGroupDisabled(Group.GUEST_ID)}>
+            <Badge icon="fas fa-globe" /> {app.translator.trans('core.admin.permissions_controls.everyone_button')}
+          </Button>
         );
       }
 
       children.push(
-        Button.component(
-          {
-            icon: members ? 'fas fa-check' : true,
-            onclick: () => this.save([Group.MEMBER_ID]),
-            disabled: this.isGroupDisabled(Group.MEMBER_ID),
-          },
-          [Badge.component({ icon: 'fas fa-user' }), ' ', app.translator.trans('core.admin.permissions_controls.members_button')]
-        ),
+        <Button icon={members ? 'fas fa-check' : true} onclick={() => this.save([Group.MEMBER_ID])} disabled={this.isGroupDisabled(Group.MEMBER_ID)}>
+          <Badge icon="fas fa-user" /> {app.translator.trans('core.admin.permissions_controls.members_button')}
+        </Button>,
 
-        Separator.component(),
+        <Separator />,
 
-        Button.component(
-          {
-            icon: !everyone && !members ? 'fas fa-check' : true,
-            disabled: !everyone && !members,
-            onclick: (e: MouseEvent) => {
-              if (e.shiftKey) e.stopPropagation();
-              this.save([]);
-            },
-          },
-          [badgeForId(adminGroup.id()!), ' ', adminGroup.namePlural()]
-        )
+        <Button
+          icon={!everyone && !members ? 'fas fa-check' : true}
+          disabled={!everyone && !members}
+          onclick={(e: MouseEvent) => {
+            if (e.shiftKey) e.stopPropagation();
+            this.save([]);
+          }}
+        >
+          {badgeForId(adminGroup.id()!)} {adminGroup.namePlural()}
+        </Button>
       );
 
       // These groups are defined above, appearing first in the list.
@@ -109,19 +98,18 @@ export default class PermissionDropdown<CustomAttrs extends IPermissionDropdownA
       const groupButtons = app.store
         .all<Group>('groups')
         .filter((group) => !excludedGroups.includes(group.id()!))
-        .map((group) =>
-          Button.component(
-            {
-              icon: groupIds.includes(group.id()!) ? 'fas fa-check' : true,
-              onclick: (e: MouseEvent) => {
-                if (e.shiftKey) e.stopPropagation();
-                this.toggle(group.id()!);
-              },
-              disabled: this.isGroupDisabled(group.id()!) && this.isGroupDisabled(Group.MEMBER_ID) && this.isGroupDisabled(Group.GUEST_ID),
-            },
-            [badgeForId(group.id()!), ' ', group.namePlural()]
-          )
-        );
+        .map((group) => (
+          <Button
+            icon={groupIds.includes(group.id()!) ? 'fas fa-check' : true}
+            onclick={(e: MouseEvent) => {
+              if (e.shiftKey) e.stopPropagation();
+              this.toggle(group.id()!);
+            }}
+            disabled={this.isGroupDisabled(group.id()!) && this.isGroupDisabled(Group.MEMBER_ID) && this.isGroupDisabled(Group.GUEST_ID)}
+          >
+            {badgeForId(group.id()!)} {group.namePlural()}
+          </Button>
+        ));
 
       children.push(...groupButtons);
     }

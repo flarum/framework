@@ -13,22 +13,12 @@ use Flarum\Extension\ExtensionManager;
 
 class ToggleExtensionHandler
 {
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    public function __construct(ExtensionManager $extensions)
-    {
-        $this->extensions = $extensions;
+    public function __construct(
+        protected ExtensionManager $extensions
+    ) {
     }
 
-    /**
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     * @throws \Flarum\Extension\Exception\MissingDependenciesException
-     * @throws \Flarum\Extension\Exception\DependentExtensionsException
-     */
-    public function handle(ToggleExtension $command)
+    public function handle(ToggleExtension $command): void
     {
         $command->actor->assertAdmin();
 

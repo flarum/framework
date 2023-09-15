@@ -7,7 +7,7 @@ import classList from 'flarum/common/utils/classList';
 import tagsLabel from '../common/helpers/tagsLabel';
 import sortTags from '../common/utils/sortTags';
 
-export default function () {
+export default function addTagLabels() {
   // Add tag labels to each discussion in the discussion list.
   extend(DiscussionListItem.prototype, 'infoItems', function (items) {
     const tags = this.attrs.discussion.tags();

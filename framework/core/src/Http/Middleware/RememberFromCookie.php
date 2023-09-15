@@ -20,17 +20,9 @@ use Psr\Http\Server\RequestHandlerInterface as Handler;
 
 class RememberFromCookie implements Middleware
 {
-    /**
-     * @var CookieFactory
-     */
-    protected $cookie;
-
-    /**
-     * @param CookieFactory $cookie
-     */
-    public function __construct(CookieFactory $cookie)
-    {
-        $this->cookie = $cookie;
+    public function __construct(
+        protected CookieFactory $cookie
+    ) {
     }
 
     public function process(Request $request, Handler $handler): Response
@@ -41,7 +33,7 @@ class RememberFromCookie implements Middleware
             $token = AccessToken::findValid($id);
 
             if ($token && $token instanceof RememberAccessToken) {
-                $token->touch($request);
+                $token->touch(request: $request);
 
                 /** @var \Illuminate\Contracts\Session\Session $session */
                 $session = $request->getAttribute('session');

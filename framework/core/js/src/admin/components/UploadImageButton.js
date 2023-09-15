@@ -1,12 +1,13 @@
 import app from '../../admin/app';
 import Button from '../../common/components/Button';
+import classList from '../../common/utils/classList';
 
 export default class UploadImageButton extends Button {
   loading = false;
 
   view(vnode) {
     this.attrs.loading = this.loading;
-    this.attrs.className = (this.attrs.className || '') + ' Button';
+    this.attrs.className = classList(this.attrs.className, 'Button');
 
     if (app.data.settings[this.attrs.name + '_path']) {
       this.attrs.onclick = this.remove.bind(this);
@@ -37,7 +38,7 @@ export default class UploadImageButton extends Button {
     $input
       .appendTo('body')
       .hide()
-      .click()
+      .trigger('click')
       .on('change', (e) => {
         const body = new FormData();
         body.append(this.attrs.name, $(e.target)[0].files[0]);

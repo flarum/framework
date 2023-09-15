@@ -1,7 +1,7 @@
 /*!
-                                           * quantize.js Copyright 2008 Nick Rabinowitz.
-                                           * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
-                                           */
+                                 * quantize.js Copyright 2008 Nick Rabinowitz.
+                                 * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+                                 */
 
 /*!
    * Sizzle CSS Selector Engine v2.3.6
@@ -61,5 +61,3 @@
 * tabbable 5.3.3
 * @license MIT, https://github.com/focus-trap/tabbable/blob/master/LICENSE
 */
-
-/*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */

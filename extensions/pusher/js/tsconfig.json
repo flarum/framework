@@ -10,7 +10,7 @@
     "declarationDir": "./dist-typings",
     "paths": {
       "flarum/*": ["../../../framework/core/js/dist-typings/*"],
-      "flarum/tags/*": ["../../tags/js/dist-typings/*"]
+      "ext:flarum/tags/*": ["../../tags/js/dist-typings/*"]
     }
   }
 }

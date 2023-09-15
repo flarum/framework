@@ -13,10 +13,7 @@ use Flarum\Foundation\AbstractValidator;
 
 class TagValidator extends AbstractValidator
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $rules = [
+    protected array $rules = [
         'name' => ['required'],
         'slug' => ['required', 'unique:tags', 'regex:/^[^\/\\ ]*$/i'],
         'is_hidden' => ['bool'],

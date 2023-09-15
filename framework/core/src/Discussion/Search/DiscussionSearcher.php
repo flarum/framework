@@ -18,28 +18,13 @@ use Illuminate\Database\Eloquent\Builder;
 
 class DiscussionSearcher extends AbstractSearcher
 {
-    /**
-     * @var DiscussionRepository
-     */
-    protected $discussions;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @param DiscussionRepository $discussions
-     * @param Dispatcher $events
-     * @param GambitManager $gambits
-     * @param array $searchMutators
-     */
-    public function __construct(DiscussionRepository $discussions, Dispatcher $events, GambitManager $gambits, array $searchMutators)
-    {
+    public function __construct(
+        protected DiscussionRepository $discussions,
+        protected Dispatcher $events,
+        GambitManager $gambits,
+        array $searchMutators
+    ) {
         parent::__construct($gambits, $searchMutators);
-
-        $this->discussions = $discussions;
-        $this->events = $events;
     }
 
     protected function getQuery(User $actor): Builder

@@ -161,7 +161,7 @@ export default class User extends Model {
   savePreferences(newPreferences: Record<string, unknown>): Promise<this> {
     const preferences = this.preferences();
 
-    Object.assign(preferences || {}, newPreferences);
+    Object.assign(preferences ?? {}, newPreferences);
 
     return this.save({ preferences });
   }

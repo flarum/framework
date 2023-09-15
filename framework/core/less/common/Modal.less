@@ -20,15 +20,18 @@
 }
 
 .Modal-backdrop {
+  --loading-indicator-color: var(--body-bg);
+
   background: var(--overlay-bg);
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   opacity: 0;
   transition: opacity 0.2s ease-out;
   z-index: ~"calc(var(--zindex-modal) + var(--modal-count) - 2)";
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &[data-showing] {
     opacity: 1;

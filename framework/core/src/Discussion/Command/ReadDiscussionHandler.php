@@ -11,6 +11,7 @@ namespace Flarum\Discussion\Command;
 
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Discussion\Event\UserDataSaving;
+use Flarum\Discussion\UserState;
 use Flarum\Foundation\DispatchEventsTrait;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -18,27 +19,13 @@ class ReadDiscussionHandler
 {
     use DispatchEventsTrait;
 
-    /**
-     * @var DiscussionRepository
-     */
-    protected $discussions;
-
-    /**
-     * @param Dispatcher $events
-     * @param DiscussionRepository $discussions
-     */
-    public function __construct(Dispatcher $events, DiscussionRepository $discussions)
-    {
-        $this->events = $events;
-        $this->discussions = $discussions;
+    public function __construct(
+        protected Dispatcher $events,
+        protected DiscussionRepository $discussions
+    ) {
     }
 
-    /**
-     * @param ReadDiscussion $command
-     * @return \Flarum\Discussion\UserState
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     */
-    public function handle(ReadDiscussion $command)
+    public function handle(ReadDiscussion $command): UserState
     {
         $actor = $command->actor;
 

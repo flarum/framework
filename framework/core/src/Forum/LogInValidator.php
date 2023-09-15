@@ -13,8 +13,5 @@ use Flarum\Foundation\AbstractValidator;
 
 class LogInValidator extends AbstractValidator
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $rules = [];
+    protected array $rules = [];
 }

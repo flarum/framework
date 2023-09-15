@@ -11,6 +11,7 @@ namespace Flarum\Post\Command;
 
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Post\Event\Deleting;
+use Flarum\Post\Post;
 use Flarum\Post\PostRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -18,27 +19,13 @@ class DeletePostHandler
 {
     use DispatchEventsTrait;
 
-    /**
-     * @var \Flarum\Post\PostRepository
-     */
-    protected $posts;
-
-    /**
-     * @param Dispatcher $events
-     * @param \Flarum\Post\PostRepository $posts
-     */
-    public function __construct(Dispatcher $events, PostRepository $posts)
-    {
-        $this->events = $events;
-        $this->posts = $posts;
+    public function __construct(
+        protected Dispatcher $events,
+        protected PostRepository $posts
+    ) {
     }
 
-    /**
-     * @param DeletePost $command
-     * @return \Flarum\Post\Post
-     * @throws \Flarum\User\Exception\PermissionDeniedException
-     */
-    public function handle(DeletePost $command)
+    public function handle(DeletePost $command): Post
     {
         $actor = $command->actor;
 

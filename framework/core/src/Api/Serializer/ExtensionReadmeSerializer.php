@@ -9,19 +9,18 @@
 
 namespace Flarum\Api\Serializer;
 
+use Flarum\Extension\Extension;
+
 class ExtensionReadmeSerializer extends AbstractSerializer
 {
     /**
-     * @param \Flarum\Extension\Extension $extension
-     * @return array
+     * @param Extension $model
      */
-    protected function getDefaultAttributes($extension)
+    protected function getDefaultAttributes(object|array $model): array
     {
-        $attributes = [
-            'content' => $extension->getReadme()
+        return [
+            'content' => $model->getReadme()
         ];
-
-        return $attributes;
     }
 
     public function getId($extension)

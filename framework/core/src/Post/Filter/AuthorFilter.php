@@ -11,21 +11,16 @@ namespace Flarum\Post\Filter;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
+use Flarum\Filter\ValidateFilterTrait;
 use Flarum\User\UserRepository;
 
 class AuthorFilter implements FilterInterface
 {
-    /**
-     * @var \Flarum\User\UserRepository
-     */
-    protected $users;
+    use ValidateFilterTrait;
 
-    /**
-     * @param \Flarum\User\UserRepository $users
-     */
-    public function __construct(UserRepository $users)
-    {
-        $this->users = $users;
+    public function __construct(
+        protected UserRepository $users
+    ) {
     }
 
     public function getFilterKey(): string
@@ -33,10 +28,9 @@ class AuthorFilter implements FilterInterface
         return 'author';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
     {
-        $usernames = trim($filterValue, '"');
-        $usernames = explode(',', $usernames);
+        $usernames = $this->asStringArray($filterValue);
 
         $ids = $this->users->query()->whereIn('username', $usernames)->pluck('id');
 

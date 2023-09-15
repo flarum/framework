@@ -26,10 +26,7 @@ use Laminas\Stratigility\MiddlewarePipe;
 
 class ApiServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    public function register(): void
     {
         $this->container->extend(UrlGenerator::class, function (UrlGenerator $url, Container $container) {
             return $url->addCollection('api', $container->make('flarum.api.routes'), 'api');
@@ -135,10 +132,7 @@ class ApiServiceProvider extends AbstractServiceProvider
         });
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function boot(Container $container)
+    public function boot(Container $container): void
     {
         $this->setNotificationSerializers();
 
@@ -147,10 +141,7 @@ class ApiServiceProvider extends AbstractServiceProvider
         AbstractSerializer::setContainer($container);
     }
 
-    /**
-     * Register notification serializers.
-     */
-    protected function setNotificationSerializers()
+    protected function setNotificationSerializers(): void
     {
         $serializers = $this->container->make('flarum.api.notification_serializers');
 
@@ -159,12 +150,7 @@ class ApiServiceProvider extends AbstractServiceProvider
         }
     }
 
-    /**
-     * Populate the API routes.
-     *
-     * @param RouteCollection $routes
-     */
-    protected function populateRoutes(RouteCollection $routes)
+    protected function populateRoutes(RouteCollection $routes): void
     {
         $factory = $this->container->make(RouteHandlerFactory::class);
 

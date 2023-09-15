@@ -25,14 +25,9 @@ export default class NicknameModal extends Modal {
             <input type="text" autocomplete="off" name="nickname" className="FormControl" bidi={this.nickname} disabled={this.loading} />
           </div>
           <div className="Form-group">
-            {Button.component(
-              {
-                className: 'Button Button--primary Button--block',
-                type: 'submit',
-                loading: this.loading,
-              },
-              app.translator.trans('flarum-nicknames.forum.change_nickname.submit_button')
-            )}
+            <Button className="Button Button--primary Button--block" type="submit" loading={this.loading}>
+              {app.translator.trans('flarum-nicknames.forum.change_nickname.submit_button')}
+            </Button>
           </div>
         </div>
       </div>

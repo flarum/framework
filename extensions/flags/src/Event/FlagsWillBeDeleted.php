@@ -18,30 +18,10 @@ use Flarum\User\User;
  */
 class FlagsWillBeDeleted
 {
-    /**
-     * @var Post
-     */
-    public $post;
-
-    /**
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * @var array
-     */
-    public $data;
-
-    /**
-     * @param Post $post
-     * @param User $actor
-     * @param array $data
-     */
-    public function __construct(Post $post, User $actor, array $data = [])
-    {
-        $this->post = $post;
-        $this->actor = $actor;
-        $this->data = $data;
+    public function __construct(
+        public Post $post,
+        public User $actor,
+        public array $data = []
+    ) {
     }
 }
