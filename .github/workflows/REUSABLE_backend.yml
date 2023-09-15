@@ -43,7 +43,7 @@ on:
         description: Versions of databases to test with. Should be array of strings encoded as JSON array
         type: string
         required: false
-        default: '["mysql:5.7", "mysql:8.0.30", "mariadb"]'
+        default: '["mysql:5.7", "mysql:8.0.30", "mysql:8.1.0", "mariadb"]'
 
       php_ini_values:
         description: PHP ini values
@@ -76,6 +76,8 @@ jobs:
             db: MySQL 8.0
           - service: mariadb
             db: MariaDB
+          - service: 'mysql:8.1.0'
+            db: MySQL 8.1
 
           # Include Database prefix tests with only one PHP version.
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
@@ -91,6 +93,11 @@ jobs:
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: mariadb
             db: MariaDB
+            prefix: flarum_
+            prefixStr: (prefix)
+          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+            service: 'mysql:8.1.0'
+            db: MySQL 8.1
             prefix: flarum_
             prefixStr: (prefix)
 

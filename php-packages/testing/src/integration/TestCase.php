@@ -46,6 +46,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     protected function app()
     {
         if (is_null($this->app)) {
+            $this->config('env', 'testing');
+
             $bootstrapper = new Bootstrapper(
                 $this->config,
                 $this->extensions,

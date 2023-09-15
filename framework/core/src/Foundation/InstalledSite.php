@@ -39,7 +39,7 @@ use Illuminate\Cache\Repository as CacheRepository;
 use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Cache\Store;
-use Illuminate\Contracts\Container\Container as LaravelContainer;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Hashing\HashServiceProvider;
 use Illuminate\Validation\ValidationServiceProvider;
@@ -87,62 +87,61 @@ class InstalledSite implements SiteInterface
         return $this;
     }
 
-    protected function bootLaravel(): LaravelContainer
+    protected function bootLaravel(): Container
     {
-        $container = new Container;
-        $laravel = new Application($container, $this->paths);
+        $app = new Application($this->paths);
 
-        $container->instance('env', 'production');
-        $container->instance('flarum.config', $this->config);
-        $container->alias('flarum.config', Config::class);
-        $container->instance('flarum.debug', $this->config->inDebugMode());
-        $container->instance('config', $this->getIlluminateConfig());
-        $container->instance('flarum.maintenance.handler', new MaintenanceModeHandler);
+        $app->instance('env', $this->config->environment());
+        $app->instance('flarum.config', $this->config);
+        $app->alias('flarum.config', Config::class);
+        $app->instance('flarum.debug', $this->config->inDebugMode());
+        $app->instance('config', $this->getIlluminateConfig());
+        $app->instance('flarum.maintenance.handler', new MaintenanceModeHandler);
 
-        $this->registerLogger($container);
-        $this->registerCache($container);
+        $this->registerLogger($app);
+        $this->registerCache($app);
 
-        $laravel->register(AdminServiceProvider::class);
-        $laravel->register(ApiServiceProvider::class);
-        $laravel->register(BusServiceProvider::class);
-        $laravel->register(ConsoleServiceProvider::class);
-        $laravel->register(DatabaseServiceProvider::class);
-        $laravel->register(DiscussionServiceProvider::class);
-        $laravel->register(ExtensionServiceProvider::class);
-        $laravel->register(ErrorServiceProvider::class);
-        $laravel->register(FilesystemServiceProvider::class);
-        $laravel->register(FilterServiceProvider::class);
-        $laravel->register(FormatterServiceProvider::class);
-        $laravel->register(ForumServiceProvider::class);
-        $laravel->register(FrontendServiceProvider::class);
-        $laravel->register(GroupServiceProvider::class);
-        $laravel->register(HashServiceProvider::class);
-        $laravel->register(HttpServiceProvider::class);
-        $laravel->register(LocaleServiceProvider::class);
-        $laravel->register(MailServiceProvider::class);
-        $laravel->register(NotificationServiceProvider::class);
-        $laravel->register(PostServiceProvider::class);
-        $laravel->register(QueueServiceProvider::class);
-        $laravel->register(SearchServiceProvider::class);
-        $laravel->register(SessionServiceProvider::class);
-        $laravel->register(SettingsServiceProvider::class);
-        $laravel->register(UpdateServiceProvider::class);
-        $laravel->register(UserServiceProvider::class);
-        $laravel->register(ValidationServiceProvider::class);
-        $laravel->register(ViewServiceProvider::class);
+        $app->register(AdminServiceProvider::class);
+        $app->register(ApiServiceProvider::class);
+        $app->register(BusServiceProvider::class);
+        $app->register(ConsoleServiceProvider::class);
+        $app->register(DatabaseServiceProvider::class);
+        $app->register(DiscussionServiceProvider::class);
+        $app->register(ExtensionServiceProvider::class);
+        $app->register(ErrorServiceProvider::class);
+        $app->register(FilesystemServiceProvider::class);
+        $app->register(FilterServiceProvider::class);
+        $app->register(FormatterServiceProvider::class);
+        $app->register(ForumServiceProvider::class);
+        $app->register(FrontendServiceProvider::class);
+        $app->register(GroupServiceProvider::class);
+        $app->register(HashServiceProvider::class);
+        $app->register(HttpServiceProvider::class);
+        $app->register(LocaleServiceProvider::class);
+        $app->register(MailServiceProvider::class);
+        $app->register(NotificationServiceProvider::class);
+        $app->register(PostServiceProvider::class);
+        $app->register(QueueServiceProvider::class);
+        $app->register(SearchServiceProvider::class);
+        $app->register(SessionServiceProvider::class);
+        $app->register(SettingsServiceProvider::class);
+        $app->register(UpdateServiceProvider::class);
+        $app->register(UserServiceProvider::class);
+        $app->register(ValidationServiceProvider::class);
+        $app->register(ViewServiceProvider::class);
 
-        $laravel->booting(function () use ($container) {
+        $app->booting(function () use ($app) {
             // Run all local-site extenders before booting service providers
             // (but after those from "real" extensions, which have been set up
             // in a service provider above).
             foreach ($this->extenders as $extension) {
-                $extension->extend($container);
+                $extension->extend($app);
             }
         });
 
-        $laravel->boot();
+        $app->boot();
 
-        return $container;
+        return $app;
     }
 
     protected function getIlluminateConfig(): ConfigRepository

@@ -49,7 +49,7 @@ class UnparseTagMentions
     {
         $tagName = 'TAGMENTION';
 
-        if (strpos($xml, $tagName) === false) {
+        if (! str_contains($xml, $tagName)) {
             return $xml;
         }
 

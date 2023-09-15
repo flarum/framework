@@ -47,7 +47,7 @@ class UnparsePostMentions
                 $attributes['displayname'] = $this->translator->trans('core.lib.username.deleted_text');
             }
 
-            if (strpos($attributes['displayname'], '"#') !== false) {
+            if (str_contains($attributes['displayname'], '"#')) {
                 $attributes['displayname'] = preg_replace('/"#[a-z]{0,3}[0-9]+/', '_', $attributes['displayname']);
             }
 
@@ -62,7 +62,7 @@ class UnparsePostMentions
     {
         $tagName = 'POSTMENTION';
 
-        if (strpos($xml, $tagName) === false) {
+        if (! str_contains($xml, $tagName)) {
             return $xml;
         }
 
