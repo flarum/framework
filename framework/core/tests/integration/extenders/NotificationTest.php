@@ -36,7 +36,7 @@ class NotificationTest extends TestCase
      */
     public function notification_serializer_doesnt_exist_by_default()
     {
-        $this->app();
+        $this->bootstrap();
 
         $this->assertNotContains(
             'customNotificationTypeSerializer',
@@ -62,7 +62,7 @@ class NotificationTest extends TestCase
             'customNotificationTypeSerializer'
         ));
 
-        $this->app();
+        $this->bootstrap();
 
         $this->assertArrayHasKey('customNotificationType', Notification::getSubjectModels());
     }
@@ -77,7 +77,7 @@ class NotificationTest extends TestCase
             'customNotificationTypeSerializer'
         ));
 
-        $this->app();
+        $this->bootstrap();
 
         $this->assertContains(
             'customNotificationTypeSerializer',
@@ -95,7 +95,7 @@ class NotificationTest extends TestCase
             CustomNotificationDriver::class
         ));
 
-        $this->app();
+        $this->bootstrap();
 
         $this->assertArrayHasKey('customNotificationDriver', NotificationSyncer::getNotificationDrivers());
     }
@@ -114,7 +114,7 @@ class NotificationTest extends TestCase
                 ->driver('secondCustomDriver', SecondCustomNotificationDriver::class, [SecondCustomNotificationType::class])
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $blueprints = $this->app->getContainer()->make('flarum.notification.blueprints');
 
@@ -150,7 +150,7 @@ class NotificationTest extends TestCase
             ],
         ]);
 
-        $this->app();
+        $this->bootstrap();
 
         $users = User::whereIn('id', [1, 2, 3])->get()->all();
 

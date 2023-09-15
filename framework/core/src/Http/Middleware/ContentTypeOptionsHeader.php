@@ -9,17 +9,21 @@
 
 namespace Flarum\Http\Middleware;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface as Middleware;
-use Psr\Http\Server\RequestHandlerInterface;
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class ContentTypeOptionsHeader implements Middleware
+class ContentTypeOptionsHeader implements IlluminateMiddlewareInterface
 {
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    /**
+     * @inheritDoc
+     */
+    public function handle(Request $request, Closure $next): Response
     {
-        $response = $handler->handle($request);
+        $response = $next($request);
 
-        return $response->withAddedHeader('X-Content-Type-Options', 'nosniff');
+        $response->headers->set('X-Content-Type-Options', 'nosniff');
+
+        return $response;
     }
 }

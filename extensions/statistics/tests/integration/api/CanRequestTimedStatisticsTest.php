@@ -12,6 +12,7 @@ namespace Flarum\Statistics\tests\integration\api;
 use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 
 class CanRequestTimedStatisticsTest extends TestCase
 {
@@ -81,12 +82,15 @@ class CanRequestTimedStatisticsTest extends TestCase
 
         foreach ($models as $model => $data) {
             $response = $this->send(
-                $this->request('GET', '/api/statistics', ['authenticatedAs' => 1])->withQueryParams([
-                    'model' => $model,
-                ])
+                tap(
+                    $this->request('GET', '/api/statistics', ['authenticatedAs' => 1]),
+                    fn (Request $request) => $request->query->add([
+                        'model' => $model,
+                    ])
+                )
             );
 
-            $body = json_decode($response->getBody()->getContents(), true);
+            $body = json_decode($response->getContent(), true);
 
             $this->assertEquals(200, $response->getStatusCode());
 

@@ -9,19 +9,19 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Http\Controller\AbstractController;
+use Illuminate\Http\Request;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 
-abstract class AbstractDeleteController implements RequestHandlerInterface
+abstract class AbstractDeleteController extends AbstractController
 {
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function __invoke(Request $request): ResponseInterface
     {
         $this->delete($request);
 
         return new EmptyResponse(204);
     }
 
-    abstract protected function delete(ServerRequestInterface $request): void;
+    abstract protected function delete(Request $request): void;
 }

@@ -10,14 +10,14 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
+use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\RememberAccessToken;
 use Flarum\Http\Rememberer;
 use Flarum\Http\SessionAuthenticator;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class RegisterController implements RequestHandlerInterface
+class RegisterController extends AbstractController
 {
     public function __construct(
         protected Client $api,
@@ -26,20 +26,20 @@ class RegisterController implements RequestHandlerInterface
     ) {
     }
 
-    public function handle(Request $request): ResponseInterface
+    public function __invoke(Request $request): Response
     {
-        $params = ['data' => ['attributes' => $request->getParsedBody()]];
+        $params = ['data' => ['attributes' => $request->json()->all()]];
 
         $response = $this->api->withParentRequest($request)->withBody($params)->post('/users');
 
-        $body = json_decode($response->getBody());
+        $body = $response->getData();
 
         if (isset($body->data)) {
             $userId = $body->data->id;
 
             $token = RememberAccessToken::generate($userId);
 
-            $session = $request->getAttribute('session');
+            $session = $request->attributes->get('session');
             $this->authenticator->logIn($session, $token);
 
             $response = $this->rememberer->remember($response, $token);

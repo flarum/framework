@@ -23,7 +23,7 @@ class TestCaseTest extends TestCase
      */
     public function admin_user_created_as_part_of_default_state()
     {
-        $this->app();
+        $this->bootstrap();
 
         $this->assertEquals(1, User::query()->count());
 
@@ -96,7 +96,7 @@ class TestCaseTest extends TestCase
             $this->request('GET', '/')
         );
 
-        $this->assertStringNotContainsString('notARealSetting', $response->getBody()->getContents());
+        $this->assertStringNotContainsString('notARealSetting', $response->getContent());
     }
 
     /**
@@ -110,7 +110,7 @@ class TestCaseTest extends TestCase
             $this->request('GET', '/')
         );
 
-        $this->assertStringContainsString('notARealSetting', $response->getBody()->getContents());
+        $this->assertStringContainsString('notARealSetting', $response->getContent());
     }
 
     /**
@@ -148,7 +148,7 @@ class TestCaseTest extends TestCase
             $this->request('GET', '/')
         );
 
-        $this->assertStringContainsString('notARealSetting', $response->getBody()->getContents());
+        $this->assertStringContainsString('notARealSetting', $response->getContent());
     }
 
     /**

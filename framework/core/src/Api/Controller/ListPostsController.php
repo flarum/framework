@@ -15,8 +15,7 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Post\Filter\PostFilterer;
 use Flarum\Post\PostRepository;
 use Flarum\Query\QueryCriteria;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\Exception\InvalidParameterException;
 
@@ -41,7 +40,7 @@ class ListPostsController extends AbstractListController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): iterable
+    protected function data(Request $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
 
@@ -56,8 +55,8 @@ class ListPostsController extends AbstractListController
         $results = $this->filterer->filter(new QueryCriteria($actor, $filters, $sort, $sortIsDefault), $limit, $offset);
 
         $document->addPaginationLinks(
-            $this->url->to('api')->route('posts.index'),
-            $request->getQueryParams(),
+            $this->url->route('api.posts.index'),
+            $request->query(),
             $offset,
             $limit,
             $results->areMoreResults() ? null : 0
@@ -84,7 +83,7 @@ class ListPostsController extends AbstractListController
     /**
      * @link https://github.com/flarum/framework/pull/3506
      */
-    protected function extractSort(ServerRequestInterface $request): ?array
+    protected function extractSort(Request $request): ?array
     {
         $sort = [];
 
@@ -95,15 +94,14 @@ class ListPostsController extends AbstractListController
         return $sort;
     }
 
-    protected function extractOffset(ServerRequestInterface $request): int
+    protected function extractOffset(Request $request): int
     {
         $actor = RequestUtil::getActor($request);
-        $queryParams = $request->getQueryParams();
         $sort = $this->extractSort($request);
         $limit = $this->extractLimit($request);
         $filter = $this->extractFilter($request);
 
-        if (($near = Arr::get($queryParams, 'page.near')) > 1) {
+        if (($near = $request->query('page.near')) > 1) {
             if (count($filter) > 1 || ! isset($filter['discussion']) || $sort) {
                 throw new InvalidParameterException(
                     'You can only use page[near] with filter[discussion] and the default sort order'

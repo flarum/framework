@@ -23,7 +23,7 @@ class AuthTest extends TestCase
      */
     public function standard_password_works_by_default()
     {
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(1);
 
@@ -40,7 +40,7 @@ class AuthTest extends TestCase
                 ->removePasswordChecker('standard')
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(1);
 
@@ -58,7 +58,7 @@ class AuthTest extends TestCase
                 ->addPasswordChecker('custom_true', CustomTrueChecker::class)
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(1);
 
@@ -77,7 +77,7 @@ class AuthTest extends TestCase
                 })
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(1);
 

@@ -11,11 +11,11 @@ namespace Flarum\Tags;
 
 use Flarum\Api\Controller\ShowForumController;
 use Flarum\Http\RequestUtil;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 
 class LoadForumTagsRelationship
 {
-    public function __invoke(ShowForumController $controller, array &$data, ServerRequestInterface $request): void
+    public function __invoke(ShowForumController $controller, array &$data, Request $request): void
     {
         $actor = RequestUtil::getActor($request);
 

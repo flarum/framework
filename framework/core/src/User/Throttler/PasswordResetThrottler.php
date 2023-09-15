@@ -12,8 +12,7 @@ namespace Flarum\User\Throttler;
 use Carbon\Carbon;
 use Flarum\Http\RequestUtil;
 use Flarum\User\PasswordToken;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 
 /**
  * Logged-in users can request password reset email,
@@ -24,13 +23,13 @@ class PasswordResetThrottler
 {
     public static int $timeout = 300;
 
-    public function __invoke(ServerRequestInterface $request): ?bool
+    public function __invoke(Request $request): ?bool
     {
-        if ($request->getAttribute('routeName') !== 'forgot') {
+        if (! $request->routeIs('api.forgot')) {
             return null;
         }
 
-        if (! Arr::has($request->getParsedBody(), 'email')) {
+        if (! $request->has('email')) {
             return null;
         }
 

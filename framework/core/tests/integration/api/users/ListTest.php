@@ -11,6 +11,7 @@ namespace Flarum\Tests\integration\api\users;
 
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class ListTest extends TestCase
@@ -87,7 +88,7 @@ class ListTest extends TestCase
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
         $this->assertEquals(['1', '2'], Arr::pluck($data, 'id'));
     }
 
@@ -104,10 +105,12 @@ class ListTest extends TestCase
         ]);
 
         $response = $this->send(
-            $this->request('GET', '/api/users')
-            ->withQueryParams([
-                'sort' => 'lastSeenAt',
-            ])
+            tap(
+                $this->request('GET', '/api/users'),
+                fn (Request $request) => $request->query->add([
+                    'sort' => 'lastSeenAt',
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -125,10 +128,12 @@ class ListTest extends TestCase
         ]);
 
         $response = $this->send(
-            $this->request('GET', '/api/users')
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/users'),
+                fn (Request $request) => $request->query->add([
                     'sort' => 'lastSeenAt',
                 ])
+            )
         );
 
         $this->assertEquals(400, $response->getStatusCode());
@@ -140,15 +145,18 @@ class ListTest extends TestCase
     public function group_filter_works()
     {
         $response = $this->send(
-            $this->request('GET', '/api/users', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'filter' => ['group' => '1'],
-            ])
+            tap(
+                $this->request('GET', '/api/users', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['group' => '1'],
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
         $this->assertEquals(['1'], Arr::pluck($data, 'id'));
     }
 
@@ -158,15 +166,18 @@ class ListTest extends TestCase
     public function group_filter_works_negated()
     {
         $response = $this->send(
-            $this->request('GET', '/api/users', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'filter' => ['-group' => '1'],
-            ])
+            tap(
+                $this->request('GET', '/api/users', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['-group' => '1'],
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
         $this->assertEquals(['2'], Arr::pluck($data, 'id'));
     }
 
@@ -176,15 +187,18 @@ class ListTest extends TestCase
     public function email_filter_works()
     {
         $response = $this->send(
-            $this->request('GET', '/api/users', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'filter' => ['email' => 'admin@machine.local'],
-            ])
+            tap(
+                $this->request('GET', '/api/users', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['email' => 'admin@machine.local'],
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
         $this->assertEquals(['1'], Arr::pluck($data, 'id'));
     }
 
@@ -194,15 +208,18 @@ class ListTest extends TestCase
     public function email_filter_works_negated()
     {
         $response = $this->send(
-            $this->request('GET', '/api/users', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'filter' => ['-email' => 'admin@machine.local'],
-            ])
+            tap(
+                $this->request('GET', '/api/users', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['-email' => 'admin@machine.local'],
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
         $this->assertEquals(['2'], Arr::pluck($data, 'id'));
     }
 
@@ -212,15 +229,18 @@ class ListTest extends TestCase
     public function email_filter_only_works_for_admin()
     {
         $response = $this->send(
-            $this->request('GET', '/api/users', [
-                'authenticatedAs' => 2,
-            ])->withQueryParams([
-                'filter' => ['email' => 'admin@machine.local'],
-            ])
+            tap(
+                $this->request('GET', '/api/users', [
+                    'authenticatedAs' => 2,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['email' => 'admin@machine.local'],
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
         $this->assertEquals(['1', '2'], Arr::pluck($data, 'id'));
     }
 
@@ -230,15 +250,18 @@ class ListTest extends TestCase
     public function group_gambit_works()
     {
         $response = $this->send(
-            $this->request('GET', '/api/users', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'filter' => ['q' => 'group:1'],
-            ])
+            tap(
+                $this->request('GET', '/api/users', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['q' => 'group:1'],
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
         $this->assertEquals(['1'], Arr::pluck($data, 'id'));
     }
 
@@ -248,15 +271,18 @@ class ListTest extends TestCase
     public function group_gambit_works_negated()
     {
         $response = $this->send(
-            $this->request('GET', '/api/users', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'filter' => ['q' => '-group:1'],
-            ])
+            tap(
+                $this->request('GET', '/api/users', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['q' => '-group:1'],
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
         $this->assertEquals(['2'], Arr::pluck($data, 'id'));
     }
 
@@ -266,15 +292,18 @@ class ListTest extends TestCase
     public function email_gambit_works()
     {
         $response = $this->send(
-            $this->request('GET', '/api/users', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'filter' => ['q' => 'email:admin@machine.local'],
-            ])
+            tap(
+                $this->request('GET', '/api/users', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['q' => 'email:admin@machine.local'],
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
         $this->assertEquals(['1'], Arr::pluck($data, 'id'));
     }
 
@@ -284,15 +313,18 @@ class ListTest extends TestCase
     public function email_gambit_works_negated()
     {
         $response = $this->send(
-            $this->request('GET', '/api/users', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'filter' => ['q' => '-email:admin@machine.local'],
-            ])
+            tap(
+                $this->request('GET', '/api/users', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['q' => '-email:admin@machine.local'],
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
         $this->assertEquals(['2'], Arr::pluck($data, 'id'));
     }
 
@@ -302,15 +334,18 @@ class ListTest extends TestCase
     public function email_gambit_only_works_for_admin()
     {
         $response = $this->send(
-            $this->request('GET', '/api/users', [
-                'authenticatedAs' => 2,
-            ])->withQueryParams([
-                'filter' => ['q' => 'email:admin@machine.local'],
-            ])
+            tap(
+                $this->request('GET', '/api/users', [
+                    'authenticatedAs' => 2,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['q' => 'email:admin@machine.local'],
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
         $this->assertEquals([], Arr::pluck($data, 'id'));
     }
 }

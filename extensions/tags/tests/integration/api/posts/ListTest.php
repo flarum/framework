@@ -83,7 +83,7 @@ class ListTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         $tagIds = array_map(function ($tag) {
             return $tag['id'];
@@ -108,7 +108,7 @@ class ListTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         $tagIds = array_map(function ($tag) {
             return $tag['id'];

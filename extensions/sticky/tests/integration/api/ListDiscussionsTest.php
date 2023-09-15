@@ -12,6 +12,7 @@ namespace Flarum\Sticky\tests\integration\api;
 use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class ListDiscussionsTest extends TestCase
@@ -61,7 +62,7 @@ class ListDiscussionsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         $this->assertEquals([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
     }
@@ -77,7 +78,7 @@ class ListDiscussionsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         $this->assertEquals([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
     }
@@ -93,7 +94,7 @@ class ListDiscussionsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         $this->assertEquals([2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
     }
@@ -102,18 +103,21 @@ class ListDiscussionsTest extends TestCase
     public function list_discussions_shows_stick_first_on_a_tag()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions', [
-                'authenticatedAs' => 3
-            ])->withQueryParams([
-                'filter' => [
-                    'tag' => 'general'
-                ]
-            ])
+            tap(
+                $this->request('GET', '/api/discussions', [
+                    'authenticatedAs' => 3
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'filter' => [
+                        'tag' => 'general'
+                    ]
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         $this->assertEquals([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
     }

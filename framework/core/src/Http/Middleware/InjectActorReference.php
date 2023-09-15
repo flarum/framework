@@ -9,19 +9,21 @@
 
 namespace Flarum\Http\Middleware;
 
+use Closure;
 use Flarum\Http\RequestUtil;
 use Flarum\User\Guest;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\MiddlewareInterface as Middleware;
-use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class InjectActorReference implements Middleware
+class InjectActorReference implements IlluminateMiddlewareInterface
 {
-    public function process(Request $request, Handler $handler): Response
+    public function handle(Request $request, Closure $next): Response
     {
+        if (isset($GLOBALS['testing'])) {
+            dump('i', $request);
+        }
         $request = RequestUtil::withActor($request, new Guest);
 
-        return $handler->handle($request);
+        return $next($request);
     }
 }

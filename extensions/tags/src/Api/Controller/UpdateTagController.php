@@ -15,8 +15,7 @@ use Flarum\Tags\Api\Serializer\TagSerializer;
 use Flarum\Tags\Command\EditTag;
 use Flarum\Tags\Tag;
 use Illuminate\Contracts\Bus\Dispatcher;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class UpdateTagController extends AbstractShowController
@@ -28,11 +27,11 @@ class UpdateTagController extends AbstractShowController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): Tag
+    protected function data(Request $request, Document $document): Tag
     {
-        $id = Arr::get($request->getQueryParams(), 'id');
+        $id = $request->route('id');
         $actor = RequestUtil::getActor($request);
-        $data = Arr::get($request->getParsedBody(), 'data', []);
+        $data = $request->json('data', []);
 
         return $this->bus->dispatch(
             new EditTag($id, $actor, $data)

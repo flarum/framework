@@ -38,7 +38,7 @@ class ListDiscussionsTest extends TestCase
             $this->request('GET', '/api/discussions', compact('authenticatedAs'))
         );
 
-        $body = json_decode($response->getBody()->getContents(), true);
+        $body = json_decode($response->getContent(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEqualsCanonicalizing([1, 4, 5, 7], Arr::pluck($body['data'], 'id'));
@@ -54,7 +54,7 @@ class ListDiscussionsTest extends TestCase
             $this->request('GET', '/api/discussions', compact('authenticatedAs'))
         );
 
-        $body = json_decode($response->getBody()->getContents(), true);
+        $body = json_decode($response->getContent(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEqualsCanonicalizing([1, 2, 3, 4, 5, 6, 7], Arr::pluck($body['data'], 'id'));

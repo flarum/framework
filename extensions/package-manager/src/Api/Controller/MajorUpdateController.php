@@ -9,27 +9,26 @@
 
 namespace Flarum\PackageManager\Api\Controller;
 
+use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\RequestUtil;
 use Flarum\PackageManager\Command\MajorUpdate;
 use Flarum\PackageManager\Job\Dispatcher;
-use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 
-class MajorUpdateController implements RequestHandlerInterface
+class MajorUpdateController extends AbstractController
 {
     public function __construct(
         protected Dispatcher $bus
     ) {
     }
 
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function __invoke(Request $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
-        $dryRun = (bool) (int) Arr::get($request->getParsedBody(), 'data.dryRun', 0);
+        $dryRun = (bool) (int) $request->json('data.dryRun', 0);
 
         $response = $this->bus->dispatch(
             new MajorUpdate($actor, $dryRun)

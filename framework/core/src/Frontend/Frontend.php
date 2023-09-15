@@ -11,8 +11,8 @@ namespace Flarum\Frontend;
 
 use Flarum\Api\Client;
 use Illuminate\Contracts\Container\Container;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class Frontend
 {
@@ -57,8 +57,8 @@ class Frontend
         );
     }
 
-    private function getResponseBody(Response $response): array
+    private function getResponseBody(JsonResponse $response): array
     {
-        return json_decode($response->getBody(), true);
+        return $response->getData(true);
     }
 }

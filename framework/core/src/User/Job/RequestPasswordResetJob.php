@@ -43,7 +43,7 @@ class RequestPasswordResetJob extends AbstractJob
 
         $data = [
             'username' => $user->display_name,
-            'url' => $url->to('forum')->route('resetPassword', ['token' => $token->token]),
+            'url' => $url->route('forum.resetPassword', ['token' => $token->token]),
             'forum' => $settings->get('forum_title'),
         ];
 

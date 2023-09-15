@@ -13,8 +13,7 @@ use Flarum\Api\Serializer\GroupSerializer;
 use Flarum\Group\Group;
 use Flarum\Group\GroupRepository;
 use Flarum\Http\RequestUtil;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class ShowGroupController extends AbstractShowController
@@ -26,9 +25,9 @@ class ShowGroupController extends AbstractShowController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): Group
+    protected function data(Request $request, Document $document): Group
     {
-        $id = Arr::get($request->getQueryParams(), 'id');
+        $id = $request->route('id');
         $actor = RequestUtil::getActor($request);
 
         $group = $this->groups->findOrFail($id, $actor);

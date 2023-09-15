@@ -12,8 +12,7 @@ namespace Flarum\User\Throttler;
 use Carbon\Carbon;
 use Flarum\Http\RequestUtil;
 use Flarum\User\EmailToken;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 
 /**
  * Users can request an email change,
@@ -23,13 +22,13 @@ class EmailChangeThrottler
 {
     public static int $timeout = 300;
 
-    public function __invoke(ServerRequestInterface $request): ?bool
+    public function __invoke(Request $request): ?bool
     {
-        if ($request->getAttribute('routeName') !== 'users.update') {
+        if (! $request->routeIs('api.users.update')) {
             return null;
         }
 
-        if (! Arr::has($request->getParsedBody(), 'data.attributes.email')) {
+        if (! $request->json('data.attributes.email')) {
             return null;
         }
 

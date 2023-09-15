@@ -13,8 +13,7 @@ use Flarum\Api\Controller\AbstractDeleteController;
 use Flarum\Flags\Command\DeleteFlags;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Bus\Dispatcher;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 
 class DeleteFlagsController extends AbstractDeleteController
 {
@@ -23,10 +22,10 @@ class DeleteFlagsController extends AbstractDeleteController
     ) {
     }
 
-    protected function delete(ServerRequestInterface $request): void
+    protected function delete(Request $request): void
     {
         $this->bus->dispatch(
-            new DeleteFlags(Arr::get($request->getQueryParams(), 'id'), RequestUtil::getActor($request), $request->getParsedBody())
+            new DeleteFlags($request->route('id'), RequestUtil::getActor($request), $request->json()->all())
         );
     }
 }

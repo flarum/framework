@@ -9,6 +9,7 @@
 
 namespace Flarum\Testing\integration\Setup;
 
+use Closure;
 use Flarum\Foundation\Config;
 use Flarum\Foundation\InstalledSite;
 use Flarum\Foundation\Paths;
@@ -16,20 +17,18 @@ use Flarum\Testing\integration\Extend\BeginTransactionAndSetDatabase;
 use Flarum\Testing\integration\Extend\OverrideExtensionManagerForTests;
 use Flarum\Testing\integration\Extend\SetSettingsBeforeBoot;
 use Flarum\Testing\integration\UsesTmpDir;
-use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Arr;
 
 class Bootstrapper
 {
     use UsesTmpDir;
 
-    public ?ConnectionInterface $database = null;
-
     public function __construct(
         protected array $config = [],
         protected array $extensions = [],
         protected array $settings = [],
-        protected array $extenders = []
+        protected array $extenders = [],
+        protected ?Closure $database = null
     ) {
     }
 
@@ -67,9 +66,7 @@ class Bootstrapper
 
         $extenders = array_merge([
             new OverrideExtensionManagerForTests($this->extensions),
-            new BeginTransactionAndSetDatabase(function (ConnectionInterface $db) {
-                $this->database = $db;
-            }),
+            new BeginTransactionAndSetDatabase($this->database),
             new SetSettingsBeforeBoot($this->settings),
         ], $this->extenders);
 

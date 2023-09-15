@@ -63,7 +63,7 @@ class ModelVisibilityTest extends TestCase
             $this->request('GET', '/api/discussions/2')
         );
 
-        $json = json_decode($response->getBody()->getContents(), true);
+        $json = json_decode($response->getContent(), true);
 
         $this->assertEquals(1, Arr::get($json, 'data.relationships.posts.data.0.id'));
     }
@@ -73,7 +73,7 @@ class ModelVisibilityTest extends TestCase
      */
     public function user_can_see_posts_by_default()
     {
-        $this->app();
+        $this->bootstrap();
 
         $actor = User::find(2);
 
@@ -94,7 +94,7 @@ class ModelVisibilityTest extends TestCase
                 }, 'view')
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $actor = User::find(2);
 
@@ -115,7 +115,7 @@ class ModelVisibilityTest extends TestCase
                 }, 'view')
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $actor = User::find(2);
 
@@ -140,7 +140,7 @@ class ModelVisibilityTest extends TestCase
                 }, 'view')
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $actor = User::find(2);
 
@@ -165,7 +165,7 @@ class ModelVisibilityTest extends TestCase
                 }, 'viewPrivate')
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $actor = User::find(2);
 
@@ -194,7 +194,7 @@ class ModelVisibilityTest extends TestCase
                 })
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $actor = User::find(2);
 

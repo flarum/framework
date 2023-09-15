@@ -15,8 +15,8 @@ use Flarum\Http\RequestUtil;
 use Flarum\Post\Command\PostReply;
 use Flarum\Post\CommentPost;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 class CreatePostController extends AbstractCreateController
@@ -35,12 +35,12 @@ class CreatePostController extends AbstractCreateController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): CommentPost
+    protected function data(Request $request, Document $document): CommentPost
     {
         $actor = RequestUtil::getActor($request);
-        $data = Arr::get($request->getParsedBody(), 'data', []);
+        $data = $request->json('data', []);
         $discussionId = (int) Arr::get($data, 'relationships.discussion.data.id');
-        $ipAddress = $request->getAttribute('ipAddress');
+        $ipAddress = $request->ip();
 
         /** @var CommentPost $post */
         $post = $this->bus->dispatch(

@@ -14,6 +14,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
+use Illuminate\Http\Request;
 
 class CreateTest extends TestCase
 {
@@ -35,19 +36,19 @@ class CreateTest extends TestCase
     public function cannot_create_user_without_data()
     {
         $response = $this->send(
-            $this->request(
+            tap($this->request(
                 'POST',
                 '/api/users',
                 [
                     'json' => ['data' => ['attributes' => []]],
                 ]
-            )->withAttribute('bypassCsrfToken', true)
+            ), fn (Request $request) => $request->attributes->set('bypassCsrfToken', true))
         );
 
         $this->assertEquals(422, $response->getStatusCode());
 
         // The response body should contain details about the failed validation
-        $body = (string) $response->getBody();
+        $body = (string) $response->getContent();
         $this->assertJson($body);
         $this->assertEquals([
             'errors' => [
@@ -79,7 +80,7 @@ class CreateTest extends TestCase
     public function can_create_user()
     {
         $response = $this->send(
-            $this->request(
+            tap($this->request(
                 'POST',
                 '/api/users',
                 [
@@ -93,7 +94,7 @@ class CreateTest extends TestCase
                         ]
                     ],
                 ]
-            )->withAttribute('bypassCsrfToken', true)
+            ), fn (Request $request) => $request->attributes->set('bypassCsrfToken', true))
         );
 
         $this->assertEquals(201, $response->getStatusCode());
@@ -149,7 +150,7 @@ class CreateTest extends TestCase
         $settings->set('allow_sign_up', false);
 
         $response = $this->send(
-            $this->request(
+            tap($this->request(
                 'POST',
                 '/api/users',
                 [
@@ -163,7 +164,7 @@ class CreateTest extends TestCase
                         ]
                     ],
                 ]
-            )->withAttribute('bypassCsrfToken', true)
+            ), fn (Request $request) => $request->attributes->set('bypassCsrfToken', true))
         );
         $this->assertEquals(403, $response->getStatusCode());
 
@@ -176,7 +177,7 @@ class CreateTest extends TestCase
     public function cannot_create_user_with_invalid_avatar_uri_scheme()
     {
         // Boot app
-        $this->app();
+        $this->bootstrap();
 
         $regTokens = [];
 
@@ -207,7 +208,7 @@ class CreateTest extends TestCase
 
             // Call the registration endpoint
             $response = $this->send(
-                $this->request(
+                tap($this->request(
                     'POST',
                     '/api/users',
                     [
@@ -219,11 +220,11 @@ class CreateTest extends TestCase
                             ]
                         ],
                     ]
-                )->withAttribute('bypassCsrfToken', true)
+                ), fn (Request $request) => $request->attributes->set('bypassCsrfToken', true))
             );
 
             // The response body should contain details about the invalid URI
-            $body = (string) $response->getBody();
+            $body = (string) $response->getContent();
             $this->assertJson($body);
             $decodedBody = json_decode($body, true);
 
@@ -242,7 +243,7 @@ class CreateTest extends TestCase
     public function cannot_create_user_with_invalid_avatar_uri()
     {
         // Boot app
-        $this->app();
+        $this->bootstrap();
 
         $regTokens = [];
 
@@ -281,7 +282,7 @@ class CreateTest extends TestCase
 
             // Call the registration endpoint
             $response = $this->send(
-                $this->request(
+                tap($this->request(
                     'POST',
                     '/api/users',
                     [
@@ -293,11 +294,11 @@ class CreateTest extends TestCase
                             ]
                         ],
                     ]
-                )->withAttribute('bypassCsrfToken', true)
+                ), fn (Request $request) => $request->attributes->set('bypassCsrfToken', true))
             );
 
             // The response body should contain details about the invalid URI
-            $body = (string) $response->getBody();
+            $body = (string) $response->getContent();
             $this->assertJson($body);
             $decodedBody = json_decode($body, true);
 
@@ -316,7 +317,7 @@ class CreateTest extends TestCase
     public function can_create_user_with_valid_avatar_uri()
     {
         // Boot app
-        $this->app();
+        $this->bootstrap();
 
         $regTokens = [];
 
@@ -359,7 +360,7 @@ class CreateTest extends TestCase
 
             // Call the registration endpoint
             $response = $this->send(
-                $this->request(
+                tap($this->request(
                     'POST',
                     '/api/users',
                     [
@@ -371,7 +372,7 @@ class CreateTest extends TestCase
                             ]
                         ],
                     ]
-                )->withAttribute('bypassCsrfToken', true)
+                ), fn (Request $request) => $request->attributes->set('bypassCsrfToken', true))
             );
 
             $this->assertEquals(201, $response->getStatusCode());

@@ -9,19 +9,15 @@
 
 use Flarum\Admin\Content\Index;
 use Flarum\Admin\Controller\UpdateExtensionController;
-use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
+use Flarum\Http\Router;
 
-return function (RouteCollection $map, RouteHandlerFactory $route) {
-    $map->get(
-        '/',
-        'index',
-        $route->toAdmin(Index::class)
-    );
+return function (Router $router, RouteHandlerFactory $factory) {
+    $router
+        ->get('/', $factory->toAdmin(Index::class))
+        ->name('index');
 
-    $map->post(
-        '/extensions/{name}',
-        'extensions.update',
-        $route->toController(UpdateExtensionController::class)
-    );
+    $router
+        ->post('/extensions/{name}', $factory->toController(UpdateExtensionController::class))
+        ->name('extensions.update');
 };

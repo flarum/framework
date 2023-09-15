@@ -35,14 +35,14 @@ class FilesystemServiceProvider extends AbstractServiceProvider
                 'flarum-assets' => function (Paths $paths, UrlGenerator $url) {
                     return [
                         'root'       => "$paths->public/assets",
-                        'url'        => $url->to('forum')->path('assets'),
+                        'url'        => $url->path('forum', 'assets'),
                         'visibility' => Visibility::PUBLIC
                     ];
                 },
                 'flarum-avatars' => function (Paths $paths, UrlGenerator $url) {
                     return [
                         'root'   => "$paths->public/assets/avatars",
-                        'url'    => $url->to('forum')->path('assets/avatars')
+                        'url'    => $url->path('forum', 'assets/avatars')
                     ];
                 },
             ];

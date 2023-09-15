@@ -15,8 +15,7 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Illuminate\Http\Request;
 
 class Index
 {
@@ -31,12 +30,10 @@ class Index
 
     public function __invoke(Document $document, Request $request): Document
     {
-        $queryParams = $request->getQueryParams();
-
-        $sort = Arr::pull($queryParams, 'sort');
-        $q = Arr::pull($queryParams, 'q');
-        $page = max(1, intval(Arr::pull($queryParams, 'page')));
-        $filters = Arr::pull($queryParams, 'filter', []);
+        $sort = $request->query('sort');
+        $q = $request->query('q');
+        $page = max(1, intval($request->query('page')));
+        $filters = $request->query('filter', []);
 
         $sortMap = resolve('flarum.forum.discussions.sortmap');
 
@@ -57,7 +54,7 @@ class Index
         $document->content = $this->view->make('flarum.forum::frontend.content.index', compact('apiDocument', 'page'));
         $document->payload['apiDocument'] = $apiDocument;
 
-        $document->canonicalUrl = $this->url->to('forum')->base().($defaultRoute === '/all' ? '' : $request->getUri()->getPath());
+        $document->canonicalUrl = $this->url->base('forum').($defaultRoute === '/all' ? '' : $request->getUri());
         $document->page = $page;
         $document->hasNextPage = isset($apiDocument->links->next);
 
@@ -69,6 +66,6 @@ class Index
      */
     protected function getApiDocument(Request $request, array $params): object
     {
-        return json_decode($this->api->withParentRequest($request)->withQueryParams($params)->get('/discussions')->getBody());
+        return $this->api->withParentRequest($request)->withQueryParams($params)->get('/discussions')->getData();
     }
 }

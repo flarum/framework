@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class ListTest extends TestCase
@@ -65,7 +66,7 @@ class ListTest extends TestCase
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
 
         $this->assertEquals(3, count($data['data']));
     }
@@ -76,14 +77,16 @@ class ListTest extends TestCase
     public function author_filter_works()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions')
-            ->withQueryParams([
-                'filter' => ['author' => 'normal'],
-                'include' => 'mostRelevantPost',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions'),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['author' => 'normal'],
+                    'include' => 'mostRelevantPost',
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEqualsCanonicalizing(['2', '3'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -95,14 +98,16 @@ class ListTest extends TestCase
     public function author_filter_works_negated()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions')
-            ->withQueryParams([
-                'filter' => ['-author' => 'normal'],
-                'include' => 'mostRelevantPost',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions'),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['-author' => 'normal'],
+                    'include' => 'mostRelevantPost',
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEquals(['1'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -114,14 +119,16 @@ class ListTest extends TestCase
     public function created_filter_works_with_date()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions')
-            ->withQueryParams([
-                'filter' => ['created' => '1995-05-21'],
-                'include' => 'mostRelevantPost',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions'),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['created' => '1995-05-21'],
+                    'include' => 'mostRelevantPost',
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEquals(['3'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -133,14 +140,16 @@ class ListTest extends TestCase
     public function created_filter_works_negated_with_date()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions')
-            ->withQueryParams([
-                'filter' => ['-created' => '1995-05-21'],
-                'include' => 'mostRelevantPost',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions'),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['-created' => '1995-05-21'],
+                    'include' => 'mostRelevantPost',
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEqualsCanonicalizing(['1', '2'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -152,14 +161,16 @@ class ListTest extends TestCase
     public function created_filter_works_with_range()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions')
-            ->withQueryParams([
-                'filter' => ['created' => '1980-05-21..2000-05-21'],
-                'include' => 'mostRelevantPost',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions'),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['created' => '1980-05-21..2000-05-21'],
+                    'include' => 'mostRelevantPost',
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEqualsCanonicalizing(['2', '3'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -171,14 +182,16 @@ class ListTest extends TestCase
     public function created_filter_works_negated_with_range()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions')
-            ->withQueryParams([
-                'filter' => ['-created' => '1980-05-21..2000-05-21'],
-                'include' => 'mostRelevantPost',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions'),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['-created' => '1980-05-21..2000-05-21'],
+                    'include' => 'mostRelevantPost',
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEquals(['1'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -190,14 +203,16 @@ class ListTest extends TestCase
     public function hidden_filter_works()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions', ['authenticatedAs' => 1])
-            ->withQueryParams([
-                'filter' => ['hidden' => ''],
-                'include' => 'mostRelevantPost',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions', ['authenticatedAs' => 1]),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['hidden' => ''],
+                    'include' => 'mostRelevantPost',
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEquals(['4'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -209,14 +224,16 @@ class ListTest extends TestCase
     public function hidden_filter_works_negated()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions', ['authenticatedAs' => 1])
-            ->withQueryParams([
-                'filter' => ['-hidden' => ''],
-                'include' => 'mostRelevantPost',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions', ['authenticatedAs' => 1]),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['-hidden' => ''],
+                    'include' => 'mostRelevantPost',
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEqualsCanonicalizing(['1', '2', '3'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -227,18 +244,20 @@ class ListTest extends TestCase
      */
     public function unread_filter_works()
     {
-        $this->app();
+        $this->bootstrap();
         $this->read();
 
         $response = $this->send(
-            $this->request('GET', '/api/discussions', ['authenticatedAs' => 2])
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/discussions', ['authenticatedAs' => 2]),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['unread' => ''],
                     'include' => 'mostRelevantPost',
                 ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEquals(['3'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -249,18 +268,20 @@ class ListTest extends TestCase
      */
     public function unread_filter_works_when_negated()
     {
-        $this->app();
+        $this->bootstrap();
         $this->read();
 
         $response = $this->send(
-            $this->request('GET', '/api/discussions', ['authenticatedAs' => 2])
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/discussions', ['authenticatedAs' => 2]),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['-unread' => ''],
                     'include' => 'mostRelevantPost',
                 ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEqualsCanonicalizing(['1', '2'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -272,14 +293,16 @@ class ListTest extends TestCase
     public function author_gambit_works()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions')
-            ->withQueryParams([
-                'filter' => ['q' => 'author:normal'],
-                'include' => 'mostRelevantPost',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions'),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['q' => 'author:normal'],
+                    'include' => 'mostRelevantPost',
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEqualsCanonicalizing(['2', '3'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -291,14 +314,16 @@ class ListTest extends TestCase
     public function author_gambit_works_negated()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions')
-            ->withQueryParams([
-                'filter' => ['q' => '-author:normal'],
-                'include' => 'mostRelevantPost',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions'),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['q' => '-author:normal'],
+                    'include' => 'mostRelevantPost',
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEquals(['1'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -310,14 +335,16 @@ class ListTest extends TestCase
     public function created_gambit_works_with_date()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions')
-            ->withQueryParams([
-                'filter' => ['q' => 'created:1995-05-21'],
-                'include' => 'mostRelevantPost',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions'),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['q' => 'created:1995-05-21'],
+                    'include' => 'mostRelevantPost',
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEquals(['3'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -329,14 +356,16 @@ class ListTest extends TestCase
     public function created_gambit_works_negated_with_date()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions')
-            ->withQueryParams([
-                'filter' => ['q' => '-created:1995-05-21'],
-                'include' => 'mostRelevantPost',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions'),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['q' => '-created:1995-05-21'],
+                    'include' => 'mostRelevantPost',
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEqualsCanonicalizing(['1', '2'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -348,14 +377,16 @@ class ListTest extends TestCase
     public function created_gambit_works_with_range()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions')
-            ->withQueryParams([
-                'filter' => ['q' => 'created:1980-05-21..2000-05-21'],
-                'include' => 'mostRelevantPost',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions'),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['q' => 'created:1980-05-21..2000-05-21'],
+                    'include' => 'mostRelevantPost',
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEqualsCanonicalizing(['2', '3'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -367,14 +398,16 @@ class ListTest extends TestCase
     public function created_gambit_works_negated_with_range()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions')
-            ->withQueryParams([
-                'filter' => ['q' => '-created:1980-05-21..2000-05-21'],
-                'include' => 'mostRelevantPost',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions'),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['q' => '-created:1980-05-21..2000-05-21'],
+                    'include' => 'mostRelevantPost',
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEquals(['1'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -386,14 +419,16 @@ class ListTest extends TestCase
     public function hidden_gambit_works()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions', ['authenticatedAs' => 1])
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/discussions', ['authenticatedAs' => 1]),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['q' => 'is:hidden'],
                     'include' => 'mostRelevantPost',
                 ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEquals(['4'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -405,14 +440,16 @@ class ListTest extends TestCase
     public function hidden_gambit_works_negated()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions', ['authenticatedAs' => 1])
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/discussions', ['authenticatedAs' => 1]),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['q' => '-is:hidden'],
                     'include' => 'mostRelevantPost',
                 ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEqualsCanonicalizing(['1', '2', '3'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -423,18 +460,20 @@ class ListTest extends TestCase
      */
     public function unread_gambit_works()
     {
-        $this->app();
+        $this->bootstrap();
         $this->read();
 
         $response = $this->send(
-            $this->request('GET', '/api/discussions', ['authenticatedAs' => 2])
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/discussions', ['authenticatedAs' => 2]),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['q' => 'is:unread'],
                     'include' => 'mostRelevantPost',
                 ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEquals(['3'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -445,18 +484,20 @@ class ListTest extends TestCase
      */
     public function unread_gambit_works_when_negated()
     {
-        $this->app();
+        $this->bootstrap();
         $this->read();
 
         $response = $this->send(
-            $this->request('GET', '/api/discussions', ['authenticatedAs' => 2])
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/discussions', ['authenticatedAs' => 2]),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['q' => '-is:unread'],
                     'include' => 'mostRelevantPost',
                 ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $this->assertEqualsCanonicalizing(['1', '2'], Arr::pluck($data, 'id'), 'IDs do not match');

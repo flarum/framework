@@ -13,7 +13,7 @@ use Flarum\Foundation\Console\AssetsPublishCommand;
 use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\IOException;
 use Flarum\Http\RequestUtil;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 
@@ -28,7 +28,7 @@ class ClearCacheController extends AbstractDeleteController
     /**
      * @throws IOException|\Flarum\User\Exception\PermissionDeniedException|\Symfony\Component\Console\Exception\ExceptionInterface
      */
-    protected function delete(ServerRequestInterface $request): void
+    protected function delete(Request $request): void
     {
         RequestUtil::getActor($request)->assertAdmin();
 

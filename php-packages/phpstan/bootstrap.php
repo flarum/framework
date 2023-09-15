@@ -19,4 +19,4 @@ if (! function_exists('database_path')) {
 }
 
 $site = (new \Flarum\Testing\integration\Setup\Bootstrapper())->run();
-$site->bootApp();
+$site->init();

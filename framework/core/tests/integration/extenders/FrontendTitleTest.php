@@ -14,7 +14,7 @@ use Flarum\Frontend\Document;
 use Flarum\Frontend\Driver\TitleDriverInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 
 class FrontendTitleTest extends TestCase
 {
@@ -59,7 +59,7 @@ class FrontendTitleTest extends TestCase
     {
         $response = $this->send($this->request('GET', '/d/1'));
 
-        preg_match('/\<title\>(?<title>[^<]+)\<\/title\>/m', $response->getBody()->getContents(), $matches);
+        preg_match('/\<title\>(?<title>[^<]+)\<\/title\>/m', $response->getContent(), $matches);
 
         $this->assertEquals($title, $matches['title']);
     }
@@ -67,7 +67,7 @@ class FrontendTitleTest extends TestCase
 
 class CustomTitleDriver implements TitleDriverInterface
 {
-    public function makeTitle(Document $document, ServerRequestInterface $request, array $forumApiDocument): string
+    public function makeTitle(Document $document, Request $request, array $forumApiDocument): string
     {
         return 'CustomTitle';
     }

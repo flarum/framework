@@ -20,8 +20,8 @@ use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AdminPayload
 {

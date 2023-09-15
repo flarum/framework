@@ -10,6 +10,7 @@
 namespace Flarum\Tags\Tests\integration\api\tags;
 
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class ListWithFulltextSearchTest extends TestCase
@@ -42,14 +43,17 @@ class ListWithFulltextSearchTest extends TestCase
     public function can_search_for_tags(string $search, array $expected)
     {
         $response = $this->send(
-            $this->request('GET', '/api/tags')->withQueryParams([
-                'filter' => [
-                    'q' => $search,
-                ],
-            ])
+            tap(
+                $this->request('GET', '/api/tags'),
+                fn (Request $request) => $request->query->add([
+                    'filter' => [
+                        'q' => $search,
+                    ],
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals($expected, Arr::pluck($data, 'id'));

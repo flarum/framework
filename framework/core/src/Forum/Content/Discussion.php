@@ -14,8 +14,8 @@ use Flarum\Frontend\Document;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Discussion
 {
@@ -28,10 +28,9 @@ class Discussion
 
     public function __invoke(Document $document, Request $request): Document
     {
-        $queryParams = $request->getQueryParams();
-        $id = Arr::get($queryParams, 'id');
-        $near = intval(Arr::get($queryParams, 'near'));
-        $page = max(1, intval(Arr::get($queryParams, 'page')), 1 + intdiv($near, 20));
+        $id = $request->route('id');
+        $near = intval($request->query('near'));
+        $page = max(1, intval($request->query('page')), 1 + intdiv($near, 20));
 
         $params = [
             'id' => $id,
@@ -50,8 +49,8 @@ class Discussion
             });
         };
 
-        $url = function ($newQueryParams) use ($queryParams, $apiDocument) {
-            $newQueryParams = array_merge($queryParams, $newQueryParams);
+        $url = function ($newQueryParams) use ($request, $apiDocument) {
+            $newQueryParams = array_merge($request->query(), $newQueryParams);
             unset($newQueryParams['id']);
             unset($newQueryParams['near']);
 
@@ -61,7 +60,7 @@ class Discussion
 
             $queryString = http_build_query($newQueryParams);
 
-            return $this->url->to('forum')->route('discussion', ['id' => $apiDocument->data->attributes->slug]).
+            return $this->url->route('forum.discussion', ['id' => $apiDocument->data->attributes->slug]).
                 ($queryString ? '?'.$queryString : '');
         };
 
@@ -105,6 +104,6 @@ class Discussion
             throw new RouteNotFoundException;
         }
 
-        return json_decode($response->getBody());
+        return $response->getData();
     }
 }

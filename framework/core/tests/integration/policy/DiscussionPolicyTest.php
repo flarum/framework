@@ -59,7 +59,7 @@ class DiscussionPolicyTest extends TestCase
     public function rename_indefinitely()
     {
         $this->setting('allow_renaming', '-1');
-        $this->app();
+        $this->bootstrap();
 
         $user = User::findOrFail(2);
         $discussion = Discussion::findOrFail(1);
@@ -81,7 +81,7 @@ class DiscussionPolicyTest extends TestCase
     public function rename_until_reply()
     {
         $this->setting('allow_renaming', 'reply');
-        $this->app();
+        $this->bootstrap();
 
         $user = User::findOrFail(2);
         $discussion = Discussion::findOrFail(1);
@@ -110,7 +110,7 @@ class DiscussionPolicyTest extends TestCase
     public function rename_10_minutes()
     {
         $this->setting('allow_renaming', '10');
-        $this->app();
+        $this->bootstrap();
 
         $user = User::findOrFail(2);
         $discussion = Discussion::findOrFail(1);

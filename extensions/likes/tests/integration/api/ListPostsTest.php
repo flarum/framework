@@ -14,6 +14,7 @@ use Flarum\Group\Group;
 use Flarum\Likes\Api\LoadLikesRelationship;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class ListPostsTest extends TestCase
@@ -75,15 +76,17 @@ class ListPostsTest extends TestCase
     public function liked_filter_works()
     {
         $response = $this->send(
-            $this->request('GET', '/api/users')
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/users'),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['liked' => 101],
                 ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $ids = Arr::pluck($data, 'id');
@@ -98,15 +101,17 @@ class ListPostsTest extends TestCase
     public function liked_filter_works_negated()
     {
         $response = $this->send(
-            $this->request('GET', '/api/users')
-            ->withQueryParams([
-                'filter' => ['-liked' => 101],
-            ])
+            tap(
+                $this->request('GET', '/api/users'),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['-liked' => 101],
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         // Order-independent comparison
         $ids = Arr::pluck($data, 'id');
@@ -118,14 +123,17 @@ class ListPostsTest extends TestCase
     {
         // List posts endpoint
         $response = $this->send(
-            $this->request('GET', '/api/posts/101', [
-                'authenticatedAs' => 2,
-            ])->withQueryParams([
-                'include' => 'likes',
-            ])
+            tap(
+                $this->request('GET', '/api/posts/101', [
+                    'authenticatedAs' => 2,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'include' => 'likes',
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -144,15 +152,18 @@ class ListPostsTest extends TestCase
     {
         // List posts endpoint
         $response = $this->send(
-            $this->request('GET', '/api/posts', [
-                'authenticatedAs' => 2,
-            ])->withQueryParams([
-                'filter' => ['discussion' => 100],
-                'include' => 'likes',
-            ])
+            tap(
+                $this->request('GET', '/api/posts', [
+                    'authenticatedAs' => 2,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'filter' => ['discussion' => 100],
+                    'include' => 'likes',
+                ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($response->getContent(), true)['data'];
 
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -174,14 +185,17 @@ class ListPostsTest extends TestCase
     {
         // Show discussion endpoint
         $response = $this->send(
-            $this->request('GET', '/api/discussions/100', [
-                'authenticatedAs' => 2,
-            ])->withQueryParams([
-                'include' => $include,
-            ])
+            tap(
+                $this->request('GET', '/api/discussions/100', [
+                    'authenticatedAs' => 2,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'include' => $include,
+                ])
+            )
         );
 
-        $included = json_decode($response->getBody()->getContents(), true)['included'];
+        $included = json_decode($response->getContent(), true)['included'];
 
         $likes = collect($included)
             ->where('type', 'posts')

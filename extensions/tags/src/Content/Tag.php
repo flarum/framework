@@ -17,8 +17,7 @@ use Flarum\Locale\TranslatorInterface;
 use Flarum\Tags\Tag as TagModel;
 use Flarum\Tags\TagRepository;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Illuminate\Http\Request;
 
 class Tag
 {
@@ -33,14 +32,13 @@ class Tag
 
     public function __invoke(Document $document, Request $request): Document
     {
-        $queryParams = $request->getQueryParams();
         $actor = RequestUtil::getActor($request);
 
-        $slug = Arr::pull($queryParams, 'slug');
-        $sort = Arr::pull($queryParams, 'sort');
-        $q = Arr::pull($queryParams, 'q', '');
-        $page = Arr::pull($queryParams, 'page', 1);
-        $filters = Arr::pull($queryParams, 'filter', []);
+        $slug = $request->route('slug');
+        $sort = $request->query('sort');
+        $q = $request->query('q', '');
+        $page = $request->query('page', 1);
+        $filters = $request->query('filter', []);
 
         $sortMap = $this->getSortMap();
 
@@ -91,13 +89,13 @@ class Tag
      */
     protected function getApiDocument(Request $request, array $params): object
     {
-        return json_decode($this->api->withParentRequest($request)->withQueryParams($params)->get('/discussions')->getBody());
+        return json_decode($this->api->withParentRequest($request)->withQueryParams($params)->get('/discussions')->content());
     }
 
     protected function getTagsDocument(Request $request, string $slug): object
     {
         return json_decode($this->api->withParentRequest($request)->withQueryParams([
             'include' => 'children,children.parent,parent,parent.children.parent,state'
-        ])->get("/tags/$slug")->getBody());
+        ])->get("/tags/$slug")->content());
     }
 }

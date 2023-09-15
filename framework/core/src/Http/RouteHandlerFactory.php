@@ -12,9 +12,8 @@ namespace Flarum\Http;
 use Closure;
 use Flarum\Frontend\Controller as FrontendController;
 use Illuminate\Contracts\Container\Container;
-use InvalidArgumentException;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Illuminate\Http\Request;
+use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * @internal
@@ -26,28 +25,32 @@ class RouteHandlerFactory
     ) {
     }
 
-    public function toController(callable|string $controller): Closure
+    public function toController(callable|string $controller): callable|string|array
     {
-        return function (Request $request, array $routeParams) use ($controller) {
-            $controller = $this->resolveController($controller);
+        // If it's a class and it implements the RequestHandlerInterface, we'll
+        // assume it's a PSR-7 request handler and we'll return [controller, 'handle']
+        // as the callable.
+        if (is_string($controller) && class_exists($controller) && in_array(RequestHandlerInterface::class, class_implements($controller))) {
+            return [$controller, 'handle'];
+        }
 
-            $request = $request->withQueryParams(array_merge($request->getQueryParams(), $routeParams));
-
-            return $controller->handle($request);
-        };
+        return $controller;
     }
 
-    public function toFrontend(string $frontend, callable|string|null $content = null): Closure
+    public function toFrontend(string $frontend, callable|string|null $content = null): callable
     {
-        return $this->toController(function (Container $container) use ($frontend, $content) {
-            $frontend = $container->make("flarum.frontend.$frontend");
+        return function (Request $request) use ($frontend, $content): mixed {
+            $frontend = $this->container->make("flarum.frontend.$frontend");
 
             if ($content) {
-                $frontend->content(is_callable($content) ? $content : $container->make($content));
+                $frontend->content(is_callable($content) ? $content : $this->container->make($content));
             }
 
-            return new FrontendController($frontend);
-        });
+            return $this->container->call(
+                $this->container->make(FrontendController::class, compact('frontend')),
+                compact('request')
+            );
+        };
     }
 
     public function toForum(string $content = null): Closure
@@ -58,18 +61,5 @@ class RouteHandlerFactory
     public function toAdmin(string $content = null): Closure
     {
         return $this->toFrontend('admin', $content);
-    }
-
-    private function resolveController(callable|string $controller): Handler
-    {
-        $controller = is_callable($controller)
-            ? $this->container->call($controller)
-            : $this->container->make($controller);
-
-        if (! $controller instanceof Handler) {
-            throw new InvalidArgumentException('Controller must be an instance of '.Handler::class);
-        }
-
-        return $controller;
     }
 }

@@ -9,30 +9,28 @@
 
 namespace Flarum\PackageManager\Api\Controller;
 
+use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\RequestUtil;
 use Flarum\PackageManager\Command\UpdateExtension;
 use Flarum\PackageManager\Job\Dispatcher;
-use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 
-class UpdateExtensionController implements RequestHandlerInterface
+class UpdateExtensionController extends AbstractController
 {
     public function __construct(
         protected Dispatcher $bus
     ) {
     }
 
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function __invoke(Request $request, int $id): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
-        $extensionId = Arr::get($request->getQueryParams(), 'id');
 
         $response = $this->bus->dispatch(
-            new UpdateExtension($actor, $extensionId)
+            new UpdateExtension($actor, $id)
         );
 
         return $response->queueJobs

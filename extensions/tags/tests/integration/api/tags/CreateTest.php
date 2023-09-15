@@ -89,7 +89,7 @@ class CreateTest extends TestCase
         $this->assertEquals(201, $response->getStatusCode());
 
         // Verify API response body
-        $data = json_decode($response->getBody(), true);
+        $data = json_decode($response->getContent(), true);
         $this->assertEquals('Dev Blog', Arr::get($data, 'data.attributes.name'));
         $this->assertEquals('dev-blog', Arr::get($data, 'data.attributes.slug'));
         $this->assertEquals('Follow Flarum development!', Arr::get($data, 'data.attributes.description'));

@@ -15,9 +15,8 @@ use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * @property int $id
@@ -96,7 +95,7 @@ class AccessToken extends AbstractModel
      * Update the time of last usage of a token.
      * If a request object is provided, the IP address and User Agent will also be logged.
      */
-    public function touch($attribute = null, ServerRequestInterface $request = null): bool
+    public function touch($attribute = null, Request $request = null): bool
     {
         $now = Carbon::now();
 
@@ -105,11 +104,11 @@ class AccessToken extends AbstractModel
         }
 
         if ($request) {
-            $this->last_ip_address = $request->getAttribute('ipAddress');
+            $this->last_ip_address = $request->ip();
             // We truncate user agent so it fits in the database column
             // The length is hard-coded as the column length
             // It seems like MySQL or Laravel already truncates values, but we'll play safe and do it ourselves
-            $agent = Arr::get($request->getServerParams(), 'HTTP_USER_AGENT');
+            $agent = $request->server->get('HTTP_USER_AGENT');
             $this->last_user_agent = substr($agent ?? '', 0, 255);
         } else {
             // If no request is provided, we set the values back to null

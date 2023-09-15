@@ -9,24 +9,22 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\RememberAccessToken;
 use Flarum\Http\SessionAccessToken;
 use Flarum\User\Exception\NotAuthenticatedException;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
-use Illuminate\Support\Arr;
-use Laminas\Diactoros\Response\JsonResponse;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 /**
  * Not to be confused with the CreateAccessTokenController,
  * this controller is used to authenticate a user with credentials,
  * and return a system generated session-type access token.
  */
-class CreateTokenController implements RequestHandlerInterface
+class CreateTokenController extends AbstractController
 {
     public function __construct(
         protected UserRepository $users,
@@ -35,12 +33,10 @@ class CreateTokenController implements RequestHandlerInterface
     ) {
     }
 
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function __invoke(Request $request): JsonResponse
     {
-        $body = $request->getParsedBody();
-
-        $identification = Arr::get($body, 'identification');
-        $password = Arr::get($body, 'password');
+        $identification = $request->json('identification');
+        $password = $request->json('password');
 
         $user = $identification
             ? $this->users->findByIdentification($identification)
@@ -50,7 +46,7 @@ class CreateTokenController implements RequestHandlerInterface
             throw new NotAuthenticatedException;
         }
 
-        if (Arr::get($body, 'remember')) {
+        if ($request->json('remember')) {
             $token = RememberAccessToken::generate($user->id);
         } else {
             $token = SessionAccessToken::generate($user->id);

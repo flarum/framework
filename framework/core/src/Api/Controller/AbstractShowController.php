@@ -9,12 +9,13 @@
 
 namespace Flarum\Api\Controller;
 
+use Tobscure\JsonApi\ElementInterface;
 use Tobscure\JsonApi\Resource;
 use Tobscure\JsonApi\SerializerInterface;
 
 abstract class AbstractShowController extends AbstractSerializeController
 {
-    protected function createElement(mixed $data, SerializerInterface $serializer): \Tobscure\JsonApi\ElementInterface
+    protected function createElement(mixed $data, SerializerInterface $serializer): ElementInterface
     {
         return new Resource($data, $serializer);
     }

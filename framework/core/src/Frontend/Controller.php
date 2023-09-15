@@ -9,22 +9,18 @@
 
 namespace Flarum\Frontend;
 
-use Laminas\Diactoros\Response\HtmlResponse;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface;
+use Flarum\Http\Controller\AbstractController;
+use Illuminate\Http\Request;
 
-class Controller implements RequestHandlerInterface
+class Controller extends AbstractController
 {
     public function __construct(
         protected Frontend $frontend
     ) {
     }
 
-    public function handle(Request $request): Response
+    public function __invoke(Request $request): string
     {
-        return new HtmlResponse(
-            $this->frontend->document($request)->render()
-        );
+        return $this->frontend->document($request)->render();
     }
 }

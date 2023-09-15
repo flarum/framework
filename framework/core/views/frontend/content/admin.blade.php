@@ -50,7 +50,7 @@
                         <span class="ExtensionListItem-Dot {{ $isEnabled ? 'enabled' : 'disabled' }}" aria-hidden="true"></span>
                     </td>
                     <td class="NoJs-ExtensionsTable-toggle Table-controls">
-                        <form action="{{ $url->to('admin')->route('extensions.update', ['name' => $extension->getId()]) }}" method="POST">
+                        <form action="{{ $url->route('admin.extensions.update', ['name' => $extension->getId()]) }}" method="POST">
                             <input type="hidden" name="csrfToken" value="{{ $csrfToken }}">
                             <input type="hidden" name="enabled" value="{{ $isEnabled ? 0 : 1 }}">
 

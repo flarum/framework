@@ -12,7 +12,7 @@ namespace Flarum\Mentions\Formatter;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\SlugManager;
 use Flarum\Locale\TranslatorInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Illuminate\Http\Request;
 use s9e\TextFormatter\Renderer;
 use s9e\TextFormatter\Utils;
 

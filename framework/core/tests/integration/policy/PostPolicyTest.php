@@ -53,7 +53,7 @@ class PostPolicyTest extends TestCase
     public function edit_indefinitely()
     {
         $this->setting('allow_post_editing', '-1');
-        $this->app();
+        $this->bootstrap();
 
         $user = User::findOrFail(2);
         $earlierPost = Post::findOrFail(1);
@@ -78,7 +78,7 @@ class PostPolicyTest extends TestCase
     public function edit_until_reply()
     {
         $this->setting('allow_post_editing', 'reply');
-        $this->app();
+        $this->bootstrap();
 
         $user = User::findOrFail(2);
         $earlierPost = Post::findOrFail(1);
@@ -103,7 +103,7 @@ class PostPolicyTest extends TestCase
     public function edit_10_minutes()
     {
         $this->setting('allow_post_editing', '10');
-        $this->app();
+        $this->bootstrap();
 
         $user = User::findOrFail(2);
         $earlierPost = Post::findOrFail(1);
@@ -128,7 +128,7 @@ class PostPolicyTest extends TestCase
     public function hide_indefinitely()
     {
         $this->setting('allow_hide_own_posts', '-1');
-        $this->app();
+        $this->bootstrap();
 
         $user = User::findOrFail(2);
         $earlierPost = Post::findOrFail(1);
@@ -153,7 +153,7 @@ class PostPolicyTest extends TestCase
     public function hide_until_reply()
     {
         $this->setting('allow_hide_own_posts', 'reply');
-        $this->app();
+        $this->bootstrap();
 
         $user = User::findOrFail(2);
         $earlierPost = Post::findOrFail(1);
@@ -178,7 +178,7 @@ class PostPolicyTest extends TestCase
     public function hide_10_minutes()
     {
         $this->setting('allow_hide_own_posts', '10');
-        $this->app();
+        $this->bootstrap();
 
         $user = User::findOrFail(2);
         $earlierPost = Post::findOrFail(1);
@@ -203,7 +203,7 @@ class PostPolicyTest extends TestCase
     public function hide_never()
     {
         $this->setting('allow_hide_own_posts', '0');
-        $this->app();
+        $this->bootstrap();
 
         $user = User::findOrFail(2);
         $earlierPost = Post::findOrFail(1);

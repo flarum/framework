@@ -14,7 +14,7 @@ use Flarum\Api\Controller\AbstractListController;
 use Flarum\Flags\Api\Serializer\FlagSerializer;
 use Flarum\Flags\Flag;
 use Flarum\Http\RequestUtil;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class ListFlagsController extends AbstractListController
@@ -28,7 +28,7 @@ class ListFlagsController extends AbstractListController
         'post.discussion'
     ];
 
-    protected function data(ServerRequestInterface $request, Document $document): iterable
+    protected function data(Request $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
         $include = $this->extractInclude($request);

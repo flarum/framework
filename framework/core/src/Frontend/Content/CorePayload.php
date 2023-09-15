@@ -12,7 +12,7 @@ namespace Flarum\Frontend\Content;
 use Flarum\Frontend\Document;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\LocaleManager;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Illuminate\Http\Request;
 
 class CorePayload
 {
@@ -37,10 +37,10 @@ class CorePayload
             'resources' => $data,
             'session' => [
                 'userId' => RequestUtil::getActor($request)->id,
-                'csrfToken' => $request->getAttribute('session')->token()
+                'csrfToken' => $request->attributes->get('session')->token()
             ],
             'locales' => $this->locales->getLocales(),
-            'locale' => $request->getAttribute('locale')
+            'locale' => $request->attributes->get('locale')
         ];
     }
 

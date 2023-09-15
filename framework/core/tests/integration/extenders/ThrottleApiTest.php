@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\extenders;
 use Flarum\Extend;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 
 class ThrottleApiTest extends TestCase
 {
@@ -46,8 +47,8 @@ class ThrottleApiTest extends TestCase
      */
     public function list_discussions_can_be_restricted()
     {
-        $this->extend((new Extend\ThrottleApi)->set('blockListDiscussions', function ($request) {
-            if ($request->getAttribute('routeName') === 'discussions.index') {
+        $this->extend((new Extend\ThrottleApi)->set('blockListDiscussions', function (Request $request) {
+            if ($request->routeIs('api.discussions.index')) {
                 return true;
             }
         }));
@@ -63,13 +64,13 @@ class ThrottleApiTest extends TestCase
     public function false_overrides_true_for_evaluating_throttlers()
     {
         $this->extend(
-            (new Extend\ThrottleApi)->set('blockListDiscussions', function ($request) {
-                if ($request->getAttribute('routeName') === 'discussions.index') {
+            (new Extend\ThrottleApi)->set('blockListDiscussions', function (Request $request) {
+                if ($request->routeIs('api.discussions.index')) {
                     return true;
                 }
             }),
-            (new Extend\ThrottleApi)->set('blockListDiscussionsOverride', function ($request) {
-                if ($request->getAttribute('routeName') === 'discussions.index') {
+            (new Extend\ThrottleApi)->set('blockListDiscussionsOverride', function (Request $request) {
+                if ($request->routeIs('api.discussions.index')) {
                     return false;
                 }
             })
@@ -85,13 +86,18 @@ class ThrottleApiTest extends TestCase
      */
     public function throttling_applies_to_api_client()
     {
-        $this->extend((new Extend\ThrottleApi)->set('blockRegistration', function ($request) {
-            if ($request->getAttribute('routeName') === 'users.create') {
+        $this->extend((new Extend\ThrottleApi)->set('blockRegistration', function (Request $request) {
+            if ($request->routeIs('api.users.create')) {
                 return true;
             }
         }));
 
-        $response = $this->send($this->request('POST', '/register')->withAttribute('bypassCsrfToken', true));
+        $response = $this->send(
+            tap(
+                $this->request('POST', '/register'),
+                fn (Request $request) => $request->attributes->set('bypassCsrfToken', true)
+            )
+        );
 
         $this->assertEquals(429, $response->getStatusCode());
     }

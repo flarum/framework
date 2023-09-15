@@ -50,7 +50,7 @@ class ConfigureMentions
 
     private function configureUserMentions(Configurator $config): void
     {
-        $config->rendering->parameters['PROFILE_URL'] = $this->url->to('forum')->route('user', ['username' => '']);
+        $config->rendering->parameters['PROFILE_URL'] = $this->url->route('forum.user', ['username' => '']);
 
         $tagName = 'USERMENTION';
 
@@ -108,7 +108,7 @@ class ConfigureMentions
 
     private function configurePostMentions(Configurator $config): void
     {
-        $config->rendering->parameters['DISCUSSION_URL'] = $this->url->to('forum')->route('discussion', ['id' => '']);
+        $config->rendering->parameters['DISCUSSION_URL'] = $this->url->route('forum.discussion', ['id' => '']);
 
         $tagName = 'POSTMENTION';
 
@@ -246,7 +246,7 @@ class ConfigureMentions
 
     private function configureTagMentions(Configurator $config): void
     {
-        $config->rendering->parameters['TAG_URL'] = $this->url->to('forum')->route('tag', ['slug' => '']);
+        $config->rendering->parameters['TAG_URL'] = $this->url->route('forum.tag', ['slug' => '']);
 
         $tagName = 'TAGMENTION';
 

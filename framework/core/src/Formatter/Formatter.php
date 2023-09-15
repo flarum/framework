@@ -11,7 +11,7 @@ namespace Flarum\Formatter;
 
 use Flarum\User\User;
 use Illuminate\Contracts\Cache\Repository;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use s9e\TextFormatter\Configurator;
 use s9e\TextFormatter\Parser;
 use s9e\TextFormatter\Renderer;
@@ -81,7 +81,7 @@ class Formatter
         return $parser->parse($text);
     }
 
-    public function render(string $xml, mixed $context = null, ServerRequestInterface $request = null): string
+    public function render(string $xml, mixed $context = null, Request $request = null): string
     {
         $renderer = $this->getRenderer();
 

@@ -9,9 +9,10 @@
 
 namespace Flarum\Foundation\ErrorHandling;
 
+use Flarum\Http\RequestUtil;
 use Franzl\Middleware\Whoops\WhoopsRunner;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Handle errors using the Whoops error handler for debugging.
@@ -26,7 +27,11 @@ class WhoopsFormatter implements HttpFormatter
 {
     public function format(HandledError $error, Request $request): Response
     {
-        return WhoopsRunner::handle($error->getException(), $request)
+        $psr7Request = RequestUtil::toPsr7($request);
+
+        $psr7Response = WhoopsRunner::handle($error->getException(), $psr7Request)
             ->withStatus($error->getStatusCode());
+
+        return RequestUtil::responseToSymfony($psr7Response);
     }
 }

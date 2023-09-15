@@ -13,7 +13,7 @@ use Carbon\Carbon;
 use Flarum\Http\AccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Laminas\Diactoros\ServerRequest;
+use Illuminate\Http\Request;
 
 class AccessTokenLifecycleTest extends TestCase
 {
@@ -113,9 +113,12 @@ class AccessTokenLifecycleTest extends TestCase
 
         /** @var AccessToken $token */
         $token = AccessToken::whereToken('a')->firstOrFail();
-        $token->touch(request: (new ServerRequest([
-            'HTTP_USER_AGENT' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36',
-        ]))->withAttribute('ipAddress', '8.8.8.8'));
+
+        $req = new Request();
+        $req->server->set('HTTP_USER_AGENT', 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36');
+        $req->server->set('REMOTE_ADDR', '8.8.8.8');
+
+        $token->touch(request: $req);
 
         /** @var AccessToken $token */
         $token = AccessToken::whereToken('a')->firstOrFail();
@@ -132,9 +135,11 @@ class AccessTokenLifecycleTest extends TestCase
 
         /** @var AccessToken $token */
         $token = AccessToken::whereToken('a')->firstOrFail();
-        $token->touch(request: new ServerRequest([
-            'HTTP_USER_AGENT' => str_repeat('a', 500),
-        ]));
+
+        $req = new Request();
+        $req->server->set('HTTP_USER_AGENT', str_repeat('a', 500));
+
+        $token->touch(request: $req);
 
         /** @var AccessToken $token */
         $token = AccessToken::whereToken('a')->firstOrFail();

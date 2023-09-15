@@ -16,8 +16,7 @@ use Flarum\User\Command\EditUser;
 use Flarum\User\Exception\NotAuthenticatedException;
 use Flarum\User\User;
 use Illuminate\Contracts\Bus\Dispatcher;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class UpdateUserController extends AbstractShowController
@@ -31,11 +30,11 @@ class UpdateUserController extends AbstractShowController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): User
+    protected function data(Request $request, Document $document): User
     {
-        $id = Arr::get($request->getQueryParams(), 'id');
+        $id = $request->route('id');
         $actor = RequestUtil::getActor($request);
-        $data = Arr::get($request->getParsedBody(), 'data', []);
+        $data = $request->json('data', []);
 
         if ($actor->id == $id) {
             $this->serializer = CurrentUserSerializer::class;
@@ -44,7 +43,7 @@ class UpdateUserController extends AbstractShowController
         // Require the user's current password if they are attempting to change
         // their own email address.
         if (isset($data['attributes']['email']) && $actor->id == $id) {
-            $password = (string) Arr::get($request->getParsedBody(), 'meta.password');
+            $password = (string) $request->json('meta.password');
 
             if (! $actor->checkPassword($password)) {
                 throw new NotAuthenticatedException;

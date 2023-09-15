@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\api\discussions;
 use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class ShowTest extends TestCase
@@ -64,11 +65,14 @@ class ShowTest extends TestCase
         // Note that here, the slug doesn't actually have to match the real slug
         // since the default slugging strategy only takes the numerical part into account
         $response = $this->send(
-            $this->request('GET', '/api/discussions/1-fdsafdsajfsakf', [
-                'authenticatedAs' => 2,
-            ])->withQueryParams([
-                'bySlug' => true
-            ])
+            tap(
+                $this->request('GET', '/api/discussions/1-fdsafdsajfsakf', [
+                    'authenticatedAs' => 2,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'bySlug' => true
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -95,7 +99,7 @@ class ShowTest extends TestCase
             $this->request('GET', '/api/discussions/4')
         );
 
-        $json = json_decode($response->getBody()->getContents(), true);
+        $json = json_decode($response->getContent(), true);
 
         $this->assertEmpty(Arr::get($json, 'data.relationships.posts.data'));
     }
@@ -111,7 +115,7 @@ class ShowTest extends TestCase
             ])
         );
 
-        $json = json_decode($response->getBody()->getContents(), true);
+        $json = json_decode($response->getContent(), true);
 
         $this->assertEquals(2, Arr::get($json, 'data.relationships.posts.data.0.id'));
     }

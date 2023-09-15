@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Api\ApiKey;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 
 class WithApiKeyTest extends TestCase
 {
@@ -45,7 +46,7 @@ class WithApiKeyTest extends TestCase
             $this->request('GET', '/api')
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
         $this->assertFalse($data['data']['attributes']['canSearchUsers']);
     }
 
@@ -55,11 +56,13 @@ class WithApiKeyTest extends TestCase
     public function master_token_can_authenticate_as_anyone()
     {
         $response = $this->send(
-            $this->request('GET', '/api')
-                ->withAddedHeader('Authorization', 'Token mastertoken; userId=1')
+            tap(
+                $this->request('GET', '/api'),
+                fn (Request $request) => $request->headers->set('Authorization', 'Token mastertoken; userId=1')
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
         $this->assertTrue($data['data']['attributes']['canSearchUsers']);
         $this->assertArrayHasKey('adminUrl', $data['data']['attributes']);
 
@@ -74,11 +77,13 @@ class WithApiKeyTest extends TestCase
     public function personal_api_token_cannot_authenticate_as_anyone()
     {
         $response = $this->send(
-            $this->request('GET', '/api')
-                ->withAddedHeader('Authorization', 'Token personaltoken; userId=1')
+            tap(
+                $this->request('GET', '/api'),
+                fn (Request $request) => $request->headers->set('Authorization', 'Token personaltoken; userId=1')
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
         $this->assertTrue($data['data']['attributes']['canSearchUsers']);
         $this->assertArrayNotHasKey('adminUrl', $data['data']['attributes']);
 
@@ -93,11 +98,13 @@ class WithApiKeyTest extends TestCase
     public function personal_api_token_authenticates_user()
     {
         $response = $this->send(
-            $this->request('GET', '/api')
-                ->withAddedHeader('Authorization', 'Token personaltoken')
+            tap(
+                $this->request('GET', '/api'),
+                fn (Request $request) => $request->headers->set('Authorization', 'Token personaltoken')
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
         $this->assertTrue($data['data']['attributes']['canSearchUsers']);
         $this->assertArrayNotHasKey('adminUrl', $data['data']['attributes']);
 

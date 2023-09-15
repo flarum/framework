@@ -52,7 +52,7 @@ class WithTokenTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
 
         // The response body should contain the user ID...
-        $body = (string) $response->getBody();
+        $body = (string) $response->getContent();
         $this->assertJson($body);
 
         $data = json_decode($body, true);
@@ -85,7 +85,7 @@ class WithTokenTest extends TestCase
         $this->assertEquals(401, $response->getStatusCode());
 
         // The response body should contain an error code
-        $body = (string) $response->getBody();
+        $body = (string) $response->getContent();
         $this->assertJson($body);
 
         $data = json_decode($body, true);

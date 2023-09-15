@@ -15,8 +15,7 @@ use Flarum\User\Exception\InvalidConfirmationTokenException;
 use Flarum\User\PasswordToken;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Illuminate\Http\Request;
 
 class ResetPasswordController extends AbstractHtmlController
 {
@@ -27,7 +26,7 @@ class ResetPasswordController extends AbstractHtmlController
 
     public function render(Request $request): View
     {
-        $token = Arr::get($request->getQueryParams(), 'token');
+        $token = $request->route('token');
 
         $token = PasswordToken::findOrFail($token);
 
@@ -38,6 +37,6 @@ class ResetPasswordController extends AbstractHtmlController
         return $this->view
             ->make('flarum.forum::reset-password')
             ->with('passwordToken', $token->token)
-            ->with('csrfToken', $request->getAttribute('session')->token());
+            ->with('csrfToken', $request->attributes->get('session')->token());
     }
 }

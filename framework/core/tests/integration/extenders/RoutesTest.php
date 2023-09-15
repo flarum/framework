@@ -45,7 +45,7 @@ class RoutesTest extends TestCase
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('Hello Flarumites!', $response->getBody());
+        $this->assertEquals('Hello Flarumites!', $response->getContent());
     }
 
     /**
@@ -55,7 +55,7 @@ class RoutesTest extends TestCase
     {
         $this->extend(
             (new Extend\Routes('api'))
-                ->remove('forum.show')
+                ->remove('api.forum.show')
         );
 
         $response = $this->send(
@@ -72,7 +72,7 @@ class RoutesTest extends TestCase
     {
         $this->extend(
             (new Extend\Routes('api'))
-                ->remove('forum.show')
+                ->remove('api.forum.show')
                 ->get('/', 'forum.show', CustomRoute::class)
         );
 
@@ -80,7 +80,7 @@ class RoutesTest extends TestCase
             $this->request('GET', '/api')
         );
 
-        $this->assertEquals('Hello Flarumites!', $response->getBody());
+        $this->assertEquals('Hello Flarumites!', $response->getContent());
     }
 }
 

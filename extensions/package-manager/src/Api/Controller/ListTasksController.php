@@ -14,7 +14,7 @@ use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\PackageManager\Api\Serializer\TaskSerializer;
 use Flarum\PackageManager\Task\TaskRepository;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class ListTasksController extends AbstractListController
@@ -27,7 +27,7 @@ class ListTasksController extends AbstractListController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): iterable
+    protected function data(Request $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
 
@@ -48,8 +48,8 @@ class ListTasksController extends AbstractListController
         $document->addMeta('total', (string) $total);
 
         $document->addPaginationLinks(
-            $this->url->to('api')->route('package-manager.tasks.index'),
-            $request->getQueryParams(),
+            $this->url->route('api.package-manager.tasks.index'),
+            $request->query(),
             $offset,
             $limit,
             $total

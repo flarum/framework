@@ -14,8 +14,7 @@ use Flarum\Http\RequestUtil;
 use Flarum\Post\Post;
 use Flarum\Post\PostRepository;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class ShowPostController extends AbstractShowController
@@ -35,9 +34,9 @@ class ShowPostController extends AbstractShowController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): Post
+    protected function data(Request $request, Document $document): Post
     {
-        $post = $this->posts->findOrFail(Arr::get($request->getQueryParams(), 'id'), RequestUtil::getActor($request));
+        $post = $this->posts->findOrFail($request->route('id'), RequestUtil::getActor($request));
 
         $include = $this->extractInclude($request);
 

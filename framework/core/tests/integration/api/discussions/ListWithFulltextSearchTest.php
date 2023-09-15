@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\api\discussions;
 use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class ListWithFulltextSearchTest extends TestCase
@@ -72,14 +73,16 @@ class ListWithFulltextSearchTest extends TestCase
     public function can_search_for_word_or_title_in_post()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions')
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/discussions'),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['q' => 'lightsail'],
                     'include' => 'mostRelevantPost',
                 ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
         $ids = array_map(function ($row) {
             return $row['id'];
         }, $data['data']);
@@ -93,14 +96,16 @@ class ListWithFulltextSearchTest extends TestCase
     public function ignores_non_word_characters_when_searching()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions')
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/discussions'),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['q' => 'lightsail+'],
                     'include' => 'mostRelevantPost',
                 ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
         $ids = array_map(function ($row) {
             return $row['id'];
         }, $data['data']);
@@ -114,14 +119,16 @@ class ListWithFulltextSearchTest extends TestCase
     public function can_search_telugu_like_languages()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions')
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/discussions'),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['q' => 'తెలుగు'],
                     'include' => 'mostRelevantPost',
                 ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
         $ids = array_map(function ($row) {
             return $row['id'];
         }, $data['data']);
@@ -136,14 +143,16 @@ class ListWithFulltextSearchTest extends TestCase
     public function can_search_cjk_languages()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions')
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/discussions'),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['q' => '支持中文吗'],
                     'include' => 'mostRelevantPost',
                 ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
         $ids = array_map(function ($row) {
             return $row['id'];
         }, $data['data']);
@@ -158,25 +167,29 @@ class ListWithFulltextSearchTest extends TestCase
     public function search_for_special_characters_gives_empty_result()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions')
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/discussions'),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['q' => '*'],
                     'include' => 'mostRelevantPost',
                 ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
         $this->assertEquals([], $data['data']);
 
         $response = $this->send(
-            $this->request('GET', '/api/discussions')
-                ->withQueryParams([
+            tap(
+                $this->request('GET', '/api/discussions'),
+                fn (Request $request) => $request->query->add([
                     'filter' => ['q' => '@'],
                     'include' => 'mostRelevantPost',
                 ])
+            )
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($response->getContent(), true);
         $this->assertEquals([], $data['data']);
     }
 }

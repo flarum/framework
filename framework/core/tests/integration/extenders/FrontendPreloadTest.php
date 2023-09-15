@@ -32,7 +32,7 @@ class FrontendPreloadTest extends TestCase
             $filesystem->url('fonts/fa-regular-400.woff2'),
         ];
 
-        $body = $response->getBody()->getContents();
+        $body = $response->getContent();
 
         foreach ($urls as $url) {
             $this->assertStringContainsString("<link rel=\"preload\" href=\"$url\" as=\"font\" type=\"font/woff2\" crossorigin=\"\">", $body);
@@ -58,7 +58,7 @@ class FrontendPreloadTest extends TestCase
         $response = $this->send(
             $this->request('GET', '/')
         );
-        $body = $response->getBody()->getContents();
+        $body = $response->getContent();
 
         foreach ($urls as $url) {
             $this->assertStringContainsString("<link rel=\"preload\" href=\"$url\">", $body);
@@ -84,7 +84,7 @@ class FrontendPreloadTest extends TestCase
         $response = $this->send(
             $this->request('GET', '/')
         );
-        $body = $response->getBody()->getContents();
+        $body = $response->getContent();
 
         foreach ($urls as $url) {
             $this->assertStringContainsString("<link rel=\"preload\" href=\"$url\">", $body);

@@ -12,7 +12,7 @@ namespace Flarum\Extend;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 
 class ThrottleApi implements ExtenderInterface
 {
@@ -23,12 +23,12 @@ class ThrottleApi implements ExtenderInterface
      * Add a new throttler (or override one with the same name).
      *
      * @param string $name: The name of the throttler.
-     * @param (callable(ServerRequestInterface $request): bool)|class-string $callback
+     * @param (callable(Request $request): bool)|class-string $callback
      *
      * The callable can be a closure or invokable class, and should accept:
-     *   - $request: The current `\Psr\Http\Message\ServerRequestInterface` request object.
+     *   - $request: The current `\Illuminate\Http\Request` request object.
      *               `\Flarum\Http\RequestUtil::getActor($request)` can be used to get the current user.
-     *               `$request->getAttribute('routeName')` can be used to get the current route.
+     *               `$request->attributes->get('routeName')` can be used to get the current route.
      * Please note that every throttler runs by default on every route.
      * If you only want to throttle certain routes, you'll need to check for that inside your logic.
      *

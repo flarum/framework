@@ -9,6 +9,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\TranslatorInterface;
@@ -16,13 +17,11 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AccountActivationMailerTrait;
 use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Queue\Queue;
-use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 
-class SendConfirmationEmailController implements RequestHandlerInterface
+class SendConfirmationEmailController extends AbstractController
 {
     use AccountActivationMailerTrait;
 
@@ -34,9 +33,8 @@ class SendConfirmationEmailController implements RequestHandlerInterface
     ) {
     }
 
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function __invoke(Request $request, int $id): ResponseInterface
     {
-        $id = Arr::get($request->getQueryParams(), 'id');
         $actor = RequestUtil::getActor($request);
 
         $actor->assertRegistered();

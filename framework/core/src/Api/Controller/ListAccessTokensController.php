@@ -14,7 +14,7 @@ use Flarum\Http\Filter\AccessTokenFilterer;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Query\QueryCriteria;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class ListAccessTokensController extends AbstractListController
@@ -27,7 +27,7 @@ class ListAccessTokensController extends AbstractListController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): iterable
+    protected function data(Request $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
 
@@ -40,8 +40,8 @@ class ListAccessTokensController extends AbstractListController
         $tokens = $this->filterer->filter(new QueryCriteria($actor, $filter), $limit, $offset);
 
         $document->addPaginationLinks(
-            $this->url->to('api')->route('access-tokens.index'),
-            $request->getQueryParams(),
+            $this->url->route('api.access-tokens.index'),
+            $request->query(),
             $offset,
             $limit,
             $tokens->areMoreResults() ? null : 0

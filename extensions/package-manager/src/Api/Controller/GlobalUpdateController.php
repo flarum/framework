@@ -9,23 +9,23 @@
 
 namespace Flarum\PackageManager\Api\Controller;
 
+use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\RequestUtil;
 use Flarum\PackageManager\Command\GlobalUpdate;
 use Flarum\PackageManager\Job\Dispatcher;
+use Illuminate\Http\Request;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 
-class GlobalUpdateController implements RequestHandlerInterface
+class GlobalUpdateController extends AbstractController
 {
     public function __construct(
         protected Dispatcher $bus
     ) {
     }
 
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function __invoke(Request $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
 

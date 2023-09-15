@@ -9,23 +9,26 @@
 
 namespace Flarum\Http\Middleware;
 
+use Closure;
 use Flarum\Api\ApiKey;
 use Flarum\Http\AccessToken;
 use Flarum\Http\RequestUtil;
 use Flarum\User\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\MiddlewareInterface as Middleware;
-use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Symfony\Component\HttpFoundation\Response;
 
-class AuthenticateWithHeader implements Middleware
+class AuthenticateWithHeader implements IlluminateMiddlewareInterface
 {
     const TOKEN_PREFIX = 'Token ';
 
-    public function process(Request $request, Handler $handler): Response
+    public function handle(Request $request, Closure $next): Response
     {
-        $headerLine = $request->getHeaderLine('authorization');
+        $headerLine = $request->header('Authorization');
+
+        if (is_array($headerLine)) {
+            $headerLine = implode(',', $headerLine);
+        }
 
         $parts = explode(';', $headerLine);
 
@@ -38,8 +41,8 @@ class AuthenticateWithHeader implements Middleware
                 $userId = $parts[1] ?? '';
                 $actor = $key->user ?? $this->getUser($userId);
 
-                $request = $request->withAttribute('apiKey', $key);
-                $request = $request->withAttribute('bypassThrottling', true);
+                $request->attributes->set('apiKey', $key);
+                $request->attributes->set('bypassThrottling', true);
             } elseif ($token = AccessToken::findValid($id)) {
                 $token->touch(request: $request);
 
@@ -50,12 +53,12 @@ class AuthenticateWithHeader implements Middleware
                 $actor->updateLastSeen()->save();
 
                 $request = RequestUtil::withActor($request, $actor);
-                $request = $request->withAttribute('bypassCsrfToken', true);
-                $request = $request->withoutAttribute('session');
+                $request->attributes->set('bypassCsrfToken', true);
+                $request->attributes->remove('session');
             }
         }
 
-        return $handler->handle($request);
+        return $next($request);
     }
 
     private function getUser(string $string): ?User

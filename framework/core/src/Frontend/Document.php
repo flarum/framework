@@ -17,8 +17,8 @@ use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
  * A view which renders a HTML skeleton for Flarum's frontend app.

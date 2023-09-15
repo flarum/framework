@@ -10,14 +10,15 @@
 namespace Flarum\Testing\integration;
 
 use Flarum\Extend\ExtenderInterface;
+use Flarum\Foundation\InstalledApp;
+use Flarum\Foundation\SiteInterface;
+use Flarum\Http\Server;
 use Flarum\Testing\integration\Setup\Bootstrapper;
 use Illuminate\Contracts\Cache\Store;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Laminas\Diactoros\ServerRequest;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
@@ -35,27 +36,24 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $this->app()->getContainer()->make(Store::class)->flush();
     }
 
-    /**
-     * @var \Flarum\Foundation\InstalledApp
-     */
-    protected $app;
+    protected ?SiteInterface $site = null;
+    protected ?InstalledApp $app = null;
 
-    /**
-     * @return \Flarum\Foundation\InstalledApp
-     */
-    protected function app()
+    protected function app(): InstalledApp
     {
         if (is_null($this->app)) {
+            $this->config('env', 'testing');
+
             $bootstrapper = new Bootstrapper(
                 $this->config,
                 $this->extensions,
                 $this->settings,
-                $this->extenders
+                $this->extenders,
+                fn (ConnectionInterface $db) => $this->database = $db
             );
 
-            $this->app = $bootstrapper->run()->bootApp();
-
-            $this->database = $bootstrapper->database;
+            $this->site = $bootstrapper->run();
+            $this->app = $this->site->init();
 
             $this->populateDatabase();
         }
@@ -63,10 +61,26 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         return $this->app;
     }
 
+    protected function bootstrap(): void
+    {
+        $app = $this->app()->getContainer();
+
+        $app->instance('request', new Request([], [], [], [], [], [
+            'REQUEST_METHOD' => 'GET',
+            'REQUEST_URI' => '/',
+        ]));
+
+        if (! $app->hasBeenBootstrapped()) {
+            $app->bootstrapWith(
+                $this->site->bootstrappers()
+            );
+        }
+    }
+
     /**
      * @var ExtenderInterface[]
      */
-    protected $extenders = [];
+    protected array $extenders = [];
 
     /**
      * Each argument should be an instance of an extender that should
@@ -80,10 +94,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $this->extenders = array_merge($this->extenders, $extenders);
     }
 
-    /**
-     * @var string[]
-     */
-    protected $extensions = [];
+    protected array $extensions = [];
 
     /**
      * Each argument should be an ID of an extension to be enabled.
@@ -99,10 +110,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $this->extensions = array_merge($this->extensions, $extensions);
     }
 
-    /**
-     * @var array
-     */
-    protected $config = [];
+    protected array $config = [];
 
     /**
      * Some Flarum code depends on config.php values. Flarum doesn't
@@ -129,10 +137,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         Arr::set($this->config, $key, $value);
     }
 
-    /**
-     * @var array
-     */
-    protected $settings = [];
+    protected array $settings = [];
 
     /**
      * Some settings are used during application boot, so setting
@@ -149,30 +154,28 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $this->settings[$key] = $value;
     }
 
-    /**
-     * @var RequestHandlerInterface
-     */
-    protected $server;
+    protected ?Server $server = null;
 
-    protected function server(): RequestHandlerInterface
+    protected function server(): Server
     {
         if (is_null($this->server)) {
-            $this->server = $this->app()->getRequestHandler();
+            $this->app();
+            $this->server = new Server($this->site);
         }
 
         return $this->server;
     }
 
-    protected $database;
+    protected ConnectionInterface $database;
 
     protected function database(): ConnectionInterface
     {
-        $this->app();
+        $this->bootstrap();
         // Set in `BeginTransactionAndSetDatabase` extender.
         return $this->database;
     }
 
-    protected $databaseContent = [];
+    protected array $databaseContent = [];
 
     protected function prepareDatabase(array $tableData)
     {
@@ -211,9 +214,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     /**
      * Send a full HTTP request through Flarum's middleware stack.
      */
-    protected function send(ServerRequestInterface $request): ResponseInterface
+    protected function send(Request $request): Response
     {
-        return $this->server()->handle($request);
+        return $this->server()->handle($request, $this->app()->getContainer(), []);
     }
 
     /**
@@ -238,11 +241,11 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      *     interaction. All cookies returned from the server in that response
      *     (via the "Set-Cookie" header) will be copied to the cookie params of
      *     the new request.
-     * @return ServerRequestInterface
+     * @return Request
      */
-    protected function request(string $method, string $path, array $options = []): ServerRequestInterface
+    protected function request(string $method, string $path, array $options = []): Request
     {
-        $request = new ServerRequest([], [], $path, $method);
+        $request = Request::create($path, $method);
 
         // Do we want a JSON request body?
         if (isset($options['json'])) {

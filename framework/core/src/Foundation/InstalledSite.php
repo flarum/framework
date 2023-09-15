@@ -9,46 +9,9 @@
 
 namespace Flarum\Foundation;
 
-use Flarum\Admin\AdminServiceProvider;
-use Flarum\Api\ApiServiceProvider;
-use Flarum\Bus\BusServiceProvider;
-use Flarum\Console\ConsoleServiceProvider;
-use Flarum\Database\DatabaseServiceProvider;
-use Flarum\Discussion\DiscussionServiceProvider;
 use Flarum\Extend\ExtenderInterface;
-use Flarum\Extension\ExtensionServiceProvider;
-use Flarum\Filesystem\FilesystemServiceProvider;
-use Flarum\Filter\FilterServiceProvider;
-use Flarum\Formatter\FormatterServiceProvider;
-use Flarum\Forum\ForumServiceProvider;
-use Flarum\Frontend\FrontendServiceProvider;
-use Flarum\Group\GroupServiceProvider;
-use Flarum\Http\HttpServiceProvider;
-use Flarum\Locale\LocaleServiceProvider;
-use Flarum\Mail\MailServiceProvider;
-use Flarum\Notification\NotificationServiceProvider;
-use Flarum\Post\PostServiceProvider;
-use Flarum\Queue\QueueServiceProvider;
-use Flarum\Search\SearchServiceProvider;
-use Flarum\Settings\SettingsServiceProvider;
-use Flarum\Update\UpdateServiceProvider;
-use Flarum\User\SessionServiceProvider;
-use Flarum\User\UserServiceProvider;
-use Illuminate\Cache\FileStore;
-use Illuminate\Cache\Repository as CacheRepository;
 use Illuminate\Config\Repository as ConfigRepository;
-use Illuminate\Contracts\Cache\Repository;
-use Illuminate\Contracts\Cache\Store;
-use Illuminate\Contracts\Container\Container as LaravelContainer;
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Hashing\HashServiceProvider;
-use Illuminate\Validation\ValidationServiceProvider;
-use Illuminate\View\ViewServiceProvider;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\RotatingFileHandler;
-use Monolog\Level;
-use Monolog\Logger;
-use Psr\Log\LoggerInterface;
+use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 
 class InstalledSite implements SiteInterface
 {
@@ -68,11 +31,10 @@ class InstalledSite implements SiteInterface
      *
      * @return InstalledApp
      */
-    public function bootApp(): AppInterface
+    public function init(): AppInterface
     {
         return new InstalledApp(
-            $this->bootLaravel(),
-            $this->config
+            $this->createApp()
         );
     }
 
@@ -87,62 +49,36 @@ class InstalledSite implements SiteInterface
         return $this;
     }
 
-    protected function bootLaravel(): LaravelContainer
+    protected function createApp(): ApplicationContract
     {
-        $container = new Container;
-        $laravel = new Application($container, $this->paths);
+        $app = new Application($this->paths);
 
-        $container->instance('env', 'production');
-        $container->instance('flarum.config', $this->config);
-        $container->alias('flarum.config', Config::class);
-        $container->instance('flarum.debug', $this->config->inDebugMode());
-        $container->instance('config', $this->getIlluminateConfig());
-        $container->instance('flarum.maintenance.handler', new MaintenanceModeHandler);
+        $app->instance('env', $this->config->environment());
+        $app->instance('flarum.config', $this->config);
+        $app->instance('flarum.debug', $this->config->inDebugMode());
+        $app->instance('config', $this->getIlluminateConfig());
 
-        $this->registerLogger($container);
-        $this->registerCache($container);
-
-        $laravel->register(AdminServiceProvider::class);
-        $laravel->register(ApiServiceProvider::class);
-        $laravel->register(BusServiceProvider::class);
-        $laravel->register(ConsoleServiceProvider::class);
-        $laravel->register(DatabaseServiceProvider::class);
-        $laravel->register(DiscussionServiceProvider::class);
-        $laravel->register(ExtensionServiceProvider::class);
-        $laravel->register(ErrorServiceProvider::class);
-        $laravel->register(FilesystemServiceProvider::class);
-        $laravel->register(FilterServiceProvider::class);
-        $laravel->register(FormatterServiceProvider::class);
-        $laravel->register(ForumServiceProvider::class);
-        $laravel->register(FrontendServiceProvider::class);
-        $laravel->register(GroupServiceProvider::class);
-        $laravel->register(HashServiceProvider::class);
-        $laravel->register(HttpServiceProvider::class);
-        $laravel->register(LocaleServiceProvider::class);
-        $laravel->register(MailServiceProvider::class);
-        $laravel->register(NotificationServiceProvider::class);
-        $laravel->register(PostServiceProvider::class);
-        $laravel->register(QueueServiceProvider::class);
-        $laravel->register(SearchServiceProvider::class);
-        $laravel->register(SessionServiceProvider::class);
-        $laravel->register(SettingsServiceProvider::class);
-        $laravel->register(UpdateServiceProvider::class);
-        $laravel->register(UserServiceProvider::class);
-        $laravel->register(ValidationServiceProvider::class);
-        $laravel->register(ViewServiceProvider::class);
-
-        $laravel->booting(function () use ($container) {
+        $app->booting(function () use ($app) {
             // Run all local-site extenders before booting service providers
             // (but after those from "real" extensions, which have been set up
             // in a service provider above).
             foreach ($this->extenders as $extension) {
-                $extension->extend($container);
+                $extension->extend($app);
             }
         });
 
-        $laravel->boot();
+        return $app;
+    }
 
-        return $container;
+    public function bootstrappers(): array
+    {
+        return [
+            \Flarum\Foundation\Bootstrap\RegisterMaintenanceHandler::class,
+            \Flarum\Foundation\Bootstrap\RegisterLogger::class,
+            \Flarum\Foundation\Bootstrap\RegisterCache::class,
+            \Flarum\Foundation\Bootstrap\RegisterCoreProviders::class,
+            \Flarum\Foundation\Bootstrap\BootProviders::class,
+        ];
     }
 
     protected function getIlluminateConfig(): ConfigRepository
@@ -161,29 +97,5 @@ class InstalledSite implements SiteInterface
                 'cookie' => 'session'
             ]
         ]);
-    }
-
-    protected function registerLogger(Container $container): void
-    {
-        $logPath = $this->paths->storage.'/logs/flarum.log';
-        $logLevel = $this->config->inDebugMode() ? Level::Debug : Level::Info;
-        $handler = new RotatingFileHandler($logPath, 0, $logLevel);
-        $handler->setFormatter(new LineFormatter(null, null, true, true));
-
-        $container->instance('log', new Logger('flarum', [$handler]));
-        $container->alias('log', LoggerInterface::class);
-    }
-
-    protected function registerCache(Container $container): void
-    {
-        $container->singleton('cache.store', function ($container) {
-            return new CacheRepository($container->make('cache.filestore'));
-        });
-        $container->alias('cache.store', Repository::class);
-
-        $container->singleton('cache.filestore', function () {
-            return new FileStore(new Filesystem, $this->paths->storage.'/cache');
-        });
-        $container->alias('cache.filestore', Store::class);
     }
 }

@@ -9,35 +9,34 @@
 
 namespace Flarum\Http\Middleware;
 
+use Closure;
 use Flarum\Http\Exception\TokenMismatchException;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\MiddlewareInterface as Middleware;
-use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class CheckCsrfToken implements Middleware
+class CheckCsrfToken implements IlluminateMiddlewareInterface
 {
     public function __construct(
         protected array $exemptRoutes
     ) {
     }
 
-    public function process(Request $request, Handler $handler): Response
+    public function handle(Request $request, Closure $next): Response
     {
-        if (in_array($request->getAttribute('routeName'), $this->exemptRoutes, true)) {
-            return $handler->handle($request);
+        if ($request->routeIs(...$this->exemptRoutes)) {
+            return $next($request);
         }
 
         if (in_array($request->getMethod(), ['GET', 'HEAD', 'OPTIONS'])) {
-            return $handler->handle($request);
+            return $next($request);
         }
 
-        if ($request->getAttribute('bypassCsrfToken', false)) {
-            return $handler->handle($request);
+        if ($request->attributes->get('bypassCsrfToken', false)) {
+            return $next($request);
         }
 
         if ($this->tokensMatch($request)) {
-            return $handler->handle($request);
+            return $next($request);
         }
 
         throw new TokenMismatchException('CSRF token did not match');
@@ -45,10 +44,15 @@ class CheckCsrfToken implements Middleware
 
     private function tokensMatch(Request $request): bool
     {
-        $expected = (string) $request->getAttribute('session')->token();
+        $expected = (string) $request->attributes->get('session')->token();
 
-        $provided = $request->getParsedBody()['csrfToken'] ??
-            $request->getHeaderLine('X-CSRF-Token');
+        $provided = $request->isJson()
+            ? $request->json('csrfToken', $request->header('X-CSRF-Token'))
+            : $request->header('X-CSRF-Token');
+
+        if (! is_string($provided)) {
+            return false;
+        }
 
         return hash_equals($expected, $provided);
     }

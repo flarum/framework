@@ -14,7 +14,7 @@ use Flarum\Foundation\Application;
 use Flarum\Frontend\Document;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\View\Factory;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Illuminate\Http\Request;
 
 class Index
 {
@@ -29,7 +29,7 @@ class Index
     {
         $extensions = $this->extensions->getExtensions();
         $extensionsEnabled = json_decode($this->settings->get('extensions_enabled', '{}'), true);
-        $csrfToken = $request->getAttribute('session')->token();
+        $csrfToken = $request->attributes->get('session')->token();
 
         $mysqlVersion = $document->payload['mysqlVersion'];
         $phpVersion = $document->payload['phpVersion'];

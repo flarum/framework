@@ -15,8 +15,7 @@ use Flarum\Http\Event\DeveloperTokenCreated;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Validation\Factory;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 /**
@@ -33,14 +32,14 @@ class CreateAccessTokenController extends AbstractCreateController
     ) {
     }
 
-    public function data(ServerRequestInterface $request, Document $document): DeveloperAccessToken
+    public function data(Request $request, Document $document): DeveloperAccessToken
     {
         $actor = RequestUtil::getActor($request);
 
         $actor->assertRegistered();
         $actor->assertCan('createAccessToken');
 
-        $title = Arr::get($request->getParsedBody(), 'data.attributes.title');
+        $title = $request->json('data.attributes.title');
 
         $this->validation->make(compact('title'), [
             'title' => 'required|string|max:255',

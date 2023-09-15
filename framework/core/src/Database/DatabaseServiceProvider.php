@@ -13,7 +13,6 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Container\Container as ContainerImplementation;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Capsule\Manager;
-use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\ConnectionResolverInterface;
 
 class DatabaseServiceProvider extends AbstractServiceProvider
@@ -32,7 +31,8 @@ class DatabaseServiceProvider extends AbstractServiceProvider
             return $manager;
         });
 
-        $this->container->singleton(ConnectionResolverInterface::class, function (Container $container) {
+        $this->container->singleton('db', function (Container $container) {
+            /** @var Manager $manager */
             $manager = $container->make(Manager::class);
             $manager->setAsGlobal();
             $manager->bootEloquent();
@@ -43,19 +43,15 @@ class DatabaseServiceProvider extends AbstractServiceProvider
             return $dbManager;
         });
 
-        $this->container->alias(ConnectionResolverInterface::class, 'db');
-
-        $this->container->singleton(ConnectionInterface::class, function (Container $container) {
-            $resolver = $container->make(ConnectionResolverInterface::class);
+        $this->container->singleton('db.connection', function (Container $container) {
+            /** @var ConnectionResolverInterface $resolver */
+            $resolver = $container->make('db');
 
             return $resolver->connection();
         });
 
-        $this->container->alias(ConnectionInterface::class, 'db.connection');
-        $this->container->alias(ConnectionInterface::class, 'flarum.db');
-
         $this->container->singleton(MigrationRepositoryInterface::class, function (Container $container) {
-            return new DatabaseMigrationRepository($container['flarum.db'], 'migrations');
+            return new DatabaseMigrationRepository($container['db.connection'], 'migrations');
         });
 
         $this->container->singleton('flarum.database.model_private_checkers', function () {

@@ -12,7 +12,7 @@ namespace Flarum\Tests\integration\api;
 use Flarum\Api\Controller\AbstractSerializeController;
 use Flarum\Extend;
 use Flarum\Testing\integration\TestCase;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\ElementInterface;
 use Tobscure\JsonApi\SerializerInterface;
@@ -30,7 +30,7 @@ class AbstractSerializeControllerTest extends TestCase
             $this->request('GET', '/api/dummy-serialize')
         );
 
-        $json = json_decode((string) $response->getBody(), true);
+        $json = json_decode((string) $response->getContent(), true);
 
         $this->assertEquals(500, $response->getStatusCode());
         $this->assertStringStartsWith('InvalidArgumentException: Serializer required for controller: '.DummySerializeController::class, $json['errors'][0]['detail']);
@@ -41,7 +41,7 @@ class DummySerializeController extends AbstractSerializeController
 {
     public ?string $serializer = null;
 
-    protected function data(ServerRequestInterface $request, Document $document): mixed
+    protected function data(Request $request, Document $document): mixed
     {
         return [];
     }

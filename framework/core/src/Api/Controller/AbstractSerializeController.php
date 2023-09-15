@@ -11,20 +11,19 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\JsonApiResponse;
 use Flarum\Api\Serializer\AbstractSerializer;
+use Flarum\Http\Controller\AbstractController;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Arr;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\ElementInterface;
 use Tobscure\JsonApi\Parameters;
 use Tobscure\JsonApi\SerializerInterface;
 
-abstract class AbstractSerializeController implements RequestHandlerInterface
+abstract class AbstractSerializeController extends AbstractController
 {
     /**
      * The name of the serializer class to output results with.
@@ -93,7 +92,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
      */
     protected static array $loadRelationCallables = [];
 
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function __invoke(Request $request): JsonResponse
     {
         $document = new Document;
 
@@ -134,7 +133,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * Get the data to be serialized and assigned to the response document.
      */
-    abstract protected function data(ServerRequestInterface $request, Document $document): mixed;
+    abstract protected function data(Request $request, Document $document): mixed;
 
     /**
      * Create a PHP JSON-API Element for output in the document.
@@ -180,7 +179,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * Eager loads the required relationships.
      */
-    protected function loadRelations(Collection $models, array $relations, ServerRequestInterface $request = null): void
+    protected function loadRelations(Collection $models, array $relations, Request $request = null): void
     {
         $addedRelations = $this->getRelationsToLoad($models);
         $addedRelationCallables = $this->getRelationCallablesToLoad($models);
@@ -238,14 +237,14 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * @throws \Tobscure\JsonApi\Exception\InvalidParameterException
      */
-    protected function extractInclude(ServerRequestInterface $request): array
+    protected function extractInclude(Request $request): array
     {
         $available = array_merge($this->include, $this->optionalInclude);
 
         return $this->buildParameters($request)->getInclude($available) ?: $this->include;
     }
 
-    protected function extractFields(ServerRequestInterface $request): array
+    protected function extractFields(Request $request): array
     {
         return $this->buildParameters($request)->getFields();
     }
@@ -253,7 +252,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * @throws \Tobscure\JsonApi\Exception\InvalidParameterException
      */
-    protected function extractSort(ServerRequestInterface $request): ?array
+    protected function extractSort(Request $request): ?array
     {
         return $this->buildParameters($request)->getSort($this->sortFields) ?: $this->sort;
     }
@@ -261,7 +260,7 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * @throws \Tobscure\JsonApi\Exception\InvalidParameterException
      */
-    protected function extractOffset(ServerRequestInterface $request): int
+    protected function extractOffset(Request $request): int
     {
         return (int) $this->buildParameters($request)->getOffset($this->extractLimit($request)) ?: 0;
     }
@@ -269,24 +268,24 @@ abstract class AbstractSerializeController implements RequestHandlerInterface
     /**
      * @throws \Tobscure\JsonApi\Exception\InvalidParameterException
      */
-    protected function extractLimit(ServerRequestInterface $request): int
+    protected function extractLimit(Request $request): int
     {
         return (int) $this->buildParameters($request)->getLimit($this->maxLimit) ?: $this->limit;
     }
 
-    protected function extractFilter(ServerRequestInterface $request): array
+    protected function extractFilter(Request $request): array
     {
         return $this->buildParameters($request)->getFilter() ?: [];
     }
 
-    protected function buildParameters(ServerRequestInterface $request): Parameters
+    protected function buildParameters(Request $request): Parameters
     {
-        return new Parameters($request->getQueryParams());
+        return new Parameters($request->query());
     }
 
-    protected function sortIsDefault(ServerRequestInterface $request): bool
+    protected function sortIsDefault(Request $request): bool
     {
-        return ! Arr::get($request->getQueryParams(), 'sort');
+        return ! $request->query('sort');
     }
 
     /**

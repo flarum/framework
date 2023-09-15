@@ -11,15 +11,13 @@ namespace Flarum\Admin\Controller;
 
 use Flarum\Bus\Dispatcher;
 use Flarum\Extension\Command\ToggleExtension;
+use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
-use Illuminate\Support\Arr;
-use Laminas\Diactoros\Response\RedirectResponse;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
-class UpdateExtensionController implements RequestHandlerInterface
+class UpdateExtensionController extends AbstractController
 {
     public function __construct(
         protected UrlGenerator $url,
@@ -27,16 +25,15 @@ class UpdateExtensionController implements RequestHandlerInterface
     ) {
     }
 
-    public function handle(Request $request): ResponseInterface
+    public function __invoke(Request $request, string $name): RedirectResponse
     {
         $actor = RequestUtil::getActor($request);
-        $enabled = (bool) (int) Arr::get($request->getParsedBody(), 'enabled');
-        $name = Arr::get($request->getQueryParams(), 'name');
+        $enabled = (bool) (int) $request->json('enabled');
 
         $this->bus->dispatch(
             new ToggleExtension($actor, $name, $enabled)
         );
 
-        return new RedirectResponse($this->url->to('admin')->base());
+        return new RedirectResponse($this->url->base('admin'));
     }
 }

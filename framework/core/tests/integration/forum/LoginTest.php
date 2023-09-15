@@ -24,7 +24,7 @@ class LoginTest extends TestCase
     protected function setUp(): void
     {
         $this->extend(
-            (new Extend\Csrf)->exemptRoute('login')
+            (new Extend\Csrf)->exemptRoute('forum.login')
         );
 
         $this->prepareDatabase([
@@ -82,7 +82,7 @@ class LoginTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
 
         // The response body should contain the user ID...
-        $body = (string) $response->getBody();
+        $body = (string) $response->getContent();
         $this->assertJson($body);
 
         $data = json_decode($body, true);

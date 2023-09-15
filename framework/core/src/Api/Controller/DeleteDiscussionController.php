@@ -12,8 +12,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Discussion\Command\DeleteDiscussion;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Bus\Dispatcher;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 
 class DeleteDiscussionController extends AbstractDeleteController
 {
@@ -22,11 +21,11 @@ class DeleteDiscussionController extends AbstractDeleteController
     ) {
     }
 
-    protected function delete(ServerRequestInterface $request): void
+    protected function delete(Request $request): void
     {
-        $id = Arr::get($request->getQueryParams(), 'id');
+        $id = $request->route('id');
         $actor = RequestUtil::getActor($request);
-        $input = $request->getParsedBody();
+        $input = $request->json()->all();
 
         $this->bus->dispatch(
             new DeleteDiscussion($id, $actor, $input)

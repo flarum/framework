@@ -12,16 +12,15 @@ namespace Flarum\Update\Controller;
 use Exception;
 use Flarum\Database\Console\MigrateCommand;
 use Flarum\Foundation\Config;
-use Illuminate\Support\Arr;
+use Flarum\Http\Controller\AbstractController;
+use Illuminate\Http\Request;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Response\HtmlResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\StreamOutput;
 
-class UpdateController implements RequestHandlerInterface
+class UpdateController extends AbstractController
 {
     public function __construct(
         protected MigrateCommand $command,
@@ -29,11 +28,9 @@ class UpdateController implements RequestHandlerInterface
     ) {
     }
 
-    public function handle(Request $request): ResponseInterface
+    public function __invoke(Request $request): ResponseInterface
     {
-        $input = $request->getParsedBody();
-
-        if (Arr::get($input, 'databasePassword') !== $this->config['database.password']) {
+        if ($request->input('databasePassword') !== $this->config['database.password']) {
             return new HtmlResponse('Incorrect database password.', 500);
         }
 

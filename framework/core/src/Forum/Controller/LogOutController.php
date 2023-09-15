@@ -9,6 +9,7 @@
 
 namespace Flarum\Forum\Controller;
 
+use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\Rememberer;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\SessionAuthenticator;
@@ -16,14 +17,13 @@ use Flarum\Http\UrlGenerator;
 use Flarum\User\Event\LoggedOut;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
 use Laminas\Diactoros\Response\HtmlResponse;
-use Laminas\Diactoros\Response\RedirectResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 
-class LogOutController implements RequestHandlerInterface
+class LogOutController extends AbstractController
 {
     public function __construct(
         protected Dispatcher $events,
@@ -34,12 +34,12 @@ class LogOutController implements RequestHandlerInterface
     ) {
     }
 
-    public function handle(Request $request): ResponseInterface
+    public function __invoke(Request $request): Response|ResponseInterface
     {
-        $session = $request->getAttribute('session');
+        $session = $request->attributes->get('session');
         $actor = RequestUtil::getActor($request);
 
-        $url = Arr::get($request->getQueryParams(), 'return', $this->url->to('forum')->base());
+        $url = $request->query('return', $this->url->base('forum'));
 
         // If there is no user logged in, return to the index.
         if ($actor->isGuest()) {
@@ -50,11 +50,11 @@ class LogOutController implements RequestHandlerInterface
         // allow the user to press a button to complete the log out process.
         $csrfToken = $session->token();
 
-        if (Arr::get($request->getQueryParams(), 'token') !== $csrfToken) {
-            $return = Arr::get($request->getQueryParams(), 'return');
+        if ($request->query('token') !== $csrfToken) {
+            $return = $request->query('return');
 
             $view = $this->view->make('flarum.forum::log-out')
-                ->with('url', $this->url->to('forum')->route('logout').'?token='.$csrfToken.($return ? '&return='.urlencode($return) : ''));
+                ->with('url', $this->url->route('forum.logout').'?token='.$csrfToken.($return ? '&return='.urlencode($return) : ''));
 
             return new HtmlResponse($view->render());
         }

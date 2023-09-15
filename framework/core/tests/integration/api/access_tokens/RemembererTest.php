@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\api\access_tokens;
 use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 
 class RemembererTest extends TestCase
 {
@@ -42,14 +43,17 @@ class RemembererTest extends TestCase
         Carbon::setTestNow('2021-01-01 02:30:00');
 
         $response = $this->send(
-            $this->request('GET', '/api')->withCookieParams([
-                'flarum_remember' => 'a',
-            ])
+            tap(
+                $this->request('GET', '/api'),
+                fn (Request $request) => $request->cookies->add([
+                    'flarum_remember' => 'a',
+                ])
+            )
         );
 
         Carbon::setTestNow();
 
-        $data = json_decode($response->getBody(), true);
+        $data = json_decode($response->getContent(), true);
         $this->assertFalse($data['data']['attributes']['canSearchUsers']);
     }
 
@@ -63,14 +67,17 @@ class RemembererTest extends TestCase
         Carbon::setTestNow('2027-01-01 02:30:00');
 
         $response = $this->send(
-            $this->request('GET', '/api')->withCookieParams([
-                'flarum_remember' => 'b',
-            ])
+            tap(
+                $this->request('GET', '/api'),
+                fn (Request $request) => $request->cookies->add([
+                    'flarum_remember' => 'b',
+                ])
+            )
         );
 
         Carbon::setTestNow();
 
-        $data = json_decode($response->getBody(), true);
+        $data = json_decode($response->getContent(), true);
         $this->assertFalse($data['data']['attributes']['canSearchUsers']);
     }
 
@@ -84,14 +91,17 @@ class RemembererTest extends TestCase
         Carbon::setTestNow('2021-01-01 02:30:00');
 
         $response = $this->send(
-            $this->request('GET', '/api')->withCookieParams([
-                'flarum_remember' => 'b',
-            ])
+            tap(
+                $this->request('GET', '/api'),
+                fn (Request $request) => $request->cookies->add([
+                    'flarum_remember' => 'b',
+                ])
+            )
         );
 
         Carbon::setTestNow();
 
-        $data = json_decode($response->getBody(), true);
+        $data = json_decode($response->getContent(), true);
         $this->assertTrue($data['data']['attributes']['canSearchUsers']);
     }
 }

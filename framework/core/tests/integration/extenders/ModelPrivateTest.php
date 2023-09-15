@@ -24,7 +24,7 @@ class ModelPrivateTest extends TestCase
      */
     public function discussion_isnt_saved_as_private_by_default()
     {
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(1);
 
@@ -46,7 +46,7 @@ class ModelPrivateTest extends TestCase
                 })
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(1);
 
@@ -69,7 +69,7 @@ class ModelPrivateTest extends TestCase
                 ->checker(CustomPrivateChecker::class)
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(1);
 
@@ -98,7 +98,7 @@ class ModelPrivateTest extends TestCase
                 })
         );
 
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(1);
 

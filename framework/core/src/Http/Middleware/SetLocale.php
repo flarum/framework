@@ -9,37 +9,38 @@
 
 namespace Flarum\Http\Middleware;
 
+use Closure;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\LocaleManager;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\MiddlewareInterface as Middleware;
-use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class SetLocale implements Middleware
+class SetLocale implements IlluminateMiddlewareInterface
 {
     public function __construct(
         protected LocaleManager $locales
     ) {
     }
 
-    public function process(Request $request, Handler $handler): Response
+    public function handle(Request $request, Closure $next): Response
     {
+        if (isset($GLOBALS['testing'])) {
+            dump('sl', $request);
+        }
         $actor = RequestUtil::getActor($request);
 
         if ($actor->exists) {
             $locale = $actor->getPreference('locale');
         } else {
-            $locale = Arr::get($request->getCookieParams(), 'locale');
+            $locale = $request->cookie('locale');
         }
 
         if ($locale && $this->locales->hasLocale($locale)) {
             $this->locales->setLocale($locale);
         }
 
-        $request = $request->withAttribute('locale', $this->locales->getLocale());
+        $request->attributes->set('locale', $this->locales->getLocale());
 
-        return $handler->handle($request);
+        return $next($request);
     }
 }

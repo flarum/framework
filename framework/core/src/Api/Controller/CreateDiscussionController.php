@@ -16,8 +16,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class CreateDiscussionController extends AbstractCreateController
@@ -37,13 +36,13 @@ class CreateDiscussionController extends AbstractCreateController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): Discussion
+    protected function data(Request $request, Document $document): Discussion
     {
         $actor = RequestUtil::getActor($request);
-        $ipAddress = $request->getAttribute('ipAddress');
+        $ipAddress = $request->ip();
 
         $discussion = $this->bus->dispatch(
-            new StartDiscussion($actor, Arr::get($request->getParsedBody(), 'data', []), $ipAddress)
+            new StartDiscussion($actor, $request->json('data', []), $ipAddress)
         );
 
         // After creating the discussion, we assume that the user has seen all

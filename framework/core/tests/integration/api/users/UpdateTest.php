@@ -74,7 +74,7 @@ class UpdateTest extends TestCase
 
         // Test for successful response and that the email is included in the response
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertStringContainsString('normal@machine.local', (string) $response->getBody());
+        $this->assertStringContainsString('normal@machine.local', (string) $response->getContent());
     }
 
     /**
@@ -91,7 +91,7 @@ class UpdateTest extends TestCase
 
         // Make sure sensitive information is not made public
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertStringNotContainsString('admin@machine.local', (string) $response->getBody());
+        $this->assertStringNotContainsString('admin@machine.local', (string) $response->getContent());
     }
 
     /**
@@ -276,6 +276,7 @@ class UpdateTest extends TestCase
                 ],
             ])
         );
+
         $this->assertEquals(403, $response->getStatusCode());
     }
 
@@ -732,7 +733,7 @@ class UpdateTest extends TestCase
      */
     public function last_seen_not_updated_quickly()
     {
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(3);
 
@@ -742,7 +743,7 @@ class UpdateTest extends TestCase
                 'json' => [],
             ])
         );
-        $body = json_decode($response->getBody(), true);
+        $body = json_decode($response->getContent(), true);
         $last_seen = $body['data']['attributes']['lastSeenAt'];
 
         $this->assertTrue(Carbon::parse($last_seen)->equalTo($user->last_seen_at));
@@ -753,7 +754,7 @@ class UpdateTest extends TestCase
      */
     public function last_seen_updated_after_long_time()
     {
-        $this->app();
+        $this->bootstrap();
 
         $user = User::find(4);
 
@@ -763,7 +764,7 @@ class UpdateTest extends TestCase
                 'json' => [],
             ])
         );
-        $body = json_decode($response->getBody(), true);
+        $body = json_decode($response->getContent(), true);
         $last_seen = $body['data']['attributes']['lastSeenAt'];
 
         $this->assertFalse(Carbon::parse($last_seen)->equalTo($user->last_seen_at));

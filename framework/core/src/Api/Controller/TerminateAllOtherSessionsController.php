@@ -13,17 +13,17 @@ use Flarum\Http\RememberAccessToken;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\SessionAccessToken;
 use Illuminate\Contracts\Database\Eloquent\Builder;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 
 class TerminateAllOtherSessionsController extends AbstractDeleteController
 {
-    protected function delete(ServerRequestInterface $request): void
+    protected function delete(Request $request): void
     {
         $actor = RequestUtil::getActor($request);
 
         $actor->assertRegistered();
 
-        $session = $request->getAttribute('session');
+        $session = $request->attributes->get('session');
         $sessionAccessToken = $session ? $session->get('access_token') : null;
 
         // Delete all session access tokens except for this one.

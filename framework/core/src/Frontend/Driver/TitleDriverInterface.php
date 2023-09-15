@@ -10,9 +10,9 @@
 namespace Flarum\Frontend\Driver;
 
 use Flarum\Frontend\Document;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 
 interface TitleDriverInterface
 {
-    public function makeTitle(Document $document, ServerRequestInterface $request, array $forumApiDocument): string;
+    public function makeTitle(Document $document, Request $request, array $forumApiDocument): string;
 }

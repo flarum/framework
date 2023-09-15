@@ -51,7 +51,7 @@ class ShowTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $body = (string) $response->getBody();
+        $body = (string) $response->getContent();
         $this->assertJson($body);
 
         $data = json_decode($body, true);
@@ -72,7 +72,7 @@ class ShowTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $body = (string) $response->getBody();
+        $body = (string) $response->getContent();
         $this->assertJson($body);
 
         $data = json_decode($body, true);

@@ -9,27 +9,26 @@
 
 namespace Flarum\Http\Middleware;
 
+use Closure;
 use Flarum\Http\AccessToken;
 use Flarum\Http\RequestUtil;
 use Flarum\User\Guest;
 use Flarum\User\User;
 use Illuminate\Contracts\Session\Session;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\MiddlewareInterface as Middleware;
-use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class AuthenticateWithSession implements Middleware
+class AuthenticateWithSession implements IlluminateMiddlewareInterface
 {
-    public function process(Request $request, Handler $handler): Response
+    public function handle(Request $request, Closure $next): Response
     {
-        $session = $request->getAttribute('session');
+        $session = $request->attributes->get('session');
 
         $actor = $this->getActor($session, $request);
 
         $request = RequestUtil::withActor($request, $actor);
 
-        return $handler->handle($request);
+        return $next($request);
     }
 
     private function getActor(Session $session, Request $request): Guest|User

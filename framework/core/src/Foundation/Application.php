@@ -9,13 +9,21 @@
 
 namespace Flarum\Foundation;
 
+use Flarum\Database\DatabaseServiceProvider;
+use Flarum\Foundation\Concerns\InteractsWithLaravel;
+use Flarum\Http\RoutingServiceProvider;
+use Flarum\Settings\SettingsServiceProvider;
+use Illuminate\Container\Container as IlluminateContainer;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Foundation\Application as LaravelApplication;
 use Illuminate\Events\EventServiceProvider;
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 
-class Application
+class Application extends IlluminateContainer implements LaravelApplication
 {
+    use InteractsWithLaravel;
+
     /**
      * The Flarum version.
      *
@@ -33,8 +41,9 @@ class Application
 
     protected array $loadedProviders = [];
 
+    protected bool $hasBeenBootstrapped = false;
+
     public function __construct(
-        private readonly Container $container,
         protected Paths $paths
     ) {
         $this->registerBaseBindings();
@@ -44,19 +53,14 @@ class Application
 
     public function config(string $key, mixed $default = null): mixed
     {
-        $config = $this->container->make('flarum.config');
+        $config = $this->make('flarum.config');
 
         return $config[$key] ?? $default;
     }
 
-    public function inDebugMode(): bool
-    {
-        return $this->config('debug', true);
-    }
-
     public function url(string $path = null): string
     {
-        $config = $this->container->make('flarum.config');
+        $config = $this->make('flarum.config');
         $url = (string) $config->url();
 
         if ($path) {
@@ -68,31 +72,29 @@ class Application
 
     protected function registerBaseBindings(): void
     {
-        \Illuminate\Container\Container::setInstance($this->container);
+        IlluminateContainer::setInstance($this);
 
-        /**
-         * Needed for the laravel framework code.
-         * Use container inside flarum instead.
-         */
-        $this->container->instance('app', $this->container);
-        $this->container->alias('app', \Illuminate\Container\Container::class);
-
-        $this->container->instance('container', $this->container);
-        $this->container->alias('container', \Illuminate\Container\Container::class);
-
-        $this->container->instance('flarum', $this);
-        $this->container->alias('flarum', self::class);
-
-        $this->container->instance('flarum.paths', $this->paths);
-        $this->container->alias('flarum.paths', Paths::class);
+        $this->instance('app', $this);
+        $this->instance(Container::class, $this);
+        $this->instance('flarum', $this);
+        $this->instance('flarum.paths', $this->paths);
     }
 
     protected function registerBaseServiceProviders(): void
     {
-        $this->register(new EventServiceProvider($this->container));
+        $this->register(new EventServiceProvider($this));
+        $this->register(new ErrorServiceProvider($this));
+        $this->register(new RoutingServiceProvider($this));
+
+        // Because we need to check very early if the version of the app
+        // in the settings table matches the current version, we need
+        // to register the settings provider and therefore the database
+        // provider very early on.
+        $this->register(new DatabaseServiceProvider($this));
+        $this->register(new SettingsServiceProvider($this));
     }
 
-    public function register(string|ServiceProvider $provider, array $options = [], bool $force = false): ServiceProvider
+    public function register($provider, $force = false): ServiceProvider
     {
         if (($registered = $this->getProvider($provider)) && ! $force) {
             return $registered;
@@ -102,17 +104,10 @@ class Application
         // application instance automatically for the developer. This is simply
         // a more convenient way of specifying your service provider classes.
         if (is_string($provider)) {
-            $provider = $this->resolveProviderClass($provider);
+            $provider = $this->resolveProvider($provider);
         }
 
         $provider->register();
-
-        // Once we have registered the service we will iterate through the options
-        // and set each of them on the application so they will be available on
-        // the actual loading of the service objects and for developer usage.
-        foreach ($options as $key => $value) {
-            $this[$key] = $value;
-        }
 
         $this->markAsRegistered($provider);
 
@@ -140,14 +135,14 @@ class Application
      *
      * @param class-string<ServiceProvider> $provider
      */
-    public function resolveProviderClass(string $provider): ServiceProvider
+    public function resolveProvider($provider): ServiceProvider
     {
-        return new $provider($this->container);
+        return new $provider($this);
     }
 
     protected function markAsRegistered(ServiceProvider $provider): void
     {
-        $this->container['events']->dispatch($class = get_class($provider), [$provider]);
+        $this['events']->dispatch($class = get_class($provider), [$provider]);
 
         $this->serviceProviders[] = $provider;
 
@@ -179,13 +174,15 @@ class Application
         $this->fireAppCallbacks($this->bootedCallbacks);
     }
 
-    protected function bootProvider(ServiceProvider $provider): mixed
+    protected function bootProvider(ServiceProvider $provider): void
     {
+        $provider->callBootingCallbacks();
+
         if (method_exists($provider, 'boot')) {
-            return $this->container->call([$provider, 'boot']);
+            $this->call([$provider, 'boot']);
         }
 
-        return null;
+        $provider->callBootedCallbacks();
     }
 
     public function booting(mixed $callback): void
@@ -209,30 +206,59 @@ class Application
         }
     }
 
+    public function bootstrapWith(array $bootstrappers): void
+    {
+        $this->hasBeenBootstrapped = true;
+
+        foreach ($bootstrappers as $bootstrapper) {
+            $this['events']->dispatch('bootstrapping: '.$bootstrapper, [$this]);
+
+            $this->make($bootstrapper)->bootstrap($this);
+
+            $this['events']->dispatch('bootstrapped: '.$bootstrapper, [$this]);
+        }
+    }
+
+    public function hasBeenBootstrapped(): bool
+    {
+        return $this->hasBeenBootstrapped;
+    }
+
     public function registerCoreContainerAliases(): void
     {
         $aliases = [
-            'app'                  => [\Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class,  \Psr\Container\ContainerInterface::class],
+            'app'                  => [\Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class, \Psr\Container\ContainerInterface::class],
             'blade.compiler'       => [\Illuminate\View\Compilers\BladeCompiler::class],
             'cache'                => [\Illuminate\Cache\CacheManager::class, \Illuminate\Contracts\Cache\Factory::class],
+            'cache.filestore'      => [\Illuminate\Cache\FileStore::class, \Illuminate\Contracts\Cache\Store::class],
             'cache.store'          => [\Illuminate\Cache\Repository::class, \Illuminate\Contracts\Cache\Repository::class],
             'config'               => [\Illuminate\Config\Repository::class, \Illuminate\Contracts\Config\Repository::class],
-            'db'                   => [\Illuminate\Database\DatabaseManager::class],
+            'container'            => [\Illuminate\Contracts\Container\Container::class, \Psr\Container\ContainerInterface::class],
+            'db'                   => [\Illuminate\Database\ConnectionResolverInterface::class, \Illuminate\Database\DatabaseManager::class],
             'db.connection'        => [\Illuminate\Database\Connection::class, \Illuminate\Database\ConnectionInterface::class],
             'events'               => [\Illuminate\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
             'files'                => [\Illuminate\Filesystem\Filesystem::class],
             'filesystem'           => [\Illuminate\Filesystem\FilesystemManager::class, \Illuminate\Contracts\Filesystem\Factory::class],
             'filesystem.disk'      => [\Illuminate\Contracts\Filesystem\Filesystem::class],
             'filesystem.cloud'     => [\Illuminate\Contracts\Filesystem\Cloud::class],
+            'flarum'               => [self::class, \Illuminate\Contracts\Container\Container::class, \Illuminate\Contracts\Foundation\Application::class, \Psr\Container\ContainerInterface::class],
+            'flarum.config'        => [Config::class],
+            'flarum.paths'         => [Paths::class],
+            'flarum.settings'      => [\Flarum\Settings\SettingsRepositoryInterface::class],
             'hash'                 => [\Illuminate\Contracts\Hashing\Hasher::class],
             'mailer'               => [\Illuminate\Mail\Mailer::class, \Illuminate\Contracts\Mail\Mailer::class, \Illuminate\Contracts\Mail\MailQueue::class],
+            'request'              => [\Illuminate\Http\Request::class, \Symfony\Component\HttpFoundation\Request::class],
+            'router'               => [\Flarum\Http\Router::class, \Illuminate\Routing\Router::class, \Illuminate\Contracts\Routing\Registrar::class, \Illuminate\Contracts\Routing\BindingRegistrar::class],
+            'session'              => [\Illuminate\Session\SessionManager::class],
+            'session.store'        => [\Illuminate\Session\Store::class, \Illuminate\Contracts\Session\Session::class],
+            'url'                  => [\Flarum\Http\UrlGenerator::class, \Illuminate\Routing\UrlGenerator::class, \Illuminate\Contracts\Routing\UrlGenerator::class],
             'validator'            => [\Illuminate\Validation\Factory::class, \Illuminate\Contracts\Validation\Factory::class],
             'view'                 => [\Illuminate\View\Factory::class, \Illuminate\Contracts\View\Factory::class],
         ];
 
         foreach ($aliases as $key => $aliasGroup) {
             foreach ($aliasGroup as $alias) {
-                $this->container->alias($key, $alias);
+                $this->alias($key, $alias);
             }
         }
     }
@@ -240,13 +266,5 @@ class Application
     public function version(): string
     {
         return static::VERSION;
-    }
-
-    public function terminating(): void
-    {
-    }
-
-    public function terminate(): void
-    {
     }
 }

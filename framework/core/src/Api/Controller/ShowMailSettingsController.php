@@ -13,14 +13,14 @@ use Flarum\Api\Serializer\MailSettingsSerializer;
 use Flarum\Http\RequestUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Validation\Factory;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class ShowMailSettingsController extends AbstractShowController
 {
     public ?string $serializer = MailSettingsSerializer::class;
 
-    protected function data(ServerRequestInterface $request, Document $document): array
+    protected function data(Request $request, Document $document): array
     {
         RequestUtil::getActor($request)->assertAdmin();
 

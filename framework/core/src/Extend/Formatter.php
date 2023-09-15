@@ -13,7 +13,7 @@ use Flarum\Extension\Extension;
 use Flarum\Formatter\Formatter as ActualFormatter;
 use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use s9e\TextFormatter\Configurator;
 use s9e\TextFormatter\Parser;
 use s9e\TextFormatter\Renderer;
@@ -96,13 +96,13 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      * Prepare the system for rendering. This can be used to modify the xml that will be rendered, or to modify the renderer.
      * Please note that the xml to be rendered must be returned, regardless of whether it's changed.
      *
-     * @param (callable(Renderer $renderer, mixed $context, string $xml, ServerRequestInterface $request): string)|class-string $callback
+     * @param (callable(Renderer $renderer, mixed $context, string $xml, Request $request): string)|class-string $callback
      *
      * The callback can be a closure or invokable class, and should accept:
      * - \s9e\TextFormatter\Renderer $renderer
      * - mixed $context
      * - string $xml: The xml to be rendered.
-     * - ServerRequestInterface $request. This argument MUST either be nullable, or omitted entirely.
+     * - Request $request. This argument MUST either be nullable, or omitted entirely.
      *
      * The callback should return:
      * - string $xml: The xml to be rendered.

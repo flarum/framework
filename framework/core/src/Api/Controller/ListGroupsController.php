@@ -14,7 +14,7 @@ use Flarum\Group\Filter\GroupFilterer;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Query\QueryCriteria;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class ListGroupsController extends AbstractListController
@@ -31,7 +31,7 @@ class ListGroupsController extends AbstractListController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): iterable
+    protected function data(Request $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
 
@@ -47,8 +47,8 @@ class ListGroupsController extends AbstractListController
         $queryResults = $this->filterer->filter($criteria, $limit, $offset);
 
         $document->addPaginationLinks(
-            $this->url->to('api')->route('groups.index'),
-            $request->getQueryParams(),
+            $this->url->route('api.groups.index'),
+            $request->query(),
             $offset,
             $limit,
             $queryResults->areMoreResults() ? null : 0

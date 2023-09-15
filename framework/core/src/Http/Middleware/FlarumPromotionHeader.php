@@ -9,14 +9,13 @@
 
 namespace Flarum\Http\Middleware;
 
+use Closure;
 use Flarum\Foundation\Config;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface as Middleware;
-use Psr\Http\Server\RequestHandlerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
-class FlarumPromotionHeader implements Middleware
+class FlarumPromotionHeader implements IlluminateMiddlewareInterface
 {
     protected bool $enabled = true;
 
@@ -25,12 +24,15 @@ class FlarumPromotionHeader implements Middleware
         $this->enabled = (bool) (Arr::get($config, 'headers.poweredByHeader') ?? true);
     }
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    /**
+     * @inheritDoc
+     */
+    public function handle(Request $request, Closure $next): Response
     {
-        $response = $handler->handle($request);
+        $response = $next($request);
 
         if ($this->enabled) {
-            $response = $response->withAddedHeader('X-Powered-By', 'Flarum');
+            $response->headers->set('X-Powered-By', 'Flarum');
         }
 
         return $response;

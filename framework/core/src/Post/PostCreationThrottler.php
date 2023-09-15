@@ -11,15 +11,15 @@ namespace Flarum\Post;
 
 use Carbon\Carbon;
 use Flarum\Http\RequestUtil;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 
 class PostCreationThrottler
 {
     public static int $timeout = 10;
 
-    public function __invoke(ServerRequestInterface $request): ?bool
+    public function __invoke(Request $request): ?bool
     {
-        if (! in_array($request->getAttribute('routeName'), ['discussions.create', 'posts.create'])) {
+        if (! $request->routeIs('api.discussions.create', 'api.posts.create')) {
             return null;
         }
 

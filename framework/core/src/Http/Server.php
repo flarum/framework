@@ -9,17 +9,11 @@
 
 namespace Flarum\Http;
 
-use Flarum\Foundation\ErrorHandling\LogReporter;
 use Flarum\Foundation\SiteInterface;
-use Illuminate\Contracts\Container\Container;
-use Laminas\Diactoros\Response;
-use Laminas\Diactoros\ServerRequest;
-use Laminas\Diactoros\ServerRequestFactory;
-use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
-use Laminas\HttpHandlerRunner\RequestHandlerRunner;
-use Laminas\Stratigility\Middleware\ErrorResponseGenerator;
-use Psr\Log\LoggerInterface;
-use Throwable;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Pipeline;
+use Symfony\Component\HttpFoundation\Response;
 
 class Server
 {
@@ -30,100 +24,37 @@ class Server
 
     public function listen(): void
     {
-        $runner = new RequestHandlerRunner(
-            $this->safelyBootAndGetHandler(),
-            new SapiEmitter,
-            [ServerRequestFactory::class, 'fromGlobals'],
-            function (Throwable $e) {
-                $generator = new ErrorResponseGenerator;
+        $siteApp = $this->site->init();
+        $app = $siteApp->getContainer();
+        $globalMiddleware = $siteApp->getMiddlewareStack();
 
-                return $generator($e, new ServerRequest, new Response);
-            }
-        );
-
-        $runner->run();
+        $this
+            ->handle(Request::capture(), $app, $globalMiddleware)
+            ->send();
     }
 
-    /**
-     * Try to boot Flarum, and retrieve the app's HTTP request handler.
-     *
-     * We catch all exceptions happening during this process and format them to
-     * prevent exposure of sensitive information.
-     *
-     * @throws Throwable
-     */
-    private function safelyBootAndGetHandler() // @phpstan-ignore-line
+    public function handle(Request $request, Application $app, array $globalMiddleware): Response
     {
-        try {
-            return $this->site->bootApp()->getRequestHandler();
-        } catch (Throwable $e) {
-            // Apply response code first so whatever happens, it's set before anything is printed
-            http_response_code(500);
+        $app->instance('request', $request);
 
-            try {
-                $this->cleanBootExceptionLog($e);
-            } catch (Throwable $e) {
-                // Ignore errors in logger. The important goal is to log the original error
-            }
+        $this->bootstrap($app);
 
-            $this->fallbackBootExceptionLog($e);
+        return (new Pipeline($app))
+            ->send($request)
+            ->through($globalMiddleware)
+            ->then(function (Request $request) use ($app) {
+                $app->instance('request', $request);
+
+                return $app->make(Router::class)->dispatch($request);
+            });
+    }
+
+    public function bootstrap(Application $app): void
+    {
+        if (! $app->hasBeenBootstrapped()) {
+            $app->bootstrapWith(
+                $this->site->bootstrappers()
+            );
         }
-    }
-
-    /**
-     * Attempt to log the boot exception in a clean way and stop the script execution.
-     * This means looking for debug mode and/or our normal error logger.
-     * There is always a risk for this to fail,
-     * for example if the container bindings aren't present
-     * or if there is a filesystem error.
-     * @param Throwable $error
-     * @throws Throwable
-     */
-    private function cleanBootExceptionLog(Throwable $error): void
-    {
-        $container = resolve(Container::class);
-
-        if ($container->has('flarum.config') && resolve('flarum.config')->inDebugMode()) {
-            // If the application booted far enough for the config to be available, we will check for debug mode
-            // Since the config is loaded very early, it is very likely to be available from the container
-            $message = $error->getMessage();
-            $file = $error->getFile();
-            $line = $error->getLine();
-            $type = get_class($error);
-
-            echo <<<ERROR
-            Flarum encountered a boot error ($type)<br />
-            <b>$message</b><br />
-            thrown in <b>$file</b> on line <b>$line</b>
-
-<pre>$error</pre>
-ERROR;
-            exit(1);
-        } elseif ($container->has(LoggerInterface::class)) {
-            // If the application booted far enough for the logger to be available, we will log the error there
-            // Considering most boot errors are related to database or extensions, the logger should already be loaded
-            // We check for LoggerInterface binding because it's a constructor dependency of LogReporter,
-            // then instantiate LogReporter through the container for automatic dependency injection
-            resolve(LogReporter::class)->report($error);
-
-            echo 'Flarum encountered a boot error. Details have been logged to the Flarum log file.';
-            exit(1);
-        }
-    }
-
-    /**
-     * If the clean logging doesn't work, then we have a last opportunity.
-     * Here we need to be extra careful not to include anything that might be sensitive on the page.
-     *
-     * @throws Throwable
-     */
-    private function fallbackBootExceptionLog(Throwable $error): void
-    {
-        echo 'Flarum encountered a boot error. Details have been logged to the system PHP log file.<br />';
-
-        // Throwing the exception ensures it will be visible with PHP display_errors=On
-        // but invisible if that feature is turned off
-        // PHP will also automatically choose a valid place to log it based on the system settings
-        throw $error;
     }
 }

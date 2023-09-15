@@ -14,7 +14,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Notification\NotificationRepository;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 use Tobscure\JsonApi\Document;
 
 class ListNotificationsController extends AbstractListController
@@ -33,7 +33,7 @@ class ListNotificationsController extends AbstractListController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): iterable
+    protected function data(Request $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
 
@@ -63,8 +63,8 @@ class ListNotificationsController extends AbstractListController
         }
 
         $document->addPaginationLinks(
-            $this->url->to('api')->route('notifications.index'),
-            $request->getQueryParams(),
+            $this->url->route('api.notifications.index'),
+            $request->query(),
             $offset,
             $limit,
             $areMoreResults ? null : 0

@@ -54,7 +54,7 @@ class DefaultRouteTest extends TestCase
             $this->request('GET', '/')
         );
 
-        $this->assertStringContainsString('apiDocument', $response->getBody());
+        $this->assertStringContainsString('apiDocument', $response->getContent());
     }
 
     /**
@@ -68,7 +68,7 @@ class DefaultRouteTest extends TestCase
             $this->request('GET', '/')
         );
 
-        $this->assertStringContainsString('apiDocument', $response->getBody());
+        $this->assertStringContainsString('apiDocument', $response->getContent());
     }
 
     /**
@@ -82,7 +82,7 @@ class DefaultRouteTest extends TestCase
             $this->request('GET', '/')
         );
 
-        $this->assertStringNotContainsString('apiDocument', $response->getBody());
+        $this->assertStringNotContainsString('apiDocument', $response->getContent());
     }
 }
 

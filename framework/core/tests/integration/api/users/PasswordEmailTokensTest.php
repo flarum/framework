@@ -13,6 +13,8 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\EmailToken;
 use Flarum\User\PasswordToken;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
 class PasswordEmailTokensTest extends TestCase
 {
@@ -32,7 +34,7 @@ class PasswordEmailTokensTest extends TestCase
     /** @test */
     public function actor_has_no_tokens_by_default()
     {
-        $this->app();
+        $this->bootstrap();
 
         $this->assertEquals(0, PasswordToken::query()->where('user_id', 2)->count());
         $this->assertEquals(0, EmailToken::query()->where('user_id', 2)->count());
@@ -57,7 +59,7 @@ class PasswordEmailTokensTest extends TestCase
     /** @test */
     public function password_tokens_are_deleted_after_password_reset()
     {
-        $this->app();
+        $this->bootstrap();
 
         // Request password change to generate a token.
         $response = $this->send(
@@ -78,14 +80,17 @@ class PasswordEmailTokensTest extends TestCase
 
         // Use a token to reset password
         $response = $this->send(
-            $request = $this->requestWithCsrfToken(
-                $this->request('POST', '/reset', [
-                    'authenticatedAs' => 2,
-                ])->withParsedBody([
-                    'passwordToken' => PasswordToken::query()->latest()->first()->token,
-                    'password' => 'new-password',
-                    'password_confirmation' => 'new-password',
-                ])
+            $this->requestWithCsrfToken(
+                tap(
+                    $this->request('POST', '/reset', [
+                        'authenticatedAs' => 2,
+                    ]),
+                    fn (Request $request) => $request->setJson(new ParameterBag([
+                        'passwordToken' => PasswordToken::query()->latest()->first()->token,
+                        'password' => 'new-password',
+                        'password_confirmation' => 'new-password',
+                    ]))
+                )
             )
         );
 
@@ -119,7 +124,7 @@ class PasswordEmailTokensTest extends TestCase
     /** @test */
     public function email_tokens_are_deleted_when_confirming_email()
     {
-        $this->app();
+        $this->bootstrap();
 
         EmailToken::generate('new-normal2@machine.local', 2)->save();
         EmailToken::generate('new-normal3@machine.local', 2)->save();
@@ -141,7 +146,7 @@ class PasswordEmailTokensTest extends TestCase
     /** @test */
     public function email_tokens_are_deleted_after_password_reset()
     {
-        $this->app();
+        $this->bootstrap();
 
         // Request password change to generate a token.
         $response = $this->send(
@@ -162,14 +167,17 @@ class PasswordEmailTokensTest extends TestCase
 
         // Use a token to reset password
         $response = $this->send(
-            $request = $this->requestWithCsrfToken(
-                $this->request('POST', '/reset', [
-                    'authenticatedAs' => 2,
-                ])->withParsedBody([
-                    'passwordToken' => PasswordToken::query()->latest()->first()->token,
-                    'password' => 'new-password',
-                    'password_confirmation' => 'new-password',
-                ])
+            $this->requestWithCsrfToken(
+                tap(
+                    $this->request('POST', '/reset', [
+                        'authenticatedAs' => 2,
+                    ]),
+                    fn (Request $request) => $request->setJson(new ParameterBag([
+                        'passwordToken' => PasswordToken::query()->latest()->first()->token,
+                        'password' => 'new-password',
+                        'password_confirmation' => 'new-password',
+                    ]))
+                )
             )
         );
 
@@ -180,7 +188,7 @@ class PasswordEmailTokensTest extends TestCase
     /** @test */
     public function password_tokens_are_deleted_when_confirming_email()
     {
-        $this->app();
+        $this->bootstrap();
 
         PasswordToken::generate(2)->save();
         PasswordToken::generate(2)->save();

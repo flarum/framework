@@ -14,35 +14,21 @@ use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Api\Serializer\NotificationSerializer;
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
-use Flarum\Foundation\ErrorHandling\Registry;
-use Flarum\Foundation\ErrorHandling\Reporter;
+use Flarum\Foundation\Config;
 use Flarum\Http\Middleware as HttpMiddleware;
-use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
-use Flarum\Http\UrlGenerator;
+use Flarum\Http\Router;
 use Illuminate\Contracts\Container\Container;
-use Laminas\Stratigility\MiddlewarePipe;
+use Illuminate\Http\Request;
 
 class ApiServiceProvider extends AbstractServiceProvider
 {
     public function register(): void
     {
-        $this->container->extend(UrlGenerator::class, function (UrlGenerator $url, Container $container) {
-            return $url->addCollection('api', $container->make('flarum.api.routes'), 'api');
-        });
-
-        $this->container->singleton('flarum.api.routes', function () {
-            $routes = new RouteCollection;
-            $this->populateRoutes($routes);
-
-            return $routes;
-        });
-
         $this->container->singleton('flarum.api.throttlers', function () {
             return [
-                'bypassThrottlingAttribute' => function ($request) {
-                    if ($request->getAttribute('bypassThrottling')) {
+                'bypassThrottlingAttribute' => function (Request $request) {
+                    if ($request->attributes->get('bypassThrottling')) {
                         return false;
                     }
                 }
@@ -56,42 +42,15 @@ class ApiServiceProvider extends AbstractServiceProvider
         $this->container->singleton('flarum.api.middleware', function () {
             return [
                 HttpMiddleware\InjectActorReference::class,
-                'flarum.api.error_handler',
-                HttpMiddleware\ParseJsonBody::class,
                 Middleware\FakeHttpMethods::class,
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\RememberFromCookie::class,
                 HttpMiddleware\AuthenticateWithSession::class,
                 HttpMiddleware\AuthenticateWithHeader::class,
                 HttpMiddleware\SetLocale::class,
-                'flarum.api.route_resolver',
                 HttpMiddleware\CheckCsrfToken::class,
                 Middleware\ThrottleApi::class
             ];
-        });
-
-        $this->container->bind('flarum.api.error_handler', function (Container $container) {
-            return new HttpMiddleware\HandleErrors(
-                $container->make(Registry::class),
-                new JsonApiFormatter($container['flarum.config']->inDebugMode()),
-                $container->tagged(Reporter::class)
-            );
-        });
-
-        $this->container->bind('flarum.api.route_resolver', function (Container $container) {
-            return new HttpMiddleware\ResolveRoute($container->make('flarum.api.routes'));
-        });
-
-        $this->container->singleton('flarum.api.handler', function (Container $container) {
-            $pipe = new MiddlewarePipe;
-
-            foreach ($this->container->make('flarum.api.middleware') as $middleware) {
-                $pipe->pipe($container->make($middleware));
-            }
-
-            $pipe->pipe(new HttpMiddleware\ExecuteRoute());
-
-            return $pipe;
         });
 
         $this->container->singleton('flarum.api.notification_serializers', function () {
@@ -103,7 +62,6 @@ class ApiServiceProvider extends AbstractServiceProvider
         $this->container->singleton('flarum.api_client.exclude_middleware', function () {
             return [
                 HttpMiddleware\InjectActorReference::class,
-                HttpMiddleware\ParseJsonBody::class,
                 Middleware\FakeHttpMethods::class,
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\AuthenticateWithSession::class,
@@ -113,27 +71,20 @@ class ApiServiceProvider extends AbstractServiceProvider
             ];
         });
 
-        $this->container->singleton(Client::class, function ($container) {
-            $pipe = new MiddlewarePipe;
-
+        $this->container->singleton(Client::class, function (Container $container) {
             $exclude = $container->make('flarum.api_client.exclude_middleware');
 
             $middlewareStack = array_filter($container->make('flarum.api.middleware'), function ($middlewareClass) use ($exclude) {
                 return ! in_array($middlewareClass, $exclude);
             });
 
-            foreach ($middlewareStack as $middleware) {
-                $pipe->pipe($container->make($middleware));
-            }
-
-            $pipe->pipe(new HttpMiddleware\ExecuteRoute());
-
-            return new Client($pipe);
+            return new Client($middlewareStack, $container);
         });
     }
 
     public function boot(Container $container): void
     {
+        $this->addRoutes($container);
         $this->setNotificationSerializers();
 
         AbstractSerializeController::setContainer($container);
@@ -150,11 +101,20 @@ class ApiServiceProvider extends AbstractServiceProvider
         }
     }
 
-    protected function populateRoutes(RouteCollection $routes): void
+    protected function addRoutes(Container $container)
     {
-        $factory = $this->container->make(RouteHandlerFactory::class);
+        /** @var Router $router */
+        $router = $container->make(Router::class);
+        /** @var Config $config */
+        $config = $container->make(Config::class);
 
-        $callback = include __DIR__.'/routes.php';
-        $callback($routes, $factory);
+        $router->middlewareGroup('api', $container->make('flarum.api.middleware'));
+
+        $factory = $container->make(RouteHandlerFactory::class);
+
+        $router->middleware('api')
+            ->prefix($config->path('api'))
+            ->name('api.')
+            ->group(fn (Router $router) => (include __DIR__.'/routes.php')($router, $factory));
     }
 }

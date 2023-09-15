@@ -9,16 +9,16 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
 use Illuminate\Contracts\Mail\Mailer;
+use Illuminate\Http\Request;
 use Illuminate\Mail\Message;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 
-class SendTestMailController implements RequestHandlerInterface
+class SendTestMailController extends AbstractController
 {
     public function __construct(
         protected Mailer $mailer,
@@ -26,7 +26,7 @@ class SendTestMailController implements RequestHandlerInterface
     ) {
     }
 
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function __invoke(Request $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
         $actor->assertAdmin();

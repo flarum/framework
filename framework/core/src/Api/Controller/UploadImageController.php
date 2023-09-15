@@ -13,10 +13,10 @@ use Flarum\Http\RequestUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Intervention\Image\Image;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Tobscure\JsonApi\Document;
 
@@ -34,7 +34,7 @@ abstract class UploadImageController extends ShowForumController
         $this->uploadDir = $filesystemFactory->disk('flarum-assets');
     }
 
-    public function data(ServerRequestInterface $request, Document $document): array
+    public function data(Request $request, Document $document): array
     {
         RequestUtil::getActor($request)->assertAdmin();
 

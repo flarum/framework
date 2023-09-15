@@ -9,12 +9,12 @@
 
 namespace Flarum\Tests\integration\extenders;
 
+use Closure;
 use Flarum\Extend;
+use Flarum\Http\Middleware\IlluminateMiddlewareInterface;
 use Flarum\Testing\integration\TestCase;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Server\RequestHandlerInterface;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class MiddlewareTest extends TestCase
 {
@@ -34,7 +34,7 @@ class MiddlewareTest extends TestCase
         $response = $this->send($this->request('GET', '/'));
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertArrayNotHasKey('X-First-Test-Middleware', $response->getHeaders());
+        $this->assertNull($response->headers->get('X-First-Test-Middleware'));
     }
 
     /**
@@ -49,7 +49,7 @@ class MiddlewareTest extends TestCase
         $response = $this->send($this->request('GET', '/'));
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertArrayHasKey('X-First-Test-Middleware', $response->getHeaders());
+        $this->assertNotNull($response->headers->get('X-First-Test-Middleware'));
     }
 
     /**
@@ -65,8 +65,9 @@ class MiddlewareTest extends TestCase
         $response = $this->send($this->request('GET', '/'));
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertArrayNotHasKey('X-First-Test-Middleware', $response->getHeaders());
-        $this->assertArrayHasKey('X-Second-Test-Middleware', $response->getHeaders());
+
+        $this->assertNull($response->headers->get('X-First-Test-Middleware'));
+        $this->assertNotNull($response->headers->get('X-Second-Test-Middleware'));
     }
 
     /**
@@ -82,7 +83,7 @@ class MiddlewareTest extends TestCase
         $response = $this->send($this->request('GET', '/'));
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertArrayNotHasKey('X-First-Test-Middleware', $response->getHeaders());
+        $this->assertNull($response->headers->get('X-First-Test-Middleware'));
     }
 
     /**
@@ -96,9 +97,9 @@ class MiddlewareTest extends TestCase
         );
 
         $response = $this->send($this->request('GET', '/'));
-        $headers = $response->getHeaders();
-        $newMiddlewarePosition = array_search('X-Second-Test-Middleware', array_keys($headers));
-        $originalMiddlewarePosition = array_search('X-First-Test-Middleware', array_keys($headers));
+        $headers = $response->headers->all();
+        $newMiddlewarePosition = array_search(strtolower('X-Second-Test-Middleware'), array_keys($headers));
+        $originalMiddlewarePosition = array_search(strtolower('X-First-Test-Middleware'), array_keys($headers));
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertLessThan($newMiddlewarePosition, $originalMiddlewarePosition);
@@ -115,31 +116,36 @@ class MiddlewareTest extends TestCase
         );
 
         $response = $this->send($this->request('GET', '/'));
-        $headers = $response->getHeaders();
-        $newMiddlewarePosition = array_search('X-Second-Test-Middleware', array_keys($headers));
-        $originalMiddlewarePosition = array_search('X-First-Test-Middleware', array_keys($headers));
+        $headers = $response->headers->all();
+        $newMiddlewarePosition = array_search(strtolower('X-Second-Test-Middleware'), array_keys($headers));
+        $originalMiddlewarePosition = array_search(strtolower('X-First-Test-Middleware'), array_keys($headers));
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertGreaterThan($newMiddlewarePosition, $originalMiddlewarePosition);
     }
 }
 
-class FirstTestMiddleware implements MiddlewareInterface
+class FirstTestMiddleware implements IlluminateMiddlewareInterface
 {
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    public function handle(Request $request, Closure $next): Response
     {
-        $response = $handler->handle($request);
+        $response = $next($request);
 
-        return $response->withAddedHeader('X-First-Test-Middleware', 'This is a test!');
+        $response->headers->set('X-First-Test-Middleware', 'This is a test!');
+
+        return $response;
     }
 }
 
-class SecondTestMiddleware implements MiddlewareInterface
+class SecondTestMiddleware implements IlluminateMiddlewareInterface
 {
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    public function handle(Request $request, Closure $next): Response
     {
-        $response = $handler->handle($request);
+        /** @var Response $response */
+        $response = $next($request);
 
-        return $response->withAddedHeader('X-Second-Test-Middleware', 'This is another test!');
+        $response->headers->set('X-Second-Test-Middleware', 'This is another test!');
+
+        return $response;
     }
 }

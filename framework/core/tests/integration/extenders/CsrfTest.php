@@ -46,7 +46,7 @@ class CsrfTest extends TestCase
     {
         $this->extend(
             (new Extend\Csrf)
-                ->exemptRoute('users.create')
+                ->exemptRoute('api.users.create')
         );
 
         $response = $this->send(

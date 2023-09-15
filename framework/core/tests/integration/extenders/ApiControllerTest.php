@@ -27,6 +27,7 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class ApiControllerTest extends TestCase
@@ -75,7 +76,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertEquals('dataSerializationPrepCustomTitle', $payload['data']['attributes']['title']);
     }
@@ -96,7 +97,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertEquals(CustomPrepareDataSerializationInvokableClass::class, $payload['data']['attributes']['title']);
     }
@@ -122,7 +123,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('referenceTest', $payload['data']['relationships']);
     }
@@ -146,7 +147,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('referenceTest2', $payload['data']['relationships']);
     }
@@ -171,7 +172,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertEquals('dataSerializationPrepCustomTitle2', $payload['data']['attributes']['title']);
     }
@@ -200,7 +201,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertEquals('dataSerializationPrepCustomTitle4', $payload['data']['attributes']['title']);
     }
@@ -225,7 +226,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customSerializer2', $payload['data']['attributes']);
     }
@@ -254,7 +255,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customSerializer', $payload['data']['attributes']);
     }
@@ -270,7 +271,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayNotHasKey('customSerializer', $payload['data']['attributes']);
     }
@@ -291,7 +292,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customSerializer', $payload['data']['attributes']);
     }
@@ -317,7 +318,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customSerializer', $payload['data']['attributes']);
     }
@@ -340,7 +341,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayNotHasKey('customSerializer', $payload['data']['attributes']);
     }
@@ -356,7 +357,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayNotHasKey('customApiControllerRelation', $payload['data']['relationships']);
         $this->assertArrayNotHasKey('customApiControllerRelation2', $payload['data']['relationships']);
@@ -382,7 +383,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customApiControllerRelation', $payload['data']['relationships']);
     }
@@ -402,14 +403,17 @@ class ApiControllerTest extends TestCase
         );
 
         $response = $this->send(
-            $this->request('GET', '/api/users/2', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'include' => 'customApiControllerRelation2',
-            ])
+            tap(
+                $this->request('GET', '/api/users/2', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'include' => 'customApiControllerRelation2',
+                ])
+            )
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('customApiControllerRelation2', $payload['data']['relationships']);
     }
@@ -425,7 +429,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayHasKey('groups', $payload['data']['relationships']);
     }
@@ -446,7 +450,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertArrayNotHasKey('groups', Arr::get($payload, 'data.relationships', []));
     }
@@ -467,11 +471,14 @@ class ApiControllerTest extends TestCase
         );
 
         $response = $this->send(
-            $this->request('GET', '/api/users/2', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'include' => 'customApiControllerRelation2',
-            ])
+            tap(
+                $this->request('GET', '/api/users/2', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'include' => 'customApiControllerRelation2',
+                ])
+            )
         );
 
         $this->assertEquals(400, $response->getStatusCode());
@@ -488,7 +495,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertCount(3, $payload['data']);
     }
@@ -509,7 +516,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertCount(1, $payload['data']);
     }
@@ -525,14 +532,17 @@ class ApiControllerTest extends TestCase
         );
 
         $response = $this->send(
-            $this->request('GET', '/api/discussions', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'page' => ['limit' => '5'],
-            ])
+            tap(
+                $this->request('GET', '/api/discussions', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'page' => ['limit' => '5'],
+                ])
+            )
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertCount(1, $payload['data']);
     }
@@ -543,11 +553,14 @@ class ApiControllerTest extends TestCase
     public function custom_sort_field_doesnt_exist_by_default()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'sort' => 'userId',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'sort' => 'userId',
+                ])
+            )
         );
 
         $this->assertEquals(400, $response->getStatusCode());
@@ -566,11 +579,14 @@ class ApiControllerTest extends TestCase
         );
 
         $response = $this->send(
-            $this->request('GET', '/api/discussions', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'sort' => 'userId',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'sort' => 'userId',
+                ])
+            )
         );
 
         $this->assertEquals(400, $response->getStatusCode());
@@ -587,14 +603,17 @@ class ApiControllerTest extends TestCase
         );
 
         $response = $this->send(
-            $this->request('GET', '/api/discussions', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'sort' => 'userId',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'sort' => 'userId',
+                ])
+            )
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals([3, 1, 2], Arr::pluck($payload['data'], 'id'));
@@ -606,11 +625,14 @@ class ApiControllerTest extends TestCase
     public function custom_sort_field_exists_by_default()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'sort' => 'createdAt',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'sort' => 'createdAt',
+                ])
+            )
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -627,11 +649,14 @@ class ApiControllerTest extends TestCase
         );
 
         $response = $this->send(
-            $this->request('GET', '/api/discussions', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'sort' => 'createdAt',
-            ])
+            tap(
+                $this->request('GET', '/api/discussions', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'sort' => 'createdAt',
+                ])
+            )
         );
 
         $this->assertEquals(400, $response->getStatusCode());
@@ -654,7 +679,7 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($response->getContent(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals([2, 1, 3], Arr::pluck($payload['data'], 'id'));

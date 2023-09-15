@@ -17,8 +17,8 @@ use Flarum\Http\RequestUtil;
 use Flarum\Post\Post;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 class UpdateDiscussionController extends AbstractShowController
@@ -30,11 +30,11 @@ class UpdateDiscussionController extends AbstractShowController
     ) {
     }
 
-    protected function data(ServerRequestInterface $request, Document $document): Discussion
+    protected function data(Request $request, Document $document): Discussion
     {
         $actor = RequestUtil::getActor($request);
-        $discussionId = (int) Arr::get($request->getQueryParams(), 'id');
-        $data = Arr::get($request->getParsedBody(), 'data', []);
+        $discussionId = (int) $request->route('id');
+        $data = $request->json('data', []);
 
         /** @var Discussion $discussion */
         $discussion = $this->bus->dispatch(

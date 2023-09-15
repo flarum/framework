@@ -12,6 +12,7 @@ namespace Flarum\Suspend\Tests\integration\api\users;
 use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class ListUsersTest extends TestCase
@@ -39,16 +40,19 @@ class ListUsersTest extends TestCase
     public function can_view_default_users_list()
     {
         $response = $this->send(
-            $this->request('GET', '/api/users', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'filter' => [
-                    'suspended' => true,
-                ],
-            ])
+            tap(
+                $this->request('GET', '/api/users', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'filter' => [
+                        'suspended' => true,
+                    ],
+                ])
+            )
         );
 
-        $body = json_decode($response->getBody()->getContents(), true);
+        $body = json_decode($response->getContent(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEqualsCanonicalizing([1, 2, 3, 4, 5, 6], Arr::pluck($body['data'], 'id'));
@@ -58,16 +62,19 @@ class ListUsersTest extends TestCase
     public function can_filter_users_by_suspension()
     {
         $response = $this->send(
-            $this->request('GET', '/api/users', [
-                'authenticatedAs' => 1,
-            ])->withQueryParams([
-                'filter' => [
-                    'suspended' => true,
-                ],
-            ])
+            tap(
+                $this->request('GET', '/api/users', [
+                    'authenticatedAs' => 1,
+                ]),
+                fn (Request $request) => $request->query->add([
+                    'filter' => [
+                        'suspended' => true,
+                    ],
+                ])
+            )
         );
 
-        $body = json_decode($response->getBody()->getContents(), true);
+        $body = json_decode($response->getContent(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEqualsCanonicalizing([2, 3, 5], Arr::pluck($body['data'], 'id'));

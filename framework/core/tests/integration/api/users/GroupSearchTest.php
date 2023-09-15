@@ -11,6 +11,7 @@ namespace Flarum\Tests\integration\api\users;
 
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Http\Request;
 
 class GroupSearchTest extends TestCase
 {
@@ -74,40 +75,40 @@ class GroupSearchTest extends TestCase
         ]);
 
         $response = $this->createRequest(['admin'], 2);
-        $responseBodyContents = json_decode($response->getBody()->getContents(), true);
+        $responseBodyContents = json_decode($response->getContent(), true);
 
         $this->assertCount(1, $responseBodyContents['data'], json_encode($responseBodyContents));
         $this->assertCount(1, $responseBodyContents['included'], json_encode($responseBodyContents));
         $this->assertEquals(1, $responseBodyContents['included'][0]['id']);
 
         $response = $this->createRequest(['mod'], 2);
-        $responseBodyContents = json_decode($response->getBody()->getContents(), true);
+        $responseBodyContents = json_decode($response->getContent(), true);
 
         $this->assertCount(0, $responseBodyContents['data'], json_encode($responseBodyContents));
         $this->assertArrayNotHasKey('included', $responseBodyContents, json_encode($responseBodyContents));
 
         $response = $this->createRequest(['admins'], 2);
-        $responseBodyContents = json_decode($response->getBody()->getContents(), true);
+        $responseBodyContents = json_decode($response->getContent(), true);
 
         $this->assertCount(1, $responseBodyContents['data'], json_encode($responseBodyContents));
         $this->assertCount(1, $responseBodyContents['included'], json_encode($responseBodyContents));
         $this->assertEquals(1, $responseBodyContents['included'][0]['id']);
 
         $response = $this->createRequest(['mods'], 2);
-        $responseBodyContents = json_decode($response->getBody()->getContents(), true);
+        $responseBodyContents = json_decode($response->getContent(), true);
 
         $this->assertCount(0, $responseBodyContents['data'], json_encode($responseBodyContents));
         $this->assertArrayNotHasKey('included', $responseBodyContents, json_encode($responseBodyContents));
 
         $response = $this->createRequest(['1'], 2);
-        $responseBodyContents = json_decode($response->getBody()->getContents(), true);
+        $responseBodyContents = json_decode($response->getContent(), true);
 
         $this->assertCount(1, $responseBodyContents['data'], json_encode($responseBodyContents));
         $this->assertCount(1, $responseBodyContents['included'], json_encode($responseBodyContents));
         $this->assertEquals(1, $responseBodyContents['included'][0]['id']);
 
         $response = $this->createRequest(['4'], 2);
-        $responseBodyContents = json_decode($response->getBody()->getContents(), true);
+        $responseBodyContents = json_decode($response->getContent(), true);
 
         $this->assertCount(0, $responseBodyContents['data'], json_encode($responseBodyContents));
         $this->assertArrayNotHasKey('included', $responseBodyContents, json_encode($responseBodyContents));
@@ -126,7 +127,7 @@ class GroupSearchTest extends TestCase
 
         $this->createHiddenUser();
         $response = $this->createRequest(['99'], 2);
-        $responseBodyContents = json_decode($response->getBody()->getContents(), true);
+        $responseBodyContents = json_decode($response->getContent(), true);
 
         $this->assertCount(0, $responseBodyContents['data'], json_encode($responseBodyContents));
         $this->assertArrayNotHasKey('included', $responseBodyContents, json_encode($responseBodyContents));
@@ -144,7 +145,7 @@ class GroupSearchTest extends TestCase
         ]);
         $this->createMultipleUsersAndGroups();
         $response = $this->createRequest(['1', '4', '5', '6', '99'], 2);
-        $responseBodyContents = json_decode($response->getBody()->getContents(), true);
+        $responseBodyContents = json_decode($response->getContent(), true);
         $this->assertCount(4, $responseBodyContents['data'], json_encode($responseBodyContents));
         $this->assertCount(4, $responseBodyContents['included'], json_encode($responseBodyContents));
         $this->assertEquals(1, $responseBodyContents['included'][0]['id']);
@@ -159,40 +160,40 @@ class GroupSearchTest extends TestCase
     public function admin_gets_correct_results_group()
     {
         $response = $this->createRequest(['admin'], 1);
-        $responseBodyContents = json_decode($response->getBody()->getContents(), true);
+        $responseBodyContents = json_decode($response->getContent(), true);
 
         $this->assertCount(1, $responseBodyContents['data'], json_encode($responseBodyContents));
         $this->assertCount(1, $responseBodyContents['included'], json_encode($responseBodyContents));
         $this->assertEquals(1, $responseBodyContents['included'][0]['id']);
 
         $response = $this->createRequest(['mod'], 1);
-        $responseBodyContents = json_decode($response->getBody()->getContents(), true);
+        $responseBodyContents = json_decode($response->getContent(), true);
 
         $this->assertCount(0, $responseBodyContents['data'], json_encode($responseBodyContents));
         $this->assertArrayNotHasKey('included', $responseBodyContents, json_encode($responseBodyContents));
 
         $response = $this->createRequest(['admins'], 1);
-        $responseBodyContents = json_decode($response->getBody()->getContents(), true);
+        $responseBodyContents = json_decode($response->getContent(), true);
 
         $this->assertCount(1, $responseBodyContents['data'], json_encode($responseBodyContents));
         $this->assertCount(1, $responseBodyContents['included'], json_encode($responseBodyContents));
         $this->assertEquals(1, $responseBodyContents['included'][0]['id']);
 
         $response = $this->createRequest(['mods'], 1);
-        $responseBodyContents = json_decode($response->getBody()->getContents(), true);
+        $responseBodyContents = json_decode($response->getContent(), true);
 
         $this->assertCount(0, $responseBodyContents['data'], json_encode($responseBodyContents));
         $this->assertArrayNotHasKey('included', $responseBodyContents, json_encode($responseBodyContents));
 
         $response = $this->createRequest(['1'], 1);
-        $responseBodyContents = json_decode($response->getBody()->getContents(), true);
+        $responseBodyContents = json_decode($response->getContent(), true);
 
         $this->assertCount(1, $responseBodyContents['data'], json_encode($responseBodyContents));
         $this->assertCount(1, $responseBodyContents['included'], json_encode($responseBodyContents));
         $this->assertEquals(1, $responseBodyContents['included'][0]['id']);
 
         $response = $this->createRequest(['4'], 1);
-        $responseBodyContents = json_decode($response->getBody()->getContents(), true);
+        $responseBodyContents = json_decode($response->getContent(), true);
 
         $this->assertCount(0, $responseBodyContents['data'], json_encode($responseBodyContents));
         $this->assertArrayNotHasKey('included', $responseBodyContents, json_encode($responseBodyContents));
@@ -205,7 +206,7 @@ class GroupSearchTest extends TestCase
     {
         $this->createHiddenUser();
         $response = $this->createRequest(['99'], 1);
-        $responseBodyContents = json_decode($response->getBody()->getContents(), true);
+        $responseBodyContents = json_decode($response->getContent(), true);
 
         $this->assertCount(1, $responseBodyContents['data'], json_encode($responseBodyContents));
         $this->assertCount(1, $responseBodyContents['included'], json_encode($responseBodyContents));
@@ -220,7 +221,7 @@ class GroupSearchTest extends TestCase
         $this->createMultipleUsersAndGroups();
         $this->createHiddenUser();
         $response = $this->createRequest(['1', '4', '5', '6', '99'], 1);
-        $responseBodyContents = json_decode($response->getBody()->getContents(), true);
+        $responseBodyContents = json_decode($response->getContent(), true);
         $this->assertCount(5, $responseBodyContents['data'], json_encode($responseBodyContents));
         $this->assertCount(5, $responseBodyContents['included'], json_encode($responseBodyContents));
         $this->assertEquals(1, $responseBodyContents['included'][0]['id']);
@@ -235,8 +236,10 @@ class GroupSearchTest extends TestCase
         $auth = $userId ? ['authenticatedAs' => $userId] : [];
 
         return $this->send(
-            $this->request('GET', '/api/users', $auth)
-                ->withQueryParams(['filter' => ['q' => 'group:'.implode(',', $group)]])
+            tap(
+                $this->request('GET', '/api/users', $auth),
+                fn (Request $request) => $request->query->add(['filter' => ['q' => 'group:'.implode(',', $group)]])
+            )
         );
     }
 

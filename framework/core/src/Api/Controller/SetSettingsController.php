@@ -9,16 +9,16 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Http\Controller\AbstractController;
 use Flarum\Http\RequestUtil;
 use Flarum\Settings\Event;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Http\Request;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 
-class SetSettingsController implements RequestHandlerInterface
+class SetSettingsController extends AbstractController
 {
     public function __construct(
         protected SettingsRepositoryInterface $settings,
@@ -26,11 +26,11 @@ class SetSettingsController implements RequestHandlerInterface
     ) {
     }
 
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function __invoke(Request $request): ResponseInterface
     {
         RequestUtil::getActor($request)->assertAdmin();
 
-        $settings = $request->getParsedBody();
+        $settings = $request->json()->all();
 
         $this->dispatcher->dispatch(new Event\Saving($settings));
 
@@ -42,6 +42,6 @@ class SetSettingsController implements RequestHandlerInterface
 
         $this->dispatcher->dispatch(new Event\Saved($settings));
 
-        return new EmptyResponse(204);
+        return new EmptyResponse();
     }
 }

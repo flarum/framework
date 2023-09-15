@@ -33,7 +33,7 @@ class PostTest extends TestCase
         $this->extend((new Extend\Post)->type(PostTestCustomPost::class));
 
         // Needed for extenders to be booted
-        $this->app();
+        $this->bootstrap();
 
         $this->assertArrayHasKey('customPost', Post::getModels());
     }

@@ -9,6 +9,7 @@
 
 namespace Flarum\Extend;
 
+use Flarum\Extend\Concerns\ExtendsRoutes;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Extension\Extension;
@@ -20,19 +21,17 @@ use Flarum\Frontend\Document;
 use Flarum\Frontend\Driver\TitleDriverInterface;
 use Flarum\Frontend\Frontend as ActualFrontend;
 use Flarum\Frontend\RecompileFrontendAssets;
-use Flarum\Http\RouteCollection;
-use Flarum\Http\RouteHandlerFactory;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
 use Illuminate\Contracts\Container\Container;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Http\Request;
 
 class Frontend implements ExtenderInterface
 {
+    use ExtendsRoutes;
+
     private array $css = [];
     private ?string $js = null;
-    private array $routes = [];
-    private array $removedRoutes = [];
     private array $content = [];
     private array $preloadArrs = [];
     private ?string $titleDriver = null;
@@ -91,11 +90,11 @@ class Frontend implements ExtenderInterface
      *
      * @param string $path: The path of the route.
      * @param string $name: The name of the route, must be unique.
-     * @param (callable(Document $document, ServerRequestInterface $request): void)|class-string|null $content
+     * @param (callable(Document $document, Request $request): void)|class-string|null $content
      *
      * The content can be a closure or an invokable class, and should accept:
      * - \Flarum\Frontend\Document $document
-     * - \Psr\Http\Message\ServerRequestInterface $request
+     * - \Illuminate\Http\Request $request
      *
      * The callable should return void.
      *
@@ -103,7 +102,9 @@ class Frontend implements ExtenderInterface
      */
     public function route(string $path, string $name, callable|string $content = null): self
     {
-        $this->routes[] = compact('path', 'name', 'content');
+        $method = 'GET';
+
+        $this->routes[] = compact('method', 'path', 'name', 'content');
 
         return $this;
     }
@@ -125,11 +126,11 @@ class Frontend implements ExtenderInterface
     /**
      * Modify the content of the frontend.
      *
-     * @param (callable(Document $document, ServerRequestInterface $request): void)|class-string|null $callback
+     * @param (callable(Document $document, Request $request): void)|class-string|null $callback
      *
      * The content can be a closure or an invokable class, and should accept:
      * - \Flarum\Frontend\Document $document
-     * - \Psr\Http\Message\ServerRequestInterface $request
+     * - \Illuminate\Http\Request $request
      *
      * The callable should return void.
      *
@@ -264,33 +265,6 @@ class Frontend implements ExtenderInterface
                 }
             );
         }
-    }
-
-    private function registerRoutes(Container $container): void
-    {
-        if (empty($this->routes) && empty($this->removedRoutes)) {
-            return;
-        }
-
-        $container->resolving(
-            "flarum.{$this->frontend}.routes",
-            function (RouteCollection $collection, Container $container) {
-                /** @var RouteHandlerFactory $factory */
-                $factory = $container->make(RouteHandlerFactory::class);
-
-                foreach ($this->removedRoutes as $routeName) {
-                    $collection->removeRoute($routeName);
-                }
-
-                foreach ($this->routes as $route) {
-                    $collection->get(
-                        $route['path'],
-                        $route['name'],
-                        $factory->toFrontend($this->frontend, $route['content'])
-                    );
-                }
-            }
-        );
     }
 
     private function registerContent(Container $container): void
