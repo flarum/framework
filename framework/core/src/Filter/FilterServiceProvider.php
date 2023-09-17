@@ -9,18 +9,18 @@
 
 namespace Flarum\Filter;
 
-use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Filter as DiscussionFilter;
+use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Group\Filter as GroupFilter;
 use Flarum\Group\Filter\GroupFilterer;
-use Flarum\Http\Filter as HttpFilter;
 use Flarum\Http\Filter\AccessTokenFilterer;
+use Flarum\Http\Filter as HttpFilter;
 use Flarum\Post\Filter as PostFilter;
 use Flarum\Post\Filter\PostFilterer;
-use Flarum\User\Filter\UserFilterer;
 use Flarum\User\Filter as UserFilter;
+use Flarum\User\Filter\UserFilterer;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
 
