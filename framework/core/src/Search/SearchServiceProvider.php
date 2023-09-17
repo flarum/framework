@@ -9,12 +9,10 @@
 
 namespace Flarum\Search;
 
-use Flarum\Discussion\Query as DiscussionQuery;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Discussion\Search\Gambit\FulltextGambit as DiscussionFulltextGambit;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
-use Flarum\User\Query as UserQuery;
 use Flarum\User\Search\Gambit\FulltextGambit as UserFulltextGambit;
 use Flarum\User\Search\UserSearcher;
 use Illuminate\Contracts\Container\Container;
@@ -33,16 +31,9 @@ class SearchServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.simple_search.gambits', function () {
             return [
-                DiscussionSearcher::class => [
-                    DiscussionQuery\AuthorFilterGambit::class,
-                    DiscussionQuery\CreatedFilterGambit::class,
-                    DiscussionQuery\HiddenFilterGambit::class,
-                    DiscussionQuery\UnreadFilterGambit::class,
-                ],
-                UserSearcher::class => [
-                    UserQuery\EmailFilterGambit::class,
-                    UserQuery\GroupFilterGambit::class,
-                ]
+                // @TODO searcher filters
+                DiscussionSearcher::class => [],
+                UserSearcher::class => []
             ];
         });
 

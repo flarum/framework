@@ -7,39 +7,19 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Discussion\Query;
+namespace Flarum\Discussion\Filter;
 
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
-use Flarum\Search\AbstractRegexGambit;
-use Flarum\Search\SearchState;
 use Flarum\User\User;
 use Illuminate\Database\Query\Builder;
 
-class UnreadFilterGambit extends AbstractRegexGambit implements FilterInterface
+class UnreadFilter implements FilterInterface
 {
-    /**
-     * @var \Flarum\Discussion\DiscussionRepository
-     */
-    protected $discussions;
-
-    /**
-     * @param \Flarum\Discussion\DiscussionRepository $discussions
-     */
-    public function __construct(DiscussionRepository $discussions)
-    {
-        $this->discussions = $discussions;
-    }
-
-    public function getGambitPattern(): string
-    {
-        return 'is:unread';
-    }
-
-    protected function conditions(SearchState $search, array $matches, bool $negate): void
-    {
-        $this->constrain($search->getQuery(), $search->getActor(), $negate);
+    public function __construct(
+        protected DiscussionRepository $discussions
+    ) {
     }
 
     public function getFilterKey(): string

@@ -7,30 +7,18 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\User\Query;
+namespace Flarum\User\Filter;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
 use Flarum\Filter\ValidateFilterTrait;
 use Flarum\Group\Group;
-use Flarum\Search\AbstractRegexGambit;
-use Flarum\Search\SearchState;
 use Flarum\User\User;
 use Illuminate\Database\Query\Builder;
 
-class GroupFilterGambit extends AbstractRegexGambit implements FilterInterface
+class GroupFilter implements FilterInterface
 {
     use ValidateFilterTrait;
-
-    public function getGambitPattern(): string
-    {
-        return 'group:(.+)';
-    }
-
-    protected function conditions(SearchState $search, array $matches, bool $negate): void
-    {
-        $this->constrain($search->getQuery(), $search->getActor(), $matches[1], $negate);
-    }
 
     public function getFilterKey(): string
     {

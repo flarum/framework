@@ -2,6 +2,7 @@ import app from '../common/app';
 import { FlarumRequestOptions } from './Application';
 import { fireDeprecationWarning } from './helpers/fireDebugWarning';
 import Model, { ModelData, SavedModelData } from './Model';
+import GambitManager from './GambitManager';
 
 export interface MetaInformation {
   [key: string]: any;
@@ -21,7 +22,7 @@ export interface ApiQueryParamsPlural {
     | {
         q: string;
       }
-    | Record<string, string>;
+    | Record<string, any>;
   page?: {
     near?: number;
     offset?: number;
@@ -84,6 +85,12 @@ export default class Store {
    * should be used to represent resources of that type.
    */
   models: Record<string, { new (): Model }>;
+
+  /**
+   * The gambit manager that will convert search query gambits
+   * into API filters.
+   */
+  gambits = new GambitManager();
 
   constructor(models: Record<string, { new (): Model }>) {
     this.models = models;
@@ -176,6 +183,10 @@ export default class Store {
       params = idOrParams;
     } else if (idOrParams) {
       url += '/' + idOrParams;
+    }
+
+    if ('filter' in params && params?.filter?.q) {
+      params.filter = this.gambits.apply(type, params.filter);
     }
 
     return app

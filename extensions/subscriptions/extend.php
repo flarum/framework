@@ -28,6 +28,9 @@ use Flarum\Subscriptions\Query\SubscriptionFilterGambit;
 use Flarum\User\User;
 
 return [
+    (new Extend\Frontend('admin'))
+        ->js(__DIR__.'/js/dist/admin.js'),
+
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
         ->css(__DIR__.'/less/forum.less')
