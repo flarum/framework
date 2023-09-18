@@ -58,7 +58,7 @@ class NotificationMailer
      * Retrives the email views from the blueprint, and enforces that both a
      * plain text and HTML view are provided.
      *
-     * @param MailableInterface $blueprint
+     * @param MailableInterface&BlueprintInterface $blueprint
      * @return array{
      *     text: string,
      *     html: string
