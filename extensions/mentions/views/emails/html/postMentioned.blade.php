@@ -2,7 +2,6 @@
 
 @section('notificationContent')
 {!! $formatter->convert($translator->trans('flarum-mentions.email.post_mentioned.html.body', [
-'{recipient_display_name}' => $user->display_name,
 '{replier_display_name}' => $blueprint->reply->user->display_name,
 '{post_number}' => $blueprint->post->number,
 '{title}' => $blueprint->post->discussion->title,
