@@ -12,7 +12,7 @@
 @endsection
 
 @section('footer')
-    <p>{!! $translator->trans('core.email.notification.footer.main_text', ['email' => $user->email, 'type' => $type, 'forumTitle' => '<a href="' . $url->to('forum')->base() . '">' . $settings->get('forum_title') . '</a>']) !!}</p>
-    <p>{!! $translator->trans('core.email.notification.footer.unsubscribe_text', ['unsubscribeLink' => $unsubscribeLink]) !!}</p>
-    <p>{!! $translator->trans('core.email.notification.footer.settings_text', ['settingsLink' => $settingsLink]) !!}</p>
+    <p>{!! $formatter->convert($translator->trans('core.email.notification.footer.main_text', ['email' => $user->email, 'type' => $type, 'forumUrl' => $url->to('forum')->base(), 'forumTitle' => $settings->get('forum_title')])) !!}</p>
+    <p>{!! $formatter->convert($translator->trans('core.email.notification.footer.unsubscribe_text', ['unsubscribeLink' => $unsubscribeLink])) !!}</p>
+    <p>{!! $formatter->convert($translator->trans('core.email.notification.footer.settings_text', ['settingsLink' => $settingsLink])) !!}</p>
 @endsection

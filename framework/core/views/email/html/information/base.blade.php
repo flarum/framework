@@ -12,5 +12,5 @@
 @endsection
 
 @section('footer')
-    <p>{!! $translator->trans('core.email.informational.footer', ['userEmail' => $userEmail, 'forumTitle' => '<a href="' . $url->to('forum')->base() . '">' . $settings->get('forum_title') . '</a>']) !!}</p>
+    <p>{!! $formatter->convert($translator->trans('core.email.informational.footer', ['userEmail' => $userEmail, 'forumUrl' => $url->to('forum')->base(), 'forumTitle' => $settings->get('forum_title')])) !!}</p>
 @endsection

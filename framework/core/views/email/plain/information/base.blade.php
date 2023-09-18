@@ -9,5 +9,5 @@
 @endsection
 
 @section('footer')
-{!! $translator->trans('core.email.informational.footer', ['userEmail' => $userEmail, 'forumTitle' => $forumTitle]) !!}
+{!! $translator->trans('core.email.informational.footer_plain', ['userEmail' => $userEmail, 'forumTitle' => $forumTitle]) !!}
 @endsection
