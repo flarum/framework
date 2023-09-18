@@ -64,7 +64,7 @@ class NotificationMailer
      *     html: string
      * }
      */
-    protected function getEmailViews(MailableInterface $blueprint): array
+    protected function getEmailViews(MailableInterface&BlueprintInterface $blueprint): array
     {
         $views = $blueprint->getEmailViews();
 
