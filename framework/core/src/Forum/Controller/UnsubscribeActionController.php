@@ -11,7 +11,6 @@ namespace Flarum\Forum\Controller;
 
 use Carbon\Carbon;
 use Flarum\Http\UrlGenerator;
-use Flarum\Notification\Command\UnsubscribeEmail;
 use Flarum\Notification\UnsubscribeToken;
 use Flarum\User\User;
 use Illuminate\Contracts\Bus\Dispatcher;
