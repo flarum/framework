@@ -4,7 +4,7 @@
 
 @section('content')
     <h2>{{ $translator->trans('core.views.unsubscribe_email.title') }}</h2>
-        <p>{!! $message !!}</p>
+        <p>{!! $formatter->convert($message) !!}</p>
         <p>{{ $translator->trans('core.views.unsubscribe_email.immediate_helptext') }}</p>
         
         <form action="{{ $url->to('forum')->route('notifications.unsubscribe.confirm') }}" method="post">
