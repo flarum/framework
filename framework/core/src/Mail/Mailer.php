@@ -9,7 +9,7 @@
 
 namespace Flarum\Mail;
 
-use Flarum\Foundation\Config;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Mail\Mailer as SymfonyMailer;
@@ -22,20 +22,20 @@ class Mailer extends SymfonyMailer
         Factory $views,
         TransportInterface $transport,
         Dispatcher $events = null,
-        protected Config $config
+        protected SettingsRepositoryInterface $settings
     ) {
         parent::__construct($name, $views, $transport, $events);
     }
 
     public function send($view, array $data = [], $callback = null)
     {
-        $emailType = $this->config['email_format'] ?? 'multipart';
+        $emailType = $this->settings->get('mail_format');
 
         switch ($emailType) {
             case 'html':
                 unset($view['text']);
                 break;
-            case 'text':
+            case 'plain':
                 unset($view['html']);
                 break;
                 // case 'multipart' is the default, where Flarum will send both HTML and text versions of emails, so that the recipient's email client can choose which one to display.

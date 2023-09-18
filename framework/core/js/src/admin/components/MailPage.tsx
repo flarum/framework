@@ -77,6 +77,17 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
         })}
         {this.buildSettingComponent({
           type: 'select',
+          setting: 'mail_format',
+          options: {
+            multipart: app.translator.trans('core.admin.email.format.multipart_option'),
+            plain: app.translator.trans('core.admin.email.format.plain_option'),
+            html: app.translator.trans('core.admin.email.format.html_option'),
+          },
+          label: app.translator.trans('core.admin.email.format_heading'),
+          help: app.translator.trans('core.admin.email.format_help'),
+        })}
+        {this.buildSettingComponent({
+          type: 'select',
           setting: 'mail_driver',
           options: Object.keys(this.driverFields!).reduce((memo, val) => ({ ...memo, [val]: val }), {}),
           label: app.translator.trans('core.admin.email.driver_heading'),
