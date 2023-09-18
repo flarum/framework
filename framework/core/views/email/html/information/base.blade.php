@@ -5,7 +5,7 @@
 @endsection
 
 @section('content')
-    <p>{!! $html->render($infoContent) !!}<p>
+    <p>{!! $formatter->convert($infoContent) !!}<p>
     <div class="content-preview">
         @yield('contentPreview')
     </div>

@@ -12,7 +12,6 @@ namespace Flarum\Forum;
 use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Formatter\Formatter;
-use Flarum\Formatter\HtmlRenderer;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
@@ -149,7 +148,7 @@ class ForumServiceProvider extends AbstractServiceProvider
         $view->share([
             'translator' => $container->make(TranslatorInterface::class),
             'settings' => $container->make(SettingsRepositoryInterface::class),
-            'html' => $container->make(HtmlRenderer::class)
+            'formatter' => $container->make(Formatter::class)
         ]);
 
         $events->listen(

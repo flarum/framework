@@ -1,7 +1,7 @@
 @extends('flarum.forum::email.html.notification.base')
 
 @section('notificationContent')
-{!! $html->render($translator->trans('flarum-mentions.email.post_mentioned.html.body', [
+{!! $formatter->convert($translator->trans('flarum-mentions.email.post_mentioned.html.body', [
 '{recipient_display_name}' => $user->display_name,
 '{replier_display_name}' => $blueprint->reply->user->display_name,
 '{post_number}' => $blueprint->post->number,
@@ -11,5 +11,5 @@
 @endsection
 
 @section('contentPreview')
-    {!! $html->render($blueprint->reply->content) !!}
+    {!! $blueprint->reply->formatContent() !!}
 @endsection
