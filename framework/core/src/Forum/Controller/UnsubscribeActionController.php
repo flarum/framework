@@ -35,11 +35,6 @@ class UnsubscribeActionController implements RequestHandlerInterface
         $token = Arr::get($parsedBody, 'token');
         $userId = Arr::get($parsedBody, 'userId');
 
-        // Perhaps we should use a command instead of all the logic being here. WIP...
-        // $this->bus->dispatch(
-        //     new UnsubscribeEmail($user, $token)
-        // );
-
         // Fetch the unsubscribe token record
         /** @var UnsubscribeToken|null $unsubscribeRecord */
         $unsubscribeRecord = UnsubscribeToken::where('user_id', $userId)
