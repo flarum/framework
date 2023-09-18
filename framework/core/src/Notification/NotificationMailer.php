@@ -11,6 +11,7 @@ namespace Flarum\Notification;
 
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\TranslatorInterface;
+use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Contracts\Mail\Mailer;
@@ -27,7 +28,7 @@ class NotificationMailer
     ) {
     }
 
-    public function send(MailableInterface $blueprint, User $user): void
+    public function send(MailableInterface&BlueprintInterface $blueprint, User $user): void
     {
         // Ensure that notifications are delivered to the user in their default language, if they've selected one.
         $this->translator->setLocale($user->getPreference('locale') ?? $this->settings->get('default_locale'));

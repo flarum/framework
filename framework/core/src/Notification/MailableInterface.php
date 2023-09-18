@@ -29,9 +29,4 @@ interface MailableInterface
      * Get the subject line for a notification email.
      */
     public function getEmailSubject(TranslatorInterface $translator): string;
-
-    /**
-     * Get the serialized type of this activity.
-     */
-    public static function getType(): string;
 }
