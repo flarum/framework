@@ -7,8 +7,9 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Foundation;
+namespace Flarum\Mail;
 
+use Flarum\Foundation\Config;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Mail\Mailer as SymfonyMailer;

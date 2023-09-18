@@ -11,7 +11,6 @@ namespace Flarum\Mail;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Config;
-use Flarum\Foundation\Mailer;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
