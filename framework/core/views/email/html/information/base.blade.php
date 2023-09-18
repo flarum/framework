@@ -5,7 +5,11 @@
 @endsection
 
 @section('content')
-    <p>{!! $formatter->convert($infoContent) !!}</p>
+    @if(isset($infoContent))
+        <p>{!! $formatter->convert($infoContent) !!}</p>
+    @else
+        @yield('informationContent')
+    @endif
     @hasSection('contentPreview')
         <div class="content-preview">
             @yield('contentPreview')

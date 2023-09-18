@@ -9,6 +9,7 @@
 
 namespace Flarum\Suspend\Notification;
 
+use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Flarum\Database\AbstractModel;
 use Flarum\Locale\TranslatorInterface;
@@ -35,7 +36,7 @@ class UserSuspendedBlueprint implements BlueprintInterface, MailableInterface
 
     public function getData(): CarbonInterface
     {
-        return $this->user->suspended_until;
+        return Carbon::now();
     }
 
     public static function getType(): string
