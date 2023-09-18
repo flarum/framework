@@ -9,13 +9,17 @@
 
 namespace Flarum\Foundation;
 
-use Illuminate\Contracts\Container\Container;
+use Flarum\Foundation\Concerns\InteractsWithLaravel;
+use Illuminate\Container\Container as IlluminateContainer;
+use Illuminate\Contracts\Foundation\Application as LaravelApplication;
 use Illuminate\Events\EventServiceProvider;
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 
-class Application
+class Application extends IlluminateContainer implements LaravelApplication
 {
+    use InteractsWithLaravel;
+
     /**
      * The Flarum version.
      *
@@ -34,7 +38,6 @@ class Application
     protected array $loadedProviders = [];
 
     public function __construct(
-        private readonly Container $container,
         protected Paths $paths
     ) {
         $this->registerBaseBindings();
@@ -44,19 +47,14 @@ class Application
 
     public function config(string $key, mixed $default = null): mixed
     {
-        $config = $this->container->make('flarum.config');
+        $config = $this->make('flarum.config');
 
         return $config[$key] ?? $default;
     }
 
-    public function inDebugMode(): bool
-    {
-        return $this->config('debug', true);
-    }
-
     public function url(string $path = null): string
     {
-        $config = $this->container->make('flarum.config');
+        $config = $this->make('flarum.config');
         $url = (string) $config->url();
 
         if ($path) {
@@ -68,31 +66,27 @@ class Application
 
     protected function registerBaseBindings(): void
     {
-        \Illuminate\Container\Container::setInstance($this->container);
+        IlluminateContainer::setInstance($this);
 
-        /**
-         * Needed for the laravel framework code.
-         * Use container inside flarum instead.
-         */
-        $this->container->instance('app', $this->container);
-        $this->container->alias('app', \Illuminate\Container\Container::class);
+        $this->instance('app', $this);
+        $this->alias('app', IlluminateContainer::class);
 
-        $this->container->instance('container', $this->container);
-        $this->container->alias('container', \Illuminate\Container\Container::class);
+        $this->instance('container', $this);
+        $this->alias('container', IlluminateContainer::class);
 
-        $this->container->instance('flarum', $this);
-        $this->container->alias('flarum', self::class);
+        $this->instance('flarum', $this);
+        $this->alias('flarum', self::class);
 
-        $this->container->instance('flarum.paths', $this->paths);
-        $this->container->alias('flarum.paths', Paths::class);
+        $this->instance('flarum.paths', $this->paths);
+        $this->alias('flarum.paths', Paths::class);
     }
 
     protected function registerBaseServiceProviders(): void
     {
-        $this->register(new EventServiceProvider($this->container));
+        $this->register(new EventServiceProvider($this));
     }
 
-    public function register(string|ServiceProvider $provider, array $options = [], bool $force = false): ServiceProvider
+    public function register($provider, $force = false): ServiceProvider
     {
         if (($registered = $this->getProvider($provider)) && ! $force) {
             return $registered;
@@ -102,17 +96,10 @@ class Application
         // application instance automatically for the developer. This is simply
         // a more convenient way of specifying your service provider classes.
         if (is_string($provider)) {
-            $provider = $this->resolveProviderClass($provider);
+            $provider = $this->resolveProvider($provider);
         }
 
         $provider->register();
-
-        // Once we have registered the service we will iterate through the options
-        // and set each of them on the application so they will be available on
-        // the actual loading of the service objects and for developer usage.
-        foreach ($options as $key => $value) {
-            $this[$key] = $value;
-        }
 
         $this->markAsRegistered($provider);
 
@@ -140,14 +127,14 @@ class Application
      *
      * @param class-string<ServiceProvider> $provider
      */
-    public function resolveProviderClass(string $provider): ServiceProvider
+    public function resolveProvider($provider): ServiceProvider
     {
-        return new $provider($this->container);
+        return new $provider($this);
     }
 
     protected function markAsRegistered(ServiceProvider $provider): void
     {
-        $this->container['events']->dispatch($class = get_class($provider), [$provider]);
+        $this['events']->dispatch($class = get_class($provider), [$provider]);
 
         $this->serviceProviders[] = $provider;
 
@@ -182,7 +169,7 @@ class Application
     protected function bootProvider(ServiceProvider $provider): mixed
     {
         if (method_exists($provider, 'boot')) {
-            return $this->container->call([$provider, 'boot']);
+            return $this->call([$provider, 'boot']);
         }
 
         return null;
@@ -232,7 +219,7 @@ class Application
 
         foreach ($aliases as $key => $aliasGroup) {
             foreach ($aliasGroup as $alias) {
-                $this->container->alias($key, $alias);
+                $this->alias($key, $alias);
             }
         }
     }
@@ -240,13 +227,5 @@ class Application
     public function version(): string
     {
         return static::VERSION;
-    }
-
-    public function terminating(): void
-    {
-    }
-
-    public function terminate(): void
-    {
     }
 }
