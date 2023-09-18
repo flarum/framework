@@ -5,10 +5,12 @@
 @endsection
 
 @section('content')
-    <p>{!! $formatter->convert($infoContent) !!}<p>
-    <div class="content-preview">
-        @yield('contentPreview')
-    </div>
+    <p>{!! $formatter->convert($infoContent) !!}</p>
+    @hasSection('contentPreview')
+        <div class="content-preview">
+            @yield('contentPreview')
+        </div>
+    @endif
 @endsection
 
 @section('footer')

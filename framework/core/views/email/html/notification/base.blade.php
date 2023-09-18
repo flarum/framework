@@ -6,9 +6,11 @@
 
 @section('content')
     @yield('notificationContent')
-    <div class="content-preview">
-        @yield('contentPreview')
-    </div>
+    @hasSection('contentPreview')
+        <div class="content-preview">
+            @yield('contentPreview')
+        </div>
+    @endif
 @endsection
 
 @section('footer')
