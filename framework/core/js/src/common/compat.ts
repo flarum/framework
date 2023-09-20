@@ -90,6 +90,7 @@ import isObject from './utils/isObject';
 import AlertManagerState from './states/AlertManagerState';
 import ModalManagerState from './states/ModalManagerState';
 import PageState from './states/PageState';
+import LabelValue from './components/LabelValue';
 
 export default {
   extenders,
@@ -167,6 +168,7 @@ export default {
   'components/TextEditorButton': TextEditorButton,
   'components/Tooltip': Tooltip,
   'components/EditUserModal': EditUserModal,
+  'components/LabelValue': LabelValue,
   Model: Model,
   Application: Application,
   'helpers/fullTime': fullTime,

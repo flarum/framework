@@ -75,6 +75,7 @@ import BasicEditorDriver from '../common/utils/BasicEditorDriver';
 import routes from './routes';
 import ForumApplication from './ForumApplication';
 import isSafariMobile from './utils/isSafariMobile';
+import AccessTokensList from './components/AccessTokensList';
 
 export default Object.assign(compat, {
   'utils/PostControls': PostControls,
@@ -150,6 +151,7 @@ export default Object.assign(compat, {
   'components/DiscussionListItem': DiscussionListItem,
   'components/LoadingPost': LoadingPost,
   'components/PostsUserPage': PostsUserPage,
+  'components/AccessTokensList': AccessTokensList,
   'resolvers/DiscussionPageResolver': DiscussionPageResolver,
   routes: routes,
   ForumApplication: ForumApplication,
