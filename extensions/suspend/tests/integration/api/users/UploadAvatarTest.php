@@ -96,7 +96,7 @@ class UploadAvatarTest extends TestCase
             $this->request('POST', "/api/users/$targetUserId/avatar", [
                 'authenticatedAs' => $authenticatedAs,
             ])->withHeader('Content-Type', 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW')->withUploadedFiles([
-                'avatar' => new UploadedFile(__DIR__ . '/../../../fixtures/avatar.png', 0, UPLOAD_ERR_OK, 'avatar.png', 'image/png')
+                'avatar' => new UploadedFile(__DIR__.'/../../../fixtures/avatar.png', 0, UPLOAD_ERR_OK, 'avatar.png', 'image/png')
             ])
         );
     }
