@@ -68,9 +68,7 @@ class UploadAvatarHandler
 
         $user = $this->users->findOrFail($command->userId);
 
-        if ($actor->id !== $user->id) {
-            $actor->assertCan('edit', $user);
-        }
+        $actor->assertCan('uploadAvatar', $user);
 
         $this->validator->assertValid(['avatar' => $command->file]);
 
