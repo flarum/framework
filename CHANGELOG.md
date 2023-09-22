@@ -1,5 +1,10 @@
 # Changelog
 
+## [v1.8.2](https://github.com/flarum/framework/compare/v1.8.1...v1.8.2)
+### Fixed
+* suspended users can abuse avatar upload [#3890]
+* missing compat exports [#3888]
+
 ## [v1.8.1](https://github.com/flarum/framework/compare/v1.8.0...v1.8.1)
 ### Fixed
 * recover temporary solution for html entities in browser title (e72541e35de4f71f9d870bbd9bb46ddf586bdf1d)
