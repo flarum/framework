@@ -21,7 +21,7 @@ use Flarum\Likes\Query\LikedByFilter;
 use Flarum\Likes\Query\LikedFilter;
 use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
-use Flarum\User\Filter\UserFilterer;
+use Flarum\User\Search\UserSearcher;
 use Flarum\User\User;
 
 return [
@@ -76,10 +76,10 @@ return [
         ->listen(PostWasUnliked::class, Listener\SendNotificationWhenPostIsUnliked::class)
         ->subscribe(Listener\SaveLikesToDatabase::class),
 
-    (new Extend\Filter(PostSearcher::class))
+    (new Extend\SimpleFlarumSearch(PostSearcher::class))
         ->addFilter(LikedByFilter::class),
 
-    (new Extend\Filter(UserFilterer::class))
+    (new Extend\SimpleFlarumSearch(UserSearcher::class))
         ->addFilter(LikedFilter::class),
 
     (new Extend\Settings())

@@ -11,7 +11,6 @@ use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
-use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Sticky\Event\DiscussionWasStickied;
@@ -54,10 +53,7 @@ return [
         ->listen(DiscussionWasStickied::class, [Listener\CreatePostWhenDiscussionIsStickied::class, 'whenDiscussionWasStickied'])
         ->listen(DiscussionWasUnstickied::class, [Listener\CreatePostWhenDiscussionIsStickied::class, 'whenDiscussionWasUnstickied']),
 
-    (new Extend\Filter(DiscussionFilterer::class))
-        ->addFilter(StickyFilter::class)
-        ->addFilterMutator(PinStickiedDiscussionsToTop::class),
-
     (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
-        ->addGambit(StickyFilter::class),
+        ->addFilter(StickyFilter::class)
+        ->addSearchMutator(PinStickiedDiscussionsToTop::class),
 ];

@@ -13,7 +13,6 @@ use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
-use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Flags\Api\Controller\ListFlagsController;
@@ -135,18 +134,15 @@ return [
         ->listen(DiscussionWasTagged::class, Listener\CreatePostWhenTagsAreChanged::class)
         ->subscribe(Listener\UpdateTagMetadata::class),
 
-    (new Extend\Filter(PostSearcher::class))
+    (new Extend\SimpleFlarumSearch(PostSearcher::class))
         ->addFilter(PostTagFilter::class),
 
-    (new Extend\Filter(DiscussionFilterer::class))
-        ->addFilter(TagFilter::class)
-        ->addFilterMutator(HideHiddenTagsFromAllDiscussionsPage::class),
-
     (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
-        ->addGambit(TagFilter::class),
+        ->addFilter(TagFilter::class)
+        ->addSearchMutator(HideHiddenTagsFromAllDiscussionsPage::class),
 
     (new Extend\SimpleFlarumSearch(TagSearcher::class))
-        ->setFullTextGambit(FullTextGambit::class),
+        ->setFullTextFilter(FullTextGambit::class),
 
     (new Extend\ModelUrl(Tag::class))
         ->addSlugDriver('default', Utf8SlugDriver::class),

@@ -57,9 +57,6 @@ return [
     (new Extend\Policy())
         ->modelPolicy(Discussion::class, Access\DiscussionPolicy::class),
 
-    (new Extend\Filter(DiscussionFilterer::class))
-        ->addFilter(LockedFilter::class),
-
     (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
-        ->addGambit(LockedFilter::class),
+        ->addFilter(LockedFilter::class),
 ];

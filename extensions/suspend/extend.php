@@ -20,7 +20,6 @@ use Flarum\Suspend\Notification\UserUnsuspendedBlueprint;
 use Flarum\Suspend\Query\SuspendedFilter;
 use Flarum\Suspend\RevokeAccessFromSuspendedUsers;
 use Flarum\User\Event\Saving;
-use Flarum\User\Filter\UserFilterer;
 use Flarum\User\Search\UserSearcher;
 use Flarum\User\User;
 
@@ -58,11 +57,8 @@ return [
     (new Extend\User())
         ->permissionGroups(RevokeAccessFromSuspendedUsers::class),
 
-    (new Extend\Filter(UserFilterer::class))
-        ->addFilter(SuspendedFilter::class),
-
     (new Extend\SimpleFlarumSearch(UserSearcher::class))
-        ->addGambit(SuspendedFilter::class),
+        ->addFilter(SuspendedFilter::class),
 
     (new Extend\View())
         ->namespace('flarum-suspend', __DIR__.'/views'),

@@ -96,7 +96,7 @@ class SimpleFlarumSearchTest extends TestCase
      */
     public function custom_full_text_gambit_has_effect_if_added()
     {
-        $this->extend((new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->setFullTextGambit(NoResultFullTextFilter::class));
+        $this->extend((new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->setFullTextFilter(NoResultFullTextFilter::class));
 
         $this->assertEquals('[]', json_encode($this->searchDiscussions('in text', 5)));
     }

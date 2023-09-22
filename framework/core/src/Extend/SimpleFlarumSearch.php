@@ -11,16 +11,16 @@ namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
 use Flarum\Query\QueryCriteria;
-use Flarum\Search\AbstractRegexGambit;
+use Flarum\Search\AbstractFulltextFilter;
 use Flarum\Search\AbstractSearcher;
-use Flarum\Search\GambitInterface;
+use Flarum\Search\FilterInterface;
 use Flarum\Search\SearchState;
 use Illuminate\Contracts\Container\Container;
 
 class SimpleFlarumSearch implements ExtenderInterface
 {
-    private ?string $fullTextGambit = null;
-    private array $gambits = [];
+    private ?string $fullTextFilter = null;
+    private array $filters = [];
     private array $searchMutators = [];
 
     /**
@@ -33,35 +33,35 @@ class SimpleFlarumSearch implements ExtenderInterface
     }
 
     /**
-     * Add a gambit to this searcher. Gambits are used to filter search queries.
+     * Add a filter to this searcher. Filters are used to filter search queries.
      *
-     * @param class-string<AbstractRegexGambit> $gambitClass: The ::class attribute of the gambit you are adding.
-     *                             This gambit must extend \Flarum\Search\AbstractRegexGambit
+     * @param class-string<FilterInterface> $filterClass: The ::class attribute of the filter you are adding.
+     *                             This filter must implement \Flarum\Search\FilterInterface
      * @return self
      */
-    public function addGambit(string $gambitClass): self
+    public function addFilter(string $filterClass): self
     {
-        $this->gambits[] = $gambitClass;
+        $this->filters[] = $filterClass;
 
         return $this;
     }
 
     /**
-     * Set the full text gambit for this searcher. The full text gambit actually executes the search.
+     * Set the full text filter for this searcher. The full text filter actually executes the search.
      *
-     * @param class-string<GambitInterface> $gambitClass: The ::class attribute of the full test gambit you are adding.
-     *                             This gambit must implement \Flarum\Search\GambitInterface
+     * @param class-string<AbstractFulltextFilter> $fulltextClass: The ::class attribute of the full test filter you are adding.
+     *                             This filter must implement \Flarum\Search\FilterInterface
      * @return self
      */
-    public function setFullTextGambit(string $gambitClass): self
+    public function setFullTextFilter(string $fulltextClass): self
     {
-        $this->fullTextGambit = $gambitClass;
+        $this->fullTextFilter = $fulltextClass;
 
         return $this;
     }
 
     /**
-     * Add a callback through which to run all search queries after gambits have been applied.
+     * Add a callback through which to run all search queries after filters have been applied.
      *
      * @param (callable(SearchState $search, QueryCriteria $criteria): void)|class-string $callback
      *
@@ -82,23 +82,26 @@ class SimpleFlarumSearch implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null): void
     {
-        if (! is_null($this->fullTextGambit)) {
-            $container->extend('flarum.simple_search.fulltext_gambits', function ($oldFulltextGambits) {
-                $oldFulltextGambits[$this->searcher] = $this->fullTextGambit;
+        if (! is_null($this->fullTextFilter)) {
+            $container->extend('flarum.simple_search.fulltext_filters', function (array $oldFulltextFilters) {
+                $oldFulltextFilters[$this->searcher] = $this->fullTextFilter;
 
-                return $oldFulltextGambits;
+                return $oldFulltextFilters;
             });
         }
 
-        $container->extend('flarum.simple_search.gambits', function ($oldGambits) {
-            foreach ($this->gambits as $gambit) {
-                $oldGambits[$this->searcher][] = $gambit;
+        $container->extend('flarum.simple_search.filters', function (array $oldFilters) {
+            // We need the key to be set, even if there are no filters, so that the searcher is registered.
+            $oldFilters[$this->searcher] = $oldFilters[$this->searcher] ?? [];
+
+            foreach ($this->filters as $filter) {
+                $oldFilters[$this->searcher][] = $filter;
             }
 
-            return $oldGambits;
+            return $oldFilters;
         });
 
-        $container->extend('flarum.simple_search.search_mutators', function ($oldMutators) {
+        $container->extend('flarum.simple_search.search_mutators', function (array $oldMutators) {
             foreach ($this->searchMutators as $mutator) {
                 $oldMutators[$this->searcher][] = $mutator;
             }

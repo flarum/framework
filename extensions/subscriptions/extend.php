@@ -12,7 +12,6 @@ use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
-use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Discussion\UserState;
 use Flarum\Extend;
@@ -70,12 +69,9 @@ return [
         ->listen(Deleted::class, Listener\DeleteNotificationWhenPostIsHiddenOrDeleted::class)
         ->listen(Posted::class, Listener\FollowAfterReply::class),
 
-    (new Extend\Filter(DiscussionFilterer::class))
-        ->addFilter(SubscriptionFilter::class)
-        ->addFilterMutator(HideIgnoredFromAllDiscussionsPage::class),
-
     (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
-        ->addGambit(SubscriptionFilter::class),
+        ->addFilter(SubscriptionFilter::class)
+        ->addSearchMutator(HideIgnoredFromAllDiscussionsPage::class),
 
     (new Extend\User())
         ->registerPreference('flarum-subscriptions.notify_for_all_posts', 'boolval', false),

@@ -115,7 +115,7 @@ return [
         ->listen(Hidden::class, Listener\UpdateMentionsMetadataWhenInvisible::class)
         ->listen(Deleted::class, Listener\UpdateMentionsMetadataWhenInvisible::class),
 
-    (new Extend\Filter(PostSearcher::class))
+    (new Extend\SimpleFlarumSearch(PostSearcher::class))
         ->addFilter(Filter\MentionedFilter::class)
         ->addFilter(Filter\MentionedPostFilter::class),
 
