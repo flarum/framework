@@ -25,4 +25,11 @@ class UserPolicy extends AbstractPolicy
             return $this->deny();
         }
     }
+
+    public function uploadAvatar(User $actor, User $user)
+    {
+        if ($actor->suspended_until && $actor->suspended_until->isFuture()) {
+            return $this->deny();
+        }
+    }
 }

@@ -39,4 +39,15 @@ class UserPolicy extends AbstractPolicy
             return $this->allow();
         }
     }
+
+    public function uploadAvatar(User $actor, User $user)
+    {
+        if ($actor->id === $user->id) {
+            return $this->allow();
+        }
+
+        if ($actor->id !== $user->id) {
+            return $actor->can('edit', $user);
+        }
+    }
 }
