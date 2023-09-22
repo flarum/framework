@@ -7,26 +7,14 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Discussion\Query;
+namespace Flarum\Discussion\Filter;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
-use Flarum\Search\AbstractRegexGambit;
-use Flarum\Search\SearchState;
 use Illuminate\Database\Query\Builder;
 
-class HiddenFilterGambit extends AbstractRegexGambit implements FilterInterface
+class HiddenFilter implements FilterInterface
 {
-    public function getGambitPattern(): string
-    {
-        return 'is:hidden';
-    }
-
-    protected function conditions(SearchState $search, array $matches, bool $negate): void
-    {
-        $this->constrain($search->getQuery(), $negate);
-    }
-
     public function getFilterKey(): string
     {
         return 'hidden';

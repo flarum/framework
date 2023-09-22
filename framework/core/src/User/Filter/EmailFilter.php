@@ -7,37 +7,16 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\User\Query;
+namespace Flarum\User\Filter;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
 use Flarum\Filter\ValidateFilterTrait;
-use Flarum\Search\AbstractRegexGambit;
-use Flarum\Search\SearchState;
 use Illuminate\Database\Query\Builder;
 
-class EmailFilterGambit extends AbstractRegexGambit implements FilterInterface
+class EmailFilter implements FilterInterface
 {
     use ValidateFilterTrait;
-
-    public function apply(SearchState $search, string $bit): bool
-    {
-        if (! $search->getActor()->hasPermission('user.edit')) {
-            return false;
-        }
-
-        return parent::apply($search, $bit);
-    }
-
-    public function getGambitPattern(): string
-    {
-        return 'email:(.+)';
-    }
-
-    protected function conditions(SearchState $search, array $matches, bool $negate): void
-    {
-        $this->constrain($search->getQuery(), $matches[1], $negate);
-    }
 
     public function getFilterKey(): string
     {
