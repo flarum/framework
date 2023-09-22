@@ -71,6 +71,7 @@ import BasicEditorDriver from '../common/utils/BasicEditorDriver';
 import routes from './routes';
 import ForumApplication from './ForumApplication';
 import isSafariMobile from './utils/isSafariMobile';
+import AccessTokensList from './components/AccessTokensList';
 declare const _default: {
     extenders: {
         Model: typeof import("../common/extenders/Model").default;
@@ -159,6 +160,7 @@ declare const _default: {
     'components/TextEditorButton': typeof import("../common/components/TextEditorButton").default;
     'components/Tooltip': typeof import("../common/components/Tooltip").default;
     'components/EditUserModal': typeof import("../common/components/EditUserModal").default;
+    'components/LabelValue': typeof import("../common/components/LabelValue").default;
     Model: typeof import("../common/Model").default;
     Application: typeof import("../common/Application").default;
     'helpers/fullTime': typeof import("../common/helpers/fullTime").default;
@@ -276,6 +278,7 @@ declare const _default: {
     'components/DiscussionListItem': typeof DiscussionListItem;
     'components/LoadingPost': typeof LoadingPost;
     'components/PostsUserPage': typeof PostsUserPage;
+    'components/AccessTokensList': typeof AccessTokensList;
     'resolvers/DiscussionPageResolver': typeof DiscussionPageResolver;
     routes: typeof routes;
     ForumApplication: typeof ForumApplication;

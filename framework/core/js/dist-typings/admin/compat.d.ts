@@ -122,6 +122,7 @@ declare const _default: {
     'components/TextEditorButton': typeof import("../common/components/TextEditorButton").default;
     'components/Tooltip': typeof import("../common/components/Tooltip").default;
     'components/EditUserModal': typeof import("../common/components/EditUserModal").default;
+    'components/LabelValue': typeof import("../common/components/LabelValue").default;
     Model: typeof import("../common/Model").default;
     Application: typeof import("../common/Application").default;
     'helpers/fullTime': typeof import("../common/helpers/fullTime").default;
