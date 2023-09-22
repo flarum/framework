@@ -20,8 +20,10 @@ abstract class AbstractSearcher
     use ApplyQueryParametersTrait;
 
     public function __construct(
-        protected GambitManager $gambits,
-        protected array $searchMutators
+        /** @var array<string, FilterInterface[]> */
+        protected FilterManager $filters,
+        /** @var array<callable> */
+        protected array $mutators
     ) {
     }
 
@@ -33,14 +35,15 @@ abstract class AbstractSearcher
 
         $query = $this->getQuery($actor);
 
-        $search = new SearchState($query->getQuery(), $actor);
+        $search = new SearchState($query->getQuery(), $actor, in_array('q', array_keys($criteria->filters), true));
 
-        $this->gambits->apply($search, $criteria->query['q']);
+        $this->filters->apply($search, $criteria->filters);
+
         $this->applySort($search, $criteria->sort, $criteria->sortIsDefault);
         $this->applyOffset($search, $offset);
         $this->applyLimit($search, $limit + 1);
 
-        foreach ($this->searchMutators as $mutator) {
+        foreach ($this->mutators as $mutator) {
             $mutator($search, $criteria);
         }
 

@@ -14,25 +14,22 @@ use Flarum\Query\AbstractQueryState;
 class SearchState extends AbstractQueryState
 {
     /**
-     * @var GambitInterface[]
+     * @var FilterInterface[]
      */
-    protected array $activeGambits = [];
+    protected array $activeFilters = [];
 
     /**
-     * Get a list of the gambits that are active in this search.
+     * Get a list of the filters that are active.
      *
-     * @return GambitInterface[]
+     * @return FilterInterface[]
      */
-    public function getActiveGambits(): array
+    public function getActiveFilters(): array
     {
-        return $this->activeGambits;
+        return $this->activeFilters;
     }
 
-    /**
-     * Add a gambit as being active in this search.
-     */
-    public function addActiveGambit(GambitInterface $gambit): void
+    public function addActiveFilter(FilterInterface $filter): void
     {
-        $this->activeGambits[] = $gambit;
+        $this->activeFilters[] = $filter;
     }
 }

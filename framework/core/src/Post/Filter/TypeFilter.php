@@ -9,9 +9,9 @@
 
 namespace Flarum\Post\Filter;
 
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
-use Flarum\Filter\ValidateFilterTrait;
+use Flarum\Search\FilterInterface;
+use Flarum\Search\SearchState;
+use Flarum\Search\ValidateFilterTrait;
 
 class TypeFilter implements FilterInterface
 {
@@ -22,10 +22,10 @@ class TypeFilter implements FilterInterface
         return 'type';
     }
 
-    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $type = $this->asString($filterValue);
+        $type = $this->asString($value);
 
-        $filterState->getQuery()->where('posts.type', $negate ? '!=' : '=', $type);
+        $state->getQuery()->where('posts.type', $negate ? '!=' : '=', $type);
     }
 }

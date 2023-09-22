@@ -9,9 +9,9 @@
 
 namespace Flarum\Post\Filter;
 
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
-use Flarum\Filter\ValidateFilterTrait;
+use Flarum\Search\FilterInterface;
+use Flarum\Search\SearchState;
+use Flarum\Search\ValidateFilterTrait;
 
 class DiscussionFilter implements FilterInterface
 {
@@ -22,10 +22,10 @@ class DiscussionFilter implements FilterInterface
         return 'discussion';
     }
 
-    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $discussionId = $this->asInt($filterValue);
+        $discussionId = $this->asInt($value);
 
-        $filterState->getQuery()->where('posts.discussion_id', $negate ? '!=' : '=', $discussionId);
+        $state->getQuery()->where('posts.discussion_id', $negate ? '!=' : '=', $discussionId);
     }
 }

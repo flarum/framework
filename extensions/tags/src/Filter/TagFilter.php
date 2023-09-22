@@ -9,10 +9,10 @@
 
 namespace Flarum\Tags\Filter;
 
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
-use Flarum\Filter\ValidateFilterTrait;
 use Flarum\Http\SlugManager;
+use Flarum\Search\FilterInterface;
+use Flarum\Search\SearchState;
+use Flarum\Search\ValidateFilterTrait;
 use Flarum\Tags\Tag;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -32,9 +32,9 @@ class TagFilter implements FilterInterface
         return 'tag';
     }
 
-    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $this->constrain($filterState->getQuery(), $filterValue, $negate, $filterState->getActor());
+        $this->constrain($state->getQuery(), $value, $negate, $state->getActor());
     }
 
     protected function constrain(Builder $query, string|array $rawSlugs, bool $negate, User $actor): void

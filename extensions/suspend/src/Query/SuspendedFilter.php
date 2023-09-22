@@ -10,8 +10,8 @@
 namespace Flarum\Suspend\Query;
 
 use Carbon\Carbon;
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
+use Flarum\Search\FilterInterface;
+use Flarum\Search\SearchState;
 use Flarum\User\Guest;
 use Flarum\User\UserRepository;
 use Illuminate\Database\Query\Builder;
@@ -28,13 +28,13 @@ class SuspendedFilter implements FilterInterface
         return 'suspended';
     }
 
-    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        if (! $filterState->getActor()->can('suspend', new Guest())) {
+        if (! $state->getActor()->can('suspend', new Guest())) {
             return;
         }
 
-        $this->constrain($filterState->getQuery(), $negate);
+        $this->constrain($state->getQuery(), $negate);
     }
 
     protected function constrain(Builder $query, bool $negate): void

@@ -9,11 +9,19 @@
 
 namespace Flarum\Search;
 
+use Flarum\Discussion\Filter as DiscussionFilter;
 use Flarum\Discussion\Search\DiscussionSearcher;
-use Flarum\Discussion\Search\Gambit\FulltextGambit as DiscussionFulltextGambit;
+use Flarum\Discussion\Search\Gambit\FulltextGambit as DiscussionFulltextFilter;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
-use Flarum\User\Search\Gambit\FulltextGambit as UserFulltextGambit;
+use Flarum\Group\Filter as GroupFilter;
+use Flarum\Group\Filter\GroupSearcher;
+use Flarum\Http\Filter as HttpFilter;
+use Flarum\Http\Filter\AccessTokenSearcher;
+use Flarum\Post\Filter as PostFilter;
+use Flarum\Post\Filter\PostSearcher;
+use Flarum\User\Filter as UserFilter;
+use Flarum\User\Search\Gambit\FulltextGambit as UserFulltextFilter;
 use Flarum\User\Search\UserSearcher;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
@@ -22,18 +30,38 @@ class SearchServiceProvider extends AbstractServiceProvider
 {
     public function register(): void
     {
-        $this->container->singleton('flarum.simple_search.fulltext_gambits', function () {
+        $this->container->singleton('flarum.simple_search.fulltext_filters', function () {
             return [
-                DiscussionSearcher::class => DiscussionFulltextGambit::class,
-                UserSearcher::class => UserFulltextGambit::class
+                DiscussionSearcher::class => DiscussionFulltextFilter::class,
+                UserSearcher::class => UserFulltextFilter::class
             ];
         });
 
-        $this->container->singleton('flarum.simple_search.gambits', function () {
+        $this->container->singleton('flarum.simple_search.filters', function () {
             return [
-                // @TODO searcher filters
-                DiscussionSearcher::class => [],
-                UserSearcher::class => []
+                AccessTokenSearcher::class => [
+                    HttpFilter\UserFilter::class,
+                ],
+                DiscussionSearcher::class => [
+                    DiscussionFilter\AuthorFilter::class,
+                    DiscussionFilter\CreatedFilter::class,
+                    DiscussionFilter\HiddenFilter::class,
+                    DiscussionFilter\UnreadFilter::class,
+                ],
+                UserSearcher::class => [
+                    UserFilter\EmailFilter::class,
+                    UserFilter\GroupFilter::class,
+                ],
+                GroupSearcher::class => [
+                    GroupFilter\HiddenFilter::class,
+                ],
+                PostSearcher::class => [
+                    PostFilter\AuthorFilter::class,
+                    PostFilter\DiscussionFilter::class,
+                    PostFilter\IdFilter::class,
+                    PostFilter\NumberFilter::class,
+                    PostFilter\TypeFilter::class
+                ],
             ];
         });
 
@@ -44,24 +72,28 @@ class SearchServiceProvider extends AbstractServiceProvider
 
     public function boot(Container $container): void
     {
-        $fullTextGambits = $container->make('flarum.simple_search.fulltext_gambits');
-
-        foreach ($fullTextGambits as $searcher => $fullTextGambitClass) {
+        foreach ($container->make('flarum.simple_search.filters') as $searcher => $filterClasses) {
             $container
                 ->when($searcher)
-                ->needs(GambitManager::class)
-                ->give(function () use ($container, $searcher, $fullTextGambitClass) {
-                    $gambitManager = new GambitManager($container->make($fullTextGambitClass));
-                    foreach (Arr::get($container->make('flarum.simple_search.gambits'), $searcher, []) as $gambit) {
-                        $gambitManager->add($container->make($gambit));
+                ->needs(FilterManager::class)
+                ->give(function () use ($container, $searcher) {
+                    $fulltext = $container->make('flarum.simple_search.fulltext_filters');
+                    $fulltextClass = $fulltext[$searcher] ?? null;
+
+                    $manager = new FilterManager(
+                        $fulltextClass ? $container->make($fulltextClass) : null
+                    );
+
+                    foreach (Arr::get($container->make('flarum.simple_search.filters'), $searcher, []) as $filter) {
+                        $manager->add($container->make($filter));
                     }
 
-                    return $gambitManager;
+                    return $manager;
                 });
 
             $container
                 ->when($searcher)
-                ->needs('$searchMutators')
+                ->needs('$mutators')
                 ->give(function () use ($container, $searcher) {
                     $searchMutators = Arr::get($container->make('flarum.simple_search.search_mutators'), $searcher, []);
 

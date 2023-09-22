@@ -9,9 +9,9 @@
 
 namespace Flarum\Post\Filter;
 
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
-use Flarum\Filter\ValidateFilterTrait;
+use Flarum\Search\FilterInterface;
+use Flarum\Search\SearchState;
+use Flarum\Search\ValidateFilterTrait;
 use Flarum\User\UserRepository;
 
 class AuthorFilter implements FilterInterface
@@ -28,12 +28,12 @@ class AuthorFilter implements FilterInterface
         return 'author';
     }
 
-    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $usernames = $this->asStringArray($filterValue);
+        $usernames = $this->asStringArray($value);
 
         $ids = $this->users->query()->whereIn('username', $usernames)->pluck('id');
 
-        $filterState->getQuery()->whereIn('posts.user_id', $ids, 'and', $negate);
+        $state->getQuery()->whereIn('posts.user_id', $ids, 'and', $negate);
     }
 }

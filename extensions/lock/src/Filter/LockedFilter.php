@@ -9,8 +9,8 @@
 
 namespace Flarum\Lock\Filter;
 
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
+use Flarum\Search\FilterInterface;
+use Flarum\Search\SearchState;
 use Illuminate\Database\Query\Builder;
 
 class LockedFilter implements FilterInterface
@@ -20,9 +20,9 @@ class LockedFilter implements FilterInterface
         return 'locked';
     }
 
-    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $this->constrain($filterState->getQuery(), $negate);
+        $this->constrain($state->getQuery(), $negate);
     }
 
     protected function constrain(Builder $query, bool $negate): void

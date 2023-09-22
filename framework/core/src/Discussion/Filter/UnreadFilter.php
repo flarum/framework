@@ -10,8 +10,8 @@
 namespace Flarum\Discussion\Filter;
 
 use Flarum\Discussion\DiscussionRepository;
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
+use Flarum\Search\FilterInterface;
+use Flarum\Search\SearchState;
 use Flarum\User\User;
 use Illuminate\Database\Query\Builder;
 
@@ -27,9 +27,9 @@ class UnreadFilter implements FilterInterface
         return 'unread';
     }
 
-    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $this->constrain($filterState->getQuery(), $filterState->getActor(), $negate);
+        $this->constrain($state->getQuery(), $state->getActor(), $negate);
     }
 
     protected function constrain(Builder $query, User $actor, bool $negate): void

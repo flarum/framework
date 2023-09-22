@@ -10,7 +10,7 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\AccessTokenSerializer;
-use Flarum\Http\Filter\AccessTokenFilterer;
+use Flarum\Http\Filter\AccessTokenSearcher;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Query\QueryCriteria;
@@ -23,7 +23,7 @@ class ListAccessTokensController extends AbstractListController
 
     public function __construct(
         protected UrlGenerator $url,
-        protected AccessTokenFilterer $filterer
+        protected AccessTokenSearcher $searcher
     ) {
     }
 
@@ -37,7 +37,7 @@ class ListAccessTokensController extends AbstractListController
         $limit = $this->extractLimit($request);
         $filter = $this->extractFilter($request);
 
-        $tokens = $this->filterer->filter(new QueryCriteria($actor, $filter), $limit, $offset);
+        $tokens = $this->searcher->search(new QueryCriteria($actor, $filter), $limit, $offset);
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('access-tokens.index'),

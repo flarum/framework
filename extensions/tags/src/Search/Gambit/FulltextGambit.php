@@ -9,12 +9,12 @@
 
 namespace Flarum\Tags\Search\Gambit;
 
-use Flarum\Search\GambitInterface;
+use Flarum\Search\AbstractFulltextFilter;
 use Flarum\Search\SearchState;
 use Flarum\Tags\TagRepository;
 use Illuminate\Database\Eloquent\Builder;
 
-class FulltextGambit implements GambitInterface
+class FulltextGambit extends AbstractFulltextFilter
 {
     public function __construct(
         protected TagRepository $tags
@@ -30,14 +30,12 @@ class FulltextGambit implements GambitInterface
             ->orWhere('slug', 'like', "$searchValue%");
     }
 
-    public function apply(SearchState $search, string $bit): bool
+    public function search(SearchState $state, string $query): void
     {
-        $search->getQuery()
+        $state->getQuery()
             ->whereIn(
                 'id',
-                $this->getTagSearchSubQuery($bit)
+                $this->getTagSearchSubQuery($query)
             );
-
-        return true;
     }
 }

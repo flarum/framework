@@ -62,11 +62,11 @@ class ListTest extends TestCase
             $request = $this->request('GET', '/api/access-tokens', compact('authenticatedAs'))
         );
 
-        $data = Arr::get(json_decode($response->getBody()->getContents(), true), 'data');
+        $data = Arr::get(json_decode($contents = $response->getBody()->getContents(), true), 'data');
 
         $testsTokenId = AccessToken::findValid($request->getAttribute('tests_token'))->id;
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $contents);
         $this->assertEqualsCanonicalizing(array_merge($canViewIds, [$testsTokenId]), Arr::pluck($data, 'id'));
     }
 
@@ -112,14 +112,14 @@ class ListTest extends TestCase
                 ])
         );
 
-        $data = Arr::get(json_decode($response->getBody()->getContents(), true), 'data');
+        $data = Arr::get(json_decode($contents = $response->getBody()->getContents(), true), 'data');
         $testsTokenId = AccessToken::findValid($request->getAttribute('tests_token'))->id;
 
         if ($authenticatedAs === $userId) {
             $canViewIds[] = $testsTokenId;
         }
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $contents);
         $this->assertEqualsCanonicalizing($canViewIds, Arr::pluck($data, 'id'));
     }
 

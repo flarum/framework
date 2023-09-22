@@ -9,9 +9,9 @@
 
 namespace Flarum\User\Filter;
 
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
-use Flarum\Filter\ValidateFilterTrait;
+use Flarum\Search\FilterInterface;
+use Flarum\Search\SearchState;
+use Flarum\Search\ValidateFilterTrait;
 use Illuminate\Database\Query\Builder;
 
 class EmailFilter implements FilterInterface
@@ -23,13 +23,13 @@ class EmailFilter implements FilterInterface
         return 'email';
     }
 
-    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        if (! $filterState->getActor()->hasPermission('user.edit')) {
+        if (! $state->getActor()->hasPermission('user.edit')) {
             return;
         }
 
-        $this->constrain($filterState->getQuery(), $filterValue, $negate);
+        $this->constrain($state->getQuery(), $value, $negate);
     }
 
     protected function constrain(Builder $query, string|array $rawEmail, bool $negate): void

@@ -9,10 +9,10 @@
 
 namespace Flarum\User\Filter;
 
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
-use Flarum\Filter\ValidateFilterTrait;
 use Flarum\Group\Group;
+use Flarum\Search\FilterInterface;
+use Flarum\Search\SearchState;
+use Flarum\Search\ValidateFilterTrait;
 use Flarum\User\User;
 use Illuminate\Database\Query\Builder;
 
@@ -25,9 +25,9 @@ class GroupFilter implements FilterInterface
         return 'group';
     }
 
-    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $this->constrain($filterState->getQuery(), $filterState->getActor(), $filterValue, $negate);
+        $this->constrain($state->getQuery(), $state->getActor(), $value, $negate);
     }
 
     protected function constrain(Builder $query, User $actor, string|array $rawQuery, bool $negate): void

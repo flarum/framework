@@ -9,19 +9,20 @@
 
 namespace Flarum\Post\Filter;
 
-use Flarum\Filter\AbstractFilterer;
 use Flarum\Post\PostRepository;
+use Flarum\Search\AbstractSearcher;
+use Flarum\Search\FilterManager;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
-class PostFilterer extends AbstractFilterer
+class PostSearcher extends AbstractSearcher
 {
     public function __construct(
         protected PostRepository $posts,
-        array $filters,
-        array $filterMutators
+        FilterManager $filters,
+        array $mutators
     ) {
-        parent::__construct($filters, $filterMutators);
+        parent::__construct($filters, $mutators);
     }
 
     protected function getQuery(User $actor): Builder

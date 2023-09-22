@@ -9,9 +9,9 @@
 
 namespace Flarum\Discussion\Filter;
 
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
-use Flarum\Filter\ValidateFilterTrait;
+use Flarum\Search\FilterInterface;
+use Flarum\Search\SearchState;
+use Flarum\Search\ValidateFilterTrait;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 
@@ -24,21 +24,16 @@ class CreatedFilter implements FilterInterface
         return 'created';
     }
 
-    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $filterValue = is_string($filterValue)
-            ? $this->asString($filterValue)
-            : $this->asStringArray($filterValue);
+        $value = $this->asString($value);
 
-        if (is_array($filterValue)) {
-            $from = Arr::get($filterValue, 'from');
-            $to = Arr::get($filterValue, 'to');
-        } else {
-            $from = $filterValue;
-            $to = null;
-        }
+        preg_match('/^(\d{4}-\d{2}-\d{2})(?:\.\.(\d{4}-\d{2}-\d{2}))?$/', $value, $matches);
 
-        $this->constrain($filterState->getQuery(), $from, $to, $negate);
+        $from = Arr::get($matches, 1);
+        $to = Arr::get($matches, 2);
+
+        $this->constrain($state->getQuery(), $from, $to, $negate);
     }
 
     public function constrain(Builder $query, ?string $from, ?string $to, bool $negate): void

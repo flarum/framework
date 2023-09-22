@@ -9,8 +9,8 @@
 
 namespace Flarum\Mentions\Filter;
 
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
+use Flarum\Search\FilterInterface;
+use Flarum\Search\SearchState;
 
 class MentionedPostFilter implements FilterInterface
 {
@@ -19,11 +19,11 @@ class MentionedPostFilter implements FilterInterface
         return 'mentionedPost';
     }
 
-    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $mentionedId = trim($filterValue, '"');
+        $mentionedId = trim($value, '"');
 
-        $filterState
+        $state
             ->getQuery()
             ->join('post_mentions_post', 'posts.id', '=', 'post_mentions_post.post_id')
             ->where('post_mentions_post.mentions_post_id', $negate ? '!=' : '=', $mentionedId);

@@ -9,9 +9,9 @@
 
 namespace Flarum\Subscriptions\Filter;
 
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
-use Flarum\Filter\ValidateFilterTrait;
+use Flarum\Search\FilterInterface;
+use Flarum\Search\SearchState;
+use Flarum\Search\ValidateFilterTrait;
 use Flarum\User\User;
 use Illuminate\Database\Query\Builder;
 
@@ -24,13 +24,13 @@ class SubscriptionFilter implements FilterInterface
         return 'subscription';
     }
 
-    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $filterValue = $this->asString($filterValue);
+        $value = $this->asString($value);
 
-        preg_match('/^(follow|ignor)(?:ing|ed)$/i', $filterValue, $matches);
+        preg_match('/^(follow|ignor)(?:ing|ed)$/i', $value, $matches);
 
-        $this->constrain($filterState->getQuery(), $filterState->getActor(), $matches[1], $negate);
+        $this->constrain($state->getQuery(), $state->getActor(), $matches[1], $negate);
     }
 
     protected function constrain(Builder $query, User $actor, string $subscriptionType, bool $negate): void

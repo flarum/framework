@@ -11,20 +11,20 @@ namespace Flarum\Discussion\Search\Gambit;
 
 use Flarum\Discussion\Discussion;
 use Flarum\Post\Post;
-use Flarum\Search\GambitInterface;
+use Flarum\Search\AbstractFulltextFilter;
 use Flarum\Search\SearchState;
 use Illuminate\Database\Query\Expression;
 
-class FulltextGambit implements GambitInterface
+class FulltextGambit extends AbstractFulltextFilter
 {
-    public function apply(SearchState $search, string $bit): bool
+    public function search(SearchState $state, string $query): void
     {
         // Replace all non-word characters with spaces.
         // We do this to prevent MySQL fulltext search boolean mode from taking
         // effect: https://dev.mysql.com/doc/refman/5.7/en/fulltext-boolean.html
-        $bit = preg_replace('/[^\p{L}\p{N}\p{M}_]+/u', ' ', $bit);
+        $bit = preg_replace('/[^\p{L}\p{N}\p{M}_]+/u', ' ', $query);
 
-        $query = $search->getQuery();
+        $query = $state->getQuery();
         $grammar = $query->getGrammar();
 
         $discussionSubquery = Discussion::select('id')
@@ -36,7 +36,7 @@ class FulltextGambit implements GambitInterface
         // posts. Retrieve the collective relevance of each discussion's posts,
         // which we will use later in the order by clause, and also retrieve
         // the ID of the most relevant post.
-        $subquery = Post::whereVisibleTo($search->getActor())
+        $subquery = Post::whereVisibleTo($state->getActor())
             ->select('posts.discussion_id')
             ->selectRaw('SUM(MATCH('.$grammar->wrap('posts.content').') AGAINST (?)) as score', [$bit])
             ->selectRaw('SUBSTRING_INDEX(GROUP_CONCAT('.$grammar->wrap('posts.id').' ORDER BY MATCH('.$grammar->wrap('posts.content').') AGAINST (?) DESC, '.$grammar->wrap('posts.number').'), \',\', 1) as most_relevant_post_id', [$bit])
@@ -58,11 +58,9 @@ class FulltextGambit implements GambitInterface
             ->groupBy('discussions.id')
             ->addBinding($subquery->getBindings(), 'join');
 
-        $search->setDefaultSort(function ($query) use ($grammar, $bit) {
+        $state->setDefaultSort(function ($query) use ($grammar, $bit) {
             $query->orderByRaw('MATCH('.$grammar->wrap('discussions.title').') AGAINST (?) desc', [$bit]);
             $query->orderBy('posts_ft.score', 'desc');
         });
-
-        return true;
     }
 }

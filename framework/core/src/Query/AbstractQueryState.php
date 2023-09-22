@@ -18,6 +18,8 @@ abstract class AbstractQueryState
     public function __construct(
         protected Builder $query,
         protected User $actor,
+        /** Whether this is a fulltext search or just filtering. */
+        protected bool $fulltextSearch,
         /**
          * An array of sort-order pairs, where the column
          *     is the key, and the order is the value. The order may be 'asc',
@@ -55,5 +57,10 @@ abstract class AbstractQueryState
     public function setDefaultSort(array|Closure $defaultSort): void
     {
         $this->defaultSort = $defaultSort;
+    }
+
+    public function isFulltextSearch(): bool
+    {
+        return $this->fulltextSearch;
     }
 }

@@ -9,19 +9,20 @@
 
 namespace Flarum\Group\Filter;
 
-use Flarum\Filter\AbstractFilterer;
 use Flarum\Group\GroupRepository;
+use Flarum\Search\AbstractSearcher;
+use Flarum\Search\FilterManager;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
-class GroupFilterer extends AbstractFilterer
+class GroupSearcher extends AbstractSearcher
 {
     public function __construct(
         protected GroupRepository $groups,
-        array $filters,
-        array $filterMutators
+        FilterManager $filters,
+        array $mutators
     ) {
-        parent::__construct($filters, $filterMutators);
+        parent::__construct($filters, $mutators);
     }
 
     protected function getQuery(User $actor): Builder

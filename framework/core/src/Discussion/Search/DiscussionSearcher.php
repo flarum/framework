@@ -11,7 +11,7 @@ namespace Flarum\Discussion\Search;
 
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Search\AbstractSearcher;
-use Flarum\Search\GambitManager;
+use Flarum\Search\FilterManager;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,11 +20,10 @@ class DiscussionSearcher extends AbstractSearcher
 {
     public function __construct(
         protected DiscussionRepository $discussions,
-        protected Dispatcher $events,
-        GambitManager $gambits,
-        array $searchMutators
+        FilterManager $filters,
+        array $mutators
     ) {
-        parent::__construct($gambits, $searchMutators);
+        parent::__construct($filters, $mutators);
     }
 
     protected function getQuery(User $actor): Builder

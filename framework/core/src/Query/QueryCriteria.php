@@ -20,7 +20,7 @@ class QueryCriteria
 {
     public function __construct(
         public User $actor,
-        public array $query,
+        public array $filters,
         /**
          * An array of sort-order pairs, where the column is the key, and the order
          * is the value. The order may be 'asc', 'desc', or an array of IDs to

@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Filter;
+namespace Flarum\Search;
 
 interface FilterInterface
 {
@@ -19,5 +19,5 @@ interface FilterInterface
     /**
      * Filters a query.
      */
-    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void;
+    public function filter(SearchState $state, string|array $value, bool $negate): void;
 }

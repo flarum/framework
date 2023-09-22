@@ -9,13 +9,13 @@
 
 namespace Flarum\User\Search\Gambit;
 
-use Flarum\Search\GambitInterface;
+use Flarum\Search\AbstractFulltextFilter;
 use Flarum\Search\SearchState;
 use Flarum\User\User;
 use Flarum\User\UserRepository;
 use Illuminate\Database\Eloquent\Builder;
 
-class FulltextGambit implements GambitInterface
+class FulltextGambit extends AbstractFulltextFilter
 {
     public function __construct(
         protected UserRepository $users
@@ -33,14 +33,12 @@ class FulltextGambit implements GambitInterface
             ->where('username', 'like', "$searchValue%");
     }
 
-    public function apply(SearchState $search, string $bit): bool
+    public function search(SearchState $state, string $query): void
     {
-        $search->getQuery()
+        $state->getQuery()
             ->whereIn(
                 'id',
-                $this->getUserSearchSubQuery($bit)
+                $this->getUserSearchSubQuery($query)
             );
-
-        return true;
     }
 }

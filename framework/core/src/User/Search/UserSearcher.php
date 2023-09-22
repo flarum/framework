@@ -10,7 +10,7 @@
 namespace Flarum\User\Search;
 
 use Flarum\Search\AbstractSearcher;
-use Flarum\Search\GambitManager;
+use Flarum\Search\FilterManager;
 use Flarum\User\User;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -20,11 +20,10 @@ class UserSearcher extends AbstractSearcher
 {
     public function __construct(
         protected UserRepository $users,
-        protected Dispatcher $events,
-        GambitManager $gambits,
-        array $searchMutators
+        FilterManager $filters,
+        array $mutators
     ) {
-        parent::__construct($gambits, $searchMutators);
+        parent::__construct($filters, $mutators);
     }
 
     protected function getQuery(User $actor): Builder

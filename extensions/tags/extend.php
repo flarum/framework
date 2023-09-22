@@ -18,7 +18,7 @@ use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Flags\Api\Controller\ListFlagsController;
 use Flarum\Http\RequestUtil;
-use Flarum\Post\Filter\PostFilterer;
+use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
 use Flarum\Tags\Access;
 use Flarum\Tags\Api\Controller;
@@ -135,7 +135,7 @@ return [
         ->listen(DiscussionWasTagged::class, Listener\CreatePostWhenTagsAreChanged::class)
         ->subscribe(Listener\UpdateTagMetadata::class),
 
-    (new Extend\Filter(PostFilterer::class))
+    (new Extend\Filter(PostSearcher::class))
         ->addFilter(PostTagFilter::class),
 
     (new Extend\Filter(DiscussionFilterer::class))
