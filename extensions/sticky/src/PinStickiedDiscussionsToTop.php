@@ -11,7 +11,7 @@ namespace Flarum\Sticky;
 
 use Flarum\Filter\FilterState;
 use Flarum\Query\QueryCriteria;
-use Flarum\Tags\Query\TagFilterGambit;
+use Flarum\Tags\Filter\TagFilter;
 
 class PinStickiedDiscussionsToTop
 {
@@ -25,7 +25,7 @@ class PinStickiedDiscussionsToTop
             $filters = $filterState->getActiveFilters();
 
             if ($count = count($filters)) {
-                if ($count === 1 && $filters[0] instanceof TagFilterGambit) {
+                if ($count === 1 && $filters[0] instanceof TagFilter) {
                     if (! is_array($query->orders)) {
                         $query->orders = [];
                     }

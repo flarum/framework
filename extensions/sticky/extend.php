@@ -20,7 +20,7 @@ use Flarum\Sticky\Listener;
 use Flarum\Sticky\Listener\SaveStickyToDatabase;
 use Flarum\Sticky\PinStickiedDiscussionsToTop;
 use Flarum\Sticky\Post\DiscussionStickiedPost;
-use Flarum\Sticky\Query\StickyFilterGambit;
+use Flarum\Sticky\Query\StickyFilter;
 
 return [
     (new Extend\Frontend('forum'))
@@ -55,9 +55,9 @@ return [
         ->listen(DiscussionWasUnstickied::class, [Listener\CreatePostWhenDiscussionIsStickied::class, 'whenDiscussionWasUnstickied']),
 
     (new Extend\Filter(DiscussionFilterer::class))
-        ->addFilter(StickyFilterGambit::class)
+        ->addFilter(StickyFilter::class)
         ->addFilterMutator(PinStickiedDiscussionsToTop::class),
 
     (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
-        ->addGambit(StickyFilterGambit::class),
+        ->addGambit(StickyFilter::class),
 ];

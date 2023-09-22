@@ -7,26 +7,14 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Lock\Query;
+namespace Flarum\Lock\Filter;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
-use Flarum\Search\AbstractRegexGambit;
-use Flarum\Search\SearchState;
 use Illuminate\Database\Query\Builder;
 
-class LockedFilterGambit extends AbstractRegexGambit implements FilterInterface
+class LockedFilter implements FilterInterface
 {
-    protected function getGambitPattern(): string
-    {
-        return 'is:locked';
-    }
-
-    protected function conditions(SearchState $search, array $matches, bool $negate): void
-    {
-        $this->constrain($search->getQuery(), $negate);
-    }
-
     public function getFilterKey(): string
     {
         return 'locked';

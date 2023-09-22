@@ -12,36 +12,15 @@ namespace Flarum\Suspend\Query;
 use Carbon\Carbon;
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
-use Flarum\Search\AbstractRegexGambit;
-use Flarum\Search\SearchState;
 use Flarum\User\Guest;
 use Flarum\User\UserRepository;
 use Illuminate\Database\Query\Builder;
 
-class SuspendedFilterGambit extends AbstractRegexGambit implements FilterInterface
+class SuspendedFilter implements FilterInterface
 {
     public function __construct(
         protected UserRepository $users
     ) {
-    }
-
-    protected function getGambitPattern(): string
-    {
-        return 'is:suspended';
-    }
-
-    public function apply(SearchState $search, string $bit): bool
-    {
-        if (! $search->getActor()->can('suspend', new Guest())) {
-            return false;
-        }
-
-        return parent::apply($search, $bit);
-    }
-
-    protected function conditions(SearchState $search, array $matches, bool $negate): void
-    {
-        $this->constrain($search->getQuery(), $negate);
     }
 
     public function getFilterKey(): string

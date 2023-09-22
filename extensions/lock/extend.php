@@ -20,7 +20,7 @@ use Flarum\Lock\Event\DiscussionWasUnlocked;
 use Flarum\Lock\Listener;
 use Flarum\Lock\Notification\DiscussionLockedBlueprint;
 use Flarum\Lock\Post\DiscussionLockedPost;
-use Flarum\Lock\Query\LockedFilterGambit;
+use Flarum\Lock\Filter\LockedFilter;
 
 return [
     (new Extend\Frontend('forum'))
@@ -58,8 +58,8 @@ return [
         ->modelPolicy(Discussion::class, Access\DiscussionPolicy::class),
 
     (new Extend\Filter(DiscussionFilterer::class))
-        ->addFilter(LockedFilterGambit::class),
+        ->addFilter(LockedFilter::class),
 
     (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
-        ->addGambit(LockedFilterGambit::class),
+        ->addGambit(LockedFilter::class),
 ];

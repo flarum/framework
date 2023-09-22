@@ -7,29 +7,17 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Subscriptions\Query;
+namespace Flarum\Subscriptions\Filter;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
 use Flarum\Filter\ValidateFilterTrait;
-use Flarum\Search\AbstractRegexGambit;
-use Flarum\Search\SearchState;
 use Flarum\User\User;
 use Illuminate\Database\Query\Builder;
 
-class SubscriptionFilterGambit extends AbstractRegexGambit implements FilterInterface
+class SubscriptionFilter implements FilterInterface
 {
     use ValidateFilterTrait;
-
-    protected function getGambitPattern(): string
-    {
-        return 'is:(follow|ignor)(?:ing|ed)';
-    }
-
-    protected function conditions(SearchState $search, array $matches, bool $negate): void
-    {
-        $this->constrain($search->getQuery(), $search->getActor(), $matches[1], $negate);
-    }
 
     public function getFilterKey(): string
     {
@@ -40,7 +28,7 @@ class SubscriptionFilterGambit extends AbstractRegexGambit implements FilterInte
     {
         $filterValue = $this->asString($filterValue);
 
-        preg_match('/^'.$this->getGambitPattern().'$/i', 'is:'.$filterValue, $matches);
+        preg_match('/^(follow|ignor)(?:ing|ed)$/i', $filterValue, $matches);
 
         $this->constrain($filterState->getQuery(), $filterState->getActor(), $matches[1], $negate);
     }

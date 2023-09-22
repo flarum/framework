@@ -30,7 +30,7 @@ use Flarum\Tags\Filter\PostTagFilter;
 use Flarum\Tags\Listener;
 use Flarum\Tags\LoadForumTagsRelationship;
 use Flarum\Tags\Post\DiscussionTaggedPost;
-use Flarum\Tags\Query\TagFilterGambit;
+use Flarum\Tags\Filter\TagFilter;
 use Flarum\Tags\Search\Gambit\FulltextGambit;
 use Flarum\Tags\Search\TagSearcher;
 use Flarum\Tags\Tag;
@@ -139,11 +139,11 @@ return [
         ->addFilter(PostTagFilter::class),
 
     (new Extend\Filter(DiscussionFilterer::class))
-        ->addFilter(TagFilterGambit::class)
+        ->addFilter(TagFilter::class)
         ->addFilterMutator(HideHiddenTagsFromAllDiscussionsPage::class),
 
     (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
-        ->addGambit(TagFilterGambit::class),
+        ->addGambit(TagFilter::class),
 
     (new Extend\SimpleFlarumSearch(TagSearcher::class))
         ->setFullTextGambit(FullTextGambit::class),

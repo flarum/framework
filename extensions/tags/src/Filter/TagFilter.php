@@ -7,36 +7,24 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Query;
+namespace Flarum\Tags\Filter;
 
 use Flarum\Filter\FilterInterface;
 use Flarum\Filter\FilterState;
 use Flarum\Filter\ValidateFilterTrait;
 use Flarum\Http\SlugManager;
-use Flarum\Search\AbstractRegexGambit;
-use Flarum\Search\SearchState;
 use Flarum\Tags\Tag;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Query\Builder;
 
-class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
+class TagFilter implements FilterInterface
 {
     use ValidateFilterTrait;
 
     public function __construct(
         protected SlugManager $slugger
     ) {
-    }
-
-    protected function getGambitPattern(): string
-    {
-        return 'tag:(.+)';
-    }
-
-    protected function conditions(SearchState $search, array $matches, bool $negate): void
-    {
-        $this->constrain($search->getQuery(), $matches[1], $negate, $search->getActor());
     }
 
     public function getFilterKey(): string

@@ -24,7 +24,7 @@ use Flarum\Subscriptions\HideIgnoredFromAllDiscussionsPage;
 use Flarum\Subscriptions\Listener;
 use Flarum\Subscriptions\Notification\FilterVisiblePostsBeforeSending;
 use Flarum\Subscriptions\Notification\NewPostBlueprint;
-use Flarum\Subscriptions\Query\SubscriptionFilterGambit;
+use Flarum\Subscriptions\Filter\SubscriptionFilter;
 use Flarum\User\User;
 
 return [
@@ -71,11 +71,11 @@ return [
         ->listen(Posted::class, Listener\FollowAfterReply::class),
 
     (new Extend\Filter(DiscussionFilterer::class))
-        ->addFilter(SubscriptionFilterGambit::class)
+        ->addFilter(SubscriptionFilter::class)
         ->addFilterMutator(HideIgnoredFromAllDiscussionsPage::class),
 
     (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
-        ->addGambit(SubscriptionFilterGambit::class),
+        ->addGambit(SubscriptionFilter::class),
 
     (new Extend\User())
         ->registerPreference('flarum-subscriptions.notify_for_all_posts', 'boolval', false),
