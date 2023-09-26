@@ -58,6 +58,7 @@ class WriteSettings implements Step
             'forum_title' => 'A new Flarum forum',
             'forum_description' => '',
             'mail_driver' => 'mail',
+            'mail_format' => 'multipart',
             'mail_from' => 'noreply@localhost',
             'slug_driver_Flarum\User\User' => 'default',
             'theme_colored_header' => '0',
