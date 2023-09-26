@@ -9,8 +9,8 @@
 
 namespace Flarum\Search;
 
-use Flarum\Discussion\Search\Filter as DiscussionFilter;
 use Flarum\Discussion\Search\DiscussionSearcher;
+use Flarum\Discussion\Search\Filter as DiscussionFilter;
 use Flarum\Discussion\Search\FulltextFilter as DiscussionFulltextFilter;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
