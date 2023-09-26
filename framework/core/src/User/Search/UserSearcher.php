@@ -17,16 +17,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class UserSearcher extends AbstractSearcher
 {
-    public function __construct(
-        protected UserRepository $users,
-        FilterManager $filters,
-        array $mutators
-    ) {
-        parent::__construct($filters, $mutators);
-    }
-
     protected function getQuery(User $actor): Builder
     {
-        return $this->users->query()->whereVisibleTo($actor);
+        return User::whereVisibleTo($actor)->select('users.*');
     }
 }

@@ -16,7 +16,6 @@ use Illuminate\Support\Str;
 abstract class AbstractSearcher
 {
     public function __construct(
-        /** @var array<string, FilterInterface[]> */
         protected FilterManager $filters,
         /** @var array<callable> */
         protected array $mutators

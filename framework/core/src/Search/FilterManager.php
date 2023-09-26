@@ -11,8 +11,9 @@ namespace Flarum\Search;
 
 class FilterManager
 {
+
     /**
-     * @var FilterInterface[][]
+     * @var array<string, FilterInterface[]>
      */
     protected array $filters = [];
 
