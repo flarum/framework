@@ -13,7 +13,6 @@ use Flarum\Discussion\DiscussionRepository;
 use Flarum\Search\AbstractSearcher;
 use Flarum\Search\FilterManager;
 use Flarum\User\User;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
 
 class DiscussionSearcher extends AbstractSearcher

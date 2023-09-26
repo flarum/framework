@@ -19,11 +19,11 @@ use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
+use Flarum\Subscriptions\Filter\SubscriptionFilter;
 use Flarum\Subscriptions\HideIgnoredFromAllDiscussionsPage;
 use Flarum\Subscriptions\Listener;
 use Flarum\Subscriptions\Notification\FilterVisiblePostsBeforeSending;
 use Flarum\Subscriptions\Notification\NewPostBlueprint;
-use Flarum\Subscriptions\Filter\SubscriptionFilter;
 use Flarum\User\User;
 
 return [

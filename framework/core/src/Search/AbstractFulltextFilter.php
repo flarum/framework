@@ -1,8 +1,13 @@
 <?php
 
-namespace Flarum\Search;
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
 
-use Flarum\Search\FilterInterface;
+namespace Flarum\Search;
 
 abstract class AbstractFulltextFilter implements FilterInterface
 {
