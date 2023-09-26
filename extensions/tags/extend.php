@@ -24,13 +24,13 @@ use Flarum\Tags\Api\Controller;
 use Flarum\Tags\Api\Serializer\TagSerializer;
 use Flarum\Tags\Content;
 use Flarum\Tags\Event\DiscussionWasTagged;
-use Flarum\Tags\Filter\HideHiddenTagsFromAllDiscussionsPage;
-use Flarum\Tags\Filter\PostTagFilter;
-use Flarum\Tags\Filter\TagFilter;
 use Flarum\Tags\Listener;
 use Flarum\Tags\LoadForumTagsRelationship;
 use Flarum\Tags\Post\DiscussionTaggedPost;
-use Flarum\Tags\Search\Gambit\FulltextGambit;
+use Flarum\Tags\Search\Filter\PostTagFilter;
+use Flarum\Tags\Search\Filter\TagFilter;
+use Flarum\Tags\Search\FulltextFilter;
+use Flarum\Tags\Search\HideHiddenTagsFromAllDiscussionsPage;
 use Flarum\Tags\Search\TagSearcher;
 use Flarum\Tags\Tag;
 use Flarum\Tags\Utf8SlugDriver;
@@ -142,7 +142,7 @@ return [
         ->addSearchMutator(HideHiddenTagsFromAllDiscussionsPage::class),
 
     (new Extend\SimpleFlarumSearch(TagSearcher::class))
-        ->setFullTextFilter(FullTextGambit::class),
+        ->setFullTextFilter(FulltextFilter::class),
 
     (new Extend\ModelUrl(Tag::class))
         ->addSlugDriver('default', Utf8SlugDriver::class),

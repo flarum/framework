@@ -11,7 +11,7 @@ namespace Flarum\Sticky;
 
 use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchState;
-use Flarum\Tags\Filter\TagFilter;
+use Flarum\Tags\Search\Filter\TagFilter;
 
 class PinStickiedDiscussionsToTop
 {

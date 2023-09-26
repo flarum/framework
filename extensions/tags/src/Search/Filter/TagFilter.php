@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Filter;
+namespace Flarum\Tags\Search\Filter;
 
 use Flarum\Http\SlugManager;
 use Flarum\Search\FilterInterface;

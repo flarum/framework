@@ -14,7 +14,7 @@ use Flarum\Search\SearchState;
 use Flarum\User\UserRepository;
 use Illuminate\Database\Eloquent\Builder;
 
-class NicknameFullTextGambit extends AbstractFulltextFilter
+class NicknameFullTextFilter extends AbstractFulltextFilter
 {
     public function __construct(
         protected UserRepository $users
