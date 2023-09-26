@@ -12,4 +12,12 @@ export default class EmailGambit implements IGambit {
       [key]: matches[1],
     };
   }
+
+  filterKey(): string {
+    return 'email';
+  }
+
+  fromFilter(value: string, negate: boolean): string {
+    return `${negate ? '-' : ''}email:${value}`;
+  }
 }

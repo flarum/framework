@@ -12,4 +12,12 @@ export default class HiddenGambit implements IGambit {
       [key]: true,
     };
   }
+
+  filterKey(): string {
+    return 'hidden';
+  }
+
+  fromFilter(value: string, negate: boolean): string {
+    return `${negate ? '-' : ''}is:hidden`;
+  }
 }

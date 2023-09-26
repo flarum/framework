@@ -12,4 +12,12 @@ export default class GroupGambit implements IGambit {
       [key]: matches[1].split(','),
     };
   }
+
+  filterKey(): string {
+    return 'group';
+  }
+
+  fromFilter(value: string, negate: boolean): string {
+    return `${negate ? '-' : ''}group:${value}`;
+  }
 }

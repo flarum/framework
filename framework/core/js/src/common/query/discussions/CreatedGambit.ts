@@ -12,4 +12,12 @@ export default class CreatedGambit implements IGambit {
       [key]: matches[1],
     };
   }
+
+  filterKey(): string {
+    return 'created';
+  }
+
+  fromFilter(value: string, negate: boolean): string {
+    return `${negate ? '-' : ''}created:${value}`;
+  }
 }

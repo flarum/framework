@@ -12,4 +12,12 @@ export default class AuthorGambit implements IGambit {
       [key]: matches[1].split(','),
     };
   }
+
+  filterKey(): string {
+    return 'author';
+  }
+
+  fromFilter(value: string, negate: boolean): string {
+    return `${negate ? '-' : ''}author:${value}`;
+  }
 }
