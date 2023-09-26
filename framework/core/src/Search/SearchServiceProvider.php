@@ -9,18 +9,16 @@
 
 namespace Flarum\Search;
 
-use Flarum\Discussion\Filter as DiscussionFilter;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Discussion\Search\FulltextFilter as DiscussionFulltextFilter;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Group\Filter as GroupFilter;
 use Flarum\Group\Filter\GroupSearcher;
-use Flarum\Http\Filter as HttpFilter;
 use Flarum\Http\Filter\AccessTokenSearcher;
+use Flarum\Http\Filter as HttpFilter;
 use Flarum\Post\Filter as PostFilter;
 use Flarum\Post\Filter\PostSearcher;
-use Flarum\User\Filter as UserFilter;
 use Flarum\User\Search\FulltextFilter as UserFulltextFilter;
 use Flarum\User\Search\UserSearcher;
 use Illuminate\Contracts\Container\Container;
