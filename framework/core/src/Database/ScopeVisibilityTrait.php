@@ -13,6 +13,9 @@ use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 
+/**
+ * @method static Builder whereVisibleTo(User $user)
+ */
 trait ScopeVisibilityTrait
 {
     /**

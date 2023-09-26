@@ -7,25 +7,26 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Post\Filter;
+namespace Flarum\Lock\Filter;
 
 use Flarum\Search\FilterInterface;
 use Flarum\Search\SearchState;
-use Flarum\Search\ValidateFilterTrait;
+use Illuminate\Database\Query\Builder;
 
-class IdFilter implements FilterInterface
+class LockedFilter implements FilterInterface
 {
-    use ValidateFilterTrait;
-
     public function getFilterKey(): string
     {
-        return 'id';
+        return 'locked';
     }
 
     public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $ids = $this->asIntArray($value);
+        $this->constrain($state->getQuery(), $negate);
+    }
 
-        $state->getQuery()->whereIn('posts.id', $ids, 'and', $negate);
+    protected function constrain(Builder $query, bool $negate): void
+    {
+        $query->where('is_locked', ! $negate);
     }
 }

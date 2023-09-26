@@ -7,11 +7,11 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Query;
+namespace Flarum\Search;
 
 use Illuminate\Database\Eloquent\Collection;
 
-class QueryResults
+class SearchResults
 {
     public function __construct(
         protected Collection $results,

@@ -11,16 +11,15 @@ use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
-use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Lock\Access;
 use Flarum\Lock\Event\DiscussionWasLocked;
 use Flarum\Lock\Event\DiscussionWasUnlocked;
+use Flarum\Lock\Filter\LockedFilter;
 use Flarum\Lock\Listener;
 use Flarum\Lock\Notification\DiscussionLockedBlueprint;
 use Flarum\Lock\Post\DiscussionLockedPost;
-use Flarum\Lock\Query\LockedFilterGambit;
 
 return [
     (new Extend\Frontend('forum'))
@@ -57,9 +56,6 @@ return [
     (new Extend\Policy())
         ->modelPolicy(Discussion::class, Access\DiscussionPolicy::class),
 
-    (new Extend\Filter(DiscussionFilterer::class))
-        ->addFilter(LockedFilterGambit::class),
-
     (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
-        ->addGambit(LockedFilterGambit::class),
+        ->addFilter(LockedFilter::class),
 ];

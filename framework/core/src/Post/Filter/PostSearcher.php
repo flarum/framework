@@ -7,17 +7,17 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Discussion\Search;
+namespace Flarum\Post\Filter;
 
-use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
 use Flarum\Search\AbstractSearcher;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
-class DiscussionSearcher extends AbstractSearcher
+class PostSearcher extends AbstractSearcher
 {
     protected function getQuery(User $actor): Builder
     {
-        return Discussion::whereVisibleTo($actor)->select('discussions.*');
+        return Post::whereVisibleTo($actor)->select('posts.*');
     }
 }

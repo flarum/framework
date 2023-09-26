@@ -9,23 +9,23 @@
 
 namespace Flarum\Sticky;
 
-use Flarum\Filter\FilterState;
-use Flarum\Query\QueryCriteria;
-use Flarum\Tags\Query\TagFilterGambit;
+use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearchState;
+use Flarum\Tags\Filter\TagFilter;
 
 class PinStickiedDiscussionsToTop
 {
-    public function __invoke(FilterState $filterState, QueryCriteria $criteria): void
+    public function __invoke(SearchState $state, SearchCriteria $criteria): void
     {
-        if ($criteria->sortIsDefault) {
-            $query = $filterState->getQuery();
+        if ($criteria->sortIsDefault && ! $state->isFulltextSearch()) {
+            $query = $state->getQuery();
 
             // If we are viewing a specific tag, then pin all stickied
             // discussions to the top no matter what.
-            $filters = $filterState->getActiveFilters();
+            $filters = $state->getActiveFilters();
 
             if ($count = count($filters)) {
-                if ($count === 1 && $filters[0] instanceof TagFilterGambit) {
+                if ($count === 1 && $filters[0] instanceof TagFilter) {
                     if (! is_array($query->orders)) {
                         $query->orders = [];
                     }
@@ -51,14 +51,14 @@ class PinStickiedDiscussionsToTop
                 ->selectRaw('1')
                 ->from('discussion_user as sticky')
                 ->whereColumn('sticky.discussion_id', 'id')
-                ->where('sticky.user_id', '=', $filterState->getActor()->id)
+                ->where('sticky.user_id', '=', $state->getActor()->id)
                 ->whereColumn('sticky.last_read_post_number', '>=', 'last_post_number');
 
             // Add the bindings manually (rather than as the second
             // argument in orderByRaw) for now due to a bug in Laravel which
             // would add the bindings in the wrong order.
             $query->orderByRaw('is_sticky and not exists ('.$read->toSql().') and last_posted_at > ? desc')
-                ->addBinding(array_merge($read->getBindings(), [$filterState->getActor()->marked_all_as_read_at ?: 0]), 'union');
+                ->addBinding(array_merge($read->getBindings(), [$state->getActor()->marked_all_as_read_at ?: 0]), 'union');
 
             $query->unionOrders = array_merge($query->unionOrders, $query->orders);
             $query->unionLimit = $query->limit;

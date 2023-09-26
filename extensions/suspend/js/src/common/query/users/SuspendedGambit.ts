@@ -12,4 +12,12 @@ export default class SuspendedGambit implements IGambit {
       [key]: true,
     };
   }
+
+  filterKey(): string {
+    return 'suspended';
+  }
+
+  fromFilter(value: string, negate: boolean): string {
+    return `${negate ? '-' : ''}is:suspended`;
+  }
 }

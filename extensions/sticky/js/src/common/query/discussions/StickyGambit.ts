@@ -12,4 +12,12 @@ export default class StickyGambit implements IGambit {
       [key]: true,
     };
   }
+
+  filterKey(): string {
+    return 'sticky';
+  }
+
+  fromFilter(value: string, negate: boolean): string {
+    return `${negate ? '-' : ''}is:sticky`;
+  }
 }

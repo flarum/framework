@@ -12,4 +12,12 @@ export default class UnreadGambit implements IGambit {
       [key]: true,
     };
   }
+
+  filterKey(): string {
+    return 'unread';
+  }
+
+  fromFilter(value: string, negate: boolean): string {
+    return `${negate ? '-' : ''}is:unread`;
+  }
 }

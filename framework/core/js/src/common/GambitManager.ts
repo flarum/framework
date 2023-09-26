@@ -48,4 +48,25 @@ export default class GambitManager {
 
     return filter;
   }
+
+  public from(type: string, q: string, filter: Record<string, any>): string {
+    const gambits = this.gambits[type] || [];
+
+    if (gambits.length === 0) return q;
+
+    Object.keys(filter).forEach((key) => {
+      for (const gambitClass of gambits) {
+        const gambit = new gambitClass();
+        const negate = key[0] === '-';
+
+        if (negate) key = key.substring(1);
+
+        if (gambit.filterKey() !== key) continue;
+
+        q += ` ${gambit.fromFilter(filter[key], negate)}`;
+      }
+    });
+
+    return q;
+  }
 }

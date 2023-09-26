@@ -9,19 +9,19 @@
 
 namespace Flarum\Tags\Filter;
 
-use Flarum\Filter\FilterState;
-use Flarum\Query\QueryCriteria;
+use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearchState;
 use Flarum\Tags\Tag;
 
 class HideHiddenTagsFromAllDiscussionsPage
 {
-    public function __invoke(FilterState $filter, QueryCriteria $queryCriteria): void
+    public function __invoke(SearchState $state, SearchCriteria $queryCriteria): void
     {
-        if (count($filter->getActiveFilters()) > 0) {
+        if (count($state->getActiveFilters()) > 0 || $state->isFulltextSearch()) {
             return;
         }
 
-        $filter->getQuery()->whereNotIn('discussions.id', function ($query) {
+        $state->getQuery()->whereNotIn('discussions.id', function ($query) {
             return $query->select('discussion_id')
             ->from('discussion_tag')
             ->whereIn('tag_id', Tag::where('is_hidden', 1)->pluck('id'));

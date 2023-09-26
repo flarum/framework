@@ -12,8 +12,7 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
-use Flarum\Query\QueryCriteria;
-use Flarum\User\Filter\UserFilterer;
+use Flarum\Search\SearchCriteria;
 use Flarum\User\Search\UserSearcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -33,7 +32,6 @@ class ListUsersController extends AbstractListController
     ];
 
     public function __construct(
-        protected UserFilterer $filterer,
         protected UserSearcher $searcher,
         protected UrlGenerator $url
     ) {
@@ -60,12 +58,8 @@ class ListUsersController extends AbstractListController
         $offset = $this->extractOffset($request);
         $include = $this->extractInclude($request);
 
-        $criteria = new QueryCriteria($actor, $filters, $sort, $sortIsDefault);
-        if (array_key_exists('q', $filters)) {
-            $results = $this->searcher->search($criteria, $limit, $offset);
-        } else {
-            $results = $this->filterer->filter($criteria, $limit, $offset);
-        }
+        $criteria = new SearchCriteria($actor, $filters, $sort, $sortIsDefault);
+        $results = $this->searcher->search($criteria, $limit, $offset);
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('users.index'),

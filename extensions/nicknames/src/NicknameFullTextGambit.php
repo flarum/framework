@@ -9,19 +9,12 @@
 
 namespace Flarum\Nicknames;
 
-/*
- * This file is part of Flarum.
- *
- * For detailed copyright and license information, please view the
- * LICENSE file that was distributed with this source code.
- */
-
-use Flarum\Search\GambitInterface;
+use Flarum\Search\AbstractFulltextFilter;
 use Flarum\Search\SearchState;
 use Flarum\User\UserRepository;
 use Illuminate\Database\Eloquent\Builder;
 
-class NicknameFullTextGambit implements GambitInterface
+class NicknameFullTextGambit extends AbstractFulltextFilter
 {
     public function __construct(
         protected UserRepository $users
@@ -37,14 +30,12 @@ class NicknameFullTextGambit implements GambitInterface
             ->orWhere('nickname', 'like', "{$searchValue}%");
     }
 
-    public function apply(SearchState $search, string $bit): bool
+    public function search(SearchState $state, string $query): void
     {
-        $search->getQuery()
+        $state->getQuery()
             ->whereIn(
                 'id',
-                $this->getUserSearchSubQuery($bit)
+                $this->getUserSearchSubQuery($query)
             );
-
-        return true;
     }
 }

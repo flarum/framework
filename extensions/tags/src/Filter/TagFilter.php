@@ -7,20 +7,18 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Query;
+namespace Flarum\Tags\Filter;
 
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
-use Flarum\Filter\ValidateFilterTrait;
 use Flarum\Http\SlugManager;
-use Flarum\Search\AbstractRegexGambit;
+use Flarum\Search\FilterInterface;
 use Flarum\Search\SearchState;
+use Flarum\Search\ValidateFilterTrait;
 use Flarum\Tags\Tag;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Query\Builder;
 
-class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
+class TagFilter implements FilterInterface
 {
     use ValidateFilterTrait;
 
@@ -29,24 +27,14 @@ class TagFilterGambit extends AbstractRegexGambit implements FilterInterface
     ) {
     }
 
-    protected function getGambitPattern(): string
-    {
-        return 'tag:(.+)';
-    }
-
-    protected function conditions(SearchState $search, array $matches, bool $negate): void
-    {
-        $this->constrain($search->getQuery(), $matches[1], $negate, $search->getActor());
-    }
-
     public function getFilterKey(): string
     {
         return 'tag';
     }
 
-    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $this->constrain($filterState->getQuery(), $filterValue, $negate, $filterState->getActor());
+        $this->constrain($state->getQuery(), $value, $negate, $state->getActor());
     }
 
     protected function constrain(Builder $query, string|array $rawSlugs, bool $negate, User $actor): void

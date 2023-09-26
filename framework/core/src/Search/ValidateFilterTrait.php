@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Filter;
+namespace Flarum\Search;
 
 use Flarum\Foundation\ValidationException as FlarumValidationException;
 use Flarum\Locale\Translator;

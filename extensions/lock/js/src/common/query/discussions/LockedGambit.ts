@@ -12,4 +12,12 @@ export default class LockedGambit implements IGambit {
       [key]: true,
     };
   }
+
+  filterKey(): string {
+    return 'locked';
+  }
+
+  fromFilter(value: string, negate: boolean): string {
+    return `${negate ? '-' : ''}is:locked`;
+  }
 }

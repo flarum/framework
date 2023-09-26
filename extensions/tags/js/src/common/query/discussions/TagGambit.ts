@@ -12,4 +12,12 @@ export default class TagGambit implements IGambit {
       [key]: matches[1].split(','),
     };
   }
+
+  filterKey(): string {
+    return 'tag';
+  }
+
+  fromFilter(value: string, negate: boolean): string {
+    return `${negate ? '-' : ''}tag:${value}`;
+  }
 }

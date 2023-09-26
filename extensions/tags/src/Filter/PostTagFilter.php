@@ -9,9 +9,9 @@
 
 namespace Flarum\Tags\Filter;
 
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
-use Flarum\Filter\ValidateFilterTrait;
+use Flarum\Search\FilterInterface;
+use Flarum\Search\SearchState;
+use Flarum\Search\ValidateFilterTrait;
 
 class PostTagFilter implements FilterInterface
 {
@@ -22,11 +22,11 @@ class PostTagFilter implements FilterInterface
         return 'tag';
     }
 
-    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $ids = $this->asIntArray($filterValue);
+        $ids = $this->asIntArray($value);
 
-        $filterState->getQuery()
+        $state->getQuery()
             ->join('discussion_tag', 'discussion_tag.discussion_id', '=', 'posts.discussion_id')
             ->whereIn('discussion_tag.tag_id', $ids, 'and', $negate);
     }

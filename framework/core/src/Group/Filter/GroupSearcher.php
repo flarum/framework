@@ -7,17 +7,17 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Http\Filter;
+namespace Flarum\Group\Filter;
 
-use Flarum\Filter\AbstractFilterer;
-use Flarum\Http\AccessToken;
+use Flarum\Group\Group;
+use Flarum\Search\AbstractSearcher;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
-class AccessTokenFilterer extends AbstractFilterer
+class GroupSearcher extends AbstractSearcher
 {
     protected function getQuery(User $actor): Builder
     {
-        return AccessToken::query()->whereVisibleTo($actor);
+        return Group::whereVisibleTo($actor)->select('groups.*');
     }
 }

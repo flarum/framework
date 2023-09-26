@@ -10,10 +10,10 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\GroupSerializer;
-use Flarum\Group\Filter\GroupFilterer;
+use Flarum\Group\Filter\GroupSearcher;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
-use Flarum\Query\QueryCriteria;
+use Flarum\Search\SearchCriteria;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -26,7 +26,7 @@ class ListGroupsController extends AbstractListController
     public int $limit = -1;
 
     public function __construct(
-        protected GroupFilterer $filterer,
+        protected GroupSearcher $searcher,
         protected UrlGenerator $url
     ) {
     }
@@ -42,9 +42,9 @@ class ListGroupsController extends AbstractListController
         $limit = $this->extractLimit($request);
         $offset = $this->extractOffset($request);
 
-        $criteria = new QueryCriteria($actor, $filters, $sort, $sortIsDefault);
+        $criteria = new SearchCriteria($actor, $filters, $sort, $sortIsDefault);
 
-        $queryResults = $this->filterer->filter($criteria, $limit, $offset);
+        $queryResults = $this->searcher->search($criteria, $limit, $offset);
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('groups.index'),

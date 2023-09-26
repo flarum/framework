@@ -9,9 +9,9 @@
 
 namespace Flarum\Discussion\Filter;
 
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
-use Flarum\Filter\ValidateFilterTrait;
+use Flarum\Search\FilterInterface;
+use Flarum\Search\SearchState;
+use Flarum\Search\ValidateFilterTrait;
 use Flarum\User\UserRepository;
 use Illuminate\Database\Query\Builder;
 
@@ -29,9 +29,9 @@ class AuthorFilter implements FilterInterface
         return 'author';
     }
 
-    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $this->constrain($filterState->getQuery(), $filterValue, $negate);
+        $this->constrain($state->getQuery(), $value, $negate);
     }
 
     protected function constrain(Builder $query, string|array $rawUsernames, bool $negate): void

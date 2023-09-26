@@ -12,4 +12,12 @@ export default class SubscriptionGambit implements IGambit {
       subscription: type,
     };
   }
+
+  filterKey(): string {
+    return 'subscription';
+  }
+
+  fromFilter(value: string, negate: boolean): string {
+    return `${negate ? '-' : ''}is:${value}`;
+  }
 }

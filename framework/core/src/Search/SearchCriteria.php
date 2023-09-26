@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Query;
+namespace Flarum\Search;
 
 use Flarum\User\User;
 
@@ -16,11 +16,11 @@ use Flarum\User\User;
  * query. The limit and offset are not included because they only determine
  * which part of the entire result set will be returned.
  */
-class QueryCriteria
+class SearchCriteria
 {
     public function __construct(
         public User $actor,
-        public array $query,
+        public array $filters,
         /**
          * An array of sort-order pairs, where the column is the key, and the order
          * is the value. The order may be 'asc', 'desc', or an array of IDs to

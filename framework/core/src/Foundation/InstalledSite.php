@@ -18,7 +18,6 @@ use Flarum\Discussion\DiscussionServiceProvider;
 use Flarum\Extend\ExtenderInterface;
 use Flarum\Extension\ExtensionServiceProvider;
 use Flarum\Filesystem\FilesystemServiceProvider;
-use Flarum\Filter\FilterServiceProvider;
 use Flarum\Formatter\FormatterServiceProvider;
 use Flarum\Forum\ForumServiceProvider;
 use Flarum\Frontend\FrontendServiceProvider;
@@ -110,7 +109,6 @@ class InstalledSite implements SiteInterface
         $app->register(ExtensionServiceProvider::class);
         $app->register(ErrorServiceProvider::class);
         $app->register(FilesystemServiceProvider::class);
-        $app->register(FilterServiceProvider::class);
         $app->register(FormatterServiceProvider::class);
         $app->register(ForumServiceProvider::class);
         $app->register(FrontendServiceProvider::class);

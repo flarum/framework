@@ -13,10 +13,10 @@ use Carbon\Carbon;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Group\Group;
-use Flarum\Query\QueryCriteria;
-use Flarum\Search\AbstractRegexGambit;
+use Flarum\Search\AbstractFulltextFilter;
 use Flarum\Search\AbstractSearcher;
-use Flarum\Search\GambitInterface;
+use Flarum\Search\FilterInterface;
+use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchState;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -62,13 +62,15 @@ class SimpleFlarumSearchTest extends TestCase
         $this->database()->table('posts')->whereIn('id', [1, 2])->delete();
     }
 
-    public function searchDiscussions($query, $limit = null)
+    public function searchDiscussions($query, $limit = null, array $filters = [])
     {
         $this->app();
 
         $actor = User::find(1);
 
-        $criteria = new QueryCriteria($actor, ['q' => $query]);
+        $filters['q'] = $query;
+
+        $criteria = new SearchCriteria($actor, $filters);
 
         return $this->app()->getContainer()->make(DiscussionSearcher::class)->search($criteria, $limit)->getResults();
     }
@@ -94,7 +96,7 @@ class SimpleFlarumSearchTest extends TestCase
      */
     public function custom_full_text_gambit_has_effect_if_added()
     {
-        $this->extend((new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->setFullTextGambit(NoResultFullTextGambit::class));
+        $this->extend((new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->setFullTextFilter(NoResultFullTextFilter::class));
 
         $this->assertEquals('[]', json_encode($this->searchDiscussions('in text', 5)));
     }
@@ -102,16 +104,16 @@ class SimpleFlarumSearchTest extends TestCase
     /**
      * @test
      */
-    public function custom_filter_gambit_has_effect_if_added()
+    public function custom_filter_has_effect_if_added()
     {
-        $this->extend((new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->addGambit(NoResultFilterGambit::class));
+        $this->extend((new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->addFilter(NoResultFilter::class));
 
         $this->prepDb();
 
-        $withResultSearch = json_encode($this->searchDiscussions('noResult:0', 5));
+        $withResultSearch = json_encode($this->searchDiscussions('', 5, ['noResult' => '0']));
         $this->assertStringContainsString('DISCUSSION 1', $withResultSearch);
         $this->assertStringContainsString('DISCUSSION 2', $withResultSearch);
-        $this->assertEquals('[]', json_encode($this->searchDiscussions('noResult:1', 5)));
+        $this->assertEquals('[]', json_encode($this->searchDiscussions('', 5, ['noResult' => '1'])));
     }
 
     /**
@@ -156,7 +158,7 @@ class SimpleFlarumSearchTest extends TestCase
     public function can_resolve_custom_searcher_with_fulltext_gambit()
     {
         $this->extend(
-            (new Extend\SimpleFlarumSearch(CustomSearcher::class))->setFullTextGambit(CustomFullTextGambit::class)
+            (new Extend\SimpleFlarumSearch(CustomSearcher::class))->setFullTextFilter(CustomFullTextFilter::class)
         );
 
         $anExceptionWasThrown = false;
@@ -171,30 +173,27 @@ class SimpleFlarumSearchTest extends TestCase
     }
 }
 
-class NoResultFullTextGambit implements GambitInterface
+class NoResultFullTextFilter extends AbstractFulltextFilter
 {
-    public function apply(SearchState $search, string $bit): bool
+    public function search(SearchState $state, string $query): void
     {
-        $search->getQuery()
-            ->whereRaw('0=1');
-
-        return true;
+        $state->getQuery()->whereRaw('0=1');
     }
 }
 
-class NoResultFilterGambit extends AbstractRegexGambit
+class NoResultFilter implements FilterInterface
 {
-    public function getGambitPattern(): string
+    public function getFilterKey(): string
     {
-        return 'noResult:(.+)';
+        return 'noResult';
     }
 
-    public function conditions(SearchState $search, array $matches, bool $negate): void
+    public function filter(SearchState $state, array|string $value, bool $negate): void
     {
-        $noResults = trim($matches[1], ' ');
+        $noResults = trim($value, ' ');
+
         if ($noResults == '1') {
-            $search->getQuery()
-                ->whereRaw('0=1');
+            $state->getQuery()->whereRaw('0=1');
         }
     }
 }
@@ -216,10 +215,10 @@ class CustomSearcher extends AbstractSearcher
     }
 }
 
-class CustomFullTextGambit implements GambitInterface
+class CustomFullTextFilter extends AbstractFulltextFilter
 {
-    public function apply(SearchState $search, string $bit): bool
+    public function search(SearchState $state, string $query): void
     {
-        return true;
+        //
     }
 }
