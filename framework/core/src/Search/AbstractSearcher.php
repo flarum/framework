@@ -9,16 +9,12 @@
 
 namespace Flarum\Search;
 
-use Flarum\Query\ApplyQueryParametersTrait;
-use Flarum\Query\QueryCriteria;
-use Flarum\Query\QueryResults;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 abstract class AbstractSearcher
 {
-    use ApplyQueryParametersTrait;
-
     public function __construct(
         /** @var array<string, FilterInterface[]> */
         protected FilterManager $filters,
@@ -29,7 +25,7 @@ abstract class AbstractSearcher
 
     abstract protected function getQuery(User $actor): Builder;
 
-    public function search(QueryCriteria $criteria, ?int $limit = null, int $offset = 0): QueryResults
+    public function search(SearchCriteria $criteria, ?int $limit = null, int $offset = 0): SearchResults
     {
         $actor = $criteria->actor;
 
@@ -56,6 +52,41 @@ abstract class AbstractSearcher
             $results->pop();
         }
 
-        return new QueryResults($results, $areMoreResults);
+        return new SearchResults($results, $areMoreResults);
+    }
+
+    protected function applySort(SearchState $query, ?array $sort = null, bool $sortIsDefault = false): void
+    {
+        if ($sortIsDefault && ! empty($query->getDefaultSort())) {
+            $sort = $query->getDefaultSort();
+        }
+
+        if (is_callable($sort)) {
+            $sort($query->getQuery());
+        } else {
+            foreach ((array) $sort as $field => $order) {
+                if (is_array($order)) {
+                    foreach ($order as $value) {
+                        $query->getQuery()->orderByRaw(Str::snake($field).' != ?', [$value]);
+                    }
+                } else {
+                    $query->getQuery()->orderBy(Str::snake($field), $order);
+                }
+            }
+        }
+    }
+
+    protected function applyOffset(SearchState $query, int $offset): void
+    {
+        if ($offset > 0) {
+            $query->getQuery()->skip($offset);
+        }
+    }
+
+    protected function applyLimit(SearchState $query, ?int $limit): void
+    {
+        if ($limit > 0) {
+            $query->getQuery()->take($limit);
+        }
     }
 }

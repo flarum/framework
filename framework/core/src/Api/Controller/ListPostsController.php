@@ -14,7 +14,7 @@ use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\PostRepository;
-use Flarum\Query\QueryCriteria;
+use Flarum\Search\SearchCriteria;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -53,7 +53,7 @@ class ListPostsController extends AbstractListController
         $offset = $this->extractOffset($request);
         $include = $this->extractInclude($request);
 
-        $results = $this->searcher->search(new QueryCriteria($actor, $filters, $sort, $sortIsDefault), $limit, $offset);
+        $results = $this->searcher->search(new SearchCriteria($actor, $filters, $sort, $sortIsDefault), $limit, $offset);
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('posts.index'),

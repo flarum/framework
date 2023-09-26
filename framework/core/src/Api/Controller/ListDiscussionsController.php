@@ -14,7 +14,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
-use Flarum\Query\QueryCriteria;
+use Flarum\Search\SearchCriteria;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -55,7 +55,7 @@ class ListDiscussionsController extends AbstractListController
         $offset = $this->extractOffset($request);
         $include = array_merge($this->extractInclude($request), ['state']);
 
-        $criteria = new QueryCriteria($actor, $filters, $sort, $sortIsDefault);
+        $criteria = new SearchCriteria($actor, $filters, $sort, $sortIsDefault);
         $results = $this->searcher->search($criteria, $limit, $offset);
 
         $document->addPaginationLinks(

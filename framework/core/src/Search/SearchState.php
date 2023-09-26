@@ -9,14 +9,65 @@
 
 namespace Flarum\Search;
 
-use Flarum\Query\AbstractQueryState;
+use Closure;
+use Flarum\User\User;
+use Illuminate\Database\Query\Builder;
 
-class SearchState extends AbstractQueryState
+class SearchState
 {
     /**
      * @var FilterInterface[]
      */
     protected array $activeFilters = [];
+
+    public function __construct(
+        protected Builder $query,
+        protected User $actor,
+        /** Whether this is a fulltext search or just filtering. */
+        protected bool $fulltextSearch,
+        /**
+         * An array of sort-order pairs, where the column
+         *     is the key, and the order is the value. The order may be 'asc',
+         *     'desc', or an array of IDs to order by.
+         *     Alternatively, a callable may be used.
+         *
+         * @var array<string, string|int[]>|Closure $defaultSort
+         */
+        protected array|Closure $defaultSort = []
+    ) {
+    }
+
+    /**
+     * Get the query builder for the search results query.
+     */
+    public function getQuery(): Builder
+    {
+        return $this->query;
+    }
+
+    public function getActor(): User
+    {
+        return $this->actor;
+    }
+
+    public function getDefaultSort(): array|Closure
+    {
+        return $this->defaultSort;
+    }
+
+    /**
+     * Set the default sort order for the search. This will only be applied if
+     * a sort order has not been specified in the search criteria.
+     */
+    public function setDefaultSort(array|Closure $defaultSort): void
+    {
+        $this->defaultSort = $defaultSort;
+    }
+
+    public function isFulltextSearch(): bool
+    {
+        return $this->fulltextSearch;
+    }
 
     /**
      * Get a list of the filters that are active.

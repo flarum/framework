@@ -13,10 +13,10 @@ use Carbon\Carbon;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Group\Group;
-use Flarum\Query\QueryCriteria;
 use Flarum\Search\AbstractFulltextFilter;
 use Flarum\Search\AbstractSearcher;
 use Flarum\Search\FilterInterface;
+use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchState;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -70,7 +70,7 @@ class SimpleFlarumSearchTest extends TestCase
 
         $filters['q'] = $query;
 
-        $criteria = new QueryCriteria($actor, $filters);
+        $criteria = new SearchCriteria($actor, $filters);
 
         return $this->app()->getContainer()->make(DiscussionSearcher::class)->search($criteria, $limit)->getResults();
     }

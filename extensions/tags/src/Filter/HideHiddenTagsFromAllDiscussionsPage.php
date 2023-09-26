@@ -9,13 +9,13 @@
 
 namespace Flarum\Tags\Filter;
 
-use Flarum\Query\QueryCriteria;
+use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchState;
 use Flarum\Tags\Tag;
 
 class HideHiddenTagsFromAllDiscussionsPage
 {
-    public function __invoke(SearchState $state, QueryCriteria $queryCriteria): void
+    public function __invoke(SearchState $state, SearchCriteria $queryCriteria): void
     {
         if (count($state->getActiveFilters()) > 0 || $state->isFulltextSearch()) {
             return;

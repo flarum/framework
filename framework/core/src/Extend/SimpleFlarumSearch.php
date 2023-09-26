@@ -10,10 +10,10 @@
 namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
-use Flarum\Query\QueryCriteria;
 use Flarum\Search\AbstractFulltextFilter;
 use Flarum\Search\AbstractSearcher;
 use Flarum\Search\FilterInterface;
+use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchState;
 use Illuminate\Contracts\Container\Container;
 
@@ -63,7 +63,7 @@ class SimpleFlarumSearch implements ExtenderInterface
     /**
      * Add a callback through which to run all search queries after filters have been applied.
      *
-     * @param (callable(SearchState $search, QueryCriteria $criteria): void)|class-string $callback
+     * @param (callable(SearchState $search, SearchCriteria $criteria): void)|class-string $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
      * - \Flarum\Search\SearchState $search
