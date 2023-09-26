@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Filter;
+namespace Flarum\Tags\Search;
 
 use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchState;

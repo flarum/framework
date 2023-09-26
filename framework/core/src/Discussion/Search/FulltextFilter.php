@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Discussion\Search\Gambit;
+namespace Flarum\Discussion\Search;
 
 use Flarum\Discussion\Discussion;
 use Flarum\Post\Post;
@@ -15,7 +15,7 @@ use Flarum\Search\AbstractFulltextFilter;
 use Flarum\Search\SearchState;
 use Illuminate\Database\Query\Expression;
 
-class FulltextGambit extends AbstractFulltextFilter
+class FulltextFilter extends AbstractFulltextFilter
 {
     public function search(SearchState $state, string $query): void
     {

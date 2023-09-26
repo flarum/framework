@@ -7,27 +7,30 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tags\Search\Gambit;
+namespace Flarum\User\Search;
 
 use Flarum\Search\AbstractFulltextFilter;
 use Flarum\Search\SearchState;
-use Flarum\Tags\TagRepository;
+use Flarum\User\User;
+use Flarum\User\UserRepository;
 use Illuminate\Database\Eloquent\Builder;
 
-class FulltextGambit extends AbstractFulltextFilter
+class FulltextFilter extends AbstractFulltextFilter
 {
     public function __construct(
-        protected TagRepository $tags
+        protected UserRepository $users
     ) {
     }
 
-    private function getTagSearchSubQuery(string $searchValue): Builder
+    /**
+     * @return Builder<User>
+     */
+    private function getUserSearchSubQuery(string $searchValue): Builder
     {
-        return $this->tags
+        return $this->users
             ->query()
             ->select('id')
-            ->where('name', 'like', "$searchValue%")
-            ->orWhere('slug', 'like', "$searchValue%");
+            ->where('username', 'like', "$searchValue%");
     }
 
     public function search(SearchState $state, string $query): void
@@ -35,7 +38,7 @@ class FulltextGambit extends AbstractFulltextFilter
         $state->getQuery()
             ->whereIn(
                 'id',
-                $this->getTagSearchSubQuery($query)
+                $this->getUserSearchSubQuery($query)
             );
     }
 }

@@ -52,7 +52,7 @@ return [
         ->configure(AddNicknameValidation::class),
 
     (new Extend\SimpleFlarumSearch(UserSearcher::class))
-        ->setFullTextFilter(NicknameFullTextGambit::class),
+        ->setFullTextFilter(NicknameFullTextFilter::class),
 
     (new Extend\Policy())
         ->modelPolicy(User::class, UserPolicy::class),
