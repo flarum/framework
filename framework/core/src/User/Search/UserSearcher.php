@@ -10,9 +10,7 @@
 namespace Flarum\User\Search;
 
 use Flarum\Search\AbstractSearcher;
-use Flarum\Search\FilterManager;
 use Flarum\User\User;
-use Flarum\User\UserRepository;
 use Illuminate\Database\Eloquent\Builder;
 
 class UserSearcher extends AbstractSearcher

@@ -11,7 +11,6 @@ namespace Flarum\Search;
 
 class FilterManager
 {
-
     /**
      * @var array<string, FilterInterface[]>
      */
