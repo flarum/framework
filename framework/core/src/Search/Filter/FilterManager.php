@@ -7,7 +7,10 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Search;
+namespace Flarum\Search\Filter;
+
+use Flarum\Search\AbstractFulltextFilter;
+use Flarum\Search\SearchState;
 
 class FilterManager
 {

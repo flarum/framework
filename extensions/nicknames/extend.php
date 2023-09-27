@@ -12,6 +12,7 @@ namespace Flarum\Nicknames;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Extend;
 use Flarum\Nicknames\Access\UserPolicy;
+use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\User\Event\Saving;
 use Flarum\User\Search\UserSearcher;
 use Flarum\User\User;
@@ -51,8 +52,8 @@ return [
     (new Extend\Validator(UserValidator::class))
         ->configure(AddNicknameValidation::class),
 
-    (new Extend\SimpleFlarumSearch(UserSearcher::class))
-        ->setFullTextFilter(NicknameFullTextFilter::class),
+    (new Extend\Search(DatabaseSearchDriver::class))
+        ->setFulltext(UserSearcher::class, NicknameFullTextFilter::class),
 
     (new Extend\Policy())
         ->modelPolicy(User::class, UserPolicy::class),

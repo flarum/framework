@@ -10,12 +10,16 @@
 namespace Flarum\User\Search\Filter;
 
 use Flarum\Group\Group;
-use Flarum\Search\FilterInterface;
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
 use Flarum\User\User;
 use Illuminate\Database\Query\Builder;
 
+/**
+ * @implements FilterInterface<DatabaseSearchState>
+ */
 class GroupFilter implements FilterInterface
 {
     use ValidateFilterTrait;

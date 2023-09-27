@@ -10,7 +10,7 @@
 namespace Flarum\Http\Filter;
 
 use Flarum\Http\AccessToken;
-use Flarum\Search\AbstractSearcher;
+use Flarum\Search\Database\AbstractSearcher;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 

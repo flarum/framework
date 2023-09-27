@@ -7,13 +7,17 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Search;
+namespace Flarum\Search\Database;
 
+use Flarum\Search\Filter\FilterManager;
+use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearcherInterface;
+use Flarum\Search\SearchResults;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
-abstract class AbstractSearcher
+abstract class AbstractSearcher implements SearcherInterface
 {
     public function __construct(
         protected FilterManager $filters,
@@ -30,7 +34,8 @@ abstract class AbstractSearcher
 
         $query = $this->getQuery($actor);
 
-        $search = new SearchState($query->getQuery(), $actor, in_array('q', array_keys($criteria->filters), true));
+        $search = new DatabaseSearchState($actor, in_array('q', array_keys($criteria->filters), true));
+        $search->setQuery($query->getQuery());
 
         $this->filters->apply($search, $criteria->filters);
 
@@ -54,7 +59,7 @@ abstract class AbstractSearcher
         return new SearchResults($results, $areMoreResults);
     }
 
-    protected function applySort(SearchState $query, ?array $sort = null, bool $sortIsDefault = false): void
+    protected function applySort(DatabaseSearchState $query, ?array $sort = null, bool $sortIsDefault = false): void
     {
         if ($sortIsDefault && ! empty($query->getDefaultSort())) {
             $sort = $query->getDefaultSort();
@@ -75,14 +80,14 @@ abstract class AbstractSearcher
         }
     }
 
-    protected function applyOffset(SearchState $query, int $offset): void
+    protected function applyOffset(DatabaseSearchState $query, int $offset): void
     {
         if ($offset > 0) {
             $query->getQuery()->skip($offset);
         }
     }
 
-    protected function applyLimit(SearchState $query, ?int $limit): void
+    protected function applyLimit(DatabaseSearchState $query, ?int $limit): void
     {
         if ($limit > 0) {
             $query->getQuery()->take($limit);

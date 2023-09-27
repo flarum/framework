@@ -1,17 +1,10 @@
 <?php
 
-/*
- * This file is part of Flarum.
- *
- * For detailed copyright and license information, please view the
- * LICENSE file that was distributed with this source code.
- */
-
 namespace Flarum\Search;
 
 use Closure;
+use Flarum\Search\Filter\FilterInterface;
 use Flarum\User\User;
-use Illuminate\Database\Query\Builder;
 
 class SearchState
 {
@@ -20,8 +13,7 @@ class SearchState
      */
     protected array $activeFilters = [];
 
-    public function __construct(
-        protected Builder $query,
+    public final function __construct(
         protected User $actor,
         /** Whether this is a fulltext search or just filtering. */
         protected bool $fulltextSearch,
@@ -35,14 +27,6 @@ class SearchState
          */
         protected array|Closure $defaultSort = []
     ) {
-    }
-
-    /**
-     * Get the query builder for the search results query.
-     */
-    public function getQuery(): Builder
-    {
-        return $this->query;
     }
 
     public function getActor(): User

@@ -10,7 +10,7 @@
 namespace Flarum\Post\Filter;
 
 use Flarum\Post\Post;
-use Flarum\Search\AbstractSearcher;
+use Flarum\Search\Database\AbstractSearcher;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 

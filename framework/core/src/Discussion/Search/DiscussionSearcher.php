@@ -10,7 +10,7 @@
 namespace Flarum\Discussion\Search;
 
 use Flarum\Discussion\Discussion;
-use Flarum\Search\AbstractSearcher;
+use Flarum\Search\Database\AbstractSearcher;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 

@@ -24,6 +24,11 @@ class SettingsServiceProvider extends AbstractServiceProvider
             return new Collection([
                 'theme_primary_color' => '#4D698E',
                 'theme_secondary_color' => '#4D698E',
+                'search_driver_Flarum\User\User' => 'default',  // @todo: use a morph map instead `User::class => 'user'` = search_driver_user (below as well)
+                'search_driver_Flarum\Discussion\Discussion' => 'default',
+                'search_driver_Flarum\Group\Group' => 'default',
+                'search_driver_Flarum\Post\Post' => 'default',
+                'search_driver_Flarum\Http\AccessToken' => 'default',
             ]);
         });
 

@@ -59,7 +59,7 @@ class WriteSettings implements Step
             'forum_description' => '',
             'mail_driver' => 'mail',
             'mail_from' => 'noreply@localhost',
-            'slug_driver_Flarum\User\User' => 'default',
+            'slug_driver_Flarum\User\User' => 'default',  // @todo: use a morph map instead `User::class => 'user'` = slug_driver_user (below as well)
             'theme_colored_header' => '0',
             'theme_dark_mode' => '0',
             'theme_primary_color' => '#4D698E',

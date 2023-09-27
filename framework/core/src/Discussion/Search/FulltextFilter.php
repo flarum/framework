@@ -12,9 +12,13 @@ namespace Flarum\Discussion\Search;
 use Flarum\Discussion\Discussion;
 use Flarum\Post\Post;
 use Flarum\Search\AbstractFulltextFilter;
+use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\SearchState;
 use Illuminate\Database\Query\Expression;
 
+/**
+ * @extends AbstractFulltextFilter<DatabaseSearchState>
+ */
 class FulltextFilter extends AbstractFulltextFilter
 {
     public function search(SearchState $state, string $query): void

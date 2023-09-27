@@ -9,10 +9,14 @@
 
 namespace Flarum\Tags\Search\Filter;
 
-use Flarum\Search\FilterInterface;
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
 
+/**
+ * @implements FilterInterface<DatabaseSearchState>
+ */
 class PostTagFilter implements FilterInterface
 {
     use ValidateFilterTrait;

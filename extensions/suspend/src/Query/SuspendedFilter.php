@@ -10,12 +10,16 @@
 namespace Flarum\Suspend\Query;
 
 use Carbon\Carbon;
-use Flarum\Search\FilterInterface;
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\User\Guest;
 use Flarum\User\UserRepository;
 use Illuminate\Database\Query\Builder;
 
+/**
+ * @implements FilterInterface<DatabaseSearchState>
+ */
 class SuspendedFilter implements FilterInterface
 {
     public function __construct(

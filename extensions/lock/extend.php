@@ -20,6 +20,7 @@ use Flarum\Lock\Filter\LockedFilter;
 use Flarum\Lock\Listener;
 use Flarum\Lock\Notification\DiscussionLockedBlueprint;
 use Flarum\Lock\Post\DiscussionLockedPost;
+use Flarum\Search\Database\DatabaseSearchDriver;
 
 return [
     (new Extend\Frontend('forum'))
@@ -56,6 +57,6 @@ return [
     (new Extend\Policy())
         ->modelPolicy(Discussion::class, Access\DiscussionPolicy::class),
 
-    (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
-        ->addFilter(LockedFilter::class),
+    (new Extend\Search(DatabaseSearchDriver::class))
+        ->addFilter(DiscussionSearcher::class, LockedFilter::class),
 ];

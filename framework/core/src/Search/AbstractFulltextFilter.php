@@ -9,6 +9,12 @@
 
 namespace Flarum\Search;
 
+use Flarum\Search\Filter\FilterInterface;
+
+/**
+ * @template TState of SearchState
+ * @implements FilterInterface<TState>
+ */
 abstract class AbstractFulltextFilter implements FilterInterface
 {
     public function getFilterKey(): string
@@ -21,5 +27,8 @@ abstract class AbstractFulltextFilter implements FilterInterface
         $this->search($state, $value);
     }
 
+    /**
+     * @param TState $state
+     */
     abstract public function search(SearchState $state, string $query): void;
 }

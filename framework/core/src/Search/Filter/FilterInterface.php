@@ -7,8 +7,13 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Search;
+namespace Flarum\Search\Filter;
 
+use Flarum\Search\SearchState;
+
+/**
+ * @template TState of SearchState
+ */
 interface FilterInterface
 {
     /**
@@ -18,6 +23,8 @@ interface FilterInterface
 
     /**
      * Filters a query.
+     *
+     * @param TState $state
      */
     public function filter(SearchState $state, string|array $value, bool $negate): void;
 }

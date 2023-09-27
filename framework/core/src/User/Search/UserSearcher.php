@@ -9,7 +9,7 @@
 
 namespace Flarum\User\Search;
 
-use Flarum\Search\AbstractSearcher;
+use Flarum\Search\Database\AbstractSearcher;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 

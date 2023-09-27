@@ -10,10 +10,14 @@
 namespace Flarum\Nicknames;
 
 use Flarum\Search\AbstractFulltextFilter;
+use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\SearchState;
 use Flarum\User\UserRepository;
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * @extends AbstractFulltextFilter<DatabaseSearchState>
+ */
 class NicknameFullTextFilter extends AbstractFulltextFilter
 {
     public function __construct(

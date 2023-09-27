@@ -13,6 +13,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
+use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Sticky\Event\DiscussionWasStickied;
 use Flarum\Sticky\Event\DiscussionWasUnstickied;
 use Flarum\Sticky\Listener;
@@ -53,7 +54,7 @@ return [
         ->listen(DiscussionWasStickied::class, [Listener\CreatePostWhenDiscussionIsStickied::class, 'whenDiscussionWasStickied'])
         ->listen(DiscussionWasUnstickied::class, [Listener\CreatePostWhenDiscussionIsStickied::class, 'whenDiscussionWasUnstickied']),
 
-    (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
-        ->addFilter(StickyFilter::class)
-        ->addSearchMutator(PinStickiedDiscussionsToTop::class),
+    (new Extend\Search(DatabaseSearchDriver::class))
+        ->addFilter(DiscussionSearcher::class, StickyFilter::class)
+        ->addMutator(DiscussionSearcher::class, PinStickiedDiscussionsToTop::class),
 ];

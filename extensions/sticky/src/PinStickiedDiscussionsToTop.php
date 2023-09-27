@@ -9,13 +9,13 @@
 
 namespace Flarum\Sticky;
 
+use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\SearchCriteria;
-use Flarum\Search\SearchState;
 use Flarum\Tags\Search\Filter\TagFilter;
 
 class PinStickiedDiscussionsToTop
 {
-    public function __invoke(SearchState $state, SearchCriteria $criteria): void
+    public function __invoke(DatabaseSearchState $state, SearchCriteria $criteria): void
     {
         if ($criteria->sortIsDefault && ! $state->isFulltextSearch()) {
             $query = $state->getQuery();

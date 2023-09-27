@@ -10,7 +10,8 @@
 namespace Flarum\Tags\Search\Filter;
 
 use Flarum\Http\SlugManager;
-use Flarum\Search\FilterInterface;
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
 use Flarum\Tags\Tag;
@@ -18,6 +19,9 @@ use Flarum\User\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Query\Builder;
 
+/**
+ * @implements FilterInterface<DatabaseSearchState>
+ */
 class TagFilter implements FilterInterface
 {
     use ValidateFilterTrait;
