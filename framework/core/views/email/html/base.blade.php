@@ -61,18 +61,18 @@
 </div>
 
 <div class="content">
-    @if(isset($greeting) && $greeting !== false)
-    <div class="greeting">
-        <p>{!! $translator->trans('core.email.greeting', ['displayName' => $username]) !!}</p>
-    </div>
+    @if(!isset($greeting) || $greeting !== false)
+        <div class="greeting">
+            <p>{!! $translator->trans('core.email.greeting', ['displayName' => $username]) !!}</p>
+        </div>
     @endif
     <div class="main-content">
         @yield('content')
     </div>
-    @if(isset($signoff) && $signoff !== false)
-    <div class="signoff">
-        <p>{!! $translator->trans('core.email.signoff', ['forumTitle' => $settings->get('forum_title')]) !!}</p>
-    </div>
+    @if(!isset($signoff) || $signoff !== false)
+        <div class="signoff">
+            <p>{!! $translator->trans('core.email.signoff', ['forumTitle' => $settings->get('forum_title')]) !!}</p>
+        </div>
     @endif
 </div>
 
