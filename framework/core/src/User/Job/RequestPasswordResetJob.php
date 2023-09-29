@@ -53,10 +53,10 @@ class RequestPasswordResetJob extends AbstractJob
 
         $queue->push(new SendInformationalEmailJob(
             email: $user->email,
+            displayName: Arr::get($data, 'username'),
             subject: $subject,
             body: $body,
             forumTitle: Arr::get($data, 'forum'),
-            displayName: Arr::get($data, 'username'),
             bodyTitle: $subject
         ));
     }
