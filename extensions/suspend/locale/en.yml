@@ -52,20 +52,22 @@ flarum-suspend:
     no_reason_given: No reason was given for this suspension.
     suspended:
       subject: Your account has been suspended
-      body: |
-        Hey {recipient_display_name},
+      plain:
+        body: |
+          You have been suspended for the following reason:
 
-        You have been suspended for the following reason:
-
-        ---
-        {suspension_message}
-        ---
+          ---
+          {suspension_message}
+          ---
+      html:
+        body: "You have been suspended from {forumTitle} for the following reason:"
 
     unsuspended:
       subject: Your account has been unsuspended
-      body: |
-        Hey {recipient_display_name},
+      plain:
+        body: |
+          You have been unsuspended. You can head back to the forum by clicking on the following link:
 
-        You have been unsuspended. You can head back to the forum by clicking on the following link:
-
-        {forum_url}
+          {forum_url}
+      html:
+        body: "You have been unsuspended. You can head back to [{forumTitle}]({forum_url}) when you are ready."

@@ -24,6 +24,7 @@ class SettingsServiceProvider extends AbstractServiceProvider
             return new Collection([
                 'theme_primary_color' => '#4D698E',
                 'theme_secondary_color' => '#4D698E',
+                'mail_format' => 'multipart',
             ]);
         });
 

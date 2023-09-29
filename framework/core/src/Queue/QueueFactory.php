@@ -18,7 +18,7 @@ class QueueFactory implements Factory
     /**
      * The cached queue instance.
      */
-    private ?Queue $queue;
+    private ?Queue $queue = null;
 
     /**
      * Expects a callback that will be called to instantiate the queue adapter,

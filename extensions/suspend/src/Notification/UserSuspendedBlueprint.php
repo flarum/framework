@@ -9,6 +9,7 @@
 
 namespace Flarum\Suspend\Notification;
 
+use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Flarum\Database\AbstractModel;
 use Flarum\Locale\TranslatorInterface;
@@ -35,7 +36,7 @@ class UserSuspendedBlueprint implements BlueprintInterface, MailableInterface
 
     public function getData(): CarbonInterface
     {
-        return $this->user->suspended_until;
+        return Carbon::now();
     }
 
     public static function getType(): string
@@ -48,9 +49,11 @@ class UserSuspendedBlueprint implements BlueprintInterface, MailableInterface
         return User::class;
     }
 
-    public function getEmailView(): string|array
+    public function getEmailViews(): array
     {
-        return ['text' => 'flarum-suspend::emails.suspended'];
+        return [
+            'text' => 'flarum-suspend::emails.plain.suspended',
+            'html' => 'flarum-suspend::emails.html.suspended', ];
     }
 
     public function getEmailSubject(TranslatorInterface $translator): string

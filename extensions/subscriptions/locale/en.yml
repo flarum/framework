@@ -51,21 +51,25 @@ flarum-subscriptions:
     # These translations are used in emails sent when a post is made in a subscribed discussion
     new_post:
       subject: "[New Post] {title}"
-      body: |
-        Hey {recipient_display_name}!
+      plain:
+        body: |
+          {poster_display_name} just posted in a discussion you're following: {title}.
 
-        {poster_display_name} made a post in a discussion you're following: {title}.
+          To view the new activity, check out the following link:
+          {url}
 
-        To view the new activity, check out the following link:
-        {url}
+          ---
 
-        ---
+          {content}
 
-        {content}
+          ---
 
-        ---
+          You won't receive any more notifications about this discussion until you're up-to-date.
+      html:
+        body: |
+          {poster_display_name} just posted in a discussion you're following: [{title}]({url}).
 
-        You won't receive any more notifications about this discussion until you're up-to-date.
+          You won't recieve any more notifications about this discussion until you're up-to-date.
 
   ##
   # REUSED TRANSLATIONS - These keys should not be used directly in code!
