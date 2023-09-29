@@ -50,7 +50,7 @@ class SuspendUserTest extends TestCase
     {
         $response = $this->sendSuspensionRequest($authenticatedAs, $targetUserId);
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
     /**

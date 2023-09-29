@@ -5,7 +5,7 @@
 @endsection
 
 @section('content')
-{{ $infoContent }}
+{{ $infoContent ?? '' }}
 @endsection
 
 @section('footer')
