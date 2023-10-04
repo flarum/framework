@@ -13,8 +13,10 @@ use Flarum\Api\Controller\AbstractListController;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearchManager;
 use Flarum\Tags\Api\Serializer\TagSerializer;
 use Flarum\Tags\Search\TagSearcher;
+use Flarum\Tags\Tag;
 use Flarum\Tags\TagRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -35,7 +37,7 @@ class ListTagsController extends AbstractListController
 
     public function __construct(
         protected TagRepository $tags,
-        protected TagSearcher $searcher,
+        protected SearchManager $search,
         protected UrlGenerator $url
     ) {
     }
@@ -53,7 +55,10 @@ class ListTagsController extends AbstractListController
         }
 
         if (array_key_exists('q', $filters)) {
-            $results = $this->searcher->search(new SearchCriteria($actor, $filters), $limit, $offset);
+            $results = $this->search
+                ->for(Tag::class)
+                ->search(new SearchCriteria($actor, $filters, $limit, $offset));
+
             $tags = $results->getResults();
 
             $document->addPaginationLinks(

@@ -13,12 +13,12 @@ use Flarum\Extension\Extension;
 use Flarum\Search\AbstractDriver;
 use Flarum\Search\AbstractFulltextFilter;
 use Flarum\Search\Database\AbstractSearcher;
-use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\SearchState;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchCriteria;
 use Illuminate\Contracts\Container\Container;
 
-class Search implements ExtenderInterface
+class SearchDriver implements ExtenderInterface
 {
     private array $searchers = [];
     private array $fulltext = [];
@@ -91,7 +91,7 @@ class Search implements ExtenderInterface
      * @param class-string<AbstractSearcher> $searcherClass : The class of the Searcher for this model
      *                                This searcher must implement \Flarum\Search\SearcherInterface.
      *                                Or extend \Flarum\Search\Database\AbstractSearcher if using the default driver.
-     * @param (callable(DatabaseSearchState $search, SearchCriteria $criteria): void)|class-string $callback
+     * @param (callable(SearchState $search, SearchCriteria $criteria): void)|class-string $callback
      *
      * The callback can be a closure or an invokable class, and should accept:
      * - \Flarum\Search\SearchState $search

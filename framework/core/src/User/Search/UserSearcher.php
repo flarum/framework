@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class UserSearcher extends AbstractSearcher
 {
-    protected function getQuery(User $actor): Builder
+    public function getQuery(User $actor): Builder
     {
         return User::whereVisibleTo($actor)->select('users.*');
     }

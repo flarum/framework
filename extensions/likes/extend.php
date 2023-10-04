@@ -77,7 +77,7 @@ return [
         ->listen(PostWasUnliked::class, Listener\SendNotificationWhenPostIsUnliked::class)
         ->subscribe(Listener\SaveLikesToDatabase::class),
 
-    (new Extend\Search(DatabaseSearchDriver::class))
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(PostSearcher::class, LikedByFilter::class)
         ->addFilter(UserSearcher::class, LikedFilter::class),
 

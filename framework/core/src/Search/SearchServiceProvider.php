@@ -25,12 +25,14 @@ use Flarum\Post\Filter as PostFilter;
 use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
 use Flarum\Search\Filter\FilterManager;
+use Flarum\Search\Listener\ModelObserver;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Search\Filter as UserFilter;
 use Flarum\User\Search\FulltextFilter as UserFulltextFilter;
 use Flarum\User\Search\UserSearcher;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 
 class SearchServiceProvider extends AbstractServiceProvider
@@ -40,6 +42,7 @@ class SearchServiceProvider extends AbstractServiceProvider
         $this->container->singleton('flarum.search', function (Container $container) {
             return new SearchManager(
                 array_keys($container->make('flarum.search.drivers')),
+                $container->make('flarum.search.indexers'),
                 $container->make(SettingsRepositoryInterface::class),
                 $container,
             );
@@ -97,6 +100,17 @@ class SearchServiceProvider extends AbstractServiceProvider
         $this->container->singleton('flarum.search.mutators', function () {
             return [];
         });
+
+        // Indexers aren't driver specific.
+        // For example, a search driver implementation may support searching discussions,
+        // and would need to index discussions for that, but it would also need to index
+        // posts without supporting searching them, because it needs to index the posts for
+        // searching discussions.
+        $this->container->singleton('flarum.search.indexers', function () {
+            return [
+                // Model::class => [...],
+            ];
+        });
     }
 
     public function boot(Container $container): void
@@ -137,6 +151,11 @@ class SearchServiceProvider extends AbstractServiceProvider
                         return ContainerUtil::wrapCallback($mutator, $this->container);
                     }, $searchMutators);
                 });
+        }
+
+        /** @var \Flarum\Database\AbstractModel $modelClass */
+        foreach ($container->make('flarum.search.indexers') as $modelClass => $indexers) {
+            $modelClass::observe(ModelObserver::class);
         }
     }
 }

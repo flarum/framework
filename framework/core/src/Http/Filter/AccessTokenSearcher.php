@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class AccessTokenSearcher extends AbstractSearcher
 {
-    protected function getQuery(User $actor): Builder
+    public function getQuery(User $actor): Builder
     {
         return AccessToken::query()->whereVisibleTo($actor);
     }

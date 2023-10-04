@@ -58,7 +58,7 @@ return [
     (new Extend\User())
         ->permissionGroups(RevokeAccessFromSuspendedUsers::class),
 
-    (new Extend\Search(DatabaseSearchDriver::class))
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(UserSearcher::class, SuspendedFilter::class),
 
     (new Extend\View())

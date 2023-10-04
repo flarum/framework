@@ -30,5 +30,5 @@ abstract class AbstractFulltextFilter implements FilterInterface
     /**
      * @param TState $state
      */
-    abstract public function search(SearchState $state, string $query): void;
+    abstract public function search(SearchState $state, string $value): void;
 }

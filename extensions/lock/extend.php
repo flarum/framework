@@ -57,6 +57,6 @@ return [
     (new Extend\Policy())
         ->modelPolicy(Discussion::class, Access\DiscussionPolicy::class),
 
-    (new Extend\Search(DatabaseSearchDriver::class))
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(DiscussionSearcher::class, LockedFilter::class),
 ];

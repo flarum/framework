@@ -61,7 +61,7 @@ class ListUsersController extends AbstractListController
 
         $results = $this->search
             ->for(User::class)
-            ->search(new SearchCriteria($actor, $filters, $sort, $sortIsDefault), $limit, $offset);
+            ->search(new SearchCriteria($actor, $filters, $limit, $offset, $sort, $sortIsDefault));
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('users.index'),

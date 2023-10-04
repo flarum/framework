@@ -54,7 +54,7 @@ return [
         ->listen(DiscussionWasStickied::class, [Listener\CreatePostWhenDiscussionIsStickied::class, 'whenDiscussionWasStickied'])
         ->listen(DiscussionWasUnstickied::class, [Listener\CreatePostWhenDiscussionIsStickied::class, 'whenDiscussionWasUnstickied']),
 
-    (new Extend\Search(DatabaseSearchDriver::class))
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(DiscussionSearcher::class, StickyFilter::class)
         ->addMutator(DiscussionSearcher::class, PinStickiedDiscussionsToTop::class),
 ];

@@ -52,7 +52,7 @@ return [
     (new Extend\Validator(UserValidator::class))
         ->configure(AddNicknameValidation::class),
 
-    (new Extend\Search(DatabaseSearchDriver::class))
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->setFulltext(UserSearcher::class, NicknameFullTextFilter::class),
 
     (new Extend\Policy())

@@ -10,6 +10,7 @@
 namespace Flarum\Search\Database;
 
 use Flarum\Search\Filter\FilterManager;
+use Flarum\Search\IndexerInterface;
 use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearcherInterface;
 use Flarum\Search\SearchResults;
@@ -26,9 +27,7 @@ abstract class AbstractSearcher implements SearcherInterface
     ) {
     }
 
-    abstract protected function getQuery(User $actor): Builder;
-
-    public function search(SearchCriteria $criteria, ?int $limit = null, int $offset = 0): SearchResults
+    public function search(SearchCriteria $criteria): SearchResults
     {
         $actor = $criteria->actor;
 
@@ -40,8 +39,8 @@ abstract class AbstractSearcher implements SearcherInterface
         $this->filters->apply($search, $criteria->filters);
 
         $this->applySort($search, $criteria->sort, $criteria->sortIsDefault);
-        $this->applyOffset($search, $offset);
-        $this->applyLimit($search, $limit + 1);
+        $this->applyOffset($search, $criteria->offset);
+        $this->applyLimit($search, $criteria->limit + 1);
 
         foreach ($this->mutators as $mutator) {
             $mutator($search, $criteria);
@@ -52,7 +51,7 @@ abstract class AbstractSearcher implements SearcherInterface
         // results. If there are, we will get rid of that extra result.
         $results = $query->get();
 
-        if ($areMoreResults = $limit > 0 && $results->count() > $limit) {
+        if ($areMoreResults = $criteria->limit > 0 && $results->count() > $criteria->limit) {
             $results->pop();
         }
 

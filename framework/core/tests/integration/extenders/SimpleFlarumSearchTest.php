@@ -74,9 +74,12 @@ class SimpleFlarumSearchTest extends TestCase
 
         $filters['q'] = $query;
 
-        $criteria = new SearchCriteria($actor, $filters);
-
-        return $this->app()->getContainer()->make(SearchManager::class)->for(Discussion::class)->search($criteria, $limit)->getResults();
+        return $this->app()
+            ->getContainer()
+            ->make(SearchManager::class)
+            ->for(Discussion::class)
+            ->search(new SearchCriteria($actor, $filters, $limit))
+            ->getResults();
     }
 
     /**
@@ -101,7 +104,7 @@ class SimpleFlarumSearchTest extends TestCase
     public function custom_full_text_gambit_has_effect_if_added()
     {
         $this->extend(
-            (new Extend\Search(DatabaseSearchDriver::class))
+            (new Extend\SearchDriver(DatabaseSearchDriver::class))
                 ->setFulltext(DiscussionSearcher::class, NoResultFullTextFilter::class)
         );
 
@@ -114,7 +117,7 @@ class SimpleFlarumSearchTest extends TestCase
     public function custom_filter_has_effect_if_added()
     {
         $this->extend(
-            (new Extend\Search(DatabaseSearchDriver::class))
+            (new Extend\SearchDriver(DatabaseSearchDriver::class))
                 ->addFilter(DiscussionSearcher::class, NoResultFilter::class)
         );
 
@@ -132,7 +135,7 @@ class SimpleFlarumSearchTest extends TestCase
     public function search_mutator_has_effect_if_added()
     {
         $this->extend(
-            (new Extend\Search(DatabaseSearchDriver::class))
+            (new Extend\SearchDriver(DatabaseSearchDriver::class))
                 ->addMutator(DiscussionSearcher::class, function (DatabaseSearchState $search) {
                     $search->getQuery()->whereRaw('1=0');
                 })
@@ -149,7 +152,7 @@ class SimpleFlarumSearchTest extends TestCase
     public function search_mutator_has_effect_if_added_with_invokable_class()
     {
         $this->extend(
-            (new Extend\Search(DatabaseSearchDriver::class))
+            (new Extend\SearchDriver(DatabaseSearchDriver::class))
                 ->addMutator(DiscussionSearcher::class, CustomSearchMutator::class)
         );
 
@@ -161,7 +164,7 @@ class SimpleFlarumSearchTest extends TestCase
 
 class NoResultFullTextFilter extends AbstractFulltextFilter
 {
-    public function search(SearchState $state, string $query): void
+    public function search(SearchState $state, string $value): void
     {
         $state->getQuery()->whereRaw('0=1');
     }

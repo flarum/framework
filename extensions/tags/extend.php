@@ -135,7 +135,7 @@ return [
         ->listen(DiscussionWasTagged::class, Listener\CreatePostWhenTagsAreChanged::class)
         ->subscribe(Listener\UpdateTagMetadata::class),
 
-    (new Extend\Search(DatabaseSearchDriver::class))
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(PostSearcher::class, PostTagFilter::class)
         ->addFilter(DiscussionSearcher::class, TagFilter::class)
         ->addMutator(DiscussionSearcher::class, HideHiddenTagsFromAllDiscussionsPage::class)

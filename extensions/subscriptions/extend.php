@@ -70,7 +70,7 @@ return [
         ->listen(Deleted::class, Listener\DeleteNotificationWhenPostIsHiddenOrDeleted::class)
         ->listen(Posted::class, Listener\FollowAfterReply::class),
 
-    (new Extend\Search(DatabaseSearchDriver::class))
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(DiscussionSearcher::class, SubscriptionFilter::class)
         ->addMutator(DiscussionSearcher::class, HideIgnoredFromAllDiscussionsPage::class),
 

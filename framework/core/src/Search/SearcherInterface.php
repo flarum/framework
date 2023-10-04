@@ -2,7 +2,12 @@
 
 namespace Flarum\Search;
 
+use Flarum\User\User;
+use Illuminate\Database\Eloquent\Builder;
+
 interface SearcherInterface
 {
-    public function search(SearchCriteria $criteria, ?int $limit = null, int $offset = 0): SearchResults;
+    function getQuery(User $actor): Builder;
+
+    function search(SearchCriteria $criteria): SearchResults;
 }

@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class PostSearcher extends AbstractSearcher
 {
-    protected function getQuery(User $actor): Builder
+    public function getQuery(User $actor): Builder
     {
         return Post::whereVisibleTo($actor)->select('posts.*');
     }

@@ -40,7 +40,7 @@ class ListAccessTokensController extends AbstractListController
 
         $tokens = $this->search
             ->for(AccessToken::class)
-            ->search(new SearchCriteria($actor, $filter), $limit, $offset);
+            ->search(new SearchCriteria($actor, $filter, $limit, $offset));
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('access-tokens.index'),

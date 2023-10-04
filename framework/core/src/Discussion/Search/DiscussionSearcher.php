@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class DiscussionSearcher extends AbstractSearcher
 {
-    protected function getQuery(User $actor): Builder
+    public function getQuery(User $actor): Builder
     {
         return Discussion::whereVisibleTo($actor)->select('discussions.*');
     }

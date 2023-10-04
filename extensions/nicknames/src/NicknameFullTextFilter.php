@@ -34,12 +34,12 @@ class NicknameFullTextFilter extends AbstractFulltextFilter
             ->orWhere('nickname', 'like', "{$searchValue}%");
     }
 
-    public function search(SearchState $state, string $query): void
+    public function search(SearchState $state, string $value): void
     {
         $state->getQuery()
             ->whereIn(
                 'id',
-                $this->getUserSearchSubQuery($query)
+                $this->getUserSearchSubQuery($value)
             );
     }
 }

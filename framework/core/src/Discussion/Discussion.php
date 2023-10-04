@@ -143,6 +143,8 @@ class Discussion extends AbstractModel
             $this->hidden_user_id = $actor?->id;
 
             $this->raise(new Hidden($this));
+
+            $this->fireCustomModelEvent('hidden', false);
         }
 
         return $this;
@@ -155,6 +157,8 @@ class Discussion extends AbstractModel
             $this->hidden_user_id = null;
 
             $this->raise(new Restored($this));
+
+            $this->fireCustomModelEvent('restored', false);
         }
 
         return $this;

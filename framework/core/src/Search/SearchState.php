@@ -15,7 +15,9 @@ class SearchState
 
     public final function __construct(
         protected User $actor,
-        /** Whether this is a fulltext search or just filtering. */
+        /**
+         * Whether this is a fulltext search or just filtering.
+         */
         protected bool $fulltextSearch,
         /**
          * An array of sort-order pairs, where the column

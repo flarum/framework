@@ -116,7 +116,7 @@ return [
         ->listen(Hidden::class, Listener\UpdateMentionsMetadataWhenInvisible::class)
         ->listen(Deleted::class, Listener\UpdateMentionsMetadataWhenInvisible::class),
 
-    (new Extend\Search(DatabaseSearchDriver::class))
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(PostSearcher::class, Filter\MentionedFilter::class)
         ->addFilter(PostSearcher::class, Filter\MentionedPostFilter::class),
 

@@ -21,6 +21,8 @@ class SearchCriteria
     public function __construct(
         public User $actor,
         public array $filters,
+        public ?int $limit = null,
+        public int $offset = 0,
         /**
          * An array of sort-order pairs, where the column is the key, and the order
          * is the value. The order may be 'asc', 'desc', or an array of IDs to
@@ -33,7 +35,7 @@ class SearchCriteria
          * Is the sort for this request the default sort from the controller?
          * If false, the current request specifies a sort.
          */
-        public bool $sortIsDefault = false
+        public bool $sortIsDefault = false,
     ) {
     }
 }
