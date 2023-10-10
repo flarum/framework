@@ -88,8 +88,6 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
         </Form>
       </>
     );
-
-    return items;
   }
 
   mailSettingItems(): ItemList<Mithril.Children> {
@@ -98,10 +96,7 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
     const fields = this.driverFields![this.setting('mail_driver')()];
     const fieldKeys = Object.keys(fields);
 
-    items.add(
-      'status',
-      this.status!.sending || <Alert dismissible={false}>{app.translator.trans('core.admin.email.not_sending_message')}</Alert>
-    );
+    items.add('status', this.status!.sending || <Alert dismissible={false}>{app.translator.trans('core.admin.email.not_sending_message')}</Alert>);
 
     items.add(
       'mail_from',
