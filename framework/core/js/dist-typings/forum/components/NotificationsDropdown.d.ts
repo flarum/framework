@@ -1,15 +1,11 @@
-import Dropdown, { IDropdownAttrs } from '../../common/components/Dropdown';
-import type Mithril from 'mithril';
-export interface INotificationsDropdown extends IDropdownAttrs {
+/// <reference types="mithril" />
+import HeaderDropdown, { IHeaderDropdownAttrs } from './HeaderDropdown';
+export interface INotificationsDropdown extends IHeaderDropdownAttrs {
 }
-export default class NotificationsDropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttrs> extends Dropdown<CustomAttrs> {
+export default class NotificationsDropdown<CustomAttrs extends INotificationsDropdown = INotificationsDropdown> extends HeaderDropdown<CustomAttrs> {
     static initAttrs(attrs: INotificationsDropdown): void;
-    getButton(children: Mithril.ChildArray): Mithril.Vnode<any, any>;
-    getButtonContent(): Mithril.ChildArray;
-    getMenu(): JSX.Element;
-    onclick(): void;
+    getContent(): JSX.Element;
     goToRoute(): void;
-    getUnreadCount(): number | undefined;
-    getNewCount(): number | undefined;
-    menuClick(e: MouseEvent): void;
+    getUnreadCount(): number;
+    getNewCount(): number;
 }

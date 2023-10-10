@@ -21,6 +21,8 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
      * Base view template for the user page.
      */
     view(): JSX.Element;
+    hero(): JSX.Element;
+    sidebar(): JSX.Element;
     /**
      * Get the content to display in the user page.
      */

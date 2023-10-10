@@ -21,17 +21,7 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
      * Get the component to display as the hero.
      */
     hero(): JSX.Element;
-    /**
-     * Build an item list for the sidebar of the index page. By default this is a
-     * "New Discussion" button, and then a DropdownSelect component containing a
-     * list of navigation items.
-     */
-    sidebarItems(): ItemList<Mithril.Children>;
-    /**
-     * Build an item list for the navigation in the sidebar of the index page. By
-     * default this is just the 'All Discussions' link.
-     */
-    navItems(): ItemList<Mithril.Children>;
+    sidebar(): JSX.Element;
     /**
      * Build an item list for the part of the toolbar which is concerned with how
      * the results are displayed. By default this is just a select box to change
@@ -43,10 +33,6 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
      * on the results. By default this is just a "mark all as read" button.
      */
     actionItems(): ItemList<Mithril.Children>;
-    /**
-     * Open the composer for a new discussion or prompt the user to login.
-     */
-    newDiscussionAction(): Promise<unknown>;
     /**
      * Mark all discussions as read.
      */

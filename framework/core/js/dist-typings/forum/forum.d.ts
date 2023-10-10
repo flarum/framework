@@ -4,7 +4,6 @@ import './utils/PostControls';
 import './utils/slidable';
 import './utils/History';
 import './utils/DiscussionControls';
-import './utils/alertEmailConfirmation';
 import './utils/UserControls';
 import './utils/Pane';
 import './states/ComposerState';

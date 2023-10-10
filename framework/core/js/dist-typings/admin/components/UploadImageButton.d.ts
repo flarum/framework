@@ -1,29 +1,24 @@
-export default class UploadImageButton extends Button<import("../../common/components/Button").IButtonAttrs> {
-    constructor();
+import type { IButtonAttrs } from '../../common/components/Button';
+import type Mithril from 'mithril';
+import Component from '../../common/Component';
+export interface IUploadImageButtonAttrs extends IButtonAttrs {
+    name: string;
+    routePath: string;
+    value?: string | null | (() => string | null);
+    url?: string | null | (() => string | null);
+}
+export default class UploadImageButton<CustomAttrs extends IUploadImageButtonAttrs = IUploadImageButtonAttrs> extends Component<CustomAttrs> {
     loading: boolean;
-    view(vnode: any): JSX.Element;
-    /**
-     * Prompt the user to upload an image.
-     */
+    view(vnode: Mithril.Vnode<CustomAttrs, this>): JSX.Element;
     upload(): void;
-    /**
-     * Remove the logo.
-     */
     remove(): void;
     resourceUrl(): string;
     /**
      * After a successful upload/removal, reload the page.
-     *
-     * @param {object} response
-     * @protected
      */
-    protected success(response: object): void;
+    protected success(response: any): void;
     /**
      * If upload/removal fails, stop loading.
-     *
-     * @param {object} response
-     * @protected
      */
-    protected failure(response: object): void;
+    protected failure(response: any): void;
 }
-import Button from "../../common/components/Button";
