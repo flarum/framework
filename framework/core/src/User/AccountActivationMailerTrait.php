@@ -9,7 +9,8 @@
 
 namespace Flarum\User;
 
-use Flarum\Mail\Job\SendRawEmailJob;
+use Flarum\Mail\Job\SendInformationalEmailJob;
+use Illuminate\Support\Arr;
 
 trait AccountActivationMailerTrait
 {
@@ -38,6 +39,12 @@ trait AccountActivationMailerTrait
         $body = $this->translator->trans('core.email.activate_account.body', $data);
         $subject = $this->translator->trans('core.email.activate_account.subject');
 
-        $this->queue->push(new SendRawEmailJob($user->email, $subject, $body));
+        $this->queue->push(new SendInformationalEmailJob(
+            email: $user->email,
+            subject: $subject,
+            body: $body,
+            forumTitle: Arr::get($data, 'forum'),
+            displayName: Arr::get($data, 'username')
+        ));
     }
 }

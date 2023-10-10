@@ -14,9 +14,16 @@ use Flarum\Locale\TranslatorInterface;
 interface MailableInterface
 {
     /**
-     * Get the name of the view to construct a notification email with.
+     * Get the names of the views to construct a notification email with.
+     *
+     * To provide the best experience for the user, Flarum expects both a `text` and `html` view.
+     *
+     * @return array{
+     *     text: string,
+     *     html: string
+     * }
      */
-    public function getEmailView(): string|array;
+    public function getEmailViews(): array;
 
     /**
      * Get the subject line for a notification email.

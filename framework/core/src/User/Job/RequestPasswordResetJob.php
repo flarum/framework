@@ -11,12 +11,13 @@ namespace Flarum\User\Job;
 
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\TranslatorInterface;
-use Flarum\Mail\Job\SendRawEmailJob;
+use Flarum\Mail\Job\SendInformationalEmailJob;
 use Flarum\Queue\AbstractJob;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\PasswordToken;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Queue\Queue;
+use Illuminate\Support\Arr;
 
 class RequestPasswordResetJob extends AbstractJob
 {
@@ -50,6 +51,13 @@ class RequestPasswordResetJob extends AbstractJob
         $body = $translator->trans('core.email.reset_password.body', $data);
         $subject = $translator->trans('core.email.reset_password.subject');
 
-        $queue->push(new SendRawEmailJob($user->email, $subject, $body));
+        $queue->push(new SendInformationalEmailJob(
+            email: $user->email,
+            displayName: Arr::get($data, 'username'),
+            subject: $subject,
+            body: $body,
+            forumTitle: Arr::get($data, 'forum'),
+            bodyTitle: $subject
+        ));
     }
 }

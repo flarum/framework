@@ -687,4 +687,14 @@ class User extends AbstractModel
 
         return $this;
     }
+
+    /**
+     * Set the value of a notification preference.
+     */
+    public function setNotificationPreference(string $type, string $method, bool $value): static
+    {
+        $this->setPreference(static::getNotificationPreferenceKey($type, $method), $value);
+
+        return $this;
+    }
 }
