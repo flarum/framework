@@ -1,9 +1,10 @@
 import app from '../../common/app';
 import Component, { ComponentAttrs } from '../Component';
-import icon from '../helpers/icon';
 import listItems, { ModdedChildrenWithItemName } from '../helpers/listItems';
 import extractText from '../utils/extractText';
 import type Mithril from 'mithril';
+import Tooltip from './Tooltip';
+import Icon from './Icon';
 
 export interface IDropdownAttrs extends ComponentAttrs {
   /** A class name to apply to the dropdown toggle button. */
@@ -18,6 +19,8 @@ export interface IDropdownAttrs extends ComponentAttrs {
   label: Mithril.Children;
   /** The label used to describe the dropdown toggle button to assistive readers. Defaults to 'Toggle dropdown menu'. */
   accessibleToggleLabel?: string;
+  /** An optional tooltip to show when hovering over the dropdown toggle button. */
+  tooltip?: string;
   /** An action to take when the dropdown is collapsed. */
   onhide?: () => void;
   /** An action to take when the dropdown is opened. */
@@ -122,7 +125,7 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
    * Get the template for the button.
    */
   getButton(children: Mithril.ChildArray): Mithril.Vnode<any, any> {
-    return (
+    let button = (
       <button
         className={'Dropdown-toggle ' + this.attrs.buttonClassName}
         aria-haspopup="menu"
@@ -133,6 +136,16 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
         {this.getButtonContent(children)}
       </button>
     );
+
+    if (this.attrs.tooltip) {
+      button = (
+        <Tooltip text={this.attrs.tooltip} position="bottom">
+          {button}
+        </Tooltip>
+      );
+    }
+
+    return button;
   }
 
   /**
@@ -140,9 +153,9 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
    */
   getButtonContent(children: Mithril.ChildArray): Mithril.ChildArray {
     return [
-      this.attrs.icon ? icon(this.attrs.icon, { className: 'Button-icon' }) : '',
+      this.attrs.icon ? <Icon name={this.attrs.icon} className="Button-icon" /> : '',
       <span className="Button-label">{this.attrs.label}</span>,
-      this.attrs.caretIcon ? icon(this.attrs.caretIcon, { className: 'Button-caret' }) : '',
+      this.attrs.caretIcon ? <Icon name={this.attrs.caretIcon} className="Button-caret" /> : '',
     ];
   }
 

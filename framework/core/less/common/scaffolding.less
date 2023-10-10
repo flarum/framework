@@ -62,7 +62,6 @@ p {
   margin-left: auto;
   padding-left: 15px;
   padding-right: 15px;
-  .clearfix();
 
   @media @tablet {
     width: @screen-tablet;
@@ -91,16 +90,6 @@ fieldset {
   padding: 0;
   margin: 0;
   border: 0;
-
-  > ul > li {
-    margin-bottom: 10px;
-  }
-}
-legend {
-  font-size: 14px;
-  font-weight: bold;
-  margin-bottom: 10px;
-  color: var(--text-color);
 }
 input[type="search"] {
   -webkit-appearance: none;
@@ -182,4 +171,8 @@ blockquote ol:last-child {
   &--unchanged {
     --contrast-color: var(--unchanged-color);
   }
+}
+
+.text-colored {
+  color: var(--color);
 }

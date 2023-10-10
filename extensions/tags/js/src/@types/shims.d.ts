@@ -20,11 +20,11 @@ declare module 'flarum/common/models/Discussion' {
   }
 }
 
-declare module 'flarum/forum/components/IndexPage' {
-  export default interface IndexPage {
+declare module 'flarum/forum/ForumApplication' {
+  export default interface ForumApplication {
     currentActiveTag?: Tag;
     currentTagLoading?: boolean;
-    currentTag: () => Tag | undefined;
+    currentTag: (reload?: boolean) => Tag | undefined;
   }
 }
 

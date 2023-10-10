@@ -1,0 +1,87 @@
+@media @phone {
+  .DiscussionListPane {
+    display: none;
+  }
+}
+
+@media @tablet-up {
+  .DiscussionListPane {
+    left: calc(~"-6px - var(--pane-width)");
+    position: absolute;
+    z-index: var(--zindex-pane);
+    overflow: auto;
+    top: var(--header-height);
+    height: ~"calc(100vh - var(--header-height))";
+    width: var(--pane-width);
+    background: var(--body-bg);
+    padding-bottom: 40px;
+    border-top: 1px solid var(--control-bg);
+    box-shadow: 0 6px 6px var(--shadow-color);
+    transition: left 0.2s;
+
+    .affix & {
+      position: fixed;
+      bottom: 0;
+      height: auto;
+    }
+    .paneShowing & {
+      left: 0;
+    }
+    .DiscussionListItem {
+      margin: 0;
+      padding: 0;
+      border-radius: 0;
+
+      &.active {
+        background: var(--control-bg);
+      }
+    }
+    .DiscussionListItem-content {
+      padding-left: 16px;
+      padding-right: 28px;
+    }
+    .DiscussionListItem-title {
+      font-size: 14px;
+    }
+    .DiscussionListItem-info {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .DiscussionListItem-badges {
+      left: 12px;
+    }
+  }
+}
+
+@media @desktop-hd {
+  .DiscussionListPane {
+    .panePinned & {
+      left: 0;
+      transition: none;
+    }
+  }
+  // When the pane is pinned, move the other page content inwards
+  .App-content, .App-footer {
+    .hasPane.panePinned & {
+      margin-left: var(--pane-width);
+
+      .container {
+        max-width: 100%;
+        padding-left: 30px;
+        padding-right: 30px;
+      }
+    }
+  }
+  .App-header .container {
+    transition: width 0.2s;
+  }
+}
+
+.DiscussionListPane {
+  .DiscussionListItem-info {
+    .item-excerpt {
+      margin-right: 0;
+    }
+  }
+}

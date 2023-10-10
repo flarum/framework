@@ -1,8 +1,25 @@
-.Form-group {
-  margin-bottom: 24px;
+.Form {
+  --gap: 24px;
+  margin-bottom: 32px;
 
   &:last-child {
-    margin-bottom: 0 !important;
+    margin-bottom: 0;
+  }
+}
+.Form, .Form-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap);
+}
+.Form-header {
+  &:empty {
+    display: none;
+  }
+
+  > label {
+    font-weight: bold;
+    color: var(--muted-color);
   }
 }
 
@@ -24,18 +41,63 @@
     }
   }
 
-  .Form-group {
-    margin-bottom: 12px;
+  > *, > .Form-body > * {
+    width: 100%;
+  }
+
+  &, .Form-body {
+    --gap: 12px;
   }
   .checkbox {
     text-align: left;
   }
 }
 
-.Form-group > label {
+.Form-group, .FieldSet, .FieldSet-items {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.FieldSet, .FieldSet-items, .Form, .Form-body {
+  > * {
+    min-width: 100%;
+    margin-bottom: 0;
+  }
+}
+
+.FieldSet--col .FieldSet-items, .Form-controls {
+  flex-wrap: wrap;
+  flex-direction: row;
+  gap: 5px;
+
+  > * {
+    min-width: unset;
+  }
+}
+
+.Form-group, .FieldSet {
+  gap: 10px;
+}
+
+.FieldSet-items {
+  width: 100%;
+  gap: 5px;
+
+  .FieldSet--form & {
+    gap: 24px;
+  }
+}
+
+.Form-group > label, .FieldSet-label {
   font-size: 14px;
   font-weight: bold;
-  margin-bottom: 10px;
   color: var(--text-color);
   display: block;
+}
+
+.helpText {
+  font-size: 12px;
+  line-height: 1.5em;
+  color: var(--muted-color);
 }

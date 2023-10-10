@@ -1,10 +1,8 @@
 import app from '../../forum/app';
 import Component, { ComponentAttrs } from '../../common/Component';
 import Link from '../../common/components/Link';
-import avatar from '../../common/helpers/avatar';
 import listItems from '../../common/helpers/listItems';
 import highlight from '../../common/helpers/highlight';
-import icon from '../../common/helpers/icon';
 import humanTime from '../../common/utils/humanTime';
 import ItemList from '../../common/utils/ItemList';
 import abbreviateNumber from '../../common/utils/abbreviateNumber';
@@ -20,6 +18,8 @@ import Tooltip from '../../common/components/Tooltip';
 import type Discussion from '../../common/models/Discussion';
 import type Mithril from 'mithril';
 import type { DiscussionListParams } from '../states/DiscussionListState';
+import Icon from '../../common/components/Icon';
+import Avatar from '../../common/components/Avatar';
 
 export interface IDiscussionListItemAttrs extends ComponentAttrs {
   discussion: Discussion;
@@ -63,32 +63,36 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
   }
 
   view() {
-    const discussion = this.attrs.discussion;
-
-    const controls = DiscussionControls.controls(discussion, this).toArray();
     const attrs = this.elementAttrs();
 
-    return (
-      <div {...attrs}>
-        {this.controlsView(controls)}
-        {this.slidableUnderneathView()}
-        {this.contentView()}
-      </div>
-    );
+    return <div {...attrs}>{this.viewItems().toArray()}</div>;
+  }
+
+  viewItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    const controls = DiscussionControls.controls(this.attrs.discussion, this).toArray();
+
+    if (controls.length) {
+      items.add('controls', this.controlsView(controls), 100);
+    }
+
+    items.add('slidableUnderneath', this.slidableUnderneathView(), 90);
+    items.add('content', this.contentView(), 80);
+
+    return items;
   }
 
   controlsView(controls: Mithril.ChildArray): Mithril.Children {
     return (
-      !!controls.length && (
-        <Dropdown
-          icon="fas fa-ellipsis-v"
-          className="DiscussionListItem-controls"
-          buttonClassName="Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right"
-          accessibleToggleLabel={app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label')}
-        >
-          {controls}
-        </Dropdown>
-      )
+      <Dropdown
+        icon="fas fa-ellipsis-v"
+        className="DiscussionListItem-controls"
+        buttonClassName="Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right"
+        accessibleToggleLabel={app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label')}
+      >
+        {controls}
+      </Dropdown>
     );
   }
 
@@ -101,7 +105,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
         className={classList('Slidable-underneath Slidable-underneath--left Slidable-underneath--elastic', { disabled: !isUnread })}
         onclick={this.markAsRead.bind(this)}
       >
-        {icon('fas fa-check')}
+        <Icon name={'fas fa-check'} />
       </span>
     );
   }
@@ -113,28 +117,47 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
 
     return (
       <div className={classList('DiscussionListItem-content', 'Slidable-content', { unread: isUnread, read: isRead })}>
-        {this.authorAvatarView()}
-        {this.badgesView()}
-        {this.mainView()}
-        {this.replyCountItem()}
+        {this.contentItems().toArray()}
       </div>
     );
   }
 
-  authorAvatarView(): Mithril.Children {
+  contentItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add('author', this.authorView(), 100);
+    items.add('main', this.mainView(), 80);
+    items.add('stats', this.statsView(), 70);
+
+    return items;
+  }
+
+  authorView(): Mithril.Children {
+    return <div className="DiscussionListItem-author">{this.authorItems().toArray()}</div>;
+  }
+
+  authorItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
     const discussion = this.attrs.discussion;
     const user = discussion.user();
 
-    return (
+    items.add(
+      'avatar',
       <Tooltip
         text={app.translator.trans('core.forum.discussion_list.started_text', { user, ago: humanTime(discussion.createdAt()) })}
         position="right"
       >
-        <Link className="DiscussionListItem-author" href={user ? app.route.user(user) : '#'}>
-          {avatar(user || null, { title: '' })}
+        <Link className="DiscussionListItem-author-avatar" href={user ? app.route.user(user) : '#'}>
+          <Avatar user={user || null} title="" />
         </Link>
-      </Tooltip>
+      </Tooltip>,
+      100
     );
+
+    items.add('badges', this.badgesView(), 90);
+
+    return items;
   }
 
   badgesView(): Mithril.Children {
@@ -252,30 +275,54 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     return items;
   }
 
+  statsView(): Mithril.Children {
+    return <div className="DiscussionListItem-stats">{this.statsItems().toArray()}</div>;
+  }
+
+  statsItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add('replyCount', this.replyCountItem(), 70);
+
+    return items;
+  }
+
   replyCountItem() {
     const discussion = this.attrs.discussion;
     const showUnread = !this.showRepliesCount() && discussion.isUnread();
-
-    if (showUnread) {
-      return (
-        <button className="Button--ua-reset DiscussionListItem-count" onclick={this.markAsRead.bind(this)}>
-          <span aria-hidden="true">{abbreviateNumber(discussion.unreadCount())}</span>
-
-          <span className="visually-hidden">
-            {app.translator.trans('core.forum.discussion_list.unread_replies_a11y_label', { count: discussion.replyCount() })}
-          </span>
-        </button>
-      );
-    }
+    const a11yKey = showUnread ? 'core.forum.discussion_list.unread_replies_a11y_label' : 'core.forum.discussion_list.total_replies_a11y_label';
 
     return (
-      <span className="DiscussionListItem-count">
-        <span aria-hidden="true">{abbreviateNumber(discussion.replyCount())}</span>
+      <DiscussionListItemStatsItem
+        className="DiscussionListItem-count"
+        icon={showUnread ? [<Icon name={'fas fa-check _checkmark'} />, <Icon name={'fas fa-comment _comment'} />] : <Icon name={'far fa-comment'} />}
+        label={showUnread ? abbreviateNumber(discussion.unreadCount()) : abbreviateNumber(discussion.replyCount())}
+        a11yLabel={app.translator.trans(a11yKey, { count: discussion.replyCount() })}
+        onclick={showUnread ? this.markAsRead.bind(this) : undefined}
+      />
+    );
+  }
+}
 
-        <span className="visually-hidden">
-          {app.translator.trans('core.forum.discussion_list.total_replies_a11y_label', { count: discussion.replyCount() })}
+export interface DiscussionListItemStatsItemAttrs extends ComponentAttrs {
+  icon: string;
+  label: string;
+  a11yLabel?: string;
+}
+
+export class DiscussionListItemStatsItem extends Component<DiscussionListItemStatsItemAttrs> {
+  view(vnode: Mithril.Vnode<DiscussionListItemStatsItemAttrs>) {
+    const { icon, label, a11yLabel, className, ...attrs } = vnode.attrs;
+    const Tag = attrs.onclick ? 'button' : 'span';
+
+    return (
+      <Tag className={classList('DiscussionListItem-stats-item', className, { 'Button--ua-reset': Tag === 'button' })} {...attrs}>
+        <span className="DiscussionListItem-stats-item-icon">{icon}</span>
+        <span className="DiscussionListItem-stats-item-label">
+          <span aria-hidden="true">{label}</span>
+          <span className="visually-hidden">{a11yLabel ?? label}</span>
         </span>
-      </span>
+      </Tag>
     );
   }
 }

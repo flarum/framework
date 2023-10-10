@@ -5,7 +5,7 @@ import extract from '../utils/extract';
 import type Mithril from 'mithril';
 import classList from '../utils/classList';
 import app from '../app';
-import iconHelper from '../helpers/icon';
+import Icon from './Icon';
 
 export interface AlertAttrs extends ComponentAttrs {
   /** The type of alert this is. Will be used to give the alert a class name of `Alert--{type}`. */
@@ -20,6 +20,8 @@ export interface AlertAttrs extends ComponentAttrs {
   dismissible?: boolean;
   /** A callback to run when the alert is dismissed */
   ondismiss?: Function;
+  /** A class to assign to the container element */
+  containerClassName?: string;
 }
 
 /**
@@ -58,14 +60,20 @@ export default class Alert<T extends AlertAttrs = AlertAttrs> extends Component<
 
     return (
       <div {...attrs}>
-        {!!title && (
-          <div className="Alert-title">
-            {!!icon && <span className="Alert-title-icon">{iconHelper(icon)}</span>}
-            <span className="Alert-title-text">{title}</span>
-          </div>
-        )}
-        <span className="Alert-body">{content}</span>
-        <ul className="Alert-controls">{listItems(controls.concat(dismissControl))}</ul>
+        <div className={classList('Alert-container', attrs.containerClassName)}>
+          {!!title && (
+            <div className="Alert-title">
+              {!!icon && (
+                <span className="Alert-title-icon">
+                  <Icon name={icon} />
+                </span>
+              )}
+              <span className="Alert-title-text">{title}</span>
+            </div>
+          )}
+          <span className="Alert-body">{content}</span>
+          <ul className="Alert-controls">{listItems(controls.concat(dismissControl))}</ul>
+        </div>
       </div>
     );
   }

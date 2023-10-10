@@ -9,6 +9,7 @@ import Stream from '../utils/Stream';
 import type Mithril from 'mithril';
 import type User from '../models/User';
 import type { SaveAttributes, SaveRelationships } from '../Model';
+import Form from './Form';
 
 export interface IEditUserModalAttrs extends IInternalModalAttrs {
   user: User;
@@ -53,7 +54,7 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
     const fields = this.fields().toArray();
     return (
       <div className="Modal-body">
-        {fields.length > 1 ? <div className="Form">{this.fields().toArray()}</div> : app.translator.trans('core.lib.edit_user.nothing_available')}
+        {fields.length > 1 ? <Form>{this.fields().toArray()}</Form> : app.translator.trans('core.lib.edit_user.nothing_available')}
       </div>
     );
   }
@@ -169,7 +170,7 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
 
     items.add(
       'submit',
-      <div className="Form-group">
+      <div className="Form-group Form-controls">
         <Button className="Button Button--primary" type="submit" loading={this.loading}>
           {app.translator.trans('core.lib.edit_user.submit_button')}
         </Button>

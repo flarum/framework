@@ -7,6 +7,7 @@ import Stream from '../../common/utils/Stream';
 import type Mithril from 'mithril';
 import Switch from '../../common/components/Switch';
 import { generateRandomString } from '../../common/utils/string';
+import Form from '../../common/components/Form';
 
 export interface ICreateUserModalAttrs extends IInternalModalAttrs {
   username?: string;
@@ -79,7 +80,7 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
   body() {
     return (
       <>
-        <div className="Form Form--centered">{this.fields().toArray()}</div>
+        <Form className="Form--centered">{this.fields().toArray()}</Form>
       </>
     );
   }

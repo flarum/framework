@@ -5,12 +5,12 @@ import ItemList from '../../common/utils/ItemList';
 import classList from '../../common/utils/classList';
 import extractText from '../../common/utils/extractText';
 import KeyboardNavigatable from '../../common/utils/KeyboardNavigatable';
-import icon from '../../common/helpers/icon';
 import SearchState from '../states/SearchState';
 import DiscussionsSearchSource from './DiscussionsSearchSource';
 import UsersSearchSource from './UsersSearchSource';
 import { fireDeprecationWarning } from '../../common/helpers/fireDebugWarning';
 import type Mithril from 'mithril';
+import Icon from '../../common/components/Icon';
 
 /**
  * The `SearchSource` interface defines a section of search results in the
@@ -163,7 +163,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
               aria-label={app.translator.trans('core.forum.header.search_clear_button_accessible_label')}
               type="button"
             >
-              {icon('fas fa-times-circle')}
+              <Icon name={'fas fa-times-circle'} />
             </button>
           )}
         </div>

@@ -1,5 +1,4 @@
 import app from '../../forum/app';
-import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
 import Dropdown, { IDropdownAttrs } from '../../common/components/Dropdown';
 import LinkButton from '../../common/components/LinkButton';
@@ -8,6 +7,7 @@ import ItemList from '../../common/utils/ItemList';
 import Separator from '../../common/components/Separator';
 import extractText from '../../common/utils/extractText';
 import type Mithril from 'mithril';
+import Avatar from '../../common/components/Avatar';
 
 export interface ISessionDropdownAttrs extends IDropdownAttrs {}
 
@@ -33,7 +33,7 @@ export default class SessionDropdown<CustomAttrs extends ISessionDropdownAttrs =
   getButtonContent() {
     const user = app.session.user;
 
-    return [avatar(user), ' ', <span className="Button-label">{username(user)}</span>];
+    return [<Avatar user={user} />, ' ', <span className="Button-label">{username(user)}</span>];
   }
 
   /**

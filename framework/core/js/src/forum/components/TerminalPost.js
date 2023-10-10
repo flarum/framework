@@ -1,7 +1,8 @@
 import app from '../../forum/app';
 import Component from '../../common/Component';
 import humanTime from '../../common/helpers/humanTime';
-import icon from '../../common/helpers/icon';
+
+import Icon from '../../common/components/Icon';
 
 /**
  * Displays information about a the first or last post in a discussion.
@@ -21,7 +22,7 @@ export default class TerminalPost extends Component {
 
     return (
       <span>
-        {!!lastPost && icon('fas fa-reply')}{' '}
+        {!!lastPost && <Icon name={'fas fa-reply'} />}{' '}
         {app.translator.trans('core.forum.discussion_list.' + (lastPost ? 'replied' : 'started') + '_text', {
           user,
           ago: humanTime(time),

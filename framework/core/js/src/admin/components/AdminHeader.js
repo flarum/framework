@@ -1,6 +1,7 @@
 import Component from '../../common/Component';
 import classList from '../../common/utils/classList';
-import icon from '../../common/helpers/icon';
+
+import Icon from '../../common/components/Icon';
 
 export default class AdminHeader extends Component {
   view(vnode) {
@@ -8,7 +9,7 @@ export default class AdminHeader extends Component {
       <div className={classList(['AdminHeader', this.attrs.className])}>
         <div className="container">
           <h2>
-            {icon(this.attrs.icon)}
+            <Icon name={this.attrs.icon} />
             {vnode.children}
           </h2>
           <div className="AdminHeader-description">{this.attrs.description}</div>

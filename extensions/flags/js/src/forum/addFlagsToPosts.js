@@ -1,4 +1,4 @@
-import { extend } from 'flarum/common/extend';
+import { extend, override } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
 import Post from 'flarum/forum/components/Post';
 import Button from 'flarum/common/components/Button';
@@ -75,7 +75,7 @@ export default function () {
     return items;
   };
 
-  extend(Post.prototype, 'content', function (vdom) {
+  override(Post.prototype, 'header', function (vdom) {
     const post = this.attrs.post;
     const flags = post.flags();
 
@@ -83,7 +83,7 @@ export default function () {
 
     if (post.isHidden()) this.revealContent = true;
 
-    vdom.unshift(
+    return (
       <div className="Post-flagged">
         <div className="Post-flagged-flags">
           {flags.map((flag) => (

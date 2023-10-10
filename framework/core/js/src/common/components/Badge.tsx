@@ -1,8 +1,8 @@
 import Tooltip from './Tooltip';
 import Component, { ComponentAttrs } from '../Component';
-import icon from '../helpers/icon';
 import classList from '../utils/classList';
 import textContrastClass from '../helpers/textContrastClass';
+import Icon from './Icon';
 
 export interface IBadgeAttrs extends ComponentAttrs {
   icon: string;
@@ -30,7 +30,7 @@ export default class Badge<CustomAttrs extends IBadgeAttrs = IBadgeAttrs> extend
 
     const className = classList('Badge', [type && `Badge--${type}`], attrs.className, textContrastClass(color));
 
-    const iconChild = iconName ? icon(iconName, { className: 'Badge-icon' }) : m.trust('&nbsp;');
+    const iconChild = iconName ? <Icon name={iconName} className="Badge-icon" /> : m.trust('&nbsp;');
 
     const newStyle = { ...style, '--badge-bg': color };
 

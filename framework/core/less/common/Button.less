@@ -5,12 +5,14 @@
 // Make the div behave like a button
 .ButtonGroup {
   position: relative;
-  display: inline-block;
-  vertical-align: middle;
+  display: inline-flex;
+  gap: 1px;
 
   > .Button {
     position: relative;
-    float: left;
+    flex-shrink: 0;
+    flex-grow: 0;
+
     // Bring the "active" button to the front
     &:hover,
     &:focus,
@@ -19,22 +21,18 @@
       z-index: 2;
     }
 
-    &:not(:first-child):not(:last-child):not(.Dropdown-toggle) {
+    &:not(:first-of-type):not(:last-of-type):not(.Dropdown-toggle) {
       border-radius: 0;
     }
-    &:first-child:not(:last-child):not(.Dropdown-toggle) {
+    &:first-of-type:not(:last-of-type):not(.Dropdown-toggle) {
       margin-left: 0;
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
     }
-    &:last-child:not(:first-child), &.Dropdown-toggle:not(:first-child) {
+    &:last-of-type:not(:first-of-type), &.Dropdown-toggle:not(:first-of-type) {
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
     }
-  }
-
-  .Button + .Button {
-    margin-left: 1px;
   }
 }
 
@@ -42,8 +40,14 @@
 // Buttons
 // --------------------------------------------------
 
+.Button, .LinkButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
 .Button {
-  display: inline-block;
+  justify-content: center;
   margin-bottom: 0; // For input.btn
   text-align: center;
   vertical-align: middle;
@@ -159,10 +163,6 @@
   font-weight: bold;
   padding-left: 20px;
   padding-right: 20px;
-
-  .Button-icon {
-    display: none;
-  }
 }
 .Button--inverted {
   .Button--color-auto('button-inverted');
@@ -179,7 +179,7 @@
   }
 }
 .Button--block {
-  display: block;
+  display: flex;
   width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -212,8 +212,11 @@
     .Avatar--size(24px);
   }
 }
+.Button-label {
+  line-height: inherit;
+}
 .Button-icon {
-  margin-right: 7px;
+  line-height: inherit;
 }
 .Button-icon,
 .Button-caret {

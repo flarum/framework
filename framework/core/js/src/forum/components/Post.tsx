@@ -55,29 +55,33 @@ export default abstract class Post<CustomAttrs extends IPostAttrs = IPostAttrs> 
 
     return (
       <article {...attrs}>
-        <div>
-          {this.loading ? <LoadingIndicator /> : this.content()}
-          <aside className="Post-actions">
-            <ul>
-              {listItems(this.actionItems().toArray())}
-              {!!controls.length && (
-                <li>
-                  <Dropdown
-                    className="Post-controls"
-                    buttonClassName="Button Button--icon Button--flat"
-                    menuClassName="Dropdown-menu--right"
-                    icon="fas fa-ellipsis-h"
-                    onshow={() => this.$('.Post-controls').addClass('open')}
-                    onhide={() => this.$('.Post-controls').removeClass('open')}
-                    accessibleToggleLabel={app.translator.trans('core.forum.post_controls.toggle_dropdown_accessible_label')}
-                  >
-                    {controls}
-                  </Dropdown>
-                </li>
-              )}
-            </ul>
-          </aside>
-          <footer className="Post-footer">{footerItems.length ? <ul>{listItems(footerItems)}</ul> : null}</footer>
+        {this.header()}
+        <div className="Post-container">
+          <div className="Post-side">{this.sideItems().toArray()}</div>
+          <div className="Post-main">
+            {this.loading ? <LoadingIndicator /> : this.content()}
+            <aside className="Post-actions">
+              <ul>
+                {listItems(this.actionItems().toArray())}
+                {!!controls.length && (
+                  <li>
+                    <Dropdown
+                      className="Post-controls"
+                      buttonClassName="Button Button--icon Button--flat"
+                      menuClassName="Dropdown-menu--right"
+                      icon="fas fa-ellipsis-h"
+                      onshow={() => this.$('.Post-controls').addClass('open')}
+                      onhide={() => this.$('.Post-controls').removeClass('open')}
+                      accessibleToggleLabel={app.translator.trans('core.forum.post_controls.toggle_dropdown_accessible_label')}
+                    >
+                      {controls}
+                    </Dropdown>
+                  </li>
+                )}
+              </ul>
+            </aside>
+            <footer className="Post-footer">{footerItems.length ? <ul>{listItems(footerItems)}</ul> : null}</footer>
+          </div>
         </div>
       </article>
     );
@@ -105,11 +109,14 @@ export default abstract class Post<CustomAttrs extends IPostAttrs = IPostAttrs> 
     return {};
   }
 
+  header(): Mithril.Children {
+    return null;
+  }
+
   /**
    * Get the post's content.
    */
   content(): Mithril.Children {
-    // TODO: [Flarum 2.0] return `null`
     return [];
   }
 
@@ -149,5 +156,17 @@ export default abstract class Post<CustomAttrs extends IPostAttrs = IPostAttrs> 
    */
   footerItems(): ItemList<Mithril.Children> {
     return new ItemList();
+  }
+
+  sideItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add('avatar', this.avatar(), 100);
+
+    return items;
+  }
+
+  avatar(): Mithril.Children {
+    return null;
   }
 }

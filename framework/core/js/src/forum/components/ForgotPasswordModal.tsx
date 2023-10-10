@@ -6,6 +6,7 @@ import Stream from '../../common/utils/Stream';
 import Mithril from 'mithril';
 import RequestError from '../../common/utils/RequestError';
 import ItemList from '../../common/utils/ItemList';
+import Form from '../../common/components/Form';
 
 export interface IForgotPasswordModalAttrs extends IInternalModalAttrs {
   email?: string;
@@ -41,24 +42,23 @@ export default class ForgotPasswordModal<CustomAttrs extends IForgotPasswordModa
     if (this.success) {
       return (
         <div className="Modal-body">
-          <div className="Form Form--centered">
+          <Form className="Form--centered">
             <p className="helpText">{app.translator.trans('core.forum.forgot_password.email_sent_message')}</p>
-            <div className="Form-group">
+            <div className="Form-group Form-controls">
               <Button className="Button Button--primary Button--block" onclick={this.hide.bind(this)}>
                 {app.translator.trans('core.forum.forgot_password.dismiss_button')}
               </Button>
             </div>
-          </div>
+          </Form>
         </div>
       );
     }
 
     return (
       <div className="Modal-body">
-        <div className="Form Form--centered">
-          <p className="helpText">{app.translator.trans('core.forum.forgot_password.text')}</p>
+        <Form className="Form--centered" description={app.translator.trans('core.forum.forgot_password.text')}>
           {this.fields().toArray()}
-        </div>
+        </Form>
       </div>
     );
   }
@@ -86,7 +86,7 @@ export default class ForgotPasswordModal<CustomAttrs extends IForgotPasswordModa
 
     items.add(
       'submit',
-      <div className="Form-group">
+      <div className="Form-group Form-controls">
         <Button className="Button Button--primary Button--block" type="submit" loading={this.loading}>
           {app.translator.trans('core.forum.forgot_password.submit_button')}
         </Button>

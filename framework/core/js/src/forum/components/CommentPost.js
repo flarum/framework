@@ -8,6 +8,9 @@ import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
 import ComposerPostPreview from './ComposerPostPreview';
+import Link from '../../common/components/Link';
+import UserCard from './UserCard.js';
+import Avatar from '../../common/components/Avatar';
 
 /**
  * The `CommentPost` component displays a standard `comment`-typed post. This
@@ -45,10 +48,25 @@ export default class CommentPost extends Post {
     );
   }
 
+  avatar() {
+    const user = this.attrs.post.user();
+    const view = <Avatar user={user} className="Post-avatar" />;
+
+    if (user) {
+      return <Link href={app.route.user(user)}>{view}</Link>;
+    }
+
+    return view;
+  }
+
   content() {
     return super.content().concat([
       <header className="Post-header">
         <ul>{listItems(this.headerItems().toArray())}</ul>
+
+        {!this.attrs.post.isHidden() && this.cardVisible && (
+          <UserCard user={this.attrs.post.user()} className="UserCard--popover" controlsButtonClassName="Button Button--icon Button--flat" />
+        )}
       </header>,
       <div className="Post-body">
         {this.isEditing() ? <ComposerPostPreview className="Post-preview" composer={app.composer} /> : m.trust(this.attrs.post.contentHtml())}
@@ -77,6 +95,7 @@ export default class CommentPost extends Post {
   oncreate(vnode) {
     super.oncreate(vnode);
 
+    this.listenForCard();
     this.refreshContent();
   }
 
@@ -127,22 +146,7 @@ export default class CommentPost extends Post {
     const items = new ItemList();
     const post = this.attrs.post;
 
-    items.add(
-      'user',
-      <PostUser
-        post={post}
-        cardVisible={this.cardVisible}
-        oncardshow={() => {
-          this.cardVisible = true;
-          m.redraw();
-        }}
-        oncardhide={() => {
-          this.cardVisible = false;
-          m.redraw();
-        }}
-      />,
-      100
-    );
+    items.add('user', <PostUser post={post} />, 100);
     items.add('meta', <PostMeta post={post} />);
 
     if (post.isEdited() && !post.isHidden()) {
@@ -159,5 +163,41 @@ export default class CommentPost extends Post {
     }
 
     return items;
+  }
+
+  listenForCard() {
+    let timeout;
+
+    this.$()
+      .on('mouseover', '.PostUser-name a, .UserCard, .Post-avatar', () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(this.showCard.bind(this), 500);
+      })
+      .on('mouseout', '.PostUser-name a, .UserCard, .Post-avatar', () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(this.hideCard.bind(this), 250);
+      });
+  }
+
+  /**
+   * Show the user card.
+   */
+  showCard() {
+    this.cardVisible = true;
+    m.redraw();
+
+    setTimeout(() => this.$('.UserCard').addClass('in'));
+  }
+
+  /**
+   * Hide the user card.
+   */
+  hideCard() {
+    this.$('.UserCard')
+      .removeClass('in')
+      .one('transitionend webkitTransitionEnd oTransitionEnd', () => {
+        this.cardVisible = false;
+        m.redraw();
+      });
   }
 }

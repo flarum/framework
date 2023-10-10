@@ -2,11 +2,11 @@ import type Mithril from 'mithril';
 
 import app from '../../forum/app';
 import highlight from '../../common/helpers/highlight';
-import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
 import Link from '../../common/components/Link';
 import { SearchSource } from './Search';
 import User from '../../common/models/User';
+import Avatar from '../../common/components/Avatar';
 
 /**
  * The `UsersSearchSource` finds and displays user search results in the search
@@ -49,7 +49,7 @@ export default class UsersSearchResults implements SearchSource {
         return (
           <li className="UserSearchResult" data-index={'users' + user.id()}>
             <Link href={app.route.user(user)}>
-              {avatar(user)}
+              <Avatar user={user} />
               {name}
             </Link>
           </li>

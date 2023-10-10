@@ -5,6 +5,7 @@ import Stream from '../../common/utils/Stream';
 import saveSettings from '../utils/saveSettings';
 import Mithril from 'mithril';
 import { MutableSettings, SettingValue } from './AdminPage';
+import Form from '../../common/components/Form';
 
 export interface ISettingsModalAttrs extends IInternalModalAttrs {}
 
@@ -19,11 +20,11 @@ export default abstract class SettingsModal<CustomAttrs extends ISettingsModalAt
   content() {
     return (
       <div className="Modal-body">
-        <div className="Form">
+        <Form>
           {this.form()}
 
           <div className="Form-group">{this.submitButton()}</div>
-        </div>
+        </Form>
       </div>
     );
   }
