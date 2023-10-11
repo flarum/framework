@@ -81,15 +81,14 @@ class Conditional implements ExtenderInterface
 
             if ($condition['condition']) {
                 $extenders = $condition['extenders'];
-                $resolvedExtenders = [];
 
-                if (is_string($extenders) || is_callable($extenders)) {
-                    $resolvedExtenders = $container->call($extenders);
-                } else {
-                    $resolvedExtenders = $extenders;
+                if (is_string($extenders)) {
+                    $extenders = $container->call($extenders);
+                } elseif (is_callable($extenders)) {
+                    $extenders = $container->call($extenders);
                 }
 
-                foreach ($resolvedExtenders as $extender) {
+                foreach ($extenders as $extender) {
                     $extender->extend($container, $extension);
                 }
             }
