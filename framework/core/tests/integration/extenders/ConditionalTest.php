@@ -12,12 +12,9 @@ namespace Flarum\Tests\integration\extenders;
 use Exception;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extend;
-use Flarum\Extend\ExtenderInterface;
-use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Illuminate\Contracts\Container\Container;
 
 class ConditionalTest extends TestCase
 {
@@ -147,7 +144,7 @@ class ConditionalTest extends TestCase
         $this->extend(
             (new Extend\Conditional())
                 ->when(function (?ExtensionManager $extensions) {
-                    if (! $extensions) {
+                    if (!$extensions) {
                         throw new Exception('ExtensionManager not injected');
                     }
                 }, [
@@ -164,44 +161,138 @@ class ConditionalTest extends TestCase
     }
 
     /** @test */
-    public function conditional_does_not_instantiate_extender_if_condition_is_false()
+    public function conditional_does_not_instantiate_extender_if_condition_is_false_using_callable()
     {
         $this->extend(
             (new Extend\Conditional())
-                ->when(false, [
-                    new TestExtender()
-                ])
+                ->when(false, TestExtender::class)
         );
 
         $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
 
     /** @test */
-    public function conditional_does_instantiate_extender_if_condition_is_true()
+    public function conditional_does_instantiate_extender_if_condition_is_true_using_callable()
     {
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('TestExtender was instantiated!');
-
         $this->extend(
             (new Extend\Conditional())
-                ->when(true, [
-                    new TestExtender()
-                ])
+                ->when(true, TestExtender::class)
         );
 
         $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    /** @test */
+    public function conditional_does_not_instantiate_extender_if_condition_is_false_using_callback()
+    {
+        $this->extend(
+            (new Extend\Conditional())
+                ->when(false, function (): array {
+                    return [
+                        (new Extend\ApiSerializer(ForumSerializer::class))
+                            ->attributes(function () {
+                                return [
+                                    'customConditionalAttribute' => true
+                                ];
+                            })
+                    ];
+                })
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    /** @test */
+    public function conditional_does_instantiate_extender_if_condition_is_true_using_callback()
+    {
+        $this->extend(
+            (new Extend\Conditional())
+                ->when(true, function (): array {
+                    return [
+                        (new Extend\ApiSerializer(ForumSerializer::class))
+                            ->attributes(function () {
+                                return [
+                                    'customConditionalAttribute' => true
+                                ];
+                            })
+                    ];
+                })
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    /** @test */
+    public function conditional_does_not_work_if_extension_is_disabled()
+    {
+        $this->extend(
+            (new Extend\Conditional())
+                ->whenExtensionEnabled('dummy-extension-id', TestExtender::class)
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
 }
 
-class TestExtender implements ExtenderInterface
+class TestExtender
 {
-    public function __construct()
+    public function __invoke(): array
     {
-        throw new Exception('TestExtender was instantiated!');
-    }
-
-    public function extend(Container $container, Extension $extension = null)
-    {
-        // This method can be left empty for this test.
+        return [
+            (new Extend\ApiSerializer(ForumSerializer::class))
+                ->attributes(function () {
+                    return [
+                        'customConditionalAttribute' => true
+                    ];
+                })
+        ];
     }
 }
