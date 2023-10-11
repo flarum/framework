@@ -144,7 +144,7 @@ class ConditionalTest extends TestCase
         $this->extend(
             (new Extend\Conditional())
                 ->when(function (?ExtensionManager $extensions) {
-                    if (!$extensions) {
+                    if (! $extensions) {
                         throw new Exception('ExtensionManager not injected');
                     }
                 }, [

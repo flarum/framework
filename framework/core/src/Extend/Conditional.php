@@ -19,8 +19,6 @@ use Illuminate\Contracts\Container\Container;
  *
  * This is useful for applying extenders only if certain conditions are met,
  * such as the presence of an enabled extension or a specific configuration setting.
- *
- * @package Flarum\Extend
  */
 class Conditional implements ExtenderInterface
 {
