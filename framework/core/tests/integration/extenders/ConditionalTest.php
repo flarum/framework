@@ -12,9 +12,12 @@ namespace Flarum\Tests\integration\extenders;
 use Exception;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extend;
+use Flarum\Extend\ExtenderInterface;
+use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Illuminate\Contracts\Container\Container;
 
 class ConditionalTest extends TestCase
 {
@@ -144,7 +147,7 @@ class ConditionalTest extends TestCase
         $this->extend(
             (new Extend\Conditional())
                 ->when(function (?ExtensionManager $extensions) {
-                    if (! $extensions) {
+                    if (!$extensions) {
                         throw new Exception('ExtensionManager not injected');
                     }
                 }, [
@@ -158,5 +161,47 @@ class ConditionalTest extends TestCase
         );
 
         $this->app();
+    }
+
+    /** @test */
+    public function conditional_does_not_instantiate_extender_if_condition_is_false()
+    {
+        $this->extend(
+            (new Extend\Conditional())
+                ->when(false, [
+                    new TestExtender()
+                ])
+        );
+
+        $this->app();
+    }
+
+    /** @test */
+    public function conditional_does_instantiate_extender_if_condition_is_true()
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('TestExtender was instantiated!');
+
+        $this->extend(
+            (new Extend\Conditional())
+                ->when(true, [
+                    new TestExtender()
+                ])
+        );
+
+        $this->app();
+    }
+}
+
+class TestExtender implements ExtenderInterface
+{
+    public function __construct()
+    {
+        throw new Exception('TestExtender was instantiated!');
+    }
+
+    public function extend(Container $container, Extension $extension = null)
+    {
+        // This method can be left empty for this test.
     }
 }
