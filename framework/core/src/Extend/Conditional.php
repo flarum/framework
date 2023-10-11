@@ -29,7 +29,7 @@ class Conditional implements ExtenderInterface
      * - 'condition': a boolean or callable that should return a boolean.
      * - 'extenders': an array of extenders, a callable returning an array of extenders, or an invokable class string.
      *
-     * @var array<array{condition: bool|callable, extenders: ExtenderInterface[]}>
+     * @var array<array{condition: bool|callable|string, extenders: ExtenderInterface[]}>
      */
     protected $conditions = [];
 
