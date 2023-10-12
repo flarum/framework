@@ -38,4 +38,9 @@ class SearchCriteria
         public bool $sortIsDefault = false,
     ) {
     }
+
+    public function isFulltext(): bool
+    {
+        return in_array('q', array_keys($this->filters), true);
+    }
 }

@@ -14,6 +14,7 @@ use Flarum\Post\Post;
 use Flarum\Search\AbstractFulltextFilter;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\SearchState;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 
 /**
@@ -62,7 +63,7 @@ class FulltextFilter extends AbstractFulltextFilter
             ->groupBy('discussions.id')
             ->addBinding($subquery->getBindings(), 'join');
 
-        $state->setDefaultSort(function ($query) use ($grammar, $value) {
+        $state->setDefaultSort(function (Builder $query) use ($grammar, $value) {
             $query->orderByRaw('MATCH('.$grammar->wrap('discussions.title').') AGAINST (?) desc', [$value]);
             $query->orderBy('posts_ft.score', 'desc');
         });

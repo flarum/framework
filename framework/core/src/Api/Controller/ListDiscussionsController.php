@@ -55,9 +55,10 @@ class ListDiscussionsController extends AbstractListController
         $offset = $this->extractOffset($request);
         $include = array_merge($this->extractInclude($request), ['state']);
 
-        $results = $this->search
-            ->for(Discussion::class)
-            ->search(new SearchCriteria($actor, $filters, $limit, $offset, $sort, $sortIsDefault));
+        $results = $this->search->query(
+            Discussion::class,
+            new SearchCriteria($actor, $filters, $limit, $offset, $sort, $sortIsDefault)
+        );
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('discussions.index'),

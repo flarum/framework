@@ -7,7 +7,6 @@ use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Arr;
-use InvalidArgumentException;
 
 class SearchManager
 {
@@ -26,7 +25,7 @@ class SearchManager
         $driver = Arr::first($this->drivers, fn ($driver) => $driver::name() === $name);
 
         if (! $driver) {
-            $driver = $this->driver(DatabaseSearchDriver::name());
+            return $this->driver(DatabaseSearchDriver::name());
         }
 
         return $this->container->make($driver);
@@ -35,26 +34,6 @@ class SearchManager
     public function driverFor(string $resourceClass): AbstractDriver
     {
         return $this->driver($this->settings->get("search_driver_$resourceClass"));
-    }
-
-    public function searchable(string $resourceClass): bool
-    {
-        return $this->driverFor($resourceClass)->supports($resourceClass);
-    }
-
-    /**
-     * @param class-string<AbstractModel> $resourceClass
-     */
-    public function for(string $resourceClass): SearcherInterface
-    {
-        $driver = $this->driverFor($resourceClass);
-        $searchers = $driver->searchers();
-
-        if (! isset($searchers[$resourceClass])) {
-            throw new InvalidArgumentException("Driver {$driver::name()} does not support searching for $resourceClass.");
-        }
-
-        return $this->container->make($searchers[$resourceClass]);
     }
 
     /**
@@ -69,5 +48,17 @@ class SearchManager
     public function indexable(string $resourceClass): bool
     {
         return ! empty($this->indexers[$resourceClass]);
+    }
+
+    public function query(string $resourceClass, SearchCriteria $criteria): SearchResults
+    {
+        $driver = $this->driverFor($resourceClass);
+        $defaultDriver = $this->driver(DatabaseSearchDriver::name());
+
+        if ($criteria->isFulltext() || ! $defaultDriver->supports($resourceClass)) {
+            return $driver->searcher($resourceClass)->search($criteria);
+        }
+
+        return $defaultDriver->searcher($resourceClass)->search($criteria);
     }
 }

@@ -55,9 +55,7 @@ class ListTagsController extends AbstractListController
         }
 
         if (array_key_exists('q', $filters)) {
-            $results = $this->search
-                ->for(Tag::class)
-                ->search(new SearchCriteria($actor, $filters, $limit, $offset));
+            $results = $this->search->query(Tag::class, new SearchCriteria($actor, $filters, $limit, $offset));
 
             $tags = $results->getResults();
 

@@ -33,7 +33,7 @@ abstract class AbstractSearcher implements SearcherInterface
 
         $query = $this->getQuery($actor);
 
-        $search = new DatabaseSearchState($actor, in_array('q', array_keys($criteria->filters), true));
+        $search = new DatabaseSearchState($actor, $criteria->isFulltext());
         $search->setQuery($query->getQuery());
 
         $this->filters->apply($search, $criteria->filters);
@@ -58,38 +58,38 @@ abstract class AbstractSearcher implements SearcherInterface
         return new SearchResults($results, $areMoreResults);
     }
 
-    protected function applySort(DatabaseSearchState $query, ?array $sort = null, bool $sortIsDefault = false): void
+    protected function applySort(DatabaseSearchState $state, ?array $sort = null, bool $sortIsDefault = false): void
     {
-        if ($sortIsDefault && ! empty($query->getDefaultSort())) {
-            $sort = $query->getDefaultSort();
+        if ($sortIsDefault && ! empty($state->getDefaultSort())) {
+            $sort = $state->getDefaultSort();
         }
 
         if (is_callable($sort)) {
-            $sort($query->getQuery());
+            $sort($state->getQuery());
         } else {
             foreach ((array) $sort as $field => $order) {
                 if (is_array($order)) {
                     foreach ($order as $value) {
-                        $query->getQuery()->orderByRaw(Str::snake($field).' != ?', [$value]);
+                        $state->getQuery()->orderByRaw(Str::snake($field).' != ?', [$value]);
                     }
                 } else {
-                    $query->getQuery()->orderBy(Str::snake($field), $order);
+                    $state->getQuery()->orderBy(Str::snake($field), $order);
                 }
             }
         }
     }
 
-    protected function applyOffset(DatabaseSearchState $query, int $offset): void
+    protected function applyOffset(DatabaseSearchState $state, int $offset): void
     {
         if ($offset > 0) {
-            $query->getQuery()->skip($offset);
+            $state->getQuery()->skip($offset);
         }
     }
 
-    protected function applyLimit(DatabaseSearchState $query, ?int $limit): void
+    protected function applyLimit(DatabaseSearchState $state, ?int $limit): void
     {
         if ($limit > 0) {
-            $query->getQuery()->take($limit);
+            $state->getQuery()->take($limit);
         }
     }
 }

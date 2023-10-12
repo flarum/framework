@@ -3,6 +3,7 @@
 namespace Flarum\Search;
 
 use Flarum\Database\AbstractModel;
+use Illuminate\Contracts\Container\Container;
 
 abstract class AbstractDriver
 {
@@ -10,13 +11,14 @@ abstract class AbstractDriver
         /**
          * @var array<class-string<AbstractModel>, class-string<SearcherInterface>>
          */
-        protected array $searchers
+        protected array $searchers,
+        protected Container $container
     ) {
     }
 
     abstract public static function name(): string;
 
-    public function searchers(): array
+    public function getSearchers(): array
     {
         return $this->searchers;
     }
@@ -24,5 +26,10 @@ abstract class AbstractDriver
     public function supports(string $modelClass): bool
     {
         return isset($this->searchers[$modelClass]);
+    }
+
+    public function searcher(string $resourceClass): SearcherInterface
+    {
+        return $this->container->make($this->searchers[$resourceClass]);
     }
 }

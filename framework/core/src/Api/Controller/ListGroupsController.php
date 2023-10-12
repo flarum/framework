@@ -43,9 +43,10 @@ class ListGroupsController extends AbstractListController
         $limit = $this->extractLimit($request);
         $offset = $this->extractOffset($request);
 
-        $queryResults = $this->search
-            ->for(Group::class)
-            ->search(new SearchCriteria($actor, $filters, $limit, $offset, $sort, $sortIsDefault));
+        $queryResults = $this->search->query(
+            Group::class,
+            new SearchCriteria($actor, $filters, $limit, $offset, $sort, $sortIsDefault)
+        );
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('groups.index'),

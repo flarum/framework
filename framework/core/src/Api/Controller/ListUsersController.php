@@ -59,9 +59,10 @@ class ListUsersController extends AbstractListController
         $offset = $this->extractOffset($request);
         $include = $this->extractInclude($request);
 
-        $results = $this->search
-            ->for(User::class)
-            ->search(new SearchCriteria($actor, $filters, $limit, $offset, $sort, $sortIsDefault));
+        $results = $this->search->query(
+            User::class,
+            new SearchCriteria($actor, $filters, $limit, $offset, $sort, $sortIsDefault)
+        );
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('users.index'),
