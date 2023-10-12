@@ -10,12 +10,10 @@
 namespace Flarum\Search\Database;
 
 use Flarum\Search\Filter\FilterManager;
-use Flarum\Search\IndexerInterface;
 use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearcherInterface;
 use Flarum\Search\SearchResults;
 use Flarum\User\User;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 abstract class AbstractSearcher implements SearcherInterface

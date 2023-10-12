@@ -13,9 +13,7 @@ use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
-use Flarum\Group\Group;
 use Flarum\Search\AbstractFulltextFilter;
-use Flarum\Search\Database\AbstractSearcher;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\FilterInterface;
@@ -25,8 +23,6 @@ use Flarum\Search\SearchState;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Database\Eloquent\Builder;
 
 class SimpleFlarumSearchTest extends TestCase
 {

@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Search;
 
 use Closure;
@@ -13,7 +20,7 @@ class SearchState
      */
     protected array $activeFilters = [];
 
-    public final function __construct(
+    final public function __construct(
         protected User $actor,
         /**
          * Whether this is a fulltext search or just filtering.

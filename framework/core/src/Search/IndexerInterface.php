@@ -1,30 +1,37 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Search;
 
 use Flarum\Database\AbstractModel;
 
 interface IndexerInterface
 {
-    static function index(): string;
+    public static function index(): string;
 
     /**
      * @param AbstractModel[] $models
      */
-    function save(array $models): void;
+    public function save(array $models): void;
 
     /**
      * @param AbstractModel[] $models
      */
-    function delete(array $models): void;
+    public function delete(array $models): void;
 
     /**
      * Build the index from scratch.
      */
-    function build(): void;
+    public function build(): void;
 
     /**
      * Flush the index.
      */
-    function flush(): void;
+    public function flush(): void;
 }

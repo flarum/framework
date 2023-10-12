@@ -13,9 +13,9 @@ use Flarum\Extension\Extension;
 use Flarum\Search\AbstractDriver;
 use Flarum\Search\AbstractFulltextFilter;
 use Flarum\Search\Database\AbstractSearcher;
-use Flarum\Search\SearchState;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearchState;
 use Illuminate\Contracts\Container\Container;
 
 class SearchDriver implements ExtenderInterface

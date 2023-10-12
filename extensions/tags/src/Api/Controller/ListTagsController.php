@@ -15,7 +15,6 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchManager;
 use Flarum\Tags\Api\Serializer\TagSerializer;
-use Flarum\Tags\Search\TagSearcher;
 use Flarum\Tags\Tag;
 use Flarum\Tags\TagRepository;
 use Psr\Http\Message\ServerRequestInterface;
