@@ -246,7 +246,7 @@ class ConditionalTest extends TestCase
 
         $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
-    
+
     /** @test */
     public function conditional_does_not_instantiate_extender_if_condition_is_false_using_callable()
     {
