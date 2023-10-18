@@ -85,6 +85,8 @@ class Discussion extends AbstractModel
         'hidden_at' => 'datetime',
     ];
 
+    protected $observables = ['hidden'];
+
     /**
      * The user for which the state relationship should be loaded.
      */
@@ -144,7 +146,9 @@ class Discussion extends AbstractModel
 
             $this->raise(new Hidden($this));
 
-            $this->fireCustomModelEvent('hidden', false);
+            $this->afterSave(function () {
+                $this->fireCustomModelEvent('hidden', false);
+            });
         }
 
         return $this;
@@ -158,7 +162,9 @@ class Discussion extends AbstractModel
 
             $this->raise(new Restored($this));
 
-            $this->fireCustomModelEvent('restored', false);
+            $this->afterSave(function () {
+                $this->fireCustomModelEvent('restored', false);
+            });
         }
 
         return $this;
