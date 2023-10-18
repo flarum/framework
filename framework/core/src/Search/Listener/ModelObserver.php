@@ -54,7 +54,7 @@ class ModelObserver
 
     private function runIndexJob(AbstractModel $model, string $operation): void
     {
-        if ($this->search->indexable($model)) {
+        if ($this->search->indexable($model::class)) {
             foreach ($this->search->indexers($model::class) as $indexerClass) {
                 $queue = property_exists($indexerClass, 'queue') ? $indexerClass::$queue : null;
 
