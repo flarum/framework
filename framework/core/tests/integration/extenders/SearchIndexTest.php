@@ -11,20 +11,11 @@ namespace Flarum\Tests\integration\extenders;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
-use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Post\CommentPost;
-use Flarum\Search\AbstractFulltextFilter;
-use Flarum\Search\Database\DatabaseSearchDriver;
-use Flarum\Search\Database\DatabaseSearchState;
-use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\IndexerInterface;
-use Flarum\Search\SearchCriteria;
-use Flarum\Search\SearchManager;
-use Flarum\Search\SearchState;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Flarum\User\User;
 use PHPUnit\Framework\Assert;
 
 class SearchIndexTest extends TestCase
@@ -72,15 +63,14 @@ class SearchIndexTest extends TestCase
                         'attributes' => [
                             $attribute => 'test',
                         ],
-                        'relationships' =>
-                            ($type === 'posts' ? [
-                                'discussion' => [
-                                    'data' => [
-                                        'type' => 'discussions',
-                                        'id' => 1,
-                                    ],
+                        'relationships' => ($type === 'posts' ? [
+                            'discussion' => [
+                                'data' => [
+                                    'type' => 'discussions',
+                                    'id' => 1,
                                 ],
-                            ] : null),
+                            ],
+                        ] : null),
                     ]
                 ],
             ]),

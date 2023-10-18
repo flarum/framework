@@ -91,9 +91,9 @@ class CommentPost extends Post
             $this->raise(new Restored($this));
 
             $this->saved(function (self $model) {
-               if ($model === $this) {
-                   $model->fireModelEvent('restored', false);
-               }
+                if ($model === $this) {
+                    $model->fireModelEvent('restored', false);
+                }
             });
         }
 
