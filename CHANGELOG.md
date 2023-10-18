@@ -1,5 +1,10 @@
 # Changelog
 
+## [v1.8.3](https://github.com/flarum/framework/compare/v1.8.2...v1.8.3)
+### Fixed
+* Console extender does not accept ::class [#3900]
+* Conditional extender instantiation [#3898]
+
 ## [v1.8.2](https://github.com/flarum/framework/compare/v1.8.1...v1.8.2)
 ### Fixed
 * suspended users can abuse avatar upload [#3890]
