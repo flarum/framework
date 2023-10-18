@@ -25,9 +25,9 @@ test('gambits are only applied for the correct resource type', function () {
     q: 'lorem created:2023-07-07 is:hidden author:behz',
     email: 'behz@machine.local',
   });
-  expect(gambits.apply('discussions', { q: 'lorem created:2023-07-07 is:hidden -author:behz email:behz@machine.local' })).toStrictEqual({
+  expect(gambits.apply('discussions', { q: 'lorem created:2023-07-07..2023-10-18 is:hidden -author:behz email:behz@machine.local' })).toStrictEqual({
     q: 'lorem email:behz@machine.local',
-    created: '2023-07-07',
+    created: '2023-07-07..2023-10-18',
     hidden: true,
     '-author': ['behz'],
   });
