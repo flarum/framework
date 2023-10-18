@@ -26,8 +26,6 @@ use Flarum\Post\Event\Restored;
 use Flarum\Post\Event\Revised;
 use Flarum\Post\Filter\PostFilterer;
 use Flarum\Post\Post;
-use Flarum\Tags\Api\Serializer\TagSerializer;
-use Flarum\Tags\Tag;
 use Flarum\User\User;
 
 return [
@@ -126,23 +124,5 @@ return [
 
     // Tag mentions
     (new Extend\Conditional())
-        ->whenExtensionEnabled('flarum-tags', [
-            (new Extend\Formatter)
-                ->render(Formatter\FormatTagMentions::class)
-                ->unparse(Formatter\UnparseTagMentions::class),
-
-            (new Extend\ApiSerializer(BasicPostSerializer::class))
-                ->hasMany('mentionsTags', TagSerializer::class),
-
-            (new Extend\ApiController(Controller\ShowDiscussionController::class))
-                ->load(['posts.mentionsTags']),
-
-            (new Extend\ApiController(Controller\ListDiscussionsController::class))
-                ->load([
-                    'firstPost.mentionsTags', 'lastPost.mentionsTags',
-                ]),
-
-            (new Extend\ApiController(Controller\ListPostsController::class))
-                ->load(['mentionsTags']),
-        ]),
+        ->whenExtensionEnabled('flarum-tags', TagExtender::class),
 ];
