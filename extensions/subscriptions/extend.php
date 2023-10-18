@@ -19,6 +19,7 @@ use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
+use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Subscriptions\Filter\SubscriptionFilter;
 use Flarum\Subscriptions\HideIgnoredFromAllDiscussionsPage;
 use Flarum\Subscriptions\Listener;
@@ -69,9 +70,9 @@ return [
         ->listen(Deleted::class, Listener\DeleteNotificationWhenPostIsHiddenOrDeleted::class)
         ->listen(Posted::class, Listener\FollowAfterReply::class),
 
-    (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
-        ->addFilter(SubscriptionFilter::class)
-        ->addSearchMutator(HideIgnoredFromAllDiscussionsPage::class),
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
+        ->addFilter(DiscussionSearcher::class, SubscriptionFilter::class)
+        ->addMutator(DiscussionSearcher::class, HideIgnoredFromAllDiscussionsPage::class),
 
     (new Extend\User())
         ->registerPreference('flarum-subscriptions.notify_for_all_posts', 'boolval', false),

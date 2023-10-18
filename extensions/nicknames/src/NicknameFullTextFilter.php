@@ -10,10 +10,14 @@
 namespace Flarum\Nicknames;
 
 use Flarum\Search\AbstractFulltextFilter;
+use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\SearchState;
 use Flarum\User\UserRepository;
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * @extends AbstractFulltextFilter<DatabaseSearchState>
+ */
 class NicknameFullTextFilter extends AbstractFulltextFilter
 {
     public function __construct(
@@ -30,12 +34,12 @@ class NicknameFullTextFilter extends AbstractFulltextFilter
             ->orWhere('nickname', 'like', "{$searchValue}%");
     }
 
-    public function search(SearchState $state, string $query): void
+    public function search(SearchState $state, string $value): void
     {
         $state->getQuery()
             ->whereIn(
                 'id',
-                $this->getUserSearchSubQuery($query)
+                $this->getUserSearchSubQuery($value)
             );
     }
 }

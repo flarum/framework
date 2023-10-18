@@ -10,7 +10,8 @@
 namespace Flarum\Http\Filter;
 
 use Flarum\Api\Controller\ListAccessTokensController;
-use Flarum\Search\FilterInterface;
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
 
@@ -18,6 +19,7 @@ use Flarum\Search\ValidateFilterTrait;
  * Filters an access tokens request by the related user.
  *
  * @see ListAccessTokensController
+ * @implements FilterInterface<DatabaseSearchState>
  */
 class UserFilter implements FilterInterface
 {

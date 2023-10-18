@@ -10,8 +10,8 @@
 namespace Flarum\Search;
 
 use Closure;
+use Flarum\Search\Filter\FilterInterface;
 use Flarum\User\User;
-use Illuminate\Database\Query\Builder;
 
 class SearchState
 {
@@ -20,10 +20,11 @@ class SearchState
      */
     protected array $activeFilters = [];
 
-    public function __construct(
-        protected Builder $query,
+    final public function __construct(
         protected User $actor,
-        /** Whether this is a fulltext search or just filtering. */
+        /**
+         * Whether this is a fulltext search or just filtering.
+         */
         protected bool $fulltextSearch,
         /**
          * An array of sort-order pairs, where the column
@@ -35,14 +36,6 @@ class SearchState
          */
         protected array|Closure $defaultSort = []
     ) {
-    }
-
-    /**
-     * Get the query builder for the search results query.
-     */
-    public function getQuery(): Builder
-    {
-        return $this->query;
     }
 
     public function getActor(): User

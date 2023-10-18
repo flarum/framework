@@ -10,21 +10,21 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
-use Flarum\Group\Group;
 use Flarum\Search\AbstractFulltextFilter;
-use Flarum\Search\AbstractSearcher;
-use Flarum\Search\FilterInterface;
+use Flarum\Search\Database\DatabaseSearchDriver;
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearchManager;
 use Flarum\Search\SearchState;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Database\Eloquent\Builder;
 
-class SimpleFlarumSearchTest extends TestCase
+class SearchDriverTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
@@ -70,9 +70,11 @@ class SimpleFlarumSearchTest extends TestCase
 
         $filters['q'] = $query;
 
-        $criteria = new SearchCriteria($actor, $filters);
-
-        return $this->app()->getContainer()->make(DiscussionSearcher::class)->search($criteria, $limit)->getResults();
+        return $this->app()
+            ->getContainer()
+            ->make(SearchManager::class)
+            ->query(Discussion::class, new SearchCriteria($actor, $filters, $limit))
+            ->getResults();
     }
 
     /**
@@ -96,7 +98,10 @@ class SimpleFlarumSearchTest extends TestCase
      */
     public function custom_full_text_gambit_has_effect_if_added()
     {
-        $this->extend((new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->setFullTextFilter(NoResultFullTextFilter::class));
+        $this->extend(
+            (new Extend\SearchDriver(DatabaseSearchDriver::class))
+                ->setFulltext(DiscussionSearcher::class, NoResultFullTextFilter::class)
+        );
 
         $this->assertEquals('[]', json_encode($this->searchDiscussions('in text', 5)));
     }
@@ -106,7 +111,10 @@ class SimpleFlarumSearchTest extends TestCase
      */
     public function custom_filter_has_effect_if_added()
     {
-        $this->extend((new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->addFilter(NoResultFilter::class));
+        $this->extend(
+            (new Extend\SearchDriver(DatabaseSearchDriver::class))
+                ->addFilter(DiscussionSearcher::class, NoResultFilter::class)
+        );
 
         $this->prepDb();
 
@@ -121,9 +129,12 @@ class SimpleFlarumSearchTest extends TestCase
      */
     public function search_mutator_has_effect_if_added()
     {
-        $this->extend((new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->addSearchMutator(function ($search, $criteria) {
-            $search->getquery()->whereRaw('1=0');
-        }));
+        $this->extend(
+            (new Extend\SearchDriver(DatabaseSearchDriver::class))
+                ->addMutator(DiscussionSearcher::class, function (DatabaseSearchState $search) {
+                    $search->getQuery()->whereRaw('1=0');
+                })
+        );
 
         $this->prepDb();
 
@@ -135,52 +146,28 @@ class SimpleFlarumSearchTest extends TestCase
      */
     public function search_mutator_has_effect_if_added_with_invokable_class()
     {
-        $this->extend((new Extend\SimpleFlarumSearch(DiscussionSearcher::class))->addSearchMutator(CustomSearchMutator::class));
+        $this->extend(
+            (new Extend\SearchDriver(DatabaseSearchDriver::class))
+                ->addMutator(DiscussionSearcher::class, CustomSearchMutator::class)
+        );
 
         $this->prepDb();
 
         $this->assertEquals('[]', json_encode($this->searchDiscussions('in text', 5)));
     }
-
-    /**
-     * @test
-     */
-    public function cant_resolve_custom_searcher_without_fulltext_gambit()
-    {
-        $this->expectException(BindingResolutionException::class);
-
-        $this->app()->getContainer()->make(CustomSearcher::class);
-    }
-
-    /**
-     * @test
-     */
-    public function can_resolve_custom_searcher_with_fulltext_gambit()
-    {
-        $this->extend(
-            (new Extend\SimpleFlarumSearch(CustomSearcher::class))->setFullTextFilter(CustomFullTextFilter::class)
-        );
-
-        $anExceptionWasThrown = false;
-
-        try {
-            $this->app()->getContainer()->make(CustomSearcher::class);
-        } catch (BindingResolutionException) {
-            $anExceptionWasThrown = true;
-        }
-
-        $this->assertFalse($anExceptionWasThrown);
-    }
 }
 
 class NoResultFullTextFilter extends AbstractFulltextFilter
 {
-    public function search(SearchState $state, string $query): void
+    public function search(SearchState $state, string $value): void
     {
         $state->getQuery()->whereRaw('0=1');
     }
 }
 
+/**
+ * @implements FilterInterface<DatabaseSearchState>
+ */
 class NoResultFilter implements FilterInterface
 {
     public function getFilterKey(): string
@@ -203,22 +190,5 @@ class CustomSearchMutator
     public function __invoke($search, $criteria)
     {
         $search->getQuery()->whereRaw('1=0');
-    }
-}
-
-class CustomSearcher extends AbstractSearcher
-{
-    // This isn't actually used, we just need it to implement the abstract method.
-    protected function getQuery(User $actor): Builder
-    {
-        return Group::query();
-    }
-}
-
-class CustomFullTextFilter extends AbstractFulltextFilter
-{
-    public function search(SearchState $state, string $query): void
-    {
-        //
     }
 }

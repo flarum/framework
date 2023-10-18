@@ -10,6 +10,7 @@
 use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Extend;
+use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Suspend\Access\UserPolicy;
 use Flarum\Suspend\AddUserSuspendAttributes;
 use Flarum\Suspend\Event\Suspended;
@@ -57,8 +58,8 @@ return [
     (new Extend\User())
         ->permissionGroups(RevokeAccessFromSuspendedUsers::class),
 
-    (new Extend\SimpleFlarumSearch(UserSearcher::class))
-        ->addFilter(SuspendedFilter::class),
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
+        ->addFilter(UserSearcher::class, SuspendedFilter::class),
 
     (new Extend\View())
         ->namespace('flarum-suspend', __DIR__.'/views'),

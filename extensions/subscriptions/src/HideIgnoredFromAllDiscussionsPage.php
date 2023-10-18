@@ -9,12 +9,12 @@
 
 namespace Flarum\Subscriptions;
 
+use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\SearchCriteria;
-use Flarum\Search\SearchState;
 
 class HideIgnoredFromAllDiscussionsPage
 {
-    public function __invoke(SearchState $state, SearchCriteria $criteria): void
+    public function __invoke(DatabaseSearchState $state, SearchCriteria $criteria): void
     {
         // We only want to hide on the "all discussions" page.
         if (count($state->getActiveFilters()) === 0 && ! $state->isFulltextSearch()) {

@@ -7,7 +7,10 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Search;
+namespace Flarum\Search\Filter;
+
+use Flarum\Search\AbstractFulltextFilter;
+use Flarum\Search\SearchState;
 
 class FilterManager
 {
@@ -17,7 +20,7 @@ class FilterManager
     protected array $filters = [];
 
     public function __construct(
-        protected ?AbstractFulltextFilter $fulltextGambit = null
+        protected ?AbstractFulltextFilter $fulltext = null
     ) {
     }
 
@@ -51,9 +54,14 @@ class FilterManager
 
     protected function applyFulltext(SearchState $search, ?string $query): void
     {
-        if ($this->fulltextGambit && $query) {
-            $search->addActiveFilter($this->fulltextGambit);
-            $this->fulltextGambit->search($search, $query);
+        if ($this->fulltext && $query) {
+            $search->addActiveFilter($this->fulltext);
+            $this->fulltext->search($search, $query);
         }
+    }
+
+    public function getFulltext(): ?AbstractFulltextFilter
+    {
+        return $this->fulltext;
     }
 }

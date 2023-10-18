@@ -9,12 +9,16 @@
 
 namespace Flarum\Discussion\Search\Filter;
 
-use Flarum\Search\FilterInterface;
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 
+/**
+ * @implements FilterInterface<DatabaseSearchState>
+ */
 class CreatedFilter implements FilterInterface
 {
     use ValidateFilterTrait;

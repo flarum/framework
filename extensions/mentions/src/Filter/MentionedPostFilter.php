@@ -9,9 +9,13 @@
 
 namespace Flarum\Mentions\Filter;
 
-use Flarum\Search\FilterInterface;
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 
+/**
+ * @implements FilterInterface<DatabaseSearchState>
+ */
 class MentionedPostFilter implements FilterInterface
 {
     public function getFilterKey(): string

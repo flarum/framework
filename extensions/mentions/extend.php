@@ -26,6 +26,7 @@ use Flarum\Post\Event\Restored;
 use Flarum\Post\Event\Revised;
 use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
+use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Tags\Api\Serializer\TagSerializer;
 use Flarum\Tags\Tag;
 use Flarum\User\User;
@@ -115,9 +116,9 @@ return [
         ->listen(Hidden::class, Listener\UpdateMentionsMetadataWhenInvisible::class)
         ->listen(Deleted::class, Listener\UpdateMentionsMetadataWhenInvisible::class),
 
-    (new Extend\SimpleFlarumSearch(PostSearcher::class))
-        ->addFilter(Filter\MentionedFilter::class)
-        ->addFilter(Filter\MentionedPostFilter::class),
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
+        ->addFilter(PostSearcher::class, Filter\MentionedFilter::class)
+        ->addFilter(PostSearcher::class, Filter\MentionedPostFilter::class),
 
     (new Extend\ApiSerializer(CurrentUserSerializer::class))
         ->attribute('canMentionGroups', function (CurrentUserSerializer $serializer, User $user): bool {

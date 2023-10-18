@@ -12,17 +12,22 @@ namespace Flarum\Discussion\Search;
 use Flarum\Discussion\Discussion;
 use Flarum\Post\Post;
 use Flarum\Search\AbstractFulltextFilter;
+use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\SearchState;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Expression;
 
+/**
+ * @extends AbstractFulltextFilter<DatabaseSearchState>
+ */
 class FulltextFilter extends AbstractFulltextFilter
 {
-    public function search(SearchState $state, string $query): void
+    public function search(SearchState $state, string $value): void
     {
         // Replace all non-word characters with spaces.
         // We do this to prevent MySQL fulltext search boolean mode from taking
         // effect: https://dev.mysql.com/doc/refman/5.7/en/fulltext-boolean.html
-        $bit = preg_replace('/[^\p{L}\p{N}\p{M}_]+/u', ' ', $query);
+        $value = preg_replace('/[^\p{L}\p{N}\p{M}_]+/u', ' ', $value);
 
         $query = $state->getQuery();
         $grammar = $query->getGrammar();
@@ -30,7 +35,7 @@ class FulltextFilter extends AbstractFulltextFilter
         $discussionSubquery = Discussion::select('id')
             ->selectRaw('NULL as score')
             ->selectRaw('first_post_id as most_relevant_post_id')
-            ->whereRaw('MATCH('.$grammar->wrap('discussions.title').') AGAINST (? IN BOOLEAN MODE)', [$bit]);
+            ->whereRaw('MATCH('.$grammar->wrap('discussions.title').') AGAINST (? IN BOOLEAN MODE)', [$value]);
 
         // Construct a subquery to fetch discussions which contain relevant
         // posts. Retrieve the collective relevance of each discussion's posts,
@@ -38,10 +43,10 @@ class FulltextFilter extends AbstractFulltextFilter
         // the ID of the most relevant post.
         $subquery = Post::whereVisibleTo($state->getActor())
             ->select('posts.discussion_id')
-            ->selectRaw('SUM(MATCH('.$grammar->wrap('posts.content').') AGAINST (?)) as score', [$bit])
-            ->selectRaw('SUBSTRING_INDEX(GROUP_CONCAT('.$grammar->wrap('posts.id').' ORDER BY MATCH('.$grammar->wrap('posts.content').') AGAINST (?) DESC, '.$grammar->wrap('posts.number').'), \',\', 1) as most_relevant_post_id', [$bit])
+            ->selectRaw('SUM(MATCH('.$grammar->wrap('posts.content').') AGAINST (?)) as score', [$value])
+            ->selectRaw('SUBSTRING_INDEX(GROUP_CONCAT('.$grammar->wrap('posts.id').' ORDER BY MATCH('.$grammar->wrap('posts.content').') AGAINST (?) DESC, '.$grammar->wrap('posts.number').'), \',\', 1) as most_relevant_post_id', [$value])
             ->where('posts.type', 'comment')
-            ->whereRaw('MATCH('.$grammar->wrap('posts.content').') AGAINST (? IN BOOLEAN MODE)', [$bit])
+            ->whereRaw('MATCH('.$grammar->wrap('posts.content').') AGAINST (? IN BOOLEAN MODE)', [$value])
             ->groupBy('posts.discussion_id')
             ->union($discussionSubquery);
 
@@ -58,8 +63,8 @@ class FulltextFilter extends AbstractFulltextFilter
             ->groupBy('discussions.id')
             ->addBinding($subquery->getBindings(), 'join');
 
-        $state->setDefaultSort(function ($query) use ($grammar, $bit) {
-            $query->orderByRaw('MATCH('.$grammar->wrap('discussions.title').') AGAINST (?) desc', [$bit]);
+        $state->setDefaultSort(function (Builder $query) use ($grammar, $value) {
+            $query->orderByRaw('MATCH('.$grammar->wrap('discussions.title').') AGAINST (?) desc', [$value]);
             $query->orderBy('posts_ft.score', 'desc');
         });
     }

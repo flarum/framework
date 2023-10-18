@@ -9,11 +9,15 @@
 
 namespace Flarum\User\Search\Filter;
 
-use Flarum\Search\FilterInterface;
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
 use Illuminate\Database\Query\Builder;
 
+/**
+ * @implements FilterInterface<DatabaseSearchState>
+ */
 class EmailFilter implements FilterInterface
 {
     use ValidateFilterTrait;

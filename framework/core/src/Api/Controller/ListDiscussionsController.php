@@ -11,10 +11,10 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Discussion;
-use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearchManager;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -39,7 +39,7 @@ class ListDiscussionsController extends AbstractListController
     public array $sortFields = ['lastPostedAt', 'commentCount', 'createdAt'];
 
     public function __construct(
-        protected DiscussionSearcher $searcher,
+        protected SearchManager $search,
         protected UrlGenerator $url
     ) {
     }
@@ -55,8 +55,10 @@ class ListDiscussionsController extends AbstractListController
         $offset = $this->extractOffset($request);
         $include = array_merge($this->extractInclude($request), ['state']);
 
-        $criteria = new SearchCriteria($actor, $filters, $sort, $sortIsDefault);
-        $results = $this->searcher->search($criteria, $limit, $offset);
+        $results = $this->search->query(
+            Discussion::class,
+            new SearchCriteria($actor, $filters, $limit, $offset, $sort, $sortIsDefault)
+        );
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('discussions.index'),

@@ -10,13 +10,13 @@
 namespace Flarum\Http\Filter;
 
 use Flarum\Http\AccessToken;
-use Flarum\Search\AbstractSearcher;
+use Flarum\Search\Database\AbstractSearcher;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
 class AccessTokenSearcher extends AbstractSearcher
 {
-    protected function getQuery(User $actor): Builder
+    public function getQuery(User $actor): Builder
     {
         return AccessToken::query()->whereVisibleTo($actor);
     }

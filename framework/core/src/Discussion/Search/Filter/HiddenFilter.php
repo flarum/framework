@@ -9,10 +9,14 @@
 
 namespace Flarum\Discussion\Search\Filter;
 
-use Flarum\Search\FilterInterface;
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Illuminate\Database\Query\Builder;
 
+/**
+ * @implements FilterInterface<DatabaseSearchState>
+ */
 class HiddenFilter implements FilterInterface
 {
     public function getFilterKey(): string

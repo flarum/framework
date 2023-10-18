@@ -21,6 +21,7 @@ use Flarum\Likes\Query\LikedByFilter;
 use Flarum\Likes\Query\LikedFilter;
 use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
+use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\User\Search\UserSearcher;
 use Flarum\User\User;
 
@@ -76,11 +77,9 @@ return [
         ->listen(PostWasUnliked::class, Listener\SendNotificationWhenPostIsUnliked::class)
         ->subscribe(Listener\SaveLikesToDatabase::class),
 
-    (new Extend\SimpleFlarumSearch(PostSearcher::class))
-        ->addFilter(LikedByFilter::class),
-
-    (new Extend\SimpleFlarumSearch(UserSearcher::class))
-        ->addFilter(LikedFilter::class),
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
+        ->addFilter(PostSearcher::class, LikedByFilter::class)
+        ->addFilter(UserSearcher::class, LikedFilter::class),
 
     (new Extend\Settings())
         ->default('flarum-likes.like_own_post', true),

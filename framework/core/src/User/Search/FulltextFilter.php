@@ -10,11 +10,15 @@
 namespace Flarum\User\Search;
 
 use Flarum\Search\AbstractFulltextFilter;
+use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\SearchState;
 use Flarum\User\User;
 use Flarum\User\UserRepository;
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * @extends AbstractFulltextFilter<DatabaseSearchState>
+ */
 class FulltextFilter extends AbstractFulltextFilter
 {
     public function __construct(
@@ -33,12 +37,12 @@ class FulltextFilter extends AbstractFulltextFilter
             ->where('username', 'like', "$searchValue%");
     }
 
-    public function search(SearchState $state, string $query): void
+    public function search(SearchState $state, string $value): void
     {
         $state->getQuery()
             ->whereIn(
                 'id',
-                $this->getUserSearchSubQuery($query)
+                $this->getUserSearchSubQuery($value)
             );
     }
 }

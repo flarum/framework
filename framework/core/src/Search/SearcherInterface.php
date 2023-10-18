@@ -7,16 +7,14 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\User\Search;
+namespace Flarum\Search;
 
-use Flarum\Search\Database\AbstractSearcher;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
-class UserSearcher extends AbstractSearcher
+interface SearcherInterface
 {
-    public function getQuery(User $actor): Builder
-    {
-        return User::whereVisibleTo($actor)->select('users.*');
-    }
+    public function getQuery(User $actor): Builder;
+
+    public function search(SearchCriteria $criteria): SearchResults;
 }

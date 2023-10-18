@@ -7,13 +7,16 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Search;
+namespace Flarum\Search\Database;
 
+use Flarum\Search\Filter\FilterManager;
+use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearcherInterface;
+use Flarum\Search\SearchResults;
 use Flarum\User\User;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
-abstract class AbstractSearcher
+abstract class AbstractSearcher implements SearcherInterface
 {
     public function __construct(
         protected FilterManager $filters,
@@ -22,21 +25,20 @@ abstract class AbstractSearcher
     ) {
     }
 
-    abstract protected function getQuery(User $actor): Builder;
-
-    public function search(SearchCriteria $criteria, ?int $limit = null, int $offset = 0): SearchResults
+    public function search(SearchCriteria $criteria): SearchResults
     {
         $actor = $criteria->actor;
 
         $query = $this->getQuery($actor);
 
-        $search = new SearchState($query->getQuery(), $actor, in_array('q', array_keys($criteria->filters), true));
+        $search = new DatabaseSearchState($actor, $criteria->isFulltext());
+        $search->setQuery($query->getQuery());
 
         $this->filters->apply($search, $criteria->filters);
 
         $this->applySort($search, $criteria->sort, $criteria->sortIsDefault);
-        $this->applyOffset($search, $offset);
-        $this->applyLimit($search, $limit + 1);
+        $this->applyOffset($search, $criteria->offset);
+        $this->applyLimit($search, $criteria->limit + 1);
 
         foreach ($this->mutators as $mutator) {
             $mutator($search, $criteria);
@@ -47,45 +49,45 @@ abstract class AbstractSearcher
         // results. If there are, we will get rid of that extra result.
         $results = $query->get();
 
-        if ($areMoreResults = $limit > 0 && $results->count() > $limit) {
+        if ($areMoreResults = $criteria->limit > 0 && $results->count() > $criteria->limit) {
             $results->pop();
         }
 
         return new SearchResults($results, $areMoreResults);
     }
 
-    protected function applySort(SearchState $query, ?array $sort = null, bool $sortIsDefault = false): void
+    protected function applySort(DatabaseSearchState $state, ?array $sort = null, bool $sortIsDefault = false): void
     {
-        if ($sortIsDefault && ! empty($query->getDefaultSort())) {
-            $sort = $query->getDefaultSort();
+        if ($sortIsDefault && ! empty($state->getDefaultSort())) {
+            $sort = $state->getDefaultSort();
         }
 
         if (is_callable($sort)) {
-            $sort($query->getQuery());
+            $sort($state->getQuery());
         } else {
             foreach ((array) $sort as $field => $order) {
                 if (is_array($order)) {
                     foreach ($order as $value) {
-                        $query->getQuery()->orderByRaw(Str::snake($field).' != ?', [$value]);
+                        $state->getQuery()->orderByRaw(Str::snake($field).' != ?', [$value]);
                     }
                 } else {
-                    $query->getQuery()->orderBy(Str::snake($field), $order);
+                    $state->getQuery()->orderBy(Str::snake($field), $order);
                 }
             }
         }
     }
 
-    protected function applyOffset(SearchState $query, int $offset): void
+    protected function applyOffset(DatabaseSearchState $state, int $offset): void
     {
         if ($offset > 0) {
-            $query->getQuery()->skip($offset);
+            $state->getQuery()->skip($offset);
         }
     }
 
-    protected function applyLimit(SearchState $query, ?int $limit): void
+    protected function applyLimit(DatabaseSearchState $state, ?int $limit): void
     {
         if ($limit > 0) {
-            $query->getQuery()->take($limit);
+            $state->getQuery()->take($limit);
         }
     }
 }

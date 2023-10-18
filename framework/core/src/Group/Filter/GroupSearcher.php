@@ -10,13 +10,13 @@
 namespace Flarum\Group\Filter;
 
 use Flarum\Group\Group;
-use Flarum\Search\AbstractSearcher;
+use Flarum\Search\Database\AbstractSearcher;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
 class GroupSearcher extends AbstractSearcher
 {
-    protected function getQuery(User $actor): Builder
+    public function getQuery(User $actor): Builder
     {
         return Group::whereVisibleTo($actor)->select('groups.*');
     }

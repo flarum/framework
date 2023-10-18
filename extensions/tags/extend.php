@@ -19,6 +19,7 @@ use Flarum\Flags\Api\Controller\ListFlagsController;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
+use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Tags\Access;
 use Flarum\Tags\Api\Controller;
 use Flarum\Tags\Api\Serializer\TagSerializer;
@@ -134,15 +135,12 @@ return [
         ->listen(DiscussionWasTagged::class, Listener\CreatePostWhenTagsAreChanged::class)
         ->subscribe(Listener\UpdateTagMetadata::class),
 
-    (new Extend\SimpleFlarumSearch(PostSearcher::class))
-        ->addFilter(PostTagFilter::class),
-
-    (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
-        ->addFilter(TagFilter::class)
-        ->addSearchMutator(HideHiddenTagsFromAllDiscussionsPage::class),
-
-    (new Extend\SimpleFlarumSearch(TagSearcher::class))
-        ->setFullTextFilter(FulltextFilter::class),
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
+        ->addFilter(PostSearcher::class, PostTagFilter::class)
+        ->addFilter(DiscussionSearcher::class, TagFilter::class)
+        ->addMutator(DiscussionSearcher::class, HideHiddenTagsFromAllDiscussionsPage::class)
+        ->addSearcher(Tag::class, TagSearcher::class)
+        ->setFulltext(TagSearcher::class, FulltextFilter::class),
 
     (new Extend\ModelUrl(Tag::class))
         ->addSlugDriver('default', Utf8SlugDriver::class),

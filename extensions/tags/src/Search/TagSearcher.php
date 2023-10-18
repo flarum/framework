@@ -9,14 +9,14 @@
 
 namespace Flarum\Tags\Search;
 
-use Flarum\Search\AbstractSearcher;
+use Flarum\Search\Database\AbstractSearcher;
 use Flarum\Tags\Tag;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 
 class TagSearcher extends AbstractSearcher
 {
-    protected function getQuery(User $actor): Builder
+    public function getQuery(User $actor): Builder
     {
         return Tag::whereVisibleTo($actor)->select('tags.*');
     }

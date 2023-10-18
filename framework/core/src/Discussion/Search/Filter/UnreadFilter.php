@@ -10,11 +10,15 @@
 namespace Flarum\Discussion\Search\Filter;
 
 use Flarum\Discussion\DiscussionRepository;
-use Flarum\Search\FilterInterface;
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\User\User;
 use Illuminate\Database\Query\Builder;
 
+/**
+ * @implements FilterInterface<DatabaseSearchState>
+ */
 class UnreadFilter implements FilterInterface
 {
     public function __construct(

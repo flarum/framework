@@ -10,10 +10,14 @@
 namespace Flarum\Tags\Search;
 
 use Flarum\Search\AbstractFulltextFilter;
+use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\SearchState;
 use Flarum\Tags\TagRepository;
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * @extends AbstractFulltextFilter<DatabaseSearchState>
+ */
 class FulltextFilter extends AbstractFulltextFilter
 {
     public function __construct(
@@ -30,12 +34,12 @@ class FulltextFilter extends AbstractFulltextFilter
             ->orWhere('slug', 'like', "$searchValue%");
     }
 
-    public function search(SearchState $state, string $query): void
+    public function search(SearchState $state, string $value): void
     {
         $state->getQuery()
             ->whereIn(
                 'id',
-                $this->getTagSearchSubQuery($query)
+                $this->getTagSearchSubQuery($value)
             );
     }
 }

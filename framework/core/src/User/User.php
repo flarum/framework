@@ -55,6 +55,17 @@ use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
  * @property \Carbon\Carbon|null $read_notifications_at
  * @property int $discussion_count
  * @property int $comment_count
+ * @property-read Collection<int, Group> $groups
+ * @property-read Collection<int, Group> $visibleGroups
+ * @property-read Collection<int, Notification> $notifications
+ * @property-read Collection<int, AccessToken> $accessTokens
+ * @property-read Collection<int, Post> $posts
+ * @property-read Collection<int, Discussion> $discussions
+ * @property-read Collection<int, Discussion> $read
+ * @property-read Collection<int, Notification> $unreadNotifications
+ * @property-read Collection<int, LoginProvider> $loginProviders
+ * @property-read Collection<int, EmailToken> $emailTokens
+ * @property-read Collection<int, PasswordToken> $passwordTokens
  */
 class User extends AbstractModel
 {
