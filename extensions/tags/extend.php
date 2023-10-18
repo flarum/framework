@@ -139,6 +139,7 @@ return [
         ->addFilter(PostSearcher::class, PostTagFilter::class)
         ->addFilter(DiscussionSearcher::class, TagFilter::class)
         ->addMutator(DiscussionSearcher::class, HideHiddenTagsFromAllDiscussionsPage::class)
+        ->addSearcher(Tag::class, TagSearcher::class)
         ->setFulltext(TagSearcher::class, FulltextFilter::class),
 
     (new Extend\ModelUrl(Tag::class))

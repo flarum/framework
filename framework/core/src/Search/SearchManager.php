@@ -27,7 +27,7 @@ class SearchManager
     ) {
     }
 
-    public function driver(string $name): AbstractDriver
+    public function driver(?string $name): AbstractDriver
     {
         $driver = Arr::first($this->drivers, fn ($driver) => $driver::name() === $name);
 

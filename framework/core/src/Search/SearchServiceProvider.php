@@ -120,37 +120,37 @@ class SearchServiceProvider extends AbstractServiceProvider
                 ->when($driverClass)
                 ->needs('$searchers')
                 ->give($searchers);
-        }
 
-        foreach ($container->make('flarum.search.filters') as $searcher => $filterClasses) {
-            $container
-                ->when($searcher)
-                ->needs(FilterManager::class)
-                ->give(function () use ($container, $searcher) {
-                    $fulltext = $container->make('flarum.search.fulltext');
-                    $fulltextClass = $fulltext[$searcher] ?? null;
+            foreach ($searchers as $searcher) {
+                $container
+                    ->when($searcher)
+                    ->needs(FilterManager::class)
+                    ->give(function () use ($container, $searcher) {
+                        $fulltext = $container->make('flarum.search.fulltext');
+                        $fulltextClass = $fulltext[$searcher] ?? null;
 
-                    $manager = new FilterManager(
-                        $fulltextClass ? $container->make($fulltextClass) : null
-                    );
+                        $manager = new FilterManager(
+                            $fulltextClass ? $container->make($fulltextClass) : null
+                        );
 
-                    foreach (Arr::get($container->make('flarum.search.filters'), $searcher, []) as $filter) {
-                        $manager->add($container->make($filter));
-                    }
+                        foreach (Arr::get($container->make('flarum.search.filters'), $searcher, []) as $filter) {
+                            $manager->add($container->make($filter));
+                        }
 
-                    return $manager;
-                });
+                        return $manager;
+                    });
 
-            $container
-                ->when($searcher)
-                ->needs('$mutators')
-                ->give(function () use ($container, $searcher) {
-                    $searchMutators = Arr::get($container->make('flarum.search.mutators'), $searcher, []);
+                $container
+                    ->when($searcher)
+                    ->needs('$mutators')
+                    ->give(function () use ($container, $searcher) {
+                        $searchMutators = Arr::get($container->make('flarum.search.mutators'), $searcher, []);
 
-                    return array_map(function ($mutator) {
-                        return ContainerUtil::wrapCallback($mutator, $this->container);
-                    }, $searchMutators);
-                });
+                        return array_map(function ($mutator) {
+                            return ContainerUtil::wrapCallback($mutator, $this->container);
+                        }, $searchMutators);
+                    });
+            }
         }
 
         /** @var \Flarum\Database\AbstractModel $modelClass */
