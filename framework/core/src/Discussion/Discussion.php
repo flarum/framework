@@ -147,7 +147,7 @@ class Discussion extends AbstractModel
             $this->raise(new Hidden($this));
 
             $this->afterSave(function () {
-                $this->fireCustomModelEvent('hidden', false);
+                $this->fireModelEvent('hidden', false);
             });
         }
 
@@ -163,7 +163,7 @@ class Discussion extends AbstractModel
             $this->raise(new Restored($this));
 
             $this->afterSave(function () {
-                $this->fireCustomModelEvent('restored', false);
+                $this->fireModelEvent('restored', false);
             });
         }
 
