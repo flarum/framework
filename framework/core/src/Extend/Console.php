@@ -11,6 +11,7 @@ namespace Flarum\Extend;
 
 use Flarum\Console\AbstractCommand;
 use Flarum\Extension\Extension;
+use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
 
 class Console implements ExtenderInterface
@@ -62,7 +63,11 @@ class Console implements ExtenderInterface
             return array_merge($existingCommands, $this->addCommands);
         });
 
-        $container->extend('flarum.console.scheduled', function ($existingScheduled) {
+        $container->extend('flarum.console.scheduled', function ($existingScheduled) use ($container) {
+            foreach ($this->scheduled as &$schedule) {
+                $schedule['callback'] = ContainerUtil::wrapCallback($schedule['callback'], $container);
+            }
+
             return array_merge($existingScheduled, $this->scheduled);
         });
     }
