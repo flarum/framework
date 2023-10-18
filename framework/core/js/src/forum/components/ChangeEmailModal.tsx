@@ -5,6 +5,7 @@ import Stream from '../../common/utils/Stream';
 import type Mithril from 'mithril';
 import RequestError from '../../common/utils/RequestError';
 import ItemList from '../../common/utils/ItemList';
+import Form from '../../common/components/Form';
 
 /**
  * The `ChangeEmailModal` component shows a modal dialog which allows the user
@@ -44,7 +45,7 @@ export default class ChangeEmailModal<CustomAttrs extends IInternalModalAttrs = 
   content() {
     return (
       <div className="Modal-body">
-        <div className="Form Form--centered">{this.fields().toArray()}</div>
+        <Form className="Form--centered">{this.fields().toArray()}</Form>
       </div>
     );
   }
@@ -102,7 +103,7 @@ export default class ChangeEmailModal<CustomAttrs extends IInternalModalAttrs = 
 
       items.add(
         'submit',
-        <div className="Form-group">
+        <div className="Form-group Form-controls">
           <Button className="Button Button--primary Button--block" type="submit" loading={this.loading}>
             {app.translator.trans('core.forum.change_email.submit_button')}
           </Button>

@@ -24,6 +24,7 @@ export default class CommentPost extends Post<import("./Post").IPostAttrs> {
      * @type {Boolean}
      */
     cardVisible: boolean | undefined;
+    avatar(): JSX.Element;
     content(): any;
     refreshContent(): void;
     contentHtml: any;
@@ -40,6 +41,15 @@ export default class CommentPost extends Post<import("./Post").IPostAttrs> {
      * @return {ItemList<import('mithril').Children>}
      */
     headerItems(): ItemList<import('mithril').Children>;
+    listenForCard(): void;
+    /**
+     * Show the user card.
+     */
+    showCard(): void;
+    /**
+     * Hide the user card.
+     */
+    hideCard(): void;
 }
 import Post from "./Post";
 import ItemList from "../../common/utils/ItemList";

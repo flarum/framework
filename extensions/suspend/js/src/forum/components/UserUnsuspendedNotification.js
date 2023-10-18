@@ -15,4 +15,8 @@ export default class UserUnsuspendedNotification extends Notification {
 
     return app.translator.trans('flarum-suspend.forum.notifications.user_unsuspended_text');
   }
+
+  excerpt() {
+    return null;
+  }
 }

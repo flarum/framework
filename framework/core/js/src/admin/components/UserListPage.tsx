@@ -5,7 +5,6 @@ import app from '../../admin/app';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';
 
-import icon from '../../common/helpers/icon';
 import listItems from '../../common/helpers/listItems';
 
 import type User from '../../common/models/User';
@@ -17,6 +16,7 @@ import extractText from '../../common/utils/extractText';
 import AdminPage from './AdminPage';
 import { debounce } from '../../common/utils/throttleDebounce';
 import CreateUserModal from './CreateUserModal';
+import Icon from '../../common/components/Icon';
 
 type ColumnData = {
   /**
@@ -414,7 +414,7 @@ export default class UserListPage extends AdminPage {
                 className="Button Button--text UserList-emailIconBtn"
                 title={app.translator.trans('core.admin.users.grid.columns.email.visibility_show')}
               >
-                {icon('far fa-eye-slash fa-fw', { className: 'icon' })}
+                <Icon name="far fa-eye-slash fa-fw" className="icon" />
               </button>
             </div>
           );

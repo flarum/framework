@@ -18,8 +18,9 @@
 
       & .Dropdown-menu {
         & > li > a {
-          padding: 8px 0 8px 30px;
           color: var(--sidenav-color, var(--muted-color));
+          gap: 15px;
+          padding-left: 0;
 
           &:hover {
             background: none;
@@ -28,8 +29,6 @@
           }
 
           & .Button-icon {
-            float: left;
-            margin-left: -30px;
             font-size: 15px;
           }
         }
@@ -58,14 +57,11 @@
   }
   .sideNav {
     flex-shrink: 0;
-    margin-right: 50px;
 
     &, > ul {
       width: 190px;
     }
     > ul {
-      margin-top: 30px;
-
       &.affix {
         top: var(--header-height);
       }
@@ -101,11 +97,8 @@
   }
 
   .Dropdown--select .Dropdown-menu > li > a {
-    padding-left: 25px;
-
-    .icon {
-      margin-left: -25px;
-    }
+    gap: 8px;
+    padding-right: 0;
   }
 
   .affix {

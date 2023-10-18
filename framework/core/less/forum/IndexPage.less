@@ -18,7 +18,6 @@
   margin-bottom: 15px;
 }
 .IndexPage-toolbar-view, .IndexPage-toolbar-action {
-  display: inline-block;
   margin: 0;
   list-style: none;
   padding: 0;
@@ -27,13 +26,10 @@
     display: inline-block;
   }
 }
-.IndexPage-toolbar-view > li {
-  margin-right: 5px;
+.IndexPage-toolbar, .IndexPage-toolbar-view, .IndexPage-toolbar-action {
+  display: flex;
+  gap: 5px;
 }
 .IndexPage-toolbar-action {
-  float: right;
-
-  > li {
-    margin-left: 5px;
-  }
+  margin-inline-start: auto;
 }

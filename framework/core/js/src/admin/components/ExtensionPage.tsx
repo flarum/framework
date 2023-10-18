@@ -3,7 +3,6 @@ import Button from '../../common/components/Button';
 import Link from '../../common/components/Link';
 import LinkButton from '../../common/components/LinkButton';
 import Switch from '../../common/components/Switch';
-import icon from '../../common/helpers/icon';
 import punctuateSeries from '../../common/helpers/punctuateSeries';
 import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
@@ -17,6 +16,8 @@ import { Extension } from '../AdminApplication';
 import { IPageAttrs } from '../../common/components/Page';
 import type Mithril from 'mithril';
 import extractText from '../../common/utils/extractText';
+import Form from '../../common/components/Form';
+import Icon from '../../common/components/Icon';
 
 export interface ExtensionPageAttrs extends IPageAttrs {
   id: string;
@@ -79,7 +80,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
         <div className="container">
           <div className="ExtensionTitle">
             <span className="ExtensionIcon" style={this.extension.icon}>
-              {!!this.extension.icon && icon(this.extension.icon.name)}
+              {!!this.extension.icon && <Icon name={this.extension.icon.name} />}
             </span>
             <div className="ExtensionName">
               <h2>{this.extension.extra['flarum-extension'].title}</h2>
@@ -139,10 +140,10 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
       <div className="ExtensionPage-settings">
         <div className="container">
           {settings ? (
-            <div className="Form">
+            <Form>
               {settings.map(this.buildSettingComponent.bind(this))}
-              <div className="Form-group">{this.submitButton()}</div>
-            </div>
+              <div className="Form-group Form-controls">{this.submitButton()}</div>
+            </Form>
           ) : (
             <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_settings')}</h3>
           )}
@@ -194,7 +195,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
         </Link>
       ));
 
-      items.add('authors', [icon('fas fa-user'), <span>{punctuateSeries(authors)}</span>]);
+      items.add('authors', [<Icon name={'fas fa-user'} />, <span>{punctuateSeries(authors)}</span>]);
     }
 
     (Object.keys(this.infoFields) as (keyof ExtensionPage['infoFields'])[]).map((field) => {

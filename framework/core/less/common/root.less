@@ -27,6 +27,7 @@
   --control-color:                 @control-color;
   --control-danger-bg:             @control-danger-bg;
   --control-danger-color:          @control-danger-color;
+  --control-body-bg-mix:           mix(@control-bg, @body-bg, 50%);
 
   --error-color:                   @error-color;
 
@@ -44,7 +45,7 @@
   }
 
   // ---------------------------------
-  // COMPONENTS
+  // COMPONENT COLORS
 
   --header-bg:                     @header-bg;
   --header-color:                  @header-color;
@@ -86,7 +87,7 @@
   --online-user-circle-color:      @online-user-circle-color;
 
   --discussion-title-color:        mix(@heading-color, @body-bg, 55%);
-  --discussion-list-item-bg-hover: mix(@control-bg, @body-bg, 50%);
+  --discussion-list-item-bg-hover: var(--control-body-bg-mix);
 
   .Button--color-vars(@control-color, @control-bg, 'button');
   .Button--color-vars(@body-bg, @primary-color, 'button-primary');
@@ -120,15 +121,21 @@
   // available to the JS code.
   --flarum-screen:                 none;
 
-  --screen-phone-max:   @screen-phone-max;
-  --screen-tablet:      @screen-tablet;
-  --screen-tablet-max:  @screen-tablet-max;
-  --screen-desktop:     @screen-desktop;
-  --screen-desktop-max: @screen-desktop-max;
-  --screen-desktop-hd:  @screen-desktop-hd;
+  --screen-phone-max:              @screen-phone-max;
+  --screen-tablet:                 @screen-tablet;
+  --screen-tablet-max:             @screen-tablet-max;
+  --screen-desktop:                @screen-desktop;
+  --screen-desktop-max:            @screen-desktop-max;
+  --screen-desktop-hd:             @screen-desktop-hd;
 
   @media @phone { --flarum-screen: phone; }
   @media @tablet { --flarum-screen: tablet; }
   @media @desktop { --flarum-screen: desktop; }
   @media @desktop-hd { --flarum-screen: desktop-hd; }
+
+  // ---------------------------------
+  // COMPONENT LAYOUTS
+
+  --avatar-column-width: 85px;
+  --post-padding: 20px;
 }

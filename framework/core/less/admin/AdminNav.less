@@ -17,6 +17,10 @@
   }
 }
 
+.Header-navigation {
+  position: relative;
+}
+
 @media @phone {
   .Dropdown-menu {
     height: 70vh;
@@ -90,6 +94,8 @@
     margin-left: var(--admin-pane-width);
   }
   .App-nav .AdminNav {
+    --extension-icon-size: 25px;
+
     .Dropdown-menu {
       .item-search {
         margin-top: 10px;
@@ -104,8 +110,8 @@
 
       > li {
         > a {
-          padding: 10px 10px 10px 45px;
-          display: block;
+          padding: 10px 10px 10px 15px;
+          gap: 9px;
           text-decoration: none;
         }
 
@@ -131,14 +137,11 @@
         }
 
         .Button-icon {
-          float: left;
           font-size: 13px !important;
-          margin-left: -25px !important;
-          margin-top: 4px !important;
+          width: var(--extension-icon-size);
         }
 
         .Button-label {
-          padding-left: 5px;
           font-size: 14px;
           font-weight: normal;
         }
@@ -150,8 +153,7 @@
         }
 
         .ExtensionIcon {
-          --size: 25px;
-          margin-left: -29px;
+          --size: var(--extension-icon-size);
         }
       }
     }
@@ -194,12 +196,9 @@
 
 .ExtensionNavButton {
   .Button-label {
-    display: inline-block;
-    max-width: ~"calc(100% - 18px)";
+    max-width: ~"calc(100% - 72px)";
     overflow: hidden;
     text-overflow: ellipsis;
-    vertical-align: middle;
-    margin-left: 5px;
   }
 }
 

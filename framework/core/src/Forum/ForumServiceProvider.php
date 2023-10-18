@@ -147,7 +147,8 @@ class ForumServiceProvider extends AbstractServiceProvider
 
         $view->share([
             'translator' => $container->make(TranslatorInterface::class),
-            'settings' => $container->make(SettingsRepositoryInterface::class)
+            'settings' => $container->make(SettingsRepositoryInterface::class),
+            'formatter' => $container->make(Formatter::class),
         ]);
 
         $events->listen(

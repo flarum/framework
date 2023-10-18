@@ -23,7 +23,13 @@ export default class HeaderSecondary extends Component {
 
     items.add(
       'help',
-      <LinkButton href="https://docs.flarum.org/troubleshoot/" icon="fas fa-question-circle" external={true} target="_blank">
+      <LinkButton
+        className="Button Button--link"
+        href="https://docs.flarum.org/troubleshoot/"
+        icon="fas fa-question-circle"
+        external={true}
+        target="_blank"
+      >
         {app.translator.trans('core.admin.header.get_help')}
       </LinkButton>
     );

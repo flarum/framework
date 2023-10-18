@@ -26,7 +26,9 @@
   > li {
     > a, > button, > span {
       padding: 8px 15px;
-      display: block;
+      display: flex;
+      align-items: center;
+      gap: 9px;
       width: 100%;
       color: var(--text-color);
       border-radius: 0;
@@ -41,17 +43,12 @@
       font-weight: normal;
       text-decoration: none;
       cursor: pointer;
-
-      &.hasIcon {
-        padding-left: 40px;
-      }
+      line-height: 20px;
 
       .Button-icon {
-        float: left;
-        margin-left: -25px;
-        margin-top: 2px;
         width: 16px;
         text-align: center;
+        flex-shrink: 0;
       }
 
       &.disabled {
@@ -135,7 +132,7 @@
   }
 
   @media @tablet-up {
-    .Dropdown-menu li:first-child {
+    &:not(.Dropdown--withMainAction) .Dropdown-menu li:first-child {
       &, + li.Dropdown-separator {
         display: none;
       }

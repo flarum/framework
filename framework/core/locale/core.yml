@@ -126,6 +126,12 @@ core:
       description: "Configure the driver, settings and addresses your forum will use to send email."
       driver_heading: Choose a Driver
       driver_label: Driver
+      format:
+        multipart_option: Multipart (recommended)
+        plain_option: Plain Text
+        html_option: HTML
+      format_heading: Outgoing Email Format
+      format_help: "Choose the format that outgoing emails will be sent in. The recommended option is <code>multipart</code>, as this will allow your user's email client to display the most appropriate format."
       from_label: Sender
       mail_encryption_label: Encryption
       mail_host_label: Host
@@ -727,6 +733,16 @@ core:
       submit_button: => core.ref.save_changes
       title: => core.ref.reset_your_password
 
+    # Translations in this namespace are displayed by the email unsubscribe interface.
+    unsubscribe_email:
+      title: Unsubscribe Confirmation
+      return_to_forum: Back to {forumTitle}
+      confirm_button: Confirm
+      immediate_helptext: You will be immediately unsubscribed once you confirm.
+      confirm_message: "You have requested to unsubscribe from \"{type}\" email notifications from {forumTitle}."
+      success_message: "You have successfully unsubscribed from \"{type}\" notification from {forumTitle}. If you wish to receive them again, please [update your settings]({settingsLink})."
+      invalid_message: "This unsubscribe link is invalid or has already been used. For any changes in your email notifications from {forumTitle}, please [check your settings]({settingsLink})."
+
   # Translations in this namespace are used in messages output by the API.
   api:
     invalid_username_message: "The username may only contain letters, numbers, and dashes."
@@ -737,13 +753,30 @@ core:
 
   # Translations in this namespace are used in emails sent by the forum.
   email:
+    greeting: "Hey {displayName},"
+    signoff: "The {forumTitle} team"
+
+    # These translations are used by the "informational" email template.
+    informational:
+      default_title: "Information"
+      footer: "This email was sent to {userEmail} as an informational service related to your account on [{forumTitle}]({forumUrl})."
+      footer_plain: "This email was sent to {userEmail} as an informational service related to your account on {forumTitle}."
+
+    # These translations are used by the "notification" email template.
+    notification:
+        default_title: "Notification"
+        footer:
+          main_text: "This email was sent to {email} because you are subscribed to \"{type}\" notifications on [{forumTitle}]({forumUrl})."
+          main_text_plain: "This email was sent to {email} because you are subscribed to \"{type}\" notifications on {forumTitle}."
+          unsubscribe_text: "If you'd like to stop receiving this type of notification, [unsubscribe here]({unsubscribeLink})."
+          unsubscribe_text_plain: "If you'd like to stop receiving this type of notification, unsubscribe here: {unsubscribeLink}"
+          settings_text: "Manage your notification settings [here]({settingsLink})."
+          settings_text_plain: "Manage your notification settings here: {settingsLink}"
 
     # These translations are used in emails sent when users register new accounts.
     activate_account:
       subject: Activate Your New Account
       body: |
-        Hey {username}!
-
         Someone (hopefully you!) has signed up to {forum} with this email address.
 
         If this was you, simply click the following link and your account will be activated:
@@ -755,8 +788,6 @@ core:
     confirm_email:
       subject: Confirm Your New Email Address
       body: |
-        Hey {username}!
-
         Someone (hopefully you!) has changed their email address on {forum} to this one.
 
         If this was you, simply click the following link and your email will be confirmed:
@@ -768,8 +799,6 @@ core:
     reset_password:
       subject: => core.ref.reset_your_password
       body: |
-        Hey {username}!
-
         Someone (hopefully you!) has submitted a forgotten password request for your account on {forum}.
 
         If this was you, click the following link to reset your password:
@@ -781,8 +810,6 @@ core:
     send_test:
       subject: Flarum Email Test
       body: |
-        Hey {username}!
-
         This is a test email to confirm that your Flarum email configuration is working properly.
 
         If this was you, this email means that your configuration works!

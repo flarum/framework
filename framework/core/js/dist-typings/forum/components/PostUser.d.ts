@@ -8,14 +8,5 @@
 export default class PostUser extends Component<import("../../common/Component").ComponentAttrs, undefined> {
     constructor();
     view(): JSX.Element;
-    oncreate(vnode: any): void;
-    /**
-     * Show the user card.
-     */
-    showCard(): void;
-    /**
-     * Hide the user card.
-     */
-    hideCard(): void;
 }
 import Component from "../../common/Component";

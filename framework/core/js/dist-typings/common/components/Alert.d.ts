@@ -13,6 +13,8 @@ export interface AlertAttrs extends ComponentAttrs {
     dismissible?: boolean;
     /** A callback to run when the alert is dismissed */
     ondismiss?: Function;
+    /** A class to assign to the container element */
+    containerClassName?: string;
 }
 /**
  * The `Alert` component represents an alert box, which contains a message,

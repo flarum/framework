@@ -4,8 +4,8 @@ import PermissionDropdown from './PermissionDropdown';
 import SettingDropdown from './SettingDropdown';
 import Button from '../../common/components/Button';
 import ItemList from '../../common/utils/ItemList';
-import icon from '../../common/helpers/icon';
 import type Mithril from 'mithril';
+import Icon from '../../common/components/Icon';
 
 export interface PermissionConfig {
   permission: string;
@@ -76,7 +76,7 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
               {section.children.map((child) => (
                 <tr className="PermissionGrid-child">
                   <th>
-                    {icon(child.icon)}
+                    <Icon name={child.icon} />
                     {child.label}
                   </th>
                   {permissionCells(child)}

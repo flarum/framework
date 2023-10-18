@@ -2,8 +2,7 @@
 // Posts
 
 .Post {
-  padding: 20px;
-  margin: -1px -20px;
+  padding: var(--post-padding) var(--post-padding) var(--post-padding) 0;
   transition: 0.2s box-shadow, top 0.2s, opacity 0.2s;
   position: relative;
   top: 0;
@@ -18,7 +17,6 @@
 
 .Post-header {
   margin-bottom: 15px;
-  color: var(--muted-color);
 
   &, a {
     color: var(--muted-color);
@@ -33,6 +31,28 @@
       margin-right: 10px;
     }
   }
+
+  .UserCard {
+    position: absolute;
+    top: 15px;
+    left: 16px;
+    z-index: var(--zindex-dropdown);
+    transition: opacity 0.2s, transform 0.2s;
+    transform: scale(0.95);
+    transform-origin: left top;
+    opacity: 0;
+
+    &.in {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .Avatar {
+    .Avatar--size(32px);
+    vertical-align: middle;
+    margin-right: 5px;
+  }
 }
 .PostUser {
   margin: 0;
@@ -40,13 +60,9 @@
   font-weight: normal;
   position: relative;
 
-  // TODO: remove styles for h3 on Flarum 2.0 cleanup - they may be used by extensions, but they should target `.PostUser-name` class instead
-  h3,
   .PostUser-name {
     display: inline;
   }
-  // TODO: remove styles for h3 on Flarum 2.0 cleanup - they may be used by extensions, but they should target `.PostUser-name` class instead
-  h3, h3 a,
   .PostUser-name, .PostUser-name a {
     color: var(--heading-color);
     font-weight: bold;
@@ -61,22 +77,6 @@
     }
     & .fa-circle {
       color: var(--online-user-circle-color);
-    }
-  }
-
-  .UserCard {
-    position: absolute;
-    top: -10px;
-    left: -100px;
-    z-index: var(--zindex-dropdown);
-    transition: opacity 0.2s, transform 0.2s;
-    transform: scale(0.95);
-    transform-origin: left top;
-    opacity: 0;
-
-    &.in {
-      transform: scale(1);
-      opacity: 1;
     }
   }
 }
@@ -195,8 +195,6 @@
 
 .Post--hidden {
   .Post-header, .Post-header a,
-  // TODO: remove styles for h3 on Flarum 2.0 cleanup - they may be used by extensions, but they should target `.PostUser-name` class instead
-  .PostUser h3, .PostUser h3 a,
   .PostUser .PostUser-name, .PostUser .PostUser-name a {
     color: var(--muted-more-color);
   }
@@ -206,18 +204,14 @@
     }
     .Post-body,
     .Post-footer,
-    // TODO: remove styles for h3 on Flarum 2.0 cleanup - they may be used by extensions, but they should target `.PostUser-name` class instead
-    h3 .Avatar,
-    .PostUser-name .Avatar,
+    .Post-side > *,
     .PostUser-badges {
       display: none;
     }
   }
   .Post-body,
   .Post-footer,
-  // TODO: remove styles for h3 on Flarum 2.0 cleanup - they may be used by extensions, but they should target `.PostUser-name` class instead
-  h3 .Avatar,
-  .PostUser-name .Avatar,
+  .Post-side > *,
   .PostUser-badges {
     opacity: 0.5;
   }
@@ -375,11 +369,9 @@
 }
 
 @media @phone {
-  .Post-header {
-    .Avatar {
-      .Avatar--size(32px);
-      vertical-align: middle;
-      margin-right: 5px;
+  .Post-side {
+    .Post-avatar {
+      display: none;
     }
   }
   .PostUser-badges {
@@ -403,30 +395,29 @@
   }
 }
 
-@avatar-column-width: 85px;
-
 @media @tablet-up {
-  .Post {
-    padding-left: 20px + @avatar-column-width;
+  .Post-container {
+    display: grid;
+    grid-template-columns: var(--avatar-column-width) 1fr;
   }
   .CommentPost:not(.Post--hidden), .ReplyPlaceholder {
     min-height: 64px + 40px; // avatar height + padding
   }
-  .PostUser-avatar {
-    left: -@avatar-column-width;
-    position: absolute;
+  .Post-avatar {
     .Avatar--size(64px);
+  }
+  .Post-header .Post-avatar {
+    display: none;
   }
   .PostUser-badges {
     float: left;
     position: relative;
-    margin-left: -@avatar-column-width + 5px;
+    margin-left: calc(~"5px - var(--avatar-column-width)");
     margin-top: -3px;
     width: 64px;
   }
   .EventPost-icon {
     text-align: right;
-    margin-left: -@avatar-column-width;
     width: 64px;
     font-size: 22px;
   }
@@ -437,16 +428,41 @@
   cursor: text;
   overflow: hidden;
   margin-top: 50px;
+  margin-left: calc(0px - var(--post-padding));
+  padding-left: var(--post-padding);
   border: 2px dashed var(--control-bg);
   color: var(--muted-color);
   border-radius: 10px;
   background-color: transparent;
-  width: calc(~"100% + 20px * 2");
-  display: flex;
+  display: block;
+  appearance: none;
+  -webkit-appearance: none;
+  text-align: left;
+  width: calc(100% + var(--post-padding));
+
+  .Post-container {
+    display: grid;
+    grid-template-columns: var(--avatar-column-width) 1fr;
+
+    @media @phone {
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+    }
+  }
 
   .Post-header {
     margin: 0;
     color: inherit;
+  }
+
+  .Post-avatar {
+    .Avatar--size(32px);
+    display: block;
+  }
+
+  .Post-main {
+    display: flex;
+    align-items: center;
   }
 }
 @media @tablet-up {
@@ -455,14 +471,13 @@
     transition: border-color 0.2s;
 
     .Post-header {
-      padding-top: 18px;
       position: relative;
-    }
-    .Avatar {
-      margin-top: -18px;
     }
     &:hover {
       border-color: var(--control-bg);
+    }
+    .Post-avatar {
+      .Avatar--size(64px);
     }
   }
   .LoadingPost .Post-header {

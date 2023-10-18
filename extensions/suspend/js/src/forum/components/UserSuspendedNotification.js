@@ -23,4 +23,8 @@ export default class UserSuspendedNotification extends Notification {
           timeReadable,
         });
   }
+
+  excerpt() {
+    return null;
+  }
 }

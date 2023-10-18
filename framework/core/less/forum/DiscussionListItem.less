@@ -15,32 +15,34 @@
 .DiscussionListItem-content {
   position: relative;
   color: var(--muted-color);
+  display: grid;
+  grid-template-columns: auto minmax(50%, 1fr) auto;
+  gap: 16px;
+  padding: 12px 26px 12px 0;
 }
 .DiscussionListItem-main {
   color: inherit;
   text-decoration: none;
+  display: block;
 }
-.DiscussionListItem-author {
-  float: left;
-  margin-top: 13px;
+.DiscussionListItem-author-avatar {
+  display: block;
 }
 .DiscussionListItem-badges {
-  float: left;
   margin-top: 10px;
   text-align: right;
   white-space: nowrap;
   pointer-events: none;
+
+  position: absolute;
+  top: 0;
+  left: -2px;
 
   .Badge {
     margin-left: -10px;
     position: relative;
     pointer-events: auto;
   }
-}
-.DiscussionListItem-main {
-  display: inline-block;
-  width: 100%;
-  padding: 12px 0;
 }
 .DiscussionListItem-title {
   margin: 0 0 3px;
@@ -89,9 +91,6 @@
     display: block;
     word-break: break-word;
 
-    .DiscussionPage-list & {
-      margin-right: 0;
-    }
     mark {
       background: none;
       box-shadow: none;
@@ -100,10 +99,16 @@
     }
   }
 }
-.DiscussionListItem-count {
-  float: right;
-  margin-top: 12px;
+.DiscussionListItem-stats {
+  width: 40px;
+  display: flex;
+  flex-direction: column;
+}
+.DiscussionListItem-stats-item {
   text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 
   .unread & {
     cursor: pointer;
@@ -121,23 +126,21 @@
     display: none;
   }
   .DiscussionListItem-content {
-    padding-left: 15px + 45px;
-    padding-right: 15px + 35px;
+    padding-left: 15px;
 
     &:active {
       background: var(--control-bg);
     }
   }
-  .DiscussionListItem-author {
-    margin-left: -45px;
-
+  .DiscussionListItem-author-avatar {
     .Avatar {
       .Avatar--size(32px);
     }
   }
   .DiscussionListItem-badges {
-    margin-left: -45px;
     width: 38px;
+    left: 19px;
+    top: -4px;
 
     .badge {
       .Badge--size(20px);
@@ -145,7 +148,7 @@
     }
   }
   .DiscussionListItem-main {
-    margin-right: -45px;
+    //
   }
   .DiscussionListItem-title {
     font-size: 14px;
@@ -156,13 +159,16 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .DiscussionListItem-stats {
+    align-items: end;
+  }
   .DiscussionListItem-count {
-    margin-right: -35px;
     background: var(--control-bg);
     color: var(--control-color);
     border-radius: var(--border-radius);
     font-size: 12px;
     padding: 2px 6px;
+    gap: 0;
 
     .unread & {
       background: var(--primary-color);
@@ -172,6 +178,10 @@
       &:active {
         opacity: 0.5;
       }
+    }
+
+    .icon {
+      display: none;
     }
   }
 }
@@ -225,52 +235,42 @@
     }
   }
   .DiscussionListItem-content {
-    padding-left: 52px;
-    padding-right: 80px;
+    //
   }
-  .DiscussionListItem-author {
-    margin-left: -52px;
-
+  .DiscussionListItem-author-avatar {
     .Avatar {
       .Avatar--size(36px);
     }
   }
   .DiscussionListItem-badges {
-    margin-left: -55px;
     width: 48px;
   }
   .DiscussionListItem-main {
-    margin-right: -65px;
+    //
   }
   .DiscussionListItem-title {
     font-size: 16px;
   }
-  .DiscussionListItem-count {
-    margin-top: 12px;
-    margin-right: -70px;
-    width: 55px;
+  .DiscussionListItem-stats-item {
     color: var(--muted-color);
     font-size: 14px;
-    padding-left: 21px;
-
-    &:before {
-      .far();
-      content: @fa-var-comment;
-      float: left;
-      margin-left: -21px;
-      margin-top: 3px;
-    }
+  }
+  .DiscussionListItem-count {
     .unread & {
       color: var(--heading-color);
       font-weight: bold;
 
-      &:before {
-        .fas();
-        content: @fa-var-comment;
+      ._checkmark {
+        display: none;
       }
-      &:hover:before {
-        .fas();
-        content: @fa-var-check;
+
+      &:hover {
+        ._checkmark {
+          display: block;
+        }
+        ._comment {
+          display: none;
+        }
       }
     }
   }

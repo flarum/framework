@@ -2,11 +2,12 @@ import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
 import LinkButton from 'flarum/common/components/LinkButton';
 import IndexPage from 'flarum/forum/components/IndexPage';
+import IndexSidebar from 'flarum/forum/components/IndexSidebar';
 import DiscussionListState from 'flarum/forum/states/DiscussionListState';
 import GlobalSearchState from 'flarum/forum/states/GlobalSearchState';
 
 export default function addSubscriptionFilter() {
-  extend(IndexPage.prototype, 'navItems', function (items) {
+  extend(IndexSidebar.prototype, 'navItems', function (items) {
     if (app.session.user) {
       const params = app.search.stickyParams();
 

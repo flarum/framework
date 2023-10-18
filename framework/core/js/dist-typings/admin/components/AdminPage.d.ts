@@ -2,6 +2,7 @@ import type Mithril from 'mithril';
 import Page, { IPageAttrs } from '../../common/components/Page';
 import Stream from '../../common/utils/Stream';
 import ItemList from '../../common/utils/ItemList';
+import type { IUploadImageButtonAttrs } from './UploadImageButton';
 export interface AdminHeaderOptions {
     title: Mithril.Children;
     description: Mithril.Children;
@@ -42,6 +43,7 @@ declare const BooleanSettingTypes: readonly ["bool", "checkbox", "switch", "bool
 declare const SelectSettingTypes: readonly ["select", "dropdown", "selectdropdown"];
 declare const TextareaSettingTypes: readonly ["textarea"];
 declare const ColorPreviewSettingType: "color-preview";
+declare const ImageUploadSettingType: "image-upload";
 /**
  * Valid options for the setting component builder to generate a Switch.
  */
@@ -73,6 +75,9 @@ export interface TextareaSettingComponentOptions extends CommonSettingsItemOptio
 export interface ColorPreviewSettingComponentOptions extends CommonSettingsItemOptions {
     type: typeof ColorPreviewSettingType;
 }
+export interface ImageUploadSettingComponentOptions extends CommonSettingsItemOptions, IUploadImageButtonAttrs {
+    type: typeof ImageUploadSettingType;
+}
 export interface CustomSettingComponentOptions extends CommonSettingsItemOptions {
     type: string;
     [key: string]: unknown;
@@ -80,7 +85,7 @@ export interface CustomSettingComponentOptions extends CommonSettingsItemOptions
 /**
  * All valid options for the setting component builder.
  */
-export declare type SettingsComponentOptions = HTMLInputSettingsComponentOptions | SwitchSettingComponentOptions | SelectSettingComponentOptions | TextareaSettingComponentOptions | ColorPreviewSettingComponentOptions | CustomSettingComponentOptions;
+export declare type SettingsComponentOptions = HTMLInputSettingsComponentOptions | SwitchSettingComponentOptions | SelectSettingComponentOptions | TextareaSettingComponentOptions | ColorPreviewSettingComponentOptions | ImageUploadSettingComponentOptions | CustomSettingComponentOptions;
 /**
  * Valid attrs that can be returned by the `headerInfo` function
  */

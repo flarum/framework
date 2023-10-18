@@ -3,8 +3,8 @@ import DashboardWidget from './DashboardWidget';
 import isExtensionEnabled from '../utils/isExtensionEnabled';
 import getCategorizedExtensions from '../utils/getCategorizedExtensions';
 import Link from '../../common/components/Link';
-import icon from '../../common/helpers/icon';
 import classList from '../../common/utils/classList';
+import Icon from '../../common/components/Icon';
 
 export default class ExtensionsWidget extends DashboardWidget {
   oninit(vnode) {
@@ -42,7 +42,7 @@ export default class ExtensionsWidget extends DashboardWidget {
         <Link href={app.route('extension', { id: extension.id })}>
           <div className="ExtensionListItem-content">
             <span className="ExtensionListItem-icon ExtensionIcon" style={extension.icon}>
-              {!!extension.icon && icon(extension.icon.name)}
+              {!!extension.icon && <Icon name={extension.icon.name} />}
             </span>
             <span className="ExtensionListItem-title">{extension.extra['flarum-extension'].title}</span>
           </div>

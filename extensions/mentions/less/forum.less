@@ -1,7 +1,7 @@
 .PostMention, .UserMention, .GroupMention {
   background: var(--control-bg);
   color: var(--control-color);
-  border-radius: @border-radius;
+  border-radius: var(--border-radius);
   font-weight: 600;
 
   blockquote & {
@@ -81,7 +81,7 @@
 .MentionsDropdown, .PostMention-preview, .Post-mentionedBy-preview {
   // @TODO: Rename to .MentionsDropdownItem, along with child classes. 2.0
   .PostPreview {
-    color: @muted-color;
+    color: var(--muted-color);
 
     .Avatar {
       .Avatar--size(24px);
@@ -93,7 +93,7 @@
       }
     }
     .username {
-      color: @text-color;
+      color: var(--text-color);
       font-weight: bold;
     }
   }

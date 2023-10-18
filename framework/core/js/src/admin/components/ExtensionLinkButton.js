@@ -1,8 +1,8 @@
 import app from '../../admin/app';
 import isExtensionEnabled from '../utils/isExtensionEnabled';
 import LinkButton from '../../common/components/LinkButton';
-import icon from '../../common/helpers/icon';
 import ItemList from '../../common/utils/ItemList';
+import Icon from '../../common/components/Icon';
 
 export default class ExtensionLinkButton extends LinkButton {
   getButtonContent(children) {
@@ -12,7 +12,7 @@ export default class ExtensionLinkButton extends LinkButton {
 
     content.unshift(
       <span className="ExtensionListItem-icon ExtensionIcon" style={extension.icon}>
-        {!!extension.icon && icon(extension.icon.name)}
+        {!!extension.icon && <Icon name={extension.icon.name} />}
       </span>
     );
     content.push(statuses);
