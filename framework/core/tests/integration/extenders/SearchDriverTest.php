@@ -24,7 +24,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 
-class SimpleFlarumSearchTest extends TestCase
+class SearchDriverTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
@@ -73,8 +73,7 @@ class SimpleFlarumSearchTest extends TestCase
         return $this->app()
             ->getContainer()
             ->make(SearchManager::class)
-            ->for(Discussion::class)
-            ->search(new SearchCriteria($actor, $filters, $limit))
+            ->query(Discussion::class, new SearchCriteria($actor, $filters, $limit))
             ->getResults();
     }
 
