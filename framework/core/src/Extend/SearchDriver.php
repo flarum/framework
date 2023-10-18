@@ -9,6 +9,7 @@
 
 namespace Flarum\Extend;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Extension\Extension;
 use Flarum\Search\AbstractDriver;
 use Flarum\Search\AbstractFulltextFilter;
@@ -37,7 +38,7 @@ class SearchDriver implements ExtenderInterface
     /**
      * Add a filter to this searcher. Filters are used to filter search queries.
      *
-     * @param class-string<FilterInterface> $modelClass : The class of the model subject to searching/filtering.
+     * @param class-string<AbstractModel> $modelClass : The class of the model subject to searching/filtering.
      *                              This model must extend \Flarum\Database\AbstractModel.
      * @param class-string<AbstractSearcher> $searcherClass : The class of the Searcher for this model
      *                                This searcher must implement \Flarum\Search\SearcherInterface.
