@@ -75,6 +75,23 @@ class ConsoleTest extends ConsoleTestCase
 
         $this->assertStringContainsString('cache:clear', $this->runCommand($input));
     }
+
+    /**
+     * @test
+     */
+    public function scheduled_command_exists_when_added_with_class_syntax()
+    {
+        $this->extend(
+            (new Extend\Console())
+                ->schedule('cache:clear', ScheduledCommandCallback::class)
+        );
+
+        $input = [
+            'command' => 'schedule:list'
+        ];
+
+        $this->assertStringContainsString('cache:clear', $this->runCommand($input));
+    }
 }
 
 class CustomCommand extends AbstractCommand
@@ -93,5 +110,13 @@ class CustomCommand extends AbstractCommand
     protected function fire()
     {
         $this->info('Custom Command.');
+    }
+}
+
+class ScheduledCommandCallback
+{
+    public function __invoke(Event $event)
+    {
+        $event->everyMinute();
     }
 }
