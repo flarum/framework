@@ -18,6 +18,7 @@ use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchState;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Support\Arr;
 
 class SearchDriver implements ExtenderInterface
 {
@@ -64,7 +65,28 @@ class SearchDriver implements ExtenderInterface
      */
     public function addFilter(string $searcherClass, string $filterClass): self
     {
-        $this->filters[$searcherClass][] = $filterClass;
+        $this->filters[$searcherClass][] = compact('filterClass');
+
+        return $this;
+    }
+
+    /**
+     * Replace a filter from this searcher. Filters are used to filter search queries.
+     *
+     * @param class-string<AbstractSearcher> $searcherClass : The class of the Searcher for this model
+     *                                 This searcher must implement \Flarum\Search\SearcherInterface.
+     *                                 Or extend \Flarum\Search\Database\AbstractSearcher if using the default driver.
+     * @param class-string<FilterInterface> $replaceFilterClass : The ::class attribute of the filter you are replacing.
+     * @param class-string<FilterInterface> $filterClass : The ::class attribute of the filter you are adding.
+     *                               This filter must implement \Flarum\Search\FilterInterface
+     * @return self
+     */
+    public function replaceFilter(string $searcherClass, string $replaceFilterClass, string $filterClass): self
+    {
+        $this->filters[$searcherClass][] = [
+            'replace' => $replaceFilterClass,
+            'filterClass' => $filterClass,
+        ];
 
         return $this;
     }
@@ -130,9 +152,18 @@ class SearchDriver implements ExtenderInterface
 
         $container->extend('flarum.search.filters', function (array $oldFilters) {
             foreach ($this->filters as $searcherClass => $filters) {
-                $oldFilters[$searcherClass] = array_merge(
+                // Start by removing any filters that will be replaced.
+                $oldFilters[$searcherClass] = array_filter(
                     $oldFilters[$searcherClass] ?? [],
-                    $filters
+                    function ($filter) use ($filters) {
+                        return ! in_array($filter, Arr::pluck($filters, 'replace'));
+                    }
+                );
+
+                // Add the new filters.
+                $oldFilters[$searcherClass] = array_merge(
+                    $oldFilters[$searcherClass],
+                    Arr::pluck($filters, 'filterClass')
                 );
             }
 

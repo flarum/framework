@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\extenders;
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Search\DiscussionSearcher;
+use Flarum\Discussion\Search\Filter\UnreadFilter;
 use Flarum\Extend;
 use Flarum\Search\AbstractFulltextFilter;
 use Flarum\Search\Database\DatabaseSearchDriver;
@@ -121,6 +122,23 @@ class SearchDriverTest extends TestCase
         $withResultSearch = json_encode($this->searchDiscussions('', 5, ['noResult' => '0']));
         $this->assertStringContainsString('DISCUSSION 1', $withResultSearch);
         $this->assertStringContainsString('DISCUSSION 2', $withResultSearch);
+        $this->assertEquals('[]', json_encode($this->searchDiscussions('', 5, ['noResult' => '1'])));
+    }
+
+    /**
+     * @test
+     */
+    public function existing_filter_can_be_replaced()
+    {
+        $this->extend(
+            (new Extend\SearchDriver(DatabaseSearchDriver::class))
+                ->replaceFilter(DiscussionSearcher::class, UnreadFilter::class, NoResultFilter::class)
+        );
+
+        $this->prepDb();
+
+        $this->assertNotContains(UnreadFilter::class, $this->app()->getContainer()->make('flarum.search.filters')[DiscussionSearcher::class]);
+        $this->assertContains(NoResultFilter::class, $this->app()->getContainer()->make('flarum.search.filters')[DiscussionSearcher::class]);
         $this->assertEquals('[]', json_encode($this->searchDiscussions('', 5, ['noResult' => '1'])));
     }
 

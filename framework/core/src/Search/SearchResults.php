@@ -9,13 +9,16 @@
 
 namespace Flarum\Search;
 
+use Closure;
 use Illuminate\Database\Eloquent\Collection;
 
 class SearchResults
 {
     public function __construct(
         protected Collection $results,
-        protected bool $areMoreResults
+        protected bool $areMoreResults,
+        /** @var Closure(): int */
+        protected Closure $totalResults
     ) {
     }
 
@@ -27,5 +30,10 @@ class SearchResults
     public function areMoreResults(): bool
     {
         return $this->areMoreResults;
+    }
+
+    public function getTotalResults(): int
+    {
+        return ($this->totalResults)();
     }
 }

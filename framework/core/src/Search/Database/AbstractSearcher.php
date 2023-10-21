@@ -9,11 +9,12 @@
 
 namespace Flarum\Search\Database;
 
+use Closure;
 use Flarum\Search\Filter\FilterManager;
 use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearcherInterface;
 use Flarum\Search\SearchResults;
-use Flarum\User\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 abstract class AbstractSearcher implements SearcherInterface
@@ -53,7 +54,31 @@ abstract class AbstractSearcher implements SearcherInterface
             $results->pop();
         }
 
-        return new SearchResults($results, $areMoreResults);
+        return new SearchResults($results, $areMoreResults, $this->getTotalResults($query));
+    }
+
+    protected function getTotalResults(Builder $query): Closure
+    {
+        return function () use ($query) {
+            $query = $query->toBase();
+
+            if ($query->unions) {
+                $query->unions = null; // @phpstan-ignore-line
+                $query->unionLimit = null; // @phpstan-ignore-line
+                $query->unionOffset = null; // @phpstan-ignore-line
+                $query->unionOrders = null; // @phpstan-ignore-line
+                $query->setBindings([], 'union');
+            }
+
+            $query->offset = null; // @phpstan-ignore-line
+            $query->limit = null; // @phpstan-ignore-line
+            $query->orders = null; // @phpstan-ignore-line
+            $query->setBindings([], 'order');
+
+            return $query->getConnection()
+                ->table($query, 'results')
+                ->count();
+        };
     }
 
     protected function applySort(DatabaseSearchState $state, ?array $sort = null, bool $sortIsDefault = false): void
