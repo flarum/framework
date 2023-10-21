@@ -27,7 +27,6 @@ use Flarum\Post\Event\Revised;
 use Flarum\Post\Filter\PostFilterer;
 use Flarum\Post\Post;
 use Flarum\Tags\Api\Serializer\TagSerializer;
-use Flarum\Tags\Tag;
 use Flarum\User\User;
 
 return [
@@ -126,7 +125,7 @@ return [
 
     // Tag mentions
     (new Extend\Conditional())
-        ->whenExtensionEnabled('flarum-tags', [
+        ->whenExtensionEnabled('flarum-tags', fn () => [
             (new Extend\Formatter)
                 ->render(Formatter\FormatTagMentions::class)
                 ->unparse(Formatter\UnparseTagMentions::class),

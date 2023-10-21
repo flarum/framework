@@ -25,14 +25,14 @@ class ConditionalTest extends TestCase
     {
         $this->extend(
             (new Extend\Conditional())
-                ->when(true, [
-                    (new Extend\ApiSerializer(ForumSerializer::class))
-                        ->attributes(function () {
-                            return [
-                                'customConditionalAttribute' => true
-                            ];
-                        })
-                ])
+                ->when(true, function () {
+                    return [
+                        (new Extend\ApiSerializer(ForumSerializer::class))
+                            ->attributes(function () {
+                                return ['customConditionalAttribute' => true];
+                            })
+                    ];
+                })
         );
 
         $this->app();
@@ -53,14 +53,14 @@ class ConditionalTest extends TestCase
     {
         $this->extend(
             (new Extend\Conditional())
-                ->when(false, [
-                    (new Extend\ApiSerializer(ForumSerializer::class))
-                        ->attributes(function () {
-                            return [
-                                'customConditionalAttribute' => true
-                            ];
-                        })
-                ])
+                ->when(false, function () {
+                    return [
+                        (new Extend\ApiSerializer(ForumSerializer::class))
+                            ->attributes(function () {
+                                return ['customConditionalAttribute' => true];
+                            })
+                    ];
+                })
         );
 
         $this->app();
@@ -83,14 +83,14 @@ class ConditionalTest extends TestCase
             (new Extend\Conditional())
                 ->when(function () {
                     return true;
-                }, [
-                    (new Extend\ApiSerializer(ForumSerializer::class))
-                        ->attributes(function () {
-                            return [
-                                'customConditionalAttribute' => true
-                            ];
-                        })
-                ])
+                }, function () {
+                    return [
+                        (new Extend\ApiSerializer(ForumSerializer::class))
+                            ->attributes(function () {
+                                return ['customConditionalAttribute' => true];
+                            })
+                    ];
+                })
         );
 
         $this->app();
@@ -113,14 +113,14 @@ class ConditionalTest extends TestCase
             (new Extend\Conditional())
                 ->when(function () {
                     return false;
-                }, [
-                    (new Extend\ApiSerializer(ForumSerializer::class))
-                        ->attributes(function () {
-                            return [
-                                'customConditionalAttribute' => true
-                            ];
-                        })
-                ])
+                }, function () {
+                    return [
+                        (new Extend\ApiSerializer(ForumSerializer::class))
+                            ->attributes(function () {
+                                return ['customConditionalAttribute' => true];
+                            })
+                    ];
+                })
         );
 
         $this->app();
@@ -147,32 +147,25 @@ class ConditionalTest extends TestCase
                     if (! $extensions) {
                         throw new Exception('ExtensionManager not injected');
                     }
-                }, [
-                    (new Extend\ApiSerializer(ForumSerializer::class))
-                        ->attributes(function () {
-                            return [
-                                'customConditionalAttribute' => true
-                            ];
-                        })
-                ])
+                }, function () {
+                    return [
+                        (new Extend\ApiSerializer(ForumSerializer::class))
+                            ->attributes(function () {
+                                return ['customConditionalAttribute' => true];
+                            })
+                    ];
+                })
         );
 
         $this->app();
     }
 
     /** @test */
-    public function conditional_disabled_extension_not_enabled_applies_extender_array()
+    public function conditional_disabled_extension_not_enabled_applies_invokable_class()
     {
         $this->extend(
             (new Extend\Conditional())
-                ->whenExtensionDisabled('flarum-dummy-extension', [
-                    (new Extend\ApiSerializer(ForumSerializer::class))
-                        ->attributes(function () {
-                            return [
-                                'customConditionalAttribute' => true
-                            ];
-                        })
-                ])
+                ->whenExtensionDisabled('flarum-dummy-extension', TestExtender::class)
         );
 
         $this->app();
@@ -189,20 +182,13 @@ class ConditionalTest extends TestCase
     }
 
     /** @test */
-    public function conditional_disabled_extension_enabled_does_not_apply_extender_array()
+    public function conditional_disabled_extension_enabled_does_not_apply_invokable_class()
     {
         $this->extension('flarum-tags');
 
         $this->extend(
             (new Extend\Conditional())
-                ->whenExtensionDisabled('flarum-tags', [
-                    (new Extend\ApiSerializer(ForumSerializer::class))
-                        ->attributes(function () {
-                            return [
-                                'customConditionalAttribute' => true
-                            ];
-                        })
-                ])
+                ->whenExtensionDisabled('flarum-tags', TestExtender::class)
         );
 
         $this->app();
@@ -219,18 +205,11 @@ class ConditionalTest extends TestCase
     }
 
     /** @test */
-    public function conditional_enabled_extension_disabled_does_not_apply_extender_array()
+    public function conditional_enabled_extension_disabled_does_not_apply_invokable_class()
     {
         $this->extend(
             (new Extend\Conditional())
-                ->whenExtensionEnabled('flarum-dummy-extension', [
-                    (new Extend\ApiSerializer(ForumSerializer::class))
-                        ->attributes(function () {
-                            return [
-                                'customConditionalAttribute' => true
-                            ];
-                        })
-                ])
+                ->whenExtensionEnabled('flarum-dummy-extension', TestExtender::class)
         );
 
         $this->app();
@@ -247,19 +226,12 @@ class ConditionalTest extends TestCase
     }
 
     /** @test */
-    public function conditional_enabled_extension_enabled_applies_extender_array()
+    public function conditional_enabled_extension_enabled_applies_invokable_class()
     {
         $this->extension('flarum-tags');
         $this->extend(
             (new Extend\Conditional())
-                ->whenExtensionEnabled('flarum-tags', [
-                    (new Extend\ApiSerializer(ForumSerializer::class))
-                        ->attributes(function () {
-                            return [
-                                'customConditionalAttribute' => true
-                            ];
-                        })
-                ])
+                ->whenExtensionEnabled('flarum-tags', TestExtender::class)
         );
 
         $this->app();
@@ -273,5 +245,137 @@ class ConditionalTest extends TestCase
         $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    /** @test */
+    public function conditional_does_not_instantiate_extender_if_condition_is_false_using_callable()
+    {
+        $this->extend(
+            (new Extend\Conditional())
+                ->when(false, TestExtender::class)
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    /** @test */
+    public function conditional_does_instantiate_extender_if_condition_is_true_using_callable()
+    {
+        $this->extend(
+            (new Extend\Conditional())
+                ->when(true, TestExtender::class)
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    /** @test */
+    public function conditional_does_not_instantiate_extender_if_condition_is_false_using_callback()
+    {
+        $this->extend(
+            (new Extend\Conditional())
+                ->when(false, function () {
+                    return [
+                        (new Extend\ApiSerializer(ForumSerializer::class))
+                            ->attributes(function () {
+                                return ['customConditionalAttribute' => true];
+                            })
+                    ];
+                })
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    /** @test */
+    public function conditional_does_instantiate_extender_if_condition_is_true_using_callback()
+    {
+        $this->extend(
+            (new Extend\Conditional())
+                ->when(true, function () {
+                    return [
+                        (new Extend\ApiSerializer(ForumSerializer::class))
+                            ->attributes(function () {
+                                return ['customConditionalAttribute' => true];
+                            })
+                    ];
+                })
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    /** @test */
+    public function conditional_does_not_work_if_extension_is_disabled()
+    {
+        $this->extend(
+            (new Extend\Conditional())
+                ->whenExtensionEnabled('dummy-extension-id', TestExtender::class)
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+}
+
+class TestExtender
+{
+    public function __invoke(): array
+    {
+        return [
+            (new Extend\ApiSerializer(ForumSerializer::class))
+                ->attributes(function () {
+                    return [
+                        'customConditionalAttribute' => true
+                    ];
+                })
+        ];
     }
 }
