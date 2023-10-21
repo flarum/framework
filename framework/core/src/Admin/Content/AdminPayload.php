@@ -89,11 +89,9 @@ class AdminPayload
         $searchDriversPerModel = [];
 
         foreach ($this->container->make('flarum.search.drivers') as $driverClass => $searcherClasses) {
-            /**
-             * @var class-string<AbstractDriver> $driverClass
-             * @var array<class-string<AbstractModel>, class-string<SearcherInterface>> $searcherClasses
-             */
+            /** @var array<class-string<AbstractModel>, class-string<SearcherInterface>> $searcherClasses */
             foreach ($searcherClasses as $modelClass => $searcherClass) {
+                /** @var class-string<AbstractDriver> $driverClass */
                 $searchDriversPerModel[$modelClass][] = $driverClass::name();
             }
         }
