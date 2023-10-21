@@ -6,6 +6,7 @@ import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
 import LoadingModal from './LoadingModal';
 import LinkButton from '../../common/components/LinkButton';
+import saveSettings from '../utils/saveSettings.js';
 
 export default class StatusWidget extends DashboardWidget {
   className() {
@@ -70,6 +71,25 @@ export default class StatusWidget extends DashboardWidget {
       'clearCache',
       <Button onclick={this.handleClearCache.bind(this)}>{app.translator.trans('core.admin.dashboard.clear_cache_button')}</Button>
     );
+
+    if (!app.data.advancedPageEmpty) {
+      items.add(
+        'toggleAdvancedPage',
+        <Button
+          onclick={() => {
+            saveSettings({
+              show_advanced_settings: !app.data.settings.show_advanced_settings,
+            });
+
+            if (app.data.settings.show_advanced_settings) {
+              m.route.set(app.route('advanced'));
+            }
+          }}
+        >
+          {app.translator.trans('core.admin.dashboard.toggle_advanced_page_button')}
+        </Button>
+      );
+    }
 
     return items;
   }

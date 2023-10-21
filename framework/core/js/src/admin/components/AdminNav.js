@@ -110,6 +110,16 @@ export default class AdminNav extends Component {
       50
     );
 
+    if (app.data.settings.show_advanced_settings && !app.data.advancedPageEmpty) {
+      items.add(
+        'advanced',
+        <LinkButton href={app.route('advanced')} icon="fas fa-cog" title={app.translator.trans('core.admin.nav.advanced_title')}>
+          {app.translator.trans('core.admin.nav.advanced_button')}
+        </LinkButton>,
+        40
+      );
+    }
+
     items.add(
       'search',
       <div className="Search-input">

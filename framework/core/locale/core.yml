@@ -7,6 +7,17 @@ core:
   # Translations in this namespace are used by the admin interface.
   admin:
 
+    # These translations are used in the Advanced page.
+    advanced:
+      description: "Configure advanced settings for your forum."
+      search:
+        section_label: Search Drivers
+        driver_heading: "Search Driver: {model}"
+        driver_text: Select a driver to be used for searching this model.
+        driver_options:
+          default: Default database search
+      title: Advanced
+
     # These translations are used in the Appearance page.
     appearance:
       colored_header_label: Colored Header
@@ -38,6 +49,8 @@ core:
       all_discussions_label: => core.ref.all_discussions
       default_language_heading: Default Language
       description: "Set your forum title, language, and other basic settings."
+      display_name_driver_options:
+        username: Username
       display_name_heading: User Display Name
       display_name_text: Select the driver that should be used for users' display names. By default, the username is shown.
       forum_description_heading: Forum Description
@@ -46,6 +59,13 @@ core:
       home_page_heading: Home Page
       home_page_text: Choose the page which users will first see when they visit your forum.
       show_language_selector_label: Show language selector
+      slug_driver_options:
+        discussions:
+          default: ID with slug
+          utf8: ID with UTF-8 slug
+        users:
+          default: Username
+          id: ID
       slug_driver_heading: "Slug Driver: {model}"
       slug_driver_text: Select a driver to be used for slugging this model.
       title: Basics
@@ -78,6 +98,7 @@ core:
           inactive: Inactive
           never-run: Never run
       title: Dashboard
+      toggle_advanced_page_button: Toggle Advanced Page
       tools_button: Tools
 
     # These translations are used in the debug warning widget.
@@ -183,8 +204,16 @@ core:
     loading:
       title: Please Wait...
 
+    # These translations are used anywhere to localize model names for drivers.
+    models:
+      discussions: => core.ref.discussions
+      posts: => core.ref.posts
+      users: => core.ref.users
+
     # These translations are used in the navigation bar.
     nav:
+      advanced_button: => core.admin.advanced.title
+      advanced_title: => core.admin.advanced.description
       appearance_button: => core.admin.appearance.title
       appearance_title: => core.admin.appearance.description
       basics_button: => core.admin.basics.title

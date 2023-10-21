@@ -14,6 +14,7 @@ import ColorPreviewInput from '../../common/components/ColorPreviewInput';
 import ItemList from '../../common/utils/ItemList';
 import type { IUploadImageButtonAttrs } from './UploadImageButton';
 import UploadImageButton from './UploadImageButton';
+import extractText from '../../common/utils/extractText';
 
 export interface AdminHeaderOptions {
   title: Mithril.Children;
@@ -409,5 +410,13 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
     this.loading = true;
 
     return saveSettings(this.dirty()).then(this.onsaved.bind(this));
+  }
+
+  modelLocale(): Record<string, string> {
+    return {
+      'Flarum\\Discussion\\Discussion': extractText(app.translator.trans('core.admin.models.discussions')),
+      'Flarum\\User\\User': extractText(app.translator.trans('core.admin.models.users')),
+      'Flarum\\Post\\Post': extractText(app.translator.trans('core.admin.models.posts')),
+    };
   }
 }

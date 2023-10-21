@@ -5,8 +5,13 @@ import AdminPage from './AdminPage';
 import type { IPageAttrs } from '../../common/components/Page';
 import type Mithril from 'mithril';
 import Form from '../../common/components/Form';
+import extractText from '../../common/utils/extractText';
 
 export type HomePageItem = { path: string; label: Mithril.Children };
+export type DriverLocale = {
+  display_name: Record<string, string>;
+  slug: Record<string, Record<string, string>>;
+};
 
 export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends AdminPage<CustomAttrs> {
   localeOptions: Record<string, string> = {};
@@ -20,15 +25,17 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
       this.localeOptions[i] = `${app.data.locales[i]} (${i})`;
     });
 
+    const driverLocale = this.driverLocale();
+
     app.data.displayNameDrivers.forEach((identifier) => {
-      this.displayNameOptions[identifier] = identifier;
+      this.displayNameOptions[identifier] = driverLocale.display_name[identifier] || identifier;
     });
 
     Object.keys(app.data.slugDrivers).forEach((model) => {
       this.slugDriverOptions[model] = {};
 
       app.data.slugDrivers[model].forEach((option) => {
-        this.slugDriverOptions[model][option] = option;
+        this.slugDriverOptions[model][option] = (driverLocale.slug[model] && driverLocale.slug[model][option]) || option;
       });
     });
   }
@@ -108,14 +115,15 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
 
         {Object.keys(this.slugDriverOptions).map((model) => {
           const options = this.slugDriverOptions[model];
+          const modelLocale = this.modelLocale()[model] || model;
 
           if (Object.keys(options).length > 1) {
             return this.buildSettingComponent({
               type: 'select',
               setting: `slug_driver_${model}`,
               options,
-              label: app.translator.trans('core.admin.basics.slug_driver_heading', { model }),
-              help: app.translator.trans('core.admin.basics.slug_driver_text', { model }),
+              label: app.translator.trans('core.admin.basics.slug_driver_heading', { model: modelLocale }),
+              help: app.translator.trans('core.admin.basics.slug_driver_text', { model: modelLocale }),
             });
           }
 
@@ -140,5 +148,23 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
     });
 
     return items;
+  }
+
+  driverLocale(): DriverLocale {
+    return {
+      display_name: {
+        username: extractText(app.translator.trans('core.admin.basics.display_name_driver_options.username')),
+      },
+      slug: {
+        'Flarum\\Discussion\\Discussion': {
+          default: extractText(app.translator.trans('core.admin.basics.slug_driver_options.discussions.default')),
+          utf8: extractText(app.translator.trans('core.admin.basics.slug_driver_options.discussions.utf8')),
+        },
+        'Flarum\\User\\User': {
+          default: extractText(app.translator.trans('core.admin.basics.slug_driver_options.users.default')),
+          id: extractText(app.translator.trans('core.admin.basics.slug_driver_options.users.id')),
+        },
+      },
+    };
   }
 }
