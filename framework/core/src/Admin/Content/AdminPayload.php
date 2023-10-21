@@ -24,7 +24,6 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AdminPayload
