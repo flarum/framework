@@ -1,0 +1,24 @@
+.FormSectionGroup {
+  display: flex;
+  column-gap: 30px;
+  flex-wrap: wrap;
+}
+
+.FormSection {
+  --gap: 24px;
+  display: inline-grid;
+  padding: 10px 20px 20px;
+  min-height: 20vh;
+  min-width: 300px;
+  max-width: 400px;
+  grid-template-rows: min-content;
+  border: 1px solid var(--control-bg);
+  border-radius: var(--border-radius);
+  flex: 1 1 160px;
+  gap: var(--gap);
+}
+
+.FormSection > label {
+  font-weight: bold;
+  color: var(--muted-color);
+}

@@ -1,6 +1,9 @@
 import app from 'flarum/admin/app';
 import Alert from 'flarum/common/components/Alert';
 import Link from 'flarum/common/components/Link';
+import BasicsPage from 'flarum/admin/components/BasicsPage';
+import extractText from 'flarum/common/utils/extractText';
+import { extend } from 'flarum/common/extend';
 
 app.initializers.add('flarum/nicknames', () => {
   app.extensionData
@@ -55,4 +58,8 @@ app.initializers.add('flarum/nicknames', () => {
       },
       'start'
     );
+
+  extend(BasicsPage.prototype, 'driverLocale', function (locale) {
+    locale.display_name['nickname'] = extractText(app.translator.trans('flarum-nicknames.admin.basics.display_name_driver_options.nickname'));
+  });
 });
