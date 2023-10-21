@@ -17,7 +17,7 @@ class SearchResults
     public function __construct(
         protected Collection $results,
         protected bool $areMoreResults,
-        /** @var callable(): int */
+        /** @var Closure(): int */
         protected Closure $totalResults
     ) {
     }

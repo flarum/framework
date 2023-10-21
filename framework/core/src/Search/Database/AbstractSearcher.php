@@ -63,16 +63,16 @@ abstract class AbstractSearcher implements SearcherInterface
             $query = $query->toBase();
 
             if ($query->unions) {
-                $query->unions = null;
-                $query->unionLimit = null;
-                $query->unionOffset = null;
-                $query->unionOrders = null;
+                $query->unions = null; // @phpstan-ignore-line
+                $query->unionLimit = null; // @phpstan-ignore-line
+                $query->unionOffset = null; // @phpstan-ignore-line
+                $query->unionOrders = null; // @phpstan-ignore-line
                 $query->setBindings([], 'union');
             }
 
-            $query->offset = null;
-            $query->limit = null;
-            $query->orders = null;
+            $query->offset = null; // @phpstan-ignore-line
+            $query->limit = null; // @phpstan-ignore-line
+            $query->orders = null; // @phpstan-ignore-line
             $query->setBindings([], 'order');
 
             return $query->getConnection()
