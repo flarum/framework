@@ -42,6 +42,7 @@ export interface AdminApplicationData extends ApplicationData {
   slugDrivers: Record<string, string[]>;
   searchDrivers: Record<string, string[]>;
   permissions: Record<string, string[]>;
+  advancedPageEmpty: boolean;
 }
 
 export default class AdminApplication extends Application {

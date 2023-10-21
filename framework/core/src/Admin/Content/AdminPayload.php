@@ -57,6 +57,8 @@ class AdminPayload
         }, $this->container->make('flarum.http.slugDrivers'));
         $document->payload['searchDrivers'] = $this->getSearchDrivers();
 
+        $document->payload['advancedPageEmpty'] = $this->checkAdvancedPageEmpty();
+
         $document->payload['phpVersion'] = $this->appInfo->identifyPHPVersion();
         $document->payload['mysqlVersion'] = $this->appInfo->identifyDatabaseVersion();
         $document->payload['debugEnabled'] = Arr::get($this->config, 'debug');
@@ -97,5 +99,10 @@ class AdminPayload
         }
 
         return $searchDriversPerModel;
+    }
+
+    protected function checkAdvancedPageEmpty(): bool
+    {
+        return count($this->container->make('flarum.search.drivers')) === 1;
     }
 }
