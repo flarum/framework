@@ -32,7 +32,7 @@ class DiscussionPolicyTest extends TestCase
 
         $this->prepareDatabase([
             'discussions' => [
-                ['id' => 1, 'title' => 'Editable discussion', 'created_at' => Carbon::parse('2021-11-01 13:00:00')->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 2, 'is_private' => 0, 'last_post_number' => 1, 'post_number_index' => 1, 'participant_count' => 1],
+                ['id' => 1, 'title' => 'Editable discussion', 'created_at' => Carbon::parse('2021-11-01 13:00:00')->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 2, 'is_private' => 0, 'last_post_number' => 1, 'participant_count' => 1],
                 ['id' => 2, 'title' => 'Editable discussion', 'created_at' => Carbon::parse('2021-11-01 13:00:00')->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 2, 'comment_count' => 2, 'is_private' => 0, 'last_post_number' => 2, 'participant_count' => 2],
             ],
             'posts' => [
