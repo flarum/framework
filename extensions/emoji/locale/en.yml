@@ -4,6 +4,18 @@ flarum-emoji:
   # UNIQUE KEYS - The following keys are used in only one location each.
   ##
 
+  # Translations in this namespace are used by the admin interface.
+  admin:
+
+    # These translations are used in the Settings page of the admin interface.
+    settings:
+      cdn_label: CDN mirror address
+      cdn_help: "e.g. https://cdn.jsdelivr.net/gh/twitter/twemoji@[version]/assets/, The current version is: {version}"
+
+  ##
+  # UNIQUE KEYS - The following keys are used in only one location each.
+  ##
+
   # Translations in this namespace are used by the forum user interface.
   forum:
 
