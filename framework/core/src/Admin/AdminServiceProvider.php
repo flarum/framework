@@ -131,17 +131,6 @@ class AdminServiceProvider extends AbstractServiceProvider
                 $recompile->flush();
             }
         );
-
-        $events->listen(
-            Saved::class,
-            function (Saved $event) {
-                $recompile = new RecompileFrontendAssets(
-                    $this->container->make('flarum.assets.admin'),
-                    $this->container->make(LocaleManager::class)
-                );
-                $recompile->whenSettingsSaved($event);
-            }
-        );
     }
 
     protected function populateRoutes(RouteCollection $routes): void

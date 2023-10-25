@@ -23,14 +23,6 @@ class RecompileFrontendAssets
     ) {
     }
 
-    public function whenSettingsSaved(Saved $event): void
-    {
-        // @deprecated 'theme_' check, to be removed in 2.0
-        if (preg_grep('/^theme_/i', array_keys($event->settings))) {
-            $this->flushCss();
-        }
-    }
-
     public function flush(): void
     {
         $this->flushCss();

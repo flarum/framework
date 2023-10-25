@@ -252,17 +252,6 @@ class Frontend implements ExtenderInterface
                     $recompile->flush();
                 }
             );
-
-            $events->listen(
-                Saved::class,
-                function (Saved $event) use ($container, $abstract) {
-                    $recompile = new RecompileFrontendAssets(
-                        $container->make($abstract),
-                        $container->make(LocaleManager::class)
-                    );
-                    $recompile->whenSettingsSaved($event);
-                }
-            );
         }
     }
 
