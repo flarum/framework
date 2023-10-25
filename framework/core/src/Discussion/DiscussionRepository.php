@@ -11,7 +11,6 @@ namespace Flarum\Discussion;
 
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 
 class DiscussionRepository
 {
