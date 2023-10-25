@@ -35,18 +35,6 @@ class DiscussionRepository
     }
 
     /**
-     * Get the IDs of discussions which a user has read completely.
-     *
-     * @param User $user
-     * @return Collection<int, Discussion>
-     * @deprecated 1.3 Use `getReadIdsQuery` instead
-     */
-    public function getReadIds(User $user): Collection
-    {
-        return $this->getReadIdsQuery($user)->get();
-    }
-
-    /**
      * Get a query containing the IDs of discussions which a user has read completely.
      *
      * @param User $user
