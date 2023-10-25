@@ -3,14 +3,16 @@ import twemoji from 'twemoji';
 import { override } from 'flarum/common/extend';
 import Post from 'flarum/common/models/Post';
 
-import base from './cdn';
+import cdn from './cdn';
 
-const options = {
-  base,
-  attributes: () => ({
-    loading: 'lazy',
-  }),
-};
+function options() {
+  return {
+    base: cdn(),
+    attributes: () => ({
+      loading: 'lazy',
+    }),
+  }
+}
 
 /**
  * Parses an HTML string into a `<body>` node containing the HTML content.
@@ -40,7 +42,7 @@ export default function renderEmoji() {
       // element. This gets stripped below.
       //
       // See https://github.com/flarum/core/issues/2958
-      const emojifiedDom = twemoji.parse(parseHTML(contentHtml), options);
+      const emojifiedDom = twemoji.parse(parseHTML(contentHtml), options());
 
       // Steal the HTML string inside the emojified DOM `<body>` tag.
       this.emojifiedContentHtml = emojifiedDom.innerHTML;
@@ -54,6 +56,6 @@ export default function renderEmoji() {
   override(s9e.TextFormatter, 'preview', (original, text, element) => {
     original(text, element);
 
-    twemoji.parse(element, options);
+    twemoji.parse(element, options());
   });
 }
