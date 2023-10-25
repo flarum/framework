@@ -8,7 +8,6 @@ import KeyboardNavigatable from '../../common/utils/KeyboardNavigatable';
 import SearchState from '../states/SearchState';
 import DiscussionsSearchSource from './DiscussionsSearchSource';
 import UsersSearchSource from './UsersSearchSource';
-import { fireDeprecationWarning } from '../../common/helpers/fireDebugWarning';
 import type Mithril from 'mithril';
 import Icon from '../../common/components/Icon';
 
