@@ -1,6 +1,5 @@
 import app from '../common/app';
 import { FlarumRequestOptions } from './Application';
-import { fireDeprecationWarning } from './helpers/fireDebugWarning';
 import Store, { ApiPayloadSingle, ApiResponseSingle, MetaInformation } from './Store';
 
 export interface ModelIdentifier {
