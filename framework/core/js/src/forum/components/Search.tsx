@@ -65,24 +65,6 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
   protected searchState!: SearchState;
 
   /**
-   * The instance of `SearchState` for this component.
-   *
-   * @deprecated Replace with`this.searchState` instead.
-   */
-  // TODO: [Flarum 2.0] Remove this.
-  // @ts-expect-error This is a get accessor, while superclass defines this as a property. This is needed to prevent breaking changes, however.
-  get state() {
-    fireDeprecationWarning('`state` property of the Search component is deprecated', '3212');
-    return this.searchState;
-  }
-  set state(state: SearchState) {
-    // Workaround to prevent triggering deprecation warnings due to Mithril
-    // setting state to undefined when creating components
-    state !== undefined && fireDeprecationWarning('`state` property of the Search component is deprecated', '3212');
-    this.searchState = state;
-  }
-
-  /**
    * Whether or not the search input has focus.
    */
   protected hasFocus = false;
