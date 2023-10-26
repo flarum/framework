@@ -27,7 +27,7 @@ class AccessTokenSerializer extends AbstractSerializer
     {
         if (! ($model instanceof AccessToken)) {
             throw new InvalidArgumentException(
-                get_class($this).' can only serialize instances of '.AccessToken::class
+                $this::class.' can only serialize instances of '.AccessToken::class
             );
         }
 

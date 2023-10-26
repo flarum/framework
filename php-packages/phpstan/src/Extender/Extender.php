@@ -38,7 +38,7 @@ class Extender
         foreach ($this->constructorArguments as $index => $constructorArgument) {
             $string = null;
 
-            switch (get_class($constructorArgument)) {
+            switch ($constructorArgument::class) {
                 case Expr\ClassConstFetch::class:
                     $string = $constructorArgument->class->toString();
                     break;

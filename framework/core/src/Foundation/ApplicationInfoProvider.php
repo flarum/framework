@@ -57,7 +57,7 @@ class ApplicationInfoProvider
     public function identifyQueueDriver(): string
     {
         // Get class name
-        $queue = get_class($this->queue);
+        $queue = $this->queue::class;
         // Drop the namespace
         $queue = Str::afterLast($queue, '\\');
         // Lowercase the class name
@@ -103,7 +103,7 @@ class ApplicationInfoProvider
          * And compare that to the current configured driver.
          */
         // Get class name
-        $handlerName = get_class($this->sessionHandler);
+        $handlerName = $this->sessionHandler::class;
         // Drop the namespace
         $handlerName = Str::afterLast($handlerName, '\\');
         // Lowercase the class name

@@ -29,7 +29,7 @@ class TagSerializer extends AbstractSerializer
     {
         if (! ($model instanceof Tag)) {
             throw new InvalidArgumentException(
-                get_class($this).' can only serialize instances of '.Tag::class
+                $this::class.' can only serialize instances of '.Tag::class
             );
         }
 

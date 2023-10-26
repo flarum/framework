@@ -60,7 +60,7 @@ class GambitManager
             foreach ($this->gambits as $gambit) {
                 if (! $gambit instanceof GambitInterface) {
                     throw new LogicException(
-                        'Gambit '.get_class($gambit).' does not implement '.GambitInterface::class
+                        'Gambit '.$gambit::class.' does not implement '.GambitInterface::class
                     );
                 }
 
