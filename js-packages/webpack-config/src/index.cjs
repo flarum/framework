@@ -102,6 +102,7 @@ module.exports = function () {
     optimization: {
       splitChunks: {
         chunks: 'async',
+        maxAsyncRequests: 1,
         cacheGroups: {
           // Avoid node_modules being split into separate chunks
           defaultVendors: false,
