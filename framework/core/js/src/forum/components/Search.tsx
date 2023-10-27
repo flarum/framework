@@ -145,6 +145,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
         })}
       >
         <div className="Search-input">
+          <Icon name="fas fa-search Search-input-icon" />
           <input
             aria-label={searchLabel}
             className="FormControl"

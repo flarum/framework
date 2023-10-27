@@ -77,6 +77,13 @@
   }
 }
 
+.SelectTagListItem-checkIcon {
+  position: absolute;
+  inset: 0;
+  display: none;
+  background-color: transparent;
+}
+
 .SelectTagList {
   padding: 0;
   margin: 0;
@@ -124,25 +131,26 @@
     }
 
     &.selected {
-      .icon::before {
-        .fas();
-        content: @fa-var-check !important;
+      .SelectTagListItem-checkIcon {
+        display: inline-block;
         color: var(--muted-color);
         font-size: 14px;
-        text-align: center;
-        vertical-align: 1px;
       }
-
-      &.colored .TagIcon:before {
+      .SelectTagListItem-tagIcon::before {
+        visibility: hidden;
+      }
+      &.colored .TagIcon + .SelectTagListItem-checkIcon {
         color: #fff;
       }
     }
-    .TagIcon {
-      vertical-align: top;
-      margin-top: 3px;
-      margin-left: 0;
-    }
   }
+}
+.SelectTagListItem-icon {
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  margin-top: 3px;
+  margin-left: 0;
 }
 .SelectTagListItem-name {
   display: inline-block;
