@@ -30,7 +30,7 @@ class BasicDiscussionSerializer extends AbstractSerializer
     {
         if (! ($model instanceof Discussion)) {
             throw new InvalidArgumentException(
-                get_class($this).' can only serialize instances of '.Discussion::class
+                $this::class.' can only serialize instances of '.Discussion::class
             );
         }
 
