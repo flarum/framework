@@ -194,7 +194,7 @@ export default class TagSelectionModal<
           {tags.map((tag) => (
             <li
               data-index={tag.id()}
-              className={classList({
+              className={classList('SelectTagListItem', {
                 pinned: tag.position() !== null,
                 child: !!tag.parent(),
                 colored: !!tag.color(),
@@ -205,7 +205,10 @@ export default class TagSelectionModal<
               onmouseover={() => (this.indexTag = tag)}
               onclick={this.toggleTag.bind(this, tag)}
             >
-              {tagIcon(tag)}
+              <i className="SelectTagListItem-icon">
+                {tagIcon(tag, { className: 'SelectTagListItem-tagIcon' })}
+                <i className="icon TagIcon fas fa-check SelectTagListItem-checkIcon"></i>
+              </i>
               <span className="SelectTagListItem-name">{highlight(tag.name(), filter)}</span>
               {tag.description() ? <span className="SelectTagListItem-description">{tag.description()}</span> : ''}
             </li>
