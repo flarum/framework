@@ -35,5 +35,6 @@ return [
     new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Settings)
-        ->serializeToForum('flarum-emoji.cdn', 'flarum-emoji.cdn'),
+        ->serializeToForum('flarum-emoji.cdn', 'flarum-emoji.cdn')
+        ->default('flarum-emoji.cdn', 'https://cdn.jsdelivr.net/gh/twitter/twemoji@[version]/assets/'),
 ];

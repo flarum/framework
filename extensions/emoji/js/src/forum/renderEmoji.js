@@ -3,7 +3,7 @@ import twemoji from 'twemoji';
 import { override } from 'flarum/common/extend';
 import Post from 'flarum/common/models/Post';
 
-import cdn from './cdn';
+import cdn from '../common/cdn';
 
 function options() {
   return {

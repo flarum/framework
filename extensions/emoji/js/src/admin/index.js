@@ -1,5 +1,5 @@
 import app from 'flarum/admin/app';
-import {version} from "../forum/cdn";
+import {version} from "../common/cdn";
 
 app.initializers.add('flarum-emoji', () => {
 

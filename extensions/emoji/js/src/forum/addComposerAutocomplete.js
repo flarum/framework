@@ -4,7 +4,7 @@ import KeyboardNavigatable from 'flarum/common/utils/KeyboardNavigatable';
 
 import AutocompleteDropdown from './fragments/AutocompleteDropdown';
 import getEmojiIconCode from './helpers/getEmojiIconCode';
-import cdn from './cdn';
+import cdn from '../common/cdn';
 
 export default function addComposerAutocomplete() {
   const $container = $('<div class="ComposerBody-emojiDropdownContainer"></div>');
