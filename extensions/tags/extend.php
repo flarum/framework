@@ -177,10 +177,14 @@ return [
     (new Extend\ApiController(FlarumController\ListPostsController::class))
         ->addInclude('eventPostMentionsTags')
         // Restricted tags should still appear as `deleted` to unauthorized users.
-        ->loadWhere('eventPostMentionsTags', function (Relation|Builder $query, ?ServerRequestInterface $request) {
+        ->loadWhere('eventPostMentionsTags', $restrictMentionedTags = function (Relation|Builder $query, ?ServerRequestInterface $request) {
             if ($request) {
                 $actor = RequestUtil::getActor($request);
                 $query->whereVisibleTo($actor);
             }
         }),
+
+    (new Extend\ApiController(FlarumController\ShowDiscussionController::class))
+        ->addInclude('posts.eventPostMentionsTags')
+        ->loadWhere('posts.eventPostMentionsTags', $restrictMentionedTags),
 ];
