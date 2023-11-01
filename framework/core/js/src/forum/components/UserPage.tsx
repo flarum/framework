@@ -82,6 +82,8 @@ export default class UserPage<CustomAttrs extends IUserPageAttrs = IUserPageAttr
 
     app.setTitle(user.displayName());
 
+    app.history.push(app.current.get('routeName'), user.displayName());
+
     m.redraw();
   }
 
