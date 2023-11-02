@@ -92,9 +92,15 @@ class Notification implements ExtenderInterface
             return $existingBlueprints;
         });
 
-        $container->extend('flarum.api.notification_serializers', fn ($existingSerializers) => array_merge($existingSerializers, $this->serializers));
+        $container->extend(
+            'flarum.api.notification_serializers',
+            fn ($existingSerializers) => array_merge($existingSerializers, $this->serializers)
+        );
 
-        $container->extend('flarum.notification.drivers', fn ($existingDrivers) => array_merge($existingDrivers, $this->drivers));
+        $container->extend(
+            'flarum.notification.drivers',
+            fn ($existingDrivers) => array_merge($existingDrivers, $this->drivers)
+        );
 
         foreach ($this->beforeSendingCallbacks as $callback) {
             NotificationSyncer::beforeSending(ContainerUtil::wrapCallback($callback, $container));

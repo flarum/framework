@@ -227,7 +227,12 @@ class Document implements Renderable
 
         $head = array_merge($head, $this->makePreloads());
 
-        $head = array_merge($head, array_map(fn ($content, $name) => '<meta name="'.e($name).'" content="'.e($content).'">', $this->meta, array_keys($this->meta)));
+        $head = array_merge(
+            $head,
+            array_map(
+                fn ($content, $name) => sprintf('<meta name="%s" content="%s">', e($name), e($content)), $this->meta, array_keys($this->meta)
+            )
+        );
 
         return implode("\n", array_merge($head, $this->head));
     }

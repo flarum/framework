@@ -168,9 +168,15 @@ class ShowDiscussionController extends AbstractShowController
 
         $postCallableRelationships = $this->getPostRelationships(array_keys($addedCallableRelations));
 
-        $relationCallables = array_intersect_key($addedCallableRelations, array_flip(array_map(fn ($relation) => "posts.$relation", $postCallableRelationships)));
+        $relationCallables = array_intersect_key(
+            $addedCallableRelations,
+            array_flip(array_map(fn ($relation) => "posts.$relation", $postCallableRelationships))
+        );
 
         // remove posts. prefix from keys
-        return array_combine(array_map(fn ($relation) => substr($relation, 6), array_keys($relationCallables)), array_values($relationCallables));
+        return array_combine(
+            array_map(fn ($relation) => substr($relation, 6), array_keys($relationCallables)),
+            array_values($relationCallables)
+        );
     }
 }
