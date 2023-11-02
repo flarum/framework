@@ -50,8 +50,6 @@ class Collection extends BaseCollection
             return $this;
         }
 
-        return $this->first()->withTableAlias(function () use ($relations, $column, $function) {
-            return parent::loadAggregate($relations, $column, $function);
-        });
+        return $this->first()->withTableAlias(fn () => parent::loadAggregate($relations, $column, $function));
     }
 }

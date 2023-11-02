@@ -67,9 +67,7 @@ trait ValidateFilterTrait
      */
     protected function asIntArray(string|array $filterValue): array
     {
-        return array_map(function ($value) {
-            return $this->asInt($value);
-        }, $this->asStringArray($filterValue));
+        return array_map(fn ($value) => $this->asInt($value), $this->asStringArray($filterValue));
     }
 
     /**

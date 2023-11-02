@@ -63,9 +63,10 @@ class LastUpdateCheck implements JsonSetting
 
     public function getNewMajorVersion(): ?string
     {
-        $core = Arr::first(Arr::get($this->get(), 'updates.installed', []), function ($package) {
-            return $package['name'] === 'flarum/core';
-        });
+        $core = Arr::first(
+            Arr::get($this->get(), 'updates.installed', []),
+            fn ($package) => $package['name'] === 'flarum/core'
+        );
 
         return $core ? $core['latest-major'] : null;
     }

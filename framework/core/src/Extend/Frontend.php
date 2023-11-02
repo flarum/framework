@@ -208,13 +208,9 @@ class Frontend implements ExtenderInterface
         $container->resolving($abstract, function (Assets $assets) use ($moduleName) {
             if ($this->js) {
                 $assets->js(function (SourceCollector $sources) use ($moduleName) {
-                    $sources->addString(function () {
-                        return 'var module={};';
-                    });
+                    $sources->addString(fn () => 'var module={};');
                     $sources->addFile($this->js);
-                    $sources->addString(function () use ($moduleName) {
-                        return "flarum.extensions['$moduleName']=module.exports;";
-                    });
+                    $sources->addString(fn () => "flarum.extensions['$moduleName']=module.exports;");
                 });
             }
 
@@ -236,9 +232,7 @@ class Frontend implements ExtenderInterface
         });
 
         if (! $container->bound($abstract)) {
-            $container->bind($abstract, function (Container $container) {
-                return $container->make('flarum.assets.factory')($this->frontend);
-            });
+            $container->bind($abstract, fn (Container $container) => $container->make('flarum.assets.factory')($this->frontend));
 
             /** @var \Illuminate\Contracts\Events\Dispatcher $events */
             $events = $container->make('events');
@@ -337,9 +331,7 @@ class Frontend implements ExtenderInterface
     private function registerTitleDriver(Container $container): void
     {
         if ($this->titleDriver) {
-            $container->extend('flarum.frontend.title_driver', function ($driver, Container $container) {
-                return $container->make($this->titleDriver);
-            });
+            $container->extend('flarum.frontend.title_driver', fn ($driver, Container $container) => $container->make($this->titleDriver));
         }
     }
 }

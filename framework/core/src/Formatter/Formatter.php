@@ -161,9 +161,7 @@ class Formatter
      */
     protected function getComponent(string $name): mixed
     {
-        $formatter = $this->cache->rememberForever('flarum.formatter', function () {
-            return $this->getConfigurator()->finalize();
-        });
+        $formatter = $this->cache->rememberForever('flarum.formatter', fn () => $this->getConfigurator()->finalize());
 
         return $formatter[$name];
     }

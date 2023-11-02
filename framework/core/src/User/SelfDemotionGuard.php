@@ -42,9 +42,7 @@ class SelfDemotionGuard
             return;
         }
 
-        $adminGroups = array_filter($groups, function ($group) {
-            return $group['id'] == Group::ADMINISTRATOR_ID;
-        });
+        $adminGroups = array_filter($groups, fn ($group) => $group['id'] == Group::ADMINISTRATOR_ID);
 
         // As long as the user is still part of the admin group, all is good
         if ($adminGroups) {

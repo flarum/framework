@@ -49,9 +49,10 @@ class MigrateCommand extends AbstractCommand
 
     public function upgrade(): void
     {
-        $this->container->bind(Builder::class, function ($container) {
-            return $container->make(ConnectionInterface::class)->getSchemaBuilder();
-        });
+        $this->container->bind(
+            Builder::class,
+            fn ($container) => $container->make(ConnectionInterface::class)->getSchemaBuilder()
+        );
 
         $migrator = $this->container->make(Migrator::class);
         $migrator->setOutput($this->output);

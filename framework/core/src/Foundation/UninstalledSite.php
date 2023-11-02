@@ -73,9 +73,7 @@ class UninstalledSite implements SiteInterface
 
         $app->singleton('view', function ($app) {
             $engines = new EngineResolver();
-            $engines->register('php', function () use ($app) {
-                return $app->make(PhpEngine::class);
-            });
+            $engines->register('php', fn () => $app->make(PhpEngine::class));
             $finder = new FileViewFinder($app->make('files'), []);
             $dispatcher = $app->make(Dispatcher::class);
 

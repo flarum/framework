@@ -116,43 +116,29 @@ class Installation
     {
         $pipeline = new Pipeline;
 
-        $pipeline->pipe(function () {
-            return new Steps\ConnectToDatabase(
-                $this->dbConfig,
-                function ($connection) {
-                    $this->db = $connection;
-                }
-            );
-        });
+        $pipeline->pipe(fn () => new Steps\ConnectToDatabase(
+            $this->dbConfig,
+            function ($connection) {
+                $this->db = $connection;
+            }
+        ));
 
-        $pipeline->pipe(function () {
-            return new Steps\StoreConfig(
-                $this->debug,
-                $this->dbConfig,
-                $this->baseUrl,
-                $this->getConfigPath()
-            );
-        });
+        $pipeline->pipe(fn () => new Steps\StoreConfig(
+            $this->debug,
+            $this->dbConfig,
+            $this->baseUrl,
+            $this->getConfigPath()
+        ));
 
-        $pipeline->pipe(function () {
-            return new Steps\RunMigrations($this->db, $this->getMigrationPath());
-        });
+        $pipeline->pipe(fn () => new Steps\RunMigrations($this->db, $this->getMigrationPath()));
 
-        $pipeline->pipe(function () {
-            return new Steps\WriteSettings($this->db, $this->customSettings);
-        });
+        $pipeline->pipe(fn () => new Steps\WriteSettings($this->db, $this->customSettings));
 
-        $pipeline->pipe(function () {
-            return new Steps\CreateAdminUser($this->db, $this->adminUser, $this->accessToken);
-        });
+        $pipeline->pipe(fn () => new Steps\CreateAdminUser($this->db, $this->adminUser, $this->accessToken));
 
-        $pipeline->pipe(function () {
-            return new Steps\PublishAssets($this->paths->vendor, $this->getAssetPath());
-        });
+        $pipeline->pipe(fn () => new Steps\PublishAssets($this->paths->vendor, $this->getAssetPath()));
 
-        $pipeline->pipe(function () {
-            return new Steps\EnableBundledExtensions($this->db, $this->paths->vendor, $this->getAssetPath(), $this->enabledExtensions);
-        });
+        $pipeline->pipe(fn () => new Steps\EnableBundledExtensions($this->db, $this->paths->vendor, $this->getAssetPath(), $this->enabledExtensions));
 
         return $pipeline;
     }

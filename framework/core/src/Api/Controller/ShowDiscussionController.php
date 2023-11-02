@@ -71,9 +71,11 @@ class ShowDiscussionController extends AbstractShowController
             $this->includePosts($discussion, $request, $postRelationships);
         }
 
-        $this->loadRelations(new Collection([$discussion]), array_filter($include, function ($relationship) {
-            return ! Str::startsWith($relationship, 'posts');
-        }), $request);
+        $this->loadRelations(
+            new Collection([$discussion]),
+            array_filter($include, fn ($relationship) => ! Str::startsWith($relationship, 'posts')),
+            $request
+        );
 
         return $discussion;
     }
@@ -166,13 +168,9 @@ class ShowDiscussionController extends AbstractShowController
 
         $postCallableRelationships = $this->getPostRelationships(array_keys($addedCallableRelations));
 
-        $relationCallables = array_intersect_key($addedCallableRelations, array_flip(array_map(function ($relation) {
-            return "posts.$relation";
-        }, $postCallableRelationships)));
+        $relationCallables = array_intersect_key($addedCallableRelations, array_flip(array_map(fn ($relation) => "posts.$relation", $postCallableRelationships)));
 
         // remove posts. prefix from keys
-        return array_combine(array_map(function ($relation) {
-            return substr($relation, 6);
-        }, array_keys($relationCallables)), array_values($relationCallables));
+        return array_combine(array_map(fn ($relation) => substr($relation, 6), array_keys($relationCallables)), array_values($relationCallables));
     }
 }

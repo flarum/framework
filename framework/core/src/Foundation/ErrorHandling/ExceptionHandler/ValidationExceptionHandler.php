@@ -28,11 +28,9 @@ class ValidationExceptionHandler
 
     private function buildDetails(array $messages, string $pointer): array
     {
-        return array_map(function ($path, $detail) use ($pointer) {
-            return [
-                'detail' => $detail,
-                'source' => ['pointer' => $pointer.'/'.$path]
-            ];
-        }, array_keys($messages), $messages);
+        return array_map(fn ($path, $detail) => [
+            'detail' => $detail,
+            'source' => ['pointer' => $pointer.'/'.$path]
+        ], array_keys($messages), $messages);
     }
 }

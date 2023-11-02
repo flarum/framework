@@ -21,12 +21,9 @@ class PhpExtensions implements PrerequisiteInterface
     public function problems(): Collection
     {
         return (new Collection($this->extensions))
-            ->reject(function ($extension) {
-                return extension_loaded($extension);
-            })->map(function ($extension) {
-                return [
-                    'message' => "The PHP extension '$extension' is required.",
-                ];
-            });
+            ->reject(fn ($extension) => extension_loaded($extension))
+            ->map(fn ($extension) => [
+                'message' => "The PHP extension '$extension' is required.",
+            ]);
     }
 }

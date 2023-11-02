@@ -112,9 +112,9 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
 
             $extensions->put($current->getId(), $current);
 
-            $extensions = $extensions->sortBy(function ($extension, $name) {
-                return $extension->composerJsonAttribute('extra.flarum-extension.title');
-            });
+            $extensions = $extensions->sortBy(
+                fn ($extension, $name) => $extension->composerJsonAttribute('extra.flarum-extension.title')
+            );
         }
 
         return $extensions;

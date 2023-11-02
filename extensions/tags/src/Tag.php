@@ -219,9 +219,7 @@ class Tag extends AbstractModel
         $allPermissions = $user->getPermissions();
 
         $tagIdsWithPermission = collect($allPermissions)
-            ->filter(function ($permission) use ($currPermission) {
-                return str_starts_with($permission, 'tag') && str_contains($permission, $currPermission);
-            })
+            ->filter(fn ($permission) => str_starts_with($permission, 'tag') && str_contains($permission, $currPermission))
             ->map(function ($permission) {
                 $scopeFragment = explode('.', $permission, 2)[0];
 

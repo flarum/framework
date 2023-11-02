@@ -41,17 +41,12 @@ class ScopeDiscussionVisibilityForAbility
         // not just one.
         $query->where(function ($query) use ($actor, $permission) {
             $query
-                ->whereNotIn('discussions.id', function ($query) use ($actor, $permission) {
-                    return $query->select('discussion_id')
-                        ->from('discussion_tag')
-                        ->whereNotIn('tag_id', function ($query) use ($actor, $permission) {
-                            Tag::query()->setQuery($query->from('tags'))->whereHasPermission($actor, $permission)->select('tags.id');
-                        });
-                })
-                ->orWhere(function ($query) use ($actor, $permission) {
-                    // Allow extensions a way to override scoping for any given permission.
-                    $query->whereVisibleTo($actor, "{$permission}InRestrictedTags");
-                });
+                ->whereNotIn('discussions.id', fn ($query) => $query->select('discussion_id')
+                    ->from('discussion_tag')
+                    ->whereNotIn('tag_id', function ($query) use ($actor, $permission) {
+                        Tag::query()->setQuery($query->from('tags'))->whereHasPermission($actor, $permission)->select('tags.id');
+                    }))
+                ->orWhere(fn ($query) => $query->whereVisibleTo($actor, "{$permission}InRestrictedTags"));
         });
 
         // Hide discussions with no tags if the user doesn't have that global

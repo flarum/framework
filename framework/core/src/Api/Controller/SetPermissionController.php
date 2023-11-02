@@ -29,12 +29,10 @@ class SetPermissionController implements RequestHandlerInterface
 
         Permission::where('permission', $permission)->delete();
 
-        Permission::insert(array_map(function ($groupId) use ($permission) {
-            return [
-                'permission' => $permission,
-                'group_id' => $groupId
-            ];
-        }, $groupIds));
+        Permission::insert(array_map(fn ($groupId) => [
+            'permission' => $permission,
+            'group_id' => $groupId
+        ], $groupIds));
 
         return new EmptyResponse(204);
     }

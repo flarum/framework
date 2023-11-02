@@ -29,9 +29,7 @@ class Paths
             );
         }
 
-        $this->paths = array_map(function ($path) {
-            return rtrim($path, '\/');
-        }, $paths);
+        $this->paths = array_map(fn ($path) => rtrim($path, '\/'), $paths);
 
         // Assume a standard Composer directory structure unless specified
         $this->paths['vendor'] = $this->vendor ?? $this->base.'/vendor';

@@ -21,10 +21,11 @@ class HideHiddenTagsFromAllDiscussionsPage
             return;
         }
 
-        $filter->getQuery()->whereNotIn('discussions.id', function ($query) {
-            return $query->select('discussion_id')
-            ->from('discussion_tag')
-            ->whereIn('tag_id', Tag::where('is_hidden', 1)->pluck('id'));
-        });
+        $filter->getQuery()->whereNotIn(
+            'discussions.id',
+            fn ($query) => $query->select('discussion_id')
+                ->from('discussion_tag')
+                ->whereIn('tag_id', Tag::where('is_hidden', 1)->pluck('id'))
+        );
     }
 }

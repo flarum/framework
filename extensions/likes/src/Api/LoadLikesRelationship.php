@@ -47,9 +47,7 @@ class LoadLikesRelationship
         if ($data instanceof Discussion) {
             // We do this because the ShowDiscussionController manipulates the posts
             // in a way that some of them are just ids.
-            $loadable = $data->posts->filter(function ($post) {
-                return $post instanceof Post;
-            });
+            $loadable = $data->posts->filter(fn ($post) => $post instanceof Post);
         } elseif ($data instanceof Collection) {
             $loadable = $data;
         } elseif ($data instanceof Post) {

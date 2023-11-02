@@ -117,9 +117,7 @@ class Application extends IlluminateContainer implements LaravelApplication
     {
         $name = is_string($provider) ? $provider : $provider::class;
 
-        return Arr::first($this->serviceProviders, function ($key, $value) use ($name) {
-            return $value instanceof $name;
-        });
+        return Arr::first($this->serviceProviders, fn ($key, $value) => $value instanceof $name);
     }
 
     /**

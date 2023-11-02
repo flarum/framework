@@ -69,9 +69,10 @@ class CheckForUpdatesHandler
             if (isset($mainPackageUpdate['latest-status']) && $mainPackageUpdate['latest-status'] === 'update-possible') {
                 $mainPackageUpdate['latest-major'] = $mainPackageUpdate['latest'];
 
-                $minorPackageUpdate = array_filter($secondOutput['installed'], function ($package) use ($mainPackageUpdate) {
-                    return $package['name'] === $mainPackageUpdate['name'];
-                })[0] ?? null;
+                $minorPackageUpdate = array_filter(
+                    $secondOutput['installed'],
+                    fn ($package) => $package['name'] === $mainPackageUpdate['name']
+                )[0] ?? null;
 
                 if ($minorPackageUpdate) {
                     $mainPackageUpdate['latest-minor'] = $minorPackageUpdate['latest'];

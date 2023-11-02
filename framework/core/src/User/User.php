@@ -372,9 +372,7 @@ class User extends AbstractModel
      */
     public function getPreferencesAttribute(?string $value): array
     {
-        $defaults = array_map(function ($value) {
-            return $value['default'];
-        }, static::$preferences);
+        $defaults = array_map(fn ($value) => $value['default'], static::$preferences);
 
         $user = $value !== null ? Arr::only((array) json_decode($value, true), array_keys(static::$preferences)) : [];
 

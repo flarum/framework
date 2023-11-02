@@ -88,9 +88,7 @@ class Gate
 
         if (is_null($compiledPolicies)) {
             $policyClasses = Arr::get($this->policyClasses, $model, []);
-            $compiledPolicies = array_map(function ($policyClass) {
-                return $this->container->make($policyClass);
-            }, $policyClasses);
+            $compiledPolicies = array_map(fn ($policyClass) => $this->container->make($policyClass), $policyClasses);
             Arr::set($this->policies, $model, $compiledPolicies);
         }
 

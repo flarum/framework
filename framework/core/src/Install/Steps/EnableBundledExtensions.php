@@ -74,9 +74,7 @@ class EnableBundledExtensions implements Step
             );
         }
 
-        $extensionNames = json_encode(array_map(function (Extension $extension) {
-            return $extension->getId();
-        }, $extensions));
+        $extensionNames = json_encode(array_map(fn (Extension $extension) => $extension->getId(), $extensions));
 
         (new DatabaseSettingsRepository($this->database))->set('extensions_enabled', $extensionNames);
     }
@@ -93,11 +91,9 @@ class EnableBundledExtensions implements Step
         $installed = $installed['packages'] ?? $installed;
 
         $installedExtensions = (new Collection($installed))
-            ->filter(function ($package) {
-                return Arr::get($package, 'type') == 'flarum-extension';
-            })->filter(function ($package) {
-                return ! empty(Arr::get($package, 'name'));
-            })->map(function ($package) {
+            ->filter(fn ($package) => Arr::get($package, 'type') == 'flarum-extension')
+            ->filter(fn ($package) => !empty(Arr::get($package, 'name')))
+            ->map(function ($package) {
                 $path = isset($package['install-path'])
                     ? "$this->vendorPath/composer/".$package['install-path']
                     : $this->vendorPath.'/'.Arr::get($package, 'name');
@@ -106,19 +102,14 @@ class EnableBundledExtensions implements Step
                 $extension->setVersion(Arr::get($package, 'version'));
 
                 return $extension;
-            })->mapWithKeys(function (Extension $extension) {
-                return [$extension->name => $extension];
+            })->mapWithKeys(fn (Extension $extension) => [$extension->name => $extension]);
+
+        return $installedExtensions->filter(fn (Extension $extension) => in_array($extension->getId(), $this->enabledExtensions))
+            ->map(function (Extension $extension) use ($installedExtensions) {
+                $extension->calculateDependencies($installedExtensions->map(fn () => true)->toArray());
+
+                return $extension;
             });
-
-        return $installedExtensions->filter(function (Extension $extension) {
-            return in_array($extension->getId(), $this->enabledExtensions);
-        })->map(function (Extension $extension) use ($installedExtensions) {
-            $extension->calculateDependencies($installedExtensions->map(function () {
-                return true;
-            })->toArray());
-
-            return $extension;
-        });
     }
 
     private function getMigrator(): Migrator

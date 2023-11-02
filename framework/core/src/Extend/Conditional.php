@@ -42,9 +42,7 @@ class Conditional implements ExtenderInterface
      */
     public function whenExtensionEnabled(string $extensionId, callable|string $extenders): self
     {
-        return $this->when(function (ExtensionManager $extensions) use ($extensionId) {
-            return $extensions->isEnabled($extensionId);
-        }, $extenders);
+        return $this->when(fn (ExtensionManager $extensions) => $extensions->isEnabled($extensionId), $extenders);
     }
 
     /**
@@ -56,9 +54,7 @@ class Conditional implements ExtenderInterface
      */
     public function whenExtensionDisabled(string $extensionId, callable|string $extenders): self
     {
-        return $this->when(function (ExtensionManager $extensions) use ($extensionId) {
-            return ! $extensions->isEnabled($extensionId);
-        }, $extenders);
+        return $this->when(fn (ExtensionManager $extensions) => ! $extensions->isEnabled($extensionId), $extenders);
     }
 
     /**

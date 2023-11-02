@@ -34,9 +34,7 @@ class ReCheckForUpdates
         );
 
         if ($event instanceof FlarumUpdated) {
-            $mapPackageName = function (array $package) {
-                return $package['name'];
-            };
+            $mapPackageName = fn (array $package) => $package['name'];
 
             $previousPackages = array_map($mapPackageName, $previousUpdateCheck['updates']['installed']);
             $lastPackages = array_map($mapPackageName, $lastUpdateCheck['updates']['installed']);

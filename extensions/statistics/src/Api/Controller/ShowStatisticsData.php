@@ -99,18 +99,20 @@ class ShowStatisticsData implements RequestHandlerInterface
 
     private function getLifetimeStatistics(): array
     {
-        return $this->cache->remember('flarum-subscriptions.lifetime_stats', self::$lifetimeStatsCacheTtl, function () {
-            return array_map(function ($entity) {
-                return $entity[0]->count();
-            }, $this->entities);
-        });
+        return $this->cache->remember(
+            'flarum-subscriptions.lifetime_stats',
+            self::$lifetimeStatsCacheTtl,
+            fn () => array_map(fn ($entity) => $entity[0]->count(), $this->entities)
+        );
     }
 
     private function getTimedStatistics(string $model): array
     {
-        return $this->cache->remember("flarum-subscriptions.timed_stats.$model", self::$lifetimeStatsCacheTtl, function () use ($model) {
-            return $this->getTimedCounts($this->entities[$model][0], $this->entities[$model][1]);
-        });
+        return $this->cache->remember(
+            "flarum-subscriptions.timed_stats.$model",
+            self::$lifetimeStatsCacheTtl,
+            fn () => $this->getTimedCounts($this->entities[$model][0], $this->entities[$model][1])
+        );
     }
 
     private function getTimedCounts(Builder $query, string $column, ?DateTime $startDate = null, ?DateTime $endDate = null): array

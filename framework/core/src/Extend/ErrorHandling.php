@@ -111,21 +111,15 @@ class ErrorHandling implements ExtenderInterface
     public function extend(Container $container, Extension $extension = null): void
     {
         if (count($this->statuses)) {
-            $container->extend('flarum.error.statuses', function ($statuses) {
-                return array_merge($statuses, $this->statuses);
-            });
+            $container->extend('flarum.error.statuses', fn ($statuses) => array_merge($statuses, $this->statuses));
         }
 
         if (count($this->types)) {
-            $container->extend('flarum.error.classes', function ($types) {
-                return array_merge($types, $this->types);
-            });
+            $container->extend('flarum.error.classes', fn ($types) => array_merge($types, $this->types));
         }
 
         if (count($this->handlers)) {
-            $container->extend('flarum.error.handlers', function ($handlers) {
-                return array_merge($handlers, $this->handlers);
-            });
+            $container->extend('flarum.error.handlers', fn ($handlers) => array_merge($handlers, $this->handlers));
         }
 
         foreach ($this->reporters as $reporterClass) {

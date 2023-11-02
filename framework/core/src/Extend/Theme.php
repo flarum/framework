@@ -77,9 +77,7 @@ class Theme implements ExtenderInterface
     public function addCustomLessFunction(string $functionName, callable $callable): self
     {
         $this->customFunctions[$functionName] = function (...$args) use ($callable, $functionName) {
-            $argVals = array_map(function ($arg) {
-                return $arg->value;
-            }, $args);
+            $argVals = array_map(fn ($arg) => $arg->value, $args);
 
             $return = $callable(...$argVals);
 
@@ -138,24 +136,18 @@ class Theme implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null): void
     {
-        $container->extend('flarum.frontend.custom_less_functions', function (array $customFunctions) {
-            return array_merge($customFunctions, $this->customFunctions);
-        });
+        $container->extend('flarum.frontend.custom_less_functions', fn (array $customFunctions) => array_merge($customFunctions, $this->customFunctions));
 
-        $container->extend('flarum.less.custom_variables', function (array $lessVariables) {
-            return array_merge($this->lessVariables, $lessVariables);
-        });
+        $container->extend('flarum.less.custom_variables', fn (array $lessVariables) => array_merge($this->lessVariables, $lessVariables));
 
-        $container->extend('flarum.assets.factory', function (callable $factory) {
-            return function (...$args) use ($factory) {
-                /** @var Assets $assets */
-                $assets = $factory(...$args);
+        $container->extend('flarum.assets.factory', fn (callable $factory) => function (...$args) use ($factory) {
+            /** @var Assets $assets */
+            $assets = $factory(...$args);
 
-                $assets->addLessImportOverrides($this->lessImportOverrides);
-                $assets->addFileSourceOverrides($this->fileSourceOverrides);
+            $assets->addLessImportOverrides($this->lessImportOverrides);
+            $assets->addFileSourceOverrides($this->fileSourceOverrides);
 
-                return $assets;
-            };
+            return $assets;
         });
     }
 }

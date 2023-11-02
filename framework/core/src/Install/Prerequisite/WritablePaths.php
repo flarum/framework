@@ -31,27 +31,19 @@ class WritablePaths implements PrerequisiteInterface
     private function getMissingPaths(): Collection
     {
         return $this->paths
-            ->reject(function ($path) {
-                return file_exists($path);
-            })->map(function ($path) {
-                return [
-                    'message' => 'The '.$this->getAbsolutePath($path).' directory doesn\'t exist',
-                    'detail' => 'This directory is necessary for the installation. Please create the folder.',
-                ];
-            });
+            ->reject(fn ($path) => file_exists($path))->map(fn ($path) => [
+                'message' => 'The '.$this->getAbsolutePath($path).' directory doesn\'t exist',
+                'detail' => 'This directory is necessary for the installation. Please create the folder.',
+            ]);
     }
 
     private function getNonWritablePaths(): Collection
     {
         return $this->paths
-            ->filter(function ($path) {
-                return file_exists($path) && ! is_writable($path);
-            })->map(function ($path, $index) {
-                return [
-                    'message' => 'The '.$this->getAbsolutePath($path).' directory is not writable.',
-                    'detail' => 'Please make sure your web server/PHP user has write access to this directory'.(in_array($index, $this->wildcards) ? ' and its contents' : '').'. Read the <a href="https://docs.flarum.org/install/#folder-ownership">installation documentation</a> for a detailed explanation and steps to resolve this error.'
-                ];
-            });
+            ->filter(fn ($path) => file_exists($path) && ! is_writable($path))->map(fn ($path, $index) => [
+                'message' => 'The '.$this->getAbsolutePath($path).' directory is not writable.',
+                'detail' => 'Please make sure your web server/PHP user has write access to this directory'.(in_array($index, $this->wildcards) ? ' and its contents' : '').'. Read the <a href="https://docs.flarum.org/install/#folder-ownership">installation documentation</a> for a detailed explanation and steps to resolve this error.'
+            ]);
     }
 
     private function getAbsolutePath(string $path): string

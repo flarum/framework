@@ -47,9 +47,7 @@ class Frontend
     {
         $content = $this->content;
 
-        usort($content, function ($a, $b) {
-            return $b['priority'] <=> $a['priority'];
-        });
+        usort($content, fn ($a, $b) => $b['priority'] <=> $a['priority']);
 
         foreach ($content as $item) {
             $item['callback']($document, $request);

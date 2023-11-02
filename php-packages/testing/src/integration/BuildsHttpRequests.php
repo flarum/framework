@@ -26,11 +26,7 @@ trait BuildsHttpRequests
     {
         return $req
             ->withHeader('Content-Type', 'application/json')
-            ->withBody(
-                new CallbackStream(function () use ($json) {
-                    return json_encode($json);
-                })
-            );
+            ->withBody(new CallbackStream(fn () => json_encode($json)));
     }
 
     protected function requestAsUser(Request $req, int $userId): Request

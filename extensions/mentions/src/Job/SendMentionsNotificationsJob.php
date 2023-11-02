@@ -44,9 +44,7 @@ class SendMentionsNotificationsJob extends AbstractJob
         $users = User::whereIn('id', $mentioned)
             ->with('groups')
             ->get()
-            ->filter(function ($user) use ($post) {
-                return $post->isVisibleTo($user) && $user->id !== $post->user_id;
-            })
+            ->filter(fn ($user) => $post->isVisibleTo($user) && $user->id !== $post->user_id)
             ->all();
 
         $this->notifications->sync(new UserMentionedBlueprint($post), $users);
@@ -58,9 +56,7 @@ class SendMentionsNotificationsJob extends AbstractJob
             ->whereIn('id', $mentioned)
             ->with('user.groups')
             ->get()
-            ->filter(function (Post $post) use ($reply) {
-                return $post->user && $post->user_id !== $reply->user_id && $reply->isVisibleTo($post->user);
-            })
+            ->filter(fn (Post $post) => $post->user && $post->user_id !== $reply->user_id && $reply->isVisibleTo($post->user))
             ->all();
 
         foreach ($posts as $post) {
@@ -75,9 +71,7 @@ class SendMentionsNotificationsJob extends AbstractJob
         })
             ->with('groups')
             ->get()
-            ->filter(function (User $user) use ($post) {
-                return $post->isVisibleTo($user) && $user->id !== $post->user_id;
-            })
+            ->filter(fn (User $user) => $post->isVisibleTo($user) && $user->id !== $post->user_id)
             ->all();
 
         $this->notifications->sync(new GroupMentionedBlueprint($post), $users);

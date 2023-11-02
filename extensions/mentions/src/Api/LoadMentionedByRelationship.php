@@ -50,9 +50,7 @@ class LoadMentionedByRelationship
         if ($data instanceof Discussion) {
             // We do this because the ShowDiscussionController manipulates the posts
             // in a way that some of them are just ids.
-            $loadable = $data->posts->filter(function ($post) {
-                return $post instanceof Post;
-            });
+            $loadable = $data->posts->filter(fn ($post) => $post instanceof Post);
 
             // firstPost and lastPost might have been included in the API response,
             // so we have to make sure counts are also loaded for them.
@@ -71,9 +69,7 @@ class LoadMentionedByRelationship
 
         if ($loadable) {
             $loadable->loadCount([
-                'mentionedBy' => function ($query) use ($actor) {
-                    return $query->whereVisibleTo($actor);
-                }
+                'mentionedBy' => fn ($query) => $query->whereVisibleTo($actor)
             ]);
         }
 

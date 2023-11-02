@@ -93,9 +93,7 @@ abstract class AbstractModel extends Eloquent
             $this->attributes = array_merge($this->attributes, Arr::get(static::$defaults, $class, []));
         }
 
-        $this->attributes = array_map(function ($item) {
-            return is_callable($item) ? $item($this) : $item;
-        }, $this->attributes);
+        $this->attributes = array_map(fn ($item) => is_callable($item) ? $item($this) : $item, $this->attributes);
 
         parent::__construct($attributes);
     }

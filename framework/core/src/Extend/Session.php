@@ -36,8 +36,6 @@ class Session implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null): void
     {
-        $container->extend('flarum.session.drivers', function ($drivers) {
-            return array_merge($drivers, $this->drivers);
-        });
+        $container->extend('flarum.session.drivers', fn ($drivers) => array_merge($drivers, $this->drivers));
     }
 }

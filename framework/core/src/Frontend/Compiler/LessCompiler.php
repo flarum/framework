@@ -117,17 +117,17 @@ class LessCompiler extends RevisionCompiler
 
     protected function overrideImports(array $sources): callable
     {
-        $baseSources = (new Collection($sources))->filter(function ($source) {
-            return $source instanceof Source\FileSource;
-        })->map(function (FileSource $source) {
-            $path = realpath($source->getPath());
-            $path = Str::beforeLast($path, '/less/');
+        $baseSources = (new Collection($sources))
+            ->filter(fn ($source) => $source instanceof Source\FileSource)
+            ->map(function (FileSource $source) {
+                $path = realpath($source->getPath());
+                $path = Str::beforeLast($path, '/less/');
 
-            return [
-                'path' => $path,
-                'extensionId' => $source->getExtensionId(),
-            ];
-        })->unique('path');
+                return [
+                    'path' => $path,
+                    'extensionId' => $source->getExtensionId(),
+                ];
+            })->unique('path');
 
         return function ($evald) use ($baseSources): ?array {
             $relativeImportPath = Str::of($evald->PathAndUri()[0])->split('/\/less\//');

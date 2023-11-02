@@ -147,9 +147,10 @@ class Notification extends AbstractModel
      */
     public function scopeWhereSubjectModel(Builder $query, string $class): Builder
     {
-        $notificationTypes = array_filter(self::getSubjectModels(), function (string $modelClass) use ($class) {
-            return $modelClass === $class || is_subclass_of($class, $modelClass);
-        });
+        $notificationTypes = array_filter(
+            self::getSubjectModels(),
+            fn (string $modelClass) => $modelClass === $class || is_subclass_of($class, $modelClass)
+        );
 
         return $query->whereIn('type', array_keys($notificationTypes));
     }
@@ -173,12 +174,10 @@ class Notification extends AbstractModel
         $now = Carbon::now()->toDateTimeString();
 
         static::insert(
-            array_map(function (User $user) use ($attributes, $now) {
-                return $attributes + [
-                    'user_id' => $user->id,
-                    'created_at' => $now
-                ];
-            }, $recipients)
+            array_map(fn (User $user) => $attributes + [
+                'user_id' => $user->id,
+                'created_at' => $now
+            ], $recipients)
         );
     }
 

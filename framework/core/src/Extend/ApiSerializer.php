@@ -91,9 +91,7 @@ class ApiSerializer implements ExtenderInterface
      */
     public function hasOne(string $name, string $serializerClass): self
     {
-        return $this->relationship($name, function (AbstractSerializer $serializer, $model) use ($serializerClass, $name) {
-            return $serializer->hasOne($model, $serializerClass, $name);
-        });
+        return $this->relationship($name, fn (AbstractSerializer $serializer, $model) => $serializer->hasOne($model, $serializerClass, $name));
     }
 
     /**
@@ -108,9 +106,7 @@ class ApiSerializer implements ExtenderInterface
      */
     public function hasMany(string $name, string $serializerClass): self
     {
-        return $this->relationship($name, function (AbstractSerializer $serializer, $model) use ($serializerClass, $name) {
-            return $serializer->hasMany($model, $serializerClass, $name);
-        });
+        return $this->relationship($name, fn (AbstractSerializer $serializer, $model) => $serializer->hasMany($model, $serializerClass, $name));
     }
 
     /**

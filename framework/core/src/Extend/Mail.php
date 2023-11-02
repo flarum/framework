@@ -33,8 +33,6 @@ class Mail implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null): void
     {
-        $container->extend('mail.supported_drivers', function ($existingDrivers) {
-            return array_merge($existingDrivers, $this->drivers);
-        });
+        $container->extend('mail.supported_drivers', fn ($existingDrivers) => array_merge($existingDrivers, $this->drivers));
     }
 }
