@@ -230,7 +230,9 @@ class Document implements Renderable
         $head = array_merge(
             $head,
             array_map(
-                fn ($content, $name) => sprintf('<meta name="%s" content="%s">', e($name), e($content)), $this->meta, array_keys($this->meta)
+                fn ($content, $name) => sprintf('<meta name="%s" content="%s">', e($name), e($content)),
+                $this->meta,
+                array_keys($this->meta)
             )
         );
 

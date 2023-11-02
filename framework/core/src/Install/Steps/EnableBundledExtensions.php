@@ -92,7 +92,7 @@ class EnableBundledExtensions implements Step
 
         $installedExtensions = (new Collection($installed))
             ->filter(fn ($package) => Arr::get($package, 'type') == 'flarum-extension')
-            ->filter(fn ($package) => !empty(Arr::get($package, 'name')))
+            ->filter(fn ($package) => ! empty(Arr::get($package, 'name')))
             ->map(function ($package) {
                 $path = isset($package['install-path'])
                     ? "$this->vendorPath/composer/".$package['install-path']
