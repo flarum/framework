@@ -96,8 +96,15 @@ class Tag
 
     protected function getTagsDocument(Request $request, string $slug): object
     {
-        return json_decode($this->api->withParentRequest($request)->withQueryParams([
-            'include' => 'children,children.parent,parent,parent.children.parent,state'
-        ])->get("/tags/$slug")->getBody());
+        return json_decode(
+            $this->api
+                ->withoutErrorHandling()
+                ->withParentRequest($request)
+                ->withQueryParams([
+                    'include' => 'children,children.parent,parent,parent.children.parent,state'
+                ])
+                ->get("/tags/$slug")
+                ->getBody()
+        );
     }
 }

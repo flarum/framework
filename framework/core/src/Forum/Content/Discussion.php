@@ -95,16 +95,14 @@ class Discussion
     protected function getApiDocument(Request $request, string $id, array $params): object
     {
         $params['bySlug'] = true;
-        $response = $this->api
-            ->withParentRequest($request)
-            ->withQueryParams($params)
-            ->get("/discussions/$id");
-        $statusCode = $response->getStatusCode();
 
-        if ($statusCode === 404) {
-            throw new RouteNotFoundException;
-        }
-
-        return json_decode($response->getBody());
+        return json_decode(
+            $this->api
+                ->withoutErrorHandling()
+                ->withParentRequest($request)
+                ->withQueryParams($params)
+                ->get("/discussions/$id")
+                ->getBody()
+        );
     }
 }
