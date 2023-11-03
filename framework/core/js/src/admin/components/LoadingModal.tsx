@@ -20,8 +20,4 @@ export default class LoadingModal<ModalAttrs extends ILoadingModalAttrs = ILoadi
   content() {
     return null;
   }
-
-  onsubmit(e: Event): void {
-    throw new Error('LoadingModal should not throw errors.');
-  }
 }

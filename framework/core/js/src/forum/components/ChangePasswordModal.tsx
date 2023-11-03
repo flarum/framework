@@ -1,5 +1,5 @@
 import app from '../../forum/app';
-import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Button from '../../common/components/Button';
 import Mithril from 'mithril';
 import ItemList from '../../common/utils/ItemList';
@@ -9,7 +9,7 @@ import Form from '../../common/components/Form';
  * The `ChangePasswordModal` component shows a modal dialog which allows the
  * user to send themself a password reset email.
  */
-export default class ChangePasswordModal<CustomAttrs extends IInternalModalAttrs = IInternalModalAttrs> extends Modal<CustomAttrs> {
+export default class ChangePasswordModal<CustomAttrs extends IFormModalAttrs = IFormModalAttrs> extends FormModal<CustomAttrs> {
   className() {
     return 'ChangePasswordModal Modal--small';
   }

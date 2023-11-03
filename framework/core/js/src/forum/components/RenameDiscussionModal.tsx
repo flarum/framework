@@ -1,12 +1,12 @@
 import app from '../../forum/app';
-import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Button from '../../common/components/Button';
 import Stream from '../../common/utils/Stream';
 import Mithril from 'mithril';
 import Discussion from '../../common/models/Discussion';
 import Form from '../../common/components/Form';
 
-export interface IRenameDiscussionModalAttrs extends IInternalModalAttrs {
+export interface IRenameDiscussionModalAttrs extends IFormModalAttrs {
   discussion: Discussion;
   currentTitle: string;
 }
@@ -14,7 +14,9 @@ export interface IRenameDiscussionModalAttrs extends IInternalModalAttrs {
 /**
  * The 'RenameDiscussionModal' displays a modal dialog with an input to rename a discussion
  */
-export default class RenameDiscussionModal<CustomAttrs extends IRenameDiscussionModalAttrs = IRenameDiscussionModalAttrs> extends Modal<CustomAttrs> {
+export default class RenameDiscussionModal<
+  CustomAttrs extends IRenameDiscussionModalAttrs = IRenameDiscussionModalAttrs
+> extends FormModal<CustomAttrs> {
   discussion!: Discussion;
   currentTitle!: string;
   newTitle!: Stream<string>;
