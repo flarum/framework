@@ -44,7 +44,7 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
 
     if (preloadedDiscussions) {
       this.initialLoading = false;
-      this.pageSize = preloadedDiscussions.payload.meta?.perPage || 20;
+      this.pageSize = preloadedDiscussions.payload.meta?.perPage || DiscussionListState.DEFAULT_PAGE_SIZE;
 
       return Promise.resolve(preloadedDiscussions);
     }
