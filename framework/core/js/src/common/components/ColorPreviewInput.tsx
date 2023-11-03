@@ -11,10 +11,18 @@ export default class ColorPreviewInput extends Component {
 
     attrs.type ||= 'text';
 
-    // If the input is a 3 digit hex code, convert it to 6 digits.
-    if (attrs.value.length === 4) {
-      attrs.value = attrs.value.replace(/#([a-f0-9])([a-f0-9])([a-f0-9])/, '#$1$1$2$2$3$3');
-    }
+    attrs.onblur = () => {
+      if (attrs.value.length === 4) {
+        attrs.value = attrs.value.replace(/#([a-f0-9])([a-f0-9])([a-f0-9])/, '#$1$1$2$2$3$3');
+        attrs.onchange?.({ target: { value: attrs.value } });
+      }
+
+      // Validate the color
+      if (!/^#[a-f0-9]{6}$/i.test(attrs.value)) {
+        attrs.value = '#000000';
+        attrs.onchange?.({ target: { value: attrs.value } });
+      }
+    };
 
     return (
       <div className="ColorInput">
