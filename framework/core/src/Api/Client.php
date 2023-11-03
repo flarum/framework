@@ -13,7 +13,6 @@ use Flarum\Http\RequestUtil;
 use Flarum\User\User;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Diactoros\Uri;
-use Laminas\Stratigility\MiddlewarePipeInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
