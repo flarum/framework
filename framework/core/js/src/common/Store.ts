@@ -49,7 +49,11 @@ export interface ApiPayloadPlural {
     next?: string;
     prev?: string;
   };
-  meta?: MetaInformation;
+  meta?: MetaInformation & {
+    total?: number;
+    page?: number;
+    perPage?: number;
+  };
 }
 
 export type ApiPayload = ApiPayloadSingle | ApiPayloadPlural;

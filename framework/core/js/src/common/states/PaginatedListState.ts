@@ -25,8 +25,15 @@ export interface PaginatedListRequestParams extends Omit<ApiQueryParamsPlural, '
 }
 
 export default abstract class PaginatedListState<T extends Model, P extends PaginatedListParams = PaginatedListParams> {
+  /**
+   * This value should not be relied upon when preloading an API document.
+   * In those cases the pageSize should be taken from the meta information of the preloaded
+   * document. Checkout `DiscussionListState.loadPage` for an example.
+   */
+  public static DEFAULT_PAGE_SIZE = 20;
+
   protected location!: PaginationLocation;
-  protected pageSize: number;
+  protected pageSize: number | null;
 
   protected pages: Page<T>[] = [];
   protected params: P = {} as P;
@@ -35,7 +42,7 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
   protected loadingPrev: boolean = false;
   protected loadingNext: boolean = false;
 
-  protected constructor(params: P = {} as P, page: number = 1, pageSize: number = 20) {
+  protected constructor(params: P = {} as P, page: number = 1, pageSize: number | null = null) {
     this.params = params;
 
     this.location = { page };
@@ -108,12 +115,23 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
       ...reqParams,
       page: {
         ...reqParams.page,
-        offset: this.pageSize * (page - 1),
+        offset: (this.pageSize && this.pageSize * (page - 1)) || 0,
+        limit: this.pageSize || undefined,
       },
       include,
     };
 
-    return app.store.find<T[]>(this.type, params);
+    return app.store.find<T[]>(this.type, params).then((results) => {
+      /*
+       * If this state does not rely on a preloaded API document to know the page size,
+       * then there is no initial list, and therefore the page size can be taken from subsequent requests.
+       */
+      if (!this.pageSize) {
+        this.pageSize = results.payload?.meta?.perPage || PaginatedListState.DEFAULT_PAGE_SIZE;
+      }
+
+      return results;
+    });
   }
 
   /**
