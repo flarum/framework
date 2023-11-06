@@ -10,6 +10,7 @@
 namespace Flarum\Approval\Listener;
 
 use Flarum\Approval\Event\PostWasApproved;
+use Flarum\Approval\Event\PostWasUnapproved;
 use Flarum\Post\Event\Saving;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -37,10 +38,13 @@ class ApproveContent
         }
 
         if (! empty($isApproved)) {
+            // Set the post's approval status to true to clear any pending approval status, even if the post is hidden.
             $post->is_approved = true;
 
             if(! $post->hidden_at) {
                 $post->raise(new PostWasApproved($post, $event->actor));
+            } else {
+                $post->raise(new PostWasUnapproved($post, $event->actor));
             }
         }
     }

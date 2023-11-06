@@ -10,7 +10,7 @@
 namespace Flarum\Akismet\Listener;
 
 use Flarum\Akismet\Akismet;
-use Flarum\Post\Event\Hidden;
+use Flarum\Approval\Event\PostWasUnapproved;
 
 class SubmitSpam
 {
@@ -24,7 +24,7 @@ class SubmitSpam
         $this->akismet = $akismet;
     }
 
-    public function handle(Hidden $event)
+    public function handle(PostWasUnapproved $event)
     {
         if (! $this->akismet->isConfigured()) {
             return;
