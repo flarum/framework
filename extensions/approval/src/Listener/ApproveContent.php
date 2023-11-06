@@ -39,7 +39,9 @@ class ApproveContent
         if (! empty($isApproved)) {
             $post->is_approved = true;
 
-            $post->raise(new PostWasApproved($post, $event->actor));
+            if(! $post->hidden_at) {
+                $post->raise(new PostWasApproved($post, $event->actor));
+            }
         }
     }
 }
