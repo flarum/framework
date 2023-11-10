@@ -5,7 +5,6 @@ import Page, { IPageAttrs } from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import DiscussionHero from './DiscussionHero';
 import DiscussionListPane from './DiscussionListPane';
-import LoadingIndicator from '../../common/components/LoadingIndicator';
 import SplitDropdown from '../../common/components/SplitDropdown';
 import listItems from '../../common/helpers/listItems';
 import DiscussionControls from '../utils/DiscussionControls';
