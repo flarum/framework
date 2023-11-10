@@ -1,5 +1,5 @@
 import app from 'flarum/admin/app';
-import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
+import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
 import ColorPreviewInput from 'flarum/common/components/ColorPreviewInput';
 import ItemList from 'flarum/common/utils/ItemList';
@@ -12,7 +12,7 @@ import type Mithril from 'mithril';
 import tagLabel from '../../common/helpers/tagLabel';
 import type Tag from '../../common/models/Tag';
 
-export interface EditTagModalAttrs extends IInternalModalAttrs {
+export interface EditTagModalAttrs extends IFormModalAttrs {
   primary?: boolean;
   model?: Tag;
 }
@@ -21,7 +21,7 @@ export interface EditTagModalAttrs extends IInternalModalAttrs {
  * The `EditTagModal` component shows a modal dialog which allows the user
  * to create or edit a tag.
  */
-export default class EditTagModal extends Modal<EditTagModalAttrs> {
+export default class EditTagModal extends FormModal<EditTagModalAttrs> {
   tag!: Tag;
 
   name!: Stream<string>;

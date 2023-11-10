@@ -5,7 +5,6 @@ import Button from './Button';
 
 import type Mithril from 'mithril';
 import type ModalManagerState from '../states/ModalManagerState';
-import type RequestError from '../utils/RequestError';
 import type ModalManager from './ModalManager';
 import fireDebugWarning from '../helpers/fireDebugWarning';
 import classList from '../utils/classList';
@@ -101,22 +100,31 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
               />
             </div>
           )}
-
-          <form onsubmit={this.onsubmit.bind(this)}>
-            <div className="Modal-header">
-              <h3 className="App-titleControl App-titleControl--text">{this.title()}</h3>
-            </div>
-
-            {!!this.alertAttrs && (
-              <div className="Modal-alert">
-                <Alert {...this.alertAttrs} />
-              </div>
-            )}
-
-            {this.content()}
-          </form>
+          {this.wrapper(this.inner())}
         </div>
       </div>
+    );
+  }
+
+  protected wrapper(children: Mithril.Children): Mithril.Children {
+    return <>{children}</>;
+  }
+
+  protected inner(): Mithril.Children {
+    return (
+      <>
+        <div className="Modal-header">
+          <h3 className="App-titleControl App-titleControl--text">{this.title()}</h3>
+        </div>
+
+        {!!this.alertAttrs && (
+          <div className="Modal-alert">
+            <Alert {...this.alertAttrs} />
+          </div>
+        )}
+
+        {this.content()}
+      </>
     );
   }
 
@@ -136,19 +144,10 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
   abstract content(): Mithril.Children;
 
   /**
-   * Handle the modal form's submit event.
-   */
-  onsubmit(e: SubmitEvent): void {
-    // ...
-  }
-
-  /**
    * Callback executed when the modal is shown and ready to be interacted with.
-   *
-   * @remark Focuses the first input in the modal.
    */
   onready(): void {
-    this.$().find('input, select, textarea').first().trigger('focus').trigger('select');
+    // ...
   }
 
   /**
@@ -164,22 +163,6 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
   loaded(): void {
     this.loading = false;
     m.redraw();
-  }
-
-  /**
-   * Shows an alert describing an error returned from the API, and gives focus to
-   * the first relevant field involved in the error.
-   */
-  onerror(error: RequestError): void {
-    this.alertAttrs = error.alert;
-
-    m.redraw();
-
-    if (error.status === 422 && error.response?.errors) {
-      this.$('form [name=' + (error.response.errors as any[])[0].source.pointer.replace('/data/attributes/', '') + ']').trigger('select');
-    } else {
-      this.onready();
-    }
   }
 
   private get dismissibleOptions(): IDismissibleOptions {
