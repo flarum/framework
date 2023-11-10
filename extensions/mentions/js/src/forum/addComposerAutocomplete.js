@@ -7,22 +7,20 @@ import AutocompleteDropdown from './fragments/AutocompleteDropdown';
 import MentionableModels from './mentionables/MentionableModels';
 
 export default function addComposerAutocomplete() {
-  const $container = $('<div class="ComposerBody-mentionsDropdownContainer"></div>');
-  const dropdown = new AutocompleteDropdown();
-
   extend('flarum/common/components/TextEditor', 'onbuild', function () {
+    this.mentionsDropdown = new AutocompleteDropdown();
     const $editor = this.$('.TextEditor-editor').wrap('<div class="ComposerBody-mentionsWrapper"></div>');
 
     this.navigator = new KeyboardNavigatable();
     this.navigator
-      .when(() => dropdown.active)
-      .onUp(() => dropdown.navigate(-1))
-      .onDown(() => dropdown.navigate(1))
-      .onSelect(dropdown.complete.bind(dropdown))
-      .onCancel(dropdown.hide.bind(dropdown))
+      .when(() => this.mentionsDropdown.active)
+      .onUp(() => this.mentionsDropdown.navigate(-1))
+      .onDown(() => this.mentionsDropdown.navigate(1))
+      .onSelect(this.mentionsDropdown.complete.bind(this.mentionsDropdown))
+      .onCancel(this.mentionsDropdown.hide.bind(this.mentionsDropdown))
       .bindTo($editor);
 
-    $editor.after($container);
+    $editor.after($('<div class="ComposerBody-mentionsDropdownContainer"></div>'));
   });
 
   extend('flarum/common/components/TextEditor', 'buildEditorParams', function (params) {
@@ -32,12 +30,12 @@ export default function addComposerAutocomplete() {
 
     let mentionables = new MentionableModels({
       onmouseenter: function () {
-        dropdown.setIndex($(this).parent().index());
+        this.mentionsDropdown.setIndex($(this).parent().index());
       },
       onclick: (replacement) => {
         this.attrs.composer.editor.replaceBeforeCursor(absMentionStart - 1, replacement + ' ');
 
-        dropdown.hide();
+        this.mentionsDropdown.hide();
       },
     });
 
@@ -66,8 +64,8 @@ export default function addComposerAutocomplete() {
         }
       }
 
-      dropdown.hide();
-      dropdown.active = false;
+      this.mentionsDropdown.hide();
+      this.mentionsDropdown.active = false;
 
       if (absMentionStart) {
         const typed = lastChunk.substring(relMentionStart).toLowerCase();
@@ -83,14 +81,14 @@ export default function addComposerAutocomplete() {
           const suggestions = mentionables.buildSuggestions();
 
           if (suggestions.length) {
-            dropdown.items = suggestions;
-            m.render($container[0], dropdown.render());
+            this.mentionsDropdown.items = suggestions;
+            m.render(this.$('.ComposerBody-mentionsDropdownContainer')[0], this.mentionsDropdown.render());
 
-            dropdown.show();
+            this.mentionsDropdown.show();
             const coordinates = this.attrs.composer.editor.getCaretCoordinates(absMentionStart);
-            const width = dropdown.$().outerWidth();
-            const height = dropdown.$().outerHeight();
-            const parent = dropdown.$().offsetParent();
+            const width = this.mentionsDropdown.$().outerWidth();
+            const height = this.mentionsDropdown.$().outerHeight();
+            const parent = this.mentionsDropdown.$().offsetParent();
             let left = coordinates.left;
             let top = coordinates.top + 15;
 
@@ -106,19 +104,19 @@ export default function addComposerAutocomplete() {
             top = Math.max(-(parent.offset().top - $(document).scrollTop()), top);
             left = Math.max(-parent.offset().left, left);
 
-            dropdown.show(left, top);
+            this.mentionsDropdown.show(left, top);
           } else {
-            dropdown.active = false;
-            dropdown.hide();
+            this.mentionsDropdown.active = false;
+            this.mentionsDropdown.hide();
           }
         };
 
-        dropdown.active = true;
+        this.mentionsDropdown.active = true;
 
         buildSuggestions();
 
-        dropdown.setIndex(0);
-        dropdown.$().scrollTop(0);
+        this.mentionsDropdown.setIndex(0);
+        this.mentionsDropdown.$().scrollTop(0);
 
         mentionables.search()?.then(buildSuggestions);
       }
