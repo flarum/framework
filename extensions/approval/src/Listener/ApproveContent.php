@@ -17,7 +17,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 class ApproveContent
 {
     /**
-     * @param  Dispatcher  $events
+     * @param Dispatcher $events
      */
     public function subscribe(Dispatcher $events)
     {
