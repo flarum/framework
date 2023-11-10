@@ -28,18 +28,6 @@ export interface IButtonAttrs extends ComponentAttrs {
    */
   loading?: boolean;
   /**
-   * **DEPRECATED:** Please use the `aria-label` attribute instead. For tooltips, use
-   * the `<Tooltip>` component.
-   *
-   * Accessible text for the button. This should always be present if the button only
-   * contains an icon.
-   *
-   * The textual content of this attribute is passed to the DOM element as `aria-label`.
-   *
-   * @deprecated
-   */
-  title?: string | Mithril.ChildArray;
-  /**
    * Accessible text for the button. This should always be present if the button only
    * contains an icon.
    *
@@ -68,13 +56,10 @@ export interface IButtonAttrs extends ComponentAttrs {
  */
 export default class Button<CustomAttrs extends IButtonAttrs = IButtonAttrs> extends Component<CustomAttrs> {
   view(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
-    let { type, title, 'aria-label': ariaLabel, icon: iconName, disabled, loading, className, class: _class, ...attrs } = this.attrs;
+    let { type, 'aria-label': ariaLabel, icon: iconName, disabled, loading, className, class: _class, ...attrs } = this.attrs;
 
     // If no `type` attr provided, set to "button"
     type ||= 'button';
-
-    // Use `title` attribute as `aria-label` if none provided
-    ariaLabel ||= title;
 
     // If given a translation object, extract the text.
     if (typeof ariaLabel === 'object') {

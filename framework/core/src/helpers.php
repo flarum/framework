@@ -112,7 +112,7 @@ if (! function_exists('event')) {
 
 if (! function_exists('config')) {
     /**
-     * @deprecated do not use, will be transferred to flarum/laravel-helpers.
+     * @deprecated
      */
     function config(string $key, mixed $default = null): mixed
     {

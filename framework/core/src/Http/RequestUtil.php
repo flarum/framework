@@ -30,9 +30,6 @@ class RequestUtil
 
         $actorReference->setActor($actor);
 
-        // @deprecated in 1.0
-        $request = $request->withAttribute('actor', $actor);
-
         return $request;
     }
 }

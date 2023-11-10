@@ -36,13 +36,11 @@ class Settings implements ExtenderInterface
      * The callable should return:
      * - mixed $value: The modified value.
      *
-     * @todo remove $default in 2.0
-     * @param mixed $default: Deprecated optional default serialized value. Will be run through the optional callback.
      * @return self
      */
-    public function serializeToForum(string $attributeName, string $key, callable|string $callback = null, mixed $default = null): self
+    public function serializeToForum(string $attributeName, string $key, callable|string $callback = null): self
     {
-        $this->settings[$key] = compact('attributeName', 'callback', 'default');
+        $this->settings[$key] = compact('attributeName', 'callback');
 
         return $this;
     }
@@ -108,7 +106,7 @@ class Settings implements ExtenderInterface
                     $attributes = [];
 
                     foreach ($this->settings as $key => $setting) {
-                        $value = $settings->get($key, $setting['default']);
+                        $value = $settings->get($key);
 
                         if (isset($setting['callback'])) {
                             $callback = ContainerUtil::wrapCallback($setting['callback'], $container);

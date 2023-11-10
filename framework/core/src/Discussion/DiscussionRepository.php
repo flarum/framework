@@ -11,7 +11,6 @@ namespace Flarum\Discussion;
 
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 
 class DiscussionRepository
 {
@@ -32,18 +31,6 @@ class DiscussionRepository
         $query = $this->query()->where('id', $id);
 
         return $this->scopeVisibleTo($query, $user)->firstOrFail();
-    }
-
-    /**
-     * Get the IDs of discussions which a user has read completely.
-     *
-     * @param User $user
-     * @return Collection<int, Discussion>
-     * @deprecated 1.3 Use `getReadIdsQuery` instead
-     */
-    public function getReadIds(User $user): Collection
-    {
-        return $this->getReadIdsQuery($user)->get();
     }
 
     /**

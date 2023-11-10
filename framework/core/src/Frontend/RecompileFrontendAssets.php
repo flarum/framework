@@ -10,7 +10,6 @@
 namespace Flarum\Frontend;
 
 use Flarum\Locale\LocaleManager;
-use Flarum\Settings\Event\Saved;
 
 /**
  * @internal
@@ -21,14 +20,6 @@ class RecompileFrontendAssets
         protected Assets $assets,
         protected LocaleManager $locales
     ) {
-    }
-
-    public function whenSettingsSaved(Saved $event): void
-    {
-        // @deprecated 'theme_' check, to be removed in 2.0
-        if (preg_grep('/^theme_/i', array_keys($event->settings))) {
-            $this->flushCss();
-        }
     }
 
     public function flush(): void
