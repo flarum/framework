@@ -2,7 +2,6 @@ import Component from '../Component';
 import { AlertAttrs } from './Alert';
 import type Mithril from 'mithril';
 import type ModalManagerState from '../states/ModalManagerState';
-import type RequestError from '../utils/RequestError';
 import type ModalManager from './ModalManager';
 export interface IInternalModalAttrs {
     state: ModalManagerState;
@@ -45,6 +44,8 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
      * @todo split into FormModal and Modal in 2.0
      */
     view(): JSX.Element;
+    protected wrapper(children: Mithril.Children): Mithril.Children;
+    protected inner(): Mithril.Children;
     /**
      * Get the class name to apply to the modal.
      */
@@ -58,13 +59,7 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
      */
     abstract content(): Mithril.Children;
     /**
-     * Handle the modal form's submit event.
-     */
-    onsubmit(e: SubmitEvent): void;
-    /**
      * Callback executed when the modal is shown and ready to be interacted with.
-     *
-     * @remark Focuses the first input in the modal.
      */
     onready(): void;
     /**
@@ -75,10 +70,5 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
      * Sets `loading` to false and triggers a redraw.
      */
     loaded(): void;
-    /**
-     * Shows an alert describing an error returned from the API, and gives focus to
-     * the first relevant field involved in the error.
-     */
-    onerror(error: RequestError): void;
     private get dismissibleOptions();
 }

@@ -9,5 +9,4 @@ export default class LoadingModal<ModalAttrs extends ILoadingModalAttrs = ILoadi
     className(): string;
     title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
     content(): null;
-    onsubmit(e: Event): void;
 }

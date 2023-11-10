@@ -1,5 +1,5 @@
 import ItemList from 'flarum/common/utils/ItemList';
-import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
+import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import Mithril from 'mithril';
 export interface IDateSelection {
     /**
@@ -11,7 +11,7 @@ export interface IDateSelection {
      */
     end: number;
 }
-export interface IStatisticsWidgetDateSelectionModalAttrs extends IInternalModalAttrs {
+export interface IStatisticsWidgetDateSelectionModalAttrs extends IFormModalAttrs {
     onModalSubmit: (dates: IDateSelection) => void;
     value?: IDateSelection;
 }
@@ -25,7 +25,7 @@ interface IStatisticsWidgetDateSelectionModalState {
         endDate: string;
     };
 }
-export default class StatisticsWidgetDateSelectionModal extends Modal<IStatisticsWidgetDateSelectionModalAttrs> {
+export default class StatisticsWidgetDateSelectionModal extends FormModal<IStatisticsWidgetDateSelectionModalAttrs> {
     state: IStatisticsWidgetDateSelectionModalState;
     oninit(vnode: Mithril.Vnode<IStatisticsWidgetDateSelectionModalAttrs, this>): void;
     className(): string;

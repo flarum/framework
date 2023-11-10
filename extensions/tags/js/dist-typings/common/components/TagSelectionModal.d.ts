@@ -1,8 +1,8 @@
 import KeyboardNavigatable from 'flarum/common/utils/KeyboardNavigatable';
-import Modal from 'flarum/common/components/Modal';
+import FormModal from 'flarum/common/components/FormModal';
 import Stream from 'flarum/common/utils/Stream';
 import type Tag from '../models/Tag';
-import type { IInternalModalAttrs } from 'flarum/common/components/Modal';
+import type { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import type Mithril from 'mithril';
 export interface ITagSelectionModalLimits {
     /** Whether to allow bypassing the limits set here. This will show a toggle button to bypass limits. */
@@ -20,7 +20,7 @@ export interface ITagSelectionModalLimits {
         secondary?: number;
     };
 }
-export interface ITagSelectionModalAttrs extends IInternalModalAttrs {
+export interface ITagSelectionModalAttrs extends IFormModalAttrs {
     /** Custom modal className to use. */
     className?: string;
     /** Modal title, defaults to 'Choose Tags'. */
@@ -45,7 +45,7 @@ export interface ITagSelectionModalAttrs extends IInternalModalAttrs {
     onsubmit?: (selected: Tag[]) => void;
 }
 export declare type ITagSelectionModalState = undefined;
-export default class TagSelectionModal<CustomAttrs extends ITagSelectionModalAttrs = ITagSelectionModalAttrs, CustomState extends ITagSelectionModalState = ITagSelectionModalState> extends Modal<CustomAttrs, CustomState> {
+export default class TagSelectionModal<CustomAttrs extends ITagSelectionModalAttrs = ITagSelectionModalAttrs, CustomState extends ITagSelectionModalState = ITagSelectionModalState> extends FormModal<CustomAttrs, CustomState> {
     protected loading: boolean;
     protected tags: Tag[];
     protected selected: Tag[];
@@ -57,7 +57,7 @@ export default class TagSelectionModal<CustomAttrs extends ITagSelectionModalAtt
     static initAttrs(attrs: ITagSelectionModalAttrs): void;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     className(): string;
-    title(): string | undefined;
+    title(): any;
     content(): JSX.Element | JSX.Element[];
     /**
      * Filters the available tags on every state change.
@@ -93,8 +93,8 @@ export default class TagSelectionModal<CustomAttrs extends ITagSelectionModalAtt
      */
     onsubmit(e: SubmitEvent): void;
     protected select(e: KeyboardEvent): void;
-    protected selectableItems(): JQuery<HTMLElement>;
-    protected getCurrentNumericIndex(): number;
-    protected getItem(selectedTag: Tag): JQuery<HTMLElement>;
+    protected selectableItems(): any;
+    protected getCurrentNumericIndex(): any;
+    protected getItem(selectedTag: Tag): any;
     protected setIndex(index: number, scrollToItem: boolean): void;
 }
