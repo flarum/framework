@@ -10,10 +10,6 @@ export interface IInternalModalAttrs {
     animateHide: ModalManager['animateHide'];
 }
 export interface IDismissibleOptions {
-    /**
-     * @deprecated Check specific individual attributes instead. Will be removed in Flarum 2.0.
-     */
-    isDismissible: boolean;
     viaCloseButton: boolean;
     viaEscKey: boolean;
     viaBackdropClick: boolean;
@@ -23,12 +19,6 @@ export interface IDismissibleOptions {
  * should implement the `className`, `title`, and `content` methods.
  */
 export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IInternalModalAttrs, CustomState = undefined> extends Component<ModalAttrs, CustomState> {
-    /**
-     * Determine whether or not the modal should be dismissible via an 'x' button.
-     *
-     * @deprecated Use the individual `isDismissibleVia...` attributes instead and remove references to this.
-     */
-    static readonly isDismissible: boolean;
     /**
      * Can the model be dismissed with a close button (X)?
      *
@@ -49,7 +39,6 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
      * Attributes for an alert component to show below the header.
      */
     alertAttrs: AlertAttrs | null;
-    oninit(vnode: Mithril.Vnode<ModalAttrs, this>): void;
     oncreate(vnode: Mithril.VnodeDOM<ModalAttrs, this>): void;
     onbeforeremove(vnode: Mithril.VnodeDOM<ModalAttrs, this>): Promise<void> | void;
     /**

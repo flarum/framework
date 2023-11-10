@@ -51,13 +51,6 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
      */
     protected searchState: SearchState;
     /**
-     * The instance of `SearchState` for this component.
-     *
-     * @deprecated Replace with`this.searchState` instead.
-     */
-    get state(): SearchState;
-    set state(state: SearchState);
-    /**
      * Whether or not the search input has focus.
      */
     protected hasFocus: boolean;

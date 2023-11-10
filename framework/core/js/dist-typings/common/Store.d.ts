@@ -92,7 +92,6 @@ export default class Store {
      *     registered for this resource type.
      */
     pushObject<M extends Model>(data: SavedModelData): M | null;
-    pushObject<M extends Model>(data: SavedModelData, allowUnregistered: false): M;
     /**
      * Make a request to the API to find record(s) of a specific type.
      */
