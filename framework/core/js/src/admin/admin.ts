@@ -35,6 +35,7 @@ import './components/AdminHeader';
 import './components/EditCustomCssModal';
 import './components/EditGroupModal';
 import './components/CreateUserModal';
+import './components/FormGroup';
 
 import './routes';
 import './AdminApplication';

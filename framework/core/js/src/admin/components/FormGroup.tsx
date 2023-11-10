@@ -251,8 +251,8 @@ export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupA
    * })
    * ```
    */
-  customFieldComponents(): ItemList<(attributes: CommonFieldOptions) => Mithril.Children> {
-    const items = new ItemList<(attributes: CommonFieldOptions) => Mithril.Children>();
+  customFieldComponents(): ItemList<(attributes: CustomAttrs) => Mithril.Children> {
+    const items = new ItemList<(attributes: CustomAttrs) => Mithril.Children>();
 
     return items;
   }
