@@ -1,6 +1,6 @@
 import type Mithril from 'mithril';
 import ItemList from '../../common/utils/ItemList';
-import { SettingsComponentOptions } from '../components/AdminPage';
+import { FieldComponentOptions } from '../components/AdminPage';
 import ExtensionPage, { ExtensionPageAttrs } from '../components/ExtensionPage';
 import { PermissionConfig, PermissionType } from '../components/PermissionGrid';
 
