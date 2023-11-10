@@ -10,22 +10,36 @@
 namespace Flarum\Approval\Listener;
 
 use Flarum\Approval\Event\PostWasApproved;
-use Flarum\Approval\RefreshesDiscussionTrait;
 
 class UpdateDiscussionAfterPostApproval
 {
-    use RefreshesDiscussionTrait;
-
     public function handle(PostWasApproved $event)
     {
-        $this->refreshAndSaveDiscussion($event->post, function ($post, $discussion, $user) {
-            if ($post->number === 1) {
-                $discussion->is_approved = true;
+        $post = $event->post;
+        $discussion = $post->discussion;
+        $user = $discussion->user;
 
-                $discussion->afterSave(function () use ($user) {
-                    $user->refreshDiscussionCount();
-                });
-            }
-        });
+        $discussion->refreshCommentCount();
+        $discussion->refreshLastPost();
+
+        if ($post->number === 1) {
+            $discussion->is_approved = true;
+
+            $discussion->afterSave(function () use ($user) {
+                $user->refreshDiscussionCount();
+            });
+        }
+
+        $discussion->save();
+
+        if ($discussion->user) {
+            $user->refreshCommentCount();
+            $user->save();
+        }
+
+        if ($post->user) {
+            $post->user->refreshCommentCount();
+            $post->user->save();
+        }
     }
 }

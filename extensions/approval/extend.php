@@ -11,7 +11,6 @@ use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Approval\Access;
 use Flarum\Approval\Event\PostWasApproved;
-use Flarum\Approval\Event\PostWasUnapproved;
 use Flarum\Approval\Listener;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
@@ -53,7 +52,6 @@ return [
 
     (new Extend\Event())
         ->listen(PostWasApproved::class, Listener\UpdateDiscussionAfterPostApproval::class)
-        ->listen(PostWasUnapproved::class, Listener\UpdateDiscussionAfterPostUnapproval::class)
         ->subscribe(Listener\ApproveContent::class)
         ->subscribe(Listener\UnapproveNewContent::class),
 

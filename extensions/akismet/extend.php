@@ -10,8 +10,8 @@
 use Flarum\Akismet\Listener;
 use Flarum\Akismet\Provider\AkismetProvider;
 use Flarum\Approval\Event\PostWasApproved;
-use Flarum\Approval\Event\PostWasUnapproved;
 use Flarum\Extend;
+use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Saving;
 use Flarum\Post\Post;
 
@@ -25,7 +25,7 @@ return [
     new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Event())
-        ->listen(PostWasUnapproved::class, Listener\SubmitSpam::class)
+        ->listen(Hidden::class, Listener\SubmitSpam::class)
         ->listen(PostWasApproved::class, Listener\SubmitHam::class)
         ->listen(Saving::class, Listener\ValidatePost::class),
 
