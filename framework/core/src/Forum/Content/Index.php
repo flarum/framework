@@ -75,6 +75,13 @@ class Index
      */
     protected function getApiDocument(Request $request, array $params): object
     {
-        return json_decode($this->api->withParentRequest($request)->withQueryParams($params)->get('/discussions')->getBody());
+        return json_decode(
+            $this->api
+                ->withoutErrorHandling()
+                ->withParentRequest($request)
+                ->withQueryParams($params)
+                ->get('/discussions')
+                ->getBody()
+        );
     }
 }
