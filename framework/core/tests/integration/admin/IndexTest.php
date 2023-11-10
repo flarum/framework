@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Tests\integration\forum;
+namespace Flarum\Tests\integration\admin;
 
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -28,31 +28,25 @@ class IndexTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
-    public function guest_not_serialized_by_current_user_serializer()
+    public function admin_can_access_admin_route(): void
     {
         $response = $this->send(
-            $this->request('GET', '/')
-        );
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertStringNotContainsString('preferences', $response->getBody()->getContents());
-    }
-
-    /**
-     * @test
-     */
-    public function user_serialized_by_current_user_serializer()
-    {
-        $response = $this->send(
-            $this->request('GET', '/', [
-                'authenticatedAs' => 2,
+            $this->request('GET', '/admin', [
+                'authenticatedAs' => 1,
             ])
         );
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertStringContainsString('preferences', $response->getBody()->getContents());
+    }
+
+    public function user_cannot_access_admin_route(): void
+    {
+        $response = $this->send(
+            $this->request('GET', '/admin', [
+                'authenticatedAs' => 2,
+            ])
+        );
+
+        $this->assertEquals(403, $response->getStatusCode());
     }
 }
