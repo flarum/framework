@@ -137,7 +137,11 @@ export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignup
 
   footer() {
     return [
-      <p className="SignUpModal-logIn">{app.translator.trans('core.forum.sign_up.log_in_text', { a: <a onclick={this.logIn.bind(this)} /> })}</p>,
+      <p className="SignUpModal-logIn">
+        {app.translator.trans('core.forum.sign_up.log_in_text', {
+          a: <Button className="Button Button--text Button--link" onclick={this.logIn.bind(this)} />,
+        })}
+      </p>,
     ];
   }
 

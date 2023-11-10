@@ -5,6 +5,7 @@ import classList from 'flarum/common/utils/classList';
 
 import tagsLabel from '../common/helpers/tagsLabel';
 import getSelectableTags from './utils/getSelectableTags';
+import Button from '@flarum/core/src/common/components/Button';
 
 export default function addTagComposer() {
   extend(IndexSidebar.prototype, 'newDiscussionAction', function (promise) {
@@ -47,13 +48,16 @@ export default function addTagComposer() {
 
     items.add(
       'tags',
-      <a className={classList(['DiscussionComposer-changeTags', !selectableTags.length && 'disabled'])} onclick={this.chooseTags.bind(this)}>
+      <Button
+        className={classList(['DiscussionComposer-changeTags', 'Button Button--ua-reset', !selectableTags.length && 'disabled'])}
+        onclick={this.chooseTags.bind(this)}
+      >
         {tags.length ? (
           tagsLabel(tags)
         ) : (
           <span className="TagLabel untagged">{app.translator.trans('flarum-tags.forum.composer_discussion.choose_tags_link')}</span>
         )}
-      </a>,
+      </Button>,
       10
     );
   });
