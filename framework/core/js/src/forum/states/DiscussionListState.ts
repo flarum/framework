@@ -15,7 +15,7 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
   protected eventEmitter: EventEmitter;
 
   constructor(params: P, page: number = 1) {
-    super(params, page, 20);
+    super(params, page, null);
 
     this.eventEmitter = globalEventEmitter.on('discussion.deleted', this.deleteDiscussion.bind(this));
   }
@@ -44,6 +44,7 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
 
     if (preloadedDiscussions) {
       this.initialLoading = false;
+      this.pageSize = preloadedDiscussions.payload.meta?.perPage || DiscussionListState.DEFAULT_PAGE_SIZE;
 
       return Promise.resolve(preloadedDiscussions);
     }

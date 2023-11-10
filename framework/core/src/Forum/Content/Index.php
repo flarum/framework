@@ -10,6 +10,7 @@
 namespace Flarum\Forum\Content;
 
 use Flarum\Api\Client;
+use Flarum\Api\Controller\ListDiscussionsController;
 use Flarum\Frontend\Document;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\TranslatorInterface;
@@ -25,7 +26,8 @@ class Index
         protected Factory $view,
         protected SettingsRepositoryInterface $settings,
         protected UrlGenerator $url,
-        protected TranslatorInterface $translator
+        protected TranslatorInterface $translator,
+        protected ListDiscussionsController $controller
     ) {
     }
 
@@ -39,11 +41,15 @@ class Index
         $filters = Arr::pull($queryParams, 'filter', []);
 
         $sortMap = resolve('flarum.forum.discussions.sortmap');
+        $limit = $this->controller->limit;
 
         $params = [
             'sort' => $sort && isset($sortMap[$sort]) ? $sortMap[$sort] : '',
             'filter' => $filters,
-            'page' => ['offset' => ($page - 1) * 20, 'limit' => 20]
+            'page' => [
+                'offset' => ($page - 1) * $limit,
+                'limit' => $limit
+            ],
         ];
 
         if ($q) {
