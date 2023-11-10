@@ -28,18 +28,34 @@ class ApproveContent
         $attributes = $event->data['attributes'];
         $post = $event->post;
 
+        // Nothing to do if it is already approved.
+        if ($post->is_approved) {
+            return;
+        }
+
+        /*
+         * We approve a post in one of two cases:
+         * - The post was unapproved and the allowed action is approving it. We trigger an event.
+         * - The post was unapproved and the allowed actor is hiding or un-hiding it.
+         *   We approve it silently if the action is unhiding.
+         */
+        $approvingSilently = false;
+
         if (isset($attributes['isApproved'])) {
             $event->actor->assertCan('approve', $post);
 
             $isApproved = (bool) $attributes['isApproved'];
-        } elseif (! empty($attributes['isHidden']) && $event->actor->can('approve', $post)) {
+        } elseif (isset($attributes['isHidden']) && $event->actor->can('approve', $post)) {
             $isApproved = true;
+            $approvingSilently = $attributes['isHidden'];
         }
 
         if (! empty($isApproved)) {
             $post->is_approved = true;
 
-            $post->raise(new PostWasApproved($post, $event->actor));
+            if (! $approvingSilently) {
+                $post->raise(new PostWasApproved($post, $event->actor));
+            }
         }
     }
 }
