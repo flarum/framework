@@ -39,7 +39,11 @@ export interface ApiPayloadPlural {
         next?: string;
         prev?: string;
     };
-    meta?: MetaInformation;
+    meta?: MetaInformation & {
+        total?: number;
+        page?: number;
+        perPage?: number;
+    };
 }
 export declare type ApiPayload = ApiPayloadSingle | ApiPayloadPlural;
 export declare type ApiResponseSingle<M extends Model> = M & {
@@ -92,7 +96,6 @@ export default class Store {
      *     registered for this resource type.
      */
     pushObject<M extends Model>(data: SavedModelData): M | null;
-    pushObject<M extends Model>(data: SavedModelData, allowUnregistered: false): M;
     /**
      * Make a request to the API to find record(s) of a specific type.
      */

@@ -64,11 +64,10 @@ class ListDiscussionsController extends AbstractListController
             $results = $this->filterer->filter($criteria, $limit, $offset);
         }
 
-        $document->addPaginationLinks(
+        $this->addPaginationData(
+            $document,
+            $request,
             $this->url->to('api')->route('discussions.index'),
-            $request->getQueryParams(),
-            $offset,
-            $limit,
             $results->areMoreResults() ? null : 0
         );
 

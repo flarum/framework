@@ -23,7 +23,6 @@ use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Locale\LocaleManager;
-use Flarum\Settings\Event\Saved;
 use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -251,17 +250,6 @@ class Frontend implements ExtenderInterface
                         $container->make(LocaleManager::class)
                     );
                     $recompile->flush();
-                }
-            );
-
-            $events->listen(
-                Saved::class,
-                function (Saved $event) use ($container, $abstract) {
-                    $recompile = new RecompileFrontendAssets(
-                        $container->make($abstract),
-                        $container->make(LocaleManager::class)
-                    );
-                    $recompile->whenSettingsSaved($event);
                 }
             );
         }

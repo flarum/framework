@@ -65,6 +65,7 @@ import './components/SelectDropdown';
 import './components/ModalManager';
 import './components/Button';
 import './components/Modal';
+import './components/FormModal';
 import './components/GroupBadge';
 import './components/TextEditor';
 import './components/TextEditorButton';

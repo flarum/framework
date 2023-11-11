@@ -5,7 +5,6 @@ import Button from './Button';
 
 import type Mithril from 'mithril';
 import type ModalManagerState from '../states/ModalManagerState';
-import type RequestError from '../utils/RequestError';
 import type ModalManager from './ModalManager';
 import fireDebugWarning from '../helpers/fireDebugWarning';
 import classList from '../utils/classList';
@@ -17,10 +16,6 @@ export interface IInternalModalAttrs {
 }
 
 export interface IDismissibleOptions {
-  /**
-   * @deprecated Check specific individual attributes instead. Will be removed in Flarum 2.0.
-   */
-  isDismissible: boolean;
   viaCloseButton: boolean;
   viaEscKey: boolean;
   viaBackdropClick: boolean;
@@ -34,14 +29,6 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
   ModalAttrs,
   CustomState
 > {
-  // TODO: [Flarum 2.0] remove `isDismissible` static attribute
-  /**
-   * Determine whether or not the modal should be dismissible via an 'x' button.
-   *
-   * @deprecated Use the individual `isDismissibleVia...` attributes instead and remove references to this.
-   */
-  static readonly isDismissible: boolean = true;
-
   /**
    * Can the model be dismissed with a close button (X)?
    *
@@ -58,18 +45,7 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
   protected static readonly isDismissibleViaBackdropClick: boolean = true;
 
   static get dismissibleOptions(): IDismissibleOptions {
-    // If someone sets this to `false`, provide the same behaviour as previous versions of Flarum.
-    if (!this.isDismissible) {
-      return {
-        isDismissible: false,
-        viaCloseButton: false,
-        viaEscKey: false,
-        viaBackdropClick: false,
-      };
-    }
-
     return {
-      isDismissible: true,
       viaCloseButton: this.isDismissibleViaCloseButton,
       viaEscKey: this.isDismissibleViaEscKey,
       viaBackdropClick: this.isDismissibleViaBackdropClick,
@@ -82,31 +58,6 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
    * Attributes for an alert component to show below the header.
    */
   alertAttrs: AlertAttrs | null = null;
-
-  oninit(vnode: Mithril.Vnode<ModalAttrs, this>) {
-    super.oninit(vnode);
-
-    // TODO: [Flarum 2.0] Remove the code below.
-    // This code prevents extensions which do not implement all abstract methods of this class from breaking
-    // the forum frontend. Without it, function calls would would error rather than returning `undefined.`
-
-    const missingMethods: string[] = [];
-
-    ['className', 'title', 'content', 'onsubmit'].forEach((method) => {
-      if (!(this as any)[method]) {
-        (this as any)[method] = function (): void {};
-        missingMethods.push(method);
-      }
-    });
-
-    if (missingMethods.length > 0) {
-      fireDebugWarning(
-        `Modal \`${this.constructor.name}\` does not implement all abstract methods of the Modal super class. Missing methods: ${missingMethods.join(
-          ', '
-        )}.`
-      );
-    }
-  }
 
   oncreate(vnode: Mithril.VnodeDOM<ModalAttrs, this>) {
     super.oncreate(vnode);
@@ -149,22 +100,31 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
               />
             </div>
           )}
-
-          <form onsubmit={this.onsubmit.bind(this)}>
-            <div className="Modal-header">
-              <h3 className="App-titleControl App-titleControl--text">{this.title()}</h3>
-            </div>
-
-            {!!this.alertAttrs && (
-              <div className="Modal-alert">
-                <Alert {...this.alertAttrs} />
-              </div>
-            )}
-
-            {this.content()}
-          </form>
+          {this.wrapper(this.inner())}
         </div>
       </div>
+    );
+  }
+
+  protected wrapper(children: Mithril.Children): Mithril.Children {
+    return <>{children}</>;
+  }
+
+  protected inner(): Mithril.Children {
+    return (
+      <>
+        <div className="Modal-header">
+          <h3 className="App-titleControl App-titleControl--text">{this.title()}</h3>
+        </div>
+
+        {!!this.alertAttrs && (
+          <div className="Modal-alert">
+            <Alert {...this.alertAttrs} />
+          </div>
+        )}
+
+        {this.content()}
+      </>
     );
   }
 
@@ -184,19 +144,10 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
   abstract content(): Mithril.Children;
 
   /**
-   * Handle the modal form's submit event.
-   */
-  onsubmit(e: SubmitEvent): void {
-    // ...
-  }
-
-  /**
    * Callback executed when the modal is shown and ready to be interacted with.
-   *
-   * @remark Focuses the first input in the modal.
    */
   onready(): void {
-    this.$().find('input, select, textarea').first().trigger('focus').trigger('select');
+    // ...
   }
 
   /**
@@ -212,22 +163,6 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
   loaded(): void {
     this.loading = false;
     m.redraw();
-  }
-
-  /**
-   * Shows an alert describing an error returned from the API, and gives focus to
-   * the first relevant field involved in the error.
-   */
-  onerror(error: RequestError): void {
-    this.alertAttrs = error.alert;
-
-    m.redraw();
-
-    if (error.status === 422 && error.response?.errors) {
-      this.$('form [name=' + (error.response.errors as any[])[0].source.pointer.replace('/data/attributes/', '') + ']').trigger('select');
-    } else {
-      this.onready();
-    }
   }
 
   private get dismissibleOptions(): IDismissibleOptions {

@@ -114,21 +114,17 @@ class ApiServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->singleton(Client::class, function ($container) {
-            $pipe = new MiddlewarePipe;
-
             $exclude = $container->make('flarum.api_client.exclude_middleware');
 
             $middlewareStack = array_filter($container->make('flarum.api.middleware'), function ($middlewareClass) use ($exclude) {
                 return ! in_array($middlewareClass, $exclude);
             });
 
-            foreach ($middlewareStack as $middleware) {
-                $pipe->pipe($container->make($middleware));
-            }
+            $middlewareStack[] = HttpMiddleware\ExecuteRoute::class;
 
-            $pipe->pipe(new HttpMiddleware\ExecuteRoute());
-
-            return new Client($pipe);
+            return new Client(
+                new ClientMiddlewarePipe($container, $middlewareStack)
+            );
         });
     }
 

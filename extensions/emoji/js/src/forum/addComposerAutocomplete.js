@@ -8,8 +8,6 @@ import getEmojiIconCode from './helpers/getEmojiIconCode';
 import cdn from './cdn';
 
 export default function addComposerAutocomplete() {
-  const $container = $('<div class="ComposerBody-emojiDropdownContainer"></div>');
-  const dropdown = new AutocompleteDropdown();
   let emojiMap = null;
 
   extend('flarum/common/components/TextEditor', 'oninit', function () {
@@ -24,18 +22,19 @@ export default function addComposerAutocomplete() {
   });
 
   extend('flarum/common/components/TextEditor', 'onbuild', function () {
+    this.emojiDropdown = new AutocompleteDropdown();
     const $editor = this.$('.TextEditor-editor').wrap('<div class="ComposerBody-emojiWrapper"></div>');
 
     this.navigator = new KeyboardNavigatable();
     this.navigator
-      .when(() => dropdown.active)
-      .onUp(() => dropdown.navigate(-1))
-      .onDown(() => dropdown.navigate(1))
-      .onSelect(dropdown.complete.bind(dropdown))
-      .onCancel(dropdown.hide.bind(dropdown))
+      .when(() => this.emojiDropdown.active)
+      .onUp(() => this.emojiDropdown.navigate(-1))
+      .onDown(() => this.emojiDropdown.navigate(1))
+      .onSelect(this.emojiDropdown.complete.bind(this.emojiDropdown))
+      .onCancel(this.emojiDropdown.hide.bind(this.emojiDropdown))
       .bindTo($editor);
 
-    $editor.after($container);
+    $editor.after($('<div class="ComposerBody-emojiDropdownContainer"></div>'));
   });
 
   extend('flarum/common/components/TextEditor', 'buildEditorParams', function (params) {
@@ -48,7 +47,7 @@ export default function addComposerAutocomplete() {
     const applySuggestion = (replacement) => {
       this.attrs.composer.editor.replaceBeforeCursor(absEmojiStart - 1, replacement + ' ');
 
-      dropdown.hide();
+      this.emojiDropdown.hide();
     };
 
     params.inputListeners.push(() => {
@@ -76,8 +75,8 @@ export default function addComposerAutocomplete() {
         }
       }
 
-      dropdown.hide();
-      dropdown.active = false;
+      this.emojiDropdown.hide();
+      this.emojiDropdown.active = false;
 
       if (absEmojiStart) {
         typed = lastChunk.substring(relEmojiStart).toLowerCase();
@@ -89,7 +88,7 @@ export default function addComposerAutocomplete() {
                 key={emoji}
                 onclick={() => applySuggestion(emoji)}
                 onmouseenter={function () {
-                  dropdown.setIndex($(this).parent().index() - 1);
+                  this.emojiDropdown.setIndex($(this).parent().index() - 1);
                 }}
               >
                 <img alt={emoji} className="emoji" draggable="false" loading="lazy" src={`${cdn}72x72/${code}.png`} title={name} />
@@ -149,14 +148,14 @@ export default function addComposerAutocomplete() {
             .map(makeSuggestion);
 
           if (suggestions.length) {
-            dropdown.items = suggestions;
-            m.render($container[0], dropdown.render());
+            this.emojiDropdown.items = suggestions;
+            m.render(this.$('.ComposerBody-emojiDropdownContainer')[0], this.emojiDropdown.render());
 
-            dropdown.show();
+            this.emojiDropdown.show();
             const coordinates = this.attrs.composer.editor.getCaretCoordinates(absEmojiStart);
-            const width = dropdown.$().outerWidth();
-            const height = dropdown.$().outerHeight();
-            const parent = dropdown.$().offsetParent();
+            const width = this.emojiDropdown.$().outerWidth();
+            const height = this.emojiDropdown.$().outerHeight();
+            const parent = this.emojiDropdown.$().offsetParent();
             let left = coordinates.left;
             let top = coordinates.top + 15;
 
@@ -172,15 +171,15 @@ export default function addComposerAutocomplete() {
             top = Math.max(-(parent.offset().top - $(document).scrollTop()), top);
             left = Math.max(-parent.offset().left, left);
 
-            dropdown.show(left, top);
+            this.emojiDropdown.show(left, top);
           }
         };
 
         buildSuggestions();
 
-        dropdown.setIndex(0);
-        dropdown.$().scrollTop(0);
-        dropdown.active = true;
+        this.emojiDropdown.setIndex(0);
+        this.emojiDropdown.$().scrollTop(0);
+        this.emojiDropdown.active = true;
       }
     });
   });

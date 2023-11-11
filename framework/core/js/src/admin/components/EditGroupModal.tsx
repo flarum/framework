@@ -1,5 +1,5 @@
 import app from '../../admin/app';
-import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Button from '../../common/components/Button';
 import Badge from '../../common/components/Badge';
 import Group from '../../common/models/Group';
@@ -11,7 +11,7 @@ import extractText from '../../common/utils/extractText';
 import ColorPreviewInput from '../../common/components/ColorPreviewInput';
 import Form from '../../common/components/Form';
 
-export interface IEditGroupModalAttrs extends IInternalModalAttrs {
+export interface IEditGroupModalAttrs extends IFormModalAttrs {
   group?: Group;
 }
 
@@ -19,7 +19,7 @@ export interface IEditGroupModalAttrs extends IInternalModalAttrs {
  * The `EditGroupModal` component shows a modal dialog which allows the user
  * to create or edit a group.
  */
-export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = IEditGroupModalAttrs> extends Modal<CustomAttrs> {
+export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = IEditGroupModalAttrs> extends FormModal<CustomAttrs> {
   group!: Group;
   nameSingular!: Stream<string>;
   namePlural!: Stream<string>;

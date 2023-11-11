@@ -31,20 +31,6 @@ class Model implements ExtenderInterface
     }
 
     /**
-     * Add an attribute to be treated as a date.
-     *
-     * @param string $attribute
-     * @return self
-     * @deprecated use `cast` instead. Will be removed in v2.
-     */
-    public function dateAttribute(string $attribute): self
-    {
-        $this->cast($attribute, 'datetime');
-
-        return $this;
-    }
-
-    /**
      * Add a custom attribute type cast. Should not be applied to non-extension attributes.
      *
      * @param string $attribute: The new attribute name.
