@@ -237,4 +237,14 @@ abstract class AbstractModel extends Eloquent
     {
         return new Collection($models);
     }
+
+    public function __sleep()
+    {
+        // Closures cannot be serialized.
+        // We should not need them if we are serializing a model.
+        $this->afterSaveCallbacks = [];
+        $this->afterDeleteCallbacks = [];
+
+        return parent::__sleep();
+    }
 }

@@ -48,10 +48,15 @@ export default class DiscussionsSearchSource implements SearchSource {
       );
     }) as Array<Mithril.Vnode>;
 
+    const filter = app.store.gambits.apply('discussions', { q: query });
+    const q = filter.q || null;
+
+    delete filter.q;
+
     return [
       <li className="Dropdown-header">{app.translator.trans('core.forum.search.discussions_heading')}</li>,
       <li>
-        <LinkButton icon="fas fa-search" href={app.route('index', { q: query })}>
+        <LinkButton icon="fas fa-search" href={app.route('index', { q, filter })}>
           {app.translator.trans('core.forum.search.all_discussions_button', { query })}
         </LinkButton>
       </li>,

@@ -30,9 +30,9 @@ class AbstractSerializeControllerTest extends TestCase
             $this->request('GET', '/api/dummy-serialize')
         );
 
-        $json = json_decode((string) $response->getBody(), true);
+        $json = json_decode($contents = (string) $response->getBody(), true);
 
-        $this->assertEquals(500, $response->getStatusCode());
+        $this->assertEquals(500, $response->getStatusCode(), $contents);
         $this->assertStringStartsWith('InvalidArgumentException: Serializer required for controller: '.DummySerializeController::class, $json['errors'][0]['detail']);
     }
 }

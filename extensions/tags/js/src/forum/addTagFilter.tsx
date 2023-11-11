@@ -124,14 +124,8 @@ export default function addTagFilter() {
     }
 
     if (this.params.tags) {
-      const filter = params.filter ?? {};
-      filter.tag = this.params.tags;
-      // TODO: replace this with a more robust system.
-      const q = filter.q;
-      if (q) {
-        filter.q = `${q} tag:${this.params.tags}`;
-      }
-      params.filter = filter;
+      params.filter ||= {};
+      params.filter.tag = this.params.tags;
     }
   });
 }

@@ -28,6 +28,8 @@ class CommentPost extends Post
     public static string $type = 'comment';
     protected static Formatter $formatter;
 
+    protected $observables = ['hidden'];
+
     public static function reply(int $discussionId, string $content, int $userId, ?string $ipAddress, ?User $actor = null): static
     {
         $post = new static;
@@ -69,6 +71,12 @@ class CommentPost extends Post
             $this->hidden_user_id = $actor?->id;
 
             $this->raise(new Hidden($this));
+
+            $this->saved(function (self $model) {
+                if ($model === $this) {
+                    $model->fireModelEvent('hidden', false);
+                }
+            });
         }
 
         return $this;
@@ -81,6 +89,12 @@ class CommentPost extends Post
             $this->hidden_user_id = null;
 
             $this->raise(new Restored($this));
+
+            $this->saved(function (self $model) {
+                if ($model === $this) {
+                    $model->fireModelEvent('restored', false);
+                }
+            });
         }
 
         return $this;

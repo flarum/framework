@@ -36,7 +36,14 @@ export default class GlobalSearchState extends SearchState {
    * @inheritdoc
    */
   getInitialSearch(): string {
-    return this.currPageProvidesSearch() ? this.params().q : '';
+    return this.currPageProvidesSearch() ? this.searchToQuery() : '';
+  }
+
+  private searchToQuery(): string {
+    const q = this.params().q || '';
+    const filter = this.params().filter || {};
+
+    return app.store.gambits.from('users', app.store.gambits.from('discussions', q, filter), filter).trim();
   }
 
   /**
@@ -57,7 +64,7 @@ export default class GlobalSearchState extends SearchState {
    * 'x' is clicked in the search box in the header.
    */
   protected clearInitialSearch() {
-    const { q, ...params } = this.params();
+    const { q, filter, ...params } = this.params();
 
     setRouteWithForcedRefresh(app.route(app.current.get('routeName'), params));
   }
@@ -71,6 +78,9 @@ export default class GlobalSearchState extends SearchState {
     return {
       sort: m.route.param('sort'),
       q: m.route.param('q'),
+      // Objects must be copied, otherwise they are passed by reference.
+      // Which could end up undesirably modifying the mithril route params.
+      filter: Object.assign({}, m.route.param('filter')),
     };
   }
 
@@ -79,8 +89,6 @@ export default class GlobalSearchState extends SearchState {
    */
   params(): SearchParams {
     const params = this.stickyParams();
-
-    params.filter = m.route.param('filter');
 
     return params;
   }

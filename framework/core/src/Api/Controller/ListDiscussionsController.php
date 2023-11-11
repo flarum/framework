@@ -11,11 +11,10 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Discussion;
-use Flarum\Discussion\Filter\DiscussionFilterer;
-use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
-use Flarum\Query\QueryCriteria;
+use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearchManager;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -40,8 +39,7 @@ class ListDiscussionsController extends AbstractListController
     public array $sortFields = ['lastPostedAt', 'commentCount', 'createdAt'];
 
     public function __construct(
-        protected DiscussionFilterer $filterer,
-        protected DiscussionSearcher $searcher,
+        protected SearchManager $search,
         protected UrlGenerator $url
     ) {
     }
@@ -57,12 +55,10 @@ class ListDiscussionsController extends AbstractListController
         $offset = $this->extractOffset($request);
         $include = array_merge($this->extractInclude($request), ['state']);
 
-        $criteria = new QueryCriteria($actor, $filters, $sort, $sortIsDefault);
-        if (array_key_exists('q', $filters)) {
-            $results = $this->searcher->search($criteria, $limit, $offset);
-        } else {
-            $results = $this->filterer->filter($criteria, $limit, $offset);
-        }
+        $results = $this->search->query(
+            Discussion::class,
+            new SearchCriteria($actor, $filters, $limit, $offset, $sort, $sortIsDefault)
+        );
 
         $this->addPaginationData(
             $document,

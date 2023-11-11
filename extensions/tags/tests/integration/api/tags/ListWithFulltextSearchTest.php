@@ -49,9 +49,9 @@ class ListWithFulltextSearchTest extends TestCase
             ])
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($contents = $response->getBody()->getContents(), true)['data'] ?? [];
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $contents);
         $this->assertEquals($expected, Arr::pluck($data, 'id'));
     }
 
