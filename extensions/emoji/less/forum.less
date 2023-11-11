@@ -7,29 +7,28 @@ img.emoji {
 .EmojiDropdown {
   max-width: 500px;
   max-height: 200px;
-  overflow: auto;
+  overflow: visible;
   position: absolute;
-  margin: 5px 0 !important;
+  padding: 8px;
 
-  > li > button {
-    color: var(--text-color);
-    font-weight: bold;
-    padding-top: 6px;
-    padding-bottom: 6px;
-    padding-left: 45px;
+  > li {
+    display: inline-block;
 
-    .emoji {
-      float: left;
-      margin-left: -30px;
+    > button {
+      color: var(--text-color);
+      font-weight: bold;
+      padding: 8px;
+      border-radius: var(--border-radius);
     }
   }
 
-  .Dropdown-header {
+  > .Dropdown-header {
+    display: block;
     color: var(--muted-more-color);
     text-transform: none;
     font-weight: normal;
-    padding-bottom: 5px;
-    font-size: 11px;
+    padding: 4px 8px;
+    margin: 0 0 4px 0;
   }
 }
 

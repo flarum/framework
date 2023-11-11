@@ -1,6 +1,7 @@
 import { extend } from 'flarum/common/extend';
 import TextEditorButton from 'flarum/common/components/TextEditorButton';
 import KeyboardNavigatable from 'flarum/common/utils/KeyboardNavigatable';
+import Tooltip from 'flarum/common/components/Tooltip';
 
 import AutocompleteDropdown from './fragments/AutocompleteDropdown';
 import getEmojiIconCode from './helpers/getEmojiIconCode';
@@ -11,6 +12,13 @@ export default function addComposerAutocomplete() {
 
   extend('flarum/common/components/TextEditor', 'oninit', function () {
     this._loaders.push(async () => await import('./emojiMap').then((m) => (emojiMap = m.default)));
+    // prettier-ignore
+    this.commonEmoji = [
+      '😀', '😁', '😂', '😃', '😄', '😅', '😆', '😇', '😈', '😉', '😊', '😋', '😌', '😍', '😎', '😏', '😐️', '😑', '😒',
+      '😓', '😔', '😕', '😖', '😗', '😘', '😙', '😚', '😛', '😜', '😝', '😞', '😟', '😠', '😡', '😢', '😣', '😤', '😥',
+      '😦', '😧', '😨', '😩', '😪', '😫', '😬', '😭', '😮', '😮‍💨', '😯', '😰', '😱', '😲', '😳', '😴', '😵', '😵‍💫',
+      '😶', '😶‍🌫️', '😷', '😸', '😹', '😺', '😻', '😼', '😽', '😾', '😿', '🙀', '🙁', '🙂', '🙃', '🙄',
+    ];
   });
 
   extend('flarum/common/components/TextEditor', 'onbuild', function () {
@@ -75,16 +83,17 @@ export default function addComposerAutocomplete() {
 
         const makeSuggestion = function ({ emoji, name, code }) {
           return (
-            <button
-              key={emoji}
-              onclick={() => applySuggestion(emoji)}
-              onmouseenter={function () {
-                this.emojiDropdown.setIndex($(this).parent().index() - 1);
-              }}
-            >
-              <img alt={emoji} className="emoji" draggable="false" loading="lazy" src={`${cdn}72x72/${code}.png`} />
-              {name}
-            </button>
+            <Tooltip text={name}>
+              <button
+                key={emoji}
+                onclick={() => applySuggestion(emoji)}
+                onmouseenter={function () {
+                  this.emojiDropdown.setIndex($(this).parent().index() - 1);
+                }}
+              >
+                <img alt={emoji} className="emoji" draggable="false" loading="lazy" src={`${cdn}72x72/${code}.png`} title={name} />
+              </button>
+            </Tooltip>
           );
         };
 
@@ -98,7 +107,7 @@ export default function addComposerAutocomplete() {
           };
           const regTyped = fuzzyRegexp(typed);
 
-          let maxSuggestions = 7;
+          let maxSuggestions = 40;
 
           const findMatchingEmojis = (matcher) => {
             for (let i = 0; i < emojiKeys.length && maxSuggestions > 0; i++) {
@@ -107,7 +116,7 @@ export default function addComposerAutocomplete() {
               if (similarEmoji.indexOf(curEmoji) === -1) {
                 const names = emojiMap[curEmoji];
                 for (let name of names) {
-                  if (matcher(name)) {
+                  if (matcher(name, curEmoji)) {
                     --maxSuggestions;
                     similarEmoji.push(curEmoji);
                     break;
@@ -118,10 +127,17 @@ export default function addComposerAutocomplete() {
           };
 
           // First, try to find all emojis starting with the given string
-          findMatchingEmojis((emoji) => emoji.indexOf(typed) === 0);
+          findMatchingEmojis((emojiName, emoji) => {
+            // If no input is provided yet, match the most common emojis.
+            if (!typed) {
+              return this.commonEmoji?.includes(emoji);
+            }
+
+            return emojiName.indexOf(typed) === 0;
+          });
 
           // If there are still suggestions left, try for some fuzzy matches
-          findMatchingEmojis((emoji) => regTyped.test(emoji));
+          findMatchingEmojis((emojiName) => regTyped.test(emojiName));
 
           const suggestions = similarEmoji
             .map((emoji) => ({
