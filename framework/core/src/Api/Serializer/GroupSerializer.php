@@ -29,7 +29,7 @@ class GroupSerializer extends AbstractSerializer
     {
         if (! ($model instanceof Group)) {
             throw new InvalidArgumentException(
-                get_class($this).' can only serialize instances of '.Group::class
+                $this::class.' can only serialize instances of '.Group::class
             );
         }
 

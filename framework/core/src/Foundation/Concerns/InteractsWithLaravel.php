@@ -184,7 +184,7 @@ trait InteractsWithLaravel
 
     public function getProviders($provider): array
     {
-        $name = is_string($provider) ? $provider : get_class($provider);
+        $name = is_string($provider) ? $provider : $provider::class;
 
         return Arr::where($this->serviceProviders, fn ($value) => $value instanceof $name);
     }

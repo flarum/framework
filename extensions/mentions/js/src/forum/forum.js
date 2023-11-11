@@ -5,7 +5,6 @@ import './components/UserMentionedNotification';
 import './fragments/AutocompleteDropdown';
 import './fragments/PostQuoteButton';
 import './utils/getCleanDisplayName';
-import './utils/getMentionText';
 import './utils/reply';
 import './utils/selectedText';
 import './utils/textFormatter';

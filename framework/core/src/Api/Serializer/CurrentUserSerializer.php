@@ -18,7 +18,7 @@ class CurrentUserSerializer extends UserSerializer
     {
         if (! ($model instanceof User)) {
             throw new InvalidArgumentException(
-                get_class($this).' can only serialize instances of '.User::class
+                $this::class.' can only serialize instances of '.User::class
             );
         }
 

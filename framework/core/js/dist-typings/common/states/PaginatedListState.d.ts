@@ -18,14 +18,20 @@ export interface PaginatedListRequestParams extends Omit<ApiQueryParamsPlural, '
     include?: string | string[];
 }
 export default abstract class PaginatedListState<T extends Model, P extends PaginatedListParams = PaginatedListParams> {
+    /**
+     * This value should not be relied upon when preloading an API document.
+     * In those cases the pageSize should be taken from the meta information of the preloaded
+     * document. Checkout `DiscussionListState.loadPage` for an example.
+     */
+    static DEFAULT_PAGE_SIZE: number;
     protected location: PaginationLocation;
-    protected pageSize: number;
+    protected pageSize: number | null;
     protected pages: Page<T>[];
     protected params: P;
     protected initialLoading: boolean;
     protected loadingPrev: boolean;
     protected loadingNext: boolean;
-    protected constructor(params?: P, page?: number, pageSize?: number);
+    protected constructor(params?: P, page?: number, pageSize?: number | null);
     abstract get type(): string;
     clear(): void;
     loadPrev(): Promise<void>;

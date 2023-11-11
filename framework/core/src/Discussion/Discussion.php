@@ -36,7 +36,6 @@ use Illuminate\Support\Str;
  * @property string $slug
  * @property int $comment_count
  * @property int $participant_count
- * @property int $post_number_index !!DEPRECATED!!
  * @property \Carbon\Carbon $created_at
  * @property int|null $user_id
  * @property int|null $first_post_id

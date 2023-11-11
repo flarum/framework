@@ -23,7 +23,6 @@ use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Locale\LocaleManager;
-use Flarum\Settings\Event\Saved;
 use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -132,12 +131,13 @@ class Frontend implements ExtenderInterface
      * - \Psr\Http\Message\ServerRequestInterface $request
      *
      * The callable should return void.
+     * @param int $priority: The priority of the content. Higher priorities are executed first.
      *
      * @return self
      */
-    public function content(callable|string|null $callback): self
+    public function content(callable|string|null $callback, int $priority = 0): self
     {
-        $this->content[] = $callback;
+        $this->content[] = compact('callback', 'priority');
 
         return $this;
     }
@@ -252,17 +252,6 @@ class Frontend implements ExtenderInterface
                     $recompile->flush();
                 }
             );
-
-            $events->listen(
-                Saved::class,
-                function (Saved $event) use ($container, $abstract) {
-                    $recompile = new RecompileFrontendAssets(
-                        $container->make($abstract),
-                        $container->make(LocaleManager::class)
-                    );
-                    $recompile->whenSettingsSaved($event);
-                }
-            );
         }
     }
 
@@ -303,7 +292,7 @@ class Frontend implements ExtenderInterface
             "flarum.frontend.$this->frontend",
             function (ActualFrontend $frontend, Container $container) {
                 foreach ($this->content as $content) {
-                    $frontend->content(ContainerUtil::wrapCallback($content, $container));
+                    $frontend->content(ContainerUtil::wrapCallback($content['callback'], $container), $content['priority']);
                 }
             }
         );
@@ -323,7 +312,7 @@ class Frontend implements ExtenderInterface
                         $preloads = is_callable($preloadArr) ? ContainerUtil::wrapCallback($preloadArr, $container)($document) : $preloadArr;
                         $document->preloads = array_merge($document->preloads, $preloads);
                     }
-                });
+                }, 110);
             }
         );
     }

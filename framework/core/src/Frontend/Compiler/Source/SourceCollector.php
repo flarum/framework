@@ -77,7 +77,7 @@ class SourceCollector
         if (! empty($this->allowedSourceTypes) && ! $isInstanceOfOneOfTheAllowedSourceTypes) {
             throw new \InvalidArgumentException(sprintf(
                 'Source type %s is not allowed for this collector. Allowed types are: %s',
-                get_class($source),
+                $source::class,
                 implode(', ', $this->allowedSourceTypes)
             ));
         }

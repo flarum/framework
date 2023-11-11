@@ -1,9 +1,9 @@
 /// <reference path="../../@types/translator-icu-rich.d.ts" />
-import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
 import type Mithril from 'mithril';
-export interface ISignupModalAttrs extends IInternalModalAttrs {
+export interface ISignupModalAttrs extends IFormModalAttrs {
     username?: string;
     email?: string;
     password?: string;
@@ -18,7 +18,7 @@ export declare type SignupBody = {
 } | {
     password: string;
 });
-export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignupModalAttrs> extends Modal<CustomAttrs> {
+export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignupModalAttrs> extends FormModal<CustomAttrs> {
     /**
      * The value of the username input.
      */

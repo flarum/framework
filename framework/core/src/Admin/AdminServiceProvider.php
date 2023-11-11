@@ -26,7 +26,6 @@ use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\LocaleManager;
-use Flarum\Settings\Event\Saved;
 use Illuminate\Contracts\Container\Container;
 use Laminas\Stratigility\MiddlewarePipe;
 
@@ -109,7 +108,7 @@ class AdminServiceProvider extends AbstractServiceProvider
             /** @var \Flarum\Frontend\Frontend $frontend */
             $frontend = $container->make('flarum.frontend.factory')('admin');
 
-            $frontend->content($container->make(Content\AdminPayload::class));
+            $frontend->content($container->make(Content\AdminPayload::class), 100);
 
             return $frontend;
         });
@@ -129,17 +128,6 @@ class AdminServiceProvider extends AbstractServiceProvider
                     $this->container->make(LocaleManager::class)
                 );
                 $recompile->flush();
-            }
-        );
-
-        $events->listen(
-            Saved::class,
-            function (Saved $event) {
-                $recompile = new RecompileFrontendAssets(
-                    $this->container->make('flarum.assets.admin'),
-                    $this->container->make(LocaleManager::class)
-                );
-                $recompile->whenSettingsSaved($event);
             }
         );
     }

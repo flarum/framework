@@ -338,7 +338,10 @@ export default class Composer extends Component {
         items.add(
           'minimize',
           <ComposerButton
-            icon="fas fa-minus minimize"
+            icon={classList('fas minimize', {
+              'fa-minus': app.screen() !== 'phone',
+              'fa-times': app.screen() === 'phone',
+            })}
             title={app.translator.trans('core.forum.composer.minimize_tooltip')}
             onclick={this.state.minimize.bind(this.state)}
             itemClassName="App-backControl"

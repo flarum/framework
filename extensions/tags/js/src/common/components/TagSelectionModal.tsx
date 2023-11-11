@@ -5,7 +5,7 @@ import extractText from 'flarum/common/utils/extractText';
 import highlight from 'flarum/common/helpers/highlight';
 import KeyboardNavigatable from 'flarum/common/utils/KeyboardNavigatable';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
-import Modal from 'flarum/common/components/Modal';
+import FormModal from 'flarum/common/components/FormModal';
 import Stream from 'flarum/common/utils/Stream';
 
 import sortTags from '../utils/sortTags';
@@ -14,7 +14,7 @@ import tagIcon from '../helpers/tagIcon';
 import ToggleButton from '../../forum/components/ToggleButton';
 
 import type Tag from '../models/Tag';
-import type { IInternalModalAttrs } from 'flarum/common/components/Modal';
+import type { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import type Mithril from 'mithril';
 
 export interface ITagSelectionModalLimits {
@@ -34,7 +34,7 @@ export interface ITagSelectionModalLimits {
   };
 }
 
-export interface ITagSelectionModalAttrs extends IInternalModalAttrs {
+export interface ITagSelectionModalAttrs extends IFormModalAttrs {
   /** Custom modal className to use. */
   className?: string;
   /** Modal title, defaults to 'Choose Tags'. */
@@ -64,7 +64,7 @@ export type ITagSelectionModalState = undefined;
 export default class TagSelectionModal<
   CustomAttrs extends ITagSelectionModalAttrs = ITagSelectionModalAttrs,
   CustomState extends ITagSelectionModalState = ITagSelectionModalState
-> extends Modal<CustomAttrs, CustomState> {
+> extends FormModal<CustomAttrs, CustomState> {
   protected loading = true;
   protected tags!: Tag[];
   protected selected: Tag[] = [];
@@ -108,7 +108,7 @@ export default class TagSelectionModal<
       .onSelect(this.select.bind(this))
       .onRemove(() => this.selected.splice(this.selected.length - 1, 1));
 
-    app.tagList.load(['parent']).then((tags) => {
+    app.tagList.load(['parent']).then((tags: Tag[]) => {
       this.loading = false;
 
       if (this.attrs.selectableTags) {
@@ -194,7 +194,7 @@ export default class TagSelectionModal<
           {tags.map((tag) => (
             <li
               data-index={tag.id()}
-              className={classList({
+              className={classList('SelectTagListItem', {
                 pinned: tag.position() !== null,
                 child: !!tag.parent(),
                 colored: !!tag.color(),
@@ -205,7 +205,10 @@ export default class TagSelectionModal<
               onmouseover={() => (this.indexTag = tag)}
               onclick={this.toggleTag.bind(this, tag)}
             >
-              {tagIcon(tag)}
+              <i className="SelectTagListItem-icon">
+                {tagIcon(tag, { className: 'SelectTagListItem-tagIcon' })}
+                <i className="icon TagIcon fas fa-check SelectTagListItem-checkIcon"></i>
+              </i>
               <span className="SelectTagListItem-name">{highlight(tag.name(), filter)}</span>
               {tag.description() ? <span className="SelectTagListItem-description">{tag.description()}</span> : ''}
             </li>

@@ -54,15 +54,16 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.frontend.factory', function (Container $container) {
             return function (string $name) use ($container) {
+                /** @var Frontend $frontend */
                 $frontend = $container->make(Frontend::class);
 
                 $frontend->content(function (Document $document) use ($name) {
                     $document->layoutView = 'flarum::frontend.'.$name;
-                });
+                }, 200);
 
-                $frontend->content($container->make(Content\Assets::class)->forFrontend($name));
-                $frontend->content($container->make(Content\CorePayload::class));
-                $frontend->content($container->make(Content\Meta::class));
+                $frontend->content($container->make(Content\Assets::class)->forFrontend($name), 190);
+                $frontend->content($container->make(Content\CorePayload::class), 180);
+                $frontend->content($container->make(Content\Meta::class), 170);
 
                 $frontend->content(function (Document $document) use ($container) {
                     $default_preloads = $container->make('flarum.frontend.default_preloads');
@@ -90,7 +91,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                         $default_preloads,
                         $document->preloads,
                     );
-                });
+                }, 160);
 
                 return $frontend;
             };

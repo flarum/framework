@@ -24,7 +24,7 @@ class FlagSerializer extends AbstractSerializer
     {
         if (! ($model instanceof Flag)) {
             throw new InvalidArgumentException(
-                get_class($this).' can only serialize instances of '.Flag::class
+                $this::class.' can only serialize instances of '.Flag::class
             );
         }
 

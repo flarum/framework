@@ -1,16 +1,16 @@
 /// <reference path="../../@types/translator-icu-rich.d.ts" />
-import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
 import type Mithril from 'mithril';
 import RequestError from '../../common/utils/RequestError';
 import type { LoginParams } from '../../common/Session';
-export interface ILoginModalAttrs extends IInternalModalAttrs {
+export interface ILoginModalAttrs extends IFormModalAttrs {
     identification?: string;
     password?: string;
     remember?: boolean;
 }
-export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginModalAttrs> extends Modal<CustomAttrs> {
+export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginModalAttrs> extends FormModal<CustomAttrs> {
     /**
      * The value of the identification input.
      */

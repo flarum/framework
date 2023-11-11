@@ -60,11 +60,10 @@ class ListDiscussionsController extends AbstractListController
             new SearchCriteria($actor, $filters, $limit, $offset, $sort, $sortIsDefault)
         );
 
-        $document->addPaginationLinks(
+        $this->addPaginationData(
+            $document,
+            $request,
             $this->url->to('api')->route('discussions.index'),
-            $request->getQueryParams(),
-            $offset,
-            $limit,
             $results->areMoreResults() ? null : 0
         );
 

@@ -5,7 +5,7 @@ import CommentPost from 'flarum/forum/components/CommentPost';
 
 import reply from './utils/reply';
 
-export default function () {
+export default function addPostReplyAction() {
   extend(CommentPost.prototype, 'actionItems', function (items) {
     const post = this.attrs.post;
 

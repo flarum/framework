@@ -45,13 +45,6 @@ export type FlarumGenericRoute = RouteItem<any, any, any>;
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
   errorHandler?: (error: RequestError) => void;
   url: string;
-  // TODO: [Flarum 2.0] Remove deprecated option
-  /**
-   * Manipulate the response text before it is parsed into JSON.
-   *
-   * @deprecated Please use `modifyText` instead.
-   */
-  extract?: (responseText: string) => string;
   /**
    * Manipulate the response text before it is parsed into JSON.
    *
@@ -434,7 +427,7 @@ export default class Application {
   }
 
   protected transformRequestOptions<ResponseType>(flarumOptions: FlarumRequestOptions<ResponseType>): InternalFlarumRequestOptions<ResponseType> {
-    const { background, deserialize, extract, modifyText, ...tmpOptions } = { ...flarumOptions };
+    const { background, deserialize, modifyText, ...tmpOptions } = { ...flarumOptions };
 
     // Unless specified otherwise, requests should run asynchronously in the
     // background, so that they don't prevent redraws from occurring.
@@ -445,11 +438,6 @@ export default class Application {
     // error message to the user instead.
 
     const defaultDeserialize = (response: string) => response as ResponseType;
-
-    // When extracting the data from the response, we can check the server
-    // response code and show an error message to the user if something's gone
-    // awry.
-    const originalExtract = modifyText || extract;
 
     const options: InternalFlarumRequestOptions<ResponseType> = {
       background: background ?? defaultBackground,
@@ -474,11 +462,14 @@ export default class Application {
       options.method = 'POST';
     }
 
+    // When extracting the data from the response, we can check the server
+    // response code and show an error message to the user if something's gone
+    // awry.
     options.extract = (xhr: XMLHttpRequest) => {
       let responseText;
 
-      if (originalExtract) {
-        responseText = originalExtract(xhr.responseText);
+      if (modifyText) {
+        responseText = modifyText(xhr.responseText);
       } else {
         responseText = xhr.responseText;
       }

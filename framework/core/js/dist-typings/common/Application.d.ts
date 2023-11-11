@@ -23,12 +23,6 @@ export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.Request
     /**
      * Manipulate the response text before it is parsed into JSON.
      *
-     * @deprecated Please use `modifyText` instead.
-     */
-    extract?: (responseText: string) => string;
-    /**
-     * Manipulate the response text before it is parsed into JSON.
-     *
      * This overrides any `extract` method provided.
      */
     modifyText?: (responseText: string) => string;

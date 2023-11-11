@@ -51,7 +51,7 @@ class SessionTest extends TestCase
 
         $driver = $this->app()->getContainer()->make('session')->driver('flarum-acme');
 
-        $this->assertEquals(NullSessionHandler::class, get_class($driver->getHandler()));
+        $this->assertEquals(NullSessionHandler::class, $driver->getHandler()::class);
     }
 
     /**
@@ -63,7 +63,7 @@ class SessionTest extends TestCase
 
         $driver = $this->app()->getContainer()->make('session')->driver('redis');
 
-        $this->assertEquals(NullSessionHandler::class, get_class($driver->getHandler()));
+        $this->assertEquals(NullSessionHandler::class, $driver->getHandler()::class);
     }
 
     /**
@@ -75,7 +75,7 @@ class SessionTest extends TestCase
 
         $handler = $this->app()->getContainer()->make('session.handler');
 
-        $this->assertEquals(FileSessionHandler::class, get_class($handler));
+        $this->assertEquals(FileSessionHandler::class, $handler::class);
     }
 
     /**
@@ -87,7 +87,7 @@ class SessionTest extends TestCase
 
         $handler = $this->app()->getContainer()->make('session.handler');
 
-        $this->assertEquals(FileSessionHandler::class, get_class($handler));
+        $this->assertEquals(FileSessionHandler::class, $handler::class);
     }
 
     /**
@@ -103,7 +103,7 @@ class SessionTest extends TestCase
 
         $handler = $this->app()->getContainer()->make('session.handler');
 
-        $this->assertEquals(NullSessionHandler::class, get_class($handler));
+        $this->assertEquals(NullSessionHandler::class, $handler::class);
     }
 }
 

@@ -115,7 +115,7 @@ class Application extends IlluminateContainer implements LaravelApplication
 
     public function getProvider(string|ServiceProvider $provider): ?ServiceProvider
     {
-        $name = is_string($provider) ? $provider : get_class($provider);
+        $name = is_string($provider) ? $provider : $provider::class;
 
         return Arr::first($this->serviceProviders, function ($key, $value) use ($name) {
             return $value instanceof $name;
@@ -134,7 +134,7 @@ class Application extends IlluminateContainer implements LaravelApplication
 
     protected function markAsRegistered(ServiceProvider $provider): void
     {
-        $this['events']->dispatch($class = get_class($provider), [$provider]);
+        $this['events']->dispatch($class = $provider::class, [$provider]);
 
         $this->serviceProviders[] = $provider;
 

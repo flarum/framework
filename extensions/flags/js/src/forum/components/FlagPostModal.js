@@ -1,5 +1,5 @@
 import app from 'flarum/forum/app';
-import Modal from 'flarum/common/components/Modal';
+import FormModal from 'flarum/common/components/FormModal';
 import Form from 'flarum/common/components/Form';
 import Button from 'flarum/common/components/Button';
 
@@ -7,7 +7,7 @@ import Stream from 'flarum/common/utils/Stream';
 import withAttr from 'flarum/common/utils/withAttr';
 import ItemList from 'flarum/common/utils/ItemList';
 
-export default class FlagPostModal extends Modal {
+export default class FlagPostModal extends FormModal {
   oninit(vnode) {
     super.oninit(vnode);
 

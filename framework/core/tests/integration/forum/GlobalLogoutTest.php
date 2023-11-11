@@ -59,19 +59,12 @@ class GlobalLogoutTest extends TestCase
      * @dataProvider canGloballyLogoutDataProvider
      * @test
      */
-    public function can_globally_log_out(int $authenticatedAs, string $identification, string $password)
+    public function can_globally_log_out(int $authenticatedAs)
     {
-        $loginResponse = $this->send(
-            $this->request('POST', '/login', [
-                'json' => compact('identification', 'password')
-            ])
-        );
-
         $response = $this->send(
-            $this->requestWithCookiesFrom(
-                $this->request('POST', '/global-logout'),
-                $loginResponse,
-            )
+            $this->request('POST', '/global-logout', [
+                'authenticatedAs' => $authenticatedAs,
+            ]),
         );
 
         $this->assertEquals(204, $response->getStatusCode());
@@ -85,10 +78,10 @@ class GlobalLogoutTest extends TestCase
     {
         return [
             // Admin
-            [1, 'admin', 'password'],
+            [1],
 
             // Normal user
-            [2, 'normal', 'too-obscure'],
+            [2],
         ];
     }
 }

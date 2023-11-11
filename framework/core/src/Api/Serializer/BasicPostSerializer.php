@@ -34,7 +34,7 @@ class BasicPostSerializer extends AbstractSerializer
     {
         if (! ($model instanceof Post)) {
             throw new InvalidArgumentException(
-                get_class($this).' can only serialize instances of '.Post::class
+                $this::class.' can only serialize instances of '.Post::class
             );
         }
 

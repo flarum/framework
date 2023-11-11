@@ -147,7 +147,7 @@ class Resolver
         $methodStack = array_reverse($methodStack);
 
         if (! $value->var instanceof New_) {
-            throw new \Exception('Unable to resolve extender for '.get_class($value->var));
+            throw new \Exception('Unable to resolve extender for '.$value->var::class);
         }
 
         return $this->resolveExtenderNew($value->var, $methodStack);
