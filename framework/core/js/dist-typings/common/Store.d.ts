@@ -1,5 +1,6 @@
 import { FlarumRequestOptions } from './Application';
 import Model, { ModelData, SavedModelData } from './Model';
+import GambitManager from './GambitManager';
 export interface MetaInformation {
     [key: string]: any;
 }
@@ -14,7 +15,7 @@ export interface ApiQueryParamsPlural {
     include?: string;
     filter?: {
         q: string;
-    } | Record<string, string>;
+    } | Record<string, any>;
     page?: {
         near?: number;
         offset?: number;
@@ -76,6 +77,11 @@ export default class Store {
     models: Record<string, {
         new (): Model;
     }>;
+    /**
+     * The gambit manager that will convert search query gambits
+     * into API filters.
+     */
+    gambits: GambitManager;
     constructor(models: Record<string, {
         new (): Model;
     }>);

@@ -10,6 +10,7 @@ export default class GlobalSearchState extends SearchState {
      * @inheritdoc
      */
     getInitialSearch(): string;
+    private searchToQuery;
     /**
      * Clear the search input and the current controller's active search.
      */
