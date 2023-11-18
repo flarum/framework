@@ -9,7 +9,6 @@ import extractText from '../../common/utils/extractText';
 import Input from '../../common/components/Input';
 import Button from '../../common/components/Button';
 import Stream from '../../common/utils/Stream';
-import Icon from '../../common/components/Icon';
 import InfoTile from '../../common/components/InfoTile';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 
@@ -19,6 +18,8 @@ export interface ISearchModalAttrs extends IFormModalAttrs {
 }
 
 export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearchModalAttrs> extends FormModal<CustomAttrs> {
+  public static LIMIT = 6;
+
   protected searchState!: SearchState;
 
   /**
@@ -67,9 +68,6 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     // that we have access to app.forum.
     if (!this.sources) this.sources = app.search.sources().toArray();
 
-    // Hide the search view if no sources were loaded
-    if (!this.sources.length) return <div></div>;
-
     // Initialize the active source.
     if (!this.activeSource) this.activeSource = Stream(this.sources[0]);
 
@@ -101,17 +99,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
       <div className="SearchModal-tabs">
         <div className="SearchModal-tabs-nav">
           {this.sources?.map((source) => (
-            <Button
-              className="Button Button--link"
-              active={this.activeSource() === source}
-              onclick={() => {
-                if (this.activeSource() !== source) {
-                  this.activeSource(source);
-                  this.search(this.searchState.getValue());
-                  this.$('input').focus();
-                }
-              }}
-            >
+            <Button className="Button Button--link" active={this.activeSource() === source} onclick={() => this.switchSource(source)}>
               {source.title()}
             </Button>
           ))}
@@ -169,6 +157,15 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     );
   }
 
+  switchSource(source: SearchSource) {
+    if (this.activeSource() !== source) {
+      this.activeSource(source);
+      this.search(this.searchState.getValue());
+      this.$('input').focus();
+      m.redraw();
+    }
+  }
+
   onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.onupdate(vnode);
 
@@ -204,6 +201,8 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     this.navigator
       .onUp(() => this.setIndex(this.getCurrentNumericIndex() - 1, true))
       .onDown(() => this.setIndex(this.getCurrentNumericIndex() + 1, true))
+      .onRight(() => this.switchSource(this.sources![(this.sources!.indexOf(this.activeSource()) + 1) % this.sources!.length]))
+      .onLeft(() => this.switchSource(this.sources![(this.sources!.indexOf(this.activeSource()) - 1 + this.sources!.length) % this.sources!.length]))
       .onSelect(this.selectResult.bind(this), true)
       .onCancel(this.clear.bind(this))
       .bindTo($input);
@@ -236,7 +235,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
 
         this.loadingSources.push(source.resource);
 
-        source.search(query).then(() => {
+        source.search(query, SearchModal.LIMIT).then(() => {
           this.loadingSources = this.loadingSources.filter((resource) => resource !== source.resource);
           m.redraw();
         });
@@ -320,7 +319,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
 
     this.index = parseInt($item.attr('data-index') as string) || fixedIndex;
 
-    if (scrollToItem) {
+    if (scrollToItem && $dropdown) {
       const dropdownScroll = $dropdown.scrollTop()!;
       const dropdownTop = $dropdown.offset()!.top;
       const dropdownBottom = dropdownTop + $dropdown.outerHeight()!;

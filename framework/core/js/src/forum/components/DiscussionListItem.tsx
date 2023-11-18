@@ -54,7 +54,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
 
   elementAttrs() {
     return {
-      className: classList('DiscussionListItem', {
+      className: classList('DiscussionListItem', this.attrs.className, {
         active: this.active(),
         'DiscussionListItem--hidden': this.attrs.discussion.isHidden(),
         Slidable: 'ontouchstart' in window,

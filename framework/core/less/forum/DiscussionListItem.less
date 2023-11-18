@@ -115,6 +115,47 @@
   }
 }
 
+.MinimalDiscussionListItem {
+  .DiscussionListItem-info .item-excerpt {
+    margin-right: 0;
+  }
+
+  .DiscussionListItem-badges {
+    position: relative;
+    padding: 0;
+    margin: 0;
+    inset: unset;
+    width: auto;
+    text-align: start;
+    padding-inline-start: 8px;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  .Badge {
+    --size: 18px;
+    box-shadow: none;
+    margin-left: -8px;
+  }
+
+  .DiscussionListItem-title {
+    display: flex;
+    column-gap: 8px;
+    align-items: center;
+    margin-bottom: 6px;
+    line-height: normal;
+    white-space: nowrap;
+
+    > div {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
 @media (any-hover: none) {
   .DiscussionListItem-controls > .Dropdown-toggle {
     display: none;

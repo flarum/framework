@@ -36,7 +36,7 @@ export interface SearchSource {
    * Make a request to get results for the given query.
    * The results will be updated internally in the search source, not exposed.
    */
-  search(query: string): Promise<void>;
+  search(query: string, limit: number): Promise<void>;
 
   /**
    * Get an array of virtual <li>s that list the search results for the given

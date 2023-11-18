@@ -26,11 +26,11 @@ export default class UsersSearchResults implements SearchSource {
     return this.results.has(query.toLowerCase());
   }
 
-  async search(query: string): Promise<void> {
+  async search(query: string, limit: number): Promise<void> {
     return app.store
       .find<User[]>('users', {
         filter: { q: query },
-        page: { limit: 5 },
+        page: { limit },
       })
       .then((results) => {
         this.results.set(query, results);

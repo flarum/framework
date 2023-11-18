@@ -2,11 +2,18 @@
   position: relative;
 }
 
-.DiscussionSearchResult-excerpt {
-  margin-top: 3px;
-  color: var(--muted-color);
-  font-size: 11px;
+.DiscussionSearchResult {
+  > .DiscussionListItem {
+    --discussion-list-item-bg-hover: var(--control-bg);
+    margin: 0 -16px;
+    border-radius: 0;
+  }
+
+  &.active > .DiscussionListItem {
+    background-color: var(--discussion-list-item-bg-hover);
+  }
 }
+
 .UserSearchResult .Avatar {
   .Avatar--size(24px);
   margin: -2px 10px -2px 0;
@@ -61,16 +68,6 @@
 
   &-input {
     height: 42px;
-  }
-
-  &-results {
-    mark {
-      background: none;
-      padding: 0;
-      font-weight: bold;
-      color: inherit;
-      box-shadow: none;
-    }
   }
 
   &-fullPage .LinkButton {

@@ -6,6 +6,7 @@ import type Mithril from 'mithril';
 import Discussion from '../../common/models/Discussion';
 import type { SearchSource } from '../../common/SearchManager';
 import extractText from '../utils/extractText';
+import MinimalDiscussionListItem from '../../forum/components/MinimalDiscussionListItem';
 
 /**
  * The `DiscussionsSearchSource` finds and displays discussion search results in
@@ -24,14 +25,14 @@ export default class DiscussionsSearchSource implements SearchSource {
     return this.results.has(query.toLowerCase());
   }
 
-  async search(query: string): Promise<void> {
+  async search(query: string, limit: number): Promise<void> {
     query = query.toLowerCase();
 
     this.results.set(query, []);
 
     const params = {
       filter: { q: query },
-      page: { limit: 3 },
+      page: { limit },
       include: 'mostRelevantPost',
     };
 
@@ -44,22 +45,13 @@ export default class DiscussionsSearchSource implements SearchSource {
   view(query: string): Array<Mithril.Vnode> {
     query = query.toLowerCase();
 
-    const results = (this.results.get(query) || []).map((discussion) => {
-      const mostRelevantPost = discussion.mostRelevantPost();
-
+    return (this.results.get(query) || []).map((discussion) => {
       return (
         <li className="DiscussionSearchResult" data-index={'discussions' + discussion.id()}>
-          <Link href={app.route.discussion(discussion, (mostRelevantPost && mostRelevantPost.number()) || 0)}>
-            <div className="DiscussionSearchResult-title">{highlight(discussion.title(), query)}</div>
-            {!!mostRelevantPost && (
-              <div className="DiscussionSearchResult-excerpt">{highlight(mostRelevantPost.contentPlain() ?? '', query, 100)}</div>
-            )}
-          </Link>
+          <MinimalDiscussionListItem discussion={discussion} params={{ q: query }} />
         </li>
       );
     }) as Array<Mithril.Vnode>;
-
-    return results;
   }
 
   fullPage(query: string): Mithril.Vnode {
