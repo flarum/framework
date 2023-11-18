@@ -20,7 +20,7 @@ export default function addTagFilter() {
       return this.currentActiveTag;
     }
 
-    const slug = this.search.params().tags;
+    const slug = this.search.state.params().tags;
     let tag = null;
 
     if (slug) {

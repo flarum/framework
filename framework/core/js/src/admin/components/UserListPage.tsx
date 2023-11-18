@@ -17,6 +17,7 @@ import AdminPage from './AdminPage';
 import { debounce } from '../../common/utils/throttleDebounce';
 import CreateUserModal from './CreateUserModal';
 import Icon from '../../common/components/Icon';
+import Input from '../../common/components/Input';
 
 type ColumnData = {
   /**
@@ -236,18 +237,17 @@ export default class UserListPage extends AdminPage {
 
     items.add(
       'search',
-      <div className="Search-input">
-        <input
-          className="FormControl SearchBar"
-          type="search"
-          placeholder={app.translator.trans('core.admin.users.search_placeholder')}
-          oninput={(e: InputEvent) => {
-            this.isLoadingPage = true;
-            this.query = (e?.target as HTMLInputElement)?.value;
-            this.throttledSearch();
-          }}
-        />
-      </div>,
+      <Input
+        type="search"
+        placeholder={app.translator.trans('core.admin.users.search_placeholder')}
+        clearable={true}
+        loading={this.isLoadingPage}
+        onchange={(value: string) => {
+          this.isLoadingPage = true;
+          this.query = value;
+          this.throttledSearch();
+        }}
+      />,
       100
     );
 

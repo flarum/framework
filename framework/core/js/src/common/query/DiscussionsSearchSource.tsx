@@ -2,9 +2,10 @@ import app from '../../forum/app';
 import highlight from '../../common/helpers/highlight';
 import LinkButton from '../../common/components/LinkButton';
 import Link from '../../common/components/Link';
-import { SearchSource } from './Search';
 import type Mithril from 'mithril';
 import Discussion from '../../common/models/Discussion';
+import type { SearchSource } from '../../common/SearchManager';
+import extractText from '../utils/extractText';
 
 /**
  * The `DiscussionsSearchSource` finds and displays discussion search results in
@@ -12,6 +13,16 @@ import Discussion from '../../common/models/Discussion';
  */
 export default class DiscussionsSearchSource implements SearchSource {
   protected results = new Map<string, Discussion[]>();
+
+  public resource: string = 'discussions';
+
+  title(): string {
+    return extractText(app.translator.trans('core.lib.search_source.discussions.heading'));
+  }
+
+  isCached(query: string): boolean {
+    return this.results.has(query.toLowerCase());
+  }
 
   async search(query: string): Promise<void> {
     query = query.toLowerCase();
@@ -48,19 +59,20 @@ export default class DiscussionsSearchSource implements SearchSource {
       );
     }) as Array<Mithril.Vnode>;
 
-    const filter = app.store.gambits.apply('discussions', { q: query });
-    const q = filter.q || null;
+    return results;
+  }
 
+  fullPage(query: string): Mithril.Vnode {
+    const filter = app.search.gambits.apply('discussions', { q: query });
+    const q = filter.q || null;
     delete filter.q;
 
-    return [
-      <li className="Dropdown-header">{app.translator.trans('core.forum.search.discussions_heading')}</li>,
+    return (
       <li>
         <LinkButton icon="fas fa-search" href={app.route('index', { q, filter })}>
-          {app.translator.trans('core.forum.search.all_discussions_button', { query })}
+          {app.translator.trans('core.lib.search_source.discussions.all_button', { query })}
         </LinkButton>
-      </li>,
-      ...results,
-    ];
+      </li>
+    );
   }
 }

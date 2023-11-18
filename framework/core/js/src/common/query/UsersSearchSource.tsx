@@ -4,9 +4,10 @@ import app from '../../forum/app';
 import highlight from '../../common/helpers/highlight';
 import username from '../../common/helpers/username';
 import Link from '../../common/components/Link';
-import { SearchSource } from './Search';
 import User from '../../common/models/User';
 import Avatar from '../../common/components/Avatar';
+import type { SearchSource } from '../SearchManager';
+import extractText from '../utils/extractText';
 
 /**
  * The `UsersSearchSource` finds and displays user search results in the search
@@ -14,6 +15,16 @@ import Avatar from '../../common/components/Avatar';
  */
 export default class UsersSearchResults implements SearchSource {
   protected results = new Map<string, User[]>();
+
+  public resource: string = 'users';
+
+  title(): string {
+    return extractText(app.translator.trans('core.lib.search_source.users.heading'));
+  }
+
+  isCached(query: string): boolean {
+    return this.results.has(query.toLowerCase());
+  }
 
   async search(query: string): Promise<void> {
     return app.store
@@ -41,20 +52,21 @@ export default class UsersSearchResults implements SearchSource {
 
     if (!results.length) return [];
 
-    return [
-      <li className="Dropdown-header">{app.translator.trans('core.forum.search.users_heading')}</li>,
-      ...results.map((user) => {
-        const name = username(user, (name: string) => highlight(name, query));
+    return results.map((user) => {
+      const name = username(user, (name: string) => highlight(name, query));
 
-        return (
-          <li className="UserSearchResult" data-index={'users' + user.id()}>
-            <Link href={app.route.user(user)}>
-              <Avatar user={user} />
-              {name}
-            </Link>
-          </li>
-        );
-      }),
-    ];
+      return (
+        <li className="UserSearchResult" data-index={'users' + user.id()}>
+          <Link href={app.route.user(user)}>
+            <Avatar user={user} />
+            {name}
+          </Link>
+        </li>
+      );
+    });
+  }
+
+  fullPage(query: string): null {
+    return null;
   }
 }

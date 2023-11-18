@@ -5,6 +5,7 @@ import './states/PaginatedListState';
 import './states/AlertManagerState';
 import './states/ModalManagerState';
 import './states/PageState';
+import './states/SearchState';
 
 import './utils/isObject';
 import './utils/mixin';
@@ -50,6 +51,7 @@ import './components/LoadingIndicator';
 import './components/Placeholder';
 import './components/Separator';
 import './components/Dropdown';
+import './components/InfoTile';
 import './components/DetailedDropdownItem';
 import './components/SplitDropdown';
 import './components/RequestErrorModal';
@@ -80,6 +82,9 @@ import './helpers/username';
 import './helpers/userOnline';
 import './helpers/listItems';
 import './helpers/textContrastClass';
+
+import './query/DiscussionsSearchSource';
+import './query/UsersSearchSource';
 
 import './resolvers/DefaultResolver';
 

@@ -1,6 +1,6 @@
 import app from '../../forum/app';
 import setRouteWithForcedRefresh from '../../common/utils/setRouteWithForcedRefresh';
-import SearchState from './SearchState';
+import SearchState from '../../common/states/SearchState';
 
 type SearchParams = Record<string, string>;
 
@@ -43,7 +43,7 @@ export default class GlobalSearchState extends SearchState {
     const q = this.params().q || '';
     const filter = this.params().filter || {};
 
-    return app.store.gambits.from('users', app.store.gambits.from('discussions', q, filter), filter).trim();
+    return app.search.gambits.from('users', app.search.gambits.from('discussions', q, filter), filter).trim();
   }
 
   /**

@@ -65,7 +65,7 @@ export default class IndexSidebar<CustomAttrs extends IndexSidebarAttrs = IndexS
    */
   navItems() {
     const items = new ItemList<Mithril.Children>();
-    const params = app.search.stickyParams();
+    const params = app.search.state.stickyParams();
 
     items.add(
       'allDiscussions',

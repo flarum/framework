@@ -37,6 +37,7 @@ import fireApplicationError from './helpers/fireApplicationError';
 import IHistory from './IHistory';
 import IExtender from './extenders/IExtender';
 import AccessToken from './models/AccessToken';
+import SearchManager from './SearchManager';
 
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 
@@ -183,6 +184,8 @@ export default class Application {
     groups: Group,
     notifications: Notification,
   });
+
+  search!: SearchManager;
 
   /**
    * A local cache that can be used to store data at the application level, so

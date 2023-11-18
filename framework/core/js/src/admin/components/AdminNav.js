@@ -6,6 +6,8 @@ import SelectDropdown from '../../common/components/SelectDropdown';
 import getCategorizedExtensions from '../utils/getCategorizedExtensions';
 import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
+import Input from '../../common/components/Input';
+import extractText from '../../common/utils/extractText';
 
 export default class AdminNav extends Component {
   oninit(vnode) {
@@ -122,14 +124,13 @@ export default class AdminNav extends Component {
 
     items.add(
       'search',
-      <div className="Search-input">
-        <input
-          className="FormControl SearchBar"
-          bidi={this.query}
-          type="search"
-          placeholder={app.translator.trans('core.admin.nav.search_placeholder')}
-        />
-      </div>,
+      <Input
+        type="search"
+        className="SearchBar"
+        stream={this.query}
+        clearable={true}
+        placeholder={extractText(app.translator.trans('core.admin.nav.search_placeholder'))}
+      />,
       0
     );
 

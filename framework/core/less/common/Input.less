@@ -1,0 +1,77 @@
+.Input {
+  position: relative;
+  overflow: hidden;
+  color: var(--muted-color);
+
+  &-prefix-icon {
+    margin-right: -36px;
+    width: 36px;
+    font-size: 14px;
+    text-align: center;
+    position: absolute;
+    line-height: 1.5;
+    pointer-events: none;
+  }
+
+  .FormControl {
+    transition: var(--transition), width 0.4s;
+    box-sizing: inherit !important;
+
+    &[readonly] {
+      opacity: 1;
+    }
+  }
+
+  &--withPrefix {
+    .FormControl {
+      padding-left: 32px;
+    }
+  }
+
+  &-clear {
+    // It looks very weird due to the padding given to the button..
+    &:focus {
+      outline: none;
+    }
+
+    // ...so we display the ring around the icon inside the button, with an offset
+    .add-keyboard-focus-ring-nearby("> *");
+    .add-keyboard-focus-ring-nearby-offset("> *", 4px);
+  }
+
+  &--withClear {
+    // TODO v2.0 check if this is supported by Firefox,
+    // if so, consider switching to it.
+    ::-webkit-search-cancel-button {
+      display: none;
+    }
+
+    .FormControl {
+      padding-right: 32px;
+    }
+  }
+
+  .LoadingIndicator-container {
+    height: 100%;
+  }
+
+  .Button, &-prefix-icon {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .Button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin-left: -36px;
+    width: 36px !important;
+
+    &.LoadingIndicator {
+      width: var(--size) !important;
+      padding: 0;
+    }
+  }
+}

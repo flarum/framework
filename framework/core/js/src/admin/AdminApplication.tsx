@@ -6,6 +6,8 @@ import Navigation from '../common/components/Navigation';
 import AdminNav from './components/AdminNav';
 import ExtensionData from './utils/ExtensionData';
 import IHistory from '../common/IHistory';
+import SearchManager from '../common/SearchManager';
+import SearchState from '../common/states/SearchState';
 
 export type Extension = {
   id: string;
@@ -65,6 +67,8 @@ export default class AdminApplication extends Application {
     },
     home: () => {},
   };
+
+  search: SearchManager<SearchState> = new SearchManager(new SearchState());
 
   /**
    * Settings are serialized to the admin dashboard as strings.
