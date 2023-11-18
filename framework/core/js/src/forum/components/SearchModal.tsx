@@ -122,14 +122,15 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
   }
 
   activeTab(): JSX.Element {
-    const shouldShowResults = this.searchState.getValue();
+    const loading = this.loadingSources.includes(this.activeSource().resource);
+    const shouldShowResults = !!this.searchState.getValue() && !loading;
     const shouldShowOptions = false;
     const fullPageLink = this.activeSource().fullPage(this.searchState.getValue());
     const results = this.activeSource()?.view(this.searchState.getValue());
 
     return (
       <div className="SearchModal-tabs-content">
-        {fullPageLink && (
+        {shouldShowResults && fullPageLink && (
           <div className="SearchModal-section">
             <hr className="Modal-divider" />
             <ul className="Dropdown-menu SearchModal-fullPage">{fullPageLink}</ul>
@@ -146,7 +147,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
           <hr className="Modal-divider" />
           <ul className="Dropdown-menu SearchModal-results" aria-live={shouldShowResults ? 'polite' : undefined}>
             <li className="Dropdown-header">{app.translator.trans('core.forum.search.preview_heading')}</li>
-            {!this.searchState.getValue() && (
+            {!shouldShowResults && (
               <li className="Dropdown-message">
                 <InfoTile icon="fas fa-search">{app.translator.trans('core.forum.search.no_search_text')}</InfoTile>
               </li>
@@ -157,7 +158,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
                 <InfoTile icon="far fa-surprise">{app.translator.trans('core.forum.search.no_results_text')}</InfoTile>
               </li>
             )}
-            {this.loadingSources.includes(this.activeSource().resource) && (
+            {loading && (
               <li className="Dropdown-message">
                 <LoadingIndicator />
               </li>
@@ -191,9 +192,9 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     // Highlight the item that is currently selected.
     this.setIndex(this.getCurrentNumericIndex());
 
-    this.$('.SearchModal-results')
+    this.$('.Dropdown-menu')
       // Whenever the mouse is hovered over a search result, highlight it.
-      .on('mouseenter', '> li:not(.Dropdown-header)', function () {
+      .on('mouseenter', '> li:not(.Dropdown-header):not(.Dropdown-message)', function () {
         component.setIndex(component.selectableItems().index(this));
       });
 
@@ -275,7 +276,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
    * Get all of the search result items that are selectable.
    */
   selectableItems(): JQuery {
-    return this.$('.SearchModal-results > li:not(.Dropdown-header):not(.Dropdown-message)');
+    return this.$('.Dropdown-menu > li:not(.Dropdown-header):not(.Dropdown-message)');
   }
 
   /**
