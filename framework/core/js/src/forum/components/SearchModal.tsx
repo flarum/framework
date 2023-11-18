@@ -4,17 +4,19 @@ import type { IFormModalAttrs } from '../../common/components/FormModal';
 import type Mithril from 'mithril';
 import type SearchState from '../../common/states/SearchState';
 import KeyboardNavigatable from '../../common/utils/KeyboardNavigatable';
-import SearchManager, { SearchSource } from '../../common/SearchManager';
+import SearchManager from '../../common/SearchManager';
 import extractText from '../../common/utils/extractText';
 import Input from '../../common/components/Input';
 import Button from '../../common/components/Button';
 import Stream from '../../common/utils/Stream';
 import InfoTile from '../../common/components/InfoTile';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
+import type { SearchSource } from './Search';
 
 export interface ISearchModalAttrs extends IFormModalAttrs {
   onchange: (value: string) => void;
   searchState: SearchState;
+  sources: SearchSource[];
 }
 
 export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearchModalAttrs> extends FormModal<CustomAttrs> {
@@ -25,7 +27,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
   /**
    * An array of SearchSources.
    */
-  protected sources?: SearchSource[];
+  protected sources!: SearchSource[];
 
   /**
    * The key of the currently-active search source.
@@ -53,6 +55,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     super.oninit(vnode);
 
     this.searchState = this.attrs.searchState;
+    this.sources = this.attrs.sources;
   }
 
   title(): Mithril.Children {
@@ -64,10 +67,6 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
   }
 
   content(): Mithril.Children {
-    // Initialize search sources in the view rather than the constructor so
-    // that we have access to app.forum.
-    if (!this.sources) this.sources = app.search.sources().toArray();
-
     // Initialize the active source.
     if (!this.activeSource) this.activeSource = Stream(this.sources[0]);
 
@@ -143,7 +142,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
             {shouldShowResults && results}
             {shouldShowResults && !results?.length && (
               <li className="Dropdown-message">
-                <InfoTile icon="far fa-surprise">{app.translator.trans('core.forum.search.no_results_text')}</InfoTile>
+                <InfoTile icon="far fa-tired">{app.translator.trans('core.forum.search.no_results_text')}</InfoTile>
               </li>
             )}
             {loading && (

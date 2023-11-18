@@ -163,7 +163,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
   badgesView(): Mithril.Children {
     const discussion = this.attrs.discussion;
 
-    return <ul className="DiscussionListItem-badges badges">{listItems(discussion.badges().toArray())}</ul>;
+    return <ul className="DiscussionListItem-badges badges badges--packed">{listItems(discussion.badges().toArray())}</ul>;
   }
 
   mainView(): Mithril.Children {

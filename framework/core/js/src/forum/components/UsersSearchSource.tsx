@@ -1,13 +1,14 @@
 import type Mithril from 'mithril';
 
-import app from '../../forum/app';
+import app from '../app';
 import highlight from '../../common/helpers/highlight';
 import username from '../../common/helpers/username';
 import Link from '../../common/components/Link';
 import User from '../../common/models/User';
 import Avatar from '../../common/components/Avatar';
-import type { SearchSource } from '../SearchManager';
-import extractText from '../utils/extractText';
+import type { SearchSource } from './Search';
+import extractText from '../../common/utils/extractText';
+import listItems from '../../common/helpers/listItems';
 
 /**
  * The `UsersSearchSource` finds and displays user search results in the search
@@ -59,7 +60,10 @@ export default class UsersSearchResults implements SearchSource {
         <li className="UserSearchResult" data-index={'users' + user.id()}>
           <Link href={app.route.user(user)}>
             <Avatar user={user} />
-            {name}
+            <div className="UserSearchResult-name">
+              {name}
+              <div className="badges badges--packed">{listItems(user.badges().toArray())}</div>
+            </div>
           </Link>
         </li>
       );

@@ -1,12 +1,10 @@
-import app from '../../forum/app';
-import highlight from '../../common/helpers/highlight';
+import app from '../app';
 import LinkButton from '../../common/components/LinkButton';
-import Link from '../../common/components/Link';
 import type Mithril from 'mithril';
 import Discussion from '../../common/models/Discussion';
-import type { SearchSource } from '../../common/SearchManager';
-import extractText from '../utils/extractText';
-import MinimalDiscussionListItem from '../../forum/components/MinimalDiscussionListItem';
+import type { SearchSource } from './Search';
+import extractText from '../../common/utils/extractText';
+import MinimalDiscussionListItem from './MinimalDiscussionListItem';
 
 /**
  * The `DiscussionsSearchSource` finds and displays discussion search results in

@@ -162,7 +162,7 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
           const active = (app.search.state.params().sort || Object.keys(sortMap)[0]) === value;
 
           return (
-            <Button icon={active ? 'fas fa-check' : true} onclick={app.search.state.changeSort.bind(app.search, value)} active={active}>
+            <Button icon={active ? 'fas fa-check' : true} onclick={() => app.search.state.changeSort(value)} active={active}>
               {label}
             </Button>
           );

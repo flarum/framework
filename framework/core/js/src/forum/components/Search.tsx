@@ -5,10 +5,57 @@ import Input from '../../common/components/Input';
 import SearchState from '../../common/states/SearchState';
 import SearchModal from './SearchModal';
 import type Mithril from 'mithril';
+import ItemList from '../../common/utils/ItemList';
+import DiscussionsSearchSource from './DiscussionsSearchSource';
+import UsersSearchSource from './UsersSearchSource';
 
 export interface SearchAttrs extends ComponentAttrs {
   /** The type of alert this is. Will be used to give the alert a class name of `Alert--{type}`. */
   state: SearchState;
+}
+
+/**
+ * The `SearchSource` interface defines a section of search results in the
+ * search dropdown.
+ *
+ * Search sources should be registered with the `Search` component class
+ * by extending the `sourceItems` method. When the user types a
+ * query, each search source will be prompted to load search results via the
+ * `search` method. When the dropdown is redrawn, it will be constructed by
+ * putting together the output from the `view` method of each source.
+ */
+export interface SearchSource {
+  /**
+   * The resource type that this search source is responsible for.
+   */
+  resource: string;
+
+  /**
+   * Get the title for this search source.
+   */
+  title(): string;
+
+  /**
+   * Check if a query has been cached for this search source.
+   */
+  isCached(query: string): boolean;
+
+  /**
+   * Make a request to get results for the given query.
+   * The results will be updated internally in the search source, not exposed.
+   */
+  search(query: string, limit: number): Promise<void>;
+
+  /**
+   * Get an array of virtual <li>s that list the search results for the given
+   * query.
+   */
+  view(query: string): Array<Mithril.Vnode>;
+
+  /**
+   * Get a list item for the full search results page.
+   */
+  fullPage(query: string): Mithril.Vnode | null;
 }
 
 /**
@@ -37,7 +84,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
 
   view() {
     // Hide the search view if no sources were loaded
-    if (app.search.sources().isEmpty()) return <div></div>;
+    if (this.sourceItems().isEmpty()) return <div></div>;
 
     const searchLabel = extractText(app.translator.trans('core.forum.header.search_placeholder'));
 
@@ -56,12 +103,28 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
           inputAttrs={{
             onfocus: () =>
               setTimeout(() => {
-                this.$('input').blur() && app.modal.show(SearchModal, { searchState: this.searchState });
+                this.$('input').blur() && app.modal.show(SearchModal, { searchState: this.searchState, sources: this.sourceItems().toArray() });
               }, 150),
           }}
-          // onchange={(value: string) => this.searchState.setValue(value)}
         />
       </div>
     );
+  }
+
+  /**
+   * A list of search sources that can be used to query for search results.
+   */
+  sourceItems(): ItemList<SearchSource> {
+    const items = new ItemList<SearchSource>();
+
+    if (app.forum.attribute('canViewForum')) {
+      items.add('discussions', new DiscussionsSearchSource());
+    }
+
+    if (app.forum.attribute('canSearchUsers')) {
+      items.add('users', new UsersSearchSource());
+    }
+
+    return items;
   }
 }

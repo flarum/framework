@@ -522,7 +522,7 @@ core:
     # These translations are used by the search modal.
     search:
       title: Search
-      no_results_text: No results found.
+      no_results_text: It looks like there are no results here.
       no_search_text: You have not searched for anything yet.
       options_heading: Search options
       placeholder: Search...

@@ -83,9 +83,6 @@ import './helpers/userOnline';
 import './helpers/listItems';
 import './helpers/textContrastClass';
 
-import './query/DiscussionsSearchSource';
-import './query/UsersSearchSource';
-
 import './resolvers/DefaultResolver';
 
 import './Component';

@@ -14,9 +14,23 @@
   }
 }
 
-.UserSearchResult .Avatar {
-  .Avatar--size(24px);
-  margin: -2px 10px -2px 0;
+.UserSearchResult {
+  margin: 0 -16px;
+
+  .badges {
+    margin-inline-start: 4px;
+  }
+  > a {
+    gap: 6px;
+    padding: 12px 15px;
+    border-radius: 0;
+  }
+  .Avatar {
+    --size: 36px;
+  }
+  .username {
+    font-size: 15px;
+  }
 }
 
 .SearchModal {
@@ -68,6 +82,22 @@
 
   &-input {
     height: 42px;
+  }
+
+  &-results {
+    mark {
+      background: none;
+      padding: 0;
+      font-weight: bold;
+      color: inherit;
+      box-shadow: none;
+    }
+
+    .Badge {
+      --packing-space: 8px;
+      --size: 18px;
+      box-shadow: none;
+    }
   }
 
   &-fullPage .LinkButton {

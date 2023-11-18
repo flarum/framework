@@ -38,7 +38,7 @@ export default class PostUser extends Component {
             {username(user)}
           </Link>
         </h3>
-        <ul className="PostUser-badges badges">{listItems(user.badges().toArray())}</ul>
+        <ul className="PostUser-badges badges badges--packed">{listItems(user.badges().toArray())}</ul>
       </div>
     );
   }
