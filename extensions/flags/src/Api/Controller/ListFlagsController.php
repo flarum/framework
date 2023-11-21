@@ -16,6 +16,7 @@ use Flarum\Flags\Flag;
 use Flarum\Http\RequestUtil;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
+use Flarum\Http\UrlGenerator;
 
 class ListFlagsController extends AbstractListController
 {
@@ -28,26 +29,56 @@ class ListFlagsController extends AbstractListController
         'post.discussion'
     ];
 
+    public function __construct(
+        protected UrlGenerator $url
+    ) {
+    }
+
     protected function data(ServerRequestInterface $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
-        $include = $this->extractInclude($request);
 
         $actor->assertRegistered();
 
         $actor->read_flags_at = Carbon::now();
         $actor->save();
 
-        $flags = Flag::whereVisibleTo($actor)
-            ->latest('flags.created_at')
-            ->groupBy('post_id')
-            ->get();
+        $limit = $this->extractLimit($request);
+        $offset = $this->extractOffset($request);
+        $include = $this->extractInclude($request);
 
         if (in_array('post.user', $include)) {
             $include[] = 'post.user.groups';
         }
 
-        $this->loadRelations($flags, $include);
+        $primaries = Flag::whereVisibleTo($actor)
+            ->groupBy('post_id')
+            ->orderBy('created_at', 'DESC')
+            ->skip($offset)
+            ->take($limit + 1);
+        
+        $flags = Flag::whereVisibleTo($actor)
+            ->joinSub($primaries, 'p', 'flags.id', '=', 'p.id')
+            ->latest()
+            ->get();
+        
+        $this->loadRelations($flags, $include, $request);
+
+        $flags = $flags->all();
+
+        $areMoreResults = false;
+
+        if (count($flags) > $limit) {
+            array_pop($flags);
+            $areMoreResults = true;
+        }
+
+        $this->addPaginationData(
+            $document,
+            $request,
+            $this->url->to('api')->route('flags.index'),
+            $areMoreResults ? null : 0
+        );
 
         return $flags;
     }
