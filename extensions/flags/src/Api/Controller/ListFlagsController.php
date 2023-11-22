@@ -51,16 +51,11 @@ class ListFlagsController extends AbstractListController
             $include[] = 'post.user.groups';
         }
 
-        $primaries = Flag::whereVisibleTo($actor)
-            ->groupBy('post_id')
-            ->orderBy('created_at', 'DESC')
-            ->skip($offset)
-            ->take($limit + 1);
-
         $flags = Flag::whereVisibleTo($actor)
-            ->select('flags.*')
-            ->joinSub($primaries, 'p', 'flags.id', '=', 'p.id')
-            ->latest()
+            ->latest('flags.created_at')
+            ->groupBy('post_id')
+            ->limit($limit + 1)
+            ->offset($offset)
             ->get();
 
         $this->loadRelations($flags, $include, $request);
