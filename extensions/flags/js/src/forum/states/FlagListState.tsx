@@ -1,6 +1,5 @@
 import type ForumApplication from 'flarum/forum/ForumApplication';
 import type Flag from '../models/Flag';
-import type Post from 'flarum/common/models/Post';
 import PaginatedListState from 'flarum/common/states/PaginatedListState';
 
 export default class FlagListState extends PaginatedListState<Flag> {

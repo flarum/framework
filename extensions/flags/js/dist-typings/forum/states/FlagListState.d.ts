@@ -6,6 +6,7 @@ export default class FlagListState extends PaginatedListState<Flag> {
     app: ForumApplication;
     
     constructor(app: ForumApplication);
+    get type(): string;
     /**
      * Load flags into the application's cache if they haven't already
      * been loaded.
