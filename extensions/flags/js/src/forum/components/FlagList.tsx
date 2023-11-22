@@ -8,6 +8,9 @@ import HeaderListItem from 'flarum/forum/components/HeaderListItem';
 import type Mithril from 'mithril';
 import type Post from 'flarum/common/models/Post';
 import type FlagListState from '../states/FlagListState';
+import type Flag from '../models/Flag';
+import { Page } from 'flarum/common/states/PaginatedListState';
+
 
 export interface IFlagListAttrs extends ComponentAttrs {
   state: FlagListState;
@@ -35,10 +38,10 @@ export default class FlagList<CustomAttrs extends IFlagListAttrs = IFlagListAttr
     );
   }
 
-  content(state) {
+  content(state: FlagListState) {
     if (!state.isLoading() && state.hasItems()) {
-      return state.getPages().map((page) => {
-        return page.items.map((flag) => {
+      return state.getPages().map((page: Page<Flag>) => {
+        return page.items.map((flag: Flag) => {
           const post = flag.post() as Post;
 
           return (
