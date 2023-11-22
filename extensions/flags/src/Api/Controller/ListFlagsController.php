@@ -58,6 +58,7 @@ class ListFlagsController extends AbstractListController
             ->take($limit + 1);
 
         $flags = Flag::whereVisibleTo($actor)
+            ->select('flags.*')
             ->joinSub($primaries, 'p', 'flags.id', '=', 'p.id')
             ->latest()
             ->get();
