@@ -5,9 +5,6 @@ import PaginatedListState from 'flarum/common/states/PaginatedListState';
 
 export default class FlagListState extends PaginatedListState<Flag> {
   public app: ForumApplication;
-  public loading = false;
-  public cache: Flag[] | null = null;
-  public index: Post | false | null = null;
 
   constructor(app: ForumApplication) {
     super({}, 1, null);
