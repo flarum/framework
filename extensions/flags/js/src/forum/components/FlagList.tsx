@@ -57,7 +57,6 @@ export default class FlagList<CustomAttrs extends IFlagListAttrs = IFlagListAttr
               datetime={flag.createdAt()}
               href={app.route.post(post)}
               onclick={(e: MouseEvent) => {
-                app.flags.index = post;
                 e.redraw = false;
               }}
             />
