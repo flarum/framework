@@ -14,9 +14,9 @@ use Flarum\Api\Controller\AbstractListController;
 use Flarum\Flags\Api\Serializer\FlagSerializer;
 use Flarum\Flags\Flag;
 use Flarum\Http\RequestUtil;
+use Flarum\Http\UrlGenerator;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
-use Flarum\Http\UrlGenerator;
 
 class ListFlagsController extends AbstractListController
 {
@@ -56,12 +56,12 @@ class ListFlagsController extends AbstractListController
             ->orderBy('created_at', 'DESC')
             ->skip($offset)
             ->take($limit + 1);
-        
+
         $flags = Flag::whereVisibleTo($actor)
             ->joinSub($primaries, 'p', 'flags.id', '=', 'p.id')
             ->latest()
             ->get();
-        
+
         $this->loadRelations($flags, $include, $request);
 
         $flags = $flags->all();

@@ -11,7 +11,6 @@ import type FlagListState from '../states/FlagListState';
 import type Flag from '../models/Flag';
 import { Page } from 'flarum/common/states/PaginatedListState';
 
-
 export interface IFlagListAttrs extends ComponentAttrs {
   state: FlagListState;
 }
