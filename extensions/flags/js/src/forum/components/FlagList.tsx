@@ -32,7 +32,7 @@ export default class FlagList<CustomAttrs extends IFlagListAttrs = IFlagListAttr
         emptyText={app.translator.trans('flarum-flags.forum.flagged_posts.empty_text')}
         loadMore={() => state.hasNext() && !state.isLoadingNext() && state.loadNext()}
       >
-        {this.content(state)}
+        <ul className="HeaderListGroup-content">{this.content(state)}</ul>
       </HeaderList>
     );
   }
@@ -44,22 +44,24 @@ export default class FlagList<CustomAttrs extends IFlagListAttrs = IFlagListAttr
           const post = flag.post() as Post;
 
           return (
-            <HeaderListItem
-              className="Flag"
-              avatar={<Avatar user={post.user() || null} />}
-              icon="fas fa-flag"
-              content={app.translator.trans('flarum-flags.forum.flagged_posts.item_text', {
-                username: username(post.user()),
-                em: <em />,
-                discussion: post.discussion().title(),
-              })}
-              excerpt={post.contentPlain()}
-              datetime={flag.createdAt()}
-              href={app.route.post(post)}
-              onclick={(e: MouseEvent) => {
-                e.redraw = false;
-              }}
-            />
+            <li>
+              <HeaderListItem
+                className="Flag"
+                avatar={<Avatar user={post.user() || null} />}
+                icon="fas fa-flag"
+                content={app.translator.trans('flarum-flags.forum.flagged_posts.item_text', {
+                  username: username(post.user()),
+                  em: <em />,
+                  discussion: post.discussion().title(),
+                })}
+                excerpt={post.contentPlain()}
+                datetime={flag.createdAt()}
+                href={app.route.post(post)}
+                onclick={(e: MouseEvent) => {
+                  e.redraw = false;
+                }}
+              />
+            </li>
           );
         });
       });
