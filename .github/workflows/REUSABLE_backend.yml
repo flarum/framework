@@ -91,6 +91,8 @@ jobs:
           # Include testing PHP 8.2 with deprecation warnings disabled.
           - php: 8.2
             php_ini_values: error_reporting=E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED
+          - php: 8.3
+            php_ini_values: error_reporting=E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED
 
         # To reduce number of actions, we exclude some PHP versions from running with some DB versions.
         exclude:
