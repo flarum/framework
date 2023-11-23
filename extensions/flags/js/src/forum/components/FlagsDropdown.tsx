@@ -25,7 +25,7 @@ export default class FlagsDropdown<CustomAttrs extends IFlagsDropdownAttrs = IFl
   }
 
   getUnreadCount() {
-    return app.flags.cache ? app.flags.cache.length : app.forum.attribute<number>('flagCount');
+    return app.forum.attribute<number>('flagCount');
   }
 
   getNewCount() {
