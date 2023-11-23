@@ -31,7 +31,7 @@ on:
         description: Versions of PHP to test with. Should be array of strings encoded as JSON array
         type: string
         required: false
-        default: '["8.1", "8.2"]'
+        default: '["8.1", "8.2", "8.3"]'
 
       php_extensions:
         description: PHP extensions to install.
