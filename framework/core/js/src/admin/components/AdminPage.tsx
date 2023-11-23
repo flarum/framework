@@ -88,14 +88,14 @@ const ImageUploadSettingType = 'image-upload' as const;
  * Valid options for the setting component builder to generate a Switch.
  */
 export interface SwitchSettingComponentOptions extends CommonSettingsItemOptions {
-  type: (typeof BooleanSettingTypes)[number];
+  type: typeof BooleanSettingTypes[number];
 }
 
 /**
  * Valid options for the setting component builder to generate a Select dropdown.
  */
 export interface SelectSettingComponentOptions extends CommonSettingsItemOptions {
-  type: (typeof SelectSettingTypes)[number];
+  type: typeof SelectSettingTypes[number];
   /**
    * Map of values to their labels
    */
@@ -107,7 +107,7 @@ export interface SelectSettingComponentOptions extends CommonSettingsItemOptions
  * Valid options for the setting component builder to generate a Textarea.
  */
 export interface TextareaSettingComponentOptions extends CommonSettingsItemOptions {
-  type: (typeof TextareaSettingTypes)[number];
+  type: typeof TextareaSettingTypes[number];
 }
 
 /**
