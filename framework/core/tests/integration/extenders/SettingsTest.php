@@ -180,6 +180,29 @@ class SettingsTest extends TestCase
     /**
      * @test
      */
+    public function forgetting_setting_returns_default_value()
+    {
+        $this->setting('custom-prefix.forget_this_setting', '');
+
+        $this->extend(
+            (new Extend\Settings())
+                ->default('custom-prefix.forget_this_setting', 'extenderDefault')
+                ->forget('custom-prefix.forget_this_setting', function (mixed $value): bool {
+                    return $value === '';
+                })
+        );
+
+        $value = $this->app()
+            ->getContainer()
+            ->make('flarum.settings')
+            ->get('custom-prefix.forget_this_setting');
+
+        $this->assertEquals('extenderDefault', $value);
+    }
+
+    /**
+     * @test
+     */
     public function custom_less_var_does_not_work_by_default()
     {
         $this->extend(

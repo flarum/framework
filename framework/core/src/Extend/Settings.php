@@ -22,6 +22,7 @@ class Settings implements ExtenderInterface
     private array $settings = [];
     private array $defaults = [];
     private array $lessConfigs = [];
+    private array $forget = [];
 
     /**
      * Serialize a setting value to the ForumSerializer attributes.
@@ -61,6 +62,18 @@ class Settings implements ExtenderInterface
     }
 
     /**
+     * Reset a setting to default when callback returns true.
+     * @param string $key: The key of the setting.
+     * @param (callable(mixed $value): bool)|bool $callback: Boolean to determine whether the setting needs deleted.
+     */
+    public function forget(string $key, callable|bool $callback): self
+    {
+        $this->forget[$key] = $callback;
+
+        return $this;
+    }
+
+    /**
      * Register a setting as a LESS configuration variable.
      *
      * @param string $configName: The name of the configuration variable, in hyphen case.
@@ -84,7 +97,7 @@ class Settings implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null): void
     {
-        if (! empty($this->defaults)) {
+        if (!empty($this->defaults)) {
             $container->extend('flarum.settings.default', function (Collection $defaults) {
                 foreach ($this->defaults as $key => $value) {
                     if ($defaults->has($key)) {
@@ -98,7 +111,21 @@ class Settings implements ExtenderInterface
             });
         }
 
-        if (! empty($this->settings)) {
+        if (!empty($this->forget)) {
+            $settings = $container->make(SettingsRepositoryInterface::class);
+
+            foreach ($this->forget as $key => $callback) {
+                $value = $settings->get($key);
+                $callback = ContainerUtil::wrapCallback($callback, $container);
+                $shouldForget = $callback($value);
+
+                if ($shouldForget) {
+                    $settings->delete($key);
+                }
+            }
+        }
+
+        if (!empty($this->settings)) {
             AbstractSerializer::addAttributeMutator(
                 ForumSerializer::class,
                 function () use ($container) {
@@ -121,7 +148,7 @@ class Settings implements ExtenderInterface
             );
         }
 
-        if (! empty($this->lessConfigs)) {
+        if (!empty($this->lessConfigs)) {
             $container->extend('flarum.less.config', function (array $existingConfig, Container $container) {
                 $config = $this->lessConfigs;
 
