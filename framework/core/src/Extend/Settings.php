@@ -97,7 +97,7 @@ class Settings implements ExtenderInterface
 
     public function extend(Container $container, Extension $extension = null): void
     {
-        if (!empty($this->defaults)) {
+        if (! empty($this->defaults)) {
             $container->extend('flarum.settings.default', function (Collection $defaults) {
                 foreach ($this->defaults as $key => $value) {
                     if ($defaults->has($key)) {
@@ -111,7 +111,7 @@ class Settings implements ExtenderInterface
             });
         }
 
-        if (!empty($this->forget)) {
+        if (! empty($this->forget)) {
             $settings = $container->make(SettingsRepositoryInterface::class);
 
             foreach ($this->forget as $key => $callback) {
@@ -125,7 +125,7 @@ class Settings implements ExtenderInterface
             }
         }
 
-        if (!empty($this->settings)) {
+        if (! empty($this->settings)) {
             AbstractSerializer::addAttributeMutator(
                 ForumSerializer::class,
                 function () use ($container) {
@@ -148,7 +148,7 @@ class Settings implements ExtenderInterface
             );
         }
 
-        if (!empty($this->lessConfigs)) {
+        if (! empty($this->lessConfigs)) {
             $container->extend('flarum.less.config', function (array $existingConfig, Container $container) {
                 $config = $this->lessConfigs;
 
