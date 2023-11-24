@@ -365,14 +365,19 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
 
     this.loadingSources = [];
 
-    const selectedUrl = this.getItem(this.index).find('a').attr('href');
-    if (this.searchState.getValue() && selectedUrl) {
-      m.route.set(selectedUrl);
-    } else {
-      this.clear();
-    }
+    const item = this.getItem(this.index);
+    const element = item.find('a').length ? item.find('a') : item.find('button');
 
-    this.$('input').blur();
+    if (element[0].tagName === 'A') {
+      const selectedUrl = this.getItem(this.index).find('a').attr('href');
+      if (this.searchState.getValue() && selectedUrl) {
+        m.route.set(selectedUrl);
+      } else {
+        this.clear();
+      }
+    } else if (element[0].tagName === 'BUTTON') {
+      element[0].click();
+    }
   }
 
   /**
