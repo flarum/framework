@@ -1,6 +1,9 @@
-import IGambit from '../IGambit';
+import app from '../../app';
+import IGambit, { GambitType } from '../IGambit';
 
-export default class GroupGambit implements IGambit {
+export default class GroupGambit implements IGambit<GambitType.KeyValue> {
+  type = GambitType.KeyValue;
+
   pattern(): string {
     return 'group:(.+)';
   }
@@ -19,5 +22,12 @@ export default class GroupGambit implements IGambit {
 
   fromFilter(value: string, negate: boolean): string {
     return `${negate ? '-' : ''}group:${value}`;
+  }
+
+  suggestion() {
+    return {
+      key: app.translator.trans('core.lib.gambits.users.group.key', {}, true),
+      hint: app.translator.trans('core.lib.gambits.users.group.hint', {}, true),
+    };
   }
 }

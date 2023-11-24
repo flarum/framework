@@ -30,15 +30,14 @@ export interface IInputAttrs extends ComponentAttrs {
 }
 
 export default class Input<CustomAttrs extends IInputAttrs = IInputAttrs> extends Component<CustomAttrs> {
-  protected value!: Stream<string>;
-
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
-    this.value = Stream(this.attrs.value || this.attrs.stream?.() || '');
   }
 
   view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
     const { className: inputClassName, ...inputAttrs } = this.attrs.inputAttrs || {};
+
+    const value = this.attrs.value || this.attrs.stream?.() || '';
 
     return (
       <div
@@ -51,7 +50,7 @@ export default class Input<CustomAttrs extends IInputAttrs = IInputAttrs> extend
         <input
           className={classList('FormControl', inputClassName)}
           type={this.attrs.type || 'text'}
-          value={this.value()}
+          value={value}
           oninput={(e: InputEvent) => this.onchange?.((e.target as HTMLInputElement).value)}
           aria-label={this.attrs.ariaLabel}
           placeholder={this.attrs.placeholder}
@@ -60,7 +59,7 @@ export default class Input<CustomAttrs extends IInputAttrs = IInputAttrs> extend
           {...inputAttrs}
         />
         {this.attrs.loading && <LoadingIndicator size="small" display="inline" containerClassName="Button Button--icon Button--link" />}
-        {this.attrs.clearable && this.value() && !this.attrs.loading && (
+        {this.attrs.clearable && value && !this.attrs.loading && (
           <Button
             className="Input-clear Button Button--icon Button--link"
             onclick={this.clear.bind(this)}
@@ -79,8 +78,6 @@ export default class Input<CustomAttrs extends IInputAttrs = IInputAttrs> extend
     } else {
       this.attrs.onchange?.(value);
     }
-
-    this.value(value);
   }
 
   clear() {

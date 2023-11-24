@@ -7,7 +7,7 @@ export default class Search implements IExtender {
   protected gambits: Record<string, Array<new () => IGambit>> = {};
 
   public gambit(modelType: string, gambit: new () => IGambit): this {
-    this.gambits[modelType] = this.gambits[modelType] || [];
+    this.gambits[modelType] ||= [];
     this.gambits[modelType].push(gambit);
 
     return this;
@@ -16,7 +16,7 @@ export default class Search implements IExtender {
   extend(app: Application, extension: IExtensionModule): void {
     for (const [modelType, gambits] of Object.entries(this.gambits)) {
       for (const gambit of gambits) {
-        app.search.gambits.gambits[modelType] = app.search.gambits.gambits[modelType] || [];
+        app.search.gambits.gambits[modelType] ||= [];
         app.search.gambits.gambits[modelType].push(gambit);
       }
     }

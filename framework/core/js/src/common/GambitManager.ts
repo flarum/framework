@@ -1,4 +1,4 @@
-import IGambit from './query/IGambit';
+import type IGambit from './query/IGambit';
 import AuthorGambit from './query/discussions/AuthorGambit';
 import CreatedGambit from './query/discussions/CreatedGambit';
 import HiddenGambit from './query/discussions/HiddenGambit';
@@ -19,15 +19,13 @@ export default class GambitManager {
   };
 
   public apply(type: string, filter: Record<string, any>): Record<string, any> {
-    const gambits = this.gambits[type] || [];
+    const gambits = this.for(type);
 
     if (gambits.length === 0) return filter;
 
     const bits: string[] = filter.q.split(' ');
 
-    for (const gambitClass of gambits) {
-      const gambit = new gambitClass();
-
+    for (const gambit of gambits) {
       for (const bit of bits) {
         const pattern = `^(-?)${gambit.pattern()}$`;
         let matches = bit.match(pattern);
@@ -50,13 +48,12 @@ export default class GambitManager {
   }
 
   public from(type: string, q: string, filter: Record<string, any>): string {
-    const gambits = this.gambits[type] || [];
+    const gambits = this.for(type);
 
     if (gambits.length === 0) return q;
 
     Object.keys(filter).forEach((key) => {
-      for (const gambitClass of gambits) {
-        const gambit = new gambitClass();
+      for (const gambit of gambits) {
         const negate = key[0] === '-';
 
         if (negate) key = key.substring(1);
@@ -68,5 +65,9 @@ export default class GambitManager {
     });
 
     return q;
+  }
+
+  for(type: string): Array<IGambit> {
+    return (this.gambits[type] || []).map((gambitClass) => new gambitClass());
   }
 }

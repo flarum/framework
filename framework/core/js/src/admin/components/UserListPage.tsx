@@ -242,6 +242,7 @@ export default class UserListPage extends AdminPage {
         placeholder={app.translator.trans('core.admin.users.search_placeholder')}
         clearable={true}
         loading={this.isLoadingPage}
+        value={this.query}
         onchange={(value: string) => {
           this.isLoadingPage = true;
           this.query = value;

@@ -1,6 +1,9 @@
-import IGambit from '../IGambit';
+import app from '../../app';
+import IGambit, { GambitType } from '../IGambit';
 
-export default class UnreadGambit implements IGambit {
+export default class UnreadGambit implements IGambit<GambitType.Grouped> {
+  type = GambitType.Grouped;
+
   pattern(): string {
     return 'is:unread';
   }
@@ -19,5 +22,12 @@ export default class UnreadGambit implements IGambit {
 
   fromFilter(value: string, negate: boolean): string {
     return `${negate ? '-' : ''}is:unread`;
+  }
+
+  suggestion() {
+    return {
+      group: 'is',
+      key: app.translator.trans('core.lib.gambits.discussions.unread.key', {}, true),
+    };
   }
 }

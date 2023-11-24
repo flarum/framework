@@ -1,6 +1,9 @@
-import IGambit from '../IGambit';
+import app from '../../app';
+import IGambit, { GambitType } from '../IGambit';
 
-export default class HiddenGambit implements IGambit {
+export default class HiddenGambit implements IGambit<GambitType.Grouped> {
+  type = GambitType.Grouped;
+
   public pattern(): string {
     return 'is:hidden';
   }
@@ -19,5 +22,12 @@ export default class HiddenGambit implements IGambit {
 
   fromFilter(value: string, negate: boolean): string {
     return `${negate ? '-' : ''}is:hidden`;
+  }
+
+  suggestion() {
+    return {
+      group: 'is',
+      key: app.translator.trans('core.lib.gambits.discussions.hidden.key', {}, true),
+    };
   }
 }

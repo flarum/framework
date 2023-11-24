@@ -1,6 +1,9 @@
-import IGambit from '../IGambit';
+import app from '../../app';
+import IGambit, { GambitType } from '../IGambit';
 
-export default class EmailGambit implements IGambit {
+export default class EmailGambit implements IGambit<GambitType.KeyValue> {
+  type = GambitType.KeyValue;
+
   pattern(): string {
     return 'email:(.+)';
   }
@@ -19,5 +22,12 @@ export default class EmailGambit implements IGambit {
 
   fromFilter(value: string, negate: boolean): string {
     return `${negate ? '-' : ''}email:${value}`;
+  }
+
+  suggestion() {
+    return {
+      key: app.translator.trans('core.lib.gambits.users.email.key', {}, true),
+      hint: app.translator.trans('core.lib.gambits.users.email.hint', {}, true),
+    };
   }
 }

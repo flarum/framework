@@ -1,6 +1,9 @@
-import IGambit from 'flarum/common/query/IGambit';
+import IGambit, { GambitType } from 'flarum/common/query/IGambit';
+import app from 'flarum/common/app';
 
-export default class StickyGambit implements IGambit {
+export default class StickyGambit implements IGambit<GambitType.Grouped> {
+  type = GambitType.Grouped;
+
   pattern(): string {
     return 'is:sticky';
   }
@@ -19,5 +22,12 @@ export default class StickyGambit implements IGambit {
 
   fromFilter(value: string, negate: boolean): string {
     return `${negate ? '-' : ''}is:sticky`;
+  }
+
+  suggestion() {
+    return {
+      group: 'is',
+      key: app.translator.trans('flarum-sticky.lib.gambits.discussions.sticky.key', {}, true),
+    };
   }
 }

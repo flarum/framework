@@ -1,6 +1,9 @@
-import IGambit from 'flarum/common/query/IGambit';
+import app from 'flarum/common/app';
+import IGambit, { GambitType } from 'flarum/common/query/IGambit';
 
-export default class TagGambit implements IGambit {
+export default class TagGambit implements IGambit<GambitType.KeyValue> {
+  type = GambitType.KeyValue;
+
   pattern(): string {
     return 'tag:(.+)';
   }
@@ -19,5 +22,12 @@ export default class TagGambit implements IGambit {
 
   fromFilter(value: string, negate: boolean): string {
     return `${negate ? '-' : ''}tag:${value}`;
+  }
+
+  suggestion() {
+    return {
+      key: app.translator.trans('flarum-tags.lib.gambits.discussions.tag.key', {}, true),
+      hint: app.translator.trans('flarum-tags.lib.gambits.discussions.tag.hint', {}, true),
+    };
   }
 }

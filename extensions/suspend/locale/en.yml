@@ -71,3 +71,12 @@ flarum-suspend:
           {forum_url}
       html:
         body: "You have been unsuspended. You can head back to [{forumTitle}]({forum_url}) when you are ready."
+
+  # Translations in this namespace are used by the forum and admin interfaces.
+  lib:
+
+    # These translations are used by gambits. Gambit keys must be in snake_case, no spaces.
+    gambits:
+      users:
+        suspended:
+          key: suspended

@@ -7,6 +7,7 @@ import './states/ModalManagerState';
 import './states/PageState';
 import './states/SearchState';
 
+import './utils/AutocompleteReader';
 import './utils/isObject';
 import './utils/mixin';
 import './utils/insertText';
@@ -82,6 +83,8 @@ import './helpers/username';
 import './helpers/userOnline';
 import './helpers/listItems';
 import './helpers/textContrastClass';
+
+import './query/IGambit';
 
 import './resolvers/DefaultResolver';
 

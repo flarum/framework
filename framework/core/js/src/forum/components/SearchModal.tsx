@@ -1,6 +1,6 @@
 import app from '../app';
-import FormModal from '../../common/components/FormModal';
 import type { IFormModalAttrs } from '../../common/components/FormModal';
+import FormModal from '../../common/components/FormModal';
 import type Mithril from 'mithril';
 import type SearchState from '../../common/states/SearchState';
 import KeyboardNavigatable from '../../common/utils/KeyboardNavigatable';
@@ -12,6 +12,8 @@ import Stream from '../../common/utils/Stream';
 import InfoTile from '../../common/components/InfoTile';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import type { SearchSource } from './Search';
+import IGambit, { GambitType, GroupedGambitSuggestion, KeyValueGambitSuggestion } from '../../common/query/IGambit';
+import AutocompleteReader from '../../common/utils/AutocompleteReader';
 
 export interface ISearchModalAttrs extends IFormModalAttrs {
   onchange: (value: string) => void;
@@ -76,6 +78,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
       <div className="Modal-body SearchModal-body">
         <div className="SearchModal-form">
           <Input
+            key="search"
             type="search"
             loading={!!this.loadingSources.length}
             clearable={true}
@@ -111,7 +114,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
   activeTab(): JSX.Element {
     const loading = this.loadingSources.includes(this.activeSource().resource);
     const shouldShowResults = !!this.searchState.getValue() && !loading;
-    const shouldShowOptions = false;
+    const gambits = this.gambits();
     const fullPageLink = this.activeSource().fullPage(this.searchState.getValue());
     const results = this.activeSource()?.view(this.searchState.getValue());
 
@@ -123,10 +126,12 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
             <ul className="Dropdown-menu SearchModal-fullPage">{fullPageLink}</ul>
           </div>
         )}
-        {shouldShowOptions && (
+        {!!gambits.length && (
           <div className="SearchModal-section">
-            <ul className="Dropdown-menu SearchModal-options" aria-live={shouldShowOptions ? 'polite' : undefined}>
+            <hr className="Modal-divider" />
+            <ul className="Dropdown-menu SearchModal-options" aria-live={gambits.length ? 'polite' : undefined}>
               <li className="Dropdown-header">{app.translator.trans('core.forum.search.options_heading')}</li>
+              {gambits}
             </ul>
           </div>
         )}
@@ -165,6 +170,115 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     }
   }
 
+  gambits(): JSX.Element[] {
+    const gambits = app.search.gambits.for(this.activeSource().resource);
+    const query = this.searchState.getValue();
+
+    // We group the boolean gambits together to produce an initial item of
+    // is:unread,sticky,locked, etc.
+    const groupedGambits: IGambit<GambitType.Grouped>[] = gambits.filter((gambit) => gambit.type === GambitType.Grouped);
+    const keyValueGambits: IGambit<GambitType.KeyValue>[] = gambits.filter((gambit) => gambit.type !== GambitType.Grouped);
+
+    const uniqueGroups: string[] = [];
+    for (const gambit of groupedGambits) {
+      if (uniqueGroups.includes(gambit.suggestion().group)) continue;
+      uniqueGroups.push(gambit.suggestion().group);
+    }
+
+    const instancePerGroup: IGambit<GambitType.Grouped>[] = [];
+    for (const group of uniqueGroups) {
+      instancePerGroup.push({
+        type: GambitType.Grouped,
+        suggestion: () => ({
+          group,
+          key: groupedGambits
+            .filter((gambit) => gambit.suggestion().group === group)
+            .map((gambit) => {
+              const key = gambit.suggestion().key;
+
+              return key instanceof Array ? key.join(', ') : key;
+            })
+            .join(', '),
+        }),
+        pattern: () => '',
+        filterKey: () => '',
+        toFilter: () => [],
+        fromFilter: () => '',
+      });
+    }
+
+    const autocompleteReader = new AutocompleteReader(null);
+
+    const $input = this.$('input') as JQuery<HTMLInputElement>;
+    const cursorPosition = $input.prop('selectionStart') || query.length;
+    const lastChunk = query.slice(0, cursorPosition);
+    const autocomplete = autocompleteReader.check(lastChunk, cursorPosition, /\S+$/);
+
+    const typed = autocomplete?.typed || '';
+
+    // if the query ends with 'is:' we will only list keys from that group.
+    if (typed.endsWith(':')) {
+      const groupName = typed.replace(/:$/, '') || null;
+      const groupQuery = typed.split(':').pop() || '';
+
+      if (groupName && uniqueGroups.includes(groupName)) {
+        return groupedGambits
+          .filter((gambit) => gambit.suggestion().group === groupName)
+          .flatMap((gambit): string[] =>
+            gambit.suggestion().key instanceof Array ? (gambit.suggestion().key as string[]) : [gambit.suggestion().key as string]
+          )
+          .filter((key) => !groupQuery || key.toLowerCase().startsWith(groupQuery))
+          .map((gambit) => this.gambitSuggestions(gambit, null, () => this.suggest(gambit, groupQuery, autocomplete!.relativeStart + typed.length)));
+      }
+    }
+
+    // This is all the gambit suggestions.
+    return [...instancePerGroup, ...keyValueGambits]
+      .filter(
+        (gambit) =>
+          !autocomplete ||
+          new RegExp(autocomplete.typed).test(
+            gambit.type === GambitType.Grouped ? (gambit.suggestion() as GroupedGambitSuggestion).group : (gambit.suggestion().key as string)
+          )
+      )
+      .map((gambit) => {
+        const suggestion = gambit.suggestion();
+        const key = gambit.type === GambitType.Grouped ? (suggestion as GroupedGambitSuggestion).group : (suggestion.key as string);
+        const hint =
+          gambit.type === GambitType.Grouped ? (suggestion as KeyValueGambitSuggestion).key : (suggestion as KeyValueGambitSuggestion).hint;
+
+        return this.gambitSuggestions(key, hint, () => this.suggest(key + ':', typed || '', autocomplete?.relativeStart ?? cursorPosition));
+      });
+  }
+
+  gambitSuggestions(key: string, value: string | null, suggest: () => void): JSX.Element {
+    return (
+      <li>
+        <button type="button" className="SearchModal-gambit" onclick={suggest}>
+          <span className="SearchModal-gambit-key">
+            {key}
+            {!!value && ':'}
+          </span>
+          {!!value && <span className="SearchModal-gambit-value">{value}</span>}
+        </button>
+      </li>
+    );
+  }
+
+  suggest(text: string, fromTyped: string, start: number) {
+    const $input = this.$('input') as JQuery<HTMLInputElement>;
+
+    const query = this.searchState.getValue();
+    const replaced = query.slice(0, start) + text + query.slice(start + fromTyped.length);
+
+    this.searchState.setValue(replaced);
+    $input[0].focus();
+    setTimeout(() => {
+      $input[0].setSelectionRange(start + text.length, start + text.length);
+      m.redraw();
+    }, 50);
+  }
+
   onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.onupdate(vnode);
 
@@ -200,8 +314,6 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     this.navigator
       .onUp(() => this.setIndex(this.getCurrentNumericIndex() - 1, true))
       .onDown(() => this.setIndex(this.getCurrentNumericIndex() + 1, true))
-      .onRight(() => this.switchSource(this.sources![(this.sources!.indexOf(this.activeSource()) + 1) % this.sources!.length]))
-      .onLeft(() => this.switchSource(this.sources![(this.sources!.indexOf(this.activeSource()) - 1 + this.sources!.length) % this.sources!.length]))
       .onSelect(this.selectResult.bind(this), true)
       .onCancel(this.clear.bind(this))
       .bindTo($input);
