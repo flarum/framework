@@ -100,6 +100,10 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
           readonly={true}
           placeholder={searchLabel}
           value={this.searchState.getValue()}
+          onchange={(value: string) => {
+            if (!value) this.searchState.clear();
+            else this.searchState.setValue(value);
+          }}
           inputAttrs={{
             onfocus: () =>
               setTimeout(() => {

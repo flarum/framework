@@ -31,7 +31,7 @@ export default class DiscussionsSearchSource implements SearchSource {
     const params = {
       filter: { q: query },
       page: { limit },
-      include: 'mostRelevantPost',
+      include: 'mostRelevantPost,user,firstPost',
     };
 
     return app.store.find<Discussion[]>('discussions', params).then((results) => {

@@ -277,6 +277,8 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
       $input[0].setSelectionRange(start + text.length, start + text.length);
       m.redraw();
     }, 50);
+
+    this.search(replaced);
   }
 
   onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
@@ -369,7 +371,8 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     const element = item.find('a').length ? item.find('a') : item.find('button');
 
     if (element[0].tagName === 'A') {
-      const selectedUrl = this.getItem(this.index).find('a').attr('href');
+      const selectedUrl = element.attr('href');
+
       if (this.searchState.getValue() && selectedUrl) {
         m.route.set(selectedUrl);
       } else {
