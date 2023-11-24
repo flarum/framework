@@ -214,7 +214,13 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     const lastChunk = query.slice(0, cursorPosition);
     const autocomplete = autocompleteReader.check(lastChunk, cursorPosition, /\S+$/);
 
-    const typed = autocomplete?.typed || '';
+    let typed = autocomplete?.typed || '';
+
+    // Negative gambits are a thing ;)
+    const negative = typed.startsWith('-');
+    if (negative) {
+      typed = typed.slice(1);
+    }
 
     // if the query ends with 'is:' we will only list keys from that group.
     if (typed.endsWith(':')) {
@@ -228,7 +234,9 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
             gambit.suggestion().key instanceof Array ? (gambit.suggestion().key as string[]) : [gambit.suggestion().key as string]
           )
           .filter((key) => !groupQuery || key.toLowerCase().startsWith(groupQuery))
-          .map((gambit) => this.gambitSuggestions(gambit, null, () => this.suggest(gambit, groupQuery, autocomplete!.relativeStart + typed.length)));
+          .map((gambit) =>
+            this.gambitSuggestions(gambit, null, () => this.suggest(gambit, groupQuery, autocomplete!.relativeStart + autocomplete!.typed.length))
+          );
       }
     }
 
@@ -237,7 +245,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
       .filter(
         (gambit) =>
           !autocomplete ||
-          new RegExp(autocomplete.typed).test(
+          new RegExp(typed).test(
             gambit.type === GambitType.Grouped ? (gambit.suggestion() as GroupedGambitSuggestion).group : (gambit.suggestion().key as string)
           )
       )
@@ -247,7 +255,9 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
         const hint =
           gambit.type === GambitType.Grouped ? (suggestion as KeyValueGambitSuggestion).key : (suggestion as KeyValueGambitSuggestion).hint;
 
-        return this.gambitSuggestions(key, hint, () => this.suggest(key + ':', typed || '', autocomplete?.relativeStart ?? cursorPosition));
+        return this.gambitSuggestions(key, hint, () =>
+          this.suggest(key + ':', typed || '', (autocomplete?.relativeStart ?? cursorPosition) + Number(negative))
+        );
       });
   }
 
@@ -321,16 +331,9 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
       .bindTo($input);
 
     // Handle input key events on the search input, triggering results to load.
-    $input
-      .on('input focus', function () {
-        search(this.value.toLowerCase());
-      })
-
-      .on('focus', function () {
-        $(this)
-          .one('mouseup', (e) => e.preventDefault())
-          .trigger('select');
-      });
+    $input.on('input focus', function () {
+      search(this.value.toLowerCase());
+    });
   }
 
   search(query: string) {
