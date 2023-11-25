@@ -82,20 +82,16 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
           'email',
           <div className="Form-group">
             <label>{app.translator.trans('core.lib.edit_user.email_heading')}</label>
-            <div>
-              <input
-                className="FormControl"
-                placeholder={extractText(app.translator.trans('core.lib.edit_user.email_label'))}
-                bidi={this.email}
-                disabled={this.nonAdminEditingAdmin()}
-              />
-            </div>
+            <input
+              className="FormControl"
+              placeholder={extractText(app.translator.trans('core.lib.edit_user.email_label'))}
+              bidi={this.email}
+              disabled={this.nonAdminEditingAdmin()}
+            />
             {!this.isEmailConfirmed() && this.userIsAdmin(app.session.user) && (
-              <div>
-                <Button className="Button Button--block" loading={this.loading} onclick={this.activate.bind(this)}>
-                  {app.translator.trans('core.lib.edit_user.activate_button')}
-                </Button>
-              </div>
+              <Button className="Button Button--block" loading={this.loading} onclick={this.activate.bind(this)}>
+                {app.translator.trans('core.lib.edit_user.activate_button')}
+              </Button>
             )}
           </div>,
           30
@@ -105,32 +101,30 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
           'password',
           <div className="Form-group">
             <label>{app.translator.trans('core.lib.edit_user.password_heading')}</label>
-            <div>
-              <label className="checkbox">
-                <input
-                  type="checkbox"
-                  onchange={(e: KeyboardEvent) => {
-                    const target = e.target as HTMLInputElement;
-                    this.setPassword(target.checked);
-                    m.redraw.sync();
-                    if (target.checked) this.$('[name=password]').select();
-                    e.redraw = false;
-                  }}
-                  disabled={this.nonAdminEditingAdmin()}
-                />
-                {app.translator.trans('core.lib.edit_user.set_password_label')}
-              </label>
-              {this.setPassword() && (
-                <input
-                  className="FormControl"
-                  type="password"
-                  name="password"
-                  placeholder={extractText(app.translator.trans('core.lib.edit_user.password_label'))}
-                  bidi={this.password}
-                  disabled={this.nonAdminEditingAdmin()}
-                />
-              )}
-            </div>
+            <label className="checkbox">
+              <input
+                type="checkbox"
+                onchange={(e: KeyboardEvent) => {
+                  const target = e.target as HTMLInputElement;
+                  this.setPassword(target.checked);
+                  m.redraw.sync();
+                  if (target.checked) this.$('[name=password]').select();
+                  e.redraw = false;
+                }}
+                disabled={this.nonAdminEditingAdmin()}
+              />
+              {app.translator.trans('core.lib.edit_user.set_password_label')}
+            </label>
+            {this.setPassword() && (
+              <input
+                className="FormControl"
+                type="password"
+                name="password"
+                placeholder={extractText(app.translator.trans('core.lib.edit_user.password_label'))}
+                bidi={this.password}
+                disabled={this.nonAdminEditingAdmin()}
+              />
+            )}
           </div>,
           20
         );
