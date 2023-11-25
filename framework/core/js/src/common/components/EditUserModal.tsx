@@ -101,20 +101,22 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
           'password',
           <div className="Form-group">
             <label>{app.translator.trans('core.lib.edit_user.password_heading')}</label>
-            <label className="checkbox">
-              <input
-                type="checkbox"
-                onchange={(e: KeyboardEvent) => {
-                  const target = e.target as HTMLInputElement;
-                  this.setPassword(target.checked);
-                  m.redraw.sync();
-                  if (target.checked) this.$('[name=password]').select();
-                  e.redraw = false;
-                }}
-                disabled={this.nonAdminEditingAdmin()}
-              />
-              {app.translator.trans('core.lib.edit_user.set_password_label')}
-            </label>
+            <div>
+              <label className="checkbox">
+                <input
+                  type="checkbox"
+                  onchange={(e: KeyboardEvent) => {
+                    const target = e.target as HTMLInputElement;
+                    this.setPassword(target.checked);
+                    m.redraw.sync();
+                    if (target.checked) this.$('[name=password]').select();
+                    e.redraw = false;
+                  }}
+                  disabled={this.nonAdminEditingAdmin()}
+                />
+                {app.translator.trans('core.lib.edit_user.set_password_label')}
+              </label>
+            </div>
             {this.setPassword() && (
               <input
                 className="FormControl"
