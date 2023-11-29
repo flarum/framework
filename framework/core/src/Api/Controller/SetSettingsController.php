@@ -13,13 +13,17 @@ use Flarum\Http\RequestUtil;
 use Flarum\Settings\Event;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
+use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Illuminate\Support\Arr;
 
 class SetSettingsController implements RequestHandlerInterface
 {
+    public static array $forget = [];
+
     public function __construct(
         protected SettingsRepositoryInterface $settings,
         protected Dispatcher $dispatcher
@@ -36,8 +40,18 @@ class SetSettingsController implements RequestHandlerInterface
 
         foreach ($settings as $k => $v) {
             $this->dispatcher->dispatch(new Event\Serializing($k, $v));
+            $forgetCallback = Arr::get(static::$forget, $k);
+            $shouldForget = false;
 
-            $this->settings->set($k, $v);
+            if (! is_null($forgetCallback)) {
+                $shouldForget = $forgetCallback($v);
+            }
+
+            if ($shouldForget) {
+                $this->settings->delete($k);
+            } else {
+                $this->settings->set($k, $v);
+            }
         }
 
         $this->dispatcher->dispatch(new Event\Saved($settings));

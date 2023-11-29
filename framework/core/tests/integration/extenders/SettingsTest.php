@@ -182,14 +182,21 @@ class SettingsTest extends TestCase
      */
     public function forgetting_setting_returns_default_value()
     {
-        $this->setting('custom-prefix.forget_this_setting', '');
-
         $this->extend(
             (new Extend\Settings())
                 ->default('custom-prefix.forget_this_setting', 'extenderDefault')
                 ->forget('custom-prefix.forget_this_setting', function (mixed $value): bool {
                     return $value === '';
                 })
+        );
+
+        $this->send(
+            $this->request('POST', '/api/settings', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'custom-prefix.forget_this_setting' => ''
+                ]
+            ])
         );
 
         $value = $this->app()

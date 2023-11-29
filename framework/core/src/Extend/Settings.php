@@ -9,6 +9,7 @@
 
 namespace Flarum\Extend;
 
+use Flarum\Api\Controller\SetSettingsController;
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extension\Extension;
@@ -16,6 +17,7 @@ use Flarum\Foundation\ContainerUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Arr;
 
 class Settings implements ExtenderInterface
 {
@@ -112,16 +114,12 @@ class Settings implements ExtenderInterface
         }
 
         if (! empty($this->forget)) {
-            $settings = $container->make(SettingsRepositoryInterface::class);
-
             foreach ($this->forget as $key => $callback) {
-                $value = $settings->get($key);
-                $callback = ContainerUtil::wrapCallback($callback, $container);
-                $shouldForget = $callback($value);
-
-                if ($shouldForget) {
-                    $settings->delete($key);
-                }
+                Arr::set(
+                    SetSettingsController::$forget,
+                    $key,
+                    ContainerUtil::wrapCallback($callback, $container)
+                );
             }
         }
 
