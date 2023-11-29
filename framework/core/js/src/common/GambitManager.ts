@@ -19,11 +19,19 @@ export default class GambitManager {
   };
 
   public apply(type: string, filter: Record<string, any>): Record<string, any> {
+    filter.q = this.match(type, filter.q, (gambit, matches, negate) => {
+      Object.assign(filter, gambit.toFilter(matches, negate));
+    });
+
+    return filter;
+  }
+
+  public match(type: string, query: string, onmatch: (gambit: IGambit, matches: string[], negate: boolean, bit: string) => void): string {
     const gambits = this.for(type);
 
-    if (gambits.length === 0) return filter;
+    if (gambits.length === 0) return query;
 
-    const bits: string[] = filter.q.split(' ');
+    const bits: string[] = query.split(' ');
 
     for (const gambit of gambits) {
       for (const bit of bits) {
@@ -35,16 +43,16 @@ export default class GambitManager {
 
           matches.splice(1, 1);
 
-          Object.assign(filter, gambit.toFilter(matches, negate));
+          onmatch(gambit, matches, negate, bit);
 
-          filter.q = filter.q.replace(bit, '');
+          query = query.replace(bit, '');
         }
       }
     }
 
-    filter.q = filter.q.trim().replace(/\s+/g, ' ');
+    query = query.trim().replace(/\s+/g, ' ');
 
-    return filter;
+    return query;
   }
 
   public from(type: string, q: string, filter: Record<string, any>): string {

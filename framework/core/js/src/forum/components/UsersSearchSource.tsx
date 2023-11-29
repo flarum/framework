@@ -4,7 +4,7 @@ import app from '../app';
 import highlight from '../../common/helpers/highlight';
 import username from '../../common/helpers/username';
 import Link from '../../common/components/Link';
-import User from '../../common/models/User';
+import type User from '../../common/models/User';
 import Avatar from '../../common/components/Avatar';
 import type { SearchSource } from './Search';
 import extractText from '../../common/utils/extractText';
@@ -57,7 +57,7 @@ export default class UsersSearchResults implements SearchSource {
       const name = username(user, (name: string) => highlight(name, query));
 
       return (
-        <li className="UserSearchResult" data-index={'users' + user.id()}>
+        <li className="UserSearchResult" data-index={'users' + user.id()} data-id={user.id()}>
           <Link href={app.route.user(user)}>
             <Avatar user={user} />
             <div className="UserSearchResult-name">
@@ -72,5 +72,13 @@ export default class UsersSearchResults implements SearchSource {
 
   fullPage(query: string): null {
     return null;
+  }
+
+  gotoItem(id: string): string | null {
+    const user = app.store.getById<User>('users', id);
+
+    if (!user) return null;
+
+    return app.route.user(user);
   }
 }

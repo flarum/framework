@@ -14,6 +14,7 @@ import LoadingIndicator from '../../common/components/LoadingIndicator';
 import type { SearchSource } from './Search';
 import IGambit, { GambitType, GroupedGambitSuggestion, KeyValueGambitSuggestion } from '../../common/query/IGambit';
 import AutocompleteReader from '../../common/utils/AutocompleteReader';
+import { electron } from 'webpack';
 
 export interface ISearchModalAttrs extends IFormModalAttrs {
   onchange: (value: string) => void;
@@ -53,6 +54,8 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
 
   protected searchTimeout?: number;
 
+  protected inputScroll = Stream(0);
+
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
@@ -87,8 +90,21 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
             aria-label={searchLabel}
             placeholder={searchLabel}
             value={this.searchState.getValue()}
-            onchange={(value: string) => this.searchState.setValue(value)}
+            onchange={(value: string) => {
+              this.searchState.setValue(value);
+              this.inputScroll(this.inputElement()[0]?.scrollLeft ?? 0);
+            }}
             inputAttrs={{ className: 'SearchModal-input' }}
+            renderInput={(attrs: any) => (
+              <>
+                <input {...attrs} onscroll={(e: Event) => this.inputScroll((e.target as HTMLInputElement).scrollLeft)} />
+                <div className="SearchModal-visual-wrapper">
+                  <div className="SearchModal-visual-input" style={{ left: '-' + this.inputScroll() + 'px' }}>
+                    {this.gambifyInput()}
+                  </div>
+                </div>
+              </>
+            )}
           />
         </div>
         {this.tabs()}
@@ -165,7 +181,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     if (this.activeSource() !== source) {
       this.activeSource(source);
       this.search(this.searchState.getValue());
-      this.$('input').focus();
+      this.inputElement().focus();
       m.redraw();
     }
   }
@@ -209,7 +225,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
 
     const autocompleteReader = new AutocompleteReader(null);
 
-    const $input = this.$('input') as JQuery<HTMLInputElement>;
+    const $input = this.$('SearchModal-input') as JQuery<HTMLInputElement>;
     const cursorPosition = $input.prop('selectionStart') || query.length;
     const lastChunk = query.slice(0, cursorPosition);
     const autocomplete = autocompleteReader.check(lastChunk, cursorPosition, /\S+$/);
@@ -276,7 +292,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
   }
 
   suggest(text: string, fromTyped: string, start: number) {
-    const $input = this.$('input') as JQuery<HTMLInputElement>;
+    const $input = this.inputElement() as JQuery<HTMLInputElement>;
 
     const query = this.searchState.getValue();
     const replaced = query.slice(0, start) + text + query.slice(start + fromTyped.length);
@@ -289,6 +305,30 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     }, 50);
 
     this.search(replaced);
+  }
+
+  /**
+   * Transforms a simple search text to wrap valid gambits in a mark tag.
+   * @example `lorem ipsum is:unread dolor` => `lorem ipsum <mark>is:unread</mark> dolor`
+   */
+  gambifyInput(): Mithril.Children {
+    const query = this.searchState.getValue();
+    let marked = query;
+
+    app.search.gambits.match(this.activeSource().resource, query, (gambit: IGambit, matches: string[], negate: boolean, bit: string) => {
+      marked = marked.replace(bit, `<mark>${bit}</mark>`);
+    });
+
+    const jsx: Mithril.ChildArray = [];
+    marked.split(/(<mark>.*?<\/mark>)/).forEach((chunk) => {
+      if (chunk.startsWith('<mark>')) {
+        jsx.push(<mark>{chunk.replace(/<\/?mark>/g, '')}</mark>);
+      } else {
+        jsx.push(chunk);
+      }
+    });
+
+    return jsx;
   }
 
   onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
@@ -320,7 +360,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
         component.setIndex(component.selectableItems().index(this));
       });
 
-    const $input = this.$('input') as JQuery<HTMLInputElement>;
+    const $input = this.inputElement() as JQuery<HTMLInputElement>;
 
     this.navigator = new KeyboardNavigatable();
     this.navigator
@@ -371,18 +411,17 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     this.loadingSources = [];
 
     const item = this.getItem(this.index);
-    const element = item.find('a').length ? item.find('a') : item.find('button');
+    const isButton = item.children()[0].tagName === 'BUTTON';
 
-    if (element[0].tagName === 'A') {
-      const selectedUrl = element.attr('href');
+    if (!isButton) {
+      const id = item.attr('data-id');
+      const selectedUrl = id && this.activeSource().gotoItem(id as string);
 
       if (this.searchState.getValue() && selectedUrl) {
         m.route.set(selectedUrl);
-      } else {
-        this.clear();
       }
-    } else if (element[0].tagName === 'BUTTON') {
-      element[0].click();
+    } else {
+      item.find('button')[0].click();
     }
   }
 
@@ -459,5 +498,9 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
         $dropdown.stop(true).animate({ scrollTop }, 100);
       }
     }
+  }
+
+  inputElement(): JQuery<HTMLElement> {
+    return this.$('.SearchModal-input');
   }
 }

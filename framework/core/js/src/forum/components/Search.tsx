@@ -56,6 +56,11 @@ export interface SearchSource {
    * Get a list item for the full search results page.
    */
   fullPage(query: string): Mithril.Vnode | null;
+
+  /**
+   * Get to the result item page. Only called if each list item has a data-id.
+   */
+  gotoItem(id: string): string | null;
 }
 
 /**

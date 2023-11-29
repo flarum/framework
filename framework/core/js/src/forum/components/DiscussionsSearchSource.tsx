@@ -1,7 +1,7 @@
 import app from '../app';
 import LinkButton from '../../common/components/LinkButton';
 import type Mithril from 'mithril';
-import Discussion from '../../common/models/Discussion';
+import type Discussion from '../../common/models/Discussion';
 import type { SearchSource } from './Search';
 import extractText from '../../common/utils/extractText';
 import MinimalDiscussionListItem from './MinimalDiscussionListItem';
@@ -45,7 +45,7 @@ export default class DiscussionsSearchSource implements SearchSource {
 
     return (this.results.get(query) || []).map((discussion) => {
       return (
-        <li className="DiscussionSearchResult" data-index={'discussions' + discussion.id()}>
+        <li className="DiscussionSearchResult" data-index={'discussions' + discussion.id()} data-id={discussion.id()}>
           <MinimalDiscussionListItem discussion={discussion} params={{ q: query }} />
         </li>
       );
@@ -64,5 +64,13 @@ export default class DiscussionsSearchSource implements SearchSource {
         </LinkButton>
       </li>
     );
+  }
+
+  gotoItem(id: string): string | null {
+    const discussion = app.store.getById<Discussion>('discussions', id);
+
+    if (!discussion) return null;
+
+    return app.route.discussion(discussion);
   }
 }

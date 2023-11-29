@@ -23,6 +23,7 @@ export interface IInputAttrs extends ComponentAttrs {
   placeholder?: string;
   readonly?: boolean;
   disabled?: boolean;
+  renderInput?: (attrs: any) => Mithril.Children;
   inputAttrs?: {
     className?: string;
     [key: string]: any;
@@ -47,17 +48,7 @@ export default class Input<CustomAttrs extends IInputAttrs = IInputAttrs> extend
         })}
       >
         {this.attrs.prefixIcon && <Icon name={classList(this.attrs.prefixIcon, 'Input-prefix-icon')} />}
-        <input
-          className={classList('FormControl', inputClassName)}
-          type={this.attrs.type || 'text'}
-          value={value}
-          oninput={(e: InputEvent) => this.onchange?.((e.target as HTMLInputElement).value)}
-          aria-label={this.attrs.ariaLabel}
-          placeholder={this.attrs.placeholder}
-          readonly={this.attrs.readonly || undefined}
-          disabled={this.attrs.disabled || undefined}
-          {...inputAttrs}
-        />
+        {this.input({ inputClassName, value, inputAttrs })}
         {this.attrs.loading && <LoadingIndicator size="small" display="inline" containerClassName="Button Button--icon Button--link" />}
         {this.attrs.clearable && value && !this.attrs.loading && (
           <Button
@@ -70,6 +61,26 @@ export default class Input<CustomAttrs extends IInputAttrs = IInputAttrs> extend
         )}
       </div>
     );
+  }
+
+  input({ inputClassName, value, inputAttrs }: any) {
+    const attrs = {
+      className: classList('FormControl', inputClassName),
+      type: this.attrs.type || 'text',
+      value: value,
+      oninput: (e: InputEvent) => this.onchange?.((e.target as HTMLInputElement).value),
+      'aria-label': this.attrs.ariaLabel,
+      placeholder: this.attrs.placeholder,
+      readonly: this.attrs.readonly || undefined,
+      disabled: this.attrs.disabled || undefined,
+      ...inputAttrs,
+    };
+
+    if (this.attrs.renderInput) {
+      return this.attrs.renderInput(attrs);
+    }
+
+    return <input {...attrs} />;
   }
 
   onchange(value: string) {

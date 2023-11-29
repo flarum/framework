@@ -7,6 +7,10 @@
     --discussion-list-item-bg-hover: var(--control-bg);
     margin: 0 -16px;
     border-radius: 0;
+
+    > .DiscussionListItem-content {
+      opacity: 1;
+    }
   }
 
   &.active > .DiscussionListItem {
@@ -81,7 +85,9 @@
   }
 
   &-input {
+    background: transparent !important;
     height: 42px;
+    border-color: var(--form-control-color);
   }
 
   &-results {
@@ -118,4 +124,35 @@
       color: var(--control-color);
     }
   }
+
+  .Input {
+    z-index: 0;
+  }
 }
+
+
+.SearchModal-visual-wrapper {
+  position: absolute;
+  inset: 0;
+  margin-left: 34px;
+  margin-right: 32px;
+  line-height: 42px;
+  color: transparent;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.SearchModal-visual-input {
+  position: absolute;
+  inset: 0;
+  white-space: pre;
+}
+
+.SearchModal-visual-input mark {
+  margin: 0;
+  padding: 0;
+  background-color: var(--control-bg-shaded);
+  color: transparent;
+}
+
