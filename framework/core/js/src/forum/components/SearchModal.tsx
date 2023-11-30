@@ -14,7 +14,6 @@ import LoadingIndicator from '../../common/components/LoadingIndicator';
 import type { SearchSource } from './Search';
 import IGambit, { GambitType, GroupedGambitSuggestion, KeyValueGambitSuggestion } from '../../common/query/IGambit';
 import AutocompleteReader from '../../common/utils/AutocompleteReader';
-import { electron } from 'webpack';
 
 export interface ISearchModalAttrs extends IFormModalAttrs {
   onchange: (value: string) => void;
