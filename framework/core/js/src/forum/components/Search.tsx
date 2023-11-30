@@ -112,7 +112,8 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
           inputAttrs={{
             onfocus: () =>
               setTimeout(() => {
-                this.$('input').blur() && app.modal.show(SearchModal, { searchState: this.searchState, sources: this.sourceItems().toArray() });
+                this.$('input').blur() &&
+                  app.modal.show(() => import('./SearchModal'), { searchState: this.searchState, sources: this.sourceItems().toArray() });
               }, 150),
           }}
         />
