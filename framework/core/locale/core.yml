@@ -712,7 +712,7 @@ core:
       discussions:
         author:
           key: author
-          hint: username
+          hint: username or comma-separated list of usernames
         created:
           key: created
           hint: 2020-12-31 or 2020-12-31..2021-09-30
@@ -726,7 +726,7 @@ core:
           hint: example@machine.local
         group:
           key: group
-          hint: singular or plural group name
+          hint: singular or plural group names
 
     # These translations are used to punctuate a series of items.
     series:

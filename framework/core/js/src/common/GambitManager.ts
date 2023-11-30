@@ -35,7 +35,7 @@ export default class GambitManager {
   }
 
   public match(type: string, query: string, onmatch: (gambit: IGambit, matches: string[], negate: boolean, bit: string) => void): string {
-    const gambits = this.for(type);
+    const gambits = this.for(type).filter((gambit) => gambit.enabled());
 
     if (gambits.length === 0) return query;
 

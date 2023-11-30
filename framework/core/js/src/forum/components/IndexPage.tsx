@@ -184,6 +184,7 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
       'refresh',
       <Button
         title={app.translator.trans('core.forum.index.refresh_tooltip')}
+        aria-label={app.translator.trans('core.forum.index.refresh_tooltip')}
         icon="fas fa-sync"
         className="Button Button--icon"
         onclick={() => {
@@ -201,6 +202,7 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
         'markAllAsRead',
         <Button
           title={app.translator.trans('core.forum.index.mark_all_as_read_tooltip')}
+          aria-label={app.translator.trans('core.forum.index.mark_all_as_read_tooltip')}
           icon="fas fa-check"
           className="Button Button--icon"
           onclick={this.markAllAsRead.bind(this)}

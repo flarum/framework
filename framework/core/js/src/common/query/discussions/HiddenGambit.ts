@@ -9,4 +9,8 @@ export default class HiddenGambit extends BooleanGambit {
   filterKey(): string {
     return 'hidden';
   }
+
+  enabled(): boolean {
+    return !!app.session.user;
+  }
 }

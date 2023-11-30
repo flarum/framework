@@ -9,4 +9,8 @@ export default class UnreadGambit extends BooleanGambit {
   filterKey(): string {
     return 'unread';
   }
+
+  enabled(): boolean {
+    return !!app.session.user;
+  }
 }

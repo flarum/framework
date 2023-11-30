@@ -9,4 +9,8 @@ export default class SuspendedGambit extends BooleanGambit {
   filterKey(): string {
     return 'suspended';
   }
+
+  enabled(): boolean {
+    return !!app.session.user && app.forum.attribute<boolean>('canSuspendUsers');
+  }
 }

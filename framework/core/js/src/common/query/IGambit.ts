@@ -53,6 +53,11 @@ export default interface IGambit<Type extends GambitType = GambitType> {
    * Checkout the TagGambit and TagFilter classes for an example.
    */
   predicates: boolean;
+
+  /**
+   * Whether this gambit can be used by the actor.
+   */
+  enabled(): boolean;
 }
 
 export enum GambitType {
@@ -109,6 +114,10 @@ export abstract class BooleanGambit implements IGambit<GambitType.Grouped> {
       key: this.key(),
     };
   }
+
+  enabled(): boolean {
+    return true;
+  }
 }
 
 export abstract class KeyValueGambit implements IGambit<GambitType.KeyValue> {
@@ -154,5 +163,9 @@ export abstract class KeyValueGambit implements IGambit<GambitType.KeyValue> {
       key: this.key(),
       hint: this.hint(),
     };
+  }
+
+  enabled(): boolean {
+    return true;
   }
 }

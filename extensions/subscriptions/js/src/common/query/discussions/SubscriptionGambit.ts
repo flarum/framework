@@ -24,4 +24,8 @@ export default class SubscriptionGambit extends BooleanGambit {
   fromFilter(value: string, negate: boolean): string {
     return `${negate ? '-' : ''}is:${value}`;
   }
+
+  enabled(): boolean {
+    return !!app.session.user;
+  }
 }

@@ -187,7 +187,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
   }
 
   gambits(): JSX.Element[] {
-    const gambits = app.search.gambits.for(this.activeSource().resource);
+    const gambits = app.search.gambits.for(this.activeSource().resource).filter((gambit) => gambit.enabled());
     const query = this.searchState.getValue();
 
     // We group the boolean gambits together to produce an initial item of
@@ -221,6 +221,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
         toFilter: () => [],
         fromFilter: () => '',
         predicates: false,
+        enabled: () => true,
       });
     }
 
@@ -430,9 +431,9 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     this.loadingSources = [];
 
     const item = this.getItem(this.index);
-    const isButton = item.children()[0].tagName === 'BUTTON';
+    const isLink = !!item.attr('data-id');
 
-    if (!isButton) {
+    if (isLink) {
       const id = item.attr('data-id');
       const selectedUrl = id && this.activeSource().gotoItem(id as string);
 

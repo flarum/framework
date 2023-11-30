@@ -8,7 +8,6 @@ export default [
   ...commonExtend,
 
   new Extend.Model(User)
-    .attribute<boolean>('canSuspend')
     .attribute<Date | null | undefined, string | null | undefined>('suspendedUntil', Model.transformDate)
     .attribute<string | null | undefined>('suspendReason')
     .attribute<string | null | undefined>('suspendMessage'),

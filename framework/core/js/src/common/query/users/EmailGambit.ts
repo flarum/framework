@@ -13,4 +13,8 @@ export default class EmailGambit extends KeyValueGambit {
   filterKey(): string {
     return 'email';
   }
+
+  enabled(): boolean {
+    return !!(app.session.user && app.forum.attribute<boolean>('canEditUserCredentials'));
+  }
 }

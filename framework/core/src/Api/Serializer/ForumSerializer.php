@@ -89,6 +89,7 @@ class ForumSerializer extends AbstractSerializer
             'canSearchUsers' => $this->actor->can('searchUsers'),
             'canCreateAccessToken' => $this->actor->can('createAccessToken'),
             'canModerateAccessTokens' => $this->actor->can('moderateAccessTokens'),
+            'canEditUserCredentials' => $this->actor->hasPermission('user.editCredentials'),
             'assetsBaseUrl' => rtrim($this->assetsFilesystem->url(''), '/'),
             'jsChunksBaseUrl' => $this->assetsFilesystem->url('js'),
         ];
