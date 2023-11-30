@@ -521,6 +521,8 @@ core:
 
     # These translations are used by the search modal.
     search:
+      gambit_plus_button_a11y_label: Add a positive filter
+      gambit_minus_button_a11y_label: Add a negative filter
       title: Search
       no_results_text: It looks like there are no results here.
       no_search_text: You have not searched for anything yet.

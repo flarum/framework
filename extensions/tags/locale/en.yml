@@ -112,7 +112,7 @@ flarum-tags:
       discussions:
         tag:
           key: tag
-          hint: name of the tag
+          hint: name of a tag, or comma-separated list of tag names, or "untagged"
 
     # These translations are used in the tag selection modal.
     tag_selection_modal:

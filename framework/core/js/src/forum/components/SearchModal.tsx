@@ -220,6 +220,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
         filterKey: () => '',
         toFilter: () => [],
         fromFilter: () => '',
+        predicates: false,
       });
     }
 
@@ -251,7 +252,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
           )
           .filter((key) => !groupQuery || key.toLowerCase().startsWith(groupQuery))
           .map((gambit) =>
-            this.gambitSuggestions(gambit, null, () => this.suggest(gambit, groupQuery, autocomplete!.relativeStart + autocomplete!.typed.length))
+            this.gambitSuggestion(gambit, null, () => this.suggest(gambit, groupQuery, autocomplete!.relativeStart + autocomplete!.typed.length))
           );
       }
     }
@@ -271,22 +272,40 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
         const hint =
           gambit.type === GambitType.Grouped ? (suggestion as KeyValueGambitSuggestion).key : (suggestion as KeyValueGambitSuggestion).hint;
 
-        return this.gambitSuggestions(key, hint, () =>
-          this.suggest(key + ':', typed || '', (autocomplete?.relativeStart ?? cursorPosition) + Number(negative))
+        return this.gambitSuggestion(key, hint, (negated: boolean | undefined) =>
+          this.suggest(((!!negated && '-') || '') + key + ':', typed || '', (autocomplete?.relativeStart ?? cursorPosition) + Number(negative))
         );
       });
   }
 
-  gambitSuggestions(key: string, value: string | null, suggest: () => void): JSX.Element {
+  gambitSuggestion(key: string, value: string | null, suggest: (negated?: boolean) => void): JSX.Element {
     return (
       <li>
-        <button type="button" className="SearchModal-gambit" onclick={suggest}>
-          <span className="SearchModal-gambit-key">
-            {key}
-            {!!value && ':'}
-          </span>
-          {!!value && <span className="SearchModal-gambit-value">{value}</span>}
-        </button>
+        <span className="Dropdown-item SearchModal-gambit">
+          <button type="button" className="Button--ua-reset" onclick={() => suggest()}>
+            <span className="SearchModal-gambit-key">
+              {key}
+              {!!value && ':'}
+            </span>
+            {!!value && <span className="SearchModal-gambit-value">{value}</span>}
+          </button>
+          {!!value && (
+            <span className="SearchModal-gambit-actions">
+              <Button
+                class="Button Button--icon"
+                onclick={() => suggest()}
+                icon="fas fa-plus"
+                aria-label={app.translator.trans('core.forum.search.gambit_plus_button_a11y_label')}
+              />
+              <Button
+                class="Button Button--icon"
+                onclick={() => suggest(true)}
+                icon="fas fa-minus"
+                aria-label={app.translator.trans('core.forum.search.gambit_minus_button_a11y_label')}
+              />
+            </span>
+          )}
+        </span>
       </li>
     );
   }
@@ -337,6 +356,13 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     // Highlight the item that is currently selected.
     this.setIndex(this.getCurrentNumericIndex());
 
+    const component = this;
+    this.$('.Dropdown-menu')
+      // Whenever the mouse is hovered over a search result, highlight it.
+      .on('mouseenter', '> li:not(.Dropdown-header):not(.Dropdown-message)', function () {
+        component.setIndex(component.selectableItems().index(this));
+      });
+
     // If there are no sources, the search view is not shown.
     if (!this.sources?.length) return;
   }
@@ -348,17 +374,10 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     // search elements, as they will not be shown.
     if (!this.sources?.length) return;
 
-    const component = this;
     const search = this.search.bind(this);
 
     // Highlight the item that is currently selected.
     this.setIndex(this.getCurrentNumericIndex());
-
-    this.$('.Dropdown-menu')
-      // Whenever the mouse is hovered over a search result, highlight it.
-      .on('mouseenter', '> li:not(.Dropdown-header):not(.Dropdown-message)', function () {
-        component.setIndex(component.selectableItems().index(this));
-      });
 
     const $input = this.inputElement() as JQuery<HTMLInputElement>;
 
