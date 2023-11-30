@@ -1,33 +1,38 @@
 import app from 'flarum/common/app';
-import IGambit, { GambitType } from 'flarum/common/query/IGambit';
+import { KeyValueGambit } from 'flarum/common/query/IGambit';
 
-export default class TagGambit implements IGambit<GambitType.KeyValue> {
-  type = GambitType.KeyValue;
+export default class TagGambit extends KeyValueGambit {
+  predicates = true;
 
-  pattern(): string {
-    return 'tag:(.+)';
+  key(): string {
+    return app.translator.trans('flarum-tags.lib.gambits.discussions.tag.key', {}, true);
   }
 
-  toFilter(matches: string[], negate: boolean): Record<string, any> {
-    const key = (negate ? '-' : '') + 'tag';
-
-    return {
-      [key]: matches[1].split(','),
-    };
+  hint(): string {
+    return app.translator.trans('flarum-tags.lib.gambits.discussions.tag.hint', {}, true);
   }
 
   filterKey(): string {
     return 'tag';
   }
 
-  fromFilter(value: string, negate: boolean): string {
-    return `${negate ? '-' : ''}tag:${value}`;
+  gambitValueToFilterValue(value: string): string[] {
+    return [value];
   }
 
-  suggestion() {
-    return {
-      key: app.translator.trans('flarum-tags.lib.gambits.discussions.tag.key', {}, true),
-      hint: app.translator.trans('flarum-tags.lib.gambits.discussions.tag.hint', {}, true),
-    };
+  fromFilter(value: any, negate: boolean): string {
+    let gambits = [];
+
+    if (Array.isArray(value)) {
+      gambits = value.map((value) => this.fromFilter(value.toString(), negate));
+    } else {
+      return `${negate ? '-' : ''}${this.key()}:${this.filterValueToGambitValue(value)}`;
+    }
+
+    return gambits.join(' ');
+  }
+
+  filterValueToGambitValue(value: string): string {
+    return value;
   }
 }

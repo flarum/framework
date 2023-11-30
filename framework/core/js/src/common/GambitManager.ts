@@ -20,7 +20,15 @@ export default class GambitManager {
 
   public apply(type: string, filter: Record<string, any>): Record<string, any> {
     filter.q = this.match(type, filter.q, (gambit, matches, negate) => {
-      Object.assign(filter, gambit.toFilter(matches, negate));
+      const additions = gambit.toFilter(matches, negate);
+
+      Object.keys(additions).forEach((key) => {
+        if (key in filter && gambit.predicates && Array.isArray(additions[key])) {
+          filter[key] = filter[key].concat(additions[key]);
+        } else {
+          filter[key] = additions[key];
+        }
+      });
     });
 
     return filter;
