@@ -12,8 +12,10 @@ import Stream from '../../common/utils/Stream';
 import InfoTile from '../../common/components/InfoTile';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import type { SearchSource } from './Search';
-import IGambit, { GambitType, GroupedGambitSuggestion, KeyValueGambitSuggestion } from '../../common/query/IGambit';
-import AutocompleteReader from '../../common/utils/AutocompleteReader';
+import type IGambit from '../../common/query/IGambit';
+import { GambitType, type GroupedGambitSuggestion, type KeyValueGambitSuggestion } from '../../common/query/IGambit';
+import AutocompleteReader, { type AutocompleteCheck } from '../../common/utils/AutocompleteReader';
+import ItemList from '../../common/utils/ItemList';
 
 export interface ISearchModalAttrs extends IFormModalAttrs {
   onchange: (value: string) => void;
@@ -114,66 +116,90 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
   tabs(): JSX.Element {
     return (
       <div className="SearchModal-tabs">
-        <div className="SearchModal-tabs-nav">
-          {this.sources?.map((source) => (
-            <Button className="Button Button--link" active={this.activeSource() === source} onclick={() => this.switchSource(source)}>
-              {source.title()}
-            </Button>
-          ))}
-        </div>
-        {this.activeTab()}
+        <div className="SearchModal-tabs-nav">{this.tabItems().toArray()}</div>
+        <div className="SearchModal-tabs-content">{this.activeTabItems().toArray()}</div>
       </div>
     );
   }
 
-  activeTab(): JSX.Element {
+  tabItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    this.sources?.map((source, index) =>
+      items.add(
+        source.resource,
+        <Button className="Button Button--link" active={this.activeSource() === source} onclick={() => this.switchSource(source)}>
+          {source.title()}
+        </Button>,
+        100 - index
+      )
+    );
+
+    return items;
+  }
+
+  activeTabItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
     const loading = this.loadingSources.includes(this.activeSource().resource);
     const shouldShowResults = !!this.searchState.getValue() && !loading;
     const gambits = this.gambits();
     const fullPageLink = this.activeSource().fullPage(this.searchState.getValue());
     const results = this.activeSource()?.view(this.searchState.getValue());
 
-    return (
-      <div className="SearchModal-tabs-content">
-        {shouldShowResults && fullPageLink && (
-          <div className="SearchModal-section">
-            <hr className="Modal-divider" />
-            <ul className="Dropdown-menu SearchModal-fullPage">{fullPageLink}</ul>
-          </div>
-        )}
-        {!!gambits.length && (
-          <div className="SearchModal-section">
-            <hr className="Modal-divider" />
-            <ul className="Dropdown-menu SearchModal-options" aria-live={gambits.length ? 'polite' : undefined}>
-              <li className="Dropdown-header">{app.translator.trans('core.forum.search.options_heading')}</li>
-              {gambits}
-            </ul>
-          </div>
-        )}
+    if (shouldShowResults && fullPageLink) {
+      items.add(
+        'fullPageLink',
         <div className="SearchModal-section">
           <hr className="Modal-divider" />
-          <ul className="Dropdown-menu SearchModal-results" aria-live={shouldShowResults ? 'polite' : undefined}>
-            <li className="Dropdown-header">{app.translator.trans('core.forum.search.preview_heading')}</li>
-            {!shouldShowResults && (
-              <li className="Dropdown-message">
-                <InfoTile icon="fas fa-search">{app.translator.trans('core.forum.search.no_search_text')}</InfoTile>
-              </li>
-            )}
-            {shouldShowResults && results}
-            {shouldShowResults && !results?.length && (
-              <li className="Dropdown-message">
-                <InfoTile icon="far fa-tired">{app.translator.trans('core.forum.search.no_results_text')}</InfoTile>
-              </li>
-            )}
-            {loading && (
-              <li className="Dropdown-message">
-                <LoadingIndicator />
-              </li>
-            )}
+          <ul className="Dropdown-menu SearchModal-fullPage">{fullPageLink}</ul>
+        </div>,
+        80
+      );
+    }
+
+    if (!!gambits.length) {
+      items.add(
+        'gambits',
+        <div className="SearchModal-section">
+          <hr className="Modal-divider" />
+          <ul className="Dropdown-menu SearchModal-options" aria-live={gambits.length ? 'polite' : undefined}>
+            <li className="Dropdown-header">{app.translator.trans('core.forum.search.options_heading')}</li>
+            {gambits}
           </ul>
-        </div>
-      </div>
+        </div>,
+        60
+      );
+    }
+
+    items.add(
+      'results',
+      <div className="SearchModal-section">
+        <hr className="Modal-divider" />
+        <ul className="Dropdown-menu SearchModal-results" aria-live={shouldShowResults ? 'polite' : undefined}>
+          <li className="Dropdown-header">{app.translator.trans('core.forum.search.preview_heading')}</li>
+          {!shouldShowResults && (
+            <li className="Dropdown-message">
+              <InfoTile icon="fas fa-search">{app.translator.trans('core.forum.search.no_search_text')}</InfoTile>
+            </li>
+          )}
+          {shouldShowResults && results}
+          {shouldShowResults && !results?.length && (
+            <li className="Dropdown-message">
+              <InfoTile icon="far fa-tired">{app.translator.trans('core.forum.search.no_results_text')}</InfoTile>
+            </li>
+          )}
+          {loading && (
+            <li className="Dropdown-message">
+              <LoadingIndicator />
+            </li>
+          )}
+        </ul>
+      </div>,
+      40
     );
+
+    return items;
   }
 
   switchSource(source: SearchSource) {
@@ -241,19 +267,15 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
 
     // if the query ends with 'is:' we will only list keys from that group.
     if (typed.endsWith(':')) {
-      const groupName = typed.replace(/:$/, '') || null;
-      const groupQuery = typed.split(':').pop() || '';
+      const gambitKey = typed.replace(/:$/, '') || null;
+      const gambitQuery = typed.split(':').pop() || '';
 
-      if (groupName && uniqueGroups.includes(groupName)) {
-        return groupedGambits
-          .filter((gambit) => gambit.suggestion().group === groupName)
-          .flatMap((gambit): string[] =>
-            gambit.suggestion().key instanceof Array ? (gambit.suggestion().key as string[]) : [gambit.suggestion().key as string]
-          )
-          .filter((key) => !groupQuery || key.toLowerCase().startsWith(groupQuery))
-          .map((gambit) =>
-            this.gambitSuggestion(gambit, null, () => this.suggest(gambit, groupQuery, autocomplete!.relativeStart + autocomplete!.typed.length))
-          );
+      if (gambitKey) {
+        const specificGambitSuggestions = this.specificGambitSuggestions(gambitKey, gambitQuery, uniqueGroups, groupedGambits, autocomplete!);
+
+        if (specificGambitSuggestions) {
+          return specificGambitSuggestions;
+        }
       }
     }
 
@@ -276,6 +298,28 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
           this.suggest(((!!negated && '-') || '') + key + ':', typed || '', (autocomplete?.relativeStart ?? cursorPosition) + Number(negative))
         );
       });
+  }
+
+  specificGambitSuggestions(
+    gambitKey: string,
+    gambitQuery: string,
+    uniqueGroups: string[],
+    groupedGambits: IGambit<GambitType.Grouped>[],
+    autocomplete: AutocompleteCheck
+  ): JSX.Element[] | null {
+    if (uniqueGroups.includes(gambitKey)) {
+      return groupedGambits
+        .filter((gambit) => gambit.suggestion().group === gambitKey)
+        .flatMap((gambit): string[] =>
+          gambit.suggestion().key instanceof Array ? (gambit.suggestion().key as string[]) : [gambit.suggestion().key as string]
+        )
+        .filter((key) => !gambitQuery || key.toLowerCase().startsWith(gambitQuery))
+        .map((gambit) =>
+          this.gambitSuggestion(gambit, null, () => this.suggest(gambit, gambitQuery, autocomplete.relativeStart + autocomplete.typed.length))
+        );
+    }
+
+    return null;
   }
 
   gambitSuggestion(key: string, value: string | null, suggest: (negated?: boolean) => void): JSX.Element {
@@ -430,15 +474,18 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     this.loadingSources = [];
 
     const item = this.getItem(this.index);
-    const isLink = !!item.attr('data-id');
+    const isResult = !!item.attr('data-id');
+    let selectedUrl = null;
 
-    if (isLink) {
+    if (isResult) {
       const id = item.attr('data-id');
-      const selectedUrl = id && this.activeSource().gotoItem(id as string);
+      selectedUrl = id && this.activeSource().gotoItem(id as string);
+    } else if (item.find('a').length) {
+      selectedUrl = item.find('a').attr('href');
+    }
 
-      if (this.searchState.getValue() && selectedUrl) {
-        m.route.set(selectedUrl);
-      }
+    if (this.searchState.getValue() && selectedUrl) {
+      m.route.set(selectedUrl);
     } else {
       item.find('button')[0].click();
     }
