@@ -43,6 +43,8 @@ class TagFilter implements FilterInterface
 
     protected function constrain(Builder $query, string|array $rawSlugs, bool $negate, User $actor): void
     {
+        $rawSlugs = (array) $rawSlugs;
+
         $inputSlugs = $this->asStringArray($rawSlugs);
 
         foreach ($inputSlugs as $orSlugs) {
