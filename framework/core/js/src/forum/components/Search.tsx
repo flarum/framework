@@ -94,7 +94,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
     const searchLabel = extractText(app.translator.trans('core.forum.header.search_placeholder'));
 
     return (
-      <div role="search" aria-label={app.translator.trans('core.forum.header.search_role_label')}>
+      <div role="search" className="Search" aria-label={app.translator.trans('core.forum.header.search_role_label')}>
         <Input
           type="search"
           className="Search-input"

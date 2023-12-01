@@ -28,6 +28,8 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
 
   protected searchState!: SearchState;
 
+  protected query!: Stream<string>;
+
   /**
    * An array of SearchSources.
    */
@@ -62,6 +64,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
 
     this.searchState = this.attrs.searchState;
     this.sources = this.attrs.sources;
+    this.query = Stream(this.searchState.getValue() || '');
   }
 
   title(): Mithril.Children {
@@ -90,9 +93,9 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
             prefixIcon="fas fa-search"
             aria-label={searchLabel}
             placeholder={searchLabel}
-            value={this.searchState.getValue()}
+            value={this.query()}
             onchange={(value: string) => {
-              this.searchState.setValue(value);
+              this.query(value);
               this.inputScroll(this.inputElement()[0]?.scrollLeft ?? 0);
             }}
             inputAttrs={{ className: 'SearchModal-input' }}
@@ -142,10 +145,10 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     const items = new ItemList<Mithril.Children>();
 
     const loading = this.loadingSources.includes(this.activeSource().resource);
-    const shouldShowResults = !!this.searchState.getValue() && !loading;
+    const shouldShowResults = !!this.query() && !loading;
     const gambits = this.gambits();
-    const fullPageLink = this.activeSource().fullPage(this.searchState.getValue());
-    const results = this.activeSource()?.view(this.searchState.getValue());
+    const fullPageLink = this.activeSource().fullPage(this.query());
+    const results = this.activeSource()?.view(this.query());
 
     if (shouldShowResults && fullPageLink) {
       items.add(
@@ -205,7 +208,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
   switchSource(source: SearchSource) {
     if (this.activeSource() !== source) {
       this.activeSource(source);
-      this.search(this.searchState.getValue());
+      this.search(this.query());
       this.inputElement().focus();
       m.redraw();
     }
@@ -213,7 +216,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
 
   gambits(): JSX.Element[] {
     const gambits = app.search.gambits.for(this.activeSource().resource).filter((gambit) => gambit.enabled());
-    const query = this.searchState.getValue();
+    const query = this.query();
 
     // We group the boolean gambits together to produce an initial item of
     // is:unread,sticky,locked, etc.
@@ -357,10 +360,10 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
   suggest(text: string, fromTyped: string, start: number) {
     const $input = this.inputElement() as JQuery<HTMLInputElement>;
 
-    const query = this.searchState.getValue();
+    const query = this.query();
     const replaced = query.slice(0, start) + text + query.slice(start + fromTyped.length);
 
-    this.searchState.setValue(replaced);
+    this.query(replaced);
     $input[0].focus();
     setTimeout(() => {
       $input[0].setSelectionRange(start + text.length, start + text.length);
@@ -375,7 +378,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
    * @example `lorem ipsum is:unread dolor` => `lorem ipsum <mark>is:unread</mark> dolor`
    */
   gambifyInput(): Mithril.Children {
-    const query = this.searchState.getValue();
+    const query = this.query();
     let marked = query;
 
     app.search.gambits.match(this.activeSource().resource, query, (gambit: IGambit, matches: string[], negate: boolean, bit: string) => {
@@ -439,6 +442,11 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     });
   }
 
+  onremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
+    this.searchState.setValue(this.query());
+    super.onremove(vnode);
+  }
+
   search(query: string) {
     if (!query) return;
 
@@ -484,7 +492,9 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
       selectedUrl = item.find('a').attr('href');
     }
 
-    if (this.searchState.getValue() && selectedUrl) {
+    const query = this.query();
+
+    if (query && selectedUrl) {
       m.route.set(selectedUrl);
     } else {
       item.find('button')[0].click();
@@ -495,7 +505,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
    * Clear the search
    */
   clear() {
-    this.searchState.clear();
+    this.query('');
   }
 
   /**
