@@ -8,6 +8,7 @@ import './states/PageState';
 import './states/SearchState';
 
 import './utils/AutocompleteReader';
+import './utils/GambitsAutocomplete';
 import './utils/isObject';
 import './utils/mixin';
 import './utils/insertText';
@@ -73,6 +74,8 @@ import './components/GroupBadge';
 import './components/TextEditor';
 import './components/TextEditorButton';
 import './components/Tooltip';
+import './components/AutocompleteDropdown';
+import './components/GambitsAutocompleteDropdown';
 
 import './helpers/fullTime';
 import './components/Avatar';
