@@ -22,7 +22,7 @@ class ExtensionUtils
     public static function isMajorUpdate(string $currentVersion, string $latestVersion): bool
     {
         // Drop any v prefixes
-        if(str_starts_with($currentVersion, 'v')) {
+        if (str_starts_with($currentVersion, 'v')) {
             $currentVersion = substr($currentVersion, 1);
         }
 
