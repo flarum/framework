@@ -75,6 +75,6 @@ export default class ExtensionItem<Attrs extends ExtensionItemAttrs = ExtensionI
   }
 
   version(v: string): string {
-    return 'v' + v.replace('v', '');
+    return v.charAt(0) === 'v' ? v.substring(1) : v;
   }
 }

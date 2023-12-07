@@ -56,12 +56,12 @@ export default class Updater extends Component<IUpdaterAttrs> {
       );
     }
 
-    if (!(state.extensionUpdates.length || state.coreUpdate)) {
+    const hasMinorCoreUpdate = state.coreUpdate && state.coreUpdate.package['latest-minor'];
+
+    if (!(state.extensionUpdates.length || hasMinorCoreUpdate)) {
       return (
         <div className="PackageManager-extensions">
-          <Alert type="success" dismissible={false}>
-            {app.translator.trans('flarum-package-manager.admin.updater.up_to_date')}
-          </Alert>
+          <span className="helpText">{app.translator.trans('flarum-package-manager.admin.updater.up_to_date')}</span>
         </div>
       );
     }
@@ -69,10 +69,10 @@ export default class Updater extends Component<IUpdaterAttrs> {
     return (
       <div className="PackageManager-extensions">
         <div className="PackageManager-extensions-grid">
-          {state.coreUpdate ? (
+          {hasMinorCoreUpdate ? (
             <ExtensionItem
-              extension={state.coreUpdate.extension}
-              updates={state.coreUpdate.package}
+              extension={state.coreUpdate!.extension}
+              updates={state.coreUpdate!.package}
               isCore={true}
               onClickUpdate={() => state.updateCoreMinor()}
               whyNotWarning={state.lastUpdateRun.limitedPackages().includes('flarum/core')}
