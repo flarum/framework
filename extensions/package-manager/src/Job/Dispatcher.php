@@ -23,7 +23,7 @@ class Dispatcher
      * Runs synchronously regardless of user setting if set true.
      * Asynchronously if set false.
      */
-    protected ?bool $runSyncOverride;
+    protected ?bool $runSyncOverride = null;
 
     public function __construct(
         protected Bus $bus,

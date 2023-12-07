@@ -6,6 +6,7 @@ import { ComponentAttrs } from 'flarum/common/Component';
 import Installer from './Installer';
 import Updater from './Updater';
 import Mithril from 'mithril';
+import Form from 'flarum/common/components/Form';
 
 export default class ControlSection extends Component<ComponentAttrs> {
   oninit(vnode: Mithril.Vnode<ComponentAttrs, this>) {
@@ -22,10 +23,10 @@ export default class ControlSection extends Component<ComponentAttrs> {
         </div>
         <div className="container">
           {app.data['flarum-package-manager.writable_dirs'] ? (
-            <>
+            <Form>
               <Installer />
               <Updater />
-            </>
+            </Form>
           ) : (
             <div className="Form-group">
               <Alert type="warning" dismissible={false}>

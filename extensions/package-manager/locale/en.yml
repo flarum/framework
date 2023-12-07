@@ -25,7 +25,9 @@ flarum-package-manager:
       The package manager requires read and write permissions on the following files and directories: composer.json, composer.lock, vendor, storage, storage/.composer
 
     major_updater:
-      description: Major Flarum updates are not backwards compatible, meaning that some of your currently installed extensions, and manually made modifications might not work with this new version.
+      description: >
+        Major Flarum updates are not backwards compatible, meaning that some of your currently installed extensions, and manually made modifications might not work with this new version.
+        Please make sure to make a backup of your database and files before proceeding.
       dry_run: Dry Run
       dry_run_help: A dry run emulates the update to see if your current setup can safely update, this does not mean that your manual made custom modifications will work in the newer version.
       failure:

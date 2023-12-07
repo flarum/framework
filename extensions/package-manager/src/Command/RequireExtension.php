@@ -9,7 +9,7 @@
 
 namespace Flarum\PackageManager\Command;
 
-use Flarum\PackageManager\Task\Task;
+use Flarum\PackageManager\Task\Operation;
 use Flarum\User\User;
 
 class RequireExtension extends AbstractActionCommand
@@ -20,8 +20,8 @@ class RequireExtension extends AbstractActionCommand
     ) {
     }
 
-    public function getOperationName(): string
+    public function getOperationName(): Operation
     {
-        return Task::EXTENSION_INSTALL;
+        return Operation::EXTENSION_INSTALL;
     }
 }

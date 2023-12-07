@@ -13,7 +13,7 @@ use Flarum\Api\Controller\AbstractListController;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Flarum\PackageManager\Api\Serializer\TaskSerializer;
-use Flarum\PackageManager\Task\TaskRepository;
+use Flarum\PackageManager\Task\Task;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -23,7 +23,6 @@ class ListTasksController extends AbstractListController
 
     public function __construct(
         protected UrlGenerator $url,
-        protected TaskRepository $repository
     ) {
     }
 
@@ -36,14 +35,13 @@ class ListTasksController extends AbstractListController
         $limit = $this->extractLimit($request);
         $offset = $this->extractOffset($request);
 
-        $results = $this->repository
-            ->query()
+        $results = Task::query()
             ->latest()
             ->offset($offset)
             ->limit($limit)
             ->get();
 
-        $total = $this->repository->query()->count();
+        $total = Task::query()->count();
 
         $document->addMeta('total', (string) $total);
 

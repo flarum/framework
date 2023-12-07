@@ -9,7 +9,7 @@
 
 namespace Flarum\PackageManager\Command;
 
-use Flarum\PackageManager\Task\Task;
+use Flarum\PackageManager\Task\Operation;
 use Flarum\User\User;
 
 class WhyNot extends AbstractActionCommand
@@ -21,8 +21,8 @@ class WhyNot extends AbstractActionCommand
     ) {
     }
 
-    public function getOperationName(): string
+    public function getOperationName(): Operation
     {
-        return Task::WHY_NOT;
+        return Operation::WHY_NOT;
     }
 }

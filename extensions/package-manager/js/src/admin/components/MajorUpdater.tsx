@@ -13,6 +13,7 @@ import WhyNotModal from './WhyNotModal';
 import ExtensionItem from './ExtensionItem';
 import { AsyncBackendResponse } from '../shims';
 import jumpToQueue from '../utils/jumpToQueue';
+import classList from 'flarum/common/utils/classList';
 
 export interface MajorUpdaterAttrs extends ComponentAttrs {
   coreUpdate: UpdatedPackage;
@@ -33,7 +34,12 @@ export default class MajorUpdater<T extends MajorUpdaterAttrs = MajorUpdaterAttr
   view(): Mithril.Children {
     // @todo move Form-group--danger class to core for reuse
     return (
-      <div className="Form-group Form-group--danger PackageManager-majorUpdate">
+      <div
+        className={classList('Form-group Form-group--danger PackageManager-majorUpdate', {
+          'PackageManager-majorUpdate--failed': this.updateState.status === 'failure',
+          'PackageManager-majorUpdate--incompatibleExtensions': this.updateState.incompatibleExtensions.length,
+        })}
+      >
         <img alt="flarum logo" src={app.forum.attribute('baseUrl') + '/assets/extensions/flarum-package-manager/flarum.svg'} />
         <label>{app.translator.trans('flarum-package-manager.admin.major_updater.title', { version: this.attrs.coreUpdate['latest-major'] })}</label>
         <p className="helpText">{app.translator.trans('flarum-package-manager.admin.major_updater.description')}</p>

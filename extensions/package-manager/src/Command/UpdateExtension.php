@@ -9,7 +9,7 @@
 
 namespace Flarum\PackageManager\Command;
 
-use Flarum\PackageManager\Task\Task;
+use Flarum\PackageManager\Task\Operation;
 use Flarum\User\User;
 
 class UpdateExtension extends AbstractActionCommand
@@ -20,8 +20,8 @@ class UpdateExtension extends AbstractActionCommand
     ) {
     }
 
-    public function getOperationName(): string
+    public function getOperationName(): Operation
     {
-        return Task::EXTENSION_UPDATE;
+        return Operation::EXTENSION_UPDATE;
     }
 }

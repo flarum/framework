@@ -9,7 +9,7 @@
 
 namespace Flarum\PackageManager\Command;
 
-use Flarum\PackageManager\Task\Task;
+use Flarum\PackageManager\Task\Operation;
 use Flarum\User\User;
 
 class RemoveExtension extends AbstractActionCommand
@@ -20,8 +20,8 @@ class RemoveExtension extends AbstractActionCommand
     ) {
     }
 
-    public function getOperationName(): string
+    public function getOperationName(): Operation
     {
-        return Task::EXTENSION_REMOVE;
+        return Operation::EXTENSION_REMOVE;
     }
 }

@@ -9,6 +9,7 @@
 
 namespace Flarum\PackageManager\Command;
 
+use Flarum\PackageManager\Task\Operation;
 use Flarum\PackageManager\Task\Task;
 
 abstract class AbstractActionCommand
@@ -16,5 +17,5 @@ abstract class AbstractActionCommand
     public ?Task $task = null;
     public ?string $package = null;
 
-    abstract public function getOperationName(): string;
+    abstract public function getOperationName(): Operation;
 }

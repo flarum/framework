@@ -9,7 +9,7 @@
 
 namespace Flarum\PackageManager\Command;
 
-use Flarum\PackageManager\Task\Task;
+use Flarum\PackageManager\Task\Operation;
 use Flarum\User\User;
 
 class GlobalUpdate extends AbstractActionCommand
@@ -19,8 +19,8 @@ class GlobalUpdate extends AbstractActionCommand
     ) {
     }
 
-    public function getOperationName(): string
+    public function getOperationName(): Operation
     {
-        return Task::UPDATE_GLOBAL;
+        return Operation::UPDATE_GLOBAL;
     }
 }
