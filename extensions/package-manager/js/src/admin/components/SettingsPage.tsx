@@ -48,12 +48,17 @@ export default class SettingsPage extends ExtensionPage {
 
     items.add('control', <ControlSection />, 8);
 
-    if (parseInt(app.data.settings['flarum-package-manager.queue_jobs'])) {
+    if (app.data.settings['flarum-package-manager.queue_jobs'] !== '0' && app.data.settings['flarum-package-manager.queue_jobs']) {
       items.add('queue', <QueueSection />, 5);
     }
 
     items.setPriority('permissions', 0);
 
     return items;
+  }
+
+  onsaved() {
+    super.onsaved();
+    m.redraw();
   }
 }

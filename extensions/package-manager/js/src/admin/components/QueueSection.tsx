@@ -95,12 +95,15 @@ export default class QueueSection extends Component<{}> {
       {
         label: extractText(app.translator.trans('flarum-package-manager.admin.sections.queue.columns.status')),
         content: (task) => (
-          <Label
-            className="PackageManager-queueTable-status"
-            type={{ running: 'neutral', failure: 'error', pending: 'warning', success: 'success' }[task.status()]}
-          >
-            {app.translator.trans(`flarum-package-manager.admin.sections.queue.statuses.${task.status()}`)}
-          </Label>
+          <>
+            <Label
+              className="PackageManager-queueTable-status"
+              type={{ running: 'neutral', failure: 'error', pending: 'warning', success: 'success' }[task.status()]}
+            >
+              {app.translator.trans(`flarum-package-manager.admin.sections.queue.statuses.${task.status()}`)}
+            </Label>
+            {['pending', 'running'].includes(task.status()) && <LoadingIndicator size="small" display="inline" />}
+          </>
         ),
       },
       70

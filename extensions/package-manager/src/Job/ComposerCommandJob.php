@@ -37,9 +37,9 @@ class ComposerCommandJob extends AbstractJob
     public function handle(Dispatcher $bus)
     {
         try {
-            ComposerAdapter::setPhpVersion($this->phpVersion);
-
             $this->command->task->start();
+
+            ComposerAdapter::setPhpVersion($this->phpVersion);
 
             $bus->dispatch($this->command);
 
