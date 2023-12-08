@@ -22,6 +22,7 @@ use Flarum\PackageManager\Event\FlarumUpdated;
 use Flarum\PackageManager\Extension\Event\Updated;
 use Flarum\PackageManager\Listener\ClearCacheAfterUpdate;
 use Flarum\PackageManager\Listener\ReCheckForUpdates;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Monolog\Formatter\LineFormatter;
@@ -52,7 +53,12 @@ class PackageManagerServiceProvider extends AbstractServiceProvider
             @ini_set('memory_limit', '1G');
             @set_time_limit(5 * 60);
 
-            return new ComposerAdapter($composer, $container->make(OutputLogger::class), $container->make(Paths::class));
+            return new ComposerAdapter(
+                $composer,
+                $container->make(OutputLogger::class),
+                $container->make(Paths::class),
+                $container->make(SettingsRepositoryInterface::class)
+            );
         });
 
         $this->container->alias(ComposerAdapter::class, 'flarum.composer');

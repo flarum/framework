@@ -1,5 +1,16 @@
 flarum-package-manager:
   admin:
+    composer:
+      minimum_stability:
+        label: Minimum Stability
+        help: The type of packages allowed to be installed. Do not change this unless you know what you are doing.
+        options:
+          stable: Stable (Recommended)
+          rc: Release Candidate
+          beta: Beta
+          alpha: Alpha
+          dev: Dev
+
     exceptions:
       composer_command_failure: Failed to execute. Check the composer logs in storage/logs/composer.
       extension_already_installed: Extension is already installed.

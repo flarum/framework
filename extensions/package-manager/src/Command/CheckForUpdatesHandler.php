@@ -77,6 +77,10 @@ class CheckForUpdatesHandler
         foreach ($firstOutput['installed'] as &$mainPackageUpdate) {
             $mainPackageUpdate['latest-minor'] = $mainPackageUpdate['latest-major'] = null;
 
+            if ($mainPackageUpdate['latest-status'] === 'up-to-date') {
+                continue;
+            }
+
             if (isset($mainPackageUpdate['latest-status']) && $mainPackageUpdate['latest-status'] === 'update-possible' && Util::isMajorUpdate($mainPackageUpdate['version'], $mainPackageUpdate['latest'])) {
                 $mainPackageUpdate['latest-major'] = $mainPackageUpdate['latest'];
 

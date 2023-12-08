@@ -62,8 +62,6 @@ class GlobalUpdateHandler
             '--with-all-dependencies' => true,
         ];
 
-        dd($this->config->inDebugMode());
-
         $output = $this->composer->run(
             new ArrayInput($input),
             $command->task ?? null
