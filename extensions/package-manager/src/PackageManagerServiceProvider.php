@@ -42,7 +42,7 @@ class PackageManagerServiceProvider extends AbstractServiceProvider
             $paths = $container->make(Paths::class);
 
             Platform::putenv('COMPOSER_HOME', "$paths->storage/.composer");
-            Platform::putenv("COMPOSER", "$paths->base/composer.json");
+            Platform::putenv('COMPOSER', "$paths->base/composer.json");
             Platform::putenv('COMPOSER_DISABLE_XDEBUG_WARN', '1');
             Config::$defaultConfig['vendor-dir'] = $paths->vendor;
 
