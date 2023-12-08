@@ -18,6 +18,7 @@ flarum-package-manager:
 
       guessed_cause:
         extension_incompatible_with_instance: The extension is most likely incompatible with your current Flarum instance.
+        extension_not_found: The extension was not found or does not exist.
         extensions_incompatible_with_new_major: >
           Some installed extensions are not compatible with the newest major release.
           Please wait until the extensions are updated to be compatible by the authors, or remove them before proceeding.
