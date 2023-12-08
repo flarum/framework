@@ -13,6 +13,7 @@ use Composer\Config;
 use Composer\Console\Application;
 use Flarum\Foundation\Paths;
 use Flarum\PackageManager\OutputLogger;
+use Flarum\PackageManager\Support\Util;
 use Flarum\PackageManager\Task\Task;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -61,7 +62,7 @@ class ComposerAdapter
         chdir($currDir);
 
         // @phpstan-ignore-next-line
-        $command = $input->__toString();
+        $command = Util::readableConsoleInput($input);
         $output = $this->output->fetch();
 
         if ($task) {

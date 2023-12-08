@@ -37,6 +37,8 @@ class GlobalUpdateController implements RequestHandlerInterface
     {
         $actor = RequestUtil::getActor($request);
 
+        dd('wat');
+
         $response = $this->bus->dispatch(
             new GlobalUpdate($actor)
         );

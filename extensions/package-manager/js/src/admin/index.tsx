@@ -27,6 +27,15 @@ app.initializers.add('flarum-package-manager', (app) => {
         </Alert>
       </div>
     ))
+    .registerSetting(() =>
+      app.data.debugEnabled ? (
+        <div className="Form-group">
+          <Alert type="warning" dismissible={false}>
+            {app.translator.trans('flarum-package-manager.admin.settings.debug_mode_warning')}
+          </Alert>
+        </div>
+      ) : null
+    )
     .registerSetting({
       setting: 'flarum-package-manager.queue_jobs',
       label: app.translator.trans('flarum-package-manager.admin.settings.queue_jobs'),

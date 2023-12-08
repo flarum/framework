@@ -11,8 +11,8 @@ namespace Flarum\PackageManager\Command;
 
 use Flarum\PackageManager\Composer\ComposerAdapter;
 use Flarum\PackageManager\Exception\ComposerCommandFailedException;
-use Flarum\PackageManager\Extension\ExtensionUtils;
 use Flarum\PackageManager\Settings\LastUpdateCheck;
+use Flarum\PackageManager\Support\Util;
 use Symfony\Component\Console\Input\ArrayInput;
 
 class CheckForUpdatesHandler
@@ -59,7 +59,7 @@ class CheckForUpdatesHandler
         $majorUpdates = false;
 
         foreach ($firstOutput['installed'] as $package) {
-            if (isset($package['latest-status']) && $package['latest-status'] === 'update-possible' && ExtensionUtils::isMajorUpdate($package['version'], $package['latest'])) {
+            if (isset($package['latest-status']) && $package['latest-status'] === 'update-possible' && Util::isMajorUpdate($package['version'], $package['latest'])) {
                 $majorUpdates = true;
                 break;
             }
@@ -77,7 +77,7 @@ class CheckForUpdatesHandler
         foreach ($firstOutput['installed'] as &$mainPackageUpdate) {
             $mainPackageUpdate['latest-minor'] = $mainPackageUpdate['latest-major'] = null;
 
-            if (isset($mainPackageUpdate['latest-status']) && $mainPackageUpdate['latest-status'] === 'update-possible' && ExtensionUtils::isMajorUpdate($mainPackageUpdate['version'], $mainPackageUpdate['latest'])) {
+            if (isset($mainPackageUpdate['latest-status']) && $mainPackageUpdate['latest-status'] === 'update-possible' && Util::isMajorUpdate($mainPackageUpdate['version'], $mainPackageUpdate['latest'])) {
                 $mainPackageUpdate['latest-major'] = $mainPackageUpdate['latest'];
 
                 $minorPackageUpdate = array_filter($secondOutput['installed'], function ($package) use ($mainPackageUpdate) {

@@ -12,7 +12,7 @@ namespace Flarum\PackageManager\Tests\integration;
 use Flarum\Foundation\Paths;
 use Flarum\PackageManager\Composer\ComposerAdapter;
 use Flarum\PackageManager\Composer\ComposerJson;
-use Flarum\PackageManager\Extension\ExtensionUtils;
+use Flarum\PackageManager\Support\Util;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
@@ -45,7 +45,7 @@ class TestCase extends \Flarum\Testing\integration\TestCase
             return $package['type'] === 'flarum-extension';
         });
         $installedExtensionIds = array_map(function (string $name) {
-            return ExtensionUtils::nameToId($name);
+            return Util::nameToId($name);
         }, Arr::pluck($installedExtensions, 'name'));
 
         if ($exists) {
