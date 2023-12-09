@@ -36,6 +36,7 @@ app.initializers.add('flarum-package-manager', (app) => {
       default: false,
       type: 'boolean',
       disabled: app.data['flarum-package-manager.using_sync_queue'],
+      // @todo async to sync while setting is enabled
     })
     .registerSetting({
       setting: 'flarum-package-manager.task_retention_days',

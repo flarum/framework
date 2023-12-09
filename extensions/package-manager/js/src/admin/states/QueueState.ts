@@ -27,11 +27,13 @@ export default class QueueState {
       m.redraw();
 
       // Check if there is a pending or running task
-      const task = data?.find((task) => task.status() === 'pending' || task.status() === 'running');
+      const pendingTask = data?.find((task) => task.status() === 'pending' || task.status() === 'running');
 
-      if (task) {
+      if (pendingTask) {
         this.pollQueue(actionTaken);
       } else if (actionTaken) {
+        app.packageManager.control.setLoading(null);
+
         // Refresh the page
         window.location.reload();
       }

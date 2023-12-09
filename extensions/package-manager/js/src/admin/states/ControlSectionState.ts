@@ -8,6 +8,7 @@ import errorHandler from '../utils/errorHandler';
 import jumpToQueue from '../utils/jumpToQueue';
 import { Extension } from 'flarum/admin/AdminApplication';
 import extractText from 'flarum/common/utils/extractText';
+import RequestError from 'flarum/common/utils/RequestError';
 
 export type UpdatedPackage = {
   name: string;
@@ -43,7 +44,7 @@ export type LastUpdateRun = {
   limitedPackages: () => string[];
 };
 
-export type LoadingTypes = UpdaterLoadingTypes | InstallerLoadingTypes | MajorUpdaterLoadingTypes;
+export type LoadingTypes = UpdaterLoadingTypes | InstallerLoadingTypes | MajorUpdaterLoadingTypes | 'queued-action';
 
 export type CoreUpdate = {
   package: UpdatedPackage;
@@ -79,12 +80,40 @@ export default class ControlSectionState {
     return (name && this.loading === name) || (!name && this.loading !== null);
   }
 
-  isLoadingOtherThan(name: LoadingTypes): boolean {
-    return this.loading !== null && this.loading !== name;
-  }
-
   setLoading(name: LoadingTypes): void {
     this.loading = name;
+  }
+
+  requirePackage(data: any) {
+    app.packageManager.control.setLoading('extension-install');
+    app.modal.show(LoadingModal);
+
+    app
+      .request<AsyncBackendResponse & { id: number }>({
+        method: 'POST',
+        url: `${app.forum.attribute('apiUrl')}/package-manager/extensions`,
+        body: {
+          data,
+        },
+      })
+      .then((response) => {
+        if (response.processing) {
+          jumpToQueue();
+        } else {
+          const extensionId = response.id;
+          app.alerts.show(
+            { type: 'success' },
+            app.translator.trans('flarum-package-manager.admin.extensions.successful_install', { extension: extensionId })
+          );
+          window.location.href = `${app.forum.attribute('adminUrl')}#/extension/${extensionId}`;
+          window.location.reload();
+        }
+      })
+      .catch(errorHandler)
+      .finally(() => {
+        app.modal.close();
+        m.redraw();
+      });
   }
 
   checkForUpdates() {
@@ -102,12 +131,12 @@ export default class ControlSectionState {
           this.lastUpdateCheck = response as LastUpdateCheck;
           this.extensionUpdates = this.formatExtensionUpdates(response as LastUpdateCheck);
           this.coreUpdate = this.formatCoreUpdate(response as LastUpdateCheck);
+          this.setLoading(null);
           m.redraw();
         }
       })
       .catch(errorHandler)
       .finally(() => {
-        this.setLoading(null);
         m.redraw();
       });
   }
@@ -132,7 +161,6 @@ export default class ControlSectionState {
         })
         .catch(errorHandler)
         .finally(() => {
-          this.setLoading(null);
           app.modal.close();
           m.redraw();
         });
@@ -163,7 +191,6 @@ export default class ControlSectionState {
       })
       .catch(errorHandler)
       .finally(() => {
-        this.setLoading(null);
         app.modal.close();
         m.redraw();
       });
@@ -188,7 +215,6 @@ export default class ControlSectionState {
       })
       .catch(errorHandler)
       .finally(() => {
-        this.setLoading(null);
         app.modal.close();
         m.redraw();
       });
@@ -235,5 +261,37 @@ export default class ControlSectionState {
         },
       },
     };
+  }
+
+  majorUpdate({ dryRun }: { dryRun: boolean }) {
+    app.packageManager.control.setLoading(dryRun ? 'major-update-dry-run' : 'major-update');
+    app.modal.show(LoadingModal);
+    const updateState = this.lastUpdateRun.major;
+
+    app
+      .request<AsyncBackendResponse | null>({
+        method: 'POST',
+        url: `${app.forum.attribute('apiUrl')}/package-manager/major-update`,
+        body: {
+          data: { dryRun },
+        },
+      })
+      .then((response) => {
+        if (response?.processing) {
+          jumpToQueue();
+        } else {
+          app.alerts.show({ type: 'success' }, app.translator.trans('flarum-package-manager.admin.update_successful'));
+          window.location.reload();
+        }
+      })
+      .catch(errorHandler)
+      .catch((e: RequestError) => {
+        app.modal.close();
+        updateState.status = 'failure';
+        updateState.incompatibleExtensions = e.response?.errors?.pop()?.incompatible_extensions as string[];
+      })
+      .finally(() => {
+        m.redraw();
+      });
   }
 }

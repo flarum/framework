@@ -48,7 +48,7 @@ export default class Updater extends Component<IUpdaterAttrs> {
   availableUpdatesView() {
     const state = app.packageManager.control;
 
-    if (app.packageManager.control.isLoading()) {
+    if (app.packageManager.control.isLoading('check') || app.packageManager.control.isLoading('global-update')) {
       return (
         <div className="PackageManager-extensions">
           <LoadingIndicator />
@@ -101,7 +101,7 @@ export default class Updater extends Component<IUpdaterAttrs> {
         icon="fas fa-sync-alt"
         onclick={() => app.packageManager.control.checkForUpdates()}
         loading={app.packageManager.control.isLoading('check')}
-        disabled={app.packageManager.control.isLoadingOtherThan('check')}
+        disabled={app.packageManager.control.isLoading()}
       >
         {app.translator.trans('flarum-package-manager.admin.updater.check_for_updates')}
       </Button>,
@@ -115,7 +115,7 @@ export default class Updater extends Component<IUpdaterAttrs> {
         icon="fas fa-play"
         onclick={() => app.packageManager.control.updateGlobally()}
         loading={app.packageManager.control.isLoading('global-update')}
-        disabled={app.packageManager.control.isLoadingOtherThan('global-update')}
+        disabled={app.packageManager.control.isLoading()}
       >
         {app.translator.trans('flarum-package-manager.admin.updater.run_global_update')}
       </Button>
