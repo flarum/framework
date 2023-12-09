@@ -92,6 +92,10 @@ flarum-package-manager:
       queue_jobs_help: >
         You can read about a <a href='{basic_impl_link}'>basic queue</a> implementation or a <a href='{adv_impl_link}'>more advanced</a> one.
         Make sure the PHP version used for the queue is {php_version}. Make sure <a href='{folder_perms_link}'>folder permissions</a> are correctly configured.
+      task_retention_days: Task retention days
+      task_retention_days_help: >
+          The number of days to keep completed tasks in the database. Tasks older than this will be deleted.
+          Set to 0 to keep all tasks.
 
     updater:
       up_to_date: Everything is up to date!

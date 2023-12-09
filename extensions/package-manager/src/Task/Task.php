@@ -60,18 +60,6 @@ class Task extends AbstractModel
         'finished_at' => 'datetime',
     ];
 
-    public static function boot()
-    {
-        parent::boot();
-
-        static::created(function (self $task) {
-            // auto clear tasks older than 2 weeks.
-            static::query()
-                ->where('created_at', '<', Carbon::now()->subWeeks(2))
-                ->delete();
-        });
-    }
-
     public static function build(string $operation, ?string $package): self
     {
         $task = new static;

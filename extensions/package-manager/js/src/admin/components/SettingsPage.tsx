@@ -52,7 +52,7 @@ export default class SettingsPage extends ExtensionPage {
       items.add('queue', <QueueSection />, 5);
     }
 
-    items.setPriority('permissions', 0);
+    items.remove('permissions');
 
     return items;
   }

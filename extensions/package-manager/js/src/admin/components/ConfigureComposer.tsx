@@ -13,6 +13,7 @@ export interface IConfigureComposer extends ComponentAttrs {
 
 export default class ConfigureComposer<CustomAttrs extends IConfigureComposer = IConfigureComposer> extends Component<CustomAttrs> {
   protected settings: Record<string, Stream<any>> = {};
+  protected initialSettings: Record<string, any> | null = null;
   protected loading: boolean = false;
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
@@ -39,7 +40,7 @@ export default class ConfigureComposer<CustomAttrs extends IConfigureComposer = 
         })}
 
         <div className="Form-group">
-          <Button className="Button Button--primary" loading={this.loading} onclick={this.submit.bind(this)}>
+          <Button className="Button Button--primary" loading={this.loading} onclick={this.submit.bind(this)} disabled={!this.isDirty()}>
             {app.translator.trans('core.admin.settings.submit_button')}
           </Button>
         </div>
@@ -74,10 +75,18 @@ export default class ConfigureComposer<CustomAttrs extends IConfigureComposer = 
         Object.keys(data).forEach((key) => {
           this.settings[key] = Stream(data[key]);
         });
+
+        if (this.initialSettings === null) {
+          this.initialSettings = data;
+        }
       })
       .finally(() => {
         this.loading = false;
         m.redraw();
       });
+  }
+
+  isDirty() {
+    return JSON.stringify(this.initialSettings) !== JSON.stringify(this.settings);
   }
 }

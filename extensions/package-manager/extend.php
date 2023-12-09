@@ -49,7 +49,8 @@ return [
         ->default(Settings\LastUpdateCheck::key(), json_encode(Settings\LastUpdateCheck::default()))
         ->default(Settings\LastUpdateRun::key(), json_encode(Settings\LastUpdateRun::default()))
         ->default('flarum-package-manager.queue_jobs', false)
-        ->default('flarum-package-manager.minimum_stability', 'stable'),
+        ->default('flarum-package-manager.minimum_stability', 'stable')
+        ->default('flarum-package-manager.task_retention_days', 30),
 
     (new Extend\ServiceProvider)
         ->register(PackageManagerServiceProvider::class),

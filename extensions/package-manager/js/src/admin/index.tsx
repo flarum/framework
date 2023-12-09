@@ -37,6 +37,12 @@ app.initializers.add('flarum-package-manager', (app) => {
       type: 'boolean',
       disabled: app.data['flarum-package-manager.using_sync_queue'],
     })
+    .registerSetting({
+      setting: 'flarum-package-manager.task_retention_days',
+      label: app.translator.trans('flarum-package-manager.admin.settings.task_retention_days'),
+      help: app.translator.trans('flarum-package-manager.admin.settings.task_retention_days_help'),
+      type: 'number',
+    })
     .registerPage(SettingsPage);
 
   extend(ExtensionPage.prototype, 'topItems', function (items) {

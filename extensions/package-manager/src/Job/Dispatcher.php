@@ -9,6 +9,7 @@
 
 namespace Flarum\PackageManager\Job;
 
+use Carbon\Carbon;
 use Flarum\Bus\Dispatcher as Bus;
 use Flarum\PackageManager\Command\AbstractActionCommand;
 use Flarum\PackageManager\Task\Task;
@@ -79,6 +80,21 @@ class Dispatcher
             $data = $this->bus->dispatch($command);
         }
 
+        $this->clearOldTasks();
+
         return new DispatcherResponse($queueJobs, $data ?? null);
+    }
+
+    protected function clearOldTasks(): void
+    {
+        $days = $this->settings->get('flarum-package-manager.task_retention_days');
+
+        if ($days === null || ((int) $days) === 0) {
+            return;
+        }
+
+        Task::query()
+            ->where('created_at', '<', Carbon::now()->subDays($days))
+            ->delete();
     }
 }
