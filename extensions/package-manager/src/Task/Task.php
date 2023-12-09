@@ -20,8 +20,8 @@ use Flarum\Database\AbstractModel;
  * @property string $package
  * @property string $output
  * @property Carbon $created_at
- * @property Carbon $started_at
- * @property Carbon $finished_at
+ * @property Carbon|null $started_at
+ * @property Carbon|null $finished_at
  * @property float $peak_memory_used
  */
 class Task extends AbstractModel
@@ -84,6 +84,14 @@ class Task extends AbstractModel
 
     public function end(bool $success): bool
     {
+        if ($this->finished_at) {
+            return true;
+        }
+
+        if (! $this->started_at) {
+            $this->start();
+        }
+
         $this->status = $success ? static::SUCCESS : static::FAILURE;
         $this->finished_at = Carbon::now();
         $this->peak_memory_used = round(memory_get_peak_usage() / 1024);

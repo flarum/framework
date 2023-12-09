@@ -76,7 +76,7 @@ app.initializers.add('flarum-package-manager', (app) => {
             });
         }}
       >
-        Remove
+        {app.translator.trans('flarum-package-manager.admin.extensions.remove')}
       </Button>
     );
   });

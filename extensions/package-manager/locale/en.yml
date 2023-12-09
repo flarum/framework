@@ -28,6 +28,7 @@ flarum-package-manager:
       install: Install a new extension
       install_help: Fill in the extension package name to proceed. Visit {extiverse} to browse extensions.
       proceed: Proceed
+      remove: Uninstall
       successful_install: "{extension} was installed successfully, redirecting.."
       successful_remove: Extension removed successfully.
       successful_update: "{extension} was updated successfully, redirecting.."
@@ -59,7 +60,7 @@ flarum-package-manager:
         columns:
           details: Details
           elapsed_time: Completed in
-          peak_memory_used: Maximum Memory Used
+          peak_memory_used: Peak Memory Usage
           operation: Operation
           package: Package
           status: Status

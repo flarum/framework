@@ -13,10 +13,11 @@ use Flarum\Bus\Dispatcher;
 use Flarum\PackageManager\Command\AbstractActionCommand;
 use Flarum\PackageManager\Composer\ComposerAdapter;
 use Flarum\Queue\AbstractJob;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Throwable;
 
-class ComposerCommandJob extends AbstractJob
+class ComposerCommandJob extends AbstractJob implements ShouldBeUnique
 {
     /**
      * @var AbstractActionCommand
@@ -56,11 +57,14 @@ class ComposerCommandJob extends AbstractJob
         }
 
         $this->command->task->end(false);
-
-        $this->fail($exception);
     }
 
-    public function middleware()
+    public function failed(Throwable $exception): void
+    {
+        $this->command->task->end(false);
+    }
+
+    public function middleware(): array
     {
         return [
             new WithoutOverlapping(),

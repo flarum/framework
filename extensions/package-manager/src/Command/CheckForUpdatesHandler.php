@@ -56,9 +56,10 @@ class CheckForUpdatesHandler
         $firstOutput = $this->runComposerCommand(false, $command);
         $firstOutput = json_decode($this->cleanJson($firstOutput), true);
 
+        $installed = $firstOutput['installed'] ?? [];
         $majorUpdates = false;
 
-        foreach ($firstOutput['installed'] as $package) {
+        foreach ($installed as $package) {
             if (isset($package['latest-status']) && $package['latest-status'] === 'update-possible' && Util::isMajorUpdate($package['version'], $package['latest'])) {
                 $majorUpdates = true;
                 break;
@@ -74,7 +75,7 @@ class CheckForUpdatesHandler
             $secondOutput = ['installed' => []];
         }
 
-        foreach ($firstOutput['installed'] as &$mainPackageUpdate) {
+        foreach ($installed as &$mainPackageUpdate) {
             $mainPackageUpdate['latest-minor'] = $mainPackageUpdate['latest-major'] = null;
 
             if ($mainPackageUpdate['latest-status'] === 'up-to-date') {
@@ -97,7 +98,7 @@ class CheckForUpdatesHandler
         }
 
         return $this->lastUpdateCheck
-            ->with('installed', $firstOutput['installed'])
+            ->with('installed', $installed)
             ->save();
     }
 

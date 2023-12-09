@@ -68,6 +68,8 @@ class Dispatcher
     {
         $queueJobs = ($this->runSyncOverride === false) || ($this->runSyncOverride !== true && $this->settings->get('flarum-package-manager.queue_jobs'));
 
+        // @todo: check and skip if there is already a pending or running task.
+
         if ($queueJobs && (! $this->queue instanceof SyncQueue)) {
             $task = Task::build($command->getOperationName(), $command->package ?? null);
 
