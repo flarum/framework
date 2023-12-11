@@ -19,6 +19,7 @@ use Flarum\Database\AbstractModel;
  * @property string $command
  * @property string $package
  * @property string $output
+ * @property string|null $guessed_cause
  * @property Carbon $created_at
  * @property Carbon|null $started_at
  * @property Carbon|null $finished_at
@@ -50,7 +51,7 @@ class Task extends AbstractModel
 
     protected $table = 'package_manager_tasks';
 
-    protected $fillable = ['command', 'output'];
+    protected $guarded = ['id'];
 
     public $timestamps = true;
 

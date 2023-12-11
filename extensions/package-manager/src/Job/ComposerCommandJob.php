@@ -12,6 +12,7 @@ namespace Flarum\PackageManager\Job;
 use Flarum\Bus\Dispatcher;
 use Flarum\PackageManager\Command\AbstractActionCommand;
 use Flarum\PackageManager\Composer\ComposerAdapter;
+use Flarum\PackageManager\Exception\ComposerCommandFailedException;
 use Flarum\Queue\AbstractJob;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -56,12 +57,16 @@ class ComposerCommandJob extends AbstractJob implements ShouldBeUnique
             $this->command->task->output = $exception->getMessage();
         }
 
+        if ($exception instanceof ComposerCommandFailedException) {
+            $this->command->task->guessed_cause = $exception->guessCause();
+        }
+
         $this->command->task->end(false);
     }
 
     public function failed(Throwable $exception): void
     {
-        $this->command->task->end(false);
+        $this->abort($exception);
     }
 
     public function middleware(): array

@@ -18,6 +18,10 @@ app.initializers.add('flarum-package-manager', (app) => {
 
   app.packageManager = new PackageManagerState();
 
+  if (app.data['flarum-package-manager.using_sync_queue']) {
+    app.data.settings['flarum-package-manager.queue_jobs'] = '0';
+  }
+
   app.extensionData
     .for('flarum-package-manager')
     .registerSetting({
@@ -33,10 +37,8 @@ app.initializers.add('flarum-package-manager', (app) => {
           })
         )
       ),
-      default: false,
       type: 'boolean',
       disabled: app.data['flarum-package-manager.using_sync_queue'],
-      // @todo async to sync while setting is enabled
     })
     .registerSetting({
       setting: 'flarum-package-manager.task_retention_days',

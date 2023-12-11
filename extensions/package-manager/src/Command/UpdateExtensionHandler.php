@@ -96,6 +96,7 @@ class UpdateExtensionHandler
             ]);
         }
 
+        // @todo: soft update and hard update instead of directly hard updating?
         $output = $this->composer->run(
             new StringInput("require $extension->name:*"),
             $command->task ?? null

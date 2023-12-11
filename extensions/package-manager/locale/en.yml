@@ -75,7 +75,9 @@ flarum-package-manager:
           update_minor: Minor update
           why_not: Analyze why a package cannot be updated
         output_modal:
+          cause_unknown: Unknown
           command: Composer Command
+          guessed_cause: Cause
           output: Output
         refresh: Refresh tasks list
         statuses:
