@@ -35,9 +35,10 @@ class UpdateExtensionController implements RequestHandlerInterface
     {
         $actor = RequestUtil::getActor($request);
         $extensionId = Arr::get($request->getQueryParams(), 'id');
+        $updateMode = Arr::get($request->getParsedBody(), 'data.updateMode');
 
         $response = $this->bus->dispatch(
-            new UpdateExtension($actor, $extensionId)
+            new UpdateExtension($actor, $extensionId, $updateMode)
         );
 
         return $response->queueJobs

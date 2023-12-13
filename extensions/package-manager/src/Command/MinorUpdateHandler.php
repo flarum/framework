@@ -57,8 +57,8 @@ class MinorUpdateHandler
 
         $coreRequirement = $this->composerJson->get()['require']['flarum/core'];
 
+        // Set all extensions to * versioning.
         $this->composerJson->require('*', '*');
-        $this->composerJson->require('flarum/core', $coreRequirement);
 
         $output = $this->composer->run(
             new StringInput('update --prefer-dist --no-dev -a --with-all-dependencies'),

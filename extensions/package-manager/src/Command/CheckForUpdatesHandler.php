@@ -9,10 +9,13 @@
 
 namespace Flarum\PackageManager\Command;
 
+use Flarum\Extension\ExtensionManager;
 use Flarum\PackageManager\Composer\ComposerAdapter;
+use Flarum\PackageManager\Composer\ComposerJson;
 use Flarum\PackageManager\Exception\ComposerCommandFailedException;
 use Flarum\PackageManager\Settings\LastUpdateCheck;
 use Flarum\PackageManager\Support\Util;
+use Illuminate\Support\Collection;
 use Symfony\Component\Console\Input\ArrayInput;
 
 class CheckForUpdatesHandler
@@ -27,10 +30,22 @@ class CheckForUpdatesHandler
      */
     protected $lastUpdateCheck;
 
-    public function __construct(ComposerAdapter $composer, LastUpdateCheck $lastUpdateCheck)
+    /**
+     * @var ExtensionManager
+     */
+    protected $extensions;
+
+    /**
+     * @var ComposerJson
+     */
+    protected $composerJson;
+
+    public function __construct(ComposerAdapter $composer, LastUpdateCheck $lastUpdateCheck, ExtensionManager $extensions, ComposerJson $composerJson)
     {
         $this->composer = $composer;
         $this->lastUpdateCheck = $lastUpdateCheck;
+        $this->extensions = $extensions;
+        $this->composerJson = $composerJson;
     }
 
     /**
@@ -56,15 +71,10 @@ class CheckForUpdatesHandler
         $firstOutput = $this->runComposerCommand(false, $command);
         $firstOutput = json_decode($this->cleanJson($firstOutput), true);
 
-        $installed = $firstOutput['installed'] ?? [];
-        $majorUpdates = false;
-
-        foreach ($installed as $package) {
-            if (isset($package['latest-status']) && $package['latest-status'] === 'update-possible' && Util::isMajorUpdate($package['version'], $package['latest'])) {
-                $majorUpdates = true;
-                break;
-            }
-        }
+        $installed = new Collection($firstOutput['installed'] ?? []);
+        $majorUpdates = $installed->contains(function (array $package) {
+            return isset($package['latest-status']) && $package['latest-status'] === 'update-possible' && Util::isMajorUpdate($package['version'], $package['latest']);
+        });
 
         if ($majorUpdates) {
             $secondOutput = $this->runComposerCommand(true, $command);
@@ -75,10 +85,18 @@ class CheckForUpdatesHandler
             $secondOutput = ['installed' => []];
         }
 
-        foreach ($installed as &$mainPackageUpdate) {
+        $updates = new Collection();
+        $composerJson = $this->composerJson->get();
+
+        foreach ($installed as $mainPackageUpdate) {
+            // Skip if not an extension
+            if (! $this->extensions->getExtension(Util::nameToId($mainPackageUpdate['name']))) {
+                continue;
+            }
+
             $mainPackageUpdate['latest-minor'] = $mainPackageUpdate['latest-major'] = null;
 
-            if ($mainPackageUpdate['latest-status'] === 'up-to-date') {
+            if ($mainPackageUpdate['latest-status'] === 'up-to-date' && Util::isMajorUpdate($mainPackageUpdate['version'], $mainPackageUpdate['latest'])) {
                 continue;
             }
 
@@ -95,10 +113,14 @@ class CheckForUpdatesHandler
             } else {
                 $mainPackageUpdate['latest-minor'] = $mainPackageUpdate['latest'] ?? null;
             }
+
+            $mainPackageUpdate['required-as'] = $composerJson['require'][$mainPackageUpdate['name']] ?? null;
+
+            $updates->push($mainPackageUpdate);
         }
 
         return $this->lastUpdateCheck
-            ->with('installed', $installed)
+            ->with('installed', $updates->values()->toArray())
             ->save();
     }
 
@@ -118,7 +140,6 @@ class CheckForUpdatesHandler
     {
         $input = [
             'command' => 'outdated',
-            '-D' => true,
             '--format' => 'json',
         ];
 

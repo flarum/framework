@@ -17,6 +17,7 @@ class UpdateExtensionValidator extends AbstractValidator
      * {@inheritdoc}
      */
     protected $rules = [
-        'extensionId' => 'required|string'
+        'extensionId' => 'required|string',
+        'updateMode' => 'required|in:soft,hard',
     ];
 }

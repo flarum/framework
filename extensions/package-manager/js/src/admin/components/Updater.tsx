@@ -82,7 +82,10 @@ export default class Updater extends Component<IUpdaterAttrs> {
             <ExtensionItem
               extension={extension}
               updates={state.packageUpdates[extension.id]}
-              onClickUpdate={() => state.updateExtension(extension)}
+              onClickUpdate={{
+                soft: () => state.updateExtension(extension, 'soft'),
+                hard: () => state.updateExtension(extension, 'hard'),
+              }}
               whyNotWarning={state.lastUpdateRun.limitedPackages().includes(extension.name)}
             />
           ))}

@@ -23,5 +23,10 @@ abstract class AbstractActionCommand
      */
     public $package = null;
 
+    /**
+     * @var string|null
+     */
+    public $extensionId = null;
+
     abstract public function getOperationName(): string;
 }

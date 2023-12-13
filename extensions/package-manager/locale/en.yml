@@ -26,13 +26,17 @@ flarum-package-manager:
     extensions:
       check_why_it_failed_updating: Show why it did not update to the latest.
       install: Install a new extension
-      install_help: Fill in the extension package name to proceed. Visit {extiverse} to browse extensions.
+      install_help: >
+        Fill in the extension package name to proceed. You can specify a <semantic_link>semantic version</semantic_link> using the format <code>vendor/package-name:version</code>.
+        Visit {extiverse} to browse extensions.
       proceed: Proceed
       remove: Uninstall
       successful_install: "{extension} was installed successfully, redirecting.."
       successful_remove: Extension removed successfully.
       successful_update: "{extension} was updated successfully, redirecting.."
       update: Update
+      update_soft_label: Soft update
+      update_hard_label: Hard update
 
     file_permissions: >
       The package manager requires read and write permissions on the following files and directories: composer.json, composer.lock, vendor, storage, storage/.composer

@@ -24,6 +24,8 @@ export default class Installer extends Component<InstallerAttrs> {
         <p className="helpText">
           {app.translator.trans('flarum-package-manager.admin.extensions.install_help', {
             extiverse: <a href="https://extiverse.com">extiverse.com</a>,
+            semantic_link: <a href="https://devhints.io/semver" />,
+            code: <code />,
           })}
         </p>
         <div className="FormControl-container">

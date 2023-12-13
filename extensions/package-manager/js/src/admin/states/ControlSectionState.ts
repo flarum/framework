@@ -17,6 +17,8 @@ export type UpdatedPackage = {
   'latest-minor': string | null;
   'latest-major': string | null;
   'latest-status': string;
+  'required-as': string;
+  'direct-dependency': boolean;
   description: string;
 };
 
@@ -167,7 +169,7 @@ export default class ControlSectionState {
     }
   }
 
-  updateExtension(extension: Extension) {
+  updateExtension(extension: Extension, updateMode: 'soft' | 'hard') {
     app.modal.show(LoadingModal);
     this.setLoading('extension-update');
 
@@ -175,6 +177,11 @@ export default class ControlSectionState {
       .request<AsyncBackendResponse | null>({
         method: 'PATCH',
         url: `${app.forum.attribute('apiUrl')}/package-manager/extensions/${extension.id}`,
+        body: {
+          data: {
+            updateMode,
+          },
+        },
       })
       .then((response) => {
         if (response?.processing) {

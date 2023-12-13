@@ -11,6 +11,7 @@ namespace Flarum\PackageManager\Job;
 
 use Carbon\Carbon;
 use Flarum\Bus\Dispatcher as Bus;
+use Flarum\Extension\ExtensionManager;
 use Flarum\PackageManager\Command\AbstractActionCommand;
 use Flarum\PackageManager\Task\Task;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -35,6 +36,11 @@ class Dispatcher
     protected $settings;
 
     /**
+     * @var ExtensionManager
+     */
+    protected $extensions;
+
+    /**
      * Overrides the user setting for execution mode if set.
      * Runs synchronously regardless of user setting if set true.
      * Asynchronously if set false.
@@ -43,11 +49,12 @@ class Dispatcher
      */
     protected $runSyncOverride;
 
-    public function __construct(Bus $bus, Queue $queue, SettingsRepositoryInterface $settings)
+    public function __construct(Bus $bus, Queue $queue, SettingsRepositoryInterface $settings, ExtensionManager $extensions)
     {
         $this->bus = $bus;
         $this->queue = $queue;
         $this->settings = $settings;
+        $this->extensions = $extensions;
     }
 
     public function sync(): self
@@ -74,11 +81,12 @@ class Dispatcher
         }
 
         if ($queueJobs && (! $this->queue instanceof SyncQueue)) {
-            $task = Task::build($command->getOperationName(), $command->package ?? null);
+            $extension = $command->extensionId ? $this->extensions->getExtension($command->extensionId) : null;
+
+            $task = Task::build($command->getOperationName(), $command->package ?? ($extension ? $extension->name : null));
 
             $command->task = $task;
 
-            // @todo: show guessed caused for queueing
             $this->queue->push(
                 new ComposerCommandJob($command, PHP_VERSION)
             );
