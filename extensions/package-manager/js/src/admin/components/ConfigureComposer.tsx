@@ -76,9 +76,7 @@ export default class ConfigureComposer<CustomAttrs extends IConfigureComposer = 
           this.settings[key] = Stream(data[key]);
         });
 
-        if (this.initialSettings === null) {
-          this.initialSettings = data;
-        }
+        this.initialSettings = data;
       })
       .finally(() => {
         this.loading = false;

@@ -96,7 +96,7 @@ class ComposerJson
         return $json;
     }
 
-    protected function set(array $json): void
+    public function set(array $json): void
     {
         $this->filesystem->put($this->getComposerJsonPath(), json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     }

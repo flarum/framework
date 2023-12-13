@@ -11,6 +11,7 @@ namespace Flarum\PackageManager\Api\Controller;
 
 use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;
+use Flarum\PackageManager\Composer\ComposerJson;
 use Flarum\PackageManager\ConfigureComposerValidator;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -34,10 +35,16 @@ class ConfigureComposerController implements RequestHandlerInterface
      */
     protected $paths;
 
-    public function __construct(ConfigureComposerValidator $validator, Paths $paths)
+    /**
+     * @var ComposerJson
+     */
+    protected $composerJson;
+
+    public function __construct(ConfigureComposerValidator $validator, Paths $paths, ComposerJson $composerJson)
     {
         $this->validator = $validator;
         $this->paths = $paths;
+        $this->composerJson = $composerJson;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -48,32 +55,18 @@ class ConfigureComposerController implements RequestHandlerInterface
         $actor->assertAdmin();
 
         $this->validator->assertValid($data);
-        $composerJson = $this->readComposerJson();
+        $composerJson = $this->composerJson->get();
 
         if (! empty($data)) {
             foreach ($data as $key => $value) {
                 Arr::set($composerJson, $key, $value);
             }
 
-            $this->writeComposerJson($composerJson);
+            $this->composerJson->set($composerJson);
         }
 
         return new JsonResponse([
             'data' => Arr::only($composerJson, $this->configurable),
         ]);
-    }
-
-    protected function readComposerJson()
-    {
-        $composerJson = file_get_contents($this->paths->base.'/composer.json');
-        $composerJson = json_decode($composerJson, true);
-
-        return $composerJson;
-    }
-
-    protected function writeComposerJson($composerJson)
-    {
-        $composerJson = json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        file_put_contents($this->paths->base.'/composer.json', $composerJson);
     }
 }
