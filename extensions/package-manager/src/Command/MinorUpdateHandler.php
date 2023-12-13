@@ -55,8 +55,6 @@ class MinorUpdateHandler
     {
         $command->actor->assertAdmin();
 
-        $coreRequirement = $this->composerJson->get()['require']['flarum/core'];
-
         // Set all extensions to * versioning.
         $this->composerJson->require('*', '*');
 

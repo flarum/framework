@@ -14,6 +14,7 @@ flarum-package-manager:
     exceptions:
       composer_command_failure: Failed to execute. Check the composer logs in storage/logs/composer.
       extension_already_installed: Extension is already installed.
+      extension_not_directly_dependency: Extension is installed as a dependency of another extension, it cannot be directly removed.
       extension_not_installed: Extension not found.
 
       guessed_cause:

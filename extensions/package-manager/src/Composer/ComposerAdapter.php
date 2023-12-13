@@ -15,7 +15,6 @@ use Flarum\Foundation\Paths;
 use Flarum\PackageManager\OutputLogger;
 use Flarum\PackageManager\Support\Util;
 use Flarum\PackageManager\Task\Task;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -39,25 +38,16 @@ class ComposerAdapter
      */
     private $paths;
 
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    private $settings;
-
-    public function __construct(Application $application, OutputLogger $logger, Paths $paths, SettingsRepositoryInterface $settings)
+    public function __construct(Application $application, OutputLogger $logger, Paths $paths)
     {
         $this->application = $application;
         $this->logger = $logger;
         $this->paths = $paths;
-        $this->settings = $settings;
     }
 
     public function run(InputInterface $input, ?Task $task = null): ComposerOutput
     {
         $this->application->resetComposer();
-
-        // Pre-configure composer
-        $this->configureComposer();
 
         $output = new BufferedOutput();
 
@@ -67,7 +57,6 @@ class ComposerAdapter
         $exitCode = $this->application->run($input, $output);
         chdir($currDir);
 
-        // @phpstan-ignore-next-line
         $command = Util::readableConsoleInput($input);
         $output = $output->fetch();
 
@@ -83,24 +72,5 @@ class ComposerAdapter
     public static function setPhpVersion(string $phpVersion)
     {
         Config::$defaultConfig['platform']['php'] = $phpVersion;
-    }
-
-    private function configureComposer(): void
-    {
-        $composerJson = json_decode(file_get_contents($this->paths->base.'/composer.json'), true);
-        $dirty = false;
-
-        // Set the minimum stability if not already set.
-        $minimumStability = $this->settings->get('flarum-package-manager.minimum_stability');
-        $composerMinimumStability = $composerJson['minimum-stability'] ?? null;
-
-        if ($minimumStability && $composerMinimumStability !== $minimumStability) {
-            $composerJson['minimum-stability'] = $minimumStability;
-            $dirty = true;
-        }
-
-        if ($dirty) {
-            file_put_contents($this->paths->base.'/composer.json', json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-        }
     }
 }

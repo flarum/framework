@@ -62,5 +62,6 @@ return [
         ->handler(Exception\MajorUpdateFailedException::class, Exception\ExceptionHandler::class)
         ->status('extension_already_installed', 409)
         ->status('extension_not_installed', 409)
-        ->status('no_new_major_version', 409),
+        ->status('no_new_major_version', 409)
+        ->status('extension_not_directly_dependency', 409),
 ];
