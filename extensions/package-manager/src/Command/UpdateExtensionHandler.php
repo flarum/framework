@@ -10,8 +10,6 @@
 namespace Flarum\PackageManager\Command;
 
 use Flarum\Extension\ExtensionManager;
-use Flarum\Foundation\Paths;
-use Flarum\Foundation\ValidationException;
 use Flarum\PackageManager\Composer\ComposerAdapter;
 use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
 use Flarum\PackageManager\Exception\ExtensionNotInstalledException;
