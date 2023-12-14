@@ -35,7 +35,10 @@ class FulltextFilter extends AbstractFulltextFilter
         $discussionSubquery = Discussion::select('id')
             ->selectRaw('NULL as score')
             ->selectRaw('first_post_id as most_relevant_post_id')
-            ->whereRaw('MATCH('.$grammar->wrap('discussions.title').') AGAINST (? IN BOOLEAN MODE)', [$value]);
+            ->where(function ($query) use ($grammar, $value) {
+                $query->where('discussions.title', 'like', '%' . $value . '%');
+            });
+
 
         // Construct a subquery to fetch discussions which contain relevant
         // posts. Retrieve the collective relevance of each discussion's posts,
@@ -46,7 +49,9 @@ class FulltextFilter extends AbstractFulltextFilter
             ->selectRaw('SUM(MATCH('.$grammar->wrap('posts.content').') AGAINST (?)) as score', [$value])
             ->selectRaw('SUBSTRING_INDEX(GROUP_CONCAT('.$grammar->wrap('posts.id').' ORDER BY MATCH('.$grammar->wrap('posts.content').') AGAINST (?) DESC, '.$grammar->wrap('posts.number').'), \',\', 1) as most_relevant_post_id', [$value])
             ->where('posts.type', 'comment')
-            ->whereRaw('MATCH('.$grammar->wrap('posts.content').') AGAINST (? IN BOOLEAN MODE)', [$value])
+            ->where(function ($query) use ($grammar, $value) {
+                $query->where('posts.content', 'like', '%' . $value . '%');
+            })
             ->groupBy('posts.discussion_id')
             ->union($discussionSubquery);
 
