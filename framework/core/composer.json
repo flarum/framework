@@ -75,7 +75,7 @@
         "psr/http-message": "^1.0",
         "psr/http-server-handler": "^1.0",
         "psr/http-server-middleware": "^1.0",
-        "s9e/text-formatter": "^2.3.6",
+        "s9e/text-formatter": ">=2.3.6 <2.15",
         "staudenmeir/eloquent-eager-limit": "^1.0",
         "sycho/json-api": "^0.5.0",
         "sycho/sourcemap": "^2.0.0",
