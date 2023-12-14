@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.8.4](https://github.com/flarum/framework/compare/v1.8.3...v1.8.4)
+### Fixed
+* `s9e/textformatter` 2.15 has breaking changes [#3946]
+
 ## [v1.8.3](https://github.com/flarum/framework/compare/v1.8.2...v1.8.3)
 ### Fixed
 * Console extender does not accept ::class [#3900]
