@@ -14,6 +14,21 @@ use Flarum\Foundation\AbstractValidator;
 class ConfigureComposerValidator extends AbstractValidator
 {
     protected $rules = [
-        'minimum-stability' => ['sometimes', 'in:stable,RC,beta,alpha,dev'],
+        'composer' => [
+            'minimum-stability' => ['sometimes', 'in:stable,RC,beta,alpha,dev'],
+            'repositories' => ['sometimes', 'array'],
+            'repositories.*.type' => ['sometimes', 'in:composer,vcs,path'],
+            'repositories.*.url' => ['sometimes', 'string'],
+        ],
+        'auth' => [
+            'github-oauth' => ['sometimes', 'array'],
+            'github-oauth.*' => ['sometimes', 'string'],
+            'gitlab-oauth' => ['sometimes', 'array'],
+            'gitlab-oauth.*' => ['sometimes', 'string'],
+            'gitlab-token' => ['sometimes', 'array'],
+            'gitlab-token.*' => ['sometimes', 'string'],
+            'bearer' => ['sometimes', 'array'],
+            'bearer.*' => ['sometimes', 'string'],
+        ],
     ];
 }

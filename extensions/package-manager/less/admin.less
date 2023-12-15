@@ -27,3 +27,28 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.Form--controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.ButtonGroup--full {
+  width: 100%;
+  display: flex;
+
+  > .Button:first-child {
+    flex-grow: 1;
+    text-align: start;
+  }
+}
+
+.ConfigureAuth-hosts, .ConfigureComposer-repositories {
+  > .ButtonGroup {
+    margin-bottom: 8px;
+  }
+}

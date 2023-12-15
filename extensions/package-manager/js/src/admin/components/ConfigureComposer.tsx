@@ -1,30 +1,29 @@
 import app from 'flarum/admin/app';
 import type Mithril from 'mithril';
-import Component, { type ComponentAttrs } from 'flarum/common/Component';
-import { CommonSettingsItemOptions, type SettingsComponentOptions } from '@flarum/core/src/admin/components/AdminPage';
-import AdminPage from 'flarum/admin/components/AdminPage';
-import type ItemList from 'flarum/common/utils/ItemList';
-import Stream from 'flarum/common/utils/Stream';
+import ConfigureJson, { type IConfigureJson } from './ConfigureJson';
 import Button from 'flarum/common/components/Button';
+import extractText from 'flarum/common/utils/extractText';
+import RepositoryModal from './RepositoryModal';
 
-export interface IConfigureComposer extends ComponentAttrs {
-  buildSettingComponent: (entry: ((this: this) => Mithril.Children) | SettingsComponentOptions) => Mithril.Children;
-}
+export type Repository = {
+  type: 'composer' | 'vcs' | 'path';
+  url: string;
+};
 
-export default class ConfigureComposer<CustomAttrs extends IConfigureComposer = IConfigureComposer> extends Component<CustomAttrs> {
-  protected settings: Record<string, Stream<any>> = {};
-  protected initialSettings: Record<string, any> | null = null;
-  protected loading: boolean = false;
+export default class ConfigureComposer extends ConfigureJson<IConfigureJson> {
+  protected type = 'composer';
 
-  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
-    super.oninit(vnode);
-
-    this.submit();
+  title(): Mithril.Children {
+    return app.translator.trans('flarum-package-manager.admin.composer.title');
   }
 
-  view(): Mithril.Children {
+  className(): string {
+    return 'ConfigureComposer';
+  }
+
+  content(): Mithril.Children {
     return (
-      <div className="Form">
+      <div className="SettingsGroups-content">
         {this.attrs.buildSettingComponent.call(this, {
           setting: 'minimum-stability',
           label: app.translator.trans('flarum-package-manager.admin.composer.minimum_stability.label'),
@@ -38,53 +37,72 @@ export default class ConfigureComposer<CustomAttrs extends IConfigureComposer = 
             dev: app.translator.trans('flarum-package-manager.admin.composer.minimum_stability.options.dev'),
           },
         })}
-
         <div className="Form-group">
-          <Button className="Button Button--primary" loading={this.loading} onclick={this.submit.bind(this)} disabled={!this.isDirty()}>
-            {app.translator.trans('core.admin.settings.submit_button')}
-          </Button>
+          <label>{app.translator.trans('flarum-package-manager.admin.composer.repositories.label')}</label>
+          <div className="helpText">{app.translator.trans('flarum-package-manager.admin.composer.repositories.help')}</div>
+          <div className="ConfigureComposer-repositories">
+            {Object.keys(this.setting('repositories')() || {}).map((key) => {
+              const repository = this.setting('repositories')()[key] as Repository;
+
+              return (
+                <div className="ButtonGroup ButtonGroup--full">
+                  <Button
+                    className="Button"
+                    icon={
+                      {
+                        composer: 'fas fa-cubes',
+                        vcs: 'fas fa-code-branch',
+                        path: 'fas fa-folder',
+                      }[repository.type]
+                    }
+                    onclick={() =>
+                      app.modal.show(RepositoryModal, {
+                        key,
+                        repository,
+                        onsubmit: this.onchange.bind(this),
+                      })
+                    }
+                  >
+                    {key} ({repository.type})
+                  </Button>
+                  <Button
+                    className="Button Button--icon"
+                    icon="fas fa-trash"
+                    aria-label={app.translator.trans('flarum-package-manager.admin.composer.delete_repository_label')}
+                    onclick={() => {
+                      if (confirm(extractText(app.translator.trans('flarum-package-manager.admin.composer.delete_repository_confirmation')))) {
+                        const repositories = { ...this.setting('repositories')() };
+                        delete repositories[key];
+
+                        this.setting('repositories')(repositories);
+                      }
+                    }}
+                  />
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     );
   }
 
-  customSettingComponents(): ItemList<(attributes: CommonSettingsItemOptions) => Mithril.Children> {
-    return AdminPage.prototype.customSettingComponents();
+  submitButton(): Mithril.Children[] {
+    const items = super.submitButton();
+
+    items.push(
+      <Button className="Button" onclick={() => app.modal.show(RepositoryModal, { onsubmit: this.onchange.bind(this) })}>
+        {app.translator.trans('flarum-package-manager.admin.composer.add_repository_label')}
+      </Button>
+    );
+
+    return items;
   }
 
-  setting(key: string) {
-    return this.settings[key] ?? (() => null);
-  }
-
-  submit() {
-    this.loading = true;
-
-    const configuration: any = {};
-
-    Object.keys(this.settings).forEach((key) => {
-      configuration[key] = this.settings[key]();
+  onchange(repository: Repository, key: string) {
+    this.setting('repositories')({
+      ...this.setting('repositories')(),
+      [key]: repository,
     });
-
-    app
-      .request({
-        method: 'POST',
-        url: app.forum.attribute('apiUrl') + '/package-manager/composer',
-        body: { data: configuration },
-      })
-      .then(({ data }: any) => {
-        Object.keys(data).forEach((key) => {
-          this.settings[key] = Stream(data[key]);
-        });
-
-        this.initialSettings = data;
-      })
-      .finally(() => {
-        this.loading = false;
-        m.redraw();
-      });
-  }
-
-  isDirty() {
-    return JSON.stringify(this.initialSettings) !== JSON.stringify(this.settings);
   }
 }

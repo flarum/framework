@@ -70,7 +70,7 @@ class RemoveExtensionHandler
         $json = $this->composerJson->get();
 
         // If this extension is not a direct dependency, we can't actually remove it.
-        if (! isset($json['require'][$extension->name]) || ! isset($json['require-dev'][$extension->name])) {
+        if (! isset($json['require'][$extension->name]) && ! isset($json['require-dev'][$extension->name])) {
             throw new IndirectExtensionDependencyCannotBeRemovedException($command->extensionId);
         }
 

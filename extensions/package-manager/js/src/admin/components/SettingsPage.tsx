@@ -8,6 +8,7 @@ import ControlSection from './ControlSection';
 import ConfigureComposer from './ConfigureComposer';
 import Alert from 'flarum/common/components/Alert';
 import listItems from 'flarum/common/helpers/listItems';
+import ConfigureAuth from './ConfigureAuth';
 
 export default class SettingsPage extends ExtensionPage {
   content() {
@@ -28,10 +29,12 @@ export default class SettingsPage extends ExtensionPage {
           {settings ? (
             <div className="SettingsGroups">
               <div className="Form">
-                {settings.map(this.buildSettingComponent.bind(this))}
-                <div className="Form-group">{this.submitButton()}</div>
+                <label>{app.translator.trans('flarum-package-manager.admin.settings.title')}</label>
+                <div className="SettingsGroups-content">{settings.map(this.buildSettingComponent.bind(this))}</div>
+                <div className="Form-group Form--controls">{this.submitButton()}</div>
               </div>
               <ConfigureComposer buildSettingComponent={this.buildSettingComponent} />
+              <ConfigureAuth buildSettingComponent={this.buildSettingComponent} />
             </div>
           ) : (
             <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_settings')}</h3>
