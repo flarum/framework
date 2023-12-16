@@ -6,7 +6,6 @@ import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import MajorUpdater from './MajorUpdater';
 import ExtensionItem from './ExtensionItem';
 import { Extension } from 'flarum/admin/AdminApplication';
-import Alert from 'flarum/common/components/Alert';
 import ItemList from 'flarum/common/utils/ItemList';
 
 export interface IUpdaterAttrs extends ComponentAttrs {}

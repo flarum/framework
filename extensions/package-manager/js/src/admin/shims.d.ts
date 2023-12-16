@@ -1,3 +1,4 @@
+import 'dayjs/plugin/relativeTime';
 import PackageManagerState from './states/PackageManagerState';
 
 export interface AsyncBackendResponse {
