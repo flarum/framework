@@ -22,7 +22,6 @@ use Flarum\PackageManager\Event\FlarumUpdated;
 use Flarum\PackageManager\Extension\Event\Updated;
 use Flarum\PackageManager\Listener\ClearCacheAfterUpdate;
 use Flarum\PackageManager\Listener\ReCheckForUpdates;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Monolog\Formatter\LineFormatter;
