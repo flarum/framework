@@ -41,8 +41,8 @@ export default class ConfigureComposer extends ConfigureJson<IConfigureJson> {
           <label>{app.translator.trans('flarum-package-manager.admin.composer.repositories.label')}</label>
           <div className="helpText">{app.translator.trans('flarum-package-manager.admin.composer.repositories.help')}</div>
           <div className="ConfigureComposer-repositories">
-            {Object.keys(this.setting('repositories')() || {}).map((key) => {
-              const repository = this.setting('repositories')()[key] as Repository;
+            {Object.keys(this.setting('repositories')() || {}).map((name) => {
+              const repository = this.setting('repositories')()[name] as Repository;
 
               return (
                 <div className="ButtonGroup ButtonGroup--full">
@@ -57,13 +57,13 @@ export default class ConfigureComposer extends ConfigureJson<IConfigureJson> {
                     }
                     onclick={() =>
                       app.modal.show(RepositoryModal, {
-                        key,
+                        name,
                         repository,
                         onsubmit: this.onchange.bind(this),
                       })
                     }
                   >
-                    {key} ({repository.type})
+                    {name} ({repository.type})
                   </Button>
                   <Button
                     className="Button Button--icon"
@@ -72,7 +72,7 @@ export default class ConfigureComposer extends ConfigureJson<IConfigureJson> {
                     onclick={() => {
                       if (confirm(extractText(app.translator.trans('flarum-package-manager.admin.composer.delete_repository_confirmation')))) {
                         const repositories = { ...this.setting('repositories')() };
-                        delete repositories[key];
+                        delete repositories[name];
 
                         this.setting('repositories')(repositories);
                       }
@@ -99,10 +99,10 @@ export default class ConfigureComposer extends ConfigureJson<IConfigureJson> {
     return items;
   }
 
-  onchange(repository: Repository, key: string) {
+  onchange(repository: Repository, name: string) {
     this.setting('repositories')({
       ...this.setting('repositories')(),
-      [key]: repository,
+      [name]: repository,
     });
   }
 }

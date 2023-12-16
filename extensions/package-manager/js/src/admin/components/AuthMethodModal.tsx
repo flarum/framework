@@ -31,7 +31,8 @@ export default class AuthMethodModal<CustomAttrs extends IAuthMethodModalAttrs =
   }
 
   title(): Mithril.Children {
-    return app.translator.trans('flarum-package-manager.admin.auth_config.add_button_label');
+    const context = this.attrs.host ? 'edit' : 'add';
+    return app.translator.trans(`flarum-package-manager.admin.auth_config.${context}_label`);
   }
 
   content(): Mithril.Children {

@@ -1,7 +1,7 @@
 flarum-package-manager:
   admin:
     auth_config:
-      add_button_label: New authentication method
+      add_label: New authentication method
       add_modal:
         host_label: Host
         host_placeholder: "example: extiverse.com"
@@ -11,6 +11,7 @@ flarum-package-manager:
         unchanged_token_placeholder: "(unchanged)"
       delete_confirmation: Are you sure you want to delete this authentication method?
       delete_label: Delete authentication method
+      edit_label: Edit authentication method
       fields:
         host: Host
         token: Token
@@ -26,6 +27,7 @@ flarum-package-manager:
       add_repository_label: Add Repository
       delete_repository_confirmation: Are you sure you want to delete this repository? All extensions installed from this repository will be removed.
       delete_repository_label: Delete repository
+      edit_repository_label: Edit repository
       title: Composer
       minimum_stability:
         label: Minimum Stability
@@ -45,7 +47,7 @@ flarum-package-manager:
           vcs: vcs
           path: path
         add_modal:
-          key_label: Name
+          name_label: Name
           type_label: Type
           url: URL
           submit_button: Submit

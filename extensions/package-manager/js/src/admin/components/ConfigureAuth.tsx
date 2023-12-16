@@ -92,7 +92,7 @@ export default class ConfigureAuth extends ConfigureJson<IConfigureJson> {
           })
         }
       >
-        {app.translator.trans('flarum-package-manager.admin.auth_config.add_button_label')}
+        {app.translator.trans('flarum-package-manager.admin.auth_config.add_label')}
       </Button>
     );
 

@@ -8,18 +8,18 @@ import { type Repository } from './ConfigureComposer';
 
 export interface IRepositoryModalAttrs extends IInternalModalAttrs {
   onsubmit: (repository: Repository, key: string) => void;
-  key?: string;
+  name?: string;
   repository?: Repository;
 }
 
 export default class RepositoryModal<CustomAttrs extends IRepositoryModalAttrs = IRepositoryModalAttrs> extends Modal<CustomAttrs> {
-  protected key!: Stream<string>;
+  protected name!: Stream<string>;
   protected repository!: Stream<Repository>;
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
-    this.key = Stream(this.attrs.key || '');
+    this.name = Stream(this.attrs.name || '');
     this.repository = Stream(this.attrs.repository || { type: 'composer', url: '' });
   }
 
@@ -28,7 +28,8 @@ export default class RepositoryModal<CustomAttrs extends IRepositoryModalAttrs =
   }
 
   title(): Mithril.Children {
-    return app.translator.trans('flarum-package-manager.admin.composer.add_repository_label');
+    const context = this.attrs.repository ? 'edit' : 'add';
+    return app.translator.trans(`flarum-package-manager.admin.composer.${context}_repository_label`);
   }
 
   content(): Mithril.Children {
@@ -41,8 +42,8 @@ export default class RepositoryModal<CustomAttrs extends IRepositoryModalAttrs =
     return (
       <div className="Modal-body">
         <div className="Form-group">
-          <label>{app.translator.trans('flarum-package-manager.admin.composer.repositories.add_modal.key_label')}</label>
-          <input className="FormControl" bidi={this.key} />
+          <label>{app.translator.trans('flarum-package-manager.admin.composer.repositories.add_modal.name_label')}</label>
+          <input className="FormControl" bidi={this.name} />
         </div>
         <div className="Form-group">
           <label>{app.translator.trans('flarum-package-manager.admin.composer.repositories.add_modal.type_label')}</label>
@@ -70,7 +71,7 @@ export default class RepositoryModal<CustomAttrs extends IRepositoryModalAttrs =
   }
 
   submit() {
-    this.attrs.onsubmit(this.repository(), this.key());
+    this.attrs.onsubmit(this.repository(), this.name());
     this.hide();
   }
 }
