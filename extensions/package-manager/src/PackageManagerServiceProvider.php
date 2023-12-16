@@ -57,7 +57,6 @@ class PackageManagerServiceProvider extends AbstractServiceProvider
                 $composer,
                 $container->make(OutputLogger::class),
                 $container->make(Paths::class),
-                $container->make(SettingsRepositoryInterface::class)
             );
         });
 
