@@ -180,12 +180,12 @@ class SettingsTest extends TestCase
     /**
      * @test
      */
-    public function forgetting_setting_returns_default_value()
+    public function filtering_setting_returns_default_value()
     {
         $this->extend(
             (new Extend\Settings())
-                ->default('custom-prefix.forget_this_setting', 'extenderDefault')
-                ->forget('custom-prefix.forget_this_setting', function (mixed $value): bool {
+                ->default('custom-prefix.filter_this_setting', 'extenderDefault')
+                ->filter('custom-prefix.filter_this_setting', function (mixed $value): bool {
                     return $value === '';
                 })
         );
@@ -194,7 +194,7 @@ class SettingsTest extends TestCase
             $this->request('POST', '/api/settings', [
                 'authenticatedAs' => 1,
                 'json' => [
-                    'custom-prefix.forget_this_setting' => ''
+                    'custom-prefix.filter_this_setting' => ''
                 ]
             ])
         );
@@ -202,7 +202,7 @@ class SettingsTest extends TestCase
         $value = $this->app()
             ->getContainer()
             ->make('flarum.settings')
-            ->get('custom-prefix.forget_this_setting');
+            ->get('custom-prefix.filter_this_setting');
 
         $this->assertEquals('extenderDefault', $value);
     }

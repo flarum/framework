@@ -24,7 +24,7 @@ class Settings implements ExtenderInterface
     private array $settings = [];
     private array $defaults = [];
     private array $lessConfigs = [];
-    private array $forget = [];
+    private array $filter = [];
 
     /**
      * Serialize a setting value to the ForumSerializer attributes.
@@ -68,9 +68,9 @@ class Settings implements ExtenderInterface
      * @param string $key: The key of the setting.
      * @param (callable(mixed $value): bool)|bool $callback: Boolean to determine whether the setting needs deleted.
      */
-    public function forget(string $key, callable|bool $callback): self
+    public function filter(string $key, callable|bool $callback): self
     {
-        $this->forget[$key] = $callback;
+        $this->filter[$key] = $callback;
 
         return $this;
     }
@@ -113,10 +113,10 @@ class Settings implements ExtenderInterface
             });
         }
 
-        if (! empty($this->forget)) {
-            foreach ($this->forget as $key => $callback) {
+        if (! empty($this->filter)) {
+            foreach ($this->filter as $key => $callback) {
                 Arr::set(
-                    SetSettingsController::$forget,
+                    SetSettingsController::$filter,
                     $key,
                     ContainerUtil::wrapCallback($callback, $container)
                 );
