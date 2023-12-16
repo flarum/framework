@@ -95,6 +95,9 @@ class ConfigureComposerController implements RequestHandlerInterface
                 Arr::set($composerJson, $key, $value);
             }
 
+            // Always prefer stable releases.
+            $composerJson['prefer-stable'] = true;
+
             $this->composerJson->set($composerJson);
         }
 
