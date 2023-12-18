@@ -1,4 +1,4 @@
-/// <reference types="flarum/@types/translator-icu-rich" />
+/// <reference types="@flarum/core/dist-typings/@types/translator-icu-rich" />
 import type Mithril from 'mithril';
 import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 export interface WhyNotModalAttrs extends IInternalModalAttrs {

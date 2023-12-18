@@ -5,7 +5,10 @@ import { UpdatedPackage } from '../states/ControlSectionState';
 export interface ExtensionItemAttrs extends ComponentAttrs {
     extension: Extension;
     updates: UpdatedPackage;
-    onClickUpdate: CallableFunction;
+    onClickUpdate: CallableFunction | {
+        soft: CallableFunction;
+        hard: CallableFunction;
+    };
     whyNotWarning?: boolean;
     isCore?: boolean;
     updatable?: boolean;
