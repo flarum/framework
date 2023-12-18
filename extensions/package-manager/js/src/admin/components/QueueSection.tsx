@@ -8,6 +8,7 @@ import { Extension } from 'flarum/admin/AdminApplication';
 import icon from 'flarum/common/helpers/icon';
 import ItemList from 'flarum/common/utils/ItemList';
 import extractText from 'flarum/common/utils/extractText';
+import Link from 'flarum/common/components/Link';
 
 import Label from './Label';
 import TaskOutputModal from './TaskOutputModal';
@@ -73,7 +74,7 @@ export default class QueueSection extends Component<{}> {
           const extension: Extension | null = app.data.extensions[task.package()?.replace(/(\/flarum-|\/flarum-ext-|\/)/g, '-')];
 
           return extension ? (
-            <div className="PackageManager-queueTable-package">
+            <Link className="PackageManager-queueTable-package" href={app.route('extension', { id: extension.id })}>
               <div className="PackageManager-queueTable-package-icon ExtensionIcon" style={extension.icon}>
                 {!!extension.icon && icon(extension.icon.name)}
               </div>
@@ -81,7 +82,7 @@ export default class QueueSection extends Component<{}> {
                 <span className="PackageManager-queueTable-package-title">{extension.extra['flarum-extension'].title}</span>
                 <span className="PackageManager-queueTable-package-name">{task.package()}</span>
               </div>
-            </div>
+            </Link>
           ) : (
             task.package()
           );
@@ -95,12 +96,15 @@ export default class QueueSection extends Component<{}> {
       {
         label: extractText(app.translator.trans('flarum-package-manager.admin.sections.queue.columns.status')),
         content: (task) => (
-          <Label
-            className="PackageManager-queueTable-status"
-            type={{ running: 'neutral', failure: 'error', pending: 'warning', success: 'success' }[task.status()]}
-          >
-            {app.translator.trans(`flarum-package-manager.admin.sections.queue.statuses.${task.status()}`)}
-          </Label>
+          <>
+            <Label
+              className="PackageManager-queueTable-status"
+              type={{ running: 'neutral', failure: 'error', pending: 'warning', success: 'success' }[task.status()]}
+            >
+              {app.translator.trans(`flarum-package-manager.admin.sections.queue.statuses.${task.status()}`)}
+            </Label>
+            {['pending', 'running'].includes(task.status()) && <LoadingIndicator size="small" display="inline" />}
+          </>
         ),
       },
       70
@@ -111,7 +115,7 @@ export default class QueueSection extends Component<{}> {
       {
         label: extractText(app.translator.trans('flarum-package-manager.admin.sections.queue.columns.elapsed_time')),
         content: (task) =>
-          !task.startedAt() ? (
+          !task.startedAt() || !task.finishedAt() ? (
             app.translator.trans('flarum-package-manager.admin.sections.queue.task_just_started')
           ) : (
             <Tooltip text={`${dayjs(task.startedAt()).format('LL LTS')}  ${dayjs(task.finishedAt()).format('LL LTS')}`}>

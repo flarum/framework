@@ -40,6 +40,7 @@ class TaskSerializer extends AbstractSerializer
             'command' => $model->command,
             'package' => $model->package,
             'output' => $model->output,
+            'guessedCause' => $model->guessed_cause,
             'createdAt' => $model->created_at,
             'startedAt' => $model->started_at,
             'finishedAt' => $model->finished_at,

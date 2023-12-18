@@ -6,7 +6,6 @@ import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import MajorUpdater from './MajorUpdater';
 import ExtensionItem from './ExtensionItem';
 import { Extension } from 'flarum/admin/AdminApplication';
-import Alert from 'flarum/common/components/Alert';
 import ItemList from 'flarum/common/utils/ItemList';
 
 export interface IUpdaterAttrs extends ComponentAttrs {}
@@ -48,7 +47,7 @@ export default class Updater extends Component<IUpdaterAttrs> {
   availableUpdatesView() {
     const state = app.packageManager.control;
 
-    if (app.packageManager.control.isLoading()) {
+    if (app.packageManager.control.isLoading('check') || app.packageManager.control.isLoading('global-update')) {
       return (
         <div className="PackageManager-extensions">
           <LoadingIndicator />
@@ -56,12 +55,12 @@ export default class Updater extends Component<IUpdaterAttrs> {
       );
     }
 
-    if (!(state.extensionUpdates.length || state.coreUpdate)) {
+    const hasMinorCoreUpdate = state.coreUpdate && state.coreUpdate.package['latest-minor'];
+
+    if (!(state.extensionUpdates.length || hasMinorCoreUpdate)) {
       return (
         <div className="PackageManager-extensions">
-          <Alert type="success" dismissible={false}>
-            {app.translator.trans('flarum-package-manager.admin.updater.up_to_date')}
-          </Alert>
+          <span className="helpText">{app.translator.trans('flarum-package-manager.admin.updater.up_to_date')}</span>
         </div>
       );
     }
@@ -69,10 +68,10 @@ export default class Updater extends Component<IUpdaterAttrs> {
     return (
       <div className="PackageManager-extensions">
         <div className="PackageManager-extensions-grid">
-          {state.coreUpdate ? (
+          {hasMinorCoreUpdate ? (
             <ExtensionItem
-              extension={state.coreUpdate.extension}
-              updates={state.coreUpdate.package}
+              extension={state.coreUpdate!.extension}
+              updates={state.coreUpdate!.package}
               isCore={true}
               onClickUpdate={() => state.updateCoreMinor()}
               whyNotWarning={state.lastUpdateRun.limitedPackages().includes('flarum/core')}
@@ -82,7 +81,10 @@ export default class Updater extends Component<IUpdaterAttrs> {
             <ExtensionItem
               extension={extension}
               updates={state.packageUpdates[extension.id]}
-              onClickUpdate={() => state.updateExtension(extension)}
+              onClickUpdate={{
+                soft: () => state.updateExtension(extension, 'soft'),
+                hard: () => state.updateExtension(extension, 'hard'),
+              }}
               whyNotWarning={state.lastUpdateRun.limitedPackages().includes(extension.name)}
             />
           ))}
@@ -101,7 +103,7 @@ export default class Updater extends Component<IUpdaterAttrs> {
         icon="fas fa-sync-alt"
         onclick={() => app.packageManager.control.checkForUpdates()}
         loading={app.packageManager.control.isLoading('check')}
-        disabled={app.packageManager.control.isLoadingOtherThan('check')}
+        disabled={app.packageManager.control.isLoading()}
       >
         {app.translator.trans('flarum-package-manager.admin.updater.check_for_updates')}
       </Button>,
@@ -115,7 +117,7 @@ export default class Updater extends Component<IUpdaterAttrs> {
         icon="fas fa-play"
         onclick={() => app.packageManager.control.updateGlobally()}
         loading={app.packageManager.control.isLoading('global-update')}
-        disabled={app.packageManager.control.isLoadingOtherThan('global-update')}
+        disabled={app.packageManager.control.isLoading()}
       >
         {app.translator.trans('flarum-package-manager.admin.updater.run_global_update')}
       </Button>

@@ -1,11 +1,15 @@
 import app from 'flarum/admin/app';
 
 export default function (e: any) {
+  app.packageManager.control.setLoading(null);
+
   const error = e.response.errors[0];
 
   if (!['composer_command_failure', 'extension_already_installed', 'extension_not_installed'].includes(error.code)) {
     throw e;
   }
+
+  app.alerts.clear();
 
   switch (error.code) {
     case 'composer_command_failure':

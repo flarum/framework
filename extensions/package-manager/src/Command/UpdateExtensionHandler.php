@@ -10,8 +10,6 @@
 namespace Flarum\PackageManager\Command;
 
 use Flarum\Extension\ExtensionManager;
-use Flarum\Foundation\Paths;
-use Flarum\Foundation\ValidationException;
 use Flarum\PackageManager\Composer\ComposerAdapter;
 use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
 use Flarum\PackageManager\Exception\ExtensionNotInstalledException;
@@ -48,25 +46,18 @@ class UpdateExtensionHandler
      */
     protected $events;
 
-    /**
-     * @var Paths
-     */
-    protected $paths;
-
     public function __construct(
         ComposerAdapter $composer,
         ExtensionManager $extensions,
         UpdateExtensionValidator $validator,
         LastUpdateCheck $lastUpdateCheck,
-        Dispatcher $events,
-        Paths $paths
+        Dispatcher $events
     ) {
         $this->composer = $composer;
         $this->extensions = $extensions;
         $this->validator = $validator;
         $this->lastUpdateCheck = $lastUpdateCheck;
         $this->events = $events;
-        $this->paths = $paths;
     }
 
     /**
@@ -77,7 +68,10 @@ class UpdateExtensionHandler
     {
         $command->actor->assertAdmin();
 
-        $this->validator->assertValid(['extensionId' => $command->extensionId]);
+        $this->validator->assertValid([
+            'extensionId' => $command->extensionId,
+            'updateMode' => $command->updateMode,
+        ]);
 
         $extension = $this->extensions->getExtension($command->extensionId);
 
@@ -85,19 +79,19 @@ class UpdateExtensionHandler
             throw new ExtensionNotInstalledException($command->extensionId);
         }
 
-        $rootComposer = json_decode(file_get_contents("{$this->paths->base}/composer.json"), true);
-
-        // If this was installed as a requirement for another extension,
-        // don't update it directly.
-        // @TODO communicate this in the UI.
-        if (! isset($rootComposer['require'][$extension->name]) && ! empty($extension->getExtensionDependencyIds())) {
-            throw new ValidationException([
-                'message' => "Cannot update $extension->name. It was installed as a requirement for other extensions: ".implode(', ', $extension->getExtensionDependencyIds()).'. Update those extensions instead.'
-            ]);
+        // In situations where an extension was locked to a specific version,
+        // a hard update mode is useful to allow removing the locked version and
+        // instead requiring the latest version.
+        // Another scenario could be when requiring a specific version range, for example 0.1.*,
+        // the admin might either want to update to the latest version in that range, or to the latest version overall (0.2.0).
+        if ($command->updateMode === 'soft') {
+            $input = "update $extension->name";
+        } else {
+            $input = "require $extension->name:*";
         }
 
         $output = $this->composer->run(
-            new StringInput("require $extension->name:*"),
+            new StringInput($input),
             $command->task ?? null
         );
 

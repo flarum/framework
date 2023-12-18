@@ -15,10 +15,12 @@
 }
 
 .PackageManager-extensions {
+  width: 100%;
+
   &-grid {
     --gap: 12px;
     display: grid;
-    grid-template-columns: repeat(auto-fit, calc(~"100% / 3 - var(--gap)"));
+    grid-template-columns: repeat(auto-fit, 310px);
     gap: var(--gap);
   }
 }
@@ -86,11 +88,34 @@
   grid-template-areas:
     "title logo"
     "helpText logo"
-    "controls logo"
-    "extensions extensions"
-    "failure failure";
-  grid-gap: 0 var(--space);
+    "controls logo";
+  column-gap: 0 var(--space);
   align-items: center;
+
+  &--failed&--incompatibleExtensions {
+    grid-template-areas:
+      "title logo"
+      "helpText logo"
+      "controls logo"
+      "extensions extensions"
+      "failure failure";
+  }
+
+  &--failed {
+    grid-template-areas:
+      "title logo"
+      "helpText logo"
+      "controls logo"
+      "failure failure";
+  }
+
+  &--incompatibleExtensions {
+    grid-template-areas:
+      "title logo"
+      "helpText logo"
+      "controls logo"
+      "extensions extensions";
+  }
 
   > img {
     grid-area: logo;
@@ -116,6 +141,10 @@
     padding-top: var(--space);
     border-top: 1px solid var(--control-bg);
   }
+
+  .PackageManager-updaterControls {
+    margin: 0;
+  }
 }
 
 .WhyNotModal {
@@ -125,9 +154,18 @@
 }
 
 .PackageManager-installer .FormControl-container {
-  max-width: 400px;
+  max-width: 450px;
 
   .FormControl {
     width: 300px;
   }
+}
+
+.PackageManager-controlSection .container {
+  max-width: 1030px;
+  overflow: visible;
+}
+
+.PackageManager-primaryWarning ul {
+  margin: 0;
 }

@@ -10,11 +10,12 @@
 namespace Flarum\PackageManager\Command;
 
 use Flarum\Bus\Dispatcher as FlarumDispatcher;
+use Flarum\Foundation\Config;
 use Flarum\PackageManager\Composer\ComposerAdapter;
 use Flarum\PackageManager\Event\FlarumUpdated;
 use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
 use Illuminate\Contracts\Events\Dispatcher;
-use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Input\ArrayInput;
 
 class GlobalUpdateHandler
 {
@@ -33,11 +34,17 @@ class GlobalUpdateHandler
      */
     protected $commandDispatcher;
 
-    public function __construct(ComposerAdapter $composer, Dispatcher $events, FlarumDispatcher $commandDispatcher)
+    /**
+     * @var Config
+     */
+    protected $config;
+
+    public function __construct(ComposerAdapter $composer, Dispatcher $events, FlarumDispatcher $commandDispatcher, Config $config)
     {
         $this->composer = $composer;
         $this->events = $events;
         $this->commandDispatcher = $commandDispatcher;
+        $this->config = $config;
     }
 
     /**
@@ -47,8 +54,16 @@ class GlobalUpdateHandler
     {
         $command->actor->assertAdmin();
 
+        $input = [
+            'command' => 'update',
+            '--prefer-dist' => true,
+            '--no-dev' => ! $this->config->inDebugMode(),
+            '-a' => true,
+            '--with-all-dependencies' => true,
+        ];
+
         $output = $this->composer->run(
-            new StringInput('update --prefer-dist --no-dev -a --with-all-dependencies'),
+            new ArrayInput($input),
             $command->task ?? null
         );
 

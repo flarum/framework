@@ -10,11 +10,17 @@ import { Extension } from 'flarum/admin/AdminApplication';
 import { UpdatedPackage } from '../states/ControlSectionState';
 import WhyNotModal from './WhyNotModal';
 import Label from './Label';
+import Dropdown from 'flarum/common/components/Dropdown';
 
 export interface ExtensionItemAttrs extends ComponentAttrs {
   extension: Extension;
   updates: UpdatedPackage;
-  onClickUpdate: CallableFunction;
+  onClickUpdate:
+    | CallableFunction
+    | {
+        soft: CallableFunction;
+        hard: CallableFunction;
+      };
   whyNotWarning?: boolean;
   isCore?: boolean;
   updatable?: boolean;
@@ -49,7 +55,7 @@ export default class ExtensionItem<Attrs extends ExtensionItemAttrs = ExtensionI
           </div>
         </div>
         <div className="PackageManager-extension-controls">
-          {onClickUpdate ? (
+          {onClickUpdate && typeof onClickUpdate === 'function' ? (
             <Tooltip text={app.translator.trans('flarum-package-manager.admin.extensions.update')}>
               <Button
                 icon="fas fa-arrow-alt-circle-up"
@@ -58,6 +64,19 @@ export default class ExtensionItem<Attrs extends ExtensionItemAttrs = ExtensionI
                 aria-label={app.translator.trans('flarum-package-manager.admin.extensions.update')}
               />
             </Tooltip>
+          ) : onClickUpdate ? (
+            <Dropdown
+              buttonClassName="Button Button--icon Button--flat"
+              icon="fas fa-arrow-alt-circle-up"
+              label={app.translator.trans('flarum-package-manager.admin.extensions.update')}
+            >
+              <Button icon="fas fa-arrow-alt-circle-up" className="Button" onclick={onClickUpdate.soft}>
+                {app.translator.trans('flarum-package-manager.admin.extensions.update_soft_label')}
+              </Button>
+              <Button icon="fas fa-arrow-alt-circle-up" className="Button" onclick={onClickUpdate.hard} disabled={!updates['direct-dependency']}>
+                {app.translator.trans('flarum-package-manager.admin.extensions.update_hard_label')}
+              </Button>
+            </Dropdown>
           ) : null}
           {whyNotWarning ? (
             <Tooltip text={app.translator.trans('flarum-package-manager.admin.extensions.check_why_it_failed_updating')}>
@@ -75,6 +94,6 @@ export default class ExtensionItem<Attrs extends ExtensionItemAttrs = ExtensionI
   }
 
   version(v: string): string {
-    return 'v' + v.replace('v', '');
+    return v.charAt(0) === 'v' ? v.substring(1) : v;
   }
 }

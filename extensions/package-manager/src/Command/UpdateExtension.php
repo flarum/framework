@@ -22,12 +22,13 @@ class UpdateExtension extends AbstractActionCommand
     /**
      * @var string
      */
-    public $extensionId;
+    public $updateMode;
 
-    public function __construct(User $actor, string $extensionId)
+    public function __construct(User $actor, string $extensionId, string $updateMode)
     {
         $this->actor = $actor;
         $this->extensionId = $extensionId;
+        $this->updateMode = $updateMode;
     }
 
     public function getOperationName(): string

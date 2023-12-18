@@ -13,6 +13,7 @@ use Composer\Config;
 use Composer\Console\Application;
 use Flarum\Foundation\Paths;
 use Flarum\PackageManager\OutputLogger;
+use Flarum\PackageManager\Support\Util;
 use Flarum\PackageManager\Task\Task;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -33,11 +34,6 @@ class ComposerAdapter
     private $logger;
 
     /**
-     * @var BufferedOutput
-     */
-    private $output;
-
-    /**
      * @var Paths
      */
     private $paths;
@@ -47,22 +43,22 @@ class ComposerAdapter
         $this->application = $application;
         $this->logger = $logger;
         $this->paths = $paths;
-        $this->output = new BufferedOutput();
     }
 
     public function run(InputInterface $input, ?Task $task = null): ComposerOutput
     {
         $this->application->resetComposer();
 
+        $output = new BufferedOutput();
+
         // This hack is necessary so that relative path repositories are resolved properly.
         $currDir = getcwd();
         chdir($this->paths->base);
-        $exitCode = $this->application->run($input, $this->output);
+        $exitCode = $this->application->run($input, $output);
         chdir($currDir);
 
-        // @phpstan-ignore-next-line
-        $command = $input->__toString();
-        $output = $this->output->fetch();
+        $command = Util::readableConsoleInput($input);
+        $output = $output->fetch();
 
         if ($task) {
             $task->update(compact('command', 'output'));

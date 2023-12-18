@@ -12,13 +12,6 @@ namespace Flarum\PackageManager;
 use Flarum\Extend;
 use Flarum\Foundation\Paths;
 use Flarum\Frontend\Document;
-use Flarum\PackageManager\Exception\ComposerCommandFailedException;
-use Flarum\PackageManager\Exception\ComposerRequireFailedException;
-use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
-use Flarum\PackageManager\Exception\ExceptionHandler;
-use Flarum\PackageManager\Exception\MajorUpdateFailedException;
-use Flarum\PackageManager\Settings\LastUpdateCheck;
-use Flarum\PackageManager\Settings\LastUpdateRun;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Queue\SyncQueue;
 
@@ -32,7 +25,8 @@ return [
         ->post('/package-manager/minor-update', 'package-manager.minor-update', Api\Controller\MinorUpdateController::class)
         ->post('/package-manager/major-update', 'package-manager.major-update', Api\Controller\MajorUpdateController::class)
         ->post('/package-manager/global-update', 'package-manager.global-update', Api\Controller\GlobalUpdateController::class)
-        ->get('/package-manager-tasks', 'package-manager.tasks.index', Api\Controller\ListTasksController::class),
+        ->get('/package-manager-tasks', 'package-manager.tasks.index', Api\Controller\ListTasksController::class)
+        ->post('/package-manager/composer', 'package-manager.composer', Api\Controller\ConfigureComposerController::class),
 
     (new Extend\Frontend('admin'))
         ->css(__DIR__.'/less/admin.less')
@@ -52,19 +46,22 @@ return [
     new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Settings())
-        ->default(LastUpdateCheck::key(), json_encode(LastUpdateCheck::default()))
-        ->default(LastUpdateRun::key(), json_encode(LastUpdateRun::default()))
-        ->default('flarum-package-manager.queue_jobs', false),
+        ->default(Settings\LastUpdateCheck::key(), json_encode(Settings\LastUpdateCheck::default()))
+        ->default(Settings\LastUpdateRun::key(), json_encode(Settings\LastUpdateRun::default()))
+        ->default('flarum-package-manager.queue_jobs', false)
+        ->default('flarum-package-manager.minimum_stability', 'stable')
+        ->default('flarum-package-manager.task_retention_days', 7),
 
     (new Extend\ServiceProvider)
         ->register(PackageManagerServiceProvider::class),
 
     (new Extend\ErrorHandling)
-        ->handler(ComposerCommandFailedException::class, ExceptionHandler::class)
-        ->handler(ComposerRequireFailedException::class, ExceptionHandler::class)
-        ->handler(ComposerUpdateFailedException::class, ExceptionHandler::class)
-        ->handler(MajorUpdateFailedException::class, ExceptionHandler::class)
+        ->handler(Exception\ComposerCommandFailedException::class, Exception\ExceptionHandler::class)
+        ->handler(Exception\ComposerRequireFailedException::class, Exception\ExceptionHandler::class)
+        ->handler(Exception\ComposerUpdateFailedException::class, Exception\ExceptionHandler::class)
+        ->handler(Exception\MajorUpdateFailedException::class, Exception\ExceptionHandler::class)
         ->status('extension_already_installed', 409)
         ->status('extension_not_installed', 409)
-        ->status('no_new_major_version', 409),
+        ->status('no_new_major_version', 409)
+        ->status('extension_not_directly_dependency', 409),
 ];

@@ -12,11 +12,13 @@ namespace Flarum\PackageManager\Job;
 use Flarum\Bus\Dispatcher;
 use Flarum\PackageManager\Command\AbstractActionCommand;
 use Flarum\PackageManager\Composer\ComposerAdapter;
+use Flarum\PackageManager\Exception\ComposerCommandFailedException;
 use Flarum\Queue\AbstractJob;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Throwable;
 
-class ComposerCommandJob extends AbstractJob
+class ComposerCommandJob extends AbstractJob implements ShouldBeUnique
 {
     /**
      * @var AbstractActionCommand
@@ -37,9 +39,9 @@ class ComposerCommandJob extends AbstractJob
     public function handle(Dispatcher $bus)
     {
         try {
-            ComposerAdapter::setPhpVersion($this->phpVersion);
-
             $this->command->task->start();
+
+            ComposerAdapter::setPhpVersion($this->phpVersion);
 
             $bus->dispatch($this->command);
 
@@ -55,12 +57,19 @@ class ComposerCommandJob extends AbstractJob
             $this->command->task->output = $exception->getMessage();
         }
 
-        $this->command->task->end(false);
+        if ($exception instanceof ComposerCommandFailedException) {
+            $this->command->task->guessed_cause = $exception->guessCause();
+        }
 
-        $this->fail($exception);
+        $this->command->task->end(false);
     }
 
-    public function middleware()
+    public function failed(Throwable $exception): void
+    {
+        $this->abort($exception);
+    }
+
+    public function middleware(): array
     {
         return [
             new WithoutOverlapping(),

@@ -1,12 +1,66 @@
 flarum-package-manager:
   admin:
+    auth_config:
+      add_label: New authentication method
+      add_modal:
+        host_label: Host
+        host_placeholder: "example: extiverse.com"
+        submit_button: Submit
+        token_label: Token
+        type_label: Type
+        unchanged_token_placeholder: "(unchanged)"
+      delete_confirmation: Are you sure you want to delete this authentication method?
+      delete_label: Delete authentication method
+      edit_label: Edit authentication method
+      fields:
+        host: Host
+        token: Token
+      no_auth_methods_configured: No authentication methods configured. This is an optional advanced feature to allow installing from private repositories.
+      remove_button_label: Remove authentication method
+      title: Authentication Methods
+      types:
+        github-oauth: GitHub OAuth
+        gitlab-oauth: GitLab OAuth
+        gitlab-token: GitLab Token
+        bearer: HTTP Bearer
+    composer:
+      add_repository_label: Add Repository
+      delete_repository_confirmation: Are you sure you want to delete this repository? All extensions installed from this repository will be removed.
+      delete_repository_label: Delete repository
+      edit_repository_label: Edit repository
+      title: Composer
+      minimum_stability:
+        label: Minimum Stability
+        help: The type of packages allowed to be installed. Do not change this unless you know what you are doing.
+        options:
+          stable: Stable (Recommended)
+          rc: Release Candidate
+          beta: Beta
+          alpha: Alpha
+          dev: Dev
+      repositories:
+        label: Repositories
+        help: >
+          Add additional repositories to install packages from. This is an advanced feature, do not add repositories that are not trusted, as they can be used to execute malicious code on your server.
+        types:
+          composer: composer
+          vcs: vcs
+          path: path
+        add_modal:
+          name_label: Name
+          type_label: Type
+          url: URL
+          submit_button: Submit
+
     exceptions:
       composer_command_failure: Failed to execute. Check the composer logs in storage/logs/composer.
       extension_already_installed: Extension is already installed.
+      extension_not_directly_dependency: Extension is installed as a dependency of another extension, it cannot be directly removed.
       extension_not_installed: Extension not found.
 
       guessed_cause:
         extension_incompatible_with_instance: The extension is most likely incompatible with your current Flarum instance.
+        extension_not_found: The extension was not found or does not exist.
         extensions_incompatible_with_new_major: >
           Some installed extensions are not compatible with the newest major release.
           Please wait until the extensions are updated to be compatible by the authors, or remove them before proceeding.
@@ -14,18 +68,25 @@ flarum-package-manager:
     extensions:
       check_why_it_failed_updating: Show why it did not update to the latest.
       install: Install a new extension
-      install_help: Fill in the extension package name to proceed. Visit {extiverse} to browse extensions.
+      install_help: >
+        Fill in the extension package name to proceed. You can specify a <semantic_link>semantic version</semantic_link> using the format <code>vendor/package-name:version</code>.
+        Visit {extiverse} to browse extensions.
       proceed: Proceed
+      remove: Uninstall
       successful_install: "{extension} was installed successfully, redirecting.."
       successful_remove: Extension removed successfully.
       successful_update: "{extension} was updated successfully, redirecting.."
       update: Update
+      update_soft_label: Soft update
+      update_hard_label: Hard update
 
     file_permissions: >
       The package manager requires read and write permissions on the following files and directories: composer.json, composer.lock, vendor, storage, storage/.composer
 
     major_updater:
-      description: Major Flarum updates are not backwards compatible, meaning that some of your currently installed extensions, and manually made modifications might not work with this new version.
+      description: >
+        Major Flarum updates are not backwards compatible, meaning that some of your currently installed extensions, and manually made modifications might not work with this new version.
+        Please make sure to make a backup of your database and files before proceeding.
       dry_run: Dry Run
       dry_run_help: A dry run emulates the update to see if your current setup can safely update, this does not mean that your manual made custom modifications will work in the newer version.
       failure:
@@ -45,7 +106,7 @@ flarum-package-manager:
         columns:
           details: Details
           elapsed_time: Completed in
-          peak_memory_used: Maximum Memory Used
+          peak_memory_used: Peak Memory Usage
           operation: Operation
           package: Package
           status: Status
@@ -60,7 +121,9 @@ flarum-package-manager:
           update_minor: Minor update
           why_not: Analyze why a package cannot be updated
         output_modal:
+          cause_unknown: Unknown
           command: Composer Command
+          guessed_cause: Cause
           output: Output
         refresh: Refresh tasks list
         statuses:
@@ -72,11 +135,17 @@ flarum-package-manager:
         title: Queue
 
     settings:
+      title: => core.ref.settings
       access_warning: Please be careful to who you give access to the admin area, the package manager could be misused by bad actors to install packages that can lead to security breaches.
+      debug_mode_warning: You are running in debug mode, the package manager cannot properly install and update local development packages. Please use the command line interface instead for such purposes.
       queue_jobs: Run operations in the background queue
       queue_jobs_help: >
         You can read about a <a href='{basic_impl_link}'>basic queue</a> implementation or a <a href='{adv_impl_link}'>more advanced</a> one.
         Make sure the PHP version used for the queue is {php_version}. Make sure <a href='{folder_perms_link}'>folder permissions</a> are correctly configured.
+      task_retention_days: Task retention days
+      task_retention_days_help: >
+          The number of days to keep completed tasks in the database. Tasks older than this will be deleted.
+          Set to 0 to keep all tasks.
 
     updater:
       up_to_date: Everything is up to date!

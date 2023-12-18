@@ -89,9 +89,6 @@ class MajorUpdateHandler
         );
     }
 
-    /**
-     * @todo change minimum stability to 'stable' and any other similar params
-     */
     protected function updateComposerJson(string $majorVersion): void
     {
         $versionNumber = str_replace('v', '', $majorVersion);

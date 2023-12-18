@@ -18,15 +18,12 @@ app.initializers.add('flarum-package-manager', (app) => {
 
   app.packageManager = new PackageManagerState();
 
+  if (app.data['flarum-package-manager.using_sync_queue']) {
+    app.data.settings['flarum-package-manager.queue_jobs'] = '0';
+  }
+
   app.extensionData
     .for('flarum-package-manager')
-    .registerSetting(() => (
-      <div className="Form-group">
-        <Alert type="warning" dismissible={false}>
-          {app.translator.trans('flarum-package-manager.admin.settings.access_warning')}
-        </Alert>
-      </div>
-    ))
     .registerSetting({
       setting: 'flarum-package-manager.queue_jobs',
       label: app.translator.trans('flarum-package-manager.admin.settings.queue_jobs'),
@@ -40,9 +37,14 @@ app.initializers.add('flarum-package-manager', (app) => {
           })
         )
       ),
-      default: false,
       type: 'boolean',
       disabled: app.data['flarum-package-manager.using_sync_queue'],
+    })
+    .registerSetting({
+      setting: 'flarum-package-manager.task_retention_days',
+      label: app.translator.trans('flarum-package-manager.admin.settings.task_retention_days'),
+      help: app.translator.trans('flarum-package-manager.admin.settings.task_retention_days_help'),
+      type: 'number',
     })
     .registerPage(SettingsPage);
 
@@ -77,7 +79,7 @@ app.initializers.add('flarum-package-manager', (app) => {
             });
         }}
       >
-        Remove
+        {app.translator.trans('flarum-package-manager.admin.extensions.remove')}
       </Button>
     );
   });

@@ -11,8 +11,10 @@ namespace Flarum\PackageManager\Command;
 
 use Flarum\Extension\ExtensionManager;
 use Flarum\PackageManager\Composer\ComposerAdapter;
+use Flarum\PackageManager\Composer\ComposerJson;
 use Flarum\PackageManager\Exception\ComposerCommandFailedException;
 use Flarum\PackageManager\Exception\ExtensionNotInstalledException;
+use Flarum\PackageManager\Exception\IndirectExtensionDependencyCannotBeRemovedException;
 use Flarum\PackageManager\Extension\Event\Removed;
 use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Input\StringInput;
@@ -34,11 +36,17 @@ class RemoveExtensionHandler
      */
     protected $events;
 
-    public function __construct(ComposerAdapter $composer, ExtensionManager $extensions, Dispatcher $events)
+    /**
+     * @var ComposerJson
+     */
+    protected $composerJson;
+
+    public function __construct(ComposerAdapter $composer, ExtensionManager $extensions, Dispatcher $events, ComposerJson $composerJson)
     {
         $this->composer = $composer;
         $this->extensions = $extensions;
         $this->events = $events;
+        $this->composerJson = $composerJson;
     }
 
     /**
@@ -57,6 +65,13 @@ class RemoveExtensionHandler
 
         if (isset($command->task)) {
             $command->task->package = $extension->name;
+        }
+
+        $json = $this->composerJson->get();
+
+        // If this extension is not a direct dependency, we can't actually remove it.
+        if (! isset($json['require'][$extension->name]) && ! isset($json['require-dev'][$extension->name])) {
+            throw new IndirectExtensionDependencyCannotBeRemovedException($command->extensionId);
         }
 
         $output = $this->composer->run(

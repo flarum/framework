@@ -3,11 +3,6 @@ import app from 'flarum/admin/app';
 import Component, { ComponentAttrs } from 'flarum/common/Component';
 import Button from 'flarum/common/components/Button';
 import Stream from 'flarum/common/utils/Stream';
-import LoadingModal from 'flarum/admin/components/LoadingModal';
-
-import errorHandler from '../utils/errorHandler';
-import jumpToQueue from '../utils/jumpToQueue';
-import { AsyncBackendResponse } from '../shims';
 
 export interface InstallerAttrs extends ComponentAttrs {}
 
@@ -29,6 +24,8 @@ export default class Installer extends Component<InstallerAttrs> {
         <p className="helpText">
           {app.translator.trans('flarum-package-manager.admin.extensions.install_help', {
             extiverse: <a href="https://extiverse.com">extiverse.com</a>,
+            semantic_link: <a href="https://devhints.io/semver" />,
+            code: <code />,
           })}
         </p>
         <div className="FormControl-container">
@@ -38,7 +35,7 @@ export default class Installer extends Component<InstallerAttrs> {
             icon="fas fa-download"
             onclick={this.onsubmit.bind(this)}
             loading={app.packageManager.control.isLoading('extension-install')}
-            disabled={app.packageManager.control.isLoadingOtherThan('extension-install')}
+            disabled={app.packageManager.control.isLoading()}
           >
             {app.translator.trans('flarum-package-manager.admin.extensions.proceed')}
           </Button>
@@ -54,35 +51,6 @@ export default class Installer extends Component<InstallerAttrs> {
   }
 
   onsubmit(): void {
-    app.packageManager.control.setLoading('extension-install');
-    app.modal.show(LoadingModal);
-
-    app
-      .request<AsyncBackendResponse & { id: number }>({
-        method: 'POST',
-        url: `${app.forum.attribute('apiUrl')}/package-manager/extensions`,
-        body: {
-          data: this.data(),
-        },
-      })
-      .then((response) => {
-        if (response.processing) {
-          jumpToQueue();
-        } else {
-          const extensionId = response.id;
-          app.alerts.show(
-            { type: 'success' },
-            app.translator.trans('flarum-package-manager.admin.extensions.successful_install', { extension: extensionId })
-          );
-          window.location.href = `${app.forum.attribute('adminUrl')}#/extension/${extensionId}`;
-          window.location.reload();
-        }
-      })
-      .catch(errorHandler)
-      .finally(() => {
-        app.packageManager.control.setLoading(null);
-        app.modal.close();
-        m.redraw();
-      });
+    app.packageManager.control.requirePackage(this.data());
   }
 }

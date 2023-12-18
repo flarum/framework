@@ -9,7 +9,9 @@
 
 namespace Flarum\PackageManager\Composer;
 
+use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Paths;
+use Flarum\PackageManager\Support\Util;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 
@@ -30,10 +32,16 @@ class ComposerJson
      */
     protected $initialJson;
 
-    public function __construct(Paths $paths, Filesystem $filesystem)
+    /**
+     * @var ExtensionManager
+     */
+    protected $extensions;
+
+    public function __construct(Paths $paths, Filesystem $filesystem, ExtensionManager $extensions)
     {
         $this->paths = $paths;
         $this->filesystem = $filesystem;
+        $this->extensions = $extensions;
     }
 
     public function require(string $packageName, string $version): void
@@ -45,6 +53,11 @@ class ComposerJson
         } else {
             foreach ($composerJson['require'] as $p => $v) {
                 if ($version === '*@dev') {
+                    continue;
+                }
+
+                // Only extensions can all be set to * versioning.
+                if (! $this->extensions->getExtension(Util::nameToId($packageName))) {
                     continue;
                 }
 
@@ -83,7 +96,7 @@ class ComposerJson
         return $json;
     }
 
-    protected function set(array $json): void
+    public function set(array $json): void
     {
         $this->filesystem->put($this->getComposerJsonPath(), json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     }

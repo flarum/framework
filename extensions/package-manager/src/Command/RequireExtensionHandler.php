@@ -14,8 +14,8 @@ use Flarum\PackageManager\Composer\ComposerAdapter;
 use Flarum\PackageManager\Exception\ComposerRequireFailedException;
 use Flarum\PackageManager\Exception\ExtensionAlreadyInstalledException;
 use Flarum\PackageManager\Extension\Event\Installed;
-use Flarum\PackageManager\Extension\ExtensionUtils;
 use Flarum\PackageManager\RequirePackageValidator;
+use Flarum\PackageManager\Support\Util;
 use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Input\StringInput;
 
@@ -59,7 +59,7 @@ class RequireExtensionHandler
 
         $this->validator->assertValid(['package' => $command->package]);
 
-        $extensionId = ExtensionUtils::nameToId($command->package);
+        $extensionId = Util::nameToId($command->package);
         $extension = $this->extensions->getExtension($extensionId);
 
         if (! empty($extension)) {
@@ -74,7 +74,7 @@ class RequireExtensionHandler
         }
 
         $output = $this->composer->run(
-            new StringInput("require $packageName"),
+            new StringInput("require $packageName -W"),
             $command->task ?? null
         );
 

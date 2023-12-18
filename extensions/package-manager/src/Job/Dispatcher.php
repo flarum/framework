@@ -9,7 +9,9 @@
 
 namespace Flarum\PackageManager\Job;
 
+use Carbon\Carbon;
 use Flarum\Bus\Dispatcher as Bus;
+use Flarum\Extension\ExtensionManager;
 use Flarum\PackageManager\Command\AbstractActionCommand;
 use Flarum\PackageManager\Task\Task;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -34,6 +36,11 @@ class Dispatcher
     protected $settings;
 
     /**
+     * @var ExtensionManager
+     */
+    protected $extensions;
+
+    /**
      * Overrides the user setting for execution mode if set.
      * Runs synchronously regardless of user setting if set true.
      * Asynchronously if set false.
@@ -42,11 +49,12 @@ class Dispatcher
      */
     protected $runSyncOverride;
 
-    public function __construct(Bus $bus, Queue $queue, SettingsRepositoryInterface $settings)
+    public function __construct(Bus $bus, Queue $queue, SettingsRepositoryInterface $settings, ExtensionManager $extensions)
     {
         $this->bus = $bus;
         $this->queue = $queue;
         $this->settings = $settings;
+        $this->extensions = $extensions;
     }
 
     public function sync(): self
@@ -67,8 +75,15 @@ class Dispatcher
     {
         $queueJobs = ($this->runSyncOverride === false) || ($this->runSyncOverride !== true && $this->settings->get('flarum-package-manager.queue_jobs'));
 
+        // Skip if there is already a pending or running task.
+        if ($queueJobs && Task::query()->whereIn('status', [Task::PENDING, Task::RUNNING])->exists()) {
+            return new DispatcherResponse(true, null);
+        }
+
         if ($queueJobs && (! $this->queue instanceof SyncQueue)) {
-            $task = Task::build($command->getOperationName(), $command->package ?? null);
+            $extension = $command->extensionId ? $this->extensions->getExtension($command->extensionId) : null;
+
+            $task = Task::build($command->getOperationName(), $command->package ?? ($extension ? $extension->name : null));
 
             $command->task = $task;
 
@@ -79,6 +94,21 @@ class Dispatcher
             $data = $this->bus->dispatch($command);
         }
 
+        $this->clearOldTasks();
+
         return new DispatcherResponse($queueJobs, $data ?? null);
+    }
+
+    protected function clearOldTasks(): void
+    {
+        $days = $this->settings->get('flarum-package-manager.task_retention_days');
+
+        if ($days === null || ((int) $days) === 0) {
+            return;
+        }
+
+        Task::query()
+            ->where('created_at', '<', Carbon::now()->subDays($days))
+            ->delete();
     }
 }
