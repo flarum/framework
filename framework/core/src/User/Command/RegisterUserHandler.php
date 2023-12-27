@@ -18,6 +18,7 @@ use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
 use Flarum\User\UserValidator;
+use GuzzleHttp\Client;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -135,7 +136,9 @@ class RegisterUserHandler
             throw new InvalidArgumentException("Provided avatar URL must have scheme http or https. Scheme provided was $scheme.", 503);
         }
 
-        $image = $this->imageManager->make($url);
+        $urlContent = (new Client())->get($url)->getBody()->getContents();
+
+        $image = $this->imageManager->read($urlContent);
 
         $this->avatarUploader->upload($user, $image);
     }

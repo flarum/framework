@@ -12,7 +12,7 @@ namespace Flarum\User;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Str;
-use Intervention\Image\Image;
+use Intervention\Image\Interfaces\ImageInterface;
 
 class AvatarUploader
 {
@@ -23,15 +23,18 @@ class AvatarUploader
         $this->uploadDir = $filesystemFactory->disk('flarum-avatars');
     }
 
-    public function upload(User $user, Image $image): void
+    public function upload(User $user, ImageInterface $image): void
     {
-        if (extension_loaded('exif')) {
-            $image->orientate();
+        $image = $image->cover(100, 100);
+        $avatarPath = Str::random();
+
+        if ($image->isAnimated()) {
+            $encodedImage = $image->toGif();
+            $avatarPath .= '.gif';
+        } else {
+            $encodedImage = $image->toPng();
+            $avatarPath .= '.png';
         }
-
-        $encodedImage = $image->fit(100, 100)->encode('png');
-
-        $avatarPath = Str::random().'.png';
 
         $this->removeFileAfterSave($user);
         $user->changeAvatarPath($avatarPath);
