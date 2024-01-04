@@ -9,6 +9,7 @@
 
 namespace Flarum\Forum\Controller;
 
+use Flarum\Foundation\Config;
 use Flarum\Http\Exception\TokenMismatchException;
 use Flarum\Http\Rememberer;
 use Flarum\Http\RequestUtil;
@@ -52,24 +53,32 @@ class LogOutController implements RequestHandlerInterface
     protected $url;
 
     /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
      * @param Dispatcher $events
      * @param SessionAuthenticator $authenticator
      * @param Rememberer $rememberer
      * @param Factory $view
      * @param UrlGenerator $url
+     * @param Config $config
      */
     public function __construct(
         Dispatcher $events,
         SessionAuthenticator $authenticator,
         Rememberer $rememberer,
         Factory $view,
-        UrlGenerator $url
+        UrlGenerator $url,
+        Config $config
     ) {
         $this->events = $events;
         $this->authenticator = $authenticator;
         $this->rememberer = $rememberer;
         $this->view = $view;
         $this->url = $url;
+        $this->config = $config;
     }
 
     /**
@@ -81,12 +90,13 @@ class LogOutController implements RequestHandlerInterface
     {
         $session = $request->getAttribute('session');
         $actor = RequestUtil::getActor($request);
+        $base = $this->url->to('forum')->base();
 
-        $url = Arr::get($request->getQueryParams(), 'return', $this->url->to('forum')->base());
+        $url = Arr::get($request->getQueryParams(), 'return', $base);
 
         // If there is no user logged in, return to the index.
         if ($actor->isGuest()) {
-            return new RedirectResponse($url);
+            return new RedirectResponse($base);
         }
 
         // If a valid CSRF token hasn't been provided, show a view which will
@@ -94,7 +104,7 @@ class LogOutController implements RequestHandlerInterface
         $csrfToken = $session->token();
 
         if (Arr::get($request->getQueryParams(), 'token') !== $csrfToken) {
-            $return = Arr::get($request->getQueryParams(), 'return');
+            $return = $this->sanitizeReturnUrl($request->getQueryParams()['return'] ?? $base);
 
             $view = $this->view->make('flarum.forum::log-out')
                 ->with('url', $this->url->to('forum')->route('logout').'?token='.$csrfToken.($return ? '&return='.urlencode($return) : ''));
@@ -112,5 +122,30 @@ class LogOutController implements RequestHandlerInterface
         $this->events->dispatch(new LoggedOut($actor, false));
 
         return $this->rememberer->forget($response);
+    }
+
+    protected function sanitizeReturnUrl(string $url): string
+    {
+        $parsed = parse_url($url);
+
+        if (! $parsed || ! isset($parsed['host'])) {
+            return '';
+        }
+
+        $host = $parsed['host'];
+
+        if (in_array($host, $this->getWhitelistedRedirectDomains())) {
+            return $url;
+        }
+
+        return '';
+    }
+
+    protected function getWhitelistedRedirectDomains(): array
+    {
+        return array_merge(
+            [$this->config->url()],
+            $this->config->offsetGet('trustedHosts') ?? []
+        );
     }
 }
