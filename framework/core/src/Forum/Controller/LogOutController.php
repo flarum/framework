@@ -92,11 +92,11 @@ class LogOutController implements RequestHandlerInterface
         $actor = RequestUtil::getActor($request);
         $base = $this->url->to('forum')->base();
 
-        $url = Arr::get($request->getQueryParams(), 'return', $base);
+        $sanitizedUrl = $this->sanitizeReturnUrl((string) Arr::get($request->getQueryParams(), 'return', $base));
 
         // If there is no user logged in, return to the index.
         if ($actor->isGuest()) {
-            return new RedirectResponse($base);
+            return new RedirectResponse(empty($sanitizedUrl) ? $base : $sanitizedUrl);
         }
 
         // If a valid CSRF token hasn't been provided, show a view which will
@@ -113,7 +113,7 @@ class LogOutController implements RequestHandlerInterface
         }
 
         $accessToken = $session->get('access_token');
-        $response = new RedirectResponse($url);
+        $response = new RedirectResponse($sanitizedUrl);
 
         $this->authenticator->logOut($session);
 
