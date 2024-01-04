@@ -107,7 +107,7 @@ class LogOutController implements RequestHandlerInterface
             $return = $this->sanitizeReturnUrl($request->getQueryParams()['return'] ?? $base);
 
             $view = $this->view->make('flarum.forum::log-out')
-                ->with('url', $this->url->to('forum')->route('logout').'?token='.$csrfToken.($return ? '&return='.urlencode($return) : ''));
+                ->with('url', $this->url->to('forum')->route('logout') . '?token=' . $csrfToken . ($return ? '&return=' . urlencode($return) : ''));
 
             return new HtmlResponse($view->render());
         }
@@ -128,8 +128,8 @@ class LogOutController implements RequestHandlerInterface
     {
         $parsed = parse_url($url);
 
-        if (! $parsed || ! isset($parsed['host'])) {
-            return '';
+        if (!$parsed || !isset($parsed['host'])) {
+            return ''; // Return early for invalid URLs
         }
 
         $host = $parsed['host'];
@@ -138,14 +138,14 @@ class LogOutController implements RequestHandlerInterface
             return $url;
         }
 
-        return '';
+        return ''; // Return empty string for non-whitelisted domains
     }
 
     protected function getWhitelistedRedirectDomains(): array
     {
         return array_merge(
             [$this->config->url()],
-            $this->config->offsetGet('trustedHosts') ?? []
+            $this->config->offsetGet('redirectDomains') ?? []
         );
     }
 }
