@@ -92,11 +92,12 @@ class LogOutController implements RequestHandlerInterface
         $actor = RequestUtil::getActor($request);
         $base = $this->url->to('forum')->base();
 
-        $sanitizedUrl = $this->sanitizeReturnUrl((string) Arr::get($request->getQueryParams(), 'return', $base));
+        $rurl = (string) Arr::get($request->getQueryParams(), 'return');
+        $return = $this->sanitizeReturnUrl($rurl, $base);
 
-        // If there is no user logged in, return to the index.
+        // If there is no user logged in, return to the index or the return url if it's set.
         if ($actor->isGuest()) {
-            return new RedirectResponse(empty($sanitizedUrl) ? $base : $sanitizedUrl);
+            return new RedirectResponse($return);
         }
 
         // If a valid CSRF token hasn't been provided, show a view which will
@@ -104,8 +105,6 @@ class LogOutController implements RequestHandlerInterface
         $csrfToken = $session->token();
 
         if (Arr::get($request->getQueryParams(), 'token') !== $csrfToken) {
-            $return = $this->sanitizeReturnUrl($request->getQueryParams()['return'] ?? $base);
-
             $view = $this->view->make('flarum.forum::log-out')
                 ->with('url', $this->url->to('forum')->route('logout') . '?token=' . $csrfToken . ($return ? '&return=' . urlencode($return) : ''));
 
@@ -113,7 +112,7 @@ class LogOutController implements RequestHandlerInterface
         }
 
         $accessToken = $session->get('access_token');
-        $response = new RedirectResponse($sanitizedUrl);
+        $response = new RedirectResponse($return);
 
         $this->authenticator->logOut($session);
 
@@ -124,12 +123,16 @@ class LogOutController implements RequestHandlerInterface
         return $this->rememberer->forget($response);
     }
 
-    protected function sanitizeReturnUrl(string $url): string
+    protected function sanitizeReturnUrl(string $url, string $base): string
     {
+        if (empty($url)) {
+            return $base; // Return base URL for empty return URL
+        }
+        
         $parsed = parse_url($url);
 
         if (!$parsed || !isset($parsed['host'])) {
-            return ''; // Return early for invalid URLs
+            return $base; // Return early for invalid URLs
         }
 
         $host = $parsed['host'];
@@ -138,13 +141,19 @@ class LogOutController implements RequestHandlerInterface
             return $url;
         }
 
-        return ''; // Return empty string for non-whitelisted domains
+        return $base; // Return base url for non-whitelisted domains
     }
 
     protected function getWhitelistedRedirectDomains(): array
     {
+        $forumUrl = $this->config->url();
+        $parsedForumUrl = parse_url($forumUrl);
+
+        // Extract the host from the parsed forum URL
+        $forumHost = isset($parsedForumUrl['host']) ? $parsedForumUrl['host'] : '';
+
         return array_merge(
-            [$this->config->url()],
+            [$forumHost],
             $this->config->offsetGet('redirectDomains') ?? []
         );
     }
