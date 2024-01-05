@@ -93,8 +93,8 @@ class LogOutController implements RequestHandlerInterface
         $actor = RequestUtil::getActor($request);
         $base = $this->url->to('forum')->base();
 
-        $rurl = Arr::get($request->getQueryParams(), 'return');
-        $return = $this->sanitizeReturnUrl((string) $rurl, $base);
+        $returnUrl = Arr::get($request->getQueryParams(), 'return');
+        $return = $this->sanitizeReturnUrl((string) $returnUrl, $base);
 
         // If there is no user logged in, return to the index or the return url if it's set.
         if ($actor->isGuest()) {
@@ -107,7 +107,7 @@ class LogOutController implements RequestHandlerInterface
 
         if (Arr::get($request->getQueryParams(), 'token') !== $csrfToken) {
             $view = $this->view->make('flarum.forum::log-out')
-                ->with('url', $this->url->to('forum')->route('logout') . '?token=' . $csrfToken . ($rurl ? '&return=' . urlencode($return) : ''));
+                ->with('url', $this->url->to('forum')->route('logout') . '?token=' . $csrfToken . ($returnUrl ? '&return=' . urlencode($return) : ''));
 
             return new HtmlResponse($view->render());
         }
@@ -136,16 +136,16 @@ class LogOutController implements RequestHandlerInterface
             return new Uri($base);
         }
 
-        if (in_array($parsedUrl->getHost(), $this->getWhitelistedRedirectDomains())) {
+        if (in_array($parsedUrl->getHost(), $this->getAllowedRedirectDomains())) {
             return $parsedUrl;
         }
 
         return new Uri($base);
     }
 
-    protected function getWhitelistedRedirectDomains(): array
+    protected function getAllowedRedirectDomains(): array
     {
-        $forumUri = new Uri($this->config->url());
+        $forumUri = $this->config->url();
 
         return array_merge(
             [$forumUri->getHost()],
