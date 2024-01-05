@@ -93,8 +93,8 @@ class LogOutController implements RequestHandlerInterface
         $actor = RequestUtil::getActor($request);
         $base = $this->url->to('forum')->base();
 
-        $rurl = (string) Arr::get($request->getQueryParams(), 'return');
-        $return = $this->sanitizeReturnUrl($rurl, $base);
+        $rurl = Arr::get($request->getQueryParams(), 'return');
+        $return = $this->sanitizeReturnUrl((string) $rurl, $base);
 
         // If there is no user logged in, return to the index or the return url if it's set.
         if ($actor->isGuest()) {
@@ -107,7 +107,7 @@ class LogOutController implements RequestHandlerInterface
 
         if (Arr::get($request->getQueryParams(), 'token') !== $csrfToken) {
             $view = $this->view->make('flarum.forum::log-out')
-                ->with('url', $this->url->to('forum')->route('logout') . '?token=' . $csrfToken . ($return ? '&return=' . urlencode($return) : ''));
+                ->with('url', $this->url->to('forum')->route('logout') . '?token=' . $csrfToken . ($rurl ? '&return=' . urlencode($return) : ''));
 
             return new HtmlResponse($view->render());
         }
