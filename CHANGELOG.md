@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.8.5](https://github.com/flarum/framework/compare/v1.8.4...v1.8.5)
+### Fixed
+* Logout controller allows open redirects [#3948]
+
 ## [v1.8.4](https://github.com/flarum/framework/compare/v1.8.3...v1.8.4)
 ### Fixed
 * `s9e/textformatter` 2.15 has breaking changes [#3946]
