@@ -124,10 +124,11 @@ class LogOutController implements RequestHandlerInterface
         return $this->rememberer->forget($response);
     }
 
-    protected function sanitizeReturnUrl(string $url, string $base): string
+    protected function sanitizeReturnUrl(string $url, string $base): Uri
     {
+        $parsedBase = new Uri($base);
         if (empty($url)) {
-            return $base; // Return base URL for empty return URL
+            return $parsedBase; // Return base URL for empty return URL
         }
         
         $parsed = new Uri($url);
@@ -135,10 +136,10 @@ class LogOutController implements RequestHandlerInterface
         $host = $parsed->getHost();
 
         if (in_array($host, $this->getWhitelistedRedirectDomains())) {
-            return $url;
+            return $parsed;
         }
 
-        return $base; // Return base url for non-whitelisted domains
+        return $parsedBase; // Return base url for non-whitelisted domains
     }
 
     protected function getWhitelistedRedirectDomains(): array
