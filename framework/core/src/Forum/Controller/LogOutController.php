@@ -130,7 +130,11 @@ class LogOutController implements RequestHandlerInterface
             return new Uri($base);
         }
 
-        $parsedUrl = new Uri($url);
+        try {
+            $parsedUrl = new Uri($url);
+        } catch (\InvalidArgumentException $e) {
+            return new Uri($base);
+        }
 
         if (in_array($parsedUrl->getHost(), $this->getWhitelistedRedirectDomains())) {
             return $parsedUrl;
