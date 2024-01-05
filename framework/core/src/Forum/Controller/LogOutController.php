@@ -21,6 +21,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\HtmlResponse;
 use Laminas\Diactoros\Response\RedirectResponse;
+use Laminas\Diactoros\Uri;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -129,13 +130,9 @@ class LogOutController implements RequestHandlerInterface
             return $base; // Return base URL for empty return URL
         }
         
-        $parsed = parse_url($url);
+        $parsed = new Uri($url);
 
-        if (!$parsed || !isset($parsed['host'])) {
-            return $base; // Return early for invalid URLs
-        }
-
-        $host = $parsed['host'];
+        $host = $parsed->getHost();
 
         if (in_array($host, $this->getWhitelistedRedirectDomains())) {
             return $url;
@@ -146,14 +143,10 @@ class LogOutController implements RequestHandlerInterface
 
     protected function getWhitelistedRedirectDomains(): array
     {
-        $forumUrl = $this->config->url();
-        $parsedForumUrl = parse_url($forumUrl);
-
-        // Extract the host from the parsed forum URL
-        $forumHost = isset($parsedForumUrl['host']) ? $parsedForumUrl['host'] : '';
-
+        $forumUri = new Uri($this->config->url());
+        
         return array_merge(
-            [$forumHost],
+            [$forumUri->getHost()],
             $this->config->offsetGet('redirectDomains') ?? []
         );
     }
