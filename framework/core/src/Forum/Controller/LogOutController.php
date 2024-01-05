@@ -139,7 +139,6 @@ class LogOutController implements RequestHandlerInterface
         return new Uri($base);
     }
 
-
     protected function getWhitelistedRedirectDomains(): array
     {
         $forumUri = new Uri($this->config->url());
