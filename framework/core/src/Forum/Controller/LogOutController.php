@@ -126,26 +126,24 @@ class LogOutController implements RequestHandlerInterface
 
     protected function sanitizeReturnUrl(string $url, string $base): Uri
     {
-        $parsedBase = new Uri($base);
         if (empty($url)) {
-            return $parsedBase; // Return base URL for empty return URL
-        }
-        
-        $parsed = new Uri($url);
-
-        $host = $parsed->getHost();
-
-        if (in_array($host, $this->getWhitelistedRedirectDomains())) {
-            return $parsed;
+            return new Uri($base);
         }
 
-        return $parsedBase; // Return base url for non-whitelisted domains
+        $parsedUrl = new Uri($url);
+
+        if (in_array($parsedUrl->getHost(), $this->getWhitelistedRedirectDomains())) {
+            return $parsedUrl;
+        }
+
+        return new Uri($base);
     }
+
 
     protected function getWhitelistedRedirectDomains(): array
     {
         $forumUri = new Uri($this->config->url());
-        
+
         return array_merge(
             [$forumUri->getHost()],
             $this->config->offsetGet('redirectDomains') ?? []
