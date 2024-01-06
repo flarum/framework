@@ -13,6 +13,7 @@ use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;
 use Flarum\PackageManager\Composer\ComposerJson;
 use Flarum\PackageManager\ConfigureComposerValidator;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
@@ -110,7 +111,11 @@ class ConfigureComposerController implements RequestHandlerInterface
 
         $this->validator->assertValid(['auth' => $data]);
 
-        $authJson = json_decode($this->filesystem->get($this->paths->base.'/auth.json'), true);
+        try {
+            $authJson = json_decode($this->filesystem->get($this->paths->base.'/auth.json'), true);
+        } catch (FileNotFoundException $e) {
+            $authJson = [];
+        }
 
         if (! is_null($data)) {
             foreach ($data as $type => $hosts) {
