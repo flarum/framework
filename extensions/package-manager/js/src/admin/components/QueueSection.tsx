@@ -39,6 +39,7 @@ export default class QueueSection extends Component<{}> {
               icon="fas fa-sync-alt"
               onclick={() => app.packageManager.queue.load()}
               aria-label={app.translator.trans('flarum-package-manager.admin.sections.queue.refresh')}
+              disabled={app.packageManager.control.isLoading()}
             />
           </div>
         </div>
@@ -147,6 +148,7 @@ export default class QueueSection extends Component<{}> {
             // @todo fix in core
             // @ts-ignore
             onclick={() => app.modal.show(TaskOutputModal, { task })}
+            disabled={['pending', 'running'].includes(task.status())}
           />
         ),
         className: 'Table-controls',

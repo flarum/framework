@@ -44,7 +44,7 @@ class ListTasksController extends AbstractListController
         $offset = $this->extractOffset($request);
 
         $results = Task::query()
-            ->latest()
+            ->latest('id')
             ->offset($offset)
             ->limit($limit)
             ->get();

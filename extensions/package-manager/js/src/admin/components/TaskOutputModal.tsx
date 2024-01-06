@@ -19,14 +19,16 @@ export default class TaskOutputModal<CustomAttrs extends TaskOutputModalAttrs = 
     return (
       <div className="Modal-body">
         <div className="TaskOutputModal-data">
-          <div className="Form-group">
-            <label>{app.translator.trans('flarum-package-manager.admin.sections.queue.output_modal.guessed_cause')}</label>
-            <div className="FormControl TaskOutputModal-data-guessed-cause">
-              {(this.attrs.task.guessedCause() &&
-                app.translator.trans('flarum-package-manager.admin.exceptions.guessed_cause.' + this.attrs.task.guessedCause())) ||
-                app.translator.trans('flarum-package-manager.admin.sections.queue.output_modal.cause_unknown')}
+          {this.attrs.task.status() === 'failure' && (
+            <div className="Form-group">
+              <label>{app.translator.trans('flarum-package-manager.admin.sections.queue.output_modal.guessed_cause')}</label>
+              <div className="FormControl TaskOutputModal-data-guessed-cause">
+                {(this.attrs.task.guessedCause() &&
+                  app.translator.trans('flarum-package-manager.admin.exceptions.guessed_cause.' + this.attrs.task.guessedCause())) ||
+                  app.translator.trans('flarum-package-manager.admin.sections.queue.output_modal.cause_unknown')}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="Form-group">
             <label>{app.translator.trans('flarum-package-manager.admin.sections.queue.output_modal.command')}</label>

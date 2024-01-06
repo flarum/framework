@@ -36,6 +36,8 @@ export default class QueueState {
 
         // Refresh the page
         window.location.reload();
+      } else if (app.packageManager.control.isLoading()) {
+        app.packageManager.control.setLoading(null);
       }
 
       return data;

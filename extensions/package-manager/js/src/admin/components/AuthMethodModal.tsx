@@ -64,12 +64,12 @@ export default class AuthMethodModal<CustomAttrs extends IAuthMethodModalAttrs =
             oninput={(e: InputEvent) => this.token((e.target as HTMLTextAreaElement).value)}
             rows="6"
             placeholder={
-              this.token() === '***'
+              this.token().startsWith('unchanged:')
                 ? extractText(app.translator.trans('flarum-package-manager.admin.auth_config.add_modal.unchanged_token_placeholder'))
                 : ''
             }
           >
-            {this.token() === '***' ? '' : this.token()}
+            {this.token().startsWith('unchanged:') ? '' : this.token()}
           </textarea>
         </div>
         <div className="Form-group">

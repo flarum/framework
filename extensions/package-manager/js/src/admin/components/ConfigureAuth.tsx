@@ -18,10 +18,17 @@ export default class ConfigureAuth extends ConfigureJson<IConfigureJson> {
 
   content(): Mithril.Children {
     const authSettings = Object.keys(this.settings);
+    const hasAuthSettings =
+      authSettings.length &&
+      authSettings.every((type) => {
+        const data = this.settings[type]();
+
+        return Array.isArray(data) ? data.length : Object.keys(data).length;
+      });
 
     return (
       <div className="SettingsGroups-content">
-        {authSettings.length ? (
+        {hasAuthSettings ? (
           authSettings.map((type) => {
             const hosts = this.settings[type]();
 
@@ -42,7 +49,7 @@ export default class ConfigureAuth extends ConfigureJson<IConfigureJson> {
                               type,
                               host,
                               token: data,
-                              onsubmit: this.onchange.bind(this),
+                              onsubmit: this.onchange.bind(this, host),
                             })
                           }
                         >
@@ -88,7 +95,7 @@ export default class ConfigureAuth extends ConfigureJson<IConfigureJson> {
         loading={this.loading}
         onclick={() =>
           app.modal.show(AuthMethodModal, {
-            onsubmit: this.onchange.bind(this),
+            onsubmit: this.onchange.bind(this, null),
           })
         }
       >
@@ -99,7 +106,15 @@ export default class ConfigureAuth extends ConfigureJson<IConfigureJson> {
     return items;
   }
 
-  onchange(type: string, host: string, token: string) {
-    this.setting(type)({ ...this.setting(type)(), [host]: token });
+  onchange(oldHost: string | null, type: string, host: string, token: string) {
+    const data = { ...this.setting(type)() };
+
+    if (oldHost) {
+      delete data[oldHost];
+    }
+
+    data[host] = token;
+
+    this.setting(type)(data);
   }
 }

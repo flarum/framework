@@ -16,6 +16,7 @@ use Flarum\PackageManager\ConfigureComposerValidator;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -102,6 +103,14 @@ class ConfigureComposerController implements RequestHandlerInterface
             $this->composerJson->set($composerJson);
         }
 
+        $default = [
+            'minimum-stability' => 'stable',
+        ];
+
+        foreach ($this->configurable as $key) {
+            $composerJson[$key] = Arr::get($composerJson, $key, Arr::get($default, $key));
+        }
+
         return Arr::only($composerJson, $this->configurable);
     }
 
@@ -125,9 +134,23 @@ class ConfigureComposerController implements RequestHandlerInterface
                         continue;
                     }
 
-                    $data[$type][$host] = $token === '***'
-                        ? $authJson[$type][$host]
-                        : $token;
+                    if (str_starts_with($token, 'unchanged:')) {
+                        $old = Str::of($token)->explode(':')->skip(1)->values()->all();
+
+                        if (count($old) !== 2) {
+                            continue;
+                        }
+
+                        [$oldType, $oldHost] = $old;
+
+                        if (! isset($authJson[$oldType][$oldHost])) {
+                            continue;
+                        }
+
+                        $data[$type][$host] = $authJson[$oldType][$oldHost];
+                    } else {
+                        $data[$type][$host] = $token;
+                    }
                 }
             }
 
@@ -138,7 +161,7 @@ class ConfigureComposerController implements RequestHandlerInterface
         // Remove tokens from response.
         foreach ($authJson as $type => $hosts) {
             foreach ($hosts as $host => $token) {
-                $authJson[$type][$host] = '***';
+                $authJson[$type][$host] = "unchanged:$type:$host";
             }
         }
 

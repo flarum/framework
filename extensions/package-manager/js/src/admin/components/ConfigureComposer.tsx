@@ -59,7 +59,14 @@ export default class ConfigureComposer extends ConfigureJson<IConfigureJson> {
                       app.modal.show(RepositoryModal, {
                         name,
                         repository,
-                        onsubmit: this.onchange.bind(this),
+                        onsubmit: (repository: Repository, newName: string) => {
+                          const repositories = this.setting('repositories')();
+                          delete repositories[name];
+
+                          this.setting('repositories')(repositories);
+
+                          this.onchange(repository, newName);
+                        },
                       })
                     }
                   >

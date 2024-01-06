@@ -38,6 +38,11 @@ class ComposerAdapter
      */
     private $paths;
 
+    /**
+     * @var BufferedOutput|null
+     */
+    private $output = null;
+
     public function __construct(Application $application, OutputLogger $logger, Paths $paths)
     {
         $this->application = $application;
@@ -49,24 +54,27 @@ class ComposerAdapter
     {
         $this->application->resetComposer();
 
-        $output = new BufferedOutput();
+        $this->output = $this->output ?? new BufferedOutput();
 
         // This hack is necessary so that relative path repositories are resolved properly.
         $currDir = getcwd();
         chdir($this->paths->base);
-        $exitCode = $this->application->run($input, $output);
+        $exitCode = $this->application->run($input, $this->output);
         chdir($currDir);
 
         $command = Util::readableConsoleInput($input);
-        $output = $output->fetch();
+        $outputContent = $this->output->fetch();
 
         if ($task) {
-            $task->update(compact('command', 'output'));
+            $task->update([
+                'command' => $command,
+                'output' => $outputContent,
+            ]);
         } else {
-            $this->logger->log($command, $output, $exitCode);
+            $this->logger->log($command, $outputContent, $exitCode);
         }
 
-        return new ComposerOutput($exitCode, $output);
+        return new ComposerOutput($exitCode, $outputContent);
     }
 
     public static function setPhpVersion(string $phpVersion)
