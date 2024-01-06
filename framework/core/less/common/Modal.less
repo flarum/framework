@@ -149,6 +149,7 @@
     margin: 0;
     -webkit-transform: none !important;
     transform: none !important;
+    top: 100vh; // Fallback for browsers that don't support dynamic viewport units
     top: 100dvh;
 
     &.fade {
@@ -162,6 +163,7 @@
   .Modal-content {
     border-radius: 0;
     border: 0;
+    min-height: 100vh; // Fallback for browsers that don't support dynamic viewport units
     min-height: 100dvh;
     padding-top: var(--header-height-phone);
     box-shadow: none;
