@@ -6,5 +6,5 @@ export default class ConfigureAuth extends ConfigureJson<IConfigureJson> {
     className(): string;
     content(): Mithril.Children;
     submitButton(): Mithril.Children[];
-    onchange(type: string, host: string, token: string): void;
+    onchange(oldHost: string | null, type: string, host: string, token: string): void;
 }
