@@ -14,7 +14,7 @@ use Flarum\Foundation\ValidationException;
 use Flarum\Locale\TranslatorInterface;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\Validator;
-use Intervention\Gif\Exception\DecoderException as GifDecoderException;
+use Intervention\Gif\Exceptions\DecoderException as GifDecoderException;
 use Intervention\Image\Exceptions\DecoderException;
 use Intervention\Image\ImageManager;
 use Psr\Http\Message\UploadedFileInterface;
