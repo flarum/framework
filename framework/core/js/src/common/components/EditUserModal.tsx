@@ -82,20 +82,16 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
           'email',
           <div className="Form-group">
             <label>{app.translator.trans('core.lib.edit_user.email_heading')}</label>
-            <div>
-              <input
-                className="FormControl"
-                placeholder={extractText(app.translator.trans('core.lib.edit_user.email_label'))}
-                bidi={this.email}
-                disabled={this.nonAdminEditingAdmin()}
-              />
-            </div>
+            <input
+              className="FormControl"
+              placeholder={extractText(app.translator.trans('core.lib.edit_user.email_label'))}
+              bidi={this.email}
+              disabled={this.nonAdminEditingAdmin()}
+            />
             {!this.isEmailConfirmed() && this.userIsAdmin(app.session.user) && (
-              <div>
-                <Button className="Button Button--block" loading={this.loading} onclick={this.activate.bind(this)}>
-                  {app.translator.trans('core.lib.edit_user.activate_button')}
-                </Button>
-              </div>
+              <Button className="Button Button--block" loading={this.loading} onclick={this.activate.bind(this)}>
+                {app.translator.trans('core.lib.edit_user.activate_button')}
+              </Button>
             )}
           </div>,
           30
@@ -120,17 +116,17 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
                 />
                 {app.translator.trans('core.lib.edit_user.set_password_label')}
               </label>
-              {this.setPassword() && (
-                <input
-                  className="FormControl"
-                  type="password"
-                  name="password"
-                  placeholder={extractText(app.translator.trans('core.lib.edit_user.password_label'))}
-                  bidi={this.password}
-                  disabled={this.nonAdminEditingAdmin()}
-                />
-              )}
             </div>
+            {this.setPassword() && (
+              <input
+                className="FormControl"
+                type="password"
+                name="password"
+                placeholder={extractText(app.translator.trans('core.lib.edit_user.password_label'))}
+                bidi={this.password}
+                disabled={this.nonAdminEditingAdmin()}
+              />
+            )}
           </div>,
           20
         );
