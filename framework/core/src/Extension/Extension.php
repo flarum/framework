@@ -453,15 +453,15 @@ class Extension implements Arrayable
     public function toArray(): array
     {
         return (array) array_merge([
-            'id'                     => $this->getId(),
-            'version'                => $this->getVersion(),
-            'path'                   => $this->getPath(),
-            'icon'                   => $this->getIcon(),
-            'hasAssets'              => $this->hasAssets(),
-            'hasMigrations'          => $this->hasMigrations(),
+            'id' => $this->getId(),
+            'version' => $this->getVersion(),
+            'path' => $this->getPath(),
+            'icon' => $this->getIcon(),
+            'hasAssets' => $this->hasAssets(),
+            'hasMigrations' => $this->hasMigrations(),
             'extensionDependencyIds' => $this->getExtensionDependencyIds(),
-            'optionalDependencyIds'  => $this->getOptionalDependencyIds(),
-            'links'                  => $this->getLinks(),
+            'optionalDependencyIds' => $this->getOptionalDependencyIds(),
+            'links' => $this->getLinks(),
         ], $this->composerJson);
     }
 

@@ -34,19 +34,19 @@ class TagSerializer extends AbstractSerializer
         }
 
         $attributes = [
-            'name'               => $model->name,
-            'description'        => $model->description,
-            'slug'               => $this->slugManager->forResource(Tag::class)->toSlug($model),
-            'color'              => $model->color,
-            'backgroundUrl'      => $model->background_path,
-            'backgroundMode'     => $model->background_mode,
-            'icon'               => $model->icon,
-            'discussionCount'    => (int) $model->discussion_count,
-            'position'           => $model->position === null ? null : (int) $model->position,
-            'defaultSort'        => $model->default_sort,
-            'isChild'            => (bool) $model->parent_id,
-            'isHidden'           => (bool) $model->is_hidden,
-            'lastPostedAt'       => $this->formatDate($model->last_posted_at),
+            'name' => $model->name,
+            'description' => $model->description,
+            'slug' => $this->slugManager->forResource(Tag::class)->toSlug($model),
+            'color' => $model->color,
+            'backgroundUrl' => $model->background_path,
+            'backgroundMode' => $model->background_mode,
+            'icon' => $model->icon,
+            'discussionCount' => (int) $model->discussion_count,
+            'position' => $model->position === null ? null : (int) $model->position,
+            'defaultSort' => $model->default_sort,
+            'isChild' => (bool) $model->parent_id,
+            'isHidden' => (bool) $model->is_hidden,
+            'lastPostedAt' => $this->formatDate($model->last_posted_at),
             'canStartDiscussion' => $this->actor->can('startDiscussion', $model),
             'canAddToDiscussion' => $this->actor->can('addToDiscussion', $model)
         ];

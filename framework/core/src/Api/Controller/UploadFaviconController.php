@@ -46,7 +46,7 @@ class UploadFaviconController extends UploadImageController
         }
 
         $encodedImage = $this->imageManager->read($file->getStream()->getMetadata('uri'))
-            ->scale(64, 64,)
+            ->scale(64, 64)
             ->toPng();
 
         $this->fileExtension = 'png';

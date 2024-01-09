@@ -27,7 +27,7 @@ class ImageServiceProvider extends AbstractServiceProvider
                 'imagick' => Drivers\Imagick\Driver::class
             ];
         });
-        
+
         $this->container->singleton('image', function (Container $container): ImageManager {
             $interventionDrivers = $container->make('image.drivers');
 
@@ -37,11 +37,11 @@ class ImageServiceProvider extends AbstractServiceProvider
             $driver = $configDriver ?? 'gd';
 
             // Check that the imagick library is actually available, else default back to gd.
-            if ($driver === 'imagick' && !extension_loaded('imagick')) {
+            if ($driver === 'imagick' && ! extension_loaded('imagick')) {
                 $driver = 'gd';
             }
 
-            if (!Arr::has($interventionDrivers, $driver)) {
+            if (! Arr::has($interventionDrivers, $driver)) {
                 throw new RuntimeException("intervention/image: $driver is not valid");
             }
 

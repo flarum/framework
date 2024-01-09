@@ -28,17 +28,17 @@ class DatabaseConfig implements Arrayable
     public function toArray(): array
     {
         return [
-            'driver'    => $this->driver,
-            'host'      => $this->host,
-            'port'      => $this->port,
-            'database'  => $this->database,
-            'username'  => $this->username,
-            'password'  => $this->password,
-            'charset'   => 'utf8mb4',
+            'driver' => $this->driver,
+            'host' => $this->host,
+            'port' => $this->port,
+            'database' => $this->database,
+            'username' => $this->username,
+            'password' => $this->password,
+            'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
-            'prefix'    => $this->prefix,
-            'strict'    => false,
-            'engine'    => 'InnoDB',
+            'prefix' => $this->prefix,
+            'strict' => false,
+            'engine' => 'InnoDB',
             'prefix_indexes' => true
         ];
     }
