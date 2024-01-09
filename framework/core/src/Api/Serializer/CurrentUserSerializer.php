@@ -25,13 +25,13 @@ class CurrentUserSerializer extends UserSerializer
         $attributes = parent::getDefaultAttributes($model);
 
         $attributes += [
-            'isEmailConfirmed'         => (bool) $model->is_email_confirmed,
-            'email'                    => $model->email,
-            'markedAllAsReadAt'        => $this->formatDate($model->marked_all_as_read_at),
-            'unreadNotificationCount'  => (int) $model->getUnreadNotificationCount(),
-            'newNotificationCount'     => (int) $model->getNewNotificationCount(),
-            'preferences'              => (array) $model->preferences,
-            'isAdmin'                  => $model->isAdmin(),
+            'isEmailConfirmed' => (bool) $model->is_email_confirmed,
+            'email' => $model->email,
+            'markedAllAsReadAt' => $this->formatDate($model->marked_all_as_read_at),
+            'unreadNotificationCount' => (int) $model->getUnreadNotificationCount(),
+            'newNotificationCount' => (int) $model->getNewNotificationCount(),
+            'preferences' => (array) $model->preferences,
+            'isAdmin' => $model->isAdmin(),
         ];
 
         return $attributes;

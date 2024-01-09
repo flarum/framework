@@ -36,7 +36,7 @@ class BasicDiscussionSerializer extends AbstractSerializer
 
         return [
             'title' => $model->title,
-            'slug' =>  $this->slugManager->forResource(Discussion::class)->toSlug($model),
+            'slug' => $this->slugManager->forResource(Discussion::class)->toSlug($model),
         ];
     }
 

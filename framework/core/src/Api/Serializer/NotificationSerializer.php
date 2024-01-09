@@ -36,9 +36,9 @@ class NotificationSerializer extends AbstractSerializer
 
         return [
             'contentType' => $model->type,
-            'content'     => $model->data,
-            'createdAt'   => $this->formatDate($model->created_at),
-            'isRead'      => (bool) $model->read_at
+            'content' => $model->data,
+            'createdAt' => $this->formatDate($model->created_at),
+            'isRead' => (bool) $model->read_at
         ];
     }
 

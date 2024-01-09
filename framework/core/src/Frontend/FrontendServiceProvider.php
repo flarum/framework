@@ -142,19 +142,19 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.less.config', function (Container $container) {
             return [
-                'config-primary-color'   => [
+                'config-primary-color' => [
                     'key' => 'theme_primary_color',
                 ],
                 'config-secondary-color' => [
                     'key' => 'theme_secondary_color',
                 ],
-                'config-dark-mode'       => [
+                'config-dark-mode' => [
                     'key' => 'theme_dark_mode',
                     'callback' => function ($value) {
                         return $value ? 'true' : 'false';
                     },
                 ],
-                'config-colored-header'  => [
+                'config-colored-header' => [
                     'key' => 'theme_colored_header',
                     'callback' => function ($value) {
                         return $value ? 'true' : 'false';

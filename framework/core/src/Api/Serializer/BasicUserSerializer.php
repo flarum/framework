@@ -35,10 +35,10 @@ class BasicUserSerializer extends AbstractSerializer
         }
 
         return [
-            'username'    => $model->username,
+            'username' => $model->username,
             'displayName' => $model->display_name,
-            'avatarUrl'   => $model->avatar_url,
-            'slug'        => $this->slugManager->forResource(User::class)->toSlug($model)
+            'avatarUrl' => $model->avatar_url,
+            'slug' => $this->slugManager->forResource(User::class)->toSlug($model)
         ];
     }
 
