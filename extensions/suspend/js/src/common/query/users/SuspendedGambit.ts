@@ -1,23 +1,16 @@
-import IGambit from 'flarum/common/query/IGambit';
+import app from 'flarum/common/app';
+import { BooleanGambit } from 'flarum/common/query/IGambit';
 
-export default class SuspendedGambit implements IGambit {
-  pattern(): string {
-    return 'is:suspended';
-  }
-
-  toFilter(_matches: string[], negate: boolean): Record<string, any> {
-    const key = (negate ? '-' : '') + 'suspended';
-
-    return {
-      [key]: true,
-    };
+export default class SuspendedGambit extends BooleanGambit {
+  key(): string {
+    return app.translator.trans('flarum-suspend.lib.gambits.users.suspended.key', {}, true);
   }
 
   filterKey(): string {
     return 'suspended';
   }
 
-  fromFilter(value: string, negate: boolean): string {
-    return `${negate ? '-' : ''}is:suspended`;
+  enabled(): boolean {
+    return !!app.session.user && app.forum.attribute<boolean>('canSuspendUsers');
   }
 }

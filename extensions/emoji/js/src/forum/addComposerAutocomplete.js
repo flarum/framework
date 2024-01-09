@@ -2,6 +2,7 @@ import { extend } from 'flarum/common/extend';
 import TextEditorButton from 'flarum/common/components/TextEditorButton';
 import KeyboardNavigatable from 'flarum/common/utils/KeyboardNavigatable';
 import Tooltip from 'flarum/common/components/Tooltip';
+import AutocompleteReader from 'flarum/common/utils/AutocompleteReader';
 
 import AutocompleteDropdown from './fragments/AutocompleteDropdown';
 import getEmojiIconCode from './helpers/getEmojiIconCode';
@@ -40,15 +41,7 @@ export default function addComposerAutocomplete() {
   extend('flarum/common/components/TextEditor', 'buildEditorParams', function (params) {
     const emojiKeys = Object.keys(emojiMap);
 
-    let relEmojiStart;
-    let absEmojiStart;
-    let typed;
-
-    const applySuggestion = (replacement) => {
-      this.attrs.composer.editor.replaceBeforeCursor(absEmojiStart - 1, replacement + ' ');
-
-      this.emojiDropdown.hide();
-    };
+    const autocompleteReader = new AutocompleteReader(':');
 
     params.inputListeners.push(() => {
       const selection = this.attrs.composer.editor.getSelectionRange();
@@ -57,29 +50,20 @@ export default function addComposerAutocomplete() {
 
       if (selection[1] - cursor > 0) return;
 
-      // Search backwards from the cursor for an ':' symbol. If we find
-      // one and followed by a whitespace, we will want to show the
-      // autocomplete dropdown!
       const lastChunk = this.attrs.composer.editor.getLastNChars(15);
-      absEmojiStart = 0;
-      for (let i = lastChunk.length - 1; i >= 0; i--) {
-        const character = lastChunk.substr(i, 1);
-        // check what user typed, emoji names only contains alphanumeric,
-        // underline, '+' and '-'
-        if (!/[a-z0-9]|\+|\-|_|\:/.test(character)) break;
-        // make sure ':' preceded by a whitespace or newline
-        if (character === ':' && (i == 0 || /\s/.test(lastChunk.substr(i - 1, 1)))) {
-          relEmojiStart = i + 1;
-          absEmojiStart = cursor - lastChunk.length + i + 1;
-          break;
-        }
-      }
+      const autocompleting = autocompleteReader.check(lastChunk, cursor, /[a-z0-9]|\+|\-|_|\:/);
 
       this.emojiDropdown.hide();
       this.emojiDropdown.active = false;
 
-      if (absEmojiStart) {
-        typed = lastChunk.substring(relEmojiStart).toLowerCase();
+      if (autocompleting) {
+        const typed = autocompleting.typed;
+        const emojiDropdown = this.emojiDropdown;
+
+        const applySuggestion = (replacement) => {
+          this.attrs.composer.editor.replaceBeforeCursor(autocompleting.absoluteStart - 1, replacement + ' ');
+          this.emojiDropdown.hide();
+        };
 
         const makeSuggestion = function ({ emoji, name, code }) {
           return (
@@ -88,7 +72,7 @@ export default function addComposerAutocomplete() {
                 key={emoji}
                 onclick={() => applySuggestion(emoji)}
                 onmouseenter={function () {
-                  this.emojiDropdown.setIndex($(this).parent().index() - 1);
+                  emojiDropdown.setIndex($(this).parent().index() - 1);
                 }}
               >
                 <img alt={emoji} className="emoji" draggable="false" loading="lazy" src={`${cdn}72x72/${code}.png`} title={name} />
@@ -152,7 +136,7 @@ export default function addComposerAutocomplete() {
             m.render(this.$('.ComposerBody-emojiDropdownContainer')[0], this.emojiDropdown.render());
 
             this.emojiDropdown.show();
-            const coordinates = this.attrs.composer.editor.getCaretCoordinates(absEmojiStart);
+            const coordinates = this.attrs.composer.editor.getCaretCoordinates(autocompleting.absoluteStart);
             const width = this.emojiDropdown.$().outerWidth();
             const height = this.emojiDropdown.$().outerHeight();
             const parent = this.emojiDropdown.$().offsetParent();

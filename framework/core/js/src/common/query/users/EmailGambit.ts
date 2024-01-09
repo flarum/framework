@@ -1,23 +1,20 @@
-import IGambit from '../IGambit';
+import app from '../../app';
+import { KeyValueGambit } from '../IGambit';
 
-export default class EmailGambit implements IGambit {
-  pattern(): string {
-    return 'email:(.+)';
+export default class EmailGambit extends KeyValueGambit {
+  key(): string {
+    return app.translator.trans('core.lib.gambits.users.email.key', {}, true);
   }
 
-  toFilter(matches: string[], negate: boolean): Record<string, any> {
-    const key = (negate ? '-' : '') + 'email';
-
-    return {
-      [key]: matches[1],
-    };
+  hint(): string {
+    return app.translator.trans('core.lib.gambits.users.email.hint', {}, true);
   }
 
   filterKey(): string {
     return 'email';
   }
 
-  fromFilter(value: string, negate: boolean): string {
-    return `${negate ? '-' : ''}email:${value}`;
+  enabled(): boolean {
+    return !!(app.session.user && app.forum.attribute<boolean>('canEditUserCredentials'));
   }
 }

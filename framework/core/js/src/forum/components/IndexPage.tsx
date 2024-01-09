@@ -41,7 +41,7 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
       app.discussions.clear();
     }
 
-    app.discussions.refreshParams(app.search.params(), (m.route.param('page') && Number(m.route.param('page'))) || 1);
+    app.discussions.refreshParams(app.search.state.params(), (m.route.param('page') && Number(m.route.param('page'))) || 1);
 
     app.history.push('index', extractText(app.translator.trans('core.forum.header.back_to_index_tooltip')));
 
@@ -154,15 +154,15 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
       'sort',
       <Dropdown
         buttonClassName="Button"
-        label={sortOptions[app.search.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0]}
+        label={sortOptions[app.search.state.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0]}
         accessibleToggleLabel={app.translator.trans('core.forum.index_sort.toggle_dropdown_accessible_label')}
       >
         {Object.keys(sortOptions).map((value) => {
           const label = sortOptions[value];
-          const active = (app.search.params().sort || Object.keys(sortMap)[0]) === value;
+          const active = (app.search.state.params().sort || Object.keys(sortMap)[0]) === value;
 
           return (
-            <Button icon={active ? 'fas fa-check' : true} onclick={app.search.changeSort.bind(app.search, value)} active={active}>
+            <Button icon={active ? 'fas fa-check' : true} onclick={() => app.search.state.changeSort(value)} active={active}>
               {label}
             </Button>
           );
@@ -184,6 +184,7 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
       'refresh',
       <Button
         title={app.translator.trans('core.forum.index.refresh_tooltip')}
+        aria-label={app.translator.trans('core.forum.index.refresh_tooltip')}
         icon="fas fa-sync"
         className="Button Button--icon"
         onclick={() => {
@@ -201,6 +202,7 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
         'markAllAsRead',
         <Button
           title={app.translator.trans('core.forum.index.mark_all_as_read_tooltip')}
+          aria-label={app.translator.trans('core.forum.index.mark_all_as_read_tooltip')}
           icon="fas fa-check"
           className="Button Button--icon"
           onclick={this.markAllAsRead.bind(this)}

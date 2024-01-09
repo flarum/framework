@@ -519,11 +519,16 @@ core:
       submit_button: => core.ref.rename
       title: Rename Discussion
 
-    # These translations are used by the search results dropdown list.
+    # These translations are used by the search modal.
     search:
-      all_discussions_button: 'Search all discussions for "{query}"'
-      discussions_heading: => core.ref.discussions
-      users_heading: => core.ref.users
+      gambit_plus_button_a11y_label: Add a positive filter
+      gambit_minus_button_a11y_label: Add a negative filter
+      title: Search
+      no_results_text: It looks like there are no results here.
+      no_search_text: You have not searched for anything yet.
+      options_heading: Search options
+      placeholder: Search...
+      preview_heading: Search preview
 
     # These translations are used in the Security page.
     security:
@@ -667,6 +672,10 @@ core:
       rate_limit_exceeded_message: You're going a little too quickly. Please try again in a few seconds.
       render_failed_message: Sorry, we encountered an error while displaying this content. If you're a user, please try again later. If you're an administrator, take a look in your Flarum log files for more information.
 
+    # These translations are used in the input component.
+    input:
+      clear_button: Clear input
+
     # These translations are used in the loading indicator component.
     loading_indicator:
       accessible_label: => core.ref.loading
@@ -688,6 +697,36 @@ core:
     number_suffix:
       kilo_text: K
       mega_text: M
+
+    # These translations are used by search sources.
+    search_source:
+      discussions:
+        all_button: 'Search all discussions for "{query}"'
+        heading: => core.ref.discussions
+      users:
+        heading: => core.ref.users
+
+    # These translations are used by gambits. Gambit keys must be in snake_case, no spaces.
+    gambits:
+      boolean_key: is
+      discussions:
+        author:
+          key: author
+          hint: username or comma-separated list of usernames
+        created:
+          key: created
+          hint: 2020-12-31 or 2020-12-31..2021-09-30
+        hidden:
+          key: hidden
+        unread:
+          key: unread
+      users:
+        email:
+          key: email
+          hint: example@machine.local
+        group:
+          key: group
+          hint: singular or plural group names
 
     # These translations are used to punctuate a series of items.
     series:

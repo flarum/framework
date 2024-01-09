@@ -1,15 +1,19 @@
-import IGambit from 'flarum/common/query/IGambit';
+import app from 'flarum/common/app';
+import { BooleanGambit } from 'flarum/common/query/IGambit';
 
-export default class SubscriptionGambit implements IGambit {
-  pattern(): string {
-    return 'is:(follow|ignor)(?:ing|ed)';
+export default class SubscriptionGambit extends BooleanGambit {
+  key(): string[] {
+    return [
+      app.translator.trans('flarum-subscriptions.lib.gambits.discussions.subscription.following_key', {}, true),
+      app.translator.trans('flarum-subscriptions.lib.gambits.discussions.subscription.ignoring_key', {}, true),
+    ];
   }
 
   toFilter(matches: string[], negate: boolean): Record<string, any> {
-    const type = matches[1] === 'follow' ? 'following' : 'ignoring';
+    const key = (negate ? '-' : '') + this.filterKey();
 
     return {
-      subscription: type,
+      [key]: matches[1],
     };
   }
 
@@ -19,5 +23,9 @@ export default class SubscriptionGambit implements IGambit {
 
   fromFilter(value: string, negate: boolean): string {
     return `${negate ? '-' : ''}is:${value}`;
+  }
+
+  enabled(): boolean {
+    return !!app.session.user;
   }
 }

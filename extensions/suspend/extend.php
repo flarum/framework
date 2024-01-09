@@ -8,6 +8,7 @@
  */
 
 use Flarum\Api\Serializer\BasicUserSerializer;
+use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Extend;
 use Flarum\Search\Database\DatabaseSearchDriver;
@@ -40,6 +41,11 @@ return [
 
     (new Extend\ApiSerializer(UserSerializer::class))
         ->attributes(AddUserSuspendAttributes::class),
+
+    (new Extend\ApiSerializer(ForumSerializer::class))
+        ->attribute('canSuspendUsers', function (ForumSerializer $serializer) {
+            return $serializer->getActor()->hasPermission('user.suspend');
+        }),
 
     new Extend\Locales(__DIR__.'/locale'),
 

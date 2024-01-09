@@ -84,12 +84,6 @@
   text-align: right;
   white-space: nowrap;
   pointer-events: none;
-
-  .Badge {
-    margin-left: -10px;
-    position: relative;
-    pointer-events: auto;
-  }
 }
 
 .Post-body {
@@ -399,6 +393,9 @@
   .Post-container {
     display: grid;
     grid-template-columns: var(--avatar-column-width) 1fr;
+  }
+  .Post-main {
+    min-width: 0;
   }
   .CommentPost:not(.Post--hidden), .ReplyPlaceholder {
     min-height: 64px + 40px; // avatar height + padding
