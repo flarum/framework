@@ -147,7 +147,6 @@ class RegisterUserHandler
 
     private function retrieveAvatarFromUrl(string $url): ?string
     {
-        print_r($url);
         $client = new Client();
 
         try {
