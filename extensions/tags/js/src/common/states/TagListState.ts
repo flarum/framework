@@ -21,9 +21,10 @@ export default class TagListState {
   async query(includes: string[] = []): Promise<Tag[]> {
     this.loadedIncludes ??= new Set();
 
-    return app.store.find<Tag[]>('tags', { include: includes.join(',') }).then((val: Tag) => {
+    return app.store.find<Tag[]>('tags', { include: includes.join(',') }).then((val: Tag | Tag[]) => {
+      const tags = Array.isArray(val) ? val : [val];
       includes.forEach((include) => this.loadedIncludes!.add(include));
-      return val;
+      return tags;
     });
   }
 }
