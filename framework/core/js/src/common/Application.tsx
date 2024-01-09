@@ -604,7 +604,9 @@ export default class Application {
         console.groupEnd();
       }
 
-      if (e.alert) {
+      if (e.status === 500 && isDebug) {
+        app.modal.show(RequestErrorModal, { error: e, formattedError: formattedErrors });
+      } else if (e.alert) {
         this.requestErrorAlert = this.alerts.show(e.alert, e.alert.content);
       }
     } else {
