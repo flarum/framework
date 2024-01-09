@@ -2,6 +2,8 @@ import { AdminRoutes } from './routes';
 import Application, { ApplicationData } from '../common/Application';
 import ExtensionData from './utils/ExtensionData';
 import IHistory from '../common/IHistory';
+import SearchManager from '../common/SearchManager';
+import SearchState from '../common/states/SearchState';
 export declare type Extension = {
     id: string;
     name: string;
@@ -48,6 +50,7 @@ export default class AdminApplication extends Application {
         language: number;
     };
     history: IHistory;
+    search: SearchManager<SearchState>;
     /**
      * Settings are serialized to the admin dashboard as strings.
      * Additional encoding/decoding is possible, but must take

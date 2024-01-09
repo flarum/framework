@@ -11,7 +11,6 @@ import './states/DiscussionListState';
 import './states/GlobalSearchState';
 import './states/NotificationListState';
 import './states/PostStreamState';
-import './states/SearchState';
 import './components/AffixedSidebar';
 import './components/DiscussionPage';
 import './components/DiscussionListPane';

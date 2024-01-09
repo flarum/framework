@@ -1,8 +1,11 @@
 import Component, { ComponentAttrs } from '../../common/Component';
-import ItemList from '../../common/utils/ItemList';
-import KeyboardNavigatable from '../../common/utils/KeyboardNavigatable';
-import SearchState from '../states/SearchState';
+import SearchState from '../../common/states/SearchState';
 import type Mithril from 'mithril';
+import ItemList from '../../common/utils/ItemList';
+export interface SearchAttrs extends ComponentAttrs {
+    /** The type of alert this is. Will be used to give the alert a class name of `Alert--{type}`. */
+    state: SearchState;
+}
 /**
  * The `SearchSource` interface defines a section of search results in the
  * search dropdown.
@@ -15,19 +18,35 @@ import type Mithril from 'mithril';
  */
 export interface SearchSource {
     /**
+     * The resource type that this search source is responsible for.
+     */
+    resource: string;
+    /**
+     * Get the title for this search source.
+     */
+    title(): string;
+    /**
+     * Check if a query has been cached for this search source.
+     */
+    isCached(query: string): boolean;
+    /**
      * Make a request to get results for the given query.
      * The results will be updated internally in the search source, not exposed.
      */
-    search(query: string): Promise<void>;
+    search(query: string, limit: number): Promise<void>;
     /**
      * Get an array of virtual <li>s that list the search results for the given
      * query.
      */
     view(query: string): Array<Mithril.Vnode>;
-}
-export interface SearchAttrs extends ComponentAttrs {
-    /** The type of alert this is. Will be used to give the alert a class name of `Alert--{type}`. */
-    state: SearchState;
+    /**
+     * Get a list item for the full search results page.
+     */
+    fullPage(query: string): Mithril.Vnode | null;
+    /**
+     * Get to the result item page. Only called if each list item has a data-id.
+     */
+    gotoItem(id: string): string | null;
 }
 /**
  * The `Search` component displays a menu of as-you-type results from a variety
@@ -43,69 +62,13 @@ export interface SearchAttrs extends ComponentAttrs {
  */
 export default class Search<T extends SearchAttrs = SearchAttrs> extends Component<T, SearchState> {
     /**
-     * The minimum query length before sources are searched.
-     */
-    protected static MIN_SEARCH_LEN: number;
-    /**
      * The instance of `SearchState` for this component.
      */
     protected searchState: SearchState;
-    /**
-     * Whether or not the search input has focus.
-     */
-    protected hasFocus: boolean;
-    /**
-     * An array of SearchSources.
-     */
-    protected sources?: SearchSource[];
-    /**
-     * The number of sources that are still loading results.
-     */
-    protected loadingSources: number;
-    /**
-     * The index of the currently-selected <li> in the results list. This can be
-     * a unique string (to account for the fact that an item's position may jump
-     * around as new results load), but otherwise it will be numeric (the
-     * sequential position within the list).
-     */
-    protected index: number;
-    protected navigator: KeyboardNavigatable;
-    protected searchTimeout?: number;
-    private updateMaxHeightHandler?;
     oninit(vnode: Mithril.Vnode<T, this>): void;
     view(): JSX.Element;
-    updateMaxHeight(): void;
-    onupdate(vnode: Mithril.VnodeDOM<T, this>): void;
-    oncreate(vnode: Mithril.VnodeDOM<T, this>): void;
-    onremove(vnode: Mithril.VnodeDOM<T, this>): void;
     /**
-     * Navigate to the currently selected search result and close the list.
-     */
-    selectResult(): void;
-    /**
-     * Clear the search
-     */
-    clear(): void;
-    /**
-     * Build an item list of SearchSources.
+     * A list of search sources that can be used to query for search results.
      */
     sourceItems(): ItemList<SearchSource>;
-    /**
-     * Get all of the search result items that are selectable.
-     */
-    selectableItems(): JQuery;
-    /**
-     * Get the position of the currently selected search result item.
-     * Returns zero if not found.
-     */
-    getCurrentNumericIndex(): number;
-    /**
-     * Get the <li> in the search results with the given index (numeric or named).
-     */
-    getItem(index: number): JQuery;
-    /**
-     * Set the currently-selected search result item to the one with the given
-     * index.
-     */
-    setIndex(index: number, scrollToItem?: boolean): void;
 }

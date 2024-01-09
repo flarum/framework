@@ -1,4 +1,4 @@
-import SearchState from './SearchState';
+import SearchState from '../../common/states/SearchState';
 declare type SearchParams = Record<string, string>;
 export default class GlobalSearchState extends SearchState {
     private initialValueSet;

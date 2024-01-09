@@ -1,7 +1,6 @@
-import IGambit from '../IGambit';
-export default class HiddenGambit implements IGambit {
-    pattern(): string;
-    toFilter(_matches: string[], negate: boolean): Record<string, any>;
+import { BooleanGambit } from '../IGambit';
+export default class HiddenGambit extends BooleanGambit {
+    key(): string;
     filterKey(): string;
-    fromFilter(value: string, negate: boolean): string;
+    enabled(): boolean;
 }

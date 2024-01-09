@@ -1,7 +1,10 @@
-import IGambit from 'flarum/common/query/IGambit';
-export default class TagGambit implements IGambit {
-    pattern(): string;
-    toFilter(matches: string[], negate: boolean): Record<string, any>;
+import { KeyValueGambit } from 'flarum/common/query/IGambit';
+export default class TagGambit extends KeyValueGambit {
+    predicates: boolean;
+    key(): string;
+    hint(): string;
     filterKey(): string;
-    fromFilter(value: string, negate: boolean): string;
+    gambitValueToFilterValue(value: string): string[];
+    fromFilter(value: any, negate: boolean): string;
+    filterValueToGambitValue(value: string): string;
 }

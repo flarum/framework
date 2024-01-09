@@ -1,5 +1,16 @@
 declare type KeyboardEventHandler = (event: KeyboardEvent) => void;
 declare type ShouldHandle = (event: KeyboardEvent) => boolean;
+declare enum Keys {
+    Enter = 13,
+    Escape = 27,
+    Space = 32,
+    ArrowUp = 38,
+    ArrowDown = 40,
+    ArrowLeft = 37,
+    ArrowRight = 39,
+    Tab = 9,
+    Backspace = 8
+}
 /**
  * The `KeyboardNavigatable` class manages lists that can be navigated with the
  * keyboard, calling callbacks for each actions.
@@ -29,6 +40,19 @@ export default class KeyboardNavigatable {
      * This will be triggered by the Down key.
      */
     onDown(callback: KeyboardEventHandler): KeyboardNavigatable;
+    /**
+     * Provide a callback to be executed when navigating leftwards.
+     *
+     * This will be triggered by the Left key.
+     */
+    onLeft(callback: KeyboardEventHandler): KeyboardNavigatable;
+    /**
+     * Provide a callback to be executed when navigating rightwards.
+     *
+     * This will be triggered by the Right key.
+     */
+    onRight(callback: KeyboardEventHandler): KeyboardNavigatable;
+    onDirection(callback: KeyboardEventHandler, direction: Keys): KeyboardNavigatable;
     /**
      * Provide a callback to be executed when the current item is selected..
      *

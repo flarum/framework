@@ -15,6 +15,7 @@ import type { ComponentAttrs } from './Component';
 import Model, { SavedModelData } from './Model';
 import IHistory from './IHistory';
 import IExtender from './extenders/IExtender';
+import SearchManager from './SearchManager';
 export declare type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 export declare type FlarumGenericRoute = RouteItem<any, any, any>;
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
@@ -140,6 +141,7 @@ export default class Application {
      * The app's data store.
      */
     store: Store;
+    search: SearchManager;
     /**
      * A local cache that can be used to store data at the application level, so
      * that is persists between different routes.
