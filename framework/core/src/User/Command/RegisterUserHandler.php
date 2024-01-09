@@ -126,7 +126,7 @@ class RegisterUserHandler
             'url' => 'required|active_url',
         ]);
 
-        if ($urlValidator->fails() || $urlContents = $this->retrieveAvatarFromUrl($url) === null) {
+        if ($urlValidator->fails()) {
             throw new InvalidArgumentException('Provided avatar URL must be a valid URI.', 503);
         }
 
@@ -135,6 +135,8 @@ class RegisterUserHandler
         if (! in_array($scheme, ['http', 'https'])) {
             throw new InvalidArgumentException("Provided avatar URL must have scheme http or https. Scheme provided was $scheme.", 503);
         }
+
+        $urlContents = $this->retrieveAvatarFromUrl($url);
 
         if ($urlContents !== null) {
             $image = $this->imageManager->read($urlContents);
@@ -145,6 +147,7 @@ class RegisterUserHandler
 
     private function retrieveAvatarFromUrl(string $url): ?string
     {
+        print_r($url);
         $client = new Client();
 
         try {
