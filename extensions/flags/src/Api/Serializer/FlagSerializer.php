@@ -29,10 +29,10 @@ class FlagSerializer extends AbstractSerializer
         }
 
         return [
-            'type' => $model->type,
-            'reason' => $model->reason,
+            'type'         => $model->type,
+            'reason'       => $model->reason,
             'reasonDetail' => $model->reason_detail,
-            'createdAt' => $this->formatDate($model->created_at),
+            'createdAt'    => $this->formatDate($model->created_at),
         ];
     }
 

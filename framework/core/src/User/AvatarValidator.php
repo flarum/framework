@@ -78,7 +78,7 @@ class AvatarValidator extends AbstractValidator
 
         try {
             $this->imageManager->read($file->getStream()->getMetadata('uri'));
-        } catch (DecoderException|GifDecoderException) {
+        } catch (DecoderException | GifDecoderException) {
             $this->raise('image');
         }
     }

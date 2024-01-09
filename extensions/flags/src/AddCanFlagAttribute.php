@@ -32,7 +32,6 @@ class AddCanFlagAttribute
             // If $actor is the post author, check to see if the setting is enabled
             return (bool) $this->settings->get('flarum-flags.can_flag_own');
         }
-
         // $actor is not the post author
         return true;
     }
