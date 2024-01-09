@@ -126,7 +126,7 @@ class RegisterUserHandler
             'url' => 'required|active_url',
         ]);
 
-        if ($urlValidator->fails()) {
+        if ($urlValidator->fails() || $urlContents = $this->retrieveAvatarFromUrl($url) === null) {
             throw new InvalidArgumentException('Provided avatar URL must be a valid URI.', 503);
         }
 
@@ -136,11 +136,30 @@ class RegisterUserHandler
             throw new InvalidArgumentException("Provided avatar URL must have scheme http or https. Scheme provided was $scheme.", 503);
         }
 
-        $urlContent = (new Client())->get($url)->getBody()->getContents();
+        
 
-        $image = $this->imageManager->read($urlContent);
+        if ($urlContents !== null) {
+            $image = $this->imageManager->read($urlContents);
 
-        $this->avatarUploader->upload($user, $image);
+            $this->avatarUploader->upload($user, $image);
+        }
+    }
+
+    private function retrieveAvatarFromUrl(string $url): ?string
+    {
+        $client = new Client();
+
+        try {
+            $response = $client->get($url);
+        } catch (\Exception $e) {
+            return null;
+        }
+
+        if ($response->getStatusCode() !== 200) {
+            return null;
+        }
+
+        return $response->getBody()->getContents();
     }
 
     private function fulfillToken(User $user, RegistrationToken $token): void
