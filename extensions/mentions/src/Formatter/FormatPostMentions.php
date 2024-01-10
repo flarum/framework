@@ -11,6 +11,7 @@ namespace Flarum\Mentions\Formatter;
 
 use Flarum\Discussion\Discussion;
 use Flarum\Http\SlugManager;
+use Flarum\Post\Post;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use s9e\TextFormatter\Renderer;
 use s9e\TextFormatter\Utils;
@@ -39,16 +40,17 @@ class FormatPostMentions
      *
      * @param \s9e\TextFormatter\Renderer $renderer
      * @param mixed $context
-     * @param string|null $xml
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @return string
+     * @param string $xml
+     * @param \Psr\Http\Message\ServerRequestInterface|null $request
+     * @return string $xml to be rendered
      */
     public function __invoke(Renderer $renderer, $context, $xml, Request $request = null)
     {
-        $post = $context;
+        return Utils::replaceAttributes($xml, 'POSTMENTION', function ($attributes) use ($context) {
+            $post = (($context && isset($context->getRelations()['mentionsPosts'])) || $context instanceof Post)
+                ? $context->mentionsPosts->find($attributes['id'])
+                : Post::find($attributes['id']);
 
-        return Utils::replaceAttributes($xml, 'POSTMENTION', function ($attributes) use ($post) {
-            $post = $post->mentionsPosts->find($attributes['id']);
             if ($post && $post->user) {
                 $attributes['displayname'] = $post->user->display_name;
             }
