@@ -15,4 +15,5 @@ export default class QueueState {
     prev(): void;
     next(): void;
     pollQueue(actionTaken?: boolean): void;
+    hasPending(): boolean;
 }

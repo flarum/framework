@@ -7,15 +7,15 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Command;
+namespace Flarum\ExtensionManager\Command;
 
 use Flarum\Extension\ExtensionManager;
-use Flarum\PackageManager\Composer\ComposerAdapter;
-use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
-use Flarum\PackageManager\Exception\ExtensionNotInstalledException;
-use Flarum\PackageManager\Extension\Event\Updated;
-use Flarum\PackageManager\Settings\LastUpdateCheck;
-use Flarum\PackageManager\UpdateExtensionValidator;
+use Flarum\ExtensionManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Exception\ComposerUpdateFailedException;
+use Flarum\ExtensionManager\Exception\ExtensionNotInstalledException;
+use Flarum\ExtensionManager\Extension\Event\Updated;
+use Flarum\ExtensionManager\Settings\LastUpdateCheck;
+use Flarum\ExtensionManager\UpdateExtensionValidator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Input\StringInput;
 

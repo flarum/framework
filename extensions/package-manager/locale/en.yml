@@ -1,4 +1,4 @@
-flarum-package-manager:
+flarum-extension-manager:
   admin:
     auth_config:
       add_label: New authentication method
@@ -81,7 +81,7 @@ flarum-package-manager:
       update_hard_label: Hard update
 
     file_permissions: >
-      The package manager requires read and write permissions on the following files and directories: composer.json, composer.lock, vendor, storage, storage/.composer
+      The extension manager requires read and write permissions on the following files and directories: composer.json, composer.lock, vendor, storage, storage/.composer
 
     major_updater:
       description: >
@@ -136,8 +136,8 @@ flarum-package-manager:
 
     settings:
       title: => core.ref.settings
-      access_warning: Please be careful to who you give access to the admin area, the package manager could be misused by bad actors to install packages that can lead to security breaches.
-      debug_mode_warning: You are running in debug mode, the package manager cannot properly install and update local development packages. Please use the command line interface instead for such purposes.
+      access_warning: Please be careful to who you give access to the admin area, the extension manager could be misused by bad actors to install packages that can lead to security breaches.
+      debug_mode_warning: You are running in debug mode, the extension manager cannot properly install and update local development packages. Please use the command line interface instead for such purposes.
       queue_jobs: Run operations in the background queue
       queue_jobs_help: >
         You can read about a <a href='{basic_impl_link}'>basic queue</a> implementation or a <a href='{adv_impl_link}'>more advanced</a> one.

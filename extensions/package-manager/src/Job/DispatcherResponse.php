@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Job;
+namespace Flarum\ExtensionManager\Job;
 
 class DispatcherResponse
 {

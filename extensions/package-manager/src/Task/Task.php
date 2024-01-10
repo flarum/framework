@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Task;
+namespace Flarum\ExtensionManager\Task;
 
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
@@ -49,7 +49,7 @@ class Task extends AbstractModel
 
     public const UPDATED_AT = null;
 
-    protected $table = 'package_manager_tasks';
+    protected $table = 'extension_manager_tasks';
 
     protected $guarded = ['id'];
 

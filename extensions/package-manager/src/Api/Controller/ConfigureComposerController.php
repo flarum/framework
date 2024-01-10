@@ -7,12 +7,12 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Api\Controller;
+namespace Flarum\ExtensionManager\Api\Controller;
 
 use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;
-use Flarum\PackageManager\Composer\ComposerJson;
-use Flarum\PackageManager\ConfigureComposerValidator;
+use Flarum\ExtensionManager\Composer\ComposerJson;
+use Flarum\ExtensionManager\ConfigureComposerValidator;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
@@ -110,6 +110,8 @@ class ConfigureComposerController implements RequestHandlerInterface
         foreach ($this->configurable as $key) {
             $composerJson[$key] = Arr::get($composerJson, $key, Arr::get($default, $key));
         }
+
+        $composerJson = Arr::sortRecursive($composerJson);
 
         return Arr::only($composerJson, $this->configurable);
     }

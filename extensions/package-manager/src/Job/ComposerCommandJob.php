@@ -7,12 +7,12 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Job;
+namespace Flarum\ExtensionManager\Job;
 
 use Flarum\Bus\Dispatcher;
-use Flarum\PackageManager\Command\AbstractActionCommand;
-use Flarum\PackageManager\Composer\ComposerAdapter;
-use Flarum\PackageManager\Exception\ComposerCommandFailedException;
+use Flarum\ExtensionManager\Command\AbstractActionCommand;
+use Flarum\ExtensionManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Exception\ComposerCommandFailedException;
 use Flarum\Queue\AbstractJob;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Queue\Middleware\WithoutOverlapping;

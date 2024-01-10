@@ -7,9 +7,9 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Command;
+namespace Flarum\ExtensionManager\Command;
 
-use Flarum\PackageManager\Task\Task;
+use Flarum\ExtensionManager\Task\Task;
 use Flarum\User\User;
 
 class MinorUpdate extends AbstractActionCommand

@@ -7,8 +7,22 @@
  * LICENSE file that was distributed with this source code.
  */
 
-use Flarum\Database\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 
-return Migration::addColumns('package_manager_tasks', [
-    'guessed_cause' => ['type' => 'string', 'length' => 255, 'nullable' => true, 'after' => 'output'],
-]);
+return [
+    'up' => function (Builder $schema) {
+        $schema->table('package_manager_tasks', function (Blueprint $table) use ($schema) {
+            if (! $schema->hasColumn('package_manager_tasks', 'guessed_cause')) {
+                $table->string('guessed_cause', 255)->nullable()->after('output');
+            }
+        });
+    },
+    'down' => function (Builder $schema) {
+        $schema->table('package_manager_tasks', function (Blueprint $table) use ($schema) {
+            if ($schema->hasColumn('package_manager_tasks', 'guessed_cause')) {
+                $table->dropColumn('guessed_cause');
+            }
+        });
+    }
+];

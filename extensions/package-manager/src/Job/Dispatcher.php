@@ -7,13 +7,13 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Job;
+namespace Flarum\ExtensionManager\Job;
 
 use Carbon\Carbon;
 use Flarum\Bus\Dispatcher as Bus;
 use Flarum\Extension\ExtensionManager;
-use Flarum\PackageManager\Command\AbstractActionCommand;
-use Flarum\PackageManager\Task\Task;
+use Flarum\ExtensionManager\Command\AbstractActionCommand;
+use Flarum\ExtensionManager\Task\Task;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Queue\SyncQueue;
@@ -73,7 +73,7 @@ class Dispatcher
 
     public function dispatch(AbstractActionCommand $command): DispatcherResponse
     {
-        $queueJobs = ($this->runSyncOverride === false) || ($this->runSyncOverride !== true && $this->settings->get('flarum-package-manager.queue_jobs'));
+        $queueJobs = ($this->runSyncOverride === false) || ($this->runSyncOverride !== true && $this->settings->get('flarum-extension-manager.queue_jobs'));
 
         // Skip if there is already a pending or running task.
         if ($queueJobs && Task::query()->whereIn('status', [Task::PENDING, Task::RUNNING])->exists()) {
@@ -101,7 +101,7 @@ class Dispatcher
 
     protected function clearOldTasks(): void
     {
-        $days = $this->settings->get('flarum-package-manager.task_retention_days');
+        $days = $this->settings->get('flarum-extension-manager.task_retention_days');
 
         if ($days === null || ((int) $days) === 0) {
             return;

@@ -7,15 +7,15 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Command;
+namespace Flarum\ExtensionManager\Command;
 
 use Flarum\Extension\ExtensionManager;
-use Flarum\PackageManager\Composer\ComposerAdapter;
-use Flarum\PackageManager\Composer\ComposerJson;
-use Flarum\PackageManager\Exception\ComposerCommandFailedException;
-use Flarum\PackageManager\Exception\ExtensionNotInstalledException;
-use Flarum\PackageManager\Exception\IndirectExtensionDependencyCannotBeRemovedException;
-use Flarum\PackageManager\Extension\Event\Removed;
+use Flarum\ExtensionManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Composer\ComposerJson;
+use Flarum\ExtensionManager\Exception\ComposerCommandFailedException;
+use Flarum\ExtensionManager\Exception\ExtensionNotInstalledException;
+use Flarum\ExtensionManager\Exception\IndirectExtensionDependencyCannotBeRemovedException;
+use Flarum\ExtensionManager\Extension\Event\Removed;
 use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Input\StringInput;
 

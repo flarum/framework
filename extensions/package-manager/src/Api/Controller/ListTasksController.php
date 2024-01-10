@@ -7,13 +7,13 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Api\Controller;
+namespace Flarum\ExtensionManager\Api\Controller;
 
 use Flarum\Api\Controller\AbstractListController;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
-use Flarum\PackageManager\Api\Serializer\TaskSerializer;
-use Flarum\PackageManager\Task\Task;
+use Flarum\ExtensionManager\Api\Serializer\TaskSerializer;
+use Flarum\ExtensionManager\Task\Task;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -54,7 +54,7 @@ class ListTasksController extends AbstractListController
         $document->addMeta('total', (string) $total);
 
         $document->addPaginationLinks(
-            $this->url->to('api')->route('package-manager.tasks.index'),
+            $this->url->to('api')->route('extension-manager.tasks.index'),
             $request->getQueryParams(),
             $offset,
             $limit,

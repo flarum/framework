@@ -29,24 +29,24 @@ export default class RepositoryModal<CustomAttrs extends IRepositoryModalAttrs =
 
   title(): Mithril.Children {
     const context = this.attrs.repository ? 'edit' : 'add';
-    return app.translator.trans(`flarum-package-manager.admin.composer.${context}_repository_label`);
+    return app.translator.trans(`flarum-extension-manager.admin.composer.${context}_repository_label`);
   }
 
   content(): Mithril.Children {
     const types = {
-      composer: app.translator.trans('flarum-package-manager.admin.composer.repositories.types.composer'),
-      vcs: app.translator.trans('flarum-package-manager.admin.composer.repositories.types.vcs'),
-      path: app.translator.trans('flarum-package-manager.admin.composer.repositories.types.path'),
+      composer: app.translator.trans('flarum-extension-manager.admin.composer.repositories.types.composer'),
+      vcs: app.translator.trans('flarum-extension-manager.admin.composer.repositories.types.vcs'),
+      path: app.translator.trans('flarum-extension-manager.admin.composer.repositories.types.path'),
     };
 
     return (
       <div className="Modal-body">
         <div className="Form-group">
-          <label>{app.translator.trans('flarum-package-manager.admin.composer.repositories.add_modal.name_label')}</label>
+          <label>{app.translator.trans('flarum-extension-manager.admin.composer.repositories.add_modal.name_label')}</label>
           <input className="FormControl" bidi={this.name} />
         </div>
         <div className="Form-group">
-          <label>{app.translator.trans('flarum-package-manager.admin.composer.repositories.add_modal.type_label')}</label>
+          <label>{app.translator.trans('flarum-extension-manager.admin.composer.repositories.add_modal.type_label')}</label>
           <Select
             options={types}
             value={this.repository().type}
@@ -54,7 +54,7 @@ export default class RepositoryModal<CustomAttrs extends IRepositoryModalAttrs =
           />
         </div>
         <div className="Form-group">
-          <label>{app.translator.trans('flarum-package-manager.admin.composer.repositories.add_modal.url')}</label>
+          <label>{app.translator.trans('flarum-extension-manager.admin.composer.repositories.add_modal.url')}</label>
           <input
             className="FormControl"
             onchange={(e: Event) => this.repository({ ...this.repository(), url: (e.target as HTMLInputElement).value })}
@@ -63,7 +63,7 @@ export default class RepositoryModal<CustomAttrs extends IRepositoryModalAttrs =
         </div>
         <div className="Form-group">
           <Button className="Button Button--primary" onclick={this.submit.bind(this)}>
-            {app.translator.trans('flarum-package-manager.admin.composer.repositories.add_modal.submit_button')}
+            {app.translator.trans('flarum-extension-manager.admin.composer.repositories.add_modal.submit_button')}
           </Button>
         </div>
       </div>

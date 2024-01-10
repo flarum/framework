@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager;
+namespace Flarum\ExtensionManager;
 
 use Composer\Config;
 use Composer\Console\Application;
@@ -17,18 +17,18 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Paths;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Locale\LocaleManager;
-use Flarum\PackageManager\Composer\ComposerAdapter;
-use Flarum\PackageManager\Event\FlarumUpdated;
-use Flarum\PackageManager\Extension\Event\Updated;
-use Flarum\PackageManager\Listener\ClearCacheAfterUpdate;
-use Flarum\PackageManager\Listener\ReCheckForUpdates;
+use Flarum\ExtensionManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Event\FlarumUpdated;
+use Flarum\ExtensionManager\Extension\Event\Updated;
+use Flarum\ExtensionManager\Listener\ClearCacheAfterUpdate;
+use Flarum\ExtensionManager\Listener\ReCheckForUpdates;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger;
 
-class PackageManagerServiceProvider extends AbstractServiceProvider
+class ExtensionManagerServiceProvider extends AbstractServiceProvider
 {
     public function register()
     {

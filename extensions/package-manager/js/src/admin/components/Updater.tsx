@@ -14,30 +14,30 @@ export type UpdaterLoadingTypes = 'check' | 'minor-update' | 'global-update' | '
 
 export default class Updater extends Component<IUpdaterAttrs> {
   view() {
-    const core = app.packageManager.control.coreUpdate;
+    const core = app.extensionManager.control.coreUpdate;
 
     return [
       <div className="Form-group">
-        <label>{app.translator.trans('flarum-package-manager.admin.updater.updater_title')}</label>
-        <p className="helpText">{app.translator.trans('flarum-package-manager.admin.updater.updater_help')}</p>
+        <label>{app.translator.trans('flarum-extension-manager.admin.updater.updater_title')}</label>
+        <p className="helpText">{app.translator.trans('flarum-extension-manager.admin.updater.updater_help')}</p>
         {this.lastUpdateCheckView()}
-        <div className="PackageManager-updaterControls">{this.controlItems().toArray()}</div>
+        <div className="ExtensionManager-updaterControls">{this.controlItems().toArray()}</div>
         {this.availableUpdatesView()}
       </div>,
       core && core.package['latest-major'] ? (
-        <MajorUpdater coreUpdate={core.package} updateState={app.packageManager.control.lastUpdateRun.major} />
+        <MajorUpdater coreUpdate={core.package} updateState={app.extensionManager.control.lastUpdateRun.major} />
       ) : null,
     ];
   }
 
   lastUpdateCheckView() {
     return (
-      (app.packageManager.control.lastUpdateCheck?.checkedAt && (
-        <p className="PackageManager-lastUpdatedAt">
-          <span className="PackageManager-lastUpdatedAt-label">
-            {app.translator.trans('flarum-package-manager.admin.updater.last_update_checked_at')}
+      (app.extensionManager.control.lastUpdateCheck?.checkedAt && (
+        <p className="ExtensionManager-lastUpdatedAt">
+          <span className="ExtensionManager-lastUpdatedAt-label">
+            {app.translator.trans('flarum-extension-manager.admin.updater.last_update_checked_at')}
           </span>
-          <span className="PackageManager-lastUpdatedAt-value">{humanTime(app.packageManager.control.lastUpdateCheck.checkedAt)}</span>
+          <span className="ExtensionManager-lastUpdatedAt-value">{humanTime(app.extensionManager.control.lastUpdateCheck.checkedAt)}</span>
         </p>
       )) ||
       null
@@ -45,11 +45,11 @@ export default class Updater extends Component<IUpdaterAttrs> {
   }
 
   availableUpdatesView() {
-    const state = app.packageManager.control;
+    const state = app.extensionManager.control;
 
-    if (app.packageManager.control.isLoading('check') || app.packageManager.control.isLoading('global-update')) {
+    if (app.extensionManager.control.isLoading('check') || app.extensionManager.control.isLoading('global-update')) {
       return (
-        <div className="PackageManager-extensions">
+        <div className="ExtensionManager-extensions">
           <LoadingIndicator />
         </div>
       );
@@ -59,15 +59,15 @@ export default class Updater extends Component<IUpdaterAttrs> {
 
     if (!(state.extensionUpdates.length || hasMinorCoreUpdate)) {
       return (
-        <div className="PackageManager-extensions">
-          <span className="helpText">{app.translator.trans('flarum-package-manager.admin.updater.up_to_date')}</span>
+        <div className="ExtensionManager-extensions">
+          <span className="helpText">{app.translator.trans('flarum-extension-manager.admin.updater.up_to_date')}</span>
         </div>
       );
     }
 
     return (
-      <div className="PackageManager-extensions">
-        <div className="PackageManager-extensions-grid">
+      <div className="ExtensionManager-extensions">
+        <div className="ExtensionManager-extensions-grid">
           {hasMinorCoreUpdate ? (
             <ExtensionItem
               extension={state.coreUpdate!.extension}
@@ -101,11 +101,11 @@ export default class Updater extends Component<IUpdaterAttrs> {
       <Button
         className="Button"
         icon="fas fa-sync-alt"
-        onclick={() => app.packageManager.control.checkForUpdates()}
-        loading={app.packageManager.control.isLoading('check')}
-        disabled={app.packageManager.control.isLoading()}
+        onclick={() => app.extensionManager.control.checkForUpdates()}
+        loading={app.extensionManager.control.isLoading('check')}
+        disabled={app.extensionManager.control.hasOperationRunning()}
       >
-        {app.translator.trans('flarum-package-manager.admin.updater.check_for_updates')}
+        {app.translator.trans('flarum-extension-manager.admin.updater.check_for_updates')}
       </Button>,
       100
     );
@@ -115,11 +115,11 @@ export default class Updater extends Component<IUpdaterAttrs> {
       <Button
         className="Button"
         icon="fas fa-play"
-        onclick={() => app.packageManager.control.updateGlobally()}
-        loading={app.packageManager.control.isLoading('global-update')}
-        disabled={app.packageManager.control.isLoading()}
+        onclick={() => app.extensionManager.control.updateGlobally()}
+        loading={app.extensionManager.control.isLoading('global-update')}
+        disabled={app.extensionManager.control.hasOperationRunning()}
       >
-        {app.translator.trans('flarum-package-manager.admin.updater.run_global_update')}
+        {app.translator.trans('flarum-extension-manager.admin.updater.run_global_update')}
       </Button>
     );
 

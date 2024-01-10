@@ -20,7 +20,7 @@ export default class QueueState {
       ...params,
     };
 
-    return app.store.find<Task[]>('package-manager-tasks', params || {}).then((data) => {
+    return app.store.find<Task[]>('extension-manager-tasks', params || {}).then((data) => {
       this.tasks = data;
       this.total = data.payload.meta?.total;
 
@@ -32,12 +32,12 @@ export default class QueueState {
       if (pendingTask) {
         this.pollQueue(actionTaken);
       } else if (actionTaken) {
-        app.packageManager.control.setLoading(null);
+        app.extensionManager.control.setLoading(null);
 
         // Refresh the page
         window.location.reload();
-      } else if (app.packageManager.control.isLoading()) {
-        app.packageManager.control.setLoading(null);
+      } else if (app.extensionManager.control.isLoading()) {
+        app.extensionManager.control.setLoading(null);
       }
 
       return data;
@@ -86,5 +86,9 @@ export default class QueueState {
     this.polling = setTimeout(() => {
       this.load({}, actionTaken);
     }, 6000);
+  }
+
+  hasPending() {
+    return !!this.tasks?.find((task) => task.status() === 'pending' || task.status() === 'running');
   }
 }

@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Composer;
+namespace Flarum\ExtensionManager\Composer;
 
 class ComposerOutput
 {

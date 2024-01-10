@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Extension\Event;
+namespace Flarum\ExtensionManager\Extension\Event;
 
 class Installed
 {

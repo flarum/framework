@@ -19,10 +19,10 @@ export default class Installer extends Component<InstallerAttrs> {
 
   view(): Mithril.Children {
     return (
-      <div className="Form-group PackageManager-installer">
-        <label htmlFor="install-extension">{app.translator.trans('flarum-package-manager.admin.extensions.install')}</label>
+      <div className="Form-group ExtensionManager-installer">
+        <label htmlFor="install-extension">{app.translator.trans('flarum-extension-manager.admin.extensions.install')}</label>
         <p className="helpText">
-          {app.translator.trans('flarum-package-manager.admin.extensions.install_help', {
+          {app.translator.trans('flarum-extension-manager.admin.extensions.install_help', {
             extiverse: <a href="https://extiverse.com">extiverse.com</a>,
             semantic_link: <a href="https://devhints.io/semver" />,
             code: <code />,
@@ -34,10 +34,10 @@ export default class Installer extends Component<InstallerAttrs> {
             className="Button"
             icon="fas fa-download"
             onclick={this.onsubmit.bind(this)}
-            loading={app.packageManager.control.isLoading('extension-install')}
-            disabled={app.packageManager.control.isLoading()}
+            loading={app.extensionManager.control.isLoading('extension-install')}
+            disabled={app.extensionManager.control.hasOperationRunning()}
           >
-            {app.translator.trans('flarum-package-manager.admin.extensions.proceed')}
+            {app.translator.trans('flarum-extension-manager.admin.extensions.proceed')}
           </Button>
         </div>
       </div>
@@ -51,6 +51,6 @@ export default class Installer extends Component<InstallerAttrs> {
   }
 
   onsubmit(): void {
-    app.packageManager.control.requirePackage(this.data());
+    app.extensionManager.control.requirePackage(this.data());
   }
 }

@@ -47,6 +47,7 @@ export default class ControlSectionState {
     get lastUpdateRun(): LastUpdateRun;
     constructor();
     isLoading(name?: LoadingTypes): boolean;
+    hasOperationRunning(): boolean;
     setLoading(name: LoadingTypes): void;
     requirePackage(data: any): void;
     checkForUpdates(): void;

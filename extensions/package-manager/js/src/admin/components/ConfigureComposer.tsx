@@ -14,7 +14,7 @@ export default class ConfigureComposer extends ConfigureJson<IConfigureJson> {
   protected type = 'composer';
 
   title(): Mithril.Children {
-    return app.translator.trans('flarum-package-manager.admin.composer.title');
+    return app.translator.trans('flarum-extension-manager.admin.composer.title');
   }
 
   className(): string {
@@ -23,23 +23,23 @@ export default class ConfigureComposer extends ConfigureJson<IConfigureJson> {
 
   content(): Mithril.Children {
     return (
-      <div className="SettingsGroups-content">
+      <div className="ExtensionManager-SettingsGroups-content">
         {this.attrs.buildSettingComponent.call(this, {
           setting: 'minimum-stability',
-          label: app.translator.trans('flarum-package-manager.admin.composer.minimum_stability.label'),
-          help: app.translator.trans('flarum-package-manager.admin.composer.minimum_stability.help'),
+          label: app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.label'),
+          help: app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.help'),
           type: 'select',
           options: {
-            stable: app.translator.trans('flarum-package-manager.admin.composer.minimum_stability.options.stable'),
-            RC: app.translator.trans('flarum-package-manager.admin.composer.minimum_stability.options.rc'),
-            beta: app.translator.trans('flarum-package-manager.admin.composer.minimum_stability.options.beta'),
-            alpha: app.translator.trans('flarum-package-manager.admin.composer.minimum_stability.options.alpha'),
-            dev: app.translator.trans('flarum-package-manager.admin.composer.minimum_stability.options.dev'),
+            stable: app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.options.stable'),
+            RC: app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.options.rc'),
+            beta: app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.options.beta'),
+            alpha: app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.options.alpha'),
+            dev: app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.options.dev'),
           },
         })}
         <div className="Form-group">
-          <label>{app.translator.trans('flarum-package-manager.admin.composer.repositories.label')}</label>
-          <div className="helpText">{app.translator.trans('flarum-package-manager.admin.composer.repositories.help')}</div>
+          <label>{app.translator.trans('flarum-extension-manager.admin.composer.repositories.label')}</label>
+          <div className="helpText">{app.translator.trans('flarum-extension-manager.admin.composer.repositories.help')}</div>
           <div className="ConfigureComposer-repositories">
             {Object.keys(this.setting('repositories')() || {}).map((name) => {
               const repository = this.setting('repositories')()[name] as Repository;
@@ -75,9 +75,9 @@ export default class ConfigureComposer extends ConfigureJson<IConfigureJson> {
                   <Button
                     className="Button Button--icon"
                     icon="fas fa-trash"
-                    aria-label={app.translator.trans('flarum-package-manager.admin.composer.delete_repository_label')}
+                    aria-label={app.translator.trans('flarum-extension-manager.admin.composer.delete_repository_label')}
                     onclick={() => {
-                      if (confirm(extractText(app.translator.trans('flarum-package-manager.admin.composer.delete_repository_confirmation')))) {
+                      if (confirm(extractText(app.translator.trans('flarum-extension-manager.admin.composer.delete_repository_confirmation')))) {
                         const repositories = { ...this.setting('repositories')() };
                         delete repositories[name];
 
@@ -99,7 +99,7 @@ export default class ConfigureComposer extends ConfigureJson<IConfigureJson> {
 
     items.push(
       <Button className="Button" onclick={() => app.modal.show(RepositoryModal, { onsubmit: this.onchange.bind(this) })}>
-        {app.translator.trans('flarum-package-manager.admin.composer.add_repository_label')}
+        {app.translator.trans('flarum-extension-manager.admin.composer.add_repository_label')}
       </Button>
     );
 

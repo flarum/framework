@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Support;
+namespace Flarum\ExtensionManager\Support;
 
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\ArrayInput;

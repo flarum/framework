@@ -14,22 +14,22 @@ export default class SettingsPage extends ExtensionPage {
   content() {
     const settings = app.extensionData.getSettings(this.extension.id);
 
-    const warnings = [app.translator.trans('flarum-package-manager.admin.settings.access_warning')];
+    const warnings = [app.translator.trans('flarum-extension-manager.admin.settings.access_warning')];
 
-    if (app.data.debugEnabled) warnings.push(app.translator.trans('flarum-package-manager.admin.settings.debug_mode_warning'));
+    if (app.data.debugEnabled) warnings.push(app.translator.trans('flarum-extension-manager.admin.settings.debug_mode_warning'));
 
     return (
       <div className="ExtensionPage-settings">
         <div className="container">
           <div className="Form-group">
-            <Alert className="PackageManager-primaryWarning" type="warning" dismissible={false}>
+            <Alert className="ExtensionManager-primaryWarning" type="warning" dismissible={false}>
               <ul>{listItems(warnings)}</ul>
             </Alert>
           </div>
           {settings ? (
-            <div className="SettingsGroups">
+            <div className="ExtensionManager-SettingsGroups">
               <div className="Form">
-                <label>{app.translator.trans('flarum-package-manager.admin.settings.title')}</label>
+                <label>{app.translator.trans('flarum-extension-manager.admin.settings.title')}</label>
                 <div className="SettingsGroups-content">{settings.map(this.buildSettingComponent.bind(this))}</div>
                 <div className="Form-group Form--controls">{this.submitButton()}</div>
               </div>
@@ -51,7 +51,7 @@ export default class SettingsPage extends ExtensionPage {
 
     items.add('control', <ControlSection />, 8);
 
-    if (app.data.settings['flarum-package-manager.queue_jobs'] !== '0' && app.data.settings['flarum-package-manager.queue_jobs']) {
+    if (app.data.settings['flarum-extension-manager.queue_jobs'] !== '0' && app.data.settings['flarum-extension-manager.queue_jobs']) {
       items.add('queue', <QueueSection />, 5);
     }
 

@@ -1,5 +1,5 @@
 import 'dayjs/plugin/relativeTime';
-import PackageManagerState from './states/PackageManagerState';
+import ExtensionManagerState from './states/ExtensionManagerState';
 
 export interface AsyncBackendResponse {
   processing: boolean;
@@ -7,6 +7,6 @@ export interface AsyncBackendResponse {
 
 declare module 'flarum/admin/AdminApplication' {
   export default interface AdminApplication {
-    packageManager: PackageManagerState;
+    extensionManager: ExtensionManagerState;
   }
 }

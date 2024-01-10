@@ -69,7 +69,7 @@ export default abstract class ConfigureJson<CustomAttrs extends IConfigureJson =
     app
       .request({
         method: 'POST',
-        url: app.forum.attribute('apiUrl') + '/package-manager/composer',
+        url: app.forum.attribute('apiUrl') + '/extension-manager/composer',
         body: {
           type: this.type,
           data: readOnly ? null : configuration,

@@ -9,7 +9,7 @@ export default class ConfigureAuth extends ConfigureJson<IConfigureJson> {
   protected type = 'auth';
 
   title(): Mithril.Children {
-    return app.translator.trans('flarum-package-manager.admin.auth_config.title');
+    return app.translator.trans('flarum-extension-manager.admin.auth_config.title');
   }
 
   className(): string {
@@ -27,14 +27,14 @@ export default class ConfigureAuth extends ConfigureJson<IConfigureJson> {
       });
 
     return (
-      <div className="SettingsGroups-content">
+      <div className="ExtensionManager-SettingsGroups-content">
         {hasAuthSettings ? (
           authSettings.map((type) => {
             const hosts = this.settings[type]();
 
             return (
               <div className="Form-group">
-                <label>{app.translator.trans(`flarum-package-manager.admin.auth_config.types.${type}`)}</label>
+                <label>{app.translator.trans(`flarum-extension-manager.admin.auth_config.types.${type}`)}</label>
                 <div className="ConfigureAuth-hosts">
                   {Object.keys(hosts).map((host) => {
                     const data = hosts[host] as string | Record<string, string>;
@@ -58,9 +58,9 @@ export default class ConfigureAuth extends ConfigureJson<IConfigureJson> {
                         <Button
                           className="Button Button--icon"
                           icon="fas fa-trash"
-                          aria-label={app.translator.trans('flarum-package-manager.admin.auth_config.delete_label')}
+                          aria-label={app.translator.trans('flarum-extension-manager.admin.auth_config.delete_label')}
                           onclick={() => {
-                            if (confirm(extractText(app.translator.trans('flarum-package-manager.admin.auth_config.delete_confirmation')))) {
+                            if (confirm(extractText(app.translator.trans('flarum-extension-manager.admin.auth_config.delete_confirmation')))) {
                               const newType = { ...this.setting(type)() };
                               delete newType[host];
 
@@ -80,7 +80,7 @@ export default class ConfigureAuth extends ConfigureJson<IConfigureJson> {
             );
           })
         ) : (
-          <span className="helpText">{app.translator.trans('flarum-package-manager.admin.auth_config.no_auth_methods_configured')}</span>
+          <span className="helpText">{app.translator.trans('flarum-extension-manager.admin.auth_config.no_auth_methods_configured')}</span>
         )}
       </div>
     );
@@ -99,7 +99,7 @@ export default class ConfigureAuth extends ConfigureJson<IConfigureJson> {
           })
         }
       >
-        {app.translator.trans('flarum-package-manager.admin.auth_config.add_label')}
+        {app.translator.trans('flarum-extension-manager.admin.auth_config.add_label')}
       </Button>
     );
 

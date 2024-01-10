@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Task;
+namespace Flarum\ExtensionManager\Task;
 
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;

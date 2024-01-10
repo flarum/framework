@@ -7,13 +7,13 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Command;
+namespace Flarum\ExtensionManager\Command;
 
 use Flarum\Bus\Dispatcher as FlarumDispatcher;
 use Flarum\Foundation\Config;
-use Flarum\PackageManager\Composer\ComposerAdapter;
-use Flarum\PackageManager\Event\FlarumUpdated;
-use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
+use Flarum\ExtensionManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Event\FlarumUpdated;
+use Flarum\ExtensionManager\Exception\ComposerUpdateFailedException;
 use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Input\ArrayInput;
 

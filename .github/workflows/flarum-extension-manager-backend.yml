@@ -1,4 +1,4 @@
-name: Package Manager PHP
+name: Extension Manager PHP
 
 on: [workflow_dispatch, push, pull_request]
 

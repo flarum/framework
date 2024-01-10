@@ -7,11 +7,11 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Composer;
+namespace Flarum\ExtensionManager\Composer;
 
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Paths;
-use Flarum\PackageManager\Support\Util;
+use Flarum\ExtensionManager\Support\Util;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 

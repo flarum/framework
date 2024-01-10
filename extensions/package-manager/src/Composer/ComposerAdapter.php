@@ -7,14 +7,14 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Composer;
+namespace Flarum\ExtensionManager\Composer;
 
 use Composer\Config;
 use Composer\Console\Application;
 use Flarum\Foundation\Paths;
-use Flarum\PackageManager\OutputLogger;
-use Flarum\PackageManager\Support\Util;
-use Flarum\PackageManager\Task\Task;
+use Flarum\ExtensionManager\OutputLogger;
+use Flarum\ExtensionManager\Support\Util;
+use Flarum\ExtensionManager\Task\Task;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 

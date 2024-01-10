@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager;
+namespace Flarum\ExtensionManager;
 
 use Flarum\Extend;
 use Flarum\Foundation\Paths;
@@ -17,16 +17,16 @@ use Illuminate\Queue\SyncQueue;
 
 return [
     (new Extend\Routes('api'))
-        ->post('/package-manager/extensions', 'package-manager.extensions.require', Api\Controller\RequireExtensionController::class)
-        ->patch('/package-manager/extensions/{id}', 'package-manager.extensions.update', Api\Controller\UpdateExtensionController::class)
-        ->delete('/package-manager/extensions/{id}', 'package-manager.extensions.remove', Api\Controller\RemoveExtensionController::class)
-        ->post('/package-manager/check-for-updates', 'package-manager.check-for-updates', Api\Controller\CheckForUpdatesController::class)
-        ->post('/package-manager/why-not', 'package-manager.why-not', Api\Controller\WhyNotController::class)
-        ->post('/package-manager/minor-update', 'package-manager.minor-update', Api\Controller\MinorUpdateController::class)
-        ->post('/package-manager/major-update', 'package-manager.major-update', Api\Controller\MajorUpdateController::class)
-        ->post('/package-manager/global-update', 'package-manager.global-update', Api\Controller\GlobalUpdateController::class)
-        ->get('/package-manager-tasks', 'package-manager.tasks.index', Api\Controller\ListTasksController::class)
-        ->post('/package-manager/composer', 'package-manager.composer', Api\Controller\ConfigureComposerController::class),
+        ->post('/extension-manager/extensions', 'extension-manager.extensions.require', Api\Controller\RequireExtensionController::class)
+        ->patch('/extension-manager/extensions/{id}', 'extension-manager.extensions.update', Api\Controller\UpdateExtensionController::class)
+        ->delete('/extension-manager/extensions/{id}', 'extension-manager.extensions.remove', Api\Controller\RemoveExtensionController::class)
+        ->post('/extension-manager/check-for-updates', 'extension-manager.check-for-updates', Api\Controller\CheckForUpdatesController::class)
+        ->post('/extension-manager/why-not', 'extension-manager.why-not', Api\Controller\WhyNotController::class)
+        ->post('/extension-manager/minor-update', 'extension-manager.minor-update', Api\Controller\MinorUpdateController::class)
+        ->post('/extension-manager/major-update', 'extension-manager.major-update', Api\Controller\MajorUpdateController::class)
+        ->post('/extension-manager/global-update', 'extension-manager.global-update', Api\Controller\GlobalUpdateController::class)
+        ->get('/extension-manager-tasks', 'extension-manager.tasks.index', Api\Controller\ListTasksController::class)
+        ->post('/extension-manager/composer', 'extension-manager.composer', Api\Controller\ConfigureComposerController::class),
 
     (new Extend\Frontend('admin'))
         ->css(__DIR__.'/less/admin.less')
@@ -34,13 +34,13 @@ return [
         ->content(function (Document $document) {
             $paths = resolve(Paths::class);
 
-            $document->payload['flarum-package-manager.writable_dirs'] = is_writable($paths->vendor)
+            $document->payload['flarum-extension-manager.writable_dirs'] = is_writable($paths->vendor)
                 && is_writable($paths->storage)
                 && (! file_exists($paths->storage.'/.composer') || is_writable($paths->storage.'/.composer'))
                 && is_writable($paths->base.'/composer.json')
                 && is_writable($paths->base.'/composer.lock');
 
-            $document->payload['flarum-package-manager.using_sync_queue'] = resolve(Queue::class) instanceof SyncQueue;
+            $document->payload['flarum-extension-manager.using_sync_queue'] = resolve(Queue::class) instanceof SyncQueue;
         }),
 
     new Extend\Locales(__DIR__.'/locale'),
@@ -48,12 +48,12 @@ return [
     (new Extend\Settings())
         ->default(Settings\LastUpdateCheck::key(), json_encode(Settings\LastUpdateCheck::default()))
         ->default(Settings\LastUpdateRun::key(), json_encode(Settings\LastUpdateRun::default()))
-        ->default('flarum-package-manager.queue_jobs', false)
-        ->default('flarum-package-manager.minimum_stability', 'stable')
-        ->default('flarum-package-manager.task_retention_days', 7),
+        ->default('flarum-extension-manager.queue_jobs', '0')
+        ->default('flarum-extension-manager.minimum_stability', 'stable')
+        ->default('flarum-extension-manager.task_retention_days', 7),
 
     (new Extend\ServiceProvider)
-        ->register(PackageManagerServiceProvider::class),
+        ->register(ExtensionManagerServiceProvider::class),
 
     (new Extend\ErrorHandling)
         ->handler(Exception\ComposerCommandFailedException::class, Exception\ExceptionHandler::class)

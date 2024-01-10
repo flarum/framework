@@ -3,7 +3,7 @@
 @import "admin/QueueSection";
 @import "admin/ControlSection";
 
-.PackageManager-controlSection {
+.ExtensionManager-controlSection {
   > .container {
     padding-bottom: 0;
   }
@@ -53,6 +53,52 @@
   }
 }
 
-.flarum-package-manager-Page .SettingsGroups .Form {
+.flarum-extension-manager-Page .SettingsGroups .Form {
   max-height: unset;
+}
+
+.ExtensionManager-SettingsGroups {
+  display: flex;
+  column-count: 3;
+  column-gap: 30px;
+  flex-wrap: wrap;
+
+  .Form {
+    min-width: 300px;
+    max-height: 500px;
+    display: inline-grid;
+    padding: 10px 20px;
+    min-height: 20vh;
+    max-width: 400px;
+    grid-template-rows: min-content;
+    border: 1px solid var(--control-bg);
+    border-radius: var(--border-radius);
+    flex: 1 1 160px;
+
+    >label {
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 1209px) {
+      margin-bottom: 20px;
+    }
+
+    >ol {
+      >li {
+        margin-top: 8px;
+
+        .Button {
+          float: right;
+          visibility: hidden;
+          margin: -8px -16px -8px 16px;
+        }
+      }
+    }
+
+    >label {
+      float: left;
+      font-weight: bold;
+      color: var(--muted-color);
+    }
+  }
 }

@@ -7,12 +7,12 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Tests\integration;
+namespace Flarum\ExtensionManager\Tests\integration;
 
 use Flarum\Foundation\Paths;
-use Flarum\PackageManager\Composer\ComposerAdapter;
-use Flarum\PackageManager\Composer\ComposerJson;
-use Flarum\PackageManager\Support\Util;
+use Flarum\ExtensionManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Composer\ComposerJson;
+use Flarum\ExtensionManager\Support\Util;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
@@ -26,7 +26,7 @@ class TestCase extends \Flarum\Testing\integration\TestCase
     {
         parent::setUp();
 
-        $this->extension('flarum-package-manager', 'flarum-tags');
+        $this->extension('flarum-extension-manager', 'flarum-tags');
 
         $tmp = realpath($this->tmpDir());
 

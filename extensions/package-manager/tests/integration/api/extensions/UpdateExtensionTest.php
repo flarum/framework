@@ -7,10 +7,10 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Tests\integration\api\extensions;
+namespace Flarum\ExtensionManager\Tests\integration\api\extensions;
 
-use Flarum\PackageManager\Tests\integration\RefreshComposerSetup;
-use Flarum\PackageManager\Tests\integration\TestCase;
+use Flarum\ExtensionManager\Tests\integration\RefreshComposerSetup;
+use Flarum\ExtensionManager\Tests\integration\TestCase;
 
 class UpdateExtensionTest extends TestCase
 {
@@ -30,7 +30,7 @@ class UpdateExtensionTest extends TestCase
     public function updating_an_existing_extension_works()
     {
         $response = $this->send(
-            $this->request('PATCH', '/api/package-manager/extensions/flarum-tags', [
+            $this->request('PATCH', '/api/extension-manager/extensions/flarum-tags', [
                 'authenticatedAs' => 1,
             ])
         );
@@ -45,7 +45,7 @@ class UpdateExtensionTest extends TestCase
     public function updating_a_non_existing_extension_fails()
     {
         $response = $this->send(
-            $this->request('PATCH', '/api/package-manager/extensions/flarum-potato', [
+            $this->request('PATCH', '/api/extension-manager/extensions/flarum-potato', [
                 'authenticatedAs' => 1,
             ])
         );

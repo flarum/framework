@@ -7,10 +7,10 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Settings;
+namespace Flarum\ExtensionManager\Settings;
 
 use Carbon\Carbon;
-use Flarum\PackageManager\Event\FlarumUpdated;
+use Flarum\ExtensionManager\Event\FlarumUpdated;
 use Flarum\Settings\SettingsRepositoryInterface;
 
 class LastUpdateRun implements JsonSetting
@@ -76,7 +76,7 @@ class LastUpdateRun implements JsonSetting
 
     public static function key(): string
     {
-        return 'flarum-package-manager.last_update_run';
+        return 'flarum-extension-manager.last_update_run';
     }
 
     public static function default(): array

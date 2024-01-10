@@ -7,11 +7,11 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Api\Controller;
+namespace Flarum\ExtensionManager\Api\Controller;
 
 use Flarum\Http\RequestUtil;
-use Flarum\PackageManager\Command\CheckForUpdates;
-use Flarum\PackageManager\Job\Dispatcher;
+use Flarum\ExtensionManager\Command\CheckForUpdates;
+use Flarum\ExtensionManager\Job\Dispatcher;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

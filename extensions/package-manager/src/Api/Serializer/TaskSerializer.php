@@ -7,10 +7,10 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Api\Serializer;
+namespace Flarum\ExtensionManager\Api\Serializer;
 
 use Flarum\Api\Serializer\AbstractSerializer;
-use Flarum\PackageManager\Task\Task;
+use Flarum\ExtensionManager\Task\Task;
 use InvalidArgumentException;
 
 class TaskSerializer extends AbstractSerializer
@@ -18,7 +18,7 @@ class TaskSerializer extends AbstractSerializer
     /**
      * {@inheritdoc}
      */
-    protected $type = 'package-manager-tasks';
+    protected $type = 'extension-manager-tasks';
 
     /**
      * {@inheritdoc}
