@@ -11,7 +11,9 @@ namespace Flarum\Mentions\Tests\integration\api;
 
 use Carbon\Carbon;
 use Flarum\Extend;
+use Flarum\Formatter\Formatter;
 use Flarum\Post\CommentPost;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\DisplayName\DriverInterface;
@@ -537,6 +539,40 @@ class PostMentionsTest extends TestCase
         $this->assertEquals('@"[deleted]"#p11', $response['data']['attributes']['content']);
         $this->assertStringContainsString('PostMention', $response['data']['attributes']['contentHtml']);
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsPosts->find(11));
+    }
+
+    /**
+     * @test
+     */
+    public function rendering_post_mention_with_a_post_context_works()
+    {
+        /** @var Formatter $formatter */
+        $formatter = $this->app()->getContainer()->make(Formatter::class);
+
+        $post = Post::find(4);
+        $user = User::find(1);
+
+        $xml = $formatter->parse($post->content, $post, $user);
+        $renderedHtml = $formatter->render($xml, $post);
+
+        $this->assertStringContainsString('TOBY$', $renderedHtml);
+    }
+
+    /**
+     * @test
+     */
+    public function rendering_post_mention_without_a_context_works()
+    {
+        /** @var Formatter $formatter */
+        $formatter = $this->app()->getContainer()->make(Formatter::class);
+
+        $post = Post::find(4);
+        $user = User::find(1);
+
+        $xml = $formatter->parse($post->content, null, $user);
+        $renderedHtml = $formatter->render($xml);
+
+        $this->assertStringContainsString('TOBY$', $renderedHtml);
     }
 }
 
