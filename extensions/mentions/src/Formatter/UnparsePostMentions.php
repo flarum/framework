@@ -9,8 +9,8 @@
 
 namespace Flarum\Mentions\Formatter;
 
-use Flarum\Post\Post;
 use Flarum\Locale\TranslatorInterface;
+use Flarum\Post\Post;
 use s9e\TextFormatter\Utils;
 
 class UnparsePostMentions
