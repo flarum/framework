@@ -40,7 +40,7 @@ class ConfigureComposerController implements RequestHandlerInterface
     protected $composerValidator;
 
     /**
-     * @var ConfigureComposerValidator
+     * @var ConfigureAuthValidator
      */
     protected $authValidator;
 
@@ -118,7 +118,7 @@ class ConfigureComposerController implements RequestHandlerInterface
         foreach ($this->configurable as $key) {
             $composerJson[$key] = Arr::get($composerJson, $key, Arr::get($default, $key));
 
-            if (is_null($composerJson[$key]) && ! is_null($default[$key])) {
+            if (is_null($composerJson[$key])) {
                 $composerJson[$key] = $default[$key];
             }
         }
