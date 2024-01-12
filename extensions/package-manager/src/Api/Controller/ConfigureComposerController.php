@@ -9,6 +9,7 @@
 
 namespace Flarum\ExtensionManager\Api\Controller;
 
+use Flarum\ExtensionManager\ConfigureAuthValidator;
 use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;
 use Flarum\ExtensionManager\Composer\ComposerJson;
@@ -36,7 +37,12 @@ class ConfigureComposerController implements RequestHandlerInterface
     /**
      * @var ConfigureComposerValidator
      */
-    protected $validator;
+    protected $composerValidator;
+
+    /**
+     * @var ConfigureComposerValidator
+     */
+    protected $authValidator;
 
     /**
      * @var Paths
@@ -53,9 +59,10 @@ class ConfigureComposerController implements RequestHandlerInterface
      */
     protected $filesystem;
 
-    public function __construct(ConfigureComposerValidator $validator, Paths $paths, ComposerJson $composerJson, Filesystem $filesystem)
+    public function __construct(ConfigureComposerValidator $composerValidator, ConfigureAuthValidator $authValidator, Paths $paths, ComposerJson $composerJson, Filesystem $filesystem)
     {
-        $this->validator = $validator;
+        $this->composerValidator = $composerValidator;
+        $this->authValidator = $authValidator;
         $this->paths = $paths;
         $this->composerJson = $composerJson;
         $this->filesystem = $filesystem;
@@ -89,7 +96,7 @@ class ConfigureComposerController implements RequestHandlerInterface
     {
         $data = Arr::only(Arr::get($request->getParsedBody(), 'data') ?? [], $this->configurable);
 
-        $this->validator->assertValid(['composer' => $data]);
+        $this->composerValidator->assertValid($data);
         $composerJson = $this->composerJson->get();
 
         if (! empty($data)) {
@@ -105,10 +112,15 @@ class ConfigureComposerController implements RequestHandlerInterface
 
         $default = [
             'minimum-stability' => 'stable',
+            'repositories' => [],
         ];
 
         foreach ($this->configurable as $key) {
             $composerJson[$key] = Arr::get($composerJson, $key, Arr::get($default, $key));
+
+            if (is_null($composerJson[$key]) && ! is_null($default[$key])) {
+                $composerJson[$key] = $default[$key];
+            }
         }
 
         $composerJson = Arr::sortRecursive($composerJson);
@@ -120,7 +132,7 @@ class ConfigureComposerController implements RequestHandlerInterface
     {
         $data = Arr::get($request->getParsedBody(), 'data');
 
-        $this->validator->assertValid(['auth' => $data]);
+        $this->authValidator->assertValid($data ?? []);
 
         try {
             $authJson = json_decode($this->filesystem->get($this->paths->base.'/auth.json'), true);
