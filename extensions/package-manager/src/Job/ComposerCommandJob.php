@@ -41,7 +41,7 @@ class ComposerCommandJob extends AbstractJob implements ShouldBeUnique
         }
     }
 
-    public function abort(Throwable $exception)
+    public function abort(Throwable $exception): void
     {
         if (empty($this->command->task->output)) {
             $this->command->task->output = $exception->getMessage();

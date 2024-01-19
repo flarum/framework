@@ -30,7 +30,7 @@ class GlobalUpdateHandler
     /**
      * @throws \Flarum\User\Exception\PermissionDeniedException|ComposerUpdateFailedException
      */
-    public function handle(GlobalUpdate $command)
+    public function handle(GlobalUpdate $command): void
     {
         $command->actor->assertAdmin();
 

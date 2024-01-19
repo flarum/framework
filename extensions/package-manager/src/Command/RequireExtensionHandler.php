@@ -33,7 +33,7 @@ class RequireExtensionHandler
      * @throws \Flarum\User\Exception\PermissionDeniedException
      * @throws \Exception
      */
-    public function handle(RequireExtension $command)
+    public function handle(RequireExtension $command): array
     {
         $command->actor->assertAdmin();
 

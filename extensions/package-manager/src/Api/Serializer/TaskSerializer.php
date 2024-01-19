@@ -26,7 +26,7 @@ class TaskSerializer extends AbstractSerializer
      * @param Task $model
      * @throws InvalidArgumentException
      */
-    protected function getDefaultAttributes($model)
+    protected function getDefaultAttributes($model): array
     {
         if (! ($model instanceof Task)) {
             throw new InvalidArgumentException(
