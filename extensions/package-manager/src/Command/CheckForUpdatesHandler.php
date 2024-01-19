@@ -25,7 +25,8 @@ class CheckForUpdatesHandler
         protected LastUpdateCheck $lastUpdateCheck,
         protected ExtensionManager $extensions,
         protected ComposerJson $composerJson
-    ) {}
+    ) {
+    }
 
     /**
      * We run two commands here.

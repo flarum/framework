@@ -25,7 +25,8 @@ class MajorUpdateHandler
         protected LastUpdateCheck $lastUpdateCheck,
         protected Dispatcher $events,
         protected ComposerJson $composerJson
-    ) {}
+    ) {
+    }
 
     /**
      * Set the version constraint for all directly required packages in the root composer.json to *.

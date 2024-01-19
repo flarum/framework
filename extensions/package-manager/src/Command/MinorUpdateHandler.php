@@ -24,7 +24,8 @@ class MinorUpdateHandler
         protected LastUpdateCheck $lastUpdateCheck,
         protected Dispatcher $events,
         protected ComposerJson $composerJson
-    ) {}
+    ) {
+    }
 
     /**
      * @throws \Flarum\User\Exception\PermissionDeniedException

@@ -18,7 +18,8 @@ class UpdateExtension extends AbstractActionCommand
         public User $actor,
         public ?string $extensionId,
         public string $updateMode
-    ) {}
+    ) {
+    }
 
     public function getOperationName(): string
     {

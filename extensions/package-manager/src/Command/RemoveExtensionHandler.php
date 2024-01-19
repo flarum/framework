@@ -26,7 +26,8 @@ class RemoveExtensionHandler
         protected ExtensionManager $extensions,
         protected Dispatcher $events,
         protected ComposerJson $composerJson
-    ) {}
+    ) {
+    }
 
     /**
      * @throws \Flarum\User\Exception\PermissionDeniedException

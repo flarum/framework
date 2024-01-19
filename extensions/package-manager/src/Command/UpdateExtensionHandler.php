@@ -27,7 +27,8 @@ class UpdateExtensionHandler
         protected UpdateExtensionValidator $validator,
         protected LastUpdateCheck $lastUpdateCheck,
         protected Dispatcher $events
-    ) {}
+    ) {
+    }
 
     /**
      * @throws \Flarum\User\Exception\PermissionDeniedException
