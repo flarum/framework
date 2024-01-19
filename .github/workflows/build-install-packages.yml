@@ -1,0 +1,29 @@
+name: Build Install Packages
+
+on:
+  release:
+    types: [released]
+
+env:
+  VERSION: ${{ github.event.release.tag_name }}
+  PHP_VERSIONS: '8.1 8.2 8.3'
+  INSTALL_PACKAGES_INPUTS: '{ "flarum_version": "{0}", "php_versions": "{1}" }'
+
+jobs:
+  delay:
+    name: Wait for packagist to publish new packages
+    runs-on: ubuntu-latest
+    steps:
+      - run: sleep 30m
+
+  build:
+    name: Build Installation Packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger build in flarum/installation-packages
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Build Flarum Install Packages
+          repo: flarum/installation-packages
+          token: ${{ secrets.PACKAGES_BUILD_TOKEN }}
+          inputs: ${{ format(env.INSTALL_PACKAGES_INPUTS, env.VERSION, env.PHP_VERSIONS) }}
