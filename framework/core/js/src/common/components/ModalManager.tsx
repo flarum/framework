@@ -173,7 +173,21 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
       closedCallback();
     };
 
-    this.activeDialogElement.addEventListener('transitionend', afterModalClosedCallback, { once: true });
+    // Set a fallback timeout to ensure the modalClosing flag is reset
+    // If not reset, there could be another modal that cannot be closed anymore
+    // because the modalClosing flag is still set to true
+    const timeoutId = setTimeout(() => {
+      this.modalClosing = false;
+    }, 1000);
+
+    this.activeDialogElement.addEventListener(
+      'transitionend',
+      () => {
+        clearTimeout(timeoutId); // Clear the timeout if transition ends
+        afterModalClosedCallback();
+      },
+      { once: true }
+    );
 
     this.activeDialogElement.classList.remove('in');
     this.activeDialogElement.classList.add('out');
