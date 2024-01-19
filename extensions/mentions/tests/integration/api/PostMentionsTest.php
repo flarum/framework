@@ -12,8 +12,8 @@ namespace Flarum\Mentions\Tests\integration\api;
 use Carbon\Carbon;
 use Flarum\Extend;
 use Flarum\Formatter\Formatter;
-use Flarum\Post\Post;
 use Flarum\Post\CommentPost;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\DisplayName\DriverInterface;
@@ -574,7 +574,6 @@ class PostMentionsTest extends TestCase
 
         $this->assertStringContainsString('TOBY$', $renderedHtml);
     }
-
 }
 
 class CustomOtherDisplayNameDriver implements DriverInterface

@@ -19,15 +19,15 @@ class DiscussionSerializer extends BasicDiscussionSerializer
     protected function getDefaultAttributes($discussion)
     {
         $attributes = parent::getDefaultAttributes($discussion) + [
-            'commentCount'      => (int) $discussion->comment_count,
-            'participantCount'  => (int) $discussion->participant_count,
-            'createdAt'         => $this->formatDate($discussion->created_at),
-            'lastPostedAt'      => $this->formatDate($discussion->last_posted_at),
-            'lastPostNumber'    => (int) $discussion->last_post_number,
-            'canReply'          => $this->actor->can('reply', $discussion),
-            'canRename'         => $this->actor->can('rename', $discussion),
-            'canDelete'         => $this->actor->can('delete', $discussion),
-            'canHide'           => $this->actor->can('hide', $discussion)
+            'commentCount' => (int) $discussion->comment_count,
+            'participantCount' => (int) $discussion->participant_count,
+            'createdAt' => $this->formatDate($discussion->created_at),
+            'lastPostedAt' => $this->formatDate($discussion->last_posted_at),
+            'lastPostNumber' => (int) $discussion->last_post_number,
+            'canReply' => $this->actor->can('reply', $discussion),
+            'canRename' => $this->actor->can('rename', $discussion),
+            'canDelete' => $this->actor->can('delete', $discussion),
+            'canHide' => $this->actor->can('hide', $discussion)
         ];
 
         if ($discussion->hidden_at) {

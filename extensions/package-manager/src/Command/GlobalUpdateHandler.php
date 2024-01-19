@@ -10,10 +10,10 @@
 namespace Flarum\ExtensionManager\Command;
 
 use Flarum\Bus\Dispatcher as FlarumDispatcher;
-use Flarum\Foundation\Config;
 use Flarum\ExtensionManager\Composer\ComposerAdapter;
 use Flarum\ExtensionManager\Event\FlarumUpdated;
 use Flarum\ExtensionManager\Exception\ComposerUpdateFailedException;
+use Flarum\Foundation\Config;
 use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Input\ArrayInput;
 
