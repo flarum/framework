@@ -15,8 +15,8 @@ use Illuminate\Contracts\Container\Container;
 
 class Auth implements ExtenderInterface
 {
-    private $addPasswordCheckers = [];
-    private $removePasswordCheckers = [];
+    private array $addPasswordCheckers = [];
+    private array $removePasswordCheckers = [];
 
     /**
      * Add a new password checker.
@@ -38,7 +38,7 @@ class Auth implements ExtenderInterface
      *
      * @return self
      */
-    public function addPasswordChecker(string $identifier, $callback): self
+    public function addPasswordChecker(string $identifier, callable|string $callback): self
     {
         $this->addPasswordCheckers[$identifier] = $callback;
 
@@ -58,7 +58,7 @@ class Auth implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         $container->extend('flarum.user.password_checkers', function ($passwordCheckers) use ($container) {
             foreach ($this->removePasswordCheckers as $identifier) {

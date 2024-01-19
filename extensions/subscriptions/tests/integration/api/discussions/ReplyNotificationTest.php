@@ -10,6 +10,9 @@
 namespace Flarum\Subscriptions\tests\integration\api\discussions;
 
 use Carbon\Carbon;
+use Flarum\Extend\ModelVisibility;
+use Flarum\Group\Group;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -220,5 +223,104 @@ class ReplyNotificationTest extends TestCase
             [[10, 9, 8]],
             [[8, 9, 10]]
         ];
+    }
+
+    /** @test */
+    public function approving_reply_sends_reply_notification()
+    {
+        // Flags was only specified because it is required for approval.
+        $this->extensions = ['flarum-flags', 'flarum-approval', 'flarum-subscriptions'];
+
+        $this->app();
+
+        $this->database()
+            ->table('group_permission')
+            ->where('group_id', Group::MEMBER_ID)
+            ->where('permission', 'discussion.replyWithoutApproval')
+            ->delete();
+
+        /** @var User $mainUser */
+        $mainUser = User::query()->find(2);
+
+        $this->assertEquals(0, $mainUser->getUnreadNotificationCount());
+
+        $response = $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 4,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'content' => 'reply with predetermined content for automated testing - too-obscure',
+                        ],
+                        'relationships' => [
+                            'discussion' => ['data' => ['id' => 1]],
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(0, $mainUser->getUnreadNotificationCount());
+
+        $json = json_decode($response->getBody()->getContents(), true);
+
+        // Approve the previous post
+        $this->send(
+            $this->request('PATCH', '/api/posts/'.$json['data']['id'], [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'isApproved' => 1,
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(1, $mainUser->getUnreadNotificationCount());
+    }
+
+    /** @test */
+    public function replying_to_a_discussion_with_a_restricted_post_only_sends_notifications_to_allowed_users()
+    {
+        // Add visibility scoper to only allow admin
+        // to see expected new post with content containing 'restricted-test-post'.
+        $this->extend(
+            (new ModelVisibility(Post::class))
+                ->scope(function (User $actor, $query) {
+                    if (! $actor->isAdmin()) {
+                        $query->where('content', 'not like', '%restricted-test-post%');
+                    }
+                })
+        );
+
+        $this->app();
+
+        /** @var User $allowedUser */
+        $allowedUser = User::query()->find(1);
+        $normalUser = User::query()->find(2);
+
+        $this->assertEquals(0, $allowedUser->getUnreadNotificationCount());
+        $this->assertEquals(0, $normalUser->getUnreadNotificationCount());
+
+        $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 3,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'content' => 'restricted-test-post',
+                        ],
+                        'relationships' => [
+                            'discussion' => ['data' => ['id' => 1]],
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(1, $allowedUser->getUnreadNotificationCount());
+        $this->assertEquals(0, $normalUser->getUnreadNotificationCount());
     }
 }

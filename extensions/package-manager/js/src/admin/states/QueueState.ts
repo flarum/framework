@@ -21,7 +21,7 @@ export default class QueueState {
 
     return app.store.find<Task[]>('package-manager-tasks', params || {}).then((data) => {
       this.tasks = data;
-      this.total = data.payload.meta?.total;
+      this.total = data.payload.meta?.total!;
 
       m.redraw();
 

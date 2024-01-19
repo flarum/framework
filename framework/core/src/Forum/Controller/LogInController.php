@@ -10,6 +10,7 @@
 namespace Flarum\Forum\Controller;
 
 use Flarum\Api\Client;
+use Flarum\Forum\LogInValidator;
 use Flarum\Http\AccessToken;
 use Flarum\Http\RememberAccessToken;
 use Flarum\Http\Rememberer;
@@ -24,53 +25,22 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class LogInController implements RequestHandlerInterface
 {
-    /**
-     * @var \Flarum\User\UserRepository
-     */
-    protected $users;
-
-    /**
-     * @var Client
-     */
-    protected $apiClient;
-
-    /**
-     * @var SessionAuthenticator
-     */
-    protected $authenticator;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @var Rememberer
-     */
-    protected $rememberer;
-
-    /**
-     * @param \Flarum\User\UserRepository $users
-     * @param Client $apiClient
-     * @param SessionAuthenticator $authenticator
-     * @param Rememberer $rememberer
-     */
-    public function __construct(UserRepository $users, Client $apiClient, SessionAuthenticator $authenticator, Dispatcher $events, Rememberer $rememberer)
-    {
-        $this->users = $users;
-        $this->apiClient = $apiClient;
-        $this->authenticator = $authenticator;
-        $this->events = $events;
-        $this->rememberer = $rememberer;
+    public function __construct(
+        protected UserRepository $users,
+        protected Client $apiClient,
+        protected SessionAuthenticator $authenticator,
+        protected Dispatcher $events,
+        protected Rememberer $rememberer,
+        protected LogInValidator $validator
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handle(Request $request): ResponseInterface
     {
         $body = $request->getParsedBody();
         $params = Arr::only($body, ['identification', 'password', 'remember']);
+
+        $this->validator->assertValid($body);
 
         $response = $this->apiClient->withParentRequest($request)->withBody($params)->post('/token');
 

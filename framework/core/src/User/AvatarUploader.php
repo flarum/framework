@@ -16,21 +16,14 @@ use Intervention\Image\Image;
 
 class AvatarUploader
 {
-    /**
-     * @var Filesystem
-     */
-    protected $uploadDir;
+    protected Filesystem $uploadDir;
 
     public function __construct(Factory $filesystemFactory)
     {
         $this->uploadDir = $filesystemFactory->disk('flarum-avatars');
     }
 
-    /**
-     * @param User $user
-     * @param Image $image
-     */
-    public function upload(User $user, Image $image)
+    public function upload(User $user, Image $image): void
     {
         if (extension_loaded('exif')) {
             $image->orientate();
@@ -49,9 +42,8 @@ class AvatarUploader
     /**
      * Handle the removal of the old avatar file after a successful user save
      * We don't place this in remove() because otherwise we would call changeAvatarPath 2 times when uploading.
-     * @param User $user
      */
-    protected function removeFileAfterSave(User $user)
+    protected function removeFileAfterSave(User $user): void
     {
         $avatarPath = $user->getRawOriginal('avatar_url');
 
@@ -67,10 +59,7 @@ class AvatarUploader
         });
     }
 
-    /**
-     * @param User $user
-     */
-    public function remove(User $user)
+    public function remove(User $user): void
     {
         $this->removeFileAfterSave($user);
 

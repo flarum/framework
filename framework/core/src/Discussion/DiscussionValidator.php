@@ -13,7 +13,7 @@ use Flarum\Foundation\AbstractValidator;
 
 class DiscussionValidator extends AbstractValidator
 {
-    protected $rules = [
+    protected array $rules = [
         'title' => [
             'required',
             'min:3',

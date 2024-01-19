@@ -9,6 +9,7 @@
 
 namespace Flarum\Statistics\Api\Controller;
 
+use Carbon\Carbon;
 use DateTime;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
@@ -30,30 +31,19 @@ class ShowStatisticsData implements RequestHandlerInterface
     /**
      * The amount of time to cache lifetime statistics data for in seconds.
      */
-    public static $lifetimeStatsCacheTtl = 300;
+    public static int $lifetimeStatsCacheTtl = 300;
 
     /**
      * The amount of time to cache timed statistics data for in seconds.
      */
-    public static $timedStatsCacheTtl = 900;
+    public static int $timedStatsCacheTtl = 900;
 
-    protected $entities = [];
+    protected array $entities = [];
 
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var CacheRepository
-     */
-    protected $cache;
-
-    public function __construct(SettingsRepositoryInterface $settings, CacheRepository $cache)
-    {
-        $this->settings = $settings;
-        $this->cache = $cache;
-
+    public function __construct(
+        protected SettingsRepositoryInterface $settings,
+        protected CacheRepository $cache
+    ) {
         $this->entities = [
             'users' => [User::query(), 'joined_at'],
             'discussions' => [Discussion::query(), 'created_at'],
@@ -69,26 +59,45 @@ class ShowStatisticsData implements RequestHandlerInterface
         // control panel.
         $actor->assertAdmin();
 
-        $reportingPeriod = Arr::get($request->getQueryParams(), 'period');
-        $model = Arr::get($request->getQueryParams(), 'model');
+        $query = $request->getQueryParams();
 
-        return new JsonResponse($this->getResponse($model, $reportingPeriod));
+        $reportingPeriod = Arr::get($query, 'period');
+        $model = Arr::get($query, 'model');
+        $customDateRange = Arr::get($query, 'dateRange');
+
+        return new JsonResponse($this->getResponse($model, $reportingPeriod, $customDateRange));
     }
 
-    private function getResponse(?string $model, ?string $period): array
+    private function getResponse(?string $model, ?string $period, ?array $customDateRange): array
     {
         if ($period === 'lifetime') {
             return $this->getLifetimeStatistics();
         }
 
         if (! Arr::exists($this->entities, $model)) {
-            throw new InvalidParameterException();
+            throw new InvalidParameterException('A model must be specified');
+        }
+
+        if ($period === 'custom') {
+            $start = (int) $customDateRange['start'];
+            $end = (int) $customDateRange['end'];
+
+            if (! $customDateRange || ! $start || ! $end) {
+                throw new InvalidParameterException('A custom date range must be specified');
+            }
+
+            // Seconds-based timestamps
+            $startRange = Carbon::createFromTimestampUTC($start)->toDateTime();
+            $endRange = Carbon::createFromTimestampUTC($end)->toDateTime();
+
+            // We can't really cache this
+            return $this->getTimedCounts($this->entities[$model][0], $this->entities[$model][1], $startRange, $endRange);
         }
 
         return $this->getTimedStatistics($model);
     }
 
-    private function getLifetimeStatistics()
+    private function getLifetimeStatistics(): array
     {
         return $this->cache->remember('flarum-subscriptions.lifetime_stats', self::$lifetimeStatsCacheTtl, function () {
             return array_map(function ($entity) {
@@ -97,15 +106,30 @@ class ShowStatisticsData implements RequestHandlerInterface
         });
     }
 
-    private function getTimedStatistics(string $model)
+    private function getTimedStatistics(string $model): array
     {
         return $this->cache->remember("flarum-subscriptions.timed_stats.$model", self::$lifetimeStatsCacheTtl, function () use ($model) {
             return $this->getTimedCounts($this->entities[$model][0], $this->entities[$model][1]);
         });
     }
 
-    private function getTimedCounts(Builder $query, $column)
+    private function getTimedCounts(Builder $query, string $column, ?DateTime $startDate = null, ?DateTime $endDate = null): array
     {
+        $diff = $startDate && $endDate ? $startDate->diff($endDate) : null;
+
+        if (! isset($startDate)) {
+            // need -12 months and period before that
+            $startDate = new DateTime('-2 years');
+        } else {
+            // If the start date is custom, we need to include an equal amount beforehand
+            // to show the data for the previous period.
+            $startDate = (new Carbon($startDate))->subtract($diff)->toDateTime();
+        }
+
+        if (! isset($endDate)) {
+            $endDate = new DateTime();
+        }
+
         $results = $query
             ->selectRaw(
                 'DATE_FORMAT(
@@ -115,7 +139,8 @@ class ShowStatisticsData implements RequestHandlerInterface
                 [new DateTime('-25 hours')]
             )
             ->selectRaw('COUNT(id) as count')
-            ->where($column, '>', new DateTime('-365 days'))
+            ->where($column, '>', $startDate)
+            ->where($column, '<=', $endDate)
             ->groupBy('time_group')
             ->pluck('count', 'time_group');
 

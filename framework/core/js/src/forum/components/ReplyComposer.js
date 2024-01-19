@@ -2,8 +2,8 @@ import app from '../../forum/app';
 import ComposerBody from './ComposerBody';
 import Button from '../../common/components/Button';
 import Link from '../../common/components/Link';
-import icon from '../../common/helpers/icon';
 import extractText from '../../common/utils/extractText';
+import Icon from '../../common/components/Icon';
 
 function minimizeComposerIfFullScreen(e) {
   if (app.composer.isFullScreen()) {
@@ -37,7 +37,7 @@ export default class ReplyComposer extends ComposerBody {
     items.add(
       'title',
       <h3>
-        {icon('fas fa-reply')}{' '}
+        <Icon name={'fas fa-reply'} />{' '}
         <Link href={app.route.discussion(discussion)} onclick={minimizeComposerIfFullScreen}>
           {discussion.title()}
         </Link>
@@ -90,15 +90,16 @@ export default class ReplyComposer extends ComposerBody {
           // their reply has been posted, containing a button which will
           // transition to their new post when clicked.
           let alert;
-          const viewButton = Button.component(
-            {
-              className: 'Button Button--link',
-              onclick: () => {
+          const viewButton = (
+            <Button
+              className="Button Button--link"
+              onclick={() => {
                 m.route.set(app.route.post(post));
                 app.alerts.dismiss(alert);
-              },
-            },
-            app.translator.trans('core.forum.composer_reply.view_button')
+              }}
+            >
+              {app.translator.trans('core.forum.composer_reply.view_button')}
+            </Button>
           );
           alert = app.alerts.show(
             {

@@ -4,8 +4,9 @@
     "minimum-stability": "dev",
     "license": "MIT",
     "require": {
-        "phpstan/phpstan-php-parser": "^1.0",
-        "phpstan/phpstan": "^1.2"
+        "flarum/testing": "^2.0",
+        "phpstan/phpstan": "^1.10.0",
+        "larastan/larastan": "^2.7"
     },
     "autoload": {
         "psr-4": {
@@ -19,7 +20,7 @@
             ]
         },
         "branch-alias": {
-            "dev-main": "1.x-dev"
+            "dev-main": "2.x-dev"
         }
     },
     "repositories": [{

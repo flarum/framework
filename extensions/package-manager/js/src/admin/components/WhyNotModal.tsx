@@ -47,12 +47,12 @@ export default class WhyNotModal<CustomAttrs extends WhyNotModalAttrs = WhyNotMo
             package: this.attrs.package,
           },
         },
-        errorHandler,
       })
       .then((response) => {
         this.loading = false;
         this.whyNot = response.data.reason;
         m.redraw();
-      });
+      })
+      .catch(errorHandler);
   }
 }

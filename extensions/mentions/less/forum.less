@@ -1,20 +1,23 @@
-.PostMention, .UserMention {
-  background: @control-bg;
-  color: @control-color;
-  border-radius: @border-radius;
-  padding: 2px 5px;
-  border: 0 !important;
+.PostMention, .UserMention, .GroupMention {
+  background: var(--control-bg);
+  color: var(--control-color);
+  border-radius: var(--border-radius);
   font-weight: 600;
 
   blockquote & {
-    background: @body-bg;
+    background: var(--body-bg);
   }
   &:hover,
   &:active {
-    color: @link-color;
+    color: var(--link-color);
   }
 }
-.UserMention, .PostMention {
+.UserMention, .PostMention, .GroupMention, .TagMention {
+  padding: 2px 5px;
+  vertical-align: middle;
+  border: 0 !important;
+  white-space: nowrap;
+
   &--deleted {
     opacity: 0.8;
     filter: grayscale(1);
@@ -27,10 +30,33 @@
     margin-left: 0;
   }
 
-  &:before {
-    .fas();
-    content: @fa-var-reply;
+  .icon {
     margin-right: 5px;
+  }
+}
+.GroupMention {
+  background-color: var(--color, var(--control-bg));
+  color: var(--control-color);
+  --link-color: currentColor;
+
+  &--colored {
+    --control-color: var(--contrast-color, var(--body-bg));
+    --link-color: var(--control-color);
+  }
+
+  .icon {
+    margin-left: 5px;
+  }
+}
+& when (is-extension-enabled('flarum-tags')) {
+  .TagMention {
+    --tag-bg: var(--color, var(--control-bg));
+    .tag-label();
+    margin: 0 2px;
+
+    .icon {
+      margin-right: 2px;
+    }
   }
 }
 .ComposerBody-mentionsWrapper {
@@ -50,8 +76,9 @@
   }
 }
 .MentionsDropdown, .PostMention-preview, .Post-mentionedBy-preview {
+  // @TODO: Rename to .MentionsDropdownItem, along with child classes. 2.0
   .PostPreview {
-    color: @muted-color;
+    color: var(--muted-color);
 
     .Avatar {
       .Avatar--size(24px);
@@ -63,7 +90,7 @@
       }
     }
     .username {
-      color: @text-color;
+      color: var(--text-color);
       font-weight: bold;
     }
   }
@@ -97,7 +124,9 @@
   position: absolute;
   .Button--color(@tooltip-color, @tooltip-bg);
 }
-
+.MentionsDropdown .Badge {
+  box-shadow: none;
+}
 @media @phone {
   .MentionsDropdown {
     max-width: 100%;

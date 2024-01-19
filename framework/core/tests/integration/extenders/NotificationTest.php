@@ -9,6 +9,7 @@
 
 namespace Flarum\Tests\integration\extenders;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Extend;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Driver\NotificationDriverInterface;
@@ -164,27 +165,27 @@ class NotificationTest extends TestCase
 
 class CustomNotificationType implements BlueprintInterface
 {
-    public function getFromUser()
+    public function getFromUser(): ?User
     {
         return null;
     }
 
-    public function getSubject()
+    public function getSubject(): ?AbstractModel
     {
         return null;
     }
 
-    public function getData()
+    public function getData(): array
     {
         return [];
     }
 
-    public static function getType()
+    public static function getType(): string
     {
         return 'customNotificationType';
     }
 
-    public static function getSubjectModel()
+    public static function getSubjectModel(): string
     {
         return 'customNotificationTypeSubjectModel';
     }
@@ -192,7 +193,7 @@ class CustomNotificationType implements BlueprintInterface
 
 class SecondCustomNotificationType extends CustomNotificationType
 {
-    public static function getType()
+    public static function getType(): string
     {
         return 'secondCustomNotificationType';
     }
@@ -200,7 +201,7 @@ class SecondCustomNotificationType extends CustomNotificationType
 
 class ThirdCustomNotificationType extends CustomNotificationType
 {
-    public static function getType()
+    public static function getType(): string
     {
         return 'thirdCustomNotificationType';
     }

@@ -65,14 +65,11 @@ class JsCompiler extends RevisionCompiler
         return preg_replace('~//# sourceMappingURL.*$~m', '', $string)."\n";
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function delete(string $file)
+    protected function delete(string $file): void
     {
         parent::delete($file);
 
-        if ($this->assetsDir->has($mapFile = $file.'.map')) {
+        if ($this->assetsDir->exists($mapFile = $file.'.map')) {
             $this->assetsDir->delete($mapFile);
         }
     }

@@ -17,32 +17,32 @@ use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Frontend\Assets;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Document;
+use Flarum\Frontend\Driver\TitleDriverInterface;
 use Flarum\Frontend\Frontend as ActualFrontend;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Locale\LocaleManager;
-use Flarum\Settings\Event\Saved;
 use Illuminate\Contracts\Container\Container;
+use Psr\Http\Message\ServerRequestInterface;
 
 class Frontend implements ExtenderInterface
 {
-    private $frontend;
-
-    private $css = [];
-    private $js;
-    private $routes = [];
-    private $removedRoutes = [];
-    private $content = [];
-    private $preloadArrs = [];
-    private $titleDriver;
+    private array $css = [];
+    private ?string $js = null;
+    private array $routes = [];
+    private array $removedRoutes = [];
+    private array $content = [];
+    private array $preloadArrs = [];
+    private ?string $titleDriver = null;
+    private array $jsDirectory = [];
 
     /**
      * @param string $frontend: The name of the frontend.
      */
-    public function __construct(string $frontend)
-    {
-        $this->frontend = $frontend;
+    public function __construct(
+        private readonly string $frontend
+    ) {
     }
 
     /**
@@ -72,11 +72,25 @@ class Frontend implements ExtenderInterface
     }
 
     /**
+     * Add a directory of JavaScript files to include in the JS assets public directory.
+     * Primarily used to copy JS chunks.
+     *
+     * @param string $path The path to the specific frontend chunks directory.
+     * @return $this
+     */
+    public function jsDirectory(string $path): self
+    {
+        $this->jsDirectory[] = $path;
+
+        return $this;
+    }
+
+    /**
      * Add a route to the frontend.
      *
      * @param string $path: The path of the route.
      * @param string $name: The name of the route, must be unique.
-     * @param callable|string|null $content
+     * @param (callable(Document $document, ServerRequestInterface $request): void)|class-string|null $content
      *
      * The content can be a closure or an invokable class, and should accept:
      * - \Flarum\Frontend\Document $document
@@ -86,7 +100,7 @@ class Frontend implements ExtenderInterface
      *
      * @return self
      */
-    public function route(string $path, string $name, $content = null): self
+    public function route(string $path, string $name, callable|string $content = null): self
     {
         $this->routes[] = compact('path', 'name', 'content');
 
@@ -110,19 +124,20 @@ class Frontend implements ExtenderInterface
     /**
      * Modify the content of the frontend.
      *
-     * @param callable|string|null $content
+     * @param (callable(Document $document, ServerRequestInterface $request): void)|class-string|null $callback
      *
      * The content can be a closure or an invokable class, and should accept:
      * - \Flarum\Frontend\Document $document
      * - \Psr\Http\Message\ServerRequestInterface $request
      *
      * The callable should return void.
+     * @param int $priority: The priority of the content. Higher priorities are executed first.
      *
      * @return self
      */
-    public function content($callback): self
+    public function content(callable|string|null $callback, int $priority = 0): self
     {
-        $this->content[] = $callback;
+        $this->content[] = compact('callback', 'priority');
 
         return $this;
     }
@@ -153,7 +168,7 @@ class Frontend implements ExtenderInterface
      * @param callable|array $preloads
      * @return self
      */
-    public function preloads($preloads): self
+    public function preloads(callable|array $preloads): self
     {
         $this->preloadArrs[] = $preloads;
 
@@ -162,6 +177,8 @@ class Frontend implements ExtenderInterface
 
     /**
      * Register a new title driver to change the title of frontend documents.
+     *
+     * @param class-string<TitleDriverInterface> $driverClass
      */
     public function title(string $driverClass): self
     {
@@ -170,7 +187,7 @@ class Frontend implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         $this->registerAssets($container, $this->getModuleName($extension));
         $this->registerRoutes($container);
@@ -181,7 +198,7 @@ class Frontend implements ExtenderInterface
 
     private function registerAssets(Container $container, string $moduleName): void
     {
-        if (empty($this->css) && empty($this->js)) {
+        if (empty($this->css) && empty($this->js) && empty($this->jsDirectory)) {
             return;
         }
 
@@ -207,6 +224,14 @@ class Frontend implements ExtenderInterface
                     }
                 });
             }
+
+            if (! empty($this->jsDirectory)) {
+                $assets->jsDirectory(function (SourceCollector $sources) use ($moduleName) {
+                    foreach ($this->jsDirectory as $path) {
+                        $sources->addDirectory($path, $moduleName);
+                    }
+                });
+            }
         });
 
         if (! $container->bound($abstract)) {
@@ -225,17 +250,6 @@ class Frontend implements ExtenderInterface
                         $container->make(LocaleManager::class)
                     );
                     $recompile->flush();
-                }
-            );
-
-            $events->listen(
-                Saved::class,
-                function (Saved $event) use ($container, $abstract) {
-                    $recompile = new RecompileFrontendAssets(
-                        $container->make($abstract),
-                        $container->make(LocaleManager::class)
-                    );
-                    $recompile->whenSettingsSaved($event);
                 }
             );
         }
@@ -278,7 +292,7 @@ class Frontend implements ExtenderInterface
             "flarum.frontend.$this->frontend",
             function (ActualFrontend $frontend, Container $container) {
                 foreach ($this->content as $content) {
-                    $frontend->content(ContainerUtil::wrapCallback($content, $container));
+                    $frontend->content(ContainerUtil::wrapCallback($content['callback'], $container), $content['priority']);
                 }
             }
         );
@@ -298,7 +312,7 @@ class Frontend implements ExtenderInterface
                         $preloads = is_callable($preloadArr) ? ContainerUtil::wrapCallback($preloadArr, $container)($document) : $preloadArr;
                         $document->preloads = array_merge($document->preloads, $preloads);
                     }
-                });
+                }, 110);
             }
         );
     }

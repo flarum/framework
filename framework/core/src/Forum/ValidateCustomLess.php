@@ -18,47 +18,37 @@ use Flarum\Settings\OverrideSettingsRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\FilesystemAdapter;
-use League\Flysystem\Adapter\NullAdapter;
 use League\Flysystem\Filesystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use Less_Exception_Parser;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
  */
 class ValidateCustomLess
 {
-    /**
-     * @var Assets
-     */
-    protected $assets;
-
-    /**
-     * @var LocaleManager
-     */
-    protected $locales;
-
-    /**
-     * @var Container
-     */
-    protected $container;
-
-    /**
-     * @var array
-     */
-    protected $customLessSettings;
-
-    public function __construct(Assets $assets, LocaleManager $locales, Container $container, array $customLessSettings = [])
-    {
-        $this->assets = $assets;
-        $this->locales = $locales;
-        $this->container = $container;
-        $this->customLessSettings = $customLessSettings;
+    public function __construct(
+        protected Assets $assets,
+        protected LocaleManager $locales,
+        protected Container $container,
+        protected array $customLessSettings = []
+    ) {
     }
 
-    public function whenSettingsSaving(Saving $event)
+    public function whenSettingsSaving(Saving $event): void
     {
         if (! isset($event->settings['custom_less']) && ! $this->hasDirtyCustomLessSettings($event)) {
             return;
+        }
+
+        // Restrict what features can be used in custom LESS
+        if (isset($event->settings['custom_less']) && preg_match('/@import|data-uri\s*\(/i', $event->settings['custom_less'])) {
+            $translator = $this->container->make(TranslatorInterface::class);
+
+            throw new ValidationException([
+                'custom_less' => $translator->trans('core.admin.appearance.custom_styles_cannot_use_less_features')
+            ]);
         }
 
         // We haven't saved the settings yet, but we want to trial a full
@@ -78,7 +68,9 @@ class ValidateCustomLess
         );
 
         $assetsDir = $this->assets->getAssetsDir();
-        $this->assets->setAssetsDir(new FilesystemAdapter(new Filesystem(new NullAdapter)));
+
+        $adapter = new InMemoryFilesystemAdapter();
+        $this->assets->setAssetsDir(new FilesystemAdapter(new Filesystem($adapter), $adapter));
 
         try {
             $this->assets->makeCss()->commit();
@@ -94,7 +86,7 @@ class ValidateCustomLess
         $this->container->instance(SettingsRepositoryInterface::class, $settings);
     }
 
-    public function whenSettingsSaved(Saved $event)
+    public function whenSettingsSaved(Saved $event): void
     {
         if (! isset($event->settings['custom_less']) && ! $this->hasDirtyCustomLessSettings($event)) {
             return;
@@ -107,11 +99,7 @@ class ValidateCustomLess
         }
     }
 
-    /**
-     * @param Saved|Saving $event
-     * @return bool
-     */
-    protected function hasDirtyCustomLessSettings($event): bool
+    protected function hasDirtyCustomLessSettings(Saved|Saving $event): bool
     {
         if (empty($this->customLessSettings)) {
             return false;

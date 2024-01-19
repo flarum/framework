@@ -11,16 +11,16 @@ use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
-use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Lock\Access;
 use Flarum\Lock\Event\DiscussionWasLocked;
 use Flarum\Lock\Event\DiscussionWasUnlocked;
+use Flarum\Lock\Filter\LockedFilter;
 use Flarum\Lock\Listener;
 use Flarum\Lock\Notification\DiscussionLockedBlueprint;
 use Flarum\Lock\Post\DiscussionLockedPost;
-use Flarum\Lock\Query\LockedFilterGambit;
+use Flarum\Search\Database\DatabaseSearchDriver;
 
 return [
     (new Extend\Frontend('forum'))
@@ -35,12 +35,15 @@ return [
     (new Extend\Notification())
         ->type(DiscussionLockedBlueprint::class, BasicDiscussionSerializer::class, ['alert']),
 
+    (new Extend\Model(Discussion::class))
+        ->cast('is_locked', 'bool'),
+
     (new Extend\ApiSerializer(DiscussionSerializer::class))
         ->attribute('isLocked', function (DiscussionSerializer $serializer, Discussion $discussion) {
-            return (bool) $discussion->is_locked;
+            return $discussion->is_locked;
         })
         ->attribute('canLock', function (DiscussionSerializer $serializer, Discussion $discussion) {
-            return (bool) $serializer->getActor()->can('lock', $discussion);
+            return $serializer->getActor()->can('lock', $discussion);
         }),
 
     (new Extend\Post())
@@ -54,9 +57,6 @@ return [
     (new Extend\Policy())
         ->modelPolicy(Discussion::class, Access\DiscussionPolicy::class),
 
-    (new Extend\Filter(DiscussionFilterer::class))
-        ->addFilter(LockedFilterGambit::class),
-
-    (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
-        ->addGambit(LockedFilterGambit::class),
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
+        ->addFilter(DiscussionSearcher::class, LockedFilter::class),
 ];

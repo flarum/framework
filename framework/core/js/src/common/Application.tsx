@@ -35,6 +35,9 @@ import type { ComponentAttrs } from './Component';
 import Model, { SavedModelData } from './Model';
 import fireApplicationError from './helpers/fireApplicationError';
 import IHistory from './IHistory';
+import IExtender from './extenders/IExtender';
+import AccessToken from './models/AccessToken';
+import SearchManager from './SearchManager';
 
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 
@@ -43,13 +46,6 @@ export type FlarumGenericRoute = RouteItem<any, any, any>;
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
   errorHandler?: (error: RequestError) => void;
   url: string;
-  // TODO: [Flarum 2.0] Remove deprecated option
-  /**
-   * Manipulate the response text before it is parsed into JSON.
-   *
-   * @deprecated Please use `modifyText` instead.
-   */
-  extract?: (responseText: string) => string;
   /**
    * Manipulate the response text before it is parsed into JSON.
    *
@@ -57,6 +53,9 @@ export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.Request
    */
   modifyText?: (responseText: string) => string;
 }
+
+export type NewComponent<Comp> = new () => Comp;
+export type AsyncNewComponent<Comp> = () => Promise<any & { default: NewComponent<Comp> }>;
 
 /**
  * A valid route definition.
@@ -80,14 +79,14 @@ export type RouteItem<
       /**
        * The component to render when this route matches.
        */
-      component: new () => Comp;
+      component: NewComponent<Comp> | AsyncNewComponent<Comp>;
       /**
        * A custom resolver class.
        *
        * This should be the class itself, and **not** an instance of the
        * class.
        */
-      resolverClass?: new (component: new () => Comp, routeName: string) => DefaultResolver<Attrs, Comp, RouteArgs>;
+      resolverClass?: new (component: NewComponent<Comp> | AsyncNewComponent<Comp>, routeName: string) => DefaultResolver<Attrs, Comp, RouteArgs>;
     }
   | {
       /**
@@ -111,7 +110,7 @@ export interface RouteResolver<
    *
    * @see https://mithril.js.org/route.html#routeresolveronmatch
    */
-  onmatch(this: this, args: RouteArgs, requestedPath: string, route: string): { new (): Comp };
+  onmatch(this: this, args: RouteArgs, requestedPath: string, route: string): Promise<{ new (): Comp }>;
   /**
    * A function which renders the provided component.
    *
@@ -177,6 +176,7 @@ export default class Application {
    * The app's data store.
    */
   store: Store = new Store({
+    'access-tokens': AccessToken,
     forums: Forum,
     users: User,
     discussions: Discussion,
@@ -184,6 +184,8 @@ export default class Application {
     groups: Group,
     notifications: Notification,
   });
+
+  search!: SearchManager;
 
   /**
    * A local cache that can be used to store data at the application level, so
@@ -300,8 +302,7 @@ export default class Application {
     caughtInitializationErrors.forEach((handler) => handler());
   }
 
-  // TODO: This entire system needs a do-over for v2
-  public bootExtensions(extensions: Record<string, { extend?: unknown[] }>) {
+  public bootExtensions(extensions: Record<string, { extend?: IExtender[] }>) {
     Object.keys(extensions).forEach((name) => {
       const extension = extensions[name];
 
@@ -311,7 +312,6 @@ export default class Application {
       const extenders = extension.extend.flat(Infinity);
 
       for (const extender of extenders) {
-        // @ts-expect-error This is beyond saving atm.
         extender.extend(this, { name, exports: extension });
       }
     });
@@ -410,20 +410,27 @@ export default class Application {
       pageNumber: 1,
     };
 
-    const title =
+    let title =
       onHomepage || !this.title
         ? extractText(app.translator.trans('core.lib.meta_titles.without_page_title', params))
         : extractText(app.translator.trans('core.lib.meta_titles.with_page_title', params));
 
-    const tempEl = document.createElement('div');
-    tempEl.innerHTML = title;
-    const decodedTitle = tempEl.innerText;
+    title = count + title;
 
-    document.title = count + decodedTitle;
+    // We pass the title through a DOMParser to allow HTML entities
+    // to be rendered correctly, while still preventing XSS attacks
+    // from user input by using a script-disabled environment.
+    // https://github.com/flarum/framework/issues/3514
+    // https://github.com/flarum/framework/pull/3684
+    // This is only a temporary solution for 1.x,
+    // and the actual source of the issue will be fixed in 2.x
+    // Actual source of the issue: https://github.com/flarum/framework/issues/3685
+    const parser = new DOMParser();
+    document.title = parser.parseFromString(title, 'text/html').body.innerText;
   }
 
   protected transformRequestOptions<ResponseType>(flarumOptions: FlarumRequestOptions<ResponseType>): InternalFlarumRequestOptions<ResponseType> {
-    const { background, deserialize, extract, modifyText, ...tmpOptions } = { ...flarumOptions };
+    const { background, deserialize, modifyText, ...tmpOptions } = { ...flarumOptions };
 
     // Unless specified otherwise, requests should run asynchronously in the
     // background, so that they don't prevent redraws from occurring.
@@ -433,14 +440,7 @@ export default class Application {
     // a dud response, we don't want the application to crash. We'll show an
     // error message to the user instead.
 
-    // @ts-expect-error Typescript doesn't know we return promisified `ReturnType` OR `string`,
-    // so it errors due to Mithril's typings
     const defaultDeserialize = (response: string) => response as ResponseType;
-
-    // When extracting the data from the response, we can check the server
-    // response code and show an error message to the user if something's gone
-    // awry.
-    const originalExtract = modifyText || extract;
 
     const options: InternalFlarumRequestOptions<ResponseType> = {
       background: background ?? defaultBackground,
@@ -465,11 +465,14 @@ export default class Application {
       options.method = 'POST';
     }
 
+    // When extracting the data from the response, we can check the server
+    // response code and show an error message to the user if something's gone
+    // awry.
     options.extract = (xhr: XMLHttpRequest) => {
       let responseText;
 
-      if (originalExtract) {
-        responseText = originalExtract(xhr.responseText);
+      if (modifyText) {
+        responseText = modifyText(xhr.responseText);
       } else {
         responseText = xhr.responseText;
       }
@@ -547,7 +550,11 @@ export default class Application {
         break;
 
       default:
-        content = app.translator.trans('core.lib.error.generic_message');
+        if (this.requestWasCrossOrigin(error)) {
+          content = app.translator.trans('core.lib.error.generic_cross_origin_message');
+        } else {
+          content = app.translator.trans('core.lib.error.generic_message');
+        }
     }
 
     const isDebug: boolean = app.forum.attribute('debug');
@@ -571,6 +578,18 @@ export default class Application {
     return Promise.reject(error);
   }
 
+  /**
+   * Used to modify the error message shown on the page to help troubleshooting.
+   * While not certain, a failing cross-origin request likely indicates a missing redirect to Flarum canonical URL.
+   * Because XHR errors do not expose CORS information, we can only compare the requested URL origin to the page origin.
+   *
+   * @param error
+   * @protected
+   */
+  protected requestWasCrossOrigin(error: RequestError): boolean {
+    return new URL(error.options.url, document.baseURI).origin !== window.location.origin;
+  }
+
   protected requestErrorDefaultHandler(e: unknown, isDebug: boolean, formattedErrors: string[]): void {
     if (e instanceof RequestError) {
       if (isDebug && e.xhr) {
@@ -588,7 +607,9 @@ export default class Application {
         console.groupEnd();
       }
 
-      if (e.alert) {
+      if (e.status === 500 && isDebug) {
+        app.modal.show(RequestErrorModal, { error: e, formattedError: formattedErrors });
+      } else if (e.alert) {
         this.requestErrorAlert = this.alerts.show(e.alert, e.alert.content);
       }
     } else {

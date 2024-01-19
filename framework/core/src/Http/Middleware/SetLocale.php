@@ -19,17 +19,9 @@ use Psr\Http\Server\RequestHandlerInterface as Handler;
 
 class SetLocale implements Middleware
 {
-    /**
-     * @var LocaleManager
-     */
-    protected $locales;
-
-    /**
-     * @param LocaleManager $locales
-     */
-    public function __construct(LocaleManager $locales)
-    {
-        $this->locales = $locales;
+    public function __construct(
+        protected LocaleManager $locales
+    ) {
     }
 
     public function process(Request $request, Handler $handler): Response

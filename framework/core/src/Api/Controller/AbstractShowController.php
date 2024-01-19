@@ -14,10 +14,7 @@ use Tobscure\JsonApi\SerializerInterface;
 
 abstract class AbstractShowController extends AbstractSerializeController
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function createElement($data, SerializerInterface $serializer)
+    protected function createElement(mixed $data, SerializerInterface $serializer): \Tobscure\JsonApi\ElementInterface
     {
         return new Resource($data, $serializer);
     }

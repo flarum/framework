@@ -13,7 +13,7 @@ interface PaginationAttrs extends ComponentAttrs {
 export default class Pagination extends Component<PaginationAttrs> {
   view() {
     return (
-      <nav class="Pagination UserListPage-gridPagination">
+      <nav className="Pagination UserListPage-gridPagination">
         <Button
           disabled={!this.attrs.list.hasPrev()}
           title={app.translator.trans('core.admin.users.pagination.back_button')}
@@ -21,7 +21,7 @@ export default class Pagination extends Component<PaginationAttrs> {
           icon="fas fa-chevron-left"
           className="Button Button--icon UserListPage-backBtn"
         />
-        <span class="UserListPage-pageNumber">
+        <span className="UserListPage-pageNumber">
           {app.translator.trans('core.admin.users.pagination.page_counter', {
             current: this.attrs.list.pageNumber() + 1,
             total: this.attrs.list.getTotalPages(),

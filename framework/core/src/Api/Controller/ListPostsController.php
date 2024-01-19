@@ -12,9 +12,10 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
-use Flarum\Post\Filter\PostFilterer;
+use Flarum\Post\Post;
 use Flarum\Post\PostRepository;
-use Flarum\Query\QueryCriteria;
+use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearchManager;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -22,15 +23,9 @@ use Tobscure\JsonApi\Exception\InvalidParameterException;
 
 class ListPostsController extends AbstractListController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = PostSerializer::class;
+    public ?string $serializer = PostSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $include = [
+    public array $include = [
         'user',
         'user.groups',
         'editedUser',
@@ -38,42 +33,16 @@ class ListPostsController extends AbstractListController
         'discussion'
     ];
 
-    /**
-     * {@inheritdoc}
-     */
-    public $sortFields = ['number', 'createdAt'];
+    public array $sortFields = ['number', 'createdAt'];
 
-    /**
-     * @var PostFilterer
-     */
-    protected $filterer;
-
-    /**
-     * @var PostRepository
-     */
-    protected $posts;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @param PostFilterer $filterer
-     * @param PostRepository $posts
-     * @param UrlGenerator $url
-     */
-    public function __construct(PostFilterer $filterer, PostRepository $posts, UrlGenerator $url)
-    {
-        $this->filterer = $filterer;
-        $this->posts = $posts;
-        $this->url = $url;
+    public function __construct(
+        protected SearchManager $search,
+        protected PostRepository $posts,
+        protected UrlGenerator $url
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
 
@@ -85,7 +54,10 @@ class ListPostsController extends AbstractListController
         $offset = $this->extractOffset($request);
         $include = $this->extractInclude($request);
 
-        $results = $this->filterer->filter(new QueryCriteria($actor, $filters, $sort, $sortIsDefault), $limit, $offset);
+        $results = $this->search->query(
+            Post::class,
+            new SearchCriteria($actor, $filters, $limit, $offset, $sort, $sortIsDefault)
+        );
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('posts.index'),
@@ -116,7 +88,7 @@ class ListPostsController extends AbstractListController
     /**
      * @link https://github.com/flarum/framework/pull/3506
      */
-    protected function extractSort(ServerRequestInterface $request)
+    protected function extractSort(ServerRequestInterface $request): ?array
     {
         $sort = [];
 
@@ -127,10 +99,7 @@ class ListPostsController extends AbstractListController
         return $sort;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function extractOffset(ServerRequestInterface $request)
+    protected function extractOffset(ServerRequestInterface $request): int
     {
         $actor = RequestUtil::getActor($request);
         $queryParams = $request->getQueryParams();
@@ -145,7 +114,7 @@ class ListPostsController extends AbstractListController
                 );
             }
 
-            $offset = $this->posts->getIndexForNumber($filter['discussion'], $near, $actor);
+            $offset = $this->posts->getIndexForNumber((int) $filter['discussion'], $near, $actor);
 
             return max(0, $offset - $limit / 2);
         }

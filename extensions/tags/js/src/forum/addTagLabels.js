@@ -1,11 +1,13 @@
 import { extend } from 'flarum/common/extend';
 import DiscussionListItem from 'flarum/forum/components/DiscussionListItem';
 import DiscussionHero from 'flarum/forum/components/DiscussionHero';
+import textContrastClass from 'flarum/common/helpers/textContrastClass';
+import classList from 'flarum/common/utils/classList';
 
 import tagsLabel from '../common/helpers/tagsLabel';
 import sortTags from '../common/utils/sortTags';
 
-export default function () {
+export default function addTagLabels() {
   // Add tag labels to each discussion in the discussion list.
   extend(DiscussionListItem.prototype, 'infoItems', function (items) {
     const tags = this.attrs.discussion.tags();
@@ -23,7 +25,7 @@ export default function () {
       const color = tags[0].color();
       if (color) {
         view.attrs.style = { '--hero-bg': color };
-        view.attrs.className += ' DiscussionHero--colored';
+        view.attrs.className = classList(view.attrs.className, 'DiscussionHero--colored', textContrastClass(color));
       }
     }
   });

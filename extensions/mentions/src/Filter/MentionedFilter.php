@@ -9,21 +9,28 @@
 
 namespace Flarum\Mentions\Filter;
 
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\FilterInterface;
+use Flarum\Search\SearchState;
+use Flarum\Search\ValidateFilterTrait;
 
+/**
+ * @implements FilterInterface<DatabaseSearchState>
+ */
 class MentionedFilter implements FilterInterface
 {
+    use ValidateFilterTrait;
+
     public function getFilterKey(): string
     {
         return 'mentioned';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $mentionedId = trim($filterValue, '"');
+        $mentionedId = $this->asInt($value);
 
-        $filterState
+        $state
             ->getQuery()
             ->join('post_mentions_user', 'posts.id', '=', 'post_mentions_user.post_id')
             ->where('post_mentions_user.mentions_user_id', $negate ? '!=' : '=', $mentionedId);

@@ -1,0 +1,40 @@
+includes:
+  - php-packages/phpstan/extension.neon
+
+parameters:
+	level: 6
+	paths:
+	  - framework/core/src
+	  - extensions/akismet/src
+	  - extensions/akismet/extend.php
+	  - extensions/approval/src
+	  - extensions/approval/extend.php
+	  - extensions/flags/src
+	  - extensions/flags/extend.php
+	  - extensions/likes/src
+	  - extensions/likes/extend.php
+	  - extensions/lock/src
+	  - extensions/lock/extend.php
+	  - extensions/mentions/src
+	  - extensions/mentions/extend.php
+	  - extensions/nicknames/src
+	  - extensions/nicknames/extend.php
+	  - extensions/package-manager/src
+	  - extensions/package-manager/extend.php
+	  - extensions/pusher/src
+	  - extensions/pusher/extend.php
+	  - extensions/statistics/src
+	  - extensions/statistics/extend.php
+	  - extensions/sticky/src
+	  - extensions/sticky/extend.php
+	  - extensions/subscriptions/src
+	  - extensions/subscriptions/extend.php
+	  - extensions/suspend/src
+	  - extensions/suspend/extend.php
+	  - extensions/tags/src
+	  - extensions/tags/extend.php
+	excludePaths:
+		- *.blade.php
+	checkMissingIterableValueType: false
+	checkGenericClassInNonGenericObjectType: false
+	databaseMigrationsPath: ['framework/core/migrations']

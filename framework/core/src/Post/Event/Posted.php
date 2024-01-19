@@ -9,27 +9,14 @@
 
 namespace Flarum\Post\Event;
 
-use Flarum\Post\Post;
+use Flarum\Post\CommentPost;
 use Flarum\User\User;
 
 class Posted
 {
-    /**
-     * @var \Flarum\Post\Post
-     */
-    public $post;
-
-    /**
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * @param \Flarum\Post\Post $post
-     */
-    public function __construct(Post $post, User $actor = null)
-    {
-        $this->post = $post;
-        $this->actor = $actor;
+    public function __construct(
+        public CommentPost $post,
+        public ?User $actor = null
+    ) {
     }
 }

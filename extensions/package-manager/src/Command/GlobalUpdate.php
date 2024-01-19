@@ -12,21 +12,11 @@ namespace Flarum\PackageManager\Command;
 use Flarum\PackageManager\Task\Task;
 use Flarum\User\User;
 
-class GlobalUpdate implements BusinessCommandInterface
+class GlobalUpdate extends AbstractActionCommand
 {
-    /**
-     * @var Task
-     */
-    public $task = null;
-
-    /**
-     * @var \Flarum\User\User
-     */
-    public $actor;
-
-    public function __construct(User $actor)
-    {
-        $this->actor = $actor;
+    public function __construct(
+        public User $actor
+    ) {
     }
 
     public function getOperationName(): string

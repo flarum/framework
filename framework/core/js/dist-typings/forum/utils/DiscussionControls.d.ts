@@ -1,4 +1,5 @@
-declare namespace _default {
+export default DiscussionControls;
+declare namespace DiscussionControls {
     /**
      * Get a list of controls for a discussion.
      *
@@ -148,5 +149,4 @@ declare namespace _default {
      */
     function renameAction(): any;
 }
-export default _default;
 import ItemList from "../../common/utils/ItemList";

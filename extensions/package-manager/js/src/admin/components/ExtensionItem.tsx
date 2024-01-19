@@ -2,7 +2,7 @@ import type Mithril from 'mithril';
 import app from 'flarum/admin/app';
 import Component, { ComponentAttrs } from 'flarum/common/Component';
 import classList from 'flarum/common/utils/classList';
-import icon from 'flarum/common/helpers/icon';
+import Icon from 'flarum/common/components/Icon';
 import Tooltip from 'flarum/common/components/Tooltip';
 import Button from 'flarum/common/components/Button';
 import { Extension } from 'flarum/admin/AdminApplication';
@@ -35,7 +35,7 @@ export default class ExtensionItem<Attrs extends ExtensionItemAttrs = ExtensionI
         })}
       >
         <div className="PackageManager-extension-icon ExtensionIcon" style={extension.icon}>
-          {extension.icon ? icon(extension.icon.name) : ''}
+          {extension.icon ? <Icon name={extension.icon.name} /> : ''}
         </div>
         <div className="PackageManager-extension-info">
           <div className="PackageManager-extension-name">{extension.extra['flarum-extension'].title}</div>

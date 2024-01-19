@@ -15,14 +15,15 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
 
+import './registry';
+
 import patchMithril from './utils/patchMithril';
 
 patchMithril(window);
 
-import * as Extend from './extend/index';
 import app from './app';
 
-export { Extend, app };
+export { app };
 
 import './utils/arrayFlatPolyfill';
 

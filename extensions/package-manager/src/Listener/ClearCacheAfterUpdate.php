@@ -18,26 +18,11 @@ use Symfony\Component\Console\Output\NullOutput;
 
 class ClearCacheAfterUpdate
 {
-    /**
-     * @var ClearCacheCommand
-     */
-    private $clearCache;
-
-    /**
-     * @var AssetsPublishCommand
-     */
-    private $publishAssets;
-
-    /**
-     * @var MigrateCommand
-     */
-    private $migrate;
-
-    public function __construct(ClearCacheCommand $clearCache, AssetsPublishCommand $publishAssets, MigrateCommand $migrate)
-    {
-        $this->clearCache = $clearCache;
-        $this->publishAssets = $publishAssets;
-        $this->migrate = $migrate;
+    public function __construct(
+        private ClearCacheCommand $clearCache,
+        private AssetsPublishCommand $publishAssets,
+        private MigrateCommand $migrate
+    ) {
     }
 
     /**

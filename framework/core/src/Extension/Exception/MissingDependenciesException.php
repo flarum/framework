@@ -19,18 +19,14 @@ use Flarum\Extension\ExtensionManager;
  */
 class MissingDependenciesException extends Exception
 {
-    public $extension;
-    public $missing_dependencies;
-
     /**
      * @param $extension: The extension we are attempting to enable.
      * @param $missing_dependencies: Extensions that this extension depends on, and are not enabled.
      */
-    public function __construct(Extension $extension, array $missing_dependencies = null)
-    {
-        $this->extension = $extension;
-        $this->missing_dependencies = $missing_dependencies;
-
+    public function __construct(
+        public Extension $extension,
+        public ?array $missing_dependencies = null
+    ) {
         parent::__construct($extension->getTitle().' could not be enabled, because it depends on: '.implode(', ', ExtensionManager::pluckTitles($missing_dependencies)));
     }
 }

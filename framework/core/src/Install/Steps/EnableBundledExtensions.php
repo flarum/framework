@@ -12,18 +12,19 @@ namespace Flarum\Install\Steps;
 use Flarum\Database\DatabaseMigrationRepository;
 use Flarum\Database\Migrator;
 use Flarum\Extension\Extension;
+use Flarum\Extension\ExtensionManager;
 use Flarum\Install\Step;
 use Flarum\Settings\DatabaseSettingsRepository;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
+use League\Flysystem\Local\LocalFilesystemAdapter;
 
 class EnableBundledExtensions implements Step
 {
-    const EXTENSION_WHITELIST = [
+    public const EXTENSION_WHITELIST = [
         'flarum-approval',
         'flarum-bbcode',
         'flarum-emoji',
@@ -41,59 +42,49 @@ class EnableBundledExtensions implements Step
     ];
 
     /**
-     * @var ConnectionInterface
+     * @var string[]
      */
-    private $database;
+    private array $enabledExtensions;
 
-    /**
-     * @var string
-     */
-    private $vendorPath;
+    private ?Migrator $migrator;
 
-    /**
-     * @var string
-     */
-    private $assetPath;
-
-    /**
-     * @var string[]|null
-     */
-    private $enabledExtensions;
-
-    public function __construct(ConnectionInterface $database, $vendorPath, $assetPath, $enabledExtensions = null)
-    {
-        $this->database = $database;
-        $this->vendorPath = $vendorPath;
-        $this->assetPath = $assetPath;
+    public function __construct(
+        private readonly ConnectionInterface $database,
+        private readonly string $vendorPath,
+        private readonly string $assetPath,
+        ?array $enabledExtensions = null
+    ) {
         $this->enabledExtensions = $enabledExtensions ?? self::EXTENSION_WHITELIST;
     }
 
-    public function getMessage()
+    public function getMessage(): string
     {
         return 'Enabling bundled extensions';
     }
 
-    public function run()
+    public function run(): void
     {
-        $extensions = $this->loadExtensions();
+        $extensions = ExtensionManager::resolveExtensionOrder($this->loadExtensions()->all())['valid'];
 
         foreach ($extensions as $extension) {
             $extension->migrate($this->getMigrator());
+            $adapter = new LocalFilesystemAdapter($this->assetPath);
             $extension->copyAssetsTo(
-                new FilesystemAdapter(new Filesystem(new Local($this->assetPath)))
+                new FilesystemAdapter(new Filesystem($adapter), $adapter)
             );
         }
 
-        (new DatabaseSettingsRepository($this->database))->set(
-            'extensions_enabled',
-            $extensions->keys()->toJson()
-        );
+        $extensionNames = json_encode(array_map(function (Extension $extension) {
+            return $extension->getId();
+        }, $extensions));
+
+        (new DatabaseSettingsRepository($this->database))->set('extensions_enabled', $extensionNames);
     }
 
     /**
-     * @return \Illuminate\Support\Collection
+     * @return Collection<string, Extension>
      */
-    private function loadExtensions()
+    private function loadExtensions(): Collection
     {
         $json = file_get_contents("$this->vendorPath/composer/installed.json");
         $installed = json_decode($json, true);
@@ -101,7 +92,7 @@ class EnableBundledExtensions implements Step
         // Composer 2.0 changes the structure of the installed.json manifest
         $installed = $installed['packages'] ?? $installed;
 
-        return (new Collection($installed))
+        $installedExtensions = (new Collection($installed))
             ->filter(function ($package) {
                 return Arr::get($package, 'type') == 'flarum-extension';
             })->filter(function ($package) {
@@ -115,16 +106,22 @@ class EnableBundledExtensions implements Step
                 $extension->setVersion(Arr::get($package, 'version'));
 
                 return $extension;
-            })->filter(function (Extension $extension) {
-                return in_array($extension->getId(), $this->enabledExtensions);
-            })->sortBy(function (Extension $extension) {
-                return $extension->getTitle();
             })->mapWithKeys(function (Extension $extension) {
-                return [$extension->getId() => $extension];
+                return [$extension->name => $extension];
             });
+
+        return $installedExtensions->filter(function (Extension $extension) {
+            return in_array($extension->getId(), $this->enabledExtensions);
+        })->map(function (Extension $extension) use ($installedExtensions) {
+            $extension->calculateDependencies($installedExtensions->map(function () {
+                return true;
+            })->toArray());
+
+            return $extension;
+        });
     }
 
-    private function getMigrator()
+    private function getMigrator(): Migrator
     {
         return $this->migrator = $this->migrator ?? new Migrator(
             new DatabaseMigrationRepository($this->database, 'migrations'),

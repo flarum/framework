@@ -12,8 +12,9 @@ namespace Flarum\Mail;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Support\MessageBag;
-use Swift_SendmailTransport;
-use Swift_Transport;
+use Symfony\Component\Mailer\Transport\Dsn;
+use Symfony\Component\Mailer\Transport\SendmailTransportFactory;
+use Symfony\Component\Mailer\Transport\TransportInterface;
 
 class SendmailDriver implements DriverInterface
 {
@@ -32,8 +33,8 @@ class SendmailDriver implements DriverInterface
         return true;
     }
 
-    public function buildTransport(SettingsRepositoryInterface $settings): Swift_Transport
+    public function buildTransport(SettingsRepositoryInterface $settings): TransportInterface
     {
-        return new Swift_SendmailTransport;
+        return (new SendmailTransportFactory())->create(new Dsn('', 'sendmail'));
     }
 }

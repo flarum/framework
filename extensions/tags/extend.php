@@ -8,28 +8,35 @@
  */
 
 use Flarum\Api\Controller as FlarumController;
+use Flarum\Api\Serializer\BasicPostSerializer;
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
-use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Flags\Api\Controller\ListFlagsController;
 use Flarum\Http\RequestUtil;
-use Flarum\Post\Filter\PostFilterer;
+use Flarum\Post\Filter\PostSearcher;
+use Flarum\Post\Post;
+use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Tags\Access;
 use Flarum\Tags\Api\Controller;
 use Flarum\Tags\Api\Serializer\TagSerializer;
 use Flarum\Tags\Content;
 use Flarum\Tags\Event\DiscussionWasTagged;
-use Flarum\Tags\Filter\HideHiddenTagsFromAllDiscussionsPage;
-use Flarum\Tags\Filter\PostTagFilter;
 use Flarum\Tags\Listener;
 use Flarum\Tags\LoadForumTagsRelationship;
 use Flarum\Tags\Post\DiscussionTaggedPost;
-use Flarum\Tags\Query\TagFilterGambit;
+use Flarum\Tags\Search\Filter\PostTagFilter;
+use Flarum\Tags\Search\Filter\TagFilter;
+use Flarum\Tags\Search\FulltextFilter;
+use Flarum\Tags\Search\HideHiddenTagsFromAllDiscussionsPage;
+use Flarum\Tags\Search\TagSearcher;
 use Flarum\Tags\Tag;
+use Flarum\Tags\Utf8SlugDriver;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Psr\Http\Message\ServerRequestInterface;
 
 $eagerLoadTagState = function ($query, ?ServerRequestInterface $request, array $relations) {
@@ -41,9 +48,13 @@ $eagerLoadTagState = function ($query, ?ServerRequestInterface $request, array $
 return [
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
+        ->jsDirectory(__DIR__.'/js/dist/forum')
         ->css(__DIR__.'/less/forum.less')
         ->route('/t/{slug}', 'tag', Content\Tag::class)
         ->route('/tags', 'tags', Content\Tags::class),
+
+    (new Extend\Frontend('common'))
+        ->jsDirectory(__DIR__.'/js/dist/common'),
 
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js')
@@ -124,13 +135,50 @@ return [
         ->listen(DiscussionWasTagged::class, Listener\CreatePostWhenTagsAreChanged::class)
         ->subscribe(Listener\UpdateTagMetadata::class),
 
-    (new Extend\Filter(PostFilterer::class))
-        ->addFilter(PostTagFilter::class),
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
+        ->addFilter(PostSearcher::class, PostTagFilter::class)
+        ->addFilter(DiscussionSearcher::class, TagFilter::class)
+        ->addMutator(DiscussionSearcher::class, HideHiddenTagsFromAllDiscussionsPage::class)
+        ->addSearcher(Tag::class, TagSearcher::class)
+        ->setFulltext(TagSearcher::class, FulltextFilter::class),
 
-    (new Extend\Filter(DiscussionFilterer::class))
-        ->addFilter(TagFilterGambit::class)
-        ->addFilterMutator(HideHiddenTagsFromAllDiscussionsPage::class),
+    (new Extend\ModelUrl(Tag::class))
+        ->addSlugDriver('default', Utf8SlugDriver::class),
 
-    (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
-        ->addGambit(TagFilterGambit::class),
+    /*
+     * Fixes DiscussionTaggedPost showing tags as deleted because they are not loaded in the store.
+     * @link https://github.com/flarum/framework/issues/3620#issuecomment-1232911734
+     */
+
+    (new Extend\Model(Post::class))
+        ->belongsToMany('mentionsTags', Tag::class, 'post_mentions_tag', 'post_id', 'mentions_tag_id')
+        // We do not wish to include all `mentionsTags` in the API response,
+        // only those related to `discussionTagged` posts.
+        ->relationship('eventPostMentionsTags', function (Post $model) {
+            return $model->mentionsTags();
+        }),
+
+    (new Extend\ApiSerializer(BasicPostSerializer::class))
+        ->relationship('eventPostMentionsTags', function (BasicPostSerializer $serializer, Post $model) {
+            if ($model instanceof DiscussionTaggedPost) {
+                return $serializer->hasMany($model, TagSerializer::class, 'eventPostMentionsTags');
+            }
+
+            return null;
+        })
+        ->hasMany('eventPostMentionsTags', TagSerializer::class),
+
+    (new Extend\ApiController(FlarumController\ListPostsController::class))
+        ->addInclude('eventPostMentionsTags')
+        // Restricted tags should still appear as `deleted` to unauthorized users.
+        ->loadWhere('eventPostMentionsTags', $restrictMentionedTags = function (Relation|Builder $query, ?ServerRequestInterface $request) {
+            if ($request) {
+                $actor = RequestUtil::getActor($request);
+                $query->whereVisibleTo($actor);
+            }
+        }),
+
+    (new Extend\ApiController(FlarumController\ShowDiscussionController::class))
+        ->addInclude('posts.eventPostMentionsTags')
+        ->loadWhere('posts.eventPostMentionsTags', $restrictMentionedTags),
 ];

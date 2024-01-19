@@ -2,6 +2,27 @@
   // Pad bottom of page to make nav area look less squashed
   padding-bottom: 24px;
 
+  &-header {
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    column-gap: 8px;
+  }
+
+  &-totalUsers {
+    margin: 0;
+  }
+
+  &-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    * + * {
+      margin-left: 8px;
+    }
+  }
+
   &-grid {
     width: 100%;
     position: relative;
@@ -69,10 +90,23 @@
   }
 
   &-gridPagination {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto auto 1fr auto auto;
+    gap: 8px;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     margin-top: 16px;
+  }
+
+  &-pageNumber {
+    text-align: center;
+  }
+
+  &-pageNumberInput {
+    display: inline-block;
+    margin: 0 8px;
+    width: auto;
+    max-width: 80px;
   }
 }
 

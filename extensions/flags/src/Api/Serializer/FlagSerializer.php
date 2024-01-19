@@ -12,39 +12,36 @@ namespace Flarum\Flags\Api\Serializer;
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\PostSerializer;
+use Flarum\Flags\Flag;
+use InvalidArgumentException;
+use Tobscure\JsonApi\Relationship;
 
 class FlagSerializer extends AbstractSerializer
 {
-    /**
-     * {@inheritdoc}
-     */
     protected $type = 'flags';
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getDefaultAttributes($flag)
+    protected function getDefaultAttributes(object|array $model): array
     {
+        if (! ($model instanceof Flag)) {
+            throw new InvalidArgumentException(
+                $this::class.' can only serialize instances of '.Flag::class
+            );
+        }
+
         return [
-            'type'         => $flag->type,
-            'reason'       => $flag->reason,
-            'reasonDetail' => $flag->reason_detail,
-            'createdAt'    => $this->formatDate($flag->created_at),
+            'type' => $model->type,
+            'reason' => $model->reason,
+            'reasonDetail' => $model->reason_detail,
+            'createdAt' => $this->formatDate($model->created_at),
         ];
     }
 
-    /**
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function post($flag)
+    protected function post(Flag $flag): ?Relationship
     {
         return $this->hasOne($flag, PostSerializer::class);
     }
 
-    /**
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function user($flag)
+    protected function user(Flag $flag): ?Relationship
     {
         return $this->hasOne($flag, BasicUserSerializer::class);
     }

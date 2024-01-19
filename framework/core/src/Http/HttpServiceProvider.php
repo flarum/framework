@@ -13,6 +13,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Discussion\IdWithTransliteratedSlugDriver;
 use Flarum\Discussion\Utf8SlugDriver;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Http\Access\ScopeAccessTokenVisibility;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\IdSlugDriver;
 use Flarum\User\User;
@@ -22,10 +23,7 @@ use Illuminate\Support\Arr;
 
 class HttpServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    public function register(): void
     {
         $this->container->singleton('flarum.http.csrfExemptPaths', function () {
             return ['token'];
@@ -63,20 +61,20 @@ class HttpServiceProvider extends AbstractServiceProvider
 
             return $compiledDrivers;
         });
+
         $this->container->bind(SlugManager::class, function (Container $container) {
             return new SlugManager($container->make('flarum.http.selectedSlugDrivers'));
         });
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function boot()
+    public function boot(): void
     {
         $this->setAccessTokenTypes();
+
+        AccessToken::registerVisibilityScoper(new ScopeAccessTokenVisibility(), 'view');
     }
 
-    protected function setAccessTokenTypes()
+    protected function setAccessTokenTypes(): void
     {
         $models = [
             DeveloperAccessToken::class,

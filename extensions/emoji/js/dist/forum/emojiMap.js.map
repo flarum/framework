@@ -1,0 +1,1 @@
+{"version":3,"file":"forum/emojiMap.js","mappings":"kJACA,E","sources":["webpack://@flarum/emoji/./src/forum/emojiMap.ts"],"sourcesContent":["import emojiMap from 'simple-emoji-map';\nexport default emojiMap;"],"names":[],"sourceRoot":""}

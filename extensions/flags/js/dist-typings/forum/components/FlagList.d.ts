@@ -1,7 +1,12 @@
-export default class FlagList extends Component<import("flarum/common/Component").ComponentAttrs, undefined> {
-    constructor();
-    oninit(vnode: any): void;
-    state: any;
-    view(): JSX.Element;
+import Component from 'flarum/common/Component';
+import type { ComponentAttrs } from 'flarum/common/Component';
+import type Mithril from 'mithril';
+import type FlagListState from '../states/FlagListState';
+export interface IFlagListAttrs extends ComponentAttrs {
+    state: FlagListState;
 }
-import Component from "flarum/common/Component";
+export default class FlagList<CustomAttrs extends IFlagListAttrs = IFlagListAttrs> extends Component<CustomAttrs, FlagListState> {
+    oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
+    view(): JSX.Element;
+    content(state: FlagListState): JSX.Element[][] | null;
+}

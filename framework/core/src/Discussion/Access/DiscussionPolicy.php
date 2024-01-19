@@ -13,42 +13,24 @@ use Flarum\Discussion\Discussion;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Access\AbstractPolicy;
 use Flarum\User\User;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class DiscussionPolicy extends AbstractPolicy
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     * @param Dispatcher $events
-     */
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
-        $this->settings = $settings;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings
+    ) {
     }
 
-    /**
-     * @param User $actor
-     * @param string $ability
-     * @return bool|null
-     */
-    public function can(User $actor, $ability)
+    public function can(User $actor, string $ability): ?string
     {
         if ($actor->hasPermission('discussion.'.$ability)) {
             return $this->allow();
         }
+
+        return null;
     }
 
-    /**
-     * @param User $actor
-     * @param \Flarum\Discussion\Discussion $discussion
-     * @return bool|null
-     */
-    public function rename(User $actor, Discussion $discussion)
+    public function rename(User $actor, Discussion $discussion): ?string
     {
         if ($discussion->user_id == $actor->id && $actor->can('reply', $discussion)) {
             $allowRenaming = $this->settings->get('allow_renaming');
@@ -59,14 +41,11 @@ class DiscussionPolicy extends AbstractPolicy
                 return $this->allow();
             }
         }
+
+        return null;
     }
 
-    /**
-     * @param User $actor
-     * @param \Flarum\Discussion\Discussion $discussion
-     * @return bool|null
-     */
-    public function hide(User $actor, Discussion $discussion)
+    public function hide(User $actor, Discussion $discussion): ?string
     {
         if ($discussion->user_id == $actor->id
             && $discussion->participant_count <= 1
@@ -75,5 +54,7 @@ class DiscussionPolicy extends AbstractPolicy
         ) {
             return $this->allow();
         }
+
+        return null;
     }
 }

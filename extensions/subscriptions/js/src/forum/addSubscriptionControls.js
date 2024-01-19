@@ -19,13 +19,9 @@ export default function addSubscriptionControls() {
 
       items.add(
         'subscription',
-        Button.component(
-          {
-            icon: states[subscription].icon,
-            onclick: discussion.save.bind(discussion, { subscription: states[subscription].save }),
-          },
-          states[subscription].label
-        )
+        <Button icon={states[subscription].icon} onclick={discussion.save.bind(discussion, { subscription: states[subscription].save })}>
+          {states[subscription].label}
+        </Button>
       );
     }
   });
@@ -34,7 +30,7 @@ export default function addSubscriptionControls() {
     if (app.session.user) {
       const discussion = this.discussion;
 
-      items.add('subscription', SubscriptionMenu.component({ discussion }), 80);
+      items.add('subscription', <SubscriptionMenu discussion={discussion} />, 80);
     }
   });
 }

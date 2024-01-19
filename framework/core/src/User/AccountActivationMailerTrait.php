@@ -9,16 +9,12 @@
 
 namespace Flarum\User;
 
-use Flarum\Mail\Job\SendRawEmailJob;
+use Flarum\Mail\Job\SendInformationalEmailJob;
+use Illuminate\Support\Arr;
 
 trait AccountActivationMailerTrait
 {
-    /**
-     * @param User $user
-     * @param string $email
-     * @return EmailToken
-     */
-    protected function generateToken(User $user, $email)
+    protected function generateToken(User $user, string $email): EmailToken
     {
         $token = EmailToken::generate($email, $user->id);
         $token->save();
@@ -28,12 +24,8 @@ trait AccountActivationMailerTrait
 
     /**
      * Get the data that should be made available to email templates.
-     *
-     * @param User $user
-     * @param EmailToken $token
-     * @return array
      */
-    protected function getEmailData(User $user, EmailToken $token)
+    protected function getEmailData(User $user, EmailToken $token): array
     {
         return [
             'username' => $user->display_name,
@@ -42,15 +34,17 @@ trait AccountActivationMailerTrait
         ];
     }
 
-    /**
-     * @param User $user
-     * @param array $data
-     */
-    protected function sendConfirmationEmail(User $user, $data)
+    protected function sendConfirmationEmail(User $user, array $data): void
     {
         $body = $this->translator->trans('core.email.activate_account.body', $data);
         $subject = $this->translator->trans('core.email.activate_account.subject');
 
-        $this->queue->push(new SendRawEmailJob($user->email, $subject, $body));
+        $this->queue->push(new SendInformationalEmailJob(
+            email: $user->email,
+            subject: $subject,
+            body: $body,
+            forumTitle: Arr::get($data, 'forum'),
+            displayName: Arr::get($data, 'username')
+        ));
     }
 }

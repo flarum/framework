@@ -12,6 +12,9 @@ import AdminHeader from './AdminHeader';
 import generateElementId from '../utils/generateElementId';
 import ColorPreviewInput from '../../common/components/ColorPreviewInput';
 import ItemList from '../../common/utils/ItemList';
+import type { IUploadImageButtonAttrs } from './UploadImageButton';
+import UploadImageButton from './UploadImageButton';
+import extractText from '../../common/utils/extractText';
 
 export interface AdminHeaderOptions {
   title: Mithril.Children;
@@ -79,6 +82,7 @@ const BooleanSettingTypes = ['bool', 'checkbox', 'switch', 'boolean'] as const;
 const SelectSettingTypes = ['select', 'dropdown', 'selectdropdown'] as const;
 const TextareaSettingTypes = ['textarea'] as const;
 const ColorPreviewSettingType = 'color-preview' as const;
+const ImageUploadSettingType = 'image-upload' as const;
 
 /**
  * Valid options for the setting component builder to generate a Switch.
@@ -113,6 +117,10 @@ export interface ColorPreviewSettingComponentOptions extends CommonSettingsItemO
   type: typeof ColorPreviewSettingType;
 }
 
+export interface ImageUploadSettingComponentOptions extends CommonSettingsItemOptions, IUploadImageButtonAttrs {
+  type: typeof ImageUploadSettingType;
+}
+
 export interface CustomSettingComponentOptions extends CommonSettingsItemOptions {
   type: string;
   [key: string]: unknown;
@@ -127,6 +135,7 @@ export type SettingsComponentOptions =
   | SelectSettingComponentOptions
   | TextareaSettingComponentOptions
   | ColorPreviewSettingComponentOptions
+  | ImageUploadSettingComponentOptions
   | CustomSettingComponentOptions;
 
 /**
@@ -217,7 +226,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
    *     return (
    *       <div className={attrs.className}>
    *         <label>{attrs.label}</label>
-   *         {attrs.help && <p class="helpText">{attrs.help}</p>}
+   *         {attrs.help && <p className="helpText">{attrs.help}</p>}
    *
    *         My setting component!
    *       </div>
@@ -295,7 +304,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
           <Switch state={!!value && value !== '0'} onchange={this.settings[setting]} {...componentAttrs}>
             {label}
           </Switch>
-          <div className="helpText">{help}</div>
+          {help ? <div className="helpText">{help}</div> : null}
         </div>
       );
     } else if ((SelectSettingTypes as readonly string[]).includes(type)) {
@@ -311,6 +320,10 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
           {...otherAttrs}
         />
       );
+    } else if (type === ImageUploadSettingType) {
+      const { value, ...otherAttrs } = componentAttrs;
+
+      settingElement = <UploadImageButton value={this.settings[setting]} {...otherAttrs} />;
     } else if (customSettingComponents.has(type)) {
       return customSettingComponents.get(type)({ setting, help, label, ...componentAttrs });
     } else {
@@ -334,9 +347,11 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
     return (
       <div className="Form-group">
         {label && <label for={inputId}>{label}</label>}
-        <div id={helpTextId} className="helpText">
-          {help}
-        </div>
+        {help && (
+          <div id={helpTextId} className="helpText">
+            {help}
+          </div>
+        )}
         {settingElement}
       </div>
     );
@@ -395,5 +410,13 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
     this.loading = true;
 
     return saveSettings(this.dirty()).then(this.onsaved.bind(this));
+  }
+
+  modelLocale(): Record<string, string> {
+    return {
+      'Flarum\\Discussion\\Discussion': extractText(app.translator.trans('core.admin.models.discussions')),
+      'Flarum\\User\\User': extractText(app.translator.trans('core.admin.models.users')),
+      'Flarum\\Post\\Post': extractText(app.translator.trans('core.admin.models.posts')),
+    };
   }
 }

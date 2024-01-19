@@ -10,6 +10,7 @@
 use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Approval\Access;
+use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Approval\Listener;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
@@ -27,15 +28,17 @@ return [
 
     // Discussions should be approved by default
     (new Extend\Model(Discussion::class))
-        ->default('is_approved', true),
+        ->default('is_approved', true)
+        ->cast('is_approved', 'bool'),
 
     // Posts should be approved by default
     (new Extend\Model(Post::class))
-        ->default('is_approved', true),
+        ->default('is_approved', true)
+        ->cast('is_approved', 'bool'),
 
     (new Extend\ApiSerializer(BasicDiscussionSerializer::class))
-        ->attribute('isApproved', function ($serializer, Discussion $discussion) {
-            return (bool) $discussion->is_approved;
+        ->attribute('isApproved', function (BasicDiscussionSerializer $serializer, Discussion $discussion): bool {
+            return $discussion->is_approved;
         }),
 
     (new Extend\ApiSerializer(PostSerializer::class))
@@ -48,6 +51,7 @@ return [
     new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Event())
+        ->listen(PostWasApproved::class, Listener\UpdateDiscussionAfterPostApproval::class)
         ->subscribe(Listener\ApproveContent::class)
         ->subscribe(Listener\UnapproveNewContent::class),
 
@@ -61,8 +65,8 @@ return [
         ->scope(Access\ScopePrivateDiscussionVisibility::class, 'viewPrivate'),
 
     (new Extend\ModelPrivate(Discussion::class))
-        ->checker([Listener\UnapproveNewContent::class, 'markUnapprovedContentAsPrivate']),
+        ->checker(Listener\UnapproveNewContent::markUnapprovedContentAsPrivate(...)),
 
     (new Extend\ModelPrivate(CommentPost::class))
-        ->checker([Listener\UnapproveNewContent::class, 'markUnapprovedContentAsPrivate']),
+        ->checker(Listener\UnapproveNewContent::markUnapprovedContentAsPrivate(...)),
 ];

@@ -1,8 +1,8 @@
 import app from '../../forum/app';
 import Component from '../../common/Component';
-import icon from '../../common/helpers/icon';
 import formatNumber from '../../common/utils/formatNumber';
 import ScrollListener from '../../common/utils/ScrollListener';
+import Icon from '../../common/components/Icon';
 
 /**
  * The `PostStreamScrubber` component displays a scrubber which can be used to
@@ -41,6 +41,7 @@ export default class PostStreamScrubber extends Component {
       const newStyle = {
         top: 100 - unreadPercent * 100 + '%',
         height: unreadPercent * 100 + '%',
+        opacity: unreadPercent ? 1 : 0,
       };
 
       if (vnode.state.oldStyle) {
@@ -57,13 +58,13 @@ export default class PostStreamScrubber extends Component {
     return (
       <div className={classNames.join(' ')}>
         <button className="Button Dropdown-toggle" data-toggle="dropdown">
-          {viewing} {icon('fas fa-sort')}
+          {viewing} <Icon name={'fas fa-sort'} />
         </button>
 
         <div className="Dropdown-menu dropdown-menu">
           <div className="Scrubber">
             <a className="Scrubber-first" onclick={this.goToFirst.bind(this)}>
-              {icon('fas fa-angle-double-up')} {app.translator.trans('core.forum.post_scrubber.original_post_link')}
+              <Icon name={'fas fa-angle-double-up'} /> {app.translator.trans('core.forum.post_scrubber.original_post_link')}
             </a>
 
             <div className="Scrubber-scrollbar">
@@ -83,7 +84,7 @@ export default class PostStreamScrubber extends Component {
             </div>
 
             <a className="Scrubber-last" onclick={this.goToLast.bind(this)}>
-              {icon('fas fa-angle-double-down')} {app.translator.trans('core.forum.post_scrubber.now_link')}
+              <Icon name={'fas fa-angle-double-down'} /> {app.translator.trans('core.forum.post_scrubber.now_link')}
             </a>
           </div>
         </div>

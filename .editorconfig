@@ -18,5 +18,8 @@ trim_trailing_whitespace = false
 [*.{php,xml,json}]
 indent_size = 4
 
-[tsconfig.json]
+[{tsconfig.json,prettierrc.json}]
 indent_size = 2
+
+[*.neon]
+indent_style = tab

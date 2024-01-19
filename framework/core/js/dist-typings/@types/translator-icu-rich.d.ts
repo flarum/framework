@@ -11,7 +11,7 @@ declare module '@askvortsov/rich-icu-message-formatter' {
   type IRichHandler = (tag: any, values: IValues, contents: string) => any;
 
   type ValueOrArray<T> = T | ValueOrArray<T>[];
-  type NestedStringArray = ValueOrArray<string>;
+  export type NestedStringArray = ValueOrArray<string>;
 
   export class RichMessageFormatter {
     locale: string | null;

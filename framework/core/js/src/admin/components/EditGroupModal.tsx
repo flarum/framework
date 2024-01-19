@@ -1,5 +1,5 @@
 import app from '../../admin/app';
-import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Button from '../../common/components/Button';
 import Badge from '../../common/components/Badge';
 import Group from '../../common/models/Group';
@@ -8,8 +8,10 @@ import Switch from '../../common/components/Switch';
 import Stream from '../../common/utils/Stream';
 import Mithril from 'mithril';
 import extractText from '../../common/utils/extractText';
+import ColorPreviewInput from '../../common/components/ColorPreviewInput';
+import Form from '../../common/components/Form';
 
-export interface IEditGroupModalAttrs extends IInternalModalAttrs {
+export interface IEditGroupModalAttrs extends IFormModalAttrs {
   group?: Group;
 }
 
@@ -17,7 +19,7 @@ export interface IEditGroupModalAttrs extends IInternalModalAttrs {
  * The `EditGroupModal` component shows a modal dialog which allows the user
  * to create or edit a group.
  */
-export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = IEditGroupModalAttrs> extends Modal<CustomAttrs> {
+export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = IEditGroupModalAttrs> extends FormModal<CustomAttrs> {
   group!: Group;
   nameSingular!: Stream<string>;
   namePlural!: Stream<string>;
@@ -42,34 +44,30 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
   }
 
   title() {
-    return [
-      this.color() || this.icon()
-        ? Badge.component({
-            icon: this.icon(),
-            color: this.color(),
-          })
-        : '',
-      ' ',
-      this.namePlural() || app.translator.trans('core.admin.edit_group.title'),
-    ];
+    return (
+      <>
+        {!!(this.color() || this.icon()) && <Badge icon={this.icon()} color={this.color()} />}{' '}
+        {this.namePlural() || app.translator.trans('core.admin.edit_group.title')}
+      </>
+    );
   }
 
   content() {
     return (
       <div className="Modal-body">
-        <div className="Form">{this.fields().toArray()}</div>
+        <Form>{this.fields().toArray()}</Form>
       </div>
     );
   }
 
-  fields() {
-    const items = new ItemList();
+  fields(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
 
     items.add(
       'name',
       <div className="Form-group">
         <label>{app.translator.trans('core.admin.edit_group.name_label')}</label>
-        <div className="EditGroupModal-name-input">
+        <div className="StackedFormControl EditGroupModal-name-input">
           <input className="FormControl" placeholder={app.translator.trans('core.admin.edit_group.singular_placeholder')} bidi={this.nameSingular} />
           <input className="FormControl" placeholder={app.translator.trans('core.admin.edit_group.plural_placeholder')} bidi={this.namePlural} />
         </div>
@@ -81,7 +79,7 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
       'color',
       <div className="Form-group">
         <label>{app.translator.trans('core.admin.edit_group.color_label')}</label>
-        <input className="FormControl" placeholder="#aaaaaa" bidi={this.color} />
+        <ColorPreviewInput placeholder="#aaaaaa" bidi={this.color} />
       </div>,
       20
     );
@@ -101,34 +99,24 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
     items.add(
       'hidden',
       <div className="Form-group">
-        {Switch.component(
-          {
-            state: !!Number(this.isHidden()),
-            onchange: this.isHidden,
-          },
-          app.translator.trans('core.admin.edit_group.hide_label')
-        )}
+        <Switch state={this.isHidden()} onchange={this.isHidden}>
+          {app.translator.trans('core.admin.edit_group.hide_label')}
+        </Switch>
       </div>,
       10
     );
 
     items.add(
       'submit',
-      <div className="Form-group">
-        {Button.component(
-          {
-            type: 'submit',
-            className: 'Button Button--primary EditGroupModal-save',
-            loading: this.loading,
-          },
-          app.translator.trans('core.admin.edit_group.submit_button')
-        )}
-        {this.group.exists && this.group.id() !== Group.ADMINISTRATOR_ID ? (
+      <div className="Form-group Form-controls">
+        <Button type="submit" className="Button Button--primary EditGroupModal-save" loading={this.loading}>
+          {app.translator.trans('core.admin.edit_group.submit_button')}
+        </Button>
+
+        {this.group.exists && this.group.id() !== Group.ADMINISTRATOR_ID && (
           <button type="button" className="Button EditGroupModal-delete" onclick={this.deleteGroup.bind(this)}>
             {app.translator.trans('core.admin.edit_group.delete_button')}
           </button>
-        ) : (
-          ''
         )}
       </div>,
       -10

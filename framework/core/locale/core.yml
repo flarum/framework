@@ -7,6 +7,17 @@ core:
   # Translations in this namespace are used by the admin interface.
   admin:
 
+    # These translations are used in the Advanced page.
+    advanced:
+      description: "Configure advanced settings for your forum."
+      search:
+        section_label: Search Drivers
+        driver_heading: "Search Driver: {model}"
+        driver_text: Select a driver to be used for searching this model.
+        driver_options:
+          default: Default database search
+      title: Advanced
+
     # These translations are used in the Appearance page.
     appearance:
       colored_header_label: Colored Header
@@ -18,6 +29,7 @@ core:
       custom_footer_text: => core.ref.custom_footer_text
       custom_header_heading: Custom Header
       custom_header_text: => core.ref.custom_header_text
+      custom_styles_cannot_use_less_features: "The @import and data-uri features are not allowed in custom LESS."
       custom_styles_heading: Custom Styles
       custom_styles_text: Customize your forum's appearance by adding your own Less/CSS code to be applied on top of Flarum's default styles.
       dark_mode_label: Dark Mode
@@ -37,6 +49,8 @@ core:
       all_discussions_label: => core.ref.all_discussions
       default_language_heading: Default Language
       description: "Set your forum title, language, and other basic settings."
+      display_name_driver_options:
+        username: Username
       display_name_heading: User Display Name
       display_name_text: Select the driver that should be used for users' display names. By default, the username is shown.
       forum_description_heading: Forum Description
@@ -45,21 +59,49 @@ core:
       home_page_heading: Home Page
       home_page_text: Choose the page which users will first see when they visit your forum.
       show_language_selector_label: Show language selector
+      slug_driver_options:
+        discussions:
+          default: ID with slug
+          utf8: ID with UTF-8 slug
+        users:
+          default: Username
+          id: ID
       slug_driver_heading: "Slug Driver: {model}"
       slug_driver_text: Select a driver to be used for slugging this model.
       title: Basics
       welcome_banner_heading: Welcome Banner
       welcome_banner_text: Configure the text that displays in the banner on the All Discussions page. Use this to welcome guests to your forum.
 
+    # These translations are used in the Create User modal.
+    create_user:
+      email_placeholder: => core.ref.email
+      email_confirmed_label: Require user to confirm this email
+      password_placeholder: => core.ref.password
+      submit_and_create_another_button: Create and add another
+      submit_button: Create user
+      title: Create new user
+      use_random_password: Generate random password
+      username_placeholder: => core.ref.username
+
     # These translations are used in the Dashboard page.
     dashboard:
       clear_cache_button: Clear Cache
       description: Your forum at a glance.
       io_error_message: "Could not write to filesystem. Check your filesystem permissions and try again. Or try running from the command line."
+      status:
+        headers:
+          scheduler-status: Scheduler
+          queue-driver: Queue Driver
+          session-driver: Session Driver
+        scheduler:
+          active: Active
+          inactive: Inactive
+          never-run: Never run
       title: Dashboard
+      toggle_advanced_page_button: Toggle Advanced Page
       tools_button: Tools
 
-    # These translations are usin in the debug warning widget.
+    # These translations are used in the debug warning widget.
     debug-warning:
       detail: |
         When <code>debug</code> mode is active, Flarum will rebuild its <code>JavaScript</code> and <code>CSS</code> assets on every request, and could also potentially leak other information, such as database secrets, environment variables, etc.
@@ -105,6 +147,12 @@ core:
       description: "Configure the driver, settings and addresses your forum will use to send email."
       driver_heading: Choose a Driver
       driver_label: Driver
+      format:
+        multipart_option: Multipart (recommended)
+        plain_option: Plain Text
+        html_option: HTML
+      format_heading: Outgoing Email Format
+      format_help: "Choose the format that outgoing emails will be sent in. The recommended option is <code>multipart</code>, as this will allow your user's email client to display the most appropriate format."
       from_label: Sender
       mail_encryption_label: Encryption
       mail_host_label: Host
@@ -156,8 +204,16 @@ core:
     loading:
       title: Please Wait...
 
+    # These translations are used anywhere to localize model names for drivers.
+    models:
+      discussions: => core.ref.discussions
+      posts: => core.ref.posts
+      users: => core.ref.users
+
     # These translations are used in the navigation bar.
     nav:
+      advanced_button: => core.admin.advanced.title
+      advanced_title: => core.admin.advanced.description
       appearance_button: => core.admin.appearance.title
       appearance_title: => core.admin.appearance.description
       basics_button: => core.admin.basics.title
@@ -184,8 +240,10 @@ core:
 
     # These translations are used in the Permissions page of the admin interface.
     permissions:
+      allow_hide_own_posts_label: Allow deleting own posts
       allow_post_editing_label: Allow post editing
       allow_renaming_label: Allow renaming
+      create_access_token_label: Create access token
       create_heading: Create
       delete_discussions_forever_label: Delete discussions forever
       delete_discussions_label: Delete discussions
@@ -198,13 +256,14 @@ core:
       edit_users_groups_label: Edit user groups
       global_heading: Global
       moderate_heading: Moderate
+      moderate_access_tokens_label: Moderate Access Tokens
       new_group_button: New Group
       participate_heading: Participate
       post_without_throttle_label: Reply multiple times without waiting
       read_heading: Read
       rename_discussions_label: Rename discussions
       reply_to_discussions_label: Reply to discussions
-      search_users_label: Search users
+      search_users_label: => core.ref.search_users
       sign_up_label: Sign up
       start_discussions_label: Start discussions
       title: Permissions
@@ -216,6 +275,7 @@ core:
     # These translations are used in the dropdown menus on the Permissions page.
     permissions_controls:
       allow_indefinitely_button: Indefinitely
+      allow_never_button: => core.ref.never
       allow_some_minutes_button: "{count, plural, one {For # minute} other {For # minutes}}"
       allow_ten_minutes_button: For 10 minutes
       allow_until_reply_button: Until next reply
@@ -227,6 +287,7 @@ core:
     # These translations are used generically in setting fields.
     settings:
       saved_message: Your changes were saved.
+      select_dropdown_custom_label: Custom
       submit_button: => core.ref.save_changes
 
     # These translations are used in image upload buttons.
@@ -236,10 +297,14 @@ core:
 
     # These translations are used for the users list on the admin dashboard.
     users:
+      create_user_button: New User
       description: A paginated list of all users on your forum.
 
       grid:
         columns:
+          display_name:
+            title: Display name
+
           edit_user:
             button: => core.ref.edit
             title: => core.ref.edit_user
@@ -268,9 +333,13 @@ core:
 
       pagination:
         back_button: Previous page
+        first_button: Go to first page
+        go_to_page_textbox_a11y_label: Go directly to page number
+        last_button: Go to last page
         next_button: Next page
         page_counter: Page {current} of {total}
 
+      search_placeholder: => core.ref.search_users
       title: => core.ref.users
       total_users: "Total users: {count}"
 
@@ -350,7 +419,7 @@ core:
     forgot_password:
       dismiss_button: => core.ref.okay
       email_placeholder: => core.ref.email
-      email_sent_message: We've sent you an email containing a link to reset your password. Check your spam folder if you don't receive it within the next minute or two.
+      email_sent_message: If the email you entered is registered with this site, we'll send you an email containing a link to reset your password. Check your spam folder if you don't receive it within the next minute or two.
       not_found_message: There is no user registered with that email address.
       submit_button: Recover Password
       text: Enter your email address and we will send you a link to reset your password.
@@ -440,7 +509,7 @@ core:
     # These translations are displayed between posts in the post stream.
     post_stream:
       discussion_renamed_old_tooltip: 'The old title was: "{old}"'
-      discussion_renamed_text: "{username} changed the title to {new}."
+      discussion_renamed_text: "{username} changed the title to {new} {time}."
       load_more_button: => core.ref.load_more
       reply_placeholder: => core.ref.write_a_reply
       time_lapsed_text: "{period} later"
@@ -450,11 +519,50 @@ core:
       submit_button: => core.ref.rename
       title: Rename Discussion
 
-    # These translations are used by the search results dropdown list.
+    # These translations are used by the search modal.
     search:
-      all_discussions_button: 'Search all discussions for "{query}"'
-      discussions_heading: => core.ref.discussions
-      users_heading: => core.ref.users
+      gambit_plus_button_a11y_label: Add a positive filter
+      gambit_minus_button_a11y_label: Add a negative filter
+      title: Search
+      no_results_text: It looks like there are no results here.
+      no_search_text: You have not searched for anything yet.
+      options_heading: Search options
+      placeholder: Search...
+      preview_heading: Search preview
+
+    # These translations are used in the Security page.
+    security:
+      browser_on_operating_system: "{browser} on {os}"
+      cannot_terminate_current_session: Cannot terminate the current active session. Log out instead.
+      created: Created
+      current_active_session: Current Active Session
+      developer_tokens_heading: Developer Tokens
+      empty_text: It looks like there is nothing to see here.
+      global_logout:
+        heading: Global Logout
+        help_text: "Clears current cookie session, terminates all sessions, revokes developer tokens, and invalidates any email confirmation or password reset emails."
+        log_out_button: => core.ref.log_out
+      hide_access_token: Hide Token
+      last_activity: Last activity
+      never: => core.ref.never
+      new_access_token_button: => core.ref.new_token
+      new_access_token_modal:
+        submit_button: Create Token
+        title: => core.ref.new_token
+        title_placeholder: Title
+      revoke_access_token: Revoke
+      revoke_access_token_confirmation: => core.ref.generic_confirmation_message
+      sessions_heading: Active Sessions
+      session_terminated: "{count, plural, one {Session terminated} other {# Sessions terminated}}."
+      session_termination_failed: "An error occurred while terminating your sessions."
+      show_access_token: View Token
+      terminate_all_other_sessions: Terminate all other sessions
+      terminate_all_other_sessions_confirmation: => core.ref.generic_confirmation_message
+      terminate_session: Terminate
+      title: => core.ref.security
+      token_revoked: Token revoked.
+      token_item_title: "{title} - {token}"
+      token_title_placeholder: "/"
 
     # These translations are used in the Settings page.
     settings:
@@ -493,6 +601,7 @@ core:
       posts_empty_text: It looks like there are no posts here.
       posts_link: => core.ref.posts
       posts_load_more_button: => core.ref.load_more
+      security_link: => core.ref.security
       settings_link: => core.ref.settings
 
     # These translations are found on the user profile page (admin function).
@@ -530,6 +639,10 @@ core:
     dropdown:
       toggle_dropdown_accessible_label: Toggle dropdown menu
 
+    # These translations are used in the data segment component.
+    data_segment:
+      label: "{label}:"
+
     # These translations are used in the Edit User modal dialog (admin function).
     edit_user:
       activate_button: Activate User
@@ -547,15 +660,21 @@ core:
 
     # These translations are displayed as error messages.
     error:
+      circular_dependencies_message: "Circular dependencies detected: {extensions}. Aborting. Please disable one of the extensions and try again."
       dependent_extensions_message: "Cannot disable {extension} until the following dependent extensions are disabled: {extensions}"
       extension_initialiation_failed_message: "{extension} failed to initialize, check the browser console for further information."
       generic_message: "Oops! Something went wrong. Please reload the page and try again."
+      generic_cross_origin_message: "Oops! Something went wrong during a cross-origin request. Please reload the page and try again."
       missing_dependencies_message: "Cannot enable {extension} until the following dependencies are enabled: {extensions}"
       not_found_message: The requested resource was not found.
       payload_too_large_message: The request payload was too large.
       permission_denied_message: You do not have permission to do that.
       rate_limit_exceeded_message: You're going a little too quickly. Please try again in a few seconds.
       render_failed_message: Sorry, we encountered an error while displaying this content. If you're a user, please try again later. If you're an administrator, take a look in your Flarum log files for more information.
+
+    # These translations are used in the input component.
+    input:
+      clear_button: Clear input
 
     # These translations are used in the loading indicator component.
     loading_indicator:
@@ -578,6 +697,36 @@ core:
     number_suffix:
       kilo_text: K
       mega_text: M
+
+    # These translations are used by search sources.
+    search_source:
+      discussions:
+        all_button: 'Search all discussions for "{query}"'
+        heading: => core.ref.discussions
+      users:
+        heading: => core.ref.users
+
+    # These translations are used by gambits. Gambit keys must be in snake_case, no spaces.
+    gambits:
+      boolean_key: is
+      discussions:
+        author:
+          key: author
+          hint: username or comma-separated list of usernames
+        created:
+          key: created
+          hint: 2020-12-31 or 2020-12-31..2021-09-30
+        hidden:
+          key: hidden
+        unread:
+          key: unread
+      users:
+        email:
+          key: email
+          hint: example@machine.local
+        group:
+          key: group
+          hint: singular or plural group names
 
     # These translations are used to punctuate a series of items.
     series:
@@ -652,19 +801,50 @@ core:
       submit_button: => core.ref.save_changes
       title: => core.ref.reset_your_password
 
+    # Translations in this namespace are displayed by the email unsubscribe interface.
+    unsubscribe_email:
+      title: Unsubscribe Confirmation
+      return_to_forum: Back to {forumTitle}
+      confirm_button: Confirm
+      immediate_helptext: You will be immediately unsubscribed once you confirm.
+      confirm_message: "You have requested to unsubscribe from \"{type}\" email notifications from {forumTitle}."
+      success_message: "You have successfully unsubscribed from \"{type}\" notification from {forumTitle}. If you wish to receive them again, please [update your settings]({settingsLink})."
+      invalid_message: "This unsubscribe link is invalid or has already been used. For any changes in your email notifications from {forumTitle}, please [check your settings]({settingsLink})."
+
   # Translations in this namespace are used in messages output by the API.
   api:
     invalid_username_message: "The username may only contain letters, numbers, and dashes."
+    invalid_filter_type:
+      must_be_numeric_message: "The {filter} filter must be numeric."
+      must_not_be_array_message: "The {filter} filter must not be an array."
+      must_not_be_multidimensional_array_message: "The {filter} filter must not be a multidimensional array."
 
   # Translations in this namespace are used in emails sent by the forum.
   email:
+    greeting: "Hey {displayName},"
+    signoff: "The {forumTitle} team"
+
+    # These translations are used by the "informational" email template.
+    informational:
+      default_title: "Information"
+      footer: "This email was sent to {userEmail} as an informational service related to your account on [{forumTitle}]({forumUrl})."
+      footer_plain: "This email was sent to {userEmail} as an informational service related to your account on {forumTitle}."
+
+    # These translations are used by the "notification" email template.
+    notification:
+        default_title: "Notification"
+        footer:
+          main_text: "This email was sent to {email} because you are subscribed to \"{type}\" notifications on [{forumTitle}]({forumUrl})."
+          main_text_plain: "This email was sent to {email} because you are subscribed to \"{type}\" notifications on {forumTitle}."
+          unsubscribe_text: "If you'd like to stop receiving this type of notification, [unsubscribe here]({unsubscribeLink})."
+          unsubscribe_text_plain: "If you'd like to stop receiving this type of notification, unsubscribe here: {unsubscribeLink}"
+          settings_text: "Manage your notification settings [here]({settingsLink})."
+          settings_text_plain: "Manage your notification settings here: {settingsLink}"
 
     # These translations are used in emails sent when users register new accounts.
     activate_account:
       subject: Activate Your New Account
       body: |
-        Hey {username}!
-
         Someone (hopefully you!) has signed up to {forum} with this email address.
 
         If this was you, simply click the following link and your account will be activated:
@@ -676,8 +856,6 @@ core:
     confirm_email:
       subject: Confirm Your New Email Address
       body: |
-        Hey {username}!
-
         Someone (hopefully you!) has changed their email address on {forum} to this one.
 
         If this was you, simply click the following link and your email will be confirmed:
@@ -689,8 +867,6 @@ core:
     reset_password:
       subject: => core.ref.reset_your_password
       body: |
-        Hey {username}!
-
         Someone (hopefully you!) has submitted a forgotten password request for your account on {forum}.
 
         If this was you, click the following link to reset your password:
@@ -702,8 +878,6 @@ core:
     send_test:
       subject: Flarum Email Test
       body: |
-        Hey {username}!
-
         This is a test email to confirm that your Flarum email configuration is working properly.
 
         If this was you, this email means that your configuration works!
@@ -719,7 +893,7 @@ core:
     all_discussions: All Discussions
     change_email: Change Email
     change_password: Change Password
-    color: Color                                 # Referenced by flarum-tags.yml
+    color: Color # Referenced by flarum-tags.yml
     confirm_password: Confirm Password
     confirm_email: Confirm Email
     confirmation_email_sent: "We've sent a confirmation email to {email}. If it doesn't arrive soon, check your spam folder."
@@ -729,11 +903,12 @@ core:
     custom_header_title: Edit Custom Header
     delete: Delete
     delete_forever: Delete Forever
-    discussions: Discussions                     # Referenced by flarum-statistics.yml
+    discussions: Discussions # Referenced by flarum-statistics.yml
     edit: Edit
     edit_user: Edit User
     email: Email
     extensions: Extensions
+    generic_confirmation_message: "Are you sure you want to proceed? This action cannot be undone."
     icon: Icon
     icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the <code>fas fa-</code> prefix."
     load_more: Load More
@@ -741,27 +916,31 @@ core:
     log_in: Log In
     log_out: Log Out
     mark_all_as_read: Mark All as Read
+    never: Never
+    new_token: New Token
     next_page: Next Page
     notifications: Notifications
-    okay: OK                                     # Referenced by flarum-tags.yml
+    okay: OK # Referenced by flarum-tags.yml
     password: Password
-    posts: Posts                                 # Referenced by flarum-statistics.yml
+    posts: Posts # Referenced by flarum-statistics.yml
     previous_page: Previous Page
     remove: Remove
     rename: Rename
-    reply: Reply                                 # Referenced by flarum-mentions.yml
+    reply: Reply # Referenced by flarum-mentions.yml
     reset_your_password: Reset Your Password
     restore: Restore
-    save_changes: Save Changes                   # Referenced by flarum-suspend.yml, flarum-tags.yml
+    save_changes: Save Changes
+    search_users: Search users # Referenced by flarum-suspend.yml, flarum-tags.yml
+    security: Security
     settings: Settings
     sign_up: Sign Up
-    some_others: "{count, plural, one {# other} other {# others}}"  # Referenced by flarum-likes.yml, flarum-mentions.yml
+    some_others: "{count, plural, one {# other} other {# others}}" # Referenced by flarum-likes.yml, flarum-mentions.yml
     start_a_discussion: Start a Discussion
     username: Username
-    users: Users                                 # Referenced by flarum-statistics.yml
+    users: Users # Referenced by flarum-statistics.yml
     view: View
     write_a_reply: Write a Reply...
-    you: You                                     # Referenced by flarum-likes.yml, flarum-mentions.yml
+    you: You # Referenced by flarum-likes.yml, flarum-mentions.yml
 
   ##
   # GROUP NAMES - These keys are translated at the back end.

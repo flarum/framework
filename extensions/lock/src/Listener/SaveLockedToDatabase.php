@@ -15,7 +15,7 @@ use Flarum\Lock\Event\DiscussionWasUnlocked;
 
 class SaveLockedToDatabase
 {
-    public function handle(Saving $event)
+    public function handle(Saving $event): void
     {
         if (isset($event->data['attributes']['isLocked'])) {
             $isLocked = (bool) $event->data['attributes']['isLocked'];

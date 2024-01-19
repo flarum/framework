@@ -4,11 +4,13 @@ import classList from '../../common/utils/classList';
 import PostUser from './PostUser';
 import PostMeta from './PostMeta';
 import PostEdited from './PostEdited';
-import EditPostComposer from './EditPostComposer';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
 import ComposerPostPreview from './ComposerPostPreview';
+import Link from '../../common/components/Link';
+import UserCard from './UserCard.js';
+import Avatar from '../../common/components/Avatar';
 
 /**
  * The `CommentPost` component displays a standard `comment`-typed post. This
@@ -46,10 +48,25 @@ export default class CommentPost extends Post {
     );
   }
 
+  avatar() {
+    const user = this.attrs.post.user();
+    const view = <Avatar user={user} className="Post-avatar" />;
+
+    if (user) {
+      return <Link href={app.route.user(user)}>{view}</Link>;
+    }
+
+    return view;
+  }
+
   content() {
     return super.content().concat([
       <header className="Post-header">
         <ul>{listItems(this.headerItems().toArray())}</ul>
+
+        {!this.attrs.post.isHidden() && this.cardVisible && (
+          <UserCard user={this.attrs.post.user()} className="UserCard--popover" controlsButtonClassName="Button Button--icon Button--flat" />
+        )}
       </header>,
       <div className="Post-body">
         {this.isEditing() ? <ComposerPostPreview className="Post-preview" composer={app.composer} /> : m.trust(this.attrs.post.contentHtml())}
@@ -78,6 +95,7 @@ export default class CommentPost extends Post {
   oncreate(vnode) {
     super.oncreate(vnode);
 
+    this.listenForCard();
     this.refreshContent();
   }
 
@@ -88,6 +106,10 @@ export default class CommentPost extends Post {
   }
 
   isEditing() {
+    const EditPostComposer = flarum.reg.checkModule('core', 'forum/components/EditPostComposer');
+
+    if (!EditPostComposer) return false;
+
     return app.composer.bodyMatches(EditPostComposer, { post: this.attrs.post });
   }
 
@@ -95,17 +117,13 @@ export default class CommentPost extends Post {
     const post = this.attrs.post;
     const attrs = super.elementAttrs();
 
-    attrs.className =
-      (attrs.className || '') +
-      ' ' +
-      classList({
-        CommentPost: true,
-        'Post--renderFailed': post.renderFailed(),
-        'Post--hidden': post.isHidden(),
-        'Post--edited': post.isEdited(),
-        revealContent: this.revealContent,
-        editing: this.isEditing(),
-      });
+    attrs.className = classList(attrs.className, 'CommentPost', {
+      'Post--renderFailed': post.renderFailed(),
+      'Post--hidden': post.isHidden(),
+      'Post--edited': post.isEdited(),
+      revealContent: this.revealContent,
+      editing: this.isEditing(),
+    });
 
     if (this.isEditing()) attrs['aria-busy'] = 'true';
 
@@ -128,26 +146,11 @@ export default class CommentPost extends Post {
     const items = new ItemList();
     const post = this.attrs.post;
 
-    items.add(
-      'user',
-      PostUser.component({
-        post,
-        cardVisible: this.cardVisible,
-        oncardshow: () => {
-          this.cardVisible = true;
-          m.redraw();
-        },
-        oncardhide: () => {
-          this.cardVisible = false;
-          m.redraw();
-        },
-      }),
-      100
-    );
-    items.add('meta', PostMeta.component({ post }));
+    items.add('user', <PostUser post={post} />, 100);
+    items.add('meta', <PostMeta post={post} />);
 
     if (post.isEdited() && !post.isHidden()) {
-      items.add('edited', PostEdited.component({ post }));
+      items.add('edited', <PostEdited post={post} />);
     }
 
     // If the post is hidden, add a button that allows toggling the visibility
@@ -155,14 +158,46 @@ export default class CommentPost extends Post {
     if (post.isHidden()) {
       items.add(
         'toggle',
-        Button.component({
-          className: 'Button Button--default Button--more',
-          icon: 'fas fa-ellipsis-h',
-          onclick: this.toggleContent.bind(this),
-        })
+        <Button className="Button Button--default Button--more" icon="fas fa-ellipsis-h" onclick={this.toggleContent.bind(this)} />
       );
     }
 
     return items;
+  }
+
+  listenForCard() {
+    let timeout;
+
+    this.$()
+      .on('mouseover', '.PostUser-name a, .UserCard, .Post-avatar', () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(this.showCard.bind(this), 500);
+      })
+      .on('mouseout', '.PostUser-name a, .UserCard, .Post-avatar', () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(this.hideCard.bind(this), 250);
+      });
+  }
+
+  /**
+   * Show the user card.
+   */
+  showCard() {
+    this.cardVisible = true;
+    m.redraw();
+
+    setTimeout(() => this.$('.UserCard').addClass('in'));
+  }
+
+  /**
+   * Hide the user card.
+   */
+  hideCard() {
+    this.$('.UserCard')
+      .removeClass('in')
+      .one('transitionend webkitTransitionEnd oTransitionEnd', () => {
+        this.cardVisible = false;
+        m.redraw();
+      });
   }
 }

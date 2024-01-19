@@ -9,20 +9,27 @@
 
 namespace Flarum\Post\Filter;
 
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\FilterInterface;
+use Flarum\Search\SearchState;
+use Flarum\Search\ValidateFilterTrait;
 
+/**
+ * @implements FilterInterface<DatabaseSearchState>
+ */
 class TypeFilter implements FilterInterface
 {
+    use ValidateFilterTrait;
+
     public function getFilterKey(): string
     {
         return 'type';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $type = trim($filterValue, '"');
+        $type = $this->asString($value);
 
-        $filterState->getQuery()->where('posts.type', $negate ? '!=' : '=', $type);
+        $state->getQuery()->where('posts.type', $negate ? '!=' : '=', $type);
     }
 }

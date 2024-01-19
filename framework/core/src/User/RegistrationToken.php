@@ -12,6 +12,7 @@ namespace Flarum\User;
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\User\Exception\InvalidConfirmationTokenException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 /**
@@ -21,19 +22,15 @@ use Illuminate\Support\Str;
  * @property array $user_attributes
  * @property array $payload
  * @property \Carbon\Carbon $created_at
+ *
+ * @method static self validOrFail(string $token)
  */
 class RegistrationToken extends AbstractModel
 {
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['created_at'];
-
     protected $casts = [
         'user_attributes' => 'array',
-        'payload' => 'array'
+        'payload' => 'array',
+        'created_at' => 'datetime'
     ];
 
     /**
@@ -43,21 +40,12 @@ class RegistrationToken extends AbstractModel
      */
     public $incrementing = false;
 
-    /**
-     * {@inheritdoc}
-     */
     protected $primaryKey = 'token';
 
     /**
      * Generate an auth token for the specified user.
-     *
-     * @param string $provider
-     * @param string $identifier
-     * @param array $attributes
-     * @param array $payload
-     * @return static
      */
-    public static function generate(string $provider, string $identifier, array $attributes, array $payload)
+    public static function generate(string $provider, string $identifier, array $attributes, array $payload): static
     {
         $token = new static;
 
@@ -74,16 +62,11 @@ class RegistrationToken extends AbstractModel
     /**
      * Find the token with the given ID, and assert that it has not expired.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $token
-     *
      * @throws InvalidConfirmationTokenException
-     *
-     * @return RegistrationToken
      */
-    public function scopeValidOrFail($query, string $token)
+    public function scopeValidOrFail(Builder $query, string $token): ?RegistrationToken
     {
-        /** @var RegistrationToken $token */
+        /** @var RegistrationToken|null $token */
         $token = $query->find($token);
 
         if (! $token || $token->created_at->lessThan(Carbon::now()->subDay())) {

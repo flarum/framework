@@ -34,7 +34,7 @@ export default class DiscussionHero extends Component {
       items.add('badges', <ul className="DiscussionHero-badges badges">{listItems(badges)}</ul>, 10);
     }
 
-    items.add('title', <h2 className="DiscussionHero-title">{discussion.title()}</h2>);
+    items.add('title', <h1 className="DiscussionHero-title">{discussion.title()}</h1>);
 
     return items;
   }

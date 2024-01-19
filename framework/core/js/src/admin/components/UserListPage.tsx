@@ -1,21 +1,24 @@
-import type Mithril from 'mithril';
+import Mithril from 'mithril';
 
 import app from '../../admin/app';
 
-import EditUserModal from '../../common/components/EditUserModal';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import Button from '../../common/components/Button';
 
-import icon from '../../common/helpers/icon';
 import listItems from '../../common/helpers/listItems';
 
 import type User from '../../common/models/User';
+import type { IPageAttrs } from '../../common/components/Page';
 
 import ItemList from '../../common/utils/ItemList';
 import classList from '../../common/utils/classList';
 import extractText from '../../common/utils/extractText';
-
 import AdminPage from './AdminPage';
+import { debounce } from '../../common/utils/throttleDebounce';
+import CreateUserModal from './CreateUserModal';
+import Icon from '../../common/components/Icon';
+import Input from '../../common/components/Input';
+import GambitsAutocompleteDropdown from '../../common/components/GambitsAutocompleteDropdown';
 
 type ColumnData = {
   /**
@@ -32,6 +35,9 @@ type ColumnData = {
  * Admin page which displays a paginated list of all users on the forum.
  */
 export default class UserListPage extends AdminPage {
+  private query: string = '';
+  private throttledSearch = debounce(250, () => this.loadPage(0));
+
   /**
    * Number of users to load per page.
    */
@@ -41,6 +47,11 @@ export default class UserListPage extends AdminPage {
    * Current page number. Zero-indexed.
    */
   private pageNumber: number = 0;
+
+  /**
+   * Page number being loaded. Zero-indexed.
+   */
+  private loadingPageNumber: number = 0;
 
   /**
    * Total number of forum users.
@@ -74,15 +85,31 @@ export default class UserListPage extends AdminPage {
 
   private isLoadingPage: boolean = false;
 
+  oninit(vnode: Mithril.Vnode<IPageAttrs, this>) {
+    super.oninit(vnode);
+
+    // Get page query value from URL
+    const page = parseInt(m.route.param('page'));
+
+    if (isNaN(page) || page < 1) {
+      this.setPageNumberInUrl(1);
+      this.pageNumber = 0;
+    } else {
+      this.pageNumber = page - 1;
+    }
+
+    this.loadingPageNumber = this.pageNumber;
+  }
+
   /**
    * Component to render.
    */
   content() {
     if (typeof this.pageData === 'undefined') {
-      this.loadPage(0);
+      this.loadPage(this.pageNumber);
 
       return [
-        <section class="UserListPage-grid UserListPage-grid--loading">
+        <section className="UserListPage-grid UserListPage-grid--loading">
           <LoadingIndicator containerClassName="LoadingIndicator--block" size="large" />
         </section>,
       ];
@@ -91,9 +118,9 @@ export default class UserListPage extends AdminPage {
     const columns = this.columns().toArray();
 
     return [
-      <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.users.total_users', { count: this.userCount })}</p>,
+      <div className="UserListPage-header">{this.headerItems().toArray()}</div>,
       <section
-        class={classList(['UserListPage-grid', this.isLoadingPage ? 'UserListPage-grid--loadingPage' : 'UserListPage-grid--loaded'])}
+        className={classList(['UserListPage-grid', this.isLoadingPage ? 'UserListPage-grid--loadingPage' : 'UserListPage-grid--loaded'])}
         style={{ '--columns': columns.length }}
         role="table"
         // +1 to account for header
@@ -104,7 +131,7 @@ export default class UserListPage extends AdminPage {
       >
         {/* Render columns */}
         {columns.map((column, colIndex) => (
-          <div class="UserListPage-grid-header" role="columnheader" aria-colindex={colIndex + 1} aria-rowindex={1}>
+          <div className="UserListPage-grid-header" role="columnheader" aria-colindex={colIndex + 1} aria-rowindex={1}>
             {column.name}
           </div>
         ))}
@@ -116,7 +143,7 @@ export default class UserListPage extends AdminPage {
 
             return (
               <div
-                class={classList(['UserListPage-grid-rowItem', rowIndex % 2 > 0 && 'UserListPage-grid-rowItem--shaded'])}
+                className={classList(['UserListPage-grid-rowItem', rowIndex % 2 > 0 && 'UserListPage-grid-rowItem--shaded'])}
                 data-user-id={user.id()}
                 data-column-name={col.itemName}
                 aria-colindex={colIndex + 1}
@@ -133,7 +160,14 @@ export default class UserListPage extends AdminPage {
         {/* Loading spinner that shows when a new page is being loaded */}
         {this.isLoadingPage && <LoadingIndicator size="large" />}
       </section>,
-      <nav class="UserListPage-gridPagination">
+      <nav className="UserListPage-gridPagination">
+        <Button
+          disabled={this.pageNumber === 0}
+          title={app.translator.trans('core.admin.users.pagination.first_page_button')}
+          onclick={this.goToPage.bind(this, 1)}
+          icon="fas fa-step-backward"
+          className="Button Button--icon UserListPage-firstPageBtn"
+        />
         <Button
           disabled={this.pageNumber === 0}
           title={app.translator.trans('core.admin.users.pagination.back_button')}
@@ -141,9 +175,43 @@ export default class UserListPage extends AdminPage {
           icon="fas fa-chevron-left"
           className="Button Button--icon UserListPage-backBtn"
         />
-        <span class="UserListPage-pageNumber">
+        <span className="UserListPage-pageNumber">
           {app.translator.trans('core.admin.users.pagination.page_counter', {
-            current: this.pageNumber + 1,
+            // https://technology.blog.gov.uk/2020/02/24/why-the-gov-uk-design-system-team-changed-the-input-type-for-numbers/
+            current: (
+              <input
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                value={this.loadingPageNumber + 1}
+                aria-label={extractText(app.translator.trans('core.admin.users.pagination.go_to_page_textbox_a11y_label'))}
+                autocomplete="off"
+                className="FormControl UserListPage-pageNumberInput"
+                onchange={(e: InputEvent) => {
+                  const target = e.target as HTMLInputElement;
+                  let pageNumber = parseInt(target.value);
+
+                  if (isNaN(pageNumber)) {
+                    // Invalid value, reset to current page
+                    target.value = (this.pageNumber + 1).toString();
+                    return;
+                  }
+
+                  if (pageNumber < 1) {
+                    // Lower constraint
+                    pageNumber = 1;
+                  } else if (pageNumber > this.getTotalPageCount()) {
+                    // Upper constraint
+                    pageNumber = this.getTotalPageCount();
+                  }
+
+                  target.value = pageNumber.toString();
+
+                  this.goToPage(pageNumber);
+                }}
+              />
+            ),
+            currentNum: this.pageNumber + 1,
             total: this.getTotalPageCount(),
           })}
         </span>
@@ -154,8 +222,64 @@ export default class UserListPage extends AdminPage {
           icon="fas fa-chevron-right"
           className="Button Button--icon UserListPage-nextBtn"
         />
+        <Button
+          disabled={!this.moreData}
+          title={app.translator.trans('core.admin.users.pagination.last_page_button')}
+          onclick={this.goToPage.bind(this, this.getTotalPageCount())}
+          icon="fas fa-step-forward"
+          className="Button Button--icon UserListPage-lastPageBtn"
+        />
       </nav>,
     ];
+  }
+
+  headerItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    const onchange = (value: string) => {
+      this.isLoadingPage = true;
+      this.query = value;
+      this.throttledSearch();
+    };
+
+    items.add(
+      'search',
+      <GambitsAutocompleteDropdown resource="users" query={this.query} onchange={onchange}>
+        <Input
+          type="search"
+          placeholder={app.translator.trans('core.admin.users.search_placeholder')}
+          clearable={true}
+          loading={this.isLoadingPage}
+          value={this.query}
+          onchange={onchange}
+        />
+      </GambitsAutocompleteDropdown>,
+      100
+    );
+
+    items.add(
+      'totalUsers',
+      <p class="UserListPage-totalUsers">{app.translator.trans('core.admin.users.total_users', { count: this.userCount })}</p>,
+      90
+    );
+
+    items.add('actions', <div className="UserListPage-actions">{this.actionItems().toArray()}</div>, 80);
+
+    return items;
+  }
+
+  actionItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add(
+      'createUser',
+      <Button className="Button UserListPage-createUserBtn" icon="fas fa-user-plus" onclick={() => app.modal.show(CreateUserModal)}>
+        {app.translator.trans('core.admin.users.create_user_button')}
+      </Button>,
+      100
+    );
+
+    return items;
   }
 
   /**
@@ -175,7 +299,7 @@ export default class UserListPage extends AdminPage {
       'id',
       {
         name: app.translator.trans('core.admin.users.grid.columns.user_id.title'),
-        content: (user: User) => user.id() ?? '',
+        content: (user: User) => user.id() ?? null,
       },
       100
     );
@@ -202,11 +326,20 @@ export default class UserListPage extends AdminPage {
     );
 
     columns.add(
+      'displayName',
+      {
+        name: app.translator.trans('core.admin.users.grid.columns.display_name.title'),
+        content: (user: User) => user.displayName(),
+      },
+      85
+    );
+
+    columns.add(
       'joinDate',
       {
         name: app.translator.trans('core.admin.users.grid.columns.join_time.title'),
         content: (user: User) => (
-          <span class="UserList-joinDate" title={user.joinTime()}>
+          <span className="UserList-joinDate" title={user.joinTime()}>
             {dayjs(user.joinTime()).format('LLL')}
           </span>
         ),
@@ -278,16 +411,16 @@ export default class UserListPage extends AdminPage {
           }
 
           return (
-            <div class="UserList-email" key={user.id()} data-email-shown="false">
-              <span class="UserList-emailAddress" aria-hidden="true" onclick={() => setEmailVisibility(true)}>
+            <div className="UserList-email" key={user.id()} data-email-shown="false">
+              <span className="UserList-emailAddress" aria-hidden="true" onclick={() => setEmailVisibility(true)}>
                 {user.email()}
               </span>
               <button
                 onclick={toggleEmailVisibility}
-                class="Button Button--text UserList-emailIconBtn"
+                className="Button Button--text UserList-emailIconBtn"
                 title={app.translator.trans('core.admin.users.grid.columns.email.visibility_show')}
               >
-                {icon('far fa-eye-slash fa-fw', { className: 'icon' })}
+                <Icon name="far fa-eye-slash fa-fw" className="icon" />
               </button>
             </div>
           );
@@ -304,7 +437,7 @@ export default class UserListPage extends AdminPage {
           <Button
             className="Button UserList-editModalBtn"
             title={app.translator.trans('core.admin.users.grid.columns.edit_user.tooltip', { username: user.username() })}
-            onclick={() => app.modal.show(EditUserModal, { user })}
+            onclick={() => app.modal.show(() => import('../../common/components/EditUserModal'), { user })}
           >
             {app.translator.trans('core.admin.users.grid.columns.edit_user.button')}
           </Button>
@@ -332,13 +465,17 @@ export default class UserListPage extends AdminPage {
    *
    * Uses the `this.numPerPage` as the response limit, and automatically calculates the offset required from `pageNumber`.
    *
-   * @param pageNumber The page number to load and display
+   * @param pageNumber The **zero-based** page number to load and display
    */
   async loadPage(pageNumber: number) {
     if (pageNumber < 0) pageNumber = 0;
 
+    this.loadingPageNumber = pageNumber;
+    this.setPageNumberInUrl(pageNumber + 1);
+
     app.store
       .find<User[]>('users', {
+        filter: { q: this.query },
         page: {
           limit: this.numPerPage,
           offset: pageNumber * this.numPerPage,
@@ -353,9 +490,16 @@ export default class UserListPage extends AdminPage {
         // @ts-ignore
         delete data.payload;
 
-        this.pageData = data;
-        this.pageNumber = pageNumber;
-        this.isLoadingPage = false;
+        const lastPage = this.getTotalPageCount();
+
+        if (pageNumber > lastPage) {
+          this.loadPage(lastPage - 1);
+        } else {
+          this.pageData = data;
+          this.pageNumber = pageNumber;
+          this.loadingPageNumber = pageNumber;
+          this.isLoadingPage = false;
+        }
 
         m.redraw();
       })
@@ -373,5 +517,21 @@ export default class UserListPage extends AdminPage {
   previousPage() {
     this.isLoadingPage = true;
     this.loadPage(this.pageNumber - 1);
+  }
+
+  /**
+   * @param page The **1-based** page number
+   */
+  goToPage(page: number) {
+    this.isLoadingPage = true;
+    this.loadPage(page - 1);
+  }
+
+  private setPageNumberInUrl(pageNumber: number) {
+    const search = window.location.hash.split('?', 2);
+    const params = new URLSearchParams(search?.[1] ?? '');
+
+    params.set('page', `${pageNumber}`);
+    window.location.hash = search?.[0] + '?' + params.toString();
   }
 }

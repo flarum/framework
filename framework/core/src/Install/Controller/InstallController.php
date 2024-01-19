@@ -27,38 +27,13 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class InstallController implements RequestHandlerInterface
 {
-    /**
-     * @var Installation
-     */
-    protected $installation;
-
-    /**
-     * @var SessionAuthenticator
-     */
-    protected $authenticator;
-
-    /**
-     * @var Rememberer
-     */
-    protected $rememberer;
-
-    /**
-     * InstallController constructor.
-     * @param Installation $installation
-     * @param SessionAuthenticator $authenticator
-     * @param Rememberer $rememberer
-     */
-    public function __construct(Installation $installation, SessionAuthenticator $authenticator, Rememberer $rememberer)
-    {
-        $this->installation = $installation;
-        $this->authenticator = $authenticator;
-        $this->rememberer = $rememberer;
+    public function __construct(
+        protected Installation $installation,
+        protected SessionAuthenticator $authenticator,
+        protected Rememberer $rememberer
+    ) {
     }
 
-    /**
-     * @param Request $request
-     * @return ResponseInterface
-     */
     public function handle(Request $request): ResponseInterface
     {
         $input = $request->getParsedBody();
@@ -120,8 +95,6 @@ class InstallController implements RequestHandlerInterface
     }
 
     /**
-     * @param array $input
-     * @return AdminUser
      * @throws ValidationFailed
      */
     private function makeAdminUser(array $input): AdminUser

@@ -1,15 +1,16 @@
 /// <reference path="../../@types/translator-icu-rich.d.ts" />
-import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
 import type Mithril from 'mithril';
 import RequestError from '../../common/utils/RequestError';
-export interface ILoginModalAttrs extends IInternalModalAttrs {
+import type { LoginParams } from '../../common/Session';
+export interface ILoginModalAttrs extends IFormModalAttrs {
     identification?: string;
     password?: string;
     remember?: boolean;
 }
-export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginModalAttrs> extends Modal<CustomAttrs> {
+export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginModalAttrs> extends FormModal<CustomAttrs> {
     /**
      * The value of the identification input.
      */
@@ -28,7 +29,7 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
     content(): JSX.Element[];
     body(): JSX.Element[];
     fields(): ItemList<unknown>;
-    footer(): (string | JSX.Element)[];
+    footer(): JSX.Element;
     /**
      * Open the forgot password modal, prefilling it with an email if the user has
      * entered one.
@@ -41,5 +42,6 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
     signUp(): void;
     onready(): void;
     onsubmit(e: SubmitEvent): void;
+    loginParams(): LoginParams;
     onerror(error: RequestError): void;
 }

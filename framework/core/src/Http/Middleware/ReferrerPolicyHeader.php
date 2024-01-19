@@ -18,11 +18,11 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class ReferrerPolicyHeader implements Middleware
 {
-    protected $policy = '';
+    protected string $policy = '';
 
     public function __construct(Config $config)
     {
-        $this->policy = Arr::get($config, 'headers.referrerPolicy') ?? 'same-origin';
+        $this->policy = strval(Arr::get($config, 'headers.referrerPolicy') ?? 'same-origin');
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

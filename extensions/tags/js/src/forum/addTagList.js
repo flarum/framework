@@ -1,5 +1,6 @@
+import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
-import IndexPage from 'flarum/forum/components/IndexPage';
+import IndexSidebar from 'flarum/forum/components/IndexSidebar';
 import Separator from 'flarum/common/components/Separator';
 import LinkButton from 'flarum/common/components/LinkButton';
 
@@ -7,10 +8,10 @@ import TagLinkButton from './components/TagLinkButton';
 import TagsPage from './components/TagsPage';
 import sortTags from '../common/utils/sortTags';
 
-export default function () {
+export default function addTagList() {
   // Add a link to the tags page, as well as a list of all the tags,
   // to the index page's sidebar.
-  extend(IndexPage.prototype, 'navItems', function (items) {
+  extend(IndexSidebar.prototype, 'navItems', function (items) {
     items.add(
       'tags',
       <LinkButton icon="fas fa-th-large" href={app.route('tags')}>
@@ -21,11 +22,11 @@ export default function () {
 
     if (app.current.matches(TagsPage)) return;
 
-    items.add('separator', Separator.component(), -12);
+    items.add('separator', <Separator />, -12);
 
-    const params = app.search.stickyParams();
+    const params = app.search.state.stickyParams();
     const tags = app.store.all('tags');
-    const currentTag = this.currentTag();
+    const currentTag = app.currentTag();
 
     const addTag = (tag) => {
       let active = currentTag === tag;
@@ -39,7 +40,13 @@ export default function () {
       // use its children to populate the dropdown. The problem here is that `view`
       // on TagLinkButton is only called AFTER SelectDropdown, so no children are available
       // for SelectDropdown to use at the time.
-      items.add('tag' + tag.id(), TagLinkButton.component({ model: tag, params, active }, tag?.name()), -14);
+      items.add(
+        'tag' + tag.id(),
+        <TagLinkButton model={tag} params={params} active={active}>
+          {tag?.name()}
+        </TagLinkButton>,
+        -14
+      );
     };
 
     sortTags(tags)

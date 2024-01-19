@@ -25,28 +25,12 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class CommentPost extends Post
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static $type = 'comment';
+    public static string $type = 'comment';
+    protected static Formatter $formatter;
 
-    /**
-     * The text formatter instance.
-     *
-     * @var \Flarum\Formatter\Formatter
-     */
-    protected static $formatter;
+    protected $observables = ['hidden'];
 
-    /**
-     * Create a new instance in reply to a discussion.
-     *
-     * @param int $discussionId
-     * @param string $content
-     * @param int $userId
-     * @param string $ipAddress
-     * @return static
-     */
-    public static function reply($discussionId, $content, $userId, $ipAddress)
+    public static function reply(int $discussionId, string $content, int $userId, ?string $ipAddress, ?User $actor = null): static
     {
         $post = new static;
 
@@ -57,137 +41,99 @@ class CommentPost extends Post
         $post->ip_address = $ipAddress;
 
         // Set content last, as the parsing may rely on other post attributes.
-        $post->content = $content;
+        $post->setContentAttribute($content, $actor);
 
         $post->raise(new Posted($post));
 
         return $post;
     }
 
-    /**
-     * Revise the post's content.
-     *
-     * @param string $content
-     * @param User $actor
-     * @return $this
-     */
-    public function revise($content, User $actor)
+    public function revise(string $content, User $actor): static
     {
         if ($this->content !== $content) {
-            $this->content = $content;
+            $oldContent = $this->content;
+
+            $this->setContentAttribute($content, $actor);
 
             $this->edited_at = Carbon::now();
             $this->edited_user_id = $actor->id;
 
-            $this->raise(new Revised($this));
+            $this->raise(new Revised($this, $actor, $oldContent));
         }
 
         return $this;
     }
 
-    /**
-     * Hide the post.
-     *
-     * @param User $actor
-     * @return $this
-     */
-    public function hide(User $actor = null)
+    public function hide(?User $actor = null): static
     {
         if (! $this->hidden_at) {
             $this->hidden_at = Carbon::now();
-            $this->hidden_user_id = $actor ? $actor->id : null;
+            $this->hidden_user_id = $actor?->id;
 
             $this->raise(new Hidden($this));
+
+            $this->saved(function (self $model) {
+                if ($model === $this) {
+                    $model->fireModelEvent('hidden', false);
+                }
+            });
         }
 
         return $this;
     }
 
-    /**
-     * Restore the post.
-     *
-     * @return $this
-     */
-    public function restore()
+    public function restore(): static
     {
         if ($this->hidden_at !== null) {
             $this->hidden_at = null;
             $this->hidden_user_id = null;
 
             $this->raise(new Restored($this));
+
+            $this->saved(function (self $model) {
+                if ($model === $this) {
+                    $model->fireModelEvent('restored', false);
+                }
+            });
         }
 
         return $this;
     }
 
-    /**
-     * Unparse the parsed content.
-     *
-     * @param string $value
-     * @return string
-     */
-    public function getContentAttribute($value)
+    public function getContentAttribute(string $value): string
     {
         return static::$formatter->unparse($value, $this);
     }
 
-    /**
-     * Get the parsed/raw content.
-     *
-     * @return string
-     */
-    public function getParsedContentAttribute()
+    public function getParsedContentAttribute(): string
     {
         return $this->attributes['content'];
     }
 
-    /**
-     * Parse the content before it is saved to the database.
-     *
-     * @param string $value
-     */
-    public function setContentAttribute($value)
+    public function setContentAttribute(string $value, ?User $actor = null): void
     {
-        $this->attributes['content'] = $value ? static::$formatter->parse($value, $this) : null;
+        $this->attributes['content'] = $value ? static::$formatter->parse($value, $this, $actor ?? $this->user) : null;
     }
 
-    /**
-     * Set the parsed/raw content.
-     *
-     * @param string $value
-     */
-    public function setParsedContentAttribute($value)
+    public function setParsedContentAttribute(string $value): void
     {
         $this->attributes['content'] = $value;
     }
 
     /**
      * Get the content rendered as HTML.
-     *
-     * @param ServerRequestInterface $request
-     * @return string
      */
-    public function formatContent(ServerRequestInterface $request = null)
+    public function formatContent(?ServerRequestInterface $request = null): string
     {
         return static::$formatter->render($this->attributes['content'], $this, $request);
     }
 
-    /**
-     * Get the text formatter instance.
-     *
-     * @return \Flarum\Formatter\Formatter
-     */
-    public static function getFormatter()
+    public static function getFormatter(): Formatter
     {
         return static::$formatter;
     }
 
-    /**
-     * Set the text formatter instance.
-     *
-     * @param \Flarum\Formatter\Formatter $formatter
-     */
-    public static function setFormatter(Formatter $formatter)
+    public static function setFormatter(Formatter $formatter): void
     {
         static::$formatter = $formatter;
     }

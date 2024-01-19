@@ -13,12 +13,16 @@ use Flarum\Api\Controller;
 use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Extend;
+use Flarum\Likes\Api\LoadLikesRelationship;
 use Flarum\Likes\Event\PostWasLiked;
 use Flarum\Likes\Event\PostWasUnliked;
 use Flarum\Likes\Notification\PostLikedBlueprint;
 use Flarum\Likes\Query\LikedByFilter;
-use Flarum\Post\Filter\PostFilterer;
+use Flarum\Likes\Query\LikedFilter;
+use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
+use Flarum\Search\Database\DatabaseSearchDriver;
+use Flarum\User\Search\UserSearcher;
 use Flarum\User\User;
 
 return [
@@ -41,27 +45,41 @@ return [
         ->hasMany('likes', BasicUserSerializer::class)
         ->attribute('canLike', function (PostSerializer $serializer, $model) {
             return (bool) $serializer->getActor()->can('like', $model);
+        })
+        ->attribute('likesCount', function (PostSerializer $serializer, $model) {
+            return $model->getAttribute('likes_count') ?: 0;
         }),
 
     (new Extend\ApiController(Controller\ShowDiscussionController::class))
-        ->addInclude('posts.likes'),
+        ->addInclude('posts.likes')
+        ->loadWhere('posts.likes', LoadLikesRelationship::mutateRelation(...))
+        ->prepareDataForSerialization(LoadLikesRelationship::countRelation(...)),
 
     (new Extend\ApiController(Controller\ListPostsController::class))
-        ->addInclude('likes'),
+        ->addInclude('likes')
+        ->loadWhere('likes', LoadLikesRelationship::mutateRelation(...))
+        ->prepareDataForSerialization(LoadLikesRelationship::countRelation(...)),
     (new Extend\ApiController(Controller\ShowPostController::class))
-        ->addInclude('likes'),
+        ->addInclude('likes')
+        ->loadWhere('likes', LoadLikesRelationship::mutateRelation(...))
+        ->prepareDataForSerialization(LoadLikesRelationship::countRelation(...)),
     (new Extend\ApiController(Controller\CreatePostController::class))
-        ->addInclude('likes'),
+        ->addInclude('likes')
+        ->loadWhere('likes', LoadLikesRelationship::mutateRelation(...))
+        ->prepareDataForSerialization(LoadLikesRelationship::countRelation(...)),
     (new Extend\ApiController(Controller\UpdatePostController::class))
-        ->addInclude('likes'),
+        ->addInclude('likes')
+        ->loadWhere('likes', LoadLikesRelationship::mutateRelation(...))
+        ->prepareDataForSerialization(LoadLikesRelationship::countRelation(...)),
 
     (new Extend\Event())
         ->listen(PostWasLiked::class, Listener\SendNotificationWhenPostIsLiked::class)
         ->listen(PostWasUnliked::class, Listener\SendNotificationWhenPostIsUnliked::class)
         ->subscribe(Listener\SaveLikesToDatabase::class),
 
-    (new Extend\Filter(PostFilterer::class))
-        ->addFilter(LikedByFilter::class),
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
+        ->addFilter(PostSearcher::class, LikedByFilter::class)
+        ->addFilter(UserSearcher::class, LikedFilter::class),
 
     (new Extend\Settings())
         ->default('flarum-likes.like_own_post', true),

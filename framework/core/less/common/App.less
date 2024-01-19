@@ -169,6 +169,12 @@
 // ------------------------------------
 // Header
 
+.App-header {
+  display: flex;
+}
+.Header-navigation {
+  position: absolute;
+}
 .Header-controls {
   margin: 0;
   padding: 0;
@@ -176,7 +182,6 @@
 }
 .Header-logo {
   max-height: 30px;
-  vertical-align: middle;
 }
 
 // On phones, the header is displayed inside of the drawer. We lay its
@@ -239,6 +244,12 @@
     position: absolute;
     border-bottom: 0;
 
+    .container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
     .affix & {
       position: fixed;
     }
@@ -252,29 +263,20 @@
     }
   }
 
-  .Header-navigation {
-    float: left;
-    margin-right: 25px;
-  }
   .Header-controls {
-    &, > li {
-      display: inline-block;
-      vertical-align: middle;
-    }
+    display: flex;
+    align-items: center;
   }
   .Header-primary {
-    float: left;
+    //
   }
   .Header-title {
-    float: left;
-    vertical-align: top;
     font-size: 18px;
     font-weight: normal;
-    margin: 0 15px 0 0;
     line-height: 34px;
   }
   .Header-secondary {
-    float: right;
+    margin-left: auto;
 
     .Search {
       margin-right: 10px;
@@ -291,6 +293,22 @@
     &:not(.active) input {
       padding-right: 0;
     }
+  }
+}
+
+@media @desktop-hd {
+  .Header-navigation {
+    .hasPane.panePinned & {
+      position: relative;
+      width: ~"min(20%, var(--pane-width))";
+    }
+  }
+}
+
+@media (max-width: calc(@screen-desktop-hd + 80px)) {
+  .Header-navigation {
+    position: relative;
+    width: auto;
   }
 }
 

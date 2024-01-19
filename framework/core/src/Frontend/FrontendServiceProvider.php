@@ -9,20 +9,25 @@
 
 namespace Flarum\Frontend;
 
+use Flarum\Extension\Event\Disabled;
+use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Foundation\Paths;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Driver\BasicTitleDriver;
 use Flarum\Frontend\Driver\TitleDriverInterface;
 use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
+use Flarum\Locale\LocaleManager;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 
 class FrontendServiceProvider extends AbstractServiceProvider
 {
-    public function register()
+    public function register(): void
     {
         $this->container->singleton('flarum.assets.factory', function (Container $container) {
             return function (string $name) use ($container) {
@@ -40,8 +45,8 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     $paths->vendor.'/components/font-awesome/less' => ''
                 ]);
 
-                $assets->css([$this, 'addBaseCss']);
-                $assets->localeCss([$this, 'addBaseCss']);
+                $assets->css($this->addBaseCss(...));
+                $assets->localeCss($this->addBaseCss(...));
 
                 return $assets;
             };
@@ -49,15 +54,16 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.frontend.factory', function (Container $container) {
             return function (string $name) use ($container) {
+                /** @var Frontend $frontend */
                 $frontend = $container->make(Frontend::class);
 
                 $frontend->content(function (Document $document) use ($name) {
                     $document->layoutView = 'flarum::frontend.'.$name;
-                });
+                }, 200);
 
-                $frontend->content($container->make(Content\Assets::class)->forFrontend($name));
-                $frontend->content($container->make(Content\CorePayload::class));
-                $frontend->content($container->make(Content\Meta::class));
+                $frontend->content($container->make(Content\Assets::class)->forFrontend($name), 190);
+                $frontend->content($container->make(Content\CorePayload::class), 180);
+                $frontend->content($container->make(Content\Meta::class), 170);
 
                 $frontend->content(function (Document $document) use ($container) {
                     $default_preloads = $container->make('flarum.frontend.default_preloads');
@@ -85,7 +91,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                         $default_preloads,
                         $document->preloads,
                     );
-                });
+                }, 160);
 
                 return $frontend;
             };
@@ -136,19 +142,19 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.less.config', function (Container $container) {
             return [
-                'config-primary-color'   => [
+                'config-primary-color' => [
                     'key' => 'theme_primary_color',
                 ],
                 'config-secondary-color' => [
                     'key' => 'theme_secondary_color',
                 ],
-                'config-dark-mode'       => [
+                'config-dark-mode' => [
                     'key' => 'theme_dark_mode',
                     'callback' => function ($value) {
                         return $value ? 'true' : 'false';
                     },
                 ],
-                'config-colored-header'  => [
+                'config-colored-header' => [
                     'key' => 'theme_colored_header',
                     'callback' => function ($value) {
                         return $value ? 'true' : 'false';
@@ -163,12 +169,20 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 return [];
             }
         );
+
+        $this->container->bind('flarum.assets.common', function (Container $container) {
+            /** @var \Flarum\Frontend\Assets $assets */
+            $assets = $container->make('flarum.assets.factory')('common');
+
+            $assets->jsDirectory(function (SourceCollector $sources) {
+                $sources->addDirectory(__DIR__.'/../../js/dist/common', 'core');
+            });
+
+            return $assets;
+        });
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function boot(Container $container, ViewFactory $views)
+    public function boot(Container $container, Dispatcher $events, ViewFactory $views): void
     {
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum');
 
@@ -177,9 +191,20 @@ class FrontendServiceProvider extends AbstractServiceProvider
             'url' => $container->make(UrlGenerator::class),
             'slugManager' => $container->make(SlugManager::class)
         ]);
+
+        $events->listen(
+            [Enabled::class, Disabled::class, ClearingCache::class],
+            function () use ($container) {
+                $recompile = new RecompileFrontendAssets(
+                    $container->make('flarum.assets.common'),
+                    $container->make(LocaleManager::class)
+                );
+                $recompile->flush();
+            }
+        );
     }
 
-    public function addBaseCss(SourceCollector $sources)
+    public function addBaseCss(SourceCollector $sources): void
     {
         $sources->addFile(__DIR__.'/../../less/common/variables.less');
         $sources->addFile(__DIR__.'/../../less/common/mixins.less');
@@ -187,7 +212,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
         $this->addLessVariables($sources);
     }
 
-    private function addLessVariables(SourceCollector $sources)
+    private function addLessVariables(SourceCollector $sources): void
     {
         $sources->addString(function () {
             $vars = $this->container->make('flarum.less.config');

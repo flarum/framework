@@ -9,23 +9,19 @@
 
 namespace Flarum\Subscriptions\Listener;
 
+use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Post\Event\Posted;
 use Flarum\Subscriptions\Job\SendReplyNotification;
 use Illuminate\Contracts\Queue\Queue;
 
 class SendNotificationWhenReplyIsPosted
 {
-    /**
-     * @var Queue
-     */
-    protected $queue;
-
-    public function __construct(Queue $queue)
-    {
-        $this->queue = $queue;
+    public function __construct(
+        protected Queue $queue
+    ) {
     }
 
-    public function handle(Posted $event)
+    public function handle(Posted|PostWasApproved $event): void
     {
         $this->queue->push(
             new SendReplyNotification($event->post, $event->post->discussion->last_post_number)

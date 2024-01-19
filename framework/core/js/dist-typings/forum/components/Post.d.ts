@@ -29,6 +29,7 @@ export default abstract class Post<CustomAttrs extends IPostAttrs = IPostAttrs> 
      * Get attributes for the post element.
      */
     elementAttrs(): Record<string, unknown>;
+    header(): Mithril.Children;
     /**
      * Get the post's content.
      */
@@ -45,4 +46,6 @@ export default abstract class Post<CustomAttrs extends IPostAttrs = IPostAttrs> 
      * Build an item list for the post's footer.
      */
     footerItems(): ItemList<Mithril.Children>;
+    sideItems(): ItemList<Mithril.Children>;
+    avatar(): Mithril.Children;
 }

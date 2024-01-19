@@ -11,65 +11,52 @@ namespace Flarum\Approval\Listener;
 
 use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Post\Event\Saving;
+use Flarum\User\Exception\PermissionDeniedException;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class ApproveContent
 {
-    /**
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
+    public function subscribe(Dispatcher $events): void
     {
-        $events->listen(Saving::class, [$this, 'approvePost']);
-        $events->listen(PostWasApproved::class, [$this, 'approveDiscussion']);
+        $events->listen(Saving::class, $this->approvePost(...));
     }
 
     /**
-     * @param Saving $event
+     * @throws PermissionDeniedException
      */
-    public function approvePost(Saving $event)
+    public function approvePost(Saving $event): void
     {
         $attributes = $event->data['attributes'];
         $post = $event->post;
+
+        // Nothing to do if it is already approved.
+        if ($post->is_approved) {
+            return;
+        }
+
+        /*
+         * We approve a post in one of two cases:
+         * - The post was unapproved and the allowed action is approving it. We trigger an event.
+         * - The post was unapproved and the allowed actor is hiding or un-hiding it.
+         *   We approve it silently if the action is unhiding.
+         */
+        $approvingSilently = false;
 
         if (isset($attributes['isApproved'])) {
             $event->actor->assertCan('approve', $post);
 
             $isApproved = (bool) $attributes['isApproved'];
-        } elseif (! empty($attributes['isHidden']) && $event->actor->can('approve', $post)) {
+        } elseif (isset($attributes['isHidden']) && $event->actor->can('approve', $post)) {
             $isApproved = true;
+            $approvingSilently = $attributes['isHidden'];
         }
 
         if (! empty($isApproved)) {
             $post->is_approved = true;
 
-            $post->raise(new PostWasApproved($post, $event->actor));
+            if (! $approvingSilently) {
+                $post->raise(new PostWasApproved($post, $event->actor));
+            }
         }
-    }
-
-    /**
-     * @param PostWasApproved $event
-     */
-    public function approveDiscussion(PostWasApproved $event)
-    {
-        $post = $event->post;
-        $discussion = $post->discussion;
-        $user = $discussion->user;
-
-        $discussion->refreshCommentCount();
-        $discussion->refreshLastPost();
-
-        if ($post->number == 1) {
-            $discussion->is_approved = true;
-
-            $discussion->afterSave(function () use ($user) {
-                $user->refreshDiscussionCount();
-            });
-        }
-
-        $discussion->save();
-
-        $user->refreshCommentCount();
-        $user->save();
     }
 }

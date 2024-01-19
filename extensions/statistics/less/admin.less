@@ -11,13 +11,14 @@
 
   &-title {
     margin: 0 20px;
-    color: @muted-color;
+    color: var(--muted-color);
   }
 
   &-entities {
     display: flex;
     align-items: flex-end;
     margin: 0 20px;
+    overflow: auto;
 
     & > :not(:last-child) {
       margin-right: 10px;
@@ -29,7 +30,7 @@
     min-width: 130px;
     font-size: 12px;
     font-weight: bold;
-    color: @muted-color;
+    color: var(--muted-color);
   }
 
   &-label {
@@ -39,7 +40,7 @@
   &-entity {
     min-width: 130px;
     padding: 15px 20px;
-    color: @text-color;
+    color: var(--text-color);
     font-size: 20px;
 
     .StatisticsWidget:not(.StatisticsWidget--mini) & {
@@ -47,12 +48,12 @@
 
       &:hover,
       &:focus-visible {
-        background: mix(@control-bg, @body-bg, 50%);
+        background: var(--control-body-bg-mix);
         text-decoration: none;
       }
 
       &.active {
-        border-top: 4px solid @primary-color;
+        border-top: 4px solid var(--primary-color);
         padding-top: 11px;
       }
     }
@@ -75,10 +76,10 @@
     font-weight: bold;
     text-transform: uppercase;
     font-size: 12px;
-    color: @muted-color;
+    color: var(--muted-color);
 
     .active & {
-      color: @primary-color;
+      color: var(--primary-color);
     }
   }
 
@@ -93,14 +94,10 @@
   }
 
   .chart-container {
-    .dataset-0 {
+    .dataset-1 {
       opacity: 0.2;
     }
     .chart-legend {
-      display: none;
-    }
-    // Hide the "last period" data from the tooltip
-    .graph-svg-tip ul.data-point-list > li:first-child {
       display: none;
     }
   }
@@ -108,6 +105,17 @@
   &-viewFull {
     padding: 12px 16px;
     text-align: center;
+  }
+
+  .Placeholder {
+    padding-bottom: 32px;
+  }
+
+  &-chartExport {
+    position: relative;
+    z-index: 1;
+    margin: 16px;
+    margin-top: -32px;
   }
 }
 
@@ -119,9 +127,9 @@
   position: relative; /* for absolutely positioned tooltip */
 
   /* https://www.smashingmagazine.com/2015/11/using-system-ui-fonts-practical-guide/ */
-  font-family: -apple-system, BlinkMacSystemFont,
-  'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
-  'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
 
   .axis,
   .chart-label {
@@ -194,6 +202,10 @@
       min-width: 90px;
       flex: 1;
       font-weight: 600;
+
+      &:nth-child(2) {
+        border-top-color: #5a5a5a !important;
+      }
     }
   }
   strong {

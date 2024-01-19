@@ -14,15 +14,15 @@ interface SettingsRepositoryInterface
     public function all(): array;
 
     /**
-     * @todo remove $default in 2.0
+     * You generally should use the Settings extender's `default` method instead to register default values.
+     * You may still need to use the `$default` parameters here in cases where you need to
+     * access the default value of a dynamic setting.
      *
-     * @param $key
-     * @param mixed $default: Deprecated
-     * @return mixed
+     * @see Settings::default()
      */
-    public function get($key, $default = null);
+    public function get(string $key, mixed $default = null): mixed;
 
-    public function set($key, $value);
+    public function set(string $key, mixed $value): void;
 
-    public function delete($keyLike);
+    public function delete(string $keyLike): void;
 }

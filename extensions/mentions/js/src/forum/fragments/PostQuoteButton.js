@@ -1,6 +1,6 @@
 import app from 'flarum/forum/app';
 import Fragment from 'flarum/common/Fragment';
-import icon from 'flarum/common/helpers/icon';
+import Icon from 'flarum/common/components/Icon';
 
 import reply from '../utils/reply';
 
@@ -14,12 +14,12 @@ export default class PostQuoteButton extends Fragment {
   view() {
     return (
       <button
-        class="Button PostQuoteButton"
+        className="Button PostQuoteButton"
         onclick={() => {
           reply(this.post, this.content);
         }}
       >
-        {icon('fas fa-quote-left', { className: 'Button-icon' })}
+        <Icon name="fas fa-quote-left" className="Button-icon" />
         {app.translator.trans('flarum-mentions.forum.post.quote_button')}
       </button>
     );

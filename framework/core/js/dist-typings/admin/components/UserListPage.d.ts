@@ -1,6 +1,7 @@
 /// <reference path="../../@types/translator-icu-rich.d.ts" />
-import type Mithril from 'mithril';
+import Mithril from 'mithril';
 import type User from '../../common/models/User';
+import type { IPageAttrs } from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
 declare type ColumnData = {
@@ -17,6 +18,8 @@ declare type ColumnData = {
  * Admin page which displays a paginated list of all users on the forum.
  */
 export default class UserListPage extends AdminPage {
+    private query;
+    private throttledSearch;
     /**
      * Number of users to load per page.
      */
@@ -25,6 +28,10 @@ export default class UserListPage extends AdminPage {
      * Current page number. Zero-indexed.
      */
     private pageNumber;
+    /**
+     * Page number being loaded. Zero-indexed.
+     */
+    private loadingPageNumber;
     /**
      * Total number of forum users.
      *
@@ -48,10 +55,13 @@ export default class UserListPage extends AdminPage {
      */
     private moreData;
     private isLoadingPage;
+    oninit(vnode: Mithril.Vnode<IPageAttrs, this>): void;
     /**
      * Component to render.
      */
     content(): JSX.Element[];
+    headerItems(): ItemList<Mithril.Children>;
+    actionItems(): ItemList<Mithril.Children>;
     /**
      * Build an item list of columns to show for each user.
      *
@@ -76,10 +86,15 @@ export default class UserListPage extends AdminPage {
      *
      * Uses the `this.numPerPage` as the response limit, and automatically calculates the offset required from `pageNumber`.
      *
-     * @param pageNumber The page number to load and display
+     * @param pageNumber The **zero-based** page number to load and display
      */
     loadPage(pageNumber: number): Promise<void>;
     nextPage(): void;
     previousPage(): void;
+    /**
+     * @param page The **1-based** page number
+     */
+    goToPage(page: number): void;
+    private setPageNumberInUrl;
 }
 export {};

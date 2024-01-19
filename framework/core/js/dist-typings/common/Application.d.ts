@@ -14,6 +14,8 @@ import type Component from './Component';
 import type { ComponentAttrs } from './Component';
 import Model, { SavedModelData } from './Model';
 import IHistory from './IHistory';
+import IExtender from './extenders/IExtender';
+import SearchManager from './SearchManager';
 export declare type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 export declare type FlarumGenericRoute = RouteItem<any, any, any>;
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
@@ -22,16 +24,14 @@ export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.Request
     /**
      * Manipulate the response text before it is parsed into JSON.
      *
-     * @deprecated Please use `modifyText` instead.
-     */
-    extract?: (responseText: string) => string;
-    /**
-     * Manipulate the response text before it is parsed into JSON.
-     *
      * This overrides any `extract` method provided.
      */
     modifyText?: (responseText: string) => string;
 }
+export declare type NewComponent<Comp> = new () => Comp;
+export declare type AsyncNewComponent<Comp> = () => Promise<any & {
+    default: NewComponent<Comp>;
+}>;
 /**
  * A valid route definition.
  */
@@ -51,14 +51,14 @@ export declare type RouteItem<Attrs extends ComponentAttrs, Comp extends Compone
     /**
      * The component to render when this route matches.
      */
-    component: new () => Comp;
+    component: NewComponent<Comp> | AsyncNewComponent<Comp>;
     /**
      * A custom resolver class.
      *
      * This should be the class itself, and **not** an instance of the
      * class.
      */
-    resolverClass?: new (component: new () => Comp, routeName: string) => DefaultResolver<Attrs, Comp, RouteArgs>;
+    resolverClass?: new (component: NewComponent<Comp> | AsyncNewComponent<Comp>, routeName: string) => DefaultResolver<Attrs, Comp, RouteArgs>;
 } | {
     /**
      * An instance of a route resolver.
@@ -77,9 +77,9 @@ export interface RouteResolver<Attrs extends ComponentAttrs, Comp extends Compon
      *
      * @see https://mithril.js.org/route.html#routeresolveronmatch
      */
-    onmatch(this: this, args: RouteArgs, requestedPath: string, route: string): {
+    onmatch(this: this, args: RouteArgs, requestedPath: string, route: string): Promise<{
         new (): Comp;
-    };
+    }>;
     /**
      * A function which renders the provided component.
      *
@@ -141,6 +141,7 @@ export default class Application {
      * The app's data store.
      */
     store: Store;
+    search: SearchManager;
     /**
      * A local cache that can be used to store data at the application level, so
      * that is persists between different routes.
@@ -196,7 +197,7 @@ export default class Application {
     load(payload: Application['data']): void;
     boot(): void;
     bootExtensions(extensions: Record<string, {
-        extend?: unknown[];
+        extend?: IExtender[];
     }>): void;
     protected mount(basePath?: string): void;
     /**
@@ -232,6 +233,15 @@ export default class Application {
      * By default, show an error alert, and log the error to the console.
      */
     protected requestErrorCatch<ResponseType>(error: RequestError, customErrorHandler: FlarumRequestOptions<ResponseType>['errorHandler']): Promise<never>;
+    /**
+     * Used to modify the error message shown on the page to help troubleshooting.
+     * While not certain, a failing cross-origin request likely indicates a missing redirect to Flarum canonical URL.
+     * Because XHR errors do not expose CORS information, we can only compare the requested URL origin to the page origin.
+     *
+     * @param error
+     * @protected
+     */
+    protected requestWasCrossOrigin(error: RequestError): boolean;
     protected requestErrorDefaultHandler(e: unknown, isDebug: boolean, formattedErrors: string[]): void;
     private showDebug;
     /**

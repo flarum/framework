@@ -1,17 +1,16 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
-import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Group from '../../common/models/Group';
 import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
 import Mithril from 'mithril';
-export interface IEditGroupModalAttrs extends IInternalModalAttrs {
+export interface IEditGroupModalAttrs extends IFormModalAttrs {
     group?: Group;
 }
 /**
  * The `EditGroupModal` component shows a modal dialog which allows the user
  * to create or edit a group.
  */
-export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = IEditGroupModalAttrs> extends Modal<CustomAttrs> {
+export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = IEditGroupModalAttrs> extends FormModal<CustomAttrs> {
     group: Group;
     nameSingular: Stream<string>;
     namePlural: Stream<string>;
@@ -20,9 +19,9 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
     isHidden: Stream<boolean>;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     className(): string;
-    title(): (Mithril.Vnode<{}, {}> | import("@askvortsov/rich-icu-message-formatter").NestedStringArray)[];
+    title(): JSX.Element;
     content(): JSX.Element;
-    fields(): ItemList<unknown>;
+    fields(): ItemList<Mithril.Children>;
     submitData(): {
         nameSingular: string;
         namePlural: string;

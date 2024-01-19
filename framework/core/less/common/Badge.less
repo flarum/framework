@@ -4,11 +4,10 @@
   height: var(--size);
   border-radius: calc(~"var(--size) / 2");
   background: var(--badge-bg);
-  color: var(--badge-color);
+  color: var(--contrast-color, var(--badge-color));
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  vertical-align: middle;
   box-shadow: 0 2px 4px var(--shadow-color);
 
   .Badge-label {
@@ -31,6 +30,21 @@
 
   &, > li {
     display: inline-block;
+  }
+
+  &--packed {
+    --packing-space: 10px;
+    padding-inline-start: var(--packing-space);
+
+    .Badge {
+      margin-left: calc(~"0px - var(--packing-space)");
+      position: relative;
+      pointer-events: auto;
+    }
+  }
+
+  &:empty {
+    display: none;
   }
 }
 

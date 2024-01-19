@@ -26,10 +26,7 @@ use Laminas\Stratigility\MiddlewarePipe;
 
 class ApiServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    public function register(): void
     {
         $this->container->extend(UrlGenerator::class, function (UrlGenerator $url, Container $container) {
             return $url->addCollection('api', $container->make('flarum.api.routes'), 'api');
@@ -117,28 +114,21 @@ class ApiServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->singleton(Client::class, function ($container) {
-            $pipe = new MiddlewarePipe;
-
             $exclude = $container->make('flarum.api_client.exclude_middleware');
 
             $middlewareStack = array_filter($container->make('flarum.api.middleware'), function ($middlewareClass) use ($exclude) {
                 return ! in_array($middlewareClass, $exclude);
             });
 
-            foreach ($middlewareStack as $middleware) {
-                $pipe->pipe($container->make($middleware));
-            }
+            $middlewareStack[] = HttpMiddleware\ExecuteRoute::class;
 
-            $pipe->pipe(new HttpMiddleware\ExecuteRoute());
-
-            return new Client($pipe);
+            return new Client(
+                new ClientMiddlewarePipe($container, $middlewareStack)
+            );
         });
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function boot(Container $container)
+    public function boot(Container $container): void
     {
         $this->setNotificationSerializers();
 
@@ -147,10 +137,7 @@ class ApiServiceProvider extends AbstractServiceProvider
         AbstractSerializer::setContainer($container);
     }
 
-    /**
-     * Register notification serializers.
-     */
-    protected function setNotificationSerializers()
+    protected function setNotificationSerializers(): void
     {
         $serializers = $this->container->make('flarum.api.notification_serializers');
 
@@ -159,12 +146,7 @@ class ApiServiceProvider extends AbstractServiceProvider
         }
     }
 
-    /**
-     * Populate the API routes.
-     *
-     * @param RouteCollection $routes
-     */
-    protected function populateRoutes(RouteCollection $routes)
+    protected function populateRoutes(RouteCollection $routes): void
     {
         $factory = $this->container->make(RouteHandlerFactory::class);
 

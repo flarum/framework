@@ -1,5 +1,256 @@
 # Changelog
 
+## [v1.8.1](https://github.com/flarum/framework/compare/v1.8.0...v1.8.1)
+### Fixed
+* recover temporary solution for html entities in browser title (e72541e35de4f71f9d870bbd9bb46ddf586bdf1d)
+* custom contrast color affected by parents (577890d89c593ae5b6cb96083fab69e2f1ae600c)
+* reply placeholder wrong positioning (253a3d281dbf5ce3fa712b629b80587cf67e7dbe)
+* (mentions) missed post mentions UI changes with lazy loading [#3832]
+* (mentions) cannot use newly introduced mentionables extender [#3849]
+* (mentions) missing slug from post mention links ([5a4bb7c](5a4bb7ccf226f66dd44816cb69b3d7cfe4ad7f7c))
+
+## [v1.8.0](https://github.com/flarum/framework/compare/v1.7.1...v1.8.0)
+### Fixed
+- (a11y) reply placeholder not accessible [#3793]
+- (bbcode) highlight.js does not work after changing post content [#3817]
+- (bbcode) localize quote `wrote` string [#3809]
+- (mentions) mentions XHR fired even after mentioning is done [#3806]
+- (package-manager) available core updates cause an error in the dashboard ([fab71f2](fab71f2d01fa20ce9b3002833339dc5ea3ea6301))
+- (tags) not all tags are loaded in the permission grid [#3804]
+- (tags) tag discussion modal filters with exact matches only after first index [#3786]
+- (testing) always clear cache in integration test's tearDown [#3818]
+- `UserSecurityPage` not exported ([232618a](232618aba604ab003425df38b895208c863d3260))
+- `isDark()` utility can receive null value [#3774]
+- approving a post does not bump user `comment_count` [#3790]
+- circular dependencies disable all involved extensions [#3785]
+- color input overflowing the input box [#3796]
+- deleting a discussion from the profile does not visually remove it [#3799]
+- discussion page showing horizontal scroll on iOS [#3821]
+- empty string displayed as SelectDropdown title [#3773]
+- filter values are not validated [#3795]
+- infinite scroll not initialized for notifications on big screens [#3733]
+- notification subject discussion eager loading fails [#3788]
+- null as 2nd param in `preg_match` is deprecated [#3801]
+- unread count in post stream not visible [#3791]
+- unreadable badge icon on certain colors [#3810]
+- integrity constraint violation [#3772]
+### Changed
+- (core,mentions) limit `mentionedBy` post relation results [#3780]
+- (likes) limit `likes` relationship results [#3781]
+- Change some methods from private to protected, to be able to extend the affected classes [#3802]
+- Do not catch exceptions when testing Console commands [#3813]
+- drop usage of jquery in `install` and `update` interfaces [#3797]
+- extensibility improvements [#3729]
+- major frontend JS cleanup [#3609]
+- revert ineffective code for encoding of page title [#3768]
+- speed up post creation time [#3808]
+### Added
+- (mentions,tags) tag mentions [#3769]
+- add delete own posts permission [#3784]
+- add a trait to flush the formatter cache in tests [#3811]
+- add user creation to users list page [#3744]
+- cli command for enabling or disabling an extension [#3816]
+- conditional extenders [#3759]
+- provide old content to `Revised` event [#3789]
+
+## [v1.7.1](https://github.com/flarum/framework/compare/v1.7.0...v1.7.1)
+### Fixed
+- (tags) composer tag selection modal using wrong primary max & min numbers (abc9670659426b765274376945b818b70d84848c)
+- missing parameter names in token title translation. (#3752)
+- hardcoded language strings in StatusWidget (#3754)
+- hide developer tokens section in if there is nothing to display or create (#3753)
+- improve sessions user UI on mobile (dd868ab44e11e892d020e3b9412553c6a789e68d)
+
+## [v1.7.0](https://github.com/flarum/framework/compare/v1.6.3...v1.7.0)
+### Added
+- (actions) allow running JS tests in GH actions  [#3730]
+- (core) PHP 8.2 Support [#3709]
+- (jest) create jest config package for unit testing [#3678]
+- (jest) mithril component testing [#3679]
+- (phpstan) foundation for usage in extensions [#3666]
+- (seo) Do not use h3 header for poster author in posts stream [#3732]
+- (seo) Use h2 header for discussions on discussions list [#3731]
+- (seo) shift h1 tag from logo to discussion title [#3724]
+- (tags) admin tag selection component (reusable tag selection modal) [#3686]
+- Admin User Search [#3712]
+- access tokens user management UI [#3587]
+- add display name column to admin users list [#3740]
+- allow push additional items to the end of the poststream [#3691]
+- allow using utf8 characters in tag slugs [#3588]
+- expose queue driver, schedule status [#3593]
+- expose {time} to eventPost data, fix renamed tooltip [#3698]
+- frontend `Model` extender [#3646]
+- global logout to clear all sessions, access tokens, email tokens and password tokens [#3605]
+- improved page navigation for users list [#3741]
+- introduce frontend extenders [#3645]
+### Fixed
+- (mentions) correctly convert a 3 char. hex color to a 6 char. one [#3694]
+- (mentions) post reply mention missing notification on approval [#3738]
+- (phpstan) adapt phpstan package for extension use [#3727]
+- (tags) clickable tag labels have underline [#3737]
+- (tags) tag text color contrast [#3653]
+- 3 digit hex color value in color input not supported [#3706]
+- column `id` can be ambiguous in group filter with extensions [#3696]
+- disallow certain dangerous LESS features ([1761660](1761660c98ea5a3e9665fb8e6041d1f2ee62a444))
+- evaluated page title content [#3684]
+- invalid translation key for scheduler dashboard [#3736]
+- load actor.groups on showforumcontroller [#3716]
+- make go-to-page input number-like [#3743]
+- normal logout affects all sessions [#3571]
+- permissions table on mobile is unusable [#3722]
+- post dropdown opens all dropdowns in `.Post-actions` [#3675]
+- typo in Formatter extender docblock [#3676]
+- undefined showing in dropdown active title [#3700]
+### Changed
+- (phpstan) enable phpstan in bundled extensions [#3667]
+- Add missing states exports to `compat.ts` [#3683]
+- Indicate cross-origin request in generic error message [#3669]
+- Merge branch 'release/v1.6.2' ([e0b9dcf](e0b9dcfbcd7db175368dbc98255f9223da8df17d))
+- The negate field doesn't get used, which means you cant exclude tags [#3713]
+- Update forum.less to fix the misalignment of the choose tags button [#3726]
+- `yarn audit-fix` ([8ddb0fe](8ddb0feb097dad06c5763107d7a7f7b5a55562c4))
+- `yarn` ([ee1e04c](ee1e04cdc26b3e63057a58899f32f482901a95fd))
+- convert `Dropdown` components to TS [#3608]
+- fix php 8.1 on preg_match 2nd argument being null, which also optimizes slightly ([d7b9a03](d7b9a03f31847c39631ba495df8f515509774610))
+- improve group mentions parsing [#3723]
+- prepare `@flarum/jest-config` for release ([748cca6](748cca6d12f8b1744a6017c09395725bdbb4a118))
+- remove use of deprecated phpunit assertion ([3af0481](3af0481f304277f5380fac9c9b169a7fa651f53b))
+- set flarum version to 1.7.0 for dev ([2517bc0](2517bc0f70b0f0e3d3ea3f6ae06af8604d89b25d))
+- update JS dependencies  [#3695]
+
+## [v1.6.3](https://github.com/flarum/framework/compare/v1.6.2...v1.6.3)
+### Fixed
+* Post mentions can be used to read any post on the forum without access control (ab1c868b978e8b0d09a5d682c54665dae17d0985).
+* Notifications can leak restricted content (d0a2b95dca57d3dae9a0d77b610b1cb1d0b1766a).
+* Any user including unactivated can reply in public discussions whose first post was permanently deleted (12f14112a0ecd1484d97330b82beb2a145919015).
+* (subscriptions) Post notifications not getting access checked (https://github.com/flarum/framework/commit/e5f05166a062a9a6eb7c12e28728bfd5db7270e3).
+
+## [v1.6.2](https://github.com/flarum/framework/compare/v1.6.1...v1.6.2)
+### Fixed
+* XSS Vulnerability in core (https://github.com/flarum/framework/pull/3684).
+
+## [v1.6.1](https://github.com/flarum/framework/compare/v1.6.0...v1.6.1)
+### Fixed
+* JS dependencies update breaks utilities.
+
+## [v1.6.0](https://github.com/flarum/framework/compare/v1.5.0...v1.6.0)
+### Fixed
+- (approval) posts approved for deleted users error ([b5874a0](b5874a08e482196f50af50aa78e43c93c29fb647))
+- (regression) bad import ([5f2d7fb](5f2d7fb7b6e430d40cf2bb05eca7c73f6ca5a2cc))
+- akismet fails when the extension is not on a version ([45d9121](45d91212f6bfa777cae9fc06c55c85d01ffd174d))
+- apply flex for AppearancePage colors input [#3651]
+- groupmentions have poor contrast on some backgrounds [#3672]
+- larastan v1 incompatible with phpstan v1.9.0 [#3665]
+- package manager failures not showing alerts [#3647]
+- password reset leaks user existence [#3616]
+- statistics previous period chart is unclear [#3654]
+### Changed
+- (package-manager) config composer to use web php version ([fd19645](fd196454a5641776784fa80886cc7577c840f8ed))
+- (package-manager) set min core version and add warning ([31c3cfc](31c3cfc4eab4c314260b9b0d11e53ac2d4be158d))
+- (statistics) prepare v1.5.1 ([dc215ab](dc215aba59145dfd7b0d6efad4388444f30e47fb))
+- Apply fixes from StyleCI ([267f675](267f6759f80bd06f468337245ea6045635e827d9))
+- Fix tag discussion count decreased by 2 when hiding before deleting [#3660]
+- Log migration path when up/down keys are missing [#3664]
+- Make it possible to extend SetupScript [#3643]
+- Setup PHPStan Level 5 [#3553]
+- `yarn format` ([c5c312d](c5c312db0d800e3b84b94a4abb9691e348dea742))
+- add missing last period to custom date ranges [#3661]
+- add priorities to profile settings page [#3657]
+- allow specifying php extensions in workflow ([b0b47a0](b0b47a0888f513a459b67e9f89e72a61de38f1ce))
+- format js ([06963df](06963df4079373fc8fc51b7479e9576f02beb098))
+- group mentions [#3658]
+- remove styleci from changelog ([b2fa28e](b2fa28e4b57094e46dbdb3d79fab74f290a17d17))
+- set flarum version to dev for 1.6.0 ([fc743ba](fc743ba88872031db13597d7365a063b8004c78f))
+- throw an exception when no serializer is provided to the controller [#3614]
+### Added
+- (statistics) support for custom date ranges [#3622]
+- Allow additional login params, Introduce `LogInValidator` [#3670]
+- Allow additional reset password params, introduce `ForgotPasswordValidator` [#3671]
+- add statistics chart export button [#3662]
+- allow specifying extensions when installing an instance [#3655]
+- contrast util with yiq calculator [#3652]
+- customizable session driver [#3610]
+- replace `ColorPreviewInput` for GroupModal color input [#3650]
+- send notifications of a new reply when post is approved [#3656]
+
+## [v1.5.0](https://github.com/flarum/framework/compare/v1.4.0...v1.5.0)
+### Fixed
+- (a11y) add accessible labels to notification grid options [#3520]
+- (a11y) present post streams as feeds [#3522]
+- (a11y) set `aria-busy` when editing a post stream item [#3521]
+- (compilation) versioner not inject into compilers [#3589]
+- (mentions) accessing `id` of null `user` relation [#3618]
+- (subscriptions) add missing table prefix for filter gambit [#3599]
+- (tags) use default index sortmap [#3615]
+- Move guzzle requirement to core [#3544]
+- MyISAM tables for extensions during installation ([75aaef7](75aaef7d76317bc8578eac1439fed8091c87213b), [f926c58](f926c58e0143fe75a4a4c2e93810970c5910afc8))
+- Set the translator locale to user preference for email notifications [#3525]
+- `$events` property declared dynamically [#3598]
+- core settings header has no priority ([33bf228](33bf2284c77863a1bb18d71d87b8516483056a74))
+- html entities shown raw in page title [#3542]
+- incorrect centring of deleted user avatars in notification list [#3569]
+- intellisense imports defaulting to absolute path from `src` folder [#3549]
+- minor backward compatible fix for php 8.1 in st_replace ([07b2f86](07b2f86dcc90a3ef17c8ee19a1a07e99a4b17360))
+- post query wildcard selection causes ambiguity [#3621]
+- potential static caching memory exhaustion [#3548]
+- prepare release workflow has invalid layout ([70e483d](70e483d1b185332910be9513fd06cc6342830d49))
+- remove deprecation warning for decoding null values ([590639f](590639f5f3e1fe883f28c41e1f175c2826b4b5f4))
+- replace `.fa()` mixin usage with `.fas()` [#3537]
+- return type hint static is php 8+ ([b01b75e](b01b75e36790d8026dd27ce59051d9581ad47940))
+- sticky nav content displays below post stream [#3575]
+- titles positioned wrongly with custom header height [#3550]
+- typo in error message ([1a189f4](1a189f492320071365286a8835bc49d5a9571753))
+- unread notifications are globally cached between users. [#3543]
+- update workflow name ([628c281](628c281c39855f01069ddc40b698d80d29fec870))
+- user has wrong discussion read status [#3591]
+### Changed
+- (approval, likes) use subscribers [#3577]
+- (package-manager) last tweaks before beta tag ([335c602](335c602cea3fbaee9ad7c32ceecaaf222e5d89a7))
+- (statistics) add release notes for 1.4.1 ([f4ace73](f4ace73a3c59434b8717efb2d83f50084f470fe4))
+- (statistics) rewrite for performance on very large communities [#3531]
+- (statistics) split timed data into per-model XHR requests [#3601]
+- (tags) Replace event helper with event dispatcher [#3570]
+- Add `loading="lazy"` attribute for avatars [#3578]
+- Create CODEOWNERS ([6e48a03](6e48a0303e45bcf210e550ba3e0772bc8443a207))
+- MyISAM tables for extensions during installation" ([f128190](f128190f143398dd1262fd1379e634794daee4c1))
+- convert `AlertManager` `IndexPage` and `UserPage` components to TS [#3536]
+- convert `Badge` `Checkbox` and `Navigation` components to TS [#3532]
+- convert core modals to TypeScript [#3515]
+- convert page components to TypeScript [#3538]
+- debug line slipped in while rebasing a PR [#3580]
+- don't pass password field between auth modals [#3626]
+- fix github issue templates ([d3e456a](d3e456a1bf42d13b7cd2542c371f392712247c09))
+- format code ([4954621](495462183bfb3b33046b293e6b1088ab225968df))
+- getting the release workflow in ([5530400](5530400b093b5fd07d670e5c92d8a7da96634cfe))
+- link logo at the top with the official website [#3552]
+- prevent running both `push` and `pull_request` actions at the same time [#3597]
+- refactor prefix matrix and add `MySQL 8.0` & `PHP 7.3` to workflows [#3595]
+- relying on a third-party for avatar URL tests is unreliable  [#3586]
+- require guzzle 6 or 7 ([46b3b7a](46b3b7a9527b935c3c52269aaad2010c75dcb6d8))
+- split FA imports into separate Less file for easy overriding [#3535]
+- unify JS actions into one (rewritten `flarum/action-build`) [#3573]
+- update version constant during cycle 22 ([d864405](d86440506dd37101e60adec591d4b017e7765ec6))
+- use `isCollapsed` instead of `rangeCount` [#3581]
+- use github issue template forms [#3526]
+### Added
+- (likes) Add likes tab to user profile [#3528]
+- (likes) Option to prevent users liking their own posts [#3534]
+- (modals) support stacking modals, remove bootstrap modals dependency [#3456]
+- (subscriptions) add option to send notifications when not caught up [#3503]
+- Add custom class for email confirmation alert [#3584]
+- Admin debug mode warning [#3590]
+- Delete all notifications [#3529]
+- Queue package manager commands [#3418]
+- Restart the queue worker after cache clearing, ext enable/disable, save settings [#3565]
+- add createTableIfNotExists migration helper [#3576]
+- add new workflow for generating release meta ([0901e59](0901e59a58a3e1f017762583a2adf419f7f34257))
+- clear password & email tokens when appropriate [#3567]
+- discussion UTF-8 slug driver [#3606]
+- expose assets base url to frontend forum model [#3566]
+- extender to add custom less variables [#3530]
+- publish assets on admin dashboard cache clear [#3564]
+- throttle email change, email confirmation, and password reset endpoints. [#3555]
+
 ## [1.4.0](https://github.com/flarum/framework/compare/v1.3.1...v1.4.0)
 
 ### Added

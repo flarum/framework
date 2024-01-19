@@ -9,21 +9,16 @@
 
 namespace Flarum\Sticky\Post;
 
+use Carbon\Carbon;
 use Flarum\Post\AbstractEventPost;
 use Flarum\Post\MergeableInterface;
 use Flarum\Post\Post;
 
 class DiscussionStickiedPost extends AbstractEventPost implements MergeableInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static $type = 'discussionStickied';
+    public static string $type = 'discussionStickied';
 
-    /**
-     * {@inheritdoc}
-     */
-    public function saveAfter(Post $previous = null)
+    public function saveAfter(Post $previous = null): static
     {
         // If the previous post is another 'discussion stickied' post, and it's
         // by the same user, then we can merge this post into it. If we find
@@ -46,34 +41,20 @@ class DiscussionStickiedPost extends AbstractEventPost implements MergeableInter
         return $this;
     }
 
-    /**
-     * Create a new instance in reply to a discussion.
-     *
-     * @param int $discussionId
-     * @param int $userId
-     * @param bool $isSticky
-     * @return static
-     */
-    public static function reply($discussionId, $userId, $isSticky)
+    public static function reply(int $discussionId, int $userId, bool $isSticky): static
     {
         $post = new static;
 
         $post->content = static::buildContent($isSticky);
-        $post->created_at = time();
+        $post->created_at = Carbon::now();
         $post->discussion_id = $discussionId;
         $post->user_id = $userId;
 
         return $post;
     }
 
-    /**
-     * Build the content attribute.
-     *
-     * @param bool $isSticky Whether or not the discussion is stickied.
-     * @return array
-     */
-    public static function buildContent($isSticky)
+    public static function buildContent(bool $isSticky): array
     {
-        return ['sticky' => (bool) $isSticky];
+        return ['sticky' => $isSticky];
     }
 }

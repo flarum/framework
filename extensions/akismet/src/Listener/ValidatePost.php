@@ -18,22 +18,13 @@ use Flarum\Settings\SettingsRepositoryInterface;
 
 class ValidatePost
 {
-    /**
-     * @var Akismet
-     */
-    protected $akismet;
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    private $settings;
-
-    public function __construct(Akismet $akismet, SettingsRepositoryInterface $settings)
-    {
-        $this->akismet = $akismet;
-        $this->settings = $settings;
+    public function __construct(
+        protected Akismet $akismet,
+        protected SettingsRepositoryInterface $settings
+    ) {
     }
 
-    public function handle(Saving $event)
+    public function handle(Saving $event): void
     {
         if (! $this->akismet->isConfigured()) {
             return;
@@ -50,7 +41,7 @@ class ValidatePost
             ->withContent($post->content)
             ->withAuthorName($post->user->username)
             ->withAuthorEmail($post->user->email)
-            ->withType($post->number == 1 ? 'forum-post' : 'reply')
+            ->withType($post->number === 1 ? 'forum-post' : 'reply')
             ->withIp($post->ip_address)
             ->withUserAgent($_SERVER['HTTP_USER_AGENT'])
             ->checkSpam();

@@ -1,0 +1,544 @@
+parameters:
+    universalObjectCratesClasses:
+        - Illuminate\Http\Request
+        - Illuminate\Support\Optional
+    earlyTerminatingFunctionCalls:
+        - abort
+        - dd
+    excludePaths:
+        - *.blade.php
+    mixinExcludeClasses:
+        - Eloquent
+    bootstrapFiles:
+        - bootstrap.php
+    checkOctaneCompatibility: false
+    noModelMake: true
+    noUnnecessaryCollectionCall: true
+    noUnnecessaryCollectionCallOnly: []
+    noUnnecessaryCollectionCallExcept: []
+    squashedMigrationsPath: []
+    databaseMigrationsPath: []
+    disableMigrationScan: false
+    disableSchemaScan: false
+    viewDirectories: []
+    checkModelProperties: false
+    checkPhpDocMissingReturn: false
+    checkUnusedViews: false
+
+parametersSchema:
+    checkOctaneCompatibility: bool()
+    noModelMake: bool()
+    noUnnecessaryCollectionCall: bool()
+    noUnnecessaryCollectionCallOnly: listOf(string())
+    noUnnecessaryCollectionCallExcept: listOf(string())
+    databaseMigrationsPath: listOf(string())
+    disableMigrationScan: bool()
+    viewDirectories: listOf(string())
+    squashedMigrationsPath: listOf(string())
+    disableSchemaScan: bool()
+    checkModelProperties: bool()
+    checkUnusedViews: bool()
+
+conditionalTags:
+    Larastan\Larastan\Rules\NoModelMakeRule:
+        phpstan.rules.rule: %noModelMake%
+    Larastan\Larastan\Rules\NoUnnecessaryCollectionCallRule:
+        phpstan.rules.rule: %noUnnecessaryCollectionCall%
+    Larastan\Larastan\Rules\OctaneCompatibilityRule:
+        phpstan.rules.rule: %checkOctaneCompatibility%
+    Larastan\Larastan\Rules\ModelProperties\ModelPropertyRule:
+        phpstan.rules.rule: %checkModelProperties%
+    Larastan\Larastan\Rules\ModelProperties\ModelPropertyStaticCallRule:
+        phpstan.rules.rule: %checkModelProperties%
+    Larastan\Larastan\Rules\UnusedViewsRule:
+        phpstan.rules.rule: %checkUnusedViews%
+
+services:
+    -
+        class: Larastan\Larastan\Methods\RelationForwardsCallsExtension
+        tags:
+            - phpstan.broker.methodsClassReflectionExtension
+
+    -
+        class: Larastan\Larastan\Methods\ModelForwardsCallsExtension
+        tags:
+            - phpstan.broker.methodsClassReflectionExtension
+
+    -
+        class: Larastan\Larastan\Methods\EloquentBuilderForwardsCallsExtension
+        tags:
+            - phpstan.broker.methodsClassReflectionExtension
+
+    -
+        class: Larastan\Larastan\Methods\HigherOrderTapProxyExtension
+        tags:
+            - phpstan.broker.methodsClassReflectionExtension
+
+    -
+        class: Larastan\Larastan\Methods\HigherOrderCollectionProxyExtension
+        tags:
+            - phpstan.broker.methodsClassReflectionExtension
+
+    -
+        class: Larastan\Larastan\Methods\StorageMethodsClassReflectionExtension
+        tags:
+            - phpstan.broker.methodsClassReflectionExtension
+
+    -
+        class: Larastan\Larastan\Methods\Extension
+        tags:
+            - phpstan.broker.methodsClassReflectionExtension
+    -
+        class: Larastan\Larastan\Methods\ModelFactoryMethodsClassReflectionExtension
+        tags:
+            - phpstan.broker.methodsClassReflectionExtension
+    -
+        class: Larastan\Larastan\Methods\RedirectResponseMethodsClassReflectionExtension
+        tags:
+            - phpstan.broker.methodsClassReflectionExtension
+    -
+        class: Larastan\Larastan\Methods\MacroMethodsClassReflectionExtension
+        tags:
+            - phpstan.broker.methodsClassReflectionExtension
+    -
+        class: Larastan\Larastan\Methods\ViewWithMethodsClassReflectionExtension
+        tags:
+            - phpstan.broker.methodsClassReflectionExtension
+
+    -
+        class: Larastan\Larastan\Properties\ModelAccessorExtension
+        tags:
+            - phpstan.broker.propertiesClassReflectionExtension
+
+    -
+        class: Larastan\Larastan\Properties\ModelPropertyExtension
+        tags:
+            - phpstan.broker.propertiesClassReflectionExtension
+
+    -
+        class: Larastan\Larastan\Properties\HigherOrderCollectionProxyPropertyExtension
+        tags:
+            - phpstan.broker.propertiesClassReflectionExtension
+
+    -
+        class: Larastan\Larastan\Types\RelationDynamicMethodReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\Types\ModelRelationsDynamicMethodReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\HigherOrderTapProxyExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+    -
+        class: Larastan\Larastan\ReturnTypes\ContainerArrayAccessDynamicMethodReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+        arguments:
+            className: Illuminate\Contracts\Container\Container
+    -
+        class: Larastan\Larastan\ReturnTypes\ContainerArrayAccessDynamicMethodReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+        arguments:
+            className: Illuminate\Container\Container
+    -
+        class: Larastan\Larastan\ReturnTypes\ContainerArrayAccessDynamicMethodReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+        arguments:
+            className: Illuminate\Foundation\Application
+    -
+        class: Larastan\Larastan\ReturnTypes\ContainerArrayAccessDynamicMethodReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+        arguments:
+            className: Illuminate\Contracts\Foundation\Application
+
+    -
+        class: Larastan\Larastan\Properties\ModelRelationsExtension
+        tags:
+            - phpstan.broker.propertiesClassReflectionExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\ModelFactoryDynamicStaticMethodReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\ModelDynamicStaticMethodReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\AppMakeDynamicReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\AuthExtension
+        tags:
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\GuardDynamicStaticMethodReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\AuthManagerExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\DateExtension
+        tags:
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\GuardExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\RequestFileExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\RequestRouteExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\RequestUserExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\EloquentBuilderExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\RelationFindExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\RelationCollectionExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\ModelFindExtension
+        tags:
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\BuilderModelFindExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\TestCaseExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\Support\CollectionHelper
+
+    -
+        class: Larastan\Larastan\ReturnTypes\Helpers\AuthExtension
+        tags:
+            - phpstan.broker.dynamicFunctionReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\Helpers\CollectExtension
+        tags:
+            - phpstan.broker.dynamicFunctionReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\Helpers\NowAndTodayExtension
+        tags:
+            - phpstan.broker.dynamicFunctionReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\Helpers\ResponseExtension
+        tags:
+            - phpstan.broker.dynamicFunctionReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\Helpers\ValidatorExtension
+        tags:
+            - phpstan.broker.dynamicFunctionReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\CollectionFilterDynamicReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+    -
+        class: Larastan\Larastan\ReturnTypes\CollectionWhereNotNullDynamicReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\CollectionGenericStaticMethodDynamicMethodReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\NewModelQueryDynamicMethodReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\FactoryDynamicMethodReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\CollectionGenericStaticMethodDynamicStaticMethodReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\Types\AbortIfFunctionTypeSpecifyingExtension
+        tags:
+            - phpstan.typeSpecifier.functionTypeSpecifyingExtension
+        arguments:
+            methodName: 'abort'
+            negate: false
+
+    -
+        class: Larastan\Larastan\Types\AbortIfFunctionTypeSpecifyingExtension
+        tags:
+            - phpstan.typeSpecifier.functionTypeSpecifyingExtension
+        arguments:
+            methodName: 'abort'
+            negate: true
+
+    -
+        class: Larastan\Larastan\Types\AbortIfFunctionTypeSpecifyingExtension
+        tags:
+            - phpstan.typeSpecifier.functionTypeSpecifyingExtension
+        arguments:
+            methodName: throw
+            negate: false
+
+    -
+        class: Larastan\Larastan\Types\AbortIfFunctionTypeSpecifyingExtension
+        tags:
+            - phpstan.typeSpecifier.functionTypeSpecifyingExtension
+        arguments:
+            methodName: throw
+            negate: true
+
+    -
+        class: Larastan\Larastan\ReturnTypes\Helpers\AppExtension
+        tags:
+            - phpstan.broker.dynamicFunctionReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\Helpers\ValueExtension
+        tags:
+            - phpstan.broker.dynamicFunctionReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\Helpers\TapExtension
+        tags:
+            - phpstan.broker.dynamicFunctionReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\StorageDynamicStaticMethodReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\Types\GenericEloquentCollectionTypeNodeResolverExtension
+        tags:
+            - phpstan.phpDoc.typeNodeResolverExtension
+
+    -
+        class: Larastan\Larastan\Types\ViewStringTypeNodeResolverExtension
+        tags:
+            - phpstan.phpDoc.typeNodeResolverExtension
+
+    -
+        class: Larastan\Larastan\Rules\OctaneCompatibilityRule
+
+    -
+        class: Larastan\Larastan\Rules\NoModelMakeRule
+
+    -
+        class: Larastan\Larastan\Rules\NoUnnecessaryCollectionCallRule
+        arguments:
+            onlyMethods: %noUnnecessaryCollectionCallOnly%
+            excludeMethods: %noUnnecessaryCollectionCallExcept%
+
+    -
+        class: Larastan\Larastan\Rules\ModelProperties\ModelPropertyRule
+
+    -
+        class: Larastan\Larastan\Rules\ModelProperties\ModelPropertyStaticCallRule
+
+    -
+        class: Larastan\Larastan\Types\GenericEloquentBuilderTypeNodeResolverExtension
+        tags:
+            - phpstan.phpDoc.typeNodeResolverExtension
+    -
+        class: Larastan\Larastan\ReturnTypes\AppEnvironmentReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\Types\ModelProperty\ModelPropertyTypeNodeResolverExtension
+        tags:
+            - phpstan.phpDoc.typeNodeResolverExtension
+        arguments:
+            active: %checkModelProperties%
+
+    -
+        class: Larastan\Larastan\Types\RelationParserHelper
+        arguments:
+            parser: @currentPhpVersionSimpleDirectParser
+
+    -
+        class: Larastan\Larastan\Properties\MigrationHelper
+        arguments:
+            databaseMigrationPath: %databaseMigrationsPath%
+            disableMigrationScan: %disableMigrationScan%
+            parser: @currentPhpVersionSimpleDirectParser
+
+    -
+        class: Larastan\Larastan\Properties\SquashedMigrationHelper
+        arguments:
+            schemaPaths: %squashedMigrationsPath%
+            disableSchemaScan: %disableSchemaScan%
+
+    -
+        class: Larastan\Larastan\Properties\ModelCastHelper
+
+    -
+        class: Larastan\Larastan\Rules\ModelProperties\ModelPropertiesRuleHelper
+
+    -
+        class: Larastan\Larastan\Rules\ModelRuleHelper
+
+    -
+        class: Larastan\Larastan\Methods\BuilderHelper
+        arguments:
+            checkProperties: %checkModelProperties%
+
+    -
+        class: Larastan\Larastan\Rules\RelationExistenceRule
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: Larastan\Larastan\Rules\CheckDispatchArgumentTypesCompatibleWithClassConstructorRule
+        arguments:
+            dispatchableClass: Illuminate\Foundation\Bus\Dispatchable
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Larastan\Larastan\Rules\CheckDispatchArgumentTypesCompatibleWithClassConstructorRule
+        arguments:
+            dispatchableClass: Illuminate\Foundation\Events\Dispatchable
+        tags:
+            - phpstan.rules.rule
+    - Larastan\Larastan\Properties\Schema\PhpMyAdminDataTypeToPhpTypeConverter
+
+    -
+        class: Larastan\Larastan\LarastanStubFilesExtension
+        tags: [phpstan.stubFilesExtension]
+
+    -
+        class: Larastan\Larastan\Rules\UnusedViewsRule
+
+    -
+        class: Larastan\Larastan\Collectors\UsedViewFunctionCollector
+        tags:
+            - phpstan.collector
+
+    -
+        class: Larastan\Larastan\Collectors\UsedEmailViewCollector
+        tags:
+            - phpstan.collector
+
+    -
+        class: Larastan\Larastan\Collectors\UsedViewMakeCollector
+        tags:
+            - phpstan.collector
+
+    -
+        class: Larastan\Larastan\Collectors\UsedViewFacadeMakeCollector
+        tags:
+            - phpstan.collector
+
+    -
+        class: Larastan\Larastan\Collectors\UsedRouteFacadeViewCollector
+        tags:
+            - phpstan.collector
+    -
+        class: Larastan\Larastan\Collectors\UsedViewInAnotherViewCollector
+        arguments:
+            parser: @currentPhpVersionSimpleDirectParser
+    -
+        class: Larastan\Larastan\Support\ViewFileHelper
+        arguments:
+            viewDirectories: %viewDirectories%
+
+#    -
+#        class: Larastan\Larastan\ReturnTypes\ApplicationMakeDynamicReturnTypeExtension
+#        tags:
+#            - phpstan.broker.dynamicMethodReturnTypeExtension
+#
+#    -
+#        class: Larastan\Larastan\ReturnTypes\ContainerMakeDynamicReturnTypeExtension
+#        tags:
+#            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Larastan\Larastan\ReturnTypes\ConsoleCommand\ArgumentDynamicReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+    -
+        class: Larastan\Larastan\ReturnTypes\ConsoleCommand\HasArgumentDynamicReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+    -
+        class: Larastan\Larastan\ReturnTypes\ConsoleCommand\OptionDynamicReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+    -
+        class: Larastan\Larastan\ReturnTypes\ConsoleCommand\HasOptionDynamicReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+    -
+        class: Larastan\Larastan\ReturnTypes\TranslatorGetReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+    -
+        class: Larastan\Larastan\ReturnTypes\TransHelperReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicFunctionReturnTypeExtension
+    -
+        class: Larastan\Larastan\ReturnTypes\DoubleUnderscoreHelperReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicFunctionReturnTypeExtension
+
+    - Larastan\Larastan\ReturnTypes\AppMakeHelper
+    - Larastan\Larastan\Internal\ConsoleApplicationResolver
+    - Larastan\Larastan\Internal\ConsoleApplicationHelper
+    - Larastan\Larastan\Support\HigherOrderCollectionProxyHelper
+
+rules:
+    - Larastan\Larastan\Rules\UselessConstructs\NoUselessWithFunctionCallsRule
+    - Larastan\Larastan\Rules\UselessConstructs\NoUselessValueFunctionCallsRule
+    - Larastan\Larastan\Rules\DeferrableServiceProviderMissingProvidesRule
+    - Larastan\Larastan\Rules\ConsoleCommand\UndefinedArgumentOrOptionRule

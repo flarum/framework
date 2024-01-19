@@ -12,14 +12,14 @@ namespace Flarum\Foundation;
 use InvalidArgumentException;
 
 /**
- * @property-read string base
- * @property-read string public
- * @property-read string storage
- * @property-read string vendor
+ * @property-read string $base
+ * @property-read string $public
+ * @property-read string $storage
+ * @property-read string $vendor
  */
 class Paths
 {
-    private $paths;
+    private array $paths;
 
     public function __construct(array $paths)
     {
@@ -37,7 +37,7 @@ class Paths
         $this->paths['vendor'] = $this->vendor ?? $this->base.'/vendor';
     }
 
-    public function __get($name): ?string
+    public function __get(string $name): ?string
     {
         return $this->paths[$name] ?? null;
     }

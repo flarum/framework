@@ -19,37 +19,18 @@ use Less_Parser;
  */
 class LessCompiler extends RevisionCompiler
 {
-    /**
-     * @var string
-     */
-    protected $cacheDir;
-
-    /**
-     * @var array
-     */
-    protected $importDirs = [];
-
-    /**
-     * @var array
-     */
-    protected $customFunctions = [];
-
-    /**
-     * @var Collection
-     */
-    protected $lessImportOverrides;
-
-    /**
-     * @var Collection
-     */
-    protected $fileSourceOverrides;
+    protected string $cacheDir;
+    protected array $importDirs = [];
+    protected array $customFunctions = [];
+    protected ?Collection $lessImportOverrides = null;
+    protected ?Collection $fileSourceOverrides = null;
 
     public function getCacheDir(): string
     {
         return $this->cacheDir;
     }
 
-    public function setCacheDir(string $cacheDir)
+    public function setCacheDir(string $cacheDir): void
     {
         $this->cacheDir = $cacheDir;
     }
@@ -59,22 +40,22 @@ class LessCompiler extends RevisionCompiler
         return $this->importDirs;
     }
 
-    public function setImportDirs(array $importDirs)
+    public function setImportDirs(array $importDirs): void
     {
         $this->importDirs = $importDirs;
     }
 
-    public function setLessImportOverrides(array $lessImportOverrides)
+    public function setLessImportOverrides(array $lessImportOverrides): void
     {
         $this->lessImportOverrides = new Collection($lessImportOverrides);
     }
 
-    public function setFileSourceOverrides(array $fileSourceOverrides)
+    public function setFileSourceOverrides(array $fileSourceOverrides): void
     {
         $this->fileSourceOverrides = new Collection($fileSourceOverrides);
     }
 
-    public function setCustomFunctions(array $customFunctions)
+    public function setCustomFunctions(array $customFunctions): void
     {
         $this->customFunctions = $customFunctions;
     }
@@ -88,7 +69,7 @@ class LessCompiler extends RevisionCompiler
             return '';
         }
 
-        ini_set('xdebug.max_nesting_level', 200);
+        ini_set('xdebug.max_nesting_level', '200');
 
         $parser = new Less_Parser([
             'compress' => true,

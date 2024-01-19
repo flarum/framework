@@ -10,15 +10,13 @@
 namespace Flarum\Notification;
 
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Blueprint\DiscussionRenamedBlueprint;
 use Illuminate\Contracts\Container\Container;
 
 class NotificationServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    public function register(): void
     {
         $this->container->singleton('flarum.notification.drivers', function () {
             return [
@@ -34,29 +32,20 @@ class NotificationServiceProvider extends AbstractServiceProvider
         });
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function boot(Container $container)
+    public function boot(Container $container): void
     {
         $this->setNotificationDrivers($container);
         $this->setNotificationTypes($container);
     }
 
-    /**
-     * Register notification drivers.
-     */
-    protected function setNotificationDrivers(Container $container)
+    protected function setNotificationDrivers(Container $container): void
     {
         foreach ($container->make('flarum.notification.drivers') as $driverName => $driver) {
             NotificationSyncer::addNotificationDriver($driverName, $container->make($driver));
         }
     }
 
-    /**
-     * Register notification types.
-     */
-    protected function setNotificationTypes(Container $container)
+    protected function setNotificationTypes(Container $container): void
     {
         $blueprints = $container->make('flarum.notification.blueprints');
 
@@ -65,16 +54,19 @@ class NotificationServiceProvider extends AbstractServiceProvider
         }
     }
 
-    protected function addType(string $blueprint, array $driversEnabledByDefault)
+    /**
+     * @param class-string<BlueprintInterface> $blueprintClass
+     */
+    protected function addType(string $blueprintClass, array $driversEnabledByDefault): void
     {
         Notification::setSubjectModel(
-            $type = $blueprint::getType(),
-            $blueprint::getSubjectModel()
+            $blueprintClass::getType(),
+            $blueprintClass::getSubjectModel()
         );
 
         foreach (NotificationSyncer::getNotificationDrivers() as $driverName => $driver) {
             $driver->registerType(
-                $blueprint,
+                $blueprintClass,
                 $driversEnabledByDefault
             );
         }

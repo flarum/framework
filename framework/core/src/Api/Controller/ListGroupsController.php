@@ -10,56 +10,29 @@
 namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\GroupSerializer;
-use Flarum\Group\Filter\GroupFilterer;
+use Flarum\Group\Group;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
-use Flarum\Query\QueryCriteria;
+use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearchManager;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 class ListGroupsController extends AbstractListController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = GroupSerializer::class;
+    public ?string $serializer = GroupSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $sortFields = ['nameSingular', 'namePlural', 'isHidden'];
+    public array $sortFields = ['nameSingular', 'namePlural', 'isHidden'];
 
-    /**
-     * {@inheritdoc}
-     *
-     * @var int
-     */
-    public $limit = -1;
+    public int $limit = -1;
 
-    /**
-     * @var GroupFilterer
-     */
-    protected $filterer;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @param GroupFilterer $filterer
-     * @param UrlGenerator $url
-     */
-    public function __construct(GroupFilterer $filterer, UrlGenerator $url)
-    {
-        $this->filterer = $filterer;
-        $this->url = $url;
+    public function __construct(
+        protected SearchManager $search,
+        protected UrlGenerator $url
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
 
@@ -70,9 +43,10 @@ class ListGroupsController extends AbstractListController
         $limit = $this->extractLimit($request);
         $offset = $this->extractOffset($request);
 
-        $criteria = new QueryCriteria($actor, $filters, $sort, $sortIsDefault);
-
-        $queryResults = $this->filterer->filter($criteria, $limit, $offset);
+        $queryResults = $this->search->query(
+            Group::class,
+            new SearchCriteria($actor, $filters, $limit, $offset, $sort, $sortIsDefault)
+        );
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('groups.index'),

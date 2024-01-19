@@ -9,21 +9,15 @@
 
 namespace Flarum\Queue;
 
-use Exception;
 use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandling;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
 class ExceptionHandler implements ExceptionHandling
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
+    public function __construct(
+        private readonly LoggerInterface $logger
+    ) {
     }
 
     /**
@@ -42,9 +36,9 @@ class ExceptionHandler implements ExceptionHandling
      *
      * @param  \Illuminate\Http\Request $request
      * @param  Throwable               $e
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return void
      */
-    public function render($request, Throwable $e)
+    public function render($request, Throwable $e) /** @phpstan-ignore-line */
     {
         // TODO: Implement render() method.
     }

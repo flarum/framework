@@ -11,7 +11,9 @@ namespace Flarum\Mentions\Tests\integration\api;
 
 use Carbon\Carbon;
 use Flarum\Extend;
+use Flarum\Formatter\Formatter;
 use Flarum\Post\CommentPost;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\DisplayName\DriverInterface;
@@ -38,6 +40,7 @@ class PostMentionsTest extends TestCase
             ],
             'discussions' => [
                 ['id' => 2, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 3, 'first_post_id' => 4, 'comment_count' => 2],
+                ['id' => 50, 'title' => __CLASS__, 'is_private' => true, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 3, 'first_post_id' => 4, 'comment_count' => 1],
             ],
             'posts' => [
                 ['id' => 4, 'number' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><POSTMENTION displayname="TobyFlarum___" id="5" number="2" discussionid="2" username="toby">@tobyuuu#5</POSTMENTION></r>'],
@@ -49,6 +52,9 @@ class PostMentionsTest extends TestCase
                 ['id' => 10, 'number' => 11, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 4, 'type' => 'comment', 'content' => '<r><POSTMENTION displayname="Bad &quot;#p6 User" id="9" number="10" discussionid="2">@"Bad "#p6 User"#p9</POSTMENTION></r>'],
                 ['id' => 11, 'number' => 12, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 40, 'type' => 'comment', 'content' => '<r><POSTMENTION displayname="Bad &quot;#p6 User" id="9" number="10" discussionid="2">@"Bad "#p6 User"#p9</POSTMENTION></r>'],
                 ['id' => 12, 'number' => 13, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 4, 'type' => 'comment', 'content' => '<r><POSTMENTION displayname="deleted_user" id="11" number="12" discussionid="2">@"acme"#p11</POSTMENTION></r>'],
+
+                // Restricted access
+                ['id' => 50, 'number' => 1, 'discussion_id' => 50, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r>no</r>'],
             ],
             'post_mentions_post' => [
                 ['post_id' => 4, 'mentions_post_id' => 5],
@@ -126,6 +132,37 @@ class PostMentionsTest extends TestCase
         $this->assertEquals('@"POTATO$"#p4', $response['data']['attributes']['content']);
         $this->assertStringContainsString('PostMention', $response['data']['attributes']['contentHtml']);
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsPosts->find(4));
+    }
+
+    /**
+     * @test
+     */
+    public function cannot_mention_a_post_without_access()
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/posts', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'content' => '@"potato"#p50',
+                        ],
+                        'relationships' => [
+                            'discussion' => ['data' => ['id' => 2]],
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $response = json_decode($response->getBody(), true);
+
+        $this->assertStringContainsString('potato', $response['data']['attributes']['contentHtml']);
+        $this->assertEquals('@"potato"#p50', $response['data']['attributes']['content']);
+        $this->assertStringNotContainsString('PostMention', $response['data']['attributes']['contentHtml']);
+        $this->assertNull(CommentPost::find($response['data']['id'])->mentionsPosts->find(50));
     }
 
     /**
@@ -502,6 +539,40 @@ class PostMentionsTest extends TestCase
         $this->assertEquals('@"[deleted]"#p11', $response['data']['attributes']['content']);
         $this->assertStringContainsString('PostMention', $response['data']['attributes']['contentHtml']);
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsPosts->find(11));
+    }
+
+    /**
+     * @test
+     */
+    public function rendering_post_mention_with_a_post_context_works()
+    {
+        /** @var Formatter $formatter */
+        $formatter = $this->app()->getContainer()->make(Formatter::class);
+
+        $post = Post::find(4);
+        $user = User::find(1);
+
+        $xml = $formatter->parse($post->content, $post, $user);
+        $renderedHtml = $formatter->render($xml, $post);
+
+        $this->assertStringContainsString('TOBY$', $renderedHtml);
+    }
+
+    /**
+     * @test
+     */
+    public function rendering_post_mention_without_a_context_works()
+    {
+        /** @var Formatter $formatter */
+        $formatter = $this->app()->getContainer()->make(Formatter::class);
+
+        $post = Post::find(4);
+        $user = User::find(1);
+
+        $xml = $formatter->parse($post->content, null, $user);
+        $renderedHtml = $formatter->render($xml);
+
+        $this->assertStringContainsString('TOBY$', $renderedHtml);
     }
 }
 

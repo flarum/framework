@@ -1,4 +1,5 @@
-declare namespace _default {
+export default UserControls;
+declare namespace UserControls {
     /**
      * Get a list of controls for a user.
      *
@@ -116,5 +117,4 @@ declare namespace _default {
      */
     function editAction(user: import("../../common/models/User").default): void;
 }
-export default _default;
 import ItemList from "../../common/utils/ItemList";

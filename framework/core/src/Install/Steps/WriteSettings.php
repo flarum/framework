@@ -16,28 +16,18 @@ use Illuminate\Database\ConnectionInterface;
 
 class WriteSettings implements Step
 {
-    /**
-     * @var ConnectionInterface
-     */
-    private $database;
-
-    /**
-     * @var array
-     */
-    private $custom;
-
-    public function __construct(ConnectionInterface $database, array $custom)
-    {
-        $this->database = $database;
-        $this->custom = $custom;
+    public function __construct(
+        private readonly ConnectionInterface $database,
+        private readonly array $custom
+    ) {
     }
 
-    public function getMessage()
+    public function getMessage(): string
     {
         return 'Writing default settings';
     }
 
-    public function run()
+    public function run(): void
     {
         $repo = new DatabaseSettingsRepository($this->database);
 
@@ -48,14 +38,15 @@ class WriteSettings implements Step
         }
     }
 
-    private function getSettings()
+    private function getSettings(): array
     {
         return $this->custom + $this->getDefaults();
     }
 
-    private function getDefaults()
+    private function getDefaults(): array
     {
         return [
+            'allow_hide_own_posts' => 'reply',
             'allow_post_editing' => 'reply',
             'allow_renaming' => '10',
             'allow_sign_up' => '1',
@@ -67,6 +58,7 @@ class WriteSettings implements Step
             'forum_title' => 'A new Flarum forum',
             'forum_description' => '',
             'mail_driver' => 'mail',
+            'mail_format' => 'multipart',
             'mail_from' => 'noreply@localhost',
             'slug_driver_Flarum\User\User' => 'default',
             'theme_colored_header' => '0',

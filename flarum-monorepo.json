@@ -110,11 +110,16 @@
       }
     ],
     "npm": [
-      {
-        "name": "prettier-config",
-        "gitRemote": "git@github.com:flarum/prettier-config.git",
-        "mainBranch": "main"
-      },
+        {
+            "name": "jest-config",
+            "gitRemote": "git@github.com:flarum/jest-config.git",
+            "mainBranch": "main"
+        },
+        {
+            "name": "prettier-config",
+            "gitRemote": "git@github.com:flarum/prettier-config.git",
+            "mainBranch": "main"
+        },
       {
         "name": "webpack-config",
         "gitRemote": "git@github.com:flarum/flarum-webpack-config.git",

@@ -12,28 +12,19 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
-use Flarum\Query\QueryCriteria;
-use Flarum\User\Filter\UserFilterer;
-use Flarum\User\Search\UserSearcher;
+use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearchManager;
+use Flarum\User\User;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 class ListUsersController extends AbstractListController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = UserSerializer::class;
+    public ?string $serializer = UserSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $include = ['groups'];
+    public array $include = ['groups'];
 
-    /**
-     * {@inheritdoc}
-     */
-    public $sortFields = [
+    public array $sortFields = [
         'username',
         'commentCount',
         'discussionCount',
@@ -41,37 +32,13 @@ class ListUsersController extends AbstractListController
         'joinedAt'
     ];
 
-    /**
-     * @var UserFilterer
-     */
-    protected $filterer;
-
-    /**
-     * @var UserSearcher
-     */
-    protected $searcher;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @param UserFilterer $filterer
-     * @param UserSearcher $searcher
-     * @param UrlGenerator $url
-     */
-    public function __construct(UserFilterer $filterer, UserSearcher $searcher, UrlGenerator $url)
-    {
-        $this->filterer = $filterer;
-        $this->searcher = $searcher;
-        $this->url = $url;
+    public function __construct(
+        protected SearchManager $search,
+        protected UrlGenerator $url
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
 
@@ -92,12 +59,10 @@ class ListUsersController extends AbstractListController
         $offset = $this->extractOffset($request);
         $include = $this->extractInclude($request);
 
-        $criteria = new QueryCriteria($actor, $filters, $sort, $sortIsDefault);
-        if (array_key_exists('q', $filters)) {
-            $results = $this->searcher->search($criteria, $limit, $offset);
-        } else {
-            $results = $this->filterer->filter($criteria, $limit, $offset);
-        }
+        $results = $this->search->query(
+            User::class,
+            new SearchCriteria($actor, $filters, $limit, $offset, $sort, $sortIsDefault)
+        );
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('users.index'),

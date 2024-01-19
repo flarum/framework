@@ -9,6 +9,7 @@
 
 namespace Flarum\Approval\Listener;
 
+use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Flags\Flag;
 use Flarum\Post\CommentPost;
@@ -17,18 +18,12 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class UnapproveNewContent
 {
-    /**
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
+    public function subscribe(Dispatcher $events): void
     {
-        $events->listen(Saving::class, [$this, 'unapproveNewPosts']);
+        $events->listen(Saving::class, $this->unapproveNewPosts(...));
     }
 
-    /**
-     * @param Saving $event
-     */
-    public function unapproveNewPosts(Saving $event)
+    public function unapproveNewPosts(Saving $event): void
     {
         $post = $event->post;
 
@@ -55,21 +50,19 @@ class UnapproveNewContent
 
                 $flag->post_id = $post->id;
                 $flag->type = 'approval';
-                $flag->created_at = time();
+                $flag->created_at = Carbon::now();
 
                 $flag->save();
             });
         }
     }
 
-    /**
-     * @param Discussion|CommentPost $instance
-     * @return bool|null
-     */
-    public static function markUnapprovedContentAsPrivate($instance)
+    public static function markUnapprovedContentAsPrivate(Discussion|CommentPost $instance): ?bool
     {
         if (! $instance->is_approved) {
             return true;
         }
+
+        return null;
     }
 }

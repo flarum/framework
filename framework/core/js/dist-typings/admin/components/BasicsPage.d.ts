@@ -7,6 +7,10 @@ export declare type HomePageItem = {
     path: string;
     label: Mithril.Children;
 };
+export declare type DriverLocale = {
+    display_name: Record<string, string>;
+    slug: Record<string, Record<string, string>>;
+};
 export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends AdminPage<CustomAttrs> {
     localeOptions: Record<string, string>;
     displayNameOptions: Record<string, string>;
@@ -24,4 +28,5 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
      * object with `path` and `label` properties.
      */
     homePageItems(): ItemList<HomePageItem>;
+    driverLocale(): DriverLocale;
 }

@@ -12,27 +12,12 @@ namespace Flarum\PackageManager\Command;
 use Flarum\PackageManager\Task\Task;
 use Flarum\User\User;
 
-class MajorUpdate implements BusinessCommandInterface
+class MajorUpdate extends AbstractActionCommand
 {
-    /**
-     * @var Task
-     */
-    public $task = null;
-
-    /**
-     * @var \Flarum\User\User
-     */
-    public $actor;
-
-    /**
-     * @var bool
-     */
-    public $dryRun;
-
-    public function __construct(User $actor, bool $dryRun)
-    {
-        $this->actor = $actor;
-        $this->dryRun = $dryRun;
+    public function __construct(
+        public User $actor,
+        public bool $dryRun
+    ) {
     }
 
     public function getOperationName(): string

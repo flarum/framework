@@ -14,6 +14,8 @@ use Flarum\Database\AbstractModel;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Arr;
 
 /**
@@ -35,22 +37,27 @@ use Illuminate\Support\Arr;
  * @property int|null $from_user_id
  * @property string $type
  * @property int|null $subject_id
- * @property mixed|null $data
+ * @property array|null $data
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $read_at
  * @property \Carbon\Carbon $deleted_at
- * @property \Flarum\User\User|null $user
- * @property \Flarum\User\User|null $fromUser
- * @property \Flarum\Database\AbstractModel|null $subject
+ * @property-read \Flarum\User\User|null $user
+ * @property-read \Flarum\User\User|null $fromUser
+ * @property-read \Flarum\Database\AbstractModel|\Flarum\Post\Post|\Flarum\Discussion\Discussion|null $subject
+ * @method static \Illuminate\Database\Eloquent\Builder<Notification> matchingBlueprint(BlueprintInterface $blueprint)
  */
 class Notification extends AbstractModel
 {
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['created_at', 'read_at'];
+    protected $casts = [
+        'id' => 'integer',
+        'user_id' => 'integer',
+        'from_user_id' => 'integer',
+        'subject_id' => 'integer',
+        'data' => 'array',
+        'created_at' => 'datetime',
+        'read_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
 
     /**
      * A map of notification types and the model classes to use for their
@@ -58,82 +65,38 @@ class Notification extends AbstractModel
      * represents that a user's discussion was renamed, has the subject model
      * class 'Flarum\Discussion\Discussion'.
      *
-     * @var array
+     * @var array<string, class-string<AbstractModel>>
      */
-    protected static $subjectModels = [];
+    protected static array $subjectModels = [];
 
-    /**
-     * Mark a notification as read.
-     *
-     * @return void
-     */
-    public function read()
+    public function read(): void
     {
         $this->read_at = Carbon::now();
     }
 
     /**
-     * When getting the data attribute, unserialize the JSON stored in the
-     * database into a plain array.
-     *
-     * @param string $value
-     * @return mixed
-     */
-    public function getDataAttribute($value)
-    {
-        return $value !== null
-            ? json_decode($value, true)
-            : null;
-    }
-
-    /**
-     * When setting the data attribute, serialize it into JSON for storage in
-     * the database.
-     *
-     * @param mixed $value
-     */
-    public function setDataAttribute($value)
-    {
-        $this->attributes['data'] = json_encode($value);
-    }
-
-    /**
      * Get the subject model for this notification record by looking up its
      * type in our subject model map.
-     *
-     * @return string|null
      */
-    public function getSubjectModelAttribute()
+    public function getSubjectModelAttribute(): ?string
     {
         return $this->type ? Arr::get(static::$subjectModels, $this->type) : null;
     }
 
-    /**
-     * Define the relationship with the notification's recipient.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Define the relationship with the notification's sender.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function fromUser()
+    public function fromUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'from_user_id');
     }
 
     /**
-     * Define the relationship with the notification's subject.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     * @return MorphTo
      */
-    public function subject()
+    public function subject(): MorphTo
     {
         return $this->morphTo('subject', 'subjectModel');
     }
@@ -141,11 +104,8 @@ class Notification extends AbstractModel
     /**
      * Scope the query to include only notifications whose subjects are visible
      * to the given user.
-     *
-     * @param Builder $query
-     * @return Builder
      */
-    public function scopeWhereSubjectVisibleTo(Builder $query, User $actor)
+    public function scopeWhereSubjectVisibleTo(Builder $query, User $actor): Builder
     {
         return $query->where(function ($query) use ($actor) {
             $classes = [];
@@ -174,29 +134,21 @@ class Notification extends AbstractModel
     /**
      * Scope the query to include only notifications that have the given
      * subject.
-     *
-     * @param Builder $query
-     * @param object $model
-     * @return Builder
      */
-    public function scopeWhereSubject(Builder $query, $model)
+    public function scopeWhereSubject(Builder $query, AbstractModel $model): Builder
     {
-        return $query->whereSubjectModel(get_class($model))
-            ->where('subject_id', $model->id);
+        return $query->whereSubjectModel($model::class)
+            ->where('subject_id', $model->getAttribute('id'));
     }
 
     /**
      * Scope the query to include only notification types that use the given
      * subject model.
-     *
-     * @param Builder $query
-     * @param string $class
-     * @return Builder
      */
-    public function scopeWhereSubjectModel(Builder $query, string $class)
+    public function scopeWhereSubjectModel(Builder $query, string $class): Builder
     {
-        $notificationTypes = array_filter(self::getSubjectModels(), function ($modelClass) use ($class) {
-            return $modelClass === $class or is_subclass_of($class, $modelClass);
+        $notificationTypes = array_filter(self::getSubjectModels(), function (string $modelClass) use ($class) {
+            return $modelClass === $class || is_subclass_of($class, $modelClass);
         });
 
         return $query->whereIn('type', array_keys($notificationTypes));
@@ -204,12 +156,8 @@ class Notification extends AbstractModel
 
     /**
      * Scope the query to find all records matching the given blueprint.
-     *
-     * @param Builder $query
-     * @param BlueprintInterface $blueprint
-     * @return Builder
      */
-    public function scopeMatchingBlueprint(Builder $query, BlueprintInterface $blueprint)
+    public function scopeMatchingBlueprint(Builder $query, BlueprintInterface $blueprint): Builder
     {
         return $query->where(static::getBlueprintAttributes($blueprint));
     }
@@ -218,9 +166,8 @@ class Notification extends AbstractModel
      * Send notifications to the given recipients.
      *
      * @param User[] $recipients
-     * @param BlueprintInterface $blueprint
      */
-    public static function notify(array $recipients, BlueprintInterface $blueprint)
+    public static function notify(array $recipients, BlueprintInterface $blueprint): void
     {
         $attributes = static::getBlueprintAttributes($blueprint);
         $now = Carbon::now()->toDateTimeString();
@@ -237,10 +184,8 @@ class Notification extends AbstractModel
 
     /**
      * Get the type-to-subject-model map.
-     *
-     * @return array
      */
-    public static function getSubjectModels()
+    public static function getSubjectModels(): array
     {
         return static::$subjectModels;
     }
@@ -249,21 +194,20 @@ class Notification extends AbstractModel
      * Set the subject model for the given notification type.
      *
      * @param string $type The notification type.
-     * @param string $subjectModel The class name of the subject model for that
+     * @param class-string<AbstractModel> $subjectModel The class name of the subject model for that
      *     type.
-     * @return void
      */
-    public static function setSubjectModel($type, $subjectModel)
+    public static function setSubjectModel(string $type, string $subjectModel): void
     {
         static::$subjectModels[$type] = $subjectModel;
     }
 
-    private static function getBlueprintAttributes(BlueprintInterface $blueprint): array
+    protected static function getBlueprintAttributes(BlueprintInterface $blueprint): array
     {
         return [
             'type' => $blueprint::getType(),
             'from_user_id' => ($fromUser = $blueprint->getFromUser()) ? $fromUser->id : null,
-            'subject_id' => ($subject = $blueprint->getSubject()) ? $subject->id : null,
+            'subject_id' => ($subject = $blueprint->getSubject()) ? $subject->getAttribute('id') : null,
             'data' => ($data = $blueprint->getData()) ? json_encode($data) : null
         ];
     }

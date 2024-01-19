@@ -1,8 +1,7 @@
 import app from '../../forum/app';
 import subclassOf from '../../common/utils/subclassOf';
 import Stream from '../../common/utils/Stream';
-import ReplyComposer from '../components/ReplyComposer';
-import EditorDriverInterface from '../../common/utils/EditorDriverInterface';
+import Component from '../../common/Component';
 
 class ComposerState {
   constructor() {
@@ -31,9 +30,16 @@ class ComposerState {
     /**
      * A reference to the text editor that allows text manipulation.
      *
-     * @type {EditorDriverInterface|null}
+     * @type {import('../../common/utils/EditorDriverInterface')|null}
      */
     this.editor = null;
+
+    /**
+     * If the composer was loaded and mounted.
+     *
+     * @type {boolean}
+     */
+    this.mounted = false;
 
     this.clear();
   }
@@ -41,9 +47,14 @@ class ComposerState {
   /**
    * Load a content component into the composer.
    *
-   * @param {typeof import('../components/ComposerBody').default} componentClass
+   * @param {() => Promise<any & { default: typeof import('../components/ComposerBody') }> | typeof import('../components/ComposerBody').default} componentClass
+   * @param {object} attrs
    */
-  load(componentClass, attrs) {
+  async load(componentClass, attrs) {
+    if (!(componentClass.prototype instanceof Component)) {
+      componentClass = (await componentClass()).default;
+    }
+
     const body = { componentClass, attrs };
 
     if (this.preventExit()) return;
@@ -82,7 +93,13 @@ class ComposerState {
   /**
    * Show the composer.
    */
-  show() {
+  async show() {
+    if (!this.mounted) {
+      const Composer = (await import('../components/Composer')).default;
+      m.mount(document.getElementById('composer'), { view: () => <Composer state={this} /> });
+      this.mounted = true;
+    }
+
     if (this.position === ComposerState.Position.NORMAL || this.position === ComposerState.Position.FULLSCREEN) return;
 
     this.position = ComposerState.Position.NORMAL;
@@ -186,6 +203,10 @@ class ComposerState {
    * @return {boolean}
    */
   composingReplyTo(discussion) {
+    const ReplyComposer = flarum.reg.checkModule('core', 'forum/components/ReplyComposer');
+
+    if (!ReplyComposer) return false;
+
     return this.isVisible() && this.bodyMatches(ReplyComposer, { discussion });
   }
 

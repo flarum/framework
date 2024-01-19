@@ -9,6 +9,7 @@
 
 namespace Flarum\Suspend\Listener;
 
+use Carbon\Carbon;
 use DateTime;
 use Flarum\Suspend\Event\Suspended;
 use Flarum\Suspend\Event\Unsuspended;
@@ -19,29 +20,13 @@ use Illuminate\Support\Arr;
 
 class SaveSuspensionToDatabase
 {
-    /**
-     * Validator for limited suspension.
-     *
-     * @var SuspendValidator
-     */
-    protected $validator;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @param SuspendValidator $validator
-     * @param Dispatcher $events
-     */
-    public function __construct(SuspendValidator $validator, Dispatcher $events)
-    {
-        $this->validator = $validator;
-        $this->events = $events;
+    public function __construct(
+        protected SuspendValidator $validator,
+        protected Dispatcher $events
+    ) {
     }
 
-    public function handle(Saving $event)
+    public function handle(Saving $event): void
     {
         $attributes = Arr::get($event->data, 'attributes', []);
 
@@ -54,7 +39,7 @@ class SaveSuspensionToDatabase
             $actor->assertCan('suspend', $user);
 
             if ($attributes['suspendedUntil']) {
-                $user->suspended_until = new DateTime($attributes['suspendedUntil']);
+                $user->suspended_until = Carbon::createFromTimestamp((new DateTime($attributes['suspendedUntil']))->getTimestamp());
                 $user->suspend_reason = empty($attributes['suspendReason']) ? null : $attributes['suspendReason'];
                 $user->suspend_message = empty($attributes['suspendMessage']) ? null : $attributes['suspendMessage'];
             } else {

@@ -1,19 +1,14 @@
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
 import Button from 'flarum/common/components/Button';
-import EditUserModal from 'flarum/common/components/EditUserModal';
-import SignUpModal from 'flarum/forum/components/SignUpModal';
-import SettingsPage from 'flarum/forum/components/SettingsPage';
-import Model from 'flarum/common/Model';
-import User from 'flarum/common/models/User';
 import extractText from 'flarum/common/utils/extractText';
 import Stream from 'flarum/common/utils/Stream';
 import NickNameModal from './components/NicknameModal';
 
-app.initializers.add('flarum/nicknames', () => {
-  User.prototype.canEditNickname = Model.attribute('canEditNickname');
+export { default as extend } from './extend';
 
-  extend(SettingsPage.prototype, 'accountItems', function (items) {
+app.initializers.add('flarum/nicknames', () => {
+  extend('flarum/forum/components/SettingsPage', 'accountItems', function (items) {
     if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
 
     if (this.user.canEditNickname()) {
@@ -26,11 +21,11 @@ app.initializers.add('flarum/nicknames', () => {
     }
   });
 
-  extend(EditUserModal.prototype, 'oninit', function () {
+  extend('flarum/common/components/EditUserModal', 'oninit', function () {
     this.nickname = Stream(this.attrs.user.displayName());
   });
 
-  extend(EditUserModal.prototype, 'fields', function (items) {
+  extend('flarum/common/components/EditUserModal', 'fields', function (items) {
     if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
 
     if (!this.attrs.user.canEditNickname()) return;
@@ -49,7 +44,7 @@ app.initializers.add('flarum/nicknames', () => {
     );
   });
 
-  extend(EditUserModal.prototype, 'data', function (data) {
+  extend('flarum/common/components/EditUserModal', 'data', function (data) {
     if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
 
     if (!this.attrs.user.canEditNickname()) return;
@@ -59,13 +54,13 @@ app.initializers.add('flarum/nicknames', () => {
     }
   });
 
-  extend(SignUpModal.prototype, 'oninit', function () {
+  extend('flarum/forum/components/SignUpModal', 'oninit', function () {
     if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
 
     this.nickname = Stream(this.attrs.username || '');
   });
 
-  extend(SignUpModal.prototype, 'onready', function () {
+  extend('flarum/forum/components/SignUpModal', 'onready', function () {
     if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
 
     if (app.forum.attribute('setNicknameOnRegistration') && app.forum.attribute('randomizeUsernameOnRegistration')) {
@@ -73,7 +68,7 @@ app.initializers.add('flarum/nicknames', () => {
     }
   });
 
-  extend(SignUpModal.prototype, 'fields', function (items) {
+  extend('flarum/forum/components/SignUpModal', 'fields', function (items) {
     if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
 
     if (app.forum.attribute('setNicknameOnRegistration')) {
@@ -99,7 +94,7 @@ app.initializers.add('flarum/nicknames', () => {
     }
   });
 
-  extend(SignUpModal.prototype, 'submitData', function (data) {
+  extend('flarum/forum/components/SignUpModal', 'submitData', function (data) {
     if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
 
     if (app.forum.attribute('setNicknameOnRegistration')) {

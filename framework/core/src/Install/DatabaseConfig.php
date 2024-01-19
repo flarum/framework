@@ -13,46 +13,37 @@ use Illuminate\Contracts\Support\Arrayable;
 
 class DatabaseConfig implements Arrayable
 {
-    private $driver;
-    private $host;
-    private $port;
-    private $database;
-    private $username;
-    private $password;
-    private $prefix;
-
-    public function __construct($driver, $host, $port, $database, $username, $password, $prefix)
-    {
-        $this->driver = $driver;
-        $this->host = $host;
-        $this->port = $port;
-        $this->database = $database;
-        $this->username = $username;
-        $this->password = $password;
-        $this->prefix = $prefix;
-
+    public function __construct(
+        private readonly string $driver,
+        private readonly string $host,
+        private readonly int $port,
+        private readonly string $database,
+        private readonly string $username,
+        private readonly string $password,
+        private readonly string $prefix
+    ) {
         $this->validate();
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         return [
-            'driver'    => $this->driver,
-            'host'      => $this->host,
-            'port'      => $this->port,
-            'database'  => $this->database,
-            'username'  => $this->username,
-            'password'  => $this->password,
-            'charset'   => 'utf8mb4',
+            'driver' => $this->driver,
+            'host' => $this->host,
+            'port' => $this->port,
+            'database' => $this->database,
+            'username' => $this->username,
+            'password' => $this->password,
+            'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
-            'prefix'    => $this->prefix,
-            'strict'    => false,
-            'engine'    => 'InnoDB',
+            'prefix' => $this->prefix,
+            'strict' => false,
+            'engine' => 'InnoDB',
             'prefix_indexes' => true
         ];
     }
 
-    private function validate()
+    private function validate(): void
     {
         if (empty($this->driver)) {
             throw new ValidationFailed('Please specify a database driver.');
@@ -66,7 +57,7 @@ class DatabaseConfig implements Arrayable
             throw new ValidationFailed('Please specify the hostname of your database server.');
         }
 
-        if (! is_int($this->port) || $this->port < 1 || $this->port > 65535) {
+        if ($this->port < 1 || $this->port > 65535) {
             throw new ValidationFailed('Please provide a valid port number between 1 and 65535.');
         }
 
@@ -74,16 +65,8 @@ class DatabaseConfig implements Arrayable
             throw new ValidationFailed('Please specify the database name.');
         }
 
-        if (! is_string($this->database)) {
-            throw new ValidationFailed('The database name must be a non-empty string.');
-        }
-
         if (empty($this->username)) {
             throw new ValidationFailed('Please specify the username for accessing the database.');
-        }
-
-        if (! is_string($this->database)) {
-            throw new ValidationFailed('The username must be a non-empty string.');
         }
 
         if (! empty($this->prefix)) {

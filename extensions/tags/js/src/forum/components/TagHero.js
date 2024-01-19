@@ -1,5 +1,7 @@
 import Component from 'flarum/common/Component';
+import textContrastClass from 'flarum/common/helpers/textContrastClass';
 import tagIcon from '../../common/helpers/tagIcon';
+import classList from 'flarum/common/utils/classList';
 
 export default class TagHero extends Component {
   view() {
@@ -7,12 +9,15 @@ export default class TagHero extends Component {
     const color = tag.color();
 
     return (
-      <header className={'Hero TagHero' + (color ? ' TagHero--colored' : '')} style={color ? { '--hero-bg': color } : ''}>
+      <header
+        className={classList('Hero', 'TagHero', { 'TagHero--colored': color, [textContrastClass(color)]: color })}
+        style={color ? { '--hero-bg': color } : undefined}
+      >
         <div className="container">
           <div className="containerNarrow">
-            <h2 className="Hero-title">
+            <h1 className="Hero-title">
               {tag.icon() && tagIcon(tag, {}, { useColor: false })} {tag.name()}
-            </h2>
+            </h1>
             <div className="Hero-subtitle">{tag.description()}</div>
           </div>
         </div>

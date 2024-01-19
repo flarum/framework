@@ -20,38 +20,12 @@ use Symfony\Component\Console\Input\ArrayInput;
 
 class MajorUpdateHandler
 {
-    /**
-     * @var ComposerAdapter
-     */
-    protected $composer;
-
-    /**
-     * @var LastUpdateCheck
-     */
-    protected $lastUpdateCheck;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @var ComposerJson
-     */
-    protected $composerJson;
-
-    /**
-     * @param ComposerAdapter $composer
-     * @param LastUpdateCheck $lastUpdateCheck
-     * @param Dispatcher $events
-     * @param ComposerJson $composerJson
-     */
-    public function __construct(ComposerAdapter $composer, LastUpdateCheck $lastUpdateCheck, Dispatcher $events, ComposerJson $composerJson)
-    {
-        $this->composer = $composer;
-        $this->lastUpdateCheck = $lastUpdateCheck;
-        $this->events = $events;
-        $this->composerJson = $composerJson;
+    public function __construct(
+        protected ComposerAdapter $composer,
+        protected LastUpdateCheck $lastUpdateCheck,
+        protected Dispatcher $events,
+        protected ComposerJson $composerJson
+    ) {
     }
 
     /**
@@ -64,7 +38,7 @@ class MajorUpdateHandler
      * @throws \Flarum\User\Exception\PermissionDeniedException
      * @throws NoNewMajorVersionException|MajorUpdateFailedException
      */
-    public function handle(MajorUpdate $command)
+    public function handle(MajorUpdate $command): void
     {
         $command->actor->assertAdmin();
 

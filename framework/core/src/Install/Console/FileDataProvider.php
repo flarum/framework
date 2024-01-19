@@ -19,11 +19,12 @@ use Symfony\Component\Yaml\Yaml;
 
 class FileDataProvider implements DataProviderInterface
 {
-    protected $debug = false;
-    protected $baseUrl = null;
-    protected $databaseConfiguration = [];
-    protected $adminUser = [];
-    protected $settings = [];
+    protected bool $debug = false;
+    protected ?string $baseUrl = null;
+    protected array $databaseConfiguration = [];
+    protected array $adminUser = [];
+    protected array $settings = [];
+    protected ?array $extensions = null;
 
     public function __construct(InputInterface $input)
     {
@@ -43,11 +44,12 @@ class FileDataProvider implements DataProviderInterface
             }
 
             // Define configuration variables
-            $this->debug = $configuration['debug'] ?? false;
-            $this->baseUrl = $configuration['baseUrl'] ?? 'http://flarum.localhost';
-            $this->databaseConfiguration = $configuration['databaseConfiguration'] ?? [];
-            $this->adminUser = $configuration['adminUser'] ?? [];
-            $this->settings = $configuration['settings'] ?? [];
+            $this->debug = (bool) ($configuration['debug'] ?? false);
+            $this->baseUrl = (string) ($configuration['baseUrl'] ?? 'http://flarum.localhost');
+            $this->databaseConfiguration = (array) ($configuration['databaseConfiguration'] ?? []);
+            $this->adminUser = (array) ($configuration['adminUser'] ?? []);
+            $this->settings = (array) ($configuration['settings'] ?? []);
+            $this->extensions = isset($configuration['extensions']) ? explode(',', (string) $configuration['extensions']) : null;
         } else {
             throw new Exception('Configuration file does not exist.');
         }
@@ -60,7 +62,8 @@ class FileDataProvider implements DataProviderInterface
             ->baseUrl(BaseUrl::fromString($this->baseUrl))
             ->databaseConfig($this->getDatabaseConfiguration())
             ->adminUser($this->getAdminUser())
-            ->settings($this->settings);
+            ->settings($this->settings)
+            ->extensions($this->extensions);
     }
 
     private function getDatabaseConfiguration(): DatabaseConfig

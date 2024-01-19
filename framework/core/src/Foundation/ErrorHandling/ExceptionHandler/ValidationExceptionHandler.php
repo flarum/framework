@@ -14,7 +14,7 @@ use Flarum\Foundation\ValidationException;
 
 class ValidationExceptionHandler
 {
-    public function handle(ValidationException $e)
+    public function handle(ValidationException $e): HandledError
     {
         return (new HandledError(
             $e,
@@ -26,7 +26,7 @@ class ValidationExceptionHandler
         ));
     }
 
-    private function buildDetails(array $messages, $pointer): array
+    private function buildDetails(array $messages, string $pointer): array
     {
         return array_map(function ($path, $detail) use ($pointer) {
             return [

@@ -1,18 +1,18 @@
 import app from 'flarum/admin/app';
-import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
+import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
 import ColorPreviewInput from 'flarum/common/components/ColorPreviewInput';
 import ItemList from 'flarum/common/utils/ItemList';
 import { slug } from 'flarum/common/utils/string';
 import Stream from 'flarum/common/utils/Stream';
+import extractText from 'flarum/common/utils/extractText';
+import Form from 'flarum/common/components/Form';
+import type Mithril from 'mithril';
 
 import tagLabel from '../../common/helpers/tagLabel';
-import type Mithril from 'mithril';
 import type Tag from '../../common/models/Tag';
-import extractText from 'flarum/common/utils/extractText';
-import { ModelIdentifier } from 'flarum/common/Model';
 
-export interface EditTagModalAttrs extends IInternalModalAttrs {
+export interface EditTagModalAttrs extends IFormModalAttrs {
   primary?: boolean;
   model?: Tag;
 }
@@ -21,7 +21,7 @@ export interface EditTagModalAttrs extends IInternalModalAttrs {
  * The `EditTagModal` component shows a modal dialog which allows the user
  * to create or edit a tag.
  */
-export default class EditTagModal extends Modal<EditTagModalAttrs> {
+export default class EditTagModal extends FormModal<EditTagModalAttrs> {
   tag!: Tag;
 
   name!: Stream<string>;
@@ -59,7 +59,7 @@ export default class EditTagModal extends Modal<EditTagModalAttrs> {
   content() {
     return (
       <div className="Modal-body">
-        <div className="Form">{this.fields().toArray()}</div>
+        <Form>{this.fields().toArray()}</Form>
       </div>
     );
   }
@@ -139,21 +139,15 @@ export default class EditTagModal extends Modal<EditTagModalAttrs> {
 
     items.add(
       'submit',
-      <div className="Form-group">
-        {Button.component(
-          {
-            type: 'submit',
-            className: 'Button Button--primary EditTagModal-save',
-            loading: this.loading,
-          },
-          app.translator.trans('flarum-tags.admin.edit_tag.submit_button')
-        )}
-        {this.tag.exists ? (
+      <div className="Form-group Form-controls">
+        <Button type="submit" className="Button Button--primary EditTagModal-save" loading={this.loading}>
+          {app.translator.trans('flarum-tags.admin.edit_tag.submit_button')}
+        </Button>
+
+        {this.tag.exists && (
           <button type="button" className="Button EditTagModal-delete" onclick={this.delete.bind(this)}>
             {app.translator.trans('flarum-tags.admin.edit_tag.delete_tag_button')}
           </button>
-        ) : (
-          ''
         )}
       </div>,
       -10

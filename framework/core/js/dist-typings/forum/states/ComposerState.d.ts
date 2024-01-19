@@ -27,15 +27,24 @@ declare class ComposerState {
     /**
      * A reference to the text editor that allows text manipulation.
      *
-     * @type {EditorDriverInterface|null}
+     * @type {import('../../common/utils/EditorDriverInterface')|null}
      */
-    editor: EditorDriverInterface | null;
+    editor: typeof import("../../common/utils/EditorDriverInterface") | null;
+    /**
+     * If the composer was loaded and mounted.
+     *
+     * @type {boolean}
+     */
+    mounted: boolean;
     /**
      * Load a content component into the composer.
      *
-     * @param {typeof import('../components/ComposerBody').default} componentClass
+     * @param {() => Promise<any & { default: typeof import('../components/ComposerBody') }> | typeof import('../components/ComposerBody').default} componentClass
+     * @param {object} attrs
      */
-    load(componentClass: typeof import('../components/ComposerBody').default, attrs: any): void;
+    load(componentClass: () => Promise<any & {
+        default: typeof import('../components/ComposerBody');
+    }> | typeof import('../components/ComposerBody').default, attrs: object): Promise<void>;
     /**
      * Clear the composer's content component.
      */
@@ -50,7 +59,7 @@ declare class ComposerState {
     /**
      * Show the composer.
      */
-    show(): void;
+    show(): Promise<void>;
     /**
      * Close the composer.
      */
@@ -151,5 +160,4 @@ declare namespace ComposerState {
         const FULLSCREEN: string;
     }
 }
-import EditorDriverInterface from "../../common/utils/EditorDriverInterface";
 import Stream from "../../common/utils/Stream";

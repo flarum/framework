@@ -15,9 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 class GroupRepository
 {
     /**
-     * Get a new query builder for the groups table.
-     *
-     * @return Builder
+     * @return Builder<Group>
      */
     public function query()
     {
@@ -28,27 +26,28 @@ class GroupRepository
      * Find a user by ID, optionally making sure it is visible to a certain
      * user, or throw an exception.
      *
-     * @param int $id
-     * @param User $actor
-     * @return \Flarum\Group\Group
-     *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function findOrFail($id, User $actor = null)
+    public function findOrFail(string|int $id, ?User $actor = null): Group
     {
-        $query = Group::where('id', $id);
+        $query = $this->query()->where('id', $id);
 
         return $this->scopeVisibleTo($query, $actor)->firstOrFail();
+    }
+
+    public function queryVisibleTo(?User $actor = null): Builder
+    {
+        return $this->scopeVisibleTo($this->query(), $actor);
     }
 
     /**
      * Scope a query to only include records that are visible to a user.
      *
-     * @param Builder $query
-     * @param User $actor
-     * @return Builder
+     * @param Builder<Group> $query
+     * @param User|null $actor
+     * @return Builder<Group>
      */
-    protected function scopeVisibleTo(Builder $query, User $actor = null)
+    protected function scopeVisibleTo(Builder $query, ?User $actor = null): Builder
     {
         if ($actor !== null) {
             $query->whereVisibleTo($actor);

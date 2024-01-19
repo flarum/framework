@@ -1,0 +1,5 @@
+{
+    "extends": "./tsconfig.json",
+    "include": ["tests/**/*"],
+    "files": ["../../../node_modules/@flarum/jest-config/shims.d.ts"]
+}

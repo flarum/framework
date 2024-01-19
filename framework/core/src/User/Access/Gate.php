@@ -27,45 +27,30 @@ class Gate
     ];
 
     /**
-     * @var Container
+     * @var AbstractPolicy[]
      */
-    protected $container;
+    protected array $policies = [];
 
-    /**
-     * @var array
-     */
-    protected $policyClasses;
-
-    /**
-     * @var array
-     */
-    protected $policies;
-
-    /**
-     * @param Container $container
-     * @param array $policyClasses
-     */
-    public function __construct(Container $container, array $policyClasses)
-    {
-        $this->container = $container;
-        $this->policyClasses = $policyClasses;
+    public function __construct(
+        protected Container $container,
+        /** @var class-string<AbstractPolicy>[] $policyClasses */
+        protected array $policyClasses
+    ) {
     }
 
     /**
      * Determine if the given ability should be granted for the current user.
      *
-     * @param  User $actor
-     * @param  string  $ability
-     * @param  string|AbstractModel $model
-     * @return bool
+     * @param class-string<AbstractModel>|AbstractModel|null $model
      */
-    public function allows(User $actor, string $ability, $model): bool
+    public function allows(User $actor, string $ability, string|AbstractModel|null $model): bool
     {
         $results = [];
+        /** @var AbstractPolicy[] $appliedPolicies */
         $appliedPolicies = [];
 
         if ($model) {
-            $modelClasses = is_string($model) ? [$model] : array_merge(class_parents(($model)), [get_class($model)]);
+            $modelClasses = is_string($model) ? [$model] : array_merge(class_parents($model), [$model::class]);
 
             foreach ($modelClasses as $class) {
                 $appliedPolicies = array_merge($appliedPolicies, $this->getPolicies($class));
@@ -87,7 +72,7 @@ class Gate
         // If no policy covered this permission query, we will only grant
         // the permission if the actor's groups have it. Otherwise, we will
         // not allow the user to perform this action.
-        if ($actor->isAdmin() || ($actor->hasPermission($ability))) {
+        if ($actor->isAdmin() || $actor->hasPermission($ability)) {
             return true;
         }
 
@@ -97,9 +82,10 @@ class Gate
     /**
      * Get all policies for a given model and ability.
      */
-    protected function getPolicies(string $model)
+    protected function getPolicies(string $model): array
     {
         $compiledPolicies = Arr::get($this->policies, $model);
+
         if (is_null($compiledPolicies)) {
             $policyClasses = Arr::get($this->policyClasses, $model, []);
             $compiledPolicies = array_map(function ($policyClass) {

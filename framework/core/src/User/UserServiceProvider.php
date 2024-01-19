@@ -15,6 +15,8 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Group\Access\GroupPolicy;
 use Flarum\Group\Group;
+use Flarum\Http\Access\AccessTokenPolicy;
+use Flarum\Http\AccessToken;
 use Flarum\Post\Access\PostPolicy;
 use Flarum\Post\Post;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -33,10 +35,7 @@ use Illuminate\Support\Arr;
 
 class UserServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    public function register(): void
     {
         $this->registerDisplayNameDrivers();
         $this->registerPasswordCheckers();
@@ -48,6 +47,7 @@ class UserServiceProvider extends AbstractServiceProvider
         $this->container->singleton('flarum.policies', function () {
             return [
                 Access\AbstractPolicy::GLOBAL => [],
+                AccessToken::class => [AccessTokenPolicy::class],
                 Discussion::class => [DiscussionPolicy::class],
                 Group::class => [GroupPolicy::class],
                 Post::class => [PostPolicy::class],
@@ -64,7 +64,7 @@ class UserServiceProvider extends AbstractServiceProvider
         });
     }
 
-    protected function registerDisplayNameDrivers()
+    protected function registerDisplayNameDrivers(): void
     {
         $this->container->singleton('flarum.user.display_name.supported_drivers', function () {
             return [
@@ -87,7 +87,7 @@ class UserServiceProvider extends AbstractServiceProvider
         $this->container->alias('flarum.user.display_name.driver', DriverInterface::class);
     }
 
-    protected function registerPasswordCheckers()
+    protected function registerPasswordCheckers(): void
     {
         $this->container->singleton('flarum.user.password_checkers', function (Container $container) {
             return [
@@ -100,15 +100,15 @@ class UserServiceProvider extends AbstractServiceProvider
         });
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function boot(Container $container, Dispatcher $events)
+    public function boot(Container $container, Dispatcher $events): void
     {
         foreach ($container->make('flarum.user.group_processors') as $callback) {
             User::addGroupProcessor(ContainerUtil::wrapCallback($callback, $container));
         }
 
+        /**
+         * @var \Illuminate\Container\Container $container
+         */
         User::setHasher($container->make('hash'));
         User::setPasswordCheckers($container->make('flarum.user.password_checkers'));
         User::setGate($container->makeWith(Access\Gate::class, ['policyClasses' => $container->make('flarum.policies')]));

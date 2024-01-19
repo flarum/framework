@@ -13,18 +13,19 @@ use Flarum\Database\AbstractModel;
 use Flarum\Http\SlugDriverInterface;
 use Flarum\User\User;
 
+/**
+ * @implements SlugDriverInterface<Discussion>
+ */
 class Utf8SlugDriver implements SlugDriverInterface
 {
-    /**
-     * @var DiscussionRepository
-     */
-    protected $discussions;
-
-    public function __construct(DiscussionRepository $discussions)
-    {
-        $this->discussions = $discussions;
+    public function __construct(
+        protected DiscussionRepository $discussions
+    ) {
     }
 
+    /**
+     * @param Discussion $instance
+     */
     public function toSlug(AbstractModel $instance): string
     {
         $slug = preg_replace('/[-\s]+/u', '-', $instance->title);
@@ -34,6 +35,9 @@ class Utf8SlugDriver implements SlugDriverInterface
         return $instance->id.(trim($slug) ? '-'.$slug : '');
     }
 
+    /**
+     * @return Discussion
+     */
     public function fromSlug(string $slug, User $actor): AbstractModel
     {
         if (strpos($slug, '-')) {

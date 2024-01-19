@@ -1,8 +1,9 @@
-import { RichMessageFormatter, mithrilRichHandler } from '@askvortsov/rich-icu-message-formatter';
+import { RichMessageFormatter, mithrilRichHandler, NestedStringArray } from '@askvortsov/rich-icu-message-formatter';
 import { pluralTypeHandler, selectTypeHandler } from '@ultraq/icu-message-formatter';
 import username from './helpers/username';
 import User from './models/User';
 import extract from './utils/extract';
+import extractText from './utils/extractText';
 
 type Translations = Record<string, string>;
 type TranslatorParameters = Record<string, unknown>;
@@ -69,12 +70,20 @@ export default class Translator {
     return parameters;
   }
 
-  trans(id: string, parameters: TranslatorParameters = {}) {
+  trans(id: string, parameters: TranslatorParameters): NestedStringArray;
+  trans(id: string, parameters: TranslatorParameters, extract: false): NestedStringArray;
+  trans(id: string, parameters: TranslatorParameters, extract: true): string;
+  trans(id: string): NestedStringArray | string;
+  trans(id: string, parameters: TranslatorParameters = {}, extract = false) {
     const translation = this.translations[id];
 
     if (translation) {
       parameters = this.preprocessParameters(parameters);
-      return this.formatter.rich(translation, parameters);
+      const locale = this.formatter.rich(translation, parameters);
+
+      if (extract) return extractText(locale);
+
+      return locale;
     }
 
     return id;

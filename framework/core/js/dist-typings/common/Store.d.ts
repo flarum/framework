@@ -14,7 +14,7 @@ export interface ApiQueryParamsPlural {
     include?: string;
     filter?: {
         q: string;
-    } | Record<string, string>;
+    } | Record<string, any>;
     page?: {
         near?: number;
         offset?: number;
@@ -39,7 +39,11 @@ export interface ApiPayloadPlural {
         next?: string;
         prev?: string;
     };
-    meta?: MetaInformation;
+    meta?: MetaInformation & {
+        total?: number;
+        page?: number;
+        perPage?: number;
+    };
 }
 export declare type ApiPayload = ApiPayloadSingle | ApiPayloadPlural;
 export declare type ApiResponseSingle<M extends Model> = M & {
@@ -69,8 +73,12 @@ export default class Store {
      * The model registry. A map of resource types to the model class that
      * should be used to represent resources of that type.
      */
-    models: Record<string, typeof Model>;
-    constructor(models: Record<string, typeof Model>);
+    models: Record<string, {
+        new (): Model;
+    }>;
+    constructor(models: Record<string, {
+        new (): Model;
+    }>);
     /**
      * Push resources contained within an API payload into the store.
      *
@@ -88,7 +96,6 @@ export default class Store {
      *     registered for this resource type.
      */
     pushObject<M extends Model>(data: SavedModelData): M | null;
-    pushObject<M extends Model>(data: SavedModelData, allowUnregistered: false): M;
     /**
      * Make a request to the API to find record(s) of a specific type.
      */

@@ -1,5 +1,6 @@
 import Component from '../../common/Component';
-import avatar from '../../common/helpers/avatar';
+
+import Avatar from '../../common/components/Avatar';
 
 /**
  * The `LoadingPost` component shows a placeholder that looks like a post,
@@ -10,7 +11,7 @@ export default class LoadingPost extends Component {
     return (
       <div className="Post CommentPost LoadingPost">
         <header className="Post-header">
-          {avatar(null, { className: 'PostUser-avatar' })}
+          <Avatar user={null} className="PostUser-avatar" />
           <div className="fakeText" />
         </header>
 

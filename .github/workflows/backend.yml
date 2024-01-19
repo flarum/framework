@@ -1,0 +1,11 @@
+name: Backend Tests
+
+on: [workflow_dispatch, push, pull_request]
+
+jobs:
+  run:
+    uses: ./.github/workflows/REUSABLE_backend.yml
+    with:
+      enable_backend_testing: true
+      backend_directory: .
+      monorepo_tests: "framework/core extensions/akismet extensions/approval extensions/flags extensions/likes extensions/mentions extensions/nicknames extensions/statistics extensions/sticky extensions/subscriptions extensions/suspend extensions/tags"

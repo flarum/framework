@@ -1,7 +1,5 @@
 import app from '../../forum/app';
-import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
-import ForgotPasswordModal from './ForgotPasswordModal';
-import SignUpModal from './SignUpModal';
+import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Button from '../../common/components/Button';
 import LogInButtons from './LogInButtons';
 import extractText from '../../common/utils/extractText';
@@ -9,14 +7,15 @@ import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
 import type Mithril from 'mithril';
 import RequestError from '../../common/utils/RequestError';
+import type { LoginParams } from '../../common/Session';
 
-export interface ILoginModalAttrs extends IInternalModalAttrs {
+export interface ILoginModalAttrs extends IFormModalAttrs {
   identification?: string;
   password?: string;
   remember?: boolean;
 }
 
-export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginModalAttrs> extends Modal<CustomAttrs> {
+export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginModalAttrs> extends FormModal<CustomAttrs> {
   /**
    * The value of the identification input.
    */
@@ -109,14 +108,9 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
     items.add(
       'submit',
       <div className="Form-group">
-        {Button.component(
-          {
-            className: 'Button Button--primary Button--block',
-            type: 'submit',
-            loading: this.loading,
-          },
-          app.translator.trans('core.forum.log_in.submit_button')
-        )}
+        <Button className="Button Button--primary Button--block" type="submit" loading={this.loading}>
+          {app.translator.trans('core.forum.log_in.submit_button')}
+        </Button>
       </div>,
       -10
     );
@@ -125,17 +119,16 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
   }
 
   footer() {
-    return [
-      <p className="LogInModal-forgotPassword">
-        <a onclick={this.forgotPassword.bind(this)}>{app.translator.trans('core.forum.log_in.forgot_password_link')}</a>
-      </p>,
-
-      app.forum.attribute('allowSignUp') ? (
-        <p className="LogInModal-signUp">{app.translator.trans('core.forum.log_in.sign_up_text', { a: <a onclick={this.signUp.bind(this)} /> })}</p>
-      ) : (
-        ''
-      ),
-    ];
+    return (
+      <>
+        <p className="LogInModal-forgotPassword">
+          <a onclick={this.forgotPassword.bind(this)}>{app.translator.trans('core.forum.log_in.forgot_password_link')}</a>
+        </p>
+        {app.forum.attribute<boolean>('allowSignUp') && (
+          <p className="LogInModal-signUp">{app.translator.trans('core.forum.log_in.sign_up_text', { a: <a onclick={this.signUp.bind(this)} /> })}</p>
+        )}
+      </>
+    );
   }
 
   /**
@@ -146,7 +139,7 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
     const email = this.identification();
     const attrs = email.includes('@') ? { email } : undefined;
 
-    app.modal.show(ForgotPasswordModal, attrs);
+    app.modal.show(() => import('./ForgotPasswordModal'), attrs);
   }
 
   /**
@@ -158,14 +151,13 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
 
     const attrs = {
       [identification.includes('@') ? 'email' : 'username']: identification,
-      password: this.password(),
     };
 
-    app.modal.show(SignUpModal, attrs);
+    app.modal.show(() => import('./SignUpModal'), attrs);
   }
 
   onready() {
-    this.$('[name=' + (this.identification() ? 'password' : 'identification') + ']').select();
+    this.$('[name=' + (this.identification() ? 'password' : 'identification') + ']').trigger('select');
   }
 
   onsubmit(e: SubmitEvent) {
@@ -173,18 +165,23 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
 
     this.loading = true;
 
-    const identification = this.identification();
-    const password = this.password();
-    const remember = this.remember();
+    app.session.login(this.loginParams(), { errorHandler: this.onerror.bind(this) }).then(() => window.location.reload(), this.loaded.bind(this));
+  }
 
-    app.session
-      .login({ identification, password, remember }, { errorHandler: this.onerror.bind(this) })
-      .then(() => window.location.reload(), this.loaded.bind(this));
+  loginParams(): LoginParams {
+    const data = {
+      identification: this.identification(),
+      password: this.password(),
+      remember: this.remember(),
+    };
+
+    return data;
   }
 
   onerror(error: RequestError) {
     if (error.status === 401 && error.alert) {
       error.alert.content = app.translator.trans('core.forum.log_in.invalid_login_message');
+      this.password('');
     }
 
     super.onerror(error);

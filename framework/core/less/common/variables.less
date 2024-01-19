@@ -15,6 +15,9 @@
 @secondary-hue:                    hue(@secondary-color);
 @secondary-sat:                    saturation(@secondary-color);
 
+@body-bg-light:                    #fff;
+@body-bg-dark:                     hsl(@secondary-hue, min(20%, @secondary-sat), 10%);
+
 // Derive the primary/secondary colors from the config variables. In dark mode,
 // we make the user-set colors a bit darker, otherwise they will stand out too
 // much.
@@ -23,7 +26,7 @@
   @primary-color:                  @config-primary-color;
   @secondary-color:                @config-secondary-color;
 
-  @body-bg:                        #fff;
+  @body-bg:                        @body-bg-light;
   @text-color:                     #111;
   @link-color:                     saturate(@primary-color, 10%);
   @heading-color:                  @text-color;
@@ -45,7 +48,7 @@
   @primary-color:                  @config-primary-color;
   @secondary-color:                @config-secondary-color;
 
-  @body-bg:                        hsl(@secondary-hue, min(20%, @secondary-sat), 10%);
+  @body-bg:                        @body-bg-dark;
   @text-color:                     #ddd;
   @link-color:                     saturate(@primary-color, 10%);
   @heading-color:                  @text-color;
@@ -63,6 +66,13 @@
   @code-bg:                        darken(@body-bg, 3%);
   @code-color:                     #fff;
 }
+
+// Beyond dark or light mode, we need stable colors depending on the luminosity
+// of the parents element's background. This allow not to change the color
+// variable depending on the dark/light mode to get the same final color, and
+// thus to simplify the logic.
+@text-on-dark:                     @body-bg-light;
+@text-on-light:                    @body-bg-dark;
 
 @hero-bg:                          @control-bg;
 @hero-color:                       @control-color;

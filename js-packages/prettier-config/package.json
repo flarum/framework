@@ -4,7 +4,17 @@
   "description": "Flarum's configuration for the Prettier code formatter.",
   "main": "prettierrc.json",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "echo 'skipping..'",
+    "build": "echo 'skipping..'",
+    "analyze": "echo 'skipping..'",
+    "format": "prettier --write .",
+    "format-check": "prettier --check .",
+    "clean-typings": "echo 'skipping..'",
+    "build-typings": "echo 'skipping..'",
+    "post-build-typings": "echo 'skipping..'",
+    "check-typings": "echo 'skipping..'",
+    "check-typings-coverage": "echo 'skipping..'"
   },
   "repository": {
     "type": "git",

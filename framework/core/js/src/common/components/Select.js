@@ -1,7 +1,7 @@
 import Component from '../Component';
-import icon from '../helpers/icon';
 import withAttr from '../utils/withAttr';
 import classList from '../utils/classList';
+import Icon from './Icon';
 
 /**
  * The `Select` component displays a <select> input, surrounded with some extra
@@ -45,7 +45,7 @@ export default class Select extends Component {
             <option value={key}>{options[key]}</option>
           ))}
         </select>
-        {icon('fas fa-sort', { className: 'Select-caret' })}
+        <Icon name="fas fa-sort" className="Select-caret" />
       </span>
     );
   }

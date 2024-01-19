@@ -13,6 +13,8 @@ use Flarum\Console\AbstractCommand;
 use Flarum\Extend;
 use Flarum\Testing\integration\ConsoleTestCase;
 use Illuminate\Console\Scheduling\Event;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Exception\CommandNotFoundException;
 
 class ConsoleTest extends ConsoleTestCase
 {
@@ -25,7 +27,8 @@ class ConsoleTest extends ConsoleTestCase
             'command' => 'customTestCommand'
         ];
 
-        $this->assertEquals('Command "customTestCommand" is not defined.', $this->runCommand($input));
+        $this->expectException(CommandNotFoundException::class);
+        $this->runCommand($input);
     }
 
     /**
@@ -75,23 +78,44 @@ class ConsoleTest extends ConsoleTestCase
 
         $this->assertStringContainsString('cache:clear', $this->runCommand($input));
     }
+
+    /**
+     * @test
+     */
+    public function scheduled_command_exists_when_added_with_class_syntax()
+    {
+        $this->extend(
+            (new Extend\Console())
+                ->schedule('cache:clear', ScheduledCommandCallback::class)
+        );
+
+        $input = [
+            'command' => 'schedule:list'
+        ];
+
+        $this->assertStringContainsString('cache:clear', $this->runCommand($input));
+    }
 }
 
 class CustomCommand extends AbstractCommand
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('customTestCommand');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function fire()
+    protected function fire(): int
     {
         $this->info('Custom Command.');
+
+        return Command::SUCCESS;
+    }
+}
+
+class ScheduledCommandCallback
+{
+    public function __invoke(Event $event)
+    {
+        $event->everyMinute();
     }
 }

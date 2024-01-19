@@ -26,16 +26,12 @@ use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\LocaleManager;
-use Flarum\Settings\Event\Saved;
 use Illuminate\Contracts\Container\Container;
 use Laminas\Stratigility\MiddlewarePipe;
 
 class AdminServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    public function register(): void
     {
         $this->container->extend(UrlGenerator::class, function (UrlGenerator $url, Container $container) {
             return $url->addCollection('admin', $container->make('flarum.admin.routes'), 'admin');
@@ -112,16 +108,13 @@ class AdminServiceProvider extends AbstractServiceProvider
             /** @var \Flarum\Frontend\Frontend $frontend */
             $frontend = $container->make('flarum.frontend.factory')('admin');
 
-            $frontend->content($container->make(Content\AdminPayload::class));
+            $frontend->content($container->make(Content\AdminPayload::class), 100);
 
             return $frontend;
         });
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function boot()
+    public function boot(): void
     {
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.admin');
 
@@ -137,23 +130,9 @@ class AdminServiceProvider extends AbstractServiceProvider
                 $recompile->flush();
             }
         );
-
-        $events->listen(
-            Saved::class,
-            function (Saved $event) {
-                $recompile = new RecompileFrontendAssets(
-                    $this->container->make('flarum.assets.admin'),
-                    $this->container->make(LocaleManager::class)
-                );
-                $recompile->whenSettingsSaved($event);
-            }
-        );
     }
 
-    /**
-     * @param RouteCollection $routes
-     */
-    protected function populateRoutes(RouteCollection $routes)
+    protected function populateRoutes(RouteCollection $routes): void
     {
         $factory = $this->container->make(RouteHandlerFactory::class);
 

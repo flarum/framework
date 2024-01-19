@@ -9,23 +9,23 @@
 
 namespace Flarum\Sticky;
 
-use Flarum\Filter\FilterState;
-use Flarum\Query\QueryCriteria;
-use Flarum\Tags\Query\TagFilterGambit;
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\SearchCriteria;
+use Flarum\Tags\Search\Filter\TagFilter;
 
 class PinStickiedDiscussionsToTop
 {
-    public function __invoke(FilterState $filterState, QueryCriteria $criteria)
+    public function __invoke(DatabaseSearchState $state, SearchCriteria $criteria): void
     {
-        if ($criteria->sortIsDefault) {
-            $query = $filterState->getQuery();
+        if ($criteria->sortIsDefault && ! $state->isFulltextSearch()) {
+            $query = $state->getQuery();
 
             // If we are viewing a specific tag, then pin all stickied
             // discussions to the top no matter what.
-            $filters = $filterState->getActiveFilters();
+            $filters = $state->getActiveFilters();
 
             if ($count = count($filters)) {
-                if ($count === 1 && $filters[0] instanceof TagFilterGambit) {
+                if ($count === 1 && $filters[0] instanceof TagFilter) {
                     if (! is_array($query->orders)) {
                         $query->orders = [];
                     }
@@ -43,29 +43,29 @@ class PinStickiedDiscussionsToTop
             // reorder the unread ones up to the top.
             $sticky = clone $query;
             $sticky->where('is_sticky', true);
-            $sticky->orders = null;
+            unset($sticky->orders);
 
             $query->union($sticky);
 
             $read = $query->newQuery()
-                ->selectRaw(1)
+                ->selectRaw('1')
                 ->from('discussion_user as sticky')
                 ->whereColumn('sticky.discussion_id', 'id')
-                ->where('sticky.user_id', '=', $filterState->getActor()->id)
+                ->where('sticky.user_id', '=', $state->getActor()->id)
                 ->whereColumn('sticky.last_read_post_number', '>=', 'last_post_number');
 
             // Add the bindings manually (rather than as the second
             // argument in orderByRaw) for now due to a bug in Laravel which
             // would add the bindings in the wrong order.
             $query->orderByRaw('is_sticky and not exists ('.$read->toSql().') and last_posted_at > ? desc')
-                ->addBinding(array_merge($read->getBindings(), [$filterState->getActor()->read_time ?: 0]), 'union');
+                ->addBinding(array_merge($read->getBindings(), [$state->getActor()->marked_all_as_read_at ?: 0]), 'union');
 
             $query->unionOrders = array_merge($query->unionOrders, $query->orders);
             $query->unionLimit = $query->limit;
             $query->unionOffset = $query->offset;
 
             $query->limit = $sticky->limit = $query->offset + $query->limit;
-            $query->offset = $sticky->offset = null;
+            unset($query->offset, $sticky->offset);
         }
     }
 }

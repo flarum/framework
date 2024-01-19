@@ -20,7 +20,7 @@ use Illuminate\Container\Container;
 
 class AkismetProvider extends AbstractServiceProvider
 {
-    public function register()
+    public function register(): void
     {
         $this->container->bind(Akismet::class, function (Container $container) {
             /** @var SettingsRepositoryInterface $settings */
@@ -38,7 +38,7 @@ class AkismetProvider extends AbstractServiceProvider
                 $settings->get('flarum-akismet.api_key'),
                 $url->to('forum')->base(),
                 $app::VERSION,
-                $extensions->getExtension('flarum-akismet')->getVersion(),
+                $extensions->getExtension('flarum-akismet')->getVersion() ?? 'unknown',
                 $config->inDebugMode()
             );
         });

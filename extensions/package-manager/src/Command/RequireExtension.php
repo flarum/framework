@@ -12,27 +12,12 @@ namespace Flarum\PackageManager\Command;
 use Flarum\PackageManager\Task\Task;
 use Flarum\User\User;
 
-class RequireExtension implements BusinessCommandInterface
+class RequireExtension extends AbstractActionCommand
 {
-    /**
-     * @var Task
-     */
-    public $task = null;
-
-    /**
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * @var string
-     */
-    public $package;
-
-    public function __construct(User $actor, string $package)
-    {
-        $this->actor = $actor;
-        $this->package = $package;
+    public function __construct(
+        public User $actor,
+        public ?string $package
+    ) {
     }
 
     public function getOperationName(): string

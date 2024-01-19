@@ -13,20 +13,24 @@ use Flarum\Extension\Extension;
 use Flarum\Formatter\Formatter as ActualFormatter;
 use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
+use Psr\Http\Message\ServerRequestInterface;
+use s9e\TextFormatter\Configurator;
+use s9e\TextFormatter\Parser;
+use s9e\TextFormatter\Renderer;
 
 class Formatter implements ExtenderInterface, LifecycleInterface
 {
-    private $configurationCallbacks = [];
-    private $parsingCallbacks = [];
-    private $unparsingCallbacks = [];
-    private $renderingCallbacks = [];
+    private array $configurationCallbacks = [];
+    private array $parsingCallbacks = [];
+    private array $unparsingCallbacks = [];
+    private array $renderingCallbacks = [];
 
     /**
      * Configure the formatter. This can be used to add support for custom markdown/bbcode/etc tags,
      * or otherwise change the formatter. Please see documentation for the s9e text formatter library for more
      * information on how to use this.
      *
-     * @param callable|string $callback
+     * @param (callable(Configurator $configurator): void)|class-string $callback
      *
      * The callback can be a closure or invokable class, and should accept:
      * - \s9e\TextFormatter\Configurator $configurator
@@ -35,7 +39,7 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      *
      * @return self
      */
-    public function configure($callback): self
+    public function configure(callable|string $callback): self
     {
         $this->configurationCallbacks[] = $callback;
 
@@ -46,19 +50,20 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      * Prepare the system for parsing. This can be used to modify the text that will be parsed, or to modify the parser.
      * Please note that the text to be parsed must be returned, regardless of whether it's changed.
      *
-     * @param callable|string $callback
+     * @param (callable(Parser $parser, mixed $context, string $text, ?\Flarum\User\User $actor): string)|class-string $callback
      *
      * The callback can be a closure or invokable class, and should accept:
      * - \s9e\TextFormatter\Parser $parser
      * - mixed $context
      * - string $text: The text to be parsed.
+     * - \Flarum\User\User|null $actor. This argument MUST either be nullable, or omitted entirely.
      *
      * The callback should return:
      * - string $text: The text to be parsed.
      *
      * @return self
      */
-    public function parse($callback): self
+    public function parse(callable|string $callback): self
     {
         $this->parsingCallbacks[] = $callback;
 
@@ -69,7 +74,7 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      * Prepare the system for unparsing. This can be used to modify the text that was parsed.
      * Please note that the parsed text must be returned, regardless of whether it's changed.
      *
-     * @param callable|string $callback
+     * @param (callable(mixed $context, string $xml): string)|class-string $callback
      *
      * The callback can be a closure or invokable class, and should accept:
      * - mixed $context
@@ -80,7 +85,7 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      *
      * @return self
      */
-    public function unparse($callback): self
+    public function unparse(callable|string $callback): self
     {
         $this->unparsingCallbacks[] = $callback;
 
@@ -91,10 +96,10 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      * Prepare the system for rendering. This can be used to modify the xml that will be rendered, or to modify the renderer.
      * Please note that the xml to be rendered must be returned, regardless of whether it's changed.
      *
-     * @param callable|string $callback
+     * @param (callable(Renderer $renderer, mixed $context, string $xml, ServerRequestInterface $request): string)|class-string $callback
      *
      * The callback can be a closure or invokable class, and should accept:
-     * - \s9e\TextFormatter\Rendered $renderer
+     * - \s9e\TextFormatter\Renderer $renderer
      * - mixed $context
      * - string $xml: The xml to be rendered.
      * - ServerRequestInterface $request. This argument MUST either be nullable, or omitted entirely.
@@ -104,14 +109,14 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      *
      * @return self
      */
-    public function render($callback): self
+    public function render(callable|string $callback): self
     {
         $this->renderingCallbacks[] = $callback;
 
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         $container->extend('flarum.formatter', function ($formatter, $container) {
             foreach ($this->configurationCallbacks as $callback) {
@@ -134,13 +139,13 @@ class Formatter implements ExtenderInterface, LifecycleInterface
         });
     }
 
-    public function onEnable(Container $container, Extension $extension)
+    public function onEnable(Container $container, Extension $extension): void
     {
         // FLush the formatter cache when this extension is enabled
         $container->make(ActualFormatter::class)->flush();
     }
 
-    public function onDisable(Container $container, Extension $extension)
+    public function onDisable(Container $container, Extension $extension): void
     {
         // FLush the formatter cache when this extension is disabled
         $container->make(ActualFormatter::class)->flush();

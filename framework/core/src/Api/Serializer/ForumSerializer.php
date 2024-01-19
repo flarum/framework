@@ -15,12 +15,10 @@ use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
+use Tobscure\JsonApi\Relationship;
 
 class ForumSerializer extends AbstractSerializer
 {
-    /**
-     * {@inheritdoc}
-     */
     protected $type = 'forums';
 
     /**
@@ -57,18 +55,15 @@ class ForumSerializer extends AbstractSerializer
         $this->url = $url;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getId($model)
     {
-        return 1;
+        return '1';
     }
 
     /**
-     * {@inheritdoc}
+     * @param array $model
      */
-    protected function getDefaultAttributes($model)
+    protected function getDefaultAttributes(object|array $model): array
     {
         $attributes = [
             'title' => $this->settings->get('forum_title'),
@@ -88,11 +83,15 @@ class ForumSerializer extends AbstractSerializer
             'headerHtml' => $this->settings->get('custom_header'),
             'footerHtml' => $this->settings->get('custom_footer'),
             'allowSignUp' => (bool) $this->settings->get('allow_sign_up'),
-            'defaultRoute'  => $this->settings->get('default_route'),
+            'defaultRoute' => $this->settings->get('default_route'),
             'canViewForum' => $this->actor->can('viewForum'),
             'canStartDiscussion' => $this->actor->can('startDiscussion'),
             'canSearchUsers' => $this->actor->can('searchUsers'),
+            'canCreateAccessToken' => $this->actor->can('createAccessToken'),
+            'canModerateAccessTokens' => $this->actor->can('moderateAccessTokens'),
+            'canEditUserCredentials' => $this->actor->hasPermission('user.editCredentials'),
             'assetsBaseUrl' => rtrim($this->assetsFilesystem->url(''), '/'),
+            'jsChunksBaseUrl' => $this->assetsFilesystem->url('js'),
         ];
 
         if ($this->actor->can('administrate')) {
@@ -103,36 +102,32 @@ class ForumSerializer extends AbstractSerializer
         return $attributes;
     }
 
-    /**
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function groups($model)
+    protected function groups(array $model): ?Relationship
     {
         return $this->hasMany($model, GroupSerializer::class);
     }
 
-    /**
-     * @return null|string
-     */
-    protected function getLogoUrl()
+    protected function getLogoUrl(): ?string
     {
         $logoPath = $this->settings->get('logo_path');
 
         return $logoPath ? $this->getAssetUrl($logoPath) : null;
     }
 
-    /**
-     * @return null|string
-     */
-    protected function getFaviconUrl()
+    protected function getFaviconUrl(): ?string
     {
         $faviconPath = $this->settings->get('favicon_path');
 
         return $faviconPath ? $this->getAssetUrl($faviconPath) : null;
     }
 
-    public function getAssetUrl($assetPath): string
+    public function getAssetUrl(string $assetPath): string
     {
         return $this->assetsFilesystem->url($assetPath);
+    }
+
+    protected function actor(array $model): ?Relationship
+    {
+        return $this->hasOne($model, CurrentUserSerializer::class);
     }
 }

@@ -9,7 +9,6 @@
 
 namespace Flarum\Tests\integration\forum;
 
-use Flarum\Extend;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 
@@ -22,10 +21,6 @@ class IndexTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->extend(
-            (new Extend\Csrf)->exemptRoute('login')
-        );
-
         $this->prepareDatabase([
             'users' => [
                 $this->normalUser()
@@ -51,18 +46,9 @@ class IndexTest extends TestCase
      */
     public function user_serialized_by_current_user_serializer()
     {
-        $login = $this->send(
-            $this->request('POST', '/login', [
-                'json' => [
-                    'identification' => 'normal',
-                    'password' => 'too-obscure'
-                ]
-            ])
-        );
-
         $response = $this->send(
             $this->request('GET', '/', [
-                'cookiesFrom' => $login
+                'authenticatedAs' => 2,
             ])
         );
 

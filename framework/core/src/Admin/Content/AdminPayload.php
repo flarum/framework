@@ -9,10 +9,14 @@
 
 namespace Flarum\Admin\Content;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Extension\ExtensionManager;
+use Flarum\Foundation\ApplicationInfoProvider;
 use Flarum\Foundation\Config;
 use Flarum\Frontend\Document;
 use Flarum\Group\Permission;
+use Flarum\Search\AbstractDriver;
+use Flarum\Search\SearcherInterface;
 use Flarum\Settings\Event\Deserializing;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
@@ -24,61 +28,18 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AdminPayload
 {
-    /**
-     * @var Container;
-     */
-    protected $container;
-
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    /**
-     * @var ConnectionInterface
-     */
-    protected $db;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @var Config
-     */
-    protected $config;
-
-    /**
-     * @param Container $container
-     * @param SettingsRepositoryInterface $settings
-     * @param ExtensionManager $extensions
-     * @param ConnectionInterface $db
-     * @param Dispatcher $events
-     * @param Config $config
-     */
     public function __construct(
-        Container $container,
-        SettingsRepositoryInterface $settings,
-        ExtensionManager $extensions,
-        ConnectionInterface $db,
-        Dispatcher $events,
-        Config $config
+        protected Container $container,
+        protected SettingsRepositoryInterface $settings,
+        protected ExtensionManager $extensions,
+        protected ConnectionInterface $db,
+        protected Dispatcher $events,
+        protected Config $config,
+        protected ApplicationInfoProvider $appInfo
     ) {
-        $this->container = $container;
-        $this->settings = $settings;
-        $this->extensions = $extensions;
-        $this->db = $db;
-        $this->events = $events;
-        $this->config = $config;
     }
 
-    public function __invoke(Document $document, Request $request)
+    public function __invoke(Document $document, Request $request): void
     {
         $settings = $this->settings->all();
 
@@ -94,10 +55,20 @@ class AdminPayload
         $document->payload['slugDrivers'] = array_map(function ($resourceDrivers) {
             return array_keys($resourceDrivers);
         }, $this->container->make('flarum.http.slugDrivers'));
+        $document->payload['searchDrivers'] = $this->getSearchDrivers();
 
-        $document->payload['phpVersion'] = PHP_VERSION;
-        $document->payload['mysqlVersion'] = $this->db->selectOne('select version() as version')->version;
+        $document->payload['advancedPageEmpty'] = $this->checkAdvancedPageEmpty();
+
+        $document->payload['phpVersion'] = $this->appInfo->identifyPHPVersion();
+        $document->payload['mysqlVersion'] = $this->appInfo->identifyDatabaseVersion();
         $document->payload['debugEnabled'] = Arr::get($this->config, 'debug');
+
+        if ($this->appInfo->scheduledTasksRegistered()) {
+            $document->payload['schedulerStatus'] = $this->appInfo->getSchedulerStatus();
+        }
+
+        $document->payload['queueDriver'] = $this->appInfo->identifyQueueDriver();
+        $document->payload['sessionDriver'] = $this->appInfo->identifySessionDriver(true);
 
         /**
          * Used in the admin user list. Implemented as this as it matches the API in flarum/statistics.
@@ -108,8 +79,28 @@ class AdminPayload
          */
         $document->payload['modelStatistics'] = [
             'users' => [
-                'total' => User::count()
+                'total' => User::query()->count()
             ]
         ];
+    }
+
+    protected function getSearchDrivers(): array
+    {
+        $searchDriversPerModel = [];
+
+        foreach ($this->container->make('flarum.search.drivers') as $driverClass => $searcherClasses) {
+            /** @var array<class-string<AbstractModel>, class-string<SearcherInterface>> $searcherClasses */
+            foreach ($searcherClasses as $modelClass => $searcherClass) {
+                /** @var class-string<AbstractDriver> $driverClass */
+                $searchDriversPerModel[$modelClass][] = $driverClass::name();
+            }
+        }
+
+        return $searchDriversPerModel;
+    }
+
+    protected function checkAdvancedPageEmpty(): bool
+    {
+        return count($this->container->make('flarum.search.drivers')) === 1;
     }
 }

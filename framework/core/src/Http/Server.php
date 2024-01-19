@@ -11,6 +11,7 @@ namespace Flarum\Http;
 
 use Flarum\Foundation\ErrorHandling\LogReporter;
 use Flarum\Foundation\SiteInterface;
+use Illuminate\Contracts\Container\Container;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequest;
 use Laminas\Diactoros\ServerRequestFactory;
@@ -22,14 +23,12 @@ use Throwable;
 
 class Server
 {
-    private $site;
-
-    public function __construct(SiteInterface $site)
-    {
-        $this->site = $site;
+    public function __construct(
+        private readonly SiteInterface $site
+    ) {
     }
 
-    public function listen()
+    public function listen(): void
     {
         $runner = new RequestHandlerRunner(
             $this->safelyBootAndGetHandler(),
@@ -41,6 +40,7 @@ class Server
                 return $generator($e, new ServerRequest, new Response);
             }
         );
+
         $runner->run();
     }
 
@@ -50,9 +50,9 @@ class Server
      * We catch all exceptions happening during this process and format them to
      * prevent exposure of sensitive information.
      *
-     * @return \Psr\Http\Server\RequestHandlerInterface
+     * @throws Throwable
      */
-    private function safelyBootAndGetHandler()
+    private function safelyBootAndGetHandler() // @phpstan-ignore-line
     {
         try {
             return $this->site->bootApp()->getRequestHandler();
@@ -77,16 +77,19 @@ class Server
      * for example if the container bindings aren't present
      * or if there is a filesystem error.
      * @param Throwable $error
+     * @throws Throwable
      */
-    private function cleanBootExceptionLog(Throwable $error)
+    private function cleanBootExceptionLog(Throwable $error): void
     {
-        if (app()->has('flarum.config') && app('flarum.config')->inDebugMode()) {
+        $container = resolve(Container::class);
+
+        if ($container->has('flarum.config') && resolve('flarum.config')->inDebugMode()) {
             // If the application booted far enough for the config to be available, we will check for debug mode
             // Since the config is loaded very early, it is very likely to be available from the container
             $message = $error->getMessage();
             $file = $error->getFile();
             $line = $error->getLine();
-            $type = get_class($error);
+            $type = $error::class;
 
             echo <<<ERROR
             Flarum encountered a boot error ($type)<br />
@@ -96,12 +99,12 @@ class Server
 <pre>$error</pre>
 ERROR;
             exit(1);
-        } elseif (app()->has(LoggerInterface::class)) {
+        } elseif ($container->has(LoggerInterface::class)) {
             // If the application booted far enough for the logger to be available, we will log the error there
             // Considering most boot errors are related to database or extensions, the logger should already be loaded
             // We check for LoggerInterface binding because it's a constructor dependency of LogReporter,
             // then instantiate LogReporter through the container for automatic dependency injection
-            app(LogReporter::class)->report($error);
+            resolve(LogReporter::class)->report($error);
 
             echo 'Flarum encountered a boot error. Details have been logged to the Flarum log file.';
             exit(1);
@@ -111,10 +114,10 @@ ERROR;
     /**
      * If the clean logging doesn't work, then we have a last opportunity.
      * Here we need to be extra careful not to include anything that might be sensitive on the page.
-     * @param Throwable $error
+     *
      * @throws Throwable
      */
-    private function fallbackBootExceptionLog(Throwable $error)
+    private function fallbackBootExceptionLog(Throwable $error): void
     {
         echo 'Flarum encountered a boot error. Details have been logged to the system PHP log file.<br />';
 

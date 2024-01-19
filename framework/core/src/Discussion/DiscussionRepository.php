@@ -15,11 +15,9 @@ use Illuminate\Database\Eloquent\Builder;
 class DiscussionRepository
 {
     /**
-     * Get a new query builder for the discussions table.
-     *
-     * @return Builder
+     * @return Builder<Discussion>
      */
-    public function query()
+    public function query(): Builder
     {
         return Discussion::query();
     }
@@ -27,41 +25,24 @@ class DiscussionRepository
     /**
      * Find a discussion by ID, optionally making sure it is visible to a
      * certain user, or throw an exception.
-     *
-     * @param int $id
-     * @param User $user
-     * @return \Flarum\Discussion\Discussion
      */
-    public function findOrFail($id, User $user = null)
+    public function findOrFail(int|string $id, ?User $user = null): Discussion
     {
-        $query = Discussion::where('id', $id);
+        $query = $this->query()->where('id', $id);
 
         return $this->scopeVisibleTo($query, $user)->firstOrFail();
-    }
-
-    /**
-     * Get the IDs of discussions which a user has read completely.
-     *
-     * @deprecated 1.3 Use `getReadIdsQuery` instead
-     *
-     * @param User $user
-     * @return array
-     */
-    public function getReadIds(User $user)
-    {
-        return $this->getReadIdsQuery($user)
-            ->all();
     }
 
     /**
      * Get a query containing the IDs of discussions which a user has read completely.
      *
      * @param User $user
-     * @return Builder
+     * @return Builder<Discussion>
      */
     public function getReadIdsQuery(User $user): Builder
     {
-        return Discussion::leftJoin('discussion_user', 'discussion_user.discussion_id', '=', 'discussions.id')
+        return $this->query()
+            ->leftJoin('discussion_user', 'discussion_user.discussion_id', '=', 'discussions.id')
             ->where('discussion_user.user_id', $user->id)
             ->whereColumn('last_read_post_number', '>=', 'last_post_number')
             ->select('id');
@@ -70,11 +51,11 @@ class DiscussionRepository
     /**
      * Scope a query to only include records that are visible to a user.
      *
-     * @param Builder $query
-     * @param User $user
-     * @return Builder
+     * @param Builder<Discussion> $query
+     * @param User|null $user
+     * @return Builder<Discussion>
      */
-    protected function scopeVisibleTo(Builder $query, User $user = null)
+    protected function scopeVisibleTo(Builder $query, ?User $user = null): Builder
     {
         if ($user !== null) {
             $query->whereVisibleTo($user);

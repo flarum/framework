@@ -9,25 +9,22 @@
 
 namespace Flarum\Pusher\Listener;
 
+use Flarum\Extension\ExtensionManager;
 use Flarum\Post\Event\Posted;
 use Flarum\User\Guest;
 use Flarum\User\User;
 use Illuminate\Support\Str;
-use Pusher;
+use Pusher\Pusher;
 
 class PushNewPost
 {
-    /**
-     * @var Pusher
-     */
-    protected $pusher;
-
-    public function __construct(Pusher $pusher)
-    {
-        $this->pusher = $pusher;
+    public function __construct(
+        protected Pusher $pusher,
+        protected ExtensionManager $extensions
+    ) {
     }
 
-    public function handle(Posted $event)
+    public function handle(Posted $event): void
     {
         $channels = [];
 
@@ -35,10 +32,11 @@ class PushNewPost
             $channels[] = 'public';
         } else {
             // Retrieve private channels, used for each user.
-            $response = $this->pusher->get_channels([
+            $response = $this->pusher->getChannels([
                 'filter_by_prefix' => 'private-user'
             ]);
 
+            // @phpstan-ignore-next-line
             if (! $response) {
                 return;
             }
@@ -53,7 +51,7 @@ class PushNewPost
         }
 
         if (count($channels)) {
-            $tags = $event->post->discussion->tags;
+            $tags = $this->extensions->isEnabled('flarum-tags') ? $event->post->discussion->tags : null;
 
             $this->pusher->trigger($channels, 'newPost', [
                 'postId' => $event->post->id,

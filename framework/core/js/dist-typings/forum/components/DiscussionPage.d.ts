@@ -13,6 +13,9 @@ export interface IDiscussionPageAttrs extends IPageAttrs {
  * the discussion list pane, the hero, the posts, and the sidebar.
  */
 export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = IDiscussionPageAttrs> extends Page<CustomAttrs> {
+    protected loading: boolean;
+    protected PostStream: any;
+    protected PostStreamScrubber: any;
     /**
      * The discussion that is being viewed.
      */
@@ -30,10 +33,6 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     onremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
     view(): JSX.Element;
     /**
-     * List of components shown while the discussion is loading.
-     */
-    loadingItems(): ItemList<Mithril.Children>;
-    /**
      * Function that renders the `sidebarItems` ItemList.
      */
     sidebar(): Mithril.Children;
@@ -41,14 +40,6 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
      * Renders the discussion's hero.
      */
     hero(): Mithril.Children;
-    /**
-     * List of items rendered as the main page content.
-     */
-    pageContent(): ItemList<Mithril.Children>;
-    /**
-     * List of items rendered inside the main page content container.
-     */
-    mainContent(): ItemList<Mithril.Children>;
     /**
      * Load the discussion from the API or use the preloaded one.
      */

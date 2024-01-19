@@ -12,14 +12,14 @@ namespace Flarum\Mail;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Contracts\Validation\Factory;
-use Illuminate\Mail\Mailer;
 use Illuminate\Support\Arr;
-use Swift_Mailer;
+use Symfony\Component\Mailer\Transport\TransportInterface;
 
 class MailServiceProvider extends AbstractServiceProvider
 {
-    public function register()
+    public function register(): void
     {
         $this->container->singleton('mail.supported_drivers', function () {
             return [
@@ -54,30 +54,32 @@ class MailServiceProvider extends AbstractServiceProvider
                 : $container->make(NullDriver::class);
         });
 
-        $this->container->singleton('swift.mailer', function (Container $container) {
-            return new Swift_Mailer(
-                $container->make('mail.driver')->buildTransport(
-                    $container->make(SettingsRepositoryInterface::class)
-                )
+        $this->container->singleton('symfony.mailer.transport', function (Container $container): TransportInterface {
+            return $container->make('mail.driver')->buildTransport(
+                $container->make(SettingsRepositoryInterface::class)
             );
         });
 
-        $this->container->singleton('mailer', function (Container $container) {
+        $this->container->singleton('mailer', function (Container $container): MailerContract {
+            $settings = $container->make(SettingsRepositoryInterface::class);
+
             $mailer = new Mailer(
                 'flarum',
                 $container['view'],
-                $container['swift.mailer'],
-                $container['events']
+                $container['symfony.mailer.transport'],
+                $container['events'],
+                $settings,
             );
 
             if ($container->bound('queue')) {
                 $mailer->setQueue($container->make('queue'));
             }
 
-            $settings = $container->make(SettingsRepositoryInterface::class);
             $mailer->alwaysFrom($settings->get('mail_from'), $settings->get('forum_title'));
 
             return $mailer;
         });
+
+        $this->container->alias('mailer', MailerContract::class);
     }
 }

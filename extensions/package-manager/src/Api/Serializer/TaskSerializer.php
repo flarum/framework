@@ -15,22 +15,16 @@ use InvalidArgumentException;
 
 class TaskSerializer extends AbstractSerializer
 {
-    /**
-     * {@inheritdoc}
-     */
     protected $type = 'package-manager-tasks';
 
     /**
-     * {@inheritdoc}
-     *
-     * @param Task $model
      * @throws InvalidArgumentException
      */
-    protected function getDefaultAttributes($model)
+    protected function getDefaultAttributes(object|array $model): array
     {
         if (! ($model instanceof Task)) {
             throw new InvalidArgumentException(
-                get_class($this).' can only serialize instances of '.Task::class
+                $this::class.' can only serialize instances of '.Task::class
             );
         }
 

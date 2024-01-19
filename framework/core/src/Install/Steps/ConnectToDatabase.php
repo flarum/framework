@@ -9,6 +9,7 @@
 
 namespace Flarum\Install\Steps;
 
+use Closure;
 use Flarum\Install\DatabaseConfig;
 use Flarum\Install\Step;
 use Illuminate\Database\Connectors\MySqlConnector;
@@ -18,21 +19,18 @@ use RangeException;
 
 class ConnectToDatabase implements Step
 {
-    private $dbConfig;
-    private $store;
-
-    public function __construct(DatabaseConfig $dbConfig, callable $store)
-    {
-        $this->dbConfig = $dbConfig;
-        $this->store = $store;
+    public function __construct(
+        private readonly DatabaseConfig $dbConfig,
+        private readonly Closure $store
+    ) {
     }
 
-    public function getMessage()
+    public function getMessage(): string
     {
         return 'Connecting to database';
     }
 
-    public function run()
+    public function run(): void
     {
         $config = $this->dbConfig->toArray();
         $pdo = (new MySqlConnector)->connect($config);

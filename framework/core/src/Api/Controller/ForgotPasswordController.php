@@ -9,9 +9,9 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\User\Command\RequestPasswordReset;
-use Flarum\User\UserRepository;
-use Illuminate\Contracts\Bus\Dispatcher;
+use Flarum\Api\ForgotPasswordValidator;
+use Flarum\User\Job\RequestPasswordResetJob;
+use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -20,36 +20,23 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class ForgotPasswordController implements RequestHandlerInterface
 {
-    /**
-     * @var \Flarum\User\UserRepository
-     */
-    protected $users;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
-
-    /**
-     * @param \Flarum\User\UserRepository $users
-     * @param Dispatcher $bus
-     */
-    public function __construct(UserRepository $users, Dispatcher $bus)
-    {
-        $this->users = $users;
-        $this->bus = $bus;
+    public function __construct(
+        protected Queue $queue,
+        protected ForgotPasswordValidator $validator
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $email = Arr::get($request->getParsedBody(), 'email');
+        $params = $request->getParsedBody();
 
-        $this->bus->dispatch(
-            new RequestPasswordReset($email)
-        );
+        $this->validator->assertValid($params);
+
+        $email = Arr::get($params, 'email');
+
+        // Prevents leaking user existence by not throwing an error.
+        // Prevents leaking user existence by duration by using a queued job.
+        $this->queue->push(new RequestPasswordResetJob($email));
 
         return new EmptyResponse;
     }

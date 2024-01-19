@@ -1,13 +1,15 @@
 import app from 'flarum/forum/app';
-import Modal from 'flarum/components/Modal';
-import Button from 'flarum/components/Button';
-
-import Stream from 'flarum/utils/Stream';
-import withAttr from 'flarum/utils/withAttr';
+import FormModal from 'flarum/common/components/FormModal';
+import Button from 'flarum/common/components/Button';
+import Stream from 'flarum/common/utils/Stream';
+import withAttr from 'flarum/common/utils/withAttr';
 import ItemList from 'flarum/common/utils/ItemList';
-import { getPermanentSuspensionDate } from '../helpers/suspensionHelper';
 
-export default class SuspendUserModal extends Modal {
+import { getPermanentSuspensionDate } from '../helpers/suspensionHelper';
+import Form from '@flarum/core/src/common/components/Form';
+import FieldSet from '@flarum/core/src/common/components/FieldSet';
+
+export default class SuspendUserModal extends FormModal {
   oninit(vnode) {
     super.oninit(vnode);
 
@@ -40,18 +42,15 @@ export default class SuspendUserModal extends Modal {
   content() {
     return (
       <div className="Modal-body">
-        <div className="Form">
-          <div className="Form-group">
-            <label>{app.translator.trans('flarum-suspend.forum.suspend_user.status_heading')}</label>
-            <div>{this.formItems().toArray()}</div>
-          </div>
+        <Form>
+          {this.formItems().toArray()}
 
-          <div className="Form-group">
+          <div className="Form-group Form-controls">
             <Button className="Button Button--primary" loading={this.loading} type="submit">
               {app.translator.trans('flarum-suspend.forum.suspend_user.submit_button')}
             </Button>
           </div>
-        </div>
+        </Form>
       </div>
     );
   }
@@ -109,20 +108,22 @@ export default class SuspendUserModal extends Modal {
   formItems() {
     const items = new ItemList();
 
-    items.add('radioItems', <div className="Form-group">{this.radioItems().toArray()}</div>, 100);
+    items.add(
+      'radioItems',
+      <FieldSet label={app.translator.trans('flarum-suspend.forum.suspend_user.status_heading')}>{this.radioItems().toArray()}</FieldSet>,
+      100
+    );
 
     items.add(
       'reason',
       <div className="Form-group">
-        <label>
-          {app.translator.trans('flarum-suspend.forum.suspend_user.reason')}
-          <textarea
-            className="FormControl"
-            bidi={this.reason}
-            placeholder={app.translator.trans('flarum-suspend.forum.suspend_user.placeholder_optional')}
-            rows="2"
-          />
-        </label>
+        <label>{app.translator.trans('flarum-suspend.forum.suspend_user.reason')}</label>
+        <textarea
+          className="FormControl"
+          bidi={this.reason}
+          placeholder={app.translator.trans('flarum-suspend.forum.suspend_user.placeholder_optional')}
+          rows="4"
+        />
       </div>,
       90
     );
@@ -130,15 +131,13 @@ export default class SuspendUserModal extends Modal {
     items.add(
       'message',
       <div className="Form-group">
-        <label>
-          {app.translator.trans('flarum-suspend.forum.suspend_user.display_message')}
-          <textarea
-            className="FormControl"
-            bidi={this.message}
-            placeholder={app.translator.trans('flarum-suspend.forum.suspend_user.placeholder_optional')}
-            rows="2"
-          />
-        </label>
+        <label>{app.translator.trans('flarum-suspend.forum.suspend_user.display_message')}</label>
+        <textarea
+          className="FormControl"
+          bidi={this.message}
+          placeholder={app.translator.trans('flarum-suspend.forum.suspend_user.placeholder_optional')}
+          rows="4"
+        />
       </div>,
       80
     );

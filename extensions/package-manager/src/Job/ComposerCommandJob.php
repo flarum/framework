@@ -10,38 +10,24 @@
 namespace Flarum\PackageManager\Job;
 
 use Flarum\Bus\Dispatcher;
-use Flarum\PackageManager\Command\BusinessCommandInterface;
+use Flarum\PackageManager\Command\AbstractActionCommand;
+use Flarum\PackageManager\Composer\ComposerAdapter;
 use Flarum\Queue\AbstractJob;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Throwable;
 
 class ComposerCommandJob extends AbstractJob
 {
-    /**
-     * @var BusinessCommandInterface
-     */
-    protected $command;
-
-    /**
-     * @var int[]
-     */
-    protected $phpVersion;
-
-    public function __construct(BusinessCommandInterface $command, array $phpVersion)
-    {
-        $this->command = $command;
-        $this->phpVersion = $phpVersion;
+    public function __construct(
+        protected AbstractActionCommand $command,
+        protected string $phpVersion
+    ) {
     }
 
-    public function handle(Dispatcher $bus)
+    public function handle(Dispatcher $bus): void
     {
         try {
-            if ([PHP_MAJOR_VERSION, PHP_MINOR_VERSION] !== [$this->phpVersion[0], $this->phpVersion[1]]) {
-                $webPhpVersion = implode('.', $this->phpVersion);
-                $sshPhpVersion = implode('.', [PHP_MAJOR_VERSION, PHP_MINOR_VERSION]);
-
-                throw new \Exception("PHP version mismatch. SSH PHP version must match web server PHP version. Found SSH (PHP $sshPhpVersion) and Web Server (PHP $webPhpVersion).");
-            }
+            ComposerAdapter::setPhpVersion($this->phpVersion);
 
             $this->command->task->start();
 
@@ -53,7 +39,7 @@ class ComposerCommandJob extends AbstractJob
         }
     }
 
-    public function abort(Throwable $exception)
+    public function abort(Throwable $exception): void
     {
         if (! $this->command->task->output) {
             $this->command->task->output = $exception->getMessage();
@@ -64,7 +50,7 @@ class ComposerCommandJob extends AbstractJob
         $this->fail($exception);
     }
 
-    public function middleware()
+    public function middleware(): array
     {
         return [
             new WithoutOverlapping(),

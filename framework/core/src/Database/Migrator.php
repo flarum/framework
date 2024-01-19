@@ -9,12 +9,14 @@
 
 namespace Flarum\Database;
 
-use Exception;
+use Flarum\Database\Exception\MigrationKeyMissing;
 use Flarum\Extension\Extension;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\MySqlConnection;
 use Illuminate\Filesystem\Filesystem;
 use InvalidArgumentException;
+use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -22,51 +24,16 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Migrator
 {
-    /**
-     * The migration repository implementation.
-     *
-     * @var \Flarum\Database\MigrationRepositoryInterface
-     */
-    protected $repository;
+    protected ?OutputInterface $output = null;
 
-    /**
-     * The filesystem instance.
-     *
-     * @var \Illuminate\Filesystem\Filesystem
-     */
-    protected $files;
-
-    /**
-     * The output interface implementation.
-     *
-     * @var OutputInterface
-     */
-    protected $output;
-    /**
-     * @var ConnectionInterface|MySqlConnection
-     */
-    protected $connection;
-
-    /**
-     * Create a new migrator instance.
-     *
-     * @param  MigrationRepositoryInterface  $repository
-     * @param  ConnectionInterface           $connection
-     * @param  Filesystem                    $files
-     */
     public function __construct(
-        MigrationRepositoryInterface $repository,
-        ConnectionInterface $connection,
-        Filesystem $files
+        protected MigrationRepositoryInterface $repository,
+        protected ConnectionInterface $connection,
+        protected Filesystem $files
     ) {
-        $this->files = $files;
-        $this->repository = $repository;
-
         if (! ($connection instanceof MySqlConnection)) {
             throw new InvalidArgumentException('Only MySQL connections are supported');
         }
-
-        $this->connection = $connection;
 
         // Workaround for https://github.com/laravel/framework/issues/1186
         $connection->getDoctrineSchemaManager()->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
@@ -74,35 +41,23 @@ class Migrator
 
     /**
      * Run the outstanding migrations at a given path.
-     *
-     * @param  string    $path
-     * @param  Extension $extension
-     * @return void
      */
-    public function run($path, Extension $extension = null)
+    public function run(string $path, ?Extension $extension = null): void
     {
         $files = $this->getMigrationFiles($path);
 
-        $ran = $this->repository->getRan($extension ? $extension->getId() : null);
+        $ran = $this->repository->getRan($extension?->getId());
 
         $migrations = array_diff($files, $ran);
 
         $this->runMigrationList($path, $migrations, $extension);
     }
 
-    /**
-     * Run an array of migrations.
-     *
-     * @param  string    $path
-     * @param  array     $migrations
-     * @param  Extension $extension
-     * @return void
-     */
-    public function runMigrationList($path, $migrations, Extension $extension = null)
+    public function runMigrationList(string $path, array $migrations, ?Extension $extension = null): void
     {
         // First we will just make sure that there are any migrations to run. If there
         // aren't, we will just make a note of it to the developer so they're aware
-        // that all of the migrations have been run against this database system.
+        // that all the migrations have been run against this database system.
         if (count($migrations) == 0) {
             $this->note('<info>Nothing to migrate.</info>');
 
@@ -119,35 +74,23 @@ class Migrator
 
     /**
      * Run "up" a migration instance.
-     *
-     * @param  string    $path
-     * @param  string    $file
-     * @param  string    $path
-     * @param  Extension $extension
-     * @return void
      */
-    protected function runUp($path, $file, Extension $extension = null)
+    protected function runUp(string $path, string $file, ?Extension $extension = null): void
     {
-        $migration = $this->resolve($path, $file);
-
-        $this->runClosureMigration($migration);
+        $this->resolveAndRunClosureMigration($path, $file);
 
         // Once we have run a migrations class, we will log that it was run in this
         // repository so that we don't try to run it next time we do a migration
         // in the application. A migration repository keeps the migrate order.
-        $this->repository->log($file, $extension ? $extension->getId() : null);
+        $this->repository->log($file, $extension?->getId());
 
         $this->note("<info>Migrated:</info> $file");
     }
 
     /**
-     * Rolls all of the currently applied migrations back.
-     *
-     * @param  string    $path
-     * @param  Extension $extension
-     * @return int
+     * Rolls all the currently applied migrations back.
      */
-    public function reset($path, Extension $extension = null)
+    public function reset(string $path, ?Extension $extension = null): int
     {
         $migrations = array_reverse($this->repository->getRan(
             $extension ? $extension->getId() : null
@@ -168,23 +111,15 @@ class Migrator
 
     /**
      * Run "down" a migration instance.
-     *
-     * @param  string    $path
-     * @param  string    $file
-     * @param  string    $path
-     * @param  Extension $extension
-     * @return void
      */
-    protected function runDown($path, $file, Extension $extension = null)
+    protected function runDown(string $path, string $file, ?Extension $extension = null): void
     {
-        $migration = $this->resolve($path, $file);
-
-        $this->runClosureMigration($migration, 'down');
+        $this->resolveAndRunClosureMigration($path, $file, 'down');
 
         // Once we have successfully run the migration "down" we will remove it from
-        // the migration repository so it will be considered to have not been run
+        // the migration repository, so it will be considered to have not been run
         // by the application then will be able to fire by any later operation.
-        $this->repository->delete($file, $extension ? $extension->getId() : null);
+        $this->repository->delete($file, $extension?->getId());
 
         $this->note("<info>Rolled back:</info> $file");
     }
@@ -192,16 +127,30 @@ class Migrator
     /**
      * Runs a closure migration based on the migrate direction.
      *
-     * @param        $migration
-     * @param string $direction
-     * @throws Exception
+     * @throws MigrationKeyMissing
      */
-    protected function runClosureMigration($migration, $direction = 'up')
+    protected function runClosureMigration(array $migration, string $direction = 'up'): void
     {
-        if (is_array($migration) && array_key_exists($direction, $migration)) {
+        if (array_key_exists($direction, $migration)) {
             call_user_func($migration[$direction], $this->connection->getSchemaBuilder());
         } else {
-            throw new Exception('Migration file should contain an array with up/down.');
+            throw new MigrationKeyMissing($direction);
+        }
+    }
+
+    /**
+     * Resolves and run a migration and assign the filename to the exception if needed.
+     *
+     * @throws MigrationKeyMissing|FileNotFoundException
+     */
+    protected function resolveAndRunClosureMigration(string $path, string $file, string $direction = 'up'): void
+    {
+        $migration = $this->resolve($path, $file);
+
+        try {
+            $this->runClosureMigration($migration, $direction);
+        } catch (MigrationKeyMissing $exception) {
+            throw $exception->withFile("$path/$file.php");
         }
     }
 
@@ -234,17 +183,23 @@ class Migrator
     /**
      * Resolve a migration instance from a file.
      *
-     * @param  string $path
-     * @param  string $file
-     * @return array
+     * @throws FileNotFoundException|RuntimeException
      */
-    public function resolve($path, $file)
+    public function resolve(string $path, string $file): array
     {
         $migration = "$path/$file.php";
 
         if ($this->files->exists($migration)) {
-            return $this->files->getRequire($migration);
+            $migrationContents = $this->files->getRequire($migration);
+
+            if (! is_array($migrationContents)) {
+                throw new RuntimeException('Migration must return an array with up and down keys');
+            }
+
+            return $migrationContents;
         }
+
+        return [];
     }
 
     /**
@@ -252,7 +207,7 @@ class Migrator
      *
      * @param string $path to the directory containing the dump.
      */
-    public function installFromSchema(string $path)
+    public function installFromSchema(string $path): void
     {
         $schemaPath = "$path/install.dump";
 
@@ -265,7 +220,7 @@ class Migrator
         foreach (explode(';', $dump) as $statement) {
             $statement = trim($statement);
 
-            if (empty($statement) || substr($statement, 0, 2) === '/*') {
+            if (empty($statement) || str_starts_with($statement, '/*')) {
                 continue;
             }
 
@@ -283,38 +238,19 @@ class Migrator
         $this->note('<info>Loaded stored database schema.</info> ('.$runTime.'ms)');
     }
 
-    /**
-     * Set the output implementation that should be used by the console.
-     *
-     * @param OutputInterface $output
-     * @return $this
-     */
-    public function setOutput(OutputInterface $output)
+    public function setOutput(OutputInterface $output): static
     {
         $this->output = $output;
 
         return $this;
     }
 
-    /**
-     * Write a note to the conosle's output.
-     *
-     * @param string $message
-     * @return void
-     */
-    protected function note($message)
+    protected function note(string $message): void
     {
-        if ($this->output) {
-            $this->output->writeln($message);
-        }
+        $this->output?->writeln($message);
     }
 
-    /**
-     * Determine if the migration repository exists.
-     *
-     * @return bool
-     */
-    public function repositoryExists()
+    public function repositoryExists(): bool
     {
         return $this->repository->repositoryExists();
     }

@@ -1,10 +1,10 @@
-/// <reference types="flarum/@types/translator-icu-rich" />
-import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
+/// <reference types="@flarum/core/dist-typings/@types/translator-icu-rich" />
+import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';
 import type Mithril from 'mithril';
 import type Tag from '../../common/models/Tag';
-export interface EditTagModalAttrs extends IInternalModalAttrs {
+export interface EditTagModalAttrs extends IFormModalAttrs {
     primary?: boolean;
     model?: Tag;
 }
@@ -12,7 +12,7 @@ export interface EditTagModalAttrs extends IInternalModalAttrs {
  * The `EditTagModal` component shows a modal dialog which allows the user
  * to create or edit a tag.
  */
-export default class EditTagModal extends Modal<EditTagModalAttrs> {
+export default class EditTagModal extends FormModal<EditTagModalAttrs> {
     tag: Tag;
     name: Stream<string>;
     slug: Stream<string>;
@@ -23,7 +23,7 @@ export default class EditTagModal extends Modal<EditTagModalAttrs> {
     primary: Stream<boolean>;
     oninit(vnode: Mithril.Vnode<EditTagModalAttrs, this>): void;
     className(): string;
-    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray | Mithril.Vnode<any, any>;
+    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray | Mithril.Vnode<import("flarum/common/Component").ComponentAttrs, any>;
     content(): JSX.Element;
     fields(): ItemList<unknown>;
     submitData(): {

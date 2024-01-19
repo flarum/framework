@@ -19,8 +19,8 @@
         }
     ],
     "require": {
-        "flarum/core": "^1.4",
-        "pusher/pusher-php-server": "^2.2"
+        "flarum/core": "^2.0",
+        "pusher/pusher-php-server": "^7.2"
     },
     "require-dev": {
         "flarum/tags": "^1.0"
@@ -32,7 +32,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "1.x-dev"
+            "dev-main": "2.x-dev"
         },
         "flarum-extension": {
             "title": "Pusher",

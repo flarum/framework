@@ -1,4 +1,5 @@
-declare namespace _default {
+export default PostControls;
+declare namespace PostControls {
     /**
      * Get a list of controls for a post.
      *
@@ -126,5 +127,4 @@ declare namespace _default {
      */
     function deleteAction(context: any): Promise<void>;
 }
-export default _default;
 import ItemList from "../../common/utils/ItemList";

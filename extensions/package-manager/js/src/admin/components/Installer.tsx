@@ -64,7 +64,6 @@ export default class Installer extends Component<InstallerAttrs> {
         body: {
           data: this.data(),
         },
-        errorHandler,
       })
       .then((response) => {
         if (response.processing) {
@@ -79,8 +78,10 @@ export default class Installer extends Component<InstallerAttrs> {
           window.location.reload();
         }
       })
+      .catch(errorHandler)
       .finally(() => {
         app.packageManager.control.setLoading(null);
+        app.modal.close();
         m.redraw();
       });
   }

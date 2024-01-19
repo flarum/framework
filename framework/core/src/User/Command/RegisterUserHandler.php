@@ -30,54 +30,22 @@ class RegisterUserHandler
 {
     use DispatchEventsTrait;
 
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var UserValidator
-     */
-    protected $userValidator;
-
-    /**
-     * @var AvatarUploader
-     */
-    protected $avatarUploader;
-    /**
-     * @var Factory
-     */
-    private $validator;
-
-    /**
-     * @var ImageManager
-     */
-    protected $imageManager;
-
-    /**
-     * @param Dispatcher $events
-     * @param SettingsRepositoryInterface $settings
-     * @param UserValidator $validator
-     * @param AvatarUploader $avatarUploader
-     */
-    public function __construct(Dispatcher $events, SettingsRepositoryInterface $settings, UserValidator $userValidator, AvatarUploader $avatarUploader, Factory $validator, ImageManager $imageManager)
-    {
-        $this->events = $events;
-        $this->settings = $settings;
-        $this->userValidator = $userValidator;
-        $this->avatarUploader = $avatarUploader;
-        $this->validator = $validator;
-        $this->imageManager = $imageManager;
+    public function __construct(
+        protected Dispatcher $events,
+        protected SettingsRepositoryInterface $settings,
+        protected UserValidator $userValidator,
+        protected AvatarUploader $avatarUploader,
+        private readonly Factory $validator,
+        protected ImageManager $imageManager
+    ) {
     }
 
     /**
-     * @param RegisterUser $command
-     * @return User
      * @throws PermissionDeniedException if signup is closed and the actor is
      *     not an administrator.
      * @throws ValidationException
      */
-    public function handle(RegisterUser $command)
+    public function handle(RegisterUser $command): User
     {
         $actor = $command->actor;
         $data = $command->data;
@@ -91,6 +59,7 @@ class RegisterUserHandler
         // If a valid authentication token was provided as an attribute,
         // then we won't require the user to choose a password.
         if (isset($data['attributes']['token'])) {
+            /** @var RegistrationToken $token */
             $token = RegistrationToken::validOrFail($data['attributes']['token']);
 
             $password = $password ?: Str::random(20);
@@ -127,7 +96,7 @@ class RegisterUserHandler
         return $user;
     }
 
-    private function applyToken(User $user, RegistrationToken $token)
+    private function applyToken(User $user, RegistrationToken $token): void
     {
         foreach ($token->user_attributes as $k => $v) {
             if ($k === 'avatar_url') {
@@ -150,7 +119,7 @@ class RegisterUserHandler
     /**
      * @throws InvalidArgumentException
      */
-    private function uploadAvatarFromUrl(User $user, string $url)
+    private function uploadAvatarFromUrl(User $user, string $url): void
     {
         $urlValidator = $this->validator->make(compact('url'), [
             'url' => 'required|active_url',
@@ -171,7 +140,7 @@ class RegisterUserHandler
         $this->avatarUploader->upload($user, $image);
     }
 
-    private function fulfillToken(User $user, RegistrationToken $token)
+    private function fulfillToken(User $user, RegistrationToken $token): void
     {
         $token->delete();
 

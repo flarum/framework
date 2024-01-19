@@ -12,24 +12,22 @@ namespace Flarum\Post;
 use Flarum\Discussion\Discussion;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class PostRepository
 {
     /**
-     * Get a new query builder for the posts table.
-     *
-     * @return Builder
+     * @return Builder<Post>
      */
-    public function query()
+    public function query(): Builder
     {
         return Post::query();
     }
 
     /**
-     * @param User|null $user
-     * @return Builder
+     * @return Builder<Post>
      */
-    protected function queryVisibleTo(User $user = null)
+    public function queryVisibleTo(?User $user = null): Builder
     {
         $query = $this->query();
 
@@ -44,13 +42,9 @@ class PostRepository
      * Find a post by ID, optionally making sure it is visible to a certain
      * user, or throw an exception.
      *
-     * @param int $id
-     * @param \Flarum\User\User $actor
-     * @return \Flarum\Post\Post
-     *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function findOrFail($id, User $actor = null)
+    public function findOrFail(int $id, ?User $actor = null): Post
     {
         return $this->queryVisibleTo($actor)->findOrFail($id);
     }
@@ -58,15 +52,8 @@ class PostRepository
     /**
      * Find posts that match certain conditions, optionally making sure they
      * are visible to a certain user, and/or using other criteria.
-     *
-     * @param array $where
-     * @param \Flarum\User\User|null $actor
-     * @param array $sort
-     * @param int $count
-     * @param int $start
-     * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function findWhere(array $where = [], User $actor = null, $sort = [], $count = null, $start = 0)
+    public function findWhere(array $where = [], User $actor = null, array $sort = [], int $count = null, int $start = 0): Collection
     {
         $query = $this->queryVisibleTo($actor)
             ->where($where)
@@ -84,11 +71,9 @@ class PostRepository
      * Filter a list of post IDs to only include posts that are visible to a
      * certain user.
      *
-     * @param array $ids
-     * @param User $actor
-     * @return array
+     * @param int[] $ids
      */
-    public function filterVisibleIds(array $ids, User $actor)
+    public function filterVisibleIds(array $ids, User $actor): array
     {
         return $this->queryIds($ids, $actor)->pluck('posts.id')->all();
     }
@@ -97,38 +82,35 @@ class PostRepository
      * Get the position within a discussion where a post with a certain number
      * is. If the post with that number does not exist, the index of the
      * closest post to it will be returned.
-     *
-     * @param int $discussionId
-     * @param int $number
-     * @param \Flarum\User\User|null $actor
-     * @return int
      */
-    public function getIndexForNumber($discussionId, $number, User $actor = null)
+    public function getIndexForNumber(int $discussionId, int $number, ?User $actor = null): int
     {
-        $query = Discussion::find($discussionId)
-            ->posts()
+        if (! ($discussion = Discussion::find($discussionId))) {
+            return 0;
+        }
+
+        $query = $discussion->posts()
             ->whereVisibleTo($actor)
             ->where('created_at', '<', function ($query) use ($discussionId, $number) {
                 $query->select('created_at')
-                      ->from('posts')
-                      ->where('discussion_id', $discussionId)
-                      ->whereNotNull('number')
-                      ->take(1)
+                    ->from('posts')
+                    ->where('discussion_id', $discussionId)
+                    ->whereNotNull('number')
+                    ->take(1)
 
-                      // We don't add $number as a binding because for some
-                      // reason doing so makes the bindings go out of order.
-                      ->orderByRaw('ABS(CAST(number AS SIGNED) - '.(int) $number.')');
+                    // We don't add $number as a binding because for some
+                    // reason doing so makes the bindings go out of order.
+                    ->orderByRaw('ABS(CAST(number AS SIGNED) - '.(int) $number.')');
             });
 
         return $query->count();
     }
 
     /**
-     * @param array $ids
-     * @param User|null $actor
-     * @return Builder
+     * @param int[] $ids
+     * @return Builder<Post>
      */
-    protected function queryIds(array $ids, User $actor = null)
+    protected function queryIds(array $ids, User $actor = null): Builder
     {
         return $this->queryVisibleTo($actor)->whereIn('posts.id', $ids);
     }

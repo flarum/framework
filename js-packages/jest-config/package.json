@@ -1,0 +1,35 @@
+{
+    "name": "@flarum/jest-config",
+    "version": "1.0.1",
+    "description": "Jest config for Flarum.",
+    "main": "index.cjs",
+    "author": "Flarum Team",
+    "license": "MIT",
+    "type": "module",
+    "prettier": "@flarum/prettier-config",
+    "dependencies": {
+        "@types/jest": "^29.2.2",
+        "flarum-webpack-config": "^2.0.1",
+        "flat": "^5.0.2",
+        "jest": "^29.3.1",
+        "jest-environment-jsdom": "^29.3.1",
+        "js-yaml": "^4.1.0",
+        "mithril-query": "^4.0.1",
+        "ts-jest": "^29.0.3"
+    },
+    "devDependencies": {
+        "prettier": "^2.4.1"
+    },
+    "scripts": {
+        "dev": "echo 'skipping..'",
+        "build": "echo 'skipping..'",
+        "analyze": "echo 'skipping..'",
+        "format": "prettier --write .",
+        "format-check": "prettier --check .",
+        "clean-typings": "echo 'skipping..'",
+        "build-typings": "echo 'skipping..'",
+        "post-build-typings": "echo 'skipping..'",
+        "check-typings": "echo 'skipping..'",
+        "check-typings-coverage": "echo 'skipping..'"
+    }
+}

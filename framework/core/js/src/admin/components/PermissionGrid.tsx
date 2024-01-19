@@ -4,8 +4,8 @@ import PermissionDropdown from './PermissionDropdown';
 import SettingDropdown from './SettingDropdown';
 import Button from '../../common/components/Button';
 import ItemList from '../../common/utils/ItemList';
-import icon from '../../common/helpers/icon';
 import type Mithril from 'mithril';
+import Icon from '../../common/components/Icon';
 
 export interface PermissionConfig {
   permission: string;
@@ -56,9 +56,9 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
             {scopes.map((scope) => (
               <th>
                 {scope.label}{' '}
-                {scope.onremove
-                  ? Button.component({ icon: 'fas fa-times', className: 'Button Button--text PermissionGrid-removeScope', onclick: scope.onremove })
-                  : ''}
+                {!!scope.onremove && (
+                  <Button icon="fas fa-times" className="Button Button--text PermissionGrid-removeScope" onclick={scope.onremove} />
+                )}
               </th>
             ))}
             <th>{this.scopeControlItems().toArray()}</th>
@@ -76,7 +76,7 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
               {section.children.map((child) => (
                 <tr className="PermissionGrid-child">
                   <th>
-                    {icon(child.icon)}
+                    <Icon name={child.icon} />
                     {child.label}
                   </th>
                   {permissionCells(child)}
@@ -174,15 +174,16 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
       {
         icon: 'fas fa-user-plus',
         label: app.translator.trans('core.admin.permissions.sign_up_label'),
-        setting: () =>
-          SettingDropdown.component({
-            key: 'allow_sign_up',
-            options: [
+        setting: () => (
+          <SettingDropdown
+            key="allow_sign_up"
+            options={[
               { value: '1', label: app.translator.trans('core.admin.permissions_controls.signup_open_button') },
               { value: '0', label: app.translator.trans('core.admin.permissions_controls.signup_closed_button') },
-            ],
-            lazyDraw: true,
-          }),
+            ]}
+            lazyDraw
+          />
+        ),
       },
       90
     );
@@ -219,21 +220,35 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
         setting: () => {
           const minutes = parseInt(app.data.settings.allow_renaming, 10);
 
-          return SettingDropdown.component({
-            defaultLabel: minutes
-              ? app.translator.trans('core.admin.permissions_controls.allow_some_minutes_button', { count: minutes })
-              : app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button'),
-            key: 'allow_renaming',
-            options: [
-              { value: '-1', label: app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button') },
-              { value: '10', label: app.translator.trans('core.admin.permissions_controls.allow_ten_minutes_button') },
-              { value: 'reply', label: app.translator.trans('core.admin.permissions_controls.allow_until_reply_button') },
-            ],
-            lazyDraw: true,
-          });
+          return (
+            <SettingDropdown
+              defaultLabel={
+                minutes
+                  ? app.translator.trans('core.admin.permissions_controls.allow_some_minutes_button', { count: minutes })
+                  : app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button')
+              }
+              key="allow_renaming"
+              options={[
+                { value: '-1', label: app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button') },
+                { value: '10', label: app.translator.trans('core.admin.permissions_controls.allow_ten_minutes_button') },
+                { value: 'reply', label: app.translator.trans('core.admin.permissions_controls.allow_until_reply_button') },
+              ]}
+              lazyDraw
+            />
+          );
         },
       },
       90
+    );
+
+    items.add(
+      'createAccessToken',
+      {
+        icon: 'fas fa-key',
+        label: app.translator.trans('core.admin.permissions.create_access_token_label'),
+        permission: 'createAccessToken',
+      },
+      80
     );
 
     items.merge(app.extensionData.getAllExtensionPermissions('start'));
@@ -262,20 +277,49 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
         setting: () => {
           const minutes = parseInt(app.data.settings.allow_post_editing, 10);
 
+          return (
+            <SettingDropdown
+              defaultLabel={
+                minutes
+                  ? app.translator.trans('core.admin.permissions_controls.allow_some_minutes_button', { count: minutes })
+                  : app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button')
+              }
+              key="allow_post_editing"
+              options={[
+                { value: '-1', label: app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button') },
+                { value: '10', label: app.translator.trans('core.admin.permissions_controls.allow_ten_minutes_button') },
+                { value: 'reply', label: app.translator.trans('core.admin.permissions_controls.allow_until_reply_button') },
+              ]}
+            />
+          );
+        },
+      },
+      90
+    );
+
+    items.add(
+      'hideOwnPosts',
+      {
+        icon: 'far fa-trash-alt',
+        label: app.translator.trans('core.admin.permissions.allow_hide_own_posts_label'),
+        setting: () => {
+          const minutes = parseInt(app.data.settings.allow_hide_own_posts, 10);
+
           return SettingDropdown.component({
             defaultLabel: minutes
               ? app.translator.trans('core.admin.permissions_controls.allow_some_minutes_button', { count: minutes })
               : app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button'),
-            key: 'allow_post_editing',
+            key: 'allow_hide_own_posts',
             options: [
               { value: '-1', label: app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button') },
               { value: '10', label: app.translator.trans('core.admin.permissions_controls.allow_ten_minutes_button') },
               { value: 'reply', label: app.translator.trans('core.admin.permissions_controls.allow_until_reply_button') },
+              { value: '0', label: app.translator.trans('core.admin.permissions_controls.allow_never_button') },
             ],
           });
         },
       },
-      90
+      80
     );
 
     items.merge(app.extensionData.getAllExtensionPermissions('reply'));
@@ -396,6 +440,16 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
       60
     );
 
+    items.add(
+      'moderateAccessTokens',
+      {
+        icon: 'fas fa-key',
+        label: app.translator.trans('core.admin.permissions.moderate_access_tokens_label'),
+        permission: 'moderateAccessTokens',
+      },
+      60
+    );
+
     items.merge(app.extensionData.getAllExtensionPermissions('moderate'));
 
     return items;
@@ -412,10 +466,7 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
           if ('setting' in item) {
             return item.setting();
           } else if ('permission' in item) {
-            return PermissionDropdown.component({
-              permission: item.permission,
-              allowGuest: item.allowGuest,
-            });
+            return <PermissionDropdown permission={item.permission} allowGuest={item.allowGuest} />;
           }
 
           return null;

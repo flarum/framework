@@ -6,5 +6,7 @@
         "extensions/*/js",
         "js-packages/*"
     ],
-    "scripts": {}
- }
+    "scripts": {
+        "audit-fix": "npx yarn-audit-fix"
+    }
+}

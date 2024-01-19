@@ -1,9 +1,10 @@
 import app from '../../forum/app';
 import Component from '../../common/Component';
 import ScrollListener from '../../common/utils/ScrollListener';
-import PostLoading from './LoadingPost';
+import LoadingPost from './LoadingPost';
 import ReplyPlaceholder from './ReplyPlaceholder';
 import Button from '../../common/components/Button';
+import ItemList from '../../common/utils/ItemList';
 
 /**
  * The `PostStream` component displays an infinitely-scrollable wall of posts in
@@ -47,7 +48,7 @@ export default class PostStream extends Component {
       if (post) {
         const time = post.createdAt();
         const PostComponent = app.postComponents[post.contentType()];
-        content = PostComponent ? PostComponent.component({ post }) : '';
+        content = !!PostComponent && <PostComponent post={post} />;
 
         attrs.key = 'post' + post.id();
         attrs.oncreate = postFadeIn;
@@ -74,7 +75,7 @@ export default class PostStream extends Component {
       } else {
         attrs.key = 'post' + postIds[this.stream.visibleStart + i];
 
-        content = PostLoading.component();
+        content = <LoadingPost />;
       }
 
       return (
@@ -94,12 +95,17 @@ export default class PostStream extends Component {
       );
     }
 
+    // Allow extensions to add items to the end of the post stream.
+    if (viewingEnd) {
+      items.push(...this.endItems().toArray());
+    }
+
     // If we're viewing the end of the discussion, the user can reply, and
     // is not already doing so, then show a 'write a reply' placeholder.
     if (viewingEnd && (!app.session.user || this.discussion.canReply())) {
       items.push(
         <div className="PostStream-item" key="reply" data-index={this.stream.count()} oncreate={postFadeIn}>
-          {ReplyPlaceholder.component({ discussion: this.discussion })}
+          <ReplyPlaceholder discussion={this.discussion} />
         </div>
       );
     }
@@ -109,6 +115,15 @@ export default class PostStream extends Component {
         {items}
       </div>
     );
+  }
+
+  /**
+   * @returns {ItemList<import('mithril').Children>}
+   */
+  endItems() {
+    const items = new ItemList();
+
+    return items;
   }
 
   onupdate(vnode) {

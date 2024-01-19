@@ -1,5 +1,6 @@
 import Button from './Button';
 import Link from './Link';
+import classList from '../utils/classList';
 
 /**
  * The `LinkButton` component defines a `Button` which links to a route.
@@ -19,6 +20,7 @@ export default class LinkButton extends Button {
     super.initAttrs(attrs);
 
     attrs.active = this.isActive(attrs);
+    attrs.className = classList('LinkButton', attrs.className);
     if (attrs.force === undefined) attrs.force = true;
   }
 
@@ -39,6 +41,6 @@ export default class LinkButton extends Button {
    * @return {boolean}
    */
   static isActive(attrs) {
-    return typeof attrs.active !== 'undefined' ? attrs.active : m.route.get() === attrs.href;
+    return typeof attrs.active !== 'undefined' ? attrs.active : m.route.get()?.split('?')[0] === attrs.href?.split('?')[0];
   }
 }

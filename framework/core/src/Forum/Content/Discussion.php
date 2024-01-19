@@ -19,34 +19,14 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Discussion
 {
-    /**
-     * @var Client
-     */
-    protected $api;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @var Factory
-     */
-    protected $view;
-
-    /**
-     * @param Client $api
-     * @param UrlGenerator $url
-     * @param Factory $view
-     */
-    public function __construct(Client $api, UrlGenerator $url, Factory $view)
-    {
-        $this->api = $api;
-        $this->url = $url;
-        $this->view = $view;
+    public function __construct(
+        protected Client $api,
+        protected UrlGenerator $url,
+        protected Factory $view
+    ) {
     }
 
-    public function __invoke(Document $document, Request $request)
+    public function __invoke(Document $document, Request $request): Document
     {
         $queryParams = $request->getQueryParams();
         $id = Arr::get($queryParams, 'id');
@@ -112,19 +92,17 @@ class Discussion
      *
      * @throws RouteNotFoundException
      */
-    protected function getApiDocument(Request $request, string $id, array $params)
+    protected function getApiDocument(Request $request, string $id, array $params): object
     {
         $params['bySlug'] = true;
-        $response = $this->api
-            ->withParentRequest($request)
-            ->withQueryParams($params)
-            ->get("/discussions/$id");
-        $statusCode = $response->getStatusCode();
 
-        if ($statusCode === 404) {
-            throw new RouteNotFoundException;
-        }
-
-        return json_decode($response->getBody());
+        return json_decode(
+            $this->api
+                ->withoutErrorHandling()
+                ->withParentRequest($request)
+                ->withQueryParams($params)
+                ->get("/discussions/$id")
+                ->getBody()
+        );
     }
 }

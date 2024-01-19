@@ -9,7 +9,6 @@
 
 namespace Flarum\Tags\Tests\integration\api\discussions;
 
-use Flarum\Group\Group;
 use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -33,12 +32,25 @@ class ListTest extends TestCase
             'tags' => $this->tags(),
             'users' => [
                 $this->normalUser(),
+                [
+                    'id' => 3,
+                    'username' => 'normal3',
+                    'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', // BCrypt hash for "too-obscure"
+                    'email' => 'normal3@machine.local',
+                    'is_email_confirmed' => 1,
+                ]
+            ],
+            'groups' => [
+                ['id' => 100, 'name_singular' => 'acme', 'name_plural' => 'acme']
+            ],
+            'group_user' => [
+                ['group_id' => 100, 'user_id' => 2]
             ],
             'group_permission' => [
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag5.viewForum'],
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag8.viewForum'],
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag11.viewForum'],
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'tag13.viewForum'],
+                ['group_id' => 100, 'permission' => 'tag5.viewForum'],
+                ['group_id' => 100, 'permission' => 'tag8.viewForum'],
+                ['group_id' => 100, 'permission' => 'tag11.viewForum'],
+                ['group_id' => 100, 'permission' => 'tag13.viewForum'],
             ],
             'discussions' => [
                 ['id' => 1, 'title' => 'no tags', 'user_id' => 1, 'comment_count' => 1],
@@ -149,59 +161,22 @@ class ListTest extends TestCase
     }
 
     /**
+     * @dataProvider seeWhereAllowedWhenMoreTagsAreRequiredThanAvailableDataProvider
      * @test
      */
-    public function admin_can_see_where_allowed_when_more_primary_tags_are_required_than_available()
+    public function actor_can_see_where_allowed_when_more_tags_are_required_than_available(string $type, int $actorId, array $expectedDiscussions)
     {
-        $this->actor_can_see_where_allowed_when_more_primary_tags_are_required_than_available(1, ['1', '2', '3', '4', '5', '6']);
-    }
-
-    /**
-     * @test
-     */
-    public function user_can_see_where_allowed_when_more_primary_tags_are_required_than_available()
-    {
-        $this->actor_can_see_where_allowed_when_more_primary_tags_are_required_than_available(2, ['1', '2', '3', '4']);
-    }
-
-    /**
-     * @test
-     */
-    public function guest_can_see_where_allowed_when_more_primary_tags_are_required_than_available()
-    {
-        $this->actor_can_see_where_allowed_when_more_primary_tags_are_required_than_available(0, ['1', '2']);
-    }
-
-    /**
-     * @test
-     */
-    public function admin_can_see_where_allowed_when_more_secondary_tags_are_required_than_available()
-    {
-        $this->actor_can_see_where_allowed_when_more_secondary_tags_are_required_than_available(1, ['1', '2', '3', '4', '5', '6']);
-    }
-
-    /**
-     * @test
-     */
-    public function user_can_see_where_allowed_when_more_secondary_tags_are_required_than_available()
-    {
-        $this->actor_can_see_where_allowed_when_more_secondary_tags_are_required_than_available(2, ['1', '2', '3', '4']);
-    }
-
-    /**
-     * @test
-     */
-    public function guest_can_see_where_allowed_when_more_secondary_tags_are_required_than_available()
-    {
-        $this->actor_can_see_where_allowed_when_more_secondary_tags_are_required_than_available(0, ['1', '2']);
-    }
-
-    public function actor_can_see_where_allowed_when_more_primary_tags_are_required_than_available(int $actorId, array $expectedDiscussions)
-    {
-        $this->setting('flarum-tags.min_primary_tags', 100);
-        $this->database()->table('tags')
-            ->where('position', '!=', null)
-            ->update(['position' => null]);
+        if ($type === 'secondary') {
+            $this->setting('flarum-tags.min_secondary_tags', 1);
+            $this->database()->table('tags')
+                ->where(['position' => null, 'parent_id' => null])
+                ->update(['position' => 200]);
+        } elseif ($type === 'primary') {
+            $this->setting('flarum-tags.min_primary_tags', 100);
+            $this->database()->table('tags')
+                ->where('position', '!=', null)
+                ->update(['position' => null]);
+        }
 
         if ($actorId) {
             $reqParams = [
@@ -221,21 +196,37 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing($expectedDiscussions, $ids);
     }
 
-    public function actor_can_see_where_allowed_when_more_secondary_tags_are_required_than_available(int $actorId, array $expectedDiscussions)
+    public function seeWhereAllowedWhenMoreTagsAreRequiredThanAvailableDataProvider(): array
     {
-        $this->setting('flarum-tags.min_secondary_tags', 1);
-        $this->database()->table('tags')
-            ->where(['position' => null, 'parent_id' => null])
-            ->update(['position' => 200]);
+        return [
+            // admin_can_see_where_allowed_when_more_primary_tags_are_required_than_available
+            ['primary', 1, ['1', '2', '3', '4', '5', '6']],
+            // user_can_see_where_allowed_when_more_primary_tags_are_required_than_available
+            ['primary', 2, ['1', '2', '3', '4']],
+            // guest_can_see_where_allowed_when_more_primary_tags_are_required_than_available
+            ['primary', 0, ['1', '2']],
+            // admin_can_see_where_allowed_when_more_secondary_tags_are_required_than_available
+            ['secondary', 1, ['1', '2', '3', '4', '5', '6']],
+            // user_can_see_where_allowed_when_more_secondary_tags_are_required_than_available
+            ['secondary', 2, ['1', '2', '3', '4']],
+            // guest_can_see_where_allowed_when_more_secondary_tags_are_required_than_available
+            ['secondary', 0, ['1', '2']],
+        ];
+    }
 
-        if ($actorId) {
-            $reqParams = [
-                'authenticatedAs' => $actorId
-            ];
-        }
-
+    /**
+     * @dataProvider filterByTagsDataProvider
+     * @test
+     */
+    public function can_filter_by_authorized_tags(int $authenticatedAs, string $tags, array $expectedDiscussionIds)
+    {
         $response = $this->send(
-            $this->request('GET', '/api/discussions', $reqParams ?? [])
+            $this->request('GET', '/api/discussions', compact('authenticatedAs'))
+                ->withQueryParams([
+                    'filter' => [
+                        'tag' => $tags
+                    ]
+                ])
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -243,6 +234,31 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
-        $this->assertEqualsCanonicalizing($expectedDiscussions, $ids);
+        $this->assertEqualsCanonicalizing($expectedDiscussionIds, array_map('intval', $ids));
+    }
+
+    public function filterByTagsDataProvider(): array
+    {
+        return [
+            // Admin can filter by any tag.
+            [1, 'primary-1,primary-2', [2, 3, 4]],
+            [1, 'primary-1,primary-2,primary-restricted', [2, 3, 4, 5]],
+            [1, 'primary-2-restricted-child-1', [6]],
+            [1, 'untagged', [1]],
+
+            // Normal user can only filter by tags he has access to.
+            [3, 'primary-2-restricted-child-1', []],
+            [3, 'primary-1', [2]],
+            [3, 'primary-1,primary-2', [2]],
+            [3, 'untagged', [1]],
+
+            // Authorized User can only filter by tags he has access to.
+            [2, 'primary-2-restricted-child-1', []],
+            [2, 'primary-2-restricted-child-1,primary-restricted-child-restricted', []],
+            [2, 'primary-1', [2, 4]],
+            [2, 'primary-1,primary-2', [2, 3, 4]],
+            [2, 'secondary-restricted', [4]],
+            [2, 'untagged', [1]],
+        ];
     }
 }

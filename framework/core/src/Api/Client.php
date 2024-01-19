@@ -11,46 +11,22 @@ namespace Flarum\Api;
 
 use Flarum\Http\RequestUtil;
 use Flarum\User\User;
-use Illuminate\Contracts\Container\Container;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Diactoros\Uri;
-use Laminas\Stratigility\MiddlewarePipeInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class Client
 {
-    /**
-     * @var MiddlewarePipeInterface
-     */
-    protected $pipe;
+    protected ?User $actor = null;
+    protected ?ServerRequestInterface $parent = null;
+    protected array $queryParams = [];
+    protected array $body = [];
+    protected bool $errorHandling = true;
 
-    /**
-     * @var User
-     */
-    protected $actor;
-
-    /**
-     * @var ServerRequestInterface
-     */
-    protected $parent;
-
-    /**
-     * @var array
-     */
-    protected $queryParams = [];
-
-    /**
-     * @var array
-     */
-    protected $body = [];
-
-    /**
-     * @param Container $container
-     */
-    public function __construct(MiddlewarePipeInterface $pipe)
-    {
-        $this->pipe = $pipe;
+    public function __construct(
+        protected ClientMiddlewarePipe $pipe
+    ) {
     }
 
     /**
@@ -90,6 +66,22 @@ class Client
         return $new;
     }
 
+    public function withoutErrorHandling(): Client
+    {
+        $new = clone $this;
+        $new->errorHandling = false;
+
+        return $new;
+    }
+
+    public function withErrorHandling(): Client
+    {
+        $new = clone $this;
+        $new->errorHandling = true;
+
+        return $new;
+    }
+
     public function get(string $path): ResponseInterface
     {
         return $this->send('GET', $path);
@@ -118,10 +110,6 @@ class Client
     /**
      * Execute the given API action class, pass the input and return its response.
      *
-     * @param string $method
-     * @param string $path
-     * @return ResponseInterface
-     *
      * @internal
      */
     public function send(string $method, string $path): ResponseInterface
@@ -142,6 +130,8 @@ class Client
             $request = RequestUtil::withActor($request, $this->actor);
         }
 
-        return $this->pipe->handle($request);
+        return $this->pipe
+            ->errorHandling($this->errorHandling)
+            ->handle($request);
     }
 }

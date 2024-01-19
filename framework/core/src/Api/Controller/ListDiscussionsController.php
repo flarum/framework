@@ -11,80 +11,40 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Discussion;
-use Flarum\Discussion\Filter\DiscussionFilterer;
-use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
-use Flarum\Query\QueryCriteria;
+use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearchManager;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
 class ListDiscussionsController extends AbstractListController
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = DiscussionSerializer::class;
+    public ?string $serializer = DiscussionSerializer::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    public $include = [
+    public array $include = [
         'user',
         'lastPostedUser',
         'mostRelevantPost',
         'mostRelevantPost.user'
     ];
 
-    /**
-     * {@inheritdoc}
-     */
-    public $optionalInclude = [
+    public array $optionalInclude = [
         'firstPost',
         'lastPost'
     ];
 
-    /**
-     * {@inheritDoc}
-     */
-    public $sort = ['lastPostedAt' => 'desc'];
+    public ?array $sort = ['lastPostedAt' => 'desc'];
 
-    /**
-     * {@inheritdoc}
-     */
-    public $sortFields = ['lastPostedAt', 'commentCount', 'createdAt'];
+    public array $sortFields = ['lastPostedAt', 'commentCount', 'createdAt'];
 
-    /**
-     * @var DiscussionFilterer
-     */
-    protected $filterer;
-
-    /**
-     * @var DiscussionSearcher
-     */
-    protected $searcher;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @param DiscussionFilterer $filterer
-     * @param DiscussionSearcher $searcher
-     * @param UrlGenerator $url
-     */
-    public function __construct(DiscussionFilterer $filterer, DiscussionSearcher $searcher, UrlGenerator $url)
-    {
-        $this->filterer = $filterer;
-        $this->searcher = $searcher;
-        $this->url = $url;
+    public function __construct(
+        protected SearchManager $search,
+        protected UrlGenerator $url
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function data(ServerRequestInterface $request, Document $document): iterable
     {
         $actor = RequestUtil::getActor($request);
         $filters = $this->extractFilter($request);
@@ -95,18 +55,15 @@ class ListDiscussionsController extends AbstractListController
         $offset = $this->extractOffset($request);
         $include = array_merge($this->extractInclude($request), ['state']);
 
-        $criteria = new QueryCriteria($actor, $filters, $sort, $sortIsDefault);
-        if (array_key_exists('q', $filters)) {
-            $results = $this->searcher->search($criteria, $limit, $offset);
-        } else {
-            $results = $this->filterer->filter($criteria, $limit, $offset);
-        }
+        $results = $this->search->query(
+            Discussion::class,
+            new SearchCriteria($actor, $filters, $limit, $offset, $sort, $sortIsDefault)
+        );
 
-        $document->addPaginationLinks(
+        $this->addPaginationData(
+            $document,
+            $request,
             $this->url->to('api')->route('discussions.index'),
-            $request->getQueryParams(),
-            $offset,
-            $limit,
             $results->areMoreResults() ? null : 0
         );
 

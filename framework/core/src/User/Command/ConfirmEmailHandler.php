@@ -11,6 +11,7 @@ namespace Flarum\User\Command;
 
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\EmailToken;
+use Flarum\User\User;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -18,25 +19,13 @@ class ConfirmEmailHandler
 {
     use DispatchEventsTrait;
 
-    /**
-     * @var \Flarum\User\UserRepository
-     */
-    protected $users;
-
-    /**
-     * @param \Flarum\User\UserRepository $users
-     */
-    public function __construct(Dispatcher $events, UserRepository $users)
-    {
-        $this->events = $events;
-        $this->users = $users;
+    public function __construct(
+        protected Dispatcher $events,
+        protected UserRepository $users
+    ) {
     }
 
-    /**
-     * @param ConfirmEmail $command
-     * @return \Flarum\User\User
-     */
-    public function handle(ConfirmEmail $command)
+    public function handle(ConfirmEmail $command): User
     {
         /** @var EmailToken $token */
         $token = EmailToken::validOrFail($command->token);

@@ -14,21 +14,17 @@ use Illuminate\Support\Arr;
 
 class FileVersioner implements VersionerInterface
 {
-    /**
-     * @var Filesystem
-     */
-    protected $filesystem;
     const REV_MANIFEST = 'rev-manifest.json';
 
-    public function __construct(Filesystem $filesystem)
-    {
-        $this->filesystem = $filesystem;
+    public function __construct(
+        protected Filesystem $filesystem
+    ) {
     }
 
-    public function putRevision(string $file, ?string $revision)
+    public function putRevision(string $file, ?string $revision): void
     {
-        if ($this->filesystem->has(static::REV_MANIFEST)) {
-            $manifest = json_decode($this->filesystem->read(static::REV_MANIFEST), true);
+        if ($this->filesystem->exists(static::REV_MANIFEST)) {
+            $manifest = json_decode($this->filesystem->get(static::REV_MANIFEST), true);
         } else {
             $manifest = [];
         }
@@ -44,12 +40,21 @@ class FileVersioner implements VersionerInterface
 
     public function getRevision(string $file): ?string
     {
-        if ($this->filesystem->has(static::REV_MANIFEST)) {
-            $manifest = json_decode($this->filesystem->read(static::REV_MANIFEST), true);
+        if ($this->filesystem->exists(static::REV_MANIFEST)) {
+            $manifest = json_decode($this->filesystem->get(static::REV_MANIFEST), true);
 
             return Arr::get($manifest, $file);
         }
 
         return null;
+    }
+
+    public function allRevisions(): array
+    {
+        if ($contents = $this->filesystem->get(static::REV_MANIFEST)) {
+            return json_decode($contents, true);
+        }
+
+        return [];
     }
 }

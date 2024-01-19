@@ -14,7 +14,9 @@ use Flarum\Foundation\Config;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\Paths;
+use Illuminate\Container\Container as ContainerImplementation;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;
+use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandling;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -30,7 +32,7 @@ use Illuminate\Queue\Worker;
 
 class QueueServiceProvider extends AbstractServiceProvider
 {
-    protected $commands = [
+    protected array $commands = [
         Commands\FlushFailedCommand::class,
         Commands\ForgetFailedCommand::class,
         Console\ListenCommand::class,
@@ -40,7 +42,7 @@ class QueueServiceProvider extends AbstractServiceProvider
         Console\WorkCommand::class,
     ];
 
-    public function register()
+    public function register(): void
     {
         // Register a simple connection factory that always returns the same
         // connection, as that is enough for our purposes.
@@ -52,7 +54,7 @@ class QueueServiceProvider extends AbstractServiceProvider
 
         // Extensions can override this binding if they want to make Flarum use
         // a different queuing backend.
-        $this->container->singleton('flarum.queue.connection', function (Container $container) {
+        $this->container->singleton('flarum.queue.connection', function (ContainerImplementation $container) {
             $queue = new SyncQueue;
             $queue->setContainer($container);
 
@@ -90,24 +92,24 @@ class QueueServiceProvider extends AbstractServiceProvider
         // Bind a simple cache manager that returns the cache store.
         $this->container->singleton('cache', function (Container $container) {
             return new class($container) implements CacheFactory {
-                public function __construct($container)
-                {
-                    $this->container = $container;
+                public function __construct(
+                    private readonly Container $container
+                ) {
                 }
 
-                public function driver()
+                public function driver(): Repository
                 {
                     return $this->container['cache.store'];
                 }
 
                 // We have to define this explicitly
                 // so that we implement the interface.
-                public function store($name = null)
+                public function store($name = null): mixed
                 {
                     return $this->__call($name, null);
                 }
 
-                public function __call($name, $arguments)
+                public function __call(string $name, ?array $arguments): mixed
                 {
                     return call_user_func_array([$this->driver(), $name], $arguments);
                 }
@@ -128,7 +130,7 @@ class QueueServiceProvider extends AbstractServiceProvider
         $this->registerCommands();
     }
 
-    protected function registerCommands()
+    protected function registerCommands(): void
     {
         $this->container->extend('flarum.console.commands', function ($commands, Container $container) {
             $queue = $container->make(Queue::class);
@@ -144,7 +146,7 @@ class QueueServiceProvider extends AbstractServiceProvider
         });
     }
 
-    public function boot(Dispatcher $events, Container $container)
+    public function boot(Dispatcher $events, Container $container): void
     {
         $events->listen(JobFailed::class, function (JobFailed $event) use ($container) {
             /** @var Registry $registry */

@@ -1,7 +1,6 @@
 @import "common/common";
 
 @import "forum/TagCloud";
-@import "forum/TagDiscussionModal";
 @import "forum/TagHero";
 @import "forum/TagTiles";
 @import "forum/ToggleButton";
@@ -10,6 +9,7 @@
   --button-primary-bg: var(--color);
   --button-primary-bg-hover: var(--color);
   --button-primary-bg-active: var(--color);
+  --button-color: var(--contrast-color);
 }
 .DiscussionHero {
   .item-title {
@@ -19,14 +19,10 @@
 }
 .TagLinkButton {
   &.child {
-    @media @tablet-up {
-      padding-top: 4px;
-      padding-bottom: 4px;
-    }
     margin-left: 10px;
 
     .TagIcon {
-      display: none;
+      visibility: hidden;
     }
   }
 
@@ -36,7 +32,6 @@
 }
 .DiscussionComposer-changeTags {
   margin-right: 15px;
-  vertical-align: 2px;
 
   &.disabled {
     opacity: 0.5;
@@ -73,11 +68,13 @@
 }
 @media @desktop-up {
   .TagsPage {
+    --sidebar-width: 100%;
+    --gap: 30px;
+
     .sideNav {
       .sideNav--horizontal();
-      float: none;
       width: auto;
-      padding-top: 0;
+      padding: 0;
 
       &:after {
         display: none;
@@ -87,8 +84,13 @@
         width: 190px;
       }
     }
-    .sideNavOffset {
-      margin: 15px 0 0;
+
+    .Page-container {
+      flex-direction: column;
+    }
+
+    .Page-content {
+      margin-top: 0;
     }
   }
 }

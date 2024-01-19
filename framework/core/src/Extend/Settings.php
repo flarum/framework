@@ -19,16 +19,16 @@ use Illuminate\Support\Collection;
 
 class Settings implements ExtenderInterface
 {
-    private $settings = [];
-    private $defaults = [];
-    private $lessConfigs = [];
+    private array $settings = [];
+    private array $defaults = [];
+    private array $lessConfigs = [];
 
     /**
      * Serialize a setting value to the ForumSerializer attributes.
      *
      * @param string $attributeName: The attribute name to be used in the ForumSerializer attributes array.
      * @param string $key: The key of the setting.
-     * @param string|callable|null $callback: Optional callback to modify the value before serialization.
+     * @param (callable(mixed $value): mixed)|class-string|null $callback: Optional callback to modify the value before serialization.
      *
      * The callback can be a closure or an invokable class, and should accept:
      * - mixed $value: The value of the setting.
@@ -36,13 +36,11 @@ class Settings implements ExtenderInterface
      * The callable should return:
      * - mixed $value: The modified value.
      *
-     * @todo remove $default in 2.0
-     * @param mixed $default: Deprecated optional default serialized value. Will be run through the optional callback.
      * @return self
      */
-    public function serializeToForum(string $attributeName, string $key, $callback = null, $default = null): self
+    public function serializeToForum(string $attributeName, string $key, callable|string $callback = null): self
     {
-        $this->settings[$key] = compact('attributeName', 'callback', 'default');
+        $this->settings[$key] = compact('attributeName', 'callback');
 
         return $this;
     }
@@ -55,7 +53,7 @@ class Settings implements ExtenderInterface
      * @param mixed $value: The setting value.
      * @return self
      */
-    public function default(string $key, $value): self
+    public function default(string $key, mixed $value): self
     {
         $this->defaults[$key] = $value;
 
@@ -67,7 +65,7 @@ class Settings implements ExtenderInterface
      *
      * @param string $configName: The name of the configuration variable, in hyphen case.
      * @param string $key: The key of the setting.
-     * @param string|callable|null $callback: Optional callback to modify the value.
+     * @param (callable(mixed $value): mixed)|class-string|null $callback: Optional callback to modify the value.
      *
      * The callback can be a closure or an invokable class, and should accept:
      * - mixed $value: The value of the setting.
@@ -77,14 +75,14 @@ class Settings implements ExtenderInterface
      *
      * @return self
      */
-    public function registerLessConfigVar(string $configName, string $key, $callback = null): self
+    public function registerLessConfigVar(string $configName, string $key, callable|string $callback = null): self
     {
         $this->lessConfigs[$configName] = compact('key', 'callback');
 
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         if (! empty($this->defaults)) {
             $container->extend('flarum.settings.default', function (Collection $defaults) {
@@ -108,7 +106,7 @@ class Settings implements ExtenderInterface
                     $attributes = [];
 
                     foreach ($this->settings as $key => $setting) {
-                        $value = $settings->get($key, $setting['default']);
+                        $value = $settings->get($key);
 
                         if (isset($setting['callback'])) {
                             $callback = ContainerUtil::wrapCallback($setting['callback'], $container);

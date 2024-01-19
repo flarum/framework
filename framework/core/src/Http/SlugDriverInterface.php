@@ -12,9 +12,18 @@ namespace Flarum\Http;
 use Flarum\Database\AbstractModel;
 use Flarum\User\User;
 
+/**
+ * @template T of AbstractModel
+ */
 interface SlugDriverInterface
 {
+    /**
+     * @param T $instance
+     */
     public function toSlug(AbstractModel $instance): string;
 
+    /**
+     * @return T
+     */
     public function fromSlug(string $slug, User $actor): AbstractModel;
 }

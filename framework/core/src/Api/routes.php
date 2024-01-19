@@ -19,11 +19,39 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\ShowForumController::class)
     );
 
-    // Retrieve authentication token
+    // List access tokens
+    $map->get(
+        '/access-tokens',
+        'access-tokens.index',
+        $route->toController(Controller\ListAccessTokensController::class)
+    );
+
+    // Create access token
+    $map->post(
+        '/access-tokens',
+        'access-tokens.create',
+        $route->toController(Controller\CreateAccessTokenController::class)
+    );
+
+    // Delete access token
+    $map->delete(
+        '/access-tokens/{id}',
+        'access-tokens.delete',
+        $route->toController(Controller\DeleteAccessTokenController::class)
+    );
+
+    // Create authentication token
     $map->post(
         '/token',
         'token',
         $route->toController(Controller\CreateTokenController::class)
+    );
+
+    // Terminate all other sessions
+    $map->delete(
+        '/sessions',
+        'sessions.delete',
+        $route->toController(Controller\TerminateAllOtherSessionsController::class)
     );
 
     // Send forgot password email

@@ -9,20 +9,27 @@
 
 namespace Flarum\Post\Filter;
 
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\FilterInterface;
+use Flarum\Search\SearchState;
+use Flarum\Search\ValidateFilterTrait;
 
+/**
+ * @implements FilterInterface<DatabaseSearchState>
+ */
 class DiscussionFilter implements FilterInterface
 {
+    use ValidateFilterTrait;
+
     public function getFilterKey(): string
     {
         return 'discussion';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $discussionId = trim($filterValue, '"');
+        $discussionId = $this->asInt($value);
 
-        $filterState->getQuery()->where('posts.discussion_id', $negate ? '!=' : '=', $discussionId);
+        $state->getQuery()->where('posts.discussion_id', $negate ? '!=' : '=', $discussionId);
     }
 }

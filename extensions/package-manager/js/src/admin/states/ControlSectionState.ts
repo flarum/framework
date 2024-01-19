@@ -94,7 +94,6 @@ export default class ControlSectionState {
       .request<AsyncBackendResponse | LastUpdateCheck>({
         method: 'POST',
         url: `${app.forum.attribute('apiUrl')}/package-manager/check-for-updates`,
-        errorHandler,
       })
       .then((response) => {
         if ((response as AsyncBackendResponse).processing) {
@@ -106,6 +105,7 @@ export default class ControlSectionState {
           m.redraw();
         }
       })
+      .catch(errorHandler)
       .finally(() => {
         this.setLoading(null);
         m.redraw();
@@ -121,7 +121,6 @@ export default class ControlSectionState {
         .request<AsyncBackendResponse | null>({
           method: 'POST',
           url: `${app.forum.attribute('apiUrl')}/package-manager/minor-update`,
-          errorHandler,
         })
         .then((response) => {
           if (response?.processing) {
@@ -131,6 +130,7 @@ export default class ControlSectionState {
             window.location.reload();
           }
         })
+        .catch(errorHandler)
         .finally(() => {
           this.setLoading(null);
           app.modal.close();
@@ -147,7 +147,6 @@ export default class ControlSectionState {
       .request<AsyncBackendResponse | null>({
         method: 'PATCH',
         url: `${app.forum.attribute('apiUrl')}/package-manager/extensions/${extension.id}`,
-        errorHandler,
       })
       .then((response) => {
         if (response?.processing) {
@@ -162,6 +161,7 @@ export default class ControlSectionState {
           window.location.reload();
         }
       })
+      .catch(errorHandler)
       .finally(() => {
         this.setLoading(null);
         app.modal.close();
@@ -177,7 +177,6 @@ export default class ControlSectionState {
       .request<AsyncBackendResponse | null>({
         method: 'POST',
         url: `${app.forum.attribute('apiUrl')}/package-manager/global-update`,
-        errorHandler,
       })
       .then((response) => {
         if (response?.processing) {
@@ -187,6 +186,7 @@ export default class ControlSectionState {
           window.location.reload();
         }
       })
+      .catch(errorHandler)
       .finally(() => {
         this.setLoading(null);
         app.modal.close();
@@ -226,7 +226,7 @@ export default class ControlSectionState {
         version: app.data.settings.version,
         icon: {
           // @ts-ignore
-          backgroundImage: `url(${app.forum.attribute('baseUrl')}/assets/extensions/flarum-package-manager/flarum.svg`,
+          backgroundImage: `url(${app.data.resources[0]['attributes']['baseUrl']}/assets/extensions/flarum-package-manager/flarum.svg`,
         },
         extra: {
           'flarum-extension': {
