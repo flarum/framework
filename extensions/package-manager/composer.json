@@ -1,6 +1,6 @@
 {
-    "name": "flarum/package-manager",
-    "description": "A Flarum Package Manager.",
+    "name": "flarum/extension-manager",
+    "description": "An extension manager to install, update and remove extension packages from the interface (Wrapper around composer).",
     "keywords": [
         "extensions",
         "composer",
@@ -18,8 +18,8 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/flarum/package-manager/issues",
-        "source": "https://github.com/flarum/package-manager"
+        "issues": "https://github.com/flarum/framework/issues",
+        "source": "https://github.com/flarum/extension-manager"
     },
     "require": {
         "flarum/core": "^2.0",
@@ -31,7 +31,7 @@
     },
     "extra": {
         "flarum-extension": {
-            "title": "Package Manager",
+            "title": "Extension Manager",
             "icon": {
                 "name": "fas fa-box-open",
                 "backgroundColor": "#117187",
@@ -69,12 +69,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Flarum\\PackageManager\\": "src/"
+            "Flarum\\ExtensionManager\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Flarum\\PackageManager\\Tests\\": "tests/"
+            "Flarum\\ExtensionManager\\Tests\\": "tests/"
         }
     },
     "scripts": {

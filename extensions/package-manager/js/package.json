@@ -1,5 +1,5 @@
 {
-    "name": "@flarum/package-manager",
+    "name": "@flarum/extension-manager",
     "version": "0.0.0",
     "private": true,
     "prettier": "@flarum/prettier-config",

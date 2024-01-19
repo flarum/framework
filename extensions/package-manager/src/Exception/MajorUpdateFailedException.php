@@ -7,11 +7,11 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Exception;
+namespace Flarum\ExtensionManager\Exception;
 
 use Composer\Semver\Semver;
-use Flarum\PackageManager\Event\FlarumUpdated;
-use Flarum\PackageManager\Settings\LastUpdateRun;
+use Flarum\ExtensionManager\Event\FlarumUpdated;
+use Flarum\ExtensionManager\Settings\LastUpdateRun;
 
 class MajorUpdateFailedException extends ComposerCommandFailedException
 {

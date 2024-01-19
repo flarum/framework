@@ -7,9 +7,12 @@
  * LICENSE file that was distributed with this source code.
  */
 
-use Flarum\PackageManager\Tests\integration\SetupComposer;
+use Flarum\ExtensionManager\Tests\integration\SetupComposer;
+use Flarum\Testing\integration\Setup\SetupScript;
 
-$setup = require __DIR__.'/../../../../php-packages/testing/bootstrap/monorepo.php';
+require __DIR__.'/../../vendor/autoload.php';
+
+$setup = new SetupScript();
 
 $setup->run();
 
