@@ -90,11 +90,15 @@ on:
       bundlewatch_github_token:
         description: The GitHub token to use for Bundlewatch.
         required: false
+      composer_auth:
+        description: The Composer auth tokens to use for private packages.
+        required: false
 
 env:
   COMPOSER_ROOT_VERSION: dev-main
   ci_script: ${{ inputs.js_package_manager == 'yarn' && 'yarn install --immutable' || 'npm ci' }}
   cache_dependency_path: ${{ inputs.cache_dependency_path || format(inputs.js_package_manager == 'yarn' && '{0}/yarn.lock' || '{0}/package-lock.json', inputs.frontend_directory) }}
+  COMPOSER_AUTH: ${{ secrets.composer_auth }}
 
 jobs:
   build:
