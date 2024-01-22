@@ -7,24 +7,30 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Api\Serializer;
+namespace Flarum\ExtensionManager\Api\Serializer;
 
 use Flarum\Api\Serializer\AbstractSerializer;
-use Flarum\PackageManager\Task\Task;
+use Flarum\ExtensionManager\Task\Task;
 use InvalidArgumentException;
 
 class TaskSerializer extends AbstractSerializer
 {
-    protected $type = 'package-manager-tasks';
+    /**
+     * {@inheritdoc}
+     */
+    protected $type = 'extension-manager-tasks';
 
     /**
+     * {@inheritdoc}
+     *
+     * @param Task $model
      * @throws InvalidArgumentException
      */
-    protected function getDefaultAttributes(object|array $model): array
+    protected function getDefaultAttributes($model): array
     {
         if (! ($model instanceof Task)) {
             throw new InvalidArgumentException(
-                $this::class.' can only serialize instances of '.Task::class
+                get_class($this).' can only serialize instances of '.Task::class
             );
         }
 
@@ -34,6 +40,7 @@ class TaskSerializer extends AbstractSerializer
             'command' => $model->command,
             'package' => $model->package,
             'output' => $model->output,
+            'guessedCause' => $model->guessed_cause,
             'createdAt' => $model->created_at,
             'startedAt' => $model->started_at,
             'finishedAt' => $model->finished_at,

@@ -8,6 +8,7 @@ import { Extension } from 'flarum/admin/AdminApplication';
 import Icon from 'flarum/common/components/Icon';
 import ItemList from 'flarum/common/utils/ItemList';
 import extractText from 'flarum/common/utils/extractText';
+import Link from 'flarum/common/components/Link';
 
 import Label from './Label';
 import TaskOutputModal from './TaskOutputModal';
@@ -24,20 +25,21 @@ export default class QueueSection extends Component<{}> {
   oninit(vnode: Mithril.Vnode<{}, this>) {
     super.oninit(vnode);
 
-    app.packageManager.queue.load();
+    app.extensionManager.queue.load();
   }
 
   view() {
     return (
-      <section id="PackageManager-queueSection" className="ExtensionPage-permissions PackageManager-queueSection">
-        <div className="ExtensionPage-permissions-header PackageManager-queueSection-header">
+      <section id="ExtensionManager-queueSection" className="ExtensionPage-permissions ExtensionManager-queueSection">
+        <div className="ExtensionPage-permissions-header ExtensionManager-queueSection-header">
           <div className="container">
-            <h2 className="ExtensionTitle">{app.translator.trans('flarum-package-manager.admin.sections.queue.title')}</h2>
+            <h2 className="ExtensionTitle">{app.translator.trans('flarum-extension-manager.admin.sections.queue.title')}</h2>
             <Button
               className="Button Button--icon"
               icon="fas fa-sync-alt"
-              onclick={() => app.packageManager.queue.load()}
-              aria-label={app.translator.trans('flarum-package-manager.admin.sections.queue.refresh')}
+              onclick={() => app.extensionManager.queue.load()}
+              aria-label={app.translator.trans('flarum-extension-manager.admin.sections.queue.refresh')}
+              disabled={app.extensionManager.control.isLoading()}
             />
           </div>
         </div>
@@ -52,12 +54,12 @@ export default class QueueSection extends Component<{}> {
     items.add(
       'operation',
       {
-        label: extractText(app.translator.trans('flarum-package-manager.admin.sections.queue.columns.operation')),
+        label: extractText(app.translator.trans('flarum-extension-manager.admin.sections.queue.columns.operation')),
         content: (task) => (
-          <div className="PackageManager-queueTable-operation">
-            <span className="PackageManager-queueTable-operation-icon">{this.operationIcon(task.operation())}</span>
-            <span className="PackageManager-queueTable-operation-name">
-              {app.translator.trans(`flarum-package-manager.admin.sections.queue.operations.${task.operation()}`)}
+          <div className="ExtensionManager-queueTable-operation">
+            <span className="ExtensionManager-queueTable-operation-icon">{this.operationIcon(task.operation())}</span>
+            <span className="ExtensionManager-queueTable-operation-name">
+              {app.translator.trans(`flarum-extension-manager.admin.sections.queue.operations.${task.operation()}`)}
             </span>
           </div>
         ),
@@ -68,20 +70,20 @@ export default class QueueSection extends Component<{}> {
     items.add(
       'package',
       {
-        label: extractText(app.translator.trans('flarum-package-manager.admin.sections.queue.columns.package')),
+        label: extractText(app.translator.trans('flarum-extension-manager.admin.sections.queue.columns.package')),
         content: (task) => {
           const extension: Extension | null = app.data.extensions[task.package()?.replace(/(\/flarum-|\/flarum-ext-|\/)/g, '-')];
 
           return extension ? (
-            <div className="PackageManager-queueTable-package">
-              <div className="PackageManager-queueTable-package-icon ExtensionIcon" style={extension.icon}>
+            <Link className="ExtensionManager-queueTable-package" href={app.route('extension', { id: extension.id })}>
+              <div className="ExtensionManager-queueTable-package-icon ExtensionIcon" style={extension.icon}>
                 {!!extension.icon && <Icon name={extension.icon.name} />}
               </div>
-              <div className="PackageManager-queueTable-package-details">
-                <span className="PackageManager-queueTable-package-title">{extension.extra['flarum-extension'].title}</span>
-                <span className="PackageManager-queueTable-package-name">{task.package()}</span>
+              <div className="ExtensionManager-queueTable-package-details">
+                <span className="ExtensionManager-queueTable-package-title">{extension.extra['flarum-extension'].title}</span>
+                <span className="ExtensionManager-queueTable-package-name">{task.package()}</span>
               </div>
-            </div>
+            </Link>
           ) : (
             task.package()
           );
@@ -93,14 +95,17 @@ export default class QueueSection extends Component<{}> {
     items.add(
       'status',
       {
-        label: extractText(app.translator.trans('flarum-package-manager.admin.sections.queue.columns.status')),
+        label: extractText(app.translator.trans('flarum-extension-manager.admin.sections.queue.columns.status')),
         content: (task) => (
-          <Label
-            className="PackageManager-queueTable-status"
-            type={{ running: 'neutral', failure: 'error', pending: 'warning', success: 'success' }[task.status()]}
-          >
-            {app.translator.trans(`flarum-package-manager.admin.sections.queue.statuses.${task.status()}`)}
-          </Label>
+          <>
+            <Label
+              className="ExtensionManager-queueTable-status"
+              type={{ running: 'neutral', failure: 'error', pending: 'warning', success: 'success' }[task.status()]}
+            >
+              {app.translator.trans(`flarum-extension-manager.admin.sections.queue.statuses.${task.status()}`)}
+            </Label>
+            {['pending', 'running'].includes(task.status()) && <LoadingIndicator size="small" display="inline" />}
+          </>
         ),
       },
       70
@@ -109,10 +114,10 @@ export default class QueueSection extends Component<{}> {
     items.add(
       'elapsedTime',
       {
-        label: extractText(app.translator.trans('flarum-package-manager.admin.sections.queue.columns.elapsed_time')),
+        label: extractText(app.translator.trans('flarum-extension-manager.admin.sections.queue.columns.elapsed_time')),
         content: (task) =>
-          !task.startedAt() ? (
-            app.translator.trans('flarum-package-manager.admin.sections.queue.task_just_started')
+          !task.startedAt() || !task.finishedAt() ? (
+            app.translator.trans('flarum-extension-manager.admin.sections.queue.task_just_started')
           ) : (
             <Tooltip text={`${dayjs(task.startedAt()).format('LL LTS')}  ${dayjs(task.finishedAt()).format('LL LTS')}`}>
               <span>{humanDuration(task.startedAt(), task.finishedAt())}</span>
@@ -125,7 +130,7 @@ export default class QueueSection extends Component<{}> {
     items.add(
       'memoryUsed',
       {
-        label: extractText(app.translator.trans('flarum-package-manager.admin.sections.queue.columns.peak_memory_used')),
+        label: extractText(app.translator.trans('flarum-extension-manager.admin.sections.queue.columns.peak_memory_used')),
         content: (task) => <span>{task.peakMemoryUsed()}</span>,
       },
       60
@@ -134,15 +139,16 @@ export default class QueueSection extends Component<{}> {
     items.add(
       'details',
       {
-        label: extractText(app.translator.trans('flarum-package-manager.admin.sections.queue.columns.details')),
+        label: extractText(app.translator.trans('flarum-extension-manager.admin.sections.queue.columns.details')),
         content: (task) => (
           <Button
             className="Button Button--icon Table-controls-item"
             icon="fas fa-file-alt"
-            aria-label={app.translator.trans('flarum-package-manager.admin.sections.queue.columns.details')}
+            aria-label={app.translator.trans('flarum-extension-manager.admin.sections.queue.columns.details')}
             // @todo fix in core
             // @ts-ignore
             onclick={() => app.modal.show(TaskOutputModal, { task })}
+            disabled={['pending', 'running'].includes(task.status())}
           />
         ),
         className: 'Table-controls',
@@ -154,21 +160,21 @@ export default class QueueSection extends Component<{}> {
   }
 
   queueTable() {
-    const tasks = app.packageManager.queue.getItems();
+    const tasks = app.extensionManager.queue.getItems();
 
     if (!tasks) {
       return <LoadingIndicator />;
     }
 
     if (tasks && !tasks.length) {
-      return <h3 className="ExtensionPage-subHeader">{app.translator.trans('flarum-package-manager.admin.sections.queue.none')}</h3>;
+      return <h3 className="ExtensionPage-subHeader">{app.translator.trans('flarum-extension-manager.admin.sections.queue.none')}</h3>;
     }
 
     const columns = this.columns();
 
     return (
       <>
-        <table className="Table PackageManager-queueTable">
+        <table className="Table ExtensionManager-queueTable">
           <thead>
             <tr>
               {columns.toArray().map((item, index) => (
@@ -193,23 +199,27 @@ export default class QueueSection extends Component<{}> {
           </tbody>
         </table>
 
-        <Pagination list={app.packageManager.queue} />
+        <Pagination list={app.extensionManager.queue} />
       </>
     );
   }
 
   operationIcon(operation: TaskOperations): Mithril.Children {
-    const iconName = {
-      update_check: 'fas fa-sync-alt',
-      update_major: 'fas fa-play',
-      update_minor: 'fas fa-play',
-      update_global: 'fas fa-play',
-      extension_install: 'fas fa-download',
-      extension_remove: 'fas fa-times',
-      extension_update: 'fas fa-arrow-alt-circle-up',
-      why_not: 'fas fa-exclamation-circle',
-    }[operation];
-
-    return <Icon name={iconName} />;
+    return (
+      <Icon
+        name={
+          {
+            update_check: 'fas fa-sync-alt',
+            update_major: 'fas fa-play',
+            update_minor: 'fas fa-play',
+            update_global: 'fas fa-play',
+            extension_install: 'fas fa-download',
+            extension_remove: 'fas fa-times',
+            extension_update: 'fas fa-arrow-alt-circle-up',
+            why_not: 'fas fa-exclamation-circle',
+          }[operation]
+        }
+      />
+    );
   }
 }

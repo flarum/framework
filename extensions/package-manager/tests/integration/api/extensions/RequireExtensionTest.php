@@ -7,10 +7,10 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Tests\integration\api\extensions;
+namespace Flarum\ExtensionManager\Tests\integration\api\extensions;
 
-use Flarum\PackageManager\Tests\integration\RefreshComposerSetup;
-use Flarum\PackageManager\Tests\integration\TestCase;
+use Flarum\ExtensionManager\Tests\integration\RefreshComposerSetup;
+use Flarum\ExtensionManager\Tests\integration\TestCase;
 
 class RequireExtensionTest extends TestCase
 {
@@ -30,7 +30,7 @@ class RequireExtensionTest extends TestCase
     public function requiring_an_existing_extension_fails()
     {
         $response = $this->send(
-            $this->request('POST', '/api/package-manager/extensions', [
+            $this->request('POST', '/api/extension-manager/extensions', [
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
@@ -49,7 +49,7 @@ class RequireExtensionTest extends TestCase
     public function requiring_a_compatible_extension_works()
     {
         $response = $this->send(
-            $this->request('POST', '/api/package-manager/extensions', [
+            $this->request('POST', '/api/extension-manager/extensions', [
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
@@ -69,7 +69,7 @@ class RequireExtensionTest extends TestCase
     public function requiring_a_compatible_extension_with_specific_version_works()
     {
         $response = $this->send(
-            $this->request('POST', '/api/package-manager/extensions', [
+            $this->request('POST', '/api/extension-manager/extensions', [
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
@@ -89,7 +89,7 @@ class RequireExtensionTest extends TestCase
     public function requiring_an_uncompatible_extension_fails()
     {
         $response = $this->send(
-            $this->request('POST', '/api/package-manager/extensions', [
+            $this->request('POST', '/api/extension-manager/extensions', [
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
@@ -109,7 +109,7 @@ class RequireExtensionTest extends TestCase
     public function requiring_an_uncompatible_extension_with_specific_version_fails()
     {
         $response = $this->send(
-            $this->request('POST', '/api/package-manager/extensions', [
+            $this->request('POST', '/api/extension-manager/extensions', [
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [

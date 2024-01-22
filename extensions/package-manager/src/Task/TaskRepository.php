@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Task;
+namespace Flarum\ExtensionManager\Task;
 
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,12 +17,17 @@ class TaskRepository
     /**
      * @return Builder
      */
-    public function query(): Builder
+    public function query()
     {
         return Task::query();
     }
 
-    public function findOrFail(int $id, ?User $actor = null): Task
+    /**
+     * @param int $id
+     * @param User $actor
+     * @return Task
+     */
+    public function findOrFail($id, User $actor = null): Task
     {
         return Task::findOrFail($id);
     }

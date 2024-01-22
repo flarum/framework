@@ -3,7 +3,7 @@
 @import "admin/QueueSection";
 @import "admin/ControlSection";
 
-.PackageManager-controlSection, .PackageManager-queueSection {
+.ExtensionManager-controlSection {
   > .container {
     padding-bottom: 0;
   }
@@ -26,4 +26,54 @@
 .Checkbox--switch.disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.ButtonGroup--full {
+  width: 100%;
+  display: flex;
+
+  > .Button:first-child {
+    flex-grow: 1;
+    text-align: start;
+  }
+}
+
+.ConfigureAuth-hosts, .ConfigureComposer-repositories {
+  > .ButtonGroup {
+    margin-bottom: 8px;
+  }
+}
+
+.flarum-extension-manager-Page .SettingsGroups .Form {
+  max-height: unset;
+}
+
+.ExtensionManager-SettingsGroups {
+  display: flex;
+  column-count: 3;
+  column-gap: 30px;
+  flex-wrap: wrap;
+
+  .FormSection {
+    min-width: 300px;
+    max-height: 500px;
+    min-height: 20vh;
+    max-width: 400px;
+
+    @media (max-width: 1209px) {
+      margin-bottom: 20px;
+    }
+
+    .Form-controls {
+      margin-top: auto;
+    }
+  }
+}
+
+.ExtensionManager-warnings {
+  margin-bottom: 24px;
+
+  > .Alert {
+    width: 100%;
+  }
 }

@@ -7,13 +7,14 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Composer;
+namespace Flarum\ExtensionManager\Composer;
 
 use Composer\Config;
 use Composer\Console\Application;
+use Flarum\ExtensionManager\OutputLogger;
+use Flarum\ExtensionManager\Support\Util;
+use Flarum\ExtensionManager\Task\Task;
 use Flarum\Foundation\Paths;
-use Flarum\PackageManager\OutputLogger;
-use Flarum\PackageManager\Task\Task;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -22,19 +23,20 @@ use Symfony\Component\Console\Output\BufferedOutput;
  */
 class ComposerAdapter
 {
-    private readonly BufferedOutput $output;
+    private BufferedOutput $output;
 
     public function __construct(
         private readonly Application $application,
         private readonly OutputLogger $logger,
         private readonly Paths $paths
     ) {
-        $this->output = new BufferedOutput();
     }
 
     public function run(InputInterface $input, ?Task $task = null): ComposerOutput
     {
         $this->application->resetComposer();
+
+        $this->output = $this->output ?? new BufferedOutput();
 
         // This hack is necessary so that relative path repositories are resolved properly.
         $currDir = getcwd();
@@ -42,16 +44,19 @@ class ComposerAdapter
         $exitCode = $this->application->run($input, $this->output);
         chdir($currDir);
 
-        $command = $input->__toString();
-        $output = $this->output->fetch();
+        $command = Util::readableConsoleInput($input);
+        $outputContent = $this->output->fetch();
 
         if ($task) {
-            $task->update(compact('command', 'output'));
+            $task->update([
+                'command' => $command,
+                'output' => $outputContent,
+            ]);
         } else {
-            $this->logger->log($command, $output, $exitCode);
+            $this->logger->log($command, $outputContent, $exitCode);
         }
 
-        return new ComposerOutput($exitCode, $output);
+        return new ComposerOutput($exitCode, $outputContent);
     }
 
     public static function setPhpVersion(string $phpVersion): void

@@ -7,27 +7,28 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager;
+namespace Flarum\ExtensionManager;
 
 use Composer\Config;
 use Composer\Console\Application;
+use Composer\Util\Platform;
 use Flarum\Extension\ExtensionManager;
+use Flarum\ExtensionManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Event\FlarumUpdated;
+use Flarum\ExtensionManager\Extension\Event\Updated;
+use Flarum\ExtensionManager\Listener\ClearCacheAfterUpdate;
+use Flarum\ExtensionManager\Listener\ReCheckForUpdates;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Paths;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Locale\LocaleManager;
-use Flarum\PackageManager\Composer\ComposerAdapter;
-use Flarum\PackageManager\Event\FlarumUpdated;
-use Flarum\PackageManager\Extension\Event\Updated;
-use Flarum\PackageManager\Listener\ClearCacheAfterUpdate;
-use Flarum\PackageManager\Listener\ReCheckForUpdates;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger;
 
-class PackageManagerServiceProvider extends AbstractServiceProvider
+class ExtensionManagerServiceProvider extends AbstractServiceProvider
 {
     public function register(): void
     {
@@ -40,9 +41,9 @@ class PackageManagerServiceProvider extends AbstractServiceProvider
             /** @var Paths $paths */
             $paths = $container->make(Paths::class);
 
-            putenv("COMPOSER_HOME={$paths->storage}/.composer");
-            putenv("COMPOSER={$paths->base}/composer.json");
-            putenv('COMPOSER_DISABLE_XDEBUG_WARN=1');
+            Platform::putenv('COMPOSER_HOME', "$paths->storage/.composer");
+            Platform::putenv('COMPOSER', "$paths->base/composer.json");
+            Platform::putenv('COMPOSER_DISABLE_XDEBUG_WARN', '1');
             Config::$defaultConfig['vendor-dir'] = $paths->vendor;
 
             // When running simple require, update and remove commands on packages,
@@ -51,7 +52,11 @@ class PackageManagerServiceProvider extends AbstractServiceProvider
             @ini_set('memory_limit', '1G');
             @set_time_limit(5 * 60);
 
-            return new ComposerAdapter($composer, $container->make(OutputLogger::class), $container->make(Paths::class));
+            return new ComposerAdapter(
+                $composer,
+                $container->make(OutputLogger::class),
+                $container->make(Paths::class),
+            );
         });
 
         $this->container->alias(ComposerAdapter::class, 'flarum.composer');
