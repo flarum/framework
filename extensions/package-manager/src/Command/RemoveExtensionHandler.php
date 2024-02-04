@@ -76,7 +76,8 @@ class RemoveExtensionHandler
 
         $output = $this->composer->run(
             new StringInput("remove $extension->name"),
-            $command->task ?? null
+            $command->task ?? null,
+            true
         );
 
         if ($output->getExitCode() !== 0) {

@@ -92,7 +92,8 @@ class UpdateExtensionHandler
 
         $output = $this->composer->run(
             new StringInput($input),
-            $command->task ?? null
+            $command->task ?? null,
+            true
         );
 
         if ($output->getExitCode() !== 0) {

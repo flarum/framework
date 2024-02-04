@@ -15,6 +15,7 @@ use Flarum\Foundation\Paths;
 use Flarum\ExtensionManager\OutputLogger;
 use Flarum\ExtensionManager\Support\Util;
 use Flarum\ExtensionManager\Task\Task;
+use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -43,14 +44,20 @@ class ComposerAdapter
      */
     private $output = null;
 
-    public function __construct(Application $application, OutputLogger $logger, Paths $paths)
+    /**
+     * @var Filesystem
+     */
+    private $filesystem;
+
+    public function __construct(Application $application, OutputLogger $logger, Paths $paths, Filesystem $filesystem)
     {
         $this->application = $application;
         $this->logger = $logger;
         $this->paths = $paths;
+        $this->filesystem = $filesystem;
     }
 
-    public function run(InputInterface $input, ?Task $task = null): ComposerOutput
+    public function run(InputInterface $input, ?Task $task = null, bool $safeMode = false): ComposerOutput
     {
         $this->application->resetComposer();
 
@@ -59,7 +66,29 @@ class ComposerAdapter
         // This hack is necessary so that relative path repositories are resolved properly.
         $currDir = getcwd();
         chdir($this->paths->base);
+
+        if ($safeMode) {
+            $temporaryVendorDir = $this->paths->base . DIRECTORY_SEPARATOR . 'temp-vendor';
+            if (! $this->filesystem->isDirectory($temporaryVendorDir)) {
+                $this->filesystem->makeDirectory($temporaryVendorDir);
+            }
+            Config::$defaultConfig['vendor-dir'] = $temporaryVendorDir;
+        }
+
         $exitCode = $this->application->run($input, $this->output);
+
+        if ($safeMode) {
+            // Move the temporary vendor directory to the real vendor directory.
+            if ($this->filesystem->isDirectory($temporaryVendorDir) && count($this->filesystem->allFiles($temporaryVendorDir))) {
+                $vendorDir = $this->paths->vendor;
+                if (file_exists($vendorDir)) {
+                    $this->filesystem->deleteDirectory($vendorDir);
+                }
+                $this->filesystem->moveDirectory($temporaryVendorDir, $vendorDir);
+            }
+            Config::$defaultConfig['vendor-dir'] = $this->paths->vendor;
+        }
+
         chdir($currDir);
 
         $command = Util::readableConsoleInput($input);
