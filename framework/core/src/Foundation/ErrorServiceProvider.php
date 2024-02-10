@@ -14,6 +14,7 @@ use Flarum\Foundation\ErrorHandling as Handling;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException as IlluminateValidationException;
 use Tobscure\JsonApi\Exception\InvalidParameterException;
+use Tobyz\JsonApiServer\Exception as TobyzJsonApiServerException;
 
 class ErrorServiceProvider extends AbstractServiceProvider
 {
@@ -51,6 +52,12 @@ class ErrorServiceProvider extends AbstractServiceProvider
             return [
                 InvalidParameterException::class => 'invalid_parameter',
                 ModelNotFoundException::class => 'not_found',
+
+                TobyzJsonApiServerException\BadRequestException::class => 'invalid_parameter',
+                TobyzJsonApiServerException\MethodNotAllowedException::class => 'method_not_allowed',
+                TobyzJsonApiServerException\ForbiddenException::class => 'permission_denied',
+                TobyzJsonApiServerException\ConflictException::class => 'io_error',
+                // TobyzJsonApiServerException\UnprocessableEntityException::class => 'invalid_parameter', @todo
             ];
         });
 

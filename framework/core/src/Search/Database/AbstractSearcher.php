@@ -54,7 +54,7 @@ abstract class AbstractSearcher implements SearcherInterface
             $results->pop();
         }
 
-        return new SearchResults($results, $areMoreResults, $this->getTotalResults($query));
+        return new SearchResults($results, $areMoreResults, $this->getTotalResults($query->clone()));
     }
 
     protected function getTotalResults(Builder $query): Closure
@@ -63,21 +63,12 @@ abstract class AbstractSearcher implements SearcherInterface
             $query = $query->toBase();
 
             if ($query->unions) {
-                $query->unions = null; // @phpstan-ignore-line
-                $query->unionLimit = null; // @phpstan-ignore-line
-                $query->unionOffset = null; // @phpstan-ignore-line
-                $query->unionOrders = null; // @phpstan-ignore-line
-                $query->setBindings([], 'union');
+                $query = $query
+                    ->cloneWithout(['unions', 'unionLimit', 'unionOffset', 'unionOrders'])
+                    ->cloneWithoutBindings(['union']);
             }
 
-            $query->offset = null; // @phpstan-ignore-line
-            $query->limit = null; // @phpstan-ignore-line
-            $query->orders = null; // @phpstan-ignore-line
-            $query->setBindings([], 'order');
-
-            return $query->getConnection()
-                ->table($query, 'results')
-                ->count();
+            return $query->getCountForPagination();
         };
     }
 

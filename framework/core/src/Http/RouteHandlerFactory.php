@@ -15,6 +15,7 @@ use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as Handler;
+use Tobyz\JsonApiServer\Resource\AbstractResource;
 
 /**
  * @internal
@@ -34,6 +35,26 @@ class RouteHandlerFactory
             $request = $request->withQueryParams(array_merge($request->getQueryParams(), $routeParams));
 
             return $controller->handle($request);
+        };
+    }
+
+    /**
+     * @param class-string<\Tobyz\JsonApiServer\Resource\AbstractResource> $resourceClass
+     * @param class-string<\Flarum\Api\Endpoint\Endpoint> $endpointClass
+     */
+    public function toApiResource(string $resourceClass, string $endpointClass): Closure
+    {
+        return function (Request $request, array $routeParams) use ($resourceClass, $endpointClass) {
+            /** @var \Flarum\Api\JsonApi $api */
+            $api = $this->container->make(\Flarum\Api\JsonApi::class);
+
+            $api->validateQueryParameters($request);
+
+            $request = $request->withQueryParams(array_merge($request->getQueryParams(), $routeParams));
+
+            return $api->forResource($resourceClass)
+                ->forEndpoint($endpointClass)
+                ->handle($request);
         };
     }
 

@@ -44,7 +44,7 @@ class Index
         $limit = $this->controller->limit;
 
         $params = [
-            'sort' => $sort && isset($sortMap[$sort]) ? $sortMap[$sort] : '',
+            'sort' => $sort && isset($sortMap[$sort]) ? $sortMap[$sort] : null,
             'filter' => $filters,
             'page' => [
                 'offset' => ($page - 1) * $limit,

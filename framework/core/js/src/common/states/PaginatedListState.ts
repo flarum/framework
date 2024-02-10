@@ -121,6 +121,10 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
       include,
     };
 
+    if (!params.include) {
+      delete params.include;
+    }
+
     return app.store.find<T[]>(this.type, params).then((results) => {
       /*
        * If this state does not rely on a preloaded API document to know the page size,

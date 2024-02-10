@@ -32,6 +32,34 @@ class ApiServiceProvider extends AbstractServiceProvider
             return $url->addCollection('api', $container->make('flarum.api.routes'), 'api');
         });
 
+        $this->container->singleton('flarum.api.resources', function () {
+            return [
+                Resource\ForumResource::class,
+                Resource\UserResource::class,
+                Resource\GroupResource::class,
+                Resource\PostResource::class,
+                Resource\DiscussionResource::class,
+                Resource\NotificationResource::class,
+            ];
+        });
+
+        $this->container->singleton('flarum.api.resource_handler', function (Container $container) {
+            $resources = $this->container->make('flarum.api.resources');
+
+            $api = new JsonApi('/');
+
+            foreach ($resources as $resourceClass) {
+                /** @var \Flarum\Api\Resource\AbstractResource|\Flarum\Api\Resource\AbstractDatabaseResource $resource */
+                $resource = new $resourceClass;
+                $resource->boot($container);
+                $api->resource($resource);
+            }
+
+            return $api;
+        });
+
+        $this->container->alias('flarum.api.resource_handler', JsonApi::class);
+
         $this->container->singleton('flarum.api.routes', function () {
             $routes = new RouteCollection;
             $this->populateRoutes($routes);
@@ -66,7 +94,8 @@ class ApiServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\SetLocale::class,
                 'flarum.api.route_resolver',
                 HttpMiddleware\CheckCsrfToken::class,
-                Middleware\ThrottleApi::class
+                Middleware\ThrottleApi::class,
+                HttpMiddleware\PopulateWithActor::class,
             ];
         });
 
@@ -148,9 +177,26 @@ class ApiServiceProvider extends AbstractServiceProvider
 
     protected function populateRoutes(RouteCollection $routes): void
     {
+        /** @var RouteHandlerFactory $factory */
         $factory = $this->container->make(RouteHandlerFactory::class);
 
         $callback = include __DIR__.'/routes.php';
         $callback($routes, $factory);
+
+        $resources = $this->container->make('flarum.api.resources');
+
+        foreach ($resources as $resourceClass) {
+            /** @var \Flarum\Api\Resource\AbstractResource|\Flarum\Api\Resource\AbstractDatabaseResource $resource */
+            $resource = new $resourceClass;
+            /** @var \Flarum\Api\Endpoint\Endpoint[] $endpoints */
+            $endpoints = $resource->endpoints();
+            $type = $resource->type();
+
+            foreach ($endpoints as $endpoint) {
+                $route = $endpoint->route();
+
+                $routes->addRoute($route->method, rtrim("/$type$route->path", '/'), "$type.$route->name", $factory->toApiResource($resourceClass, $endpoint::class));
+            }
+        }
     }
 }
