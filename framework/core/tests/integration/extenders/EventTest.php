@@ -33,12 +33,14 @@ class EventTest extends TestCase
         return $api->forResource(GroupResource::class)
             ->forEndpoint(Create::class)
             ->execute([
-                'attributes' => [
-                    'nameSingular' => 'test group',
-                    'namePlural' => 'test groups',
-                    'color' => '#000000',
-                    'icon' => 'fas fa-crown',
-                ]
+                'data' => [
+                    'attributes' => [
+                        'nameSingular' => 'test group',
+                        'namePlural' => 'test groups',
+                        'color' => '#000000',
+                        'icon' => 'fas fa-crown',
+                    ]
+                ],
             ]);
     }
 

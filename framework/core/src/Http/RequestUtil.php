@@ -99,10 +99,10 @@ class RequestUtil
         return ($page - 1) * $limit;
     }
 
-    public static function extractOffset(Request $request): int
+    public static function extractOffset(Request $request, ?int $limit = 0): int
     {
         if ($request->getQueryParams()['page']['number'] ?? false) {
-            return self::extractOffsetFromNumber($request, self::extractLimit($request));
+            return self::extractOffsetFromNumber($request, $limit);
         }
 
         $offset = (int) ($request->getQueryParams()['page']['offset'] ?? 0);

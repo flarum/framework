@@ -75,6 +75,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'tags',
                         'attributes' => [
                             'name' => 'Dev Blog',
                             'slug' => 'dev-blog',

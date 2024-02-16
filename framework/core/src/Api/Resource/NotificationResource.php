@@ -82,7 +82,7 @@ class NotificationResource extends AbstractDatabaseResource
                 ->type('users')
                 ->includable(),
             Schema\Relationship\ToOne::make('subject')
-                ->type($subjectTypes)
+                ->collection($subjectTypes)
                 ->includable(),
         ];
     }

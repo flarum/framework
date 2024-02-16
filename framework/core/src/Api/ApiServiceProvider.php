@@ -123,12 +123,6 @@ class ApiServiceProvider extends AbstractServiceProvider
             return $pipe;
         });
 
-        $this->container->singleton('flarum.api.notification_serializers', function () {
-            return [
-                'discussionRenamed' => BasicDiscussionSerializer::class
-            ];
-        });
-
         $this->container->singleton('flarum.api_client.exclude_middleware', function () {
             return [
                 HttpMiddleware\InjectActorReference::class,
@@ -159,20 +153,8 @@ class ApiServiceProvider extends AbstractServiceProvider
 
     public function boot(Container $container): void
     {
-        $this->setNotificationSerializers();
-
         AbstractSerializeController::setContainer($container);
-
         AbstractSerializer::setContainer($container);
-    }
-
-    protected function setNotificationSerializers(): void
-    {
-        $serializers = $this->container->make('flarum.api.notification_serializers');
-
-        foreach ($serializers as $type => $serializer) {
-            NotificationSerializer::setSubjectSerializer($type, $serializer);
-        }
     }
 
     protected function populateRoutes(RouteCollection $routes): void

@@ -289,7 +289,8 @@ class DiscussionResource extends AbstractDatabaseResource
                 // We will do this by running the PostReply command.
                 $post = $api->forResource(PostResource::class)
                     ->forEndpoint(Create::class)
-                    ->execute($context->request->withParsedBody([
+                    ->withRequest($context->request)
+                    ->execute([
                         'data' => [
                             'attributes' => [
                                 'content' => $context->request->getParsedBody()['data']['attributes']['content'],
@@ -303,7 +304,7 @@ class DiscussionResource extends AbstractDatabaseResource
                                 ],
                             ],
                         ],
-                    ]), ['isFirstPost' => true]);
+                    ], ['isFirstPost' => true]);
 
                 // Before we dispatch events, refresh our discussion instance's
                 // attributes as posting the reply will have changed some of them (e.g.
@@ -327,7 +328,7 @@ class DiscussionResource extends AbstractDatabaseResource
         );
     }
 
-    protected function bcSavingEvent(\Tobyz\JsonApiServer\Context $context, array $data): ?object
+    protected function newSavingEvent(\Tobyz\JsonApiServer\Context $context, array $data): ?object
     {
         return new Saving($context->model, $context->getActor(), $data);
     }

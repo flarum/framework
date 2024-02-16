@@ -225,6 +225,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',

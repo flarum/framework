@@ -52,12 +52,6 @@ class ErrorServiceProvider extends AbstractServiceProvider
             return [
                 InvalidParameterException::class => 'invalid_parameter',
                 ModelNotFoundException::class => 'not_found',
-
-                TobyzJsonApiServerException\BadRequestException::class => 'invalid_parameter',
-                TobyzJsonApiServerException\MethodNotAllowedException::class => 'method_not_allowed',
-                TobyzJsonApiServerException\ForbiddenException::class => 'permission_denied',
-                TobyzJsonApiServerException\ConflictException::class => 'io_error',
-                // TobyzJsonApiServerException\UnprocessableEntityException::class => 'invalid_parameter', @todo
             ];
         });
 
@@ -68,6 +62,7 @@ class ErrorServiceProvider extends AbstractServiceProvider
                 ExtensionException\CircularDependenciesException::class => ExtensionException\CircularDependenciesExceptionHandler::class,
                 ExtensionException\DependentExtensionsException::class => ExtensionException\DependentExtensionsExceptionHandler::class,
                 ExtensionException\MissingDependenciesException::class => ExtensionException\MissingDependenciesExceptionHandler::class,
+                TobyzJsonApiServerException\ErrorProvider::class => Handling\ExceptionHandler\JsonApiExceptionHandler::class,
             ];
         });
 

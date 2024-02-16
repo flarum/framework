@@ -5,6 +5,7 @@ namespace Flarum\Api;
 use Flarum\Api\Endpoint\Endpoint;
 use Flarum\Api\Endpoint\EndpointRoute;
 use Flarum\Api\Resource\AbstractDatabaseResource;
+use Flarum\Http\RequestUtil;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Diactoros\Uri;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -18,6 +19,7 @@ class JsonApi extends BaseJsonApi
 {
     protected string $resourceClass;
     protected string $endpoint;
+    protected ?Request $baseRequest = null;
 
     public function forResource(string $resourceClass): self
     {
@@ -58,6 +60,13 @@ class JsonApi extends BaseJsonApi
         throw new BadRequestException('Invalid endpoint specified');
     }
 
+    public function withRequest(Request $request): self
+    {
+        $this->baseRequest = $request;
+
+        return $this;
+    }
+
     public function handle(Request $request): Response
     {
         $context = $this->makeContext($request);
@@ -65,27 +74,31 @@ class JsonApi extends BaseJsonApi
         return $context->endpoint->handle($context);
     }
 
-    public function execute(ServerRequestInterface|array $request, array $internal = []): mixed
+    public function execute(array $body, array $internal = [], array $options = []): mixed
     {
         /** @var EndpointRoute $route */
         $route = (new $this->endpoint)->route();
 
-        if (is_array($request)) {
-            $request = ServerRequestFactory::fromGlobals()->withParsedBody($request);
+        $request = $this->baseRequest ?? ServerRequestFactory::fromGlobals();
+
+        if (! empty($options['actor'])) {
+            $request = RequestUtil::withActor($request, $options['actor']);
         }
 
         $request = $request
             ->withMethod($route->method)
             ->withUri(new Uri($route->path))
             ->withParsedBody([
+                ...$body,
                 'data' => [
                     ...($request->getParsedBody()['data'] ?? []),
+                    ...($body['data'] ?? []),
                     'type' => (new $this->resourceClass)->type(),
                 ],
             ]);
 
         $context = $this->makeContext($request)
-            ->withModelId($data['id'] ?? null);
+            ->withModelId($body['data']['id'] ?? null);
 
         foreach ($internal as $key => $value) {
             $context = $context->withInternal($key, $value);

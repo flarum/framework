@@ -5,6 +5,7 @@ namespace Flarum\Api\Resource;
 use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Schema;
+use Flarum\Foundation\ValidationException;
 use Flarum\Http\SlugManager;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -12,6 +13,7 @@ use Flarum\User\Event\Deleting;
 use Flarum\User\Event\GroupsChanged;
 use Flarum\User\Event\RegisteringFromProvider;
 use Flarum\User\Event\Saving;
+use Flarum\User\Exception\NotAuthenticatedException;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -65,7 +67,25 @@ class UserResource extends AbstractDatabaseResource
                     return true;
                 }),
             Endpoint\Update::make()
-                ->authenticated()
+                ->visible(function (User $user, Context $context) {
+                    $actor = $context->getActor();
+                    $body = $context->body();
+
+                    // Require the user's current password if they are attempting to change
+                    // their own email address.
+
+                    if (isset($body['data']['attributes']['email']) && $actor->id === $user->id) {
+                        $password = (string) Arr::get($body, 'meta.password');
+
+                        if (! $actor->checkPassword($password)) {
+                            throw new NotAuthenticatedException;
+                        }
+                    }
+
+                    $actor->assertRegistered();
+
+                    return true;
+                })
                 ->defaultInclude(['groups']),
             Endpoint\Delete::make()
                 ->authenticated()
@@ -81,13 +101,16 @@ class UserResource extends AbstractDatabaseResource
 
     public function fields(): array
     {
+        $translator = resolve(TranslatorInterface::class);
+
         return [
             Schema\Str::make('username')
-                ->requiredOnCreate()
+                ->requiredOnCreateWithout(['token'])
                 ->unique('users', 'username', true)
                 ->regex('/^[a-z0-9_-]+$/i')
                 ->validationMessages([
-                    'username.regex' => resolve(TranslatorInterface::class)->trans('core.api.invalid_username_message')
+                    'username.regex' => $translator->trans('core.api.invalid_username_message'),
+                    'username.required_without' => $translator->trans('validation.required', ['attribute' => $translator->trans('validation.attributes.username')])
                 ])
                 ->minLength(3)
                 ->maxLength(30)
@@ -103,7 +126,10 @@ class UserResource extends AbstractDatabaseResource
                     }
                 }),
             Schema\Str::make('email')
-                ->requiredOnCreate()
+                ->requiredOnCreateWithout(['token'])
+                ->validationMessages([
+                    'email.required_without' => $translator->trans('validation.required', ['attribute' => $translator->trans('validation.attributes.email')])
+                ])
                 ->email(['filter'])
                 ->unique('users', 'email', true)
                 ->visible(function (User $user, Context $context) {
@@ -144,6 +170,9 @@ class UserResource extends AbstractDatabaseResource
                 }),
             Schema\Str::make('password')
                 ->requiredOnCreateWithout(['token'])
+                ->validationMessages([
+                    'password.required_without' => $translator->trans('validation.required', ['attribute' => $translator->trans('validation.attributes.password')])
+                ])
                 ->minLength(8)
                 ->visible(false)
                 ->writable(function (User $user, Context $context) {
@@ -159,16 +188,17 @@ class UserResource extends AbstractDatabaseResource
                 ->writable(function (User $user, Context $context) {
                     return $context->endpoint instanceof Endpoint\Create;
                 })
-                ->set(function (User $user, ?string $value) {
+                ->set(function (User $user, ?string $value, Context $context) {
                     if ($value) {
                         $token = RegistrationToken::validOrFail($value);
 
-                        $user->setAttribute('token', $token);
+                        $context->setParam('token', $token);
                         $user->password ??= Str::random(20);
 
                         $this->applyToken($user, $token);
                     }
-                }),
+                })
+                ->save(fn () => null),
             Schema\Str::make('displayName'),
             Schema\Str::make('avatarUrl'),
             Schema\Str::make('slug')
@@ -289,7 +319,7 @@ class UserResource extends AbstractDatabaseResource
     /** @param User $model */
     public function saved(object $model, \Tobyz\JsonApiServer\Context $context): ?object
     {
-        if (($token = $model->getAttribute('token')) instanceof RegistrationToken) {
+        if (($token = $context->getParam('token')) instanceof RegistrationToken) {
             $this->fulfillToken($model, $token);
         }
 
@@ -303,7 +333,7 @@ class UserResource extends AbstractDatabaseResource
         );
     }
 
-    protected function bcSavingEvent(\Tobyz\JsonApiServer\Context $context, array $data): ?object
+    protected function newSavingEvent(\Tobyz\JsonApiServer\Context $context, array $data): ?object
     {
         return new Saving($context->model, $context->getActor(), $data);
     }
@@ -343,13 +373,17 @@ class UserResource extends AbstractDatabaseResource
         ]);
 
         if ($urlValidator->fails()) {
-            throw new InvalidArgumentException('Provided avatar URL must be a valid URI.', 503);
+            throw new ValidationException([
+                'avatar_url' => 'Provided avatar URL must be a valid URI.',
+            ]);
         }
 
         $scheme = parse_url($url, PHP_URL_SCHEME);
 
         if (! in_array($scheme, ['http', 'https'])) {
-            throw new InvalidArgumentException("Provided avatar URL must have scheme http or https. Scheme provided was $scheme.", 503);
+            throw new ValidationException([
+                'avatar_url' => "Provided avatar URL must have scheme http or https. Scheme provided was $scheme.",
+            ]);
         }
 
         $image = $this->imageManager->make($url);

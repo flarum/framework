@@ -12,8 +12,11 @@ use Flarum\Api\Resource\Contracts\{
     Deletable
 };
 use Flarum\Api\Resource\Concerns\Bootable;
+use Flarum\Api\Resource\Concerns\ResolvesValidationFactory;
 use Flarum\Foundation\DispatchEventsTrait;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
+use RuntimeException;
 use Tobyz\JsonApiServer\Context;
 use Tobyz\JsonApiServer\Laravel\EloquentResource as BaseResource;
 
@@ -28,6 +31,7 @@ abstract class AbstractDatabaseResource extends BaseResource implements
 {
     use Bootable;
     use DispatchEventsTrait;
+    use ResolvesValidationFactory;
 
     abstract public function model(): string;
 
@@ -36,9 +40,20 @@ abstract class AbstractDatabaseResource extends BaseResource implements
         return new ($this->model());
     }
 
+    public function resource(object $model, Context $context): ?string
+    {
+        $baseModel = $this->model();
+
+        if ($model instanceof $baseModel) {
+            return $this->type();
+        }
+
+        return null;
+    }
+
     public function filters(): array
     {
-        throw new \RuntimeException('Not supported in Flarum, please use a model searcher instead https://docs.flarum.org/extend/search.');
+        throw new RuntimeException('Not supported in Flarum, please use a model searcher instead https://docs.flarum.org/extend/search.');
     }
 
     public function create(object $model, Context $context): object
@@ -110,27 +125,26 @@ abstract class AbstractDatabaseResource extends BaseResource implements
         //
     }
 
-    protected function bcSavingEvent(Context $context, array $data): ?object
+    protected function newSavingEvent(Context $context, array $data): ?object
     {
         return null;
     }
 
     public function mutateDataBeforeValidation(Context $context, array $data, bool $validateAll): array
     {
-        return $data;
+        $dirty = $context->model->getDirty();
 
-        // @todo: decided to completely drop this.
-        $savingEvent = $this->bcSavingEvent($context, $data);
+        $savingEvent = $this->newSavingEvent($context, Arr::get($context->body(), 'data', []));
 
         if ($savingEvent) {
-            // BC Layer for Flarum 1.0
-            // @todo: should we drop this or keep it for 2.0? another massive BC break.
-            // @todo: replace with resource extenders
-            $this->container->make(Dispatcher::class)->dispatch(
-                $savingEvent
-            );
+            $this->container->make(Dispatcher::class)->dispatch($savingEvent);
 
-            return array_merge($data, $context->model->getDirty());
+            $dirtyAfterEvent = $context->model->getDirty();
+
+            // Unlike 1.0, the saving events in 2.0 do not allow modifying the model.
+            if ($dirtyAfterEvent !== $dirty) {
+                throw new RuntimeException('You should modify the model through the saving event. Please use the resource extenders instead.');
+            }
         }
 
         return $data;

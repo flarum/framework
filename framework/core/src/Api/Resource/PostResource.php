@@ -169,7 +169,7 @@ class PostResource extends AbstractDatabaseResource
                         }
                     }
                 })
-                ->serialize(function (string|array $value, Context $context) {
+                ->serialize(function (null|string|array $value, Context $context) {
                     // Prevent the string type from trying to convert array content (for event posts) to a string.
                     $context->field->type = null;
 
@@ -204,7 +204,10 @@ class PostResource extends AbstractDatabaseResource
             Schema\DateTime::make('editedAt'),
             Schema\Boolean::make('isHidden')
                 ->visible(fn (Post $post) => $post->hidden_at !== null)
-                ->writable(fn (Post $post, Context $context) => $context->getActor()->can('hide', $post))
+                ->writable(function (Post $post, Context $context) {
+                    return $context->endpoint instanceof Endpoint\Update
+                        && $context->getActor()->can('hide', $post);
+                })
                 ->set(function (Post $post, bool $value, Context $context) {
                     if ($post instanceof CommentPost) {
                         if ($value) {
@@ -271,7 +274,7 @@ class PostResource extends AbstractDatabaseResource
         );
     }
 
-    protected function bcSavingEvent(\Tobyz\JsonApiServer\Context $context, array $data): ?object
+    protected function newSavingEvent(\Tobyz\JsonApiServer\Context $context, array $data): ?object
     {
         return new Saving($context->model, $context->getActor(), $data);
     }

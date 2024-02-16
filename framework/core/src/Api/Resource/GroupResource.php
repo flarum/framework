@@ -71,8 +71,10 @@ class GroupResource extends AbstractDatabaseResource
                 ->writable()
                 ->required(),
             Schema\Str::make('color')
+                ->nullable()
                 ->writable(),
             Schema\Str::make('icon')
+                ->nullable()
                 ->writable(),
             Schema\Boolean::make('isHidden')
                 ->writable(),
@@ -99,7 +101,7 @@ class GroupResource extends AbstractDatabaseResource
         return $name;
     }
 
-    protected function bcSavingEvent(Context $context, array $data): ?object
+    protected function newSavingEvent(Context $context, array $data): ?object
     {
         return new Saving($context->model, RequestUtil::getActor($context->request), $data);
     }

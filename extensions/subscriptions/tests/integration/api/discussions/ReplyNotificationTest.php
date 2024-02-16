@@ -119,6 +119,7 @@ class ReplyNotificationTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'title' => 'ACME',
                         ],
@@ -133,6 +134,7 @@ class ReplyNotificationTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'lastReadPostNumber' => 2,
                         ],
@@ -148,6 +150,7 @@ class ReplyNotificationTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => 'reply with predetermined content for automated testing - too-obscure',
                         ],
@@ -203,6 +206,7 @@ class ReplyNotificationTest extends TestCase
                 'authenticatedAs' => 3,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => 'reply with predetermined content for automated testing - too-obscure',
                         ],
@@ -249,6 +253,7 @@ class ReplyNotificationTest extends TestCase
                 'authenticatedAs' => 4,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => 'reply with predetermined content for automated testing - too-obscure',
                         ],
@@ -270,6 +275,7 @@ class ReplyNotificationTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'isApproved' => 1,
                         ],
@@ -309,6 +315,7 @@ class ReplyNotificationTest extends TestCase
                 'authenticatedAs' => 3,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => 'restricted-test-post',
                         ],

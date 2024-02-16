@@ -10,6 +10,9 @@
 namespace Flarum\Tests\integration\policy;
 
 use Carbon\Carbon;
+use Flarum\Api\Endpoint\Create;
+use Flarum\Api\JsonApi;
+use Flarum\Api\Resource\PostResource;
 use Flarum\Bus\Dispatcher;
 use Flarum\Discussion\Discussion;
 use Flarum\Foundation\DispatchEventsTrait;
@@ -93,9 +96,30 @@ class DiscussionPolicyTest extends TestCase
         $this->assertTrue($user->can('rename', $discussion));
         $this->assertFalse($user->can('rename', $discussionWithReply));
 
-        $this->app()->getContainer()->make(Dispatcher::class)->dispatch(
-            new PostReply(1, User::findOrFail(1), ['attributes' => ['content' => 'test']], null)
-        );
+        /** @var JsonApi $api */
+        $api = $this->app()->getContainer()->make(JsonApi::class);
+
+        $api
+            ->forResource(PostResource::class)
+            ->forEndpoint(Create::class)
+            ->execute(
+                body: [
+                    'data' => [
+                        'attributes' => [
+                            'content' => 'test'
+                        ],
+                        'relationships' => [
+                            'discussion' => [
+                                'data' => [
+                                    'type' => 'discussions',
+                                    'id' => '1'
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                options: ['actor' => User::findOrFail(1)]
+            );
 
         // Date further into the future
         Carbon::setTestNow('2025-01-01 13:00:00');

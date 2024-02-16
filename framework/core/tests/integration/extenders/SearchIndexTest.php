@@ -60,6 +60,7 @@ class SearchIndexTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => $type,
                         'attributes' => [
                             $attribute => 'test',
                         ],
@@ -93,6 +94,7 @@ class SearchIndexTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => $type,
                         'attributes' => [
                             $attribute => 'changed'
                         ]
@@ -137,6 +139,7 @@ class SearchIndexTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => $type,
                         'attributes' => [
                             'isHidden' => true
                         ]
@@ -162,6 +165,7 @@ class SearchIndexTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => $type,
                         'attributes' => [
                             'isHidden' => false
                         ]

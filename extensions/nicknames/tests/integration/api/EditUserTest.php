@@ -45,6 +45,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'nickname' => 'new nickname',
                         ],
@@ -72,6 +73,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'nickname' => 'new nickname',
                         ],

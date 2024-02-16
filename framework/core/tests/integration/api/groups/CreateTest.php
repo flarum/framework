@@ -44,7 +44,7 @@ class CreateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertEquals(400, $response->getStatusCode(), (string) $response->getBody());
     }
 
     /**
@@ -57,6 +57,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'groups',
                         'attributes' => [
                             'nameSingular' => 'flarumite',
                             'namePlural' => 'flarumites',
@@ -68,10 +69,12 @@ class CreateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(201, $response->getStatusCode(), $body);
 
         // Verify API response body
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($body, true);
         $this->assertEquals('flarumite', Arr::get($data, 'data.attributes.nameSingular'));
         $this->assertEquals('flarumites', Arr::get($data, 'data.attributes.namePlural'));
         $this->assertEquals('test', Arr::get($data, 'data.attributes.icon'));
@@ -95,6 +98,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'groups',
                         'attributes' => [
                             'nameSingular' => 'flarumite',
                             'namePlural' => 'flarumites',

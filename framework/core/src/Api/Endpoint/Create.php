@@ -7,7 +7,6 @@ use Flarum\Api\Endpoint\Concerns\HasCustomRoute;
 use Flarum\Api\Endpoint\Concerns\HasEagerLoading;
 use Flarum\Api\Endpoint\Concerns\HasHooks;
 use Flarum\Api\Endpoint\Concerns\SavesData;
-use Flarum\Api\Endpoint\Concerns\ValidatesData;
 use Illuminate\Database\Eloquent\Collection;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
@@ -29,7 +28,6 @@ class Create extends BaseCreate implements Endpoint
     use HasAuthorization;
     use HasEagerLoading;
     use HasCustomRoute;
-    use ValidatesData;
     use HasHooks;
 
     public function handle(Context $context): ?ResponseInterface
@@ -67,7 +65,7 @@ class Create extends BaseCreate implements Endpoint
         $this->fillDefaultValues($context, $data);
         $this->deserializeValues($context, $data);
         $this->mutateDataBeforeValidation($context, $data, true);
-        $this->assertDataIsValid($context, $data, true);
+        $this->assertDataValid($context, $data);
 
         $this->setValues($context, $data);
 

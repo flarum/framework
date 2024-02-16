@@ -78,8 +78,8 @@ trait ExtractsListingParams
         return [
             'filter' => RequestUtil::extractFilter($context->request),
             'sort' => RequestUtil::extractSort($context->request, $this->defaultSort, $this->getAvailableSorts($context)),
-            'limit' => RequestUtil::extractLimit($context->request, $this->limit, $this->maxLimit) ?? -1,
-            'offset' => RequestUtil::extractOffset($context->request),
+            'limit' => $limit = (RequestUtil::extractLimit($context->request, $this->limit, $this->maxLimit) ?? -1),
+            'offset' => RequestUtil::extractOffset($context->request, $limit),
         ];
     }
 

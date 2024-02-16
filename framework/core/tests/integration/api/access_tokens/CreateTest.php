@@ -52,6 +52,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => $authenticatedAs,
                 'json' => [
                     'data' => [
+                        'type' => 'access-tokens',
                         'attributes' => [
                             'title' => 'Dev'
                         ]
@@ -74,6 +75,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => $authenticatedAs,
                 'json' => [
                     'data' => [
+                        'type' => 'access-tokens',
                         'attributes' => [
                             'title' => 'Dev'
                         ]
