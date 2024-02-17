@@ -5,14 +5,10 @@ namespace Flarum\Api\Endpoint;
 use Flarum\Api\Endpoint\Concerns\HasAuthorization;
 use Flarum\Api\Endpoint\Concerns\HasCustomRoute;
 use Flarum\Api\Endpoint\Concerns\HasEagerLoading;
-use Flarum\Api\Endpoint\Concerns\HasHooks;
-use Flarum\Api\Endpoint\Concerns\SavesData;
 use Illuminate\Database\Eloquent\Collection;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 use Tobyz\JsonApiServer\Context;
-use Tobyz\JsonApiServer\Endpoint\Concerns\SavesData as BaseSavesData;
-use Tobyz\JsonApiServer\Endpoint\Concerns\ShowsResources;
 use Tobyz\JsonApiServer\Endpoint\Update as BaseUpdate;
 use Tobyz\JsonApiServer\Exception\ForbiddenException;
 use Tobyz\JsonApiServer\Resource\Updatable;
@@ -20,13 +16,9 @@ use function Tobyz\JsonApiServer\json_api_response;
 
 class Update extends BaseUpdate implements Endpoint
 {
-    use BaseSavesData;
-    use ShowsResources;
-    use SavesData;
     use HasAuthorization;
     use HasEagerLoading;
     use HasCustomRoute;
-    use HasHooks;
 
     public function handle(Context $context): ?ResponseInterface
     {
@@ -67,7 +59,6 @@ class Update extends BaseUpdate implements Endpoint
 
         $this->assertFieldsValid($context, $data);
         $this->deserializeValues($context, $data);
-        $this->mutateDataBeforeValidation($context, $data, false);
         $this->assertDataValid($context, $data);
         $this->setValues($context, $data);
 

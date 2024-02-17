@@ -6,7 +6,6 @@ use Flarum\Api\Endpoint\Concerns\ExtractsListingParams;
 use Flarum\Api\Endpoint\Concerns\HasAuthorization;
 use Flarum\Api\Endpoint\Concerns\HasCustomRoute;
 use Flarum\Api\Endpoint\Concerns\HasEagerLoading;
-use Flarum\Api\Endpoint\Concerns\HasHooks;
 use Illuminate\Database\Eloquent\Collection;
 use Psr\Http\Message\ResponseInterface;
 use Tobyz\JsonApiServer\Context;
@@ -24,7 +23,6 @@ class Show extends BaseShow implements Endpoint
     use HasEagerLoading;
     use HasCustomRoute;
     use ExtractsListingParams;
-    use HasHooks;
 
     public function handle(Context $context): ?ResponseInterface
     {

@@ -8,7 +8,6 @@ use Nyholm\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 use Tobyz\JsonApiServer\Context;
-use Tobyz\JsonApiServer\Endpoint\Concerns\FindsResources;
 use Tobyz\JsonApiServer\Endpoint\Delete as BaseDelete;
 use Tobyz\JsonApiServer\Exception\ForbiddenException;
 use Tobyz\JsonApiServer\Resource\Deletable;
@@ -17,7 +16,6 @@ use function Tobyz\JsonApiServer\json_api_response;
 class Delete extends BaseDelete implements Endpoint
 {
     use HasAuthorization;
-    use FindsResources;
     use HasCustomRoute;
 
     /** {@inheritdoc} */

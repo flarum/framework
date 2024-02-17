@@ -130,7 +130,7 @@ abstract class AbstractDatabaseResource extends BaseResource implements
         return null;
     }
 
-    public function mutateDataBeforeValidation(Context $context, array $data, bool $validateAll): array
+    public function mutateDataBeforeValidation(Context $context, array $data): array
     {
         $dirty = $context->model->getDirty();
 

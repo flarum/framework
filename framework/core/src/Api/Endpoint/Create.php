@@ -5,30 +5,20 @@ namespace Flarum\Api\Endpoint;
 use Flarum\Api\Endpoint\Concerns\HasAuthorization;
 use Flarum\Api\Endpoint\Concerns\HasCustomRoute;
 use Flarum\Api\Endpoint\Concerns\HasEagerLoading;
-use Flarum\Api\Endpoint\Concerns\HasHooks;
-use Flarum\Api\Endpoint\Concerns\SavesData;
 use Illuminate\Database\Eloquent\Collection;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 use Tobyz\JsonApiServer\Context;
-use Tobyz\JsonApiServer\Endpoint\Concerns\SavesData as BaseSavesData;
-use Tobyz\JsonApiServer\Endpoint\Concerns\ShowsResources;
 use Tobyz\JsonApiServer\Endpoint\Create as BaseCreate;
 use Tobyz\JsonApiServer\Exception\ForbiddenException;
 use Tobyz\JsonApiServer\Resource\Creatable;
-use function Tobyz\JsonApiServer\has_value;
 use function Tobyz\JsonApiServer\json_api_response;
-use function Tobyz\JsonApiServer\set_value;
 
 class Create extends BaseCreate implements Endpoint
 {
-    use BaseSavesData;
-    use ShowsResources;
-    use SavesData;
     use HasAuthorization;
     use HasEagerLoading;
     use HasCustomRoute;
-    use HasHooks;
 
     public function handle(Context $context): ?ResponseInterface
     {
@@ -64,7 +54,6 @@ class Create extends BaseCreate implements Endpoint
         $this->assertFieldsValid($context, $data);
         $this->fillDefaultValues($context, $data);
         $this->deserializeValues($context, $data);
-        $this->mutateDataBeforeValidation($context, $data, true);
         $this->assertDataValid($context, $data);
 
         $this->setValues($context, $data);
@@ -78,15 +67,6 @@ class Create extends BaseCreate implements Endpoint
         $this->loadRelations(Collection::make([$model]), $context->request);
 
         return $model;
-    }
-
-    private function fillDefaultValues(Context $context, array &$data): void
-    {
-        foreach ($context->fields($context->resource) as $field) {
-            if (!has_value($data, $field) && ($default = $field->default)) {
-                set_value($data, $field, $default($context->withField($field)));
-            }
-        }
     }
 
     public function route(): EndpointRoute

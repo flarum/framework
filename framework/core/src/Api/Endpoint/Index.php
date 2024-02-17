@@ -2,12 +2,10 @@
 
 namespace Flarum\Api\Endpoint;
 
-use Closure;
 use Flarum\Api\Endpoint\Concerns\ExtractsListingParams;
 use Flarum\Api\Endpoint\Concerns\HasAuthorization;
 use Flarum\Api\Endpoint\Concerns\HasCustomRoute;
 use Flarum\Api\Endpoint\Concerns\HasEagerLoading;
-use Flarum\Api\Endpoint\Concerns\HasHooks;
 use Flarum\Http\RequestUtil;
 use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchManager;
@@ -16,27 +14,20 @@ use Illuminate\Database\Eloquent\Collection;
 use Psr\Http\Message\ResponseInterface as Response;
 use RuntimeException;
 use Tobyz\JsonApiServer\Context;
-use Tobyz\JsonApiServer\Endpoint\Concerns\IncludesData;
 use Tobyz\JsonApiServer\Endpoint\Index as BaseIndex;
-use Tobyz\JsonApiServer\Exception\BadRequestException;
 use Tobyz\JsonApiServer\Exception\ForbiddenException;
-use Tobyz\JsonApiServer\Exception\Sourceable;
 use Tobyz\JsonApiServer\Pagination\OffsetPagination;
 use Tobyz\JsonApiServer\Resource\Countable;
 use Tobyz\JsonApiServer\Resource\Listable;
 use Tobyz\JsonApiServer\Serializer;
-use function Tobyz\JsonApiServer\apply_filters;
 use function Tobyz\JsonApiServer\json_api_response;
-use function Tobyz\JsonApiServer\parse_sort_string;
 
 class Index extends BaseIndex implements Endpoint
 {
     use HasAuthorization;
-    use IncludesData;
     use HasEagerLoading;
     use HasCustomRoute;
     use ExtractsListingParams;
-    use HasHooks;
 
     public function paginate(int $defaultLimit = 20, int $maxLimit = 50): static
     {
@@ -149,47 +140,6 @@ class Index extends BaseIndex implements Endpoint
         }
 
         return json_api_response(compact('data', 'included', 'meta', 'links'));
-    }
-
-    private function applySorts($query, Context $context): void
-    {
-        if (!($sortString = $context->queryParam('sort', $this->defaultSort))) {
-            return;
-        }
-
-        $sorts = $context->collection->sorts();
-
-        foreach (parse_sort_string($sortString) as [$name, $direction]) {
-            foreach ($sorts as $field) {
-                if ($field->name === $name && $field->isVisible($context)) {
-                    $field->apply($query, $direction, $context);
-                    continue 2;
-                }
-            }
-
-            throw (new BadRequestException("Invalid sort: $name"))->setSource([
-                'parameter' => 'sort',
-            ]);
-        }
-    }
-
-    private function applyFilters($query, Context $context): void
-    {
-        if (!($filters = $context->queryParam('filter'))) {
-            return;
-        }
-
-        if (!is_array($filters)) {
-            throw (new BadRequestException('filter must be an array'))->setSource([
-                'parameter' => 'filter',
-            ]);
-        }
-
-        try {
-            apply_filters($query, $filters, $context->collection, $context);
-        } catch (Sourceable $e) {
-            throw $e->prependSource(['parameter' => 'filter']);
-        }
     }
 
     public function route(): EndpointRoute
