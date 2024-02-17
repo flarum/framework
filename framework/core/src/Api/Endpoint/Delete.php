@@ -4,13 +4,13 @@ namespace Flarum\Api\Endpoint;
 
 use Flarum\Api\Endpoint\Concerns\HasAuthorization;
 use Flarum\Api\Endpoint\Concerns\HasCustomRoute;
+use Flarum\Api\Resource\Contracts\Deletable;
 use Nyholm\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 use Tobyz\JsonApiServer\Context;
 use Tobyz\JsonApiServer\Endpoint\Delete as BaseDelete;
 use Tobyz\JsonApiServer\Exception\ForbiddenException;
-use Tobyz\JsonApiServer\Resource\Deletable;
 use function Tobyz\JsonApiServer\json_api_response;
 
 class Delete extends BaseDelete implements Endpoint
@@ -56,7 +56,7 @@ class Delete extends BaseDelete implements Endpoint
             throw new ForbiddenException();
         }
 
-        $resource->delete($model, $context);
+        $resource->deleteAction($model, $context);
 
         return true;
     }

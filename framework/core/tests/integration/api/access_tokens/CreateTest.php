@@ -61,7 +61,7 @@ class CreateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
     }
 
     /**
@@ -84,7 +84,7 @@ class CreateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode(), (string) $response->getBody());
     }
 
     /**
@@ -95,10 +95,16 @@ class CreateTest extends TestCase
         $response = $this->send(
             $this->request('POST', '/api/access-tokens', [
                 'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'type' => 'access-tokens',
+                        'attributes' => []
+                    ]
+                ]
             ])
         );
 
-        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertEquals(422, $response->getStatusCode(), (string) $response->getBody());
     }
 
     public function canCreateTokens(): array

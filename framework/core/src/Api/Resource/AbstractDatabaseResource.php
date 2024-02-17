@@ -14,6 +14,7 @@ use Flarum\Api\Resource\Contracts\{
 use Flarum\Api\Resource\Concerns\Bootable;
 use Flarum\Api\Resource\Concerns\ResolvesValidationFactory;
 use Flarum\Foundation\DispatchEventsTrait;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 use RuntimeException;
@@ -30,7 +31,9 @@ abstract class AbstractDatabaseResource extends BaseResource implements
     Deletable
 {
     use Bootable;
-    use DispatchEventsTrait;
+    use DispatchEventsTrait {
+        dispatchEventsFor as traitDispatchEventsFor;
+    }
     use ResolvesValidationFactory;
 
     abstract public function model(): string;
@@ -74,11 +77,11 @@ abstract class AbstractDatabaseResource extends BaseResource implements
         return $model;
     }
 
-    public function delete(object $model, Context $context): void
+    public function deleteAction(object $model, Context $context): void
     {
         $this->deleting($model, $context);
 
-        parent::delete($model, $context);
+        $this->delete($model, $context);
 
         $this->deleted($model, $context);
 
@@ -128,6 +131,13 @@ abstract class AbstractDatabaseResource extends BaseResource implements
     protected function newSavingEvent(Context $context, array $data): ?object
     {
         return null;
+    }
+
+    public function dispatchEventsFor(mixed $entity, User $actor = null): void
+    {
+        if (method_exists($entity, 'releaseEvents')) {
+            $this->traitDispatchEventsFor($entity, $actor);
+        }
     }
 
     public function mutateDataBeforeValidation(Context $context, array $data): array
