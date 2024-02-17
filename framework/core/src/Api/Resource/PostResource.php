@@ -23,6 +23,14 @@ use Tobyz\JsonApiServer\Laravel\Sort\SortColumn;
 
 class PostResource extends AbstractDatabaseResource
 {
+    public function __construct(
+        protected PostRepository $posts,
+        protected TranslatorInterface $translator,
+        protected LogReporter $log,
+        protected Dispatcher $bus
+    ) {
+    }
+
     public function type(): string
     {
         return 'posts';
@@ -115,7 +123,7 @@ class PostResource extends AbstractDatabaseResource
                         }
 
                         $limit = $defaultExtracts['limit'];
-                        $offset = resolve(PostRepository::class)->getIndexForNumber((int) $filter['discussion'], $near, $context->getActor());
+                        $offset = $this->posts->getIndexForNumber((int) $filter['discussion'], $near, $context->getActor());
 
                         return max(0, $offset - $limit / 2);
                     }
@@ -184,8 +192,8 @@ class PostResource extends AbstractDatabaseResource
                         $rendered = $post->formatContent($context->request);
                         $post->setAttribute('renderFailed', false);
                     } catch (\Exception $e) {
-                        $rendered = resolve(TranslatorInterface::class)->trans('core.lib.error.render_failed_message');
-                        resolve(LogReporter::class)->report($e);
+                        $rendered = $this->translator->trans('core.lib.error.render_failed_message');
+                        $this->log->report($e);
                         $post->setAttribute('renderFailed', true);
                     }
 
@@ -258,7 +266,7 @@ class PostResource extends AbstractDatabaseResource
         // in the discussion; thus, we will mark the discussion as read if
         // they are logged in.
         if ($actor->exists) {
-            resolve(Dispatcher::class)->dispatch(
+            $this->bus->dispatch(
                 new ReadDiscussion($model->discussion_id, $actor, $model->number)
             );
         }

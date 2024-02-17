@@ -34,7 +34,6 @@ abstract class AbstractDatabaseResource extends BaseResource implements
     use DispatchEventsTrait {
         dispatchEventsFor as traitDispatchEventsFor;
     }
-    use ResolvesValidationFactory;
 
     abstract public function model(): string;
 
@@ -147,7 +146,7 @@ abstract class AbstractDatabaseResource extends BaseResource implements
         $savingEvent = $this->newSavingEvent($context, Arr::get($context->body(), 'data', []));
 
         if ($savingEvent) {
-            $this->container->make(Dispatcher::class)->dispatch($savingEvent);
+            $this->events->dispatch($savingEvent);
 
             $dirtyAfterEvent = $context->model->getDirty();
 

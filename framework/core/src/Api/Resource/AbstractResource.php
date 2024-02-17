@@ -9,5 +9,4 @@ use Tobyz\JsonApiServer\Resource\AbstractResource as BaseResource;
 abstract class AbstractResource extends BaseResource
 {
     use Bootable;
-    use ResolvesValidationFactory;
 }

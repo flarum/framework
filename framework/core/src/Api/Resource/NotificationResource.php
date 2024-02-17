@@ -14,6 +14,12 @@ use Tobyz\JsonApiServer\Pagination\Pagination;
 
 class NotificationResource extends AbstractDatabaseResource
 {
+    public function __construct(
+        protected Dispatcher $bus,
+        protected NotificationRepository $notifications,
+    ) {
+    }
+
     public function type(): string
     {
         return 'notifications';
@@ -30,7 +36,7 @@ class NotificationResource extends AbstractDatabaseResource
             /** @var Pagination $pagination */
             $pagination = ($context->endpoint->paginationResolver)($context);
 
-            return resolve(NotificationRepository::class)->query($context->getActor(), $pagination->limit, $pagination->offset);
+            return $this->notifications->query($context->getActor(), $pagination->limit, $pagination->offset);
         }
 
         return parent::query($context);
@@ -57,7 +63,7 @@ class NotificationResource extends AbstractDatabaseResource
 
     public function fields(): array
     {
-        $subjectTypes = resolve(JsonApi::class)->typesForModels(
+        $subjectTypes = $this->api->typesForModels(
             (new Notification())->getSubjectModels()
         );
 
@@ -71,7 +77,7 @@ class NotificationResource extends AbstractDatabaseResource
                 ->writable()
                 ->get(fn (Notification $notification) => (bool) $notification->read_at)
                 ->set(function (Notification $notification, Context $context) {
-                    resolve(Dispatcher::class)->dispatch(
+                    $this->bus->dispatch(
                         new ReadNotification($notification->id, $context->getActor())
                     );
                 }),

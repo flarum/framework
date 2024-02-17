@@ -19,6 +19,11 @@ use Jenssegers\Agent\Agent;
 
 class AccessTokenResource extends AbstractDatabaseResource
 {
+    public function __construct(
+        protected TranslatorInterface $translator
+    ) {
+    }
+
     public function type(): string
     {
         return 'access-tokens';
@@ -84,12 +89,10 @@ class AccessTokenResource extends AbstractDatabaseResource
             Schema\Str::make('lastIpAddress'),
             Schema\Str::make('device')
                 ->get(function (AccessToken $token) {
-                    $translator = resolve(TranslatorInterface::class);
-
                     $agent = new Agent();
                     $agent->setUserAgent($token->last_user_agent);
 
-                    return $translator->trans('core.forum.security.browser_on_operating_system', [
+                    return $this->translator->trans('core.forum.security.browser_on_operating_system', [
                         'browser' => $agent->browser(),
                         'os' => $agent->platform(),
                     ]);

@@ -6,20 +6,22 @@ use Flarum\Api\Endpoint\Endpoint;
 use Flarum\Api\Endpoint\EndpointRoute;
 use Flarum\Api\Resource\AbstractDatabaseResource;
 use Flarum\Http\RequestUtil;
+use Illuminate\Contracts\Container\Container;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Diactoros\Uri;
 use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Tobyz\JsonApiServer\Exception\BadRequestException;
 use Tobyz\JsonApiServer\JsonApi as BaseJsonApi;
 use Tobyz\JsonApiServer\Resource\Collection;
+use Tobyz\JsonApiServer\Resource\Resource;
 
 class JsonApi extends BaseJsonApi
 {
     protected string $resourceClass;
     protected string $endpoint;
     protected ?Request $baseRequest = null;
+    protected ?Container $container = null;
 
     public function forResource(string $resourceClass): self
     {
@@ -41,7 +43,7 @@ class JsonApi extends BaseJsonApi
             throw new BadRequestException('No resource or endpoint specified');
         }
 
-        $collection = $this->getCollection((new $this->resourceClass)->type());
+        $collection = $this->getCollection($this->resourceClass);
 
         return (new Context($this, $request))
             ->withCollection($collection)
@@ -85,6 +87,8 @@ class JsonApi extends BaseJsonApi
             $request = RequestUtil::withActor($request, $options['actor']);
         }
 
+        $resource = $this->getCollection($this->resourceClass);
+
         $request = $request
             ->withMethod($route->method)
             ->withUri(new Uri($route->path))
@@ -93,7 +97,9 @@ class JsonApi extends BaseJsonApi
                 'data' => [
                     ...($request->getParsedBody()['data'] ?? []),
                     ...($body['data'] ?? []),
-                    'type' => (new $this->resourceClass)->type(),
+                    'type' => $resource instanceof Resource
+                        ? $resource->type()
+                        : $resource->name(),
                 ],
             ]);
 
@@ -135,5 +141,17 @@ class JsonApi extends BaseJsonApi
     public function typesForModels(array $modelClasses): array
     {
         return array_values(array_unique(array_map(fn ($modelClass) => $this->typeForModel($modelClass), $modelClasses)));
+    }
+
+    public function container(Container $container): static
+    {
+        $this->container = $container;
+
+        return $this;
+    }
+
+    public function getContainer(): ?Container
+    {
+        return $this->container;
     }
 }

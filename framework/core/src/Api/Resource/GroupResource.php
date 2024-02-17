@@ -15,6 +15,11 @@ use Tobyz\JsonApiServer\Laravel\Sort\SortColumn;
 
 class GroupResource extends AbstractDatabaseResource
 {
+    public function __construct(
+        protected TranslatorInterface $translator
+    ) {
+    }
+
     public function type(): string
     {
         return 'groups';
@@ -92,7 +97,7 @@ class GroupResource extends AbstractDatabaseResource
 
     private function translateGroupName(string $name): string
     {
-        $translation = resolve(TranslatorInterface::class)->trans($key = 'core.group.'.strtolower($name));
+        $translation = $this->translator->trans($key = 'core.group.'.strtolower($name));
 
         if ($translation !== $key) {
             return $translation;

@@ -12,10 +12,22 @@ use Flarum\Group\Group;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Factory;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use stdClass;
 
 class ForumResource extends AbstractResource implements Findable
 {
+    protected Filesystem $assetsFilesystem;
+
+    public function __construct(
+        protected UrlGenerator $url,
+        protected SettingsRepositoryInterface $settings,
+        protected Config $config,
+        Factory $filesystemFactory
+    ) {
+        $this->assetsFilesystem = $filesystemFactory->disk('flarum-assets');
+    }
+
     public function type(): string
     {
         return 'forums';
@@ -42,21 +54,16 @@ class ForumResource extends AbstractResource implements Findable
 
     public function fields(): array
     {
-        $url = resolve(UrlGenerator::class);
-        $settings = resolve(SettingsRepositoryInterface::class);
-        $config = resolve(Config::class);
-        $assetsFilesystem = resolve(Factory::class)->disk('flarum-assets');
-
-        $forumUrl = $url->to('forum')->base();
+        $forumUrl = $this->url->to('forum')->base();
         $path = parse_url($forumUrl, PHP_URL_PATH) ?: '';
 
         return [
             Schema\Str::make('title')
-                ->get(fn () => $settings->get('forum_title')),
+                ->get(fn () => $this->settings->get('forum_title')),
             Schema\Str::make('description')
-                ->get(fn () => $settings->get('forum_description')),
+                ->get(fn () => $this->settings->get('forum_description')),
             Schema\Boolean::make('showLanguageSelector')
-                ->get(fn () => $settings->get('show_language_selector', true)),
+                ->get(fn () => $this->settings->get('show_language_selector', true)),
             Schema\Str::make('baseUrl')
                 ->get(fn () => $forumUrl),
             Schema\Str::make('basePath')
@@ -64,29 +71,29 @@ class ForumResource extends AbstractResource implements Findable
             Schema\Str::make('baseOrigin')
                 ->get(fn () => substr($forumUrl, 0, strlen($forumUrl) - strlen($path))),
             Schema\Str::make('debug')
-                ->get(fn () => $config->inDebugMode()),
+                ->get(fn () => $this->config->inDebugMode()),
             Schema\Str::make('apiUrl')
-                ->get(fn () => $url->to('api')->base()),
+                ->get(fn () => $this->url->to('api')->base()),
             Schema\Str::make('welcomeTitle')
-                ->get(fn () => $settings->get('welcome_title')),
+                ->get(fn () => $this->settings->get('welcome_title')),
             Schema\Str::make('welcomeMessage')
-                ->get(fn () => $settings->get('welcome_message')),
+                ->get(fn () => $this->settings->get('welcome_message')),
             Schema\Str::make('themePrimaryColor')
-                ->get(fn () => $settings->get('theme_primary_color')),
+                ->get(fn () => $this->settings->get('theme_primary_color')),
             Schema\Str::make('themeSecondaryColor')
-                ->get(fn () => $settings->get('theme_secondary_color')),
+                ->get(fn () => $this->settings->get('theme_secondary_color')),
             Schema\Str::make('logoUrl')
                 ->get(fn () => $this->getLogoUrl()),
             Schema\Str::make('faviconUrl')
                 ->get(fn () => $this->getFaviconUrl()),
             Schema\Str::make('headerHtml')
-                ->get(fn () => $settings->get('custom_header')),
+                ->get(fn () => $this->settings->get('custom_header')),
             Schema\Str::make('footerHtml')
-                ->get(fn () => $settings->get('custom_footer')),
+                ->get(fn () => $this->settings->get('custom_footer')),
             Schema\Boolean::make('allowSignUp')
-                ->get(fn () => $settings->get('allow_sign_up')),
+                ->get(fn () => $this->settings->get('allow_sign_up')),
             Schema\Str::make('defaultRoute')
-                ->get(fn () => $settings->get('default_route')),
+                ->get(fn () => $this->settings->get('default_route')),
             Schema\Boolean::make('canViewForum')
                 ->get(fn ($model, Context $context) => $context->getActor()->can('viewForum')),
             Schema\Boolean::make('canStartDiscussion')
@@ -100,13 +107,13 @@ class ForumResource extends AbstractResource implements Findable
             Schema\Boolean::make('canEditUserCredentials')
                 ->get(fn ($model, Context $context) => $context->getActor()->hasPermission('user.editCredentials')),
             Schema\Str::make('assetsBaseUrl')
-                ->get(fn () => rtrim($assetsFilesystem->url(''), '/')),
+                ->get(fn () => rtrim($this->assetsFilesystem->url(''), '/')),
             Schema\Str::make('jsChunksBaseUrl')
-                ->get(fn () => $assetsFilesystem->url('js')),
+                ->get(fn () => $this->assetsFilesystem->url('js')),
 
             Schema\Str::make('adminUrl')
                 ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
-                ->get(fn () => $url->to('admin')->base()),
+                ->get(fn () => $this->url->to('admin')->base()),
             Schema\Str::make('version')
                 ->visible(fn ($model, Context $context) => $context->getActor()->can('administrate'))
                 ->get(fn () => Application::VERSION),
@@ -123,20 +130,20 @@ class ForumResource extends AbstractResource implements Findable
 
     protected function getLogoUrl(): ?string
     {
-        $logoPath = resolve(SettingsRepositoryInterface::class)->get('logo_path');
+        $logoPath = $this->settings->get('logo_path');
 
         return $logoPath ? $this->getAssetUrl($logoPath) : null;
     }
 
     protected function getFaviconUrl(): ?string
     {
-        $faviconPath = resolve(SettingsRepositoryInterface::class)->get('favicon_path');
+        $faviconPath = $this->settings->get('favicon_path');
 
         return $faviconPath ? $this->getAssetUrl($faviconPath) : null;
     }
 
     public function getAssetUrl(string $assetPath): string
     {
-        return resolve(Factory::class)->disk('flarum-assets')->url($assetPath);
+        return $this->assetsFilesystem->url($assetPath);
     }
 }

@@ -2,17 +2,32 @@
 
 namespace Flarum\Api\Resource\Concerns;
 
+use Flarum\Api\JsonApi;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Validation\Factory;
 
 trait Bootable
 {
-    protected readonly Container $container;
+    protected readonly JsonApi $api;
     protected readonly Dispatcher $events;
+    protected readonly Factory $validation;
 
-    public function boot(Container $container): void
+    /**
+     * Avoids polluting the constructor of the resource with dependencies.
+     */
+    public function boot(JsonApi $api): void
     {
-        $this->container = $container;
-        $this->events = $container->make(Dispatcher::class);
+        $this->api = $api;
+        $this->events = $api->getContainer()->make(Dispatcher::class);
+        $this->validation = $api->getContainer()->make(Factory::class);
+    }
+
+    /**
+     * Called by the JSON:API server package to resolve the validation factory.
+     */
+    public function validationFactory(): Factory
+    {
+        return $this->validation;
     }
 }

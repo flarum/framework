@@ -9,6 +9,7 @@ use Flarum\Foundation\ValidationException;
 use Flarum\Http\SlugManager;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\AvatarUploader;
 use Flarum\User\Event\Deleting;
 use Flarum\User\Event\GroupsChanged;
 use Flarum\User\Event\RegisteringFromProvider;
@@ -19,11 +20,21 @@ use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Intervention\Image\ImageManager;
 use InvalidArgumentException;
 use Tobyz\JsonApiServer\Laravel\Sort\SortColumn;
 
 class UserResource extends AbstractDatabaseResource
 {
+    public function __construct(
+        protected TranslatorInterface $translator,
+        protected SlugManager $slugManager,
+        protected SettingsRepositoryInterface $settings,
+        protected ImageManager $imageManager,
+        protected AvatarUploader $avatarUploader
+    ) {
+    }
+
     public function type(): string
     {
         return 'users';
@@ -41,11 +52,10 @@ class UserResource extends AbstractDatabaseResource
 
     public function find(string $id, \Tobyz\JsonApiServer\Context $context): ?object
     {
-        $slugManager = resolve(SlugManager::class);
         $actor = $context->getActor();
 
         if (Arr::get($context->request->getQueryParams(), 'bySlug', false)) {
-            $user = $slugManager->forResource(User::class)->fromSlug($id, $actor);
+            $user = $this->slugManager->forResource(User::class)->fromSlug($id, $actor);
         } else {
             $user = $this->query($context)->findOrFail($id);
         }
@@ -58,9 +68,7 @@ class UserResource extends AbstractDatabaseResource
         return [
             Endpoint\Create::make()
                 ->visible(function (Context $context) {
-                    $settings = resolve(SettingsRepositoryInterface::class);
-
-                    if (! $settings->get('allow_sign_up')) {
+                    if (! $this->settings->get('allow_sign_up')) {
                         return $context->getActor()->isAdmin();
                     }
 
@@ -101,7 +109,7 @@ class UserResource extends AbstractDatabaseResource
 
     public function fields(): array
     {
-        $translator = resolve(TranslatorInterface::class);
+        $translator = $this->translator;
 
         return [
             Schema\Str::make('username')
@@ -203,7 +211,7 @@ class UserResource extends AbstractDatabaseResource
             Schema\Str::make('avatarUrl'),
             Schema\Str::make('slug')
                 ->get(function (User $user) {
-                    return resolve(SlugManager::class)->forResource(User::class)->toSlug($user);
+                    return $this->slugManager->forResource(User::class)->toSlug($user);
                 }),
             Schema\DateTime::make('joinTime')
                 ->property('joined_at'),
@@ -363,12 +371,7 @@ class UserResource extends AbstractDatabaseResource
      */
     private function uploadAvatarFromUrl(User $user, string $url): void
     {
-        // @todo: constructor dependency injection
-        $this->validator = resolve(\Illuminate\Contracts\Validation\Factory::class);
-        $this->imageManager = resolve(\Intervention\Image\ImageManager::class);
-        $this->avatarUploader = resolve(\Flarum\User\AvatarUploader::class);
-
-        $urlValidator = $this->validator->make(compact('url'), [
+        $urlValidator = $this->validation->make(compact('url'), [
             'url' => 'required|active_url',
         ]);
 

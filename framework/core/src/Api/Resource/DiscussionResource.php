@@ -24,6 +24,13 @@ use Tobyz\JsonApiServer\Laravel\Sort\SortColumn;
 
 class DiscussionResource extends AbstractDatabaseResource
 {
+    public function __construct(
+        protected Dispatcher $bus,
+        protected SlugManager $slugManager,
+        protected PostRepository $posts
+    ) {
+    }
+
     public function type(): string
     {
         return 'discussions';
@@ -41,11 +48,10 @@ class DiscussionResource extends AbstractDatabaseResource
 
     public function find(string $id, \Tobyz\JsonApiServer\Context $context): ?object
     {
-        $slugManager = resolve(SlugManager::class);
         $actor = $context->getActor();
 
         if (Arr::get($context->request->getQueryParams(), 'bySlug', false)) {
-            $discussion = $slugManager->forResource(Discussion::class)->fromSlug($id, $actor);
+            $discussion = $this->slugManager->forResource(Discussion::class)->fromSlug($id, $actor);
         } else {
             $discussion = $this->query($context)->findOrFail($id);
         }
@@ -113,7 +119,7 @@ class DiscussionResource extends AbstractDatabaseResource
                 ->set(fn () => null),
             Schema\Str::make('slug')
                 ->get(function (Discussion $discussion) {
-                    return resolve(SlugManager::class)->forResource(Discussion::class)->toSlug($discussion);
+                    return $this->slugManager->forResource(Discussion::class)->toSlug($discussion);
                 }),
             Schema\Integer::make('commentCount'),
             Schema\Integer::make('participantCount'),
@@ -167,7 +173,7 @@ class DiscussionResource extends AbstractDatabaseResource
                 ->set(function (Discussion $discussion, int $value, Context $context) {
                     if ($readNumber = Arr::get($context->body(), 'data.attributes.lastReadPostNumber')) {
                         $discussion->afterSave(function (Discussion $discussion) use ($readNumber, $context) {
-                            resolve(Dispatcher::class)->dispatch(
+                            $this->bus->dispatch(
                                 new ReadDiscussion($discussion->id, $context->getActor(), $readNumber)
                             );
                         });
@@ -196,7 +202,7 @@ class DiscussionResource extends AbstractDatabaseResource
                         $limit = $context->endpoint->extractLimitValue($context, $context->endpoint->defaultExtracts($context));
 
                         if (($near = Arr::get($context->request->getQueryParams(), 'page.near')) > 1) {
-                            $offset = resolve(PostRepository::class)->getIndexForNumber($discussion->id, $near, $actor);
+                            $offset = $this->posts->getIndexForNumber($discussion->id, $near, $actor);
                             $offset = max(0, $offset - $limit / 2);
                         } else {
                             $offset = $context->endpoint->extractOffsetValue($context, $context->endpoint->defaultExtracts($context));
@@ -263,7 +269,7 @@ class DiscussionResource extends AbstractDatabaseResource
         $actor = $context->getActor();
 
         if ($actor->exists) {
-            resolve(Dispatcher::class)->dispatch(
+            $this->bus->dispatch(
                 new ReadDiscussion($model->id, $actor, 1)
             );
         }

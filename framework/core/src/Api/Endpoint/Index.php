@@ -71,7 +71,7 @@ class Index extends BaseIndex implements Endpoint
 
         // This model has a searcher API, so we'll use that instead of the default.
         // The searcher API allows swapping the default search engine for a custom one.
-        $search = resolve(SearchManager::class);
+        $search = $context->api->getContainer()->make(SearchManager::class);
         $modelClass = $query->getModel()::class;
 
         if ($query instanceof Builder && $search->searchable($modelClass)) {
@@ -86,8 +86,7 @@ class Index extends BaseIndex implements Endpoint
 
             $sortIsDefault = ! $context->queryParam('sort');
 
-            // @todo: resources and endpoints have no room for dependency injection
-            $results = resolve(SearchManager::class)->query(
+            $results = $search->query(
                 $modelClass,
                 new SearchCriteria($actor, $filters, $limit, $offset, $sort, $sortIsDefault),
             );
