@@ -19,6 +19,7 @@ use Flarum\Group\Group;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class EventTest extends TestCase
@@ -32,16 +33,19 @@ class EventTest extends TestCase
 
         return $api->forResource(GroupResource::class)
             ->forEndpoint(Create::class)
-            ->execute([
-                'data' => [
-                    'attributes' => [
-                        'nameSingular' => 'test group',
-                        'namePlural' => 'test groups',
-                        'color' => '#000000',
-                        'icon' => 'fas fa-crown',
-                    ]
+            ->execute(
+                body: [
+                    'data' => [
+                        'attributes' => [
+                            'nameSingular' => 'test group',
+                            'namePlural' => 'test groups',
+                            'color' => '#000000',
+                            'icon' => 'fas fa-crown',
+                        ]
+                    ],
                 ],
-            ]);
+                options: ['actor' => User::find(1)]
+            );
     }
 
     /**

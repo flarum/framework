@@ -53,7 +53,7 @@ class JsonApi extends BaseJsonApi
     protected function findEndpoint(?Collection $collection): Endpoint
     {
         /** @var \Flarum\Api\Endpoint\Endpoint $endpoint */
-        foreach ($collection->endpoints() as $endpoint) {
+        foreach ($collection->resolveEndpoints() as $endpoint) {
             if ($endpoint::class === $this->endpoint) {
                 return $endpoint;
             }

@@ -54,8 +54,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             foreach ($resources as $resourceClass) {
                 /** @var \Flarum\Api\Resource\AbstractResource|\Flarum\Api\Resource\AbstractDatabaseResource $resource */
                 $resource = $container->make($resourceClass);
-                $resource->boot($api);
-                $api->resource($resource);
+                $api->resource($resource->boot($api));
             }
 
             return $api;
@@ -189,7 +188,7 @@ class ApiServiceProvider extends AbstractServiceProvider
              *
              * @var \Flarum\Api\Endpoint\Endpoint[] $endpoints
              */
-            $endpoints = $resource->endpoints();
+            $endpoints = $resource->resolveEndpoints(true);
 
             foreach ($endpoints as $endpoint) {
                 $route = $endpoint->route();

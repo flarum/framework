@@ -4,6 +4,7 @@ namespace Flarum\Api\Endpoint;
 
 use Flarum\Api\Endpoint\Concerns\ExtractsListingParams;
 use Flarum\Api\Endpoint\Concerns\HasAuthorization;
+use Flarum\Api\Endpoint\Concerns\HasCustomHooks;
 use Flarum\Api\Endpoint\Concerns\HasCustomRoute;
 use Flarum\Api\Endpoint\Concerns\HasEagerLoading;
 use Flarum\Http\RequestUtil;
@@ -28,16 +29,17 @@ class Index extends BaseIndex implements Endpoint
     use HasEagerLoading;
     use HasCustomRoute;
     use ExtractsListingParams;
+    use HasCustomHooks;
 
     public function paginate(int $defaultLimit = 20, int $maxLimit = 50): static
     {
         $this->limit = $defaultLimit;
         $this->maxLimit = $maxLimit;
 
-        $this->paginationResolver = fn(Context $context) => new OffsetPagination(
+        $this->paginationResolver = fn (Context $context) => new OffsetPagination(
             $context,
-            $defaultLimit,
-            $maxLimit,
+            $this->limit,
+            $this->maxLimit,
         );
 
         return $this;
@@ -115,13 +117,13 @@ class Index extends BaseIndex implements Endpoint
 
         $models = $collection->results($query, $context);
 
-        ['models' => $models] = $this->callAfterHook($context, compact('models'));
-
-        $this->loadRelations(Collection::make($models), $context->request);
-
-        $serializer = new Serializer($context);
+        $models = $this->callAfterHook($context, $models);
 
         $include = $this->getInclude($context);
+
+        $this->loadRelations($models, $context->request, $include);
+
+        $serializer = new Serializer($context);
 
         foreach ($models as $model) {
             $serializer->addPrimary(

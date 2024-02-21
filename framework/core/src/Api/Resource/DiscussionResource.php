@@ -196,7 +196,7 @@ class DiscussionResource extends AbstractDatabaseResource
                 ->withLinkage()
                 ->includable()
                 ->get(function (Discussion $discussion, Context $context) {
-                    if ($context->endpoint instanceof Endpoint\Show) {
+                    if ($context->collection instanceof self && $context->endpoint instanceof Endpoint\Show) {
                         $actor = $context->getActor();
 
                         $limit = $context->endpoint->extractLimitValue($context, $context->endpoint->defaultExtracts($context));

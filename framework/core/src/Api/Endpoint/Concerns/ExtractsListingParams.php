@@ -19,6 +19,18 @@ trait ExtractsListingParams
     public int $maxLimit = 50;
     public ?string $defaultSort = null;
 
+    public function limit(int $limit): static
+    {
+        $this->limit = $limit;
+        return $this;
+    }
+
+    public function maxLimit(int $maxLimit): static
+    {
+        $this->maxLimit = $maxLimit;
+        return $this;
+    }
+
     public function extractFilter(Closure $callback): self
     {
         $this->extractFilterCallback = $callback;
@@ -85,7 +97,7 @@ trait ExtractsListingParams
 
     public function getAvailableSorts(Context $context): array
     {
-        $asc = collect($context->collection->sorts())
+        $asc = collect($context->collection->resolveSorts())
             ->filter(fn (Sort $field) => $field->isVisible($context))
             ->pluck('name')
             ->toArray();

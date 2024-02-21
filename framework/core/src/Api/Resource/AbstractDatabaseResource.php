@@ -2,26 +2,25 @@
 
 namespace Flarum\Api\Resource;
 
-use Flarum\Api\Resource\Contracts\{
-    Findable,
+use Flarum\Api\Resource\Contracts\{Findable,
     Listable,
     Countable,
     Paginatable,
     Creatable,
+    Resource,
     Updatable,
-    Deletable
-};
+    Deletable};
 use Flarum\Api\Resource\Concerns\Bootable;
-use Flarum\Api\Resource\Concerns\ResolvesValidationFactory;
+use Flarum\Api\Resource\Concerns\Extendable;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\User;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 use RuntimeException;
 use Tobyz\JsonApiServer\Context;
 use Tobyz\JsonApiServer\Laravel\EloquentResource as BaseResource;
 
 abstract class AbstractDatabaseResource extends BaseResource implements
+    Resource,
     Findable,
     Listable,
     Countable,
@@ -31,6 +30,7 @@ abstract class AbstractDatabaseResource extends BaseResource implements
     Deletable
 {
     use Bootable;
+    use Extendable;
     use DispatchEventsTrait {
         dispatchEventsFor as traitDispatchEventsFor;
     }
@@ -159,13 +159,13 @@ abstract class AbstractDatabaseResource extends BaseResource implements
         return $data;
     }
 
-    public function results(object $query, Context $context): array
+    public function results(object $query, Context $context): iterable
     {
         if ($results = $context->getSearchResults()) {
-            return $results->getResults()->all();
+            return $results->getResults();
         }
 
-        return parent::results($query, $context);
+        return $query->get();
     }
 
     public function count(object $query, Context $context): ?int

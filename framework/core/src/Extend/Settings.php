@@ -9,6 +9,8 @@
 
 namespace Flarum\Extend;
 
+use Flarum\Api\Resource\ForumResource;
+use Flarum\Api\Schema\Attribute;
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extension\Extension;
@@ -99,11 +101,10 @@ class Settings implements ExtenderInterface
         }
 
         if (! empty($this->settings)) {
-            AbstractSerializer::addAttributeMutator(
-                ForumSerializer::class,
-                function () use ($container) {
+            (new ApiResource(ForumResource::class))
+                ->fields(function () use ($container) {
                     $settings = $container->make(SettingsRepositoryInterface::class);
-                    $attributes = [];
+                    $fields = [];
 
                     foreach ($this->settings as $key => $setting) {
                         $value = $settings->get($key);
@@ -113,12 +114,12 @@ class Settings implements ExtenderInterface
                             $value = $callback($value);
                         }
 
-                        $attributes[$setting['attributeName']] = $value;
+                        $fields[] = Attribute::make($setting['attributeName'])->get(fn () => $value);
                     }
 
-                    return $attributes;
-                }
-            );
+                    return $fields;
+                })
+                ->extend($container, $extension);
         }
 
         if (! empty($this->lessConfigs)) {

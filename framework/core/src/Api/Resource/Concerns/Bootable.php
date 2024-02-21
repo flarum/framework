@@ -16,11 +16,13 @@ trait Bootable
     /**
      * Avoids polluting the constructor of the resource with dependencies.
      */
-    public function boot(JsonApi $api): void
+    public function boot(JsonApi $api): static
     {
         $this->api = $api;
         $this->events = $api->getContainer()->make(Dispatcher::class);
         $this->validation = $api->getContainer()->make(Factory::class);
+
+        return $this;
     }
 
     /**

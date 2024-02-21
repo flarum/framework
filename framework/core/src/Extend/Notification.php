@@ -20,7 +20,6 @@ use Illuminate\Contracts\Container\Container;
 class Notification implements ExtenderInterface
 {
     private array $blueprints = [];
-    private array $serializers = [];
     private array $drivers = [];
     private array $typesEnabledByDefault = [];
     private array $beforeSendingCallbacks = [];
@@ -28,16 +27,13 @@ class Notification implements ExtenderInterface
     /**
      * @param class-string<BlueprintInterface> $blueprint: The ::class attribute of the blueprint class.
      *                          This blueprint should implement \Flarum\Notification\Blueprint\BlueprintInterface.
-     * @param class-string<AbstractSerializer> $serializer: The ::class attribute of the serializer class.
-     *                           This serializer should extend from \Flarum\Api\Serializer\AbstractSerializer.
      * @param string[] $driversEnabledByDefault: The names of the drivers enabled by default for this notification type.
      *                                       (example: alert, email).
      * @return self
      */
-    public function type(string $blueprint, string $serializer, array $driversEnabledByDefault = []): self
+    public function type(string $blueprint, array $driversEnabledByDefault = []): self
     {
         $this->blueprints[$blueprint] = $driversEnabledByDefault;
-        $this->serializers[$blueprint::getType()] = $serializer;
 
         return $this;
     }
@@ -90,10 +86,6 @@ class Notification implements ExtenderInterface
             }
 
             return $existingBlueprints;
-        });
-
-        $container->extend('flarum.api.notification_serializers', function ($existingSerializers) {
-            return array_merge($existingSerializers, $this->serializers);
         });
 
         $container->extend('flarum.notification.drivers', function ($existingDrivers) {

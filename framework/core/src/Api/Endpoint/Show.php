@@ -4,6 +4,7 @@ namespace Flarum\Api\Endpoint;
 
 use Flarum\Api\Endpoint\Concerns\ExtractsListingParams;
 use Flarum\Api\Endpoint\Concerns\HasAuthorization;
+use Flarum\Api\Endpoint\Concerns\HasCustomHooks;
 use Flarum\Api\Endpoint\Concerns\HasCustomRoute;
 use Flarum\Api\Endpoint\Concerns\HasEagerLoading;
 use Illuminate\Database\Eloquent\Collection;
@@ -23,6 +24,7 @@ class Show extends BaseShow implements Endpoint
     use HasEagerLoading;
     use HasCustomRoute;
     use ExtractsListingParams;
+    use HasCustomHooks;
 
     public function handle(Context $context): ?ResponseInterface
     {
@@ -46,7 +48,7 @@ class Show extends BaseShow implements Endpoint
 
         $model = $this->callAfterHook($context, $model);
 
-        $this->loadRelations(Collection::make([$model]), $context->request);
+        $this->loadRelations(Collection::make([$model]), $context->request, $this->getInclude($context));
 
         return json_api_response($this->showResource($context, $model));
     }

@@ -3,6 +3,7 @@
 namespace Flarum\Api\Endpoint;
 
 use Flarum\Api\Endpoint\Concerns\HasAuthorization;
+use Flarum\Api\Endpoint\Concerns\HasCustomHooks;
 use Flarum\Api\Endpoint\Concerns\HasCustomRoute;
 use Flarum\Api\Endpoint\Concerns\HasEagerLoading;
 use Illuminate\Database\Eloquent\Collection;
@@ -19,6 +20,7 @@ class Update extends BaseUpdate implements Endpoint
     use HasAuthorization;
     use HasEagerLoading;
     use HasCustomRoute;
+    use HasCustomHooks;
 
     public function handle(Context $context): ?ResponseInterface
     {
@@ -68,7 +70,7 @@ class Update extends BaseUpdate implements Endpoint
 
         $model = $this->callAfterHook($context, $model);
 
-        $this->loadRelations(Collection::make([$model]), $context->request);
+        $this->loadRelations(Collection::make([$model]), $context->request, $this->getInclude($context));
 
         return $model;
     }
