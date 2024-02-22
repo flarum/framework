@@ -9,12 +9,14 @@
 
 namespace Flarum\Extend;
 
+use Flarum\Api\Controller\SetSettingsController;
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 class Settings implements ExtenderInterface
@@ -22,6 +24,7 @@ class Settings implements ExtenderInterface
     private array $settings = [];
     private array $defaults = [];
     private array $lessConfigs = [];
+    private array $filter = [];
 
     /**
      * Serialize a setting value to the ForumSerializer attributes.
@@ -56,6 +59,18 @@ class Settings implements ExtenderInterface
     public function default(string $key, mixed $value): self
     {
         $this->defaults[$key] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Reset a setting to default when callback returns true.
+     * @param string $key: The key of the setting.
+     * @param (callable(mixed $value): bool)|bool $callback: Boolean to determine whether the setting needs deleted.
+     */
+    public function filter(string $key, callable|bool $callback): self
+    {
+        $this->filter[$key] = $callback;
 
         return $this;
     }
@@ -96,6 +111,16 @@ class Settings implements ExtenderInterface
 
                 return $defaults;
             });
+        }
+
+        if (! empty($this->filter)) {
+            foreach ($this->filter as $key => $callback) {
+                Arr::set(
+                    SetSettingsController::$filter,
+                    $key,
+                    ContainerUtil::wrapCallback($callback, $container)
+                );
+            }
         }
 
         if (! empty($this->settings)) {
