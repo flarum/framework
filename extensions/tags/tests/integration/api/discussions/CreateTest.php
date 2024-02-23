@@ -87,6 +87,28 @@ class CreateTest extends TestCase
         );
 
         $this->assertEquals(422, $response->getStatusCode());
+
+        $response = $this->send(
+            $this->request('POST', '/api/discussions', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'type' => 'discussions',
+                        'attributes' => [
+                            'title' => 'test - too-obscure',
+                            'content' => 'predetermined content for automated testing - too-obscure',
+                        ],
+                        'relationships' => [
+                            'tags' => [
+                                'data' => []
+                            ]
+                        ]
+                    ]
+                ],
+            ])
+        );
+
+        $this->assertEquals(422, $response->getStatusCode());
     }
 
     /**
@@ -145,7 +167,7 @@ class CreateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
     }
 
     /**

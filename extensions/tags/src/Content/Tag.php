@@ -101,7 +101,7 @@ class Tag
                 ->withoutErrorHandling()
                 ->withParentRequest($request)
                 ->withQueryParams([
-                    'include' => 'children,children.parent,parent,parent.children.parent,state'
+                    'include' => 'children,children.parent,parent,parent.children.parent'
                 ])
                 ->get("/tags/$slug")
                 ->getBody()
