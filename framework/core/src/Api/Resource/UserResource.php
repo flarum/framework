@@ -5,6 +5,7 @@ namespace Flarum\Api\Resource;
 use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Schema;
+use Flarum\Api\Sort\SortColumn;
 use Flarum\Foundation\ValidationException;
 use Flarum\Http\SlugManager;
 use Flarum\Locale\TranslatorInterface;
@@ -22,7 +23,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use InvalidArgumentException;
-use Tobyz\JsonApiServer\Laravel\Sort\SortColumn;
 
 class UserResource extends AbstractDatabaseResource
 {

@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Schema;
+use Flarum\Api\Sort\SortColumn;
 use Flarum\Bus\Dispatcher;
 use Flarum\Discussion\Command\ReadDiscussion;
 use Flarum\Discussion\Discussion;
@@ -19,7 +20,6 @@ use Flarum\Post\PostRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Tobyz\JsonApiServer\Exception\BadRequestException;
-use Tobyz\JsonApiServer\Laravel\Sort\SortColumn;
 
 class PostResource extends AbstractDatabaseResource
 {

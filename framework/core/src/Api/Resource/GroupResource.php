@@ -4,6 +4,7 @@ namespace Flarum\Api\Resource;
 
 use Flarum\Api\Endpoint;
 use Flarum\Api\Schema;
+use Flarum\Api\Sort\SortColumn;
 use Flarum\Group\Event\Deleting;
 use Flarum\Group\Event\Saving;
 use Flarum\Group\Group;
@@ -11,7 +12,6 @@ use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Tobyz\JsonApiServer\Context;
-use Tobyz\JsonApiServer\Laravel\Sort\SortColumn;
 
 class GroupResource extends AbstractDatabaseResource
 {

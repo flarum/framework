@@ -17,8 +17,7 @@ use Flarum\Api\Resource\AbstractDatabaseResource;
 use Flarum\Api\Resource\DiscussionResource;
 use Flarum\Api\Resource\UserResource;
 use Flarum\Api\Schema\Relationship\ToMany;
-use Flarum\Api\Serializer\DiscussionSerializer;
-use Flarum\Api\Serializer\UserSerializer;
+use Flarum\Api\Sort\SortColumn;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Foundation\ValidationException;
@@ -27,7 +26,6 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
-use Tobyz\JsonApiServer\Laravel\Sort\SortColumn;
 use Tobyz\JsonApiServer\Schema\Field\Field;
 
 class ApiControllerTest extends TestCase

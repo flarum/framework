@@ -64,12 +64,15 @@ class ApiResource implements ExtenderInterface
     /**
      * Modify an endpoint.
      *
-     * @param class-string<\Flarum\Api\Endpoint\Endpoint> $endpointClass
+     * @param class-string<\Flarum\Api\Endpoint\Endpoint>|array<\Flarum\Api\Endpoint\Endpoint> $endpointClass the class name of the endpoint.
+     *                                                                                           or an array of class names of the endpoints.
      * @param callable|class-string $mutator a callable that accepts an endpoint and returns the modified endpoint.
      */
-    public function endpoint(string $endpointClass, callable|string $mutator): self
+    public function endpoint(string|array $endpointClass, callable|string $mutator): self
     {
-        $this->endpoint[$endpointClass] = $mutator;
+        foreach ((array) $endpointClass as $endpointClassItem) {
+            $this->endpoint[$endpointClassItem] = $mutator;
+        }
 
         return $this;
     }
@@ -102,12 +105,14 @@ class ApiResource implements ExtenderInterface
     /**
      * Modify a field.
      *
-     * @param string $field the name of the field.
+     * @param string|string[] $field the name of the field or an array of field names.
      * @param callable|class-string $mutator a callable that accepts a field and returns the modified field.
      */
-    public function field(string $field, callable|string $mutator): self
+    public function field(string|array $field, callable|string $mutator): self
     {
-        $this->field[$field] = $mutator;
+        foreach ((array) $field as $fieldItem) {
+            $this->field[$fieldItem] = $mutator;
+        }
 
         return $this;
     }
@@ -140,12 +145,14 @@ class ApiResource implements ExtenderInterface
     /**
      * Modify a sort.
      *
-     * @param string $sort the name of the sort.
+     * @param string|string[] $sort the name of the sort or an array of sort names.
      * @param callable|class-string $mutator a callable that accepts a sort and returns the modified sort.
      */
-    public function sort(string $sort, callable|string $mutator): self
+    public function sort(string|array $sort, callable|string $mutator): self
     {
-        $this->sort[$sort] = $mutator;
+        foreach ((array) $sort as $sortItem) {
+            $this->sort[$sortItem] = $mutator;
+        }
 
         return $this;
     }

@@ -9,15 +9,8 @@
 
 namespace Flarum\Foundation;
 
-use Flarum\Api\Endpoint\Show;
-use Flarum\Api\Resource\DiscussionResource;
-use Flarum\Api\Resource\UserResource;
-use Flarum\Api\Schema\Relationship\ToMany;
-use Flarum\Discussion\Discussion;
-use Flarum\User\User;
 use Illuminate\Support\Arr;
 use RuntimeException;
-use Tobyz\JsonApiServer\Laravel\Sort\SortColumn;
 
 class Site
 {

@@ -15,7 +15,7 @@ trait ExtractsListingParams
     protected ?Closure $extractLimitCallback = null;
     protected ?Closure $extractOffsetCallback = null;
 
-    public int $limit = 20;
+    public ?int $limit = null;
     public int $maxLimit = 50;
     public ?string $defaultSort = null;
 
