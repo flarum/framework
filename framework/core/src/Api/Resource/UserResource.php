@@ -341,9 +341,13 @@ class UserResource extends AbstractDatabaseResource
         );
     }
 
-    protected function newSavingEvent(\Tobyz\JsonApiServer\Context $context, array $data): ?object
+    public function saving(object $model, \Tobyz\JsonApiServer\Context $context): ?object
     {
-        return new Saving($context->model, $context->getActor(), $data);
+        $this->events->dispatch(
+            new Saving($model, $context->getActor(), Arr::get($context->body(), 'data', []))
+        );
+
+        return $model;
     }
 
     private function applyToken(User $user, RegistrationToken $token): void

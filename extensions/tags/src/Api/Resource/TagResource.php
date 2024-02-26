@@ -132,11 +132,24 @@ class TagResource extends AbstractDatabaseResource
         ];
     }
 
-    protected function newSavingEvent(Context $context, array $data): ?object
+    public function creating(object $model, Context $context): ?object
     {
-        return $context->endpoint instanceof Endpoint\Create
-            ? new Creating($context->model, $context->getActor(), $data)
-            : new Saving($context->model, $context->getActor(), $data);
+        $this->events->dispatch(
+            new Creating($model, $context->getActor(), $context->body())
+        );
+
+        return $model;
+    }
+
+    public function saving(object $model, Context $context): ?object
+    {
+        if (! $context->endpoint instanceof Endpoint\Create) {
+            $this->events->dispatch(
+                new Saving($model, $context->getActor(), $context->body())
+            );
+        }
+
+        return $model;
     }
 
     public function deleting(object $model, Context $context): void

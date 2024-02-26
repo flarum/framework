@@ -127,11 +127,6 @@ abstract class AbstractDatabaseResource extends BaseResource implements
         //
     }
 
-    protected function newSavingEvent(Context $context, array $data): ?object
-    {
-        return null;
-    }
-
     public function dispatchEventsFor(mixed $entity, User $actor = null): void
     {
         if (method_exists($entity, 'releaseEvents')) {
@@ -141,21 +136,6 @@ abstract class AbstractDatabaseResource extends BaseResource implements
 
     public function mutateDataBeforeValidation(Context $context, array $data): array
     {
-        $dirty = $context->model->getDirty();
-
-        $savingEvent = $this->newSavingEvent($context, Arr::get($context->body(), 'data', []));
-
-        if ($savingEvent) {
-            $this->events->dispatch($savingEvent);
-
-            $dirtyAfterEvent = $context->model->getDirty();
-
-            // Unlike 1.0, the saving events in 2.0 do not allow modifying the model.
-            if ($dirtyAfterEvent !== $dirty) {
-                throw new RuntimeException('You should modify the model through the saving event. Please use the resource extenders instead.');
-            }
-        }
-
         return $data;
     }
 

@@ -8,9 +8,9 @@ use Flarum\Api\Sort\SortColumn;
 use Flarum\Group\Event\Deleting;
 use Flarum\Group\Event\Saving;
 use Flarum\Group\Group;
-use Flarum\Http\RequestUtil;
 use Flarum\Locale\TranslatorInterface;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use Tobyz\JsonApiServer\Context;
 
 class GroupResource extends AbstractDatabaseResource
@@ -106,9 +106,13 @@ class GroupResource extends AbstractDatabaseResource
         return $name;
     }
 
-    protected function newSavingEvent(Context $context, array $data): ?object
+    public function saving(object $model, Context $context): ?object
     {
-        return new Saving($context->model, RequestUtil::getActor($context->request), $data);
+        $this->events->dispatch(
+            new Saving($model, $context->getActor(), Arr::get($context->body(), 'data', []))
+        );
+
+        return $model;
     }
 
     public function deleting(object $model, Context $context): void
