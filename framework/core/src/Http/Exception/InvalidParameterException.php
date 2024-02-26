@@ -7,15 +7,11 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Flags\Command;
+namespace Flarum\Http\Exception;
 
-use Flarum\User\User;
+use Exception;
 
-class CreateFlag
+class InvalidParameterException extends Exception
 {
-    public function __construct(
-        public User $actor,
-        public array $data
-    ) {
-    }
+    //
 }

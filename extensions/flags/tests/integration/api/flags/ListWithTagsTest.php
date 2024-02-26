@@ -50,9 +50,9 @@ class ListWithTagsTest extends TestCase
             ],
             'group_permission' => [
                 ['group_id' => Group::MODERATOR_ID, 'permission' => 'discussion.viewFlags'],
-                ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag2.viewDiscussions'],
+                ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag2.viewForum'],
                 ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag3.discussion.viewFlags'],
-                ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag4.viewDiscussions'],
+                ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag4.viewForum'],
                 ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag4.discussion.viewFlags'],
             ],
             'discussions' => [
@@ -149,9 +149,7 @@ class ListWithTagsTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
-        // 7 is included, even though mods can't view discussions.
-        // This is because the UI doesnt allow discussions.viewFlags without viewDiscussions.
-        $this->assertEqualsCanonicalizing(['1', '4', '5', '7', '8', '9'], $ids);
+        $this->assertEqualsCanonicalizing(['1', '4', '5', '8', '9'], $ids);
     }
 
     /**

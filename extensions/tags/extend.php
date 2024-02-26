@@ -12,10 +12,9 @@ use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Discussion\Discussion;
-use Flarum\Discussion\Event\Saving;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
-use Flarum\Flags\Api\Controller\ListFlagsController;
+use Flarum\Flags\Api\Resource\FlagResource;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
@@ -104,8 +103,13 @@ return [
             return $endpoint->eagerLoad('discussion.tags');
         }),
 
-//    (new Extend\ApiController(ListFlagsController::class))
-//        ->load('post.discussion.tags'),
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-flags', fn () => [
+            (new Extend\ApiResource(FlagResource::class))
+                ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint) {
+                    return $endpoint->eagerLoad(['post.discussion.tags']);
+                }),
+        ]),
 
     (new Extend\ApiResource(Resource\DiscussionResource::class))
         ->endpoint(

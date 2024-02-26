@@ -7,25 +7,17 @@
  * LICENSE file that was distributed with this source code.
  */
 
-use Flarum\Api\Controller\AbstractSerializeController;
-use Flarum\Api\Controller\ListPostsController;
-use Flarum\Api\Controller\ShowDiscussionController;
-use Flarum\Api\Controller\ShowPostController;
-use Flarum\Api\Serializer\CurrentUserSerializer;
-use Flarum\Api\Serializer\ForumSerializer;
-use Flarum\Api\Serializer\PostSerializer;
+use Flarum\Api\Endpoint;
+use Flarum\Api\Resource;
 use Flarum\Extend;
 use Flarum\Flags\Access\ScopeFlagVisibility;
-use Flarum\Flags\AddCanFlagAttribute;
-use Flarum\Flags\AddFlagsApiAttributes;
-use Flarum\Flags\AddNewFlagCountAttribute;
-use Flarum\Flags\Api\Controller\CreateFlagController;
 use Flarum\Flags\Api\Controller\DeleteFlagsController;
-use Flarum\Flags\Api\Controller\ListFlagsController;
-use Flarum\Flags\Api\Serializer\FlagSerializer;
+use Flarum\Flags\Api\ForumResourceFields;
+use Flarum\Flags\Api\PostResourceFields;
+use Flarum\Flags\Api\Resource\FlagResource;
+use Flarum\Flags\Api\UserResourceFields;
 use Flarum\Flags\Flag;
 use Flarum\Flags\Listener;
-use Flarum\Flags\PrepareFlagsApiData;
 use Flarum\Forum\Content\AssertRegistered;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Post;
@@ -41,8 +33,6 @@ return [
         ->js(__DIR__.'/js/dist/admin.js'),
 
     (new Extend\Routes('api'))
-        ->get('/flags', 'flags.index', ListFlagsController::class)
-        ->post('/flags', 'flags.create', CreateFlagController::class)
         ->delete('/posts/{id}/flags', 'flags.delete', DeleteFlagsController::class),
 
     (new Extend\Model(User::class))
@@ -51,27 +41,26 @@ return [
     (new Extend\Model(Post::class))
         ->hasMany('flags', Flag::class, 'post_id'),
 
-    (new Extend\ApiSerializer(PostSerializer::class))
-        ->hasMany('flags', FlagSerializer::class)
-        ->attribute('canFlag', AddCanFlagAttribute::class),
+    (new Extend\ApiResource(FlagResource::class)),
 
-    (new Extend\ApiSerializer(CurrentUserSerializer::class))
-        ->attribute('newFlagCount', AddNewFlagCountAttribute::class),
+    (new Extend\ApiResource(Resource\PostResource::class))
+        ->fields(PostResourceFields::class),
 
-    (new Extend\ApiSerializer(ForumSerializer::class))
-        ->attributes(AddFlagsApiAttributes::class),
+    (new Extend\ApiResource(Resource\UserResource::class))
+        ->fields(UserResourceFields::class),
 
-    (new Extend\ApiController(ShowDiscussionController::class))
-        ->addInclude(['posts.flags', 'posts.flags.user']),
+    (new Extend\ApiResource(Resource\ForumResource::class))
+        ->fields(ForumResourceFields::class),
 
-    (new Extend\ApiController(ListPostsController::class))
-        ->addInclude(['flags', 'flags.user']),
+    (new Extend\ApiResource(Resource\DiscussionResource::class))
+        ->endpoint(Endpoint\Show::class, function (Endpoint\Show $endpoint) {
+            return $endpoint->addDefaultInclude(['posts.flags', 'posts.flags.user']);
+        }),
 
-    (new Extend\ApiController(ShowPostController::class))
-        ->addInclude(['flags', 'flags.user']),
-
-    (new Extend\ApiController(AbstractSerializeController::class))
-        ->prepareDataForSerialization(PrepareFlagsApiData::class),
+    (new Extend\ApiResource(Resource\PostResource::class))
+        ->endpoint([Endpoint\Index::class, Endpoint\Show::class], function (Endpoint\Index|Endpoint\Show $endpoint) {
+            return $endpoint->addDefaultInclude(['flags', 'flags.user']);
+        }),
 
     (new Extend\Settings())
         ->serializeToForum('guidelinesUrl', 'flarum-flags.guidelines_url'),

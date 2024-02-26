@@ -11,9 +11,9 @@ namespace Flarum\Foundation;
 
 use Flarum\Extension\Exception as ExtensionException;
 use Flarum\Foundation\ErrorHandling as Handling;
+use Flarum\Http\Exception\InvalidParameterException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException as IlluminateValidationException;
-use Tobscure\JsonApi\Exception\InvalidParameterException;
 use Tobyz\JsonApiServer\Exception as TobyzJsonApiServerException;
 
 class ErrorServiceProvider extends AbstractServiceProvider
