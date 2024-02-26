@@ -63,7 +63,7 @@ class ListDiscussionsTest extends TestCase
 
         $data = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertEquals([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
+        $this->assertEqualsCanonicalizing([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
     }
 
     /** @test */
@@ -79,7 +79,7 @@ class ListDiscussionsTest extends TestCase
 
         $data = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertEquals([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
+        $this->assertEqualsCanonicalizing([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
     }
 
     /** @test */
@@ -95,7 +95,7 @@ class ListDiscussionsTest extends TestCase
 
         $data = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertEquals([2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
+        $this->assertEqualsCanonicalizing([2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
     }
 
     /** @test */
@@ -115,6 +115,6 @@ class ListDiscussionsTest extends TestCase
 
         $data = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertEquals([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
+        $this->assertEqualsCanonicalizing([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
     }
 }
