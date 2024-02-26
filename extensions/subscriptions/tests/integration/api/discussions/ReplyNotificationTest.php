@@ -119,7 +119,7 @@ class ReplyNotificationTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
-                        'type' => 'posts',
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'ACME',
                         ],
@@ -134,7 +134,7 @@ class ReplyNotificationTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
-                        'type' => 'posts',
+                        'type' => 'discussions',
                         'attributes' => [
                             'lastReadPostNumber' => 2,
                         ],
