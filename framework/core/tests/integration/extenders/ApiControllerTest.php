@@ -78,9 +78,9 @@ class ApiControllerTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($body = $response->getBody()->getContents(), true);
 
-        $this->assertEquals('dataSerializationPrepCustomTitle', $payload['data']['attributes']['title']);
+        $this->assertEquals('dataSerializationPrepCustomTitle', $payload['data']['attributes']['title'], $body);
     }
 
     /**

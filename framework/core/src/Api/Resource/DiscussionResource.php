@@ -193,42 +193,46 @@ class DiscussionResource extends AbstractDatabaseResource
                 ->includable()
                 ->type('posts'),
             Schema\Relationship\ToMany::make('posts')
-                ->withLinkage()
+                ->withLinkage(function (Context $context) {
+                    return $context->collection instanceof self && $context->endpoint instanceof Endpoint\Show;
+                })
                 ->includable()
                 ->get(function (Discussion $discussion, Context $context) {
-                    if ($context->collection instanceof self && $context->endpoint instanceof Endpoint\Show) {
-                        $actor = $context->getActor();
+                    $showingDiscussion = $context->collection instanceof self && $context->endpoint instanceof Endpoint\Show;
 
-                        $limit = $context->endpoint->extractLimitValue($context, $context->endpoint->defaultExtracts($context));
-
-                        if (($near = Arr::get($context->request->getQueryParams(), 'page.near')) > 1) {
-                            $offset = $this->posts->getIndexForNumber($discussion->id, $near, $actor);
-                            $offset = max(0, $offset - $limit / 2);
-                        } else {
-                            $offset = $context->endpoint->extractOffsetValue($context, $context->endpoint->defaultExtracts($context));
-                        }
-
-                        $posts = $discussion->posts()
-                            ->whereVisibleTo($actor)
-                            ->orderBy('number')
-                            ->skip($offset)
-                            ->take($limit)
-                            ->get();
-
-                        /** @var Post $post */
-                        foreach ($posts as $post) {
-                            $post->setRelation('discussion', $discussion);
-                        }
-
-                        $allPosts = $discussion->posts()->whereVisibleTo($actor)->orderBy('number')->pluck('id')->all();
-                        $loadedPosts = $posts->all();
-
-                        array_splice($allPosts, $offset, $limit, $loadedPosts);
-
-                        return $allPosts;
+                    if (! $showingDiscussion) {
+                        return fn () => $discussion->posts->all();
                     }
 
-                    return [];
+                    $actor = $context->getActor();
+
+                    $limit = PostResource::$defaultLimit;
+
+                    if (($near = Arr::get($context->request->getQueryParams(), 'page.near')) > 1) {
+                        $offset = $this->posts->getIndexForNumber($discussion->id, $near, $actor);
+                        $offset = max(0, $offset - $limit / 2);
+                    } else {
+                        $offset = $context->endpoint->extractOffsetValue($context, $context->endpoint->defaultExtracts($context));
+                    }
+
+                    $posts = $discussion->posts()
+                        ->whereVisibleTo($actor)
+                        ->orderBy('number')
+                        ->skip($offset)
+                        ->take($limit)
+                        ->get();
+
+                    /** @var Post $post */
+                    foreach ($posts as $post) {
+                        $post->setRelation('discussion', $discussion);
+                    }
+
+                    $allPosts = $discussion->posts()->whereVisibleTo($actor)->orderBy('number')->pluck('id')->all();
+                    $loadedPosts = $posts->all();
+
+                    array_splice($allPosts, $offset, $limit, $loadedPosts);
+
+                    return $allPosts;
                 }),
             Schema\Relationship\ToOne::make('mostRelevantPost')
                 ->visible(fn (Discussion $model, Context $context) => $context->endpoint instanceof Endpoint\Index)

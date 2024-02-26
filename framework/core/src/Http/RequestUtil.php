@@ -37,7 +37,13 @@ class RequestUtil
 
     public static function extractSort(Request $request, ?string $default, array $available = []): ?array
     {
-        if (! ($input = $request->getQueryParams()['sort'] ?? $default)) {
+        $input = $request->getQueryParams()['sort'] ?? null;
+
+        if (is_null($input) || ! filled($input)) {
+            $input = $default;
+        }
+
+        if (! $input) {
             return null;
         }
 
@@ -71,7 +77,11 @@ class RequestUtil
 
     public static function extractLimit(Request $request, ?int $defaultLimit = null, ?int $max = null): ?int
     {
-        $limit = (int) ($request->getQueryParams()['page']['limit'] ?? $defaultLimit);
+        $limit = $request->getQueryParams()['page']['limit'] ?? '';
+
+        if (is_null($limit) || ! filled($limit)) {
+            $limit = $defaultLimit;
+        }
 
         if (! $limit) {
             return null;

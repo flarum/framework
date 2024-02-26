@@ -10,6 +10,7 @@ use Flarum\Bus\Dispatcher;
 use Flarum\Notification\Command\ReadNotification;
 use Flarum\Notification\Notification;
 use Flarum\Notification\NotificationRepository;
+use Illuminate\Database\Eloquent\Builder;
 use Tobyz\JsonApiServer\Pagination\Pagination;
 
 class NotificationResource extends AbstractDatabaseResource
@@ -32,7 +33,7 @@ class NotificationResource extends AbstractDatabaseResource
 
     public function query(\Tobyz\JsonApiServer\Context $context): object
     {
-        if ($context->endpoint instanceof Endpoint\Index) {
+        if ($context->collection instanceof self && $context->endpoint instanceof Endpoint\Index) {
             /** @var Pagination $pagination */
             $pagination = ($context->endpoint->paginationResolver)($context);
 

@@ -39,7 +39,7 @@ abstract class AbstractSearcher implements SearcherInterface
 
         $this->applySort($search, $criteria->sort, $criteria->sortIsDefault);
         $this->applyOffset($search, $criteria->offset);
-        $this->applyLimit($search, $criteria->limit + 1);
+        $this->applyLimit($search, $criteria->limit ? $criteria->limit + 1 : null);
 
         foreach ($this->mutators as $mutator) {
             $mutator($search, $criteria);
@@ -102,7 +102,7 @@ abstract class AbstractSearcher implements SearcherInterface
 
     protected function applyLimit(DatabaseSearchState $state, ?int $limit): void
     {
-        if ($limit > 0) {
+        if ($limit && $limit > 0) {
             $state->getQuery()->take($limit);
         }
     }

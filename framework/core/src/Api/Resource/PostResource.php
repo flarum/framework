@@ -23,6 +23,8 @@ use Tobyz\JsonApiServer\Exception\BadRequestException;
 
 class PostResource extends AbstractDatabaseResource
 {
+    public static int $defaultLimit = 20;
+
     public function __construct(
         protected PostRepository $posts,
         protected TranslatorInterface $translator,
@@ -137,7 +139,7 @@ class PostResource extends AbstractDatabaseResource
                     'hiddenUser',
                     'discussion'
                 ])
-                ->paginate(),
+                ->paginate(static::$defaultLimit),
         ];
     }
 
