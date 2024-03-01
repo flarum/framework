@@ -71,7 +71,7 @@ class ApiResource implements ExtenderInterface
     public function endpoint(string|array $endpointClass, callable|string $mutator): self
     {
         foreach ((array) $endpointClass as $endpointClassItem) {
-            $this->endpoint[$endpointClassItem] = $mutator;
+            $this->endpoint[$endpointClassItem][] = $mutator;
         }
 
         return $this;
@@ -111,7 +111,7 @@ class ApiResource implements ExtenderInterface
     public function field(string|array $field, callable|string $mutator): self
     {
         foreach ((array) $field as $fieldItem) {
-            $this->field[$fieldItem] = $mutator;
+            $this->field[$fieldItem][] = $mutator;
         }
 
         return $this;
@@ -151,7 +151,7 @@ class ApiResource implements ExtenderInterface
     public function sort(string|array $sort, callable|string $mutator): self
     {
         foreach ((array) $sort as $sortItem) {
-            $this->sort[$sortItem] = $mutator;
+            $this->sort[$sortItem][] = $mutator;
         }
 
         return $this;
@@ -189,12 +189,14 @@ class ApiResource implements ExtenderInterface
             foreach ($endpoints as $key => $endpoint) {
                 $endpointClass = $endpoint::class;
 
-                if (isset($this->endpoint[$endpointClass])) {
-                    $mutateEndpoint = ContainerUtil::wrapCallback($this->endpoint[$endpointClass], $container);
-                    $endpoint = $mutateEndpoint($endpoint, $resource);
+                if (! empty($this->endpoint[$endpointClass])) {
+                    foreach ($this->endpoint[$endpointClass] as $mutator) {
+                        $mutateEndpoint = ContainerUtil::wrapCallback($mutator, $container);
+                        $endpoint = $mutateEndpoint($endpoint, $resource);
 
-                    if (! $endpoint instanceof Endpoint) {
-                        throw new \RuntimeException('The endpoint mutator must return an instance of ' . Endpoint::class);
+                        if (! $endpoint instanceof Endpoint) {
+                            throw new \RuntimeException('The endpoint mutator must return an instance of ' . Endpoint::class);
+                        }
                     }
                 }
 
@@ -219,12 +221,14 @@ class ApiResource implements ExtenderInterface
             }
 
             foreach ($fields as $key => $field) {
-                if (isset($this->field[$field->name])) {
-                    $mutateField = ContainerUtil::wrapCallback($this->field[$field->name], $container);
-                    $field = $mutateField($field);
+                if (! empty($this->field[$field->name])) {
+                    foreach ($this->field[$field->name] as $mutator) {
+                        $mutateField = ContainerUtil::wrapCallback($mutator, $container);
+                        $field = $mutateField($field);
 
-                    if (! $field instanceof Field) {
-                        throw new \RuntimeException('The field mutator must return an instance of ' . Field::class);
+                        if (! $field instanceof Field) {
+                            throw new \RuntimeException('The field mutator must return an instance of ' . Field::class);
+                        }
                     }
                 }
 
@@ -249,12 +253,14 @@ class ApiResource implements ExtenderInterface
             }
 
             foreach ($sorts as $key => $sort) {
-                if (isset($this->sort[$sort->name])) {
-                    $mutateSort = ContainerUtil::wrapCallback($this->sort[$sort], $container);
-                    $sort = $mutateSort($sort);
+                if (! empty($this->sort[$sort->name])) {
+                    foreach ($this->sort[$sort->name] as $mutator) {
+                        $mutateSort = ContainerUtil::wrapCallback($mutator, $container);
+                        $sort = $mutateSort($sort);
 
-                    if (! $sort instanceof Sort) {
-                        throw new \RuntimeException('The sort mutator must return an instance of ' . Sort::class);
+                        if (! $sort instanceof Sort) {
+                            throw new \RuntimeException('The sort mutator must return an instance of ' . Sort::class);
+                        }
                     }
                 }
 

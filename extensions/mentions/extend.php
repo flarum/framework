@@ -9,16 +9,14 @@
 
 namespace Flarum\Mentions;
 
-use Flarum\Api\Controller;
-use Flarum\Api\Serializer\BasicPostSerializer;
-use Flarum\Api\Serializer\BasicUserSerializer;
-use Flarum\Api\Serializer\CurrentUserSerializer;
-use Flarum\Api\Serializer\GroupSerializer;
-use Flarum\Api\Serializer\PostSerializer;
+use Flarum\Api\Context;
+use Flarum\Api\Endpoint;
+use Flarum\Api\Resource;
+use Flarum\Api\Schema;
 use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Extend;
 use Flarum\Group\Group;
-use Flarum\Mentions\Api\LoadMentionedByRelationship;
+use Flarum\Mentions\Api\PostResourceFields;
 use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
@@ -27,7 +25,6 @@ use Flarum\Post\Event\Revised;
 use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
 use Flarum\Search\Database\DatabaseSearchDriver;
-use Flarum\Tags\Api\Serializer\TagSerializer;
 use Flarum\User\User;
 
 return [
@@ -60,49 +57,42 @@ return [
         ->namespace('flarum-mentions', __DIR__.'/views'),
 
     (new Extend\Notification())
-        ->type(Notification\PostMentionedBlueprint::class, PostSerializer::class, ['alert'])
-        ->type(Notification\UserMentionedBlueprint::class, PostSerializer::class, ['alert'])
-        ->type(Notification\GroupMentionedBlueprint::class, PostSerializer::class, ['alert']),
+        ->type(Notification\PostMentionedBlueprint::class, ['alert'])
+        ->type(Notification\UserMentionedBlueprint::class, ['alert'])
+        ->type(Notification\GroupMentionedBlueprint::class, ['alert']),
 
-    (new Extend\ApiSerializer(BasicPostSerializer::class))
-        ->hasMany('mentionedBy', BasicPostSerializer::class)
-        ->hasMany('mentionsPosts', BasicPostSerializer::class)
-        ->hasMany('mentionsUsers', BasicUserSerializer::class)
-        ->hasMany('mentionsGroups', GroupSerializer::class)
-        ->attribute('mentionedByCount', function (BasicPostSerializer $serializer, Post $post) {
-            // Only if it was eager loaded.
-            return $post->getAttribute('mentioned_by_count') ?? 0;
+    (new Extend\ApiResource(Resource\PostResource::class))
+        ->fields(PostResourceFields::class)
+        ->endpoint([Endpoint\Index::class, Endpoint\Show::class], function (Endpoint\Index|Endpoint\Show $endpoint): Endpoint\Endpoint {
+            return $endpoint->addDefaultInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion']);
+        })
+        ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint): Endpoint\Index {
+            return $endpoint->eagerLoad(['mentionsUsers', 'mentionsPosts', 'mentionsPosts.user', 'mentionsPosts.discussion', 'mentionsGroups']);
         }),
 
-    (new Extend\ApiController(Controller\ShowDiscussionController::class))
-        ->addInclude(['posts.mentionedBy', 'posts.mentionedBy.user', 'posts.mentionedBy.discussion'])
-        ->load([
-            'posts.mentionsUsers', 'posts.mentionsPosts', 'posts.mentionsPosts.user',
-            'posts.mentionsPosts.discussion', 'posts.mentionsGroups'
-        ])
-        ->loadWhere('posts.mentionedBy', LoadMentionedByRelationship::mutateRelation(...))
-        ->prepareDataForSerialization(LoadMentionedByRelationship::countRelation(...)),
+    (new Extend\ApiResource(Resource\DiscussionResource::class))
+        ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint): Endpoint\Index {
+            return $endpoint->eagerLoad([
+                'firstPost.mentionsUsers', 'firstPost.mentionsPosts',
+                'firstPost.mentionsPosts.user', 'firstPost.mentionsPosts.discussion', 'firstPost.mentionsGroups',
+                'lastPost.mentionsUsers', 'lastPost.mentionsPosts',
+                'lastPost.mentionsPosts.user', 'lastPost.mentionsPosts.discussion', 'lastPost.mentionsGroups',
+            ]);
+        })
+        ->endpoint(Endpoint\Show::class, function (Endpoint\Show $endpoint): Endpoint\Show {
+            return $endpoint->addDefaultInclude(['posts.mentionedBy', 'posts.mentionedBy.user', 'posts.mentionedBy.discussion'])
+                ->eagerLoad([
+                    'posts.mentionsUsers', 'posts.mentionsPosts', 'posts.mentionsPosts.user',
+                    'posts.mentionsPosts.discussion', 'posts.mentionsGroups'
+                ]);
+        }),
 
-    (new Extend\ApiController(Controller\ListDiscussionsController::class))
-        ->load([
-            'firstPost.mentionsUsers', 'firstPost.mentionsPosts',
-            'firstPost.mentionsPosts.user', 'firstPost.mentionsPosts.discussion', 'firstPost.mentionsGroups',
-            'lastPost.mentionsUsers', 'lastPost.mentionsPosts',
-            'lastPost.mentionsPosts.user', 'lastPost.mentionsPosts.discussion', 'lastPost.mentionsGroups',
+    (new Extend\ApiResource(Resource\UserResource::class))
+        ->fields(fn () => [
+            Schema\Boolean::make('canMentionGroups')
+                ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
+                ->get(fn (User $user) => $user->can('mentionGroups')),
         ]),
-
-    (new Extend\ApiController(Controller\ShowPostController::class))
-        ->addInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion'])
-        // We wouldn't normally need to eager load on a single model,
-        // but we do so here for visibility scoping.
-        ->loadWhere('mentionedBy', LoadMentionedByRelationship::mutateRelation(...))
-        ->prepareDataForSerialization(LoadMentionedByRelationship::countRelation(...)),
-
-    (new Extend\ApiController(Controller\ListPostsController::class))
-        ->addInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion'])
-        ->load(['mentionsUsers', 'mentionsPosts', 'mentionsPosts.user', 'mentionsPosts.discussion', 'mentionsGroups'])
-        ->loadWhere('mentionedBy', LoadMentionedByRelationship::mutateRelation(...))
-        ->prepareDataForSerialization(LoadMentionedByRelationship::countRelation(...)),
 
     (new Extend\Settings)
         ->serializeToForum('allowUsernameMentionFormat', 'flarum-mentions.allow_username_format', 'boolval'),
@@ -119,11 +109,6 @@ return [
         ->addFilter(PostSearcher::class, Filter\MentionedFilter::class)
         ->addFilter(PostSearcher::class, Filter\MentionedPostFilter::class),
 
-    (new Extend\ApiSerializer(CurrentUserSerializer::class))
-        ->attribute('canMentionGroups', function (CurrentUserSerializer $serializer, User $user): bool {
-            return $user->can('mentionGroups');
-        }),
-
     // Tag mentions
     (new Extend\Conditional())
         ->whenExtensionEnabled('flarum-tags', fn () => [
@@ -131,18 +116,23 @@ return [
                 ->render(Formatter\FormatTagMentions::class)
                 ->unparse(Formatter\UnparseTagMentions::class),
 
-            (new Extend\ApiSerializer(BasicPostSerializer::class))
-                ->hasMany('mentionsTags', TagSerializer::class),
-
-            (new Extend\ApiController(Controller\ShowDiscussionController::class))
-                ->load(['posts.mentionsTags']),
-
-            (new Extend\ApiController(Controller\ListDiscussionsController::class))
-                ->load([
-                    'firstPost.mentionsTags', 'lastPost.mentionsTags',
+            (new Extend\ApiResource(Resource\PostResource::class))
+                ->fields(fn () => [
+                    Schema\Relationship\ToMany::make('mentionsTags')
+                        ->type('tags'),
                 ]),
 
-            (new Extend\ApiController(Controller\ListPostsController::class))
-                ->load(['mentionsTags']),
+            (new Extend\ApiResource(Resource\DiscussionResource::class))
+                ->endpoint(Endpoint\Show::class, function (Endpoint\Show $endpoint): Endpoint\Show {
+                    return $endpoint->eagerLoad(['posts.mentionsTags']);
+                })
+                ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint): Endpoint\Index {
+                    return $endpoint->eagerLoad(['firstPost.mentionsTags', 'lastPost.mentionsTags']);
+                }),
+
+            (new Extend\ApiResource(Resource\PostResource::class))
+                ->endpoint([Endpoint\Index::class, Endpoint\Show::class], function (Endpoint\Index|Endpoint\Show $endpoint): Endpoint\Endpoint {
+                    return $endpoint->eagerLoad(['mentionsTags']);
+                }),
         ]),
 ];

@@ -2,8 +2,13 @@
 
 namespace Flarum\Api\Schema;
 
-class Number extends Attribute
+use Tobyz\JsonApiServer\Schema\Concerns\GetsRelationAggregates;
+use Tobyz\JsonApiServer\Schema\Contracts\RelationAggregator;
+
+class Number extends Attribute implements RelationAggregator
 {
+    use GetsRelationAggregates;
+
     public static function make(string $name): static
     {
         return (new static($name))

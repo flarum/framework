@@ -14,7 +14,6 @@ use Flarum\Api\Resource\Concerns\Bootable;
 use Flarum\Api\Resource\Concerns\Extendable;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\User;
-use Illuminate\Support\Arr;
 use RuntimeException;
 use Tobyz\JsonApiServer\Context;
 use Tobyz\JsonApiServer\Laravel\EloquentResource as BaseResource;

@@ -11,6 +11,7 @@ namespace Flarum\Mentions\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
 use Flarum\Mentions\Api\LoadMentionedByRelationship;
+use Flarum\Mentions\Api\PostResourceFields;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
@@ -167,7 +168,7 @@ class ListPostsTest extends TestCase
         $mentionedBy = $data['relationships']['mentionedBy']['data'];
 
         // Only displays a limited amount of mentioned by posts
-        $this->assertCount(LoadMentionedByRelationship::$maxMentionedBy, $mentionedBy);
+        $this->assertCount(PostResourceFields::$maxMentionedBy, $mentionedBy);
         // Of the limited amount of mentioned by posts, they must be visible to the actor
         $this->assertEquals([102, 104, 105, 106], Arr::pluck($mentionedBy, 'id'));
     }
@@ -187,14 +188,14 @@ class ListPostsTest extends TestCase
             ])
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($body = $response->getBody()->getContents(), true)['data'] ?? [];
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $body);
 
         $mentionedBy = $data[0]['relationships']['mentionedBy']['data'];
 
         // Only displays a limited amount of mentioned by posts
-        $this->assertCount(LoadMentionedByRelationship::$maxMentionedBy, $mentionedBy);
+        $this->assertCount(PostResourceFields::$maxMentionedBy, $mentionedBy);
         // Of the limited amount of mentioned by posts, they must be visible to the actor
         $this->assertEquals([102, 104, 105, 106], Arr::pluck($mentionedBy, 'id'));
     }
@@ -203,7 +204,7 @@ class ListPostsTest extends TestCase
      * @dataProvider mentionedByIncludeProvider
      * @test
      */
-    public function mentioned_by_relation_returns_limited_results_and_shows_only_visible_posts_in_show_discussion_endpoint(string $include)
+    public function mentioned_by_relation_returns_limited_results_and_shows_only_visible_posts_in_show_discussion_endpoint(?string $include)
     {
         $this->prepareMentionedByData();
 
@@ -216,15 +217,18 @@ class ListPostsTest extends TestCase
             ])
         );
 
-        $included = json_decode($response->getBody()->getContents(), true)['included'];
+        $included = json_decode($body = $response->getBody()->getContents(), true)['included'] ?? [];
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
 
         $mentionedBy = collect($included)
             ->where('type', 'posts')
             ->where('id', 101)
-            ->first()['relationships']['mentionedBy']['data'];
+            ->first()['relationships']['mentionedBy']['data'] ?? null;
 
+        $this->assertNotNull($mentionedBy, 'Mentioned by relation not included');
         // Only displays a limited amount of mentioned by posts
-        $this->assertCount(LoadMentionedByRelationship::$maxMentionedBy, $mentionedBy);
+        $this->assertCount(PostResourceFields::$maxMentionedBy, $mentionedBy);
         // Of the limited amount of mentioned by posts, they must be visible to the actor
         $this->assertEquals([102, 104, 105, 106], Arr::pluck($mentionedBy, 'id'));
     }
@@ -234,7 +238,7 @@ class ListPostsTest extends TestCase
         return [
             ['posts,posts.mentionedBy'],
             ['posts.mentionedBy'],
-            [''],
+            [null],
         ];
     }
 
@@ -250,10 +254,54 @@ class ListPostsTest extends TestCase
             ])
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($body = $response->getBody()->getContents(), true)['data'] ?? [];
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $body);
 
         $this->assertEquals(0, $data['attributes']['mentionedByCount']);
+    }
+
+    /** @test */
+    public function mentioned_by_count_works_on_show_endpoint()
+    {
+        $this->prepareMentionedByData();
+
+        // List posts endpoint
+        $response = $this->send(
+            $this->request('GET', '/api/posts/101', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $data = json_decode($body = $response->getBody()->getContents(), true)['data'] ?? [];
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $this->assertEquals(10, $data['attributes']['mentionedByCount']);
+    }
+
+    /** @test */
+    public function mentioned_by_count_works_on_list_endpoint()
+    {
+        $this->prepareMentionedByData();
+
+        // List posts endpoint
+        $response = $this->send(
+            $this->request('GET', '/api/posts', [
+                'authenticatedAs' => 1,
+            ])->withQueryParams([
+                'filter' => ['discussion' => 100],
+            ])
+        );
+
+        $data = json_decode($body = $response->getBody()->getContents(), true)['data'] ?? [];
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $post101 = collect($data)->where('id', 101)->first();
+        $post112 = collect($data)->where('id', 112)->first();
+
+        $this->assertEquals(10, $post101['attributes']['mentionedByCount']);
+        $this->assertEquals(0, $post112['attributes']['mentionedByCount']);
     }
 }
