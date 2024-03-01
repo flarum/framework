@@ -2,9 +2,8 @@
 
 namespace Flarum\Mentions\Api;
 
-use Flarum\Api\Context;
 use Flarum\Api\Schema;
-use Flarum\Post\Post;
+use Illuminate\Database\Eloquent\Builder;
 
 class PostResourceFields
 {
@@ -19,7 +18,7 @@ class PostResourceFields
             Schema\Relationship\ToMany::make('mentionedBy')
                 ->type('posts')
                 ->includable()
-                ->limit(static::$maxMentionedBy),
+                ->constrain(fn (Builder $query) => $query->oldest('id')->limit(static::$maxMentionedBy)),
             Schema\Relationship\ToMany::make('mentionsPosts')
                 ->type('posts'),
             Schema\Relationship\ToMany::make('mentionsUsers')
