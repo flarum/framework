@@ -246,9 +246,13 @@ class DiscussionResource extends AbstractDatabaseResource
     public function sorts(): array
     {
         return [
-            SortColumn::make('lastPostedAt'),
-            SortColumn::make('commentCount'),
-            SortColumn::make('createdAt'),
+            SortColumn::make('lastPostedAt')
+                ->descendingAlias('latest'),
+            SortColumn::make('commentCount')
+                ->descendingAlias('top'),
+            SortColumn::make('createdAt')
+                ->ascendingAlias('oldest')
+                ->descendingAlias('newest'),
         ];
     }
 

@@ -12,6 +12,7 @@ use Flarum\Api\Resource\Contracts\{Findable,
     Deletable};
 use Flarum\Api\Resource\Concerns\Bootable;
 use Flarum\Api\Resource\Concerns\Extendable;
+use Flarum\Api\Resource\Concerns\HasSortMap;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\User;
 use RuntimeException;
@@ -30,6 +31,7 @@ abstract class AbstractDatabaseResource extends BaseResource implements
 {
     use Bootable;
     use Extendable;
+    use HasSortMap;
     use DispatchEventsTrait {
         dispatchEventsFor as traitDispatchEventsFor;
     }
