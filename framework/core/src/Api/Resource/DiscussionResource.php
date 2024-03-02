@@ -105,7 +105,7 @@ class DiscussionResource extends AbstractDatabaseResource
             Schema\Str::make('title')
                 ->requiredOnCreate()
                 ->writable(function (Discussion $discussion, Context $context) {
-                    return $context->endpoint instanceof Endpoint\Create
+                    return $context->creating()
                         || $context->getActor()->can('rename', $discussion);
                 })
                 ->minLength(3)
@@ -145,7 +145,7 @@ class DiscussionResource extends AbstractDatabaseResource
             Schema\Boolean::make('isHidden')
                 ->visible(fn (Discussion $discussion) => $discussion->hidden_at !== null)
                 ->writable(function (Discussion $discussion, Context $context) {
-                    return $context->endpoint instanceof Endpoint\Update
+                    return $context->updating()
                         && $context->getActor()->can('hide', $discussion);
                 })
                 ->set(function (Discussion $discussion, bool $value, Context $context) {
@@ -168,7 +168,7 @@ class DiscussionResource extends AbstractDatabaseResource
                     return $discussion->state?->last_read_post_number;
                 })
                 ->writable(function (Discussion $discussion, Context $context) {
-                    return $context->endpoint instanceof Endpoint\Update;
+                    return $context->updating();
                 })
                 ->set(function (Discussion $discussion, int $value, Context $context) {
                     if ($readNumber = Arr::get($context->body(), 'data.attributes.lastReadPostNumber')) {
@@ -194,11 +194,11 @@ class DiscussionResource extends AbstractDatabaseResource
                 ->type('posts'),
             Schema\Relationship\ToMany::make('posts')
                 ->withLinkage(function (Context $context) {
-                    return $context->collection instanceof self && $context->endpoint instanceof Endpoint\Show;
+                    return $context->showing(self::class);
                 })
                 ->includable()
                 ->get(function (Discussion $discussion, Context $context) {
-                    $showingDiscussion = $context->collection instanceof self && $context->endpoint instanceof Endpoint\Show;
+                    $showingDiscussion = $context->showing(self::class);
 
                     if (! $showingDiscussion) {
                         return fn () => $discussion->posts->all();
@@ -235,7 +235,7 @@ class DiscussionResource extends AbstractDatabaseResource
                     return $allPosts;
                 }),
             Schema\Relationship\ToOne::make('mostRelevantPost')
-                ->visible(fn (Discussion $model, Context $context) => $context->endpoint instanceof Endpoint\Index)
+                ->visible(fn (Discussion $model, Context $context) => $context->listing())
                 ->includable()
                 ->type('posts'),
             Schema\Relationship\ToOne::make('hideUser')
@@ -284,7 +284,7 @@ class DiscussionResource extends AbstractDatabaseResource
     /** @param Discussion $model */
     protected function saveModel(Model $model, \Tobyz\JsonApiServer\Context $context): void
     {
-        if ($context->endpoint instanceof Endpoint\Create) {
+        if ($context->creating()) {
             $model->newQuery()->getConnection()->transaction(function () use ($model, $context) {
                 $model->save();
 

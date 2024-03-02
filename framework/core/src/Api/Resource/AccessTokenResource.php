@@ -41,7 +41,7 @@ class AccessTokenResource extends AbstractDatabaseResource
 
     public function newModel(\Tobyz\JsonApiServer\Context $context): object
     {
-        if ($context->endpoint instanceof Endpoint\Create && $context->collection instanceof self) {
+        if ($context->creating(self::class)) {
             $token = DeveloperAccessToken::make($context->getActor()->id);
             $token->last_activity_at = null;
             return $token;

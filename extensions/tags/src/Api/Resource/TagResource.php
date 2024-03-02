@@ -35,10 +35,7 @@ class TagResource extends AbstractDatabaseResource
     {
         $query->whereVisibleTo($context->getActor());
 
-        if ($context->collection instanceof self && (
-            $context->endpoint instanceof Endpoint\Index
-            || $context->endpoint instanceof Endpoint\Show
-        )) {
+        if ($context->listing(self::class) || $context->showing(self::class)) {
             $query->withStateFor($context->getActor());
         }
     }
@@ -143,7 +140,7 @@ class TagResource extends AbstractDatabaseResource
 
     public function saving(object $model, Context $context): ?object
     {
-        if (! $context->endpoint instanceof Endpoint\Create) {
+        if (! $context->creating(self::class)) {
             $this->events->dispatch(
                 new Saving($model, $context->getActor(), $context->body())
             );

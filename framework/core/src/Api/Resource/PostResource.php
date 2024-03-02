@@ -50,7 +50,7 @@ class PostResource extends AbstractDatabaseResource
 
     public function newModel(\Tobyz\JsonApiServer\Context $context): object
     {
-        if ($context->endpoint instanceof Endpoint\Create && $context->collection instanceof self) {
+        if ($context->creating(self::class)) {
             $post = new CommentPost();
 
             $post->user_id = $context->getActor()->id;
@@ -149,7 +149,7 @@ class PostResource extends AbstractDatabaseResource
             Schema\Integer::make('number'),
             Schema\DateTime::make('createdAt')
                 ->writable(function (Post $post, Context $context) {
-                    return $context->endpoint instanceof Endpoint\Create
+                    return $context->creating()
                         && $context->getActor()->isAdmin();
                 })
                 ->default(fn () => Carbon::now()),
@@ -159,9 +159,9 @@ class PostResource extends AbstractDatabaseResource
             Schema\Str::make('content')
                 ->requiredOnCreate()
                 ->writable(function (Post $post, Context $context) {
-                    return $context->endpoint instanceof Endpoint\Create || (
+                    return $context->creating() || (
                         $post instanceof CommentPost
-                        && $context->endpoint instanceof Endpoint\Update
+                        && $context->updating()
                         && $context->getActor()->can('edit', $post)
                     );
                 })
@@ -172,9 +172,9 @@ class PostResource extends AbstractDatabaseResource
                 })
                 ->set(function (Post $post, string $value, Context $context) {
                     if ($post instanceof CommentPost) {
-                        if ($context->endpoint instanceof Endpoint\Create) {
+                        if ($context->creating()) {
                             $post->setContentAttribute($value, $context->getActor());
-                        } elseif ($context->endpoint instanceof Endpoint\Update) {
+                        } elseif ($context->updating()) {
                             $post->revise($value, $context->getActor());
                         }
                     }
@@ -215,7 +215,7 @@ class PostResource extends AbstractDatabaseResource
             Schema\Boolean::make('isHidden')
                 ->visible(fn (Post $post) => $post->hidden_at !== null)
                 ->writable(function (Post $post, Context $context) {
-                    return $context->endpoint instanceof Endpoint\Update
+                    return $context->updating()
                         && $context->getActor()->can('hide', $post);
                 })
                 ->set(function (Post $post, bool $value, Context $context) {

@@ -124,7 +124,7 @@ class UserResource extends AbstractDatabaseResource
                 ->minLength(3)
                 ->maxLength(30)
                 ->writable(function (User $user, Context $context) {
-                    return $context->endpoint instanceof Endpoint\Create
+                    return $context->creating()
                         || $context->getActor()->can('editCredentials', $user);
                 })
                 ->set(function (User $user, string $value) {
@@ -146,7 +146,7 @@ class UserResource extends AbstractDatabaseResource
                         || $context->getActor()->id === $user->id;
                 })
                 ->writable(function (User $user, Context $context) {
-                    return $context->endpoint instanceof Endpoint\Create
+                    return $context->creating()
                         || $context->getActor()->can('editCredentials', $user)
                         || $context->getActor()->id === $user->id;
                 })
@@ -171,9 +171,7 @@ class UserResource extends AbstractDatabaseResource
                 })
                 ->writable(fn (User $user, Context $context) => $context->getActor()->isAdmin())
                 ->set(function (User $user, $value, Context $context) {
-                    $editing = $context->endpoint instanceof Endpoint\Update;
-
-                    if (! empty($value) && ($editing || $context->getActor()->isAdmin())) {
+                    if (! empty($value) && ($context->updating() || $context->getActor()->isAdmin())) {
                         $user->activate();
                     }
                 }),
@@ -185,7 +183,7 @@ class UserResource extends AbstractDatabaseResource
                 ->minLength(8)
                 ->visible(false)
                 ->writable(function (User $user, Context $context) {
-                    return $context->endpoint instanceof Endpoint\Create
+                    return $context->creating()
                         || $context->getActor()->can('editCredentials', $user);
                 })
                 ->set(function (User $user, ?string $value) {
@@ -195,7 +193,7 @@ class UserResource extends AbstractDatabaseResource
             Schema\Str::make('token')
                 ->visible(false)
                 ->writable(function (User $user, Context $context) {
-                    return $context->endpoint instanceof Endpoint\Create;
+                    return $context->creating();
                 })
                 ->set(function (User $user, ?string $value, Context $context) {
                     if ($value) {
@@ -273,7 +271,7 @@ class UserResource extends AbstractDatabaseResource
                 }),
 
             Schema\Relationship\ToMany::make('groups')
-                ->writable(fn (User $user, Context $context) => $context->endpoint instanceof Endpoint\Update && $context->getActor()->can('editGroups', $user))
+                ->writable(fn (User $user, Context $context) => $context->updating() && $context->getActor()->can('editGroups', $user))
                 ->includable()
                 ->get(function (User $user, Context $context) {
                     if ($context->getActor()->can('viewHiddenGroups')) {

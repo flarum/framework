@@ -33,7 +33,7 @@ class NotificationResource extends AbstractDatabaseResource
 
     public function query(\Tobyz\JsonApiServer\Context $context): object
     {
-        if ($context->collection instanceof self && $context->endpoint instanceof Endpoint\Index) {
+        if ($context->listing(self::class)) {
             /** @var Pagination $pagination */
             $pagination = ($context->endpoint->paginationResolver)($context);
 

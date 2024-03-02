@@ -42,7 +42,7 @@ class FlagResource extends AbstractDatabaseResource
 
     public function query(Context $context): object
     {
-        if ($context->collection instanceof self && $context->endpoint instanceof Endpoint\Index) {
+        if ($context->listing(self::class)) {
             $query = Flag::query()->groupBy('post_id');
 
             $this->scope($query, $context);
@@ -60,7 +60,7 @@ class FlagResource extends AbstractDatabaseResource
 
     public function newModel(Context $context): object
     {
-        if ($context->collection instanceof self && $context->endpoint instanceof Endpoint\Create) {
+        if ($context->creating(self::class)) {
             Flag::unguard();
 
             return Flag::query()->firstOrNew([
@@ -118,7 +118,7 @@ class FlagResource extends AbstractDatabaseResource
 
             Schema\Relationship\ToOne::make('post')
                 ->includable()
-                ->writable(fn (Flag $flag, FlarumContext $context) => $context->endpoint instanceof Endpoint\Create)
+                ->writable(fn (Flag $flag, FlarumContext $context) => $context->creating())
                 ->set(function (Flag $flag, Post $post, FlarumContext $context) {
                     if (! ($post instanceof CommentPost)) {
                         throw new InvalidParameterException;
