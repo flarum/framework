@@ -303,7 +303,7 @@ class DiscussionResource extends AbstractDatabaseResource
                     ->execute([
                         'data' => [
                             'attributes' => [
-                                'content' => $context->request->getParsedBody()['data']['attributes']['content'],
+                                'content' => Arr::get($context->body(), 'data.attributes.content'),
                             ],
                             'relationships' => [
                                 'discussion' => [

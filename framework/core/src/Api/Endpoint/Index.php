@@ -77,7 +77,7 @@ class Index extends BaseIndex implements Endpoint
         $modelClass = $query->getModel()::class;
 
         if ($query instanceof Builder && $search->searchable($modelClass)) {
-            $actor = RequestUtil::getActor($context->request);
+            $actor = $context->getActor();
 
             $extracts = $this->defaultExtracts($context);
 
