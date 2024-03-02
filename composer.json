@@ -108,7 +108,7 @@
         "php": "^8.1",
         "ext-json": "*",
         "components/font-awesome": "^5.15.0",
-        "composer/composer": "^2.0",
+        "composer/composer": "^2.7",
         "dflydev/fig-cookies": "^3.0",
         "doctrine/dbal": "^3.6.2",
         "dragonmantank/cron-expression": "^3.3",

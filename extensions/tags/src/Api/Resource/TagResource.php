@@ -93,7 +93,7 @@ class TagResource extends AbstractDatabaseResource
             Schema\Str::make('color')
                 ->writable()
                 ->nullable()
-                ->regex('/^#([a-f0-9]{6}|[a-f0-9]{3})$/i'),
+                ->rule('hex_color'),
             Schema\Str::make('icon')
                 ->writable()
                 ->nullable(),

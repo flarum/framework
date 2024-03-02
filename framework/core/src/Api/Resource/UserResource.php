@@ -18,6 +18,7 @@ use Flarum\User\Event\Saving;
 use Flarum\User\Exception\NotAuthenticatedException;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
+use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -393,9 +394,30 @@ class UserResource extends AbstractDatabaseResource
             ]);
         }
 
-        $image = $this->imageManager->make($url);
+        $urlContents = $this->retrieveAvatarFromUrl($url);
 
-        $this->avatarUploader->upload($user, $image);
+        if ($urlContents !== null) {
+            $image = $this->imageManager->read($urlContents);
+
+            $this->avatarUploader->upload($user, $image);
+        }
+    }
+
+    private function retrieveAvatarFromUrl(string $url): ?string
+    {
+        $client = new Client();
+
+        try {
+            $response = $client->get($url);
+        } catch (\Exception $e) {
+            return null;
+        }
+
+        if ($response->getStatusCode() !== 200) {
+            return null;
+        }
+
+        return $response->getBody()->getContents();
     }
 
     private function fulfillToken(User $user, RegistrationToken $token): void
