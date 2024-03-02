@@ -11,8 +11,8 @@ namespace Flarum\Api\Controller;
 
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Factory;
-use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
+use Intervention\Image\Interfaces\EncodedImageInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
 class UploadLogoController extends UploadImageController
@@ -28,11 +28,11 @@ class UploadLogoController extends UploadImageController
         parent::__construct($settings, $filesystemFactory);
     }
 
-    protected function makeImage(UploadedFileInterface $file): Image
+    protected function makeImage(UploadedFileInterface $file): EncodedImageInterface
     {
-        $encodedImage = $this->imageManager->make($file->getStream()->getMetadata('uri'))->heighten(60, function ($constraint) {
-            $constraint->upsize();
-        })->encode('png');
+        $encodedImage = $this->imageManager->read($file->getStream()->getMetadata('uri'))
+            ->scale(height: 60)
+            ->toPng();
 
         return $encodedImage;
     }

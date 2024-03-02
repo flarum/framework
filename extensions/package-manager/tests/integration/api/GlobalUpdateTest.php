@@ -7,10 +7,10 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Tests\integration\api;
+namespace Flarum\ExtensionManager\Tests\integration\api;
 
-use Flarum\PackageManager\Tests\integration\RefreshComposerSetup;
-use Flarum\PackageManager\Tests\integration\TestCase;
+use Flarum\ExtensionManager\Tests\integration\RefreshComposerSetup;
+use Flarum\ExtensionManager\Tests\integration\TestCase;
 
 class GlobalUpdateTest extends TestCase
 {
@@ -22,7 +22,7 @@ class GlobalUpdateTest extends TestCase
     public function can_global_update()
     {
         $response = $this->send(
-            $this->request('POST', '/api/package-manager/global-update', [
+            $this->request('POST', '/api/extension-manager/global-update', [
                 'authenticatedAs' => 1,
             ])
         );

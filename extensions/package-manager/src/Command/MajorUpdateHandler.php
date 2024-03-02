@@ -7,14 +7,14 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Command;
+namespace Flarum\ExtensionManager\Command;
 
-use Flarum\PackageManager\Composer\ComposerAdapter;
-use Flarum\PackageManager\Composer\ComposerJson;
-use Flarum\PackageManager\Event\FlarumUpdated;
-use Flarum\PackageManager\Exception\MajorUpdateFailedException;
-use Flarum\PackageManager\Exception\NoNewMajorVersionException;
-use Flarum\PackageManager\Settings\LastUpdateCheck;
+use Flarum\ExtensionManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Composer\ComposerJson;
+use Flarum\ExtensionManager\Event\FlarumUpdated;
+use Flarum\ExtensionManager\Exception\MajorUpdateFailedException;
+use Flarum\ExtensionManager\Exception\NoNewMajorVersionException;
+use Flarum\ExtensionManager\Settings\LastUpdateCheck;
 use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Input\ArrayInput;
 
@@ -63,9 +63,6 @@ class MajorUpdateHandler
         );
     }
 
-    /**
-     * @todo change minimum stability to 'stable' and any other similar params
-     */
     protected function updateComposerJson(string $majorVersion): void
     {
         $versionNumber = str_replace('v', '', $majorVersion);

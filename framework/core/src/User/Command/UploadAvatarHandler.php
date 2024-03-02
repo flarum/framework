@@ -43,7 +43,7 @@ class UploadAvatarHandler
 
         $this->validator->assertValid(['avatar' => $command->file]);
 
-        $image = $this->imageManager->make($command->file->getStream()->getMetadata('uri'));
+        $image = $this->imageManager->read($command->file->getStream()->getMetadata('uri'));
 
         $this->events->dispatch(
             new AvatarSaving($user, $actor, $image)

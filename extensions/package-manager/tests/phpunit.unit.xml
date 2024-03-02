@@ -10,7 +10,6 @@
     convertWarningsToExceptions="true"
     processIsolation="false"
     stopOnFailure="false"
-    bootstrap="../../../php-packages/testing/bootstrap/monorepo.php"
 >
     <coverage processUncoveredFiles="true">
         <include>

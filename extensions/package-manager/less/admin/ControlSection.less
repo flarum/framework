@@ -1,4 +1,4 @@
-.PackageManager-lastUpdatedAt {
+.ExtensionManager-lastUpdatedAt {
   color: var(--control-color);
 
   &-label {
@@ -6,7 +6,7 @@
   }
 }
 
-.PackageManager-updaterControls {
+.ExtensionManager-updaterControls {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -14,16 +14,18 @@
   margin-bottom: 16px;
 }
 
-.PackageManager-extensions {
+.ExtensionManager-extensions {
+  width: 100%;
+
   &-grid {
     --gap: 12px;
     display: grid;
-    grid-template-columns: repeat(auto-fit, calc(~"100% / 3 - var(--gap)"));
+    grid-template-columns: repeat(auto-fit, 310px);
     gap: var(--gap);
   }
 }
 
-.PackageManager-extension {
+.ExtensionManager-extension {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -79,18 +81,41 @@
   }
 }
 
-.PackageManager-majorUpdate {
+.ExtensionManager-majorUpdate {
   --space: 16px;
   padding: var(--space);
   display: grid;
   grid-template-areas:
     "title logo"
     "helpText logo"
-    "controls logo"
-    "extensions extensions"
-    "failure failure";
-  grid-gap: 0 var(--space);
+    "controls logo";
+  column-gap: 0 var(--space);
   align-items: center;
+
+  &--failed&--incompatibleExtensions {
+    grid-template-areas:
+      "title logo"
+      "helpText logo"
+      "controls logo"
+      "extensions extensions"
+      "failure failure";
+  }
+
+  &--failed {
+    grid-template-areas:
+      "title logo"
+      "helpText logo"
+      "controls logo"
+      "failure failure";
+  }
+
+  &--incompatibleExtensions {
+    grid-template-areas:
+      "title logo"
+      "helpText logo"
+      "controls logo"
+      "extensions extensions";
+  }
 
   > img {
     grid-area: logo;
@@ -116,6 +141,10 @@
     padding-top: var(--space);
     border-top: 1px solid var(--control-bg);
   }
+
+  .ExtensionManager-updaterControls {
+    margin: 0;
+  }
 }
 
 .WhyNotModal {
@@ -124,10 +153,19 @@
   }
 }
 
-.PackageManager-installer .FormControl-container {
-  max-width: 400px;
+.ExtensionManager-installer .FormControl-container {
+  max-width: 450px;
 
   .FormControl {
     width: 300px;
   }
+}
+
+.ExtensionManager-controlSection .container {
+  max-width: 1030px;
+  overflow: visible;
+}
+
+.ExtensionManager-primaryWarning ul {
+  margin: 0;
 }

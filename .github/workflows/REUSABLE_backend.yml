@@ -52,10 +52,16 @@ on:
         required: false
         default: error_reporting=E_ALL
 
+    secrets:
+      composer_auth:
+        description: The Composer auth tokens to use for private packages.
+        required: false
+
 env:
   COMPOSER_ROOT_VERSION: dev-main
   # `inputs.composer_directory` defaults to `inputs.backend_directory`
   FLARUM_TEST_TMP_DIR_LOCAL: tests/integration/tmp
+  COMPOSER_AUTH: ${{ secrets.composer_auth }}
 
 jobs:
   test:

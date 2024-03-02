@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Tests\integration;
+namespace Flarum\ExtensionManager\Tests\integration;
 
 trait DummyExtensions
 {

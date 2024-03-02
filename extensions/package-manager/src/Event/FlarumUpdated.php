@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Event;
+namespace Flarum\ExtensionManager\Event;
 
 use Flarum\User\User;
 

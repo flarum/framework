@@ -7,11 +7,11 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Tests\integration\api;
+namespace Flarum\ExtensionManager\Tests\integration\api;
 
-use Flarum\PackageManager\Tests\integration\ChangeComposerConfig;
-use Flarum\PackageManager\Tests\integration\RefreshComposerSetup;
-use Flarum\PackageManager\Tests\integration\TestCase;
+use Flarum\ExtensionManager\Tests\integration\ChangeComposerConfig;
+use Flarum\ExtensionManager\Tests\integration\RefreshComposerSetup;
+use Flarum\ExtensionManager\Tests\integration\TestCase;
 use Illuminate\Support\Arr;
 
 class CheckForUpdatesTest extends TestCase
@@ -32,7 +32,7 @@ class CheckForUpdatesTest extends TestCase
         ]);
 
         $response = $this->send(
-            $this->request('POST', '/api/package-manager/check-for-updates', [
+            $this->request('POST', '/api/extension-manager/check-for-updates', [
                 'authenticatedAs' => 1,
             ])
         );

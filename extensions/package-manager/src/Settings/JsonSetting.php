@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Settings;
+namespace Flarum\ExtensionManager\Settings;
 
 interface JsonSetting
 {

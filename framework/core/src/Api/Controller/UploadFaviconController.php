@@ -13,8 +13,8 @@ use Flarum\Foundation\ValidationException;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Factory;
-use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
+use Intervention\Image\Interfaces\EncodedImageInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
 class UploadFaviconController extends UploadImageController
@@ -31,7 +31,7 @@ class UploadFaviconController extends UploadImageController
         parent::__construct($settings, $filesystemFactory);
     }
 
-    protected function makeImage(UploadedFileInterface $file): Image
+    protected function makeImage(UploadedFileInterface $file): EncodedImageInterface
     {
         $this->fileExtension = pathinfo($file->getClientFilename(), PATHINFO_EXTENSION);
 
@@ -45,10 +45,9 @@ class UploadFaviconController extends UploadImageController
             ]);
         }
 
-        $encodedImage = $this->imageManager->make($file->getStream()->getMetadata('uri'))->resize(64, 64, function ($constraint) {
-            $constraint->aspectRatio();
-            $constraint->upsize();
-        })->encode('png');
+        $encodedImage = $this->imageManager->read($file->getStream()->getMetadata('uri'))
+            ->scale(64, 64)
+            ->toPng();
 
         $this->fileExtension = 'png';
 

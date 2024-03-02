@@ -23,6 +23,7 @@ use Flarum\Forum\ForumServiceProvider;
 use Flarum\Frontend\FrontendServiceProvider;
 use Flarum\Group\GroupServiceProvider;
 use Flarum\Http\HttpServiceProvider;
+use Flarum\Image\ImageServiceProvider;
 use Flarum\Locale\LocaleServiceProvider;
 use Flarum\Mail\MailServiceProvider;
 use Flarum\Notification\NotificationServiceProvider;
@@ -115,6 +116,7 @@ class InstalledSite implements SiteInterface
         $app->register(GroupServiceProvider::class);
         $app->register(HashServiceProvider::class);
         $app->register(HttpServiceProvider::class);
+        $app->register(ImageServiceProvider::class);
         $app->register(LocaleServiceProvider::class);
         $app->register(MailServiceProvider::class);
         $app->register(NotificationServiceProvider::class);
