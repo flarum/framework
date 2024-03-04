@@ -64,7 +64,7 @@ class GambitManager
      */
     protected function explode($query)
     {
-        return str_getcsv($query, ' ');
+        return str_getcsv((string)$query, ' ');
     }
 
     /**
