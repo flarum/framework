@@ -118,6 +118,14 @@ jobs:
         image: ${{ matrix.service }}
         ports:
           - 13306:3306
+      postgres:
+        image: ${{ matrix.service }}
+        ports:
+          - 13306:5432
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: flarum_test
 
     name: 'PHP ${{ matrix.php }} / ${{ matrix.db }} ${{ matrix.prefixStr }}'
 
