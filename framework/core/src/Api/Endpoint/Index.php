@@ -23,11 +23,10 @@ use Tobyz\JsonApiServer\Resource\Listable;
 use Tobyz\JsonApiServer\Serializer;
 use function Tobyz\JsonApiServer\json_api_response;
 
-class Index extends BaseIndex implements Endpoint
+class Index extends BaseIndex implements EndpointInterface
 {
     use HasAuthorization;
     use HasEagerLoading;
-    use HasCustomRoute;
     use ExtractsListingParams;
     use HasCustomHooks;
 
@@ -43,11 +42,6 @@ class Index extends BaseIndex implements Endpoint
         );
 
         return $this;
-    }
-
-    public function execute(Context $context): mixed
-    {
-        return null;
     }
 
     /** {@inheritDoc} */
@@ -121,7 +115,7 @@ class Index extends BaseIndex implements Endpoint
 
         $include = $this->getInclude($context);
 
-        $this->loadRelations($models, $context->request, $include);
+        $this->loadRelations($models, $context, $include);
 
         $serializer = new Serializer($context);
 
@@ -141,14 +135,5 @@ class Index extends BaseIndex implements Endpoint
         }
 
         return json_api_response(compact('data', 'included', 'meta', 'links'));
-    }
-
-    public function route(): EndpointRoute
-    {
-        return new EndpointRoute(
-            name: 'index',
-            path: $this->path ?? '/',
-            method: 'GET',
-        );
     }
 }

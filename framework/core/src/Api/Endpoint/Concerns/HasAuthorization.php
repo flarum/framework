@@ -20,6 +20,8 @@ trait HasAuthorization
      */
     protected null|string|Closure $ability = null;
 
+    protected bool $admin = false;
+
     public function authenticated(bool|Closure $condition = true): self
     {
         $this->authenticated = $condition;
@@ -30,6 +32,13 @@ trait HasAuthorization
     public function can(null|string|Closure $ability): self
     {
         $this->ability = $ability;
+
+        return $this;
+    }
+
+    public function admin(bool $admin = true): self
+    {
+        $this->admin = $admin;
 
         return $this;
     }
@@ -66,6 +75,10 @@ trait HasAuthorization
 
         if ($this->getAuthenticated($context)) {
             $actor->assertRegistered();
+        }
+
+        if ($this->admin) {
+            $actor->assertAdmin();
         }
 
         if ($ability = $this->getAuthorized($context)) {

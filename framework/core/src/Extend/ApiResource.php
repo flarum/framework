@@ -3,7 +3,7 @@
 namespace Flarum\Extend;
 
 use Flarum\Api\Controller\AbstractSerializeController;
-use Flarum\Api\Endpoint\Endpoint;
+use Flarum\Api\Endpoint\EndpointInterface;
 use Flarum\Api\Resource\Contracts\Collection;
 use Flarum\Api\Resource\Contracts\Resource;
 use Flarum\Extension\Extension;
@@ -64,7 +64,7 @@ class ApiResource implements ExtenderInterface
     /**
      * Modify an endpoint.
      *
-     * @param class-string<\Flarum\Api\Endpoint\Endpoint>|array<\Flarum\Api\Endpoint\Endpoint> $endpointClass the class name of the endpoint.
+     * @param class-string<\Flarum\Api\Endpoint\EndpointInterface>|array<\Flarum\Api\Endpoint\EndpointInterface> $endpointClass the class name of the endpoint.
      *                                                                                           or an array of class names of the endpoints.
      * @param callable|class-string $mutator a callable that accepts an endpoint and returns the modified endpoint.
      */
@@ -182,7 +182,7 @@ class ApiResource implements ExtenderInterface
                 [$endpointsToRemove, $condition] = $removeEndpointClass;
 
                 if ($this->isApplicable($condition, $resource, $container)) {
-                    $endpoints = array_filter($endpoints, fn (Endpoint $endpoint) => ! in_array($endpoint::class, $endpointsToRemove));
+                    $endpoints = array_filter($endpoints, fn (EndpointInterface $endpoint) => ! in_array($endpoint::class, $endpointsToRemove));
                 }
             }
 
@@ -194,8 +194,8 @@ class ApiResource implements ExtenderInterface
                         $mutateEndpoint = ContainerUtil::wrapCallback($mutator, $container);
                         $endpoint = $mutateEndpoint($endpoint, $resource);
 
-                        if (! $endpoint instanceof Endpoint) {
-                            throw new \RuntimeException('The endpoint mutator must return an instance of ' . Endpoint::class);
+                        if (! $endpoint instanceof EndpointInterface) {
+                            throw new \RuntimeException('The endpoint mutator must return an instance of ' . EndpointInterface::class);
                         }
                     }
                 }

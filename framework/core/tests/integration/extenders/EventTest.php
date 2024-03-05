@@ -32,8 +32,8 @@ class EventTest extends TestCase
         $api = $this->app()->getContainer()->make(JsonApi::class);
 
         return $api->forResource(GroupResource::class)
-            ->forEndpoint(Create::class)
-            ->execute(
+            ->forEndpoint('create')
+            ->process(
                 body: [
                     'data' => [
                         'attributes' => [

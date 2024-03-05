@@ -41,11 +41,10 @@ class RouteHandlerFactory
 
     /**
      * @param class-string<\Tobyz\JsonApiServer\Resource\AbstractResource> $resourceClass
-     * @param class-string<\Flarum\Api\Endpoint\Endpoint> $endpointClass
      */
-    public function toApiResource(string $resourceClass, string $endpointClass): Closure
+    public function toApiResource(string $resourceClass, string $endpointName): Closure
     {
-        return function (Request $request, array $routeParams) use ($resourceClass, $endpointClass) {
+        return function (Request $request, array $routeParams) use ($resourceClass, $endpointName) {
             /** @var JsonApi $api */
             $api = $this->container->make(JsonApi::class);
 
@@ -54,7 +53,7 @@ class RouteHandlerFactory
             $request = $request->withQueryParams(array_merge($request->getQueryParams(), $routeParams));
 
             return $api->forResource($resourceClass)
-                ->forEndpoint($endpointClass)
+                ->forEndpoint($endpointName)
                 ->handle($request);
         };
     }

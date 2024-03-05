@@ -101,8 +101,8 @@ class DiscussionPolicyTest extends TestCase
 
         $api
             ->forResource(PostResource::class)
-            ->forEndpoint(Create::class)
-            ->execute(
+            ->forEndpoint('create')
+            ->process(
                 body: [
                     'data' => [
                         'attributes' => [

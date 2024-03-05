@@ -38,6 +38,11 @@ class ForumResource extends AbstractResource implements Findable
         return '1';
     }
 
+    public function id(\Tobyz\JsonApiServer\Context $context): ?string
+    {
+        return '1';
+    }
+
     public function find(string $id, \Tobyz\JsonApiServer\Context $context): ?object
     {
         return new stdClass();
@@ -48,7 +53,7 @@ class ForumResource extends AbstractResource implements Findable
         return [
             Endpoint\Show::make()
                 ->defaultInclude(['groups', 'actor.groups'])
-                ->path('/'),
+                ->route('GET', '/'),
         ];
     }
 

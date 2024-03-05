@@ -59,18 +59,18 @@ abstract class AbstractDatabaseResource extends BaseResource implements
         throw new RuntimeException('Not supported in Flarum, please use a model searcher instead https://docs.flarum.org/extend/search.');
     }
 
-    public function create(object $model, Context $context): object
+    public function createAction(object $model, Context $context): object
     {
-        $model = parent::create($model, $context);
+        $model = parent::createAction($model, $context);
 
         $this->dispatchEventsFor($model, $context->getActor());
 
         return $model;
     }
 
-    public function update(object $model, Context $context): object
+    public function updateAction(object $model, Context $context): object
     {
-        $model = parent::update($model, $context);
+        $model = parent::updateAction($model, $context);
 
         $this->dispatchEventsFor($model, $context->getActor());
 

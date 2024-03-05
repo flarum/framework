@@ -6,11 +6,15 @@ use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
+use Flarum\Bus\Dispatcher;
 use Flarum\Foundation\ValidationException;
+use Flarum\Http\RequestUtil;
 use Flarum\Http\SlugManager;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\AvatarUploader;
+use Flarum\User\Command\DeleteAvatar;
+use Flarum\User\Command\UploadAvatar;
 use Flarum\User\Event\Deleting;
 use Flarum\User\Event\GroupsChanged;
 use Flarum\User\Event\RegisteringFromProvider;
@@ -32,7 +36,8 @@ class UserResource extends AbstractDatabaseResource
         protected SlugManager $slugManager,
         protected SettingsRepositoryInterface $settings,
         protected ImageManager $imageManager,
-        protected AvatarUploader $avatarUploader
+        protected AvatarUploader $avatarUploader,
+        protected Dispatcher $bus,
     ) {
     }
 
@@ -105,6 +110,22 @@ class UserResource extends AbstractDatabaseResource
                 ->can('searchUsers')
                 ->defaultInclude(['groups'])
                 ->paginate(),
+            Endpoint\Endpoint::make('avatar.upload')
+                ->route('POST', '/{id}/avatar')
+                ->action(function (Context $context) {
+                    $file = Arr::get($context->request->getUploadedFiles(), 'avatar');
+
+                    return $this->bus->dispatch(
+                        new UploadAvatar((int) $context->modelId, $file, $context->getActor())
+                    );
+                }),
+            Endpoint\Endpoint::make('avatar.delete')
+                ->route('DELETE', '/{id}/avatar')
+                ->action(function (Context $context) {
+                    return $this->bus->dispatch(
+                        new DeleteAvatar(Arr::get($context->request->getQueryParams(), 'id'), $context->getActor())
+                    );
+                }),
         ];
     }
 

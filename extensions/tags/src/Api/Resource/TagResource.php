@@ -40,7 +40,7 @@ class TagResource extends AbstractDatabaseResource
         }
     }
 
-    public function find(string $id, \Tobyz\JsonApiServer\Context $context): ?object
+    public function find(string $id, Context $context): ?object
     {
         $actor = $context->getActor();
 

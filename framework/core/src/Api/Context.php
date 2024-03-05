@@ -13,7 +13,6 @@ use Tobyz\JsonApiServer\Resource\Resource;
 class Context extends BaseContext
 {
     protected ?SearchResults $search = null;
-    protected int|string|null $modelId = null;
 
     /**
      * Data passed internally when reusing resource endpoint logic.
@@ -25,13 +24,6 @@ class Context extends BaseContext
      * Useful for passing information between different field callbacks.
      */
     protected array $parameters = [];
-
-    public function withModelId(int|string|null $id): static
-    {
-        $new = clone $this;
-        $new->modelId = $id;
-        return $new;
-    }
 
     public function withSearchResults(SearchResults $search): static
     {
@@ -45,11 +37,6 @@ class Context extends BaseContext
         $new = clone $this;
         $new->internal[$key] = $value;
         return $new;
-    }
-
-    public function getModelId(): int|string|null
-    {
-        return $this->modelId;
     }
 
     public function getSearchResults(): ?SearchResults

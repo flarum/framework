@@ -2,12 +2,13 @@
 
 namespace Flarum\Api\Endpoint\Concerns;
 
+use Flarum\Api\Context;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
-use Psr\Http\Message\ServerRequestInterface;
+use Tobyz\JsonApiServer\Laravel\EloquentResource;
 
 /**
  * This is directed at eager loading relationships apart from the request includes.
@@ -66,8 +67,14 @@ trait HasEagerLoading
     /**
      * Eager loads the required relationships.
      */
-    protected function loadRelations(Collection $models, ServerRequestInterface $request, array $included = []): void
+    protected function loadRelations(Collection $models, Context $context, array $included = []): void
     {
+        if (! $context->collection instanceof EloquentResource) {
+            return;
+        }
+
+        $request = $context->request;
+
         $included = $this->stringInclude($included);
         $models = $models->filter(fn ($model) => $model instanceof Model);
 

@@ -46,20 +46,6 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     |--------------------------------------------------------------------------
     */
 
-    // Upload avatar
-    $map->post(
-        '/users/{id}/avatar',
-        'users.avatar.upload',
-        $route->toController(Controller\UploadAvatarController::class)
-    );
-
-    // Remove avatar
-    $map->delete(
-        '/users/{id}/avatar',
-        'users.avatar.delete',
-        $route->toController(Controller\DeleteAvatarController::class)
-    );
-
     // send confirmation email
     $map->post(
         '/users/{id}/send-confirmation',
@@ -105,13 +91,6 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         '/extensions/{name}',
         'extensions.delete',
         $route->toController(Controller\UninstallExtensionController::class)
-    );
-
-    // Get readme for an extension
-    $map->get(
-        '/extension-readmes/{name}',
-        'extension-readmes.show',
-        $route->toController(Controller\ShowExtensionReadmeController::class)
     );
 
     // Update settings

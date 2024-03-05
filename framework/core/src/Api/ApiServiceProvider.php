@@ -10,6 +10,7 @@
 namespace Flarum\Api;
 
 use Flarum\Api\Controller\AbstractSerializeController;
+use Flarum\Api\Endpoint\EndpointInterface;
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Api\Serializer\NotificationSerializer;
@@ -24,6 +25,7 @@ use Flarum\Http\UrlGenerator;
 use Illuminate\Contracts\Container\Container;
 use Laminas\Stratigility\MiddlewarePipe;
 use ReflectionClass;
+use Tobyz\JsonApiServer\Endpoint\Endpoint;
 
 class ApiServiceProvider extends AbstractServiceProvider
 {
@@ -42,6 +44,8 @@ class ApiServiceProvider extends AbstractServiceProvider
                 Resource\DiscussionResource::class,
                 Resource\NotificationResource::class,
                 Resource\AccessTokenResource::class,
+                Resource\MailSettingResource::class,
+                Resource\ExtensionReadmeResource::class,
             ];
         });
 
@@ -155,8 +159,7 @@ class ApiServiceProvider extends AbstractServiceProvider
 
     public function boot(Container $container): void
     {
-        AbstractSerializeController::setContainer($container);
-        AbstractSerializer::setContainer($container);
+        //
     }
 
     protected function populateRoutes(RouteCollection $routes, Container $container): void
@@ -186,14 +189,16 @@ class ApiServiceProvider extends AbstractServiceProvider
              * None of the injected dependencies should be directly used within
              *   the `endpoints` method. Encourage using callbacks.
              *
-             * @var \Flarum\Api\Endpoint\Endpoint[] $endpoints
+             * @var array<Endpoint&EndpointInterface> $endpoints
              */
             $endpoints = $resource->resolveEndpoints(true);
 
             foreach ($endpoints as $endpoint) {
-                $route = $endpoint->route();
+                $method = $endpoint->method;
+                $path = rtrim("/$type$endpoint->path", '/');
+                $name = "$type.$endpoint->name";
 
-                $routes->addRoute($route->method, rtrim("/$type$route->path", '/'), "$type.$route->name", $factory->toApiResource($resource::class, $endpoint::class));
+                $routes->addRoute($method, $path, $name, $factory->toApiResource($resource::class, $endpoint->name));
             }
         }
     }

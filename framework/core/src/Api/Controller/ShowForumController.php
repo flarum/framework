@@ -9,7 +9,6 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Api\Endpoint\Show;
 use Flarum\Api\JsonApi;
 use Flarum\Api\Resource\ForumResource;
 use Psr\Http\Message\ResponseInterface;
@@ -26,7 +25,7 @@ class ShowForumController implements RequestHandlerInterface
     {
         return $this->api
             ->forResource(ForumResource::class)
-            ->forEndpoint(Show::class)
+            ->forEndpoint('show')
             ->handle($request);
     }
 }

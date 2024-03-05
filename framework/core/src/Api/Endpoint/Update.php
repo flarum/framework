@@ -2,85 +2,27 @@
 
 namespace Flarum\Api\Endpoint;
 
+use Flarum\Api\Context;
 use Flarum\Api\Endpoint\Concerns\HasAuthorization;
 use Flarum\Api\Endpoint\Concerns\HasCustomHooks;
-use Flarum\Api\Endpoint\Concerns\HasCustomRoute;
 use Flarum\Api\Endpoint\Concerns\HasEagerLoading;
 use Illuminate\Database\Eloquent\Collection;
-use Psr\Http\Message\ResponseInterface;
-use RuntimeException;
-use Tobyz\JsonApiServer\Context;
 use Tobyz\JsonApiServer\Endpoint\Update as BaseUpdate;
-use Tobyz\JsonApiServer\Exception\ForbiddenException;
-use Tobyz\JsonApiServer\Resource\Updatable;
-use function Tobyz\JsonApiServer\json_api_response;
 
-class Update extends BaseUpdate implements Endpoint
+class Update extends BaseUpdate implements EndpointInterface
 {
     use HasAuthorization;
     use HasEagerLoading;
-    use HasCustomRoute;
     use HasCustomHooks;
 
-    public function handle(Context $context): ?ResponseInterface
+    public function setUp(): void
     {
-        $segments = explode('/', $context->path());
+        parent::setUp();
 
-        if (count($segments) !== 2) {
-            return null;
-        }
+        $this->after(function (Context $context, object $model) {
+            $this->loadRelations(Collection::make([$model]), $context, $this->getInclude($context));
 
-        $context = $context->withModelId($segments[1]);
-
-        $model = $this->execute($context);
-
-        return json_api_response($this->showResource($context, $model));
-    }
-
-    public function execute(Context $context): object
-    {
-        $model = $this->findResource($context, $context->getModelId());
-
-        $context = $context->withResource(
-            $resource = $context->resource($context->collection->resource($model, $context)),
-        );
-
-        if (!$resource instanceof Updatable) {
-            throw new RuntimeException(
-                sprintf('%s must implement %s', get_class($resource), Updatable::class),
-            );
-        }
-
-        if (!$this->isVisible($context = $context->withModel($model))) {
-            throw new ForbiddenException();
-        }
-
-        $this->callBeforeHook($context);
-
-        $data = $this->parseData($context);
-
-        $this->assertFieldsValid($context, $data);
-        $this->deserializeValues($context, $data);
-        $this->assertDataValid($context, $data);
-        $this->setValues($context, $data);
-
-        $context = $context->withModel($model = $resource->update($model, $context));
-
-        $this->saveFields($context, $data);
-
-        $model = $this->callAfterHook($context, $model);
-
-        $this->loadRelations(Collection::make([$model]), $context->request, $this->getInclude($context));
-
-        return $model;
-    }
-
-    public function route(): EndpointRoute
-    {
-        return new EndpointRoute(
-            name: 'update',
-            path: $this->path ?? '/{id}',
-            method: 'PATCH',
-        );
+            return $model;
+        });
     }
 }

@@ -5,7 +5,6 @@ namespace Flarum\Api\Resource;
 use Carbon\Carbon;
 use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
-use Flarum\Api\Endpoint\Create;
 use Flarum\Api\JsonApi;
 use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
@@ -302,9 +301,9 @@ class DiscussionResource extends AbstractDatabaseResource
                 // Now that the discussion has been created, we can add the first post.
                 // We will do this by running the PostReply command.
                 $post = $api->forResource(PostResource::class)
-                    ->forEndpoint(Create::class)
+                    ->forEndpoint('create')
                     ->withRequest($context->request)
-                    ->execute([
+                    ->process([
                         'data' => [
                             'attributes' => [
                                 'content' => Arr::get($context->body(), 'data.attributes.content'),

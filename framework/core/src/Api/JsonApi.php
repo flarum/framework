@@ -2,8 +2,7 @@
 
 namespace Flarum\Api;
 
-use Flarum\Api\Endpoint\Endpoint;
-use Flarum\Api\Endpoint\EndpointRoute;
+use Flarum\Api\Endpoint\EndpointInterface;
 use Flarum\Api\Resource\AbstractDatabaseResource;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Container\Container;
@@ -11,6 +10,7 @@ use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Diactoros\Uri;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Tobyz\JsonApiServer\Endpoint\Endpoint;
 use Tobyz\JsonApiServer\Exception\BadRequestException;
 use Tobyz\JsonApiServer\JsonApi as BaseJsonApi;
 use Tobyz\JsonApiServer\Resource\Collection;
@@ -19,7 +19,7 @@ use Tobyz\JsonApiServer\Resource\Resource;
 class JsonApi extends BaseJsonApi
 {
     protected string $resourceClass;
-    protected string $endpoint;
+    protected string $endpointName;
     protected ?Request $baseRequest = null;
     protected ?Container $container = null;
 
@@ -30,16 +30,16 @@ class JsonApi extends BaseJsonApi
         return $this;
     }
 
-    public function forEndpoint(string $endpoint): self
+    public function forEndpoint(string $endpointName): self
     {
-        $this->endpoint = $endpoint;
+        $this->endpointName = $endpointName;
 
         return $this;
     }
 
     protected function makeContext(Request $request): Context
     {
-        if (! $this->endpoint || ! $this->resourceClass || ! class_exists($this->resourceClass)) {
+        if (! $this->endpointName || ! $this->resourceClass || ! class_exists($this->resourceClass)) {
             throw new BadRequestException('No resource or endpoint specified');
         }
 
@@ -50,11 +50,11 @@ class JsonApi extends BaseJsonApi
             ->withEndpoint($this->findEndpoint($collection));
     }
 
-    protected function findEndpoint(?Collection $collection): Endpoint
+    protected function findEndpoint(?Collection $collection): Endpoint&EndpointInterface
     {
-        /** @var \Flarum\Api\Endpoint\Endpoint $endpoint */
+        /** @var Endpoint&EndpointInterface $endpoint */
         foreach ($collection->resolveEndpoints() as $endpoint) {
-            if ($endpoint::class === $this->endpoint) {
+            if ($endpoint->name === $this->endpointName) {
                 return $endpoint;
             }
         }
@@ -76,11 +76,8 @@ class JsonApi extends BaseJsonApi
         return $context->endpoint->handle($context);
     }
 
-    public function execute(array $body, array $internal = [], array $options = []): mixed
+    public function process(array $body, array $internal = [], array $options = []): mixed
     {
-        /** @var EndpointRoute $route */
-        $route = (new $this->endpoint)->route();
-
         $request = $this->baseRequest ?? ServerRequestFactory::fromGlobals();
 
         if (! empty($options['actor'])) {
@@ -90,8 +87,6 @@ class JsonApi extends BaseJsonApi
         $resource = $this->getCollection($this->resourceClass);
 
         $request = $request
-            ->withMethod($route->method)
-            ->withUri(new Uri($route->path))
             ->withParsedBody([
                 ...$body,
                 'data' => [
@@ -110,7 +105,13 @@ class JsonApi extends BaseJsonApi
             $context = $context->withInternal($key, $value);
         }
 
-        return $context->endpoint->execute($context);
+        $context = $context->withRequest(
+            $request
+                ->withMethod($context->endpoint->method)
+                ->withUri(new Uri($context->endpoint->path))
+        );
+
+        return $context->endpoint->process($context);
     }
 
     public function validateQueryParameters(Request $request): void
