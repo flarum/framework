@@ -243,7 +243,7 @@ class UserResource extends AbstractDatabaseResource
                 }),
 
             Schema\DateTime::make('markedAllAsReadAt')
-                ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
+                ->visible(fn (User $user, Context $context) => ($context->collection instanceof self || $context->collection instanceof ForumResource) && $context->getActor()->id === $user->id)
                 ->writable(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
                 ->set(function (User $user, $value) {
                     if (! empty($value)) {
@@ -252,17 +252,17 @@ class UserResource extends AbstractDatabaseResource
                 }),
 
             Schema\Integer::make('unreadNotificationCount')
-                ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
+                ->visible(fn (User $user, Context $context) => ($context->collection instanceof self || $context->collection instanceof ForumResource) && $context->getActor()->id === $user->id)
                 ->get(function (User $user): int {
                     return $user->getUnreadNotificationCount();
                 }),
             Schema\Integer::make('newNotificationCount')
-                ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
+                ->visible(fn (User $user, Context $context) => ($context->collection instanceof self || $context->collection instanceof ForumResource) && $context->getActor()->id === $user->id)
                 ->get(function (User $user): int {
                     return $user->getNewNotificationCount();
                 }),
             Schema\Arr::make('preferences')
-                ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
+                ->visible(fn (User $user, Context $context) => ($context->collection instanceof self || $context->collection instanceof ForumResource) && $context->getActor()->id === $user->id)
                 ->writable(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
                 ->set(function (User $user, array $value) {
                     foreach ($value as $k => $v) {
@@ -271,7 +271,7 @@ class UserResource extends AbstractDatabaseResource
                 }),
 
             Schema\Boolean::make('isAdmin')
-                ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
+                ->visible(fn (User $user, Context $context) => ($context->collection instanceof self || $context->collection instanceof ForumResource) && $context->getActor()->id === $user->id)
                 ->get(fn (User $user, Context $context) => $context->getActor()->isAdmin()),
 
             Schema\Boolean::make('canEdit')
