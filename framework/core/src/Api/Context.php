@@ -5,10 +5,7 @@ namespace Flarum\Api;
 use Flarum\Http\RequestUtil;
 use Flarum\Search\SearchResults;
 use Flarum\User\User;
-use Illuminate\Contracts\Container\Container;
 use Tobyz\JsonApiServer\Context as BaseContext;
-use Tobyz\JsonApiServer\Resource\Collection;
-use Tobyz\JsonApiServer\Resource\Resource;
 
 class Context extends BaseContext
 {

@@ -19,10 +19,8 @@ class Update extends BaseUpdate implements EndpointInterface
     {
         parent::setUp();
 
-        $this->after(function (Context $context, object $model) {
+        $this->beforeSerialization(function (Context $context, object $model) {
             $this->loadRelations(Collection::make([$model]), $context, $this->getInclude($context));
-
-            return $model;
         });
     }
 }
