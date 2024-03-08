@@ -59,9 +59,9 @@ class ListDiscussionsTest extends TestCase
             $this->request('GET', '/api/discussions')
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($body, true);
 
         $this->assertEqualsCanonicalizing([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
     }
@@ -75,9 +75,9 @@ class ListDiscussionsTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($body, true);
 
         $this->assertEqualsCanonicalizing([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
     }
@@ -91,9 +91,9 @@ class ListDiscussionsTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($body, true);
 
         $this->assertEqualsCanonicalizing([2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
     }
@@ -111,9 +111,9 @@ class ListDiscussionsTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($body, true);
 
         $this->assertEqualsCanonicalizing([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
     }
