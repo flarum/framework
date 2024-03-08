@@ -30,3 +30,13 @@ parameters:
 		# ignore this error, so we have to ignore it globally.
 		- message: '#^Parameter \#[0-9]+ \$[A-z0-9_]+ of method Flarum\Extend\[A-z0-9_:\\()]+ expects \(?callable\([A-z0-9_,|\\: ()-]+\)\)?, (callable|Closure)\([A-z0-9_,|\\: ()-]+\) given\.$#'
 		  reportUnmatched: false
+
+		# PHPStan suddenly doesn't recognize callables can be function names?
+		- message: '#^Parameter \#[0-9]+ \$[A-z0-9_]+ of function [A-z0-9_:\\()]+ expects \(?callable\([A-z0-9_,|\\: ()-]+, ''[A-z0-9_:\\()]+'' given\.$#'
+		  reportUnmatched: false
+
+		# Not if we're using our own static make method.
+		- message: '#^Called ''Model\:\:make\(\)'' which performs unnecessary work, use ''new Model\(\)''\.$#'
+
+		# This assumes that the phpdoc telling it it's not nullable is correct, that's not the case for internal Laravel typings.
+		- message: '#^Property [A-z0-9-_:$,\\]+ \([A-z]+\) on left side of \?\? is not nullable\.$#'

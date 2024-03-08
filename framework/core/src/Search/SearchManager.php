@@ -68,4 +68,12 @@ class SearchManager
 
         return $defaultDriver->searcher($resourceClass)->search($criteria);
     }
+
+    public function searchable(string $resourceClass): bool
+    {
+        $driver = $this->driverFor($resourceClass);
+        $defaultDriver = $this->driver(DatabaseSearchDriver::name());
+
+        return $driver->supports($resourceClass) || $defaultDriver->supports($resourceClass);
+    }
 }

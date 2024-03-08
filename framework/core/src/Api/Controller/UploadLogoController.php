@@ -9,6 +9,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\JsonApi;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Factory;
 use Intervention\Image\ImageManager;
@@ -21,11 +22,12 @@ class UploadLogoController extends UploadImageController
     protected string $filenamePrefix = 'logo';
 
     public function __construct(
+        JsonApi $api,
         SettingsRepositoryInterface $settings,
         Factory $filesystemFactory,
         protected ImageManager $imageManager
     ) {
-        parent::__construct($settings, $filesystemFactory);
+        parent::__construct($api, $settings, $filesystemFactory);
     }
 
     protected function makeImage(UploadedFileInterface $file): EncodedImageInterface

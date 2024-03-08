@@ -31,19 +31,21 @@ class OrderTagsController implements RequestHandlerInterface
 
         Tag::query()->update([
             'position' => null,
-            'parent_id' => null
+            'parent_id' => null,
+            'is_primary' => false,
         ]);
 
         foreach ($order as $i => $parent) {
             $parentId = Arr::get($parent, 'id');
 
-            Tag::where('id', $parentId)->update(['position' => $i]);
+            Tag::where('id', $parentId)->update(['position' => $i, 'is_primary' => true]);
 
             if (isset($parent['children']) && is_array($parent['children'])) {
                 foreach ($parent['children'] as $j => $childId) {
                     Tag::where('id', $childId)->update([
                         'position' => $j,
-                        'parent_id' => $parentId
+                        'parent_id' => $parentId,
+                        'is_primary' => true,
                     ]);
                 }
             }

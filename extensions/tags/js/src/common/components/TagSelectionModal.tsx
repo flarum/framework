@@ -252,10 +252,10 @@ export default class TagSelectionModal<
       // we'll filter out all other tags of that type.
       else {
         if (primaryCount >= this.attrs.limits!.max!.primary!) {
-          tags = tags.filter((tag) => !tag.isPrimary() || this.selected.includes(tag));
+          tags = tags.filter((tag) => !tag.isPrimaryParent() || this.selected.includes(tag));
         }
         if (secondaryCount >= this.attrs.limits!.max!.secondary!) {
-          tags = tags.filter((tag) => tag.isPrimary() || this.selected.includes(tag));
+          tags = tags.filter((tag) => tag.isPrimaryParent() || this.selected.includes(tag));
         }
       }
     }
@@ -275,14 +275,14 @@ export default class TagSelectionModal<
    * Counts the number of selected primary tags.
    */
   protected primaryCount(): number {
-    return this.selected.filter((tag) => tag.isPrimary()).length;
+    return this.selected.filter((tag) => tag.isPrimaryParent()).length;
   }
 
   /**
    * Counts the number of selected secondary tags.
    */
   protected secondaryCount(): number {
-    return this.selected.filter((tag) => !tag.isPrimary()).length;
+    return this.selected.filter((tag) => !tag.isPrimaryParent()).length;
   }
 
   /**

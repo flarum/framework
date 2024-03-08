@@ -149,7 +149,7 @@ class ThemeTest extends TestCase
 
         $response = $this->send($this->request('GET', '/'));
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
 
         $cssFilePath = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets')->path('forum.css');
         $contents = file_get_contents($cssFilePath);

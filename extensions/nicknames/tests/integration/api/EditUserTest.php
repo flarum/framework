@@ -10,6 +10,7 @@
 namespace Flarum\Nicknames\Tests\integration;
 
 use Flarum\Group\Group;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -45,6 +46,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'nickname' => 'new nickname',
                         ],
@@ -53,7 +55,7 @@ class UpdateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
     /**
@@ -72,6 +74,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'nickname' => 'new nickname',
                         ],
@@ -80,8 +83,36 @@ class UpdateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
 
         $this->assertEquals('new nickname', User::find(2)->nickname);
+    }
+
+    /**
+     * @test
+     */
+    public function cant_edit_nickname_if_invalid_regex()
+    {
+        $this->setting('flarum-nicknames.set_on_registration', true);
+        $this->setting('flarum-nicknames.regex', '^[A-z]+$');
+
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/2', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'type' => 'users',
+                        'attributes' => [
+                            'nickname' => '007',
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(422, $response->getStatusCode(), $body);
+        $this->assertStringContainsString($this->app()->getContainer()->make(TranslatorInterface::class)->trans('flarum-nicknames.api.invalid_nickname_message'), $body);
     }
 }

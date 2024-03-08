@@ -10,6 +10,7 @@
 namespace Flarum\ExtensionManager;
 
 use Flarum\Extend;
+use Flarum\ExtensionManager\Api\Resource\TaskResource;
 use Flarum\Foundation\Paths;
 use Flarum\Frontend\Document;
 use Illuminate\Contracts\Queue\Queue;
@@ -25,8 +26,9 @@ return [
         ->post('/extension-manager/minor-update', 'extension-manager.minor-update', Api\Controller\MinorUpdateController::class)
         ->post('/extension-manager/major-update', 'extension-manager.major-update', Api\Controller\MajorUpdateController::class)
         ->post('/extension-manager/global-update', 'extension-manager.global-update', Api\Controller\GlobalUpdateController::class)
-        ->get('/extension-manager-tasks', 'extension-manager.tasks.index', Api\Controller\ListTasksController::class)
         ->post('/extension-manager/composer', 'extension-manager.composer', Api\Controller\ConfigureComposerController::class),
+
+    new Extend\ApiResource(TaskResource::class),
 
     (new Extend\Frontend('admin'))
         ->css(__DIR__.'/less/admin.less')

@@ -41,13 +41,18 @@ class SearchIndexTest extends TestCase
     public static function modelProvider(): array
     {
         return [
-            ['discussions', Discussion::class, 'title'],
-            ['posts', CommentPost::class, 'content'],
+            ['discussions', Discussion::class, [
+                'title' => 'test',
+                'content' => 'test!',
+            ]],
+            ['posts', CommentPost::class, [
+                'content' => 'test!!',
+            ]],
         ];
     }
 
     /** @dataProvider modelProvider */
-    public function test_indexer_triggered_on_create(string $type, string $modelClass, string $attribute)
+    public function test_indexer_triggered_on_create(string $type, string $modelClass, array $attributes)
     {
         $this->extend(
             (new Extend\SearchIndex())
@@ -60,9 +65,8 @@ class SearchIndexTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
-                        'attributes' => [
-                            $attribute => 'test',
-                        ],
+                        'type' => $type,
+                        'attributes' => $attributes,
                         'relationships' => ($type === 'posts' ? [
                             'discussion' => [
                                 'data' => [
@@ -70,7 +74,7 @@ class SearchIndexTest extends TestCase
                                     'id' => 1,
                                 ],
                             ],
-                        ] : null),
+                        ] : []),
                     ]
                 ],
             ]),
@@ -80,7 +84,7 @@ class SearchIndexTest extends TestCase
     }
 
     /** @dataProvider modelProvider */
-    public function test_indexer_triggered_on_save(string $type, string $modelClass, string $attribute)
+    public function test_indexer_triggered_on_save(string $type, string $modelClass, array $attributes)
     {
         $this->extend(
             (new Extend\SearchIndex())
@@ -93,9 +97,8 @@ class SearchIndexTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
-                        'attributes' => [
-                            $attribute => 'changed'
-                        ]
+                        'type' => $type,
+                        'attributes' => $type === 'discussions' ? array_diff_key($attributes, ['content' => null]) : $attributes,
                     ]
                 ],
             ]),
@@ -105,7 +108,7 @@ class SearchIndexTest extends TestCase
     }
 
     /** @dataProvider modelProvider */
-    public function test_indexer_triggered_on_delete(string $type, string $modelClass, string $attribute)
+    public function test_indexer_triggered_on_delete(string $type, string $modelClass, array $attributes)
     {
         $this->extend(
             (new Extend\SearchIndex())
@@ -124,7 +127,7 @@ class SearchIndexTest extends TestCase
     }
 
     /** @dataProvider modelProvider */
-    public function test_indexer_triggered_on_hide(string $type, string $modelClass, string $attribute)
+    public function test_indexer_triggered_on_hide(string $type, string $modelClass, array $attributes)
     {
         $this->extend(
             (new Extend\SearchIndex())
@@ -137,6 +140,7 @@ class SearchIndexTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => $type,
                         'attributes' => [
                             'isHidden' => true
                         ]
@@ -149,7 +153,7 @@ class SearchIndexTest extends TestCase
     }
 
     /** @dataProvider modelProvider */
-    public function test_indexer_triggered_on_restore(string $type, string $modelClass, string $attribute)
+    public function test_indexer_triggered_on_restore(string $type, string $modelClass, array $attributes)
     {
         $this->extend(
             (new Extend\SearchIndex())
@@ -162,6 +166,7 @@ class SearchIndexTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => $type,
                         'attributes' => [
                             'isHidden' => false
                         ]

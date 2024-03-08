@@ -19,11 +19,25 @@ function bootApp() {
       {
         type: 'forums',
         id: '1',
-        attributes: {},
+        attributes: {
+          canEditUserCredentials: true,
+        },
+      },
+      {
+        type: 'users',
+        id: '1',
+        attributes: {
+          id: 1,
+          username: 'admin',
+          displayName: 'Admin',
+          email: 'admin@machine.local',
+          joinTime: '2021-01-01T00:00:00Z',
+          isEmailConfirmed: true,
+        },
       },
     ],
     session: {
-      userId: 0,
+      userId: 1,
       csrfToken: 'test',
     },
   });

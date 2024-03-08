@@ -15,7 +15,6 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Tobscure\JsonApi\Document;
 
 class MaintenanceModeHandler implements RequestHandlerInterface
 {
@@ -46,10 +45,12 @@ class MaintenanceModeHandler implements RequestHandlerInterface
     private function apiResponse(): ResponseInterface
     {
         return new JsonResponse(
-            (new Document)->setErrors([
-                'status' => '503',
-                'title' => self::MESSAGE
-            ]),
+            [
+                'errors' => [
+                    'status' => '503',
+                    'title' => self::MESSAGE
+                ],
+            ],
             503,
             ['Content-Type' => 'application/vnd.api+json']
         );

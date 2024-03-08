@@ -9,10 +9,7 @@
 
 namespace Flarum\Api;
 
-use Flarum\Api\Controller\AbstractSerializeController;
-use Flarum\Api\Serializer\AbstractSerializer;
-use Flarum\Api\Serializer\BasicDiscussionSerializer;
-use Flarum\Api\Serializer\NotificationSerializer;
+use Flarum\Api\Endpoint\EndpointInterface;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
@@ -23,6 +20,8 @@ use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Contracts\Container\Container;
 use Laminas\Stratigility\MiddlewarePipe;
+use ReflectionClass;
+use Tobyz\JsonApiServer\Endpoint\Endpoint;
 
 class ApiServiceProvider extends AbstractServiceProvider
 {
@@ -32,9 +31,40 @@ class ApiServiceProvider extends AbstractServiceProvider
             return $url->addCollection('api', $container->make('flarum.api.routes'), 'api');
         });
 
-        $this->container->singleton('flarum.api.routes', function () {
+        $this->container->singleton('flarum.api.resources', function () {
+            return [
+                Resource\ForumResource::class,
+                Resource\UserResource::class,
+                Resource\GroupResource::class,
+                Resource\PostResource::class,
+                Resource\DiscussionResource::class,
+                Resource\NotificationResource::class,
+                Resource\AccessTokenResource::class,
+                Resource\MailSettingResource::class,
+                Resource\ExtensionReadmeResource::class,
+            ];
+        });
+
+        $this->container->singleton('flarum.api.resource_handler', function (Container $container) {
+            $resources = $this->container->make('flarum.api.resources');
+
+            $api = new JsonApi('/');
+            $api->container($container);
+
+            foreach ($resources as $resourceClass) {
+                /** @var \Flarum\Api\Resource\AbstractResource|\Flarum\Api\Resource\AbstractDatabaseResource $resource */
+                $resource = $container->make($resourceClass);
+                $api->resource($resource->boot($api));
+            }
+
+            return $api;
+        });
+
+        $this->container->alias('flarum.api.resource_handler', JsonApi::class);
+
+        $this->container->singleton('flarum.api.routes', function (Container $container) {
             $routes = new RouteCollection;
-            $this->populateRoutes($routes);
+            $this->populateRoutes($routes, $container);
 
             return $routes;
         });
@@ -66,7 +96,8 @@ class ApiServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\SetLocale::class,
                 'flarum.api.route_resolver',
                 HttpMiddleware\CheckCsrfToken::class,
-                Middleware\ThrottleApi::class
+                Middleware\ThrottleApi::class,
+                HttpMiddleware\PopulateWithActor::class,
             ];
         });
 
@@ -92,12 +123,6 @@ class ApiServiceProvider extends AbstractServiceProvider
             $pipe->pipe(new HttpMiddleware\ExecuteRoute());
 
             return $pipe;
-        });
-
-        $this->container->singleton('flarum.api.notification_serializers', function () {
-            return [
-                'discussionRenamed' => BasicDiscussionSerializer::class
-            ];
         });
 
         $this->container->singleton('flarum.api_client.exclude_middleware', function () {
@@ -130,27 +155,47 @@ class ApiServiceProvider extends AbstractServiceProvider
 
     public function boot(Container $container): void
     {
-        $this->setNotificationSerializers();
-
-        AbstractSerializeController::setContainer($container);
-
-        AbstractSerializer::setContainer($container);
+        //
     }
 
-    protected function setNotificationSerializers(): void
+    protected function populateRoutes(RouteCollection $routes, Container $container): void
     {
-        $serializers = $this->container->make('flarum.api.notification_serializers');
-
-        foreach ($serializers as $type => $serializer) {
-            NotificationSerializer::setSubjectSerializer($type, $serializer);
-        }
-    }
-
-    protected function populateRoutes(RouteCollection $routes): void
-    {
-        $factory = $this->container->make(RouteHandlerFactory::class);
+        /** @var RouteHandlerFactory $factory */
+        $factory = $container->make(RouteHandlerFactory::class);
 
         $callback = include __DIR__.'/routes.php';
         $callback($routes, $factory);
+
+        $resources = $this->container->make('flarum.api.resources');
+
+        foreach ($resources as $resourceClass) {
+            /**
+             * This is an empty shell instance,
+             * we only need it to get the endpoint routes and types.
+             *
+             * We avoid dependency injection here to avoid early resolution.
+             *
+             * @var \Flarum\Api\Resource\AbstractResource|\Flarum\Api\Resource\AbstractDatabaseResource $resource
+             */
+            $resource = (new ReflectionClass($resourceClass))->newInstanceWithoutConstructor();
+
+            $type = $resource->type();
+
+            /**
+             * None of the injected dependencies should be directly used within
+             *   the `endpoints` method. Encourage using callbacks.
+             *
+             * @var array<Endpoint&EndpointInterface> $endpoints
+             */
+            $endpoints = $resource->resolveEndpoints(true);
+
+            foreach ($endpoints as $endpoint) {
+                $method = $endpoint->method;
+                $path = rtrim("/$type$endpoint->path", '/');
+                $name = "$type.$endpoint->name";
+
+                $routes->addRoute($method, $path, $name, $factory->toApiResource($resource::class, $endpoint->name));
+            }
+        }
     }
 }

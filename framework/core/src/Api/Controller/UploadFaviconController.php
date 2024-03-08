@@ -9,6 +9,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\JsonApi;
 use Flarum\Foundation\ValidationException;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -23,12 +24,13 @@ class UploadFaviconController extends UploadImageController
     protected string $filenamePrefix = 'favicon';
 
     public function __construct(
+        JsonApi $api,
         SettingsRepositoryInterface $settings,
         Factory $filesystemFactory,
         protected TranslatorInterface $translator,
         protected ImageManager $imageManager
     ) {
-        parent::__construct($settings, $filesystemFactory);
+        parent::__construct($api, $settings, $filesystemFactory);
     }
 
     protected function makeImage(UploadedFileInterface $file): EncodedImageInterface

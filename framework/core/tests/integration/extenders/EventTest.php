@@ -9,33 +9,42 @@
 
 namespace Flarum\Tests\integration\extenders;
 
+use Flarum\Api\JsonApi;
+use Flarum\Api\Resource\GroupResource;
 use Flarum\Extend;
 use Flarum\Foundation\Application;
-use Flarum\Group\Command\CreateGroup;
 use Flarum\Group\Event\Created;
+use Flarum\Group\Group;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
-use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class EventTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    protected function buildGroup()
+    protected function buildGroup(): Group
     {
-        $bus = $this->app()->getContainer()->make(BusDispatcher::class);
+        /** @var JsonApi $api */
+        $api = $this->app()->getContainer()->make(JsonApi::class);
 
-        return $bus->dispatch(
-            new CreateGroup(User::find(1), ['attributes' => [
-                'nameSingular' => 'test group',
-                'namePlural' => 'test groups',
-                'color' => '#000000',
-                'icon' => 'fas fa-crown',
-            ]])
-        );
+        return $api->forResource(GroupResource::class)
+            ->forEndpoint('create')
+            ->process(
+                body: [
+                    'data' => [
+                        'attributes' => [
+                            'nameSingular' => 'test group',
+                            'namePlural' => 'test groups',
+                            'color' => '#000000',
+                            'icon' => 'fas fa-crown',
+                        ]
+                    ],
+                ],
+                options: ['actor' => User::find(1)]
+            );
     }
 
     /**

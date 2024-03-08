@@ -34,10 +34,11 @@ class RegisterTest extends TestCase
             $this->request('POST', '/register')
         );
 
-        $this->assertEquals(422, $response->getStatusCode());
+        $body = (string) $response->getBody();
+
+        $this->assertEquals(422, $response->getStatusCode(), $body);
 
         // The response body should contain details about the failed validation
-        $body = (string) $response->getBody();
         $this->assertJson($body);
         $this->assertEquals([
             'errors' => [

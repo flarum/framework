@@ -68,13 +68,15 @@ class UpdateTest extends TestCase
         $response = $this->send(
             $this->request('PATCH', '/api/users/2', [
                 'authenticatedAs' => 2,
-                'json' => [],
+                'json' => [
+                    'data' => []
+                ],
             ])
         );
 
         // Test for successful response and that the email is included in the response
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertStringContainsString('normal@machine.local', (string) $response->getBody());
+        $this->assertEquals(200, $response->getStatusCode(), $body = (string) $response->getBody());
+        $this->assertStringContainsString('normal@machine.local', $body);
     }
 
     /**
@@ -85,13 +87,15 @@ class UpdateTest extends TestCase
         $response = $this->send(
             $this->request('PATCH', '/api/users/1', [
                 'authenticatedAs' => 2,
-                'json' => [],
+                'json' => [
+                    'data' => []
+                ],
             ])
         );
 
         // Make sure sensitive information is not made public
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertStringNotContainsString('admin@machine.local', (string) $response->getBody());
+        $this->assertEquals(200, $response->getStatusCode(), $body = (string) $response->getBody());
+        $this->assertStringNotContainsString('admin@machine.local', $body);
     }
 
     /**
@@ -107,7 +111,7 @@ class UpdateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
     }
 
     /**
@@ -120,6 +124,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'email' => 'someOtherEmail@example.com',
                         ]
@@ -131,7 +136,7 @@ class UpdateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(401, $response->getStatusCode());
+        $this->assertEquals(401, $response->getStatusCode(), (string) $response->getBody());
     }
 
     /**
@@ -144,6 +149,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'email' => 'someOtherEmail@example.com',
                         ]
@@ -180,7 +186,7 @@ class UpdateTest extends TestCase
             );
 
             // We don't want to delay tests too long.
-            EmailChangeThrottler::$timeout = 5;
+            EmailChangeThrottler::$timeout = 1;
             sleep(EmailChangeThrottler::$timeout + 1);
         }
 
@@ -223,6 +229,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'username' => 'iCantChangeThis',
                         ],
@@ -243,6 +250,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'preferences' => [
                                 'something' => 'else'
@@ -268,7 +276,7 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'groups' => [
                                 'data' => [
-                                    ['id' => 1, 'type' => 'group']
+                                    ['id' => 1, 'type' => 'groups']
                                 ]
                             ]
                         ],
@@ -289,6 +297,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'markedAllAsReadAt' => Carbon::now()
                         ],
@@ -309,6 +318,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'isEmailConfirmed' => true
                         ],
@@ -345,6 +355,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 3,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'email' => 'someOtherEmail@example.com',
                         ]
@@ -368,6 +379,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 3,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'username' => 'iCantChangeThis',
                         ],
@@ -391,7 +403,7 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'groups' => [
                                 'data' => [
-                                    ['id' => 1, 'type' => 'group']
+                                    ['id' => 1, 'type' => 'groups']
                                 ]
                             ]
                         ],
@@ -412,6 +424,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'isEmailConfirmed' => true
                         ],
@@ -450,6 +463,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 3,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'email' => 'someOtherEmail@example.com',
                         ]
@@ -471,6 +485,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 3,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'username' => 'iCanChangeThis',
                         ],
@@ -492,6 +507,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 3,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'email' => 'someOtherEmail@example.com',
                         ]
@@ -513,6 +529,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 3,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'username' => 'iCanChangeThis',
                         ],
@@ -537,7 +554,7 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'groups' => [
                                 'data' => [
-                                    ['id' => 4, 'type' => 'group']
+                                    ['id' => 4, 'type' => 'groups']
                                 ]
                             ]
                         ],
@@ -545,7 +562,7 @@ class UpdateTest extends TestCase
                 ],
             ])
         );
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
     }
 
     /**
@@ -585,7 +602,7 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'groups' => [
                                 'data' => [
-                                    ['id' => 1, 'type' => 'group']
+                                    ['id' => 1, 'type' => 'groups']
                                 ]
                             ]
                         ],
@@ -610,7 +627,7 @@ class UpdateTest extends TestCase
                         'relationships' => [
                             'groups' => [
                                 'data' => [
-                                    ['id' => 1, 'type' => 'group']
+                                    ['id' => 1, 'type' => 'groups']
                                 ]
                             ]
                         ],
@@ -632,6 +649,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'isEmailConfirmed' => true
                         ],
@@ -652,6 +670,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'preferences' => [
                                 'something' => 'else'
@@ -674,6 +693,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'markedAllAsReadAt' => Carbon::now()
                         ],
@@ -694,6 +714,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'isEmailConfirmed' => true
                         ],
@@ -724,7 +745,7 @@ class UpdateTest extends TestCase
                 ],
             ])
         );
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode(), (string) $response->getBody());
     }
 
     /**

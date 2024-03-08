@@ -10,6 +10,7 @@
 namespace Flarum\Http;
 
 use Closure;
+use Flarum\Api\JsonApi;
 use Flarum\Frontend\Controller as FrontendController;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
@@ -34,6 +35,25 @@ class RouteHandlerFactory
             $request = $request->withQueryParams(array_merge($request->getQueryParams(), $routeParams));
 
             return $controller->handle($request);
+        };
+    }
+
+    /**
+     * @param class-string<\Tobyz\JsonApiServer\Resource\AbstractResource> $resourceClass
+     */
+    public function toApiResource(string $resourceClass, string $endpointName): Closure
+    {
+        return function (Request $request, array $routeParams) use ($resourceClass, $endpointName) {
+            /** @var JsonApi $api */
+            $api = $this->container->make(JsonApi::class);
+
+            $api->validateQueryParameters($request);
+
+            $request = $request->withQueryParams(array_merge($request->getQueryParams(), $routeParams));
+
+            return $api->forResource($resourceClass)
+                ->forEndpoint($endpointName)
+                ->handle($request);
         };
     }
 

@@ -34,7 +34,6 @@ class Discussion
         $page = max(1, intval(Arr::get($queryParams, 'page')), 1 + intdiv($near, 20));
 
         $params = [
-            'id' => $id,
             'page' => [
                 'near' => $near,
                 'offset' => ($page - 1) * 20,

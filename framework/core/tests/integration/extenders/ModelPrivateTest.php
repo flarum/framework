@@ -19,6 +19,13 @@ class ModelPrivateTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Discussion::unguard();
+    }
+
     /**
      * @test
      */
@@ -28,8 +35,10 @@ class ModelPrivateTest extends TestCase
 
         $user = User::find(1);
 
-        $discussion = Discussion::start('Some Discussion', $user);
-        $discussion->save();
+        $discussion = Discussion::create([
+            'title' => 'Some Discussion',
+            'user_id' => $user->id,
+        ]);
 
         $this->assertNull($discussion->is_private);
     }
@@ -50,10 +59,14 @@ class ModelPrivateTest extends TestCase
 
         $user = User::find(1);
 
-        $privateDiscussion = Discussion::start('Private Discussion', $user);
-        $publicDiscussion = Discussion::start('Public Discussion', $user);
-        $privateDiscussion->save();
-        $publicDiscussion->save();
+        $privateDiscussion = Discussion::create([
+            'title' => 'Private Discussion',
+            'user_id' => $user->id,
+        ]);
+        $publicDiscussion = Discussion::create([
+            'title' => 'Public Discussion',
+            'user_id' => $user->id,
+        ]);
 
         $this->assertTrue($privateDiscussion->is_private);
         $this->assertFalse($publicDiscussion->is_private);
@@ -73,10 +86,14 @@ class ModelPrivateTest extends TestCase
 
         $user = User::find(1);
 
-        $privateDiscussion = Discussion::start('Private Discussion', $user);
-        $publicDiscussion = Discussion::start('Public Discussion', $user);
-        $privateDiscussion->save();
-        $publicDiscussion->save();
+        $privateDiscussion = Discussion::create([
+            'title' => 'Private Discussion',
+            'user_id' => $user->id,
+        ]);
+        $publicDiscussion = Discussion::create([
+            'title' => 'Public Discussion',
+            'user_id' => $user->id,
+        ]);
 
         $this->assertTrue($privateDiscussion->is_private);
         $this->assertFalse($publicDiscussion->is_private);
@@ -102,10 +119,14 @@ class ModelPrivateTest extends TestCase
 
         $user = User::find(1);
 
-        $privateDiscussion = Discussion::start('Private Discussion', $user);
-        $publicDiscussion = Discussion::start('Public Discussion', $user);
-        $privateDiscussion->save();
-        $publicDiscussion->save();
+        $privateDiscussion = Discussion::create([
+            'title' => 'Private Discussion',
+            'user_id' => $user->id,
+        ]);
+        $publicDiscussion = Discussion::create([
+            'title' => 'Public Discussion',
+            'user_id' => $user->id,
+        ]);
 
         $this->assertTrue($privateDiscussion->is_private);
         $this->assertFalse($publicDiscussion->is_private);

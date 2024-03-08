@@ -9,16 +9,16 @@
 
 namespace Flarum\Likes;
 
-use Flarum\Api\Controller;
-use Flarum\Api\Serializer\BasicUserSerializer;
-use Flarum\Api\Serializer\PostSerializer;
+use Flarum\Api\Endpoint;
+use Flarum\Api\Resource;
 use Flarum\Extend;
-use Flarum\Likes\Api\LoadLikesRelationship;
+use Flarum\Likes\Api\PostResourceFields;
 use Flarum\Likes\Event\PostWasLiked;
 use Flarum\Likes\Event\PostWasUnliked;
 use Flarum\Likes\Notification\PostLikedBlueprint;
 use Flarum\Likes\Query\LikedByFilter;
 use Flarum\Likes\Query\LikedFilter;
+use Flarum\Post\Event\Deleted;
 use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
 use Flarum\Search\Database\DatabaseSearchDriver;
@@ -39,43 +39,28 @@ return [
     new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Notification())
-        ->type(PostLikedBlueprint::class, PostSerializer::class, ['alert']),
+        ->type(PostLikedBlueprint::class, ['alert']),
 
-    (new Extend\ApiSerializer(PostSerializer::class))
-        ->hasMany('likes', BasicUserSerializer::class)
-        ->attribute('canLike', function (PostSerializer $serializer, $model) {
-            return (bool) $serializer->getActor()->can('like', $model);
-        })
-        ->attribute('likesCount', function (PostSerializer $serializer, $model) {
-            return $model->getAttribute('likes_count') ?: 0;
+    (new Extend\ApiResource(Resource\PostResource::class))
+        ->fields(PostResourceFields::class)
+        ->endpoint(
+            [Endpoint\Index::class, Endpoint\Show::class, Endpoint\Create::class, Endpoint\Update::class],
+            function (Endpoint\Index|Endpoint\Show|Endpoint\Create|Endpoint\Update $endpoint): Endpoint\EndpointInterface {
+                return $endpoint->addDefaultInclude(['likes']);
+            }
+        ),
+
+    (new Extend\ApiResource(Resource\DiscussionResource::class))
+        ->endpoint(Endpoint\Show::class, function (Endpoint\Show $endpoint): Endpoint\EndpointInterface {
+            return $endpoint->addDefaultInclude(['posts.likes']);
         }),
-
-    (new Extend\ApiController(Controller\ShowDiscussionController::class))
-        ->addInclude('posts.likes')
-        ->loadWhere('posts.likes', LoadLikesRelationship::mutateRelation(...))
-        ->prepareDataForSerialization(LoadLikesRelationship::countRelation(...)),
-
-    (new Extend\ApiController(Controller\ListPostsController::class))
-        ->addInclude('likes')
-        ->loadWhere('likes', LoadLikesRelationship::mutateRelation(...))
-        ->prepareDataForSerialization(LoadLikesRelationship::countRelation(...)),
-    (new Extend\ApiController(Controller\ShowPostController::class))
-        ->addInclude('likes')
-        ->loadWhere('likes', LoadLikesRelationship::mutateRelation(...))
-        ->prepareDataForSerialization(LoadLikesRelationship::countRelation(...)),
-    (new Extend\ApiController(Controller\CreatePostController::class))
-        ->addInclude('likes')
-        ->loadWhere('likes', LoadLikesRelationship::mutateRelation(...))
-        ->prepareDataForSerialization(LoadLikesRelationship::countRelation(...)),
-    (new Extend\ApiController(Controller\UpdatePostController::class))
-        ->addInclude('likes')
-        ->loadWhere('likes', LoadLikesRelationship::mutateRelation(...))
-        ->prepareDataForSerialization(LoadLikesRelationship::countRelation(...)),
 
     (new Extend\Event())
         ->listen(PostWasLiked::class, Listener\SendNotificationWhenPostIsLiked::class)
         ->listen(PostWasUnliked::class, Listener\SendNotificationWhenPostIsUnliked::class)
-        ->subscribe(Listener\SaveLikesToDatabase::class),
+        ->listen(Deleted::class, function (Deleted $event) {
+            $event->post->likes()->detach();
+        }),
 
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(PostSearcher::class, LikedByFilter::class)

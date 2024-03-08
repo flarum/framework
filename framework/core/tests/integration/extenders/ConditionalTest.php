@@ -10,7 +10,8 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Exception;
-use Flarum\Api\Serializer\ForumSerializer;
+use Flarum\Api\Resource\ForumResource;
+use Flarum\Api\Schema\Boolean;
 use Flarum\Extend;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
@@ -25,14 +26,13 @@ class ConditionalTest extends TestCase
     {
         $this->extend(
             (new Extend\Conditional())
-                ->when(true, function () {
-                    return [
-                        (new Extend\ApiSerializer(ForumSerializer::class))
-                            ->attributes(function () {
-                                return ['customConditionalAttribute' => true];
-                            })
-                    ];
-                })
+                ->when(true, fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ])
         );
 
         $this->app();
@@ -53,14 +53,13 @@ class ConditionalTest extends TestCase
     {
         $this->extend(
             (new Extend\Conditional())
-                ->when(false, function () {
-                    return [
-                        (new Extend\ApiSerializer(ForumSerializer::class))
-                            ->attributes(function () {
-                                return ['customConditionalAttribute' => true];
-                            })
-                    ];
-                })
+                ->when(false, fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ])
         );
 
         $this->app();
@@ -81,16 +80,13 @@ class ConditionalTest extends TestCase
     {
         $this->extend(
             (new Extend\Conditional())
-                ->when(function () {
-                    return true;
-                }, function () {
-                    return [
-                        (new Extend\ApiSerializer(ForumSerializer::class))
-                            ->attributes(function () {
-                                return ['customConditionalAttribute' => true];
-                            })
-                    ];
-                })
+                ->when(fn () => true, fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ])
         );
 
         $this->app();
@@ -111,16 +107,13 @@ class ConditionalTest extends TestCase
     {
         $this->extend(
             (new Extend\Conditional())
-                ->when(function () {
-                    return false;
-                }, function () {
-                    return [
-                        (new Extend\ApiSerializer(ForumSerializer::class))
-                            ->attributes(function () {
-                                return ['customConditionalAttribute' => true];
-                            })
-                    ];
-                })
+                ->when(fn () => false, fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ])
         );
 
         $this->app();
@@ -147,14 +140,13 @@ class ConditionalTest extends TestCase
                     if (! $extensions) {
                         throw new Exception('ExtensionManager not injected');
                     }
-                }, function () {
-                    return [
-                        (new Extend\ApiSerializer(ForumSerializer::class))
-                            ->attributes(function () {
-                                return ['customConditionalAttribute' => true];
-                            })
-                    ];
-                })
+                }, fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ])
         );
 
         $this->app();
@@ -294,14 +286,13 @@ class ConditionalTest extends TestCase
     {
         $this->extend(
             (new Extend\Conditional())
-                ->when(false, function () {
-                    return [
-                        (new Extend\ApiSerializer(ForumSerializer::class))
-                            ->attributes(function () {
-                                return ['customConditionalAttribute' => true];
-                            })
-                    ];
-                })
+                ->when(false, fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ])
         );
 
         $this->app();
@@ -322,14 +313,13 @@ class ConditionalTest extends TestCase
     {
         $this->extend(
             (new Extend\Conditional())
-                ->when(true, function () {
-                    return [
-                        (new Extend\ApiSerializer(ForumSerializer::class))
-                            ->attributes(function () {
-                                return ['customConditionalAttribute' => true];
-                            })
-                    ];
-                })
+                ->when(true, fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ])
         );
 
         $this->app();
@@ -370,12 +360,11 @@ class TestExtender
     public function __invoke(): array
     {
         return [
-            (new Extend\ApiSerializer(ForumSerializer::class))
-                ->attributes(function () {
-                    return [
-                        'customConditionalAttribute' => true
-                    ];
-                })
+            (new Extend\ApiResource(ForumResource::class))
+                ->fields(fn () => [
+                    Boolean::make('customConditionalAttribute')
+                        ->get(fn () => true)
+                ])
         ];
     }
 }

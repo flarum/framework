@@ -9,14 +9,13 @@
 
 namespace Flarum\Nicknames;
 
-use Flarum\Api\Serializer\UserSerializer;
+use Flarum\Api\Resource;
 use Flarum\Extend;
 use Flarum\Nicknames\Access\UserPolicy;
+use Flarum\Nicknames\Api\UserResourceFields;
 use Flarum\Search\Database\DatabaseSearchDriver;
-use Flarum\User\Event\Saving;
 use Flarum\User\Search\UserSearcher;
 use Flarum\User\User;
-use Flarum\User\UserValidator;
 
 return [
     (new Extend\Frontend('forum'))
@@ -33,13 +32,9 @@ return [
     (new Extend\User())
         ->displayNameDriver('nickname', NicknameDriver::class),
 
-    (new Extend\Event())
-        ->listen(Saving::class, SaveNicknameToDatabase::class),
-
-    (new Extend\ApiSerializer(UserSerializer::class))
-        ->attribute('canEditNickname', function (UserSerializer $serializer, User $user) {
-            return $serializer->getActor()->can('editNickname', $user);
-        }),
+    (new Extend\ApiResource(Resource\UserResource::class))
+        ->fields(UserResourceFields::class)
+        ->field('username', UserResourceFields::username(...)),
 
     (new Extend\Settings())
         ->default('flarum-nicknames.set_on_registration', true)
@@ -49,9 +44,6 @@ return [
         ->serializeToForum('displayNameDriver', 'display_name_driver')
         ->serializeToForum('setNicknameOnRegistration', 'flarum-nicknames.set_on_registration', 'boolval')
         ->serializeToForum('randomizeUsernameOnRegistration', 'flarum-nicknames.random_username', 'boolval'),
-
-    (new Extend\Validator(UserValidator::class))
-        ->configure(AddNicknameValidation::class),
 
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->setFulltext(UserSearcher::class, NicknameFullTextFilter::class),

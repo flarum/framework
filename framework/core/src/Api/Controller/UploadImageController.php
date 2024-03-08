@@ -9,6 +9,7 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\JsonApi;
 use Flarum\Http\RequestUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Factory;
@@ -16,9 +17,9 @@ use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Intervention\Image\Interfaces\EncodedImageInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
-use Tobscure\JsonApi\Document;
 
 abstract class UploadImageController extends ShowForumController
 {
@@ -28,13 +29,16 @@ abstract class UploadImageController extends ShowForumController
     protected string $filenamePrefix = '';
 
     public function __construct(
+        JsonApi $api,
         protected SettingsRepositoryInterface $settings,
         Factory $filesystemFactory
     ) {
+        parent::__construct($api);
+
         $this->uploadDir = $filesystemFactory->disk('flarum-assets');
     }
 
-    public function data(ServerRequestInterface $request, Document $document): array
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         RequestUtil::getActor($request)->assertAdmin();
 
@@ -52,7 +56,7 @@ abstract class UploadImageController extends ShowForumController
 
         $this->settings->set($this->filePathSettingKey, $uploadName);
 
-        return parent::data($request, $document);
+        return parent::handle($request);
     }
 
     abstract protected function makeImage(UploadedFileInterface $file): EncodedImageInterface;

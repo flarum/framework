@@ -73,12 +73,12 @@ class Registry
 
     private function handleCustomTypes(Throwable $error): ?HandledError
     {
-        $errorClass = $error::class;
+        foreach ($this->handlerMap as $class => $handler) {
+            if ($error instanceof $class) {
+                $handler = new $handler;
 
-        if (isset($this->handlerMap[$errorClass])) {
-            $handler = new $this->handlerMap[$errorClass];
-
-            return $handler->handle($error);
+                return $handler->handle($error);
+            }
         }
 
         return null;

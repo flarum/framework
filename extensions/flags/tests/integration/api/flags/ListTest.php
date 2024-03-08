@@ -51,6 +51,7 @@ class ListTest extends TestCase
                 ['id' => 1, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
                 ['id' => 2, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
                 ['id' => 3, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
+                ['id' => 4, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>', 'is_private' => true],
             ],
             'flags' => [
                 ['id' => 1, 'post_id' => 1, 'user_id' => 1],
@@ -58,6 +59,7 @@ class ListTest extends TestCase
                 ['id' => 3, 'post_id' => 1, 'user_id' => 3],
                 ['id' => 4, 'post_id' => 2, 'user_id' => 2],
                 ['id' => 5, 'post_id' => 3, 'user_id' => 1],
+                ['id' => 6, 'post_id' => 4, 'user_id' => 1],
             ]
         ]);
     }
@@ -65,7 +67,7 @@ class ListTest extends TestCase
     /**
      * @test
      */
-    public function admin_can_see_one_flag_per_post()
+    public function admin_can_see_one_flag_per_visible_post()
     {
         $response = $this->send(
             $this->request('GET', '/api/flags', [
@@ -73,9 +75,9 @@ class ListTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($body, true)['data'];
 
         $ids = Arr::pluck($data, 'id');
         $this->assertEqualsCanonicalizing(['1', '4', '5'], $ids);
@@ -84,7 +86,7 @@ class ListTest extends TestCase
     /**
      * @test
      */
-    public function regular_user_sees_own_flags()
+    public function regular_user_sees_own_flags_of_visible_posts()
     {
         $response = $this->send(
             $this->request('GET', '/api/flags', [
@@ -103,7 +105,7 @@ class ListTest extends TestCase
     /**
      * @test
      */
-    public function mod_can_see_one_flag_per_post()
+    public function mod_can_see_one_flag_per_visible_post()
     {
         $response = $this->send(
             $this->request('GET', '/api/flags', [

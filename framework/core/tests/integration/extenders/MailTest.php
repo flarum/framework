@@ -34,7 +34,11 @@ class MailTest extends TestCase
             ])
         );
 
-        $fields = json_decode($response->getBody()->getContents(), true)['data']['attributes']['fields'];
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $fields = json_decode($body, true)['data']['attributes']['fields'];
 
         // The custom driver does not exist
         $this->assertArrayNotHasKey('custom', $fields);

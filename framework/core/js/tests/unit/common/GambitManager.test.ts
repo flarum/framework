@@ -7,7 +7,7 @@ test('gambits are converted to filters', function () {
     q: 'lorem',
     created: '2023-07-07',
     hidden: true,
-    author: ['behz'],
+    author: 'behz',
   });
 });
 
@@ -16,7 +16,7 @@ test('gambits are negated when prefixed with a dash', function () {
     q: 'lorem',
     '-created': '2023-07-07',
     '-hidden': true,
-    '-author': ['behz'],
+    '-author': 'behz',
   });
 });
 
@@ -29,6 +29,6 @@ test('gambits are only applied for the correct resource type', function () {
     q: 'lorem email:behz@machine.local',
     created: '2023-07-07..2023-10-18',
     hidden: true,
-    '-author': ['behz'],
+    '-author': 'behz',
   });
 });

@@ -127,6 +127,7 @@ class NotificationSyncer
     /**
      * Limit notifications to one per user for the entire duration of the given
      * callback.
+     * @todo: useless when using a queue. replace with a better solution.
      */
     public function onePerUser(callable $callback): void
     {

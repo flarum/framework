@@ -11,7 +11,7 @@ namespace Flarum\Likes\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
 use Flarum\Group\Group;
-use Flarum\Likes\Api\LoadLikesRelationship;
+use Flarum\Likes\Api\PostResourceFields;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
@@ -132,7 +132,7 @@ class ListPostsTest extends TestCase
         $likes = $data['relationships']['likes']['data'];
 
         // Only displays a limited amount of likes
-        $this->assertCount(LoadLikesRelationship::$maxLikes, $likes);
+        $this->assertCount(PostResourceFields::$maxLikes, $likes);
         // Displays the correct count of likes
         $this->assertEquals(11, $data['attributes']['likesCount']);
         // Of the limited amount of likes, the actor always appears
@@ -159,7 +159,7 @@ class ListPostsTest extends TestCase
         $likes = $data[0]['relationships']['likes']['data'];
 
         // Only displays a limited amount of likes
-        $this->assertCount(LoadLikesRelationship::$maxLikes, $likes);
+        $this->assertCount(PostResourceFields::$maxLikes, $likes);
         // Displays the correct count of likes
         $this->assertEquals(11, $data[0]['attributes']['likesCount']);
         // Of the limited amount of likes, the actor always appears
@@ -170,7 +170,7 @@ class ListPostsTest extends TestCase
      * @dataProvider likesIncludeProvider
      * @test
      */
-    public function likes_relation_returns_limited_results_and_shows_only_visible_posts_in_show_discussion_endpoint(string $include)
+    public function likes_relation_returns_limited_results_and_shows_only_visible_posts_in_show_discussion_endpoint(?string $include)
     {
         // Show discussion endpoint
         $response = $this->send(
@@ -181,22 +181,27 @@ class ListPostsTest extends TestCase
             ])
         );
 
-        $included = json_decode($response->getBody()->getContents(), true)['included'];
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $included = json_decode($body, true)['included'] ?? [];
 
         $likes = collect($included)
             ->where('type', 'posts')
             ->where('id', 101)
-            ->first()['relationships']['likes']['data'];
+            ->first()['relationships']['likes']['data'] ?? null;
 
         // Only displays a limited amount of likes
-        $this->assertCount(LoadLikesRelationship::$maxLikes, $likes);
+        $this->assertNotNull($likes, $body);
+        $this->assertCount(PostResourceFields::$maxLikes, $likes);
         // Displays the correct count of likes
         $this->assertEquals(11, collect($included)
             ->where('type', 'posts')
             ->where('id', 101)
-            ->first()['attributes']['likesCount']);
+            ->first()['attributes']['likesCount'] ?? null, $body);
         // Of the limited amount of likes, the actor always appears
-        $this->assertEquals([2, 102, 104, 105], Arr::pluck($likes, 'id'));
+        $this->assertEquals([2, 102, 104, 105], Arr::pluck($likes, 'id'), $body);
     }
 
     public function likesIncludeProvider(): array
@@ -204,7 +209,7 @@ class ListPostsTest extends TestCase
         return [
             ['posts,posts.likes'],
             ['posts.likes'],
-            [''],
+            [null],
         ];
     }
 }
