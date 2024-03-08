@@ -72,18 +72,24 @@ return [
 
     (new Extend\ApiResource(Resource\DiscussionResource::class))
         ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint): Endpoint\Index {
-            return $endpoint->eagerLoad([
-                'firstPost.mentionsUsers', 'firstPost.mentionsPosts',
-                'firstPost.mentionsPosts.user', 'firstPost.mentionsPosts.discussion', 'firstPost.mentionsGroups',
-                'lastPost.mentionsUsers', 'lastPost.mentionsPosts',
-                'lastPost.mentionsPosts.user', 'lastPost.mentionsPosts.discussion', 'lastPost.mentionsGroups',
+            return $endpoint->eagerLoadWhenIncluded([
+                'firstPost' => [
+                    'firstPost.mentionsUsers', 'firstPost.mentionsPosts',
+                    'firstPost.mentionsPosts.user', 'firstPost.mentionsPosts.discussion', 'firstPost.mentionsGroups',
+                ],
+                'lastPost' => [
+                    'lastPost.mentionsUsers', 'lastPost.mentionsPosts',
+                    'lastPost.mentionsPosts.user', 'lastPost.mentionsPosts.discussion', 'lastPost.mentionsGroups',
+                ],
             ]);
         })
         ->endpoint(Endpoint\Show::class, function (Endpoint\Show $endpoint): Endpoint\Show {
             return $endpoint->addDefaultInclude(['posts.mentionedBy', 'posts.mentionedBy.user', 'posts.mentionedBy.discussion'])
-                ->eagerLoad([
-                    'posts.mentionsUsers', 'posts.mentionsPosts', 'posts.mentionsPosts.user',
-                    'posts.mentionsPosts.discussion', 'posts.mentionsGroups'
+                ->eagerLoadWhenIncluded([
+                    'posts' => [
+                        'posts.mentionsUsers', 'posts.mentionsPosts', 'posts.mentionsPosts.user',
+                        'posts.mentionsPosts.discussion', 'posts.mentionsGroups'
+                    ],
                 ]);
         }),
 
@@ -124,10 +130,10 @@ return [
 
             (new Extend\ApiResource(Resource\DiscussionResource::class))
                 ->endpoint(Endpoint\Show::class, function (Endpoint\Show $endpoint): Endpoint\Show {
-                    return $endpoint->eagerLoad(['posts.mentionsTags']);
+                    return $endpoint->eagerLoadWhenIncluded(['posts' => ['posts.mentionsTags']]);
                 })
                 ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint): Endpoint\Index {
-                    return $endpoint->eagerLoad(['firstPost.mentionsTags', 'lastPost.mentionsTags']);
+                    return $endpoint->eagerLoadWhenIncluded(['firstPost' => ['firstPost.mentionsTags'], 'lastPost' => ['lastPost.mentionsTags']]);
                 }),
 
             (new Extend\ApiResource(Resource\PostResource::class))

@@ -6,11 +6,9 @@ use Flarum\Api\Context;
 use Flarum\Api\Endpoint\Concerns\ExtractsListingParams;
 use Flarum\Api\Endpoint\Concerns\HasAuthorization;
 use Flarum\Api\Endpoint\Concerns\HasCustomHooks;
-use Flarum\Api\Endpoint\Concerns\HasEagerLoading;
 use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchManager;
 use Illuminate\Contracts\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Tobyz\JsonApiServer\Endpoint\Index as BaseIndex;
 use Tobyz\JsonApiServer\Pagination\OffsetPagination;
 use Tobyz\JsonApiServer\Pagination\Pagination;
@@ -18,7 +16,6 @@ use Tobyz\JsonApiServer\Pagination\Pagination;
 class Index extends BaseIndex implements EndpointInterface
 {
     use HasAuthorization;
-    use HasEagerLoading;
     use ExtractsListingParams;
     use HasCustomHooks;
 
@@ -63,9 +60,6 @@ class Index extends BaseIndex implements EndpointInterface
                 }
 
                 return $context;
-            })
-            ->beforeSerialization(function (Context $context, iterable $models) {
-                $this->loadRelations(Collection::make($models), $context, $this->getInclude($context));
             });
     }
 

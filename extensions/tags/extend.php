@@ -36,10 +36,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Psr\Http\Message\ServerRequestInterface;
 
-$eagerLoadTagState = function ($query, ServerRequestInterface $request, array $relations) {
-    $query->withStateFor(RequestUtil::getActor($request));
-};
-
 return [
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
@@ -95,29 +91,29 @@ return [
             return $endpoint->addDefaultInclude(['tags', 'tags.parent']);
         }),
 
-    (new Extend\ApiResource(Resource\DiscussionResource::class))
-        ->fields(Api\DiscussionResourceFields::class),
-
     (new Extend\ApiResource(Resource\PostResource::class))
         ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint) {
-            return $endpoint->eagerLoad('discussion.tags');
+            return $endpoint->eagerLoadWhenIncluded(['discussion' => ['discussion.tags']]);
         }),
 
     (new Extend\Conditional())
         ->whenExtensionEnabled('flarum-flags', fn () => [
             (new Extend\ApiResource(FlagResource::class))
                 ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint) {
-                    return $endpoint->eagerLoad(['post.discussion.tags']);
+                    return $endpoint->eagerLoadWhenIncluded(['post.discussion' => ['post.discussion.tags']]);
                 }),
         ]),
 
     (new Extend\ApiResource(Resource\DiscussionResource::class))
+        ->fields(Api\DiscussionResourceFields::class)
         ->endpoint(
             [Endpoint\Index::class, Endpoint\Show::class, Endpoint\Create::class],
-            function (Endpoint\Index|Endpoint\Show|Endpoint\Create $endpoint) use ($eagerLoadTagState) {
+            function (Endpoint\Index|Endpoint\Show|Endpoint\Create $endpoint) {
                 return $endpoint
                     ->addDefaultInclude(['tags', 'tags.parent'])
-                    ->eagerLoadWhere('tags', $eagerLoadTagState);
+                    ->eagerLoadWhere('tags', function ($query, Context $context) {
+                        $query->withStateFor($context->getActor());
+                    });
             }
         ),
 
@@ -181,18 +177,12 @@ return [
         ])
         ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint) {
             return $endpoint
-                ->addDefaultInclude(['eventPostMentionsTags'])
-                ->eagerLoadWhere('eventPostMentionsTags', function (Relation|Builder $query, ServerRequestInterface $request) {
-                    $query->whereVisibleTo(RequestUtil::getActor($request));
-                });
+                ->addDefaultInclude(['eventPostMentionsTags']);
         }),
 
     (new Extend\ApiResource(Resource\DiscussionResource::class))
         ->endpoint(Endpoint\Show::class, function (Endpoint\Show $endpoint) {
             return $endpoint
-                ->addDefaultInclude(['posts.eventPostMentionsTags'])
-                ->eagerLoadWhere('posts.eventPostMentionsTags', function (Relation|Builder $query, ServerRequestInterface $request) {
-                    $query->whereVisibleTo(RequestUtil::getActor($request));
-                });
+                ->addDefaultInclude(['posts.eventPostMentionsTags']);
         }),
 ];

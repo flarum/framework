@@ -94,6 +94,7 @@ class DiscussionResource extends AbstractDatabaseResource
                     'mostRelevantPost.user'
                 ])
                 ->defaultSort('-lastPostedAt')
+                ->eagerLoad('state')
                 ->paginate(),
         ];
     }
@@ -184,12 +185,14 @@ class DiscussionResource extends AbstractDatabaseResource
                 ->includable(),
             Schema\Relationship\ToOne::make('firstPost')
                 ->includable()
+                ->inverse('discussion')
                 ->type('posts'),
             Schema\Relationship\ToOne::make('lastPostedUser')
                 ->includable()
                 ->type('users'),
             Schema\Relationship\ToOne::make('lastPost')
                 ->includable()
+                ->inverse('discussion')
                 ->type('posts'),
             Schema\Relationship\ToMany::make('posts')
                 ->withLinkage(function (Context $context) {
@@ -216,6 +219,8 @@ class DiscussionResource extends AbstractDatabaseResource
 
                     $posts = $discussion->posts()
                         ->whereVisibleTo($actor)
+                        ->with($context->endpoint->getEagerLoadsFor('posts', $context))
+                        ->with($context->endpoint->getWhereEagerLoadsFor('posts', $context))
                         ->orderBy('number')
                         ->skip($offset)
                         ->take($limit)
@@ -236,6 +241,7 @@ class DiscussionResource extends AbstractDatabaseResource
             Schema\Relationship\ToOne::make('mostRelevantPost')
                 ->visible(fn (Discussion $model, Context $context) => $context->listing())
                 ->includable()
+                ->inverse('discussion')
                 ->type('posts'),
             Schema\Relationship\ToOne::make('hideUser')
                 ->type('users'),
