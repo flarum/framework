@@ -24,7 +24,8 @@ use Tobyz\JsonApiServer\Laravel\EloquentResource as BaseResource;
  * @template M of Model
  * @extends BaseResource<M, FlarumContext>
  */
-abstract class AbstractDatabaseResource extends BaseResource {
+abstract class AbstractDatabaseResource extends BaseResource
+{
     use Bootable;
     use Extendable;
     use HasSortMap;

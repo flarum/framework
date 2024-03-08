@@ -177,7 +177,6 @@ class ApiResource implements ExtenderInterface
         /** @var class-string<\Flarum\Api\Resource\AbstractResource|\Flarum\Api\Resource\AbstractDatabaseResource> $resourceClass */
         $resourceClass = $this->resourceClass;
 
-
         $resourceClass::mutateEndpoints(
             /**
              * @var EndpointInterface[] $endpoints
