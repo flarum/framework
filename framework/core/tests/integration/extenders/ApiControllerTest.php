@@ -146,7 +146,6 @@ class ApiControllerTest extends TestCase
                 ->endpoint(Show::class, function (Show $endpoint): Show {
                     return $endpoint->after(function (Context $context, object $model) {
                         $model->title = 'dataSerializationPrepCustomTitle4';
-
                         return $model;
                     });
                 }),
@@ -649,7 +648,7 @@ class ApiControllerTest extends TestCase
             (new Extend\ApiResource(UserResource::class))
                 ->endpoint(Index::class, function (Index $endpoint) use (&$users) {
                     return $endpoint
-                        ->eagerLoad(['firstLevelRelation', 'firstLevelRelation.secondLevelRelation'])
+                        ->eagerLoad(['firstLevelRelation.secondLevelRelation'])
                         ->after(function ($context, $data) use (&$users) {
                             $users = $data;
 
@@ -680,7 +679,7 @@ class ApiControllerTest extends TestCase
             (new Extend\ApiResource(UserResource::class))
                 ->endpoint(Index::class, function (Index $endpoint) use (&$users) {
                     return $endpoint
-                        ->eagerLoad(['firstLevelRelation.secondLevelRelation'])
+                        ->eagerLoadWhenIncluded(['firstLevelRelation' => ['secondLevelRelation']])
                         ->after(function ($context, $data) use (&$users) {
                             $users = $data;
 
@@ -761,73 +760,6 @@ class ApiControllerTest extends TestCase
         );
 
         $this->assertFalse($users->pluck('firstLevelRelation')->filter->relationLoaded('secondLevelRelation')->isEmpty());
-    }
-
-    /**
-     * @test
-     */
-    public function custom_callable_second_level_relation_is_not_loaded_when_first_level_is_not()
-    {
-        $users = null;
-
-        $this->extend(
-            (new Extend\Model(User::class))
-                ->hasOne('firstLevelRelation', Post::class, 'user_id'),
-            (new Extend\Model(Post::class))
-                ->belongsTo('secondLevelRelation', Discussion::class),
-            (new Extend\ApiResource(UserResource::class))
-                ->endpoint(Index::class, function (Index $endpoint) use (&$users) {
-                    return $endpoint
-                        ->eagerLoadWhere('firstLevelRelation.secondLevelRelation', function ($query, $request) {})
-                        ->after(function ($context, $data) use (&$users) {
-                            $users = $data;
-
-                            return $data;
-                        });
-                })
-        );
-
-        $this->send(
-            $this->request('GET', '/api/users', [
-                'authenticatedAs' => 1,
-            ])
-        );
-
-        $this->assertTrue($users->pluck('firstLevelRelation')->filter->relationLoaded('secondLevelRelation')->isEmpty());
-    }
-
-    /**
-     * @test
-     */
-    public function custom_callable_second_level_relation_is_loaded_when_first_level_is()
-    {
-        $users = null;
-
-        $this->extend(
-            (new Extend\Model(User::class))
-                ->hasOne('firstLevelRelation', Post::class, 'user_id'),
-            (new Extend\Model(Post::class))
-                ->belongsTo('secondLevelRelation', Discussion::class),
-            (new Extend\ApiResource(UserResource::class))
-                ->endpoint(Index::class, function (Index $endpoint) use (&$users) {
-                    return $endpoint
-                        ->eagerLoadWhere('firstLevelRelation', function ($query, $request) {})
-                        ->eagerLoadWhere('firstLevelRelation.secondLevelRelation', function ($query, $request) {})
-                        ->after(function ($context, $data) use (&$users) {
-                            $users = $data;
-
-                            return $data;
-                        });
-                })
-        );
-
-        $this->send(
-            $this->request('GET', '/api/users', [
-                'authenticatedAs' => 1,
-            ])
-        );
-
-        $this->assertTrue($users->pluck('firstLevelRelation')->filter->relationLoaded('secondLevelRelation')->isNotEmpty());
     }
 }
 
