@@ -146,6 +146,7 @@ class ApiControllerTest extends TestCase
                 ->endpoint(Show::class, function (Show $endpoint): Show {
                     return $endpoint->after(function (Context $context, object $model) {
                         $model->title = 'dataSerializationPrepCustomTitle4';
+
                         return $model;
                     });
                 }),
