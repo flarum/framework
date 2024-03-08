@@ -20,6 +20,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Tobyz\JsonApiServer\Context;
 
+/**
+ * @extends AbstractDatabaseResource<Group>
+ */
 class GroupResource extends AbstractDatabaseResource
 {
     public function __construct(

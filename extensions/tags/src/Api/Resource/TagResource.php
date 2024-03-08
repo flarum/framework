@@ -9,6 +9,7 @@
 
 namespace Flarum\Tags\Api\Resource;
 
+use Flarum\Api\Context as FlarumContext;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\AbstractDatabaseResource;
 use Flarum\Api\Schema;
@@ -21,6 +22,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Tobyz\JsonApiServer\Context;
 
+/**
+ * @extends AbstractDatabaseResource<Tag>
+ */
 class TagResource extends AbstractDatabaseResource
 {
     public function __construct(
@@ -107,7 +111,7 @@ class TagResource extends AbstractDatabaseResource
                 ->writable(),
             Schema\Boolean::make('isRestricted')
                 ->writableOnUpdate()
-                ->visible(fn (Tag $tag, Context $context) => $context->getActor()->isAdmin()),
+                ->visible(fn (Tag $tag, FlarumContext $context) => $context->getActor()->isAdmin()),
             Schema\Str::make('backgroundUrl')
                 ->get(fn (Tag $tag) => $tag->background_path),
             Schema\Str::make('backgroundMode'),
@@ -119,14 +123,14 @@ class TagResource extends AbstractDatabaseResource
                 ->get(fn (Tag $tag) => (bool) $tag->parent_id),
             Schema\DateTime::make('lastPostedAt'),
             Schema\Boolean::make('canStartDiscussion')
-                ->get(fn (Tag $tag, Context $context) => $context->getActor()->can('startDiscussion', $tag)),
+                ->get(fn (Tag $tag, FlarumContext $context) => $context->getActor()->can('startDiscussion', $tag)),
             Schema\Boolean::make('canAddToDiscussion')
-                ->get(fn (Tag $tag, Context $context) => $context->getActor()->can('addToDiscussion', $tag)),
+                ->get(fn (Tag $tag, FlarumContext $context) => $context->getActor()->can('addToDiscussion', $tag)),
 
             Schema\Relationship\ToOne::make('parent')
                 ->type('tags')
                 ->includable()
-                ->writable(fn (Tag $tag, Context $context) => (bool) Arr::get($context->body(), 'attributes.isPrimary')),
+                ->writable(fn (Tag $tag, FlarumContext $context) => (bool) Arr::get($context->body(), 'attributes.isPrimary')),
             Schema\Relationship\ToMany::make('children')
                 ->type('tags')
                 ->includable(),

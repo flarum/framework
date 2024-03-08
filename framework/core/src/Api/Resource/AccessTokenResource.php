@@ -24,6 +24,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Jenssegers\Agent\Agent;
 
+/**
+ * @extends AbstractDatabaseResource<AccessToken>
+ */
 class AccessTokenResource extends AbstractDatabaseResource
 {
     public function __construct(

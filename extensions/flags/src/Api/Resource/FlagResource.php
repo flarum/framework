@@ -28,6 +28,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Tobyz\JsonApiServer\Context;
 
+/**
+ * @extends AbstractDatabaseResource<Flag>
+ */
 class FlagResource extends AbstractDatabaseResource
 {
     public function __construct(

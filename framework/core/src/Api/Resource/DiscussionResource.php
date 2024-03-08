@@ -28,6 +28,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 
+/**
+ * @extends AbstractDatabaseResource<Discussion>
+ */
 class DiscussionResource extends AbstractDatabaseResource
 {
     public function __construct(
@@ -213,6 +216,9 @@ class DiscussionResource extends AbstractDatabaseResource
                         return fn () => $discussion->posts->all();
                     }
 
+                    /** @var Endpoint\Show $endpoint */
+                    $endpoint = $context->endpoint;
+
                     $actor = $context->getActor();
 
                     $limit = PostResource::$defaultLimit;
@@ -221,7 +227,7 @@ class DiscussionResource extends AbstractDatabaseResource
                         $offset = $this->posts->getIndexForNumber($discussion->id, $near, $actor);
                         $offset = max(0, $offset - $limit / 2);
                     } else {
-                        $offset = $context->endpoint->extractOffsetValue($context, $context->endpoint->defaultExtracts($context));
+                        $offset = $endpoint->extractOffsetValue($context, $endpoint->defaultExtracts($context));
                     }
 
                     $posts = $discussion->posts()
@@ -304,14 +310,12 @@ class DiscussionResource extends AbstractDatabaseResource
             $model->newQuery()->getConnection()->transaction(function () use ($model, $context) {
                 $model->save();
 
-                /**
-                 * @var JsonApi $api
-                 * @var Post $post
-                 */
+                /** @var JsonApi $api */
                 $api = $context->api;
 
                 // Now that the discussion has been created, we can add the first post.
                 // We will do this by running the PostReply command.
+                /** @var Post $post */
                 $post = $api->forResource(PostResource::class)
                     ->forEndpoint('create')
                     ->withRequest($context->request)

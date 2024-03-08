@@ -10,11 +10,13 @@
 namespace Flarum\Extend;
 
 use Flarum\Api\Endpoint\EndpointInterface;
-use Flarum\Api\Resource\Contracts\Resource;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
 use ReflectionClass;
+use RuntimeException;
+use Tobyz\JsonApiServer\Endpoint\Endpoint;
+use Tobyz\JsonApiServer\Resource\Resource;
 use Tobyz\JsonApiServer\Schema\Field\Field;
 use Tobyz\JsonApiServer\Schema\Sort;
 
@@ -55,7 +57,7 @@ class ApiResource implements ExtenderInterface
     /**
      * Remove endpoints from the resource.
      *
-     * @param array $endpoints must be an array of class names of the endpoints.
+     * @param array $endpoints must be an array of names of the endpoints.
      * @param callable|class-string|null $condition a callable that returns a boolean or a string that represents whether this should be applied.
      */
     public function removeEndpoints(array $endpoints, callable|string $condition = null): self
@@ -68,14 +70,13 @@ class ApiResource implements ExtenderInterface
     /**
      * Modify an endpoint.
      *
-     * @param class-string<\Flarum\Api\Endpoint\EndpointInterface>|array<\Flarum\Api\Endpoint\EndpointInterface> $endpointClass the class name of the endpoint.
-     *                                                                                           or an array of class names of the endpoints.
+     * @param string|string[] $endpointNameOrClass the name or class name of the endpoint or an array of so.
      * @param callable|class-string $mutator a callable that accepts an endpoint and returns the modified endpoint.
      */
-    public function endpoint(string|array $endpointClass, callable|string $mutator): self
+    public function endpoint(string|array $endpointNameOrClass, callable|string $mutator): self
     {
-        foreach ((array) $endpointClass as $endpointClassItem) {
-            $this->endpoint[$endpointClassItem][] = $mutator;
+        foreach ((array) $endpointNameOrClass as $item) {
+            $this->endpoint[$item][] = $mutator;
         }
 
         return $this;
@@ -176,39 +177,45 @@ class ApiResource implements ExtenderInterface
         /** @var class-string<\Flarum\Api\Resource\AbstractResource|\Flarum\Api\Resource\AbstractDatabaseResource> $resourceClass */
         $resourceClass = $this->resourceClass;
 
-        $resourceClass::mutateEndpoints(function (array $endpoints, Resource $resource) use ($container): array {
-            foreach ($this->endpoints as $newEndpointsCallback) {
-                $newEndpointsCallback = ContainerUtil::wrapCallback($newEndpointsCallback, $container);
-                $endpoints = array_merge($endpoints, $newEndpointsCallback());
-            }
 
-            foreach ($this->removeEndpoints as $removeEndpointClass) {
-                [$endpointsToRemove, $condition] = $removeEndpointClass;
-
-                if ($this->isApplicable($condition, $resource, $container)) {
-                    $endpoints = array_filter($endpoints, fn (EndpointInterface $endpoint) => ! in_array($endpoint::class, $endpointsToRemove));
+        $resourceClass::mutateEndpoints(
+            /**
+             * @var EndpointInterface[] $endpoints
+             */
+            function (array $endpoints, Resource $resource) use ($container): array {
+                foreach ($this->endpoints as $newEndpointsCallback) {
+                    $newEndpointsCallback = ContainerUtil::wrapCallback($newEndpointsCallback, $container);
+                    $endpoints = array_merge($endpoints, $newEndpointsCallback());
                 }
-            }
 
-            foreach ($endpoints as $key => $endpoint) {
-                $endpointClass = $endpoint::class;
+                foreach ($this->removeEndpoints as $removeEndpointClass) {
+                    [$endpointsToRemove, $condition] = $removeEndpointClass;
 
-                if (! empty($this->endpoint[$endpointClass])) {
-                    foreach ($this->endpoint[$endpointClass] as $mutator) {
-                        $mutateEndpoint = ContainerUtil::wrapCallback($mutator, $container);
-                        $endpoint = $mutateEndpoint($endpoint, $resource);
-
-                        if (! $endpoint instanceof EndpointInterface) {
-                            throw new \RuntimeException('The endpoint mutator must return an instance of '.EndpointInterface::class);
-                        }
+                    if ($this->isApplicable($condition, $resource, $container)) {
+                        $endpoints = array_filter($endpoints, fn (Endpoint $endpoint) => ! in_array($endpoint->name, $endpointsToRemove));
                     }
                 }
 
-                $endpoints[$key] = $endpoint;
-            }
+                foreach ($endpoints as $key => $endpoint) {
+                    $endpointClass = $endpoint::class;
 
-            return $endpoints;
-        });
+                    if (! empty($this->endpoint[$endpoint->name]) || ! empty($this->endpoint[$endpointClass])) {
+                        foreach (array_merge($this->endpoint[$endpoint->name] ?? [], $this->endpoint[$endpointClass] ?? []) as $mutator) {
+                            $mutateEndpoint = ContainerUtil::wrapCallback($mutator, $container);
+                            $endpoint = $mutateEndpoint($endpoint, $resource);
+
+                            if (! $endpoint instanceof EndpointInterface) {
+                                throw new RuntimeException('The endpoint mutator must return an instance of '.EndpointInterface::class);
+                            }
+                        }
+                    }
+
+                    $endpoints[$key] = $endpoint;
+                }
+
+                return $endpoints;
+            }
+        );
 
         $resourceClass::mutateFields(function (array $fields, Resource $resource) use ($container): array {
             foreach ($this->fields as $newFieldsCallback) {
@@ -231,7 +238,7 @@ class ApiResource implements ExtenderInterface
                         $field = $mutateField($field);
 
                         if (! $field instanceof Field) {
-                            throw new \RuntimeException('The field mutator must return an instance of '.Field::class);
+                            throw new RuntimeException('The field mutator must return an instance of '.Field::class);
                         }
                     }
                 }
@@ -263,7 +270,7 @@ class ApiResource implements ExtenderInterface
                         $sort = $mutateSort($sort);
 
                         if (! $sort instanceof Sort) {
-                            throw new \RuntimeException('The sort mutator must return an instance of '.Sort::class);
+                            throw new RuntimeException('The sort mutator must return an instance of '.Sort::class);
                         }
                     }
                 }

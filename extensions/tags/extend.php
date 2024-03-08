@@ -31,6 +31,7 @@ use Flarum\Tags\Search\HideHiddenTagsFromAllDiscussionsPage;
 use Flarum\Tags\Search\TagSearcher;
 use Flarum\Tags\Tag;
 use Flarum\Tags\Utf8SlugDriver;
+use Illuminate\Database\Eloquent\Builder;
 
 return [
     (new Extend\Frontend('forum'))
@@ -107,7 +108,8 @@ return [
             function (Endpoint\Index|Endpoint\Show|Endpoint\Create $endpoint) {
                 return $endpoint
                     ->addDefaultInclude(['tags', 'tags.parent'])
-                    ->eagerLoadWhere('tags', function ($query, Context $context) {
+                    ->eagerLoadWhere('tags', function (Builder $query, Context $context, array $relations) {
+                        /** @var Builder<Tag> $query */
                         $query->withStateFor($context->getActor());
                     });
             }

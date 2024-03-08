@@ -35,6 +35,9 @@ use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use InvalidArgumentException;
 
+/**
+ * @extends AbstractDatabaseResource<User>
+ */
 class UserResource extends AbstractDatabaseResource
 {
     public function __construct(
@@ -224,6 +227,7 @@ class UserResource extends AbstractDatabaseResource
                 })
                 ->set(function (User $user, ?string $value, Context $context) {
                     if ($value) {
+                        /** @var RegistrationToken $token */
                         $token = RegistrationToken::validOrFail($value);
 
                         $context->setParam('token', $token);

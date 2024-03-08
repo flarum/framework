@@ -17,7 +17,6 @@ class PinStickiedDiscussionsToTop
 {
     public function __invoke(DatabaseSearchState $state, SearchCriteria $criteria): void
     {
-        return;
         if ($criteria->sortIsDefault && ! $state->isFulltextSearch()) {
             $query = $state->getQuery();
 

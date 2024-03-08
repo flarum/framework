@@ -17,14 +17,8 @@ use Tobyz\JsonApiServer\Context;
 
 trait HasAuthorization
 {
-    /**
-     * @var bool|(Closure(mixed, Context): bool)
-     */
     protected bool|Closure $authenticated = false;
 
-    /**
-     * @var null|string|Closure(mixed, Context): string
-     */
     protected null|string|Closure $ability = null;
 
     protected bool $admin = false;
@@ -67,9 +61,9 @@ trait HasAuthorization
             return $this->ability;
         }
 
-        return (bool) (isset($context->model)
+        return isset($context->model)
             ? ($this->ability)($context->model, $context)
-            : ($this->ability)($context));
+            : ($this->ability)($context);
     }
 
     /**

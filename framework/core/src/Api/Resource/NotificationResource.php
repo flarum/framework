@@ -16,8 +16,11 @@ use Flarum\Bus\Dispatcher;
 use Flarum\Notification\Command\ReadNotification;
 use Flarum\Notification\Notification;
 use Flarum\Notification\NotificationRepository;
-use Tobyz\JsonApiServer\Pagination\Pagination;
+use Tobyz\JsonApiServer\Pagination\OffsetPagination;
 
+/**
+ * @extends AbstractDatabaseResource<Notification>
+ */
 class NotificationResource extends AbstractDatabaseResource
 {
     public function __construct(
@@ -39,8 +42,10 @@ class NotificationResource extends AbstractDatabaseResource
     public function query(\Tobyz\JsonApiServer\Context $context): object
     {
         if ($context->listing(self::class)) {
-            /** @var Pagination $pagination */
-            $pagination = ($context->endpoint->paginationResolver)($context);
+            /** @var Endpoint\Index $endpoint */
+            $endpoint = $context->endpoint;
+            /** @var OffsetPagination $pagination */
+            $pagination = ($endpoint->paginationResolver)($context);
 
             return $this->notifications->query($context->getActor(), $pagination->limit, $pagination->offset);
         }

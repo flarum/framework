@@ -10,7 +10,6 @@
 namespace Flarum\Api\Resource;
 
 use Flarum\Api\Endpoint;
-use Flarum\Api\Resource\Contracts\Findable;
 use Flarum\Api\Schema;
 use Flarum\Mail\DriverInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -18,7 +17,11 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Validation\Factory;
 use stdClass;
 use Tobyz\JsonApiServer\Context;
+use Tobyz\JsonApiServer\Resource\Findable;
 
+/**
+ * @extends AbstractResource<object>
+ */
 class MailSettingResource extends AbstractResource implements Findable
 {
     public function __construct(

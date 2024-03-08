@@ -11,13 +11,13 @@ namespace Flarum\Api\Resource\Concerns;
 
 trait Extendable
 {
-    private static array $endpointModifiers = [];
-    private static array $fieldModifiers = [];
-    private static array $sortModifiers = [];
+    protected static array $endpointModifiers = [];
+    protected static array $fieldModifiers = [];
+    protected static array $sortModifiers = [];
 
-    private ?array $cachedEndpoints = null;
-    private ?array $cachedFields = null;
-    private ?array $cachedSorts = null;
+    protected ?array $cachedEndpoints = null;
+    protected ?array $cachedFields = null;
+    protected ?array $cachedSorts = null;
 
     public static function mutateEndpoints(callable $modifier): void
     {

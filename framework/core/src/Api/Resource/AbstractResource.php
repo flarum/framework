@@ -9,14 +9,17 @@
 
 namespace Flarum\Api\Resource;
 
+use Flarum\Api\Context;
 use Flarum\Api\Resource\Concerns\Bootable;
 use Flarum\Api\Resource\Concerns\Extendable;
 use Flarum\Api\Resource\Concerns\HasSortMap;
-use Flarum\Api\Resource\Contracts\Collection;
-use Flarum\Api\Resource\Contracts\Resource;
 use Tobyz\JsonApiServer\Resource\AbstractResource as BaseResource;
 
-abstract class AbstractResource extends BaseResource implements Resource, Collection
+/**
+ * @template M of object
+ * @extends BaseResource<M, Context>
+ */
+abstract class AbstractResource extends BaseResource
 {
     use Bootable;
     use Extendable;

@@ -24,6 +24,9 @@ class NotificationRepository
         return $this->query($user, $limit, $offset)->get();
     }
 
+    /**
+     * @return Builder<Notification>
+     */
     public function query(User $user, ?int $limit = null, int $offset = 0): Builder
     {
         $primaries = Notification::query()

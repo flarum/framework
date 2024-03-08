@@ -78,7 +78,7 @@ class RequestUtil
     {
         $limit = $request->getQueryParams()['page']['limit'] ?? '';
 
-        if (is_null($limit) || ! filled($limit)) {
+        if (! filled($limit)) {
             $limit = $defaultLimit;
         }
 

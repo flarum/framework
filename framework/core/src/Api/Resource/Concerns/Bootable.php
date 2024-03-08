@@ -15,9 +15,9 @@ use Illuminate\Contracts\Validation\Factory;
 
 trait Bootable
 {
-    protected readonly JsonApi $api;
-    protected readonly Dispatcher $events;
-    protected readonly Factory $validation;
+    protected JsonApi $api;
+    protected Dispatcher $events;
+    protected Factory $validation;
 
     /**
      * Avoids polluting the constructor of the resource with dependencies.

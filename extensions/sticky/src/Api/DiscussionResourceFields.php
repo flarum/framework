@@ -18,7 +18,7 @@ use Flarum\Sticky\Event\DiscussionWasUnstickied;
 
 class DiscussionResourceFields
 {
-    public function __invoke()
+    public function __invoke(): array
     {
         return [
             Schema\Boolean::make('isSticky')

@@ -11,19 +11,26 @@ namespace Flarum\Api\Resource;
 
 use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
-use Flarum\Api\Resource\Contracts\Findable;
 use Flarum\Api\Schema;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Config;
 use Flarum\Group\Group;
 use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use stdClass;
+use Tobyz\JsonApiServer\Resource\Findable;
 
+/**
+ * @extends AbstractResource<stdClass>
+ */
 class ForumResource extends AbstractResource implements Findable
 {
+    /**
+     * @var Filesystem&Cloud
+     */
     protected Filesystem $assetsFilesystem;
 
     public function __construct(

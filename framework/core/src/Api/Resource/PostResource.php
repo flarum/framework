@@ -28,6 +28,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Tobyz\JsonApiServer\Exception\BadRequestException;
 
+/**
+ * @extends AbstractDatabaseResource<Post>
+ */
 class PostResource extends AbstractDatabaseResource
 {
     public static int $defaultLimit = 20;
@@ -187,8 +190,12 @@ class PostResource extends AbstractDatabaseResource
                     }
                 })
                 ->serialize(function (null|string|array $value, Context $context) {
-                    // Prevent the string type from trying to convert array content (for event posts) to a string.
-                    $context->field->type = null;
+                    /**
+                     * Prevent the string type from trying to convert array content (for event posts) to a string.
+                     * @var Schema\Str $field
+                     */
+                    $field = $context->field;
+                    $field->type = null;
 
                     return $value;
                 }),
@@ -196,7 +203,7 @@ class PostResource extends AbstractDatabaseResource
                 ->visible(function (Post $post) {
                     return $post instanceof CommentPost;
                 })
-                ->get(function (Post $post, Context $context) {
+                ->get(function (CommentPost $post, Context $context) {
                     try {
                         $rendered = $post->formatContent($context->request);
                         $post->setAttribute('renderFailed', false);

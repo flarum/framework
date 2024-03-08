@@ -9,35 +9,22 @@
 
 namespace Flarum\Api\Resource;
 
+use Flarum\Api\Context as FlarumContext;
 use Flarum\Api\Resource\Concerns\Bootable;
 use Flarum\Api\Resource\Concerns\Extendable;
 use Flarum\Api\Resource\Concerns\HasSortMap;
-use Flarum\Api\Resource\Contracts\{
-    Countable,
-    Creatable,
-    Deletable,
-    Findable,
-    Listable,
-    Paginatable,
-    Resource,
-    Updatable
-};
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Model;
 use RuntimeException;
 use Tobyz\JsonApiServer\Context;
 use Tobyz\JsonApiServer\Laravel\EloquentResource as BaseResource;
 
-abstract class AbstractDatabaseResource extends BaseResource implements
-    Resource,
-    Findable,
-    Listable,
-    Countable,
-    Paginatable,
-    Creatable,
-    Updatable,
-    Deletable
-{
+/**
+ * @template M of Model
+ * @extends BaseResource<M, FlarumContext>
+ */
+abstract class AbstractDatabaseResource extends BaseResource {
     use Bootable;
     use Extendable;
     use HasSortMap;
@@ -47,6 +34,7 @@ abstract class AbstractDatabaseResource extends BaseResource implements
 
     abstract public function model(): string;
 
+    /** @inheritDoc */
     public function newModel(Context $context): object
     {
         return new ($this->model());
@@ -97,41 +85,79 @@ abstract class AbstractDatabaseResource extends BaseResource implements
         $this->dispatchEventsFor($model, $context->getActor());
     }
 
+    /**
+     * @param M $model
+     * @param FlarumContext $context
+     * @return M|null
+     */
     public function creating(object $model, Context $context): ?object
     {
         return $model;
     }
 
+    /**
+     * @param M $model
+     * @param FlarumContext $context
+     * @return M|null
+     */
     public function updating(object $model, Context $context): ?object
     {
         return $model;
     }
 
+    /**
+     * @param M $model
+     * @param FlarumContext $context
+     * @return M|null
+     */
     public function saving(object $model, Context $context): ?object
     {
         return $model;
     }
 
+    /**
+     * @param M $model
+     * @param FlarumContext $context
+     * @return M|null
+     */
     public function saved(object $model, Context $context): ?object
     {
         return $model;
     }
 
+    /**
+     * @param M $model
+     * @param FlarumContext $context
+     * @return M|null
+     */
     public function created(object $model, Context $context): ?object
     {
         return $model;
     }
 
+    /**
+     * @param M $model
+     * @param FlarumContext $context
+     * @return M|null
+     */
     public function updated(object $model, Context $context): ?object
     {
         return $model;
     }
 
+    /**
+     * @param M $model
+     * @param FlarumContext $context
+     */
     public function deleting(object $model, Context $context): void
     {
         //
     }
 
+    /**
+     * @param M $model
+     * @param FlarumContext $context
+     */
     public function deleted(object $model, Context $context): void
     {
         //
@@ -144,11 +170,17 @@ abstract class AbstractDatabaseResource extends BaseResource implements
         }
     }
 
+    /**
+     * @param FlarumContext $context
+     */
     public function mutateDataBeforeValidation(Context $context, array $data): array
     {
         return $data;
     }
 
+    /**
+     * @param FlarumContext $context
+     */
     public function results(object $query, Context $context): iterable
     {
         if ($results = $context->getSearchResults()) {
@@ -158,6 +190,9 @@ abstract class AbstractDatabaseResource extends BaseResource implements
         return $query->get();
     }
 
+    /**
+     * @param FlarumContext $context
+     */
     public function count(object $query, Context $context): ?int
     {
         if ($results = $context->getSearchResults()) {

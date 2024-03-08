@@ -20,7 +20,7 @@ class JsonApiExceptionHandler
         return (new HandledError(
             $e,
             'validation_error',
-            $e->getJsonApiStatus()
+            intval($e->getJsonApiStatus())
         ))->withDetails($e->getJsonApiErrors());
     }
 }
