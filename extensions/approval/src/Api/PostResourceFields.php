@@ -19,7 +19,9 @@ class PostResourceFields
     {
         return [
             Schema\Boolean::make('isApproved')
-                ->writable(fn (Post $post, Context $context) => $context->getActor()->can('approve', $post)),
+                ->writable(fn (Post $post, Context $context) => $context->getActor()->can('approve', $post))
+                // set by the ApproveContent listener.
+                ->set(fn () => null),
             Schema\Boolean::make('canApprove')
                 ->get(fn (Post $post, Context $context) => $context->getActor()->can('approvePosts', $post->discussion)),
         ];
