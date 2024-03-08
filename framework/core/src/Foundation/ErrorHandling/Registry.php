@@ -76,6 +76,7 @@ class Registry
         foreach ($this->handlerMap as $class => $handler) {
             if ($error instanceof $class) {
                 $handler = new $handler;
+
                 return $handler->handle($error);
             }
         }

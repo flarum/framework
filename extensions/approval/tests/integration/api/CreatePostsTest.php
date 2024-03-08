@@ -14,7 +14,6 @@ use Flarum\Approval\Tests\integration\InteractsWithUnapprovedContent;
 use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Illuminate\Support\Arr;
 
 class CreatePostsTest extends TestCase
 {

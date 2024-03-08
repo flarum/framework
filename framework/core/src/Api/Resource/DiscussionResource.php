@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Api\Resource;
 
 use Carbon\Carbon;
@@ -301,7 +308,6 @@ class DiscussionResource extends AbstractDatabaseResource
                  * @var JsonApi $api
                  * @var Post $post
                  */
-
                 $api = $context->api;
 
                 // Now that the discussion has been created, we can add the first post.

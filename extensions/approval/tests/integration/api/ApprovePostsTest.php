@@ -11,10 +11,8 @@ namespace Flarum\Approval\Tests\integration\api;
 
 use Carbon\Carbon;
 use Flarum\Approval\Tests\integration\InteractsWithUnapprovedContent;
-use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Illuminate\Support\Arr;
 
 class ApprovePostsTest extends TestCase
 {

@@ -14,10 +14,8 @@ use Flarum\Extend;
 use Flarum\Nicknames\Access\UserPolicy;
 use Flarum\Nicknames\Api\UserResourceFields;
 use Flarum\Search\Database\DatabaseSearchDriver;
-use Flarum\User\Event\Saving;
 use Flarum\User\Search\UserSearcher;
 use Flarum\User\User;
-use Flarum\User\UserValidator;
 
 return [
     (new Extend\Frontend('forum'))

@@ -1,11 +1,17 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Api\Endpoint\Concerns;
 
 use Closure;
 use Flarum\Http\RequestUtil;
 use Tobyz\JsonApiServer\Context;
-use Tobyz\JsonApiServer\Pagination\Pagination;
 use Tobyz\JsonApiServer\Schema\Sort;
 
 trait ExtractsListingParams
@@ -22,36 +28,42 @@ trait ExtractsListingParams
     public function limit(int $limit): static
     {
         $this->limit = $limit;
+
         return $this;
     }
 
     public function maxLimit(int $maxLimit): static
     {
         $this->maxLimit = $maxLimit;
+
         return $this;
     }
 
     public function extractFilter(Closure $callback): self
     {
         $this->extractFilterCallback = $callback;
+
         return $this;
     }
 
     public function extractSort(Closure $callback): self
     {
         $this->extractSortCallback = $callback;
+
         return $this;
     }
 
     public function extractLimit(Closure $callback): self
     {
         $this->extractLimitCallback = $callback;
+
         return $this;
     }
 
     public function extractOffset(Closure $callback): self
     {
         $this->extractOffsetCallback = $callback;
+
         return $this;
     }
 

@@ -8,8 +8,8 @@
  */
 
 use Flarum\Api\Context;
-use Flarum\Api\Schema;
 use Flarum\Api\Resource;
+use Flarum\Api\Schema;
 use Flarum\Extend;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Suspend\Access\UserPolicy;

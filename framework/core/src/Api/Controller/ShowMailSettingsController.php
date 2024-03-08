@@ -19,7 +19,8 @@ class ShowMailSettingsController implements RequestHandlerInterface
 {
     public function __construct(
         protected JsonApi $api
-    ) {}
+    ) {
+    }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {

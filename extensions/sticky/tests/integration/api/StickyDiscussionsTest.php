@@ -12,7 +12,6 @@ namespace Flarum\Sticky\Tests\integration\api;
 use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Illuminate\Support\Arr;
 
 class StickyDiscussionsTest extends TestCase
 {

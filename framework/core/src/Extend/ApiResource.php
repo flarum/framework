@@ -1,16 +1,20 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Extend;
 
-use Flarum\Api\Controller\AbstractSerializeController;
 use Flarum\Api\Endpoint\EndpointInterface;
-use Flarum\Api\Resource\Contracts\Collection;
 use Flarum\Api\Resource\Contracts\Resource;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
 use ReflectionClass;
-use Tobyz\JsonApiServer\Resource\AbstractResource;
 use Tobyz\JsonApiServer\Schema\Field\Field;
 use Tobyz\JsonApiServer\Schema\Sort;
 
@@ -195,7 +199,7 @@ class ApiResource implements ExtenderInterface
                         $endpoint = $mutateEndpoint($endpoint, $resource);
 
                         if (! $endpoint instanceof EndpointInterface) {
-                            throw new \RuntimeException('The endpoint mutator must return an instance of ' . EndpointInterface::class);
+                            throw new \RuntimeException('The endpoint mutator must return an instance of '.EndpointInterface::class);
                         }
                     }
                 }
@@ -227,7 +231,7 @@ class ApiResource implements ExtenderInterface
                         $field = $mutateField($field);
 
                         if (! $field instanceof Field) {
-                            throw new \RuntimeException('The field mutator must return an instance of ' . Field::class);
+                            throw new \RuntimeException('The field mutator must return an instance of '.Field::class);
                         }
                     }
                 }
@@ -259,7 +263,7 @@ class ApiResource implements ExtenderInterface
                         $sort = $mutateSort($sort);
 
                         if (! $sort instanceof Sort) {
-                            throw new \RuntimeException('The sort mutator must return an instance of ' . Sort::class);
+                            throw new \RuntimeException('The sort mutator must return an instance of '.Sort::class);
                         }
                     }
                 }

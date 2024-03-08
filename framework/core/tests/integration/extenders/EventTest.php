@@ -9,7 +9,6 @@
 
 namespace Flarum\Tests\integration\extenders;
 
-use Flarum\Api\Endpoint\Create;
 use Flarum\Api\JsonApi;
 use Flarum\Api\Resource\GroupResource;
 use Flarum\Extend;

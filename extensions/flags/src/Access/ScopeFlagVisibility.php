@@ -10,7 +10,6 @@
 namespace Flarum\Flags\Access;
 
 use Flarum\Extension\ExtensionManager;
-use Flarum\Tags\Tag;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 

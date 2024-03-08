@@ -10,12 +10,8 @@
 namespace Flarum\Subscriptions\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
-use Flarum\Extend\ModelVisibility;
-use Flarum\Group\Group;
-use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Flarum\User\User;
 
 class SubscribeTest extends TestCase
 {

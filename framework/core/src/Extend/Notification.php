@@ -9,7 +9,6 @@
 
 namespace Flarum\Extend;
 
-use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Notification\Blueprint\BlueprintInterface;

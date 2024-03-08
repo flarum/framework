@@ -28,7 +28,7 @@ return [
         ->post('/extension-manager/global-update', 'extension-manager.global-update', Api\Controller\GlobalUpdateController::class)
         ->post('/extension-manager/composer', 'extension-manager.composer', Api\Controller\ConfigureComposerController::class),
 
-    (new Extend\ApiResource(TaskResource::class)),
+    new Extend\ApiResource(TaskResource::class),
 
     (new Extend\Frontend('admin'))
         ->css(__DIR__.'/less/admin.less')

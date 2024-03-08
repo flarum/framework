@@ -1,18 +1,27 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Api\Resource;
 
-use Flarum\Api\Resource\Contracts\{Findable,
-    Listable,
-    Countable,
-    Paginatable,
-    Creatable,
-    Resource,
-    Updatable,
-    Deletable};
 use Flarum\Api\Resource\Concerns\Bootable;
 use Flarum\Api\Resource\Concerns\Extendable;
 use Flarum\Api\Resource\Concerns\HasSortMap;
+use Flarum\Api\Resource\Contracts\{
+    Countable,
+    Creatable,
+    Deletable,
+    Findable,
+    Listable,
+    Paginatable,
+    Resource,
+    Updatable
+};
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\User\User;
 use RuntimeException;

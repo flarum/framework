@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Nicknames\Api;
 
 use Flarum\Api\Context;
@@ -20,7 +27,7 @@ class UserResourceFields
     {
         $regex = $this->settings->get('flarum-nicknames.regex');
 
-        if(! empty($regex)) {
+        if (! empty($regex)) {
             $regex = "/$regex/";
         }
 

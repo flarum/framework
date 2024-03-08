@@ -1,16 +1,21 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Api\Resource;
 
 use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
-use Flarum\Api\JsonApi;
 use Flarum\Api\Schema;
 use Flarum\Bus\Dispatcher;
 use Flarum\Notification\Command\ReadNotification;
 use Flarum\Notification\Notification;
 use Flarum\Notification\NotificationRepository;
-use Illuminate\Database\Eloquent\Builder;
 use Tobyz\JsonApiServer\Pagination\Pagination;
 
 class NotificationResource extends AbstractDatabaseResource

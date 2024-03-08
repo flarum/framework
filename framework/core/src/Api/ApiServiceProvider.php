@@ -9,11 +9,7 @@
 
 namespace Flarum\Api;
 
-use Flarum\Api\Controller\AbstractSerializeController;
 use Flarum\Api\Endpoint\EndpointInterface;
-use Flarum\Api\Serializer\AbstractSerializer;
-use Flarum\Api\Serializer\BasicDiscussionSerializer;
-use Flarum\Api\Serializer\NotificationSerializer;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;

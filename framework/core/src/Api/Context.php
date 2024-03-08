@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Api;
 
 use Flarum\Http\RequestUtil;
@@ -26,6 +33,7 @@ class Context extends BaseContext
     {
         $new = clone $this;
         $new->search = $search;
+
         return $new;
     }
 
@@ -33,6 +41,7 @@ class Context extends BaseContext
     {
         $new = clone $this;
         $new->internal[$key] = $value;
+
         return $new;
     }
 
@@ -54,6 +63,7 @@ class Context extends BaseContext
     public function setParam(string $key, mixed $default = null): static
     {
         $this->parameters[$key] = $default;
+
         return $this;
     }
 

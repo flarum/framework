@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Tags\Api;
 
 use Flarum\Api\Context;
@@ -61,7 +68,7 @@ class DiscussionResourceFields
                     }
 
                     foreach ($newTags as $tag) {
-                        if (!$discussion->exists && $actor->cannot('startDiscussion', $tag)) {
+                        if (! $discussion->exists && $actor->cannot('startDiscussion', $tag)) {
                             throw new PermissionDeniedException;
                         }
 
@@ -72,7 +79,7 @@ class DiscussionResourceFields
                         }
                     }
 
-                    if (!$discussion->exists && $primaryParentCount === 0 && $secondaryOrPrimaryChildCount === 0 && ! $actor->hasPermission('startDiscussion')) {
+                    if (! $discussion->exists && $primaryParentCount === 0 && $secondaryOrPrimaryChildCount === 0 && ! $actor->hasPermission('startDiscussion')) {
                         throw new PermissionDeniedException;
                     }
 

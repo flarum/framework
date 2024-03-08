@@ -10,7 +10,6 @@
 namespace Flarum\Mentions\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
-use Flarum\Mentions\Api\LoadMentionedByRelationship;
 use Flarum\Mentions\Api\PostResourceFields;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;

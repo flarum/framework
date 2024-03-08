@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Api;
 
 use Flarum\Api\Endpoint\EndpointInterface;
@@ -118,8 +125,8 @@ class JsonApi extends BaseJsonApi
     {
         foreach ($request->getQueryParams() as $key => $value) {
             if (
-                !preg_match('/[^a-z]/', $key) &&
-                !in_array($key, ['include', 'fields', 'filter', 'page', 'sort'])
+                ! preg_match('/[^a-z]/', $key) &&
+                ! in_array($key, ['include', 'fields', 'filter', 'page', 'sort'])
             ) {
                 throw (new BadRequestException("Invalid query parameter: $key"))->setSource([
                     'parameter' => $key,

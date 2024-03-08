@@ -15,7 +15,6 @@ use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Flags\Api\Resource\FlagResource;
-use Flarum\Http\RequestUtil;
 use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
 use Flarum\Search\Database\DatabaseSearchDriver;
@@ -32,9 +31,6 @@ use Flarum\Tags\Search\HideHiddenTagsFromAllDiscussionsPage;
 use Flarum\Tags\Search\TagSearcher;
 use Flarum\Tags\Tag;
 use Flarum\Tags\Utf8SlugDriver;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\Relation;
-use Psr\Http\Message\ServerRequestInterface;
 
 return [
     (new Extend\Frontend('forum'))
@@ -57,7 +53,7 @@ return [
     (new Extend\Model(Discussion::class))
         ->belongsToMany('tags', Tag::class, 'discussion_tag'),
 
-    (new Extend\ApiResource(Api\Resource\TagResource::class)),
+    new Extend\ApiResource(Api\Resource\TagResource::class),
 
     (new Extend\ApiResource(Resource\ForumResource::class))
         ->fields(fn () => [

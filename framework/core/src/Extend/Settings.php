@@ -11,7 +11,6 @@ namespace Flarum\Extend;
 
 use Flarum\Api\Resource\ForumResource;
 use Flarum\Api\Schema\Attribute;
-use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;

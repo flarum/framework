@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Api\Endpoint;
 
 use Flarum\Api\Endpoint\Concerns\ExtractsListingParams;
@@ -15,6 +22,6 @@ class Show extends BaseShow implements EndpointInterface
 
     public function setUp(): void
     {
-        parent::setUp();;
+        parent::setUp();
     }
 }

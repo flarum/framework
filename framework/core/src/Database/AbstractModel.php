@@ -11,10 +11,8 @@ namespace Flarum\Database;
 
 use Flarum\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model as Eloquent;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use LogicException;
 
 /**
  * Base model class, building on Eloquent.

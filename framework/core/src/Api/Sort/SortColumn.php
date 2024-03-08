@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Api\Sort;
 
 use Tobyz\JsonApiServer\Laravel\Sort\SortColumn as BaseSortColumn;
@@ -31,7 +38,7 @@ class SortColumn extends BaseSortColumn
 
         foreach ($this->alias as $direction => $alias) {
             if ($alias) {
-                $sort = ($direction === 'asc' ? '' : '-') . $this->name;
+                $sort = ($direction === 'asc' ? '' : '-').$this->name;
                 $map[$alias] = $sort;
             }
         }

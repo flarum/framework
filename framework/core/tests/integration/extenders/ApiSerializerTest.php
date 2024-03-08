@@ -10,21 +10,13 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Carbon\Carbon;
-use Flarum\Api\Controller\ShowUserController;
 use Flarum\Api\Endpoint\Show;
 use Flarum\Api\Resource\AbstractDatabaseResource;
 use Flarum\Api\Resource\ForumResource;
 use Flarum\Api\Resource\UserResource;
-use Flarum\Api\Serializer\AbstractSerializer;
-use Flarum\Api\Serializer\BasicUserSerializer;
-use Flarum\Api\Serializer\DiscussionSerializer;
-use Flarum\Api\Serializer\ForumSerializer;
-use Flarum\Api\Serializer\PostSerializer;
-use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Api\Schema;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
-use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;

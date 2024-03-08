@@ -67,6 +67,7 @@ class ApiControllerTest extends TestCase
                 ->endpoint(Show::class, function (Show $endpoint): Show {
                     return $endpoint->after(function ($context, Discussion $discussion) {
                         $discussion->title = 'dataSerializationPrepCustomTitle';
+
                         return $discussion;
                     });
                 })
@@ -145,6 +146,7 @@ class ApiControllerTest extends TestCase
                 ->endpoint(Show::class, function (Show $endpoint): Show {
                     return $endpoint->after(function (Context $context, object $model) {
                         $model->title = 'dataSerializationPrepCustomTitle4';
+
                         return $model;
                     });
                 }),
@@ -556,6 +558,7 @@ class ApiControllerTest extends TestCase
                 ->endpoint(Index::class, function (Index $endpoint) use (&$users) {
                     return $endpoint->after(function ($context, $data) use (&$users) {
                         $users = $data;
+
                         return $data;
                     });
                 })
@@ -586,6 +589,7 @@ class ApiControllerTest extends TestCase
                         ->eagerLoad('firstLevelRelation')
                         ->after(function ($context, $data) use (&$users) {
                             $users = $data;
+
                             return $data;
                         });
                 })
@@ -615,6 +619,7 @@ class ApiControllerTest extends TestCase
                     return $endpoint
                         ->after(function ($context, $data) use (&$users) {
                             $users = $data;
+
                             return $data;
                         });
                 })
@@ -647,6 +652,7 @@ class ApiControllerTest extends TestCase
                         ->eagerLoad(['firstLevelRelation', 'firstLevelRelation.secondLevelRelation'])
                         ->after(function ($context, $data) use (&$users) {
                             $users = $data;
+
                             return $data;
                         });
                 })
@@ -677,6 +683,7 @@ class ApiControllerTest extends TestCase
                         ->eagerLoad(['firstLevelRelation.secondLevelRelation'])
                         ->after(function ($context, $data) use (&$users) {
                             $users = $data;
+
                             return $data;
                         });
                 })
@@ -707,6 +714,7 @@ class ApiControllerTest extends TestCase
                         ->eagerLoadWhere('firstLevelRelation', function ($query, $request) {})
                         ->after(function ($context, $data) use (&$users) {
                             $users = $data;
+
                             return $data;
                         });
                 })
@@ -740,6 +748,7 @@ class ApiControllerTest extends TestCase
                         ->eagerLoadWhere('firstLevelRelation.secondLevelRelation', function ($query, $request) {})
                         ->after(function ($context, $data) use (&$users) {
                             $users = $data;
+
                             return $data;
                         });
                 })
@@ -772,6 +781,7 @@ class ApiControllerTest extends TestCase
                         ->eagerLoadWhere('firstLevelRelation.secondLevelRelation', function ($query, $request) {})
                         ->after(function ($context, $data) use (&$users) {
                             $users = $data;
+
                             return $data;
                         });
                 })
@@ -805,6 +815,7 @@ class ApiControllerTest extends TestCase
                         ->eagerLoadWhere('firstLevelRelation.secondLevelRelation', function ($query, $request) {})
                         ->after(function ($context, $data) use (&$users) {
                             $users = $data;
+
                             return $data;
                         });
                 })
@@ -825,6 +836,7 @@ class CustomAfterEndpointInvokableClass
     public function __invoke(Context $context, Discussion $discussion): Discussion
     {
         $discussion->title = __CLASS__;
+
         return $discussion;
     }
 }

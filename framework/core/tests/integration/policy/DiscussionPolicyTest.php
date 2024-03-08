@@ -10,13 +10,10 @@
 namespace Flarum\Tests\integration\policy;
 
 use Carbon\Carbon;
-use Flarum\Api\Endpoint\Create;
 use Flarum\Api\JsonApi;
 use Flarum\Api\Resource\PostResource;
-use Flarum\Bus\Dispatcher;
 use Flarum\Discussion\Discussion;
 use Flarum\Foundation\DispatchEventsTrait;
-use Flarum\Post\Command\PostReply;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;

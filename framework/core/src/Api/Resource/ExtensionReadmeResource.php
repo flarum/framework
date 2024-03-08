@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Api\Resource;
 
 use Flarum\Api\Endpoint;
@@ -7,11 +14,6 @@ use Flarum\Api\Resource\Contracts\Findable;
 use Flarum\Api\Schema;
 use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
-use Flarum\Mail\DriverInterface;
-use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Contracts\Validation\Factory;
-use stdClass;
 use Tobyz\JsonApiServer\Context;
 
 /**

@@ -111,7 +111,7 @@ class IncludeFlagsVisibilityTest extends TestCase
             $this->request('GET', '/api/posts', [
                 'authenticatedAs' => $actorId,
             ])->withQueryParams([
-                 'include' => 'flags'
+                'include' => 'flags'
             ])
         );
 
@@ -122,8 +122,10 @@ class IncludeFlagsVisibilityTest extends TestCase
         $data = $responseBody['data'];
 
         $this->assertEquals(['1', '2', '3', '4', '5'], Arr::pluck($data, 'id'));
-        $this->assertEqualsCanonicalizing($expectedIncludes, collect($responseBody['included'] ?? [])
-            ->filter(fn($include) => $include['type'] === 'flags')
+        $this->assertEqualsCanonicalizing(
+            $expectedIncludes,
+            collect($responseBody['included'] ?? [])
+            ->filter(fn ($include) => $include['type'] === 'flags')
             ->pluck('id')
             ->map(strval(...))
             ->all()

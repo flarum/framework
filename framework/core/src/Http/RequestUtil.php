@@ -12,7 +12,6 @@ namespace Flarum\Http;
 use Flarum\User\User;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Tobyz\JsonApiServer\Exception\BadRequestException;
-use function Tobyz\JsonApiServer\parse_sort_string;
 
 class RequestUtil
 {

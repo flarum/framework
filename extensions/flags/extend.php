@@ -41,7 +41,7 @@ return [
     (new Extend\Model(Post::class))
         ->hasMany('flags', Flag::class, 'post_id'),
 
-    (new Extend\ApiResource(FlagResource::class)),
+    new Extend\ApiResource(FlagResource::class),
 
     (new Extend\ApiResource(Resource\PostResource::class))
         ->fields(PostResourceFields::class),

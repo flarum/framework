@@ -12,8 +12,6 @@ namespace Flarum\Tests\integration\extenders;
 use Exception;
 use Flarum\Api\Resource\ForumResource;
 use Flarum\Api\Schema\Boolean;
-use Flarum\Api\Schema\Str;
-use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extend;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
