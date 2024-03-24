@@ -9,9 +9,6 @@ import addMentionedByList from './addMentionedByList';
 import addPostReplyAction from './addPostReplyAction';
 import addPostQuoteButton from './addPostQuoteButton';
 import addComposerAutocomplete from './addComposerAutocomplete';
-import PostMentionedNotification from './components/PostMentionedNotification';
-import UserMentionedNotification from './components/UserMentionedNotification';
-import GroupMentionedNotification from './components/GroupMentionedNotification';
 import MentionFormats from './mentionables/formats/MentionFormats';
 import UserPage from 'flarum/forum/components/UserPage';
 import LinkButton from 'flarum/common/components/LinkButton';
@@ -39,10 +36,6 @@ app.initializers.add('flarum-mentions', function () {
   // After typing '@' in the composer, show a dropdown suggesting a bunch of
   // posts or users that the user could mention.
   addComposerAutocomplete();
-
-  app.notificationComponents.postMentioned = PostMentionedNotification;
-  app.notificationComponents.userMentioned = UserMentionedNotification;
-  app.notificationComponents.groupMentioned = GroupMentionedNotification;
 
   // Add notification preferences.
   extend('flarum/forum/components/NotificationGrid', 'notificationTypes', function (items) {
