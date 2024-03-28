@@ -37,7 +37,7 @@ class DiscussionResourceFields
             Schema\Relationship\ToMany::make('tags')
                 ->includable()
                 ->writable()
-                ->required(fn (Discussion $discussion, Context $context) => ! $context->getActor()->can('bypassTagCounts', $discussion))
+                ->required(fn (Context $context, Discussion $discussion) => ! $context->getActor()->can('bypassTagCounts', $discussion))
                 ->set(function (Discussion $discussion, array $newTags, Context $context) {
                     $actor = $context->getActor();
 
