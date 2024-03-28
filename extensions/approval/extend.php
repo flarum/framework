@@ -10,7 +10,6 @@
 use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Approval\Access;
-use Flarum\Approval\Api\DiscussionResourceFields;
 use Flarum\Approval\Api\PostResourceFields;
 use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Approval\Listener;
