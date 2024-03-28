@@ -121,7 +121,7 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
       include,
     };
 
-    if (!params.include) {
+    if (typeof params.include === 'undefined') {
       delete params.include;
     }
 

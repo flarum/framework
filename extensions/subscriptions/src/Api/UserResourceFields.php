@@ -19,7 +19,7 @@ class UserResourceFields
     {
         return [
             Schema\Str::make('subscription')
-                ->writable(fn (Discussion $discussion, Context $context) => $context->updating() && ! $context->getActor()->isGuest())
+                ->writable(fn (Discussion $discussion, Context $context) => $context->updating())
                 ->nullable()
                 ->get(fn (Discussion $discussion) => $discussion->state?->subscription)
                 ->set(function (Discussion $discussion, ?string $subscription, Context $context) {

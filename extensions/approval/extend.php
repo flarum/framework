@@ -8,6 +8,7 @@
  */
 
 use Flarum\Api\Resource;
+use Flarum\Api\Schema;
 use Flarum\Approval\Access;
 use Flarum\Approval\Api\DiscussionResourceFields;
 use Flarum\Approval\Api\PostResourceFields;
@@ -38,7 +39,9 @@ return [
         ->cast('is_approved', 'bool'),
 
     (new Extend\ApiResource(Resource\DiscussionResource::class))
-        ->fields(DiscussionResourceFields::class),
+        ->fields(fn () => [
+            Schema\Boolean::make('isApproved'),
+        ]),
 
     (new Extend\ApiResource(Resource\PostResource::class))
         ->fields(PostResourceFields::class),

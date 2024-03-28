@@ -12,15 +12,9 @@ namespace Flarum\Flags\Api;
 use Flarum\Api\Context;
 use Flarum\Api\Schema;
 use Flarum\Flags\Flag;
-use Flarum\Settings\SettingsRepositoryInterface;
 
 class ForumResourceFields
 {
-    public function __construct(
-        protected SettingsRepositoryInterface $settings
-    ) {
-    }
-
     public function __invoke(): array
     {
         return [
