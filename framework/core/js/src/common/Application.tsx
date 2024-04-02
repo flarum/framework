@@ -130,6 +130,7 @@ export interface ApplicationData {
   locales: Record<string, string>;
   resources: SavedModelData[];
   session: { userId: number; csrfToken: string };
+  maintenanceMode?: 2;
   [key: string]: unknown;
 }
 

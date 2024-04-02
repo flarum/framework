@@ -40,6 +40,8 @@ abstract class AbstractValidator
 
     /**
      * Throw an exception if a model is not valid.
+     *
+     * @throws ValidationException
      */
     public function assertValid(array $attributes): void
     {

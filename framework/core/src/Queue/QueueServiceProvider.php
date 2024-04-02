@@ -39,7 +39,7 @@ class QueueServiceProvider extends AbstractServiceProvider
         Commands\ListFailedCommand::class,
         Commands\RestartCommand::class,
         Commands\RetryCommand::class,
-        Console\WorkCommand::class,
+        Commands\WorkCommand::class,
     ];
 
     public function register(): void

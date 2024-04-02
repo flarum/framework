@@ -73,14 +73,22 @@ class ConfigTest extends TestCase
             'offline' => false,
         ]);
 
-        $this->assertFalse($config->inMaintenanceMode());
+        $this->assertFalse($config->inHighMaintenanceMode());
 
         $config = new Config([
             'url' => 'https://flarum.localhost',
             'offline' => true,
         ]);
 
-        $this->assertTrue($config->inMaintenanceMode());
+        $this->assertTrue($config->inHighMaintenanceMode());
+
+        $config = new Config([
+            'url' => 'https://flarum.localhost',
+            'offline' => 2,
+        ]);
+
+        $this->assertTrue($config->inLowMaintenanceMode());
+        $this->assertFalse($config->inHighMaintenanceMode());
     }
 
     /** @test */
@@ -90,7 +98,7 @@ class ConfigTest extends TestCase
             'url' => 'https://flarum.localhost',
         ]);
 
-        $this->assertFalse($config->inMaintenanceMode());
+        $this->assertFalse($config->inHighMaintenanceMode());
     }
 
     /** @test */

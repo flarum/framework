@@ -45,9 +45,14 @@ class Application extends IlluminateContainer implements LaravelApplication
         $this->registerCoreContainerAliases();
     }
 
+    public function getConfig(): Config
+    {
+        return $this->make(Config::class);
+    }
+
     public function config(string $key, mixed $default = null): mixed
     {
-        $config = $this->make('flarum.config');
+        $config = $this->getConfig();
 
         return $config[$key] ?? $default;
     }

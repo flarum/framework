@@ -40,6 +40,15 @@ export default class Notices extends Component {
       );
     }
 
+    if (app.data.maintenanceMode) {
+      items.add(
+        'maintenanceMode',
+        <Alert type="error" dismissible={false} className="Alert--maintenanceMode" containerClassName="container">
+          {app.translator.trans('core.lib.notices.maintenance_mode_' + app.data.maintenanceMode)}
+        </Alert>
+      );
+    }
+
     return items;
   }
 
