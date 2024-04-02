@@ -16,11 +16,13 @@ class LogInValidator extends AbstractValidator
     public bool $basic = false;
     protected array $rules = [];
 
-    public function basic(): void
+    public function basic(): static
     {
         $this->rules['identification'] = 'required';
         $this->rules['password'] = 'required';
 
         $this->basic = true;
+
+        return $this;
     }
 }

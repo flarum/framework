@@ -46,8 +46,6 @@ class UserState extends AbstractModel
 
     /**
      * The attributes that are mass assignable.
-     *
-     * @var string[]
      */
     protected $fillable = ['last_read_post_number'];
 

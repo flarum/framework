@@ -49,45 +49,41 @@ class LogInController implements RequestHandlerInterface
         $params = Arr::only($body, ['identification', 'password', 'remember']);
         $isHtmlRequest = RequestUtil::isHtmlRequest($request);
 
-        if ($isHtmlRequest) {
-            $this->validator->basic();
-        }
-
         $errors = null;
 
-        try {
+        if ($isHtmlRequest) {
+            $validator = $this->validator->basic()->prepare($body)->validator();
+
+            if (! $validator->passes()) {
+                $errors = $validator->errors();
+                $request->getAttribute('session')->put('errors', $errors);
+
+                return new RedirectResponse($this->url->to('forum')->route('maintenance.login'));
+            }
+        } else {
             $this->validator->assertValid($body);
+        }
 
-            $response = $this->apiClient->withParentRequest($request)->withBody($params)->post('/token');
+        $response = $this->apiClient->withParentRequest($request)->withBody($params)->post('/token');
 
-            if ($response->getStatusCode() === 200) {
-                $data = json_decode($response->getBody());
+        if ($response->getStatusCode() === 200) {
+            $data = json_decode($response->getBody());
 
-                $token = AccessToken::findValid($data->token);
+            $token = AccessToken::findValid($data->token);
 
-                $session = $request->getAttribute('session');
-                $this->authenticator->logIn($session, $token);
+            $session = $request->getAttribute('session');
+            $this->authenticator->logIn($session, $token);
 
-                $this->events->dispatch(new LoggedIn($this->users->findOrFail($data->userId), $token));
+            $this->events->dispatch(new LoggedIn($this->users->findOrFail($data->userId), $token));
 
-                if ($token instanceof RememberAccessToken) {
-                    $response = $this->rememberer->remember($response, $token);
-                }
+            if ($token instanceof RememberAccessToken) {
+                $response = $this->rememberer->remember($response, $token);
             }
-
-            if ($isHtmlRequest && $response->getStatusCode() === 401) {
-                $errors = new MessageBag(['identification' => $this->translator->trans('core.views.log_in.invalid_login_message')]);
-            }
-        } catch (ValidationException $e) {
-            if (! $isHtmlRequest) {
-                throw $e;
-            }
-
-            $errors = $e->validator->getMessageBag();
         }
 
         if ($isHtmlRequest) {
-            if ($errors) {
+            if ($response->getStatusCode() === 401) {
+                $errors = new MessageBag(['identification' => $this->translator->trans('core.views.log_in.invalid_login_message')]);
                 $request->getAttribute('session')->put('errors', $errors);
             }
 

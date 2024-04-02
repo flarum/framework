@@ -9,6 +9,7 @@
 
 namespace Flarum\Forum\Controller;
 
+use Flarum\Foundation\Config;
 use Flarum\Http\Controller\AbstractHtmlController;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
@@ -25,7 +26,8 @@ class LogInViewController extends AbstractHtmlController
 {
     public function __construct(
         protected Factory $view,
-        protected UrlGenerator $url
+        protected UrlGenerator $url,
+        protected Config $config
     ) {
     }
 
@@ -33,7 +35,7 @@ class LogInViewController extends AbstractHtmlController
     {
         $actor = RequestUtil::getActor($request);
 
-        if (! $actor->isGuest()) {
+        if (! $actor->isGuest() || ! $this->config->inMaintenanceMode()) {
             return new RedirectResponse($this->url->to('forum')->base());
         }
 
