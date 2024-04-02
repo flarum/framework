@@ -13,8 +13,14 @@ use Flarum\Foundation\AbstractValidator;
 
 class LogInValidator extends AbstractValidator
 {
-    protected array $rules = [
-        'identification' => 'required',
-        'password' => 'required'
-    ];
+    public bool $basic = false;
+    protected array $rules = [];
+
+    public function basic(): void
+    {
+        $this->rules['identification'] = 'required';
+        $this->rules['password'] = 'required';
+
+        $this->basic = true;
+    }
 }
