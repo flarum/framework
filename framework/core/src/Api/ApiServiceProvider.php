@@ -17,6 +17,7 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
+use Flarum\Foundation\MaintenanceMode;
 use Flarum\Http\Middleware as HttpMiddleware;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
@@ -85,7 +86,7 @@ class ApiServiceProvider extends AbstractServiceProvider
 
         $this->container->bind('flarum.api.check_for_maintenance', function (Container $container) {
             return new HttpMiddleware\CheckForMaintenanceMode(
-                $container->make('flarum.config'),
+                $container->make(MaintenanceMode::class),
                 $container->make('flarum.api.maintenance_route_exclusions')
             );
         });

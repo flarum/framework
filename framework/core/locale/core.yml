@@ -10,12 +10,23 @@ core:
     # These translations are used in the Advanced page.
     advanced:
       description: "Configure advanced settings for your forum."
+      maintenance:
+        config_override:
+          label: Your <code>config.php</code> file is overriding these settings.
+          help: You can still change these settings here, but they will not take effect until you set <code>offline</code> to <code>0</code> in your <code>config.php</code> file.
+        section_label: Maintenance
+        help: Put your forum in maintenance mode to prevent users from accessing it.
+        options:
+          0: No maintenance.
+          1: High maintenance mode. No one can access the forum (can only be enabled through config.php)
+          2: Low maintenance mode. Admins can access the forum.
       search:
         section_label: Search Drivers
         driver_heading: "Search Driver: {model}"
         driver_text: Select a driver to be used for searching this model.
         driver_options:
           default: Default database search
+        no_other_drivers: No search drivers are available yet. Install a search driver extension to be able to configure it.
       title: Advanced
 
     # These translations are used in the Appearance page.

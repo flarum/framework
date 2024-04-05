@@ -141,7 +141,7 @@ trait InteractsWithLaravel
 
     public function isDownForMaintenance(): bool
     {
-        return $this->getConfig()->inMaintenanceMode();
+        return $this->getConfig()->inHighMaintenanceMode();
     }
 
     /**

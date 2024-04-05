@@ -18,6 +18,7 @@ use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\ErrorHandling\ViewFormatter;
 use Flarum\Foundation\ErrorHandling\WhoopsFormatter;
 use Flarum\Foundation\Event\ClearingCache;
+use Flarum\Foundation\MaintenanceMode;
 use Flarum\Frontend\AddLocaleAssets;
 use Flarum\Frontend\AddTranslations;
 use Flarum\Frontend\Assets;
@@ -91,7 +92,7 @@ class ForumServiceProvider extends AbstractServiceProvider
 
         $this->container->bind('flarum.forum.check_for_maintenance', function (Container $container) {
             return new HttpMiddleware\CheckForMaintenanceMode(
-                $container->make('flarum.config'),
+                $container->make(MaintenanceMode::class),
                 $container->make('flarum.forum.maintenance_route_exclusions')
             );
         });

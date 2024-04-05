@@ -10,6 +10,7 @@
 namespace Flarum\Frontend\Content;
 
 use Flarum\Foundation\Config;
+use Flarum\Foundation\MaintenanceMode;
 use Flarum\Frontend\Document;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\LocaleManager;
@@ -19,7 +20,7 @@ class CorePayload
 {
     public function __construct(
         private readonly LocaleManager $locales,
-        private readonly Config $config,
+        private readonly MaintenanceMode $maintenance,
     ) {
     }
 
@@ -45,8 +46,8 @@ class CorePayload
             'locale' => $request->getAttribute('locale'),
         ];
 
-        if ($this->config->inMaintenanceMode()) {
-            $payload['maintenanceMode'] = $this->config->maintenanceMode();
+        if ($this->maintenance->inMaintenanceMode()) {
+            $payload['maintenanceMode'] = $this->maintenance->mode();
         }
 
         return $payload;

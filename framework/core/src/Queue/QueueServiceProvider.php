@@ -74,7 +74,7 @@ class QueueServiceProvider extends AbstractServiceProvider
                 $container['events'],
                 $container[ExceptionHandling::class],
                 function () use ($config) {
-                    return $config->inMaintenanceMode();
+                    return $config->inHighMaintenanceMode();
                 }
             );
 
