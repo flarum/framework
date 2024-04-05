@@ -126,7 +126,9 @@ export interface RouteResolver<
 
 export enum MaintenanceMode {
   NO_MAINTENANCE = 0,
+  HIGH_MAINTENANCE = 1,
   LOW_MAINTENANCE = 2,
+  SAFE_MODE = 3,
 }
 
 export interface ApplicationData {
@@ -277,23 +279,25 @@ export default class Application {
   public boot() {
     const caughtInitializationErrors: CallableFunction[] = [];
 
-    this.initializers.toArray().forEach((initializer) => {
-      try {
-        initializer(this);
-      } catch (e) {
-        const extension = initializer.itemName.includes('/')
-          ? initializer.itemName.replace(/(\/flarum-ext-)|(\/flarum-)/g, '-')
-          : initializer.itemName;
+    if (this.data.maintenanceMode !== MaintenanceMode.SAFE_MODE) {
+      this.initializers.toArray().forEach((initializer) => {
+        try {
+          initializer(this);
+        } catch (e) {
+          const extension = initializer.itemName.includes('/')
+            ? initializer.itemName.replace(/(\/flarum-ext-)|(\/flarum-)/g, '-')
+            : initializer.itemName;
 
-        caughtInitializationErrors.push(() =>
-          fireApplicationError(
-            extractText(app.translator.trans('core.lib.error.extension_initialiation_failed_message', { extension })),
-            `${extension} failed to initialize`,
-            e
-          )
-        );
-      }
-    });
+          caughtInitializationErrors.push(() =>
+            fireApplicationError(
+              extractText(app.translator.trans('core.lib.error.extension_initialiation_failed_message', { extension })),
+              `${extension} failed to initialize`,
+              e
+            )
+          );
+        }
+      });
+    }
 
     this.store.pushPayload({ data: this.data.resources });
 

@@ -104,12 +104,13 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
             help: app.translator.trans('core.admin.advanced.maintenance.help'),
             setting: 'maintenance_mode',
             options: {
-              0: app.translator.trans('core.admin.advanced.maintenance.options.0'),
-              1: {
+              [MaintenanceMode.NO_MAINTENANCE]: app.translator.trans('core.admin.advanced.maintenance.options.0'),
+              [MaintenanceMode.HIGH_MAINTENANCE]: {
                 label: app.translator.trans('core.admin.advanced.maintenance.options.1'),
                 disabled: true,
               },
-              2: app.translator.trans('core.admin.advanced.maintenance.options.2'),
+              [MaintenanceMode.LOW_MAINTENANCE]: app.translator.trans('core.admin.advanced.maintenance.options.2'),
+              [MaintenanceMode.SAFE_MODE]: app.translator.trans('core.admin.advanced.maintenance.options.3'),
             },
             default: 0,
           })}
