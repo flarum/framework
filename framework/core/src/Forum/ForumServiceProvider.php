@@ -18,6 +18,7 @@ use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\ErrorHandling\ViewFormatter;
 use Flarum\Foundation\ErrorHandling\WhoopsFormatter;
 use Flarum\Foundation\Event\ClearingCache;
+use Flarum\Foundation\MaintenanceMode;
 use Flarum\Frontend\AddLocaleAssets;
 use Flarum\Frontend\AddTranslations;
 use Flarum\Frontend\Assets;
@@ -68,6 +69,7 @@ class ForumServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\AuthenticateWithSession::class,
                 HttpMiddleware\SetLocale::class,
                 'flarum.forum.route_resolver',
+                'flarum.forum.check_for_maintenance',
                 HttpMiddleware\CheckCsrfToken::class,
                 HttpMiddleware\ShareErrorsFromSession::class,
                 HttpMiddleware\FlarumPromotionHeader::class,
@@ -86,6 +88,17 @@ class ForumServiceProvider extends AbstractServiceProvider
 
         $this->container->bind('flarum.forum.route_resolver', function (Container $container) {
             return new HttpMiddleware\ResolveRoute($container->make('flarum.forum.routes'));
+        });
+
+        $this->container->bind('flarum.forum.check_for_maintenance', function (Container $container) {
+            return new HttpMiddleware\CheckForMaintenanceMode(
+                $container->make(MaintenanceMode::class),
+                $container->make('flarum.forum.maintenance_route_exclusions')
+            );
+        });
+
+        $this->container->singleton('flarum.forum.maintenance_route_exclusions', function () {
+            return ['login', 'maintenance.login'];
         });
 
         $this->container->singleton('flarum.forum.handler', function (Container $container) {

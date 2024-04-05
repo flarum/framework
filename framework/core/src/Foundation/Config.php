@@ -36,7 +36,22 @@ class Config implements ArrayAccess
 
     public function inMaintenanceMode(): bool
     {
-        return $this->data['offline'] ?? false;
+        return $this->inHighMaintenanceMode() || $this->inLowMaintenanceMode();
+    }
+
+    public function inHighMaintenanceMode(): bool
+    {
+        return $this->maintenanceMode() === 1;
+    }
+
+    public function inLowMaintenanceMode(): bool
+    {
+        return $this->maintenanceMode() === 2;
+    }
+
+    public function maintenanceMode(): int
+    {
+        return intval($this->data['offline'] ?? 0);
     }
 
     private function requireKeys(mixed ...$keys): void

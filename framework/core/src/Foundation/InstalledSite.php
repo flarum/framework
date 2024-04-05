@@ -96,7 +96,7 @@ class InstalledSite implements SiteInterface
         $app->alias('flarum.config', Config::class);
         $app->instance('flarum.debug', $this->config->inDebugMode());
         $app->instance('config', $this->getIlluminateConfig());
-        $app->instance('flarum.maintenance.handler', new MaintenanceModeHandler);
+        $app->instance('flarum.maintenance.handler', new HighMaintenanceModeHandler);
 
         $this->registerLogger($app);
         $this->registerCache($app);

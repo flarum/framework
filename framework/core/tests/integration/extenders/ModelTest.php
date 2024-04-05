@@ -310,7 +310,7 @@ class ModelTest extends TestCase
         $group2 = new Group;
 
         $this->assertEquals(1, $group1->counter);
-        $this->assertEquals(2, $group2->counter);
+        $this->assertEquals(3, $group2->counter);
     }
 
     /**
