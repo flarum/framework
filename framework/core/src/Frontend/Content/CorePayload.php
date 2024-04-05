@@ -9,7 +9,6 @@
 
 namespace Flarum\Frontend\Content;
 
-use Flarum\Foundation\Config;
 use Flarum\Foundation\MaintenanceMode;
 use Flarum\Frontend\Document;
 use Flarum\Http\RequestUtil;

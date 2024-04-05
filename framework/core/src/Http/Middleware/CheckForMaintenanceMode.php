@@ -9,7 +9,6 @@
 
 namespace Flarum\Http\Middleware;
 
-use Flarum\Foundation\Config;
 use Flarum\Foundation\MaintenanceMode;
 use Flarum\Http\Exception\MaintenanceModeException;
 use Flarum\Http\RequestUtil;

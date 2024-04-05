@@ -9,7 +9,6 @@
 
 namespace Flarum\Forum\Controller;
 
-use Flarum\Foundation\Config;
 use Flarum\Foundation\MaintenanceMode;
 use Flarum\Http\Controller\AbstractHtmlController;
 use Flarum\Http\RequestUtil;
