@@ -99,7 +99,14 @@ export interface SelectSettingComponentOptions extends CommonSettingsItemOptions
   /**
    * Map of values to their labels
    */
-  options: { [value: string]: Mithril.Children };
+  options: {
+    [value: string]:
+      | Mithril.Children
+      | {
+          label: Mithril.Children;
+          disabled?: boolean;
+        };
+  };
   default: string;
 }
 
