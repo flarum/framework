@@ -7,7 +7,7 @@ import classList from '../../common/utils/classList';
 import Stream from '../../common/utils/Stream';
 import saveSettings from '../utils/saveSettings';
 import AdminHeader from './AdminHeader';
-import FormGroup, { FieldComponentOptions } from './FormGroup';
+import FormGroup, { FieldComponentOptions } from '../../common/components/FormGroup';
 import extractText from '../../common/utils/extractText';
 
 export interface AdminHeaderOptions {

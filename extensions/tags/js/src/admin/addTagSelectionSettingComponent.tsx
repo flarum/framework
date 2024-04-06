@@ -1,7 +1,7 @@
 import { extend } from 'flarum/common/extend';
 import SelectTagsSettingComponent from './components/SelectTagsSettingComponent';
-import FormGroup from 'flarum/admin/components/FormGroup';
-import type { IFormGroupAttrs } from 'flarum/admin/components/FormGroup';
+import FormGroup from 'flarum/common/components/FormGroup';
+import type { IFormGroupAttrs } from 'flarum/common/components/FormGroup';
 
 export default function () {
   extend(FormGroup.prototype, 'customFieldComponents', function (items) {

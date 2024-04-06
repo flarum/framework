@@ -3,7 +3,7 @@ import Button from '../../common/components/Button';
 import EditCustomCssModal from './EditCustomCssModal';
 import EditCustomHeaderModal from './EditCustomHeaderModal';
 import EditCustomFooterModal from './EditCustomFooterModal';
-import UploadImageButton from './UploadImageButton';
+import UploadImageButton from '../../common/components/UploadImageButton';
 import AdminPage from './AdminPage';
 import ItemList from '../../common/utils/ItemList';
 import type Mithril from 'mithril';

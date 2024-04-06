@@ -1,14 +1,14 @@
-import Component from '../../common/Component';
+import Component from '../Component';
 import generateElementId from '../utils/generateElementId';
-import Switch from '../../common/components/Switch';
-import Select from '../../common/components/Select';
+import Switch from './Switch';
+import Select from './Select';
 import UploadImageButton from './UploadImageButton';
-import classList from '../../common/utils/classList';
-import ColorPreviewInput from '../../common/components/ColorPreviewInput';
-import Stream from '../../common/utils/Stream';
-import ItemList from '../../common/utils/ItemList';
+import classList from '../utils/classList';
+import ColorPreviewInput from './ColorPreviewInput';
+import Stream from '../utils/Stream';
+import ItemList from '../utils/ItemList';
 import type { IUploadImageButtonAttrs } from './UploadImageButton';
-import type { ComponentAttrs } from '../../common/Component';
+import type { ComponentAttrs } from '../Component';
 import type Mithril from 'mithril';
 
 /**
