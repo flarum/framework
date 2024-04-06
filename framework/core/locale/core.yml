@@ -206,6 +206,7 @@ core:
         button_label: README
         no_readme: This extension does not appear to have a README file
         title: "{extName} documentation"
+      safe_mode_warning: Safe mode is currently enabled. Extensions are not booted and their settings are therefore inaccessible.
 
     # These translations are used in the secondary header.
     header:
