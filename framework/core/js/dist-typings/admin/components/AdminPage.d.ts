@@ -1,8 +1,7 @@
 import type Mithril from 'mithril';
 import Page, { IPageAttrs } from '../../common/components/Page';
 import Stream from '../../common/utils/Stream';
-import ItemList from '../../common/utils/ItemList';
-import type { IUploadImageButtonAttrs } from './UploadImageButton';
+import { FieldComponentOptions } from '../../common/components/FormGroup';
 export interface AdminHeaderOptions {
     title: Mithril.Children;
     description: Mithril.Children;
@@ -14,78 +13,9 @@ export interface AdminHeaderOptions {
      */
     className: string;
 }
-/**
- * A type that matches any valid value for the `type` attribute on an HTML `<input>` element.
- *
- * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#attr-type
- *
- * Note: this will be exported from a different location in the future.
- *
- * @see https://github.com/flarum/core/issues/3039
- */
-export declare type HTMLInputTypes = 'button' | 'checkbox' | 'color' | 'date' | 'datetime-local' | 'email' | 'file' | 'hidden' | 'image' | 'month' | 'number' | 'password' | 'radio' | 'range' | 'reset' | 'search' | 'submit' | 'tel' | 'text' | 'time' | 'url' | 'week';
-export interface CommonSettingsItemOptions extends Mithril.Attributes {
+export declare type SettingsComponentOptions = FieldComponentOptions & {
     setting: string;
-    label?: Mithril.Children;
-    help?: Mithril.Children;
-    className?: string;
-}
-/**
- * Valid options for the setting component builder to generate an HTML input element.
- */
-export interface HTMLInputSettingsComponentOptions extends CommonSettingsItemOptions {
-    /**
-     * Any valid HTML input `type` value.
-     */
-    type: HTMLInputTypes;
-}
-declare const BooleanSettingTypes: readonly ["bool", "checkbox", "switch", "boolean"];
-declare const SelectSettingTypes: readonly ["select", "dropdown", "selectdropdown"];
-declare const TextareaSettingTypes: readonly ["textarea"];
-declare const ColorPreviewSettingType: "color-preview";
-declare const ImageUploadSettingType: "image-upload";
-/**
- * Valid options for the setting component builder to generate a Switch.
- */
-export interface SwitchSettingComponentOptions extends CommonSettingsItemOptions {
-    type: typeof BooleanSettingTypes[number];
-}
-/**
- * Valid options for the setting component builder to generate a Select dropdown.
- */
-export interface SelectSettingComponentOptions extends CommonSettingsItemOptions {
-    type: typeof SelectSettingTypes[number];
-    /**
-     * Map of values to their labels
-     */
-    options: {
-        [value: string]: Mithril.Children;
-    };
-    default: string;
-}
-/**
- * Valid options for the setting component builder to generate a Textarea.
- */
-export interface TextareaSettingComponentOptions extends CommonSettingsItemOptions {
-    type: typeof TextareaSettingTypes[number];
-}
-/**
- * Valid options for the setting component builder to generate a ColorPreviewInput.
- */
-export interface ColorPreviewSettingComponentOptions extends CommonSettingsItemOptions {
-    type: typeof ColorPreviewSettingType;
-}
-export interface ImageUploadSettingComponentOptions extends CommonSettingsItemOptions, IUploadImageButtonAttrs {
-    type: typeof ImageUploadSettingType;
-}
-export interface CustomSettingComponentOptions extends CommonSettingsItemOptions {
-    type: string;
-    [key: string]: unknown;
-}
-/**
- * All valid options for the setting component builder.
- */
-export declare type SettingsComponentOptions = HTMLInputSettingsComponentOptions | SwitchSettingComponentOptions | SelectSettingComponentOptions | TextareaSettingComponentOptions | ColorPreviewSettingComponentOptions | ImageUploadSettingComponentOptions | CustomSettingComponentOptions;
+};
 /**
  * Valid attrs that can be returned by the `headerInfo` function
  */
@@ -117,36 +47,6 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
      * Returns the options passed to the AdminHeader component.
      */
     headerInfo(): AdminHeaderAttrs;
-    /**
-     * A list of extension-defined custom setting components to be available through
-     * {@link AdminPage.buildSettingComponent}.
-     *
-     * The ItemList key represents the value for `type` to be provided when calling
-     * {@link AdminPage.buildSettingComponent}. Other attributes passed are provided
-     * as arguments to the function added to the ItemList.
-     *
-     * ItemList priority has no effect here.
-     *
-     * @example
-     * ```tsx
-     * extend(AdminPage.prototype, 'customSettingComponents', function (items) {
-     *   // You can access the AdminPage instance with `this` to access its `settings` property.
-     *
-     *   // Prefixing the key with your extension ID is recommended to avoid collisions.
-     *   items.add('my-ext.setting-component', (attrs) => {
-     *     return (
-     *       <div className={attrs.className}>
-     *         <label>{attrs.label}</label>
-     *         {attrs.help && <p className="helpText">{attrs.help}</p>}
-     *
-     *         My setting component!
-     *       </div>
-     *     );
-     *   })
-     * })
-     * ```
-     */
-    customSettingComponents(): ItemList<(attributes: CommonSettingsItemOptions) => Mithril.Children>;
     /**
      * `buildSettingComponent` takes a settings object and turns it into a component.
      * Depending on the type of input, you can set the type to 'bool', 'select', or
@@ -208,4 +108,3 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
     saveSettings(e: SaveSubmitEvent): Promise<void>;
     modelLocale(): Record<string, string>;
 }
-export {};
