@@ -7,13 +7,13 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Api\Controller;
+namespace Flarum\ExtensionManager\Api\Controller;
 
 use Flarum\Api\Controller\AbstractListController;
+use Flarum\ExtensionManager\Api\Serializer\TaskSerializer;
+use Flarum\ExtensionManager\Task\Task;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
-use Flarum\PackageManager\Api\Serializer\TaskSerializer;
-use Flarum\PackageManager\Task\TaskRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -22,8 +22,7 @@ class ListTasksController extends AbstractListController
     public ?string $serializer = TaskSerializer::class;
 
     public function __construct(
-        protected UrlGenerator $url,
-        protected TaskRepository $repository
+        protected UrlGenerator $url
     ) {
     }
 
@@ -36,19 +35,18 @@ class ListTasksController extends AbstractListController
         $limit = $this->extractLimit($request);
         $offset = $this->extractOffset($request);
 
-        $results = $this->repository
-            ->query()
-            ->latest()
+        $results = Task::query()
+            ->latest('id')
             ->offset($offset)
             ->limit($limit)
             ->get();
 
-        $total = $this->repository->query()->count();
+        $total = Task::query()->count();
 
         $document->addMeta('total', (string) $total);
 
         $document->addPaginationLinks(
-            $this->url->to('api')->route('package-manager.tasks.index'),
+            $this->url->to('api')->route('extension-manager.tasks.index'),
             $request->getQueryParams(),
             $offset,
             $limit,

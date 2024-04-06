@@ -25,7 +25,9 @@ trait DispatchEventsTrait
         }
 
         foreach ($entity->releaseEvents() as $event) {
-            $event->actor = $actor;
+            if (property_exists($event, 'actor') && ! $event->actor) {
+                $event->actor = $actor;
+            }
 
             $this->events->dispatch($event);
         }

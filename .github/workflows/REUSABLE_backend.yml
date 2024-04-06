@@ -31,7 +31,8 @@ on:
         description: Versions of PHP to test with. Should be array of strings encoded as JSON array
         type: string
         required: false
-        default: '["8.1", "8.2"]'
+        # Keep PHP versions synced with build-install-packages.yml
+        default: '["8.1", "8.2", "8.3"]'
 
       php_extensions:
         description: PHP extensions to install.
@@ -51,10 +52,16 @@ on:
         required: false
         default: error_reporting=E_ALL
 
+    secrets:
+      composer_auth:
+        description: The Composer auth tokens to use for private packages.
+        required: false
+
 env:
   COMPOSER_ROOT_VERSION: dev-main
   # `inputs.composer_directory` defaults to `inputs.backend_directory`
   FLARUM_TEST_TMP_DIR_LOCAL: tests/integration/tmp
+  COMPOSER_AUTH: ${{ secrets.composer_auth }}
 
 jobs:
   test:

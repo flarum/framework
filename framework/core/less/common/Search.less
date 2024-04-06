@@ -1,105 +1,146 @@
 .Search {
   position: relative;
+}
 
-  // TODO v2.0 check if this is supported by Firefox,
-  // if so, consider switching to it.
-  ::-webkit-search-cancel-button {
-    display: none;
+.DiscussionSearchResult {
+  > .DiscussionListItem {
+    --discussion-list-item-bg-hover: var(--control-bg);
+    margin: 0 -16px;
+    border-radius: 0;
+
+    > .DiscussionListItem-content {
+      opacity: 1;
+    }
   }
 
-  &-clear {
-    // It looks very weird due to the padding given to the button..
-    &:focus {
-      outline: none;
-    }
-
-    // ...so we display the ring around the icon inside the button, with an offset
-    .add-keyboard-focus-ring-nearby("> *");
-    .add-keyboard-focus-ring-nearby-offset("> *", 4px);
+  &.active > .DiscussionListItem {
+    background-color: var(--discussion-list-item-bg-hover);
   }
 }
-@media @tablet-up {
-  .Search {
-    transition: margin-left 0.4s;
 
-    &.focused {
-      margin-left: -400px;
+.UserSearchResult {
+  margin: 0 -16px;
 
-      input,
-      .Search-results {
-        width: 400px;
+  .badges {
+    margin-inline-start: 4px;
+  }
+  > a {
+    gap: 6px;
+    padding: 12px 15px;
+    border-radius: 0;
+  }
+  .Avatar {
+    --size: 36px;
+  }
+  .username {
+    font-size: 15px;
+  }
+}
+
+.SearchModal {
+  &-body {
+    display: flex;
+    flex-direction: column;
+    row-gap: 6px;
+  }
+
+  &-tabs {
+    &-nav + .Modal-divider {
+      margin-top: 0;
+    }
+
+    &-nav {
+      margin-bottom: -1px;
+      display: flex;
+      column-gap: 4px;
+      padding: 0 14px;
+
+      > .Button {
+        border-radius: 0;
+        font-size: 15px;
+        padding: 12px 8px;
+        border-bottom: 2px solid;
+        border-color: transparent;
+
+        &[active] {
+          --button-color: var(--text-color);
+          --link-color: var(--text-color);
+          border-color: var(--primary-color);
+          font-weight: bold;
+        }
+      }
+    }
+
+    &-content {
+      .Dropdown--expanded();
+
+      .Dropdown-header {
+        color: var(--muted-more-color);
+      }
+
+      > .SearchModal-section:first-of-type .Modal-divider {
+        margin-top: -1px;
       }
     }
   }
-}
-.Search-results {
-  overflow: auto;
-  left: auto;
-  right: 0;
 
-  @media @phone {
-    left: 0;
+  &-input {
+    background: transparent !important;
+    height: 42px;
+    border-color: var(--form-control-color);
   }
 
-  > li > a {
-    white-space: normal;
-  }
-
-  mark {
-    background: none;
-    padding: 0;
-    font-weight: bold;
-    color: inherit;
-    box-shadow: none;
-  }
-}
-
-.Search-input {
-  overflow: hidden;
-  color: var(--muted-color);
-
-  &-icon {
-    margin-right: -36px;
-    width: 36px;
-    font-size: 14px;
-    text-align: center;
-    position: absolute;
-    padding: 8px 0;
-    line-height: 1.5;
-    pointer-events: none;
-  }
-  input {
-    width: 225px;
-    padding-left: 32px;
-    padding-right: 32px;
-    transition: var(--transition), width 0.4s;
-    box-sizing: inherit !important;
-  }
-
-  .LoadingIndicator-container {
-    height: 36px;
-  }
-
-  .Button {
-    position: absolute;
-    right: 0;
-    top: 0;
-    margin-left: -36px;
-    width: 36px !important;
-
-    &.LoadingIndicator {
-      width: var(--size) !important;
+  &-results {
+    mark {
+      background: none;
       padding: 0;
+      font-weight: bold;
+      color: inherit;
+      box-shadow: none;
+    }
+
+    .Badge {
+      --packing-space: 8px;
+      --size: 18px;
+      box-shadow: none;
     }
   }
+
+  &-fullPage .LinkButton {
+    font-weight: bold;
+  }
+
+  .Dropdown-menu>li>a, .Dropdown-menu>li>button, .Dropdown-menu>li>span {
+    border-radius: var(--border-radius);
+  }
+
+  .Input {
+    z-index: 0;
+  }
 }
 
-.DiscussionSearchResult-excerpt {
-  margin-top: 3px;
-  color: var(--muted-color);
-  font-size: 11px;
+.SearchModal-visual-wrapper {
+  position: absolute;
+  inset: 0;
+  margin-left: 34px;
+  margin-right: 32px;
+  line-height: 42px;
+  color: transparent;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
 }
-.UserSearchResult .Avatar {
-  .Avatar--size(24px);
-  margin: -2px 10px -2px 0;
+
+.SearchModal-visual-input {
+  position: absolute;
+  inset: 0;
+  white-space: pre;
 }
+
+.SearchModal-visual-input mark {
+  margin: 0;
+  padding: 0;
+  background-color: var(--control-bg-shaded);
+  color: transparent;
+}
+

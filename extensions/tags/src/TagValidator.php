@@ -18,6 +18,6 @@ class TagValidator extends AbstractValidator
         'slug' => ['required', 'unique:tags', 'regex:/^[^\/\\ ]*$/i'],
         'is_hidden' => ['bool'],
         'description' => ['string', 'max:700'],
-        'color' => ['regex:/^#([a-f0-9]{6}|[a-f0-9]{3})$/i'],
+        'color' => ['hex_color'],
     ];
 }

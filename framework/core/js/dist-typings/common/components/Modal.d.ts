@@ -2,7 +2,6 @@ import Component from '../Component';
 import { AlertAttrs } from './Alert';
 import type Mithril from 'mithril';
 import type ModalManagerState from '../states/ModalManagerState';
-import type RequestError from '../utils/RequestError';
 import type ModalManager from './ModalManager';
 export interface IInternalModalAttrs {
     state: ModalManagerState;
@@ -10,10 +9,6 @@ export interface IInternalModalAttrs {
     animateHide: ModalManager['animateHide'];
 }
 export interface IDismissibleOptions {
-    /**
-     * @deprecated Check specific individual attributes instead. Will be removed in Flarum 2.0.
-     */
-    isDismissible: boolean;
     viaCloseButton: boolean;
     viaEscKey: boolean;
     viaBackdropClick: boolean;
@@ -23,12 +18,6 @@ export interface IDismissibleOptions {
  * should implement the `className`, `title`, and `content` methods.
  */
 export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IInternalModalAttrs, CustomState = undefined> extends Component<ModalAttrs, CustomState> {
-    /**
-     * Determine whether or not the modal should be dismissible via an 'x' button.
-     *
-     * @deprecated Use the individual `isDismissibleVia...` attributes instead and remove references to this.
-     */
-    static readonly isDismissible: boolean;
     /**
      * Can the model be dismissed with a close button (X)?
      *
@@ -49,13 +38,14 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
      * Attributes for an alert component to show below the header.
      */
     alertAttrs: AlertAttrs | null;
-    oninit(vnode: Mithril.Vnode<ModalAttrs, this>): void;
     oncreate(vnode: Mithril.VnodeDOM<ModalAttrs, this>): void;
     onbeforeremove(vnode: Mithril.VnodeDOM<ModalAttrs, this>): Promise<void> | void;
     /**
      * @todo split into FormModal and Modal in 2.0
      */
     view(): JSX.Element;
+    protected wrapper(children: Mithril.Children): Mithril.Children;
+    protected inner(): Mithril.Children;
     /**
      * Get the class name to apply to the modal.
      */
@@ -69,13 +59,7 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
      */
     abstract content(): Mithril.Children;
     /**
-     * Handle the modal form's submit event.
-     */
-    onsubmit(e: SubmitEvent): void;
-    /**
      * Callback executed when the modal is shown and ready to be interacted with.
-     *
-     * @remark Focuses the first input in the modal.
      */
     onready(): void;
     /**
@@ -86,10 +70,5 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
      * Sets `loading` to false and triggers a redraw.
      */
     loaded(): void;
-    /**
-     * Shows an alert describing an error returned from the API, and gives focus to
-     * the first relevant field involved in the error.
-     */
-    onerror(error: RequestError): void;
     private get dismissibleOptions();
 }

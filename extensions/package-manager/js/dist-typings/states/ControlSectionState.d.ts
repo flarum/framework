@@ -9,6 +9,8 @@ export declare type UpdatedPackage = {
     'latest-minor': string | null;
     'latest-major': string | null;
     'latest-status': string;
+    'required-as': string;
+    'direct-dependency': boolean;
     description: string;
 };
 export declare type ComposerUpdates = {
@@ -31,7 +33,7 @@ export declare type LastUpdateRun = {
 } & {
     limitedPackages: () => string[];
 };
-export declare type LoadingTypes = UpdaterLoadingTypes | InstallerLoadingTypes | MajorUpdaterLoadingTypes;
+export declare type LoadingTypes = UpdaterLoadingTypes | InstallerLoadingTypes | MajorUpdaterLoadingTypes | 'queued-action';
 export declare type CoreUpdate = {
     package: UpdatedPackage;
     extension: Extension;
@@ -45,13 +47,17 @@ export default class ControlSectionState {
     get lastUpdateRun(): LastUpdateRun;
     constructor();
     isLoading(name?: LoadingTypes): boolean;
-    isLoadingOtherThan(name: LoadingTypes): boolean;
+    hasOperationRunning(): boolean;
     setLoading(name: LoadingTypes): void;
+    requirePackage(data: any): void;
     checkForUpdates(): void;
     updateCoreMinor(): void;
-    updateExtension(extension: Extension): void;
+    updateExtension(extension: Extension, updateMode: 'soft' | 'hard'): void;
     updateGlobally(): void;
     formatExtensionUpdates(lastUpdateCheck: LastUpdateCheck): Extension[];
     formatCoreUpdate(lastUpdateCheck: LastUpdateCheck): CoreUpdate | null;
+    majorUpdate({ dryRun }: {
+        dryRun: boolean;
+    }): void;
 }
 export {};

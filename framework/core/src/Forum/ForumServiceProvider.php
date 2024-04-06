@@ -173,12 +173,6 @@ class ForumServiceProvider extends AbstractServiceProvider
         $events->listen(
             Saved::class,
             function (Saved $event) use ($container) {
-                $recompile = new RecompileFrontendAssets(
-                    $container->make('flarum.assets.forum'),
-                    $container->make(LocaleManager::class)
-                );
-                $recompile->whenSettingsSaved($event);
-
                 $validator = new ValidateCustomLess(
                     $container->make('flarum.assets.forum'),
                     $container->make('flarum.locales'),

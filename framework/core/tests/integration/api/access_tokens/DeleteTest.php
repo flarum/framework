@@ -115,7 +115,7 @@ class DeleteTest extends TestCase
 
         $response = $this->send($request);
 
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
     /**

@@ -31,6 +31,21 @@
   &, > li {
     display: inline-block;
   }
+
+  &--packed {
+    --packing-space: 10px;
+    padding-inline-start: var(--packing-space);
+
+    .Badge {
+      margin-left: calc(~"0px - var(--packing-space)");
+      position: relative;
+      pointer-events: auto;
+    }
+  }
+
+  &:empty {
+    display: none;
+  }
 }
 
 .Badge--hidden {

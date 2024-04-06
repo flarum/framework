@@ -10,6 +10,7 @@ import Form from 'flarum/common/components/Form';
 import EditTagModal from './EditTagModal';
 import tagIcon from '../../common/helpers/tagIcon';
 import sortTags from '../../common/utils/sortTags';
+import FormSectionGroup, { FormSection } from '@flarum/core/src/admin/components/FormSectionGroup';
 
 function tagItem(tag) {
   return (
@@ -66,17 +67,15 @@ export default class TagsPage extends ExtensionPage {
       <div className="TagsContent">
         <div className="TagsContent-list">
           <div className="container" key={this.forcedRefreshKey} oncreate={this.onListOnCreate.bind(this)}>
-            <div className="SettingsGroups">
-              <div className="TagGroup">
-                <label>{app.translator.trans('flarum-tags.admin.tags.primary_heading')}</label>
+            <FormSectionGroup>
+              <FormSection className="TagGroup" label={app.translator.trans('flarum-tags.admin.tags.primary_heading')}>
                 <ol className="TagList TagList--primary">{tags.filter((tag) => tag.position() !== null && !tag.isChild()).map(tagItem)}</ol>
                 <Button className="Button TagList-button" icon="fas fa-plus" onclick={() => app.modal.show(EditTagModal, { primary: true })}>
                   {app.translator.trans('flarum-tags.admin.tags.create_primary_tag_button')}
                 </Button>
-              </div>
+              </FormSection>
 
-              <div className="TagGroup TagGroup--secondary">
-                <label>{app.translator.trans('flarum-tags.admin.tags.secondary_heading')}</label>
+              <FormSection className="TagGroup TagGroup--secondary" label={app.translator.trans('flarum-tags.admin.tags.secondary_heading')}>
                 <ul className="TagList">
                   {tags
                     .filter((tag) => tag.position() === null)
@@ -86,41 +85,44 @@ export default class TagsPage extends ExtensionPage {
                 <Button className="Button TagList-button" icon="fas fa-plus" onclick={() => app.modal.show(EditTagModal, { primary: false })}>
                   {app.translator.trans('flarum-tags.admin.tags.create_secondary_tag_button')}
                 </Button>
-              </div>
-              <Form label={app.translator.trans('flarum-tags.admin.tags.settings_heading')}>
-                <div className="Form-group">
-                  <label>{app.translator.trans('flarum-tags.admin.tag_settings.required_primary_heading')}</label>
-                  <div className="helpText">{app.translator.trans('flarum-tags.admin.tag_settings.required_primary_text')}</div>
-                  <div className="TagSettings-rangeInput">
-                    <input
-                      className="FormControl"
-                      type="number"
-                      min="0"
-                      value={minPrimaryTags()}
-                      oninput={withAttr('value', this.setMinTags.bind(this, minPrimaryTags, maxPrimaryTags))}
-                    />
-                    {app.translator.trans('flarum-tags.admin.tag_settings.range_separator_text')}
-                    <input className="FormControl" type="number" min={minPrimaryTags()} bidi={maxPrimaryTags} />
+              </FormSection>
+
+              <FormSection label={app.translator.trans('flarum-tags.admin.tags.settings_heading')}>
+                <Form>
+                  <div className="Form-group">
+                    <label>{app.translator.trans('flarum-tags.admin.tag_settings.required_primary_heading')}</label>
+                    <div className="helpText">{app.translator.trans('flarum-tags.admin.tag_settings.required_primary_text')}</div>
+                    <div className="TagSettings-rangeInput">
+                      <input
+                        className="FormControl"
+                        type="number"
+                        min="0"
+                        value={minPrimaryTags()}
+                        oninput={withAttr('value', this.setMinTags.bind(this, minPrimaryTags, maxPrimaryTags))}
+                      />
+                      {app.translator.trans('flarum-tags.admin.tag_settings.range_separator_text')}
+                      <input className="FormControl" type="number" min={minPrimaryTags()} bidi={maxPrimaryTags} />
+                    </div>
                   </div>
-                </div>
-                <div className="Form-group">
-                  <label>{app.translator.trans('flarum-tags.admin.tag_settings.required_secondary_heading')}</label>
-                  <div className="helpText">{app.translator.trans('flarum-tags.admin.tag_settings.required_secondary_text')}</div>
-                  <div className="TagSettings-rangeInput">
-                    <input
-                      className="FormControl"
-                      type="number"
-                      min="0"
-                      value={minSecondaryTags()}
-                      oninput={withAttr('value', this.setMinTags.bind(this, minSecondaryTags, maxSecondaryTags))}
-                    />
-                    {app.translator.trans('flarum-tags.admin.tag_settings.range_separator_text')}
-                    <input className="FormControl" type="number" min={minSecondaryTags()} bidi={maxSecondaryTags} />
+                  <div className="Form-group">
+                    <label>{app.translator.trans('flarum-tags.admin.tag_settings.required_secondary_heading')}</label>
+                    <div className="helpText">{app.translator.trans('flarum-tags.admin.tag_settings.required_secondary_text')}</div>
+                    <div className="TagSettings-rangeInput">
+                      <input
+                        className="FormControl"
+                        type="number"
+                        min="0"
+                        value={minSecondaryTags()}
+                        oninput={withAttr('value', this.setMinTags.bind(this, minSecondaryTags, maxSecondaryTags))}
+                      />
+                      {app.translator.trans('flarum-tags.admin.tag_settings.range_separator_text')}
+                      <input className="FormControl" type="number" min={minSecondaryTags()} bidi={maxSecondaryTags} />
+                    </div>
                   </div>
-                </div>
-                <div className="Form-group Form-controls">{this.submitButton()}</div>
-              </Form>
-            </div>
+                  <div className="Form-group Form-controls">{this.submitButton()}</div>
+                </Form>
+              </FormSection>
+            </FormSectionGroup>
             <div className="TagsContent-footer">
               <p>{app.translator.trans('flarum-tags.admin.tags.about_tags_text')}</p>
             </div>

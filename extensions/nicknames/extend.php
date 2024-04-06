@@ -12,6 +12,7 @@ namespace Flarum\Nicknames;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Extend;
 use Flarum\Nicknames\Access\UserPolicy;
+use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\User\Event\Saving;
 use Flarum\User\Search\UserSearcher;
 use Flarum\User\User;
@@ -44,15 +45,16 @@ return [
         ->default('flarum-nicknames.set_on_registration', true)
         ->default('flarum-nicknames.min', 1)
         ->default('flarum-nicknames.max', 150)
-        ->serializeToForum('displayNameDriver', 'display_name_driver', null, 'username')
+        ->default('display_name_driver', 'username')
+        ->serializeToForum('displayNameDriver', 'display_name_driver')
         ->serializeToForum('setNicknameOnRegistration', 'flarum-nicknames.set_on_registration', 'boolval')
         ->serializeToForum('randomizeUsernameOnRegistration', 'flarum-nicknames.random_username', 'boolval'),
 
     (new Extend\Validator(UserValidator::class))
         ->configure(AddNicknameValidation::class),
 
-    (new Extend\SimpleFlarumSearch(UserSearcher::class))
-        ->setFullTextGambit(NicknameFullTextGambit::class),
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
+        ->setFulltext(UserSearcher::class, NicknameFullTextFilter::class),
 
     (new Extend\Policy())
         ->modelPolicy(User::class, UserPolicy::class),

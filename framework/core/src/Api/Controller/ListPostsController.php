@@ -12,9 +12,10 @@ namespace Flarum\Api\Controller;
 use Flarum\Api\Serializer\PostSerializer;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
-use Flarum\Post\Filter\PostFilterer;
+use Flarum\Post\Post;
 use Flarum\Post\PostRepository;
-use Flarum\Query\QueryCriteria;
+use Flarum\Search\SearchCriteria;
+use Flarum\Search\SearchManager;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
@@ -35,7 +36,7 @@ class ListPostsController extends AbstractListController
     public array $sortFields = ['number', 'createdAt'];
 
     public function __construct(
-        protected PostFilterer $filterer,
+        protected SearchManager $search,
         protected PostRepository $posts,
         protected UrlGenerator $url
     ) {
@@ -53,7 +54,10 @@ class ListPostsController extends AbstractListController
         $offset = $this->extractOffset($request);
         $include = $this->extractInclude($request);
 
-        $results = $this->filterer->filter(new QueryCriteria($actor, $filters, $sort, $sortIsDefault), $limit, $offset);
+        $results = $this->search->query(
+            Post::class,
+            new SearchCriteria($actor, $filters, $limit, $offset, $sort, $sortIsDefault)
+        );
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('posts.index'),

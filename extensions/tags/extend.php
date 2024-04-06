@@ -13,25 +13,25 @@ use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
-use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Flags\Api\Controller\ListFlagsController;
 use Flarum\Http\RequestUtil;
-use Flarum\Post\Filter\PostFilterer;
+use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
+use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Tags\Access;
 use Flarum\Tags\Api\Controller;
 use Flarum\Tags\Api\Serializer\TagSerializer;
 use Flarum\Tags\Content;
 use Flarum\Tags\Event\DiscussionWasTagged;
-use Flarum\Tags\Filter\HideHiddenTagsFromAllDiscussionsPage;
-use Flarum\Tags\Filter\PostTagFilter;
 use Flarum\Tags\Listener;
 use Flarum\Tags\LoadForumTagsRelationship;
 use Flarum\Tags\Post\DiscussionTaggedPost;
-use Flarum\Tags\Query\TagFilterGambit;
-use Flarum\Tags\Search\Gambit\FulltextGambit;
+use Flarum\Tags\Search\Filter\PostTagFilter;
+use Flarum\Tags\Search\Filter\TagFilter;
+use Flarum\Tags\Search\FulltextFilter;
+use Flarum\Tags\Search\HideHiddenTagsFromAllDiscussionsPage;
 use Flarum\Tags\Search\TagSearcher;
 use Flarum\Tags\Tag;
 use Flarum\Tags\Utf8SlugDriver;
@@ -135,18 +135,12 @@ return [
         ->listen(DiscussionWasTagged::class, Listener\CreatePostWhenTagsAreChanged::class)
         ->subscribe(Listener\UpdateTagMetadata::class),
 
-    (new Extend\Filter(PostFilterer::class))
-        ->addFilter(PostTagFilter::class),
-
-    (new Extend\Filter(DiscussionFilterer::class))
-        ->addFilter(TagFilterGambit::class)
-        ->addFilterMutator(HideHiddenTagsFromAllDiscussionsPage::class),
-
-    (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
-        ->addGambit(TagFilterGambit::class),
-
-    (new Extend\SimpleFlarumSearch(TagSearcher::class))
-        ->setFullTextGambit(FullTextGambit::class),
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
+        ->addFilter(PostSearcher::class, PostTagFilter::class)
+        ->addFilter(DiscussionSearcher::class, TagFilter::class)
+        ->addMutator(DiscussionSearcher::class, HideHiddenTagsFromAllDiscussionsPage::class)
+        ->addSearcher(Tag::class, TagSearcher::class)
+        ->setFulltext(TagSearcher::class, FulltextFilter::class),
 
     (new Extend\ModelUrl(Tag::class))
         ->addSlugDriver('default', Utf8SlugDriver::class),

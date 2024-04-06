@@ -1,12 +1,14 @@
 import type Mithril from 'mithril';
 
-import app from '../../forum/app';
+import app from '../app';
 import highlight from '../../common/helpers/highlight';
 import username from '../../common/helpers/username';
 import Link from '../../common/components/Link';
-import { SearchSource } from './Search';
-import User from '../../common/models/User';
+import type User from '../../common/models/User';
 import Avatar from '../../common/components/Avatar';
+import type { SearchSource } from './Search';
+import extractText from '../../common/utils/extractText';
+import listItems from '../../common/helpers/listItems';
 
 /**
  * The `UsersSearchSource` finds and displays user search results in the search
@@ -15,11 +17,21 @@ import Avatar from '../../common/components/Avatar';
 export default class UsersSearchResults implements SearchSource {
   protected results = new Map<string, User[]>();
 
-  async search(query: string): Promise<void> {
+  public resource: string = 'users';
+
+  title(): string {
+    return extractText(app.translator.trans('core.lib.search_source.users.heading'));
+  }
+
+  isCached(query: string): boolean {
+    return this.results.has(query.toLowerCase());
+  }
+
+  async search(query: string, limit: number): Promise<void> {
     return app.store
       .find<User[]>('users', {
         filter: { q: query },
-        page: { limit: 5 },
+        page: { limit },
       })
       .then((results) => {
         this.results.set(query, results);
@@ -41,20 +53,32 @@ export default class UsersSearchResults implements SearchSource {
 
     if (!results.length) return [];
 
-    return [
-      <li className="Dropdown-header">{app.translator.trans('core.forum.search.users_heading')}</li>,
-      ...results.map((user) => {
-        const name = username(user, (name: string) => highlight(name, query));
+    return results.map((user) => {
+      const name = username(user, (name: string) => highlight(name, query));
 
-        return (
-          <li className="UserSearchResult" data-index={'users' + user.id()}>
-            <Link href={app.route.user(user)}>
-              <Avatar user={user} />
+      return (
+        <li className="UserSearchResult" data-index={'users' + user.id()} data-id={user.id()}>
+          <Link href={app.route.user(user)}>
+            <Avatar user={user} />
+            <div className="UserSearchResult-name">
               {name}
-            </Link>
-          </li>
-        );
-      }),
-    ];
+              <div className="badges badges--packed">{listItems(user.badges().toArray())}</div>
+            </div>
+          </Link>
+        </li>
+      );
+    });
+  }
+
+  fullPage(query: string): null {
+    return null;
+  }
+
+  gotoItem(id: string): string | null {
+    const user = app.store.getById<User>('users', id);
+
+    if (!user) return null;
+
+    return app.route.user(user);
   }
 }

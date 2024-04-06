@@ -8,10 +8,6 @@ export interface IWelcomeHeroAttrs {
  * forum.
  */
 export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
-    /**
-     * @deprecated Extend the `isHidden` method instead.
-     */
-    hidden: boolean;
     oninit(vnode: Mithril.Vnode<IWelcomeHeroAttrs, this>): void;
     view(vnode: Mithril.Vnode<IWelcomeHeroAttrs, this>): JSX.Element | null;
     /**

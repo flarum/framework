@@ -7,30 +7,43 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Command;
+namespace Flarum\ExtensionManager\Command;
 
 use Flarum\Bus\Dispatcher as FlarumDispatcher;
-use Flarum\PackageManager\Composer\ComposerAdapter;
-use Flarum\PackageManager\Event\FlarumUpdated;
-use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
+use Flarum\ExtensionManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Event\FlarumUpdated;
+use Flarum\ExtensionManager\Exception\ComposerUpdateFailedException;
+use Flarum\Foundation\Config;
 use Illuminate\Contracts\Events\Dispatcher;
-use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Input\ArrayInput;
 
 class GlobalUpdateHandler
 {
     public function __construct(
         protected ComposerAdapter $composer,
         protected Dispatcher $events,
-        protected FlarumDispatcher $commandDispatcher
+        protected FlarumDispatcher $commandDispatcher,
+        protected Config $config
     ) {
     }
 
+    /**
+     * @throws \Flarum\User\Exception\PermissionDeniedException|ComposerUpdateFailedException
+     */
     public function handle(GlobalUpdate $command): void
     {
         $command->actor->assertAdmin();
 
+        $input = [
+            'command' => 'update',
+            '--prefer-dist' => true,
+            '--no-dev' => ! $this->config->inDebugMode(),
+            '-a' => true,
+            '--with-all-dependencies' => true,
+        ];
+
         $output = $this->composer->run(
-            new StringInput('update --prefer-dist --no-dev -a --with-all-dependencies'),
+            new ArrayInput($input),
             $command->task ?? null
         );
 

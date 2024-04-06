@@ -62,11 +62,10 @@ class ListNotificationsController extends AbstractListController
             $areMoreResults = true;
         }
 
-        $document->addPaginationLinks(
+        $this->addPaginationData(
+            $document,
+            $request,
             $this->url->to('api')->route('notifications.index'),
-            $request->getQueryParams(),
-            $offset,
-            $limit,
             $areMoreResults ? null : 0
         );
 

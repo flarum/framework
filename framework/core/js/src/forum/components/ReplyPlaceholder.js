@@ -27,7 +27,7 @@ export default class ReplyPlaceholder extends Component {
               <header className="Post-header">
                 <div className="PostUser">
                   <h3 className="PostUser-name">{username(app.session.user)}</h3>
-                  <ul className="PostUser-badges badges">{listItems(app.session.user.badges().toArray())}</ul>
+                  <ul className="PostUser-badges badges badges--packed">{listItems(app.session.user.badges().toArray())}</ul>
                 </div>
               </header>
               <div className="Post-body">

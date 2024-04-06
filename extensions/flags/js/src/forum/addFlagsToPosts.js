@@ -54,7 +54,7 @@ export default function () {
 
     const controls = PostControls.destructiveControls(this.attrs.post);
 
-    Object.keys(controls.items).forEach((k) => {
+    Object.keys(controls.toObject()).forEach((k) => {
       const attrs = controls.get(k).attrs;
 
       attrs.className = 'Button';

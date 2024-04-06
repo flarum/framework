@@ -121,52 +121,6 @@ class SettingsTest extends TestCase
     /**
      * @test
      */
-    public function custom_setting_falls_back_to_default()
-    {
-        $this->extend(
-            (new Extend\Settings())
-                ->serializeToForum('customPrefix.noCustomSetting', 'custom-prefix.no_custom_setting', null, 'customDefault')
-        );
-
-        $response = $this->send(
-            $this->request('GET', '/api', [
-                'authenticatedAs' => 1,
-            ])
-        );
-
-        $payload = json_decode($response->getBody()->getContents(), true);
-
-        $this->assertArrayHasKey('customPrefix.noCustomSetting', $payload['data']['attributes']);
-        $this->assertEquals('customDefault', $payload['data']['attributes']['customPrefix.noCustomSetting']);
-    }
-
-    /**
-     * @test
-     */
-    public function custom_setting_default_passed_to_callback()
-    {
-        $this->extend(
-            (new Extend\Settings())
-                ->serializeToForum('customPrefix.noCustomSetting', 'custom-prefix.no_custom_setting', function ($value) {
-                    return $value.'Modified2';
-                }, 'customDefault')
-        );
-
-        $response = $this->send(
-            $this->request('GET', '/api', [
-                'authenticatedAs' => 1,
-            ])
-        );
-
-        $payload = json_decode($response->getBody()->getContents(), true);
-
-        $this->assertArrayHasKey('customPrefix.noCustomSetting', $payload['data']['attributes']);
-        $this->assertEquals('customDefaultModified2', $payload['data']['attributes']['customPrefix.noCustomSetting']);
-    }
-
-    /**
-     * @test
-     */
     public function custom_setting_default_prioritizes_extender()
     {
         $this->extend(

@@ -22,18 +22,6 @@ export interface IButtonAttrs extends ComponentAttrs {
      */
     loading?: boolean;
     /**
-     * **DEPRECATED:** Please use the `aria-label` attribute instead. For tooltips, use
-     * the `<Tooltip>` component.
-     *
-     * Accessible text for the button. This should always be present if the button only
-     * contains an icon.
-     *
-     * The textual content of this attribute is passed to the DOM element as `aria-label`.
-     *
-     * @deprecated
-     */
-    title?: string | Mithril.ChildArray;
-    /**
      * Accessible text for the button. This should always be present if the button only
      * contains an icon.
      *

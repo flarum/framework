@@ -1,7 +1,7 @@
 import app from '../common/app';
 import { FlarumRequestOptions } from './Application';
-import { fireDeprecationWarning } from './helpers/fireDebugWarning';
 import Model, { ModelData, SavedModelData } from './Model';
+import GambitManager from './GambitManager';
 
 export interface MetaInformation {
   [key: string]: any;
@@ -21,7 +21,7 @@ export interface ApiQueryParamsPlural {
     | {
         q: string;
       }
-    | Record<string, string>;
+    | Record<string, any>;
   page?: {
     near?: number;
     offset?: number;
@@ -49,7 +49,11 @@ export interface ApiPayloadPlural {
     next?: string;
     prev?: string;
   };
-  meta?: MetaInformation;
+  meta?: MetaInformation & {
+    total?: number;
+    page?: number;
+    perPage?: number;
+  };
 }
 
 export type ApiPayload = ApiPayloadSingle | ApiPayloadPlural;
@@ -100,7 +104,7 @@ export default class Store {
   pushPayload<M extends Model | Model[]>(payload: ApiPayload): ApiResponse<FlatArray<M, 1>> {
     if (payload.included) payload.included.map(this.pushObject.bind(this));
 
-    const models = payload.data instanceof Array ? payload.data.map((o) => this.pushObject(o, false)) : this.pushObject(payload.data, false);
+    const models = payload.data instanceof Array ? payload.data.map((o) => this.pushObject(o)) : this.pushObject(payload.data);
     const result = models as ApiResponse<FlatArray<M, 1>>;
 
     // Attach the original payload to the model that we give back. This is
@@ -120,14 +124,11 @@ export default class Store {
    *     registered for this resource type.
    */
   pushObject<M extends Model>(data: SavedModelData): M | null;
-  pushObject<M extends Model>(data: SavedModelData, allowUnregistered: false): M;
-  pushObject<M extends Model>(data: SavedModelData, allowUnregistered = true): M | null {
+  pushObject<M extends Model>(data: SavedModelData): M | null {
     if (!this.models[data.type]) {
-      if (!allowUnregistered) {
-        setTimeout(() =>
-          fireDeprecationWarning(`Pushing object of type \`${data.type}\` not allowed, as type not yet registered in the store.`, '3206')
-        );
-      }
+      setTimeout(() => {
+        throw new Error(`Pushing object of type \`${data.type}\` not allowed, as type not yet registered in the store.`);
+      });
 
       return null;
     }
@@ -176,6 +177,10 @@ export default class Store {
       params = idOrParams;
     } else if (idOrParams) {
       url += '/' + idOrParams;
+    }
+
+    if ('filter' in params && params?.filter?.q) {
+      params.filter = app.search.gambits.apply(type, params.filter);
     }
 
     return app

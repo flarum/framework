@@ -9,11 +9,14 @@
 
 namespace Flarum\Admin\Content;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\ApplicationInfoProvider;
 use Flarum\Foundation\Config;
 use Flarum\Frontend\Document;
 use Flarum\Group\Permission;
+use Flarum\Search\AbstractDriver;
+use Flarum\Search\SearcherInterface;
 use Flarum\Settings\Event\Deserializing;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
@@ -52,6 +55,9 @@ class AdminPayload
         $document->payload['slugDrivers'] = array_map(function ($resourceDrivers) {
             return array_keys($resourceDrivers);
         }, $this->container->make('flarum.http.slugDrivers'));
+        $document->payload['searchDrivers'] = $this->getSearchDrivers();
+
+        $document->payload['advancedPageEmpty'] = $this->checkAdvancedPageEmpty();
 
         $document->payload['phpVersion'] = $this->appInfo->identifyPHPVersion();
         $document->payload['mysqlVersion'] = $this->appInfo->identifyDatabaseVersion();
@@ -76,5 +82,25 @@ class AdminPayload
                 'total' => User::query()->count()
             ]
         ];
+    }
+
+    protected function getSearchDrivers(): array
+    {
+        $searchDriversPerModel = [];
+
+        foreach ($this->container->make('flarum.search.drivers') as $driverClass => $searcherClasses) {
+            /** @var array<class-string<AbstractModel>, class-string<SearcherInterface>> $searcherClasses */
+            foreach ($searcherClasses as $modelClass => $searcherClass) {
+                /** @var class-string<AbstractDriver> $driverClass */
+                $searchDriversPerModel[$modelClass][] = $driverClass::name();
+            }
+        }
+
+        return $searchDriversPerModel;
+    }
+
+    protected function checkAdvancedPageEmpty(): bool
+    {
+        return count($this->container->make('flarum.search.drivers')) === 1;
     }
 }
