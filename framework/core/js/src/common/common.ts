@@ -36,6 +36,7 @@ import './utils/withAttr';
 import './utils/focusTrap';
 import './utils/isDark';
 import './utils/KeyboardNavigatable';
+import './utils/generateElementId';
 
 import './models/Notification';
 import './models/User';
@@ -76,6 +77,8 @@ import './components/TextEditorButton';
 import './components/Tooltip';
 import './components/AutocompleteDropdown';
 import './components/GambitsAutocompleteDropdown';
+import './components/UploadImageButton';
+import './components/FormGroup';
 
 import './helpers/fullTime';
 import './components/Avatar';
