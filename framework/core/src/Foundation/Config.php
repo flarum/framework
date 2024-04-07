@@ -59,6 +59,11 @@ class Config implements ArrayAccess
         return intval($this->data['offline'] ?? MaintenanceMode::NONE);
     }
 
+    public function safeModeExtensions(): ?array
+    {
+        return $this->data['safe_mode_extensions'];
+    }
+
     private function requireKeys(mixed ...$keys): void
     {
         foreach ($keys as $key) {

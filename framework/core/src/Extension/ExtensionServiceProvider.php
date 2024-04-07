@@ -12,6 +12,7 @@ namespace Flarum\Extension;
 use Flarum\Extension\Event\Disabling;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\MaintenanceMode;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class ExtensionServiceProvider extends AbstractServiceProvider
@@ -25,15 +26,11 @@ class ExtensionServiceProvider extends AbstractServiceProvider
         // listener on the app rather than in the service provider's boot method
         // below, so that extensions have a chance to register things on the
         // container before the core boots up (and starts resolving services).
-        $this->container['flarum']->booting(function () {
+        $this->container['flarum']->booting(function (Container $container) {
             /** @var ExtensionManager $manager */
-            $manager = $this->container->make('flarum.extensions');
-            /** @var MaintenanceMode $maintenance */
-            $maintenance = $this->container->make(MaintenanceMode::class);
+            $manager = $container->make('flarum.extensions');
 
-            if (! $maintenance->isSafeMode()) {
-                $manager->extend($this->container);
-            }
+            $manager->extend($container);
         });
     }
 

@@ -29,6 +29,10 @@ class FrontendServiceProvider extends AbstractServiceProvider
 {
     public function register(): void
     {
+        $this->container->singleton('flarum.assets', function (Container $container) {
+            return new AssetManager($container, $container->make(LocaleManager::class));
+        });
+
         $this->container->singleton('flarum.assets.factory', function (Container $container) {
             return function (string $name) use ($container) {
                 $paths = $container[Paths::class];
@@ -179,6 +183,10 @@ class FrontendServiceProvider extends AbstractServiceProvider
             });
 
             return $assets;
+        });
+
+        $this->container->afterResolving(AssetManager::class, function (AssetManager $assets) {
+            $assets->register('common', 'flarum.assets.common');
         });
     }
 

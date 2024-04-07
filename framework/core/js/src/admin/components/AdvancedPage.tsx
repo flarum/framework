@@ -96,6 +96,9 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
   }
 
   maintenance() {
+    const safeModeExtensionsByConfig =
+      JSON.stringify(app.data.safeModeExtensions) !== JSON.stringify(this.setting('safe_mode_extensions')()) ? app.data.safeModeExtensions : false;
+
     return (
       <FormSection label={app.translator.trans('core.admin.advanced.maintenance.section_label')}>
         <Form>
@@ -103,6 +106,7 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
             type: 'select',
             help: app.translator.trans('core.admin.advanced.maintenance.help'),
             setting: 'maintenance_mode',
+            refreshAfterSaving: true,
             options: {
               [MaintenanceMode.NO_MAINTENANCE]: app.translator.trans('core.admin.advanced.maintenance.options.0'),
               [MaintenanceMode.HIGH_MAINTENANCE]: {
@@ -114,6 +118,27 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
             },
             default: 0,
           })}
+          {parseInt(this.setting('maintenance_mode')()) === MaintenanceMode.SAFE_MODE
+            ? this.buildSettingComponent({
+                type: 'dropdown',
+                label: app.translator.trans('core.admin.advanced.maintenance.safe_mode_extensions'),
+                help: safeModeExtensionsByConfig
+                  ? app.translator.trans('core.admin.advanced.maintenance.safe_mode_extensions_override_help', {
+                      extensions: safeModeExtensionsByConfig.map((id) => app.data.extensions[id].extra['flarum-extension'].title).join(', '),
+                    })
+                  : null,
+                setting: 'safe_mode_extensions',
+                json: true,
+                refreshAfterSaving: true,
+                multiple: true,
+                disabled: safeModeExtensionsByConfig,
+                options: Object.entries(app.data.extensions).reduce((acc, [id, extension]) => {
+                  // @ts-ignore
+                  acc[id] = extension.extra['flarum-extension'].title;
+                  return acc;
+                }, {}),
+              })
+            : null}
           {app.data.maintenanceByConfig ? (
             <div className="Form-group">
               <label>{app.translator.trans('core.admin.advanced.maintenance.config_override.label')}</label>

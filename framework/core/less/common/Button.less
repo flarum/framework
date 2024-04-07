@@ -34,6 +34,10 @@
       border-bottom-left-radius: 0;
     }
   }
+
+  &, & > .Button {
+    max-width: 100%;
+  }
 }
 
 //
@@ -214,6 +218,8 @@
 }
 .Button-label {
   line-height: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .Button-icon {
   line-height: inherit;

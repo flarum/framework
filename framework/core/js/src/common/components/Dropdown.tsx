@@ -9,6 +9,8 @@ import Icon from './Icon';
 export interface IDropdownAttrs extends ComponentAttrs {
   /** A class name to apply to the dropdown toggle button. */
   buttonClassName?: string;
+  /** Additional attributes to apply to the dropdown toggle button. */
+  buttonAttrs?: Record<string, string>;
   /** A class name to apply to the dropdown menu. */
   menuClassName?: string;
   /** The name of an icon to show in the dropdown toggle button. */
@@ -132,6 +134,7 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
         aria-label={this.attrs.accessibleToggleLabel}
         data-toggle="dropdown"
         onclick={this.attrs.onclick}
+        {...this.attrs.buttonAttrs}
       >
         {this.getButtonContent(children)}
       </button>

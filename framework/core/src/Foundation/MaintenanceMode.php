@@ -60,6 +60,18 @@ class MaintenanceMode
         return $mode;
     }
 
+    /** @return string[] */
+    public function safeModeExtensions(): array
+    {
+        $extensions = $this->config->safeModeExtensions();
+
+        if ($extensions === null) {
+            $extensions = json_decode($this->settings->get('safe_mode_extensions', '[]'), true);
+        }
+
+        return $extensions;
+    }
+
     public function configOverride(): bool
     {
         return $this->config->maintenanceMode() !== self::NONE;

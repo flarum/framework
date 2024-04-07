@@ -19,6 +19,7 @@ use Flarum\Foundation\ErrorHandling\WhoopsFormatter;
 use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Frontend\AddLocaleAssets;
 use Flarum\Frontend\AddTranslations;
+use Flarum\Frontend\AssetManager;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Http\Middleware as HttpMiddleware;
@@ -26,7 +27,9 @@ use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\LocaleManager;
+use Flarum\Settings\Event\Saved;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
 use Laminas\Stratigility\MiddlewarePipe;
 
 class AdminServiceProvider extends AbstractServiceProvider
@@ -104,6 +107,10 @@ class AdminServiceProvider extends AbstractServiceProvider
             return $assets;
         });
 
+//        $this->container->afterResolving(AssetManager::class, function (AssetManager $assets) {
+//            $assets->register('admin', 'flarum.assets.admin');
+//        });
+
         $this->container->bind('flarum.frontend.admin', function (Container $container) {
             /** @var \Flarum\Frontend\Frontend $frontend */
             $frontend = $container->make('flarum.frontend.factory')('admin');
@@ -114,20 +121,28 @@ class AdminServiceProvider extends AbstractServiceProvider
         });
     }
 
-    public function boot(): void
+    public function boot(Container $container, Dispatcher $events): void
     {
         $this->loadViewsFrom(__DIR__.'/../../views', 'flarum.admin');
 
-        $events = $this->container->make('events');
-
         $events->listen(
             [Enabled::class, Disabled::class, ClearingCache::class],
-            function () {
+            function () use ($container) {
                 $recompile = new RecompileFrontendAssets(
-                    $this->container->make('flarum.assets.admin'),
-                    $this->container->make(LocaleManager::class)
+                    $container->make('flarum.assets.admin'),
+                    $container->make(LocaleManager::class)
                 );
                 $recompile->flush();
+            }
+        );
+
+        $events->listen(
+            Saved::class,
+            function (Saved $event) use ($container) {
+                /** @var WhenSavingSettings $listener */
+                $listener = $container->make(WhenSavingSettings::class);
+
+                $listener->afterSave($event);
             }
         );
     }

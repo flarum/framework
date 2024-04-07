@@ -16,6 +16,7 @@ use Flarum\Extension\Event\Enabled;
 use Flarum\Extension\Event\Enabling;
 use Flarum\Extension\Event\Uninstalled;
 use Flarum\Extension\Exception\CircularDependenciesException;
+use Flarum\Foundation\MaintenanceMode;
 use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
@@ -37,7 +38,8 @@ class ExtensionManager
         protected Container $container,
         protected Migrator $migrator,
         protected Dispatcher $dispatcher,
-        protected Filesystem $filesystem
+        protected Filesystem $filesystem,
+        protected MaintenanceMode $maintenance,
     ) {
     }
 
@@ -302,7 +304,17 @@ class ExtensionManager
      */
     public function extend(Container $container): void
     {
-        foreach ($this->getEnabledExtensions() as $extension) {
+        $extensions = $this->getEnabledExtensions();
+
+        if ($this->maintenance->isSafeMode()) {
+            $safeModeExtensions = $this->maintenance->safeModeExtensions();
+
+            $extensions = array_filter($extensions, function (Extension $extension) use ($safeModeExtensions) {
+                return in_array($extension->getId(), $safeModeExtensions, true);
+            });
+        }
+
+        foreach ($extensions as $extension) {
             $extension->extend($container);
         }
     }
