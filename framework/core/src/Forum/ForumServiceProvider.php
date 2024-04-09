@@ -21,6 +21,7 @@ use Flarum\Foundation\Event\ClearingCache;
 use Flarum\Foundation\MaintenanceMode;
 use Flarum\Frontend\AddLocaleAssets;
 use Flarum\Frontend\AddTranslations;
+use Flarum\Frontend\AssetManager;
 use Flarum\Frontend\Assets;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Frontend;
@@ -139,6 +140,10 @@ class ForumServiceProvider extends AbstractServiceProvider
             $container->make(AddLocaleAssets::class)->to($assets);
 
             return $assets;
+        });
+
+        $this->container->afterResolving(AssetManager::class, function (AssetManager $assets) {
+            $assets->register('forum', 'flarum.assets.forum');
         });
 
         $this->container->bind('flarum.frontend.forum', function (Container $container, array $parameters = []) {

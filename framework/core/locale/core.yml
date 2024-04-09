@@ -14,12 +14,15 @@ core:
         config_override:
           label: Your <code>config.php</code> file is overriding these settings.
           help: You can still change these settings here, but they will not take effect until you set <code>offline</code> to <code>0</code> in your <code>config.php</code> file.
-        section_label: Maintenance
         help: Put your forum in maintenance mode to prevent users from accessing it.
         options:
           0: No maintenance.
           1: High maintenance mode. No one can access the forum (can only be enabled through config.php)
           2: Low maintenance mode. Admins can access the forum.
+          3: Safe mode. No extensions are booted and only admins can access the forum.
+        safe_mode_extensions: Extensions allowed to boot during safe mode
+        safe_mode_extensions_override_help: "This setting is overridden by the <code>safe_mode_extensions</code> key in your <code>config.php</code> file. (<b>{extensions}</b>)"
+        section_label: Maintenance
       search:
         section_label: Search Drivers
         driver_heading: "Search Driver: {model}"
@@ -205,6 +208,7 @@ core:
         button_label: README
         no_readme: This extension does not appear to have a README file
         title: "{extName} documentation"
+      safe_mode_warning: Safe mode is currently enabled. Extensions are not booted and their settings are therefore inaccessible.
 
     # These translations are used in the secondary header.
     header:
@@ -700,13 +704,18 @@ core:
     modal:
       close: Close
 
+    # These translations are used in multi-select components.
+    multi_select:
+      placeholder: Select multiple options
+
     # These translations are used in the navigation header.
     nav:
       drawer_button: Open Navigation Drawer
 
     # These translations are used in forum & admin notices.
     notices:
-      maintenance_mode_2: Down for maintenance. Only administrators may access the forum.
+      maintenance_mode_2: Down for maintenance. Only administrators can access the forum.
+      maintenance_mode_3: Down for maintenance with safe mode. Only administrators can access the forum and no extensions are booted.
 
     # These translations are used as suffixes when abbreviating numbers.
     number_suffix:

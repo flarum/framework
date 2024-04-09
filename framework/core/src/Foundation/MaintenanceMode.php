@@ -16,6 +16,7 @@ class MaintenanceMode
     public const NONE = 0;
     public const HIGH = 1;
     public const LOW = 2;
+    public const SAFE = 3;
 
     public function __construct(
         protected readonly Config $config,
@@ -25,7 +26,7 @@ class MaintenanceMode
 
     public function inMaintenanceMode(): bool
     {
-        return $this->inHighMaintenanceMode() || $this->inLowMaintenanceMode();
+        return $this->inHighMaintenanceMode() || $this->inLowMaintenanceMode() || $this->isSafeMode();
     }
 
     public function inHighMaintenanceMode(): bool
@@ -36,6 +37,11 @@ class MaintenanceMode
     public function inLowMaintenanceMode(): bool
     {
         return $this->mode() === self::LOW;
+    }
+
+    public function isSafeMode(): bool
+    {
+        return $this->mode() === self::SAFE;
     }
 
     public function mode(): int
@@ -52,6 +58,18 @@ class MaintenanceMode
         }
 
         return $mode;
+    }
+
+    /** @return string[] */
+    public function safeModeExtensions(): array
+    {
+        $extensions = $this->config->safeModeExtensions();
+
+        if ($extensions === null) {
+            $extensions = json_decode($this->settings->get('safe_mode_extensions', '[]'), true);
+        }
+
+        return $extensions;
     }
 
     public function configOverride(): bool

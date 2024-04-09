@@ -84,6 +84,7 @@ class AdminPayload
         ];
 
         $document->payload['maintenanceByConfig'] = $this->maintenance->configOverride();
+        $document->payload['safeModeExtensions'] = $this->maintenance->safeModeExtensions();
     }
 
     protected function getSearchDrivers(): array

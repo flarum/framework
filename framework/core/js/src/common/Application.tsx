@@ -126,7 +126,9 @@ export interface RouteResolver<
 
 export enum MaintenanceMode {
   NO_MAINTENANCE = 0,
+  HIGH_MAINTENANCE = 1,
   LOW_MAINTENANCE = 2,
+  SAFE_MODE = 3,
 }
 
 export interface ApplicationData {

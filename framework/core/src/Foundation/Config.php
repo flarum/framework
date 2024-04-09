@@ -36,22 +36,32 @@ class Config implements ArrayAccess
 
     public function inMaintenanceMode(): bool
     {
-        return $this->inHighMaintenanceMode() || $this->inLowMaintenanceMode();
+        return $this->inHighMaintenanceMode() || $this->inLowMaintenanceMode() || $this->isSafeMode();
     }
 
     public function inHighMaintenanceMode(): bool
     {
-        return $this->maintenanceMode() === 1;
+        return $this->maintenanceMode() === MaintenanceMode::HIGH;
     }
 
     public function inLowMaintenanceMode(): bool
     {
-        return $this->maintenanceMode() === 2;
+        return $this->maintenanceMode() === MaintenanceMode::LOW;
+    }
+
+    public function isSafeMode(): bool
+    {
+        return $this->maintenanceMode() === MaintenanceMode::SAFE;
     }
 
     public function maintenanceMode(): int
     {
-        return intval($this->data['offline'] ?? 0);
+        return intval($this->data['offline'] ?? MaintenanceMode::NONE);
+    }
+
+    public function safeModeExtensions(): ?array
+    {
+        return $this->data['safe_mode_extensions'];
     }
 
     private function requireKeys(mixed ...$keys): void

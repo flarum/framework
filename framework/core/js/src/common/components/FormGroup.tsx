@@ -10,6 +10,7 @@ import ItemList from '../utils/ItemList';
 import type { IUploadImageButtonAttrs } from './UploadImageButton';
 import type { ComponentAttrs } from '../Component';
 import type Mithril from 'mithril';
+import MultiSelect from './MultiSelect';
 
 /**
  * A type that matches any valid value for the `type` attribute on an HTML `<input>` element.
@@ -81,8 +82,16 @@ export interface SelectFieldComponentOptions extends CommonFieldOptions {
   /**
    * Map of values to their labels
    */
-  options: { [value: string]: Mithril.Children };
+  options: {
+    [value: string]:
+      | Mithril.Children
+      | {
+          label: Mithril.Children;
+          disabled?: boolean;
+        };
+  };
   default: string;
+  multiple?: boolean;
 }
 
 /**
@@ -122,7 +131,7 @@ export type FieldComponentOptions =
 
 export type IFormGroupAttrs = ComponentAttrs &
   FieldComponentOptions & {
-    bidi?: Stream<any>;
+    stream?: Stream<any>;
   };
 
 /**
@@ -157,12 +166,12 @@ export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupA
   view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
     const customFieldComponents = this.customFieldComponents();
 
-    const { help, type, label, bidi, ...componentAttrs } = this.attrs;
+    const { help, type, label, stream, ...componentAttrs } = this.attrs;
 
     // TypeScript being TypeScript
-    const attrs = componentAttrs as unknown as Omit<IFormGroupAttrs, 'bidi' | 'label' | 'help' | 'type'>;
+    const attrs = componentAttrs as unknown as Omit<IFormGroupAttrs, 'stream' | 'label' | 'help' | 'type'>;
 
-    const value = bidi ? bidi() : null;
+    const value = stream ? stream() : null;
 
     const [inputId, helpTextId] = [generateElementId(), generateElementId()];
 
@@ -175,29 +184,31 @@ export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupA
         // TODO: Add aria-describedby for switch help text.
         //? Requires changes to Checkbox component to allow providing attrs directly for the element(s).
         <div className="Form-group">
-          <Switch state={!!value && value !== '0'} onchange={bidi} {...attrs}>
+          <Switch state={!!value && value !== '0'} onchange={stream} {...attrs}>
             {label}
           </Switch>
           {help ? <div className="helpText">{help}</div> : null}
         </div>
       );
     } else if ((SelectSettingTypes as readonly string[]).includes(type)) {
-      const { default: defaultValue, options, ...otherAttrs } = attrs;
+      const { default: defaultValue, options, multiple, ...otherAttrs } = attrs;
+
+      const Tag = multiple ? MultiSelect : Select;
 
       settingElement = (
-        <Select id={inputId} aria-describedby={helpTextId} value={value || defaultValue} options={options} onchange={bidi} {...otherAttrs} />
+        <Tag id={inputId} aria-describedby={helpTextId} value={value || defaultValue} options={options} onchange={stream} {...otherAttrs} />
       );
     } else if (type === ImageUploadSettingType) {
       const { value, ...otherAttrs } = attrs;
 
-      settingElement = <UploadImageButton value={bidi} {...otherAttrs} />;
+      settingElement = <UploadImageButton value={stream} {...otherAttrs} />;
     } else if (customFieldComponents.has(type)) {
       return customFieldComponents.get(type)(this.attrs);
     } else {
       attrs.className = classList('FormControl', attrs.className);
 
       if ((TextareaSettingTypes as readonly string[]).includes(type)) {
-        settingElement = <textarea id={inputId} aria-describedby={helpTextId} bidi={bidi} {...attrs} />;
+        settingElement = <textarea id={inputId} aria-describedby={helpTextId} bidi={stream} {...attrs} />;
       } else {
         let Tag: VnodeElementTag = 'input';
 
@@ -207,7 +218,7 @@ export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupA
           attrs.type = type;
         }
 
-        settingElement = <Tag id={inputId} aria-describedby={helpTextId} bidi={bidi} {...attrs} />;
+        settingElement = <Tag id={inputId} aria-describedby={helpTextId} bidi={stream} {...attrs} />;
       }
     }
 
