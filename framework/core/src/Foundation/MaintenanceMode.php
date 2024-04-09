@@ -13,10 +13,10 @@ use Flarum\Settings\SettingsRepositoryInterface;
 
 class MaintenanceMode
 {
-    public const NONE = 0;
-    public const HIGH = 1;
-    public const LOW = 2;
-    public const SAFE = 3;
+    public const NONE = 'none';
+    public const HIGH = 'high';
+    public const LOW = 'low';
+    public const SAFE = 'safe';
 
     public function __construct(
         protected readonly Config $config,
@@ -26,7 +26,7 @@ class MaintenanceMode
 
     public function inMaintenanceMode(): bool
     {
-        return $this->inHighMaintenanceMode() || $this->inLowMaintenanceMode() || $this->isSafeMode();
+        return $this->inHighMaintenanceMode() || $this->inLowMaintenanceMode() || $this->inSafeMode();
     }
 
     public function inHighMaintenanceMode(): bool
@@ -39,17 +39,17 @@ class MaintenanceMode
         return $this->mode() === self::LOW;
     }
 
-    public function isSafeMode(): bool
+    public function inSafeMode(): bool
     {
         return $this->mode() === self::SAFE;
     }
 
-    public function mode(): int
+    public function mode(): string
     {
         $mode = $this->config->maintenanceMode();
 
         if ($mode === self::NONE) {
-            $mode = intval($this->settings->get('maintenance_mode', self::NONE));
+            $mode = strval($this->settings->get('maintenance_mode', self::NONE));
 
             // Cannot set high maintenance mode from the settings.
             if ($mode === self::HIGH) {

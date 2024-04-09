@@ -45,7 +45,7 @@ export interface AdminApplicationData extends ApplicationData {
   searchDrivers: Record<string, string[]>;
   permissions: Record<string, string[]>;
   maintenanceByConfig: boolean;
-  safeModeExtensions?: string[];
+  safeModeExtensionsConfig?: string[] | null;
 }
 
 export default class AdminApplication extends Application {

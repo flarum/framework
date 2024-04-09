@@ -96,9 +96,6 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
   }
 
   maintenance() {
-    const safeModeExtensionsByConfig =
-      JSON.stringify(app.data.safeModeExtensions) !== JSON.stringify(this.setting('safe_mode_extensions')()) ? app.data.safeModeExtensions : false;
-
     return (
       <FormSection label={app.translator.trans('core.admin.advanced.maintenance.section_label')}>
         <Form>
@@ -108,30 +105,30 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
             setting: 'maintenance_mode',
             refreshAfterSaving: true,
             options: {
-              [MaintenanceMode.NO_MAINTENANCE]: app.translator.trans('core.admin.advanced.maintenance.options.0'),
+              [MaintenanceMode.NO_MAINTENANCE]: app.translator.trans('core.admin.advanced.maintenance.options.' + MaintenanceMode.NO_MAINTENANCE),
               [MaintenanceMode.HIGH_MAINTENANCE]: {
-                label: app.translator.trans('core.admin.advanced.maintenance.options.1'),
+                label: app.translator.trans('core.admin.advanced.maintenance.options.' + MaintenanceMode.HIGH_MAINTENANCE),
                 disabled: true,
               },
-              [MaintenanceMode.LOW_MAINTENANCE]: app.translator.trans('core.admin.advanced.maintenance.options.2'),
-              [MaintenanceMode.SAFE_MODE]: app.translator.trans('core.admin.advanced.maintenance.options.3'),
+              [MaintenanceMode.LOW_MAINTENANCE]: app.translator.trans('core.admin.advanced.maintenance.options.' + MaintenanceMode.LOW_MAINTENANCE),
+              [MaintenanceMode.SAFE_MODE]: app.translator.trans('core.admin.advanced.maintenance.options.' + MaintenanceMode.SAFE_MODE),
             },
             default: 0,
           })}
-          {parseInt(this.setting('maintenance_mode')()) === MaintenanceMode.SAFE_MODE
+          {this.setting('maintenance_mode')() === MaintenanceMode.SAFE_MODE
             ? this.buildSettingComponent({
                 type: 'dropdown',
                 label: app.translator.trans('core.admin.advanced.maintenance.safe_mode_extensions'),
-                help: safeModeExtensionsByConfig
+                help: app.data.safeModeExtensionsConfig
                   ? app.translator.trans('core.admin.advanced.maintenance.safe_mode_extensions_override_help', {
-                      extensions: safeModeExtensionsByConfig.map((id) => app.data.extensions[id].extra['flarum-extension'].title).join(', '),
+                      extensions: app.data.safeModeExtensionsConfig.map((id) => app.data.extensions[id].extra['flarum-extension'].title).join(', '),
                     })
                   : null,
                 setting: 'safe_mode_extensions',
                 json: true,
                 refreshAfterSaving: true,
                 multiple: true,
-                disabled: safeModeExtensionsByConfig,
+                disabled: app.data.safeModeExtensionsConfig,
                 options: Object.entries(app.data.extensions).reduce((acc, [id, extension]) => {
                   // @ts-ignore
                   acc[id] = extension.extra['flarum-extension'].title;

@@ -125,10 +125,10 @@ export interface RouteResolver<
 }
 
 export enum MaintenanceMode {
-  NO_MAINTENANCE = 0,
-  HIGH_MAINTENANCE = 1,
-  LOW_MAINTENANCE = 2,
-  SAFE_MODE = 3,
+  NO_MAINTENANCE = 'none',
+  HIGH_MAINTENANCE = 'high',
+  LOW_MAINTENANCE = 'low',
+  SAFE_MODE = 'safe',
 }
 
 export interface ApplicationData {

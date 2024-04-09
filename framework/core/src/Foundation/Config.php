@@ -36,7 +36,7 @@ class Config implements ArrayAccess
 
     public function inMaintenanceMode(): bool
     {
-        return $this->inHighMaintenanceMode() || $this->inLowMaintenanceMode() || $this->isSafeMode();
+        return $this->inHighMaintenanceMode() || $this->inLowMaintenanceMode() || $this->inSafeMode();
     }
 
     public function inHighMaintenanceMode(): bool
@@ -49,14 +49,18 @@ class Config implements ArrayAccess
         return $this->maintenanceMode() === MaintenanceMode::LOW;
     }
 
-    public function isSafeMode(): bool
+    public function inSafeMode(): bool
     {
         return $this->maintenanceMode() === MaintenanceMode::SAFE;
     }
 
-    public function maintenanceMode(): int
+    public function maintenanceMode(): string
     {
-        return intval($this->data['offline'] ?? MaintenanceMode::NONE);
+        return match ($mode = $this->data['offline'] ?? MaintenanceMode::NONE) {
+            true => MaintenanceMode::HIGH,
+            false => MaintenanceMode::NONE,
+            default => $mode,
+        };
     }
 
     public function safeModeExtensions(): ?array

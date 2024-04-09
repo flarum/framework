@@ -10,6 +10,7 @@
 namespace Flarum\Tests\unit\Foundation;
 
 use Flarum\Foundation\Config;
+use Flarum\Foundation\MaintenanceMode;
 use Flarum\Testing\unit\TestCase;
 use InvalidArgumentException;
 use RuntimeException;
@@ -84,10 +85,20 @@ class ConfigTest extends TestCase
 
         $config = new Config([
             'url' => 'https://flarum.localhost',
-            'offline' => 2,
+            'offline' => MaintenanceMode::LOW,
         ]);
 
+        $this->assertFalse($config->inSafeMode());
         $this->assertTrue($config->inLowMaintenanceMode());
+        $this->assertFalse($config->inHighMaintenanceMode());
+
+        $config = new Config([
+            'url' => 'https://flarum.localhost',
+            'offline' => MaintenanceMode::SAFE,
+        ]);
+
+        $this->assertTrue($config->inSafeMode());
+        $this->assertFalse($config->inLowMaintenanceMode());
         $this->assertFalse($config->inHighMaintenanceMode());
     }
 

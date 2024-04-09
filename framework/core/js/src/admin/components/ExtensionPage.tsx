@@ -63,7 +63,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     return (
       <div className={'ExtensionPage ' + this.className()}>
         {this.header()}
-        {app.data.maintenanceMode === MaintenanceMode.SAFE_MODE && !app.data.safeModeExtensions?.includes(this.extension.id) ? (
+        {app.data.maintenanceMode === MaintenanceMode.SAFE_MODE && !app.data.safeModeExtensionsConfig?.includes(this.extension.id) ? (
           <div className="container">
             <div className="ExtensionPage-body">
               <InfoTile icon="fas fa-exclamation-triangle" type="warning">

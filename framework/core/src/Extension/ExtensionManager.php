@@ -306,7 +306,7 @@ class ExtensionManager
     {
         $extensions = $this->getEnabledExtensions();
 
-        if ($this->maintenance->isSafeMode()) {
+        if ($this->maintenance->inSafeMode()) {
             $safeModeExtensions = $this->maintenance->safeModeExtensions();
 
             $extensions = array_filter($extensions, function (Extension $extension) use ($safeModeExtensions) {
