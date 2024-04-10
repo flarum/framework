@@ -18,6 +18,8 @@ use PHPStan\TrinaryLogic;
 use PHPStan\Type\Generic\GenericObjectType;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\Type;
+use PHPStan\Type\NullType;
+use PHPStan\Type\UnionType;
 
 class RelationProperty implements PropertyReflection
 {
@@ -66,7 +68,10 @@ class RelationProperty implements PropertyReflection
 
             case 'hasOne':
             case 'belongsTo':
-                return new ObjectType($this->methodCall->arguments[1]->class->toString());
+                return new UnionType([
+					new ObjectType($this->methodCall->arguments[1]->class->toString()),
+					new NullType(),
+				]);
 
             default:
                 throw new Exception('Unknown relationship type for relation: '.$this->methodCall->methodName);
