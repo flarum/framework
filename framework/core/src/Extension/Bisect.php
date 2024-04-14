@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Extension;
 
 use Closure;
@@ -68,6 +75,7 @@ class Bisect
 
         if ($low > $high) {
             $this->end();
+
             return null;
         }
 
@@ -98,7 +106,7 @@ class Bisect
             return $this->foundIssue($relevantEnabled[0]);
         }
 
-        if (count($relevantDisabled) === 1 && !$issue) {
+        if (count($relevantDisabled) === 1 && ! $issue) {
             return $this->foundIssue($relevantDisabled[0]);
         }
 

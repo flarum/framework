@@ -36,7 +36,7 @@ class BisectCommand extends Command
         $result = $this->bisect->checkIssueUsing(function (array $step) use (&$start) {
             if (! $start) {
                 $this->output->writeln("<info>Continuing bisect... {$step['stepsLeft']} steps left</info>");
-                $this->output->writeln('<info>Issue is in one of: (' . implode(', ', $step['relevantEnabled']) . ') or (' . implode(', ', $step['relevantDisabled']) . ')</info>');
+                $this->output->writeln('<info>Issue is in one of: ('.implode(', ', $step['relevantEnabled']).') or ('.implode(', ', $step['relevantDisabled']).')</info>');
             } else {
                 $start = false;
             }
@@ -46,6 +46,7 @@ class BisectCommand extends Command
 
         if (! $result) {
             $this->output->writeln('<error>Could not find the extension causing the issue.</error>');
+
             return Command::FAILURE;
         }
 
