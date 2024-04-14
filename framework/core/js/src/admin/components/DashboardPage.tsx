@@ -24,6 +24,26 @@ export default class DashboardPage extends AdminPage {
   availableWidgets(): ItemList<Children> {
     const items = new ItemList<Children>();
 
+    if (app.data.bisecting) {
+      items.add(
+        'bisecting',
+        <AlertWidget
+          alert={{
+            type: 'error',
+            dismissible: false,
+            controls: [
+              <Link className="Button Button--link" href={app.route('advanced', { modal: 'extension-bisect' })}>
+                {app.translator.trans('core.lib.notices.bisecting_continue')}
+              </Link>,
+            ],
+          }}
+        >
+          {app.translator.trans('core.lib.notices.bisecting')}
+        </AlertWidget>,
+        120
+      );
+    }
+
     if (app.data.maintenanceMode) {
       items.add(
         'maintenanceMode',

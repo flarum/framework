@@ -11,6 +11,7 @@ namespace Flarum\Extension;
 
 use Flarum\Extension\Event\Disabling;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -33,8 +34,10 @@ class ExtensionServiceProvider extends AbstractServiceProvider
         });
     }
 
-    public function boot(Dispatcher $events): void
+    public function boot(Dispatcher $events, SettingsRepositoryInterface $settings): void
     {
+        BisectState::setSettings($settings);
+
         $events->listen(
             Disabling::class,
             DefaultLanguagePackGuard::class

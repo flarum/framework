@@ -9,10 +9,12 @@
 
 namespace Flarum\Frontend\Content;
 
+use Flarum\Extension\BisectState;
 use Flarum\Foundation\MaintenanceMode;
 use Flarum\Frontend\Document;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\LocaleManager;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class CorePayload
@@ -20,6 +22,7 @@ class CorePayload
     public function __construct(
         private readonly LocaleManager $locales,
         private readonly MaintenanceMode $maintenance,
+        private readonly SettingsRepositoryInterface $settings
     ) {
     }
 
@@ -47,6 +50,10 @@ class CorePayload
 
         if ($this->maintenance->inMaintenanceMode()) {
             $payload['maintenanceMode'] = $this->maintenance->mode();
+        }
+
+        if ($this->settings->get(BisectState::SETTING)) {
+            $payload['bisecting'] = true;
         }
 
         return $payload;
