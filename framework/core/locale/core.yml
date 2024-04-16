@@ -15,7 +15,7 @@ core:
           begin_button_text: Begin Bisect
           continue_button_text: Continue Bisect
           label: Extension Bisect
-          help: Helps to identify the extension causing an issue you observed. This automatically puts the forum in maintenance mode (low) until the process is over.
+          help: Helps to identify the extension causing some issue you observed. This automatically puts the forum in maintenance mode (low) until the process is over.
         bisect_modal:
           description: >
             This puts the forum in maintenance mode (low) until the process is over.
@@ -26,7 +26,7 @@ core:
           issue_question_help: Try reproducing the issue in a separate page and answer based on the result.
           no_button: No
           result_description: >
-            Forum is no longer in maintenance mode. Extension bisect is over. Based on the information in each step, the cause of the issue is the following extension:
+            Forum is no longer in maintenance mode. Extension bisect is over. Based on your responses to each step, the cause of the issue is the following extension:
           start_button: Start bisect
           steps_left: "Steps left: {steps}"
           total_steps: This will take around {steps} steps.
