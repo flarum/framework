@@ -7,7 +7,7 @@ import Button from './Button';
 
 export type Option = {
   label: string;
-  disabled?: boolean;
+  disabled?: boolean | ((value: string[]) => boolean);
 };
 
 export interface IMultiSelectAttrs extends ComponentAttrs {
@@ -70,7 +70,11 @@ export default class MultiSelect<CustomAttrs extends IMultiSelectAttrs = IMultiS
           {Object.keys(options).map((key) => {
             const option = options[key];
             const label = typeof option === 'string' ? option : option.label;
-            const disabled = typeof option !== 'string' && option.disabled;
+            let disabled = typeof option !== 'string' && option.disabled;
+
+            if (typeof disabled === 'function') {
+              disabled = disabled(this.selected);
+            }
 
             return (
               <Button

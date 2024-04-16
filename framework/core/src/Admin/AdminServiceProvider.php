@@ -28,6 +28,7 @@ use Flarum\Http\RouteHandlerFactory;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
+use Flarum\Settings\Event\Saving;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Laminas\Stratigility\MiddlewarePipe;
@@ -137,12 +138,16 @@ class AdminServiceProvider extends AbstractServiceProvider
         );
 
         $events->listen(
-            Saved::class,
-            function (Saved $event) use ($container) {
+            [Saved::class, Saving::class],
+            function (Saved|Saving $event) use ($container) {
                 /** @var WhenSavingSettings $listener */
                 $listener = $container->make(WhenSavingSettings::class);
 
-                $listener->afterSave($event);
+                if ($event instanceof Saving) {
+                    $listener->beforeSave($event);
+                } else {
+                    $listener->afterSave($event);
+                }
             }
         );
     }

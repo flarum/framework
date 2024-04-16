@@ -9,9 +9,12 @@
 
 namespace Flarum\Admin;
 
+use Flarum\Extension\Extension;
+use Flarum\Extension\ExtensionManager;
 use Flarum\Frontend\AssetManager;
 use Flarum\Locale\LocaleManager;
 use Flarum\Settings\Event\Saved;
+use Flarum\Settings\Event\Saving;
 
 class WhenSavingSettings
 {
@@ -25,12 +28,33 @@ class WhenSavingSettings
     public function __construct(
         protected AssetManager $assets,
         protected LocaleManager $locales,
+        protected ExtensionManager $extensions,
     ) {
     }
 
-    public function afterSave(Saved $events): void
+    public function beforeSave(Saving $event): void
     {
-        if (! $this->hasDirtySettings($events)) {
+        if (array_key_exists('safe_mode_extensions', $event->settings)) {
+            $safeModeExtensions = json_decode($event->settings['safe_mode_extensions'] ?? '[]', true);
+
+            $extensions = $this->extensions->getExtensions()->filter(function ($extension) use ($safeModeExtensions) {
+                return in_array($extension->getId(), $safeModeExtensions);
+            });
+
+            $sorted = array_map(fn (Extension $e) => $e->getId(), $this->extensions->sortDependencies($extensions->all()));
+
+            $event->settings['safe_mode_extensions'] = json_encode(array_values($sorted));
+        }
+    }
+
+    public function afterSave(Saved $event): void
+    {
+        $this->resetCache($event);
+    }
+
+    protected function resetCache(Saved $event): void
+    {
+        if (! $this->hasDirtySettings($event)) {
             return;
         }
 

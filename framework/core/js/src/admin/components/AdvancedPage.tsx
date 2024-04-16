@@ -131,7 +131,19 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
                 disabled: app.data.safeModeExtensionsConfig,
                 options: Object.entries(app.data.extensions).reduce((acc, [id, extension]) => {
                   // @ts-ignore
-                  acc[id] = extension.extra['flarum-extension'].title;
+                  acc[id] = {
+                    label: extension.extra['flarum-extension'].title,
+                    disabled: (value: string[]) => {
+                      let dependenciesMet = true;
+
+                      if (extension.require) {
+                        const requiredExtensions = Object.entries(app.data.extensions).filter(([, e]) => extension.require![e.name]);
+                        dependenciesMet = !requiredExtensions.length || requiredExtensions.every(([id]) => value.includes(id));
+                      }
+
+                      return !dependenciesMet;
+                    },
+                  };
                   return acc;
                 }, {}),
               })

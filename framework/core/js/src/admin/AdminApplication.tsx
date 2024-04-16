@@ -34,6 +34,7 @@ export type Extension = {
       title: string;
     };
   };
+  require?: Record<string, string>;
 };
 
 export interface AdminApplicationData extends ApplicationData {
@@ -45,6 +46,7 @@ export interface AdminApplicationData extends ApplicationData {
   searchDrivers: Record<string, string[]>;
   permissions: Record<string, string[]>;
   maintenanceByConfig: boolean;
+  safeModeExtensions?: string[] | null;
   safeModeExtensionsConfig?: string[] | null;
 }
 
