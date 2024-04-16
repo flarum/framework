@@ -19,7 +19,13 @@ use Symfony\Component\Console\Output\NullOutput;
 class Bisect
 {
     protected BisectState $state;
+
+    /**
+     * When running bisect across multiple processes (such as multiple HTTP requests),
+     * this flag can be used to stop the bisect process after the first step it completes.
+     */
     protected bool $break = false;
+
     protected bool $issueChecked = false;
     protected ?Closure $isIssuePresent = null;
 

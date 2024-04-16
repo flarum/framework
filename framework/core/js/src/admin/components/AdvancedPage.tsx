@@ -14,7 +14,7 @@ import ExtensionBisect from './ExtensionBisect';
 
 export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends AdminPage<CustomAttrs> {
   searchDriverOptions: Record<string, Record<string, string>> = {};
-  modalThroughUrlShown = false;
+  urlRequestedModalHasBeenShown = false;
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
@@ -40,8 +40,8 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
   }
 
   content() {
-    if (m.route.param('modal') === 'extension-bisect' && !this.modalThroughUrlShown) {
-      this.modalThroughUrlShown = true;
+    if (m.route.param('modal') === 'extension-bisect' && !this.urlRequestedModalHasBeenShown) {
+      this.urlRequestedModalHasBeenShown = true;
       setTimeout(() => app.modal.show(ExtensionBisect), 150);
     }
 
