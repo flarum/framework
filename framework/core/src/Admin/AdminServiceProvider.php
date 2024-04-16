@@ -107,9 +107,9 @@ class AdminServiceProvider extends AbstractServiceProvider
             return $assets;
         });
 
-//        $this->container->afterResolving(AssetManager::class, function (AssetManager $assets) {
-//            $assets->register('admin', 'flarum.assets.admin');
-//        });
+        $this->container->afterResolving(AssetManager::class, function (AssetManager $assets) {
+            $assets->register('admin', 'flarum.assets.admin');
+        });
 
         $this->container->bind('flarum.frontend.admin', function (Container $container) {
             /** @var \Flarum\Frontend\Frontend $frontend */

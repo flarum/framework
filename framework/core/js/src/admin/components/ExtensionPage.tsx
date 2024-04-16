@@ -79,12 +79,12 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
   }
 
   body(vnode: Mithril.VnodeDOM<Attrs, this>) {
-    return !this.isEnabled() ? (
+    return this.isEnabled() ? (
+      <div className="ExtensionPage-body">{this.sections(vnode).toArray()}</div>
+    ) : (
       <div className="container">
         <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.enable_to_see')}</h3>
       </div>
-    ) : (
-      <div className="ExtensionPage-body">{this.sections(vnode).toArray()}</div>
     );
   }
 

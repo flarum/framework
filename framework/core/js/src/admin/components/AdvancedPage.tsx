@@ -113,7 +113,7 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
               [MaintenanceMode.LOW_MAINTENANCE]: app.translator.trans('core.admin.advanced.maintenance.options.' + MaintenanceMode.LOW_MAINTENANCE),
               [MaintenanceMode.SAFE_MODE]: app.translator.trans('core.admin.advanced.maintenance.options.' + MaintenanceMode.SAFE_MODE),
             },
-            default: 0,
+            default: MaintenanceMode.NO_MAINTENANCE,
           })}
           {this.setting('maintenance_mode')() === MaintenanceMode.SAFE_MODE
             ? this.buildSettingComponent({
