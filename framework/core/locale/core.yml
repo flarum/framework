@@ -28,6 +28,7 @@ core:
           result_description: >
             Forum is no longer in maintenance mode. Extension bisect is over. Based on your responses to each step, the cause of the issue is the following extension:
           start_button: Start bisect
+          stop_button: Stop bisect
           steps_left: "Steps left: {steps}"
           total_steps: This will take around {steps} steps.
           title: Extension Bisect

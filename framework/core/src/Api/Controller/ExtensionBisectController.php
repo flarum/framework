@@ -30,6 +30,12 @@ class ExtensionBisectController implements RequestHandlerInterface
 
         $issue = boolval(Arr::get($request->getParsedBody(), 'issue'));
 
+        if (Arr::get($request->getParsedBody(), 'end')) {
+            $this->bisect->end();
+
+            return new JsonResponse([], 204);
+        }
+
         $result = $this->bisect->break()->checkIssueUsing(function () use ($issue) {
             return $issue;
         })->run();

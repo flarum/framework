@@ -34,6 +34,11 @@ class Bisect
         protected SettingsRepositoryInterface $settings,
         protected ClearCacheCommand $clearCache,
     ) {
+        $this->state = BisectState::continueOrStart(
+            $ids = $this->extensions->getEnabled(),
+            0,
+            count($ids) - 1
+        );
     }
 
     public function break(bool $break = true): self
@@ -63,12 +68,6 @@ class Bisect
         if (is_null($this->isIssuePresent)) {
             throw new RuntimeException('You must provide a closure to check if the issue is present.');
         }
-
-        $this->state = BisectState::continueOrStart(
-            $ids = $this->extensions->getEnabled(),
-            0,
-            count($ids) - 1
-        );
 
         $this->settings->set('maintenance_mode', 'low');
 
@@ -135,7 +134,7 @@ class Bisect
         ];
     }
 
-    protected function end(): void
+    public function end(): void
     {
         $this->settings->set('extensions_enabled', json_encode($this->state->ids));
         $this->settings->set('maintenance_mode', 'none');

@@ -90,14 +90,19 @@ export default class ExtensionBisect<CustomAttrs extends IInternalModalAttrs = I
             </div>
           ) : null}
           {this.bisecting() ? (
-            <div className="ButtonGroup ButtonGroup--block">
-              <Button className="Button Button--danger" onclick={() => this.submit(true)} loading={this.loading}>
-                {app.translator.trans('core.admin.advanced.maintenance.bisect_modal.yes_button')}
+            <>
+              <div className="ButtonGroup ButtonGroup--block">
+                <Button className="Button Button--danger" onclick={() => this.submit(true)} loading={this.loading}>
+                  {app.translator.trans('core.admin.advanced.maintenance.bisect_modal.yes_button')}
+                </Button>
+                <Button className="Button Button--success" onclick={() => this.submit(false)} loading={this.loading}>
+                  {app.translator.trans('core.admin.advanced.maintenance.bisect_modal.no_button')}
+                </Button>
+              </div>
+              <Button className="Button Button--primary Button--block" onclick={() => this.submit(null, true)} loading={this.loading}>
+                {app.translator.trans('core.admin.advanced.maintenance.bisect_modal.stop_button')}
               </Button>
-              <Button className="Button Button--success" onclick={() => this.submit(false)} loading={this.loading}>
-                {app.translator.trans('core.admin.advanced.maintenance.bisect_modal.no_button')}
-              </Button>
-            </div>
+            </>
           ) : (
             <Button className="Button Button--primary Button--block" onclick={() => this.submit(true)} loading={this.loading}>
               {app.translator.trans('core.admin.advanced.maintenance.bisect_modal.start_button')}
@@ -125,7 +130,7 @@ export default class ExtensionBisect<CustomAttrs extends IInternalModalAttrs = I
     return steps;
   }
 
-  submit(issue: boolean) {
+  submit(issue: boolean | null, end: boolean = false) {
     this.loading = true;
     m.redraw();
 
@@ -133,13 +138,17 @@ export default class ExtensionBisect<CustomAttrs extends IInternalModalAttrs = I
       .request({
         method: 'POST',
         url: app.forum.attribute('apiUrl') + '/extension-bisect',
-        body: { issue },
+        body: { issue, end },
       })
       .then((response) => {
         this.loading = false;
-        this.bisecting(true);
+        this.bisecting(!end);
         this.result(response as BisectResult);
         m.redraw();
+
+        if (end) {
+          this.hide();
+        }
       });
   }
 
