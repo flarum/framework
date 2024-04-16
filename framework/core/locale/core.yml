@@ -21,7 +21,7 @@ core:
             This puts the forum in maintenance mode (low) until the process is over.
             In each step some extensions will be disabled until we find the one causing the issue. So do not be surprised to see missing features or different theme design.
             Keep this page open, and try to reproduce the issue after each step in a separate page. You can always come back to this page if you mistakenly close it.
-          end_button: Close
+          end_button: Close and go to extension page
           issue_question: Does the issue still occur?
           issue_question_help: Try reproducing the issue in a separate page and answer based on the result.
           no_button: No

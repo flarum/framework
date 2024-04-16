@@ -66,7 +66,7 @@ export default class ExtensionBisect<CustomAttrs extends IInternalModalAttrs = I
                 </div>
               </div>
             </div>
-            <Button className="Button Button--primary" onclick={() => this.hide()}>
+            <Button className="Button Button--primary" onclick={() => this.hide(extension.id)}>
               {app.translator.trans('core.admin.advanced.maintenance.bisect_modal.end_button')}
             </Button>
           </Form>
@@ -152,9 +152,14 @@ export default class ExtensionBisect<CustomAttrs extends IInternalModalAttrs = I
       });
   }
 
-  hide() {
+  hide(extension?: string) {
     this.attrs.animateHide(() => {
-      m.route.set(app.route('advanced'));
+      if (extension) {
+        m.route.set(app.route('extension', { id: extension }));
+      } else {
+        m.route.set(app.route('advanced'));
+      }
+
       window.location.reload();
     });
   }
