@@ -9,6 +9,7 @@
 
 namespace Flarum\Tags\Tests\integration\api\discussions;
 
+use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
 use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
@@ -43,7 +44,7 @@ class UpdateTest extends TestCase
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'tag11.startDiscussion'],
             ],
             Discussion::class => [
-                ['id' => 1, 'title' => 'Discussion with post', 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 1],
+                ['id' => 1, 'title' => 'Discussion with post', 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 1, 'created_at' => Carbon::now()->subDay()],
             ],
             'posts' => [
                 ['id' => 1, 'discussion_id' => 1, 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>Text</p></t>'],
@@ -243,7 +244,7 @@ class UpdateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode(), $response->getBody());
     }
 
     /**
