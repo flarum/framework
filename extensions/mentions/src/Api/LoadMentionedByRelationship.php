@@ -32,7 +32,7 @@ class LoadMentionedByRelationship
         $query
             ->with(['mentionsPosts', 'mentionsPosts.user', 'mentionsPosts.discussion', 'mentionsUsers'])
             ->whereVisibleTo($actor)
-            ->oldest()
+            ->oldest('posts.created_at')
             // Limiting a relationship results is only possible because
             // the Post model uses the \Staudenmeir\EloquentEagerLimit\HasEagerLimit
             // trait.

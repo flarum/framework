@@ -45,7 +45,7 @@ class InfoCommand extends AbstractCommand
         $this->output->writeln("<info>Flarum core:</info> $coreVersion");
 
         $this->output->writeln('<info>PHP version:</info> '.$this->appInfo->identifyPHPVersion());
-        $this->output->writeln('<info>MySQL version:</info> '.$this->appInfo->identifyDatabaseVersion());
+        $this->output->writeln('<info>'.$this->appInfo->identifyDatabaseDriver().' version:</info> '.$this->appInfo->identifyDatabaseVersion());
 
         $phpExtensions = implode(', ', get_loaded_extensions());
         $this->output->writeln("<info>Loaded extensions:</info> $phpExtensions");

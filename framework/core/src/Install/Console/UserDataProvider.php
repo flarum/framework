@@ -50,7 +50,7 @@ class UserDataProvider implements DataProviderInterface
         }
 
         return new DatabaseConfig(
-            'mysql',
+            $this->ask('Database driver (mysql, sqlite) (Default: mysql):', 'mysql'),
             $host,
             intval($port),
             $this->ask('Database name (required):'),

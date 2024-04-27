@@ -34,7 +34,10 @@ return [
 
         $connection = $schema->getConnection();
         $prefix = $connection->getTablePrefix();
-        $connection->statement('ALTER TABLE '.$prefix.'posts ADD FULLTEXT content (content)');
+
+        if ($connection->getDriverName() !== 'sqlite') {
+            $connection->statement('ALTER TABLE '.$prefix.'posts ADD FULLTEXT content (content)');
+        }
     },
 
     'down' => function (Builder $schema) {

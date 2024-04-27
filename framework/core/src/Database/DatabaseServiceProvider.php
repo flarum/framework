@@ -12,6 +12,7 @@ namespace Flarum\Database;
 use Faker\Factory as FakerFactory;
 use Faker\Generator as FakerGenerator;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Paths;
 use Illuminate\Container\Container as ContainerImplementation;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Capsule\Manager;
@@ -32,7 +33,13 @@ class DatabaseServiceProvider extends AbstractServiceProvider
             $manager = new Manager($container);
 
             $config = $container['flarum']->config('database');
-            $config['engine'] = 'InnoDB';
+
+            if ($config['driver'] === 'mysql') {
+                $config['engine'] = 'InnoDB';
+            } elseif ($config['driver'] === 'sqlite' && ! file_exists($config['database'])) {
+                $config['database'] = $container->make(Paths::class)->base.'/'.$config['database'];
+            }
+
             $config['prefix_indexes'] = true;
 
             $manager->addConnection($config, 'flarum');
