@@ -16,6 +16,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\EmailToken;
 use Flarum\User\PasswordToken;
+use Flarum\User\User;
 
 class GlobalLogoutTest extends TestCase
 {
@@ -33,10 +34,10 @@ class GlobalLogoutTest extends TestCase
         );
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser()
             ],
-            'access_tokens' => [
+            AccessToken::class => [
                 ['id' => 1, 'token' => 'a', 'user_id' => 1, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'session'],
                 ['id' => 2, 'token' => 'b', 'user_id' => 1, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'session_remember'],
                 ['id' => 3, 'token' => 'c', 'user_id' => 1, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'developer'],

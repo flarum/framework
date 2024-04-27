@@ -9,10 +9,12 @@
 
 namespace Flarum\Tags\Tests\integration\api\discussions;
 
+use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
 use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 
 class UpdateTest extends TestCase
 {
@@ -30,7 +32,7 @@ class UpdateTest extends TestCase
 
         $this->prepareDatabase([
             'tags' => $this->tags(),
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
             'group_permission' => [
@@ -40,7 +42,7 @@ class UpdateTest extends TestCase
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'tag11.viewForum'],
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'tag11.startDiscussion'],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'Discussion with post', 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 1],
             ],
             'posts' => [

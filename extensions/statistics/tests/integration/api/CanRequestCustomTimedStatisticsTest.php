@@ -10,8 +10,10 @@
 namespace Flarum\Statistics\tests\integration\api;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 
 class CanRequestCustomTimedStatisticsTest extends TestCase
 {
@@ -36,12 +38,12 @@ class CanRequestCustomTimedStatisticsTest extends TestCase
     protected function getDatabaseData(): array
     {
         return [
-            'users' => [
+            User::class => [
                 ['id' => 1, 'username' => 'Muralf', 'email' => 'muralf@machine.local', 'is_email_confirmed' => 1, 'joined_at' => $this->nowTime->copy()],
                 ['id' => 2, 'username' => 'normal', 'email' => 'normal@machine.local', 'is_email_confirmed' => 1, 'joined_at' => $this->nowTime->copy()->subDays(1)],
                 ['id' => 3, 'username' => 'normal2', 'email' => 'normal2@machine.local', 'is_email_confirmed' => 1, 'joined_at' => $this->nowTime->copy()->subDays(2)],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => $this->nowTime->copy(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
                 ['id' => 2, 'title' => __CLASS__, 'created_at' => $this->nowTime->copy()->subDays(1), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
                 ['id' => 3, 'title' => __CLASS__, 'created_at' => $this->nowTime->copy()->subDays(1), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],

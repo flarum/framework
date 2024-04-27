@@ -11,6 +11,7 @@ namespace Flarum\Tests\integration\api\notifications;
 
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 
 class ListTest extends TestCase
 {
@@ -24,7 +25,7 @@ class ListTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
         ]);

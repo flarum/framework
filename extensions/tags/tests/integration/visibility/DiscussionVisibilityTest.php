@@ -34,7 +34,7 @@ class DiscussionVisibilityTest extends TestCase
 
         $this->prepareDatabase([
             'tags' => $this->tags(),
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
             'group_permission' => [
@@ -46,7 +46,7 @@ class DiscussionVisibilityTest extends TestCase
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'arbitraryAbility'],
                 ['group_id' => Group::GUEST_ID, 'permission' => 'arbitraryAbility']
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'no tags', 'user_id' => 1, 'comment_count' => 1],
                 ['id' => 2, 'title' => 'open tags', 'user_id' => 1, 'comment_count' => 1],
                 ['id' => 3, 'title' => 'open tag, restricted child tag', 'user_id' => 1, 'comment_count' => 1],

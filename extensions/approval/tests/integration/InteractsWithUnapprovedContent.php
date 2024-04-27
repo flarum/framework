@@ -10,6 +10,7 @@
 namespace Flarum\Approval\Tests\integration;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
 
 trait InteractsWithUnapprovedContent
 {
@@ -22,7 +23,7 @@ trait InteractsWithUnapprovedContent
                 ['id' => 3, 'username' => 'acme', 'email' => 'acme@machine.local', 'is_email_confirmed' => 1],
                 ['id' => 4, 'username' => 'luceos', 'email' => 'luceos@machine.local', 'is_email_confirmed' => 1],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 4, 'first_post_id' => 1, 'comment_count' => 1, 'is_approved' => 1, 'is_private' => 0],
                 ['id' => 2, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 4, 'first_post_id' => 2, 'comment_count' => 1, 'is_approved' => 0, 'is_private' => 1],
                 ['id' => 3, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 4, 'first_post_id' => 3, 'comment_count' => 1, 'is_approved' => 0, 'is_private' => 1],

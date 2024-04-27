@@ -9,6 +9,7 @@
 
 namespace Flarum\Flags\Tests\integration\api\flags;
 
+use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -55,7 +56,7 @@ class ListWithTagsTest extends TestCase
                 ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag4.viewDiscussions'],
                 ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag4.discussion.viewFlags'],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'no tags', 'user_id' => 1, 'comment_count' => 1],
                 ['id' => 2, 'title' => 'has tags where mods can view discussions but not flags', 'user_id' => 1, 'comment_count' => 1],
                 ['id' => 3, 'title' => 'has tags where mods can view flags but not discussions', 'user_id' => 1, 'comment_count' => 1],

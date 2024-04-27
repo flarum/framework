@@ -9,15 +9,18 @@
 
 namespace Flarum\Testing\integration;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Extend\ExtenderInterface;
 use Flarum\Testing\integration\Setup\Bootstrapper;
 use Illuminate\Contracts\Cache\Store;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use RuntimeException;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
@@ -175,9 +178,12 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         return $this->database;
     }
 
-    protected $databaseContent = [];
+    protected array $databaseContent = [];
 
-    protected function prepareDatabase(array $tableData)
+    /**
+     * @var array<string|class-string<Model>, array[]> $tableData
+     */
+    protected function prepareDatabase(array $tableData): void
     {
         $this->databaseContent = array_merge_recursive(
             $this->databaseContent,
@@ -185,30 +191,70 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         );
     }
 
-    protected function populateDatabase()
+    protected function populateDatabase(): void
     {
         // We temporarily disable foreign key checks to simplify this process.
         $this->database()->getSchemaBuilder()->disableForeignKeyConstraints();
 
+        $databaseContent = [];
+
+        foreach ($this->databaseContent as $tableOrModelClass => $_rows) {
+            if (class_exists($tableOrModelClass) && method_exists($tableOrModelClass, 'factory')) {
+                /** @var AbstractModel $instance */
+                $instance = (new $tableOrModelClass);
+
+                $databaseContent[$instance->getTable()] = [
+                    'rows' => $this->rowsThroughFactory($tableOrModelClass, $_rows),
+                    'unique' => $instance->uniqueKeys ?? null,
+                ];
+            } else {
+                $databaseContent[$tableOrModelClass] = [
+                    'rows' => $_rows,
+                    'unique' => null,
+                ];
+            }
+        }
+
         // Then, insert all rows required for this test case.
-        foreach ($this->databaseContent as $table => $rows) {
-            foreach ($rows as $row) {
+        foreach ($databaseContent as $table => $data) {
+            foreach ($data['rows'] as $row) {
+                $unique = $row;
+
                 if ($table === 'settings') {
-                    $this->database()->table($table)->updateOrInsert(
-                        ['key' => $row['key']],
-                        $row
-                    );
-                } else {
-                    $this->database()->table($table)->updateOrInsert(
-                        isset($row['id']) ? ['id' => $row['id']] : $row,
-                        $row
-                    );
+                    $unique = Arr::only($row, ['key']);
+                } elseif (isset($row['id'])) {
+                    $unique = Arr::only($row, ['id']);
+                } elseif ($data['unique']) {
+                    $unique = Arr::only($row, $data['unique']);
                 }
+
+                $this->database()->table($table)->updateOrInsert($unique, $row);
             }
         }
 
         // And finally, turn on foreign key checks again.
         $this->database()->getSchemaBuilder()->enableForeignKeyConstraints();
+    }
+
+    protected function throughFactory(string $modelClass, array $attributes): array
+    {
+        if (! method_exists($modelClass, 'factory')) {
+            throw new RuntimeException("$modelClass must use the HasFactory trait and have a Factory class.");
+        }
+
+        /** @var \Illuminate\Database\Eloquent\Factories\Factory $factory */
+        $factory = $modelClass::factory();
+
+        return array_map(function (mixed $value) {
+            return is_array($value) ? json_encode($value) : $value;
+        }, $factory->raw($attributes));
+    }
+
+    protected function rowsThroughFactory(string $modelClass, array $rows): array
+    {
+        return array_map(function (array $row) use ($modelClass) {
+            return $this->throughFactory($modelClass, $row);
+        }, $rows);
     }
 
     /**

@@ -9,9 +9,11 @@
 
 namespace Flarum\Tags\Tests\integration\api\posts;
 
+use Flarum\Discussion\Discussion;
 use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 
 class ListTest extends TestCase
 {
@@ -29,7 +31,7 @@ class ListTest extends TestCase
 
         $this->prepareDatabase([
             'tags' => $this->tags(),
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 [
                     'id' => 3,
@@ -48,7 +50,7 @@ class ListTest extends TestCase
             'group_permission' => [
                 ['group_id' => 100, 'permission' => 'tag5.viewForum'],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'no tags', 'user_id' => 1, 'comment_count' => 1],
             ],
             'posts' => [

@@ -9,6 +9,7 @@
 
 namespace Flarum\Flags\Tests\integration\api\flags;
 
+use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -44,7 +45,7 @@ class ListTest extends TestCase
             'group_permission' => [
                 ['group_id' => Group::MODERATOR_ID, 'permission' => 'discussion.viewFlags'],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => '', 'user_id' => 1, 'comment_count' => 1],
             ],
             'posts' => [

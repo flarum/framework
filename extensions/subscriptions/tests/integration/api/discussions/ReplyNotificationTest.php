@@ -10,6 +10,7 @@
 namespace Flarum\Subscriptions\tests\integration\api\discussions;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
 use Flarum\Extend\ModelVisibility;
 use Flarum\Group\Group;
 use Flarum\Post\Post;
@@ -28,12 +29,12 @@ class ReplyNotificationTest extends TestCase
         $this->extension('flarum-subscriptions');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'acme', 'email' => 'acme@machine.local', 'is_email_confirmed' => 1, 'preferences' => json_encode(['flarum-subscriptions.notify_for_all_posts' => true])],
                 ['id' => 4, 'username' => 'acme2', 'email' => 'acme2@machine.local', 'is_email_confirmed' => 1],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'last_post_number' => 1, 'last_post_id' => 1],
                 ['id' => 2, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 2, 'comment_count' => 1, 'last_post_number' => 1, 'last_post_id' => 2],
 
@@ -169,7 +170,7 @@ class ReplyNotificationTest extends TestCase
     public function deleting_last_posts_then_posting_new_one_sends_reply_notification(array $postIds)
     {
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 3, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 5, 'last_post_number' => 5, 'last_post_id' => 10],
             ],
             'posts' => [

@@ -10,6 +10,7 @@
 namespace Flarum\Likes\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
 use Flarum\Likes\Api\LoadLikesRelationship;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
@@ -30,7 +31,7 @@ class ListPostsTest extends TestCase
         $this->extension('flarum-likes');
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 100, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 101, 'comment_count' => 1],
             ],
             'posts' => [
