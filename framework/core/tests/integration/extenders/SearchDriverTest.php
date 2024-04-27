@@ -9,7 +9,6 @@
 
 namespace Flarum\Tests\integration\extenders;
 
-use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Discussion\Search\Filter\UnreadFilter;

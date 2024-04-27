@@ -181,7 +181,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     protected array $databaseContent = [];
 
     /**
-     * @var array<string|class-string<Model>, array[]> $tableData
+     * @var array<string|class-string<Model>, array[]>
      */
     protected function prepareDatabase(array $tableData): void
     {
