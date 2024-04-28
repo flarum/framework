@@ -110,6 +110,17 @@
         margin-bottom: 20px;
       }
 
+      .Alert {
+        padding: 15px 20px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+      }
+
+      .Alert--warning {
+        background: #fff2ae;
+        color: #ad6c00;
+      }
+
       .animated {
         -webkit-animation-fill-mode: both;
         animation-fill-mode: both;

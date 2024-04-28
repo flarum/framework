@@ -13,6 +13,14 @@
   </div>
 
   <div class="FormGroup">
+    <div data-group="sqlite" style="display:none">
+      <div class="Alert Alert--warning">
+        <strong>Warning:</strong> Please keep in mind that while Flarum supports SQLite, not all ecosystem extensions do. If you're planning to install extensions, you should expect some of them to not work properly or at all.
+      </div>
+    </div>
+  </div>
+
+  <div class="FormGroup">
     <div class="FormField">
       <label>Database Driver</label>
       <select class="FormControl" name="dbDriver">
@@ -85,9 +93,11 @@
         group.style.display = 'none';
       });
 
-      const group = document.querySelector('[data-group="' + this.value + '"]');
+      const groups = document.querySelectorAll('[data-group="' + this.value + '"]');
 
-      if (group) group.style.display = 'block';
+      groups.forEach(function(group) {
+        group.style.display = 'block';
+      });
     });
 
     document.querySelector('form').addEventListener('submit', function(e) {
