@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
 use Flarum\Post\CommentPost;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -38,7 +39,7 @@ class GroupMentionsTest extends TestCase
             Discussion::class => [
                 ['id' => 2, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 3, 'first_post_id' => 4, 'comment_count' => 2],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 4, 'number' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><p>One of the <GROUPMENTION groupname="Mods" id="4">@"Mods"#g4</GROUPMENTION> will look at this</p></r>'],
                 ['id' => 6, 'number' => 3, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><p><GROUPMENTION groupname="OldGroupName" id="100">@"OldGroupName"#g100</GROUPMENTION></p></r>'],
                 ['id' => 7, 'number' => 4, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><p><GROUPMENTION groupname="OldGroupName" id="11">@"OldGroupName"#g11</GROUPMENTION></p></r>'],

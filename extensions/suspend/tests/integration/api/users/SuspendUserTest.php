@@ -12,6 +12,7 @@ namespace Flarum\Suspend\Tests\integration\api\users;
 use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use Psr\Http\Message\ResponseInterface;
 
 class SuspendUserTest extends TestCase
@@ -25,7 +26,7 @@ class SuspendUserTest extends TestCase
         $this->extension('flarum-suspend');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 ['id' => 1, 'username' => 'Muralf', 'email' => 'muralf@machine.local', 'is_email_confirmed' => 1],
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'acme', 'email' => 'acme@machine.local', 'is_email_confirmed' => 1],

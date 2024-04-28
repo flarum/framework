@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
 use Flarum\Likes\Api\LoadLikesRelationship;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
@@ -34,7 +35,7 @@ class ListPostsTest extends TestCase
             Discussion::class => [
                 ['id' => 100, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 101, 'comment_count' => 1],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 101, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
             ],
             'users' => [

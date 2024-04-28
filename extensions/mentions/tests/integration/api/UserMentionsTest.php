@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Post\CommentPost;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\DisplayName\DriverInterface;
@@ -41,7 +42,7 @@ class UserMentionsTest extends TestCase
             Discussion::class => [
                 ['id' => 2, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 3, 'first_post_id' => 4, 'comment_count' => 2],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 4, 'number' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><USERMENTION displayname="TobyFlarum___" id="4" username="toby">@tobyuuu</USERMENTION></r>'],
                 ['id' => 6, 'number' => 3, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 4, 'type' => 'comment', 'content' => '<r><USERMENTION displayname="i_am_a_deleted_user" id="2021" username="i_am_a_deleted_user">@"i_am_a_deleted_user"#2021</USERMENTION></r>'],
                 ['id' => 10, 'number' => 11, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 5, 'type' => 'comment', 'content' => '<r><USERMENTION displayname="Bad &quot;#p6 User" id="5">@"Bad "#p6 User"#5</USERMENTION></r>'],

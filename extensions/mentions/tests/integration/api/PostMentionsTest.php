@@ -43,7 +43,7 @@ class PostMentionsTest extends TestCase
                 ['id' => 2, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 3, 'first_post_id' => 4, 'comment_count' => 2],
                 ['id' => 50, 'title' => __CLASS__, 'is_private' => true, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 3, 'first_post_id' => 4, 'comment_count' => 1],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 4, 'number' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><POSTMENTION displayname="TobyFlarum___" id="5" number="2" discussionid="2" username="toby">@tobyuuu#5</POSTMENTION></r>'],
                 ['id' => 5, 'number' => 3, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 4, 'type' => 'comment', 'content' => '<r><POSTMENTION displayname="potato" id="4" number="3" discussionid="2" username="potato">@potato#4</POSTMENTION></r>'],
                 ['id' => 6, 'number' => 4, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><POSTMENTION displayname="i_am_a_deleted_user" id="7" number="5" discussionid="2" username="i_am_a_deleted_user">@"i_am_a_deleted_user"#p7</POSTMENTION></r>'],

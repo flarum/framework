@@ -10,6 +10,7 @@
 namespace Flarum\Tags\Tests\integration\api\posts;
 
 use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
 use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -53,7 +54,7 @@ class ListTest extends TestCase
             Discussion::class => [
                 ['id' => 1, 'title' => 'no tags', 'user_id' => 1, 'comment_count' => 1],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>', 'number' => 1],
                 ['id' => 2, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'discussionTagged', 'content' => '[[1,5],[5]]', 'number' => 2],
                 ['id' => 3, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>', 'number' => 3],

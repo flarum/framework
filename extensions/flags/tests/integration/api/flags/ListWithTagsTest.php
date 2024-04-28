@@ -11,6 +11,7 @@ namespace Flarum\Flags\Tests\integration\api\flags;
 
 use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
@@ -69,7 +70,7 @@ class ListWithTagsTest extends TestCase
                 ['discussion_id' => 4, 'tag_id' => 4],
                 ['discussion_id' => 5, 'tag_id' => 1],
             ],
-            'posts' => [
+            Post::class => [
                 // From regular ListTest
                 ['id' => 1, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
                 ['id' => 2, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],

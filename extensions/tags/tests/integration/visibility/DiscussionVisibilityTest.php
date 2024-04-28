@@ -11,6 +11,7 @@ namespace Flarum\Tags\Tests\integration\api\discussions;
 
 use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
+use Flarum\Post\Post;
 use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -55,7 +56,7 @@ class DiscussionVisibilityTest extends TestCase
                 ['id' => 6, 'title' => 'closed parent, open child tag',  'user_id' => 1, 'comment_count' => 1],
                 ['id' => 7, 'title' => 'one closed primary tag',  'user_id' => 1, 'comment_count' => 1],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
                 ['id' => 2, 'discussion_id' => 2, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
                 ['id' => 3, 'discussion_id' => 3, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
