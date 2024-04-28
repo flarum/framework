@@ -11,14 +11,16 @@ namespace Flarum\Approval\Tests\integration;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
+use Flarum\Group\Group;
 use Flarum\Post\Post;
+use Flarum\User\User;
 
 trait InteractsWithUnapprovedContent
 {
     protected function prepareUnapprovedDatabaseContent()
     {
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 ['id' => 1, 'username' => 'Muralf', 'email' => 'muralf@machine.local', 'is_email_confirmed' => 1],
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'acme', 'email' => 'acme@machine.local', 'is_email_confirmed' => 1],
@@ -47,7 +49,7 @@ trait InteractsWithUnapprovedContent
                 ['id' => 10, 'discussion_id' => 7, 'user_id' => 4, 'type' => 'comment', 'content' => '<t><p>Text</p></t>', 'is_private' => 0, 'is_approved' => 1, 'number' => 4],
                 ['id' => 11, 'discussion_id' => 7, 'user_id' => 4, 'type' => 'comment', 'content' => '<t><p>Text</p></t>', 'is_private' => 1, 'is_approved' => 0, 'number' => 5],
             ],
-            'groups' => [
+            Group::class => [
                 ['id' => 4, 'name_singular' => 'Acme', 'name_plural' => 'Acme', 'is_hidden' => 0]
             ],
             'group_user' => [

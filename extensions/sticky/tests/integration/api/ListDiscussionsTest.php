@@ -11,6 +11,7 @@ namespace Flarum\Sticky\tests\integration\api;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
+use Flarum\Tags\Tag;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -42,7 +43,7 @@ class ListDiscussionsTest extends TestCase
                 ['discussion_id' => 1, 'user_id' => 3, 'last_read_post_number' => 1],
                 ['discussion_id' => 3, 'user_id' => 3, 'last_read_post_number' => 1],
             ],
-            'tags' => [
+            Tag::class => [
                 ['id' => 1, 'slug' => 'general', 'position' => 0, 'parent_id' => null]
             ],
             'discussion_tag' => [

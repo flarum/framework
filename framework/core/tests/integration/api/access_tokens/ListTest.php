@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\api\access_tokens;
 
 use Carbon\Carbon;
+use Flarum\Group\Group;
 use Flarum\Http\AccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -41,7 +42,7 @@ class ListTest extends TestCase
                 ['id' => 5, 'token' => 'e', 'user_id' => 2, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'developer'],
                 ['id' => 6, 'token' => 'f', 'user_id' => 3, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'developer'],
             ],
-            'groups' => [
+            Group::class => [
                 ['id' => 100, 'name_singular' => 'test', 'name_plural' => 'test']
             ],
             'group_user' => [

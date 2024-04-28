@@ -12,8 +12,10 @@ namespace Flarum\Flags\Tests\integration\api\flags;
 use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
 use Flarum\Post\Post;
+use Flarum\Tags\Tag;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 
 class ListWithTagsTest extends TestCase
@@ -31,13 +33,13 @@ class ListWithTagsTest extends TestCase
         $this->extension('flarum-tags');
 
         $this->prepareDatabase([
-            'tags' => [
+            Tag::class => [
                 ['id' => 1, 'name' => 'Unrestricted', 'slug' => '1', 'position' => 0, 'parent_id' => null],
                 ['id' => 2, 'name' => 'Mods can view discussions', 'slug' => '2', 'position' => 0, 'parent_id' => null, 'is_restricted' => true],
                 ['id' => 3, 'name' => 'Mods can view flags', 'slug' => '3', 'position' => 0, 'parent_id' => null, 'is_restricted' => true],
                 ['id' => 4, 'name' => 'Mods can view discussions and flags', 'slug' => '4', 'position' => 0, 'parent_id' => null, 'is_restricted' => true],
             ],
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 [
                     'id' => 3,

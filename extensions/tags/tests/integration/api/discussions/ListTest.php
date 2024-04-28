@@ -10,7 +10,9 @@
 namespace Flarum\Tags\Tests\integration\api\discussions;
 
 use Flarum\Discussion\Discussion;
+use Flarum\Group\Group;
 use Flarum\Post\Post;
+use Flarum\Tags\Tag;
 use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -32,7 +34,7 @@ class ListTest extends TestCase
         $this->extension('flarum-tags');
 
         $this->prepareDatabase([
-            'tags' => $this->tags(),
+            Tag::class => $this->tags(),
             User::class => [
                 $this->normalUser(),
                 [
@@ -43,7 +45,7 @@ class ListTest extends TestCase
                     'is_email_confirmed' => 1,
                 ]
             ],
-            'groups' => [
+            Group::class => [
                 ['id' => 100, 'name_singular' => 'acme', 'name_plural' => 'acme']
             ],
             'group_user' => [

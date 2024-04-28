@@ -16,6 +16,7 @@ use Flarum\Likes\Api\LoadLikesRelationship;
 use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 
 class ListPostsTest extends TestCase
@@ -38,7 +39,7 @@ class ListPostsTest extends TestCase
             Post::class => [
                 ['id' => 101, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
             ],
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 ['id' => 102, 'username' => 'user102', 'email' => '102@machine.local', 'is_email_confirmed' => 1],
                 ['id' => 103, 'username' => 'user103', 'email' => '103@machine.local', 'is_email_confirmed' => 1],

@@ -15,6 +15,7 @@ use Flarum\Mentions\Api\LoadMentionedByRelationship;
 use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 
 class ListPostsTest extends TestCase
@@ -45,7 +46,7 @@ class ListPostsTest extends TestCase
                 ['post_id' => 3, 'mentions_user_id' => 1],
                 ['post_id' => 4, 'mentions_user_id' => 2]
             ],
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ]
         ]);

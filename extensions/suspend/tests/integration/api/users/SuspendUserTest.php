@@ -10,6 +10,7 @@
 namespace Flarum\Suspend\Tests\integration\api\users;
 
 use Carbon\Carbon;
+use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -31,7 +32,7 @@ class SuspendUserTest extends TestCase
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'acme', 'email' => 'acme@machine.local', 'is_email_confirmed' => 1],
             ],
-            'groups' => [
+            Group::class => [
                 ['id' => 5, 'name_singular' => 'Acme', 'name_plural' => 'Acme', 'is_hidden' => 0]
             ],
             'group_user' => [

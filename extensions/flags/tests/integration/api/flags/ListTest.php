@@ -14,6 +14,7 @@ use Flarum\Group\Group;
 use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 
 class ListTest extends TestCase
@@ -30,7 +31,7 @@ class ListTest extends TestCase
         $this->extension('flarum-flags');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 [
                     'id' => 3,

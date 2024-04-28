@@ -14,6 +14,7 @@ use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
 use Flarum\Post\CommentPost;
 use Flarum\Post\Post;
+use Flarum\Tags\Tag;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -42,7 +43,7 @@ class TagMentionsTest extends TestCase
                 ['id' => 8, 'number' => 6, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 4, 'type' => 'comment', 'content' => '<r><TAGMENTION id="2020" slug="i_am_a_deleted_tag" tagname="i_am_a_deleted_tag">#i_am_a_deleted_tag</TAGMENTION></r>'],
                 ['id' => 10, 'number' => 11, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 4, 'type' => 'comment', 'content' => '<r><TAGMENTION id="5" slug="laravel">#laravel</TAGMENTION></r>'],
             ],
-            'tags' => [
+            Tag::class => [
                 ['id' => 1, 'name' => 'Test', 'slug' => 'test', 'is_restricted' => 0],
                 ['id' => 2, 'name' => 'Flarum', 'slug' => 'flarum', 'is_restricted' => 0],
                 ['id' => 3, 'name' => 'Support', 'slug' => 'support', 'is_restricted' => 0],

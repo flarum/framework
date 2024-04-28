@@ -9,6 +9,7 @@
 
 namespace Flarum\Tests\integration\api\users;
 
+use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -267,7 +268,7 @@ class GroupSearchTest extends TestCase
                     'is_email_confirmed' => 1,
                 ],
             ],
-            'groups' => [
+            Group::class => [
                 [
                     'id' => 5,
                     'name_singular' => 'test1 user',
@@ -310,7 +311,7 @@ class GroupSearchTest extends TestCase
                     'is_email_confirmed' => 1,
                 ],
             ],
-            'groups' => [
+            Group::class => [
                 [
                     'id' => 99,
                     'name_singular' => 'hidden user',

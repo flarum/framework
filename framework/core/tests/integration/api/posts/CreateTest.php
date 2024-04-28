@@ -41,7 +41,7 @@ class CreateTest extends TestCase
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'restricted', 'email' => 'restricted@machine.local', 'is_email_confirmed' => 1],
             ],
-            'groups' => [
+            Group::class => [
                 ['id' => 40, 'name_singular' => 'tess', 'name_plural' => 'tess'],
             ],
             'group_user' => [

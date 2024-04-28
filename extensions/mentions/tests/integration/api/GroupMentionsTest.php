@@ -55,7 +55,7 @@ class GroupMentionsTest extends TestCase
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'postWithoutThrottle'],
                 ['group_id' => 9, 'permission' => 'mentionGroups'],
             ],
-            'groups' => [
+            Group::class => [
                 ['id' => 9, 'name_singular' => 'HasPermissionToMentionGroups', 'name_plural' => 'test'],
                 ['id' => 10, 'name_singular' => 'Hidden', 'name_plural' => 'Ninjas', 'icon' => 'fas fa-wrench', 'color' => '#000', 'is_hidden' => 1],
                 ['id' => 11, 'name_singular' => 'Fresh Name', 'name_plural' => 'Fresh Name', 'color' => '#ccc', 'icon' => 'fas fa-users', 'is_hidden' => 0]
