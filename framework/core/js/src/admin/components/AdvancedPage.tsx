@@ -130,6 +130,10 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
                 multiple: true,
                 disabled: app.data.safeModeExtensionsConfig,
                 options: Object.entries(app.data.extensions).reduce((acc, [id, extension]) => {
+                  const requiredExtensions = extension.require
+                    ? Object.entries(app.data.extensions).filter(([, e]) => extension.require![e.name])
+                    : [];
+
                   // @ts-ignore
                   acc[id] = {
                     label: extension.extra['flarum-extension'].title,
@@ -137,12 +141,14 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
                       let dependenciesMet = true;
 
                       if (extension.require) {
-                        const requiredExtensions = Object.entries(app.data.extensions).filter(([, e]) => extension.require![e.name]);
                         dependenciesMet = !requiredExtensions.length || requiredExtensions.every(([id]) => value.includes(id));
                       }
 
                       return !dependenciesMet;
                     },
+                    tooltip: requiredExtensions.length
+                      ? `Requires: ${requiredExtensions.map(([, e]) => e.extra['flarum-extension'].title).join(', ')}`
+                      : undefined,
                   };
                   return acc;
                 }, {}),

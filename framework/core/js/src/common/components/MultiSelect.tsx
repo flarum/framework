@@ -4,10 +4,12 @@ import classList from '../utils/classList';
 import Dropdown from './Dropdown';
 import Mithril from 'mithril';
 import Button from './Button';
+import Tooltip from './Tooltip';
 
 export type Option = {
   label: string;
   disabled?: boolean | ((value: string[]) => boolean);
+  tooltip?: string;
 };
 
 export interface IMultiSelectAttrs extends ComponentAttrs {
@@ -70,13 +72,14 @@ export default class MultiSelect<CustomAttrs extends IMultiSelectAttrs = IMultiS
           {Object.keys(options).map((key) => {
             const option = options[key];
             const label = typeof option === 'string' ? option : option.label;
+            const tooltip = typeof option !== 'string' && option.tooltip;
             let disabled = typeof option !== 'string' && option.disabled;
 
             if (typeof disabled === 'function') {
               disabled = disabled(this.selected);
             }
 
-            return (
+            const button = (
               <Button
                 type="button"
                 className={classList('Dropdown-item', { disabled })}
@@ -87,6 +90,12 @@ export default class MultiSelect<CustomAttrs extends IMultiSelectAttrs = IMultiS
                 {label}
               </Button>
             );
+
+            if (tooltip) {
+              return <Tooltip text={tooltip}>{button}</Tooltip>;
+            }
+
+            return button;
           })}
         </Dropdown>
       </span>
