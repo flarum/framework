@@ -15,7 +15,7 @@ return [
         $prefix = $connection->getTablePrefix();
 
         if ($connection->getDriverName() !== 'sqlite') {
-            $connection->statement('ALTER TABLE ' . $prefix . 'discussions ADD FULLTEXT title (title)');
+            $connection->statement('ALTER TABLE '.$prefix.'discussions ADD FULLTEXT title (title)');
         }
     },
 

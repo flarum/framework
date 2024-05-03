@@ -15,7 +15,6 @@ use Flarum\Testing\integration\Setup\Bootstrapper;
 use Illuminate\Contracts\Cache\Store;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ResponseInterface;
