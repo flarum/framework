@@ -143,6 +143,7 @@ jobs:
           ini-values: ${{ matrix.php_ini_values }}
 
       - name: Create MySQL Database
+        if: ${{ matrix.service != 'sqlite:3' }}
         run: |
           sudo systemctl start mysql
           mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 13306
@@ -172,6 +173,7 @@ jobs:
           DB_PORT: 13306
           DB_PASSWORD: root
           DB_PREFIX: ${{ matrix.prefix }}
+          DB_DRIVER: if(${{ matrix.service == 'sqlite:3' }}, sqlite, mysql)
           COMPOSER_PROCESS_TIMEOUT: 600
 
   phpstan:
