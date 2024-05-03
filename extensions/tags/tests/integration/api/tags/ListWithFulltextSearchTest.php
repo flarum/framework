@@ -9,6 +9,7 @@
 
 namespace Flarum\Tags\Tests\integration\api\tags;
 
+use Flarum\Tags\Tag;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
 
@@ -21,7 +22,7 @@ class ListWithFulltextSearchTest extends TestCase
         $this->extension('flarum-tags');
 
         $this->prepareDatabase([
-            'tags' => [
+            Tag::class => [
                 ['id' => 2, 'name' => 'Acme', 'slug' => 'acme'],
                 ['id' => 3, 'name' => 'Test', 'slug' => 'test'],
                 ['id' => 4, 'name' => 'Tag', 'slug' => 'tag'],

@@ -11,10 +11,12 @@ namespace Flarum\Tests\integration\notification;
 
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
+use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Notification;
 use Flarum\Notification\NotificationSyncer;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -28,16 +30,16 @@ class NotificationSyncerTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'Receiver', 'email' => 'receiver@machine.local', 'is_email_confirmed' => 1],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'Public discussion', 'created_at' => Carbon::parse('2021-11-01 13:00:00')->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 2, 'is_private' => 0, 'last_post_number' => 2],
 
                 ['id' => 2, 'title' => 'Private discussion', 'created_at' => Carbon::parse('2021-11-01 13:00:00')->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 3, 'comment_count' => 2, 'is_private' => 1, 'last_post_number' => 2],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'number' => 1, 'created_at' => Carbon::parse('2021-11-01 13:00:00')->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t></t>', 'is_private' => 0],
                 ['id' => 2, 'discussion_id' => 1, 'number' => 2, 'created_at' => Carbon::parse('2021-11-01 13:00:03')->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t></t>', 'is_private' => 1],
 

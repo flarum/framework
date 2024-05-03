@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Api\ApiKey;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 
 class WithApiKeyTest extends TestCase
 {
@@ -26,10 +27,10 @@ class WithApiKeyTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
-            'api_keys' => [
+            ApiKey::class => [
                 ['key' => 'mastertoken', 'user_id' => null, 'created_at' => Carbon::now()->toDateTimeString()],
                 ['key' => 'personaltoken', 'user_id' => 2, 'created_at' => Carbon::now()->toDateTimeString()],
             ]

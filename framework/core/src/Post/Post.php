@@ -17,6 +17,7 @@ use Flarum\Notification\Notification;
 use Flarum\Post\Event\Deleted;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Query\Expression;
 use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
@@ -45,6 +46,7 @@ class Post extends AbstractModel
     use EventGeneratorTrait;
     use ScopeVisibilityTrait;
     use HasEagerLimit;
+    use HasFactory;
 
     protected $table = 'posts';
 
