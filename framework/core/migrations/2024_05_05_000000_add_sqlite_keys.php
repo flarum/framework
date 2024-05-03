@@ -8,7 +8,6 @@
  */
 
 use Illuminate\Database\Schema\Builder;
-use Illuminate\Database\Schema\Blueprint;
 
 return [
     'up' => function (Builder $schema) {
@@ -35,10 +34,10 @@ return [
             ];
 
             foreach (['discussions', 'posts'] as $table) {
-                $tableDefinition = $schema->getConnection()->select('SELECT sql FROM sqlite_master WHERE type = "table" AND name = "' . $prefix . $table . '"')[0]->sql;
-                $modifiedTableDefinition = str($tableDefinition)->beforeLast(')')->append(', ' . $foreignKeysSqlite[$table] . ')')->toString();
+                $tableDefinition = $schema->getConnection()->select('SELECT sql FROM sqlite_master WHERE type = "table" AND name = "'.$prefix.$table.'"')[0]->sql;
+                $modifiedTableDefinition = str($tableDefinition)->beforeLast(')')->append(', '.$foreignKeysSqlite[$table].')')->toString();
                 $modifiedTableDefinitionWithEscapedQuotes = str($modifiedTableDefinition)->replace('"', '""')->toString();
-                $schema->getConnection()->statement('UPDATE sqlite_master SET sql = "' . $modifiedTableDefinitionWithEscapedQuotes . '" WHERE type = "table" AND name = "' . $prefix . $table . '"');
+                $schema->getConnection()->statement('UPDATE sqlite_master SET sql = "'.$modifiedTableDefinitionWithEscapedQuotes.'" WHERE type = "table" AND name = "'.$prefix.$table.'"');
             }
 
             $schema->getConnection()->statement('PRAGMA writable_schema = OFF');
