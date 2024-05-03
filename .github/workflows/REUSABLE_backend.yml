@@ -44,7 +44,7 @@ on:
         description: Versions of databases to test with. Should be array of strings encoded as JSON array
         type: string
         required: false
-        default: '["mysql:5.7", "mysql:8.0.30", "mysql:8.1.0", "mariadb"]'
+        default: '["mysql:5.7", "mysql:8.0.30", "mysql:8.1.0", "mariadb", "sqlite:3"]'
 
       php_ini_values:
         description: PHP ini values
@@ -112,6 +112,11 @@ jobs:
         exclude:
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
             service: 'mysql:8.0.30'
+        # To reduce the number of actions, we also only run one sqlite test.
+          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+            service: 'sqlite:3'
+          - php: ${{ fromJSON(inputs.php_versions)[1] }}
+            service: 'sqlite:3'
 
     services:
       mysql:
