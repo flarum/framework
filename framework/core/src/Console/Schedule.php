@@ -29,7 +29,7 @@ class Schedule extends LaravelSchedule
 
             public function isDownForMaintenance(): bool
             {
-                return $this->config->inMaintenanceMode();
+                return $this->config->inHighMaintenanceMode();
             }
 
             public function environment(): string

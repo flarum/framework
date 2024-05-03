@@ -13,6 +13,7 @@ use Flarum\Database\AbstractModel;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\ApplicationInfoProvider;
 use Flarum\Foundation\Config;
+use Flarum\Foundation\MaintenanceMode;
 use Flarum\Frontend\Document;
 use Flarum\Group\Permission;
 use Flarum\Search\AbstractDriver;
@@ -35,7 +36,8 @@ class AdminPayload
         protected ConnectionInterface $db,
         protected Dispatcher $events,
         protected Config $config,
-        protected ApplicationInfoProvider $appInfo
+        protected ApplicationInfoProvider $appInfo,
+        protected MaintenanceMode $maintenance
     ) {
     }
 
@@ -56,8 +58,6 @@ class AdminPayload
             return array_keys($resourceDrivers);
         }, $this->container->make('flarum.http.slugDrivers'));
         $document->payload['searchDrivers'] = $this->getSearchDrivers();
-
-        $document->payload['advancedPageEmpty'] = $this->checkAdvancedPageEmpty();
 
         $document->payload['phpVersion'] = $this->appInfo->identifyPHPVersion();
         $document->payload['mysqlVersion'] = $this->appInfo->identifyDatabaseVersion();
@@ -82,6 +82,10 @@ class AdminPayload
                 'total' => User::query()->count()
             ]
         ];
+
+        $document->payload['maintenanceByConfig'] = $this->maintenance->configOverride();
+        $document->payload['safeModeExtensions'] = $this->maintenance->safeModeExtensions();
+        $document->payload['safeModeExtensionsConfig'] = $this->config->safeModeExtensions();
     }
 
     protected function getSearchDrivers(): array
@@ -97,10 +101,5 @@ class AdminPayload
         }
 
         return $searchDriversPerModel;
-    }
-
-    protected function checkAdvancedPageEmpty(): bool
-    {
-        return count($this->container->make('flarum.search.drivers')) === 1;
     }
 }

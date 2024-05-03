@@ -10,6 +10,7 @@
 namespace Flarum\Tests\unit\Foundation;
 
 use Flarum\Foundation\Config;
+use Flarum\Foundation\MaintenanceMode;
 use Flarum\Testing\unit\TestCase;
 use InvalidArgumentException;
 use RuntimeException;
@@ -73,14 +74,32 @@ class ConfigTest extends TestCase
             'offline' => false,
         ]);
 
-        $this->assertFalse($config->inMaintenanceMode());
+        $this->assertFalse($config->inHighMaintenanceMode());
 
         $config = new Config([
             'url' => 'https://flarum.localhost',
             'offline' => true,
         ]);
 
-        $this->assertTrue($config->inMaintenanceMode());
+        $this->assertTrue($config->inHighMaintenanceMode());
+
+        $config = new Config([
+            'url' => 'https://flarum.localhost',
+            'offline' => MaintenanceMode::LOW,
+        ]);
+
+        $this->assertFalse($config->inSafeMode());
+        $this->assertTrue($config->inLowMaintenanceMode());
+        $this->assertFalse($config->inHighMaintenanceMode());
+
+        $config = new Config([
+            'url' => 'https://flarum.localhost',
+            'offline' => MaintenanceMode::SAFE,
+        ]);
+
+        $this->assertTrue($config->inSafeMode());
+        $this->assertFalse($config->inLowMaintenanceMode());
+        $this->assertFalse($config->inHighMaintenanceMode());
     }
 
     /** @test */
@@ -90,7 +109,7 @@ class ConfigTest extends TestCase
             'url' => 'https://flarum.localhost',
         ]);
 
-        $this->assertFalse($config->inMaintenanceMode());
+        $this->assertFalse($config->inHighMaintenanceMode());
     }
 
     /** @test */

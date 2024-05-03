@@ -12,6 +12,7 @@ namespace Flarum\Testing\integration\Extension;
 use Flarum\Database\Migrator;
 use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
+use Flarum\Foundation\MaintenanceMode;
 use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
@@ -42,9 +43,10 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
         Migrator $migrator,
         Dispatcher $dispatcher,
         Filesystem $filesystem,
+        MaintenanceMode $maintenance,
         array $enabledIds
     ) {
-        parent::__construct($config, $paths, $container, $migrator, $dispatcher, $filesystem);
+        parent::__construct($config, $paths, $container, $migrator, $dispatcher, $filesystem, $maintenance);
 
         $this->enabledIds = $enabledIds;
     }

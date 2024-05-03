@@ -139,13 +139,9 @@ trait InteractsWithLaravel
         return null; // @phpstan-ignore-line
     }
 
-    /**
-     * @deprecated Not actually used/has no meaning in Flarum.
-     */
     public function isDownForMaintenance(): bool
     {
-        // TODO: Implement isDownForMaintenance() method.
-        return false;
+        return $this->getConfig()->inHighMaintenanceMode();
     }
 
     /**

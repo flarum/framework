@@ -22,8 +22,6 @@ use Symfony\Component\Mime\MimeTypes;
 
 class AvatarValidator extends AbstractValidator
 {
-    protected Validator $laravelValidator;
-
     public function __construct(
         Factory $validator,
         TranslatorInterface $translator,

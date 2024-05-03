@@ -67,6 +67,12 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\GlobalLogOutController::class)
     );
 
+    $map->get(
+        '/maintenance/login',
+        'maintenance.login',
+        $route->toController(Controller\LogInViewController::class)
+    );
+
     $map->post(
         '/login',
         'login',

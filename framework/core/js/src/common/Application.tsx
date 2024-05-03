@@ -124,12 +124,20 @@ export interface RouteResolver<
   render?(this: this, vnode: Mithril.Vnode<Attrs, Comp>): Mithril.Children;
 }
 
+export enum MaintenanceMode {
+  NO_MAINTENANCE = 'none',
+  HIGH_MAINTENANCE = 'high',
+  LOW_MAINTENANCE = 'low',
+  SAFE_MODE = 'safe',
+}
+
 export interface ApplicationData {
   apiDocument: ApiPayload | null;
   locale: string;
   locales: Record<string, string>;
   resources: SavedModelData[];
   session: { userId: number; csrfToken: string };
+  maintenanceMode?: MaintenanceMode;
   [key: string]: unknown;
 }
 

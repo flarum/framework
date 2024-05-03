@@ -41,9 +41,25 @@ export default class Select extends Component {
           disabled={disabled}
           {...domAttrs}
         >
-          {Object.keys(options).map((key) => (
-            <option value={key}>{options[key]}</option>
-          ))}
+          {Object.keys(options).map((key) => {
+            const option = options[key];
+
+            let label;
+            let disabled = false;
+
+            if (typeof option === 'object' && option.label) {
+              label = option.label;
+              disabled = option.disabled ?? false;
+            } else {
+              label = option;
+            }
+
+            return (
+              <option value={key} disabled={disabled}>
+                {label}
+              </option>
+            );
+          })}
         </select>
         <Icon name="fas fa-sort" className="Select-caret" />
       </span>

@@ -10,12 +10,26 @@ core:
     # These translations are used in the Advanced page.
     advanced:
       description: "Configure advanced settings for your forum."
+      maintenance:
+        config_override:
+          label: Your <code>config.php</code> file is overriding these settings.
+          help: You can still change these settings here, but they will not take effect until you set <code>offline</code> to <code>0</code> in your <code>config.php</code> file.
+        help: Put your forum in maintenance mode to prevent users from accessing it.
+        options:
+          none: No maintenance.
+          high: High maintenance mode. No one can access the forum (can only be enabled through config.php)
+          low: Low maintenance mode. Admins can access the forum.
+          safe: Safe mode. No extensions are booted and only admins can access the forum.
+        safe_mode_extensions: Extensions allowed to boot during safe mode
+        safe_mode_extensions_override_help: "This setting is overridden by the <code>safe_mode_extensions</code> key in your <code>config.php</code> file. (<b>{extensions}</b>)"
+        section_label: Maintenance
       search:
         section_label: Search Drivers
         driver_heading: "Search Driver: {model}"
         driver_text: Select a driver to be used for searching this model.
         driver_options:
           default: Default database search
+        no_other_drivers: No search drivers are available yet. Install a search driver extension to be able to configure it.
       title: Advanced
 
     # These translations are used in the Appearance page.
@@ -194,6 +208,7 @@ core:
         button_label: README
         no_readme: This extension does not appear to have a README file
         title: "{extName} documentation"
+      safe_mode_warning: Safe mode is currently enabled. Extensions are not booted and their settings are therefore inaccessible.
 
     # These translations are used in the secondary header.
     header:
@@ -463,13 +478,13 @@ core:
     # These translations are used in the Log In modal dialog.
     log_in:
       forgot_password_link: "Forgot password?"
-      invalid_login_message: Your login details were incorrect.
+      invalid_login_message: => core.ref.invalid_login_message
       password_placeholder: => core.ref.password
-      remember_me_label: Remember Me
+      remember_me_label: => core.ref.remember_me_label
       sign_up_text: "Don't have an account? <a>Sign Up</a>"
       submit_button: => core.ref.log_in
       title: => core.ref.log_in
-      username_or_email_placeholder: Username or Email
+      username_or_email_placeholder: => core.ref.username_or_email_placeholder
 
     # These translations are used by the Notifications dropdown, a.k.a. "the bell".
     notifications:
@@ -689,9 +704,18 @@ core:
     modal:
       close: Close
 
+    # These translations are used in multi-select components.
+    multi_select:
+      placeholder: Select multiple options
+
     # These translations are used in the navigation header.
     nav:
       drawer_button: Open Navigation Drawer
+
+    # These translations are used in forum & admin notices.
+    notices:
+      maintenance_mode_low: Down for maintenance. Only administrators can access the forum.
+      maintenance_mode_safe: Down for maintenance with safe mode. Only administrators can access the forum and no extensions are booted.
 
     # These translations are used as suffixes when abbreviating numbers.
     number_suffix:
@@ -776,6 +800,9 @@ core:
       csrf_token_mismatch: You have been inactive for too long.
       csrf_token_mismatch_return_link: Go back, to try again
       invalid_confirmation_token: This confirmation link has already been used or is invalid.
+      maintenance_mode_link: Administrator login
+      maintenance_mode_message: This forum is currently down for maintenance. Please check back later.
+      maintenance_mode_title: Maintenance
       not_authenticated: You do not have permission to access this page. Try again after logging in.
       not_found: The page you requested could not be found.
       not_found_return_link: "Return to {forum}"
@@ -793,6 +820,15 @@ core:
       log_out_button: => core.ref.log_out
       log_out_confirmation: "Are you sure you want to log out of {forum}?"
       title: => core.ref.log_out
+
+    # Translations in this namespace are displayed on the login interface.
+    log_in:
+      invalid_login_message: => core.ref.invalid_login_message
+      username_or_email_placeholder: => core.ref.username_or_email_placeholder
+      password_placeholder: => core.ref.password
+      remember_me_label: => core.ref.remember_me_label
+      submit_button: => core.ref.log_in
+      title: => core.ref.log_in
 
     # Translations in this namespace are displayed by the Reset Password interface.
     reset_password:
@@ -911,6 +947,7 @@ core:
     generic_confirmation_message: "Are you sure you want to proceed? This action cannot be undone."
     icon: Icon
     icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the <code>fas fa-</code> prefix."
+    invalid_login_message: Your login details were incorrect.
     load_more: Load More
     loading: Loading...
     log_in: Log In
@@ -924,6 +961,7 @@ core:
     password: Password
     posts: Posts # Referenced by flarum-statistics.yml
     previous_page: Previous Page
+    remember_me_label: Remember Me
     remove: Remove
     rename: Rename
     reply: Reply # Referenced by flarum-mentions.yml
@@ -937,6 +975,7 @@ core:
     some_others: "{count, plural, one {# other} other {# others}}" # Referenced by flarum-likes.yml, flarum-mentions.yml
     start_a_discussion: Start a Discussion
     username: Username
+    username_or_email_placeholder: Username or Email
     users: Users # Referenced by flarum-statistics.yml
     view: View
     write_a_reply: Write a Reply...

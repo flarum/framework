@@ -9,6 +9,7 @@ import saveSettings from '../utils/saveSettings';
 import AdminHeader from './AdminHeader';
 import FormGroup, { FieldComponentOptions } from '../../common/components/FormGroup';
 import extractText from '../../common/utils/extractText';
+import LoadingModal from './LoadingModal';
 
 export interface AdminHeaderOptions {
   title: Mithril.Children;
@@ -24,6 +25,8 @@ export interface AdminHeaderOptions {
 
 export type SettingsComponentOptions = FieldComponentOptions & {
   setting: string;
+  json?: boolean;
+  refreshAfterSaving?: boolean;
 };
 
 /**
@@ -38,6 +41,7 @@ export type SaveSubmitEvent = SubmitEvent & { redraw: boolean };
 
 export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends Page<CustomAttrs> {
   settings: MutableSettings = {};
+  refreshAfterSaving: string[] = [];
   loading: boolean = false;
 
   view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
@@ -137,9 +141,34 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
       return entry.call(this);
     }
 
-    const { setting, ...attrs } = entry;
+    const { setting, json, refreshAfterSaving, ...attrs } = entry;
 
-    return <FormGroup bidi={this.setting(setting)} {...attrs} />;
+    const originalBidi: (value?: string) => any = this.setting(setting);
+    let bidi: (value?: string) => any;
+
+    if (json) {
+      bidi = function (value?: string) {
+        if (arguments.length) {
+          originalBidi(JSON.stringify(value));
+        }
+
+        const v = originalBidi();
+
+        if (v) {
+          return JSON.parse(v);
+        }
+
+        return v;
+      };
+    } else {
+      bidi = originalBidi;
+    }
+
+    if (refreshAfterSaving) {
+      this.refreshAfterSaving.push(setting);
+    }
+
+    return <FormGroup stream={bidi} {...attrs} />;
   }
 
   /**
@@ -194,7 +223,16 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
 
     this.loading = true;
 
-    return saveSettings(this.dirty()).then(this.onsaved.bind(this));
+    const dirty = this.dirty();
+
+    return saveSettings(dirty)
+      .then(this.onsaved.bind(this))
+      .then(() => {
+        if (this.refreshAfterSaving.length && Object.keys(dirty).some((setting) => this.refreshAfterSaving.includes(setting))) {
+          app.modal.show(LoadingModal);
+          window.location.reload();
+        }
+      });
   }
 
   modelLocale(): Record<string, string> {
