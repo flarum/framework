@@ -92,6 +92,12 @@ export interface RouteResolver<Attrs extends ComponentAttrs, Comp extends Compon
      */
     render?(this: this, vnode: Mithril.Vnode<Attrs, Comp>): Mithril.Children;
 }
+export declare enum MaintenanceMode {
+    NO_MAINTENANCE = "none",
+    HIGH_MAINTENANCE = "high",
+    LOW_MAINTENANCE = "low",
+    SAFE_MODE = "safe"
+}
 export interface ApplicationData {
     apiDocument: ApiPayload | null;
     locale: string;
@@ -101,6 +107,7 @@ export interface ApplicationData {
         userId: number;
         csrfToken: string;
     };
+    maintenanceMode?: MaintenanceMode;
     [key: string]: unknown;
 }
 /**

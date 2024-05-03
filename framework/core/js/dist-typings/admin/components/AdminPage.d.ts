@@ -15,6 +15,8 @@ export interface AdminHeaderOptions {
 }
 export declare type SettingsComponentOptions = FieldComponentOptions & {
     setting: string;
+    json?: boolean;
+    refreshAfterSaving?: boolean;
 };
 /**
  * Valid attrs that can be returned by the `headerInfo` function
@@ -27,6 +29,7 @@ export declare type SaveSubmitEvent = SubmitEvent & {
 };
 export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends Page<CustomAttrs> {
     settings: MutableSettings;
+    refreshAfterSaving: string[];
     loading: boolean;
     view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children;
     /**

@@ -48,9 +48,13 @@ export interface SelectFieldComponentOptions extends CommonFieldOptions {
      * Map of values to their labels
      */
     options: {
-        [value: string]: Mithril.Children;
+        [value: string]: Mithril.Children | {
+            label: Mithril.Children;
+            disabled?: boolean;
+        };
     };
     default: string;
+    multiple?: boolean;
 }
 /**
  * Valid options for the setting component builder to generate a Textarea.
@@ -76,7 +80,7 @@ export interface CustomFieldComponentOptions extends CommonFieldOptions {
  */
 export declare type FieldComponentOptions = HTMLInputFieldComponentOptions | SwitchFieldComponentOptions | SelectFieldComponentOptions | TextareaFieldComponentOptions | ColorPreviewFieldComponentOptions | ImageUploadFieldComponentOptions | CustomFieldComponentOptions;
 export declare type IFormGroupAttrs = ComponentAttrs & FieldComponentOptions & {
-    bidi?: Stream<any>;
+    stream?: Stream<any>;
 };
 /**
  * Builds a field component based on the provided attributes.
