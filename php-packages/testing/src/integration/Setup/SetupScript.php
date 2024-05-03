@@ -88,6 +88,8 @@ class SetupScript
             'vendor' => getenv('FLARUM_TEST_VENDOR_PATH') ?: getcwd().'/vendor',
         ]);
 
+        $this->dbConfig->prepare($paths);
+
         echo "\nWiping DB to ensure clean state\n";
         $this->wipeDb($paths);
         echo "Success! Proceeding to installation...\n";
