@@ -108,6 +108,7 @@ export interface ApplicationData {
         csrfToken: string;
     };
     maintenanceMode?: MaintenanceMode;
+    bisecting?: boolean;
     [key: string]: unknown;
 }
 /**

@@ -5,6 +5,7 @@ import type Mithril from 'mithril';
 import ItemList from '../../common/utils/ItemList';
 export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends AdminPage<CustomAttrs> {
     searchDriverOptions: Record<string, Record<string, string>>;
+    urlRequestedModalHasBeenShown: boolean;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     headerInfo(): {
         className: string;
