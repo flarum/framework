@@ -138,6 +138,7 @@ export interface ApplicationData {
   resources: SavedModelData[];
   session: { userId: number; csrfToken: string };
   maintenanceMode?: MaintenanceMode;
+  bisecting?: boolean;
   [key: string]: unknown;
 }
 

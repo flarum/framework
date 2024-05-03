@@ -11,6 +11,28 @@ core:
     advanced:
       description: "Configure advanced settings for your forum."
       maintenance:
+        bisect:
+          begin_button_text: Begin Bisect
+          continue_button_text: Continue Bisect
+          label: Extension Bisect
+          help: Helps to identify the extension causing some issue you observed. This automatically puts the forum in maintenance mode (low) until the process is over.
+        bisect_modal:
+          description: >
+            This puts the forum in maintenance mode (low) until the process is over.
+            In each step some extensions will be disabled until we find the one causing the issue. So do not be surprised to see missing features or different theme design.
+            Keep this page open, and try to reproduce the issue after each step in a separate page. You can always come back to this page if you mistakenly close it.
+          end_button: Close and go to extension page
+          issue_question: Does the issue still occur?
+          issue_question_help: Try reproducing the issue in a separate page and answer based on the result.
+          no_button: No
+          result_description: >
+            Forum is no longer in maintenance mode. Extension bisect is over. Based on your responses to each step, the cause of the issue is the following extension:
+          start_button: Start bisect
+          stop_button: Stop bisect
+          steps_left: "Steps left: {steps}"
+          total_steps: This will take around {steps} steps.
+          title: Extension Bisect
+          yes_button: Yes
         config_override:
           label: Your <code>config.php</code> file is overriding these settings.
           help: You can still change these settings here, but they will not take effect until you set <code>offline</code> to <code>0</code> in your <code>config.php</code> file.
@@ -714,6 +736,8 @@ core:
 
     # These translations are used in forum & admin notices.
     notices:
+      bisecting: Running an extension bisect process to determine which extension is causing an issue.
+      bisecting_continue: Continue bisecting
       maintenance_mode_low: Down for maintenance. Only administrators can access the forum.
       maintenance_mode_safe: Down for maintenance with safe mode. Only administrators can access the forum and no extensions are booted.
 

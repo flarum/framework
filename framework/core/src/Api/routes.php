@@ -307,6 +307,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\ShowExtensionReadmeController::class)
     );
 
+    // Extension bisect
+    $map->post(
+        '/extension-bisect',
+        'extension-bisect',
+        $route->toController(Controller\ExtensionBisectController::class)
+    );
+
     // Update settings
     $map->post(
         '/settings',

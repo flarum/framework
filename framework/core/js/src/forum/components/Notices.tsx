@@ -40,12 +40,33 @@ export default class Notices extends Component {
       );
     }
 
+    if (app.data.bisecting) {
+      items.add(
+        'bisecting',
+        <Alert
+          type="error"
+          dismissible={false}
+          className="Alert--bisecting"
+          containerClassName="container"
+          controls={[
+            <a className="Button Button--link" target="_blank" href={app.forum.attribute('adminUrl') + '#/advanced?modal=extension-bisect'}>
+              {app.translator.trans('core.lib.notices.bisecting_continue')}
+            </a>,
+          ]}
+        >
+          {app.translator.trans('core.lib.notices.bisecting')}
+        </Alert>,
+        90
+      );
+    }
+
     if (app.data.maintenanceMode) {
       items.add(
         'maintenanceMode',
         <Alert type="error" dismissible={false} className="Alert--maintenanceMode" containerClassName="container">
           {app.translator.trans('core.lib.notices.maintenance_mode_' + app.data.maintenanceMode)}
-        </Alert>
+        </Alert>,
+        80
       );
     }
 

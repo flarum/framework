@@ -33,10 +33,23 @@
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
     }
+
+    .Form--centered & {
+      margin-left: 0;
+      margin-right: 0;
+    }
   }
 
   &, & > .Button {
     max-width: 100%;
+  }
+}
+
+.ButtonGroup--block {
+  width: 100%;
+
+  .Button {
+    flex-grow: 1;
   }
 }
 
@@ -173,6 +186,12 @@
 }
 .Button--danger {
   .Button--color-auto('control-danger');
+}
+.Button--success {
+  .Button--color-auto('control-success');
+}
+.Button--warning {
+  .Button--color-auto('control-warning');
 }
 .Button--more {
   padding: 2px 4px;

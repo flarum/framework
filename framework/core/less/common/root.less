@@ -27,6 +27,10 @@
   --control-color:                 @control-color;
   --control-danger-bg:             @control-danger-bg;
   --control-danger-color:          @control-danger-color;
+  --control-success-bg:            @control-success-bg;
+  --control-success-color:         @control-success-color;
+  --control-warning-bg:            @control-warning-bg;
+  --control-warning-color:         @control-warning-color;
   --control-body-bg-mix:           mix(@control-bg, @body-bg, 50%);
   --control-muted-color:           lighten(@control-color, 40%);
 
@@ -93,6 +97,8 @@
   .Button--color-vars(@control-color, @control-bg, 'button');
   .Button--color-vars(@body-bg, @primary-color, 'button-primary');
   .Button--color-vars(@control-danger-color, @control-danger-bg, 'control-danger');
+  .Button--color-vars(@control-success-color, @control-success-bg, 'control-success');
+  .Button--color-vars(@control-warning-color, @control-warning-bg, 'control-warning');
   .Button--color-vars(@muted-more-color, fade(@muted-more-color, 30%), 'muted-more');
   .Button--color-vars(@control-color, @body-bg, 'button-inverted');
 

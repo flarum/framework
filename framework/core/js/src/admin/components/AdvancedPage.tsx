@@ -8,9 +8,13 @@ import FormSectionGroup, { FormSection } from './FormSectionGroup';
 import ItemList from '../../common/utils/ItemList';
 import InfoTile from '../../common/components/InfoTile';
 import { MaintenanceMode } from '../../common/Application';
+import Button from '../../common/components/Button';
+import classList from '../../common/utils/classList';
+import ExtensionBisect from './ExtensionBisect';
 
 export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends AdminPage<CustomAttrs> {
   searchDriverOptions: Record<string, Record<string, string>> = {};
+  urlRequestedModalHasBeenShown = false;
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
@@ -36,6 +40,11 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
   }
 
   content() {
+    if (m.route.param('modal') === 'extension-bisect' && !this.urlRequestedModalHasBeenShown) {
+      this.urlRequestedModalHasBeenShown = true;
+      setTimeout(() => app.modal.show(ExtensionBisect), 150);
+    }
+
     return [
       <Form className="AdvancedPage-container">
         <FormSectionGroup>{this.sectionItems().toArray()}</FormSectionGroup>
@@ -104,6 +113,7 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
             help: app.translator.trans('core.admin.advanced.maintenance.help'),
             setting: 'maintenance_mode',
             refreshAfterSaving: true,
+            disabled: app.data.bisecting,
             options: {
               [MaintenanceMode.NO_MAINTENANCE]: app.translator.trans('core.admin.advanced.maintenance.options.' + MaintenanceMode.NO_MAINTENANCE),
               [MaintenanceMode.HIGH_MAINTENANCE]: {
@@ -161,6 +171,18 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
               <strong className="helpText">{app.translator.trans('core.admin.advanced.maintenance.options.' + app.data.maintenanceMode)}</strong>
             </div>
           ) : null}
+          <div className="Form-group">
+            <label>{app.translator.trans('core.admin.advanced.maintenance.bisect.label')}</label>
+            <p className="helpText">{app.translator.trans('core.admin.advanced.maintenance.bisect.help')}</p>
+            <Button
+              className={classList('Button', { 'Button--warning': app.data.bisecting })}
+              onclick={() => app.modal.show(ExtensionBisect)}
+              disabled={app.data.maintenanceMode && app.data.maintenanceMode !== MaintenanceMode.LOW_MAINTENANCE}
+              icon="fas fa-bug"
+            >
+              {app.translator.trans('core.admin.advanced.maintenance.bisect.' + (app.data.bisecting ? 'continue_button_text' : 'begin_button_text'))}
+            </Button>
+          </div>
         </Form>
       </FormSection>
     );
