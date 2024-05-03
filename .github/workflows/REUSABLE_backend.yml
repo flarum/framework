@@ -79,12 +79,19 @@ jobs:
           # Expands the matrix by naming DBs.
           - service: 'mysql:5.7'
             db: MySQL 5.7
+            driver: mysql
           - service: 'mysql:8.0.30'
             db: MySQL 8.0
+            driver: mysql
           - service: mariadb
             db: MariaDB
+            driver: mysql
           - service: 'mysql:8.1.0'
             db: MySQL 8.1
+            driver: mysql
+          - service: 'sqlite:3'
+            db: SQLite
+            driver: sqlite
 
           # Include Database prefix tests with only one PHP version.
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
@@ -173,7 +180,7 @@ jobs:
           DB_PORT: 13306
           DB_PASSWORD: root
           DB_PREFIX: ${{ matrix.prefix }}
-          DB_DRIVER: if(${{ matrix.service == 'sqlite:3' }}, sqlite, mysql)
+          DB_DRIVER: ${{ matrix.driver }}
           COMPOSER_PROCESS_TIMEOUT: 600
 
   phpstan:
