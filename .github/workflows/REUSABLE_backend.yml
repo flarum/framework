@@ -120,7 +120,7 @@ jobs:
 
     services:
       mysql:
-        image: ${{ matrix.service }}
+        image: ${{ matrix.service !== 'sqlite:3' && matrix.service || '' }}
         ports:
           - 13306:3306
 
