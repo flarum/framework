@@ -97,21 +97,31 @@ jobs:
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: 'mysql:5.7'
             db: MySQL 5.7
+            driver: mysql
             prefix: flarum_
             prefixStr: (prefix)
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: 'mysql:8.0.30'
             db: MySQL 8.0
+            driver: mysql
             prefix: flarum_
             prefixStr: (prefix)
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: mariadb
             db: MariaDB
+            driver: mysql
             prefix: flarum_
             prefixStr: (prefix)
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: 'mysql:8.1.0'
             db: MySQL 8.1
+            driver: mysql
+            prefix: flarum_
+            prefixStr: (prefix)
+          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+            service: 'sqlite:3'
+            db: SQLite
+            driver: sqlite
             prefix: flarum_
             prefixStr: (prefix)
 
@@ -119,7 +129,14 @@ jobs:
         exclude:
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
             service: 'mysql:8.0.30'
-        # To reduce the number of actions, we also only run one sqlite test.
+          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+            service: mariadb
+          - php: ${{ fromJSON(inputs.php_versions)[1] }}
+            service: mariadb
+          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+            service: 'mysql:8.1.0'
+          - php: ${{ fromJSON(inputs.php_versions)[1] }}
+            service: 'mysql:8.1.0'
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: 'sqlite:3'
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
