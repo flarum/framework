@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\api\users;
 use Carbon\Carbon;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\Throttler\EmailActivationThrottler;
+use Flarum\User\User;
 
 class SendActivationEmailTest extends TestCase
 {
@@ -20,7 +21,7 @@ class SendActivationEmailTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 [
                     'id' => 3,
                     'username' => 'normal2',

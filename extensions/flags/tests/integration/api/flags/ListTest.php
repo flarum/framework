@@ -9,9 +9,12 @@
 
 namespace Flarum\Flags\Tests\integration\api\flags;
 
+use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 
 class ListTest extends TestCase
@@ -28,7 +31,7 @@ class ListTest extends TestCase
         $this->extension('flarum-flags');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 [
                     'id' => 3,
@@ -44,10 +47,10 @@ class ListTest extends TestCase
             'group_permission' => [
                 ['group_id' => Group::MODERATOR_ID, 'permission' => 'discussion.viewFlags'],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => '', 'user_id' => 1, 'comment_count' => 1],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
                 ['id' => 2, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
                 ['id' => 3, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],

@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\api\authentication;
 use Flarum\Http\AccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 
 class WithTokenTest extends TestCase
 {
@@ -25,7 +26,7 @@ class WithTokenTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
         ]);

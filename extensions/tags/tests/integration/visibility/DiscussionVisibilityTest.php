@@ -11,6 +11,8 @@ namespace Flarum\Tags\Tests\integration\api\discussions;
 
 use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
+use Flarum\Post\Post;
+use Flarum\Tags\Tag;
 use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -33,8 +35,8 @@ class DiscussionVisibilityTest extends TestCase
         $this->extension('flarum-tags');
 
         $this->prepareDatabase([
-            'tags' => $this->tags(),
-            'users' => [
+            Tag::class => $this->tags(),
+            User::class => [
                 $this->normalUser(),
             ],
             'group_permission' => [
@@ -46,7 +48,7 @@ class DiscussionVisibilityTest extends TestCase
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'arbitraryAbility'],
                 ['group_id' => Group::GUEST_ID, 'permission' => 'arbitraryAbility']
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'no tags', 'user_id' => 1, 'comment_count' => 1],
                 ['id' => 2, 'title' => 'open tags', 'user_id' => 1, 'comment_count' => 1],
                 ['id' => 3, 'title' => 'open tag, restricted child tag', 'user_id' => 1, 'comment_count' => 1],
@@ -55,7 +57,7 @@ class DiscussionVisibilityTest extends TestCase
                 ['id' => 6, 'title' => 'closed parent, open child tag',  'user_id' => 1, 'comment_count' => 1],
                 ['id' => 7, 'title' => 'one closed primary tag',  'user_id' => 1, 'comment_count' => 1],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
                 ['id' => 2, 'discussion_id' => 2, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
                 ['id' => 3, 'discussion_id' => 3, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],

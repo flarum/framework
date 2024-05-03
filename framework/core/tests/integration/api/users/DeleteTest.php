@@ -22,7 +22,7 @@ class DeleteTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'ken', 'is_email_confirmed' => 1],
             ],

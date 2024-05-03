@@ -10,9 +10,11 @@
 namespace Flarum\Tags\Tests\integration\api\tags;
 
 use Flarum\Group\Group;
+use Flarum\Tags\Tag;
 use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 
 class ShowTest extends TestCase
@@ -30,8 +32,8 @@ class ShowTest extends TestCase
         $this->extension('flarum-tags');
 
         $this->prepareDatabase([
-            'tags' => $this->tags(),
-            'users' => [
+            Tag::class => $this->tags(),
+            User::class => [
                 $this->normalUser(),
             ],
             'group_permission' => [
@@ -45,7 +47,7 @@ class ShowTest extends TestCase
     public function can_show_tag_with_url_decoded_utf8_slug()
     {
         $this->prepareDatabase([
-            'tags' => [
+            Tag::class => [
                 ['id' => 155, 'name' => '测试', 'slug' => '测试', 'position' => 0, 'parent_id' => null]
             ]
         ]);
@@ -67,7 +69,7 @@ class ShowTest extends TestCase
     public function can_show_tag_with_url_encoded_utf8_slug()
     {
         $this->prepareDatabase([
-            'tags' => [
+            Tag::class => [
                 ['id' => 155, 'name' => '测试', 'slug' => '测试', 'position' => 0, 'parent_id' => null]
             ]
         ]);

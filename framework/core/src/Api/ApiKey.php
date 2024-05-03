@@ -12,6 +12,7 @@ namespace Flarum\Api;
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
@@ -27,6 +28,8 @@ use Illuminate\Support\Str;
  */
 class ApiKey extends AbstractModel
 {
+    use HasFactory;
+
     protected $casts = [
         'id' => 'integer',
         'user_id' => 'integer',

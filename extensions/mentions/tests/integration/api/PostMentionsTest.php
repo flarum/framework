@@ -10,6 +10,7 @@
 namespace Flarum\Mentions\Tests\integration\api;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Formatter\Formatter;
 use Flarum\Post\CommentPost;
@@ -33,16 +34,16 @@ class PostMentionsTest extends TestCase
         $this->extension('flarum-mentions');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 ['id' => 3, 'username' => 'potato', 'email' => 'potato@machine.local', 'is_email_confirmed' => 1],
                 ['id' => 4, 'username' => 'toby', 'email' => 'toby@machine.local', 'is_email_confirmed' => 1],
                 ['id' => 5, 'username' => 'bad_user', 'email' => 'bad_user@machine.local', 'is_email_confirmed' => 1],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 2, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 3, 'first_post_id' => 4, 'comment_count' => 2],
                 ['id' => 50, 'title' => __CLASS__, 'is_private' => true, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 3, 'first_post_id' => 4, 'comment_count' => 1],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 4, 'number' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><POSTMENTION displayname="TobyFlarum___" id="5" number="2" discussionid="2" username="toby">@tobyuuu#5</POSTMENTION></r>'],
                 ['id' => 5, 'number' => 3, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 4, 'type' => 'comment', 'content' => '<r><POSTMENTION displayname="potato" id="4" number="3" discussionid="2" username="potato">@potato#4</POSTMENTION></r>'],
                 ['id' => 6, 'number' => 4, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><POSTMENTION displayname="i_am_a_deleted_user" id="7" number="5" discussionid="2" username="i_am_a_deleted_user">@"i_am_a_deleted_user"#p7</POSTMENTION></r>'],
