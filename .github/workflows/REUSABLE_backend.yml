@@ -206,6 +206,12 @@ jobs:
           tools: phpunit, composer:v2
           ini-values: ${{ matrix.php_ini_values }}
 
+      - name: Create MySQL Database
+        if: ${{ matrix.driver == 'mysql' }}
+        run: |
+          sudo systemctl start mysql
+          mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 13306
+
       - name: Install Composer dependencies
         run: composer install
         working-directory: ${{ inputs.backend_directory }}
