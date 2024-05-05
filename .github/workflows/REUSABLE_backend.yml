@@ -182,6 +182,11 @@ jobs:
           POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
         ports:
           - 15432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     name: 'PHP ${{ matrix.php }} / ${{ matrix.db }} ${{ matrix.prefixStr }}'
 
