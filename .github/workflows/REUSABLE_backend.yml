@@ -113,20 +113,8 @@ jobs:
             prefix: flarum_
             prefixStr: (prefix)
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
-            service: 'mysql:8.0.30'
-            db: MySQL 8.0
-            driver: mysql
-            prefix: flarum_
-            prefixStr: (prefix)
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: mariadb
             db: MariaDB
-            driver: mysql
-            prefix: flarum_
-            prefixStr: (prefix)
-          - php: ${{ fromJSON(inputs.php_versions)[0] }}
-            service: 'mysql:8.1.0'
-            db: MySQL 8.1
             driver: mysql
             prefix: flarum_
             prefixStr: (prefix)

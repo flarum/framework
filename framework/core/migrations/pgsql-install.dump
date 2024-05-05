@@ -32,8 +32,6 @@ COMMENT ON SCHEMA public IS '';
 
 SET default_tablespace = '';
 
-SET default_table_access_method = heap;
-
 --
 -- Name: db_prefix_access_tokens; Type: TABLE; Schema: public; Owner: -
 --
