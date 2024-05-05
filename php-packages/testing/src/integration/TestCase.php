@@ -251,7 +251,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             // PgSQL doesn't auto-increment the sequence when inserting the IDs manually.
             foreach ($tables as $table => $id) {
                 $wrappedTable = $this->database()->getSchemaGrammar()->wrapTable($table);
-                $seq = $this->database()->getSchemaGrammar()->wrapTable($table . '_' . $id . '_seq');
+                $seq = $this->database()->getSchemaGrammar()->wrapTable($table.'_'.$id.'_seq');
                 $this->database()->statement("SELECT setval('$seq', (SELECT MAX($id) FROM $wrappedTable))");
             }
 
