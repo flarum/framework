@@ -105,8 +105,8 @@ class ConnectToDatabase implements Step
 
         $version = $pdo->query('SELECT sqlite_version()')->fetchColumn();
 
-        if (version_compare($version, '3.8.8', '<')) {
-            throw new RangeException("SQLite version ($version) too low. You need at least SQLite 3.8.8");
+        if (version_compare($version, '3.35.0', '<')) {
+            throw new RangeException("SQLite version ($version) too low. You need at least SQLite 3.35.0");
         }
 
         ($this->store)(
