@@ -28,6 +28,11 @@ return [
 
             $db->table('groups')->insert(array_combine(['id', 'name_singular', 'name_plural', 'color', 'icon'], $group));
         }
+
+        // PgSQL doesn't auto-increment the sequence when inserting the IDs manually.
+        if ($db->getDriverName() === 'pgsql') {
+            $db->statement("SELECT setval('groups_id_seq', (SELECT MAX(id) FROM groups))");
+        }
     },
 
     'down' => function (Builder $schema) {
