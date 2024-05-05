@@ -18,8 +18,8 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\ConnectionResolverInterface;
-use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Str;
 
@@ -93,7 +93,6 @@ class DatabaseServiceProvider extends AbstractServiceProvider
             foreach ($drivers as $driver => $macro) {
                 $builder::macro($macro, function ($callback) use ($driver) {
                     /** @var QueryBuilder|EloquentBuilder $this */
-
                     if ($this->getConnection()->getDriverName() === $driver) {
                         $callback($this);
                     }

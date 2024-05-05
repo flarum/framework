@@ -66,15 +66,15 @@ class FulltextFilter extends AbstractFulltextFilter
 
         $grammar = $query->getGrammar();
 
-        $match = 'MATCH(' . $grammar->wrap('posts.content') . ') AGAINST (?)';
-        $matchBooleanMode = 'MATCH(' . $grammar->wrap('posts.content') . ') AGAINST (? IN BOOLEAN MODE)';
-        $matchTitle = 'MATCH(' . $grammar->wrap('discussions.title') . ') AGAINST (?)';
+        $match = 'MATCH('.$grammar->wrap('posts.content').') AGAINST (?)';
+        $matchBooleanMode = 'MATCH('.$grammar->wrap('posts.content').') AGAINST (? IN BOOLEAN MODE)';
+        $matchTitle = 'MATCH('.$grammar->wrap('discussions.title').') AGAINST (?)';
         $mostRelevantPostId = 'SUBSTRING_INDEX(GROUP_CONCAT('.$grammar->wrap('posts.id').' ORDER BY '.$match.' DESC, '.$grammar->wrap('posts.number').'), \',\', 1) as most_relevant_post_id';
 
         $discussionSubquery = Discussion::select('id')
             ->selectRaw('NULL as score')
             ->selectRaw('first_post_id as most_relevant_post_id')
-            ->whereRaw($matchTitle, [$value]);;
+            ->whereRaw($matchTitle, [$value]);
 
         // Construct a subquery to fetch discussions which contain relevant
         // posts. Retrieve the collective relevance of each discussion's posts,
@@ -102,7 +102,7 @@ class FulltextFilter extends AbstractFulltextFilter
             ->groupBy('discussions.id')
             ->addBinding($subquery->getBindings(), 'join');
 
-        $state->setDefaultSort(function (Builder $query) use ($grammar, $value, $matchTitle) {
+        $state->setDefaultSort(function (Builder $query) use ($value, $matchTitle) {
             $query->orderByRaw("$matchTitle desc", [$value]);
             $query->orderBy('posts_ft.score', 'desc');
         });
@@ -118,13 +118,13 @@ class FulltextFilter extends AbstractFulltextFilter
         $matchCondition = "to_tsvector('english', ".$grammar->wrap('posts.content').") @@ plainto_tsquery('english', ?)";
         $matchScore = "ts_rank(to_tsvector('english', ".$grammar->wrap('posts.content')."), plainto_tsquery('english', ?))";
         $matchTitleCondition = "to_tsvector('english', ".$grammar->wrap('discussions.title').") @@ plainto_tsquery('english', ?)";
-        $matchTitleScore = "ts_rank(to_tsvector('english', " . $grammar->wrap('discussions.title') . "), plainto_tsquery('english', ?))";
-        $mostRelevantPostId = "CAST(SPLIT_PART(STRING_AGG(CAST(".$grammar->wrap('posts.id')." AS VARCHAR), ',' ORDER BY ".$matchScore." DESC, ".$grammar->wrap('posts.number')."), ',', 1) AS INTEGER) as most_relevant_post_id";
+        $matchTitleScore = "ts_rank(to_tsvector('english', ".$grammar->wrap('discussions.title')."), plainto_tsquery('english', ?))";
+        $mostRelevantPostId = 'CAST(SPLIT_PART(STRING_AGG(CAST('.$grammar->wrap('posts.id')." AS VARCHAR), ',' ORDER BY ".$matchScore.' DESC, '.$grammar->wrap('posts.number')."), ',', 1) AS INTEGER) as most_relevant_post_id";
 
         $discussionSubquery = Discussion::select('id')
             ->selectRaw('NULL as score')
             ->selectRaw('first_post_id as most_relevant_post_id')
-            ->whereRaw($matchTitleCondition, [$value]);;
+            ->whereRaw($matchTitleCondition, [$value]);
 
         // Construct a subquery to fetch discussions which contain relevant
         // posts. Retrieve the collective relevance of each discussion's posts,
@@ -162,7 +162,7 @@ class FulltextFilter extends AbstractFulltextFilter
                 ->fromSub($query, 'discussions')
         );
 
-        $state->setDefaultSort(function (Builder $query) use ($grammar, $value, $matchTitleScore) {
+        $state->setDefaultSort(function (Builder $query) use ($value, $matchTitleScore) {
             $query->orderByRaw("$matchTitleScore desc", [$value]);
             $query->orderBy('discussions.score', 'desc');
         });
