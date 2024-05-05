@@ -16,11 +16,11 @@ class DatabaseConfig implements Arrayable
 {
     public function __construct(
         private readonly string $driver,
-        private readonly string $host,
+        private readonly ?string $host,
         private readonly int $port,
         private string $database,
-        private readonly string $username,
-        private readonly string $password,
+        private readonly ?string $username,
+        private readonly ?string $password,
         private readonly string $prefix
     ) {
         $this->validate();
@@ -42,15 +42,15 @@ class DatabaseConfig implements Arrayable
             throw new ValidationFailed('Please specify a database driver.');
         }
 
-        if (! in_array($this->driver, ['mysql', 'sqlite'])) {
+        if (! in_array($this->driver, ['mysql', 'sqlite', 'pgsql'])) {
             throw new ValidationFailed('Currently, only MySQL/MariaDB and SQLite are supported.');
         }
 
-        if ($this->driver === 'mysql' && empty($this->host)) {
+        if (in_array($this->driver, ['mysql', 'pgsql']) && empty($this->host)) {
             throw new ValidationFailed('Please specify the hostname of your database server.');
         }
 
-        if ($this->driver === 'mysql' && ($this->port < 1 || $this->port > 65535)) {
+        if (in_array($this->driver, ['mysql', 'pgsql']) && ($this->port < 1 || $this->port > 65535)) {
             throw new ValidationFailed('Please provide a valid port number between 1 and 65535.');
         }
 
@@ -58,7 +58,7 @@ class DatabaseConfig implements Arrayable
             throw new ValidationFailed('Please specify the database name.');
         }
 
-        if ($this->driver === 'mysql' && empty($this->username)) {
+        if (in_array($this->driver, ['mysql', 'pgsql']) && empty($this->username)) {
             throw new ValidationFailed('Please specify the username for accessing the database.');
         }
 
@@ -93,6 +93,15 @@ class DatabaseConfig implements Arrayable
                 'collation' => 'utf8mb4_unicode_ci',
                 'engine' => 'InnoDB',
                 'strict' => false,
+            ],
+            'pgsql' => [
+                'host' => $this->host,
+                'port' => $this->port,
+                'username' => $this->username,
+                'password' => $this->password,
+                'charset' => 'utf8',
+                'search_path' => 'public',
+                'sslmode' => 'prefer',
             ],
             'sqlite' => [
                 'foreign_key_constraints' => true,

@@ -15,7 +15,7 @@ use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
 use Flarum\User\User;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @implements FilterInterface<DatabaseSearchState>
@@ -50,7 +50,7 @@ class GroupFilter implements FilterInterface
 
         $groupQuery = Group::whereVisibleTo($actor)
             ->join('group_user', 'groups.id', 'group_user.group_id')
-            ->where(function (\Illuminate\Database\Eloquent\Builder $query) use ($ids, $names) {
+            ->where(function (Builder $query) use ($ids, $names) {
                 $query->whereIn('groups.id', $ids)
                     ->orWhereIn($query->raw('lower(name_singular)'), $names)
                     ->orWhereIn($query->raw('lower(name_plural)'), $names);

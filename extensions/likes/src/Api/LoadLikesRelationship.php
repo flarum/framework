@@ -31,6 +31,7 @@ class LoadLikesRelationship
         $query
             // So that we can tell if the current user has liked the post.
             ->orderBy(new Expression($grammar->wrap('user_id').' = '.$actor->id), 'desc')
+            ->orderBy('post_likes.created_at')
             // Limiting a relationship results is only possible because
             // the Post model uses the \Staudenmeir\EloquentEagerLimit\HasEagerLimit
             // trait.

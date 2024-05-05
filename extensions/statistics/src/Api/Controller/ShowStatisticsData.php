@@ -130,11 +130,18 @@ class ShowStatisticsData implements RequestHandlerInterface
             $endDate = new DateTime();
         }
 
+        $formats = match ($query->getConnection()->getDriverName()) {
+            'pgsql' => ['YYYY-MM-DD HH24:00:00', 'YYYY-MM-DD'],
+            default => ['%Y-%m-%d %H:00:00', '%Y-%m-%d'],
+        };
+
         // if within the last 24 hours, group by hour
-        $format = 'CASE WHEN '.$column.' > ? THEN \'%Y-%m-%d %H:00:00\' ELSE \'%Y-%m-%d\' END';
+        $format = "CASE WHEN $column > ? THEN '$formats[0]' ELSE '$formats[1]' END";
+
         $dbFormattedDatetime = match ($query->getConnection()->getDriverName()) {
-            'sqlite' => 'strftime('.$format.', '.$column.')',
-            default => 'DATE_FORMAT('.$column.', '.$format.')',
+            'sqlite' => "strftime($format, $column)",
+            'pgsql' => "TO_CHAR($column, $format)",
+            default => "DATE_FORMAT($column, $format)",
         };
 
         $results = $query

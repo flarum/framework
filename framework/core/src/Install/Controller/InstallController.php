@@ -76,20 +76,25 @@ class InstallController implements RequestHandlerInterface
 
     private function makeDatabaseConfig(array $input): DatabaseConfig
     {
-        $host = Arr::get($input, 'mysqlHost');
-        $port = 3306;
+        $driver = Arr::get($input, 'dbDriver');
+        $host = Arr::get($input, 'dbHost');
+        $port = match ($driver) {
+            'mysql' => 3306,
+            'pgsql' => 5432,
+            default => 0,
+        };
 
         if (Str::contains($host, ':')) {
             list($host, $port) = explode(':', $host, 2);
         }
 
         return new DatabaseConfig(
-            Arr::get($input, 'dbDriver'),
+            $driver,
             $host,
             intval($port),
             Arr::get($input, 'dbName'),
-            Arr::get($input, 'mysqlUsername'),
-            Arr::get($input, 'mysqlPassword'),
+            Arr::get($input, 'dbUsername'),
+            Arr::get($input, 'dbPassword'),
             Arr::get($input, 'tablePrefix')
         );
     }

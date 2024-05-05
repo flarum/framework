@@ -15,6 +15,7 @@ use Flarum\Flags\Api\Serializer\FlagSerializer;
 use Flarum\Flags\Flag;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -51,11 +52,13 @@ class ListFlagsController extends AbstractListController
             $include[] = 'post.user.groups';
         }
 
+        /** @var \Illuminate\Database\Eloquent\Collection<int, Flag> $flags */
         $flags = Flag::whereVisibleTo($actor)
-            ->latest('flags.created_at')
-            ->groupBy('post_id')
             ->limit($limit + 1)
             ->offset($offset)
+            ->whenMySql(fn (Builder $query) => $query->groupBy('post_id'))
+            ->whenPgSql(fn (Builder $query) => $query->distinct('post_id')->orderBy('post_id'))
+            ->latest('flags.id')
             ->get();
 
         $this->loadRelations($flags, $include, $request);

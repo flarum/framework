@@ -85,7 +85,10 @@ class ListWithFulltextSearchTest extends TestCase
                 ])
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($body = $response->getBody()->getContents(), true);
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
         $ids = array_map(function ($row) {
             return $row['id'];
         }, $data['data']);

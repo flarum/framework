@@ -44,6 +44,8 @@ class UserState extends AbstractModel
         'last_read_at' => 'datetime'
     ];
 
+    public $incrementing = false;
+
     /**
      * The attributes that are mass assignable.
      */

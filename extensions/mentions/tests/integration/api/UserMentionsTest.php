@@ -38,6 +38,7 @@ class UserMentionsTest extends TestCase
                 ['id' => 3, 'username' => 'potato', 'email' => 'potato@machine.local', 'is_email_confirmed' => 1],
                 ['id' => 4, 'username' => 'toby', 'email' => 'toby@machine.local', 'is_email_confirmed' => 1],
                 ['id' => 5, 'username' => 'bad_user', 'email' => 'bad_user@machine.local', 'is_email_confirmed' => 1],
+                ['id' => 50]
             ],
             Discussion::class => [
                 ['id' => 2, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 3, 'first_post_id' => 4, 'comment_count' => 2],
@@ -488,9 +489,11 @@ class UserMentionsTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $body = $response->getBody()->getContents();
 
-        $response = json_decode($response->getBody(), true);
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $response = json_decode($body, true);
 
         $this->assertStringContainsString('Bad "#p6 User', $response['data']['attributes']['contentHtml']);
         $this->assertEquals('@"Bad _ User"#5', $response['data']['attributes']['content']);

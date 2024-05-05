@@ -201,6 +201,10 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
          */
         $this->database()->getSchemaBuilder()->disableForeignKeyConstraints();
 
+        if ($this->database()->getDriverName() === 'pgsql') {
+            $this->database()->statement("SET session_replication_role = 'replica'");
+        }
+
         $databaseContent = [];
 
         foreach ($this->databaseContent as $tableOrModelClass => $_rows) {
@@ -235,6 +239,10 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
                 $this->database()->table($table)->updateOrInsert($unique, $row);
             }
+        }
+
+        if ($this->database()->getDriverName() === 'pgsql') {
+            $this->database()->statement("SET session_replication_role = 'origin'");
         }
 
         // And finally, turn on foreign key checks again.

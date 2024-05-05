@@ -61,7 +61,7 @@ class CreateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals(201, $response->getStatusCode(), $response->getBody());
     }
 
     /**

@@ -19,6 +19,8 @@ use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\ConnectionResolverInterface;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Str;
 
 class DatabaseServiceProvider extends AbstractServiceProvider
@@ -28,6 +30,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
     public function register(): void
     {
         $this->registerEloquentFactory();
+        $this->registerBuilderMacros();
 
         $this->container->singleton(Manager::class, function (ContainerImplementation $container) {
             $manager = new Manager($container);
@@ -76,6 +79,29 @@ class DatabaseServiceProvider extends AbstractServiceProvider
         $this->container->singleton('flarum.database.model_private_checkers', function () {
             return [];
         });
+    }
+
+    protected function registerBuilderMacros(): void
+    {
+        $drivers = [
+            'mysql' => 'whenMySql',
+            'pgsql' => 'whenPgSql',
+            'sqlite' => 'whenSqlite',
+        ];
+
+        foreach ([QueryBuilder::class, EloquentBuilder::class] as $builder) {
+            foreach ($drivers as $driver => $macro) {
+                $builder::macro($macro, function ($callback) use ($driver) {
+                    /** @var QueryBuilder|EloquentBuilder $this */
+
+                    if ($this->getConnection()->getDriverName() === $driver) {
+                        $callback($this);
+                    }
+
+                    return $this;
+                });
+            }
+        }
     }
 
     protected function registerEloquentFactory(): void

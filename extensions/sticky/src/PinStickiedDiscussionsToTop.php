@@ -19,7 +19,7 @@ class PinStickiedDiscussionsToTop
     public function __invoke(DatabaseSearchState $state, SearchCriteria $criteria): void
     {
         if ($criteria->sortIsDefault && ! $state->isFulltextSearch()) {
-            $query = $state->getQuery();
+            $query = $state->getQuery()->getQuery();
 
             // If we are viewing a specific tag, then pin all stickied
             // discussions to the top no matter what.
@@ -58,7 +58,7 @@ class PinStickiedDiscussionsToTop
                 // Add the bindings manually (rather than as the second
                 // argument in orderByRaw) for now due to a bug in Laravel which
                 // would add the bindings in the wrong order.
-                $q->selectRaw('(is_sticky and not exists ('.$read->toSql().') and last_posted_at > ?) as is_unread_sticky', array_merge($read->getBindings(), [$state->getActor()->marked_all_as_read_at ?: 0]));
+                $q->selectRaw('(is_sticky and not exists ('.$read->toSql().') and last_posted_at > ?) as is_unread_sticky', array_merge($read->getBindings(), [$state->getActor()->marked_all_as_read_at ?: '1970-01-01 00:00:00']));
             }
 
             $query->union($sticky);

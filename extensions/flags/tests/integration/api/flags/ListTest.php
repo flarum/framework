@@ -9,6 +9,7 @@
 
 namespace Flarum\Flags\Tests\integration\api\flags;
 
+use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Flags\Flag;
 use Flarum\Group\Group;
@@ -57,11 +58,11 @@ class ListTest extends TestCase
                 ['id' => 3, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
             ],
             Flag::class => [
-                ['id' => 1, 'post_id' => 1, 'user_id' => 1],
-                ['id' => 2, 'post_id' => 1, 'user_id' => 2],
-                ['id' => 3, 'post_id' => 1, 'user_id' => 3],
-                ['id' => 4, 'post_id' => 2, 'user_id' => 2],
-                ['id' => 5, 'post_id' => 3, 'user_id' => 1],
+                ['id' => 1, 'post_id' => 1, 'user_id' => 1, 'created_at' => Carbon::now()->addMinutes(2)],
+                ['id' => 2, 'post_id' => 1, 'user_id' => 2, 'created_at' => Carbon::now()->addMinutes(3)],
+                ['id' => 3, 'post_id' => 1, 'user_id' => 3, 'created_at' => Carbon::now()->addMinutes(4)],
+                ['id' => 4, 'post_id' => 2, 'user_id' => 2, 'created_at' => Carbon::now()->addMinutes(5)],
+                ['id' => 5, 'post_id' => 3, 'user_id' => 1, 'created_at' => Carbon::now()->addMinutes(6)],
             ]
         ]);
     }
@@ -77,12 +78,14 @@ class ListTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $body = $response->getBody()->getContents();
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $data = json_decode($body, true)['data'];
 
         $ids = Arr::pluck($data, 'id');
-        $this->assertEqualsCanonicalizing(['1', '4', '5'], $ids);
+        $this->assertEqualsCanonicalizing(['3', '4', '5'], $ids);
     }
 
     /**
@@ -120,7 +123,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
-        $this->assertEqualsCanonicalizing(['1', '4', '5'], $ids);
+        $this->assertEqualsCanonicalizing(['3', '4', '5'], $ids);
     }
 
     /**

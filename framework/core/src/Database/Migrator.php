@@ -69,8 +69,38 @@ class Migrator
         // Once we have the array of migrations, we will spin through them and run the
         // migrations "up" so the changes are made to the databases. We'll then log
         // that the migration was run so we don't repeat it next time we execute.
-        foreach ($migrations as $file) {
-            $this->runUp($path, $file, $extension);
+        $this->runUpMigrations($migrations, $path, $extension);
+    }
+
+    protected function runUpMigrations(array $migrations, string $path, ?Extension $extension = null): void
+    {
+        $process = function () use ($migrations, $path, $extension) {
+            foreach ($migrations as $migration) {
+                $this->runUp($path, $migration, $extension);
+            }
+        };
+
+        // PgSQL allows DDL statements in transactions.
+        if ($this->connection->getDriverName() === 'pgsql') {
+            $this->connection->transaction($process);
+        } else {
+            $process();
+        }
+    }
+
+    protected function runDownMigrations(array $migrations, string $path, ?Extension $extension = null): void
+    {
+        $process = function () use ($migrations, $path, $extension) {
+            foreach ($migrations as $migration) {
+                $this->runDown($path, $migration, $extension);
+            }
+        };
+
+        // PgSQL allows DDL statements in transactions.
+        if ($this->connection->getDriverName() === 'pgsql') {
+            $this->connection->transaction($process);
+        } else {
+            $process();
         }
     }
 
@@ -103,9 +133,7 @@ class Migrator
         if ($count === 0) {
             $this->note('<info>Nothing to rollback.</info>');
         } else {
-            foreach ($migrations as $migration) {
-                $this->runDown($path, $migration, $extension);
-            }
+            $this->runDownMigrations($migrations, $path, $extension);
         }
 
         return $count;

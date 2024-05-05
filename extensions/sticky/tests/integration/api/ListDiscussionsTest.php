@@ -62,9 +62,11 @@ class ListDiscussionsTest extends TestCase
             $this->request('GET', '/api/discussions')
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $body = $response->getBody()->getContents();
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $data = json_decode($body, true);
 
         $this->assertEquals([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
     }
@@ -114,9 +116,11 @@ class ListDiscussionsTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $body = $response->getBody()->getContents();
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $data = json_decode($body, true);
 
         $this->assertEquals([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
     }
