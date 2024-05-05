@@ -245,9 +245,11 @@ class GroupMentionsTest extends TestCase
             ])
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $body = $response->getBody()->getContents();
 
-        $response = json_decode($response->getBody(), true);
+        $this->assertEquals(201, $response->getStatusCode(), $body);
+
+        $response = json_decode($body, true);
 
         $this->assertStringNotContainsString('@Members', $response['data']['attributes']['contentHtml']);
         $this->assertStringNotContainsString('@Guests', $response['data']['attributes']['contentHtml']);

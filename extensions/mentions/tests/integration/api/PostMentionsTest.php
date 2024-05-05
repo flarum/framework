@@ -94,9 +94,11 @@ class PostMentionsTest extends TestCase
             ])
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $body = $response->getBody()->getContents();
 
-        $response = json_decode($response->getBody(), true);
+        $this->assertEquals(201, $response->getStatusCode(), $body);
+
+        $response = json_decode($body, true);
 
         $this->assertStringNotContainsString('POTATO$', $response['data']['attributes']['contentHtml']);
         $this->assertEquals('@potato#4', $response['data']['attributes']['content']);
@@ -187,9 +189,11 @@ class PostMentionsTest extends TestCase
             ])
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $body = $response->getBody()->getContents();
 
-        $response = json_decode($response->getBody(), true);
+        $this->assertEquals(201, $response->getStatusCode(), $body);
+
+        $response = json_decode($body, true);
 
         $this->assertStringContainsString('POTATO$', $response['data']['attributes']['contentHtml']);
         $this->assertEquals('@"POTATO$"#p4', $response['data']['attributes']['content']);
