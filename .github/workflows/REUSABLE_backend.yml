@@ -44,7 +44,7 @@ on:
         description: Versions of databases to test with. Should be array of strings encoded as JSON array
         type: string
         required: false
-        default: '["mysql:5.7", "mysql:8.0.30", "mysql:8.1.0", "mariadb", "sqlite:3"]'
+        default: '["mysql:5.7", "mysql:8.0.30", "mysql:8.1.0", "mariadb", "sqlite:3", "postgres:9.5"]'
 
       php_ini_values:
         description: PHP ini values
@@ -98,6 +98,9 @@ jobs:
           - service: 'sqlite:3'
             db: SQLite
             driver: sqlite
+          - service: 'postgres:9.5'
+            db: PostgreSQL
+            driver: pgsql
 
           # Include Database prefix tests with only one PHP version.
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
@@ -130,6 +133,12 @@ jobs:
             driver: sqlite
             prefix: flarum_
             prefixStr: (prefix)
+          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+            service: 'postgres:9.5'
+            db: PostgreSQL
+            driver: pgsql
+            prefix: flarum_
+            prefixStr: (prefix)
 
         # To reduce number of actions, we exclude some PHP versions from running with some DB versions.
         exclude:
@@ -147,6 +156,10 @@ jobs:
             service: 'sqlite:3'
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
             service: 'sqlite:3'
+          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+            service: 'postgres:9.5'
+          - php: ${{ fromJSON(inputs.php_versions)[1] }}
+            service: 'postgres:9.5'
 
     services:
       mysql:

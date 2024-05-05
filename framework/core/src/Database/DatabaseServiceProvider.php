@@ -84,17 +84,30 @@ class DatabaseServiceProvider extends AbstractServiceProvider
     protected function registerBuilderMacros(): void
     {
         $drivers = [
-            'mysql' => 'whenMySql',
-            'pgsql' => 'whenPgSql',
-            'sqlite' => 'whenSqlite',
+            'mysql' => 'MySql',
+            'pgsql' => 'PgSql',
+            'sqlite' => 'Sqlite',
         ];
 
         foreach ([QueryBuilder::class, EloquentBuilder::class] as $builder) {
             foreach ($drivers as $driver => $macro) {
-                $builder::macro($macro, function ($callback) use ($driver) {
+                $builder::macro('when'.$macro, function ($callback, $else) use ($driver) {
                     /** @var QueryBuilder|EloquentBuilder $this */
                     if ($this->getConnection()->getDriverName() === $driver) {
                         $callback($this);
+                    } else {
+                        $else($this);
+                    }
+
+                    return $this;
+                });
+
+                $builder::macro('unless'.$macro, function ($callback, $else) use ($driver) {
+                    /** @var QueryBuilder|EloquentBuilder $this */
+                    if ($this->getConnection()->getDriverName() !== $driver) {
+                        $callback($this);
+                    } else {
+                        $else($this);
                     }
 
                     return $this;

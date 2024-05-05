@@ -56,8 +56,10 @@ class ListFlagsController extends AbstractListController
         $flags = Flag::whereVisibleTo($actor)
             ->limit($limit + 1)
             ->offset($offset)
-            ->whenMySql(fn (Builder $query) => $query->groupBy('post_id'))
-            ->whenPgSql(fn (Builder $query) => $query->distinct('post_id')->orderBy('post_id'))
+            ->whenPgSql(
+                fn (Builder $query) => $query->distinct('post_id')->orderBy('post_id'),
+                else: fn (Builder $query) => $query->groupBy('post_id')
+            )
             ->latest('flags.id')
             ->get();
 
