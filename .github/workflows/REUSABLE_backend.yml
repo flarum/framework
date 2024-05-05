@@ -101,8 +101,8 @@ jobs:
           - service: 'sqlite:3'
             db: SQLite
             driver: sqlite
-          - service: 'postgres:9.5'
-            db: PostgreSQL 9.5
+          - service: 'postgres:10'
+            db: PostgreSQL 10
             driver: pgsql
 
           # Include Database prefix tests with only one PHP version.
@@ -137,8 +137,8 @@ jobs:
             prefix: flarum_
             prefixStr: (prefix)
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
-            service: 'postgres:9.5'
-            db: PostgreSQL 9.5
+            service: 'postgres:10'
+            db: PostgreSQL 10
             driver: pgsql
             prefix: flarum_
             prefixStr: (prefix)
@@ -160,9 +160,9 @@ jobs:
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
             service: 'sqlite:3'
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
-            service: 'postgres:9.5'
+            service: 'postgres:10'
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
-            service: 'postgres:9.5'
+            service: 'postgres:10'
 
     services:
       mysql:
