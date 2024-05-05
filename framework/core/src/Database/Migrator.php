@@ -249,9 +249,11 @@ class Migrator
 
         $dump = file_get_contents($schemaPath);
 
+        $dumpWithoutComments = preg_replace('/^--.*$/m', '', $dump);
+
         $this->connection->getSchemaBuilder()->disableForeignKeyConstraints();
 
-        foreach (explode(';', $dump) as $statement) {
+        foreach (explode(';', $dumpWithoutComments) as $statement) {
             $statement = trim($statement);
 
             if (empty($statement) || str_starts_with($statement, '/*')) {
@@ -264,6 +266,10 @@ class Migrator
                 $statement
             );
             $this->connection->statement($statement);
+        }
+
+        if ($driver === 'pgsql') {
+            $this->connection->statement('SELECT pg_catalog.set_config(\'search_path\', \'public\', false)');
         }
 
         $this->connection->getSchemaBuilder()->enableForeignKeyConstraints();

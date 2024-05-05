@@ -24,22 +24,7 @@ use League\Flysystem\Local\LocalFilesystemAdapter;
 
 class EnableBundledExtensions implements Step
 {
-    public const EXTENSION_WHITELIST = [
-        'flarum-approval',
-        'flarum-bbcode',
-        'flarum-emoji',
-        'flarum-lang-english',
-        'flarum-flags',
-        'flarum-likes',
-        'flarum-lock',
-        'flarum-markdown',
-        'flarum-mentions',
-        'flarum-statistics',
-        'flarum-sticky',
-        'flarum-subscriptions',
-        'flarum-suspend',
-        'flarum-tags',
-    ];
+    public const EXTENSION_WHITELIST = [];
 
     /**
      * @var string[]
