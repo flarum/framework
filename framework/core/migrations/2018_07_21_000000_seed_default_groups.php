@@ -31,7 +31,8 @@ return [
 
         // PgSQL doesn't auto-increment the sequence when inserting the IDs manually.
         if ($db->getDriverName() === 'pgsql') {
-            $db->statement("SELECT setval('groups_id_seq', (SELECT MAX(id) FROM groups))");
+            $table = $db->getSchemaGrammar()->wrapTable('groups');
+            $db->statement("SELECT setval('groups_id_seq', (SELECT MAX(id) FROM $table))");
         }
     },
 
