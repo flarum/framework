@@ -99,7 +99,7 @@ jobs:
             db: SQLite
             driver: sqlite
           - service: 'postgres:9.5'
-            db: PostgreSQL
+            db: PostgreSQL 9.5
             driver: pgsql
 
           # Include Database prefix tests with only one PHP version.
@@ -135,7 +135,7 @@ jobs:
             prefixStr: (prefix)
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: 'postgres:9.5'
-            db: PostgreSQL
+            db: PostgreSQL 9.5
             driver: pgsql
             prefix: flarum_
             prefixStr: (prefix)
@@ -163,9 +163,13 @@ jobs:
 
     services:
       mysql:
-        image: ${{ matrix.service != 'sqlite:3' && matrix.service || '' }}
+        image: ${{ matrix.driver == 'mysql' && matrix.service || '' }}
         ports:
           - 13306:3306
+      postgres:
+        image: ${{ matrix.driver == 'pgsql' && matrix.service || '' }}
+        ports:
+          - 15432:5432
 
     name: 'PHP ${{ matrix.php }} / ${{ matrix.db }} ${{ matrix.prefixStr }}'
 
@@ -186,10 +190,16 @@ jobs:
           ini-values: ${{ matrix.php_ini_values }}
 
       - name: Create MySQL Database
-        if: ${{ matrix.service != 'sqlite:3' }}
+        if: ${{ matrix.driver == 'mysql' }}
         run: |
           sudo systemctl start mysql
           mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 13306
+
+      - name: Create PostgreSQL Database
+        if: ${{ matrix.driver == 'pgsql' }}
+        run: |
+          sudo systemctl start postgres
+          psql -U postgres -c 'CREATE DATABASE flarum_test;' --port 15432
 
       - name: Install Composer dependencies
         run: composer install
