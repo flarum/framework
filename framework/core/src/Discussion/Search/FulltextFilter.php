@@ -15,6 +15,7 @@ use Flarum\Search\AbstractFulltextFilter;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\SearchState;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Query\Expression;
 use RuntimeException;
 
@@ -40,7 +41,7 @@ class FulltextFilter extends AbstractFulltextFilter
 
         $query->where(function (Builder $query) use ($state, $value) {
             $query->where('discussions.title', 'like', "%$value%")
-                ->orWhereExists(function (Builder $query) use ($state, $value) {
+                ->orWhereExists(function (QueryBuilder $query) use ($state, $value) {
                     $query->selectRaw('1')
                         ->from(
                             Post::whereVisibleTo($state->getActor())
