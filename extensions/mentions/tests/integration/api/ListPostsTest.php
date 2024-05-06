@@ -187,17 +187,18 @@ class ListPostsTest extends TestCase
             ])->withQueryParams([
                 'filter' => ['discussion' => 100],
                 'include' => 'mentionedBy',
+                'sort' => 'createdAt',
             ])
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($body = $response->getBody()->getContents(), true)['data'];
 
         $this->assertEquals(200, $response->getStatusCode());
 
         $mentionedBy = $data[0]['relationships']['mentionedBy']['data'];
 
         // Only displays a limited amount of mentioned by posts
-        $this->assertCount(LoadMentionedByRelationship::$maxMentionedBy, $mentionedBy);
+        $this->assertCount(LoadMentionedByRelationship::$maxMentionedBy, $mentionedBy, $body);
         // Of the limited amount of mentioned by posts, they must be visible to the actor
         $this->assertEquals([102, 104, 105, 106], Arr::pluck($mentionedBy, 'id'));
     }
