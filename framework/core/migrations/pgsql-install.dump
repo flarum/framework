@@ -304,7 +304,7 @@ CREATE TABLE public.db_prefix_notifications (
     from_user_id integer,
     type character varying(100) NOT NULL,
     subject_id integer,
-    data bytea,
+    data json,
     created_at timestamp(0) without time zone NOT NULL,
     is_deleted boolean DEFAULT false NOT NULL,
     read_at timestamp(0) without time zone
@@ -1233,12 +1233,13 @@ INSERT INTO public.db_prefix_migrations VALUES (77,'2023_08_19_000000_create_uns
 INSERT INTO public.db_prefix_migrations VALUES (78,'2023_10_23_000000_drop_post_number_index_column_from_discussions_table',NULL);
 INSERT INTO public.db_prefix_migrations VALUES (79,'2024_05_05_000000_add_sqlite_keys',NULL);
 INSERT INTO public.db_prefix_migrations VALUES (80,'2024_05_05_000001_convert_preferences_to_json_in_users',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (81,'2024_05_07_000001_convert_data_to_json_in_notifications.php',NULL);
 
 --
 -- Name: db_prefix_migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.db_prefix_migrations_id_seq', 80, true);
+SELECT pg_catalog.setval('public.db_prefix_migrations_id_seq', 81, true);
 
 
 --
