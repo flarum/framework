@@ -56,7 +56,7 @@ class ConnectToDatabase implements Step
 
         if (Str::contains($version, 'MariaDB')) {
             if (version_compare($version, '10.10.0', '<')) {
-                throw new RangeException("MariaDB version ($version) too low. You need at least MariaDB 10.0.5");
+                throw new RangeException("MariaDB version ($version) too low. You need at least MariaDB 10.10");
             }
         } else {
             if (version_compare($version, '5.7.0', '<')) {
