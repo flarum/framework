@@ -23,10 +23,13 @@ use Tobyz\JsonApiServer\Pagination\OffsetPagination;
  */
 class NotificationResource extends AbstractDatabaseResource
 {
+    protected bool $initialized = false;
+
     public function __construct(
         protected Dispatcher $bus,
         protected NotificationRepository $notifications,
     ) {
+        $this->initialized = true;
     }
 
     public function type(): string
@@ -63,21 +66,19 @@ class NotificationResource extends AbstractDatabaseResource
                 ->before(function (Context $context) {
                     $context->getActor()->markNotificationsAsRead()->save();
                 })
-                ->defaultInclude([
+                ->defaultInclude(array_filter([
                     'fromUser',
                     'subject',
-                    'subject.discussion'
-                ])
+                    $this->initialized && count($this->subjectTypes()) > 1
+                        ? 'subject.discussion'
+                        : null,
+                ]))
                 ->paginate(),
         ];
     }
 
     public function fields(): array
     {
-        $subjectTypes = $this->api->typesForModels(
-            (new Notification())->getSubjectModels()
-        );
-
         return [
             Schema\Str::make('contentType')
                 ->property('type'),
@@ -87,7 +88,7 @@ class NotificationResource extends AbstractDatabaseResource
             Schema\Boolean::make('isRead')
                 ->writable()
                 ->get(fn (Notification $notification) => (bool) $notification->read_at)
-                ->set(function (Notification $notification, Context $context) {
+                ->set(function (Notification $notification, bool $value, Context $context) {
                     $this->bus->dispatch(
                         new ReadNotification($notification->id, $context->getActor())
                     );
@@ -99,8 +100,15 @@ class NotificationResource extends AbstractDatabaseResource
                 ->type('users')
                 ->includable(),
             Schema\Relationship\ToOne::make('subject')
-                ->collection($subjectTypes)
+                ->collection($this->subjectTypes())
                 ->includable(),
         ];
+    }
+
+    protected function subjectTypes(): array
+    {
+        return $this->api->typesForModels(
+            (new Notification())->getSubjectModels()
+        );
     }
 }

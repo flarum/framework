@@ -65,7 +65,7 @@ class Config implements ArrayAccess
 
     public function safeModeExtensions(): ?array
     {
-        return $this->data['safe_mode_extensions'];
+        return $this->data['safe_mode_extensions'] ?? null;
     }
 
     private function requireKeys(mixed ...$keys): void

@@ -208,6 +208,10 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                     'unique' => $instance->uniqueKeys ?? null,
                 ];
             } else {
+                if (class_exists($tableOrModelClass) && is_subclass_of($tableOrModelClass, Model::class)) {
+                    $tableOrModelClass = (new $tableOrModelClass)->getTable();
+                }
+
                 $databaseContent[$tableOrModelClass] = [
                     'rows' => $_rows,
                     'unique' => null,
