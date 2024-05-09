@@ -12,6 +12,7 @@ namespace Flarum\Tags\Tests\integration\api\tags;
 use Flarum\Tags\Tag;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 
 class CreateTest extends TestCase
@@ -28,7 +29,7 @@ class CreateTest extends TestCase
         $this->extension('flarum-tags');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
         ]);

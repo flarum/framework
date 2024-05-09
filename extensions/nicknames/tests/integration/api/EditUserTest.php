@@ -28,7 +28,7 @@ class UpdateTest extends TestCase
 
         $this->extension('flarum-nicknames');
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
         ]);

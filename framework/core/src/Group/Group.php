@@ -16,6 +16,7 @@ use Flarum\Group\Event\Created;
 use Flarum\Group\Event\Deleted;
 use Flarum\Group\Event\Renamed;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -33,6 +34,7 @@ class Group extends AbstractModel
 {
     use EventGeneratorTrait;
     use ScopeVisibilityTrait;
+    use HasFactory;
 
     const ADMINISTRATOR_ID = 1;
     const GUEST_ID = 2;

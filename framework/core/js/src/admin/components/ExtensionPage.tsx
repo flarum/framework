@@ -18,6 +18,8 @@ import type Mithril from 'mithril';
 import extractText from '../../common/utils/extractText';
 import Form from '../../common/components/Form';
 import Icon from '../../common/components/Icon';
+import { MaintenanceMode } from '../../common/Application';
+import InfoTile from '../../common/components/InfoTile';
 
 export interface ExtensionPageAttrs extends IPageAttrs {
   id: string;
@@ -61,13 +63,27 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     return (
       <div className={'ExtensionPage ' + this.className()}>
         {this.header()}
-        {!this.isEnabled() ? (
+        {app.data.maintenanceMode === MaintenanceMode.SAFE_MODE && !app.data.safeModeExtensions?.includes(this.extension.id) ? (
           <div className="container">
-            <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.enable_to_see')}</h3>
+            <div className="ExtensionPage-body">
+              <InfoTile icon="fas fa-exclamation-triangle" type="warning">
+                {app.translator.trans('core.admin.extension.safe_mode_warning')}
+              </InfoTile>
+            </div>
           </div>
         ) : (
-          <div className="ExtensionPage-body">{this.sections(vnode).toArray()}</div>
+          this.body(vnode)
         )}
+      </div>
+    );
+  }
+
+  body(vnode: Mithril.VnodeDOM<Attrs, this>) {
+    return this.isEnabled() ? (
+      <div className="ExtensionPage-body">{this.sections(vnode).toArray()}</div>
+    ) : (
+      <div className="container">
+        <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.enable_to_see')}</h3>
       </div>
     );
   }

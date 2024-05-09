@@ -10,6 +10,7 @@
 namespace Flarum\Tags\Tests\integration\authorization;
 
 use Flarum\Group\Group;
+use Flarum\Tags\Tag;
 use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -30,8 +31,8 @@ class GlobalPolicyTest extends TestCase
         $this->extension('flarum-tags');
 
         $this->prepareDatabase([
-            'tags' => $this->tags(),
-            'users' => [
+            Tag::class => $this->tags(),
+            User::class => [
                 $this->normalUser(),
             ]
         ]);

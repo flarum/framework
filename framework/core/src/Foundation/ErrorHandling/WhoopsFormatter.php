@@ -24,8 +24,17 @@ use Psr\Http\Message\ServerRequestInterface as Request;
  */
 class WhoopsFormatter implements HttpFormatter
 {
+    public function __construct(
+        protected ViewFormatter $viewFormatter
+    ) {
+    }
+
     public function format(HandledError $error, Request $request): Response
     {
+        if (! $error->shouldBeReported()) {
+            return $this->viewFormatter->format($error, $request);
+        }
+
         return WhoopsRunner::handle($error->getException(), $request)
             ->withStatus($error->getStatusCode());
     }

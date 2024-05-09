@@ -14,6 +14,7 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
+use Flarum\Foundation\MaintenanceMode;
 use Flarum\Http\Middleware as HttpMiddleware;
 use Flarum\Http\RouteCollection;
 use Flarum\Http\RouteHandlerFactory;
@@ -95,6 +96,7 @@ class ApiServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\AuthenticateWithHeader::class,
                 HttpMiddleware\SetLocale::class,
                 'flarum.api.route_resolver',
+                'flarum.api.check_for_maintenance',
                 HttpMiddleware\CheckCsrfToken::class,
                 Middleware\ThrottleApi::class,
                 HttpMiddleware\PopulateWithActor::class,
@@ -111,6 +113,17 @@ class ApiServiceProvider extends AbstractServiceProvider
 
         $this->container->bind('flarum.api.route_resolver', function (Container $container) {
             return new HttpMiddleware\ResolveRoute($container->make('flarum.api.routes'));
+        });
+
+        $this->container->bind('flarum.api.check_for_maintenance', function (Container $container) {
+            return new HttpMiddleware\CheckForMaintenanceMode(
+                $container->make(MaintenanceMode::class),
+                $container->make('flarum.api.maintenance_route_exclusions')
+            );
+        });
+
+        $this->container->singleton('flarum.api.maintenance_route_exclusions', function () {
+            return [];
         });
 
         $this->container->singleton('flarum.api.handler', function (Container $container) {
@@ -133,6 +146,7 @@ class ApiServiceProvider extends AbstractServiceProvider
                 HttpMiddleware\StartSession::class,
                 HttpMiddleware\AuthenticateWithSession::class,
                 HttpMiddleware\AuthenticateWithHeader::class,
+                'flarum.api.check_for_maintenance',
                 HttpMiddleware\CheckCsrfToken::class,
                 HttpMiddleware\RememberFromCookie::class,
             ];

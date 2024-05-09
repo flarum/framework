@@ -27,6 +27,8 @@ abstract class AbstractValidator
      */
     protected array $rules = [];
 
+    protected ?Validator $laravelValidator = null;
+
     public function __construct(
         protected Factory $validator,
         protected TranslatorInterface $translator
@@ -40,6 +42,8 @@ abstract class AbstractValidator
 
     /**
      * Throw an exception if a model is not valid.
+     *
+     * @throws ValidationException
      */
     public function assertValid(array $attributes): void
     {
@@ -48,6 +52,18 @@ abstract class AbstractValidator
         if ($validator->fails()) {
             throw new ValidationException($validator);
         }
+    }
+
+    public function prepare(array $attributes): static
+    {
+        $this->laravelValidator ??= $this->makeValidator($attributes);
+
+        return $this;
+    }
+
+    public function validator(): Validator
+    {
+        return $this->laravelValidator;
     }
 
     protected function getRules(): array

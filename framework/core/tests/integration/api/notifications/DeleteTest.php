@@ -10,6 +10,7 @@
 namespace Flarum\Tests\integration\api\notifications;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -26,20 +27,20 @@ class DeleteTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'Test Discussion', 'user_id' => 2, 'comment_count' => 1],
                 ['id' => 2, 'title' => 'Test Discussion', 'user_id' => 2, 'comment_count' => 1],
                 ['id' => 3, 'title' => 'Test Discussion', 'user_id' => 1, 'comment_count' => 1],
                 ['id' => 4, 'title' => 'Test Discussion', 'user_id' => 1, 'comment_count' => 1],
             ],
             'notifications' => [
-                ['id' => 1, 'user_id' => 1, 'type' => 'discussionRenamed', 'subject_id' => 1, 'from_user_id' => 2, 'read_at' => Carbon::now()],
-                ['id' => 2, 'user_id' => 1, 'type' => 'discussionRenamed', 'subject_id' => 2, 'from_user_id' => 2, 'read_at' => null],
-                ['id' => 3, 'user_id' => 2, 'type' => 'discussionRenamed', 'subject_id' => 3, 'from_user_id' => 1, 'read_at' => Carbon::now()],
-                ['id' => 4, 'user_id' => 2, 'type' => 'discussionRenamed', 'subject_id' => 4, 'from_user_id' => 1, 'read_at' => null],
+                ['id' => 1, 'user_id' => 1, 'type' => 'discussionRenamed', 'subject_id' => 1, 'from_user_id' => 2, 'read_at' => Carbon::now(), 'created_at' => Carbon::now()],
+                ['id' => 2, 'user_id' => 1, 'type' => 'discussionRenamed', 'subject_id' => 2, 'from_user_id' => 2, 'read_at' => null, 'created_at' => Carbon::now()],
+                ['id' => 3, 'user_id' => 2, 'type' => 'discussionRenamed', 'subject_id' => 3, 'from_user_id' => 1, 'read_at' => Carbon::now(), 'created_at' => Carbon::now()],
+                ['id' => 4, 'user_id' => 2, 'type' => 'discussionRenamed', 'subject_id' => 4, 'from_user_id' => 1, 'read_at' => null, 'created_at' => Carbon::now()],
             ],
         ]);
     }

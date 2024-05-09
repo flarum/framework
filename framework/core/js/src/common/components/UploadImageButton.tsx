@@ -1,9 +1,9 @@
-import app from '../../admin/app';
-import Button from '../../common/components/Button';
-import type { IButtonAttrs } from '../../common/components/Button';
-import classList from '../../common/utils/classList';
+import app from '../app';
+import Button from './Button';
+import type { IButtonAttrs } from './Button';
+import classList from '../utils/classList';
 import type Mithril from 'mithril';
-import Component from '../../common/Component';
+import Component from '../Component';
 
 export interface IUploadImageButtonAttrs extends IButtonAttrs {
   name: string;

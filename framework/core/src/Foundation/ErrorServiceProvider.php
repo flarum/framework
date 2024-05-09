@@ -45,6 +45,9 @@ class ErrorServiceProvider extends AbstractServiceProvider
 
                 // 429 Too Many Requests
                 'too_many_requests' => 429,
+
+                // 503 Service Unavailable
+                'maintenance' => 503,
             ];
         });
 

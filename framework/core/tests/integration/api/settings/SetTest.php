@@ -11,6 +11,7 @@ namespace Flarum\Tests\integration\api\settings;
 
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 
 class SetTest extends TestCase
 {
@@ -24,7 +25,7 @@ class SetTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
         ]);

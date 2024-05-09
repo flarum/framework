@@ -11,6 +11,7 @@ namespace Flarum\Tests\integration\forum;
 
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 
 class IndexTest extends TestCase
 {
@@ -22,7 +23,7 @@ class IndexTest extends TestCase
     protected function setUp(): void
     {
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser()
             ]
         ]);

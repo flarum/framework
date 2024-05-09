@@ -1,11 +1,12 @@
 import { extend } from 'flarum/common/extend';
-import AdminPage from 'flarum/admin/components/AdminPage';
 import SelectTagsSettingComponent from './components/SelectTagsSettingComponent';
+import FormGroup from 'flarum/common/components/FormGroup';
+import type { IFormGroupAttrs } from 'flarum/common/components/FormGroup';
 
 export default function () {
-  extend(AdminPage.prototype, 'customSettingComponents', function (items) {
-    items.add('flarum-tags.select-tags', (attrs) => {
-      return <SelectTagsSettingComponent {...attrs} settingValue={this.settings[attrs.setting]} />;
+  extend(FormGroup.prototype, 'customFieldComponents', function (items) {
+    items.add('flarum-tags.select-tags', (attrs: IFormGroupAttrs) => {
+      return <SelectTagsSettingComponent {...attrs} settingValue={attrs.bidi} />;
     });
   });
 }

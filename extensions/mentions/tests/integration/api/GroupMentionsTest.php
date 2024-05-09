@@ -10,8 +10,10 @@
 namespace Flarum\Mentions\Tests\integration\api;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
 use Flarum\Post\CommentPost;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -30,14 +32,14 @@ class GroupMentionsTest extends TestCase
         $this->extension('flarum-mentions');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 ['id' => 3, 'username' => 'potato', 'email' => 'potato@machine.local', 'is_email_confirmed' => 1],
                 ['id' => 4, 'username' => 'toby', 'email' => 'toby@machine.local', 'is_email_confirmed' => 1],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 2, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 3, 'first_post_id' => 4, 'comment_count' => 2],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 4, 'number' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><p>One of the <GROUPMENTION groupname="Mods" id="4">@"Mods"#g4</GROUPMENTION> will look at this</p></r>'],
                 ['id' => 6, 'number' => 3, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><p><GROUPMENTION groupname="OldGroupName" id="100">@"OldGroupName"#g100</GROUPMENTION></p></r>'],
                 ['id' => 7, 'number' => 4, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><p><GROUPMENTION groupname="OldGroupName" id="11">@"OldGroupName"#g11</GROUPMENTION></p></r>'],
@@ -53,7 +55,7 @@ class GroupMentionsTest extends TestCase
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'postWithoutThrottle'],
                 ['group_id' => 9, 'permission' => 'mentionGroups'],
             ],
-            'groups' => [
+            Group::class => [
                 ['id' => 9, 'name_singular' => 'HasPermissionToMentionGroups', 'name_plural' => 'test'],
                 ['id' => 10, 'name_singular' => 'Hidden', 'name_plural' => 'Ninjas', 'icon' => 'fas fa-wrench', 'color' => '#000', 'is_hidden' => 1],
                 ['id' => 11, 'name_singular' => 'Fresh Name', 'name_plural' => 'Fresh Name', 'color' => '#ccc', 'icon' => 'fas fa-users', 'is_hidden' => 0]

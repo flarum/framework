@@ -16,6 +16,7 @@ use Flarum\Extension\Event\Enabled;
 use Flarum\Extension\Event\Enabling;
 use Flarum\Extension\Event\Uninstalled;
 use Flarum\Extension\Exception\CircularDependenciesException;
+use Flarum\Foundation\MaintenanceMode;
 use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
@@ -37,7 +38,8 @@ class ExtensionManager
         protected Container $container,
         protected Migrator $migrator,
         protected Dispatcher $dispatcher,
-        protected Filesystem $filesystem
+        protected Filesystem $filesystem,
+        protected MaintenanceMode $maintenance,
     ) {
     }
 
@@ -302,7 +304,19 @@ class ExtensionManager
      */
     public function extend(Container $container): void
     {
-        foreach ($this->getEnabledExtensions() as $extension) {
+        $extensions = $this->getEnabledExtensions();
+
+        if ($this->maintenance->inSafeMode()) {
+            $safeModeExtensions = $this->maintenance->safeModeExtensions();
+
+            $extensions = array_filter($extensions, function (Extension $extension) use ($safeModeExtensions) {
+                return in_array($extension->getId(), $safeModeExtensions, true);
+            });
+
+            $extensions = $this->sortDependencies($extensions);
+        }
+
+        foreach ($extensions as $extension) {
             $extension->extend($container);
         }
     }
@@ -325,7 +339,21 @@ class ExtensionManager
      */
     protected function setEnabledExtensions(array $enabledExtensions): void
     {
-        $resolved = static::resolveExtensionOrder($enabledExtensions);
+        $this->config->set('extensions_enabled', json_encode(array_map(function (Extension $extension) {
+            return $extension->getId();
+        }, $this->sortDependencies($enabledExtensions))));
+    }
+
+    /**
+     * Apply a topological sort to the extensions to ensure that they are in the correct order.
+     *
+     * @param Extension[] $extensions
+     * @return Extension[]
+     * @throws CircularDependenciesException
+     */
+    public function sortDependencies(array $extensions): array
+    {
+        $resolved = static::resolveExtensionOrder($extensions);
 
         if (! empty($resolved['circularDependencies'])) {
             throw new Exception\CircularDependenciesException(
@@ -333,13 +361,7 @@ class ExtensionManager
             );
         }
 
-        $sortedEnabled = $resolved['valid'];
-
-        $sortedEnabledIds = array_map(function (Extension $extension) {
-            return $extension->getId();
-        }, $sortedEnabled);
-
-        $this->config->set('extensions_enabled', json_encode($sortedEnabledIds));
+        return $resolved['valid'];
     }
 
     public function isEnabled(string $extension): bool

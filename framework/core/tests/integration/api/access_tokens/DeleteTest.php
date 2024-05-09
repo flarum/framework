@@ -10,12 +10,14 @@
 namespace Flarum\Tests\integration\api\access_tokens;
 
 use Carbon\Carbon;
+use Flarum\Group\Group;
 use Flarum\Http\AccessToken;
 use Flarum\Http\DeveloperAccessToken;
 use Flarum\Http\RememberAccessToken;
 use Flarum\Http\SessionAccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 
 class DeleteTest extends TestCase
 {
@@ -29,12 +31,12 @@ class DeleteTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'normal3', 'email' => 'normal3@machine.local', 'is_email_confirmed' => 1],
                 ['id' => 4, 'username' => 'normal4', 'email' => 'normal4@machine.local', 'is_email_confirmed' => 1],
             ],
-            'access_tokens' => [
+            AccessToken::class => [
                 ['id' => 1, 'token' => 'a', 'user_id' => 1, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'session'],
                 ['id' => 2, 'token' => 'b', 'user_id' => 1, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'session_remember'],
                 ['id' => 3, 'token' => 'c', 'user_id' => 1, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'developer'],
@@ -42,7 +44,7 @@ class DeleteTest extends TestCase
                 ['id' => 5, 'token' => 'e', 'user_id' => 2, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'session'],
                 ['id' => 6, 'token' => 'f', 'user_id' => 3, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'developer'],
             ],
-            'groups' => [
+            Group::class => [
                 ['id' => 100, 'name_singular' => 'test', 'name_plural' => 'test']
             ],
             'group_user' => [

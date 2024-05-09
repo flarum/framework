@@ -9,9 +9,13 @@
 
 namespace Flarum\Flags\Tests\integration\api\flags;
 
+use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
+use Flarum\Post\Post;
+use Flarum\Tags\Tag;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 
 class ListWithTagsTest extends TestCase
@@ -29,13 +33,13 @@ class ListWithTagsTest extends TestCase
         $this->extension('flarum-tags');
 
         $this->prepareDatabase([
-            'tags' => [
+            Tag::class => [
                 ['id' => 1, 'name' => 'Unrestricted', 'slug' => '1', 'position' => 0, 'parent_id' => null],
                 ['id' => 2, 'name' => 'Mods can view discussions', 'slug' => '2', 'position' => 0, 'parent_id' => null, 'is_restricted' => true],
                 ['id' => 3, 'name' => 'Mods can view flags', 'slug' => '3', 'position' => 0, 'parent_id' => null, 'is_restricted' => true],
                 ['id' => 4, 'name' => 'Mods can view discussions and flags', 'slug' => '4', 'position' => 0, 'parent_id' => null, 'is_restricted' => true],
             ],
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 [
                     'id' => 3,
@@ -55,7 +59,7 @@ class ListWithTagsTest extends TestCase
                 ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag4.viewForum'],
                 ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag4.discussion.viewFlags'],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'no tags', 'user_id' => 1, 'comment_count' => 1],
                 ['id' => 2, 'title' => 'has tags where mods can view discussions but not flags', 'user_id' => 1, 'comment_count' => 1],
                 ['id' => 3, 'title' => 'has tags where mods can view flags but not discussions', 'user_id' => 1, 'comment_count' => 1],
@@ -68,7 +72,7 @@ class ListWithTagsTest extends TestCase
                 ['discussion_id' => 4, 'tag_id' => 4],
                 ['discussion_id' => 5, 'tag_id' => 1],
             ],
-            'posts' => [
+            Post::class => [
                 // From regular ListTest
                 ['id' => 1, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
                 ['id' => 2, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],

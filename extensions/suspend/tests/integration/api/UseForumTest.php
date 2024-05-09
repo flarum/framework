@@ -10,8 +10,11 @@
 namespace Flarum\Suspend\Tests\integration\api;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 
 class UseForumTest extends TestCase
 {
@@ -24,14 +27,14 @@ class UseForumTest extends TestCase
         $this->extension('flarum-suspend');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 ['id' => 1, 'username' => 'Muralf', 'email' => 'muralf@machine.local', 'is_email_confirmed' => 1],
                 ['id' => 2, 'username' => 'SuspendedDonny', 'email' => 'acme@machine.local', 'is_email_confirmed' => 1, 'suspended_until' => Carbon::now()->addDay(), 'suspend_reason' => 'acme', 'suspend_message' => 'acme'],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'number' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'discussion_id' => 1, 'content' => '<t><p>Hello, world!</p></t>'],
             ]
         ]);

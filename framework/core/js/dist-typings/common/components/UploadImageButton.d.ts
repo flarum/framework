@@ -1,6 +1,6 @@
-import type { IButtonAttrs } from '../../common/components/Button';
+import type { IButtonAttrs } from './Button';
 import type Mithril from 'mithril';
-import Component from '../../common/Component';
+import Component from '../Component';
 export interface IUploadImageButtonAttrs extends IButtonAttrs {
     name: string;
     routePath: string;

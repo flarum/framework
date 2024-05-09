@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Post\CommentPost;
+use Flarum\Post\Post;
 use Flarum\Search\IndexerInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -27,11 +28,11 @@ class SearchIndexTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'DISCUSSION 1', 'created_at' => Carbon::now()->subDays(1)->toDateTimeString(), 'hidden_at' => null, 'comment_count' => 1, 'user_id' => 1, 'first_post_id' => 1],
                 ['id' => 2, 'title' => 'DISCUSSION 2', 'created_at' => Carbon::now()->subDays(2)->toDateTimeString(), 'hidden_at' => Carbon::now(), 'comment_count' => 1, 'user_id' => 1],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'number' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<r><p>content</p></r>', 'hidden_at' => null],
                 ['id' => 2, 'number' => 2, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<r><p>content</p></r>', 'hidden_at' => Carbon::now()],
             ],

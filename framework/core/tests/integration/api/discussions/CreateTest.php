@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\api\discussions;
 use Flarum\Discussion\Discussion;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 
 class CreateTest extends TestCase
@@ -26,7 +27,7 @@ class CreateTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ]
         ]);

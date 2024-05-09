@@ -9,14 +9,14 @@
 
 namespace Flarum\Foundation;
 
-use Illuminate\Support\Str;
+use Flarum\Http\RequestUtil;
 use Laminas\Diactoros\Response\HtmlResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class MaintenanceModeHandler implements RequestHandlerInterface
+class HighMaintenanceModeHandler implements RequestHandlerInterface
 {
     const MESSAGE = 'Currently down for maintenance. Please come back later.';
 
@@ -26,20 +26,12 @@ class MaintenanceModeHandler implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         // Special handling for API requests: they get a proper API response
-        if ($this->isApiRequest($request)) {
+        if (RequestUtil::isApiRequest($request)) {
             return $this->apiResponse();
         }
 
         // By default, return a simple text message.
         return new HtmlResponse(self::MESSAGE, 503);
-    }
-
-    private function isApiRequest(ServerRequestInterface $request): bool
-    {
-        return Str::contains(
-            $request->getHeaderLine('Accept'),
-            'application/vnd.api+json'
-        );
     }
 
     private function apiResponse(): ResponseInterface

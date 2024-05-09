@@ -21,6 +21,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     oninit(vnode: Mithril.Vnode<Attrs, this>): void;
     className(): string;
     view(vnode: Mithril.VnodeDOM<Attrs, this>): JSX.Element | null;
+    body(vnode: Mithril.VnodeDOM<Attrs, this>): JSX.Element;
     header(): JSX.Element[];
     sections(vnode: Mithril.VnodeDOM<Attrs, this>): ItemList<unknown>;
     content(vnode: Mithril.VnodeDOM<Attrs, this>): JSX.Element;

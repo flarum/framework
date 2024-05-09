@@ -45,9 +45,14 @@ class Application extends IlluminateContainer implements LaravelApplication
         $this->registerCoreContainerAliases();
     }
 
+    public function getConfig(): Config
+    {
+        return $this->make(Config::class);
+    }
+
     public function config(string $key, mixed $default = null): mixed
     {
-        $config = $this->make('flarum.config');
+        $config = $this->getConfig();
 
         return $config[$key] ?? $default;
     }
@@ -211,6 +216,7 @@ class Application extends IlluminateContainer implements LaravelApplication
             'filesystem' => [\Illuminate\Filesystem\FilesystemManager::class, \Illuminate\Contracts\Filesystem\Factory::class],
             'filesystem.disk' => [\Illuminate\Contracts\Filesystem\Filesystem::class],
             'filesystem.cloud' => [\Illuminate\Contracts\Filesystem\Cloud::class],
+            'flarum.assets' => [\Flarum\Frontend\AssetManager::class],
             'hash' => [\Illuminate\Contracts\Hashing\Hasher::class],
             'mailer' => [\Illuminate\Mail\Mailer::class, \Illuminate\Contracts\Mail\Mailer::class, \Illuminate\Contracts\Mail\MailQueue::class],
             'validator' => [\Illuminate\Validation\Factory::class, \Illuminate\Contracts\Validation\Factory::class],

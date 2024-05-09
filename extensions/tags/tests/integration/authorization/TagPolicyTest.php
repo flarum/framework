@@ -31,8 +31,8 @@ class TagPolicyTest extends TestCase
         $this->extension('flarum-tags');
 
         $this->prepareDatabase([
-            'tags' => $this->tags(),
-            'users' => [
+            Tag::class => $this->tags(),
+            User::class => [
                 $this->normalUser(),
             ],
             'group_permission' => [

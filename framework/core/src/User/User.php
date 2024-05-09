@@ -35,6 +35,7 @@ use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Arr;
@@ -72,6 +73,7 @@ class User extends AbstractModel
     use EventGeneratorTrait;
     use ScopeVisibilityTrait;
     use HasEagerLimit;
+    use HasFactory;
 
     protected $casts = [
         'id' => 'integer',

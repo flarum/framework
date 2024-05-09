@@ -13,6 +13,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\EmailToken;
 use Flarum\User\PasswordToken;
+use Flarum\User\User;
 
 class PasswordEmailTokensTest extends TestCase
 {
@@ -23,7 +24,7 @@ class PasswordEmailTokensTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
         ]);

@@ -28,7 +28,7 @@ class UserTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ]
         ]);

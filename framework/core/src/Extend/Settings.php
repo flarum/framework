@@ -11,7 +11,7 @@ namespace Flarum\Extend;
 
 use Flarum\Api\Resource\ForumResource;
 use Flarum\Api\Schema\Attribute;
-use Flarum\Api\Serializer\ForumSerializer;
+use Flarum\Admin\WhenSavingSettings;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -23,6 +23,7 @@ class Settings implements ExtenderInterface
     private array $settings = [];
     private array $defaults = [];
     private array $lessConfigs = [];
+    private array $resetJsCacheFor = [];
 
     /**
      * Serialize a setting value to the ForumSerializer attributes.
@@ -83,6 +84,19 @@ class Settings implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Register a setting that should trigger JS cache clear when saved.
+     *
+     * @param string $setting: The key of the setting.
+     * @return self
+     */
+    public function resetJsCacheFor(string $setting): self
+    {
+        $this->resetJsCacheFor[] = $setting;
+
+        return $this;
+    }
+
     public function extend(Container $container, Extension $extension = null): void
     {
         if (! empty($this->defaults)) {
@@ -132,6 +146,12 @@ class Settings implements ExtenderInterface
                 }
 
                 return array_merge($existingConfig, $config);
+            });
+        }
+
+        if (! empty($this->resetJsCacheFor)) {
+            $container->afterResolving(WhenSavingSettings::class, function (WhenSavingSettings $whenSavingSettings) {
+                $whenSavingSettings->resetJsCacheFor($this->resetJsCacheFor);
             });
         }
     }

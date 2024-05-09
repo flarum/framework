@@ -11,8 +11,11 @@ namespace Flarum\Mentions\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
 use Flarum\Mentions\Api\PostResourceFields;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 
 class ListPostsTest extends TestCase
@@ -29,10 +32,10 @@ class ListPostsTest extends TestCase
         $this->extension('flarum-mentions');
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
                 ['id' => 2, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
                 ['id' => 3, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
@@ -43,7 +46,7 @@ class ListPostsTest extends TestCase
                 ['post_id' => 3, 'mentions_user_id' => 1],
                 ['post_id' => 4, 'mentions_user_id' => 2]
             ],
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ]
         ]);
@@ -112,10 +115,10 @@ class ListPostsTest extends TestCase
     protected function prepareMentionedByData(): void
     {
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 100, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 101, 'comment_count' => 12],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 101, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
                 ['id' => 102, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
                 ['id' => 103, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>', 'is_private' => 1],

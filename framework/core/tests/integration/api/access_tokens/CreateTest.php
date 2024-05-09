@@ -9,8 +9,10 @@
 
 namespace Flarum\Tests\integration\api\access_tokens;
 
+use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 
 class CreateTest extends TestCase
 {
@@ -24,12 +26,11 @@ class CreateTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'normal3', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'normal3@machine.local', 'is_email_confirmed' => 1]
             ],
-            'access_tokens' => [],
-            'groups' => [
+            Group::class => [
                 ['id' => 10, 'name_plural' => 'Acme', 'name_singular' => 'Acme']
             ],
             'group_user' => [

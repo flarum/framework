@@ -1,6 +1,6 @@
 import app from 'flarum/admin/app';
 import ItemList from 'flarum/common/utils/ItemList';
-import generateElementId from 'flarum/admin/utils/generateElementId';
+import generateElementId from 'flarum/common/utils/generateElementId';
 import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
 
 import Mithril from 'mithril';

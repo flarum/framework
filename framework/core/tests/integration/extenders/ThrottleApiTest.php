@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\extenders;
 use Flarum\Extend;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 
 class ThrottleApiTest extends TestCase
 {
@@ -25,7 +26,7 @@ class ThrottleApiTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ]
         ]);

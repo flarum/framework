@@ -14,6 +14,7 @@ use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -34,6 +35,7 @@ use Psr\Http\Message\ServerRequestInterface;
 class AccessToken extends AbstractModel
 {
     use ScopeVisibilityTrait;
+    use HasFactory;
 
     protected $table = 'access_tokens';
 
@@ -70,6 +72,8 @@ class AccessToken extends AbstractModel
      * will update the attribute on the DB. Measured in seconds.
      */
     private const LAST_ACTIVITY_UPDATE_DIFF = 90;
+
+    public ?array $uniqueKeys = ['token'];
 
     /**
      * Generate an access token for the specified user.
