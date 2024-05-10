@@ -1,15 +1,20 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Api\Endpoint\Concerns;
 
 use Flarum\Api\Resource\AbstractDatabaseResource;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 use Tobyz\JsonApiServer\Context;
-use Tobyz\JsonApiServer\Laravel\EloquentResource;
 
 /**
  * This is directed at eager loading relationships apart from the request includes.
@@ -108,7 +113,7 @@ trait HasEagerLoading
 
         foreach ($relations as $relation) {
             if (isset($addedRelationWhere[$relation])) {
-                $whereRelations[$relation] = $addedRelationWhere[$relation];;
+                $whereRelations[$relation] = $addedRelationWhere[$relation];
             } else {
                 $simpleRelations[] = $relation;
             }
@@ -186,7 +191,7 @@ trait HasEagerLoading
     }
 
     /**
-     * From format of: 'relation' => [ ...nested ] to ['relation', 'relation.nested']
+     * From format of: 'relation' => [ ...nested ] to ['relation', 'relation.nested'].
      */
     private function stringInclude(array $include): array
     {

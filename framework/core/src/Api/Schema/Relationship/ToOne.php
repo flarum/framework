@@ -25,7 +25,7 @@ class ToOne extends BaseToOne
             return ($this->deserializer)($value, $context);
         }
 
-        if (!is_array($value) || !array_key_exists('data', $value)) {
+        if (! is_array($value) || ! array_key_exists('data', $value)) {
             throw new BadRequestException('relationship does not include data key');
         }
 

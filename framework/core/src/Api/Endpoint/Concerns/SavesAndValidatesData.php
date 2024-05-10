@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Api\Endpoint\Concerns;
 
 use Illuminate\Contracts\Validation\Validator;
@@ -105,13 +112,13 @@ trait SavesAndValidatesData
     {
         $body = (array) $context->body();
 
-        if (!isset($body['data']) || !is_array($body['data'])) {
+        if (! isset($body['data']) || ! is_array($body['data'])) {
             throw (new BadRequestException('data must be an object'))->setSource([
                 'pointer' => '/data',
             ]);
         }
 
-        if (!isset($body['data']['type'])) {
+        if (! isset($body['data']['type'])) {
             if (isset($context->collection->resources()[0])) {
                 $body['data']['type'] = $context->collection->resources()[0];
             } else {
@@ -140,19 +147,19 @@ trait SavesAndValidatesData
             ]);
         }
 
-        if (!in_array($body['data']['type'], $context->collection->resources())) {
+        if (! in_array($body['data']['type'], $context->collection->resources())) {
             throw (new ConflictException(
                 'collection does not support this resource type',
             ))->setSource(['pointer' => '/data/type']);
         }
 
-        if (array_key_exists('attributes', $body['data']) && !is_array($body['data']['attributes'])) {
+        if (array_key_exists('attributes', $body['data']) && ! is_array($body['data']['attributes'])) {
             throw (new BadRequestException('data.attributes must be an object'))->setSource([
                 'pointer' => '/data/attributes',
             ]);
         }
 
-        if (array_key_exists('relationships', $body['data']) && !is_array($body['data']['relationships'])) {
+        if (array_key_exists('relationships', $body['data']) && ! is_array($body['data']['relationships'])) {
             throw (new BadRequestException('data.relationships must be an object'))->setSource([
                 'pointer' => '/data/relationships',
             ]);

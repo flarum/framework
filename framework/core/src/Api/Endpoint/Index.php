@@ -29,6 +29,7 @@ use Tobyz\JsonApiServer\Pagination\OffsetPagination;
 use Tobyz\JsonApiServer\Pagination\Pagination;
 use Tobyz\JsonApiServer\Schema\Concerns\HasMeta;
 use Tobyz\JsonApiServer\Serializer;
+
 use function Tobyz\JsonApiServer\apply_filters;
 use function Tobyz\JsonApiServer\json_api_response;
 use function Tobyz\JsonApiServer\parse_sort_string;
@@ -49,7 +50,7 @@ class Index extends Endpoint
     {
         parent::__construct($name);
 
-        $this->paginationResolver = fn() => null;
+        $this->paginationResolver = fn () => null;
     }
 
     public static function make(?string $name = null): static
@@ -111,7 +112,7 @@ class Index extends Endpoint
 
                 $collection = $context->collection;
 
-                if (!$collection instanceof Listable) {
+                if (! $collection instanceof Listable) {
                     throw new RuntimeException(
                         sprintf('%s must implement %s', get_class($collection), Listable::class),
                     );
@@ -144,7 +145,7 @@ class Index extends Endpoint
 
                 if (
                     $collection instanceof Countable &&
-                    !is_null($total = $collection->count($query, $context))
+                    ! is_null($total = $collection->count($query, $context))
                 ) {
                     $meta['page']['total'] = $total;
                 }
@@ -199,7 +200,7 @@ class Index extends Endpoint
 
     final protected function applySorts($query, Context $context): void
     {
-        if (!($sortString = $context->queryParam('sort', $this->defaultSort))) {
+        if (! ($sortString = $context->queryParam('sort', $this->defaultSort))) {
             return;
         }
 
@@ -221,11 +222,11 @@ class Index extends Endpoint
 
     final protected function applyFilters($query, Context $context): void
     {
-        if (!($filters = $context->queryParam('filter'))) {
+        if (! ($filters = $context->queryParam('filter'))) {
             return;
         }
 
-        if (!is_array($filters)) {
+        if (! is_array($filters)) {
             throw (new BadRequestException('filter must be an array'))->setSource([
                 'parameter' => 'filter',
             ]);

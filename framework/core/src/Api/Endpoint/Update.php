@@ -42,7 +42,7 @@ class Update extends Endpoint
                     $resource = $context->resource($context->collection->resource($model, $context)),
                 );
 
-                if (!$resource instanceof Updatable) {
+                if (! $resource instanceof Updatable) {
                     throw new RuntimeException(
                         sprintf('%s must implement %s', get_class($resource), Updatable::class),
                     );

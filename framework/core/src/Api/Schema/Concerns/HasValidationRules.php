@@ -1,9 +1,15 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Api\Schema\Concerns;
 
 use Flarum\Api\Context;
-use Tobyz\JsonApiServer\Endpoint\Update;
 use Illuminate\Validation\Rule;
 
 trait HasValidationRules
@@ -106,12 +112,12 @@ trait HasValidationRules
 
     public function requiredWith(array $fields, bool|callable $condition): static
     {
-        return $this->rule('required_with:' . implode(',', $fields), $condition);
+        return $this->rule('required_with:'.implode(',', $fields), $condition);
     }
 
     public function requiredWithout(array $fields, bool|callable $condition): static
     {
-        return $this->rule('required_without:' . implode(',', $fields), $condition);
+        return $this->rule('required_without:'.implode(',', $fields), $condition);
     }
 
     public function requiredOnCreateWith(array $fields): static

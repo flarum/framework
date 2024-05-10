@@ -21,6 +21,7 @@ use Tobyz\JsonApiServer\Endpoint\Concerns\FindsResources;
 use Tobyz\JsonApiServer\Endpoint\Concerns\ShowsResources;
 use Tobyz\JsonApiServer\Exception\ForbiddenException;
 use Tobyz\JsonApiServer\Exception\MethodNotAllowedException;
+
 use function Tobyz\JsonApiServer\json_api_response;
 
 class Endpoint implements EndpointInterface
@@ -81,7 +82,7 @@ class Endpoint implements EndpointInterface
     public function route(string $method, string $path): static
     {
         $this->method = $method;
-        $this->path = '/' . ltrim(rtrim($path, '/'), '/');
+        $this->path = '/'.ltrim(rtrim($path, '/'), '/');
 
         return $this;
     }
@@ -96,7 +97,7 @@ class Endpoint implements EndpointInterface
     public function process(Context $context): mixed
     {
         if (! $this->action) {
-            throw new RuntimeException("No action defined for endpoint [".static::class."]");
+            throw new RuntimeException('No action defined for endpoint ['.static::class.']');
         }
 
         return ($this->action)($context);
@@ -108,7 +109,7 @@ class Endpoint implements EndpointInterface
     public function handle(\Tobyz\JsonApiServer\Context $context): ?Response
     {
         if (! isset($this->method, $this->path)) {
-            throw new RuntimeException("No route defined for endpoint [".static::class."]");
+            throw new RuntimeException('No route defined for endpoint ['.static::class.']');
         }
 
         if (strtolower($context->method()) !== strtolower($this->method)) {
@@ -125,7 +126,7 @@ class Endpoint implements EndpointInterface
             );
         }
 
-        if (!$this->isVisible($context)) {
+        if (! $this->isVisible($context)) {
             throw new ForbiddenException();
         }
 

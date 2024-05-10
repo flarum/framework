@@ -10,7 +10,6 @@
 namespace Flarum\Sticky\Api;
 
 use Flarum\Api\Context;
-use Flarum\Api\Endpoint\Update;
 use Flarum\Api\Schema;
 use Flarum\Discussion\Discussion;
 use Flarum\Sticky\Event\DiscussionWasStickied;

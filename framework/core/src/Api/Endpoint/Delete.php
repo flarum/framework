@@ -16,6 +16,7 @@ use Nyholm\Psr7\Response;
 use RuntimeException;
 use Tobyz\JsonApiServer\Resource\Deletable;
 use Tobyz\JsonApiServer\Schema\Concerns\HasMeta;
+
 use function Tobyz\JsonApiServer\json_api_response;
 
 class Delete extends Endpoint
@@ -39,7 +40,7 @@ class Delete extends Endpoint
                     $resource = $context->resource($context->collection->resource($model, $context)),
                 );
 
-                if (!$resource instanceof Deletable) {
+                if (! $resource instanceof Deletable) {
                     throw new RuntimeException(
                         sprintf('%s must implement %s', get_class($resource), Deletable::class),
                     );

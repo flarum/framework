@@ -136,6 +136,7 @@ class Context extends BaseContext
     {
         $new = parent::withRequest($request);
         $new->requestIncludes = null;
+
         return $new;
     }
 
@@ -143,6 +144,7 @@ class Context extends BaseContext
     {
         $new = clone $this;
         $new->modelId = $id;
+
         return $new;
     }
 
@@ -150,15 +152,16 @@ class Context extends BaseContext
     {
         $new = clone $this;
         $new->requestIncludes = $requestIncludes;
+
         return $new;
     }
 
     public function extractIdFromPath(\Tobyz\JsonApiServer\Context $context): ?string
     {
         $currentPath = trim($context->path(), '/');
-        $path = trim($context->collection->name() . $this->endpoint->path, '/');
+        $path = trim($context->collection->name().$this->endpoint->path, '/');
 
-        if (!str_contains($path, '{id}')) {
+        if (! str_contains($path, '{id}')) {
             return null;
         }
 

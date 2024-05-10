@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Api\Schema\Concerns;
 
 use Flarum\Api\Context;
@@ -13,7 +20,7 @@ trait FlarumField
      */
     public function writableOnCreate(): static
     {
-        $this->writable = fn($model, Context $context) => $context->creating();
+        $this->writable = fn ($model, Context $context) => $context->creating();
 
         return $this;
     }
@@ -23,7 +30,7 @@ trait FlarumField
      */
     public function writableOnUpdate(): static
     {
-        $this->writable = fn($model, Context $context) => $context->updating();
+        $this->writable = fn ($model, Context $context) => $context->updating();
 
         return $this;
     }

@@ -18,6 +18,7 @@ use Flarum\Database\Eloquent\Collection;
 use RuntimeException;
 use Tobyz\JsonApiServer\Endpoint\Concerns\ShowsResources;
 use Tobyz\JsonApiServer\Resource\Creatable;
+
 use function Tobyz\JsonApiServer\has_value;
 use function Tobyz\JsonApiServer\json_api_response;
 use function Tobyz\JsonApiServer\set_value;
@@ -45,7 +46,7 @@ class Create extends Endpoint
 
                 $collection = $context->collection;
 
-                if (!$collection instanceof Creatable) {
+                if (! $collection instanceof Creatable) {
                     throw new RuntimeException(
                         sprintf('%s must implement %s', get_class($collection), Creatable::class),
                     );
@@ -84,7 +85,7 @@ class Create extends Endpoint
     final protected function fillDefaultValues(Context $context, array &$data): void
     {
         foreach ($context->fields($context->resource) as $field) {
-            if (!has_value($data, $field) && ($default = $field->default)) {
+            if (! has_value($data, $field) && ($default = $field->default)) {
                 set_value($data, $field, $default($context->withField($field)));
             }
         }

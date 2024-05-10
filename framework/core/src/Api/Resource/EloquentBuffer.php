@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Api\Resource;
 
 use Illuminate\Database\Eloquent\Builder;
@@ -8,7 +15,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Tobyz\JsonApiServer\Context;
-use Tobyz\JsonApiServer\Laravel\EloquentResource;
 use Tobyz\JsonApiServer\Laravel\Field\ToMany;
 use Tobyz\JsonApiServer\Laravel\Field\ToOne;
 use Tobyz\JsonApiServer\Schema\Field\Relationship;
@@ -42,13 +48,11 @@ abstract class EloquentBuffer
         Context $context,
         ?array $aggregate = null,
     ): void {
-        if (!($models = static::getBuffer($model, $relationName, $aggregate))) {
+        if (! ($models = static::getBuffer($model, $relationName, $aggregate))) {
             return;
         }
 
         $loader = function ($relation) use (
-            $model,
-            $relationName,
             $relationship,
             $context,
             $aggregate,
@@ -74,8 +78,8 @@ abstract class EloquentBuffer
             foreach ($resources as $resource) {
                 $modelClass = get_class($resource->newModel($context));
 
-                if ($resource instanceof AbstractDatabaseResource && !isset($constrain[$modelClass])) {
-                    $constrain[$modelClass] = function (Builder $query) use ($resource, $context, $relationship, $relation, $aggregate) {
+                if ($resource instanceof AbstractDatabaseResource && ! isset($constrain[$modelClass])) {
+                    $constrain[$modelClass] = function (Builder $query) use ($resource, $context, $relationship, $aggregate) {
                         if (! $aggregate) {
                             $query
                                 ->with($context->endpoint->getEagerLoadsFor($relationship->name, $context))
