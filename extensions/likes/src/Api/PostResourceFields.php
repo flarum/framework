@@ -51,7 +51,7 @@ class PostResourceFields
             Schema\Relationship\ToMany::make('likes')
                 ->type('users')
                 ->includable()
-                ->constrain(function (Builder $query, Context $context) {
+                ->scope(function (Builder $query, Context $context) {
                     $actor = $context->getActor();
                     $grammar = $query->getQuery()->getGrammar();
 

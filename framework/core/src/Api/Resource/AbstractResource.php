@@ -24,4 +24,9 @@ abstract class AbstractResource extends BaseResource
     use Bootable;
     use Extendable;
     use HasSortMap;
+
+    public function id(Context $context): ?string
+    {
+        return $context->extractIdFromPath($context);
+    }
 }

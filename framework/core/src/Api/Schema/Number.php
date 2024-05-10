@@ -9,8 +9,8 @@
 
 namespace Flarum\Api\Schema;
 
-use Tobyz\JsonApiServer\Schema\Concerns\GetsRelationAggregates;
-use Tobyz\JsonApiServer\Schema\Contracts\RelationAggregator;
+use Flarum\Api\Schema\Concerns\GetsRelationAggregates;
+use Flarum\Api\Schema\Contracts\RelationAggregator;
 
 class Number extends Attribute implements RelationAggregator
 {

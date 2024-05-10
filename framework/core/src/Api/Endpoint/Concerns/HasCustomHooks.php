@@ -14,6 +14,10 @@ use Tobyz\JsonApiServer\Context;
 
 trait HasCustomHooks
 {
+    use HasHooks {
+        resolveCallable as protected resolveHookCallable;
+    }
+
     protected function resolveCallable(callable|string $callable, Context $context): callable
     {
         if (is_string($callable)) {

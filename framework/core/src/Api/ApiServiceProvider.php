@@ -53,7 +53,7 @@ class ApiServiceProvider extends AbstractServiceProvider
             $api->container($container);
 
             foreach ($resources as $resourceClass) {
-                /** @var \Flarum\Api\Resource\AbstractResource|\Flarum\Api\Resource\AbstractDatabaseResource $resource */
+                /** @var \Flarum\Api\Resource\AbstractResource $resource */
                 $resource = $container->make($resourceClass);
                 $api->resource($resource->boot($api));
             }
@@ -189,7 +189,7 @@ class ApiServiceProvider extends AbstractServiceProvider
              *
              * We avoid dependency injection here to avoid early resolution.
              *
-             * @var \Flarum\Api\Resource\AbstractResource|\Flarum\Api\Resource\AbstractDatabaseResource $resource
+             * @var \Flarum\Api\Resource\AbstractResource $resource
              */
             $resource = (new ReflectionClass($resourceClass))->newInstanceWithoutConstructor();
 
@@ -199,7 +199,7 @@ class ApiServiceProvider extends AbstractServiceProvider
              * None of the injected dependencies should be directly used within
              *   the `endpoints` method. Encourage using callbacks.
              *
-             * @var array<Endpoint&EndpointInterface> $endpoints
+             * @var array<EndpointInterface> $endpoints
              */
             $endpoints = $resource->resolveEndpoints(true);
 

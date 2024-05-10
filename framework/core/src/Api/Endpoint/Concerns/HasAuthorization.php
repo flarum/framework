@@ -14,9 +14,14 @@ use Flarum\Http\RequestUtil;
 use Flarum\User\Exception\NotAuthenticatedException;
 use Flarum\User\Exception\PermissionDeniedException;
 use Tobyz\JsonApiServer\Context;
+use Tobyz\JsonApiServer\Schema\Concerns\HasVisibility;
 
 trait HasAuthorization
 {
+    use HasVisibility {
+        isVisible as parentIsVisible;
+    }
+
     protected bool|Closure $authenticated = false;
 
     protected null|string|Closure $ability = null;
@@ -86,6 +91,6 @@ trait HasAuthorization
             $actor->assertCan($ability, $context->model);
         }
 
-        return parent::isVisible($context);
+        return $this->parentIsVisible($context);
     }
 }

@@ -9,10 +9,7 @@
 
 namespace Flarum\Api\Endpoint;
 
-/**
- * @mixin \Tobyz\JsonApiServer\Endpoint\Endpoint
- */
-interface EndpointInterface
+interface EndpointInterface extends \Tobyz\JsonApiServer\Endpoint\Endpoint
 {
     //
 }

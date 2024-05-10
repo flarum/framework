@@ -36,7 +36,7 @@ class ApiResource implements ExtenderInterface
         /**
          * Must be a class-string of a class that extends \Flarum\Api\Resource\AbstractResource or \Flarum\Api\Resource\AbstractDatabaseResource.
          *
-         * @var class-string<\Flarum\Api\Resource\AbstractResource|\Flarum\Api\Resource\AbstractDatabaseResource>
+         * @var class-string<\Flarum\Api\Resource\AbstractResource>
          */
         private readonly string $resourceClass
     ) {
@@ -174,7 +174,7 @@ class ApiResource implements ExtenderInterface
             });
         }
 
-        /** @var class-string<\Flarum\Api\Resource\AbstractResource|\Flarum\Api\Resource\AbstractDatabaseResource> $resourceClass */
+        /** @var class-string<\Flarum\Api\Resource\AbstractResource> $resourceClass */
         $resourceClass = $this->resourceClass;
 
         $resourceClass::mutateEndpoints(

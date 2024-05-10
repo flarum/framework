@@ -19,9 +19,11 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Tobyz\JsonApiServer\Endpoint\Endpoint;
 use Tobyz\JsonApiServer\Exception\BadRequestException;
+use Tobyz\JsonApiServer\Exception\ResourceNotFoundException;
 use Tobyz\JsonApiServer\JsonApi as BaseJsonApi;
 use Tobyz\JsonApiServer\Resource\Collection;
 use Tobyz\JsonApiServer\Resource\Resource;
+use Tobyz\JsonApiServer\Schema\Field\Field;
 
 class JsonApi extends BaseJsonApi
 {
@@ -57,9 +59,9 @@ class JsonApi extends BaseJsonApi
             ->withEndpoint($this->findEndpoint($collection));
     }
 
-    protected function findEndpoint(?Collection $collection): Endpoint&EndpointInterface
+    protected function findEndpoint(?Collection $collection): EndpointInterface
     {
-        /** @var Endpoint&EndpointInterface $endpoint */
+        /** @var EndpointInterface $endpoint */
         foreach ($collection->resolveEndpoints() as $endpoint) {
             if ($endpoint->name === $this->endpointName) {
                 return $endpoint;
@@ -67,6 +69,46 @@ class JsonApi extends BaseJsonApi
         }
 
         throw new BadRequestException('Invalid endpoint specified');
+    }
+
+    /**
+     * Get a collection by name or class.
+     *
+     * @throws ResourceNotFoundException if the collection has not been defined.
+     */
+    public function getCollection(string $type): Collection
+    {
+        if (isset($this->collections[$type])) {
+            return $this->collections[$type];
+        }
+
+        foreach ($this->collections as $instance) {
+            if ($instance instanceof $type) {
+                return $instance;
+            }
+        }
+
+        throw new ResourceNotFoundException($type);
+    }
+
+    /**
+     * Get a resource by type or class.
+     *
+     * @throws ResourceNotFoundException if the resource has not been defined.
+     */
+    public function getResource(string $type): Resource
+    {
+        if (isset($this->resources[$type])) {
+            return $this->resources[$type];
+        }
+
+        foreach ($this->resources as $instance) {
+            if ($instance instanceof $type) {
+                return $instance;
+            }
+        }
+
+        throw new ResourceNotFoundException($type);
     }
 
     public function withRequest(Request $request): self

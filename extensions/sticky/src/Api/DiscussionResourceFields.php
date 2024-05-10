@@ -23,7 +23,7 @@ class DiscussionResourceFields
         return [
             Schema\Boolean::make('isSticky')
                 ->writable(function (Discussion $discussion, Context $context) {
-                    return $context->endpoint instanceof Update
+                    return $context->updating()
                         && $context->getActor()->can('sticky', $discussion);
                 })
                 ->set(function (Discussion $discussion, bool $isSticky, Context $context) {
