@@ -231,10 +231,13 @@ class DiscussionResource extends AbstractDatabaseResource
                         $offset = $endpoint->extractOffsetValue($context, $endpoint->defaultExtracts($context));
                     }
 
+                    /** @var Endpoint\Endpoint $endpoint */
+                    $endpoint = $context->endpoint;
+
                     $posts = $discussion->posts()
                         ->whereVisibleTo($actor)
-                        ->with($context->endpoint->getEagerLoadsFor('posts', $context))
-                        ->with($context->endpoint->getWhereEagerLoadsFor('posts', $context))
+                        ->with($endpoint->getEagerLoadsFor('posts', $context))
+                        ->with($endpoint->getWhereEagerLoadsFor('posts', $context))
                         ->orderBy('number')
                         ->skip($offset)
                         ->take($limit)

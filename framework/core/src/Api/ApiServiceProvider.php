@@ -9,7 +9,7 @@
 
 namespace Flarum\Api;
 
-use Flarum\Api\Endpoint\EndpointInterface;
+use Flarum\Api\Endpoint\Endpoint;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
@@ -22,7 +22,6 @@ use Flarum\Http\UrlGenerator;
 use Illuminate\Contracts\Container\Container;
 use Laminas\Stratigility\MiddlewarePipe;
 use ReflectionClass;
-use Tobyz\JsonApiServer\Endpoint\Endpoint;
 
 class ApiServiceProvider extends AbstractServiceProvider
 {
@@ -199,7 +198,7 @@ class ApiServiceProvider extends AbstractServiceProvider
              * None of the injected dependencies should be directly used within
              *   the `endpoints` method. Encourage using callbacks.
              *
-             * @var array<EndpointInterface> $endpoints
+             * @var array<Endpoint> $endpoints
              */
             $endpoints = $resource->resolveEndpoints(true);
 

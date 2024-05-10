@@ -9,12 +9,13 @@
 
 namespace Flarum\Api\Resource;
 
+use Flarum\Api\Context;
+use Flarum\Api\Endpoint\Endpoint;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Tobyz\JsonApiServer\Context;
 use Tobyz\JsonApiServer\Laravel\Field\ToMany;
 use Tobyz\JsonApiServer\Laravel\Field\ToOne;
 use Tobyz\JsonApiServer\Schema\Field\Relationship;
@@ -25,21 +26,21 @@ abstract class EloquentBuffer
 
     public static function add(Model $model, string $relationName, ?array $aggregate = null): void
     {
-        static::$buffer[get_class($model)][$relationName][$aggregate ? $aggregate['column'].$aggregate['function'] : 'normal'][] = $model;
+        self::$buffer[get_class($model)][$relationName][$aggregate ? $aggregate['column'].$aggregate['function'] : 'normal'][] = $model;
     }
 
     public static function getBuffer(Model $model, string $relationName, ?array $aggregate = null): ?array
     {
-        return static::$buffer[get_class($model)][$relationName][$aggregate ? $aggregate['column'].$aggregate['function'] : 'normal'] ?? null;
+        return self::$buffer[get_class($model)][$relationName][$aggregate ? $aggregate['column'].$aggregate['function'] : 'normal'] ?? null;
     }
 
     public static function setBuffer(Model $model, string $relationName, ?array $aggregate, array $buffer): void
     {
-        static::$buffer[get_class($model)][$relationName][$aggregate ? $aggregate['column'].$aggregate['function'] : 'normal'] = $buffer;
+        self::$buffer[get_class($model)][$relationName][$aggregate ? $aggregate['column'].$aggregate['function'] : 'normal'] = $buffer;
     }
 
     /**
-     * @param array{relation: string, column: string, function: string, constrain: Closure}|null $aggregate
+     * @param array{relation: string, column: string, function: string, constrain: callable|null}|null $aggregate
      */
     public static function load(
         Model $model,
@@ -48,7 +49,7 @@ abstract class EloquentBuffer
         Context $context,
         ?array $aggregate = null,
     ): void {
-        if (! ($models = static::getBuffer($model, $relationName, $aggregate))) {
+        if (! ($models = self::getBuffer($model, $relationName, $aggregate))) {
             return;
         }
 
@@ -64,6 +65,7 @@ abstract class EloquentBuffer
             // may be multiple if this is a polymorphic relationship. We
             // start by getting the resource types this relationship
             // could possibly contain.
+            /** @var AbstractDatabaseResource[] $resources */
             $resources = $context->api->resources;
 
             if ($type = $relationship->collections) {
@@ -81,9 +83,12 @@ abstract class EloquentBuffer
                 if ($resource instanceof AbstractDatabaseResource && ! isset($constrain[$modelClass])) {
                     $constrain[$modelClass] = function (Builder $query) use ($resource, $context, $relationship, $aggregate) {
                         if (! $aggregate) {
+                            /** @var Endpoint $endpoint */
+                            $endpoint = $context->endpoint;
+
                             $query
-                                ->with($context->endpoint->getEagerLoadsFor($relationship->name, $context))
-                                ->with($context->endpoint->getWhereEagerLoadsFor($relationship->name, $context));
+                                ->with($endpoint->getEagerLoadsFor($relationship->name, $context))
+                                ->with($endpoint->getWhereEagerLoadsFor($relationship->name, $context));
                         }
 
                         $resource->scope($query, $context);
@@ -115,8 +120,10 @@ abstract class EloquentBuffer
 
             // Set the inverse relation on the loaded relations.
             $collection->each(function (Model $model) use ($relationName, $relationship) {
-                /** @var Model|Collection $related */
-                if ($related = $model->getRelation($relationName)) {
+                /** @var Model|Collection|null $related */
+                $related = $model->getRelation($relationName);
+
+                if ($related) {
                     $inverse = $relationship->inverse ?? str($model::class)->afterLast('\\')->camel()->toString();
 
                     $related = $related instanceof Collection ? $related : [$related];
@@ -132,6 +139,6 @@ abstract class EloquentBuffer
             $collection->loadAggregate([$relationName => $loader], $aggregate['column'], $aggregate['function']);
         }
 
-        static::setBuffer($model, $relationName, $aggregate, []);
+        self::setBuffer($model, $relationName, $aggregate, []);
     }
 }

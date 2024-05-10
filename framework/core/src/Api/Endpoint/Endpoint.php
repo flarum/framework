@@ -16,6 +16,7 @@ use Flarum\Api\Endpoint\Concerns\HasAuthorization;
 use Flarum\Api\Endpoint\Concerns\HasCustomHooks;
 use Flarum\Api\Endpoint\Concerns\HasEagerLoading;
 use Flarum\Api\Endpoint\Concerns\ShowsResources;
+use Flarum\Api\Resource\AbstractResource;
 use Psr\Http\Message\ResponseInterface as Response;
 use RuntimeException;
 use Tobyz\JsonApiServer\Endpoint\Concerns\FindsResources;
@@ -24,7 +25,7 @@ use Tobyz\JsonApiServer\Exception\MethodNotAllowedException;
 
 use function Tobyz\JsonApiServer\json_api_response;
 
-class Endpoint implements EndpointInterface
+class Endpoint implements \Tobyz\JsonApiServer\Endpoint\Endpoint
 {
     use ShowsResources;
     use FindsResources;
@@ -116,8 +117,11 @@ class Endpoint implements EndpointInterface
             throw new MethodNotAllowedException();
         }
 
+        /** @var AbstractResource $collection */
+        $collection = $context->collection;
+
         $context = $context->withModelId(
-            $context->collection->id($context)
+            $collection->id($context)
         );
 
         if ($context->modelId) {

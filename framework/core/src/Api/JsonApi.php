@@ -9,14 +9,16 @@
 
 namespace Flarum\Api;
 
-use Flarum\Api\Endpoint\EndpointInterface;
+use Flarum\Api\Endpoint\Endpoint;
 use Flarum\Api\Resource\AbstractDatabaseResource;
+use Flarum\Api\Resource\AbstractResource;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Container\Container;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Diactoros\Uri;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use RuntimeException;
 use Tobyz\JsonApiServer\Exception\BadRequestException;
 use Tobyz\JsonApiServer\Exception\ResourceNotFoundException;
 use Tobyz\JsonApiServer\JsonApi as BaseJsonApi;
@@ -57,9 +59,13 @@ class JsonApi extends BaseJsonApi
             ->withEndpoint($this->findEndpoint($collection));
     }
 
-    protected function findEndpoint(?Collection $collection): EndpointInterface
+    protected function findEndpoint(?Collection $collection): Endpoint
     {
-        /** @var EndpointInterface $endpoint */
+        if (! $collection instanceof AbstractResource) {
+            throw new RuntimeException('Resource ' . $collection::class . ' must extend ' . AbstractResource::class);
+        }
+
+        /** @var Endpoint $endpoint */
         foreach ($collection->resolveEndpoints() as $endpoint) {
             if ($endpoint->name === $this->endpointName) {
                 return $endpoint;
@@ -152,13 +158,19 @@ class JsonApi extends BaseJsonApi
             $context = $context->withInternal($key, $value);
         }
 
+        $endpoint = $context->endpoint;
+
+        if (! $endpoint instanceof Endpoint) {
+            throw new RuntimeException('The endpoint ' . $endpoint::class . ' must extend ' . Endpoint::class);
+        }
+
         $context = $context->withRequest(
             $request
-                ->withMethod($context->endpoint->method)
-                ->withUri(new Uri($context->endpoint->path))
+                ->withMethod($endpoint->method)
+                ->withUri(new Uri($endpoint->path))
         );
 
-        return $context->endpoint->process($context);
+        return $endpoint->process($context);
     }
 
     public function validateQueryParameters(Request $request): void

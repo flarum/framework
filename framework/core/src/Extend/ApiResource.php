@@ -9,13 +9,12 @@
 
 namespace Flarum\Extend;
 
-use Flarum\Api\Endpoint\EndpointInterface;
+use Flarum\Api\Endpoint\Endpoint;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
 use ReflectionClass;
 use RuntimeException;
-use Tobyz\JsonApiServer\Endpoint\Endpoint;
 use Tobyz\JsonApiServer\Resource\Resource;
 use Tobyz\JsonApiServer\Schema\Field\Field;
 use Tobyz\JsonApiServer\Schema\Sort;
@@ -179,7 +178,7 @@ class ApiResource implements ExtenderInterface
 
         $resourceClass::mutateEndpoints(
             /**
-             * @var EndpointInterface[] $endpoints
+             * @var Endpoint[] $endpoints
              */
             function (array $endpoints, Resource $resource) use ($container): array {
                 foreach ($this->endpoints as $newEndpointsCallback) {
@@ -203,8 +202,8 @@ class ApiResource implements ExtenderInterface
                             $mutateEndpoint = ContainerUtil::wrapCallback($mutator, $container);
                             $endpoint = $mutateEndpoint($endpoint, $resource);
 
-                            if (! $endpoint instanceof EndpointInterface) {
-                                throw new RuntimeException('The endpoint mutator must return an instance of '.EndpointInterface::class);
+                            if (! $endpoint instanceof Endpoint) {
+                                throw new RuntimeException('The endpoint mutator must return an instance of '.Endpoint::class);
                             }
                         }
                     }

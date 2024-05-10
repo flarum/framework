@@ -15,6 +15,7 @@ use Flarum\Api\Endpoint\Concerns\ExtractsListingParams;
 use Flarum\Api\Endpoint\Concerns\HasAuthorization;
 use Flarum\Api\Endpoint\Concerns\HasCustomHooks;
 use Flarum\Api\Endpoint\Concerns\IncludesData;
+use Flarum\Api\Resource\AbstractResource;
 use Flarum\Api\Resource\Contracts\Countable;
 use Flarum\Api\Resource\Contracts\Listable;
 use Flarum\Api\Serializer;
@@ -100,7 +101,9 @@ class Index extends Endpoint
                     $this->applySorts($query, $context);
                     $this->applyFilters($query, $context);
 
-                    $pagination?->apply($query);
+                    if ($pagination && method_exists($pagination, 'apply')) {
+                        $pagination->apply($query);
+                    }
                 }
 
                 return $context;
@@ -131,6 +134,7 @@ class Index extends Endpoint
                         throw new RuntimeException('The Index endpoint query closure must return a Context instance.');
                     }
                 } else {
+                    /** @var Context $context */
                     $context = $context->withQuery($query);
 
                     $this->applySorts($query, $context);
@@ -159,6 +163,7 @@ class Index extends Endpoint
                 return compact('models', 'meta', 'pagination', 'total');
             })
             ->beforeSerialization(function (Context $context, array $results) {
+                // @phpstan-ignore-next-line
                 $this->loadRelations(Collection::make($results['models']), $context, $this->getInclude($context));
             })
             ->response(function (Context $context, array $results): Response {
@@ -204,7 +209,13 @@ class Index extends Endpoint
             return;
         }
 
-        $sorts = $context->collection->resolveSorts();
+        $collection = $context->collection;
+
+        if (! $collection instanceof AbstractResource) {
+            throw new RuntimeException('The collection ' . $collection::class . ' must extend ' . AbstractResource::class);
+        }
+
+        $sorts = $collection->resolveSorts();
 
         foreach (parse_sort_string($sortString) as [$name, $direction]) {
             foreach ($sorts as $field) {
@@ -232,8 +243,16 @@ class Index extends Endpoint
             ]);
         }
 
+        $collection = $context->collection;
+
+        if (! $collection instanceof \Tobyz\JsonApiServer\Resource\Listable) {
+            throw new RuntimeException(
+                sprintf('%s must implement %s', $collection::class, \Tobyz\JsonApiServer\Resource\Listable::class),
+            );
+        }
+
         try {
-            apply_filters($query, $filters, $context->collection, $context);
+            apply_filters($query, $filters, $collection, $context);
         } catch (Sourceable $e) {
             throw $e->prependSource(['parameter' => 'filter']);
         }

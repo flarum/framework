@@ -10,9 +10,9 @@
 namespace Flarum\Api\Endpoint\Concerns;
 
 use Closure;
+use Flarum\Api\Resource\AbstractResource;
 use Flarum\Http\RequestUtil;
 use Tobyz\JsonApiServer\Context;
-use Tobyz\JsonApiServer\Resource\AbstractResource;
 use Tobyz\JsonApiServer\Schema\Sort;
 
 trait ExtractsListingParams
@@ -110,11 +110,13 @@ trait ExtractsListingParams
 
     public function getAvailableSorts(Context $context): array
     {
-        if (! $context->collection instanceof AbstractResource) {
+        $collection = $context->collection;
+
+        if (! $collection instanceof AbstractResource) {
             return [];
         }
 
-        $asc = collect($context->collection->resolveSorts())
+        $asc = collect($collection->resolveSorts())
             ->filter(fn (Sort $field) => $field->isVisible($context))
             ->pluck('name')
             ->toArray();

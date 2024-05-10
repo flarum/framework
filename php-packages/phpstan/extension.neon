@@ -18,6 +18,7 @@ parameters:
 
     # We know for a fact the JsonApi object used internally is always the Flarum one.
     - stubs/Tobyz/JsonApiServer/JsonApi.stub
+    - stubs/Tobyz/JsonApiServer/Context.stub
 
 services:
 	-

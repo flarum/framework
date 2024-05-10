@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -31,7 +32,7 @@ use Tobyz\JsonApiServer\Schema\Type\DateTime;
 
 /**
  * @template M of Model
- * @extends AbstractResource<M, FlarumContext>
+ * @extends AbstractResource<M>
  */
 abstract class AbstractDatabaseResource extends AbstractResource implements
     Contracts\Findable,
@@ -42,10 +43,6 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
     Contracts\Updatable,
     Contracts\Deletable
 {
-    use DispatchEventsTrait {
-        dispatchEventsFor as traitDispatchEventsFor;
-    }
-
     abstract public function model(): string;
 
     /**
@@ -89,7 +86,7 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
      * @param M $model
      * @param FlarumContext $context
      */
-    protected function getAttributeValue(Model $model, Field $field, Context $context)
+    protected function getAttributeValue(Model $model, Field $field, Context $context): mixed
     {
         if ($field instanceof RelationAggregator && ($aggregate = $field->getRelationAggregate())) {
             $relationName = $aggregate['relation'];
@@ -98,6 +95,7 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
                 return $model->getAttribute($this->property($field));
             }
 
+            /** @var Relationship|null $relationship */
             $relationship = collect($context->fields($this))->first(fn ($f) => $f->name === $relationName);
 
             if (! $relationship) {
@@ -120,7 +118,7 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
      * @param M $model
      * @param FlarumContext $context
      */
-    protected function getRelationshipValue(Model $model, Relationship $field, Context $context)
+    protected function getRelationshipValue(Model $model, Relationship $field, Context $context): mixed
     {
         $method = $this->method($field);
 
@@ -135,7 +133,6 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
                 if ($key = $model->getAttribute($relation->getForeignKeyName())) {
                     if ($relation instanceof MorphTo) {
                         $morphType = $model->{$relation->getMorphType()};
-                        $morphType = MorphTo::getMorphedModel($morphType) ?? $morphType;
                         $related = $relation->createModelByType($morphType);
                     } else {
                         $related = $relation->getRelated();
@@ -222,10 +219,6 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
      */
     public function find(string $id, Context $context): ?object
     {
-        if ($id === null) {
-            return null;
-        }
-
         return $this->query($context)->find($id);
     }
 
@@ -286,51 +279,9 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
      * @param M $model
      * @param FlarumContext $context
      */
-    public function createAction(object $model, Context $context): object
-    {
-        $model = $this->creating($model, $context) ?: $model;
-
-        $model = $this->saving($model, $context) ?: $model;
-
-        $model = $this->create($model, $context);
-
-        $model = $this->saved($model, $context) ?: $model;
-
-        $model = $this->created($model, $context) ?: $model;
-
-        $this->dispatchEventsFor($model, $context->getActor());
-
-        return $model;
-    }
-
-    /**
-     * @param M $model
-     * @param FlarumContext $context
-     */
     public function create(object $model, Context $context): object
     {
         $this->saveModel($model, $context);
-
-        return $model;
-    }
-
-    /**
-     * @param M $model
-     * @param FlarumContext $context
-     */
-    public function updateAction(object $model, Context $context): object
-    {
-        $model = $this->updating($model, $context) ?: $model;
-
-        $model = $this->saving($model, $context) ?: $model;
-
-        $this->update($model, $context);
-
-        $model = $this->saved($model, $context) ?: $model;
-
-        $model = $this->updated($model, $context) ?: $model;
-
-        $this->dispatchEventsFor($model, $context->getActor());
 
         return $model;
     }
@@ -353,21 +304,6 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
     protected function saveModel(Model $model, Context $context): void
     {
         $model->save();
-    }
-
-    /**
-     * @param M $model
-     * @param FlarumContext $context
-     */
-    public function deleteAction(object $model, Context $context): void
-    {
-        $this->deleting($model, $context);
-
-        $this->delete($model, $context);
-
-        $this->deleted($model, $context);
-
-        $this->dispatchEventsFor($model, $context->getActor());
     }
 
     /**
@@ -404,91 +340,6 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
     public function filters(): array
     {
         throw new RuntimeException('Not supported in Flarum, please use a model searcher instead https://docs.flarum.org/extend/search.');
-    }
-
-    /**
-     * @param M $model
-     * @param FlarumContext $context
-     * @return M|null
-     */
-    public function creating(object $model, Context $context): ?object
-    {
-        return $model;
-    }
-
-    /**
-     * @param M $model
-     * @param FlarumContext $context
-     * @return M|null
-     */
-    public function updating(object $model, Context $context): ?object
-    {
-        return $model;
-    }
-
-    /**
-     * @param M $model
-     * @param FlarumContext $context
-     * @return M|null
-     */
-    public function saving(object $model, Context $context): ?object
-    {
-        return $model;
-    }
-
-    /**
-     * @param M $model
-     * @param FlarumContext $context
-     * @return M|null
-     */
-    public function saved(object $model, Context $context): ?object
-    {
-        return $model;
-    }
-
-    /**
-     * @param M $model
-     * @param FlarumContext $context
-     * @return M|null
-     */
-    public function created(object $model, Context $context): ?object
-    {
-        return $model;
-    }
-
-    /**
-     * @param M $model
-     * @param FlarumContext $context
-     * @return M|null
-     */
-    public function updated(object $model, Context $context): ?object
-    {
-        return $model;
-    }
-
-    /**
-     * @param M $model
-     * @param FlarumContext $context
-     */
-    public function deleting(object $model, Context $context): void
-    {
-        //
-    }
-
-    /**
-     * @param M $model
-     * @param FlarumContext $context
-     */
-    public function deleted(object $model, Context $context): void
-    {
-        //
-    }
-
-    public function dispatchEventsFor(mixed $entity, User $actor = null): void
-    {
-        if (method_exists($entity, 'releaseEvents')) {
-            $this->traitDispatchEventsFor($entity, $actor);
-        }
     }
 
     /**

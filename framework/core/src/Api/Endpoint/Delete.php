@@ -12,6 +12,7 @@ namespace Flarum\Api\Endpoint;
 use Flarum\Api\Context;
 use Flarum\Api\Endpoint\Concerns\HasAuthorization;
 use Flarum\Api\Endpoint\Concerns\HasCustomHooks;
+use Flarum\Api\Resource\AbstractResource;
 use Nyholm\Psr7\Response;
 use RuntimeException;
 use Tobyz\JsonApiServer\Resource\Deletable;
@@ -36,9 +37,10 @@ class Delete extends Endpoint
             ->action(function (Context $context) {
                 $model = $context->model;
 
-                $context = $context->withResource(
-                    $resource = $context->resource($context->collection->resource($model, $context)),
-                );
+                /** @var AbstractResource $resource */
+                $resource = $context->resource($context->collection->resource($model, $context));
+
+                $context = $context->withResource($resource);
 
                 if (! $resource instanceof Deletable) {
                     throw new RuntimeException(

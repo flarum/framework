@@ -63,7 +63,7 @@ return [
 
     (new Extend\ApiResource(Resource\PostResource::class))
         ->fields(PostResourceFields::class)
-        ->endpoint([Endpoint\Index::class, Endpoint\Show::class], function (Endpoint\Index|Endpoint\Show $endpoint): Endpoint\EndpointInterface {
+        ->endpoint([Endpoint\Index::class, Endpoint\Show::class], function (Endpoint\Index|Endpoint\Show $endpoint): Endpoint\Endpoint {
             return $endpoint->addDefaultInclude(['mentionedBy', 'mentionedBy.user', 'mentionedBy.discussion']);
         })
         ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint): Endpoint\Index {
@@ -137,7 +137,7 @@ return [
                 }),
 
             (new Extend\ApiResource(Resource\PostResource::class))
-                ->endpoint([Endpoint\Index::class, Endpoint\Show::class], function (Endpoint\Index|Endpoint\Show $endpoint): Endpoint\EndpointInterface {
+                ->endpoint([Endpoint\Index::class, Endpoint\Show::class], function (Endpoint\Index|Endpoint\Show $endpoint): Endpoint\Endpoint {
                     return $endpoint->eagerLoad(['mentionsTags']);
                 }),
         ]),

@@ -15,6 +15,7 @@ use Flarum\Api\Endpoint\Concerns\HasCustomHooks;
 use Flarum\Api\Endpoint\Concerns\IncludesData;
 use Flarum\Api\Endpoint\Concerns\SavesAndValidatesData;
 use Flarum\Api\Endpoint\Concerns\ShowsResources;
+use Flarum\Api\Resource\AbstractResource;
 use Flarum\Database\Eloquent\Collection;
 use RuntimeException;
 use Tobyz\JsonApiServer\Resource\Updatable;
@@ -38,9 +39,10 @@ class Update extends Endpoint
             ->action(function (Context $context): object {
                 $model = $context->model;
 
-                $context = $context->withResource(
-                    $resource = $context->resource($context->collection->resource($model, $context)),
-                );
+                /** @var AbstractResource $resource */
+                $resource = $context->resource($context->collection->resource($model, $context));
+
+                $context = $context->withResource($resource);
 
                 if (! $resource instanceof Updatable) {
                     throw new RuntimeException(

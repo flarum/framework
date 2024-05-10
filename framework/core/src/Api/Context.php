@@ -57,6 +57,7 @@ class Context extends BaseContext
 
         $fields = [];
 
+        // @phpstan-ignore-next-line
         foreach ($resource->resolveFields() as $field) {
             $fields[$field->name] = $field;
         }
@@ -156,10 +157,13 @@ class Context extends BaseContext
         return $new;
     }
 
-    public function extractIdFromPath(\Tobyz\JsonApiServer\Context $context): ?string
+    public function extractIdFromPath(BaseContext $context): ?string
     {
+        /** @var Endpoint\Endpoint $endpoint */
+        $endpoint = $context->endpoint;
+
         $currentPath = trim($context->path(), '/');
-        $path = trim($context->collection->name().$this->endpoint->path, '/');
+        $path = trim($context->collection->name().$endpoint->path, '/');
 
         if (! str_contains($path, '{id}')) {
             return null;

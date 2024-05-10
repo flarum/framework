@@ -15,6 +15,7 @@ use Flarum\Api\Endpoint\Concerns\HasCustomHooks;
 use Flarum\Api\Endpoint\Concerns\IncludesData;
 use Flarum\Api\Endpoint\Concerns\SavesAndValidatesData;
 use Flarum\Api\Endpoint\Concerns\ShowsResources;
+use Flarum\Api\Resource\AbstractResource;
 use Flarum\Database\Eloquent\Collection;
 use RuntimeException;
 use Tobyz\JsonApiServer\Resource\Creatable;
@@ -56,8 +57,11 @@ class Create extends Endpoint
 
                 $data = $this->parseData($context);
 
+                /** @var AbstractResource $resource */
+                $resource = $context->resource($data['type']);
+
                 $context = $context
-                    ->withResource($resource = $context->resource($data['type']))
+                    ->withResource($resource)
                     ->withModel($model = $collection->newModel($context));
 
                 $this->assertFieldsValid($context, $data);

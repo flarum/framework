@@ -9,6 +9,7 @@
 
 namespace Flarum\Api\Endpoint\Concerns;
 
+use Closure;
 use Flarum\Api\Resource\AbstractDatabaseResource;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -36,7 +37,7 @@ trait HasEagerLoading
      *
      * @param string|string[] $relations
      */
-    public function eagerLoad(array|string|callable $relations): static
+    public function eagerLoad(array|string|Closure $relations): static
     {
         if (! is_callable($relations)) {
             $this->loadRelations = array_merge($this->loadRelations, array_map('strval', (array) $relations));

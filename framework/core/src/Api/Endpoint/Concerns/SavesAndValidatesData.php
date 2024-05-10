@@ -9,6 +9,8 @@
 
 namespace Flarum\Api\Endpoint\Concerns;
 
+use Flarum\Api\Schema\Concerns\FlarumField;
+use Flarum\Api\Schema\Concerns\HasValidationRules;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
@@ -30,6 +32,7 @@ trait SavesAndValidatesData
     /**
      * Assert that the field values within a data object pass validation.
      *
+     * @param \Flarum\Api\Context $context
      * @throws UnprocessableEntityException
      */
     protected function assertDataValid(Context $context, array $data): void
@@ -49,14 +52,17 @@ trait SavesAndValidatesData
         foreach ($context->fields($context->resource) as $field) {
             $writable = $field->isWritable($context->withField($field));
 
-            if (! $writable) {
+            if (! $writable || ! in_array(HasValidationRules::class, class_uses_recursive($field))) {
                 continue;
             }
 
             $type = $field instanceof Attribute ? 'attributes' : 'relationships';
 
+            // @phpstan-ignore-next-line
             $rules[$type] = array_merge($rules[$type], $field->getValidationRules($context));
+            // @phpstan-ignore-next-line
             $messages = array_merge($messages, $field->getValidationMessages($context));
+            // @phpstan-ignore-next-line
             $attributes = array_merge($attributes, $field->getValidationAttributes($context));
         }
 

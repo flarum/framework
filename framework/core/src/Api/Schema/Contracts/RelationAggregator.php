@@ -9,12 +9,14 @@
 
 namespace Flarum\Api\Schema\Contracts;
 
+use Closure;
+
 interface RelationAggregator
 {
     public function relationAggregate(string $relation, string $column, string $function): static;
 
     /**
-     * @return array{relation: string, column: string, function: string}|null
+     * @return array{relation: string, column: string, function: string, constrain: Closure|null}|null
      */
     public function getRelationAggregate(): ?array;
 }
