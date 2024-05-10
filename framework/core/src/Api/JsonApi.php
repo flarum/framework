@@ -62,7 +62,7 @@ class JsonApi extends BaseJsonApi
     protected function findEndpoint(?Collection $collection): Endpoint
     {
         if (! $collection instanceof AbstractResource) {
-            throw new RuntimeException('Resource ' . $collection::class . ' must extend ' . AbstractResource::class);
+            throw new RuntimeException('Resource '.$collection::class.' must extend '.AbstractResource::class);
         }
 
         /** @var Endpoint $endpoint */
@@ -161,7 +161,7 @@ class JsonApi extends BaseJsonApi
         $endpoint = $context->endpoint;
 
         if (! $endpoint instanceof Endpoint) {
-            throw new RuntimeException('The endpoint ' . $endpoint::class . ' must extend ' . Endpoint::class);
+            throw new RuntimeException('The endpoint '.$endpoint::class.' must extend '.Endpoint::class);
         }
 
         $context = $context->withRequest(

@@ -212,7 +212,7 @@ class Index extends Endpoint
         $collection = $context->collection;
 
         if (! $collection instanceof AbstractResource) {
-            throw new RuntimeException('The collection ' . $collection::class . ' must extend ' . AbstractResource::class);
+            throw new RuntimeException('The collection '.$collection::class.' must extend '.AbstractResource::class);
         }
 
         $sorts = $collection->resolveSorts();

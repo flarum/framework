@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Api;
 
 use Closure;
@@ -8,6 +15,7 @@ use RuntimeException;
 use Tobyz\JsonApiServer\Context;
 use Tobyz\JsonApiServer\Resource\Resource;
 use Tobyz\JsonApiServer\Schema\Field\Relationship;
+
 use function Tobyz\JsonApiServer\has_value;
 use function Tobyz\JsonApiServer\set_value;
 
@@ -60,7 +68,7 @@ class Serializer extends \Tobyz\JsonApiServer\Serializer
 
         $url = "{$context->api->basePath}/$type/$id";
 
-        if (!isset($this->map[$key])) {
+        if (! isset($this->map[$key])) {
             $this->map[$key] = [
                 'type' => $type,
                 'id' => $id,
@@ -77,7 +85,7 @@ class Serializer extends \Tobyz\JsonApiServer\Serializer
 
             $context = $context->withField($field)->withInclude($include[$field->name] ?? null);
 
-            if (!$field->isVisible($context)) {
+            if (! $field->isVisible($context)) {
                 continue;
             }
 
@@ -86,7 +94,7 @@ class Serializer extends \Tobyz\JsonApiServer\Serializer
             $this->whenResolved($value, function (mixed $value) use ($key, $field, $context) {
                 if (
                     ($value = $field->serializeValue($value, $context)) ||
-                    !$field instanceof Relationship
+                    ! $field instanceof Relationship
                 ) {
                     set_value($this->map[$key], $field, $value);
                 }
@@ -95,7 +103,7 @@ class Serializer extends \Tobyz\JsonApiServer\Serializer
 
         // TODO: cache
         foreach ($resource->meta() as $field) {
-            if (!$field->isVisible($context)) {
+            if (! $field->isVisible($context)) {
                 continue;
             }
 
@@ -117,7 +125,7 @@ class Serializer extends \Tobyz\JsonApiServer\Serializer
     private function whenResolved($value, $callback, bool $prepend = false): void
     {
         if ($value instanceof Closure) {
-            $callable = fn() => $this->whenResolved($value(), $callback);
+            $callable = fn () => $this->whenResolved($value(), $callback);
 
             if ($prepend) {
                 $this->deferred->prepend($callable);
@@ -173,7 +181,7 @@ class Serializer extends \Tobyz\JsonApiServer\Serializer
         }
 
         throw new RuntimeException(
-            'No resource type defined to represent model ' . get_class($model),
+            'No resource type defined to represent model '.get_class($model),
         );
     }
 

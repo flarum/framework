@@ -11,8 +11,6 @@ namespace Flarum\Api\Resource;
 
 use Flarum\Api\Context as FlarumContext;
 use Flarum\Api\Schema\Contracts\RelationAggregator;
-use Flarum\Foundation\DispatchEventsTrait;
-use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;

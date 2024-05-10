@@ -9,7 +9,6 @@
 
 namespace Flarum\Api\Endpoint\Concerns;
 
-use Flarum\Api\Schema\Concerns\FlarumField;
 use Flarum\Api\Schema\Concerns\HasValidationRules;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Translation\ArrayLoader;
