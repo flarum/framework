@@ -245,11 +245,11 @@ class PostResource extends AbstractDatabaseResource
                 ->visible(fn (Post $post) => $post->hidden_at !== null),
 
             Schema\Boolean::make('canEdit')
-                ->visible(fn (Post $post, Context $context) => $context->getActor()->can('edit', $post)),
+                ->get(fn (Post $post, Context $context) => $context->getActor()->can('edit', $post)),
             Schema\Boolean::make('canDelete')
-                ->visible(fn (Post $post, Context $context) => $context->getActor()->can('delete', $post)),
+                ->get(fn (Post $post, Context $context) => $context->getActor()->can('delete', $post)),
             Schema\Boolean::make('canHide')
-                ->visible(fn (Post $post, Context $context) => $context->getActor()->can('hide', $post)),
+                ->get(fn (Post $post, Context $context) => $context->getActor()->can('hide', $post)),
 
             Schema\Relationship\ToOne::make('user')
                 ->includable(),

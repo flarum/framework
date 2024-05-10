@@ -34,7 +34,7 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  * @property bool $is_primary
  * @property int $position
  * @property int $parent_id
- * @property string $default_sort
+ * @property string|null $default_sort
  * @property bool $is_restricted
  * @property bool $is_hidden
  * @property int $discussion_count

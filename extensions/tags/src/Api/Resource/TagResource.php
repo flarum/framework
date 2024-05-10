@@ -118,7 +118,8 @@ class TagResource extends AbstractDatabaseResource
             Schema\Integer::make('discussionCount'),
             Schema\Integer::make('position')
                 ->nullable(),
-            Schema\Str::make('defaultSort'),
+            Schema\Str::make('defaultSort')
+                ->nullable(),
             Schema\Boolean::make('isChild')
                 ->get(fn (Tag $tag) => (bool) $tag->parent_id),
             Schema\DateTime::make('lastPostedAt'),
