@@ -209,6 +209,7 @@ class DiscussionResource extends AbstractDatabaseResource
                     return $context->showing(self::class);
                 })
                 ->includable()
+                // @todo: remove this, and send a second request from the frontend to /posts instead. Revert Serializer::addIncluded while you're at it.
                 ->get(function (Discussion $discussion, Context $context) {
                     $showingDiscussion = $context->showing(self::class);
 
