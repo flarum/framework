@@ -14,9 +14,9 @@ use Flarum\Api\Endpoint\Concerns\HasAuthorization;
 use Flarum\Api\Endpoint\Concerns\HasCustomHooks;
 use Flarum\Api\Endpoint\Concerns\IncludesData;
 use Flarum\Api\Endpoint\Concerns\SavesAndValidatesData;
+use Flarum\Api\Endpoint\Concerns\ShowsResources;
 use Flarum\Database\Eloquent\Collection;
 use RuntimeException;
-use Tobyz\JsonApiServer\Endpoint\Concerns\ShowsResources;
 use Tobyz\JsonApiServer\Resource\Updatable;
 
 class Update extends Endpoint

@@ -17,6 +17,7 @@ use Flarum\Api\Endpoint\Concerns\HasCustomHooks;
 use Flarum\Api\Endpoint\Concerns\IncludesData;
 use Flarum\Api\Resource\Contracts\Countable;
 use Flarum\Api\Resource\Contracts\Listable;
+use Flarum\Api\Serializer;
 use Flarum\Database\Eloquent\Collection;
 use Flarum\Search\SearchCriteria;
 use Flarum\Search\SearchManager;
@@ -28,7 +29,6 @@ use Tobyz\JsonApiServer\Exception\Sourceable;
 use Tobyz\JsonApiServer\Pagination\OffsetPagination;
 use Tobyz\JsonApiServer\Pagination\Pagination;
 use Tobyz\JsonApiServer\Schema\Concerns\HasMeta;
-use Tobyz\JsonApiServer\Serializer;
 
 use function Tobyz\JsonApiServer\apply_filters;
 use function Tobyz\JsonApiServer\json_api_response;
