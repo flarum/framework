@@ -9,7 +9,7 @@ import UserUnsuspendedNotification from './components/UserUnsuspendedNotificatio
 export default [
   ...commonExtend,
 
-  new Extend.Notitication() //
+  new Extend.Notification() //
     .add('userSuspended', UserSuspendedNotification)
     .add('userUnsuspended', UserUnsuspendedNotification),
 

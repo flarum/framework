@@ -1,7 +1,8 @@
 import IExtender, { IExtensionModule } from './IExtender';
 import type Component from '../Component';
 import ForumApplication from '../../forum/ForumApplication';
-import Application from '../Application';
+import type Application from '../Application';
+import type { NewComponent } from '../Application';
 
 export default class Notification implements IExtender {
   private notificationComponents: Record<string, new () => Component> = {};
@@ -12,7 +13,7 @@ export default class Notification implements IExtender {
    * @param name The name of the notification type.
    * @param component The component class to render the notification.
    */
-  add(name: string, component: new () => Component): Notification {
+  add(name: string, component: NewComponent<any>): Notification {
     this.notificationComponents[name] = component;
 
     return this;
