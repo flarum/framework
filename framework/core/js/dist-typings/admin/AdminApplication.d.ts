@@ -29,6 +29,7 @@ export declare type Extension = {
             title: string;
         };
     };
+    require?: Record<string, string>;
 };
 export interface AdminApplicationData extends ApplicationData {
     extensions: Record<string, Extension>;
@@ -40,7 +41,9 @@ export interface AdminApplicationData extends ApplicationData {
     slugDrivers: Record<string, string[]>;
     searchDrivers: Record<string, string[]>;
     permissions: Record<string, string[]>;
-    advancedPageEmpty: boolean;
+    maintenanceByConfig: boolean;
+    safeModeExtensions?: string[] | null;
+    safeModeExtensionsConfig?: string[] | null;
 }
 export default class AdminApplication extends Application {
     extensionData: ExtensionData;

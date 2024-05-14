@@ -33,7 +33,7 @@ class ModelTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
         ]);
@@ -42,10 +42,10 @@ class ModelTest extends TestCase
     protected function prepPostsHierarchy()
     {
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'Discussion with post', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 1, 'is_private' => 0],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'discussionRenamed', 'content' => '<t><p>can i haz relationz?</p></t>'],
             ],
         ]);
@@ -164,7 +164,7 @@ class ModelTest extends TestCase
         );
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1]
             ]
         ]);
@@ -310,7 +310,7 @@ class ModelTest extends TestCase
         $group2 = new Group;
 
         $this->assertEquals(1, $group1->counter);
-        $this->assertEquals(2, $group2->counter);
+        $this->assertEquals(3, $group2->counter);
     }
 
     /**

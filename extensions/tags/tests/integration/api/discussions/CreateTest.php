@@ -10,9 +10,11 @@
 namespace Flarum\Tags\Tests\integration\api\discussions;
 
 use Flarum\Group\Group;
+use Flarum\Tags\Tag;
 use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 
 class CreateTest extends TestCase
 {
@@ -29,8 +31,8 @@ class CreateTest extends TestCase
         $this->extension('flarum-tags');
 
         $this->prepareDatabase([
-            'tags' => $this->tags(),
-            'users' => [
+            Tag::class => $this->tags(),
+            User::class => [
                 $this->normalUser(),
             ],
             'group_permission' => [

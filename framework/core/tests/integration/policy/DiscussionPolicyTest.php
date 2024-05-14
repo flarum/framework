@@ -14,6 +14,7 @@ use Flarum\Bus\Dispatcher;
 use Flarum\Discussion\Discussion;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Post\Command\PostReply;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -31,16 +32,16 @@ class DiscussionPolicyTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'Editable discussion', 'created_at' => Carbon::parse('2021-11-01 13:00:00')->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 2, 'is_private' => 0, 'last_post_number' => 1, 'participant_count' => 1],
                 ['id' => 2, 'title' => 'Editable discussion', 'created_at' => Carbon::parse('2021-11-01 13:00:00')->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 2, 'comment_count' => 2, 'is_private' => 0, 'last_post_number' => 2, 'participant_count' => 2],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'number' => 1, 'created_at' => Carbon::parse('2021-11-01 13:00:00')->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t></t>'],
                 ['id' => 2, 'discussion_id' => 2, 'number' => 1, 'created_at' => Carbon::parse('2021-11-01 13:00:03')->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t></t>'],
                 ['id' => 3, 'discussion_id' => 2, 'number' => 2, 'created_at' => Carbon::parse('2021-11-01 13:00:03')->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t></t>'],
             ],
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ]
         ]);

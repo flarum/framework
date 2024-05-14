@@ -9,11 +9,11 @@
 
 namespace Flarum\Tests\integration\extenders;
 
-use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Discussion\Search\Filter\UnreadFilter;
 use Flarum\Extend;
+use Flarum\Post\Post;
 use Flarum\Search\AbstractFulltextFilter;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Search\Database\DatabaseSearchState;
@@ -37,13 +37,13 @@ class SearchDriverTest extends TestCase
         // which is needed for search, doesn't happen in transactions.
         // We clean it up explcitly at the end.
         $this->database()->table('discussions')->insert([
-            ['id' => 1, 'title' => 'DISCUSSION 1', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
-            ['id' => 2, 'title' => 'DISCUSSION 2', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
+            Discussion::factory()->raw(['id' => 1, 'title' => 'DISCUSSION 1', 'user_id' => 1]),
+            Discussion::factory()->raw(['id' => 2, 'title' => 'DISCUSSION 2', 'user_id' => 1]),
         ]);
 
         $this->database()->table('posts')->insert([
-            ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>not in text</p></t>'],
-            ['id' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>lightsail in text</p></t>'],
+            Post::factory()->raw(['id' => 1, 'discussion_id' => 1, 'user_id' => 1, 'content' => '<t><p>not in text</p></t>']),
+            Post::factory()->raw(['id' => 2, 'discussion_id' => 2, 'user_id' => 1, 'content' => '<t><p>lightsail in text</p></t>']),
         ]);
 
         // We need to call these again, since we rolled back the transaction started by `::app()`.

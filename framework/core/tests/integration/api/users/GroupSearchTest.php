@@ -9,8 +9,10 @@
 
 namespace Flarum\Tests\integration\api\users;
 
+use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 
 class GroupSearchTest extends TestCase
 {
@@ -21,7 +23,7 @@ class GroupSearchTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
         ]);
@@ -243,7 +245,7 @@ class GroupSearchTest extends TestCase
     private function createMultipleUsersAndGroups()
     {
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 [
                     'id' => 4,
                     'username' => 'normal4',
@@ -266,7 +268,7 @@ class GroupSearchTest extends TestCase
                     'is_email_confirmed' => 1,
                 ],
             ],
-            'groups' => [
+            Group::class => [
                 [
                     'id' => 5,
                     'name_singular' => 'test1 user',
@@ -300,7 +302,7 @@ class GroupSearchTest extends TestCase
     private function createHiddenUser()
     {
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 [
                     'id' => 3,
                     'username' => 'normal2',
@@ -309,7 +311,7 @@ class GroupSearchTest extends TestCase
                     'is_email_confirmed' => 1,
                 ],
             ],
-            'groups' => [
+            Group::class => [
                 [
                     'id' => 99,
                     'name_singular' => 'hidden user',

@@ -10,8 +10,11 @@
 namespace Flarum\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 
 class DeletionTest extends TestCase
 {
@@ -25,13 +28,13 @@ class DeletionTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>'],
             ],
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
         ]);
@@ -51,7 +54,7 @@ class DeletionTest extends TestCase
 
         $this->assertEquals(204, $response->getStatusCode());
 
-        // Ensure both the database and the corresponding post are deleted
+        // Ensure both the discussion and the corresponding post are deleted
         $this->assertNull($this->database()->table('discussions')->find(1), 'Discussion exists in the DB');
         $this->assertNull($this->database()->table('posts')->find(1), 'Post exists in the DB');
     }

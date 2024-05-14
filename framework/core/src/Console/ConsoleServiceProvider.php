@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Console\Cache\Factory;
 use Flarum\Database\Console\MigrateCommand;
 use Flarum\Database\Console\ResetCommand;
+use Flarum\Extension\Console\BisectCommand;
 use Flarum\Extension\Console\ToggleExtensionCommand;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Console\AssetsPublishCommand;
@@ -66,7 +67,8 @@ class ConsoleServiceProvider extends AbstractServiceProvider
                 ResetCommand::class,
                 ScheduleListCommand::class,
                 ScheduleRunCommand::class,
-                ToggleExtensionCommand::class
+                ToggleExtensionCommand::class,
+                BisectCommand::class,
                 // Used internally to create DB dumps before major releases.
                 // \Flarum\Database\Console\GenerateDumpCommand::class
             ];

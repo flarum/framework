@@ -112,6 +112,7 @@
         "dflydev/fig-cookies": "^3.0",
         "doctrine/dbal": "^3.6.2",
         "dragonmantank/cron-expression": "^3.3",
+        "fakerphp/faker": "^1.9.1",
         "franzl/whoops-middleware": "2.0",
         "guzzlehttp/guzzle": "*",
         "illuminate/bus": "^10.0",

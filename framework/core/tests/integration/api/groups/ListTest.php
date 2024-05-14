@@ -9,6 +9,7 @@
 
 namespace Flarum\Tests\integration\api\groups;
 
+use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
@@ -25,7 +26,7 @@ class ListTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'groups' => [
+            Group::class => [
                 $this->hiddenGroup(),
             ],
         ]);

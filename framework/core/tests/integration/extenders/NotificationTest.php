@@ -144,7 +144,7 @@ class NotificationTest extends TestCase
         );
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'hani']
             ],

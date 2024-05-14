@@ -11,6 +11,7 @@ namespace Flarum\Tests\integration\api\forum;
 
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 
 class ShowTest extends TestCase
@@ -25,7 +26,7 @@ class ShowTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ]
         ]);

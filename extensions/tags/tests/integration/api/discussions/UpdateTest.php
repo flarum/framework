@@ -9,10 +9,15 @@
 
 namespace Flarum\Tags\Tests\integration\api\discussions;
 
+use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
+use Flarum\Post\Post;
+use Flarum\Tags\Tag;
 use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 
 class UpdateTest extends TestCase
 {
@@ -29,8 +34,8 @@ class UpdateTest extends TestCase
         $this->extension('flarum-tags');
 
         $this->prepareDatabase([
-            'tags' => $this->tags(),
-            'users' => [
+            Tag::class => $this->tags(),
+            User::class => [
                 $this->normalUser(),
             ],
             'group_permission' => [
@@ -40,10 +45,10 @@ class UpdateTest extends TestCase
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'tag11.viewForum'],
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'tag11.startDiscussion'],
             ],
-            'discussions' => [
-                ['id' => 1, 'title' => 'Discussion with post', 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 1],
+            Discussion::class => [
+                ['id' => 1, 'title' => 'Discussion with post', 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 1, 'created_at' => Carbon::now()->subDay()],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>Text</p></t>'],
             ],
             'discussion_tag' => [
@@ -241,7 +246,7 @@ class UpdateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode(), $response->getBody());
     }
 
     /**

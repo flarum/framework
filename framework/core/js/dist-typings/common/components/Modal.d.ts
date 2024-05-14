@@ -70,5 +70,5 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
      * Sets `loading` to false and triggers a redraw.
      */
     loaded(): void;
-    private get dismissibleOptions();
+    protected get dismissibleOptions(): IDismissibleOptions;
 }
