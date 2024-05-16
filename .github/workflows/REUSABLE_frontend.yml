@@ -86,6 +86,12 @@ on:
         type: string
         required: false
 
+      runner_type:
+        description: The type of runner to use for the jobs. This should be one of the types supported by the `runs-on` keyword.
+        type: string
+        required: false
+        default: 'ubuntu-latest'
+
     secrets:
       bundlewatch_github_token:
         description: The GitHub token to use for Bundlewatch.
@@ -103,7 +109,7 @@ env:
 jobs:
   build:
     name: Checks & Build
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner_type }}
 
     if: >-
       ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')

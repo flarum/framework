@@ -52,6 +52,12 @@ on:
         required: false
         default: error_reporting=E_ALL
 
+      runner_type:
+        description: The type of runner to use for the jobs. This should be one of the types supported by the `runs-on` keyword.
+        type: string
+        required: false
+        default: 'ubuntu-latest'
+
     secrets:
       composer_auth:
         description: The Composer auth tokens to use for private packages.
@@ -65,7 +71,7 @@ env:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner_type }}
 
     strategy:
       matrix:
@@ -170,7 +176,7 @@ jobs:
           COMPOSER_PROCESS_TIMEOUT: 600
 
   phpstan:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner_type }}
 
     strategy:
       matrix:
