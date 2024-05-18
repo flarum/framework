@@ -16,6 +16,7 @@ module.exports = (options = {}) => ({
     ],
   },
   preset: 'ts-jest',
+  setupFiles: [path.resolve(__dirname, 'pollyfills.js')],
   setupFilesAfterEnv: [path.resolve(__dirname, 'setup-env.js')],
   moduleDirectories: ['node_modules', 'src'],
   ...options,
