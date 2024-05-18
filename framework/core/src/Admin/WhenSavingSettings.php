@@ -36,14 +36,18 @@ class WhenSavingSettings
     {
         if (array_key_exists('safe_mode_extensions', $event->settings)) {
             $safeModeExtensions = json_decode($event->settings['safe_mode_extensions'] ?? '[]', true);
+            $sorted = [];
 
-            $extensions = $this->extensions->getExtensions()->filter(function ($extension) use ($safeModeExtensions) {
-                return in_array($extension->getId(), $safeModeExtensions);
-            });
+            if ($safeModeExtensions) {
+                $extensions = $this->extensions->getExtensions()->filter(function ($extension) use ($safeModeExtensions) {
+                    return in_array($extension->getId(), $safeModeExtensions);
+                });
 
-            $sorted = array_map(fn (Extension $e) => $e->getId(), $this->extensions->sortDependencies($extensions->all()));
+                $sorted = array_map(fn (Extension $e) => $e->getId(), $this->extensions->sortDependencies($extensions->all()));
+                $sorted = array_values($sorted);
+            }
 
-            $event->settings['safe_mode_extensions'] = json_encode(array_values($sorted));
+            $event->settings['safe_mode_extensions'] = json_encode($sorted);
         }
     }
 
