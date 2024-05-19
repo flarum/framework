@@ -1,7 +1,4 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
 import highlight from '../../../../src/common/helpers/highlight';
-
-beforeAll(() => bootstrapForum());
 
 describe('highlight', () => {
   it('should return the string if no phrase or length is given', () => {

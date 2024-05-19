@@ -1,11 +1,8 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
 import { extend, override } from '../../../src/common/extend';
 import Component from '../../../src/common/Component';
 import Mithril from 'mithril';
 import m from 'mithril';
 import mq from 'mithril-query';
-
-beforeAll(() => bootstrapForum());
 
 describe('extend', () => {
   test('can extend component methods', () => {

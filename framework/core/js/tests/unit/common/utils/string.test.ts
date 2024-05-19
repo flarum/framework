@@ -1,7 +1,4 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
 import * as string from '../../../../src/common/utils/string';
-
-beforeAll(() => bootstrapForum());
 
 describe('string', () => {
   it('should slugify a string', () => {

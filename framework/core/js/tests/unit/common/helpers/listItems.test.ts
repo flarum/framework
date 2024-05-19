@@ -1,8 +1,5 @@
-import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
 import listItems from '../../../../src/common/helpers/listItems';
 import m from 'mithril';
-
-beforeAll(() => bootstrapForum());
 
 describe('listItems', () => {
   it('should return an array of Vnodes', () => {
