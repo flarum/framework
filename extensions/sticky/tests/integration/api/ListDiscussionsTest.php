@@ -99,6 +99,40 @@ class ListDiscussionsTest extends TestCase
     }
 
     /** @test */
+    public function list_discussions_sticky_first_all_read_as_user_filter_read_off()
+    {
+        $this->setting('flarum-sticky.filter_read_from_stickied', false);
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', [
+                'authenticatedAs' => 3
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertEquals([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
+    }
+
+    /** @test */
+    public function list_discussions_sticky_first_all_read_as_user_filter_read_on()
+    {
+        $this->setting('flarum-sticky.filter_read_from_stickied', true);
+        $response = $this->send(
+            $this->request('GET', '/api/discussions', [
+                'authenticatedAs' => 3
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertEquals([2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
+    }
+
+    /** @test */
     public function list_discussions_shows_stick_first_on_a_tag()
     {
         $response = $this->send(

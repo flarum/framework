@@ -12,13 +12,30 @@ namespace Flarum\Sticky;
 use Flarum\Filter\FilterState;
 use Flarum\Query\QueryCriteria;
 use Flarum\Tags\Query\TagFilterGambit;
+use Flarum\Settings\SettingsRepositoryInterface;
 
 class PinStickiedDiscussionsToTop
 {
+    protected $settings;
+
+    public function __construct(SettingsRepositoryInterface $settings)
+    {
+        $this->settings = $settings;
+    }
+
     public function __invoke(FilterState $filterState, QueryCriteria $criteria)
     {
         if ($criteria->sortIsDefault) {
             $query = $filterState->getQuery();
+            $filterRead = $this->settings->get('flarum-sticky.filter_read_from_stickied');
+
+            // If filter read from stickied is disabled, then pin all stickied
+            // discussions to the top whether they are read or not.
+            if (!$filterRead) {
+                $this->pinStickiedToTop($query);
+
+                return;
+            }
 
             // If we are viewing a specific tag, then pin all stickied
             // discussions to the top no matter what.
@@ -26,11 +43,7 @@ class PinStickiedDiscussionsToTop
 
             if ($count = count($filters)) {
                 if ($count === 1 && $filters[0] instanceof TagFilterGambit) {
-                    if (! is_array($query->orders)) {
-                        $query->orders = [];
-                    }
-
-                    array_unshift($query->orders, ['column' => 'is_sticky', 'direction' => 'desc']);
+                    $this->pinStickiedToTop($query);
                 }
 
                 return;
@@ -67,5 +80,22 @@ class PinStickiedDiscussionsToTop
             $query->limit = $sticky->limit = $query->offset + $query->limit;
             unset($query->offset, $sticky->offset);
         }
+    }
+
+    /**
+     * Pin all stickied discussions to the top of the query.
+     * This is done by prepending an order clause to the query.
+     *
+     * @param $query
+     *
+     * @return void
+     */
+    protected function pinStickiedToTop($query)
+    {
+        if (!is_array($query->orders)) {
+            $query->orders = [];
+        }
+
+        array_unshift($query->orders, ['column' => 'is_sticky', 'direction' => 'desc']);
     }
 }

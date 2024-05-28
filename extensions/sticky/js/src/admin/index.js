@@ -10,4 +10,12 @@ app.initializers.add('flarum-sticky', () => {
     'moderate',
     95
   );
+
+  app.extensionData.for('flarum-sticky')
+    .registerSetting({
+      setting: 'flarum-sticky.filter_read_from_stickied',
+      name: 'filterReadFromStickied',
+      type: 'boolean',
+      label: app.translator.trans('flarum-sticky.admin.settings.filter_read_from_stickied_label'),
+    });
 });

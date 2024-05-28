@@ -6,6 +6,8 @@ flarum-sticky:
 
   # Translations in this namespace are used by the admin interface.
   admin:
+    settings:
+      filter_read_from_stickied_label: Filter read from stickied on All Discussions page
 
     # These translations are used in the Permissions page of the admin interface.
     permissions:
