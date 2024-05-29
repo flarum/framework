@@ -6,6 +6,9 @@ flarum-sticky:
 
   # Translations in this namespace are used by the admin interface.
   admin:
+    settings:
+      filter_read_from_stickied_label: Filter read stickied (All Discussions)
+      filter_read_from_stickied_help: If a discussion is read, it will not be considered stickied on the All Discussions page
 
     # These translations are used in the Permissions page of the admin interface.
     permissions:

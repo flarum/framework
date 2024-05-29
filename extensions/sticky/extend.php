@@ -57,4 +57,8 @@ return [
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(DiscussionSearcher::class, StickyFilter::class)
         ->addMutator(DiscussionSearcher::class, PinStickiedDiscussionsToTop::class),
+
+    (new Extend\Settings())
+        ->default('flarum-sticky.filter_read_from_stickied', true)
+        ->serializeToForum('filterReadFromStickied', 'flarum-sticky.filter_read_from_stickied', 'boolval'),
 ];
