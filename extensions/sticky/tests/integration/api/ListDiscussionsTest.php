@@ -101,7 +101,6 @@ class ListDiscussionsTest extends TestCase
         $this->assertEquals([2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
     }
 
-
     /** @test */
     public function list_discussions_sticky_first_all_read_as_user_filter_read_off()
     {
@@ -135,7 +134,6 @@ class ListDiscussionsTest extends TestCase
 
         $this->assertEquals([2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
     }
-
 
     /** @test */
     public function list_discussions_shows_stick_first_on_a_tag()

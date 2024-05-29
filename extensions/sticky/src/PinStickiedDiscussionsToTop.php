@@ -31,7 +31,7 @@ class PinStickiedDiscussionsToTop
 
             // If filter read from stickied is disabled, then pin all stickied
             // discussions to the top whether they are read or not.
-            if (!$filterRead) {
+            if (! $filterRead) {
                 $this->pinStickiedToTop($query);
 
                 return;
@@ -92,7 +92,7 @@ class PinStickiedDiscussionsToTop
      */
     protected function pinStickiedToTop($query): void
     {
-        if (!is_array($query->orders)) {
+        if (! is_array($query->orders)) {
             $query->orders = [];
         }
 
