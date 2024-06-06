@@ -32,6 +32,7 @@ export type Extension = {
   extra: {
     'flarum-extension': {
       title: string;
+      'database-support': undefined | string[];
     };
   };
   require?: Record<string, string>;

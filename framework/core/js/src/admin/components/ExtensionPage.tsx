@@ -225,6 +225,27 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
       }
     });
 
+    let supportedDatabases = this.extension.extra['flarum-extension']['database-support'] ?? null;
+    if (supportedDatabases && supportedDatabases.length) {
+      supportedDatabases = supportedDatabases.map((database: string) => {
+        return (
+          {
+            mysql: 'MySQL',
+            sqlite: 'SQLite',
+            pgsql: 'PostgreSQL',
+          }[database] || database
+        );
+      });
+
+      items.add(
+        'database-support',
+        <span className="LinkButton">
+          <Icon name="fas fa-database" />
+          {supportedDatabases.join(', ')}
+        </span>
+      );
+    }
+
     const extension = this.extension;
     items.add(
       'readme',
