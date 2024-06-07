@@ -15,11 +15,11 @@ app.initializers.add('flarum-sticky', () => {
 
   app.extensionData.for('flarum-sticky').registerSetting(
     {
-      setting: 'flarum-sticky.filter_read_from_stickied',
-      name: 'filterReadFromStickied',
+      setting: 'flarum-sticky.only_sticky_unread_discussions',
+      name: 'onlyStickyUnreadDiscussions',
       type: 'boolean',
-      label: app.translator.trans('flarum-sticky.admin.settings.filter_read_from_stickied_label'),
-      help: app.translator.trans('flarum-sticky.admin.settings.filter_read_from_stickied_help'),
+      label: app.translator.trans('flarum-sticky.admin.settings.only_sticky_unread_discussions_label'),
+      help: app.translator.trans('flarum-sticky.admin.settings.only_sticky_unread_discussions_help'),
     }
   );
 });

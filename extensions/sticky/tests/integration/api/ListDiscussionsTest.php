@@ -104,7 +104,7 @@ class ListDiscussionsTest extends TestCase
     /** @test */
     public function list_discussions_sticky_first_all_read_as_user_filter_read_off()
     {
-        $this->setting('flarum-sticky.filter_read_from_stickied', false);
+        $this->setting('flarum-sticky.only_sticky_unread_discussions', false);
         $response = $this->send(
             $this->request('GET', '/api/discussions', [
                 'authenticatedAs' => 3
@@ -121,7 +121,7 @@ class ListDiscussionsTest extends TestCase
     /** @test */
     public function list_discussions_sticky_first_all_read_as_user_filter_read_on()
     {
-        $this->setting('flarum-sticky.filter_read_from_stickied', true);
+        $this->setting('flarum-sticky.only_sticky_unread_discussions', true);
         $response = $this->send(
             $this->request('GET', '/api/discussions', [
                 'authenticatedAs' => 3

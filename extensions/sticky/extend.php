@@ -59,6 +59,6 @@ return [
         ->addMutator(DiscussionSearcher::class, PinStickiedDiscussionsToTop::class),
 
     (new Extend\Settings())
-        ->default('flarum-sticky.filter_read_from_stickied', true)
-        ->serializeToForum('filterReadFromStickied', 'flarum-sticky.filter_read_from_stickied', 'boolval'),
+        ->default('flarum-sticky.only_sticky_unread_discussions', true)
+        ->serializeToForum('onlyStickyUnreadDiscussions', 'flarum-sticky.only_sticky_unread_discussions', 'boolval'),
 ];

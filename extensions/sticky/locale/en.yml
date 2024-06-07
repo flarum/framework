@@ -7,8 +7,8 @@ flarum-sticky:
   # Translations in this namespace are used by the admin interface.
   admin:
     settings:
-      filter_read_from_stickied_label: Filter read stickied (All Discussions)
-      filter_read_from_stickied_help: If a discussion is read, it will not be considered stickied on the All Discussions page
+      only_sticky_unread_discussions_label: Only sticky unread discussions
+      only_sticky_unread_discussions_help: On the All Discussions page, unread sticky discussions pin to the top, while read sticky discussions follow the regular order.
 
     # These translations are used in the Permissions page of the admin interface.
     permissions:

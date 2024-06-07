@@ -16,22 +16,20 @@ use Flarum\Tags\Search\Filter\TagFilter;
 
 class PinStickiedDiscussionsToTop
 {
-    protected SettingsRepositoryInterface $settings;
-
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
-        $this->settings = $settings;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings
+    ) {
     }
 
     public function __invoke(DatabaseSearchState $state, SearchCriteria $criteria): void
     {
         if ($criteria->sortIsDefault && ! $state->isFulltextSearch()) {
             $query = $state->getQuery();
-            $filterRead = $this->settings->get('flarum-sticky.filter_read_from_stickied');
+            $onlyStickyUnread = $this->settings->get('flarum-sticky.only_sticky_unread_discussions');
 
-            // If filter read from stickied is disabled, then pin all stickied
+            // If only sticky unread discussions is disabled, then pin all stickied
             // discussions to the top whether they are read or not.
-            if (! $filterRead) {
+            if (! $onlyStickyUnread) {
                 $this->pinStickiedToTop($query);
 
                 return;
