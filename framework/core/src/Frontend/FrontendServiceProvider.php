@@ -164,18 +164,6 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 'config-secondary-color' => [
                     'key' => 'theme_secondary_color',
                 ],
-                'config-dark-mode' => [
-                    'key' => 'theme_dark_mode',
-                    'callback' => function ($value) {
-                        return $value ? 'true' : 'false';
-                    },
-                ],
-                'config-colored-header' => [
-                    'key' => 'theme_colored_header',
-                    'callback' => function ($value) {
-                        return $value ? 'true' : 'false';
-                    },
-                ],
             ];
         });
 
