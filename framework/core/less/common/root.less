@@ -1,69 +1,95 @@
-// ---------------------------------
-// Light colors
+.scheme(@mode) {
+  @body-bg:                       ~"body-bg-@{mode}";
+  @text-color:                    ~"text-color-@{mode}";
+  @heading-color:                 ~"heading-color-@{mode}";
+  @muted-color:                   ~"muted-color-@{mode}";
+  @muted-more-color:              ~"muted-more-color-@{mode}";
+  @shadow-color:                  ~"shadow-color-@{mode}";
+  @control-bg:                    ~"control-bg-@{mode}";
+  @control-color:                 ~"control-color-@{mode}";
+  @control-danger-bg:             ~"control-danger-bg-@{mode}";
+  @control-danger-color:          ~"control-danger-color-@{mode}";
+  @header-bg:                     ~"header-bg-@{mode}";
+  @header-color:                  ~"header-color-@{mode}";
+  @header-control-bg:             ~"header-control-bg-@{mode}";
+  @header-control-color:          ~"header-control-color-@{mode}";
+  @header-bg-colored:             ~"header-bg-colored-@{mode}";
+  @header-color-colored:          ~"header-color-colored-@{mode}";
+  @header-control-bg-colored:     ~"header-control-bg-colored-@{mode}";
+  @header-control-color-colored:  ~"header-control-color-colored-@{mode}";
+  @overlay-bg:                    ~"overlay-bg-@{mode}";
+  @code-bg:                       ~"code-bg-@{mode}";
+  @code-color:                    ~"code-color-@{mode}";
 
-[data-theme=light] {
   // ---------------------------------
   // COLORS
 
-  --body-bg:                       @body-bg-light;
-  --body-bg-shaded:                darken(@body-bg-light, 3%);
-  --body-bg-light:                 lighten(@body-bg-light, 5%);
-  --body-bg-faded:                 fade(@body-bg-light, 93%);
-  --text-color:                    @text-color-light;
-  --heading-color:                 @heading-color-light;
+  --body-bg:                       @@body-bg;
+  --body-bg-shaded:                darken(@@body-bg, 3%);
+  --body-bg-light:                 lighten(@@body-bg, 5%);
+  --body-bg-faded:                 fade(@@body-bg, 93%);
+  --text-color:                    @@text-color;
+  --heading-color:                 @@heading-color;
 
-  --muted-color:                   @muted-color-light;
-  --muted-color-light:             lighten(@muted-color-light, 10%);
-  --muted-color-dark:              darken(@muted-color-light, 50%);
-  --muted-more-color:              @muted-more-color-light;
+  --muted-color:                   @@muted-color;
+  --muted-color-light:             lighten(@@muted-color, 10%);
+  --muted-color-dark:              darken(@@muted-color, 50%);
+  --muted-more-color:              @@muted-more-color;
 
-  --shadow-color:                  @shadow-color-light;
+  --shadow-color:                  @@shadow-color;
 
-  --control-bg:                    @control-bg-light;
-  --control-bg-light:              lighten(@control-bg-light, 3%);
-  --control-bg-shaded:             darken(@control-bg-light, 4%);
-  --control-color:                 @control-color-light;
-  --control-danger-bg:             @control-danger-bg-light;
-  --control-danger-color:          @control-danger-color-light;
-  --control-body-bg-mix:           mix(@control-bg-light, @body-bg-light, 50%);
-  --control-muted-color:           lighten(@control-color-light, 40%);
+  --control-bg:                    @@control-bg;
+  --control-bg-light:              lighten(@@control-bg, 3%);
+  --control-bg-shaded:             darken(@@control-bg, 4%);
+  --control-color:                 @@control-color;
+  --control-danger-bg:             @@control-danger-bg;
+  --control-danger-color:          @@control-danger-color;
+  --control-body-bg-mix:           mix(@@control-bg, @@body-bg, 50%);
+  --control-muted-color:           lighten(@@control-color, 40%);
 
   // ---------------------------------
   // COMPONENT COLORS
 
-  --header-bg:                     @header-bg-light;
-  --header-color:                  @header-color-light;
-  --header-control-bg:             @header-control-bg-light;
-  --header-control-color:          @header-control-color-light;
+  --header-bg:                     @@header-bg;
+  --header-color:                  @@header-color;
+  --header-control-bg:             @@header-control-bg;
+  --header-control-color:          @@header-control-color;
 
   [data-colored-header=true]& {
-    --header-bg:                   @header-bg-colored-light;
-    --header-color:                @header-color-colored-light;
-    --header-control-bg:           @header-control-bg-colored-light;
-    --header-control-color:        @header-control-color-colored-light;
+    --header-bg:                   @@header-bg-colored;
+    --header-color:                @@header-color-colored;
+    --header-control-bg:           @@header-control-bg-colored;
+    --header-control-color:        @@header-control-color-colored;
 
-    .light-contents-vars(@header-color-colored-light, @header-control-bg-colored-light, @header-control-color-colored-light, 'header-colored');
+    .light-contents-vars(@@header-color-colored, @@header-control-bg-colored, @@header-control-color-colored, 'header-colored');
   }
 
-  --overlay-bg:                    @overlay-bg-light;
-  --code-bg:                       @code-bg-light;
-  --code-color:                    @code-color-light;
+  --overlay-bg:                    @@overlay-bg;
+  --code-bg:                       @@code-bg;
+  --code-color:                    @@code-color;
 
   --avatar-bg:                     var(--control-bg);
   --badge-bg:                      var(--muted-color);
   --badge-color:                   #fff;
   --badge-hidden-bg:               #888;
   --usercard-bg:                   var(--control-bg);
-  --hero-bg:                       @control-bg-light;
-  --hero-color:                    @control-color-light;
+  --hero-bg:                       @@control-bg;
+  --hero-color:                    @@control-color;
 
-  --discussion-title-color:        mix(@heading-color-light, @body-bg-light, 55%);
+  --discussion-title-color:        mix(@@heading-color, @@body-bg, 55%);
 
-  .Button--color-vars(@control-color-light, @control-bg-light, 'button');
-  .Button--color-vars(@body-bg-light, @primary-color, 'button-primary');
-  .Button--color-vars(@control-danger-color-light, @control-danger-bg-light, 'control-danger');
-  .Button--color-vars(@muted-more-color-light, fade(@muted-more-color-light, 30%), 'muted-more');
-  .Button--color-vars(@control-color-light, @body-bg-light, 'button-inverted');
+  .Button--color-vars(@@control-color, @@control-bg, 'button');
+  .Button--color-vars(@@body-bg, @primary-color, 'button-primary');
+  .Button--color-vars(@@control-danger-color, @@control-danger-bg, 'control-danger');
+  .Button--color-vars(@@muted-more-color, fade(@@muted-more-color, 30%), 'muted-more');
+  .Button--color-vars(@@control-color, @@body-bg, 'button-inverted');
+}
+
+// ---------------------------------
+// Light colors
+
+[data-theme=light] {
+  .scheme(light);
 
   // ---------------------------------
   // UTILITIES
@@ -75,68 +101,7 @@
 // Dark colors
 
 [data-theme=dark] {
-  // ---------------------------------
-  // COLORS
-
-  --body-bg:                       @body-bg-dark;
-  --body-bg-shaded:                darken(@body-bg-dark, 3%);
-  --body-bg-light:                 lighten(@body-bg-dark, 5%);
-  --body-bg-faded:                 fade(@body-bg-dark, 93%);
-  --text-color:                    @text-color-dark;
-  --heading-color:                 @heading-color-dark;
-
-  --muted-color:                   @muted-color-dark;
-  --muted-color-light:             lighten(@muted-color-dark, 10%);
-  --muted-color-dark:              darken(@muted-color-dark, 50%);
-  --muted-more-color:              @muted-more-color-dark;
-
-  --shadow-color:                  @shadow-color-dark;
-
-  --control-bg:                    @control-bg-dark;
-  --control-bg-light:              lighten(@control-bg-dark, 3%);
-  --control-bg-shaded:             darken(@control-bg-dark, 4%);
-  --control-color:                 @control-color-dark;
-  --control-danger-bg:             @control-danger-bg-dark;
-  --control-danger-color:          @control-danger-color-dark;
-  --control-body-bg-mix:           mix(@control-bg-dark, @body-bg-dark, 50%);
-  --control-muted-color:           lighten(@control-color-dark, 40%);
-
-  // ---------------------------------
-  // COMPONENT COLORS
-
-  --header-bg:                     @header-bg-dark;
-  --header-color:                  @header-color-dark;
-  --header-control-bg:             @header-control-bg-dark;
-  --header-control-color:          @header-control-color-dark;
-
-  [data-colored-header=true]& {
-    --header-bg:                   @header-bg-colored-dark;
-    --header-color:                @header-color-colored-dark;
-    --header-control-bg:           @header-control-bg-colored-dark;
-    --header-control-color:        @header-control-color-colored-dark;
-
-    .light-contents-vars(@header-color-colored-dark, @header-control-bg-colored-dark, @header-control-color-colored-dark, 'header-colored');
-  }
-
-  --overlay-bg:                    @overlay-bg-dark;
-  --code-bg:                       @code-bg-dark;
-  --code-color:                    @code-color-dark;
-
-  --avatar-bg:                     var(--control-bg);
-  --badge-bg:                      var(--muted-color);
-  --badge-color:                   #fff;
-  --badge-hidden-bg:               #888;
-  --usercard-bg:                   var(--control-bg);
-  --hero-bg:                       @control-bg-dark;
-  --hero-color:                    @control-color-dark;
-
-  --discussion-title-color:        mix(@heading-color-dark, @body-bg-dark, 55%);
-
-  .Button--color-vars(@control-color-dark, @control-bg-dark, 'button');
-  .Button--color-vars(@body-bg-dark, @primary-color, 'button-primary');
-  .Button--color-vars(@control-danger-color-dark, @control-danger-bg-dark, 'control-danger');
-  .Button--color-vars(@muted-more-color-dark, fade(@muted-more-color-dark, 30%), 'muted-more');
-  .Button--color-vars(@control-color-dark, @body-bg-dark, 'button-inverted');
+  .scheme(dark);
 
   // ---------------------------------
   // UTILITIES
