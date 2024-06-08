@@ -13,7 +13,6 @@ use Flarum\Foundation\Config;
 use Flarum\Frontend\Compiler\FileVersioner;
 use Flarum\Frontend\Compiler\VersionerInterface;
 use Flarum\Frontend\Driver\TitleDriverInterface;
-use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Contracts\View\Factory;

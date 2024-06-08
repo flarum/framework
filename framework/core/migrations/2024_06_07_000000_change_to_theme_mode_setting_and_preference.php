@@ -7,7 +7,6 @@
  * LICENSE file that was distributed with this source code.
  */
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
 return [
