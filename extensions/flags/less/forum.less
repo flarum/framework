@@ -1,3 +1,11 @@
+:root {
+  .light-contents-vars(@color: @body-bg-light; @control-color: @body-bg-light; @name: 'flagged-post');
+}
+
+[data-theme=dark]:root {
+  .light-contents-vars(@color: @body-bg-dark; @control-color: @body-bg-dark; @name: 'flagged-post');
+}
+
 .Post--flagged {
   --border-width: 2px;
   padding-top: 0 !important;
@@ -16,7 +24,7 @@
   padding: 10px;
   border-radius: var(--border-radius) var(--border-radius) 0 0;
   overflow: hidden;
-  .light-contents(@color: @body-bg; @control-color: @body-bg);
+  .light-contents(@name: 'flagged-post');
 
   display: flex;
   align-items: center;

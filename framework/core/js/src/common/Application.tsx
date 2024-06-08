@@ -245,6 +245,8 @@ export default class Application {
 
   data!: ApplicationData;
 
+  allowUserColorScheme!: boolean;
+
   private _title: string = '';
   private _titleCount: number = 0;
 
@@ -356,7 +358,52 @@ export default class Application {
 
     document.body.classList.add('ontouchstart' in window ? 'touch' : 'no-touch');
 
+    this.initColorScheme();
+
     liveHumanTimes();
+  }
+
+  private initColorScheme(forumDefault: string | null = null): void {
+    forumDefault ??= document.documentElement.getAttribute('data-theme') ?? 'auto';
+    this.allowUserColorScheme = forumDefault === 'auto';
+    const userConfiguredPreference = this.session.user?.preferences()?.colorScheme;
+
+    let scheme;
+
+    if (this.allowUserColorScheme) {
+      scheme = userConfiguredPreference;
+    }
+
+    scheme ||= forumDefault;
+
+    this.setColorScheme(scheme);
+
+    // Listen for browser color scheme changes and update the theme accordingly
+    if (this.allowUserColorScheme) {
+      this.watchSystemColorSchemePreference(() => {
+        this.initColorScheme(forumDefault);
+      });
+    }
+  }
+
+  getSystemColorSchemePreference(): string {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  watchSystemColorSchemePreference(callback: () => void): void {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', callback);
+  }
+
+  setColorScheme(scheme: string): void {
+    if (scheme === 'auto') {
+      scheme = this.getSystemColorSchemePreference();
+    }
+
+    document.documentElement.setAttribute('data-theme', scheme);
+  }
+
+  setColoredHeader(value: boolean): void {
+    document.documentElement.setAttribute('data-colored-header', value ? 'true' : 'false');
   }
 
   /**

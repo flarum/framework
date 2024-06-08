@@ -1,5 +1,9 @@
 :root {
-  .Button--color-vars(@control-bg, @control-color, 'button-toggled');
+  .Button--color-vars(@control-bg-light, @control-color-light, 'button-toggled');
+}
+
+[data-theme=dark]:root {
+  .Button--color-vars(@control-bg-dark, @control-color-dark, 'button-toggled');
 }
 
 .Button--toggled {
