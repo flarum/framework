@@ -387,11 +387,18 @@ export default class Application {
   }
 
   getSystemColorSchemePreference(): string {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    let colorScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
+    if (window.matchMedia('(prefers-contrast: more)').matches) {
+      colorScheme += '-hc';
+    }
+
+    return colorScheme;
   }
 
   watchSystemColorSchemePreference(callback: () => void): void {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', callback);
+    window.matchMedia('(prefers-contrast: more)').addEventListener('change', callback);
   }
 
   setColorScheme(scheme: string): void {

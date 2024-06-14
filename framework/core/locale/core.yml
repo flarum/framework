@@ -82,7 +82,9 @@ core:
       color_scheme_label: Color Scheme (default)
       color_schemes:
         auto_mode_label: User system or configured preference
+        dark_hc_mode_label: => core.ref.dark_hc_mode_label
         dark_mode_label: => core.ref.dark_mode_label
+        light_hc_mode_label: => core.ref.light_hc_mode_label
         light_mode_label: => core.ref.light_mode_label
 
     # These translations are used in the Basics page.
@@ -614,7 +616,9 @@ core:
       color_scheme_heading: Color Scheme
       color_schemes:
         auto_mode_label: System preference
+        dark_hc_mode_label: => core.ref.dark_hc_mode_label
         dark_mode_label: => core.ref.dark_mode_label
+        light_hc_mode_label: => core.ref.light_hc_mode_label
         light_mode_label: => core.ref.light_mode_label
       notification_checkbox_a11y_label_template: 'Receive "{description}" notifications via {method}'
       notifications_heading: => core.ref.notifications
@@ -971,6 +975,7 @@ core:
     custom_footer_title: Edit Custom Footer
     custom_header_text: "Add HTML to be displayed at the very top of the page, above Flarum's own header."
     custom_header_title: Edit Custom Header
+    dark_hc_mode_label: Dark High Contrast Mode
     dark_mode_label: Dark Mode
     delete: Delete
     delete_forever: Delete Forever
@@ -983,6 +988,7 @@ core:
     icon: Icon
     icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the <code>fas fa-</code> prefix."
     invalid_login_message: Your login details were incorrect.
+    light_hc_mode_label: Light High Contrast Mode
     light_mode_label: Light Mode
     load_more: Load More
     loading: Loading...

@@ -9,7 +9,23 @@ export interface IThemeModeAttrs extends ComponentAttrs {
   alternate?: boolean;
 }
 
+export enum ColorScheme {
+  Auto = 'auto',
+  Light = 'light',
+  Dark = 'dark',
+  LightHighContrast = 'light-hc',
+  DarkHighContrast = 'dark-hc',
+}
+
 export default class ThemeMode<CustomAttrs extends IThemeModeAttrs = IThemeModeAttrs> extends Component<CustomAttrs> {
+  static colorSchemes: string[] = [
+    ColorScheme.Auto,
+    ColorScheme.Light,
+    ColorScheme.Dark,
+    ColorScheme.LightHighContrast,
+    ColorScheme.DarkHighContrast,
+  ];
+
   view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
     const { mode, selected, className, alternate, label, ...attrs } = vnode.attrs;
 
@@ -18,16 +34,29 @@ export default class ThemeMode<CustomAttrs extends IThemeModeAttrs = IThemeModeA
         className={classList('ThemeMode', className, `ThemeMode--${mode}`, { 'ThemeMode--active': selected, 'ThemeMode--switch': alternate })}
         {...attrs}
       >
-        <div className="ThemeMode-container" data-theme={mode === 'auto' ? 'light' : mode}>
+        <div
+          className="ThemeMode-container"
+          data-theme={mode === 'auto' ? 'light' : mode}
+          data-colored-header={document.documentElement.getAttribute('data-colored-header')}
+        >
           <div className="ThemeMode-preview">
-            <div className="ThemeMode-header"></div>
-            <div className="ThemeMode-hero"></div>
+            <div className="ThemeMode-header">
+              <div className="ThemeMode-header-text"></div>
+              <div className="ThemeMode-header-icon"></div>
+              <div className="ThemeMode-header-icon"></div>
+            </div>
+            <div className="ThemeMode-hero">
+              <div className="ThemeMode-hero-title"></div>
+              <div className="ThemeMode-hero-desc"></div>
+            </div>
             <div className="ThemeMode-main">
               <div className="ThemeMode-sidebar">
-                <div className="ThemeMode-startDiscussion"></div>
+                <div className="ThemeMode-startDiscussion">
+                  <div className="ThemeMode-startDiscussion-text"></div>
+                </div>
                 <div className="ThemeMode-items">
                   {Array.from({ length: 3 }).map((_, i) => (
-                    <div className="ThemeMode-sidebar-line">
+                    <div className="ThemeMode-sidebar-line" key={i}>
                       <div className="ThemeMode-sidebar-icon"></div>
                       <div className="ThemeMode-sidebar-text"></div>
                     </div>
@@ -41,7 +70,7 @@ export default class ThemeMode<CustomAttrs extends IThemeModeAttrs = IThemeModeA
                 </div>
                 <div className="ThemeMode-items">
                   {Array.from({ length: 3 }).map((_, i) => (
-                    <div className="ThemeMode-content-item">
+                    <div className="ThemeMode-content-item" key={i}>
                       <div className="ThemeMode-content-item-author"></div>
                       <div className="ThemeMode-content-item-meta">
                         <div className="ThemeMode-content-item-title"></div>

@@ -104,10 +104,10 @@ export default class AppearancePage extends AdminPage {
           <div className="Form-group">
             <label>{app.translator.trans('core.admin.appearance.color_scheme_label')}</label>
             <div className="ThemeMode-list">
-              {['auto', 'light', 'dark'].map((mode: string) => (
+              {ThemeMode.colorSchemes.map((mode) => (
                 <ThemeMode
                   mode={mode}
-                  label={app.translator.trans('core.admin.appearance.color_schemes.' + mode + '_mode_label')}
+                  label={app.translator.trans('core.admin.appearance.color_schemes.' + mode.replace('-', '_') + '_mode_label')}
                   onclick={() => {
                     this.setting('color_scheme')(mode);
 

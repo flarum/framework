@@ -80,7 +80,7 @@
 // ---------------------------------
 // Light colors
 
-[data-theme=light] {
+[data-theme^=light] {
   .scheme(light);
 
   // ---------------------------------
@@ -89,16 +89,71 @@
   --yiq-threshold: 150;
 }
 
+// High contrast
+
+[data-theme=light-hc] {
+  @control-color:                  darken(@control-color-light, 20%);
+  @muted-color:                    darken(@muted-color-light, 20%);
+
+  --control-color:                 @control-color;
+  --control-muted-color:           lighten(@control-color, 20%);
+
+  --muted-color:                   @muted-color;
+  --muted-color-light:             lighten(@muted-color, 10%);
+  --muted-color-dark:              darken(@muted-color, 50%);
+  --muted-more-color:              darken(@muted-more-color-light, 20%);
+
+  --discussion-title-color:        darken(@discussion-title-color-light, 20%);
+
+  .Button--color-vars(@control-color, @control-bg-light, 'button');
+  .Button--color-vars(@control-color, @body-bg-light, 'button-inverted');
+}
+
 // ---------------------------------
 // Dark colors
 
-[data-theme=dark] {
+[data-theme^=dark] {
   .scheme(dark);
 
   // ---------------------------------
   // UTILITIES
 
   --yiq-threshold: 108;
+}
+
+// High contrast
+
+[data-theme=dark-hc] {
+  @control-color:                  lighten(@control-color-dark, 20%);
+  @muted-color:                    lighten(@muted-color-dark, 20%);
+
+  --control-color:                 @control-color;
+  --control-muted-color:           darken(@control-color, 20%);
+
+  --muted-color:                   @muted-color;
+  --muted-color-light:             darken(@muted-color, 10%);
+  --muted-color-dark:              lighten(@muted-color, 50%);
+  --muted-more-color:              lighten(@muted-more-color-dark, 20%);
+
+  --discussion-title-color:        lighten(@discussion-title-color-dark, 20%);
+
+  .Button--color-vars(@control-color, @control-bg-dark, 'button');
+  .Button--color-vars(@control-color, @body-bg-dark, 'button-inverted');
+}
+
+// COMMON LIGHT/DARK HIGH CONTRAST COLORS
+
+[data-theme=dark-hc], [data-theme=light-hc] {
+  .Button--color-vars(darken(@body-bg-dark, 10), @primary-color, 'button-primary');
+
+  [data-colored-header=true]& {
+    --header-bg: @header-bg-colored-dark;
+    --header-color: @header-color-colored-dark;
+    --header-control-bg: @header-control-bg-colored-dark;
+    --header-control-color: darken(@header-control-color-colored-dark, 15);
+
+    .light-contents-vars(@header-color-colored-dark, @header-control-bg-colored-dark, darken(@header-control-color-colored-dark, 15), 'header-colored');
+  }
 }
 
 // ---------------------------------

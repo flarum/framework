@@ -16,9 +16,7 @@
 @secondary-hue:                    hue(@secondary-color);
 @secondary-sat:                    saturation(@secondary-color);
 
-// Derive the primary/secondary colors from the config variables. In dark mode,
-// we make the user-set colors a bit darker, otherwise they will stand out too
-// much.
+// SCHEMES
 
 @body-bg-light:                    #fff;
 @body-bg-dark:                     hsl(@secondary-hue, min(20%, @secondary-sat), 10%);
@@ -35,11 +33,6 @@
 
 @control-color-light:              @muted-color-light;
 @control-color-dark:               @muted-color-dark;
-
-@control-success-bg:               #B4F1AF;
-@control-success-color:            #33722D;
-@control-warning-bg:               #fff2ae;
-@control-warning-color:            #ad6c00;
 
 @control-danger-bg-light:          #fdd;
 @control-danger-bg-dark:           #411;
@@ -67,18 +60,8 @@
 @text-on-dark:                     @body-bg-light;
 @text-on-light:                    @body-bg-dark;
 
-@error-color:                      #d83e3e;
-
-@alert-bg:                         #fff2ae;
-@alert-color:                      #ad6c00;
-
-@alert-error-bg:                   @error-color;
-@alert-error-color:                #fff;
-
-@alert-success-bg:                 #B4F1AF;
-@alert-success-color:              #33722D;
-
-@validation-error-color:           @error-color;
+@discussion-title-color-light:     mix(@heading-color-light, @body-bg-light, 55%);
+@discussion-title-color-dark:      mix(@heading-color-dark, @body-bg-dark, 55%);
 
 // Header colors depend on whether the header is colored,
 // and whether we are on light or dark modes.
@@ -102,6 +85,26 @@
 @header-color-colored-dark:            @body-bg-dark;
 @header-control-bg-colored-dark:       mix(#000, @header-bg-colored-dark, 10%);
 @header-control-color-colored-dark:    mix(@body-bg-dark, @header-bg-colored-dark, 60%);
+
+// COMMON COLORS
+
+@control-success-bg:               #B4F1AF;
+@control-success-color:            #33722D;
+@control-warning-bg:               #fff2ae;
+@control-warning-color:            #ad6c00;
+
+@error-color:                      #d83e3e;
+
+@alert-bg:                         #fff2ae;
+@alert-color:                      #ad6c00;
+
+@alert-error-bg:                   @error-color;
+@alert-error-color:                #fff;
+
+@alert-success-bg:                 #B4F1AF;
+@alert-success-color:              #33722D;
+
+@validation-error-color:           @error-color;
 
 // ---------------------------------
 // LAYOUT

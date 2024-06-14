@@ -7,11 +7,17 @@
   --ignoring-bg: #aaa;
 }
 
-[data-theme=light] {
+[data-theme^=light] {
   .Button--color-vars(@following-color, #fff2ae, 'button--follow');
 }
 
-[data-theme=dark] {
+[data-theme=light-hc], [data-theme=dark-hc] {
+  @following-color-hc: darken(@following-color, 23%);
+  --following-color: @following-color-hc;
+  .Button--color-vars(@following-color-hc, #fff2ae, 'button--follow');
+}
+
+[data-theme^=dark] {
   .Button--color-vars(#784d00, #fbb94c, 'button--follow');
 }
 

@@ -148,12 +148,12 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
   colorSchemeItems() {
     const items = new ItemList<Mithril.Children>();
 
-    ['auto', 'light', 'dark'].forEach((mode) => {
+    ThemeMode.colorSchemes.forEach((mode) => {
       items.add(
         mode,
         <ThemeMode
           mode={mode}
-          label={app.translator.trans('core.forum.settings.color_schemes.' + mode + '_mode_label')}
+          label={app.translator.trans('core.forum.settings.color_schemes.' + mode.replace('-', '_') + '_mode_label')}
           selected={this.user!.preferences()?.colorScheme === mode}
           loading={this.colorSchemeLoading}
           onclick={() => {
