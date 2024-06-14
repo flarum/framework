@@ -17,13 +17,18 @@ export enum ColorScheme {
   DarkHighContrast = 'dark-hc',
 }
 
+export type ColorSchemeData = {
+  id: ColorScheme | string;
+  label?: string | null;
+};
+
 export default class ThemeMode<CustomAttrs extends IThemeModeAttrs = IThemeModeAttrs> extends Component<CustomAttrs> {
-  static colorSchemes: string[] = [
-    ColorScheme.Auto,
-    ColorScheme.Light,
-    ColorScheme.Dark,
-    ColorScheme.LightHighContrast,
-    ColorScheme.DarkHighContrast,
+  static colorSchemes: ColorSchemeData[] = [
+    { id: ColorScheme.Auto },
+    { id: ColorScheme.Light },
+    { id: ColorScheme.Dark },
+    { id: ColorScheme.LightHighContrast },
+    { id: ColorScheme.DarkHighContrast },
   ];
 
   view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {

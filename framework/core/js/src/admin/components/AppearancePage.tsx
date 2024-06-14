@@ -106,16 +106,16 @@ export default class AppearancePage extends AdminPage {
             <div className="ThemeMode-list">
               {ThemeMode.colorSchemes.map((mode) => (
                 <ThemeMode
-                  mode={mode}
-                  label={app.translator.trans('core.admin.appearance.color_schemes.' + mode.replace('-', '_') + '_mode_label')}
+                  mode={mode.id}
+                  label={mode.label || app.translator.trans('core.admin.appearance.color_schemes.' + mode.id.replace('-', '_') + '_mode_label')}
                   onclick={() => {
-                    this.setting('color_scheme')(mode);
+                    this.setting('color_scheme')(mode.id);
 
-                    this.setting('allow_user_color_scheme')(mode === 'auto' ? '1' : '0');
+                    this.setting('allow_user_color_scheme')(mode.id === 'auto' ? '1' : '0');
 
-                    app.setColorScheme(mode);
+                    app.setColorScheme(mode.id);
                   }}
-                  selected={this.setting('color_scheme')() === mode}
+                  selected={this.setting('color_scheme')() === mode.id}
                 />
               ))}
             </div>

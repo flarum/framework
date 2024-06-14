@@ -1,12 +1,15 @@
 import Application from '../Application';
 import IExtender, { IExtensionModule } from './IExtender';
-import ThemeModeComponent from '../components/ThemeMode';
+import ThemeModeComponent, { type ColorSchemeData } from '../components/ThemeMode';
 
 export default class ThemeMode implements IExtender {
-  private readonly colorSchemes: string[] = [];
+  private readonly colorSchemes: ColorSchemeData[] = [];
 
-  public add(mode: string): this {
-    this.colorSchemes.push(mode);
+  public add(mode: string, label: string): this {
+    this.colorSchemes.push({
+      id: mode,
+      label,
+    });
 
     return this;
   }

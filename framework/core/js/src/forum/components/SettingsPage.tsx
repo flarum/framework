@@ -150,18 +150,18 @@ export default class SettingsPage<CustomAttrs extends IUserPageAttrs = IUserPage
 
     ThemeMode.colorSchemes.forEach((mode) => {
       items.add(
-        mode,
+        mode.id,
         <ThemeMode
-          mode={mode}
-          label={app.translator.trans('core.forum.settings.color_schemes.' + mode.replace('-', '_') + '_mode_label')}
-          selected={this.user!.preferences()?.colorScheme === mode}
+          mode={mode.id}
+          label={mode.label || app.translator.trans('core.forum.settings.color_schemes.' + mode.id.replace('-', '_') + '_mode_label')}
+          selected={this.user!.preferences()?.colorScheme === mode.id}
           loading={this.colorSchemeLoading}
           onclick={() => {
             this.colorSchemeLoading = true;
 
-            this.user!.savePreferences({ colorScheme: mode }).then(() => {
+            this.user!.savePreferences({ colorScheme: mode.id }).then(() => {
               this.colorSchemeLoading = false;
-              app.setColorScheme(mode);
+              app.setColorScheme(mode.id);
               m.redraw();
             });
           }}
