@@ -19,6 +19,7 @@ use Flarum\Suspend\Notification\UserSuspendedBlueprint;
 use Flarum\Suspend\Notification\UserUnsuspendedBlueprint;
 use Flarum\Suspend\Query\SuspendedFilterGambit;
 use Flarum\Suspend\RevokeAccessFromSuspendedUsers;
+use Flarum\User\Event\AvatarDeleting;
 use Flarum\User\Event\Saving;
 use Flarum\User\Filter\UserFilterer;
 use Flarum\User\Search\UserSearcher;
@@ -50,7 +51,8 @@ return [
     (new Extend\Event())
         ->listen(Saving::class, Listener\SaveSuspensionToDatabase::class)
         ->listen(Suspended::class, Listener\SendNotificationWhenUserIsSuspended::class)
-        ->listen(Unsuspended::class, Listener\SendNotificationWhenUserIsUnsuspended::class),
+        ->listen(Unsuspended::class, Listener\SendNotificationWhenUserIsUnsuspended::class)
+        ->listen(AvatarDeleting::class, Listener\PreventAvatarDeletionBySuspendedUser::class),
 
     (new Extend\Policy())
         ->modelPolicy(User::class, UserPolicy::class),
