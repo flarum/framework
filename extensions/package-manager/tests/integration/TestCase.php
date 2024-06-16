@@ -9,10 +9,10 @@
 
 namespace Flarum\ExtensionManager\Tests\integration;
 
-use Flarum\Foundation\Paths;
 use Flarum\ExtensionManager\Composer\ComposerAdapter;
 use Flarum\ExtensionManager\Composer\ComposerJson;
 use Flarum\ExtensionManager\Support\Util;
+use Flarum\Foundation\Paths;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;

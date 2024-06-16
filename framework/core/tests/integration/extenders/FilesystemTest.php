@@ -45,7 +45,7 @@ class FilesystemTest extends TestCase
         $this->extend((new Extend\Filesystem)->disk('flarum-uploads', function (Paths $paths, UrlGenerator $url) {
             return [
                 'root' => "$paths->public/assets/uploads",
-                'url'  => $url->to('forum')->path('assets/uploads')
+                'url' => $url->to('forum')->path('assets/uploads')
             ];
         }));
 
@@ -137,7 +137,7 @@ class UploadsDisk
     {
         return [
             'root' => "$paths->public/assets/uploads",
-            'url'  => $url->to('forum')->path('assets/uploads')
+            'url' => $url->to('forum')->path('assets/uploads')
         ];
     }
 }

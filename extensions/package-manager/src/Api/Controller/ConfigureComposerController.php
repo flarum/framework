@@ -9,11 +9,11 @@
 
 namespace Flarum\ExtensionManager\Api\Controller;
 
+use Flarum\ExtensionManager\Composer\ComposerJson;
 use Flarum\ExtensionManager\ConfigureAuthValidator;
+use Flarum\ExtensionManager\ConfigureComposerValidator;
 use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;
-use Flarum\ExtensionManager\Composer\ComposerJson;
-use Flarum\ExtensionManager\ConfigureComposerValidator;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;

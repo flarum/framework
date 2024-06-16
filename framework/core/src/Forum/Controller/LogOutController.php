@@ -107,7 +107,7 @@ class LogOutController implements RequestHandlerInterface
 
         if (Arr::get($request->getQueryParams(), 'token') !== $csrfToken) {
             $view = $this->view->make('flarum.forum::log-out')
-                ->with('url', $this->url->to('forum')->route('logout') . '?token=' . $csrfToken . ($returnUrl ? '&return=' . urlencode($return) : ''));
+                ->with('url', $this->url->to('forum')->route('logout').'?token='.$csrfToken.($returnUrl ? '&return='.urlencode($return) : ''));
 
             return new HtmlResponse($view->render());
         }

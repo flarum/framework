@@ -56,11 +56,11 @@ class DeleteAvatarHandler
             $actor->assertCan('edit', $user);
         }
 
-        $this->uploader->remove($user);
-
         $this->events->dispatch(
             new AvatarDeleting($user, $actor)
         );
+
+        $this->uploader->remove($user);
 
         $user->save();
 
