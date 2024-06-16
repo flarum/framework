@@ -12,4 +12,14 @@ app.initializers.add('flarum-sticky', () => {
     'moderate',
     95
   );
+
+  app.extensionData.for('flarum-sticky').registerSetting(
+    {
+      setting: 'flarum-sticky.only_sticky_unread_discussions',
+      name: 'onlyStickyUnreadDiscussions',
+      type: 'boolean',
+      label: app.translator.trans('flarum-sticky.admin.settings.only_sticky_unread_discussions_label'),
+      help: app.translator.trans('flarum-sticky.admin.settings.only_sticky_unread_discussions_help'),
+    }
+  );
 });
