@@ -19,8 +19,8 @@ class DatabaseConfig implements Arrayable
         private readonly int $port,
         private readonly string $database,
         private readonly string $username,
-        private readonly string $password,
-        private readonly string $prefix
+        private readonly ?string $password = null,
+        private readonly ?string $prefix = null
     ) {
         $this->validate();
     }
