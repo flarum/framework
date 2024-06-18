@@ -25,8 +25,8 @@ use Tobyz\JsonApiServer\Resource\Resource;
 
 class JsonApi extends BaseJsonApi
 {
-    protected string $resourceClass;
-    protected string $endpointName;
+    protected ?string $resourceClass = null;
+    protected ?string $endpointName = null;
     protected ?Request $baseRequest = null;
     protected ?Container $container = null;
 
