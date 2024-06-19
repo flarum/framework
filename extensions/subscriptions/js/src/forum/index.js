@@ -8,7 +8,7 @@ import addSubscriptionSettings from './addSubscriptionSettings';
 
 export { default as extend } from './extend';
 
-app.initializers.add('subscriptions', function () {
+app.initializers.add('flarum-subscriptions', function () {
   addSubscriptionBadge();
   addSubscriptionControls();
   addSubscriptionFilter();

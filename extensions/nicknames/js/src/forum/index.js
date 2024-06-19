@@ -7,7 +7,7 @@ import NickNameModal from './components/NicknameModal';
 
 export { default as extend } from './extend';
 
-app.initializers.add('flarum/nicknames', () => {
+app.initializers.add('flarum-nicknames', () => {
   extend('flarum/forum/components/SettingsPage', 'accountItems', function (items) {
     if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
 
