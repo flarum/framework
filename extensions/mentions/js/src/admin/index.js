@@ -1,6 +1,6 @@
 import app from 'flarum/admin/app';
 
-app.initializers.add('flarum-mentions', function () {
+app.initializers.add('flarum-mentions', () => {
   app.extensionData
     .for('flarum-mentions')
     .registerSetting({
