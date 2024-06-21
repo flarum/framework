@@ -25,7 +25,7 @@ class PostResourceFields
             Schema\Relationship\ToMany::make('mentionedBy')
                 ->type('posts')
                 ->includable()
-                ->constrain(fn (Builder $query) => $query->oldest('id')->limit(static::$maxMentionedBy)),
+                ->scope(fn (Builder $query) => $query->oldest('id')->limit(static::$maxMentionedBy)),
             Schema\Relationship\ToMany::make('mentionsPosts')
                 ->type('posts'),
             Schema\Relationship\ToMany::make('mentionsUsers')

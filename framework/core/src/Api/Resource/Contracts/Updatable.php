@@ -7,12 +7,11 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Api\Endpoint;
+namespace Flarum\Api\Resource\Contracts;
 
-/**
- * @mixin \Tobyz\JsonApiServer\Endpoint\Endpoint
- */
-interface EndpointInterface
+use Tobyz\JsonApiServer\Resource\Updatable as UpdatableContract;
+
+interface Updatable extends UpdatableContract
 {
     //
 }

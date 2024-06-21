@@ -58,6 +58,7 @@ class PostResource extends AbstractDatabaseResource
         $query->whereVisibleTo($context->getActor());
     }
 
+    /** @inheritDoc */
     public function newModel(\Tobyz\JsonApiServer\Context $context): object
     {
         if ($context->creating(self::class)) {

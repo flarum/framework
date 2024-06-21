@@ -209,6 +209,7 @@ class DiscussionResource extends AbstractDatabaseResource
                     return $context->showing(self::class);
                 })
                 ->includable()
+                // @todo: remove this, and send a second request from the frontend to /posts instead. Revert Serializer::addIncluded while you're at it.
                 ->get(function (Discussion $discussion, Context $context) {
                     $showingDiscussion = $context->showing(self::class);
 
@@ -230,10 +231,13 @@ class DiscussionResource extends AbstractDatabaseResource
                         $offset = $endpoint->extractOffsetValue($context, $endpoint->defaultExtracts($context));
                     }
 
+                    /** @var Endpoint\Endpoint $endpoint */
+                    $endpoint = $context->endpoint;
+
                     $posts = $discussion->posts()
                         ->whereVisibleTo($actor)
-                        ->with($context->endpoint->getEagerLoadsFor('posts', $context))
-                        ->with($context->endpoint->getWhereEagerLoadsFor('posts', $context))
+                        ->with($endpoint->getEagerLoadsFor('posts', $context))
+                        ->with($endpoint->getWhereEagerLoadsFor('posts', $context))
                         ->orderBy('number')
                         ->skip($offset)
                         ->take($limit)

@@ -1,0 +1,11 @@
+<?php
+
+namespace Tobyz\JsonApiServer;
+
+/**
+ * @mixin \Flarum\Api\Context
+ */
+class Context
+{
+
+}

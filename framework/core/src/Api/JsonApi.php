@@ -9,16 +9,18 @@
 
 namespace Flarum\Api;
 
-use Flarum\Api\Endpoint\EndpointInterface;
+use Flarum\Api\Endpoint\Endpoint;
 use Flarum\Api\Resource\AbstractDatabaseResource;
+use Flarum\Api\Resource\AbstractResource;
 use Flarum\Http\RequestUtil;
 use Illuminate\Contracts\Container\Container;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Diactoros\Uri;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Tobyz\JsonApiServer\Endpoint\Endpoint;
+use RuntimeException;
 use Tobyz\JsonApiServer\Exception\BadRequestException;
+use Tobyz\JsonApiServer\Exception\ResourceNotFoundException;
 use Tobyz\JsonApiServer\JsonApi as BaseJsonApi;
 use Tobyz\JsonApiServer\Resource\Collection;
 use Tobyz\JsonApiServer\Resource\Resource;
@@ -57,9 +59,13 @@ class JsonApi extends BaseJsonApi
             ->withEndpoint($this->findEndpoint($collection));
     }
 
-    protected function findEndpoint(?Collection $collection): Endpoint&EndpointInterface
+    protected function findEndpoint(?Collection $collection): Endpoint
     {
-        /** @var Endpoint&EndpointInterface $endpoint */
+        if (! $collection instanceof AbstractResource) {
+            throw new RuntimeException('Resource '.$collection::class.' must extend '.AbstractResource::class);
+        }
+
+        /** @var Endpoint $endpoint */
         foreach ($collection->resolveEndpoints() as $endpoint) {
             if ($endpoint->name === $this->endpointName) {
                 return $endpoint;
@@ -67,6 +73,46 @@ class JsonApi extends BaseJsonApi
         }
 
         throw new BadRequestException('Invalid endpoint specified');
+    }
+
+    /**
+     * Get a collection by name or class.
+     *
+     * @throws ResourceNotFoundException if the collection has not been defined.
+     */
+    public function getCollection(string $type): Collection
+    {
+        if (isset($this->collections[$type])) {
+            return $this->collections[$type];
+        }
+
+        foreach ($this->collections as $instance) {
+            if ($instance instanceof $type) {
+                return $instance;
+            }
+        }
+
+        throw new ResourceNotFoundException($type);
+    }
+
+    /**
+     * Get a resource by type or class.
+     *
+     * @throws ResourceNotFoundException if the resource has not been defined.
+     */
+    public function getResource(string $type): Resource
+    {
+        if (isset($this->resources[$type])) {
+            return $this->resources[$type];
+        }
+
+        foreach ($this->resources as $instance) {
+            if ($instance instanceof $type) {
+                return $instance;
+            }
+        }
+
+        throw new ResourceNotFoundException($type);
     }
 
     public function withRequest(Request $request): self
@@ -112,13 +158,19 @@ class JsonApi extends BaseJsonApi
             $context = $context->withInternal($key, $value);
         }
 
+        $endpoint = $context->endpoint;
+
+        if (! $endpoint instanceof Endpoint) {
+            throw new RuntimeException('The endpoint '.$endpoint::class.' must extend '.Endpoint::class);
+        }
+
         $context = $context->withRequest(
             $request
-                ->withMethod($context->endpoint->method)
-                ->withUri(new Uri($context->endpoint->path))
+                ->withMethod($endpoint->method)
+                ->withUri(new Uri($endpoint->path))
         );
 
-        return $context->endpoint->process($context);
+        return $endpoint->process($context);
     }
 
     public function validateQueryParameters(Request $request): void

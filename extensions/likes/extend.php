@@ -45,13 +45,13 @@ return [
         ->fields(PostResourceFields::class)
         ->endpoint(
             [Endpoint\Index::class, Endpoint\Show::class, Endpoint\Create::class, Endpoint\Update::class],
-            function (Endpoint\Index|Endpoint\Show|Endpoint\Create|Endpoint\Update $endpoint): Endpoint\EndpointInterface {
+            function (Endpoint\Index|Endpoint\Show|Endpoint\Create|Endpoint\Update $endpoint): Endpoint\Endpoint {
                 return $endpoint->addDefaultInclude(['likes']);
             }
         ),
 
     (new Extend\ApiResource(Resource\DiscussionResource::class))
-        ->endpoint(Endpoint\Show::class, function (Endpoint\Show $endpoint): Endpoint\EndpointInterface {
+        ->endpoint(Endpoint\Show::class, function (Endpoint\Show $endpoint): Endpoint\Endpoint {
             return $endpoint->addDefaultInclude(['posts.likes']);
         }),
 

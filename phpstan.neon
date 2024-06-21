@@ -35,6 +35,9 @@ parameters:
 	  - extensions/tags/extend.php
 	excludePaths:
 		- *.blade.php
-	checkMissingIterableValueType: false
-	checkGenericClassInNonGenericObjectType: false
 	databaseMigrationsPath: ['framework/core/migrations']
+	ignoreErrors:
+		-
+			identifier: missingType.iterableValue
+		-
+			identifier: missingType.generics
