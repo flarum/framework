@@ -209,7 +209,7 @@ class CreateTest extends TestCase
      */
     public function discussion_creation_limited_by_throttler()
     {
-        $this->send(
+        $response = $this->send(
             $this->request('POST', '/api/discussions', [
                 'authenticatedAs' => 2,
                 'json' => [
@@ -223,6 +223,8 @@ class CreateTest extends TestCase
                 ],
             ])
         );
+
+        $this->assertEquals(201, $response->getStatusCode());
 
         $response = $this->send(
             $this->request('POST', '/api/discussions', [

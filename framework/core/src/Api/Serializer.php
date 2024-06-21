@@ -192,7 +192,7 @@ class Serializer extends \Tobyz\JsonApiServer\Serializer
             $deferred = $this->deferred;
 
             /** @var Closure $resolve */
-            while ($resolve = $deferred->shift()) {
+            while (($resolve = $deferred->shift()) && is_callable($resolve)) {
                 $resolve();
             }
 

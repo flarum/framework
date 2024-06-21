@@ -12,7 +12,9 @@ namespace Flarum\Frontend\Compiler;
 use Flarum\Frontend\Compiler\Source\FileSource;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Less_FileManager;
 use Less_Parser;
+use Less_Tree_Import;
 
 /**
  * @internal
@@ -129,8 +131,10 @@ class LessCompiler extends RevisionCompiler
             ];
         })->unique('path');
 
-        return function ($evald) use ($baseSources): ?array {
-            $relativeImportPath = Str::of($evald->PathAndUri()[0])->split('/\/less\//');
+        return function (Less_Tree_Import $evald) use ($baseSources): ?array {
+            $pathAndUri = Less_FileManager::getFilePath($evald->getPath(), $evald->currentFileInfo);
+
+            $relativeImportPath = Str::of($pathAndUri[0])->split('/\/less\//');
             $extensionId = $baseSources->where('path', $relativeImportPath->first())->pluck('extensionId')->first();
 
             $overrideImport = $this->lessImportOverrides
@@ -141,7 +145,7 @@ class LessCompiler extends RevisionCompiler
                 return null;
             }
 
-            return [$overrideImport['newFilePath'], $evald->PathAndUri()[1]];
+            return [$overrideImport['newFilePath'], $pathAndUri[1]];
         };
     }
 
