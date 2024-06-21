@@ -60,7 +60,7 @@ class ListFlagsController extends AbstractListController
                 fn (Builder $query) => $query->distinct('post_id')->orderBy('post_id'),
                 else: fn (Builder $query) => $query->groupBy('post_id')
             )
-            ->latest('flags.id')
+            ->latest('flags.created_at')
             ->get();
 
         $this->loadRelations($flags, $include, $request);

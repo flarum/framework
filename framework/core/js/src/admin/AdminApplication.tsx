@@ -49,6 +49,13 @@ export interface AdminApplicationData extends ApplicationData {
   maintenanceByConfig: boolean;
   safeModeExtensions?: string[] | null;
   safeModeExtensionsConfig?: string[] | null;
+
+  dbDriver: string;
+  dbVersion: string;
+  phpVersion: string;
+  queueDriver: string;
+  schedulerStatus: string;
+  sessionDriver: string;
 }
 
 export default class AdminApplication extends Application {

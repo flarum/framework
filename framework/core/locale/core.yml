@@ -211,6 +211,7 @@ core:
     extension:
       configure_scopes: Configure Scopes
       confirm_purge: Purging will remove all database entries and assets related to the extension. It will not uninstall the extension; that must be done via Composer. Are you sure you want to continue?
+      database_driver_mismatch: This extension does not support your configured database driver.
       disabled: Disabled
       enable_to_see: Enable the extension to view and change settings.
       enabled: Enabled

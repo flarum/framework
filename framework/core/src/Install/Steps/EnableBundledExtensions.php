@@ -24,7 +24,22 @@ use League\Flysystem\Local\LocalFilesystemAdapter;
 
 class EnableBundledExtensions implements Step
 {
-    public const EXTENSION_WHITELIST = [];
+    public const DEFAULT_ENABLED_EXTENSIONS = [
+        'flarum-approval',
+        'flarum-bbcode',
+        'flarum-emoji',
+        'flarum-lang-english',
+        'flarum-flags',
+        'flarum-likes',
+        'flarum-lock',
+        'flarum-markdown',
+        'flarum-mentions',
+        'flarum-statistics',
+        'flarum-sticky',
+        'flarum-subscriptions',
+        'flarum-suspend',
+        'flarum-tags',
+    ];
 
     /**
      * @var string[]
@@ -39,7 +54,7 @@ class EnableBundledExtensions implements Step
         private readonly string $assetPath,
         ?array $enabledExtensions = null
     ) {
-        $this->enabledExtensions = $enabledExtensions ?? self::EXTENSION_WHITELIST;
+        $this->enabledExtensions = $enabledExtensions ?? self::DEFAULT_ENABLED_EXTENSIONS;
     }
 
     public function getMessage(): string

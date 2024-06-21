@@ -17,6 +17,7 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Database\PostgresConnection;
 use Illuminate\Support\Arr;
 
 class ListTest extends TestCase
@@ -85,7 +86,12 @@ class ListTest extends TestCase
         $data = json_decode($body, true)['data'];
 
         $ids = Arr::pluck($data, 'id');
-        $this->assertCount(3, $data);
+
+        if ($this->database() instanceof PostgresConnection) {
+            $this->assertEqualsCanonicalizing(['3', '4', '5'], $ids);
+        } else {
+            $this->assertEqualsCanonicalizing(['1', '4', '5'], $ids);
+        }
     }
 
     /**
