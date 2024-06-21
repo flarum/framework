@@ -86,9 +86,11 @@ class ListTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $body = $response->getBody()->getContents();
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $data = json_decode($body, true);
 
         $tagIds = array_map(function ($tag) {
             return $tag['id'];
@@ -96,7 +98,7 @@ class ListTest extends TestCase
             return $item['type'] === 'tags';
         }));
 
-        $this->assertEqualsCanonicalizing([1, 5], $tagIds);
+        $this->assertEqualsCanonicalizing([1, 5], $tagIds, $body);
     }
 
     /**

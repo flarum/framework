@@ -44,7 +44,7 @@ class RegisterTest extends TestCase
             ])
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals(201, $response->getStatusCode(), $response->getBody()->getContents());
 
         /** @var User $user */
         $user = User::where('username', 'test')->firstOrFail();
@@ -72,7 +72,7 @@ class RegisterTest extends TestCase
             ])
         );
 
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
     /**
@@ -94,7 +94,7 @@ class RegisterTest extends TestCase
             ])
         );
 
-        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertEquals(422, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
     /**
@@ -116,6 +116,6 @@ class RegisterTest extends TestCase
             ])
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals(201, $response->getStatusCode(), $response->getBody()->getContents());
     }
 }

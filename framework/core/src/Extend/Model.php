@@ -179,7 +179,9 @@ class Model implements ExtenderInterface
     public function extend(Container $container, Extension $extension = null): void
     {
         foreach ($this->customRelations as $name => $callback) {
-            Arr::set(AbstractModel::$customRelations, "$this->modelClass.$name", ContainerUtil::wrapCallback($callback, $container));
+            /** @var class-string<AbstractModel> $modelClass */
+            $modelClass = $this->modelClass;
+            $modelClass::resolveRelationUsing($name, ContainerUtil::wrapCallback($callback, $container));
         }
 
         Arr::set(

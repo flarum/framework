@@ -11,6 +11,7 @@ namespace Flarum\Notification;
 
 use Carbon\Carbon;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 class NotificationRepository
@@ -19,6 +20,14 @@ class NotificationRepository
      * @return Collection<int, Notification>
      */
     public function findByUser(User $user, ?int $limit = null, int $offset = 0): Collection
+    {
+        return $this->query($user, $limit, $offset)->get();
+    }
+
+    /**
+     * @return Builder<Notification>
+     */
+    public function query(User $user, ?int $limit = null, int $offset = 0): Builder
     {
         $primaries = Notification::query()
             ->selectRaw('MAX(id) AS id')
@@ -35,8 +44,7 @@ class NotificationRepository
         return Notification::query()
             ->select('notifications.*', 'p.unread_count')
             ->joinSub($primaries, 'p', 'notifications.id', '=', 'p.id')
-            ->latest()
-            ->get();
+            ->latest();
     }
 
     public function markAllAsRead(User $user): void

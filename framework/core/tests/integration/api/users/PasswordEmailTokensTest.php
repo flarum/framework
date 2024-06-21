@@ -102,6 +102,7 @@ class PasswordEmailTokensTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'email' => 'new-normal@machine.local'
                         ]
@@ -113,7 +114,7 @@ class PasswordEmailTokensTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $response->getBody());
         $this->assertEquals(1, EmailToken::query()->where('user_id', 2)->count());
     }
 

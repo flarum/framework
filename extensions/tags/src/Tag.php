@@ -31,9 +31,10 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  * @property string $color
  * @property string $background_path
  * @property string $background_mode
+ * @property bool $is_primary
  * @property int $position
  * @property int $parent_id
- * @property string $default_sort
+ * @property string|null $default_sort
  * @property bool $is_restricted
  * @property bool $is_hidden
  * @property int $discussion_count
@@ -59,6 +60,7 @@ class Tag extends AbstractModel
     protected $casts = [
         'is_hidden' => 'bool',
         'is_restricted' => 'bool',
+        'is_primary' => 'bool',
         'last_posted_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -71,6 +73,15 @@ class Tag extends AbstractModel
         static::saved(function (self $tag) {
             if ($tag->wasUnrestricted()) {
                 $tag->deletePermissions();
+            }
+        });
+
+        static::creating(function (self $tag) {
+            if ($tag->is_primary) {
+                $tag->position = static::query()
+                    ->when($tag->parent_id, fn ($query) => $query->where('parent_id', $tag->parent_id))
+                    ->where('is_primary', true)
+                    ->max('position') + 1;
             }
         });
 

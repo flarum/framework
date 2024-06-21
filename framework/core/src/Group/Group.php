@@ -55,29 +55,25 @@ class Group extends AbstractModel
         static::deleted(function (self $group) {
             $group->raise(new Deleted($group));
         });
+
+        static::creating(function (self $group) {
+            $group->raise(new Created($group));
+        });
     }
 
-    public static function build(?string $nameSingular, ?string $namePlural, ?string $color = null, ?string $icon = null, bool $isHidden = false): static
+    public function rename(?string $nameSingular, ?string $namePlural): static
     {
-        $group = new static;
+        if ($nameSingular !== null) {
+            $this->name_singular = $nameSingular;
+        }
 
-        $group->name_singular = $nameSingular;
-        $group->name_plural = $namePlural;
-        $group->color = $color;
-        $group->icon = $icon;
-        $group->is_hidden = $isHidden;
+        if ($namePlural !== null) {
+            $this->name_plural = $namePlural;
+        }
 
-        $group->raise(new Created($group));
-
-        return $group;
-    }
-
-    public function rename(string $nameSingular, string $namePlural): static
-    {
-        $this->name_singular = $nameSingular;
-        $this->name_plural = $namePlural;
-
-        $this->raise(new Renamed($this));
+        if ($this->isDirty(['name_singular', 'name_plural'])) {
+            $this->raise(new Renamed($this));
+        }
 
         return $this;
     }

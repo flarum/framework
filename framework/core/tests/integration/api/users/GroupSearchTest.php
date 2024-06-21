@@ -86,7 +86,7 @@ class GroupSearchTest extends TestCase
         $responseBodyContents = json_decode($response->getBody()->getContents(), true);
 
         $this->assertCount(0, $responseBodyContents['data'], json_encode($responseBodyContents));
-        $this->assertArrayNotHasKey('included', $responseBodyContents, json_encode($responseBodyContents));
+        $this->assertCount(0, $responseBodyContents['included'], json_encode($responseBodyContents));
 
         $response = $this->createRequest(['admins'], 2);
         $responseBodyContents = json_decode($response->getBody()->getContents(), true);
@@ -99,7 +99,7 @@ class GroupSearchTest extends TestCase
         $responseBodyContents = json_decode($response->getBody()->getContents(), true);
 
         $this->assertCount(0, $responseBodyContents['data'], json_encode($responseBodyContents));
-        $this->assertArrayNotHasKey('included', $responseBodyContents, json_encode($responseBodyContents));
+        $this->assertCount(0, $responseBodyContents['included'], json_encode($responseBodyContents));
 
         $response = $this->createRequest(['1'], 2);
         $responseBodyContents = json_decode($response->getBody()->getContents(), true);
@@ -112,7 +112,7 @@ class GroupSearchTest extends TestCase
         $responseBodyContents = json_decode($response->getBody()->getContents(), true);
 
         $this->assertCount(0, $responseBodyContents['data'], json_encode($responseBodyContents));
-        $this->assertArrayNotHasKey('included', $responseBodyContents, json_encode($responseBodyContents));
+        $this->assertCount(0, $responseBodyContents['included'], json_encode($responseBodyContents));
     }
 
     /**
@@ -131,7 +131,7 @@ class GroupSearchTest extends TestCase
         $responseBodyContents = json_decode($response->getBody()->getContents(), true);
 
         $this->assertCount(0, $responseBodyContents['data'], json_encode($responseBodyContents));
-        $this->assertArrayNotHasKey('included', $responseBodyContents, json_encode($responseBodyContents));
+        $this->assertCount(0, $responseBodyContents['included'], json_encode($responseBodyContents));
     }
 
     /**
@@ -149,10 +149,8 @@ class GroupSearchTest extends TestCase
         $responseBodyContents = json_decode($response->getBody()->getContents(), true);
         $this->assertCount(4, $responseBodyContents['data'], json_encode($responseBodyContents));
         $this->assertCount(4, $responseBodyContents['included'], json_encode($responseBodyContents));
-        $this->assertEquals(1, $responseBodyContents['included'][0]['id']);
-        $this->assertEquals(4, $responseBodyContents['included'][1]['id']);
-        $this->assertEquals(5, $responseBodyContents['included'][2]['id']);
-        $this->assertEquals(6, $responseBodyContents['included'][3]['id']);
+
+        $this->assertEqualsCanonicalizing([1, 4, 5, 6], array_column($responseBodyContents['included'], 'id'));
     }
 
     /**
@@ -171,7 +169,7 @@ class GroupSearchTest extends TestCase
         $responseBodyContents = json_decode($response->getBody()->getContents(), true);
 
         $this->assertCount(0, $responseBodyContents['data'], json_encode($responseBodyContents));
-        $this->assertArrayNotHasKey('included', $responseBodyContents, json_encode($responseBodyContents));
+        $this->assertCount(0, $responseBodyContents['included'], json_encode($responseBodyContents));
 
         $response = $this->createRequest(['admins'], 1);
         $responseBodyContents = json_decode($response->getBody()->getContents(), true);
@@ -184,7 +182,7 @@ class GroupSearchTest extends TestCase
         $responseBodyContents = json_decode($response->getBody()->getContents(), true);
 
         $this->assertCount(0, $responseBodyContents['data'], json_encode($responseBodyContents));
-        $this->assertArrayNotHasKey('included', $responseBodyContents, json_encode($responseBodyContents));
+        $this->assertCount(0, $responseBodyContents['included'], json_encode($responseBodyContents));
 
         $response = $this->createRequest(['1'], 1);
         $responseBodyContents = json_decode($response->getBody()->getContents(), true);
@@ -197,7 +195,7 @@ class GroupSearchTest extends TestCase
         $responseBodyContents = json_decode($response->getBody()->getContents(), true);
 
         $this->assertCount(0, $responseBodyContents['data'], json_encode($responseBodyContents));
-        $this->assertArrayNotHasKey('included', $responseBodyContents, json_encode($responseBodyContents));
+        $this->assertCount(0, $responseBodyContents['included'], json_encode($responseBodyContents));
     }
 
     /**
@@ -225,11 +223,8 @@ class GroupSearchTest extends TestCase
         $responseBodyContents = json_decode($response->getBody()->getContents(), true);
         $this->assertCount(5, $responseBodyContents['data'], json_encode($responseBodyContents));
         $this->assertCount(5, $responseBodyContents['included'], json_encode($responseBodyContents));
-        $this->assertEquals(1, $responseBodyContents['included'][0]['id']);
-        $this->assertEquals(99, $responseBodyContents['included'][1]['id']);
-        $this->assertEquals(4, $responseBodyContents['included'][2]['id']);
-        $this->assertEquals(5, $responseBodyContents['included'][3]['id']);
-        $this->assertEquals(6, $responseBodyContents['included'][4]['id']);
+
+        $this->assertEqualsCanonicalizing([1, 99, 4, 5, 6], array_column($responseBodyContents['included'], 'id'));
     }
 
     private function createRequest(array $group, int $userId = null)

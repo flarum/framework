@@ -103,13 +103,22 @@ class ListTest extends TestCase
         $responseBody = json_decode($response->getBody()->getContents(), true);
 
         $data = $responseBody['data'];
-        $included = $responseBody['included'];
 
         // 5 isnt included because parent access doesnt necessarily give child access
         // 6, 7, 8 aren't included because child access shouldnt work unless parent
         // access is also given.
         $this->assertEquals(['1', '2', '3', '4', '9', '10', '11'], Arr::pluck($data, 'id'));
-        $this->assertEquals($expectedIncludes, Arr::pluck($included, 'id'));
+        $this->assertEquals(
+            $expectedIncludes,
+            collect($data)
+            ->pluck('relationships.'.$include.'.data')
+            ->filter(fn ($data) => ! empty($data))
+            ->values()
+            ->flatMap(fn (array $data) => isset($data['type']) ? [$data] : $data)
+            ->pluck('id')
+            ->unique()
+            ->all()
+        );
     }
 
     /**

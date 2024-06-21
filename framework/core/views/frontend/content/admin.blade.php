@@ -15,8 +15,8 @@
             <td>{{ $phpVersion }}</td>
         </tr>
         <tr>
-            <td>MySQL</td>
-            <td>{{ $mysqlVersion }}</td>
+            <td>{{ $dbDriver }}</td>
+            <td>{{ $dbVersion }}</td>
         </tr>
         </tbody>
     </table>

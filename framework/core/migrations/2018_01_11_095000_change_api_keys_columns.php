@@ -12,13 +12,7 @@ use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        $schema->table('api_keys', function (Blueprint $table) {
-            $table->dropPrimary(['id']);
-            $table->renameColumn('id', 'key');
-            $table->unique('key');
-        });
-
-        $schema->table('api_keys', function (Blueprint $table) {
+        $definition = function (Blueprint $table) {
             $table->increments('id');
             $table->string('allowed_ips')->nullable();
             $table->string('scopes')->nullable();
@@ -27,7 +21,23 @@ return [
             $table->dateTime('last_activity_at')->nullable();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-        });
+        };
+
+        if ($schema->getConnection()->getDriverName() !== 'sqlite') {
+            $schema->table('api_keys', function (Blueprint $table) {
+                $table->dropPrimary(['id']);
+                $table->renameColumn('id', 'key');
+                $table->unique('key');
+            });
+
+            $schema->table('api_keys', $definition);
+        } else {
+            $schema->drop('api_keys');
+            $schema->create('api_keys', function (Blueprint $table) use ($definition) {
+                $table->string('key', 100)->unique();
+                $definition($table);
+            });
+        }
     },
 
     'down' => function (Builder $schema) {
@@ -36,10 +46,13 @@ return [
             $table->dropColumn('id', 'allowed_ips', 'user_id', 'scopes', 'created_at');
         });
 
-        $schema->table('api_keys', function (Blueprint $table) {
+        $schema->table('api_keys', function (Blueprint $table) use ($schema) {
             $table->dropUnique(['key']);
             $table->renameColumn('key', 'id');
-            $table->primary('id');
+
+            if ($schema->getConnection()->getDriverName() !== 'sqlite') {
+                $table->primary('id');
+            }
         });
     }
 ];

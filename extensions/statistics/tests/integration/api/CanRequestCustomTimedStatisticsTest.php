@@ -102,7 +102,7 @@ class CanRequestCustomTimedStatisticsTest extends TestCase
 
             $body = json_decode($response->getBody()->getContents(), true);
 
-            $this->assertEquals(200, $response->getStatusCode());
+            $this->assertEquals(200, $response->getStatusCode(), $body['errors'][0]['detail'] ?? '');
 
             $this->assertEquals(
                 $data,

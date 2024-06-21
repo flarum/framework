@@ -193,7 +193,12 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function populateDatabase(): void
     {
-        // We temporarily disable foreign key checks to simplify this process.
+        /**
+         * We temporarily disable foreign key checks to simplify this process.
+         * SQLite ignores this statement since we are inside a transaction.
+         * So we do that before starting a transaction.
+         * @see BeginTransactionAndSetDatabase
+         */
         $this->database()->getSchemaBuilder()->disableForeignKeyConstraints();
 
         $databaseContent = [];
@@ -208,6 +213,10 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                     'unique' => $instance->uniqueKeys ?? null,
                 ];
             } else {
+                if (class_exists($tableOrModelClass) && is_subclass_of($tableOrModelClass, Model::class)) {
+                    $tableOrModelClass = (new $tableOrModelClass)->getTable();
+                }
+
                 $databaseContent[$tableOrModelClass] = [
                     'rows' => $_rows,
                     'unique' => null,

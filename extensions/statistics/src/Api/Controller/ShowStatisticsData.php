@@ -12,6 +12,7 @@ namespace Flarum\Statistics\Api\Controller;
 use Carbon\Carbon;
 use DateTime;
 use Flarum\Discussion\Discussion;
+use Flarum\Http\Exception\InvalidParameterException;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\Post;
 use Flarum\Post\RegisteredTypesScope;
@@ -24,7 +25,6 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Tobscure\JsonApi\Exception\InvalidParameterException;
 
 class ShowStatisticsData implements RequestHandlerInterface
 {
@@ -130,12 +130,16 @@ class ShowStatisticsData implements RequestHandlerInterface
             $endDate = new DateTime();
         }
 
+        // if within the last 24 hours, group by hour
+        $format = 'CASE WHEN '.$column.' > ? THEN \'%Y-%m-%d %H:00:00\' ELSE \'%Y-%m-%d\' END';
+        $dbFormattedDatetime = match ($query->getConnection()->getDriverName()) {
+            'sqlite' => 'strftime('.$format.', '.$column.')',
+            default => 'DATE_FORMAT('.$column.', '.$format.')',
+        };
+
         $results = $query
             ->selectRaw(
-                'DATE_FORMAT(
-                    @date := '.$column.',
-                    IF(@date > ?, \'%Y-%m-%d %H:00:00\', \'%Y-%m-%d\') -- if within the last 24 hours, group by hour
-                ) as time_group',
+                $dbFormattedDatetime.' as time_group',
                 [new DateTime('-25 hours')]
             )
             ->selectRaw('COUNT(id) as count')

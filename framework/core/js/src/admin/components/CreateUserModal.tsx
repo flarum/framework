@@ -207,11 +207,9 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
 
     this.loading = true;
 
-    app
-      .request({
-        url: app.forum.attribute('apiUrl') + '/users',
-        method: 'POST',
-        body: { data: { attributes: this.submitData() } },
+    app.store
+      .createRecord('users', {})
+      .save(this.submitData(), {
         errorHandler: this.onerror.bind(this),
       })
       .then(() => {

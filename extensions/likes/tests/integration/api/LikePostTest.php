@@ -76,7 +76,7 @@ class LikePostTest extends TestCase
 
         $post = CommentPost::query()->find($postId);
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
         $this->assertNotNull($post->likes->where('id', $authenticatedAs)->first(), $message);
     }
 
@@ -96,7 +96,7 @@ class LikePostTest extends TestCase
 
         $post = CommentPost::query()->find($postId);
 
-        $this->assertEquals(403, $response->getStatusCode(), $message);
+        $this->assertContainsEquals($response->getStatusCode(), [401, 403], $message);
         $this->assertNull($post->likes->where('id', $authenticatedAs)->first());
     }
 

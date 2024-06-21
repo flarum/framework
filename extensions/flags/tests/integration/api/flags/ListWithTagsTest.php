@@ -10,6 +10,7 @@
 namespace Flarum\Flags\Tests\integration\api\flags;
 
 use Flarum\Discussion\Discussion;
+use Flarum\Flags\Flag;
 use Flarum\Group\Group;
 use Flarum\Post\Post;
 use Flarum\Tags\Tag;
@@ -54,9 +55,9 @@ class ListWithTagsTest extends TestCase
             ],
             'group_permission' => [
                 ['group_id' => Group::MODERATOR_ID, 'permission' => 'discussion.viewFlags'],
-                ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag2.viewDiscussions'],
+                ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag2.viewForum'],
                 ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag3.discussion.viewFlags'],
-                ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag4.viewDiscussions'],
+                ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag4.viewForum'],
                 ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag4.discussion.viewFlags'],
             ],
             Discussion::class => [
@@ -83,7 +84,7 @@ class ListWithTagsTest extends TestCase
                 ['id' => 6, 'discussion_id' => 4, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
                 ['id' => 7, 'discussion_id' => 5, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
             ],
-            'flags' => [
+            Flag::class => [
                 // From regular ListTest
                 ['id' => 1, 'post_id' => 1, 'user_id' => 1],
                 ['id' => 2, 'post_id' => 1, 'user_id' => 2],
@@ -153,9 +154,7 @@ class ListWithTagsTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
-        // 7 is included, even though mods can't view discussions.
-        // This is because the UI doesnt allow discussions.viewFlags without viewDiscussions.
-        $this->assertEqualsCanonicalizing(['1', '4', '5', '7', '8', '9'], $ids);
+        $this->assertEqualsCanonicalizing(['1', '4', '5', '8', '9'], $ids);
     }
 
     /**
