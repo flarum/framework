@@ -68,6 +68,13 @@ abstract class AbstractModel extends Eloquent
      */
     protected ?string $tableAlias = null;
 
+    /**
+     * If a model has unique keys, they should be defined here.
+     *
+     * @var array<string>|null
+     */
+    public ?array $uniqueKeys = null;
+
     public static function boot()
     {
         parent::boot();

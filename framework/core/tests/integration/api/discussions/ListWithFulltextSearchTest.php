@@ -73,6 +73,10 @@ class ListWithFulltextSearchTest extends TestCase
      */
     public function can_search_for_word_or_title_in_post()
     {
+        if ($this->database()->getDriverName() === 'sqlite') {
+            return $this->markTestSkipped('No fulltext search in SQLite.');
+        }
+
         $response = $this->send(
             $this->request('GET', '/api/discussions')
                 ->withQueryParams([
@@ -94,6 +98,10 @@ class ListWithFulltextSearchTest extends TestCase
      */
     public function ignores_non_word_characters_when_searching()
     {
+        if ($this->database()->getDriverName() === 'sqlite') {
+            return $this->markTestSkipped('No fulltext search in SQLite.');
+        }
+
         $response = $this->send(
             $this->request('GET', '/api/discussions')
                 ->withQueryParams([
@@ -115,6 +123,10 @@ class ListWithFulltextSearchTest extends TestCase
      */
     public function can_search_telugu_like_languages()
     {
+        if ($this->database()->getDriverName() === 'sqlite') {
+            return $this->markTestSkipped('No fulltext search in SQLite.');
+        }
+
         $response = $this->send(
             $this->request('GET', '/api/discussions')
                 ->withQueryParams([
@@ -137,6 +149,10 @@ class ListWithFulltextSearchTest extends TestCase
      */
     public function can_search_cjk_languages()
     {
+        if ($this->database()->getDriverName() === 'sqlite') {
+            return $this->markTestSkipped('No fulltext search in SQLite.');
+        }
+
         $response = $this->send(
             $this->request('GET', '/api/discussions')
                 ->withQueryParams([
@@ -159,6 +175,10 @@ class ListWithFulltextSearchTest extends TestCase
      */
     public function search_for_special_characters_gives_empty_result()
     {
+        if ($this->database()->getDriverName() === 'sqlite') {
+            return $this->markTestSkipped('No fulltext search in SQLite.');
+        }
+
         $response = $this->send(
             $this->request('GET', '/api/discussions')
                 ->withQueryParams([

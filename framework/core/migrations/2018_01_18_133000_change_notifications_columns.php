@@ -15,10 +15,14 @@ return [
     'up' => function (Builder $schema) {
         $schema->table('notifications', function (Blueprint $table) {
             $table->dropColumn('subject_type');
-
+        });
+        $schema->table('notifications', function (Blueprint $table) {
             $table->renameColumn('time', 'created_at');
+        });
+        $schema->table('notifications', function (Blueprint $table) {
             $table->renameColumn('sender_id', 'from_user_id');
-
+        });
+        $schema->table('notifications', function (Blueprint $table) {
             $table->dateTime('read_at')->nullable();
         });
 
@@ -36,8 +40,11 @@ return [
             $table->string('subject_type', 200)->nullable();
 
             $table->renameColumn('created_at', 'time');
+        });
+        $schema->table('notifications', function (Blueprint $table) {
             $table->renameColumn('from_user_id', 'sender_id');
-
+        });
+        $schema->table('notifications', function (Blueprint $table) {
             $table->boolean('is_read');
         });
 

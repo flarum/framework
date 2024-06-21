@@ -24,12 +24,33 @@ class FulltextFilter extends AbstractFulltextFilter
 {
     public function search(SearchState $state, string $value): void
     {
+        /** @var Builder $query */
+        $query = $state->getQuery();
+
+        if ($query->getConnection()->getDriverName() === 'sqlite') {
+            $query->where(function (Builder $query) use ($state, $value) {
+                $query->where('discussions.title', 'like', "%$value%")
+                    ->orWhereExists(function (Builder $query) use ($state, $value) {
+                        $query->selectRaw('1')
+                            ->from(
+                                Post::whereVisibleTo($state->getActor())
+                                    ->whereColumn('discussion_id', 'discussions.id')
+                                    ->where('type', 'comment')
+                                    ->where('content', 'like', "%$value%")
+                                    ->limit(1)
+                                    ->toBase()
+                            );
+                    });
+            });
+
+            return;
+        }
+
         // Replace all non-word characters with spaces.
         // We do this to prevent MySQL fulltext search boolean mode from taking
         // effect: https://dev.mysql.com/doc/refman/5.7/en/fulltext-boolean.html
         $value = preg_replace('/[^\p{L}\p{N}\p{M}_]+/u', ' ', $value);
 
-        $query = $state->getQuery();
         $grammar = $query->getGrammar();
 
         $discussionSubquery = Discussion::select('id')

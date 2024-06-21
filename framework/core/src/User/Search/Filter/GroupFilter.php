@@ -37,7 +37,6 @@ class GroupFilter implements FilterInterface
     protected function constrain(Builder $query, User $actor, string|array $rawQuery, bool $negate): void
     {
         $groupIdentifiers = $this->asStringArray($rawQuery);
-        $groupQuery = Group::whereVisibleTo($actor);
 
         $ids = [];
         $names = [];
@@ -49,11 +48,15 @@ class GroupFilter implements FilterInterface
             }
         }
 
-        $groupQuery->whereIn('groups.id', $ids)
-            ->orWhereIn('name_singular', $names)
-            ->orWhereIn('name_plural', $names);
+        $groupQuery = Group::whereVisibleTo($actor)
+            ->join('group_user', 'groups.id', 'group_user.group_id')
+            ->where(function (\Illuminate\Database\Eloquent\Builder $query) use ($ids, $names) {
+                $query->whereIn('groups.id', $ids)
+                    ->orWhereIn($query->raw('lower(name_singular)'), $names)
+                    ->orWhereIn($query->raw('lower(name_plural)'), $names);
+            });
 
-        $userIds = $groupQuery->join('group_user', 'groups.id', 'group_user.group_id')
+        $userIds = $groupQuery
             ->pluck('group_user.user_id')
             ->all();
 
