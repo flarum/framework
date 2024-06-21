@@ -10,6 +10,7 @@
 namespace Flarum\Flags\Tests\integration\api\flags;
 
 use Flarum\Discussion\Discussion;
+use Flarum\Flags\Flag;
 use Flarum\Group\Group;
 use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
@@ -56,7 +57,7 @@ class ListTest extends TestCase
                 ['id' => 3, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
                 ['id' => 4, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>', 'is_private' => true],
             ],
-            'flags' => [
+            Flag::class => [
                 ['id' => 1, 'post_id' => 1, 'user_id' => 1],
                 ['id' => 2, 'post_id' => 1, 'user_id' => 2],
                 ['id' => 3, 'post_id' => 1, 'user_id' => 3],

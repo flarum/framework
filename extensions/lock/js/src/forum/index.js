@@ -1,15 +1,12 @@
 import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
 
-import DiscussionLockedNotification from './components/DiscussionLockedNotification';
 import addLockBadge from './addLockBadge';
 import addLockControl from './addLockControl';
 
 export { default as extend } from './extend';
 
 app.initializers.add('flarum-lock', () => {
-  app.notificationComponents.discussionLocked = DiscussionLockedNotification;
-
   addLockBadge();
   addLockControl();
 

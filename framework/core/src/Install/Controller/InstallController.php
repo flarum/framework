@@ -84,10 +84,10 @@ class InstallController implements RequestHandlerInterface
         }
 
         return new DatabaseConfig(
-            'mysql',
+            Arr::get($input, 'dbDriver'),
             $host,
             intval($port),
-            Arr::get($input, 'mysqlDatabase'),
+            Arr::get($input, 'dbName'),
             Arr::get($input, 'mysqlUsername'),
             Arr::get($input, 'mysqlPassword'),
             Arr::get($input, 'tablePrefix')

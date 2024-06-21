@@ -9,13 +9,13 @@
 
 namespace Flarum\Database;
 
+use Doctrine\DBAL\Types\Type;
 use Flarum\Database\Exception\MigrationKeyMissing;
 use Flarum\Extension\Extension;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Database\MySqlConnection;
+use Illuminate\Database\DBAL\TimestampType;
 use Illuminate\Filesystem\Filesystem;
-use InvalidArgumentException;
 use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -31,12 +31,14 @@ class Migrator
         protected ConnectionInterface $connection,
         protected Filesystem $files
     ) {
-        if (! ($connection instanceof MySqlConnection)) {
-            throw new InvalidArgumentException('Only MySQL connections are supported');
+        $doctrine = $connection->getDoctrineConnection()->getDatabasePlatform();
+
+        if (! Type::hasType('timestamp')) {
+            Type::addType('timestamp', TimestampType::class);
         }
 
         // Workaround for https://github.com/laravel/framework/issues/1186
-        $connection->getDoctrineSchemaManager()->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
+        $doctrine->registerDoctrineTypeMapping('enum', 'string');
     }
 
     /**
@@ -207,9 +209,13 @@ class Migrator
      *
      * @param string $path to the directory containing the dump.
      */
-    public function installFromSchema(string $path): void
+    public function installFromSchema(string $path, string $driver): bool
     {
-        $schemaPath = "$path/install.dump";
+        $schemaPath = "$path/$driver-install.dump";
+
+        if (! file_exists($schemaPath)) {
+            return false;
+        }
 
         $startTime = microtime(true);
 
@@ -236,6 +242,8 @@ class Migrator
 
         $runTime = number_format((microtime(true) - $startTime) * 1000, 2);
         $this->note('<info>Loaded stored database schema.</info> ('.$runTime.'ms)');
+
+        return true;
     }
 
     public function setOutput(OutputInterface $output): static
@@ -248,6 +256,16 @@ class Migrator
     protected function note(string $message): void
     {
         $this->output?->writeln($message);
+    }
+
+    /**
+     * Get the migration repository instance.
+     *
+     * @return MigrationRepositoryInterface
+     */
+    public function getRepository()
+    {
+        return $this->repository;
     }
 
     public function repositoryExists(): bool

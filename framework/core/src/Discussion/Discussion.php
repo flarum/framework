@@ -108,6 +108,9 @@ class Discussion extends AbstractModel
             $discussion->raise(new Deleted($discussion));
 
             Notification::whereSubject($discussion)->delete();
+
+            // SQLite foreign constraints don't work since they were added *after* the table creation.
+            $discussion->posts()->delete();
         });
     }
 

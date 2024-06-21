@@ -44,13 +44,19 @@ on:
         description: Versions of databases to test with. Should be array of strings encoded as JSON array
         type: string
         required: false
-        default: '["mysql:5.7", "mysql:8.0.30", "mysql:8.1.0", "mariadb"]'
+        default: '["mysql:5.7", "mysql:8.0.30", "mysql:8.1.0", "mariadb", "sqlite:3"]'
 
       php_ini_values:
         description: PHP ini values
         type: string
         required: false
         default: error_reporting=E_ALL
+
+      runner_type:
+        description: The type of runner to use for the jobs. This should be one of the types supported by the `runs-on` keyword.
+        type: string
+        required: false
+        default: 'ubuntu-latest'
 
     secrets:
       composer_auth:
@@ -65,7 +71,7 @@ env:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner_type }}
 
     strategy:
       matrix:
@@ -79,32 +85,49 @@ jobs:
           # Expands the matrix by naming DBs.
           - service: 'mysql:5.7'
             db: MySQL 5.7
+            driver: mysql
           - service: 'mysql:8.0.30'
             db: MySQL 8.0
+            driver: mysql
           - service: mariadb
             db: MariaDB
+            driver: mysql
           - service: 'mysql:8.1.0'
             db: MySQL 8.1
+            driver: mysql
+          - service: 'sqlite:3'
+            db: SQLite
+            driver: sqlite
 
           # Include Database prefix tests with only one PHP version.
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: 'mysql:5.7'
             db: MySQL 5.7
+            driver: mysql
             prefix: flarum_
             prefixStr: (prefix)
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: 'mysql:8.0.30'
             db: MySQL 8.0
+            driver: mysql
             prefix: flarum_
             prefixStr: (prefix)
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: mariadb
             db: MariaDB
+            driver: mysql
             prefix: flarum_
             prefixStr: (prefix)
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: 'mysql:8.1.0'
             db: MySQL 8.1
+            driver: mysql
+            prefix: flarum_
+            prefixStr: (prefix)
+          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+            service: 'sqlite:3'
+            db: SQLite
+            driver: sqlite
             prefix: flarum_
             prefixStr: (prefix)
 
@@ -112,10 +135,22 @@ jobs:
         exclude:
           - php: ${{ fromJSON(inputs.php_versions)[1] }}
             service: 'mysql:8.0.30'
+          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+            service: mariadb
+          - php: ${{ fromJSON(inputs.php_versions)[1] }}
+            service: mariadb
+          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+            service: 'mysql:8.1.0'
+          - php: ${{ fromJSON(inputs.php_versions)[1] }}
+            service: 'mysql:8.1.0'
+          - php: ${{ fromJSON(inputs.php_versions)[0] }}
+            service: 'sqlite:3'
+          - php: ${{ fromJSON(inputs.php_versions)[1] }}
+            service: 'sqlite:3'
 
     services:
       mysql:
-        image: ${{ matrix.service }}
+        image: ${{ matrix.service != 'sqlite:3' && matrix.service || '' }}
         ports:
           - 13306:3306
 
@@ -138,6 +173,7 @@ jobs:
           ini-values: ${{ matrix.php_ini_values }}
 
       - name: Create MySQL Database
+        if: ${{ matrix.service != 'sqlite:3' }}
         run: |
           sudo systemctl start mysql
           mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 13306
@@ -167,10 +203,11 @@ jobs:
           DB_PORT: 13306
           DB_PASSWORD: root
           DB_PREFIX: ${{ matrix.prefix }}
+          DB_DRIVER: ${{ matrix.driver }}
           COMPOSER_PROCESS_TIMEOUT: 600
 
   phpstan:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner_type }}
 
     strategy:
       matrix:

@@ -8,7 +8,7 @@
   <div class="FormGroup">
     <div class="FormField">
       <label>Database Password</label>
-      <input type="password" name="databasePassword">
+      <input class="FormControl" type="password" name="databasePassword">
     </div>
   </div>
 

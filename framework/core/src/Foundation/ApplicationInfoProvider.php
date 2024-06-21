@@ -70,7 +70,20 @@ class ApplicationInfoProvider
 
     public function identifyDatabaseVersion(): string
     {
-        return $this->db->selectOne('select version() as version')->version;
+        return match ($this->config['database.driver']) {
+            'mysql' => $this->db->selectOne('select version() as version')->version,
+            'sqlite' => $this->db->selectOne('select sqlite_version() as version')->version,
+            default => 'Unknown',
+        };
+    }
+
+    public function identifyDatabaseDriver(): string
+    {
+        return match ($this->config['database.driver']) {
+            'mysql' => 'MySQL',
+            'sqlite' => 'SQLite',
+            default => $this->config['database.driver'],
+        };
     }
 
     /**

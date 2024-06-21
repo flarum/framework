@@ -13,7 +13,10 @@ return [
     'up' => function (Builder $schema) {
         $connection = $schema->getConnection();
         $prefix = $connection->getTablePrefix();
-        $connection->statement('ALTER TABLE '.$prefix.'discussions ADD FULLTEXT title (title)');
+
+        if ($connection->getDriverName() !== 'sqlite') {
+            $connection->statement('ALTER TABLE '.$prefix.'discussions ADD FULLTEXT title (title)');
+        }
     },
 
     'down' => function (Builder $schema) {

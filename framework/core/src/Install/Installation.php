@@ -116,12 +116,15 @@ class Installation
     {
         $pipeline = new Pipeline;
 
+        $this->dbConfig->prepare($this->paths);
+
         $pipeline->pipe(function () {
             return new Steps\ConnectToDatabase(
                 $this->dbConfig,
                 function ($connection) {
                     $this->db = $connection;
-                }
+                },
+                $this->paths->base
             );
         });
 
@@ -135,7 +138,7 @@ class Installation
         });
 
         $pipeline->pipe(function () {
-            return new Steps\RunMigrations($this->db, $this->getMigrationPath());
+            return new Steps\RunMigrations($this->db, $this->dbConfig->toArray()['driver'], $this->getMigrationPath());
         });
 
         $pipeline->pipe(function () {

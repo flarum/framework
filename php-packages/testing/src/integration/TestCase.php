@@ -193,7 +193,12 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function populateDatabase(): void
     {
-        // We temporarily disable foreign key checks to simplify this process.
+        /**
+         * We temporarily disable foreign key checks to simplify this process.
+         * SQLite ignores this statement since we are inside a transaction.
+         * So we do that before starting a transaction.
+         * @see BeginTransactionAndSetDatabase
+         */
         $this->database()->getSchemaBuilder()->disableForeignKeyConstraints();
 
         $databaseContent = [];
