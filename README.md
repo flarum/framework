@@ -1,5 +1,5 @@
 <p align="center">
-<a href="https://flarum.org/"><img src="https://flarum.org/assets/img/logo.png"></a>
+<a href="https://flarum.org/"><img src="https://flarum.org/images/flarum.svg"></a>
 </p>
 
 <p align="center">
@@ -7,7 +7,6 @@
 <a href="https://packagist.org/packages/flarum/core"><img src="https://img.shields.io/packagist/dt/flarum/core" alt="Total Downloads"></a>
 <a href="https://packagist.org/packages/flarum/core"><img src="https://img.shields.io/github/v/release/flarum/core?sort=semver" alt="Latest Version"></a>
 <a href="https://packagist.org/packages/flarum/core"><img src="https://img.shields.io/packagist/l/flarum/core" alt="License"></a>
-<a href="https://huntr.dev/bounties/disclose/?target=https://github.com/flarum/core"><img src="https://cdn.huntr.dev/huntr_security_badge_mono.svg" alt="huntr"></a>
 <a href="https://github.styleci.io/repos/28257573"><img src="https://github.styleci.io/repos/28257573/shield?style=flat" alt="StyleCI"></a>
 </p>
 
@@ -21,7 +20,7 @@
 
 * **Powerful and extensible.** Customize, extend, and integrate Flarum to suit your community. Flarum’s architecture is amazingly flexible, with a powerful Extension API.
 
-![Screenshot of a Flarum instance, showing multiple discussions and tags.](https://flarum.org/assets/img/home-screenshot.png)
+![Screenshot of a Flarum instance, showing multiple discussions and tags.](https://flarum.org/assets/flarum/home-screenshot.png)
 
 ## Installation
 
