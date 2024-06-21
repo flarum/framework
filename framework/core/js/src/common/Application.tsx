@@ -38,6 +38,7 @@ import IHistory from './IHistory';
 import IExtender from './extenders/IExtender';
 import AccessToken from './models/AccessToken';
 import SearchManager from './SearchManager';
+import { ColorScheme } from './components/ThemeMode';
 
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 
@@ -386,7 +387,7 @@ export default class Application {
     }
   }
 
-  getSystemColorSchemePreference(): string {
+  getSystemColorSchemePreference(): ColorScheme | string {
     let colorScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 
     if (window.matchMedia('(prefers-contrast: more)').matches) {
@@ -401,8 +402,8 @@ export default class Application {
     window.matchMedia('(prefers-contrast: more)').addEventListener('change', callback);
   }
 
-  setColorScheme(scheme: string): void {
-    if (scheme === 'auto') {
+  setColorScheme(scheme: ColorScheme | string): void {
+    if (scheme === ColorScheme.Auto) {
       scheme = this.getSystemColorSchemePreference();
     }
 
