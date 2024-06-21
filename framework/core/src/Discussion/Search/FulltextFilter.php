@@ -14,6 +14,7 @@ use Flarum\Post\Post;
 use Flarum\Search\AbstractFulltextFilter;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\SearchState;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Query\Expression;
@@ -24,6 +25,11 @@ use RuntimeException;
  */
 class FulltextFilter extends AbstractFulltextFilter
 {
+    public function __construct(
+        protected SettingsRepositoryInterface $settings
+    ) {
+    }
+
     public function search(SearchState $state, string $value): void
     {
         match ($state->getQuery()->getConnection()->getDriverName()) {
@@ -111,15 +117,17 @@ class FulltextFilter extends AbstractFulltextFilter
 
     protected function pgsql(SearchState $state, string $value): void
     {
+        $searchConfig = $this->settings->get('pgsql_search_configuration');
+
         /** @var Builder $query */
         $query = $state->getQuery();
 
         $grammar = $query->getGrammar();
 
-        $matchCondition = "to_tsvector('english', ".$grammar->wrap('posts.content').") @@ plainto_tsquery('english', ?)";
-        $matchScore = "ts_rank(to_tsvector('english', ".$grammar->wrap('posts.content')."), plainto_tsquery('english', ?))";
-        $matchTitleCondition = "to_tsvector('english', ".$grammar->wrap('discussions.title').") @@ plainto_tsquery('english', ?)";
-        $matchTitleScore = "ts_rank(to_tsvector('english', ".$grammar->wrap('discussions.title')."), plainto_tsquery('english', ?))";
+        $matchCondition = "to_tsvector('$searchConfig', ".$grammar->wrap('posts.content').") @@ plainto_tsquery('$searchConfig', ?)";
+        $matchScore = "ts_rank(to_tsvector('$searchConfig', ".$grammar->wrap('posts.content')."), plainto_tsquery('$searchConfig', ?))";
+        $matchTitleCondition = "to_tsvector('$searchConfig', ".$grammar->wrap('discussions.title').") @@ plainto_tsquery('$searchConfig', ?)";
+        $matchTitleScore = "ts_rank(to_tsvector('$searchConfig', ".$grammar->wrap('discussions.title')."), plainto_tsquery('$searchConfig', ?))";
         $mostRelevantPostId = 'CAST(SPLIT_PART(STRING_AGG(CAST('.$grammar->wrap('posts.id')." AS VARCHAR), ',' ORDER BY ".$matchScore.' DESC, '.$grammar->wrap('posts.number')."), ',', 1) AS INTEGER) as most_relevant_post_id";
 
         $discussionSubquery = Discussion::select('id')

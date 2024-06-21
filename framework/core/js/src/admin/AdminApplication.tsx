@@ -38,6 +38,12 @@ export type Extension = {
   require?: Record<string, string>;
 };
 
+export enum DatabaseDriver {
+  MySQL = 'MySQL',
+  PostgreSQL = 'PostgreSQL',
+  SQLite = 'SQLite',
+}
+
 export interface AdminApplicationData extends ApplicationData {
   extensions: Record<string, Extension>;
   settings: Record<string, string>;
@@ -50,8 +56,9 @@ export interface AdminApplicationData extends ApplicationData {
   safeModeExtensions?: string[] | null;
   safeModeExtensionsConfig?: string[] | null;
 
-  dbDriver: string;
+  dbDriver: DatabaseDriver;
   dbVersion: string;
+  dbOptions: Record<string, string>;
   phpVersion: string;
   queueDriver: string;
   schedulerStatus: string;

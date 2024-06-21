@@ -87,6 +87,20 @@ class ApplicationInfoProvider
         };
     }
 
+    public function identifyDatabaseOptions(): array
+    {
+        if ($this->config['database.driver'] === 'pgsql') {
+            return [
+                'search_configurations' => collect($this->db->select('SELECT * FROM pg_ts_config'))
+                    ->pluck('cfgname')
+                    ->mapWithKeys(fn (string $cfgname) => [$cfgname => $cfgname])
+                    ->toArray(),
+            ];
+        }
+
+        return [];
+    }
+
     /**
      * Reports on the session driver in use based on three scenarios:
      *  1. If the configured session driver is valid and in use, it will be returned.
