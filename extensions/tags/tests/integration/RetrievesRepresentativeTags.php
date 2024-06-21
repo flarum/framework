@@ -27,7 +27,7 @@ trait RetrievesRepresentativeTags
             ['id' => 11, 'name' => 'Secondary Restricted', 'slug' => 'secondary-restricted', 'position' => null, 'parent_id' => null, 'is_restricted' => true],
             ['id' => 12, 'name' => 'Primary Restricted 2', 'slug' => 'primary-2-restricted', 'position' => 100, 'parent_id' => null, 'is_restricted' => true],
             ['id' => 13, 'name' => 'Primary Restricted 2 Child 1', 'slug' => 'primary-2-restricted-child-1', 'position' => 101, 'parent_id' => 12],
-            ['id' => 14, 'name' => 'Primary Restricted 3', 'slug' => 'primary-3-restricted', 'position' => 102, 'parent_id' =>null, 'is_restricted' => true],
+            ['id' => 14, 'name' => 'Primary Restricted 3', 'slug' => 'primary-3-restricted', 'position' => 102, 'parent_id' => null, 'is_restricted' => true],
         ];
     }
 }
