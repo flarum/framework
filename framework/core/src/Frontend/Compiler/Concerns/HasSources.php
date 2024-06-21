@@ -12,6 +12,9 @@ namespace Flarum\Frontend\Compiler\Concerns;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Compiler\Source\SourceInterface;
 
+/**
+ * @template T of SourceInterface
+ */
 trait HasSources
 {
     /**
@@ -25,7 +28,7 @@ trait HasSources
     }
 
     /**
-     * @return SourceInterface[]
+     * @return T[]
      */
     protected function getSources(): array
     {

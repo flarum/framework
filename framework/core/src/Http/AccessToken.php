@@ -80,6 +80,14 @@ class AccessToken extends AbstractModel
      */
     public static function generate(int $userId): static
     {
+        $token = static::make($userId);
+        $token->save();
+
+        return $token;
+    }
+
+    public static function make(int $userId): static
+    {
         if (static::class === self::class) {
             throw new \Exception('Use of AccessToken::generate() is not allowed: use the `generate` method on one of the subclasses.');
         } else {
@@ -91,7 +99,6 @@ class AccessToken extends AbstractModel
         $token->user_id = $userId;
         $token->created_at = Carbon::now();
         $token->last_activity_at = Carbon::now();
-        $token->save();
 
         return $token;
     }

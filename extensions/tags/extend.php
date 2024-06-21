@@ -7,26 +7,22 @@
  * LICENSE file that was distributed with this source code.
  */
 
-use Flarum\Api\Controller as FlarumController;
-use Flarum\Api\Serializer\BasicPostSerializer;
-use Flarum\Api\Serializer\DiscussionSerializer;
-use Flarum\Api\Serializer\ForumSerializer;
+use Flarum\Api\Context;
+use Flarum\Api\Endpoint;
+use Flarum\Api\Resource;
+use Flarum\Api\Schema;
 use Flarum\Discussion\Discussion;
-use Flarum\Discussion\Event\Saving;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
-use Flarum\Flags\Api\Controller\ListFlagsController;
-use Flarum\Http\RequestUtil;
+use Flarum\Flags\Api\Resource\FlagResource;
 use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Tags\Access;
-use Flarum\Tags\Api\Controller;
-use Flarum\Tags\Api\Serializer\TagSerializer;
+use Flarum\Tags\Api;
 use Flarum\Tags\Content;
 use Flarum\Tags\Event\DiscussionWasTagged;
 use Flarum\Tags\Listener;
-use Flarum\Tags\LoadForumTagsRelationship;
 use Flarum\Tags\Post\DiscussionTaggedPost;
 use Flarum\Tags\Search\Filter\PostTagFilter;
 use Flarum\Tags\Search\Filter\TagFilter;
@@ -37,13 +33,6 @@ use Flarum\Tags\Tag;
 use Flarum\Tags\Utf8SlugDriver;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Psr\Http\Message\ServerRequestInterface;
-
-$eagerLoadTagState = function ($query, ?ServerRequestInterface $request, array $relations) {
-    if ($request && in_array('tags.state', $relations, true)) {
-        $query->withStateFor(RequestUtil::getActor($request));
-    }
-};
 
 return [
     (new Extend\Frontend('forum'))
@@ -61,49 +50,71 @@ return [
         ->css(__DIR__.'/less/admin.less'),
 
     (new Extend\Routes('api'))
-        ->get('/tags', 'tags.index', Controller\ListTagsController::class)
-        ->post('/tags', 'tags.create', Controller\CreateTagController::class)
-        ->post('/tags/order', 'tags.order', Controller\OrderTagsController::class)
-        ->get('/tags/{slug}', 'tags.show', Controller\ShowTagController::class)
-        ->patch('/tags/{id}', 'tags.update', Controller\UpdateTagController::class)
-        ->delete('/tags/{id}', 'tags.delete', Controller\DeleteTagController::class),
+        ->post('/tags/order', 'tags.order', Api\Controller\OrderTagsController::class),
 
     (new Extend\Model(Discussion::class))
         ->belongsToMany('tags', Tag::class, 'discussion_tag'),
 
-    (new Extend\ApiSerializer(ForumSerializer::class))
-        ->hasMany('tags', TagSerializer::class)
-        ->attribute('canBypassTagCounts', function (ForumSerializer $serializer) {
-            return $serializer->getActor()->can('bypassTagCounts');
+    new Extend\ApiResource(Api\Resource\TagResource::class),
+
+    (new Extend\ApiResource(Resource\ForumResource::class))
+        ->fields(fn () => [
+            Schema\Relationship\ToMany::make('tags')
+                ->includable()
+                ->get(function ($model, Context $context) {
+                    $actor = $context->getActor();
+
+                    return Tag::query()
+                        ->where(function ($query) {
+                            $query
+                                ->whereNull('parent_id')
+                                ->whereNotNull('position');
+                        })
+                        ->union(
+                            Tag::whereVisibleTo($actor)
+                                ->whereNull('parent_id')
+                                ->whereNull('position')
+                                ->orderBy('discussion_count', 'desc')
+                                ->limit(4) // We get one more than we need so the "more" link can be shown.
+                        )
+                        ->whereVisibleTo($actor)
+                        ->withStateFor($actor)
+                        ->get()
+                        ->all();
+                }),
+            Schema\Boolean::make('canBypassTagCounts')
+                ->get(fn ($model, Context $context) => $context->getActor()->can('bypassTagCounts')),
+        ])
+        ->endpoint(Endpoint\Show::class, function (Endpoint\Show $endpoint) {
+            return $endpoint->addDefaultInclude(['tags', 'tags.parent']);
         }),
 
-    (new Extend\ApiSerializer(DiscussionSerializer::class))
-        ->hasMany('tags', TagSerializer::class)
-        ->attribute('canTag', function (DiscussionSerializer $serializer, $model) {
-            return $serializer->getActor()->can('tag', $model);
+    (new Extend\ApiResource(Resource\PostResource::class))
+        ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint) {
+            return $endpoint->eagerLoadWhenIncluded(['discussion' => ['discussion.tags']]);
         }),
 
-    (new Extend\ApiController(FlarumController\ListPostsController::class))
-        ->load('discussion.tags'),
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-flags', fn () => [
+            (new Extend\ApiResource(FlagResource::class))
+                ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint) {
+                    return $endpoint->eagerLoadWhenIncluded(['post.discussion' => ['post.discussion.tags']]);
+                }),
+        ]),
 
-    (new Extend\ApiController(ListFlagsController::class))
-        ->load('post.discussion.tags'),
-
-    (new Extend\ApiController(FlarumController\ListDiscussionsController::class))
-        ->addInclude(['tags', 'tags.state', 'tags.parent'])
-        ->loadWhere('tags', $eagerLoadTagState),
-
-    (new Extend\ApiController(FlarumController\ShowDiscussionController::class))
-        ->addInclude(['tags', 'tags.state', 'tags.parent'])
-        ->loadWhere('tags', $eagerLoadTagState),
-
-    (new Extend\ApiController(FlarumController\CreateDiscussionController::class))
-        ->addInclude(['tags', 'tags.state', 'tags.parent'])
-        ->loadWhere('tags', $eagerLoadTagState),
-
-    (new Extend\ApiController(FlarumController\ShowForumController::class))
-        ->addInclude(['tags', 'tags.parent'])
-        ->prepareDataForSerialization(LoadForumTagsRelationship::class),
+    (new Extend\ApiResource(Resource\DiscussionResource::class))
+        ->fields(Api\DiscussionResourceFields::class)
+        ->endpoint(
+            [Endpoint\Index::class, Endpoint\Show::class, Endpoint\Create::class],
+            function (Endpoint\Index|Endpoint\Show|Endpoint\Create $endpoint) {
+                return $endpoint
+                    ->addDefaultInclude(['tags', 'tags.parent'])
+                    ->eagerLoadWhere('tags', function (Builder|Relation $query, Context $context) {
+                        /** @var Builder<Tag>|Relation $query */
+                        $query->withStateFor($context->getActor());
+                    });
+            }
+        ),
 
     (new Extend\Settings())
         ->serializeToForum('minPrimaryTags', 'flarum-tags.min_primary_tags')
@@ -131,7 +142,6 @@ return [
         ->type(DiscussionTaggedPost::class),
 
     (new Extend\Event())
-        ->listen(Saving::class, Listener\SaveTagsToDatabase::class)
         ->listen(DiscussionWasTagged::class, Listener\CreatePostWhenTagsAreChanged::class)
         ->subscribe(Listener\UpdateTagMetadata::class),
 
@@ -158,27 +168,20 @@ return [
             return $model->mentionsTags();
         }),
 
-    (new Extend\ApiSerializer(BasicPostSerializer::class))
-        ->relationship('eventPostMentionsTags', function (BasicPostSerializer $serializer, Post $model) {
-            if ($model instanceof DiscussionTaggedPost) {
-                return $serializer->hasMany($model, TagSerializer::class, 'eventPostMentionsTags');
-            }
-
-            return null;
-        })
-        ->hasMany('eventPostMentionsTags', TagSerializer::class),
-
-    (new Extend\ApiController(FlarumController\ListPostsController::class))
-        ->addInclude('eventPostMentionsTags')
-        // Restricted tags should still appear as `deleted` to unauthorized users.
-        ->loadWhere('eventPostMentionsTags', $restrictMentionedTags = function (Relation|Builder $query, ?ServerRequestInterface $request) {
-            if ($request) {
-                $actor = RequestUtil::getActor($request);
-                $query->whereVisibleTo($actor);
-            }
+    (new Extend\ApiResource(Resource\PostResource::class))
+        ->fields(fn () => [
+            Schema\Relationship\ToMany::make('eventPostMentionsTags')
+                ->type('tags')
+                ->includable(),
+        ])
+        ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint) {
+            return $endpoint
+                ->addDefaultInclude(['eventPostMentionsTags']);
         }),
 
-    (new Extend\ApiController(FlarumController\ShowDiscussionController::class))
-        ->addInclude('posts.eventPostMentionsTags')
-        ->loadWhere('posts.eventPostMentionsTags', $restrictMentionedTags),
+    (new Extend\ApiResource(Resource\DiscussionResource::class))
+        ->endpoint(Endpoint\Show::class, function (Endpoint\Show $endpoint) {
+            return $endpoint
+                ->addDefaultInclude(['posts.eventPostMentionsTags']);
+        }),
 ];

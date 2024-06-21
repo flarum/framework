@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use DateTime;
 use Exception;
 use Flarum\Discussion\Discussion;
+use Flarum\Http\Exception\InvalidParameterException;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\Post;
 use Flarum\Post\RegisteredTypesScope;
@@ -25,7 +26,6 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Tobscure\JsonApi\Exception\InvalidParameterException;
 
 class ShowStatisticsData implements RequestHandlerInterface
 {

@@ -48,6 +48,7 @@ class UseForumTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'Test post',
                             'content' => '<t><p>Hello, world!</p></t>'
@@ -68,6 +69,7 @@ class UseForumTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '<t><p>Hello, world!</p></t>'
                         ],

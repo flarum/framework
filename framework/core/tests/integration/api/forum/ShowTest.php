@@ -45,7 +45,8 @@ class ShowTest extends TestCase
 
         $json = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertArrayNotHasKey('actor', Arr::get($json, 'data.relationships'));
+        $this->assertArrayHasKey('actor', Arr::get($json, 'data.relationships'));
+        $this->assertNull(Arr::get($json, 'data.relationships.actor.data'));
     }
 
     /**

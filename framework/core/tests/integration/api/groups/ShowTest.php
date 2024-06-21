@@ -76,7 +76,7 @@ class ShowTest extends TestCase
         );
 
         // Hidden group should not be returned for guest
-        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals(404, $response->getStatusCode(), (string) $response->getBody());
     }
 
     /**
@@ -110,7 +110,7 @@ class ShowTest extends TestCase
 
         // If group does not exist in database, controller
         // should reject the request with 404 Not found
-        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals(404, $response->getStatusCode(), (string) $response->getBody());
     }
 
     protected function hiddenGroup(): array

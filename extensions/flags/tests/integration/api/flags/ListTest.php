@@ -57,6 +57,7 @@ class ListTest extends TestCase
                 ['id' => 1, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
                 ['id' => 2, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
                 ['id' => 3, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
+                ['id' => 4, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>', 'is_private' => true],
             ],
             Flag::class => [
                 ['id' => 1, 'post_id' => 1, 'user_id' => 1, 'created_at' => Carbon::now()->addMinutes(2)],
@@ -64,6 +65,7 @@ class ListTest extends TestCase
                 ['id' => 3, 'post_id' => 1, 'user_id' => 3, 'created_at' => Carbon::now()->addMinutes(4)],
                 ['id' => 4, 'post_id' => 2, 'user_id' => 2, 'created_at' => Carbon::now()->addMinutes(5)],
                 ['id' => 5, 'post_id' => 3, 'user_id' => 1, 'created_at' => Carbon::now()->addMinutes(6)],
+                ['id' => 6, 'post_id' => 4, 'user_id' => 1, 'created_at' => Carbon::now()->addMinutes(7)],
             ]
         ]);
     }
@@ -71,7 +73,7 @@ class ListTest extends TestCase
     /**
      * @test
      */
-    public function admin_can_see_one_flag_per_post()
+    public function admin_can_see_one_flag_per_visible_post()
     {
         $response = $this->send(
             $this->request('GET', '/api/flags', [
@@ -97,7 +99,7 @@ class ListTest extends TestCase
     /**
      * @test
      */
-    public function regular_user_sees_own_flags()
+    public function regular_user_sees_own_flags_of_visible_posts()
     {
         $response = $this->send(
             $this->request('GET', '/api/flags', [
@@ -116,7 +118,7 @@ class ListTest extends TestCase
     /**
      * @test
      */
-    public function mod_can_see_one_flag_per_post()
+    public function mod_can_see_one_flag_per_visible_post()
     {
         $response = $this->send(
             $this->request('GET', '/api/flags', [

@@ -1,6 +1,7 @@
 import type Mithril from 'mithril';
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
-import { CommonSettingsItemOptions, type SettingsComponentOptions } from '@flarum/core/src/admin/components/AdminPage';
+import { type SettingsComponentOptions } from '@flarum/core/src/admin/components/AdminPage';
+import { type CommonFieldOptions } from 'flarum/common/components/FormGroup';
 import type ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';
 export interface IConfigureJson extends ComponentAttrs {
@@ -17,7 +18,7 @@ export default abstract class ConfigureJson<CustomAttrs extends IConfigureJson =
     className(): string;
     view(): Mithril.Children;
     submitButton(): Mithril.Children[];
-    customSettingComponents(): ItemList<(attributes: CommonSettingsItemOptions) => Mithril.Children>;
+    customSettingComponents(): ItemList<(attributes: CommonFieldOptions) => Mithril.Children>;
     setting(key: string): Stream<any>;
     submit(readOnly: boolean): void;
     isDirty(): boolean;

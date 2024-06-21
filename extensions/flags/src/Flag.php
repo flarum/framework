@@ -33,6 +33,10 @@ class Flag extends AbstractModel
     use ScopeVisibilityTrait;
     use HasFactory;
 
+    public $timestamps = true;
+
+    public const UPDATED_AT = null;
+
     protected $casts = ['created_at' => 'datetime'];
 
     public function post(): BelongsTo

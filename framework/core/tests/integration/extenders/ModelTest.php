@@ -306,11 +306,13 @@ class ModelTest extends TestCase
 
         $this->app();
 
-        $group1 = new Group;
-        $group2 = new Group;
+        Group::boot();
 
-        $this->assertEquals(1, $group1->counter);
-        $this->assertEquals(3, $group2->counter);
+        $group1 = new Group();
+        $group2 = new Group();
+
+        $this->assertEquals(3, $group1->counter);
+        $this->assertEquals(4, $group2->counter);
     }
 
     /**

@@ -39,15 +39,19 @@ class CreateTest extends TestCase
                 'POST',
                 '/api/users',
                 [
-                    'json' => ['data' => ['attributes' => []]],
+                    'json' => ['data' => [
+                        'type' => 'users',
+                        'attributes' => [],
+                    ]],
                 ]
             )->withAttribute('bypassCsrfToken', true)
         );
 
-        $this->assertEquals(422, $response->getStatusCode());
+        $body = (string) $response->getBody();
+
+        $this->assertEquals(422, $response->getStatusCode(), $body);
 
         // The response body should contain details about the failed validation
-        $body = (string) $response->getBody();
         $this->assertJson($body);
         $this->assertEquals([
             'errors' => [
@@ -96,7 +100,7 @@ class CreateTest extends TestCase
             )->withAttribute('bypassCsrfToken', true)
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
 
         /** @var User $user */
         $user = User::where('username', 'test')->firstOrFail();
@@ -227,12 +231,12 @@ class CreateTest extends TestCase
             $this->assertJson($body);
             $decodedBody = json_decode($body, true);
 
-            $this->assertEquals(500, $response->getStatusCode());
+            $this->assertEquals(422, $response->getStatusCode(), $body);
 
             $firstError = $decodedBody['errors'][0];
 
             // Check that the error is an invalid URI
-            $this->assertStringStartsWith('InvalidArgumentException: Provided avatar URL must have scheme http or https. Scheme provided was '.$regToken['scheme'].'.', $firstError['detail']);
+            $this->assertStringContainsString('Provided avatar URL must have scheme http or https. Scheme provided was '.$regToken['scheme'].'.', $firstError['detail']);
         }
     }
 
@@ -301,12 +305,12 @@ class CreateTest extends TestCase
             $this->assertJson($body);
             $decodedBody = json_decode($body, true);
 
-            $this->assertEquals(500, $response->getStatusCode());
+            $this->assertEquals(422, $response->getStatusCode(), $body);
 
             $firstError = $decodedBody['errors'][0];
 
             // Check that the error is an invalid URI
-            $this->assertStringStartsWith('InvalidArgumentException: Provided avatar URL must be a valid URI.', $firstError['detail']);
+            $this->assertStringContainsString('Provided avatar URL must be a valid URI.', $firstError['detail']);
         }
     }
 
@@ -374,7 +378,7 @@ class CreateTest extends TestCase
                 )->withAttribute('bypassCsrfToken', true)
             );
 
-            $this->assertEquals(201, $response->getStatusCode());
+            $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
 
             $user = User::where('username', $regToken->user_attributes['username'])->firstOrFail();
 

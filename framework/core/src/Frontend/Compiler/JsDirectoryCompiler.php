@@ -18,6 +18,8 @@ use Illuminate\Filesystem\FilesystemAdapter;
 /**
  * Used to copy JS files from a package directory to the assets' directory.
  * Without concatenating them. Primarily used for lazy loading JS modules.
+ *
+ * @uses HasSources<DirectorySource>
  */
 class JsDirectoryCompiler implements CompilerInterface
 {
@@ -44,6 +46,7 @@ class JsDirectoryCompiler implements CompilerInterface
 
     public function commit(bool $force = false): void
     {
+        /** @var DirectorySource $source */
         foreach ($this->getSources() as $source) {
             $this->compileSource($source, $force);
         }
@@ -51,6 +54,7 @@ class JsDirectoryCompiler implements CompilerInterface
 
     public function getUrl(): ?string
     {
+        /** @var DirectorySource $source */
         foreach ($this->getSources() as $source) {
             $this->eachFile($source, fn (JsCompiler $compiler) => $compiler->getUrl());
         }
@@ -60,6 +64,7 @@ class JsDirectoryCompiler implements CompilerInterface
 
     public function flush(): void
     {
+        /** @var DirectorySource $source */
         foreach ($this->getSources() as $source) {
             $this->flushSource($source);
         }

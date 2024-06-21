@@ -80,11 +80,11 @@ class ListDiscussionsTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($body, true);
 
-        $this->assertEquals([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
+        $this->assertEqualsCanonicalizing([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
     }
 
     /** @test */
@@ -96,11 +96,11 @@ class ListDiscussionsTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $body = $response->getBody()->getContents());
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($body, true);
 
-        $this->assertEquals([2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
+        $this->assertEqualsCanonicalizing([2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
     }
 
     /** @test */

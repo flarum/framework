@@ -56,9 +56,9 @@ class ListWithTagsTest extends TestCase
             ],
             'group_permission' => [
                 ['group_id' => Group::MODERATOR_ID, 'permission' => 'discussion.viewFlags'],
-                ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag2.viewDiscussions'],
+                ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag2.viewForum'],
                 ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag3.discussion.viewFlags'],
-                ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag4.viewDiscussions'],
+                ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag4.viewForum'],
                 ['group_id' => Group::MODERATOR_ID, 'permission' => 'tag4.discussion.viewFlags'],
             ],
             Discussion::class => [
@@ -159,7 +159,7 @@ class ListWithTagsTest extends TestCase
         $ids = Arr::pluck($data, 'id');
         // 7 is included, even though mods can't view discussions.
         // This is because the UI doesnt allow discussions.viewFlags without viewDiscussions.
-        $this->assertCount(6, $data);
+        $this->assertCount(5, $data);
     }
 
     /**

@@ -45,7 +45,7 @@ class SendActivationEmailTest extends TestCase
             );
 
             // We don't want to delay tests too long.
-            EmailActivationThrottler::$timeout = 5;
+            EmailActivationThrottler::$timeout = 1;
             sleep(EmailActivationThrottler::$timeout + 1);
         }
 

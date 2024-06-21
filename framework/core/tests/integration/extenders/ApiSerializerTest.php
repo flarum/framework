@@ -10,13 +10,11 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Carbon\Carbon;
-use Flarum\Api\Controller\ShowUserController;
-use Flarum\Api\Serializer\AbstractSerializer;
-use Flarum\Api\Serializer\BasicUserSerializer;
-use Flarum\Api\Serializer\DiscussionSerializer;
-use Flarum\Api\Serializer\ForumSerializer;
-use Flarum\Api\Serializer\PostSerializer;
-use Flarum\Api\Serializer\UserSerializer;
+use Flarum\Api\Endpoint\Show;
+use Flarum\Api\Resource\AbstractDatabaseResource;
+use Flarum\Api\Resource\ForumResource;
+use Flarum\Api\Resource\UserResource;
+use Flarum\Api\Schema;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Post\Post;
@@ -74,12 +72,11 @@ class ApiSerializerTest extends TestCase
     public function custom_attributes_exist_if_added()
     {
         $this->extend(
-            (new Extend\ApiSerializer(ForumSerializer::class))
-                ->attributes(function () {
-                    return [
-                        'customAttribute' => true
-                    ];
-                })
+            (new Extend\ApiResource(ForumResource::class))
+                ->fields(fn () => [
+                    Schema\Boolean::make('customAttribute')
+                        ->get(fn () => true),
+                ])
         );
 
         $this->app();
@@ -101,8 +98,8 @@ class ApiSerializerTest extends TestCase
     public function custom_attributes_with_invokable_exist_if_added()
     {
         $this->extend(
-            (new Extend\ApiSerializer(ForumSerializer::class))
-                ->attributes(CustomAttributesInvokableClass::class)
+            (new Extend\ApiResource(ForumResource::class))
+                ->fields(CustomAttributesInvokableClass::class)
         );
 
         $this->app();
@@ -124,12 +121,11 @@ class ApiSerializerTest extends TestCase
     public function custom_attributes_exist_if_added_to_parent_class()
     {
         $this->extend(
-            (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->attributes(function () {
-                    return [
-                        'customAttribute' => true
-                    ];
-                })
+            (new Extend\ApiResource(AbstractDatabaseResource::class))
+                ->fields(fn () => [
+                    Schema\Boolean::make('customAttribute')
+                        ->get(fn () => true),
+                ])
         );
 
         $this->app();
@@ -151,18 +147,16 @@ class ApiSerializerTest extends TestCase
     public function custom_attributes_prioritize_child_classes()
     {
         $this->extend(
-            (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->attributes(function () {
-                    return [
-                        'customAttribute' => 'initialValue'
-                    ];
-                }),
-            (new Extend\ApiSerializer(UserSerializer::class))
-                ->attributes(function () {
-                    return [
-                        'customAttribute' => 'newValue'
-                    ];
-                })
+            (new Extend\ApiResource(AbstractDatabaseResource::class))
+                ->fields(fn () => [
+                    Schema\Str::make('customAttribute')
+                        ->get(fn () => 'initialValue')
+                ]),
+            (new Extend\ApiResource(UserResource::class))
+                ->fields(fn () => [
+                    Schema\Str::make('customAttribute')
+                        ->get(fn () => 'newValue')
+                ]),
         );
 
         $this->app();
@@ -182,127 +176,24 @@ class ApiSerializerTest extends TestCase
     /**
      * @test
      */
-    public function custom_single_attribute_exists_if_added()
-    {
-        $this->extend(
-            (new Extend\ApiSerializer(ForumSerializer::class))
-                ->attribute('customSingleAttribute', function () {
-                    return true;
-                })->attribute('customSingleAttribute_0', function () {
-                    return 0;
-                })
-        );
-
-        $this->app();
-
-        $response = $this->send(
-            $this->request('GET', '/api', [
-                'authenticatedAs' => 1,
-            ])
-        );
-
-        $payload = json_decode($response->getBody()->getContents(), true);
-
-        $this->assertArrayHasKey('customSingleAttribute', $payload['data']['attributes']);
-        $this->assertArrayHasKey('customSingleAttribute_0', $payload['data']['attributes']);
-        $this->assertEquals(0, $payload['data']['attributes']['customSingleAttribute_0']);
-    }
-
-    /**
-     * @test
-     */
-    public function custom_single_attribute_with_invokable_exists_if_added()
-    {
-        $this->extend(
-            (new Extend\ApiSerializer(ForumSerializer::class))
-                ->attribute('customSingleAttribute_1', CustomSingleAttributeInvokableClass::class)
-        );
-
-        $this->app();
-
-        $response = $this->send(
-            $this->request('GET', '/api', [
-                'authenticatedAs' => 1,
-            ])
-        );
-
-        $payload = json_decode($response->getBody()->getContents(), true);
-
-        $this->assertArrayHasKey('customSingleAttribute_1', $payload['data']['attributes']);
-    }
-
-    /**
-     * @test
-     */
-    public function custom_single_attribute_exists_if_added_to_parent_class()
-    {
-        $this->extend(
-            (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->attribute('customSingleAttribute_2', function () {
-                    return true;
-                })
-        );
-
-        $this->app();
-
-        $response = $this->send(
-            $this->request('GET', '/api/users/2', [
-                'authenticatedAs' => 1,
-            ])
-        );
-
-        $payload = json_decode($response->getBody()->getContents(), true);
-
-        $this->assertArrayHasKey('customSingleAttribute_2', $payload['data']['attributes']);
-    }
-
-    /**
-     * @test
-     */
-    public function custom_single_attribute_prioritizes_child_classes()
-    {
-        $this->extend(
-            (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->attribute('customSingleAttribute_3', function () {
-                    return 'initialValue';
-                }),
-            (new Extend\ApiSerializer(UserSerializer::class))
-                ->attribute('customSingleAttribute_3', function () {
-                    return 'newValue';
-                })
-        );
-
-        $this->app();
-
-        $response = $this->send(
-            $this->request('GET', '/api/users/2', [
-                'authenticatedAs' => 1,
-            ])
-        );
-
-        $payload = json_decode($response->getBody()->getContents(), true);
-
-        $this->assertArrayHasKey('customSingleAttribute_3', $payload['data']['attributes']);
-        $this->assertEquals('newValue', $payload['data']['attributes']['customSingleAttribute_3']);
-    }
-
-    /**
-     * @test
-     */
     public function custom_attributes_can_be_overriden()
     {
         $this->extend(
-            (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->attribute('someCustomAttribute', function () {
-                    return 'newValue';
-                })->attributes(function () {
-                    return [
-                        'someCustomAttribute' => 'initialValue',
-                        'someOtherCustomAttribute' => 'initialValue',
-                    ];
-                })->attribute('someOtherCustomAttribute', function () {
-                    return 'newValue';
-                })
+            (new Extend\ApiResource(UserResource::class))
+                ->fields(fn () => [
+                    Schema\Str::make('someCustomAttribute')
+                        ->get(fn () => 'newValue'),
+                ])
+                ->fields(fn () => [
+                    Schema\Str::make('someCustomAttribute')
+                        ->get(fn () => 'secondValue'),
+                    Schema\Str::make('someOtherCustomAttribute')
+                        ->get(fn () => 'secondValue'),
+                ])
+                ->fields(fn () => [
+                    Schema\Str::make('someOtherCustomAttribute')
+                        ->get(fn () => 'newValue'),
+                ])
         );
 
         $this->app();
@@ -316,7 +207,7 @@ class ApiSerializerTest extends TestCase
         $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertArrayHasKey('someCustomAttribute', $payload['data']['attributes']);
-        $this->assertEquals('newValue', $payload['data']['attributes']['someCustomAttribute']);
+        $this->assertEquals('secondValue', $payload['data']['attributes']['someCustomAttribute']);
         $this->assertArrayHasKey('someOtherCustomAttribute', $payload['data']['attributes']);
         $this->assertEquals('newValue', $payload['data']['attributes']['someOtherCustomAttribute']);
     }
@@ -327,8 +218,10 @@ class ApiSerializerTest extends TestCase
     public function custom_relations_dont_exist_by_default()
     {
         $this->extend(
-            (new Extend\ApiController(ShowUserController::class))
-                ->addInclude(['customSerializerRelation', 'postCustomRelation', 'anotherCustomRelation'])
+            (new Extend\ApiResource(UserResource::class))
+                ->endpoint(Show::class, function (Show $endpoint): Show {
+                    return $endpoint->addDefaultInclude(['customSerializerRelation', 'postCustomRelation', 'anotherCustomRelation']);
+                })
         );
 
         $response = $this->send(
@@ -337,11 +230,7 @@ class ApiSerializerTest extends TestCase
             ])
         );
 
-        $responseJson = json_decode($response->getBody(), true);
-
-        $this->assertArrayNotHasKey('customSerializerRelation', $responseJson['data']['relationships']);
-        $this->assertArrayNotHasKey('postCustomRelation', $responseJson['data']['relationships']);
-        $this->assertArrayNotHasKey('anotherCustomRelation', $responseJson['data']['relationships']);
+        $this->assertEquals(400, $response->getStatusCode());
     }
 
     /**
@@ -352,10 +241,15 @@ class ApiSerializerTest extends TestCase
         $this->extend(
             (new Extend\Model(User::class))
                 ->hasMany('customSerializerRelation', Discussion::class, 'user_id'),
-            (new Extend\ApiSerializer(UserSerializer::class))
-                ->hasMany('customSerializerRelation', DiscussionSerializer::class),
-            (new Extend\ApiController(ShowUserController::class))
-                ->addInclude('customSerializerRelation')
+            (new Extend\ApiResource(UserResource::class))
+                ->fields(fn () => [
+                    Schema\Relationship\ToMany::make('customSerializerRelation')
+                        ->type('discussions')
+                        ->includable()
+                ])
+                ->endpoint(Show::class, function (Show $endpoint) {
+                    return $endpoint->addDefaultInclude(['customSerializerRelation']);
+                })
         );
 
         $response = $this->send(
@@ -378,64 +272,15 @@ class ApiSerializerTest extends TestCase
         $this->extend(
             (new Extend\Model(User::class))
                 ->hasOne('customSerializerRelation', Discussion::class, 'user_id'),
-            (new Extend\ApiSerializer(UserSerializer::class))
-                ->hasOne('customSerializerRelation', DiscussionSerializer::class),
-            (new Extend\ApiController(ShowUserController::class))
-                ->addInclude('customSerializerRelation')
-        );
-
-        $response = $this->send(
-            $this->request('GET', '/api/users/2', [
-                'authenticatedAs' => 1,
-            ])
-        );
-
-        $responseJson = json_decode($response->getBody(), true);
-
-        $this->assertArrayHasKey('customSerializerRelation', $responseJson['data']['relationships']);
-        $this->assertEquals('discussions', $responseJson['data']['relationships']['customSerializerRelation']['data']['type']);
-    }
-
-    /**
-     * @test
-     */
-    public function custom_relationship_exists_if_added()
-    {
-        $this->extend(
-            (new Extend\Model(User::class))
-                ->hasOne('customSerializerRelation', Discussion::class, 'user_id'),
-            (new Extend\ApiSerializer(UserSerializer::class))
-                ->relationship('customSerializerRelation', function (AbstractSerializer $serializer, $model) {
-                    return $serializer->hasOne($model, DiscussionSerializer::class, 'customSerializerRelation');
-                }),
-            (new Extend\ApiController(ShowUserController::class))
-                ->addInclude('customSerializerRelation')
-        );
-
-        $response = $this->send(
-            $this->request('GET', '/api/users/2', [
-                'authenticatedAs' => 1,
-            ])
-        );
-
-        $responseJson = json_decode($response->getBody(), true);
-
-        $this->assertArrayHasKey('customSerializerRelation', $responseJson['data']['relationships']);
-        $this->assertEquals('discussions', $responseJson['data']['relationships']['customSerializerRelation']['data']['type']);
-    }
-
-    /**
-     * @test
-     */
-    public function custom_relationship_with_invokable_exists_if_added()
-    {
-        $this->extend(
-            (new Extend\Model(User::class))
-                ->hasOne('customSerializerRelation', Discussion::class, 'user_id'),
-            (new Extend\ApiSerializer(UserSerializer::class))
-                ->relationship('customSerializerRelation', CustomRelationshipInvokableClass::class),
-            (new Extend\ApiController(ShowUserController::class))
-                ->addInclude('customSerializerRelation')
+            (new Extend\ApiResource(UserResource::class))
+                ->fields(fn () => [
+                    Schema\Relationship\ToOne::make('customSerializerRelation')
+                        ->type('discussions')
+                        ->includable()
+                ])
+                ->endpoint(Show::class, function (Show $endpoint) {
+                    return $endpoint->addDefaultInclude(['customSerializerRelation']);
+                })
         );
 
         $response = $this->send(
@@ -458,10 +303,15 @@ class ApiSerializerTest extends TestCase
         $this->extend(
             (new Extend\Model(User::class))
                 ->hasMany('anotherCustomRelation', Discussion::class, 'user_id'),
-            (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->hasMany('anotherCustomRelation', DiscussionSerializer::class),
-            (new Extend\ApiController(ShowUserController::class))
-                ->addInclude('anotherCustomRelation')
+            (new Extend\ApiResource(AbstractDatabaseResource::class))
+                ->fields(fn () => [
+                    Schema\Relationship\ToMany::make('anotherCustomRelation')
+                        ->type('discussions')
+                        ->includable()
+                ])
+                ->endpoint(Show::class, function (Show $endpoint) {
+                    return $endpoint->addDefaultInclude(['anotherCustomRelation']);
+                })
         );
 
         $response = $this->send(
@@ -475,62 +325,15 @@ class ApiSerializerTest extends TestCase
         $this->assertArrayHasKey('anotherCustomRelation', $responseJson['data']['relationships']);
         $this->assertCount(3, $responseJson['data']['relationships']['anotherCustomRelation']['data']);
     }
-
-    /**
-     * @test
-     */
-    public function custom_relationship_prioritizes_child_classes()
-    {
-        $this->extend(
-            (new Extend\Model(User::class))
-                ->hasOne('postCustomRelation', Post::class, 'user_id'),
-            (new Extend\Model(User::class))
-                ->hasOne('discussionCustomRelation', Discussion::class, 'user_id'),
-            (new Extend\ApiSerializer(BasicUserSerializer::class))
-                ->hasOne('postCustomRelation', PostSerializer::class),
-            (new Extend\ApiSerializer(UserSerializer::class))
-                ->relationship('postCustomRelation', function (AbstractSerializer $serializer, $model) {
-                    return $serializer->hasOne($model, DiscussionSerializer::class, 'discussionCustomRelation');
-                }),
-            (new Extend\ApiController(ShowUserController::class))
-                ->addInclude('postCustomRelation')
-        );
-
-        $response = $this->send(
-            $this->request('GET', '/api/users/2', [
-                'authenticatedAs' => 1,
-            ])
-        );
-
-        $responseJson = json_decode($response->getBody(), true);
-
-        $this->assertArrayHasKey('postCustomRelation', $responseJson['data']['relationships']);
-        $this->assertEquals('discussions', $responseJson['data']['relationships']['postCustomRelation']['data']['type']);
-    }
 }
 
 class CustomAttributesInvokableClass
 {
-    public function __invoke()
+    public function __invoke(): array
     {
         return [
-            'customAttributeFromInvokable' => true
+            Schema\Boolean::make('customAttributeFromInvokable')
+                ->get(fn () => true),
         ];
-    }
-}
-
-class CustomSingleAttributeInvokableClass
-{
-    public function __invoke()
-    {
-        return true;
-    }
-}
-
-class CustomRelationshipInvokableClass
-{
-    public function __invoke(AbstractSerializer $serializer, $model)
-    {
-        return $serializer->hasOne($model, DiscussionSerializer::class, 'customSerializerRelation');
     }
 }
