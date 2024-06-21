@@ -260,10 +260,8 @@ class Migrator
 
     /**
      * Get the migration repository instance.
-     *
-     * @return MigrationRepositoryInterface
      */
-    public function getRepository()
+    public function getRepository(): MigrationRepositoryInterface
     {
         return $this->repository;
     }
