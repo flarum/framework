@@ -40,7 +40,7 @@ class FulltextFilter extends AbstractFulltextFilter
         };
     }
 
-    protected function sqlite(SearchState $state, string $value): void
+    protected function sqlite(DatabaseSearchState $state, string $value): void
     {
         /** @var Builder $query */
         $query = $state->getQuery();
@@ -61,7 +61,7 @@ class FulltextFilter extends AbstractFulltextFilter
         });
     }
 
-    protected function mysql(SearchState $state, string $value): void
+    protected function mysql(DatabaseSearchState $state, string $value): void
     {
         /** @var Builder $query */
         $query = $state->getQuery();
@@ -115,7 +115,7 @@ class FulltextFilter extends AbstractFulltextFilter
         });
     }
 
-    protected function pgsql(SearchState $state, string $value): void
+    protected function pgsql(DatabaseSearchState $state, string $value): void
     {
         $searchConfig = $this->settings->get('pgsql_search_configuration');
 
