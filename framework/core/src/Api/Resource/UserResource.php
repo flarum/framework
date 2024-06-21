@@ -217,7 +217,11 @@ class UserResource extends AbstractDatabaseResource
                         || $context->getActor()->can('editCredentials', $user);
                 })
                 ->set(function (User $user, ?string $value) {
-                    $user->exists && $user->changePassword($value);
+                    if ($user->exists) {
+                        $user->changePassword($value);
+                    } else {
+                        $user->password = $value;
+                    }
                 }),
             // Registration token.
             Schema\Str::make('token')

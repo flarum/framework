@@ -9,6 +9,7 @@
 
 namespace Flarum\Tests\integration\extenders;
 
+use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
@@ -38,6 +39,7 @@ class ModelPrivateTest extends TestCase
         $discussion = Discussion::create([
             'title' => 'Some Discussion',
             'user_id' => $user->id,
+            'created_at' => Carbon::now(),
         ]);
 
         $this->assertNull($discussion->is_private);
@@ -62,10 +64,12 @@ class ModelPrivateTest extends TestCase
         $privateDiscussion = Discussion::create([
             'title' => 'Private Discussion',
             'user_id' => $user->id,
+            'created_at' => Carbon::now(),
         ]);
         $publicDiscussion = Discussion::create([
             'title' => 'Public Discussion',
             'user_id' => $user->id,
+            'created_at' => Carbon::now(),
         ]);
 
         $this->assertTrue($privateDiscussion->is_private);
@@ -89,10 +93,12 @@ class ModelPrivateTest extends TestCase
         $privateDiscussion = Discussion::create([
             'title' => 'Private Discussion',
             'user_id' => $user->id,
+            'created_at' => Carbon::now(),
         ]);
         $publicDiscussion = Discussion::create([
             'title' => 'Public Discussion',
             'user_id' => $user->id,
+            'created_at' => Carbon::now(),
         ]);
 
         $this->assertTrue($privateDiscussion->is_private);
@@ -122,10 +128,12 @@ class ModelPrivateTest extends TestCase
         $privateDiscussion = Discussion::create([
             'title' => 'Private Discussion',
             'user_id' => $user->id,
+            'created_at' => Carbon::now(),
         ]);
         $publicDiscussion = Discussion::create([
             'title' => 'Public Discussion',
             'user_id' => $user->id,
+            'created_at' => Carbon::now(),
         ]);
 
         $this->assertTrue($privateDiscussion->is_private);

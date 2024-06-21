@@ -53,7 +53,10 @@ class FlagResource extends AbstractDatabaseResource
     public function query(Context $context): object
     {
         if ($context->listing(self::class)) {
-            $query = Flag::query()->groupBy('post_id');
+            $query = Flag::query()->whenPgSql(
+                fn (Builder $query) => $query->distinct('post_id')->orderBy('post_id'),
+                else: fn (Builder $query) => $query->groupBy('post_id')
+            );
 
             $this->scope($query, $context);
 
