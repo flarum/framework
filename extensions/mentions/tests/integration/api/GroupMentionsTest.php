@@ -93,11 +93,12 @@ class GroupMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"InvalidGroup"#g99',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ]
                     ],
                 ],
@@ -168,11 +169,12 @@ class GroupMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"Mods"#g4',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ]
                     ]
                 ]
@@ -200,11 +202,12 @@ class GroupMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"Admins"#g1 @"Mods"#g4',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ]
                     ]
                 ]
@@ -234,11 +237,12 @@ class GroupMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"Members"#g3 @"Guests"#g2',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ]
                     ]
                 ]
@@ -290,11 +294,12 @@ class GroupMentionsTest extends TestCase
                 'authenticatedAs' => 3,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"Mods"#g4',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -321,11 +326,12 @@ class GroupMentionsTest extends TestCase
                 'authenticatedAs' => 4,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"Mods"#g4',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -352,11 +358,12 @@ class GroupMentionsTest extends TestCase
                 'authenticatedAs' => 4,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"Ninjas"#g10',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -383,6 +390,7 @@ class GroupMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => 'New content with @"Mods"#g4 mention',
                         ],

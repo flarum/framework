@@ -48,7 +48,7 @@ class SendPasswordResetEmailTest extends TestCase
             );
 
             // We don't want to delay tests too long.
-            PasswordResetThrottler::$timeout = 5;
+            PasswordResetThrottler::$timeout = 1;
             sleep(PasswordResetThrottler::$timeout + 1);
         }
 

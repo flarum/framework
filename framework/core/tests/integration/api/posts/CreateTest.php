@@ -71,18 +71,21 @@ class CreateTest extends TestCase
                 'authenticatedAs' => $actorId,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => 'reply with predetermined content for automated testing - too-obscure',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => $discussionId]],
+                            'discussion' => [
+                                'data' => ['type' => 'discussions', 'id' => $discussionId]
+                            ],
                         ],
                     ],
                 ],
             ])
         );
 
-        $this->assertEquals($responseStatus, $response->getStatusCode());
+        $this->assertEquals($responseStatus, $response->getStatusCode(), (string) $response->getBody());
     }
 
     public function discussionRepliesPrvider(): array
@@ -106,6 +109,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => 'reply with predetermined content for automated testing - too-obscure',
                         ],
@@ -122,6 +126,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => 'Second reply with predetermined content for automated testing - too-obscure',
                         ],
@@ -133,6 +138,6 @@ class CreateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(429, $response->getStatusCode());
+        $this->assertEquals(429, $response->getStatusCode(), (string) $response->getBody());
     }
 }

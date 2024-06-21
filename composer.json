@@ -108,7 +108,7 @@
         "php": "^8.1",
         "ext-json": "*",
         "components/font-awesome": "^5.15.0",
-        "composer/composer": "^2.0",
+        "composer/composer": "^2.7",
         "dflydev/fig-cookies": "^3.0",
         "doctrine/dbal": "^3.6.2",
         "dragonmantank/cron-expression": "^3.3",
@@ -151,7 +151,6 @@
         "pusher/pusher-php-server": "^7.2",
         "s9e/text-formatter": "^2.13",
         "staudenmeir/eloquent-eager-limit": "^1.8.2",
-        "sycho/json-api": "^0.5.0",
         "sycho/sourcemap": "^2.0.0",
         "symfony/config": "^6.3",
         "symfony/console": "^6.3",
@@ -163,6 +162,7 @@
         "symfony/postmark-mailer": "^6.3",
         "symfony/translation": "^6.3",
         "symfony/yaml": "^6.3",
+        "flarum/json-api-server": "^1.0.0",
         "wikimedia/less.php": "^4.1"
     },
     "require-dev": {

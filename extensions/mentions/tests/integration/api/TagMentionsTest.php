@@ -72,11 +72,12 @@ class TagMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '#flarum',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -100,11 +101,12 @@ class TagMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '#戦い',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -129,11 +131,12 @@ class TagMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '#franzofflarum',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -159,11 +162,12 @@ class TagMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '#test',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -187,11 +191,12 @@ class TagMentionsTest extends TestCase
                 'authenticatedAs' => 3,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '#dev',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -215,11 +220,12 @@ class TagMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '#dev',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -243,11 +249,12 @@ class TagMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '#test #flarum #support #laravel #franzofflarum',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -369,6 +376,7 @@ class TagMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '#laravel',
                         ],

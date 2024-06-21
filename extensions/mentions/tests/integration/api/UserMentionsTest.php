@@ -74,11 +74,12 @@ class UserMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@potato',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -107,11 +108,12 @@ class UserMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@potato',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -138,6 +140,7 @@ class UserMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"POTATO$"#3',
                         ],
@@ -169,6 +172,7 @@ class UserMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@“POTATO$”#3',
                         ],
@@ -200,6 +204,7 @@ class UserMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"franzofflarum"#82',
                         ],
@@ -231,6 +236,7 @@ class UserMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"TOBY$"#4 @"POTATO$"#p4 @"franzofflarum"#82 @"POTATO$"#3',
                         ],
@@ -284,6 +290,7 @@ class UserMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"potato_"#3',
                         ],
@@ -314,6 +321,7 @@ class UserMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"potato_"#3',
                         ],
@@ -369,6 +377,7 @@ class UserMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"Bad "#p6 User"#5',
                         ],
@@ -421,6 +430,7 @@ class UserMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"Bad _ User"#5',
                         ],
@@ -452,6 +462,7 @@ class UserMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"Bad _ User"#5',
                         ],
@@ -480,6 +491,7 @@ class UserMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"Bad _ User"#5',
                         ],

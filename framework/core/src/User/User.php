@@ -154,20 +154,12 @@ class User extends AbstractModel
 
             Notification::whereSubject($user)->delete();
         });
-    }
 
-    public static function register(?string $username, ?string $email, ?string $password): static
-    {
-        $user = new static;
+        static::creating(function (self $user) {
+            $user->joined_at = Carbon::now();
 
-        $user->username = $username;
-        $user->email = $email;
-        $user->password = $password;
-        $user->joined_at = Carbon::now();
-
-        $user->raise(new Registered($user));
-
-        return $user;
+            $user->raise(new Registered($user));
+        });
     }
 
     public static function setGate(Access\Gate $gate): void

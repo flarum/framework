@@ -100,6 +100,30 @@ class SettingsTest extends TestCase
     /**
      * @test
      */
+    public function custom_setting_callback_can_cast_to_type()
+    {
+        $this->extend(
+            (new Extend\Settings())
+                ->serializeToForum('customPrefix.customSetting', 'custom-prefix.custom_setting', function ($value) {
+                    return (bool) $value;
+                })
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('customPrefix.customSetting', $payload['data']['attributes']);
+        $this->assertEquals(true, $payload['data']['attributes']['customPrefix.customSetting']);
+    }
+
+    /**
+     * @test
+     */
     public function custom_setting_callback_works_with_invokable_class()
     {
         $this->extend(

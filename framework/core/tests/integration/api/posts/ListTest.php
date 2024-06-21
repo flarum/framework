@@ -74,8 +74,10 @@ class ListTest extends TestCase
             $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $data = json_decode($body, true);
 
         $this->assertEquals(5, count($data['data']));
     }

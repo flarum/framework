@@ -39,7 +39,7 @@ abstract class AbstractSearcher implements SearcherInterface
 
         $this->applySort($search, $criteria->sort, $criteria->sortIsDefault);
         $this->applyOffset($search, $criteria->offset);
-        $this->applyLimit($search, $criteria->limit + 1);
+        $this->applyLimit($search, $criteria->limit ? $criteria->limit + 1 : null);
 
         foreach ($this->mutators as $mutator) {
             $mutator($search, $criteria);
@@ -54,7 +54,7 @@ abstract class AbstractSearcher implements SearcherInterface
             $results->pop();
         }
 
-        return new SearchResults($results, $areMoreResults, $this->getTotalResults($query));
+        return new SearchResults($results, $areMoreResults, $this->getTotalResults($query->clone()));
     }
 
     protected function getTotalResults(Builder $query): Closure
@@ -63,21 +63,12 @@ abstract class AbstractSearcher implements SearcherInterface
             $query = $query->toBase();
 
             if ($query->unions) {
-                $query->unions = null; // @phpstan-ignore-line
-                $query->unionLimit = null; // @phpstan-ignore-line
-                $query->unionOffset = null; // @phpstan-ignore-line
-                $query->unionOrders = null; // @phpstan-ignore-line
-                $query->setBindings([], 'union');
+                $query = $query
+                    ->cloneWithout(['unions', 'unionLimit', 'unionOffset', 'unionOrders'])
+                    ->cloneWithoutBindings(['union']);
             }
 
-            $query->offset = null; // @phpstan-ignore-line
-            $query->limit = null; // @phpstan-ignore-line
-            $query->orders = null; // @phpstan-ignore-line
-            $query->setBindings([], 'order');
-
-            return $query->getConnection()
-                ->table($query, 'results')
-                ->count();
+            return $query->getCountForPagination();
         };
     }
 
@@ -111,7 +102,7 @@ abstract class AbstractSearcher implements SearcherInterface
 
     protected function applyLimit(DatabaseSearchState $state, ?int $limit): void
     {
-        if ($limit > 0) {
+        if ($limit && $limit > 0) {
             $state->getQuery()->take($limit);
         }
     }

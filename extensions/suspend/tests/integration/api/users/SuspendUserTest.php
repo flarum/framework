@@ -93,6 +93,7 @@ class SuspendUserTest extends TestCase
                 'authenticatedAs' => $authenticatedAs,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'suspendedUntil' => Carbon::now()->addDay(),
                             'suspendReason' => 'Suspended for acme reasons.',

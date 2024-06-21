@@ -56,7 +56,7 @@ class ShowTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
     /**
@@ -74,7 +74,7 @@ class ShowTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
     /**
@@ -116,7 +116,7 @@ class ShowTest extends TestCase
 
         $json = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertEquals(2, Arr::get($json, 'data.relationships.posts.data.0.id'));
+        $this->assertEquals(2, Arr::get($json, 'data.relationships.posts.data.0.id'), $response->getBody()->getContents());
     }
 
     /**
@@ -128,7 +128,7 @@ class ShowTest extends TestCase
             $this->request('GET', '/api/discussions/2')
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
     /**

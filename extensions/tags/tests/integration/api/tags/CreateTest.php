@@ -59,11 +59,13 @@ class CreateTest extends TestCase
         $response = $this->send(
             $this->request('POST', '/api/tags', [
                 'authenticatedAs' => 1,
-                'json' => [],
+                'json' => [
+                    'data' => []
+                ],
             ])
         );
 
-        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertEquals(422, $response->getStatusCode(), (string) $response->getBody());
     }
 
     /**
@@ -76,6 +78,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'tags',
                         'attributes' => [
                             'name' => 'Dev Blog',
                             'slug' => 'dev-blog',
@@ -87,10 +90,10 @@ class CreateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals(201, $response->getStatusCode(), $body = (string) $response->getBody());
 
         // Verify API response body
-        $data = json_decode($response->getBody(), true);
+        $data = json_decode($body, true);
         $this->assertEquals('Dev Blog', Arr::get($data, 'data.attributes.name'));
         $this->assertEquals('dev-blog', Arr::get($data, 'data.attributes.slug'));
         $this->assertEquals('Follow Flarum development!', Arr::get($data, 'data.attributes.description'));

@@ -39,7 +39,7 @@ export default function addTagFilter() {
       //    - We loaded in that child tag (and its siblings) in the API document
       //    - We first navigated to the current tag's parent, which would have loaded in the current tag's siblings.
       this.store
-        .find('tags', slug, { include: 'children,children.parent,parent,state' })
+        .find('tags', slug, { include: 'children,children.parent,parent' })
         .then(() => {
           this.currentActiveTag = findTag(slug);
 

@@ -43,6 +43,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'Test post',
                             'content' => '',
@@ -52,10 +53,11 @@ class CreateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(422, $response->getStatusCode());
+        $body = (string) $response->getBody();
+
+        $this->assertEquals(422, $response->getStatusCode(), $body);
 
         // The response body should contain details about the failed validation
-        $body = (string) $response->getBody();
         $this->assertJson($body);
         $this->assertEquals([
             'errors' => [
@@ -79,6 +81,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => '',
                             'content' => 'Test post',
@@ -115,6 +118,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
@@ -124,11 +128,13 @@ class CreateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(201, $response->getStatusCode(), $body);
 
         /** @var Discussion $discussion */
         $discussion = Discussion::firstOrFail();
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($body, true);
 
         $this->assertEquals('test - too-obscure', $discussion->title);
         $this->assertEquals('test - too-obscure', Arr::get($data, 'data.attributes.title'));
@@ -147,6 +153,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => '我是一个土豆',
                             'content' => 'predetermined content for automated testing',
@@ -179,6 +186,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => '我是一个土豆',
                             'content' => 'predetermined content for automated testing',
@@ -206,6 +214,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
@@ -220,6 +229,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'Second predetermined content for automated testing - too-obscure',
@@ -242,6 +252,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
@@ -256,6 +267,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'Second predetermined content for automated testing - too-obscure',

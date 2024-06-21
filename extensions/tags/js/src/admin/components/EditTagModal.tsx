@@ -30,7 +30,7 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
   color!: Stream<string>;
   icon!: Stream<string>;
   isHidden!: Stream<boolean>;
-  primary!: Stream<boolean>;
+  isPrimary!: Stream<boolean>;
 
   oninit(vnode: Mithril.Vnode<EditTagModalAttrs, this>) {
     super.oninit(vnode);
@@ -43,7 +43,7 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
     this.color = Stream(this.tag.color() || '');
     this.icon = Stream(this.tag.icon() || '');
     this.isHidden = Stream(this.tag.isHidden() || false);
-    this.primary = Stream(this.attrs.primary || false);
+    this.isPrimary = Stream(this.attrs.primary || false);
   }
 
   className() {
@@ -164,7 +164,7 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
       color: this.color(),
       icon: this.icon(),
       isHidden: this.isHidden(),
-      primary: this.primary(),
+      isPrimary: this.isPrimary(),
     };
   }
 
@@ -189,8 +189,6 @@ export default class EditTagModal extends FormModal<EditTagModalAttrs> {
         children.forEach((tag) =>
           tag.pushData({
             attributes: { isChild: false },
-            // @deprecated. Temporary hack for type safety, remove before v1.3.
-            relationships: { parent: null as any as [] },
           })
         );
         m.redraw();

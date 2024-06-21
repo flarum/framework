@@ -79,7 +79,6 @@
         "psr/http-server-middleware": "^1.0.2",
         "s9e/text-formatter": "^2.13",
         "staudenmeir/eloquent-eager-limit": "^1.8.2",
-        "sycho/json-api": "^0.5.0",
         "sycho/sourcemap": "^2.0.0",
         "symfony/config": "^6.3",
         "symfony/console": "^6.3",
@@ -92,6 +91,7 @@
         "symfony/translation": "^6.3",
         "symfony/translation-contracts": "^2.5",
         "symfony/yaml": "^6.3",
+        "flarum/json-api-server": "^1.0.0",
         "wikimedia/less.php": "^4.1"
     },
     "require-dev": {

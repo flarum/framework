@@ -151,7 +151,6 @@ export default class FlagPostModal extends FormModal {
           reason: this.reason() === 'other' ? null : this.reason(),
           reasonDetail: this.reasonDetail(),
           relationships: {
-            user: app.session.user,
             post: this.attrs.post,
           },
         },

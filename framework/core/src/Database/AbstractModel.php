@@ -11,10 +11,8 @@ namespace Flarum\Database;
 
 use Flarum\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model as Eloquent;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use LogicException;
 
 /**
  * Base model class, building on Eloquent.
@@ -45,11 +43,6 @@ abstract class AbstractModel extends Eloquent
      * @var callable[]
      */
     protected array $afterDeleteCallbacks = [];
-
-    /**
-     * @internal
-     */
-    public static array $customRelations = [];
 
     /**
      * @internal
@@ -119,47 +112,6 @@ abstract class AbstractModel extends Eloquent
     }
 
     /**
-     * Get an attribute from the model. If nothing is found, attempt to load
-     * a custom relation method with this key.
-     */
-    public function getAttribute($key)
-    {
-        if (! is_null($value = parent::getAttribute($key))) {
-            return $value;
-        }
-
-        // If a custom relation with this key has been set up, then we will load
-        // and return results from the query and hydrate the relationship's
-        // value on the "relationships" array.
-        if (! $this->relationLoaded($key) && ($relation = $this->getCustomRelation($key))) {
-            if (! $relation instanceof Relation) {
-                throw new LogicException(
-                    'Relationship method must return an object of type '.Relation::class
-                );
-            }
-
-            return $this->relations[$key] = $relation->getResults();
-        }
-
-        return null;
-    }
-
-    /**
-     * Get a custom relation object.
-     */
-    protected function getCustomRelation(string $name): mixed
-    {
-        foreach (array_merge([static::class], class_parents($this)) as $class) {
-            $relation = Arr::get(static::$customRelations, $class.".$name");
-            if (! is_null($relation)) {
-                return $relation($this);
-            }
-        }
-
-        return null;
-    }
-
-    /**
      * Register a callback to be run once after the model is saved.
      */
     public function afterSave(callable $callback): void
@@ -197,15 +149,6 @@ abstract class AbstractModel extends Eloquent
         $this->afterDeleteCallbacks = [];
 
         return $callbacks;
-    }
-
-    public function __call($method, $parameters)
-    {
-        if ($relation = $this->getCustomRelation($method)) {
-            return $relation;
-        }
-
-        return parent::__call($method, $parameters);
     }
 
     public function newModelQuery()
