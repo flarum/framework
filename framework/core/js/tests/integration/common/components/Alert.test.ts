@@ -1,7 +1,10 @@
+import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
 import Alert from '../../../../src/common/components/Alert';
 import m from 'mithril';
 import mq from 'mithril-query';
 import { jest } from '@jest/globals';
+
+beforeAll(() => bootstrapForum());
 
 describe('Alert displays as expected', () => {
   it('should display alert messages with an icon', () => {

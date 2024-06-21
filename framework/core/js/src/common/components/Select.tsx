@@ -1,7 +1,21 @@
-import Component from '../Component';
+import Component, { type ComponentAttrs } from '../Component';
 import withAttr from '../utils/withAttr';
 import classList from '../utils/classList';
 import Icon from './Icon';
+
+export type Option = {
+  label: string;
+  disabled?: boolean | ((value: any) => boolean);
+  tooltip?: string;
+};
+
+export interface ISelectAttrs extends ComponentAttrs {
+  options: Record<string, string | Option>;
+  onchange?: (value: any) => void;
+  value?: any;
+  disabled?: boolean;
+  wrapperAttrs?: Record<string, string>;
+}
 
 /**
  * The `Select` component displays a <select> input, surrounded with some extra
@@ -15,8 +29,22 @@ import Icon from './Icon';
  *
  * Other attributes are passed directly to the `<select>` element rendered to the DOM.
  */
-export default class Select extends Component {
+export default class Select<CustomAttrs extends ISelectAttrs = ISelectAttrs> extends Component<CustomAttrs> {
   view() {
+    const {
+      // Destructure the `wrapperAttrs` object to extract the `className` for passing to `classList()`
+      // `= {}` prevents errors when `wrapperAttrs` is undefined
+      wrapperAttrs: { className: wrapperClassName, class: wrapperClass, ...wrapperAttrs } = {},
+    } = this.attrs;
+
+    return (
+      <span className={classList('Select', wrapperClassName, wrapperClass)} {...wrapperAttrs}>
+        {this.input()}
+      </span>
+    );
+  }
+
+  input() {
     const {
       options,
       onchange,
@@ -25,15 +53,11 @@ export default class Select extends Component {
       className,
       class: _class,
 
-      // Destructure the `wrapperAttrs` object to extract the `className` for passing to `classList()`
-      // `= {}` prevents errors when `wrapperAttrs` is undefined
-      wrapperAttrs: { className: wrapperClassName, class: wrapperClass, ...wrapperAttrs } = {},
-
       ...domAttrs
     } = this.attrs;
 
     return (
-      <span className={classList('Select', wrapperClassName, wrapperClass)} {...wrapperAttrs}>
+      <>
         <select
           className={classList('Select-input FormControl', className, _class)}
           onchange={onchange ? withAttr('value', onchange.bind(this)) : undefined}
@@ -43,15 +67,11 @@ export default class Select extends Component {
         >
           {Object.keys(options).map((key) => {
             const option = options[key];
+            const label = typeof option === 'object' && 'label' in option ? option.label : option;
+            let disabled = typeof option === 'object' && 'disabled' in option ? option.disabled : false;
 
-            let label;
-            let disabled = false;
-
-            if (typeof option === 'object' && option.label) {
-              label = option.label;
-              disabled = option.disabled ?? false;
-            } else {
-              label = option;
+            if (typeof disabled === 'function') {
+              disabled = disabled(value ?? null);
             }
 
             return (
@@ -62,7 +82,7 @@ export default class Select extends Component {
           })}
         </select>
         <Icon name="fas fa-sort" className="Select-caret" />
-      </span>
+      </>
     );
   }
 }

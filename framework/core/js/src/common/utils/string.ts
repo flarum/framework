@@ -35,7 +35,7 @@ export function slug(string: string, mode: SluggingMode = SluggingMode.ALPHANUME
   }
 }
 
-enum SluggingMode {
+export enum SluggingMode {
   ALPHANUMERIC = 'alphanum',
   UTF8 = 'utf8',
 }
