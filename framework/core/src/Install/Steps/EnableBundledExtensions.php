@@ -123,7 +123,7 @@ class EnableBundledExtensions implements Step
 
     private function getMigrator(): Migrator
     {
-        return $this->migrator = $this->migrator ?? new Migrator(
+        return $this->migrator ??= new Migrator(
             new DatabaseMigrationRepository($this->database, 'migrations'),
             $this->database,
             new \Illuminate\Filesystem\Filesystem
