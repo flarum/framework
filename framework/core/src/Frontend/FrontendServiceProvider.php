@@ -17,6 +17,7 @@ use Flarum\Foundation\Paths;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Driver\BasicTitleDriver;
 use Flarum\Frontend\Driver\TitleDriverInterface;
+use Flarum\Http\RequestUtil;
 use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\LocaleManager;
@@ -24,6 +25,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory as ViewFactory;
+use Psr\Http\Message\ServerRequestInterface;
 
 class FrontendServiceProvider extends AbstractServiceProvider
 {
@@ -95,6 +97,16 @@ class FrontendServiceProvider extends AbstractServiceProvider
                         $default_preloads,
                         $document->preloads,
                     );
+
+                    /** @var SettingsRepositoryInterface $settings */
+                    $settings = $container->make(SettingsRepositoryInterface::class);
+
+                    // Add document classes/attributes for design use cases.
+                    $document->extraAttributes['data-theme'] = $settings->get('color_scheme');
+                    $document->extraAttributes['data-colored-header'] = $settings->get('theme_colored_header') ? 'true' : 'false';
+                    $document->extraAttributes['class'][] = function (ServerRequestInterface $request) {
+                        return RequestUtil::getActor($request)->isGuest() ? 'guest-user' : 'logged-in';
+                    };
                 }, 160);
 
                 return $frontend;
@@ -151,18 +163,6 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 ],
                 'config-secondary-color' => [
                     'key' => 'theme_secondary_color',
-                ],
-                'config-dark-mode' => [
-                    'key' => 'theme_dark_mode',
-                    'callback' => function ($value) {
-                        return $value ? 'true' : 'false';
-                    },
-                ],
-                'config-colored-header' => [
-                    'key' => 'theme_colored_header',
-                    'callback' => function ($value) {
-                        return $value ? 'true' : 'false';
-                    },
                 ],
             ];
         });

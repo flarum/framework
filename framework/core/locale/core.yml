@@ -58,6 +58,7 @@ core:
 
     # These translations are used in the Appearance page.
     appearance:
+      allow_user_color_scheme_label: Allow users to choose their own color scheme
       colored_header_label: Colored Header
       colors_heading: Colors
       colors_primary_label: Primary Color
@@ -70,7 +71,6 @@ core:
       custom_styles_cannot_use_less_features: "The @import and data-uri features are not allowed in custom LESS."
       custom_styles_heading: Custom Styles
       custom_styles_text: Customize your forum's appearance by adding your own Less/CSS code to be applied on top of Flarum's default styles.
-      dark_mode_label: Dark Mode
       description: "Customize your forum's colors, logos, and other variables."
       edit_css_button: Edit Custom CSS
       edit_footer_button: => core.ref.custom_footer_title
@@ -81,6 +81,13 @@ core:
       logo_heading: Logo
       logo_text: Upload an image to be displayed in place of the forum title.
       title: Appearance
+      color_scheme_label: Color Scheme (default)
+      color_schemes:
+        auto_mode_label: User system or configured preference
+        dark_hc_mode_label: => core.ref.dark_hc_mode_label
+        dark_mode_label: => core.ref.dark_mode_label
+        light_hc_mode_label: => core.ref.light_hc_mode_label
+        light_mode_label: => core.ref.light_mode_label
 
     # These translations are used in the Basics page.
     basics:
@@ -609,6 +616,13 @@ core:
       account_heading: Account
       change_email_button: => core.ref.change_email
       change_password_button: => core.ref.change_password
+      color_scheme_heading: Color Scheme
+      color_schemes:
+        auto_mode_label: System preference
+        dark_hc_mode_label: => core.ref.dark_hc_mode_label
+        dark_mode_label: => core.ref.dark_mode_label
+        light_hc_mode_label: => core.ref.light_hc_mode_label
+        light_mode_label: => core.ref.light_mode_label
       notification_checkbox_a11y_label_template: 'Receive "{description}" notifications via {method}'
       notifications_heading: => core.ref.notifications
       notify_by_email_heading: => core.ref.email
@@ -965,6 +979,8 @@ core:
     custom_footer_title: Edit Custom Footer
     custom_header_text: "Add HTML to be displayed at the very top of the page, above Flarum's own header."
     custom_header_title: Edit Custom Header
+    dark_hc_mode_label: Dark High Contrast Mode
+    dark_mode_label: Dark Mode
     delete: Delete
     delete_forever: Delete Forever
     discussions: Discussions # Referenced by flarum-statistics.yml
@@ -976,6 +992,8 @@ core:
     icon: Icon
     icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the <code>fas fa-</code> prefix."
     invalid_login_message: Your login details were incorrect.
+    light_hc_mode_label: Light High Contrast Mode
+    light_mode_label: Light Mode
     load_more: Load More
     loading: Loading...
     log_in: Log In

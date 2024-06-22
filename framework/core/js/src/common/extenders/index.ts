@@ -4,6 +4,7 @@ import Routes from './Routes';
 import Store from './Store';
 import Search from './Search';
 import Notification from './Notification';
+import ThemeMode from './ThemeMode';
 
 const extenders = {
   Model,
@@ -12,6 +13,7 @@ const extenders = {
   Store,
   Search,
   Notification,
+  ThemeMode,
 };
 
 export default extenders;
