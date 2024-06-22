@@ -17,7 +17,7 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Validation\Factory;
 use stdClass;
 use Tobyz\JsonApiServer\Context;
-use Tobyz\JsonApiServer\Resource\Findable;
+use Flarum\Api\Resource\Contracts\Findable;
 
 /**
  * @extends AbstractResource<object>

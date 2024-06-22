@@ -21,7 +21,7 @@ use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use stdClass;
-use Tobyz\JsonApiServer\Resource\Findable;
+use Flarum\Api\Resource\Contracts\Findable;
 
 /**
  * @extends AbstractResource<stdClass>

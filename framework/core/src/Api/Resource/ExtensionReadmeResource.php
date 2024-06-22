@@ -14,7 +14,7 @@ use Flarum\Api\Schema;
 use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
 use Tobyz\JsonApiServer\Context;
-use Tobyz\JsonApiServer\Resource\Findable;
+use Flarum\Api\Resource\Contracts\Findable;
 
 /**
  * @todo: change to a simple ExtensionResource with readme field.
