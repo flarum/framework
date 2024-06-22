@@ -17,7 +17,7 @@ app.mentionFormats = new MentionFormats();
 
 export { default as extend } from './extend';
 
-app.initializers.add('flarum-mentions', function () {
+app.initializers.add('flarum-mentions', () => {
   // For every mention of a post inside a post's content, set up a hover handler
   // that shows a preview of the mentioned post.
   addPostMentionPreviews();
