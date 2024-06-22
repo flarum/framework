@@ -10,11 +10,11 @@
 namespace Flarum\Api\Resource;
 
 use Flarum\Api\Endpoint;
+use Flarum\Api\Resource\Contracts\Findable;
 use Flarum\Api\Schema;
 use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
 use Tobyz\JsonApiServer\Context;
-use Flarum\Api\Resource\Contracts\Findable;
 
 /**
  * @todo: change to a simple ExtensionResource with readme field.
