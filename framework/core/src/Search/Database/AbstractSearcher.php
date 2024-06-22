@@ -33,7 +33,7 @@ abstract class AbstractSearcher implements SearcherInterface
         $query = $this->getQuery($actor);
 
         $search = new DatabaseSearchState($actor, $criteria->isFulltext());
-        $search->setQuery($query->getQuery());
+        $search->setQuery($query);
 
         $this->filters->apply($search, $criteria->filters);
 
@@ -44,6 +44,8 @@ abstract class AbstractSearcher implements SearcherInterface
         foreach ($this->mutators as $mutator) {
             $mutator($search, $criteria);
         }
+
+        $query = $search->getQuery();
 
         // Execute the search query and retrieve the results. We get one more
         // results than the user asked for, so that we can say if there are more

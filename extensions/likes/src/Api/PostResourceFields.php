@@ -58,6 +58,7 @@ class PostResourceFields
                     // So that we can tell if the current user has liked the post.
                     $query
                         ->orderBy(new Expression($grammar->wrap('user_id').' = '.$actor->id), 'desc')
+                        ->orderBy('created_at')
                         ->limit(static::$maxLikes);
                 }),
         ];

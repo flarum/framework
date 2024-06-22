@@ -116,35 +116,35 @@ class ListPostsTest extends TestCase
     {
         $this->prepareDatabase([
             Discussion::class => [
-                ['id' => 100, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 101, 'comment_count' => 12],
+                ['id' => 100, 'title' => __CLASS__, 'created_at' => Carbon::parse('2024-05-04'), 'user_id' => 1, 'first_post_id' => 101, 'comment_count' => 12],
             ],
             Post::class => [
-                ['id' => 101, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 102, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 103, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>', 'is_private' => 1],
-                ['id' => 104, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 105, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 106, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 107, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 108, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 109, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 110, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 111, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 112, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 101, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04'), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 102, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(2), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 103, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(3), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>', 'is_private' => 1],
+                ['id' => 104, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(4), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 105, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(5), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 106, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(6), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 107, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(7), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 108, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(8), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 109, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(9), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 110, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(10), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 111, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(11), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 112, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(12), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
             ],
             'post_mentions_post' => [
-                ['post_id' => 102, 'mentions_post_id' => 101],
-                ['post_id' => 103, 'mentions_post_id' => 101],
-                ['post_id' => 104, 'mentions_post_id' => 101],
-                ['post_id' => 105, 'mentions_post_id' => 101],
-                ['post_id' => 106, 'mentions_post_id' => 101],
-                ['post_id' => 107, 'mentions_post_id' => 101],
-                ['post_id' => 108, 'mentions_post_id' => 101],
-                ['post_id' => 109, 'mentions_post_id' => 101],
-                ['post_id' => 110, 'mentions_post_id' => 101],
-                ['post_id' => 111, 'mentions_post_id' => 101],
-                ['post_id' => 112, 'mentions_post_id' => 101],
-                ['post_id' => 103, 'mentions_post_id' => 112],
+                ['post_id' => 102, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(2)],
+                ['post_id' => 103, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(3)],
+                ['post_id' => 104, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(4)],
+                ['post_id' => 105, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(5)],
+                ['post_id' => 106, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(6)],
+                ['post_id' => 107, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(7)],
+                ['post_id' => 108, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(8)],
+                ['post_id' => 109, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(9)],
+                ['post_id' => 110, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(10)],
+                ['post_id' => 111, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(11)],
+                ['post_id' => 112, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(12)],
+                ['post_id' => 103, 'mentions_post_id' => 112, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(13)],
             ],
         ]);
     }
@@ -187,10 +187,11 @@ class ListPostsTest extends TestCase
             ])->withQueryParams([
                 'filter' => ['discussion' => 100],
                 'include' => 'mentionedBy',
+                'sort' => 'createdAt',
             ])
         );
 
-        $data = json_decode($body = $response->getBody()->getContents(), true)['data'] ?? [];
+        $data = json_decode($body = $response->getBody()->getContents(), true)['data'];
 
         $this->assertEquals(200, $response->getStatusCode(), $body);
 

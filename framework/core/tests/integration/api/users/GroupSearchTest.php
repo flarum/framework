@@ -46,7 +46,7 @@ class GroupSearchTest extends TestCase
     {
         $response = $this->createRequest(['admin'], 1);
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
     /**

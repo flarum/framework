@@ -26,11 +26,22 @@ return [
             $table->integer('user_id')->unsigned()->change();
         });
 
-        // Use a separate schema instance because this column gets renamed
-        // in the previous one.
-        $schema->table('access_tokens', function (Blueprint $table) {
-            $table->dateTime('last_activity_at')->change();
-        });
+        if ($schema->getConnection()->getDriverName() === 'pgsql') {
+            $prefix = $schema->getConnection()->getTablePrefix();
+
+            // Changing an integer col to datetime is an unusual operation in PostgreSQL.
+            $schema->getConnection()->statement(<<<SQL
+                ALTER TABLE {$prefix}access_tokens
+                ALTER COLUMN last_activity_at TYPE TIMESTAMP(0) WITHOUT TIME ZONE
+                  USING to_timestamp(last_activity_at)
+            SQL);
+        } else {
+            // Use a separate schema instance because this column gets renamed
+            // in the previous one.
+            $schema->table('access_tokens', function (Blueprint $table) {
+                $table->dateTime('last_activity_at')->change();
+            });
+        }
     },
 
     'down' => function (Builder $schema) {

@@ -32,11 +32,10 @@ return [
             $table->unique(['discussion_id', 'number']);
         });
 
-        $connection = $schema->getConnection();
-        $prefix = $connection->getTablePrefix();
-
-        if ($connection->getDriverName() !== 'sqlite') {
-            $connection->statement('ALTER TABLE '.$prefix.'posts ADD FULLTEXT content (content)');
+        if ($schema->getConnection()->getDriverName() !== 'sqlite') {
+            $schema->table('posts', function (Blueprint $table) {
+                $table->fullText('content');
+            });
         }
     },
 

@@ -201,6 +201,10 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
          */
         $this->database()->getSchemaBuilder()->disableForeignKeyConstraints();
 
+        if ($this->database()->getDriverName() === 'pgsql') {
+            $this->database()->statement("SET session_replication_role = 'replica'");
+        }
+
         $databaseContent = [];
 
         foreach ($this->databaseContent as $tableOrModelClass => $_rows) {
@@ -224,6 +228,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             }
         }
 
+        $tables = [];
+
         // Then, insert all rows required for this test case.
         foreach ($databaseContent as $table => $data) {
             foreach ($data['rows'] as $row) {
@@ -238,7 +244,22 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                 }
 
                 $this->database()->table($table)->updateOrInsert($unique, $row);
+
+                if (isset($row['id'])) {
+                    $tables[$table] = 'id';
+                }
             }
+        }
+
+        if ($this->database()->getDriverName() === 'pgsql') {
+            // PgSQL doesn't auto-increment the sequence when inserting the IDs manually.
+            foreach ($tables as $table => $id) {
+                $wrappedTable = $this->database()->getSchemaGrammar()->wrapTable($table);
+                $seq = $this->database()->getSchemaGrammar()->wrapTable($table.'_'.$id.'_seq');
+                $this->database()->statement("SELECT setval('$seq', (SELECT MAX($id) FROM $wrappedTable))");
+            }
+
+            $this->database()->statement("SET session_replication_role = 'origin'");
         }
 
         // And finally, turn on foreign key checks again.

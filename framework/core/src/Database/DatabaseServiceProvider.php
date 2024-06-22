@@ -18,7 +18,9 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\ConnectionResolverInterface;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Str;
 
 class DatabaseServiceProvider extends AbstractServiceProvider
@@ -28,6 +30,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
     public function register(): void
     {
         $this->registerEloquentFactory();
+        $this->registerBuilderMacros();
 
         $this->container->singleton(Manager::class, function (ContainerImplementation $container) {
             $manager = new Manager($container);
@@ -76,6 +79,41 @@ class DatabaseServiceProvider extends AbstractServiceProvider
         $this->container->singleton('flarum.database.model_private_checkers', function () {
             return [];
         });
+    }
+
+    protected function registerBuilderMacros(): void
+    {
+        $drivers = [
+            'mysql' => 'MySql',
+            'pgsql' => 'PgSql',
+            'sqlite' => 'Sqlite',
+        ];
+
+        foreach ([QueryBuilder::class, EloquentBuilder::class] as $builder) {
+            foreach ($drivers as $driver => $macro) {
+                $builder::macro('when'.$macro, function ($callback, $else) use ($driver) {
+                    /** @var QueryBuilder|EloquentBuilder $this */
+                    if ($this->getConnection()->getDriverName() === $driver) {
+                        $callback($this);
+                    } else {
+                        $else($this);
+                    }
+
+                    return $this;
+                });
+
+                $builder::macro('unless'.$macro, function ($callback, $else) use ($driver) {
+                    /** @var QueryBuilder|EloquentBuilder $this */
+                    if ($this->getConnection()->getDriverName() !== $driver) {
+                        $callback($this);
+                    } else {
+                        $else($this);
+                    }
+
+                    return $this;
+                });
+            }
+        }
     }
 
     protected function registerEloquentFactory(): void

@@ -31,7 +31,7 @@ class NotificationRepository
     {
         $primaries = Notification::query()
             ->selectRaw('MAX(id) AS id')
-            ->selectRaw('SUM(read_at IS NULL) AS unread_count')
+            ->selectRaw('COUNT(read_at IS NULL) AS unread_count')
             ->where('user_id', $user->id)
             ->whereIn('type', $user->getAlertableNotificationTypes())
             ->where('is_deleted', false)

@@ -89,7 +89,7 @@ class ListTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode($response->getBody()->getContents(), true)['data'];
-        $this->assertEquals(['1', '2'], Arr::pluck($data, 'id'));
+        $this->assertEqualsCanonicalizing(['1', '2'], Arr::pluck($data, 'id'));
     }
 
     /**

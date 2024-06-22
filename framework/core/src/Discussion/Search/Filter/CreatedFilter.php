@@ -13,7 +13,7 @@ use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 
 /**
@@ -40,7 +40,7 @@ class CreatedFilter implements FilterInterface
         $this->constrain($state->getQuery(), $from, $to, $negate);
     }
 
-    public function constrain(Builder $query, ?string $from, ?string $to, bool $negate): void
+    protected function constrain(Builder $query, ?string $from, ?string $to, bool $negate): void
     {
         // If we've just been provided with a single YYYY-MM-DD date, then find
         // discussions that were started on that exact date. But if we've been

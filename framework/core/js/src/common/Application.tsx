@@ -559,7 +559,11 @@ export default class Application {
         break;
 
       default:
-        if (this.requestWasCrossOrigin(error)) {
+        const code = error.response?.errors?.[0]?.code;
+
+        if (code === 'db_error' && app.session.user?.isAdmin()) {
+          content = app.translator.trans('core.lib.error.db_error_message');
+        } else if (this.requestWasCrossOrigin(error)) {
           content = app.translator.trans('core.lib.error.generic_cross_origin_message');
         } else {
           content = app.translator.trans('core.lib.error.generic_message');

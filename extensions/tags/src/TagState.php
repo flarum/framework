@@ -31,6 +31,8 @@ class TagState extends AbstractModel
 
     protected $casts = ['marked_as_read_at' => 'datetime'];
 
+    public $incrementing = false;
+
     public function tag(): BelongsTo
     {
         return $this->belongsTo(Tag::class);

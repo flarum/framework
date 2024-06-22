@@ -7,21 +7,23 @@
  * LICENSE file that was distributed with this source code.
  */
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        $connection = $schema->getConnection();
-        $prefix = $connection->getTablePrefix();
-
-        if ($connection->getDriverName() !== 'sqlite') {
-            $connection->statement('ALTER TABLE '.$prefix.'discussions ADD FULLTEXT title (title)');
+        if ($schema->getConnection()->getDriverName() !== 'sqlite') {
+            $schema->table('discussions', function (Blueprint $table) {
+                $table->fullText('title');
+            });
         }
     },
 
     'down' => function (Builder $schema) {
-        $connection = $schema->getConnection();
-        $prefix = $connection->getTablePrefix();
-        $connection->statement('ALTER TABLE '.$prefix.'discussions DROP INDEX title');
+        if ($schema->getConnection()->getDriverName() !== 'sqlite') {
+            $schema->table('discussions', function (Blueprint $table) {
+                $table->dropFullText('title');
+            });
+        }
     }
 ];

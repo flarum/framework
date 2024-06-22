@@ -45,6 +45,8 @@ core:
         safe_mode_extensions: Extensions allowed to boot during safe mode
         safe_mode_extensions_override_help: "This setting is overridden by the <code>safe_mode_extensions</code> key in your <code>config.php</code> file. (<b>{extensions}</b>)"
         section_label: Maintenance
+      pgsql:
+        search_configuration: Search configuration to use
       search:
         section_label: Search Drivers
         driver_heading: "Search Driver: {model}"
@@ -211,6 +213,7 @@ core:
     extension:
       configure_scopes: Configure Scopes
       confirm_purge: Purging will remove all database entries and assets related to the extension. It will not uninstall the extension; that must be done via Composer. Are you sure you want to continue?
+      database_driver_mismatch: This extension does not support your configured database driver.
       disabled: Disabled
       enable_to_see: Enable the extension to view and change settings.
       enabled: Enabled
@@ -698,6 +701,7 @@ core:
     # These translations are displayed as error messages.
     error:
       circular_dependencies_message: "Circular dependencies detected: {extensions}. Aborting. Please disable one of the extensions and try again."
+      db_error_message: "Database query failed. This may be caused by an incompatibility between an extension and your database driver."
       dependent_extensions_message: "Cannot disable {extension} until the following dependent extensions are disabled: {extensions}"
       extension_initialiation_failed_message: "{extension} failed to initialize, check the browser console for further information."
       generic_message: "Oops! Something went wrong. Please reload the page and try again."

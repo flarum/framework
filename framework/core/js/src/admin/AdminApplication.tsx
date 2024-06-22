@@ -32,10 +32,17 @@ export type Extension = {
   extra: {
     'flarum-extension': {
       title: string;
+      'database-support': undefined | string[];
     };
   };
   require?: Record<string, string>;
 };
+
+export enum DatabaseDriver {
+  MySQL = 'MySQL',
+  PostgreSQL = 'PostgreSQL',
+  SQLite = 'SQLite',
+}
 
 export interface AdminApplicationData extends ApplicationData {
   extensions: Record<string, Extension>;
@@ -48,6 +55,14 @@ export interface AdminApplicationData extends ApplicationData {
   maintenanceByConfig: boolean;
   safeModeExtensions?: string[] | null;
   safeModeExtensionsConfig?: string[] | null;
+
+  dbDriver: DatabaseDriver;
+  dbVersion: string;
+  dbOptions: Record<string, string>;
+  phpVersion: string;
+  queueDriver: string;
+  schedulerStatus: string;
+  sessionDriver: string;
 }
 
 export default class AdminApplication extends Application {

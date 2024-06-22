@@ -40,7 +40,11 @@ class SetupScript
     {
         $this->driver = getenv('DB_DRIVER') ?: 'mysql';
         $this->host = getenv('DB_HOST') ?: 'localhost';
-        $this->port = intval(getenv('DB_PORT') ?: 3306);
+        $this->port = intval(getenv('DB_PORT') ?: match ($this->driver) {
+            'mysql' => 3306,
+            'pgsql' => 5432,
+            default => 0,
+        });
         $this->name = getenv('DB_DATABASE') ?: 'flarum_test';
         $this->user = getenv('DB_USERNAME') ?: 'root';
         $this->pass = getenv('DB_PASSWORD') ?? 'root';

@@ -85,7 +85,11 @@ class ListTest extends TestCase
             ])
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $data = json_decode($body, true)['data'];
 
         // Order-independent comparison
         $this->assertEqualsCanonicalizing(['2', '3'], Arr::pluck($data, 'id'), 'IDs do not match');
@@ -123,7 +127,9 @@ class ListTest extends TestCase
             ])
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($body = $response->getBody()->getContents(), true)['data'] ?? null;
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
 
         // Order-independent comparison
         $this->assertEquals(['3'], Arr::pluck($data, 'id'), 'IDs do not match');

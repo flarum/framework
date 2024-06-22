@@ -183,7 +183,7 @@ class Discussion extends AbstractModel
 
     public function refreshLastPost(): static
     {
-        if ($lastPost = $this->comments()->latest()->first()) {
+        if ($lastPost = $this->comments()->latest()->latest('id')->first()) {
             /** @var Post $lastPost */
             $this->setLastPost($lastPost);
         }

@@ -9,9 +9,14 @@
 
 namespace Flarum\Flags\Tests\integration\api\posts;
 
+use Flarum\Discussion\Discussion;
+use Flarum\Flags\Flag;
 use Flarum\Group\Group;
+use Flarum\Post\Post;
+use Flarum\Tags\Tag;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
 
 class IncludeFlagsVisibilityTest extends TestCase
@@ -28,7 +33,7 @@ class IncludeFlagsVisibilityTest extends TestCase
         $this->extension('flarum-tags', 'flarum-flags');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 [
                     'id' => 3,
@@ -56,7 +61,7 @@ class IncludeFlagsVisibilityTest extends TestCase
                 ['group_id' => 5, 'user_id' => 2],
                 ['group_id' => 6, 'user_id' => 3],
             ],
-            'groups' => [
+            Group::class => [
                 ['id' => 5, 'name_singular' => 'group5', 'name_plural' => 'group5', 'color' => null, 'icon' => 'fas fa-crown', 'is_hidden' => false],
                 ['id' => 6, 'name_singular' => 'group1', 'name_plural' => 'group1', 'color' => null, 'icon' => 'fas fa-cog', 'is_hidden' => false],
             ],
@@ -67,11 +72,11 @@ class IncludeFlagsVisibilityTest extends TestCase
                 ['group_id' => 6, 'permission' => 'tag1.discussion.viewFlags'],
                 ['group_id' => 6, 'permission' => 'tag1.viewForum'],
             ],
-            'tags' => [
+            Tag::class => [
                 ['id' => 1, 'name' => 'Tag 1', 'slug' => 'tag-1', 'is_primary' => false, 'position' => null, 'parent_id' => null, 'is_restricted' => true],
                 ['id' => 2, 'name' => 'Tag 2', 'slug' => 'tag-2', 'is_primary' => true, 'position' => 2, 'parent_id' => null, 'is_restricted' => false],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'Test1', 'user_id' => 1, 'comment_count' => 1],
                 ['id' => 2, 'title' => 'Test2', 'user_id' => 1, 'comment_count' => 1],
             ],
@@ -79,7 +84,7 @@ class IncludeFlagsVisibilityTest extends TestCase
                 ['discussion_id' => 1, 'tag_id' => 1],
                 ['discussion_id' => 2, 'tag_id' => 2],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
                 ['id' => 2, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
                 ['id' => 3, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
@@ -87,7 +92,7 @@ class IncludeFlagsVisibilityTest extends TestCase
                 ['id' => 4, 'discussion_id' => 2, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
                 ['id' => 5, 'discussion_id' => 2, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p></p></t>'],
             ],
-            'flags' => [
+            Flag::class => [
                 ['id' => 1, 'post_id' => 1, 'user_id' => 1],
                 ['id' => 2, 'post_id' => 1, 'user_id' => 5],
                 ['id' => 3, 'post_id' => 1, 'user_id' => 3],

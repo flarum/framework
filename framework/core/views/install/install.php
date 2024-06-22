@@ -13,9 +13,9 @@
   </div>
 
   <div class="FormGroup">
-    <div data-group="sqlite" style="display:none">
+    <div data-group="sqlite,pgsql" style="display:none">
       <div class="Alert Alert--warning">
-        <strong>Warning:</strong> Please keep in mind that while Flarum supports SQLite, not all ecosystem extensions do. If you're planning to install extensions, you should expect some of them to not work properly or at all.
+        <strong>Warning:</strong> Please keep in mind that while Flarum supports SQLite and PostgreSQL, not all ecosystem extensions do. If you're planning to install extensions, you should expect some of them to not work properly or at all.
       </div>
     </div>
   </div>
@@ -25,6 +25,7 @@
       <label>Database Driver</label>
       <select class="FormControl" name="dbDriver">
         <option value="mysql">MySQL</option>
+        <option value="pgsql">PostgreSQL</option>
         <option value="sqlite">SQLite</option>
       </select>
     </div>
@@ -34,20 +35,20 @@
       <input class="FormControl" name="dbName" value="flarum">
     </div>
 
-    <div data-group="mysql">
+    <div data-group="mysql,pgsql">
       <div class="FormField">
-        <label>MySQL Host</label>
-        <input class="FormControl" name="mysqlHost" value="localhost">
+        <label>Host</label>
+        <input class="FormControl" name="dbHost" value="localhost">
       </div>
 
       <div class="FormField">
-        <label>MySQL Username</label>
-        <input class="FormControl" name="mysqlUsername">
+        <label>Username</label>
+        <input class="FormControl" name="dbUsername">
       </div>
 
       <div class="FormField">
-        <label>MySQL Password</label>
-        <input class="FormControl" type="password" name="mysqlPassword">
+        <label>Password</label>
+        <input class="FormControl" type="password" name="dbPassword">
       </div>
     </div>
 
@@ -93,7 +94,7 @@
         group.style.display = 'none';
       });
 
-      const groups = document.querySelectorAll('[data-group="' + this.value + '"]');
+      const groups = document.querySelectorAll('[data-group*="' + this.value + '"]');
 
       groups.forEach(function(group) {
         group.style.display = 'block';

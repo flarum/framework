@@ -13,6 +13,7 @@ use Flarum\Extension\Exception as ExtensionException;
 use Flarum\Foundation\ErrorHandling as Handling;
 use Flarum\Http\Exception\InvalidParameterException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Validation\ValidationException as IlluminateValidationException;
 use Tobyz\JsonApiServer\Exception as TobyzJsonApiServerException;
 
@@ -65,6 +66,7 @@ class ErrorServiceProvider extends AbstractServiceProvider
                 ExtensionException\CircularDependenciesException::class => ExtensionException\CircularDependenciesExceptionHandler::class,
                 ExtensionException\DependentExtensionsException::class => ExtensionException\DependentExtensionsExceptionHandler::class,
                 ExtensionException\MissingDependenciesException::class => ExtensionException\MissingDependenciesExceptionHandler::class,
+                QueryException::class => Handling\ExceptionHandler\QueryExceptionHandler::class,
                 TobyzJsonApiServerException\ErrorProvider::class => Handling\ExceptionHandler\JsonApiExceptionHandler::class,
             ];
         });

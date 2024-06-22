@@ -9,6 +9,7 @@
 
 namespace Flarum\Tests\integration\api\notifications;
 
+use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Notification\Notification;
 use Flarum\Post\Post;
@@ -38,7 +39,7 @@ class UpdateTest extends TestCase
                 ['id' => 1, 'discussion_id' => 1, 'user_id' => 2, 'type' => 'comment', 'content' => 'Foo'],
             ],
             Notification::class => [
-                ['id' => 1, 'user_id' => 2, 'from_user_id' => 1, 'type' => 'discussionRenamed', 'subject_id' => 1, 'read_at' => null],
+                ['id' => 1, 'user_id' => 2, 'from_user_id' => 1, 'type' => 'discussionRenamed', 'subject_id' => 1, 'read_at' => null, 'created_at' => Carbon::now()],
             ]
         ]);
     }

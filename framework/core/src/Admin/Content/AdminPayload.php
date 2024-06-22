@@ -62,6 +62,7 @@ class AdminPayload
         $document->payload['phpVersion'] = $this->appInfo->identifyPHPVersion();
         $document->payload['dbDriver'] = $this->appInfo->identifyDatabaseDriver();
         $document->payload['dbVersion'] = $this->appInfo->identifyDatabaseVersion();
+        $document->payload['dbOptions'] = $this->appInfo->identifyDatabaseOptions();
         $document->payload['debugEnabled'] = Arr::get($this->config, 'debug');
 
         if ($this->appInfo->scheduledTasksRegistered()) {
