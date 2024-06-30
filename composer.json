@@ -197,7 +197,8 @@
             "extensions/sticky",
             "extensions/subscriptions",
             "extensions/suspend",
-            "extensions/tags"
+            "extensions/tags",
+            "php-packages/testing/tests"
         ],
         "branch-alias": {
             "dev-main": "2.x-dev"
