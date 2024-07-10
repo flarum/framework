@@ -110,3 +110,9 @@ app.initializers.add('flarum/nicknames', () => {
     }
   });
 });
+
+// Expose compat API
+import nicknamesCompat from './compat';
+import { compat } from '@flarum/core/forum';
+
+Object.assign(compat, nicknamesCompat);
