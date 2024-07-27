@@ -36,7 +36,7 @@ use Illuminate\Database\Eloquent\Collection;
  * @property int $last_posted_user_id
  * @property string $icon
  *
- * @property TagState $state
+ * @property TagState|null $state
  * @property Tag|null $parent
  * @property-read Collection<Tag> $children
  * @property-read Collection<Discussion> $discussions
