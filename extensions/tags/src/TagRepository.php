@@ -57,7 +57,13 @@ class TagRepository
                     $query->whereVisibleTo($actor);
                 };
             } else {
-                $relationsArray[] = $relation;
+                if ($relation === 'state') {
+                    $relationsArray['state'] = function ($query) use ($actor) {
+                        $query->where('user_id', $actor->id);
+                    };
+                } else {
+                    $relationsArray[] = $relation;
+                }
             }
         }
 
