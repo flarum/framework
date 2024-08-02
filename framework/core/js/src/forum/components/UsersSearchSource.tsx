@@ -14,7 +14,7 @@ import listItems from '../../common/helpers/listItems';
  * The `UsersSearchSource` finds and displays user search results in the search
  * dropdown.
  */
-export default class UsersSearchResults implements SearchSource {
+export default class UsersSearchSource implements SearchSource {
   protected results = new Map<string, User[]>();
 
   public resource: string = 'users';

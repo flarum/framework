@@ -9,7 +9,7 @@
     "prettier": "@flarum/prettier-config",
     "dependencies": {
         "@types/jest": "^29.2.2",
-        "flarum-webpack-config": "^2.0.1",
+        "flarum-webpack-config": "^3.0.0",
         "flat": "^5.0.2",
         "jest": "^29.3.1",
         "jest-environment-jsdom": "^29.3.1",

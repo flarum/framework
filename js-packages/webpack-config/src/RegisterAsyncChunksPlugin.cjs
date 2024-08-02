@@ -3,6 +3,8 @@ const extensionId = require("./extensionId.cjs");
 const {Compilation} = require("webpack");
 
 class RegisterAsyncChunksPlugin {
+  static registry = {};
+
   apply(compiler) {
     compiler.hooks.thisCompilation.tap("RegisterAsyncChunksPlugin", (compilation) => {
       let alreadyOptimized = false;
@@ -80,9 +82,13 @@ class RegisterAsyncChunksPlugin {
                               if (concatenatedModule?.rootModule) {
                                   // This is a chunk with many modules, we need to register all of them.
                                   concatenatedModule.modules?.forEach((module) => {
+                                      if (! module.resource.includes(`${path.sep}src${path.sep}`)) {
+                                          return;
+                                      }
+
                                       // The path right after the src/ directory, without the extension.
                                       const regPathSep = `\\${path.sep}`;
-                                      const urlPath = module.resource.replace(`/.*${regPathSep}src(.*)${regPathSep}\..*/`, '$1');
+                                      const urlPath = module.resource.replace(new RegExp(`.*${regPathSep}src${regPathSep}([^.]+)\..+`), '$1');
 
                                       if (! registrableModulesUrlPaths.has(urlPath)) {
                                           registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, moduleId, namespace, urlPath]);
@@ -93,9 +99,11 @@ class RegisterAsyncChunksPlugin {
                               registrableModulesUrlPaths.forEach(([chunkId, moduleId, namespace, urlPath]) => {
                                   chunkModuleMemory[sourceChunkId] = chunkModuleMemory[sourceChunkId] || [];
 
-                                  if (! chunkModuleMemory[sourceChunkId].includes(urlPath)) {
+                                  if (! chunkModuleMemory[sourceChunkId].includes(urlPath) && ! RegisterAsyncChunksPlugin.registry[`${chunkId}:${moduleId}:${namespace}`]?.includes(urlPath)) {
                                       reg.push(`flarum.reg.addChunkModule('${chunkId}', '${moduleId}', '${namespace}', '${urlPath}');`);
                                       chunkModuleMemory[sourceChunkId].push(urlPath);
+                                      RegisterAsyncChunksPlugin.registry[`${chunkId}:${moduleId}:${namespace}`] ||= [];
+                                      RegisterAsyncChunksPlugin.registry[`${chunkId}:${moduleId}:${namespace}`].push(urlPath);
                                   }
                               });
 

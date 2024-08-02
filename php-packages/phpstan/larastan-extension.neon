@@ -52,10 +52,6 @@ conditionalTags:
         phpstan.rules.rule: %noUnnecessaryCollectionCall%
     Larastan\Larastan\Rules\OctaneCompatibilityRule:
         phpstan.rules.rule: %checkOctaneCompatibility%
-    Larastan\Larastan\Rules\ModelProperties\ModelPropertyRule:
-        phpstan.rules.rule: %checkModelProperties%
-    Larastan\Larastan\Rules\ModelProperties\ModelPropertyStaticCallRule:
-        phpstan.rules.rule: %checkModelProperties%
     Larastan\Larastan\Rules\UnusedViewsRule:
         phpstan.rules.rule: %checkUnusedViews%
     Larastan\Larastan\Rules\ModelAppendsRule:
@@ -401,13 +397,7 @@ services:
             excludeMethods: %noUnnecessaryCollectionCallExcept%
 
     -
-        class: Larastan\Larastan\Rules\ModelProperties\ModelPropertyRule
-
-    -
         class: Larastan\Larastan\Rules\ModelAppendsRule
-
-    -
-        class: Larastan\Larastan\Rules\ModelProperties\ModelPropertyStaticCallRule
 
     -
         class: Larastan\Larastan\Types\GenericEloquentBuilderTypeNodeResolverExtension
@@ -449,9 +439,6 @@ services:
 
     -
         class: Larastan\Larastan\Properties\ModelPropertyHelper
-
-    -
-        class: Larastan\Larastan\Rules\ModelProperties\ModelPropertiesRuleHelper
 
     -
         class: Larastan\Larastan\Rules\ModelRuleHelper

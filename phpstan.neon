@@ -36,8 +36,3 @@ parameters:
 	excludePaths:
 		- *.blade.php
 	databaseMigrationsPath: ['framework/core/migrations']
-	ignoreErrors:
-		-
-			identifier: missingType.iterableValue
-		-
-			identifier: missingType.generics

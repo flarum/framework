@@ -367,7 +367,7 @@ export default abstract class Model {
    */
   protected static getIdentifier(model: Model): ModelIdentifier;
   protected static getIdentifier(model?: Model): ModelIdentifier | null {
-    if (!model || !('id' in model.data)) return null;
+    if (!model || !model.data || !('id' in model.data)) return null;
 
     return {
       type: model.data.type,

@@ -203,7 +203,7 @@ export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupA
 
       settingElement = <UploadImageButton value={stream} {...otherAttrs} />;
     } else if (customFieldComponents.has(type)) {
-      return customFieldComponents.get(type)(this.attrs);
+      return customFieldComponents.get(type)({ ...this.attrs, bidi: this.attrs.stream });
     } else {
       attrs.className = classList('FormControl', attrs.className);
 
