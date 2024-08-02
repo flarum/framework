@@ -14,6 +14,7 @@ use Flarum\Api\ApiKey;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class WithApiKeyTest extends TestCase
 {
@@ -37,9 +38,7 @@ class WithApiKeyTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cannot_authorize_without_key()
     {
         $response = $this->send(
@@ -50,9 +49,7 @@ class WithApiKeyTest extends TestCase
         $this->assertFalse($data['data']['attributes']['canSearchUsers']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function master_token_can_authenticate_as_anyone()
     {
         $response = $this->send(
@@ -69,9 +66,7 @@ class WithApiKeyTest extends TestCase
         $this->assertNotNull($key->last_activity_at);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function personal_api_token_cannot_authenticate_as_anyone()
     {
         $response = $this->send(
@@ -88,9 +83,7 @@ class WithApiKeyTest extends TestCase
         $this->assertNotNull($key->last_activity_at);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function personal_api_token_authenticates_user()
     {
         $response = $this->send(

@@ -15,6 +15,8 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class SubscribeTest extends TestCase
 {
@@ -60,10 +62,8 @@ class SubscribeTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     * @dataProvider provideStates
-     */
+    #[Test]
+    #[DataProvider('provideStates')]
     public function can_subscribe_to_a_discussion(int $actorId, int $discussionId, ?string $newState)
     {
         $this->app();

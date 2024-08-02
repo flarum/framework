@@ -12,12 +12,11 @@ namespace Flarum\Tests\integration\extenders;
 use Flarum\Extend;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ServiceProviderTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function providers_dont_work_by_default()
     {
         $this->app();
@@ -27,9 +26,7 @@ class ServiceProviderTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function providers_first_register_order_is_correct()
     {
         $this->extend(
@@ -45,9 +42,7 @@ class ServiceProviderTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function providers_second_register_order_is_correct()
     {
         $this->extend(
@@ -64,9 +59,7 @@ class ServiceProviderTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function providers_boot_order_is_correct()
     {
         $this->extend(

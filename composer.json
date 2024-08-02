@@ -167,7 +167,7 @@
     },
     "require-dev": {
         "mockery/mockery": "^1.5",
-        "phpunit/phpunit": "^9.0",
+        "phpunit/phpunit": "^10.0",
         "phpstan/phpstan": "^1.10.0",
         "larastan/larastan": "^2.7",
         "symfony/var-dumper": "^6.3"

@@ -21,6 +21,7 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class ApiSerializerTest extends TestCase
 {
@@ -48,9 +49,7 @@ class ApiSerializerTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_attributes_dont_exist_by_default()
     {
         $this->app();
@@ -66,9 +65,7 @@ class ApiSerializerTest extends TestCase
         $this->assertArrayNotHasKey('customAttribute', $payload['data']['attributes']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_attributes_exist_if_added()
     {
         $this->extend(
@@ -92,9 +89,7 @@ class ApiSerializerTest extends TestCase
         $this->assertArrayHasKey('customAttribute', $payload['data']['attributes']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_attributes_with_invokable_exist_if_added()
     {
         $this->extend(
@@ -115,9 +110,7 @@ class ApiSerializerTest extends TestCase
         $this->assertArrayHasKey('customAttributeFromInvokable', $payload['data']['attributes']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_attributes_exist_if_added_to_parent_class()
     {
         $this->extend(
@@ -141,9 +134,7 @@ class ApiSerializerTest extends TestCase
         $this->assertArrayHasKey('customAttribute', $payload['data']['attributes']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_attributes_prioritize_child_classes()
     {
         $this->extend(
@@ -173,9 +164,7 @@ class ApiSerializerTest extends TestCase
         $this->assertEquals('newValue', $payload['data']['attributes']['customAttribute']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_attributes_can_be_overriden()
     {
         $this->extend(
@@ -212,9 +201,7 @@ class ApiSerializerTest extends TestCase
         $this->assertEquals('newValue', $payload['data']['attributes']['someOtherCustomAttribute']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_relations_dont_exist_by_default()
     {
         $this->extend(
@@ -233,9 +220,7 @@ class ApiSerializerTest extends TestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_hasMany_relationship_exists_if_added()
     {
         $this->extend(
@@ -264,9 +249,7 @@ class ApiSerializerTest extends TestCase
         $this->assertCount(3, $responseJson['data']['relationships']['customSerializerRelation']['data']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_hasOne_relationship_exists_if_added()
     {
         $this->extend(
@@ -295,9 +278,7 @@ class ApiSerializerTest extends TestCase
         $this->assertEquals('discussions', $responseJson['data']['relationships']['customSerializerRelation']['data']['type']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_relationship_is_inherited_to_child_classes()
     {
         $this->extend(

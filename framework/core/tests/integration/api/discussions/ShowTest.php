@@ -16,6 +16,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class ShowTest extends TestCase
 {
@@ -45,9 +46,7 @@ class ShowTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function author_can_see_discussion()
     {
         $response = $this->send(
@@ -59,9 +58,7 @@ class ShowTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function author_can_see_discussion_via_slug()
     {
         // Note that here, the slug doesn't actually have to match the real slug
@@ -77,9 +74,7 @@ class ShowTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guest_cannot_see_empty_discussion()
     {
         $response = $this->send(
@@ -89,9 +84,7 @@ class ShowTest extends TestCase
         $this->assertEquals(404, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guest_cannot_see_hidden_posts()
     {
         $response = $this->send(
@@ -103,9 +96,7 @@ class ShowTest extends TestCase
         $this->assertEmpty(Arr::get($json, 'data.relationships.posts.data'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function author_can_see_hidden_posts()
     {
         $response = $this->send(
@@ -119,9 +110,7 @@ class ShowTest extends TestCase
         $this->assertEquals(2, Arr::get($json, 'data.relationships.posts.data.0.id'), $response->getBody()->getContents());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guest_can_see_discussion()
     {
         $response = $this->send(
@@ -131,9 +120,7 @@ class ShowTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guests_cannot_see_private_discussion()
     {
         $response = $this->send(

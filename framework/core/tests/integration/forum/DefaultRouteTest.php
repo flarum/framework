@@ -16,6 +16,7 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Post\Post;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class DefaultRouteTest extends TestCase
 {
@@ -47,9 +48,7 @@ class DefaultRouteTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function default_route_payload_includes_discussions()
     {
         $response = $this->send(
@@ -59,9 +58,7 @@ class DefaultRouteTest extends TestCase
         $this->assertStringContainsString('apiDocument', $response->getBody());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function nonexistent_custom_homepage_uses_default_payload()
     {
         $this->setDefaultRoute('/nonexistent');
@@ -73,9 +70,7 @@ class DefaultRouteTest extends TestCase
         $this->assertStringContainsString('apiDocument', $response->getBody());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function existent_custom_homepage_doesnt_use_default_payload()
     {
         $this->setDefaultRoute('/settings');

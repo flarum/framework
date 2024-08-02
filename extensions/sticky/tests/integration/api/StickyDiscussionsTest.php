@@ -16,6 +16,8 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class StickyDiscussionsTest extends TestCase
 {
@@ -57,10 +59,8 @@ class StickyDiscussionsTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider stickyDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('stickyDataProvider')]
     public function can_sticky_if_allowed(int $actorId, bool $allowed, bool $sticky)
     {
         $response = $this->send(

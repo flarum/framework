@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\extenders;
 use Flarum\Extend;
 use Flarum\Locale\Translator;
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class LocalesTest extends TestCase
 {
@@ -25,9 +26,7 @@ class LocalesTest extends TestCase
         array_map('unlink', glob($this->tmpDir().'/storage/locale/*'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_translation_does_not_exist_by_default()
     {
         $this->app()->getContainer()->make('flarum.locales');
@@ -36,9 +35,7 @@ class LocalesTest extends TestCase
         $this->assertEquals('test.hello', $translator->trans('test.hello', ['name' => 'ACME']));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_translation_exists_if_added()
     {
         $this->extend(
@@ -51,9 +48,7 @@ class LocalesTest extends TestCase
         $this->assertEquals('World ACME', $translator->trans('test.hello', ['name' => 'ACME']));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_translation_exists_if_added_with_intl_suffix()
     {
         $this->extend(
@@ -66,9 +61,7 @@ class LocalesTest extends TestCase
         $this->assertEquals('World-intl ACME', $translator->trans('test.hello-intl', ['name' => 'ACME']));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function messageformat_works_in_translations()
     {
         $this->extend(
@@ -81,9 +74,7 @@ class LocalesTest extends TestCase
         $this->assertEquals('ACME invites ACME2 and one other person to her party.', $translator->trans('test.party-invitation', ['gender_of_host' => 'female', 'host' => 'ACME', 'num_guests' => 2, 'guest' => 'ACME2']));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function laravel_interface_methods_work()
     {
         $this->extend(

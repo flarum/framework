@@ -15,6 +15,7 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class CanRequestCustomTimedStatisticsTest extends TestCase
 {
@@ -60,9 +61,7 @@ class CanRequestCustomTimedStatisticsTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_request_timed_stats()
     {
         $time = $this->nowTime->copy();

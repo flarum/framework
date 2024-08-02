@@ -13,6 +13,8 @@ use Flarum\Approval\Tests\integration\InteractsWithUnapprovedContent;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListDiscussionsTest extends TestCase
 {
@@ -28,10 +30,8 @@ class ListDiscussionsTest extends TestCase
         $this->prepareUnapprovedDatabaseContent();
     }
 
-    /**
-     * @dataProvider unallowedUsers
-     * @test
-     */
+    #[Test]
+    #[DataProvider('unallowedUsers')]
     public function can_only_see_approved_if_not_allowed_to_approve(?int $authenticatedAs)
     {
         $response = $this->send(
@@ -44,10 +44,8 @@ class ListDiscussionsTest extends TestCase
         $this->assertEqualsCanonicalizing([1, 4, 5, 7], Arr::pluck($body['data'], 'id'));
     }
 
-    /**
-     * @dataProvider allowedUsers
-     * @test
-     */
+    #[Test]
+    #[DataProvider('allowedUsers')]
     public function can_see_unapproved_if_allowed_to_approve(int $authenticatedAs)
     {
         $response = $this->send(

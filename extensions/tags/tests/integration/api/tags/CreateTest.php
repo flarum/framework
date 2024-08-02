@@ -14,6 +14,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class CreateTest extends TestCase
 {
@@ -35,9 +36,7 @@ class CreateTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function normal_user_cant_create_tag()
     {
         $response = $this->send(
@@ -51,9 +50,7 @@ class CreateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_cannot_create_tag_without_data()
     {
         $response = $this->send(
@@ -68,9 +65,7 @@ class CreateTest extends TestCase
         $this->assertEquals(422, $response->getStatusCode(), (string) $response->getBody());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_can_create_tag()
     {
         $response = $this->send(

@@ -18,6 +18,7 @@ use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class UpdateTest extends TestCase
 {
@@ -57,9 +58,7 @@ class UpdateTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cant_change_tags_without_setting()
     {
         $response = $this->send(
@@ -82,9 +81,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_change_tags_without_setting()
     {
         $this->setting('allow_tag_change', '-1');
@@ -109,9 +106,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_can_add_primary_tag_beyond_limit()
     {
         $response = $this->send(
@@ -135,9 +130,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cant_add_primary_tag_beyond_limit()
     {
         $this->setting('allow_tag_change', '-1');
@@ -163,9 +156,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(422, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cant_add_tag_where_can_view_but_cant_start()
     {
         $this->setting('allow_tag_change', '-1');
@@ -190,9 +181,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_add_tag_where_can_view_and_can_start()
     {
         $this->setting('allow_tag_change', '-1');
@@ -218,9 +207,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cant_add_child_tag_without_parent_tag()
     {
         $this->setting('allow_tag_change', '-1');
@@ -250,9 +237,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode(), $response->getBody());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_add_child_tag_with_parent_tag()
     {
         $this->setting('allow_tag_change', '-1');
@@ -278,9 +263,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function primary_tag_required_by_default()
     {
         $this->setting('allow_tag_change', '-1');

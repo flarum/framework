@@ -10,12 +10,11 @@
 namespace Flarum\Tests\integration\middleware;
 
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ContentTypeOptionsTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function has_content_type_options_header()
     {
         $response = $this->send(

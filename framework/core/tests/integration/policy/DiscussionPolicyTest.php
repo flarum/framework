@@ -18,6 +18,7 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class DiscussionPolicyTest extends TestCase
 {
@@ -54,9 +55,7 @@ class DiscussionPolicyTest extends TestCase
         Carbon::setTestNow();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function rename_indefinitely()
     {
         $this->setting('allow_renaming', '-1');
@@ -76,9 +75,7 @@ class DiscussionPolicyTest extends TestCase
         $this->assertTrue($user->can('rename', $discussion));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function rename_until_reply()
     {
         $this->setting('allow_renaming', 'reply');
@@ -126,9 +123,7 @@ class DiscussionPolicyTest extends TestCase
         $this->assertFalse($user->can('rename', $discussionWithReply));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function rename_10_minutes()
     {
         $this->setting('allow_renaming', '10');

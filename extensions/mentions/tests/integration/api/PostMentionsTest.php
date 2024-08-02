@@ -19,6 +19,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\DisplayName\DriverInterface;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class PostMentionsTest extends TestCase
 {
@@ -73,9 +74,7 @@ class PostMentionsTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mentioning_a_valid_post_with_old_format_doesnt_work()
     {
         $response = $this->send(
@@ -107,9 +106,7 @@ class PostMentionsTest extends TestCase
         $this->assertNull(CommentPost::find($response['data']['id'])->mentionsPosts->find(4));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mentioning_a_valid_post_with_new_format_works()
     {
         $response = $this->send(
@@ -139,9 +136,7 @@ class PostMentionsTest extends TestCase
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsPosts->find(4));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cannot_mention_a_post_without_access()
     {
         $response = $this->send(
@@ -171,9 +166,7 @@ class PostMentionsTest extends TestCase
         $this->assertNull(CommentPost::find($response['data']['id'])->mentionsPosts->find(50));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mentioning_a_valid_post_with_new_format_with_smart_quotes_works_and_falls_back_to_normal_quotes()
     {
         $response = $this->send(
@@ -205,9 +198,7 @@ class PostMentionsTest extends TestCase
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsPosts->find(4));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mentioning_an_invalid_post_doesnt_work()
     {
         $response = $this->send(
@@ -237,9 +228,7 @@ class PostMentionsTest extends TestCase
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsPosts);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mentioning_multiple_posts_works()
     {
         $response = $this->send(
@@ -271,9 +260,7 @@ class PostMentionsTest extends TestCase
         $this->assertCount(2, CommentPost::find($response['data']['id'])->mentionsPosts);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function post_mentions_render_with_fresh_data()
     {
         $response = $this->send(
@@ -291,9 +278,7 @@ class PostMentionsTest extends TestCase
         $this->assertCount(1, CommentPost::find($response['data']['id'])->mentionsPosts);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function post_mentions_unparse_with_fresh_data()
     {
         $response = $this->send(
@@ -310,9 +295,7 @@ class PostMentionsTest extends TestCase
         $this->assertCount(1, CommentPost::find($response['data']['id'])->mentionsPosts);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function deleted_post_mentions_s_user_unparse_and_render_without_user_data()
     {
         $deleted_text = $this->app()->getContainer()->make('translator')->trans('core.lib.username.deleted_text');
@@ -335,9 +318,7 @@ class PostMentionsTest extends TestCase
         $this->assertCount(1, CommentPost::find($response['data']['id'])->mentionsPosts);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function deleted_post_mentions_unparse_and_render_without_user_data()
     {
         $deleted_text = $this->app()->getContainer()->make('translator')->trans('flarum-mentions.forum.post_mention.deleted_text');
@@ -360,9 +341,7 @@ class PostMentionsTest extends TestCase
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsPosts);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function deleted_post_mentions_and_deleted_user_unparse_and_render_without_user_data()
     {
         $deleted_text = $this->app()->getContainer()->make('translator')->trans('flarum-mentions.forum.post_mention.deleted_text');
@@ -385,9 +364,7 @@ class PostMentionsTest extends TestCase
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsPosts);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function post_mentions_with_unremoved_bad_string_from_display_names_doesnt_work()
     {
         $response = $this->send(
@@ -417,9 +394,7 @@ class PostMentionsTest extends TestCase
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsPosts->find(6));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function post_mentions_unparsing_removes_bad_display_name_string()
     {
         $response = $this->send(
@@ -438,9 +413,7 @@ class PostMentionsTest extends TestCase
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsPosts->find(9));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function post_mentions_with_removed_bad_string_from_display_names_works()
     {
         $response = $this->send(
@@ -470,9 +443,7 @@ class PostMentionsTest extends TestCase
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsPosts->find(9));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function editing_a_post_that_has_a_mention_works()
     {
         $response = $this->send(
@@ -499,9 +470,7 @@ class PostMentionsTest extends TestCase
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsPosts->find(9));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function editing_a_post_with_deleted_author_that_has_a_mention_works()
     {
         $response = $this->send(
@@ -530,9 +499,7 @@ class PostMentionsTest extends TestCase
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsPosts->find(9));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function editing_a_post_with_a_mention_of_a_post_with_deleted_author_works()
     {
         $response = $this->send(
@@ -559,9 +526,7 @@ class PostMentionsTest extends TestCase
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsPosts->find(11));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function rendering_post_mention_with_a_post_context_works()
     {
         /** @var Formatter $formatter */
@@ -576,9 +541,7 @@ class PostMentionsTest extends TestCase
         $this->assertStringContainsString('TOBY$', $renderedHtml);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function rendering_post_mention_without_a_context_works()
     {
         /** @var Formatter $formatter */

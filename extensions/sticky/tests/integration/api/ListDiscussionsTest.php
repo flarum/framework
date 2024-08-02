@@ -16,6 +16,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListDiscussionsTest extends TestCase
 {
@@ -55,7 +56,7 @@ class ListDiscussionsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function list_discussions_shows_sticky_first_as_guest()
     {
         $response = $this->send(
@@ -71,7 +72,7 @@ class ListDiscussionsTest extends TestCase
         $this->assertEquals([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
     }
 
-    /** @test */
+    #[Test]
     public function list_discussions_shows_sticky_unread_first_as_user()
     {
         $response = $this->send(
@@ -87,7 +88,7 @@ class ListDiscussionsTest extends TestCase
         $this->assertEqualsCanonicalizing([3, 1, 2, 4], Arr::pluck($data['data'], 'id'));
     }
 
-    /** @test */
+    #[Test]
     public function list_discussions_shows_normal_order_when_all_read_as_user()
     {
         $response = $this->send(
@@ -103,7 +104,7 @@ class ListDiscussionsTest extends TestCase
         $this->assertEqualsCanonicalizing([2, 4, 3, 1], Arr::pluck($data['data'], 'id'));
     }
 
-    /** @test */
+    #[Test]
     public function list_discussions_shows_stick_first_on_a_tag()
     {
         $response = $this->send(

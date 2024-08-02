@@ -16,6 +16,8 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListTest extends TestCase
 {
@@ -43,9 +45,7 @@ class ListTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_sees_all()
     {
         $response = $this->send(
@@ -62,9 +62,7 @@ class ListTest extends TestCase
         $this->assertEquals(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14'], $ids);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_sees_where_allowed()
     {
         $response = $this->send(
@@ -84,10 +82,8 @@ class ListTest extends TestCase
         $this->assertEquals(['1', '2', '3', '4', '9', '10', '11'], $ids);
     }
 
-    /**
-     * @dataProvider listTagsIncludesDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('listTagsIncludesDataProvider')]
     public function user_sees_where_allowed_with_included_tags(string $include, array $expectedIncludes)
     {
         $response = $this->send(
@@ -121,9 +117,7 @@ class ListTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guest_cant_see_restricted_or_children_of_restricted()
     {
         $response = $this->send(
@@ -138,7 +132,7 @@ class ListTest extends TestCase
         $this->assertEquals(['1', '2', '3', '4', '9', '10'], $ids);
     }
 
-    public function listTagsIncludesDataProvider(): array
+    public static function listTagsIncludesDataProvider(): array
     {
         return [
             ['children', ['3', '4']],

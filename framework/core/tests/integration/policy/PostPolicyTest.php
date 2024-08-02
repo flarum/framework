@@ -15,6 +15,7 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class PostPolicyTest extends TestCase
 {
@@ -48,9 +49,7 @@ class PostPolicyTest extends TestCase
         Carbon::setTestNow();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function edit_indefinitely()
     {
         $this->setting('allow_post_editing', '-1');
@@ -73,9 +72,7 @@ class PostPolicyTest extends TestCase
         $this->assertTrue($user->can('edit', $lastPost));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function edit_until_reply()
     {
         $this->setting('allow_post_editing', 'reply');
@@ -98,9 +95,7 @@ class PostPolicyTest extends TestCase
         $this->assertTrue($user->can('edit', $lastPost));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function edit_10_minutes()
     {
         $this->setting('allow_post_editing', '10');
@@ -123,9 +118,7 @@ class PostPolicyTest extends TestCase
         $this->assertFalse($user->can('edit', $lastPost));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function hide_indefinitely()
     {
         $this->setting('allow_hide_own_posts', '-1');
@@ -148,9 +141,7 @@ class PostPolicyTest extends TestCase
         $this->assertTrue($user->can('hide', $lastPost));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function hide_until_reply()
     {
         $this->setting('allow_hide_own_posts', 'reply');
@@ -173,9 +164,7 @@ class PostPolicyTest extends TestCase
         $this->assertTrue($user->can('hide', $lastPost));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function hide_10_minutes()
     {
         $this->setting('allow_hide_own_posts', '10');
@@ -198,9 +187,7 @@ class PostPolicyTest extends TestCase
         $this->assertFalse($user->can('hide', $lastPost));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function hide_never()
     {
         $this->setting('allow_hide_own_posts', '0');

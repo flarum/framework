@@ -16,6 +16,8 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListTest extends TestCase
 {
@@ -54,10 +56,8 @@ class ListTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider canViewTokensDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('canViewTokensDataProvider')]
     public function user_can_view_access_tokens(int $authenticatedAs, array $canViewIds)
     {
         $response = $this->send(
@@ -72,10 +72,8 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing(array_merge($canViewIds, [$testsTokenId]), Arr::pluck($data, 'id'));
     }
 
-    /**
-     * @dataProvider cannotSeeTokenValuesDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('cannotSeeTokenValuesDataProvider')]
     public function user_cannot_see_token_values(int $authenticatedAs, ?int $userId, array $tokenValues)
     {
         if ($userId) {
@@ -101,10 +99,8 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing($tokenValues, Arr::pluck($data, 'attributes.token'));
     }
 
-    /**
-     * @dataProvider needsPermissionToUseUserfilterDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('needsPermissionToUseUserfilterDataProvider')]
     public function user_needs_permissions_to_use_user_filter(int $authenticatedAs, int $userId, array $canViewIds)
     {
         $response = $this->send(
@@ -125,7 +121,7 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing($canViewIds, Arr::pluck($data, 'id'));
     }
 
-    public function canViewTokensDataProvider(): array
+    public static function canViewTokensDataProvider(): array
     {
         return [
             // Admin can view his and others access tokens.
@@ -140,7 +136,7 @@ class ListTest extends TestCase
         ];
     }
 
-    public function cannotSeeTokenValuesDataProvider(): array
+    public static function cannotSeeTokenValuesDataProvider(): array
     {
         return [
             // Admin can only see his own developer token value.
@@ -161,7 +157,7 @@ class ListTest extends TestCase
         ];
     }
 
-    public function needsPermissionToUseUserfilterDataProvider(): array
+    public static function needsPermissionToUseUserfilterDataProvider(): array
     {
         return [
             // Admin can use user filter.
