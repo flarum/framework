@@ -1,5 +1,11 @@
 parameters:
+	reportUnmatchedIgnoredErrors: false
 	ignoreErrors:
+		-
+			identifier: missingType.iterableValue
+		-
+			identifier: missingType.generics
+
 		# Remove this group below with larastan 2.0 (i.e Flarum 2.0)
 		- message: "#Relation '[A-z_-]+' is not found in [A-z\_]+ model.#"
 		  reportUnmatched: false

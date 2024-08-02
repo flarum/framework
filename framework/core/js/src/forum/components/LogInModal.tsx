@@ -8,6 +8,7 @@ import Stream from '../../common/utils/Stream';
 import type Mithril from 'mithril';
 import RequestError from '../../common/utils/RequestError';
 import type { LoginParams } from '../../common/Session';
+import ForgotPasswordModal from './ForgotPasswordModal';
 
 export interface ILoginModalAttrs extends IFormModalAttrs {
   identification?: string;
@@ -139,7 +140,7 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
     const email = this.identification();
     const attrs = email.includes('@') ? { email } : undefined;
 
-    app.modal.show(() => import('./ForgotPasswordModal'), attrs);
+    app.modal.show(ForgotPasswordModal, attrs);
   }
 
   /**

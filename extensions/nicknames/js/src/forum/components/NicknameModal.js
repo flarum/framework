@@ -2,7 +2,7 @@ import app from 'flarum/forum/app';
 import FormModal from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
 import Stream from 'flarum/common/utils/Stream';
-import Form from '@flarum/core/src/common/components/Form';
+import Form from 'flarum/common/components/Form';
 
 export default class NicknameModal extends FormModal {
   oninit(vnode) {
