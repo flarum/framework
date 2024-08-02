@@ -27,12 +27,10 @@ class ExtensionServiceProvider extends AbstractServiceProvider
         // below, so that extensions have a chance to register things on the
         // container before the core boots up (and starts resolving services).
         $this->container['flarum']->booting(function (Container $container) {
-            if (! $this->container->runningUnitTests()) {
-                /** @var ExtensionManager $manager */
-                $manager = $container->make('flarum.extensions');
+            /** @var ExtensionManager $manager */
+            $manager = $container->make('flarum.extensions');
 
-                $manager->extend($container);
-            }
+            $manager->extend($container);
         });
     }
 
