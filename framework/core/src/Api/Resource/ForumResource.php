@@ -11,6 +11,7 @@ namespace Flarum\Api\Resource;
 
 use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
+use Flarum\Api\Resource\Contracts\Findable;
 use Flarum\Api\Schema;
 use Flarum\Foundation\Application;
 use Flarum\Foundation\Config;
@@ -21,7 +22,6 @@ use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use stdClass;
-use Flarum\Api\Resource\Contracts\Findable;
 
 /**
  * @extends AbstractResource<stdClass>
