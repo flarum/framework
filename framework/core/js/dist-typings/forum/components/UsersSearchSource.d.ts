@@ -5,7 +5,7 @@ import type { SearchSource } from './Search';
  * The `UsersSearchSource` finds and displays user search results in the search
  * dropdown.
  */
-export default class UsersSearchResults implements SearchSource {
+export default class UsersSearchSource implements SearchSource {
     protected results: Map<string, User[]>;
     resource: string;
     title(): string;

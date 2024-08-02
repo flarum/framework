@@ -44,7 +44,9 @@ declare class ComposerState {
      */
     load(componentClass: () => Promise<any & {
         default: typeof import('../components/ComposerBody');
-    }> | typeof import('../components/ComposerBody').default, attrs: object): Promise<void>;
+    }> | typeof import('../components/ComposerBody').default, attrs: object): Promise<(() => Promise<any & {
+        default: typeof import('../components/ComposerBody');
+    }> | typeof import('../components/ComposerBody').default) | undefined>;
     /**
      * Clear the composer's content component.
      */
