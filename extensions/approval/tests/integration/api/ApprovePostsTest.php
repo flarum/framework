@@ -17,6 +17,7 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class ApprovePostsTest extends TestCase
 {
@@ -59,9 +60,7 @@ class ApprovePostsTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_approve_unapproved_post()
     {
         $response = $this->send(
@@ -81,9 +80,7 @@ class ApprovePostsTest extends TestCase
         $this->assertEquals(1, $this->database()->table('posts')->where('id', 3)->where('is_approved', 1)->count());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cannot_approve_post_without_permission()
     {
         $response = $this->send(
@@ -103,9 +100,7 @@ class ApprovePostsTest extends TestCase
         $this->assertEquals(0, $this->database()->table('posts')->where('id', 3)->where('is_approved', 1)->count());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function hiding_post_silently_approves_it()
     {
         $response = $this->send(

@@ -19,6 +19,7 @@ use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class ModelVisibilityTest extends TestCase
 {
@@ -47,9 +48,7 @@ class ModelVisibilityTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function when_allowed_guests_can_see_hidden_posts()
     {
         $this->extend(
@@ -68,9 +67,7 @@ class ModelVisibilityTest extends TestCase
         $this->assertEquals(1, Arr::get($json, 'data.relationships.posts.data.0.id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_see_posts_by_default()
     {
         $this->app();
@@ -82,9 +79,7 @@ class ModelVisibilityTest extends TestCase
         $this->assertCount(1, $visiblePosts);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_visibility_scoper_can_stop_user_from_seeing_posts()
     {
         $this->extend(
@@ -103,9 +98,7 @@ class ModelVisibilityTest extends TestCase
         $this->assertCount(0, $visiblePosts);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_visibility_scoper_applies_if_added_to_parent_class()
     {
         $this->extend(
@@ -124,9 +117,7 @@ class ModelVisibilityTest extends TestCase
         $this->assertCount(0, $visiblePosts);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_visibility_scoper_for_class_applied_after_scopers_for_parent_class()
     {
         $this->extend(
@@ -149,9 +140,7 @@ class ModelVisibilityTest extends TestCase
         $this->assertCount(2, $visiblePosts);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_scoper_works_for_abilities_other_than_view()
     {
         $this->extend(
@@ -174,9 +163,7 @@ class ModelVisibilityTest extends TestCase
         $this->assertCount(2, $visiblePosts);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function universal_scoper_works()
     {
         $this->extend(

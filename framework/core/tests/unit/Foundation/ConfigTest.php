@@ -13,11 +13,12 @@ use Flarum\Foundation\Config;
 use Flarum\Foundation\MaintenanceMode;
 use Flarum\Testing\unit\TestCase;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\Test;
 use RuntimeException;
 
 class ConfigTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function it_complains_when_base_url_is_missing()
     {
         $this->expectException(InvalidArgumentException::class);
@@ -25,7 +26,7 @@ class ConfigTest extends TestCase
         new Config([]);
     }
 
-    /** @test */
+    #[Test]
     public function it_wraps_base_url_in_value_object()
     {
         $config = new Config([
@@ -38,7 +39,7 @@ class ConfigTest extends TestCase
         $this->assertEquals('https://flarum.localhost/myforum', (string) $url);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_a_helper_for_debug_mode()
     {
         $config = new Config([
@@ -56,7 +57,7 @@ class ConfigTest extends TestCase
         $this->assertTrue($config->inDebugMode());
     }
 
-    /** @test */
+    #[Test]
     public function it_turns_off_debug_mode_by_default()
     {
         $config = new Config([
@@ -66,7 +67,7 @@ class ConfigTest extends TestCase
         $this->assertFalse($config->inDebugMode());
     }
 
-    /** @test */
+    #[Test]
     public function it_has_a_helper_for_maintenance_mode()
     {
         $config = new Config([
@@ -102,7 +103,7 @@ class ConfigTest extends TestCase
         $this->assertFalse($config->inHighMaintenanceMode());
     }
 
-    /** @test */
+    #[Test]
     public function it_turns_off_maintenance_mode_by_default()
     {
         $config = new Config([
@@ -112,7 +113,7 @@ class ConfigTest extends TestCase
         $this->assertFalse($config->inHighMaintenanceMode());
     }
 
-    /** @test */
+    #[Test]
     public function it_exposes_additional_keys_via_array_access()
     {
         $config = new Config([
@@ -123,7 +124,7 @@ class ConfigTest extends TestCase
         $this->assertEquals('b', $config['custom_a']);
     }
 
-    /** @test */
+    #[Test]
     public function it_exposes_nested_keys_via_dot_syntax()
     {
         $config = new Config([
@@ -138,7 +139,7 @@ class ConfigTest extends TestCase
         $this->assertEquals('2', $config['nested.second']);
     }
 
-    /** @test */
+    #[Test]
     public function it_does_not_allow_mutation_via_array_access()
     {
         $config = new Config([
@@ -155,7 +156,7 @@ class ConfigTest extends TestCase
         $this->assertEquals('b', $config['custom_a']);
     }
 
-    /** @test */
+    #[Test]
     public function it_does_not_allow_removal_via_array_access()
     {
         $config = new Config([

@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\api\settings;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class SetTest extends TestCase
 {
@@ -31,9 +32,7 @@ class SetTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function settings_cant_be_updated_by_user()
     {
         $response = $this->send(
@@ -49,9 +48,7 @@ class SetTest extends TestCase
         $this->assertNotEquals('world', $this->app->getContainer()->make('flarum.settings')->get('hello'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function settings_can_be_updated_by_admin()
     {
         $response = $this->send(
@@ -67,9 +64,7 @@ class SetTest extends TestCase
         $this->assertEquals('world', $this->app->getContainer()->make('flarum.settings')->get('hello'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function max_setting_length_validated()
     {
         $response = $this->send(

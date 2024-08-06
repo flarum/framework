@@ -12,6 +12,7 @@ namespace Flarum\Tests\unit\Foundation;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Testing\unit\TestCase;
 use Illuminate\Container\Container;
+use PHPUnit\Framework\Attributes\Test;
 
 class ContainerUtilTest extends TestCase
 {
@@ -27,7 +28,7 @@ class ContainerUtilTest extends TestCase
         $this->container = new Container();
     }
 
-    /** @test */
+    #[Test]
     public function it_works_with_closures()
     {
         $callback = ContainerUtil::wrapCallback(function ($array) {
@@ -43,7 +44,7 @@ class ContainerUtilTest extends TestCase
         $this->assertEquals('return', $return);
     }
 
-    /** @test */
+    #[Test]
     public function it_works_with_invokable_classes()
     {
         $callback = ContainerUtil::wrapCallback(CustomInvokableClass::class, $this->container);
@@ -55,7 +56,7 @@ class ContainerUtilTest extends TestCase
         $this->assertEquals('return2', $return);
     }
 
-    /** @test */
+    #[Test]
     public function it_works_with_invokable_objects()
     {
         $callback = ContainerUtil::wrapCallback(new class {
@@ -74,7 +75,7 @@ class ContainerUtilTest extends TestCase
         $this->assertEquals('return5', $return);
     }
 
-    /** @test */
+    #[Test]
     public function it_works_with_global_functions()
     {
         $callback = ContainerUtil::wrapCallback('boolval', $this->container);
@@ -86,7 +87,7 @@ class ContainerUtilTest extends TestCase
         $this->assertEquals(false, $callback(false));
     }
 
-    /** @test */
+    #[Test]
     public function it_works_with_static_class_method_arrays()
     {
         $callback = ContainerUtil::wrapCallback([ClassWithMethod::class, 'staticMethod'], $this->container);
@@ -94,7 +95,7 @@ class ContainerUtilTest extends TestCase
         $this->assertEquals('returnStatic', $callback());
     }
 
-    /** @test */
+    #[Test]
     public function it_allows_passing_args_by_reference_on_closures()
     {
         $callback = ContainerUtil::wrapCallback(function (&$array) {
@@ -110,7 +111,7 @@ class ContainerUtilTest extends TestCase
         $this->assertEquals('return3', $return);
     }
 
-    /** @test */
+    #[Test]
     public function it_allows_passing_args_by_reference_on_invokable_classes()
     {
         $callback = ContainerUtil::wrapCallback(SecondCustomInvokableClass::class, $this->container);
@@ -122,7 +123,7 @@ class ContainerUtilTest extends TestCase
         $this->assertEquals('return4', $return);
     }
 
-    /** @test */
+    #[Test]
     public function it_allows_passing_args_by_reference_on_invokable_objects()
     {
         $callback = ContainerUtil::wrapCallback(new class {

@@ -50,3 +50,5 @@ parameters:
 		# Ignore overriden classes from packages so that it's always easier to keep track of what's being overriden.
 		- message: '#^Method Flarum\\Api\\Serializer\:\:[A-z0-9_]+\(\) has parameter \$[A-z0-9_]+ with no type specified\.$#'
 		- message: '#^Method Flarum\\Api\\Endpoint\\[A-z0-9_]+\:\:[A-z0-9_]+\(\) has parameter \$[A-z0-9_]+ with no type specified\.$#'
+
+		- message: '#^Unable to resolve the template type TRelatedModel in call to method Illuminate\\Database\\Eloquent\\Model\:\:[A-z]+\(\)$#'

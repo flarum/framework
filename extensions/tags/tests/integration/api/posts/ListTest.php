@@ -17,6 +17,8 @@ use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListTest extends TestCase
 {
@@ -74,10 +76,8 @@ class ListTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider authorizedUsers
-     * @test
-     */
+    #[Test]
+    #[DataProvider('authorizedUsers')]
     public function event_mentioned_tags_are_included_in_response_for_authorized_users(int $userId)
     {
         $response = $this->send(
@@ -101,10 +101,8 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing([1, 5], $tagIds, $body);
     }
 
-    /**
-     * @dataProvider unauthorizedUsers
-     * @test
-     */
+    #[Test]
+    #[DataProvider('unauthorizedUsers')]
     public function event_mentioned_tags_are_not_included_in_response_for_unauthorized_users(?int $userId)
     {
         $response = $this->send(
@@ -126,7 +124,7 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing([1], $tagIds);
     }
 
-    public function authorizedUsers()
+    public static function authorizedUsers()
     {
         return [
             'admin' => [1],
@@ -134,7 +132,7 @@ class ListTest extends TestCase
         ];
     }
 
-    public function unauthorizedUsers()
+    public static function unauthorizedUsers()
     {
         return [
             'normal user without permission' => [3],

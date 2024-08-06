@@ -14,6 +14,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\Throttler\EmailChangeThrottler;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class UpdateTest extends TestCase
 {
@@ -60,9 +61,7 @@ class UpdateTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_can_see_their_private_information()
     {
         $response = $this->send(
@@ -79,9 +78,7 @@ class UpdateTest extends TestCase
         $this->assertStringContainsString('normal@machine.local', $body);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_can_not_see_other_users_private_information()
     {
         $response = $this->send(
@@ -99,10 +96,9 @@ class UpdateTest extends TestCase
     }
 
     /**
-     * @test
-     *
-     * This tests the generic user.edit permission used for non-credential/group attributes
+     * This tests the generic user.edit permission used for non-credential/group attributes.
      */
+    #[Test]
     public function users_can_update_own_avatar()
     {
         $response = $this->send(
@@ -114,9 +110,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_cant_update_own_email_if_password_wrong()
     {
         $response = $this->send(
@@ -139,9 +133,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(401, $response->getStatusCode(), (string) $response->getBody());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_can_update_own_email()
     {
         $response = $this->send(
@@ -163,9 +155,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_can_request_email_change_in_moderate_intervals()
     {
         for ($i = 0; $i < 2; $i++) {
@@ -193,9 +183,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_cant_request_email_change_too_fast()
     {
         for ($i = 0; $i < 2; $i++) {
@@ -219,9 +207,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(429, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_cant_update_own_username()
     {
         $response = $this->send(
@@ -240,9 +226,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_can_update_own_preferences()
     {
         $response = $this->send(
@@ -263,9 +247,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_cant_update_own_groups()
     {
         $response = $this->send(
@@ -287,9 +269,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_can_update_marked_all_as_read()
     {
         $response = $this->send(
@@ -308,9 +288,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_cant_activate_themselves()
     {
         $response = $this->send(
@@ -330,10 +308,9 @@ class UpdateTest extends TestCase
     }
 
     /**
-     * @test
-     *
-     * This tests the generic user.edit permission used for non-credential/group attributes
+     * This tests the generic user.edit permission used for non-credential/group attributes.
      */
+    #[Test]
     public function users_cant_update_others_avatars_without_permission()
     {
         $response = $this->send(
@@ -345,9 +322,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_cant_update_others_emails_without_permission()
     {
         $response = $this->send(
@@ -369,9 +344,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_cant_update_others_usernames_without_permission()
     {
         $response = $this->send(
@@ -390,9 +363,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_cant_update_others_groups_without_permission()
     {
         $response = $this->send(
@@ -414,9 +385,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_cant_activate_others_without_permission()
     {
         $response = $this->send(
@@ -436,10 +405,9 @@ class UpdateTest extends TestCase
     }
 
     /**
-     * @test
-     *
-     * This tests the generic user.edit permission used for non-credential/group attributes
+     * This tests the generic user.edit permission used for non-credential/group attributes.
      */
+    #[Test]
     public function users_can_update_others_avatars_with_permissions()
     {
         $this->giveNormalUsersEditPerms();
@@ -452,9 +420,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_can_update_others_emails_with_permission()
     {
         $this->giveNormalUsersEditPerms();
@@ -474,9 +440,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_can_update_others_usernames_with_permission()
     {
         $this->giveNormalUsersEditPerms();
@@ -496,9 +460,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_cant_update_admin_emails_with_permission()
     {
         $this->giveNormalUsersEditPerms();
@@ -518,9 +480,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_cant_update_admin_usernames_with_permission()
     {
         $this->giveNormalUsersEditPerms();
@@ -540,9 +500,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_can_update_others_groups_with_permission()
     {
         $this->giveNormalUsersEditPerms();
@@ -565,9 +523,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function regular_users_cant_demote_admins_even_with_permission()
     {
         $this->giveNormalUsersEditPerms();
@@ -588,9 +544,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function regular_users_cant_promote_others_to_admin_even_with_permission()
     {
         $this->giveNormalUsersEditPerms();
@@ -613,9 +567,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function regular_users_cant_promote_self_to_admin_even_with_permission()
     {
         $this->giveNormalUsersEditPerms();
@@ -638,9 +590,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function users_cant_activate_others_even_with_permissions()
     {
         $this->giveNormalUsersEditPerms();
@@ -660,9 +610,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admins_cant_update_others_preferences()
     {
         $response = $this->send(
@@ -683,9 +631,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admins_cant_update_marked_all_as_read()
     {
         $response = $this->send(
@@ -704,9 +650,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admins_can_activate_others()
     {
         $response = $this->send(
@@ -725,9 +669,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admins_cant_demote_self()
     {
         $this->giveNormalUsersEditPerms();
@@ -748,9 +690,7 @@ class UpdateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode(), (string) $response->getBody());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function last_seen_not_updated_quickly()
     {
         $this->app();
@@ -769,9 +709,7 @@ class UpdateTest extends TestCase
         $this->assertTrue(Carbon::parse($last_seen)->equalTo($user->last_seen_at));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function last_seen_updated_after_long_time()
     {
         $this->app();

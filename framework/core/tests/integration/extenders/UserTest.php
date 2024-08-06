@@ -15,6 +15,7 @@ use Flarum\Testing\integration\TestCase;
 use Flarum\User\DisplayName\DriverInterface;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class UserTest extends TestCase
 {
@@ -44,9 +45,7 @@ class UserTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function username_display_name_driver_used_by_default()
     {
         $this->app();
@@ -56,9 +55,7 @@ class UserTest extends TestCase
         $this->assertEquals('admin', $user->displayName);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_use_custom_display_name_driver()
     {
         $this->extend(
@@ -73,9 +70,7 @@ class UserTest extends TestCase
         $this->assertEquals('admin@machine.local$$$suffix', $user->displayName);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_has_permissions_for_expected_groups_if_no_processors_added()
     {
         $this->app();
@@ -85,9 +80,7 @@ class UserTest extends TestCase
         $this->assertContains('searchUsers', $user->getPermissions());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function processor_can_restrict_user_groups()
     {
         $this->extend((new Extend\User)->permissionGroups(function (User $user, array $groupIds) {
@@ -103,9 +96,7 @@ class UserTest extends TestCase
         $this->assertNotContains('searchUsers', $user->getPermissions());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function processor_can_be_invokable_class()
     {
         $this->extend((new Extend\User)->permissionGroups(CustomGroupProcessorClass::class));
@@ -117,9 +108,7 @@ class UserTest extends TestCase
         $this->assertNotContains('searchUsers', $user->getPermissions());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_add_user_preference()
     {
         $this->registerTestPreference();
@@ -131,9 +120,7 @@ class UserTest extends TestCase
         $this->assertEquals(true, Arr::get($user->preferences, 'test'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_store_user_preference()
     {
         $this->registerTestPreference();
@@ -148,9 +135,7 @@ class UserTest extends TestCase
         $this->assertEquals(false, $user->getPreference('test'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function storing_user_preference_modified_by_transformer()
     {
         $this->registerTestPreference();

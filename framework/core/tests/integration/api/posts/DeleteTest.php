@@ -16,6 +16,8 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class DeleteTest extends TestCase
 {
@@ -52,10 +54,8 @@ class DeleteTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider deleteLastPostsProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('deleteLastPostsProvider')]
     public function deleting_last_posts_syncs_discussion_state_for_other_users(array $postIds, int $newLastReadNumber, int $userId)
     {
         // Delete the last post.
@@ -76,7 +76,7 @@ class DeleteTest extends TestCase
         );
     }
 
-    public function deleteLastPostsProvider(): array
+    public static function deleteLastPostsProvider(): array
     {
         return [
             // User 2

@@ -13,6 +13,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListTest extends TestCase
 {
@@ -32,9 +33,7 @@ class ListTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function disallows_index_for_guest()
     {
         $response = $this->send(
@@ -44,9 +43,7 @@ class ListTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shows_index_for_guest_when_they_have_permission()
     {
         $this->prepareDatabase([
@@ -62,9 +59,7 @@ class ListTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shows_index_for_admin()
     {
         $response = $this->send(
@@ -76,9 +71,7 @@ class ListTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shows_full_results_without_search_or_filter()
     {
         $response = $this->send(
@@ -92,9 +85,7 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing(['1', '2'], Arr::pluck($data, 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function allows_last_seen_sorting_with_permission()
     {
         $this->prepareDatabase([
@@ -114,9 +105,7 @@ class ListTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function disallows_last_seen_sorting_without_permission()
     {
         $this->prepareDatabase([
@@ -135,9 +124,7 @@ class ListTest extends TestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function group_filter_works()
     {
         $response = $this->send(
@@ -153,9 +140,7 @@ class ListTest extends TestCase
         $this->assertEquals(['1'], Arr::pluck($data, 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function group_filter_works_negated()
     {
         $response = $this->send(
@@ -171,9 +156,7 @@ class ListTest extends TestCase
         $this->assertEquals(['2'], Arr::pluck($data, 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function email_filter_works()
     {
         $response = $this->send(
@@ -189,9 +172,7 @@ class ListTest extends TestCase
         $this->assertEquals(['1'], Arr::pluck($data, 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function email_filter_works_negated()
     {
         $response = $this->send(
@@ -207,9 +188,7 @@ class ListTest extends TestCase
         $this->assertEquals(['2'], Arr::pluck($data, 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function email_filter_only_works_for_admin()
     {
         $response = $this->send(

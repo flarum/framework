@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\forum;
 use Flarum\Extend;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class RegisterTest extends TestCase
 {
@@ -25,9 +26,7 @@ class RegisterTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cant_register_without_data()
     {
         $response = $this->send(
@@ -64,9 +63,7 @@ class RegisterTest extends TestCase
         ], json_decode($body, true));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_register_with_data()
     {
         $response = $this->send(

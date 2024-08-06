@@ -16,6 +16,8 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class CreateTest extends TestCase
 {
@@ -53,10 +55,8 @@ class CreateTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider discussionRepliesPrvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('discussionRepliesPrvider')]
     public function can_create_reply_if_allowed(int $actorId, int $discussionId, int $responseStatus)
     {
         // Reset permissions for normal users group.
@@ -88,7 +88,7 @@ class CreateTest extends TestCase
         $this->assertEquals($responseStatus, $response->getStatusCode(), (string) $response->getBody());
     }
 
-    public function discussionRepliesPrvider(): array
+    public static function discussionRepliesPrvider(): array
     {
         return [
             // [$actorId, $discussionId, $responseStatus]
@@ -99,9 +99,7 @@ class CreateTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function limited_by_throttler()
     {
         $response = $this->send(

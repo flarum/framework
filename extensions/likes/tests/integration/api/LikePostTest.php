@@ -17,6 +17,8 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ResponseInterface;
 
 class LikePostTest extends TestCase
@@ -60,10 +62,8 @@ class LikePostTest extends TestCase
         $this->database()->table('group_permission')->insert(['permission' => 'discussion.likePosts', 'group_id' => 5]);
     }
 
-    /**
-     * @dataProvider allowedUsersToLike
-     * @test
-     */
+    #[Test]
+    #[DataProvider('allowedUsersToLike')]
     public function can_like_a_post_if_allowed(int $postId, ?int $authenticatedAs, string $message, bool $canLikeOwnPost = null)
     {
         if (! is_null($canLikeOwnPost)) {
@@ -80,10 +80,8 @@ class LikePostTest extends TestCase
         $this->assertNotNull($post->likes->where('id', $authenticatedAs)->first(), $message);
     }
 
-    /**
-     * @dataProvider unallowedUsersToLike
-     * @test
-     */
+    #[Test]
+    #[DataProvider('unallowedUsersToLike')]
     public function cannot_like_a_post_if_not_allowed(int $postId, ?int $authenticatedAs, string $message, bool $canLikeOwnPost = null)
     {
         if (! is_null($canLikeOwnPost)) {
@@ -100,10 +98,8 @@ class LikePostTest extends TestCase
         $this->assertNull($post->likes->where('id', $authenticatedAs)->first());
     }
 
-    /**
-     * @dataProvider allowedUsersToLike
-     * @test
-     */
+    #[Test]
+    #[DataProvider('allowedUsersToLike')]
     public function can_dislike_a_post_if_liked_and_allowed(int $postId, ?int $authenticatedAs, string $message, bool $canLikeOwnPost = null)
     {
         if (! is_null($canLikeOwnPost)) {
@@ -121,7 +117,7 @@ class LikePostTest extends TestCase
         $this->assertNull($post->likes->where('id', $authenticatedAs)->first(), $message);
     }
 
-    public function allowedUsersToLike(): array
+    public static function allowedUsersToLike(): array
     {
         return [
             [1, 1, 'Admin can like any post'],
@@ -130,7 +126,7 @@ class LikePostTest extends TestCase
         ];
     }
 
-    public function unallowedUsersToLike(): array
+    public static function unallowedUsersToLike(): array
     {
         return [
             [1, null, 'Guest cannot like any post'],

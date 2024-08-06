@@ -151,8 +151,12 @@ abstract class AbstractModel extends Eloquent
         return $callbacks;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function newModelQuery()
     {
+        /** @var \Illuminate\Database\Eloquent\Builder<static> $query */
         $query = parent::newModelQuery();
 
         if ($this->tableAlias) {
@@ -183,8 +187,10 @@ abstract class AbstractModel extends Eloquent
         return $result;
     }
 
+    // @phpstan-ignore-next-line
     public function newCollection(array $models = []): Collection
     {
+        // @phpstan-ignore-next-line
         return new Collection($models);
     }
 

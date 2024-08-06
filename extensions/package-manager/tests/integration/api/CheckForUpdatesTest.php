@@ -13,15 +13,14 @@ use Flarum\ExtensionManager\Tests\integration\ChangeComposerConfig;
 use Flarum\ExtensionManager\Tests\integration\RefreshComposerSetup;
 use Flarum\ExtensionManager\Tests\integration\TestCase;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class CheckForUpdatesTest extends TestCase
 {
     use RefreshComposerSetup;
     use ChangeComposerConfig;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_check_for_updates()
     {
         $this->setComposerConfig([

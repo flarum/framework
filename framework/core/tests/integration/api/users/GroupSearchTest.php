@@ -13,6 +13,7 @@ use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class GroupSearchTest extends TestCase
 {
@@ -29,9 +30,7 @@ class GroupSearchTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function disallows_group_filter_for_user_without_permission()
     {
         $response = $this->createRequest(['admin']);
@@ -39,9 +38,7 @@ class GroupSearchTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function allows_group_filter_for_admin()
     {
         $response = $this->createRequest(['admin'], 1);
@@ -49,9 +46,7 @@ class GroupSearchTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function allows_group_filter_for_user_with_permission()
     {
         $this->prepareDatabase([
@@ -64,9 +59,7 @@ class GroupSearchTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function non_admin_gets_correct_results()
     {
         $this->prepareDatabase([
@@ -115,9 +108,7 @@ class GroupSearchTest extends TestCase
         $this->assertCount(0, $responseBodyContents['included'], json_encode($responseBodyContents));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function non_admin_cannot_see_hidden_groups()
     {
         $this->prepareDatabase([
@@ -134,9 +125,7 @@ class GroupSearchTest extends TestCase
         $this->assertCount(0, $responseBodyContents['included'], json_encode($responseBodyContents));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function non_admin_can_select_multiple_groups_but_not_hidden()
     {
         $this->prepareDatabase([
@@ -153,9 +142,7 @@ class GroupSearchTest extends TestCase
         $this->assertEqualsCanonicalizing([1, 4, 5, 6], array_column($responseBodyContents['included'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_gets_correct_results_group()
     {
         $response = $this->createRequest(['admin'], 1);
@@ -198,9 +185,7 @@ class GroupSearchTest extends TestCase
         $this->assertCount(0, $responseBodyContents['included'], json_encode($responseBodyContents));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_can_see_hidden_groups()
     {
         $this->createHiddenUser();
@@ -212,9 +197,7 @@ class GroupSearchTest extends TestCase
         $this->assertEquals(99, $responseBodyContents['included'][0]['id']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_can_select_multiple_groups_and_hidden()
     {
         $this->createMultipleUsersAndGroups();

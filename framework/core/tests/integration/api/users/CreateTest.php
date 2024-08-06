@@ -14,6 +14,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class CreateTest extends TestCase
 {
@@ -29,9 +30,7 @@ class CreateTest extends TestCase
         $this->setting('mail_driver', 'log');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cannot_create_user_without_data()
     {
         $response = $this->send(
@@ -77,9 +76,7 @@ class CreateTest extends TestCase
         ], json_decode($body, true));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_create_user()
     {
         $response = $this->send(
@@ -110,9 +107,7 @@ class CreateTest extends TestCase
         $this->assertEquals('test@machine.local', $user->email);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admins_can_create_activated_users()
     {
         $response = $this->send(
@@ -143,9 +138,7 @@ class CreateTest extends TestCase
         $this->assertEquals(1, $user->is_email_confirmed);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function disabling_sign_up_prevents_user_creation()
     {
         /** @var SettingsRepositoryInterface $settings */
@@ -174,9 +167,7 @@ class CreateTest extends TestCase
         $settings->set('allow_sign_up', true);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cannot_create_user_with_invalid_avatar_uri_scheme()
     {
         // Boot app
@@ -240,9 +231,7 @@ class CreateTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cannot_create_user_with_invalid_avatar_uri()
     {
         // Boot app
@@ -314,9 +303,7 @@ class CreateTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_create_user_with_valid_avatar_uri()
     {
         // Boot app

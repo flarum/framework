@@ -16,6 +16,9 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 
+/**
+ * @template M of AbstractModel
+ */
 class Model implements ExtenderInterface
 {
     private array $customRelations = [];
@@ -34,7 +37,7 @@ class Model implements ExtenderInterface
      * Add a custom attribute type cast. Should not be applied to non-extension attributes.
      *
      * @param string $attribute: The new attribute name.
-     * @param string $cast: The cast type. See https://laravel.com/docs/10.x/eloquent-mutators#attribute-casting
+     * @param string $cast: The cast type. See https://laravel.com/docs/11.x/eloquent-mutators#attribute-casting
      * @return self
      */
     public function cast(string $attribute, string $cast): self
@@ -156,9 +159,7 @@ class Model implements ExtenderInterface
      * @param string $name: The name of the relation. This doesn't have to be anything in particular,
      *                      but has to be unique from other relation names for this model, and should
      *                      work as the name of a method.
-     * @template T of AbstractModel
-     * @template R of Relation
-     * @param (callable(T $instance): R)|class-string $callback
+     * @param callable|class-string $callback
      *
      * The callable can be a closure or invokable class, and should accept:
      * - $instance: An instance of this model.

@@ -10,12 +10,11 @@
 namespace Flarum\Tests\integration\middleware;
 
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ReferrerPolicyTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function has_referer_header()
     {
         $response = $this->send(
@@ -25,9 +24,7 @@ class ReferrerPolicyTest extends TestCase
         $this->assertArrayHasKey('Referrer-Policy', $response->getHeaders());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function has_default_referer_policy()
     {
         $response = $this->send(

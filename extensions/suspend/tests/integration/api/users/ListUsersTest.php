@@ -14,6 +14,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListUsersTest extends TestCase
 {
@@ -55,7 +56,7 @@ class ListUsersTest extends TestCase
         $this->assertEqualsCanonicalizing([1, 2, 3, 4, 5, 6], Arr::pluck($body['data'], 'id'));
     }
 
-    /** @test */
+    #[Test]
     public function can_filter_users_by_suspension()
     {
         $response = $this->send(

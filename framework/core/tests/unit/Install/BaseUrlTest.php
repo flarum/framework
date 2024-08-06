@@ -12,20 +12,17 @@ namespace Flarum\Tests\unit\Install;
 use Flarum\Install\BaseUrl;
 use Flarum\Testing\unit\TestCase;
 use Laminas\Diactoros\Uri;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class BaseUrlTest extends TestCase
 {
-    /**
-     * @dataProvider urlProvider
-     */
+    #[DataProvider('urlProvider')]
     public function test_base_url_simulating_cli_installer($uri, $expected)
     {
         $this->assertEquals($expected, BaseUrl::fromString($uri));
     }
 
-    /**
-     * @dataProvider urlProvider
-     */
+    #[DataProvider('urlProvider')]
     public function test_base_url_simulating_web_installer($uri, $expected)
     {
         $uri = new Uri($uri);
@@ -33,9 +30,7 @@ class BaseUrlTest extends TestCase
         $this->assertEquals($expected, BaseUrl::fromUri($uri));
     }
 
-    /**
-     * @dataProvider emailProvider
-     */
+    #[DataProvider('emailProvider')]
     public function test_default_email_generation($uri, $expected)
     {
         $this->assertEquals(
@@ -44,7 +39,7 @@ class BaseUrlTest extends TestCase
         );
     }
 
-    public function urlProvider()
+    public static function urlProvider()
     {
         return [
             ['',                                         ''],
@@ -75,7 +70,7 @@ class BaseUrlTest extends TestCase
         ];
     }
 
-    public function emailProvider()
+    public static function emailProvider()
     {
         return [
             ['flarum.org',                               'noreply@flarum.org'],

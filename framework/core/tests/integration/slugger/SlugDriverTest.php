@@ -15,6 +15,8 @@ use Flarum\Http\SlugManager;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class SlugDriverTest extends TestCase
 {
@@ -38,10 +40,8 @@ class SlugDriverTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider slugInstancePairDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('slugInstancePairDataProvider')]
     public function slugger_formats_the_correct_slug_from_instance(string $driver, string $modelClassName, int $id, string $slug)
     {
         $this->setting("slug_driver_$modelClassName", $driver);
@@ -59,10 +59,8 @@ class SlugDriverTest extends TestCase
         $this->assertEquals($slug, $slugger->toSlug($instance));
     }
 
-    /**
-     * @dataProvider slugInstancePairDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('slugInstancePairDataProvider')]
     public function slugger_returns_the_correct_instance_from_slug(string $driver, string $modelClassName, int $id, string $slug)
     {
         $this->setting("slug_driver_$modelClassName", $driver);
@@ -73,7 +71,7 @@ class SlugDriverTest extends TestCase
         $this->assertEquals($modelClassName::query()->find($id), $slugger->fromSlug($slug, User::query()->find(1)));
     }
 
-    public function slugInstancePairDataProvider(): array
+    public static function slugInstancePairDataProvider(): array
     {
         return [
             ['default', Discussion::class, 20, '20-empty-discussion'],

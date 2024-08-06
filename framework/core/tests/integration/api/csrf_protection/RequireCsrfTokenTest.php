@@ -13,6 +13,7 @@ use Flarum\Api\ApiKey;
 use Flarum\Http\AccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class RequireCsrfTokenTest extends TestCase
 {
@@ -34,9 +35,7 @@ class RequireCsrfTokenTest extends TestCase
         $this->setting('csrf_test', 1);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function error_when_doing_cookie_auth_without_csrf_token()
     {
         $auth = $this->send(
@@ -73,9 +72,7 @@ class RequireCsrfTokenTest extends TestCase
         $this->assertEquals('csrf_token_mismatch', $json['errors'][0]['code']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cookie_auth_succeeds_with_csrf_token_in_header()
     {
         $initial = $this->send(
@@ -118,9 +115,7 @@ class RequireCsrfTokenTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cookie_auth_succeeds_with_csrf_token_in_body()
     {
         $initial = $this->send(
@@ -163,9 +158,7 @@ class RequireCsrfTokenTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function master_api_token_does_not_need_csrf_token()
     {
         $response = $this->send(
@@ -188,9 +181,7 @@ class RequireCsrfTokenTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function access_token_does_not_need_csrf_token()
     {
         $this->database()->table('access_tokens')->insert(

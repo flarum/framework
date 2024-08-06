@@ -111,7 +111,7 @@ class AccessToken extends AbstractModel
     {
         $now = Carbon::now();
 
-        if ($this->last_activity_at === null || $this->last_activity_at->diffInSeconds($now) > AccessToken::LAST_ACTIVITY_UPDATE_DIFF) {
+        if ($this->last_activity_at === null || $this->last_activity_at->diffInSeconds($now, true) > AccessToken::LAST_ACTIVITY_UPDATE_DIFF) {
             $this->last_activity_at = $now;
         }
 

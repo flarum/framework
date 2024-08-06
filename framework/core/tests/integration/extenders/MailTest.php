@@ -16,6 +16,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Support\MessageBag;
+use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Mailer\Transport\NullTransport;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 
@@ -23,9 +24,7 @@ class MailTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function drivers_are_unchanged_by_default()
     {
         $response = $this->send(
@@ -53,9 +52,7 @@ class MailTest extends TestCase
         ], $fields['smtp']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function added_driver_appears_in_mail_settings()
     {
         $this->extend(
@@ -75,9 +72,7 @@ class MailTest extends TestCase
         $this->assertEquals(['customSetting1' => ''], $fields['custom']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function adding_driver_with_duplicate_name_overrides_fields()
     {
         $this->extend(

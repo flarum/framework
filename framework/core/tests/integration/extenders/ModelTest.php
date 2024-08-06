@@ -20,6 +20,7 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class ModelTest extends TestCase
 {
@@ -51,9 +52,7 @@ class ModelTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_relationship_does_not_exist_by_default()
     {
         $this->app();
@@ -64,9 +63,7 @@ class ModelTest extends TestCase
         $user->customRelation();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_hasOne_relationship_exists_if_added()
     {
         $this->extend(
@@ -81,9 +78,7 @@ class ModelTest extends TestCase
         $this->assertEquals([], $user->customRelation()->get()->toArray());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_hasMany_relationship_exists_if_added()
     {
         $this->extend(
@@ -98,9 +93,7 @@ class ModelTest extends TestCase
         $this->assertEquals([], $user->customRelation()->get()->toArray());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_belongsTo_relationship_exists_if_added()
     {
         $this->extend(
@@ -115,9 +108,7 @@ class ModelTest extends TestCase
         $this->assertEquals([], $user->customRelation()->get()->toArray());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_relationship_exists_if_added()
     {
         $this->extend(
@@ -134,9 +125,7 @@ class ModelTest extends TestCase
         $this->assertEquals([], $user->customRelation()->get()->toArray());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_relationship_can_be_invokable_class()
     {
         $this->extend(
@@ -151,9 +140,7 @@ class ModelTest extends TestCase
         $this->assertEquals([], $user->customRelation()->get()->toArray());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_relationship_exists_and_can_return_instances_if_added()
     {
         $this->extend(
@@ -177,9 +164,7 @@ class ModelTest extends TestCase
         $this->assertStringContainsString(json_encode(__CLASS__), json_encode($user->customRelation()->get()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_relationship_is_inherited_to_child_classes()
     {
         $this->extend(
@@ -197,9 +182,7 @@ class ModelTest extends TestCase
         $this->assertEquals(1, $post->ancestor->id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_relationship_prioritizes_child_classes_within_2_parent_classes()
     {
         $this->extend(
@@ -219,9 +202,7 @@ class ModelTest extends TestCase
         $this->assertEquals(1, $post->ancestor->id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_relationship_prioritizes_child_classes_within_child_class_and_immediate_parent()
     {
         $this->extend(
@@ -241,9 +222,7 @@ class ModelTest extends TestCase
         $this->assertEquals(2, $post->ancestor->id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_relationship_does_not_exist_if_added_to_unrelated_model()
     {
         $this->extend(
@@ -261,9 +240,7 @@ class ModelTest extends TestCase
         $group->customRelation();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_default_attribute_doesnt_exist_if_not_set()
     {
         $group = new Group;
@@ -273,9 +250,7 @@ class ModelTest extends TestCase
         $this->assertNotEquals('Custom Default', $group->name_singular);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_default_attribute_works_if_set()
     {
         $this->extend(
@@ -290,9 +265,7 @@ class ModelTest extends TestCase
         $this->assertEquals('Custom Default', $group->name_singular);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_default_attribute_evaluated_at_runtime_if_callable()
     {
         $this->extend(
@@ -315,9 +288,7 @@ class ModelTest extends TestCase
         $this->assertEquals(4, $group2->counter);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_default_attribute_is_inherited_to_child_classes()
     {
         $this->extend(
@@ -332,9 +303,7 @@ class ModelTest extends TestCase
         $this->assertEquals(42, $post->answer);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_default_attribute_inheritance_prioritizes_child_class()
     {
         $this->extend(
@@ -357,9 +326,7 @@ class ModelTest extends TestCase
         $this->assertEquals('ni!', $commentPost->answer);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_default_attribute_doesnt_work_if_set_on_unrelated_model()
     {
         $this->extend(
@@ -374,9 +341,7 @@ class ModelTest extends TestCase
         $this->assertNotEquals('Custom Default', $user->name_singular);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_cast_attribute_doesnt_exist_by_default()
     {
         $post = new Post;
@@ -386,9 +351,7 @@ class ModelTest extends TestCase
         $this->assertFalse($post->hasCast('custom'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_cast_attribute_can_be_set()
     {
         $this->extend(
@@ -403,9 +366,7 @@ class ModelTest extends TestCase
         $this->assertTrue($post->hasCast('custom', 'datetime'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_cast_attribute_is_inherited_to_child_classes()
     {
         $this->extend(
@@ -420,9 +381,7 @@ class ModelTest extends TestCase
         $this->assertTrue($post->hasCast('custom', 'boolean'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_cast_attribute_doesnt_work_if_set_on_unrelated_model()
     {
         $this->extend(

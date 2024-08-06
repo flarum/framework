@@ -11,14 +11,13 @@ namespace Flarum\ExtensionManager\Tests\integration\api;
 
 use Flarum\ExtensionManager\Tests\integration\RefreshComposerSetup;
 use Flarum\ExtensionManager\Tests\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class GlobalUpdateTest extends TestCase
 {
     use RefreshComposerSetup;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_global_update()
     {
         $response = $this->send(

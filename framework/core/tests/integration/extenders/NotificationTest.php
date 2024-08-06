@@ -18,30 +18,25 @@ use Flarum\Notification\NotificationSyncer;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class NotificationTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function notification_type_doesnt_exist_by_default()
     {
         $this->assertArrayNotHasKey('customNotificationType', Notification::getSubjectModels());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function notification_driver_doesnt_exist_by_default()
     {
         $this->assertArrayNotHasKey('customNotificationDriver', NotificationSyncer::getNotificationDrivers());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function notification_type_exists_if_added()
     {
         $this->extend((new Extend\Notification)->type(CustomNotificationType::class));
@@ -51,9 +46,7 @@ class NotificationTest extends TestCase
         $this->assertArrayHasKey('customNotificationType', Notification::getSubjectModels());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function notification_driver_exists_if_added()
     {
         $this->extend((new Extend\Notification())->driver(
@@ -66,9 +59,7 @@ class NotificationTest extends TestCase
         $this->assertArrayHasKey('customNotificationDriver', NotificationSyncer::getNotificationDrivers());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function notification_driver_enabled_types_exist_if_added()
     {
         $this->extend(
@@ -91,9 +82,7 @@ class NotificationTest extends TestCase
         $this->assertEmpty($blueprints[ThirdCustomNotificationType::class]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function notification_before_sending_callback_works_if_added()
     {
         $this->extend(

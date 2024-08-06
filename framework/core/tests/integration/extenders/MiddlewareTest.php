@@ -11,6 +11,7 @@ namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -26,9 +27,7 @@ class MiddlewareTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_header_is_not_present_by_default()
     {
         $response = $this->send($this->request('GET', '/'));
@@ -37,9 +36,7 @@ class MiddlewareTest extends TestCase
         $this->assertArrayNotHasKey('X-First-Test-Middleware', $response->getHeaders());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_add_middleware()
     {
         $this->extend(
@@ -52,9 +49,7 @@ class MiddlewareTest extends TestCase
         $this->assertArrayHasKey('X-First-Test-Middleware', $response->getHeaders());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_replace_middleware()
     {
         $this->add_first_middleware();
@@ -69,9 +64,7 @@ class MiddlewareTest extends TestCase
         $this->assertArrayHasKey('X-Second-Test-Middleware', $response->getHeaders());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_remove_middleware()
     {
         $this->add_first_middleware();
@@ -85,9 +78,7 @@ class MiddlewareTest extends TestCase
         $this->assertArrayNotHasKey('X-First-Test-Middleware', $response->getHeaders());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_insert_before_middleware()
     {
         $this->add_first_middleware();
@@ -104,9 +95,7 @@ class MiddlewareTest extends TestCase
         $this->assertLessThan($newMiddlewarePosition, $originalMiddlewarePosition);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_insert_after_middleware()
     {
         $this->add_first_middleware();

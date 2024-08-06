@@ -17,6 +17,8 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class CreatePostsTest extends TestCase
 {
@@ -68,10 +70,8 @@ class CreatePostsTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider startDiscussionDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('startDiscussionDataProvider')]
     public function can_start_discussion_without_approval_when_allowed(int $authenticatedAs, bool $allowed)
     {
         $this->database()->table('group_permission')->where('group_id', Group::MEMBER_ID)->where('permission', 'discussion.startWithoutApproval')->delete();
@@ -98,10 +98,8 @@ class CreatePostsTest extends TestCase
         $this->assertEquals($allowed ? 1 : 0, $this->database()->table('discussions')->where('id', $json['data']['id'])->value('is_approved'));
     }
 
-    /**
-     * @dataProvider replyToDiscussionDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('replyToDiscussionDataProvider')]
     public function can_reply_without_approval_when_allowed(?int $authenticatedAs, bool $allowed)
     {
         $this->database()->table('group_permission')->where('group_id', Group::MEMBER_ID)->where('permission', 'discussion.replyWithoutApproval')->delete();

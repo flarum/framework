@@ -15,6 +15,7 @@ use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class CreateTest extends TestCase
 {
@@ -45,9 +46,7 @@ class CreateTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_can_create_discussion_without_tags()
     {
         $response = $this->send(
@@ -68,9 +67,7 @@ class CreateTest extends TestCase
         $this->assertEquals(201, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cant_create_discussion_without_tags()
     {
         $response = $this->send(
@@ -113,9 +110,7 @@ class CreateTest extends TestCase
         $this->assertEquals(422, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_create_discussion_without_tags_if_bypass_permission_granted()
     {
         $this->prepareDatabase([
@@ -142,9 +137,7 @@ class CreateTest extends TestCase
         $this->assertEquals(201, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_create_discussion_in_primary_tag()
     {
         $response = $this->send(
@@ -172,9 +165,7 @@ class CreateTest extends TestCase
         $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cant_create_discussion_in_primary_tag_where_can_view_but_cant_start()
     {
         $response = $this->send(
@@ -202,9 +193,7 @@ class CreateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cant_create_discussion_in_primary_tag_where_can_view_but_cant_start_with_bypass_permission_granted()
     {
         $this->prepareDatabase([
@@ -238,9 +227,7 @@ class CreateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_create_discussion_in_tag_where_can_view_and_can_start()
     {
         $response = $this->send(
@@ -269,9 +256,7 @@ class CreateTest extends TestCase
         $this->assertEquals(201, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cant_create_discussion_in_child_tag_without_parent_tag()
     {
         $response = $this->send(
@@ -299,9 +284,7 @@ class CreateTest extends TestCase
         $this->assertEquals(422, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_create_discussion_in_child_tag_with_parent_tag()
     {
         $response = $this->send(
@@ -330,9 +313,7 @@ class CreateTest extends TestCase
         $this->assertEquals(201, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function primary_tag_required_by_default()
     {
         $response = $this->send(
