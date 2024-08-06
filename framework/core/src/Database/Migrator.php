@@ -9,7 +9,6 @@
 
 namespace Flarum\Database;
 
-use Doctrine\DBAL\Types\Type;
 use Flarum\Database\Exception\MigrationKeyMissing;
 use Flarum\Extension\Extension;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
