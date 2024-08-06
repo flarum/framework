@@ -14,7 +14,6 @@ use Flarum\Database\Exception\MigrationKeyMissing;
 use Flarum\Extension\Extension;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Database\DBAL\TimestampType;
 use Illuminate\Filesystem\Filesystem;
 use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -31,14 +30,6 @@ class Migrator
         protected ConnectionInterface $connection,
         protected Filesystem $files
     ) {
-        $doctrine = $connection->getDoctrineConnection()->getDatabasePlatform();
-
-        if (! Type::hasType('timestamp')) {
-            Type::addType('timestamp', TimestampType::class);
-        }
-
-        // Workaround for https://github.com/laravel/framework/issues/1186
-        $doctrine->registerDoctrineTypeMapping('enum', 'string');
     }
 
     /**

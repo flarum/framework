@@ -20,7 +20,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Query\Expression;
-use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 /**
  * @property int $id
@@ -45,7 +44,6 @@ class Post extends AbstractModel
 {
     use EventGeneratorTrait;
     use ScopeVisibilityTrait;
-    use HasEagerLimit;
     use HasFactory;
 
     protected $table = 'posts';

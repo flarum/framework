@@ -55,7 +55,7 @@ class ConsoleServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->singleton(LaravelSchedule::class, function (Container $container) {
-            return $container->make(Schedule::class);
+            return $container->make(Schedule::class, ['timezone' => $container['config']['app.timezone']]);
         });
 
         $this->container->singleton('flarum.console.commands', function () {

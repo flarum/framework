@@ -127,7 +127,7 @@ class Extension implements Arrayable
     /**
      * Dot notation getter for composer.json attributes.
      *
-     * @see https://laravel.com/docs/10.x/helpers#arrays
+     * @see https://laravel.com/docs/11.x/helpers#arrays
      */
     public function composerJsonAttribute(string $name): mixed
     {
