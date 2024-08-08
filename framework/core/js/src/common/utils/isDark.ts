@@ -17,7 +17,10 @@ export default function isDark(hexcolor: string | null): boolean {
   let hexnumbers = hexcolor.replace('#', '');
 
   if (hexnumbers.length === 3) {
-    hexnumbers = hexnumbers.split('').map(char => char.repeat(2)).join('');
+    hexnumbers = hexnumbers
+      .split('')
+      .map((char) => char.repeat(2))
+      .join('');
   }
 
   const r = parseInt(hexnumbers.slice(0, 2), 16);
