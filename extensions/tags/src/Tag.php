@@ -36,7 +36,7 @@ use Illuminate\Database\Eloquent\Collection;
  * @property int $last_posted_user_id
  * @property string $icon
  *
- * @property TagState $state
+ * @property TagState|null $state
  * @property Tag|null $parent
  * @property-read Collection<Tag> $children
  * @property-read Collection<Discussion> $discussions
@@ -163,9 +163,18 @@ class Tag extends AbstractModel
      * @param User $user
      * @return TagState
      */
-    public function stateFor(User $user)
+    public function stateFor(User $user): TagState
     {
-        $state = $this->state()->where('user_id', $user->id)->first();
+        // Use the loaded state if the relation is loaded, and either:
+        // 1. The state is null, or
+        // 2. The state belongs to the given user.
+        // This ensures that if a non-null state is loaded, it belongs to the correct user.
+        // If these conditions are not met, we query the database for the user's state.
+        if ($this->relationLoaded('state') && (! $this->state || $this->state->user_id === $user->id)) {
+            $state = $this->state;
+        } else {
+            $state = $this->state()->where('user_id', $user->id)->first();
+        }
 
         if (! $state) {
             $state = new TagState;
