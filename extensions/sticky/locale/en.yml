@@ -11,6 +11,9 @@ flarum-sticky:
     permissions:
       sticky_discussions_label: Sticky discussions
 
+    settings:
+      enable_display_excerpt: Enable Excerpt
+
   # Translations in this namespace are used by the forum user interface.
   forum:
 
