@@ -14,7 +14,7 @@ app.initializers.add('flarum-sticky', () => {
     95)
     .registerSetting({
       type: 'switch',
-      setting: 'flarum-sticky.config.enable_display_excerpt',
+      setting: 'flarum-sticky.enable_display_excerpt',
       label: app.translator.trans('flarum-sticky.admin.settings.enable_display_excerpt'),
     },
     100);

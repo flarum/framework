@@ -32,7 +32,8 @@ return [
     new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Settings())
-        ->serializeToForum('excerptDisplayEnabled', 'flarum-sticky.config.enable_display_excerpt', 'boolval'),
+        ->serializeToForum('excerptDisplayEnabled', 'flarum-sticky.enable_display_excerpt', 'boolval')
+        ->default('flarum-sticky.enable_display_excerpt', true),
 
     (new Extend\Model(Discussion::class))
         ->cast('is_sticky', 'bool'),

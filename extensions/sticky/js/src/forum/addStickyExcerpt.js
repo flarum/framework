@@ -8,10 +8,8 @@ import { truncate } from 'flarum/common/utils/string';
 
 export default function addStickyExcerpt() {
   extend(DiscussionListState.prototype, 'requestParams', function (params) {
-    if (app.forum.attribute('excerptDisplayEnabled')) {
-      if (app.current.matches(IndexPage) || app.current.matches(DiscussionPage)) {
-        params.include.push('firstPost');
-      }
+    if (app.forum.attribute('excerptDisplayEnabled') && (app.current.matches(IndexPage) || app.current.matches(DiscussionPage)) {
+      params.include.push('firstPost');
     }
   });
 

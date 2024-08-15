@@ -12,7 +12,7 @@ flarum-sticky:
       sticky_discussions_label: Sticky discussions
 
     settings:
-      enable_display_excerpt: Enable Excerpt
+      enable_display_excerpt: Show an excerpt of the first post when a sticky discussion is unread
 
   # Translations in this namespace are used by the forum user interface.
   forum:
