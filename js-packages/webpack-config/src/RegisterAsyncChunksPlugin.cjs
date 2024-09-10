@@ -8,8 +8,15 @@ class RegisterAsyncChunksPlugin {
   apply(compiler) {
     compiler.hooks.thisCompilation.tap("RegisterAsyncChunksPlugin", (compilation) => {
       let alreadyOptimized = false;
+
       compilation.hooks.unseal.tap("RegisterAsyncChunksPlugin", () => {
         alreadyOptimized = false;
+        RegisterAsyncChunksPlugin.registry = {};
+      });
+
+      compilation.hooks.finishModules.tap("RegisterAsyncChunksPlugin", () => {
+        alreadyOptimized = false;
+        RegisterAsyncChunksPlugin.registry = {};
       });
 
       compilation.hooks.processAssets.tap(
