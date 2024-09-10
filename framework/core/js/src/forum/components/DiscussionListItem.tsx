@@ -20,9 +20,11 @@ import type Mithril from 'mithril';
 import type { DiscussionListParams } from '../states/DiscussionListState';
 import Icon from '../../common/components/Icon';
 import Avatar from '../../common/components/Avatar';
+import Post from '../../common/models/Post';
 
 export interface IDiscussionListItemAttrs extends ComponentAttrs {
   discussion: Discussion;
+  post?: Post;
   params: DiscussionListParams;
 }
 
@@ -262,7 +264,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     const items = new ItemList<Mithril.Children>();
 
     if (this.attrs.params.q) {
-      const post = this.attrs.discussion.mostRelevantPost() || this.attrs.discussion.firstPost();
+      const post = this.attrs.post || this.attrs.discussion.mostRelevantPost() || this.attrs.discussion.firstPost();
 
       if (post && post.contentType() === 'comment') {
         const excerpt = highlight(post.contentPlain() ?? '', this.highlightRegExp, 175);

@@ -44,3 +44,13 @@ flarum-likes:
     # These translations are used in the User profile page.
     user:
       likes_link: Likes
+
+  # Translations in this namespace are used by the forum and admin interfaces.
+  lib:
+
+    # These translations are used by gambits. Gambit keys must be in snake_case, no spaces.
+    gambits:
+      posts:
+        likedBy:
+          key: likedBy
+          hint: The ID of the user

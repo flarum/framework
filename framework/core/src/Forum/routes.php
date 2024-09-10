@@ -20,6 +20,12 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     );
 
     $map->get(
+        '/posts',
+        'posts',
+        $route->toForum(Content\Posts::class)
+    );
+
+    $map->get(
         '/d/{id:\d+(?:-[^/]*)?}[/{near:[^/]*}]',
         'discussion',
         $route->toForum(Content\Discussion::class)

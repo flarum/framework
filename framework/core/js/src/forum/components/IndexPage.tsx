@@ -12,6 +12,7 @@ import type Mithril from 'mithril';
 import type Discussion from '../../common/models/Discussion';
 import PageStructure from './PageStructure';
 import IndexSidebar from './IndexSidebar';
+import PostsPage from './PostsPage';
 
 export interface IIndexPageAttrs extends IPageAttrs {}
 
@@ -33,6 +34,14 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
       this.lastDiscussion = app.previous.get('discussion');
     }
 
+    const params = app.search.state.params();
+
+    // If there is an active search and the user is coming from the PostsPage,
+    // then we will clear the search state so that discussions aren't searched.
+    if (app.previous.matches(PostsPage)) {
+      app.search.state.clear();
+    }
+
     // If the user is coming from the discussion list, then they have either
     // just switched one of the parameters (filter, sort, search) or they
     // probably want to refresh the results. We will clear the discussion list
@@ -41,7 +50,9 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
       app.discussions.clear();
     }
 
-    app.discussions.refreshParams(app.search.state.params(), (m.route.param('page') && Number(m.route.param('page'))) || 1);
+    if (!app.previous.matches(PostsPage) || !params.q) {
+      app.discussions.refreshParams(params, (m.route.param('page') && Number(m.route.param('page'))) || 1);
+    }
 
     app.history.push('index', extractText(app.translator.trans('core.forum.header.back_to_index_tooltip')));
 

@@ -36,7 +36,7 @@ class AuthorFilter implements FilterInterface
     {
         $usernames = $this->asStringArray($value);
 
-        $ids = $this->users->query()->whereIn('username', $usernames)->pluck('id');
+        $ids = $this->users->getIdsForUsernames($usernames);
 
         $state->getQuery()->whereIn('posts.user_id', $ids, 'and', $negate);
     }
