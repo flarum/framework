@@ -10,7 +10,6 @@
 namespace Flarum\Forum\Content;
 
 use Flarum\Api\Client;
-use Flarum\Api\Resource\DiscussionResource;
 use Flarum\Api\Resource\PostResource;
 use Flarum\Frontend\Document;
 use Flarum\Http\UrlGenerator;
@@ -19,7 +18,6 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use stdClass;
 
 /**
  * Post search results.
