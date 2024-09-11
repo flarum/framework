@@ -1,6 +1,7 @@
 const path = require('path');
 const extensionId = require('./extensionId.cjs');
 const { Compilation } = require('webpack');
+const ConcatenatedModule = require('webpack/lib/optimize/ConcatenatedModule');
 
 class RegisterAsyncChunksPlugin {
   static registry = {};
@@ -81,27 +82,52 @@ class RegisterAsyncChunksPlugin {
                     return match;
                   }
 
-                  let concatenatedModule = chunkModules(relevantChunk)[0];
-                  const moduleId = compilation.chunkGraph.getModuleId(concatenatedModule);
+                  const relevantChunkModules = chunkModules(relevantChunk);
+                  const mainModule = relevantChunkModules.filter((m) => {
+                    return m.resource?.split('.')[0] === importPathResolved || m.rootModule?.resource?.split('.')[0] === importPathResolved;
+                  })[0];
+                  const otherRelevantChunkModules = relevantChunkModules.filter((m) => m !== mainModule);
+
+                  if (mainModule instanceof ConcatenatedModule && mainModule.modules) {
+                    otherRelevantChunkModules.push(...mainModule.modules);
+                  }
+
+                  if (!mainModule) {
+                    return match;
+                  }
+
+                  const moduleId = compilation.chunkGraph.getModuleId(mainModule);
                   const registrableModulesUrlPaths = new Map();
                   registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, moduleId, namespace, urlPath]);
 
-                  if (concatenatedModule?.rootModule) {
-                    // This is a chunk with many modules, we need to register all of them.
-                    concatenatedModule.modules?.forEach((module) => {
-                      if (!module.resource.includes(`${path.sep}src${path.sep}`)) {
-                        return;
-                      }
+                  const modules = [];
 
-                      // The path right after the src/ directory, without the extension.
-                      const regPathSep = `\\${path.sep}`;
-                      const urlPath = module.resource.replace(new RegExp(`.*${regPathSep}src${regPathSep}([^.]+)\..+`), '$1');
+                  otherRelevantChunkModules.forEach((module) => {
+                    if (module instanceof ConcatenatedModule && module.modules) {
+                      modules.push(...module.modules);
+                    } else {
+                      modules.push(module);
+                    }
+                  });
 
-                      if (!registrableModulesUrlPaths.has(urlPath)) {
-                        registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, moduleId, namespace, urlPath]);
-                      }
-                    });
+                  if (relevantChunk.name.endsWith('PostStream')) {
+                    console.log(otherRelevantChunkModules);
                   }
+
+                  // This is a chunk with many modules, we need to register all of them.
+                  modules?.forEach((module) => {
+                    if (!module.resource.includes(`${path.sep}src${path.sep}`)) {
+                      return;
+                    }
+
+                    // The path right after the src/ directory, without the extension.
+                    const regPathSep = `\\${path.sep}`;
+                    const urlPath = module.resource.replace(new RegExp(`.*${regPathSep}src${regPathSep}([^.]+)\..+`), '$1');
+
+                    if (!registrableModulesUrlPaths.has(urlPath)) {
+                      registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, moduleId, namespace, urlPath]);
+                    }
+                  });
 
                   registrableModulesUrlPaths.forEach(([chunkId, moduleId, namespace, urlPath]) => {
                     chunkModuleMemory[sourceChunkId] = chunkModuleMemory[sourceChunkId] || [];
