@@ -81,7 +81,7 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
     const dialogElement = this.element.querySelector('.DialogListItem.active');
     const container = this.element.querySelector('.DialogList')!;
 
-    if (dialogElement && container.scrollTop + container.clientHeight <= $(dialogElement).offset()!.top) {
+    if (dialogElement && $(container).offset()!.top + container.clientHeight <= $(dialogElement).offset()!.top) {
       dialogElement.scrollIntoView();
     }
   }
@@ -176,8 +176,8 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
     items.add(
       'refresh',
       <Button
-        title={app.translator.trans('core.forum.index.refresh_tooltip')}
-        aria-label={app.translator.trans('core.forum.index.refresh_tooltip')}
+        title={app.translator.trans('flarum-messages.forum.messages_page.refresh_tooltip')}
+        aria-label={app.translator.trans('flarum-messages.forum.messages_page.refresh_tooltip')}
         icon="fas fa-sync"
         className="Button Button--icon"
         onclick={() => {
@@ -190,8 +190,8 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
       items.add(
         'markAllAsRead',
         <Button
-          title={app.translator.trans('core.forum.index.mark_all_as_read_tooltip')}
-          aria-label={app.translator.trans('core.forum.index.mark_all_as_read_tooltip')}
+          title={app.translator.trans('flarum-messages.forum.messages_page.mark_all_as_read_tooltip')}
+          aria-label={app.translator.trans('flarum-messages.forum.messages_page.mark_all_as_read_tooltip')}
           icon="fas fa-check"
           className="Button Button--icon"
           onclick={() => app.dialogs.markAllAsRead()}

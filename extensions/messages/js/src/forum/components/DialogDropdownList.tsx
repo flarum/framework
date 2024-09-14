@@ -52,15 +52,15 @@ export default class DialogDropdownList<CustomAttrs extends IDialogListDropdownA
     const items = new ItemList();
     const state = this.attrs.state;
 
-    if (app.session.user!.attribute<number>('messagesCount') > 0) {
+    if (app.session.user!.attribute<number>('messageCount') > 0) {
       items.add(
         'mark_all_as_read',
-        <Tooltip text={app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip')}>
+        <Tooltip text={app.translator.trans('flarum-messages.forum.messages_page.mark_all_as_read_tooltip')}>
           <Button
             className="Button Button--link"
             data-container=".DialogDropdownList"
             icon="fas fa-check"
-            title={app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip')}
+            title={app.translator.trans('flarum-messages.forum.messages_page.mark_all_as_read_tooltip')}
             onclick={state.markAllAsRead.bind(state)}
           />
         </Tooltip>,

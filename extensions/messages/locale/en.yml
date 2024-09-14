@@ -8,12 +8,15 @@ flarum-messages:
   # Translations in this namespace are used by the forum user interface.
   forum:
     composer:
+      discard_confirmation: You have not sent your message. Are you sure you want to discard it?
+      placeholder: Write a message...
       recipients: Recipients
       submit_button: Send message
       to: "To:"
 
     dialog_list:
       load_more_button: => core.ref.load_more
+      mark_as_read_tooltip: Mark as read
       title: Messages
       view_all: View all messages
 
@@ -31,10 +34,13 @@ flarum-messages:
       hero:
         title: Messages
         subtitle: Your private conversations with other users
+      mark_all_as_read_tooltip: Mark all as read
       new_message_button: Send a Message
+      refresh_tooltip: Refresh
       stream:
         load_previous_button: Load previous messages
         start_of_the_conversation: Start of the conversation
+        time_lapsed_text: => core.forum.post_stream.time_lapsed_text
       title: Messages
 
     recipient_selection_modal:

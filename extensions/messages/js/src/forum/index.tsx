@@ -49,6 +49,7 @@ app.initializers.add('flarum-messages', () => {
     }
   });
 
+  // @ts-ignore
   extend(UserControls, 'userControls', (items, user) => {
     if (app.session.user?.attribute<boolean>('canSendAnyMessage')) {
       items.add(

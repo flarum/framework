@@ -30,9 +30,9 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
   static initAttrs(attrs: IMessageComposerAttrs) {
     super.initAttrs(attrs);
 
-    attrs.placeholder = attrs.placeholder || extractText(app.translator.trans('core.forum.composer_discussion.body_placeholder'));
+    attrs.placeholder = attrs.placeholder || extractText(app.translator.trans('flarum-messages.forum.composer.placeholder', {}, true));
     attrs.submitLabel = attrs.submitLabel || app.translator.trans('flarum-messages.forum.composer.submit_button', {}, true);
-    attrs.confirmExit = attrs.confirmExit || extractText(app.translator.trans('core.forum.composer_discussion.discard_confirmation'));
+    attrs.confirmExit = attrs.confirmExit || extractText(app.translator.trans('flarum-messages.forum.composer.discard_confirmation', {}, true));
     attrs.className = 'ComposerBody--message';
   }
 

@@ -162,7 +162,9 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
       return (
         <div className="PostStream-timeGap">
           {/* @ts-ignore */}
-          <span>{app.translator.trans('core.forum.post_stream.time_lapsed_text', { period: dayjs().add(dt, 'ms').fromNow(true) })}</span>
+          <span>
+            {app.translator.trans('flarum-messages.forum.messages_page.stream.time_lapsed_text', { period: dayjs().add(dt, 'ms').fromNow(true) })}
+          </span>
         </div>
       );
     }
@@ -211,7 +213,7 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
             return true;
           }
 
-          return this.element.scrollTop + this.element.clientHeight > $($el).offset()!.top;
+          return this.$().offset()!.top + this.element.clientHeight > $($el).offset()!.top;
         })
         .last()
         .data('id')

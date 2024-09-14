@@ -62,7 +62,7 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
       <Button
         className="Notification-action Button Button--link"
         icon="fas fa-check"
-        aria-label={app.translator.trans('core.forum.notifications.mark_as_read_tooltip')}
+        aria-label={app.translator.trans('flarum-messages.forum.dialog_list.mark_as_read_tooltip')}
         onclick={(e: Event) => {
           e.preventDefault();
           e.stopPropagation();
