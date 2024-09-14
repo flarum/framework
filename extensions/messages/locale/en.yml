@@ -1,0 +1,50 @@
+flarum-messages:
+
+  # Translations in this namespace are used by the admin interface.
+  admin:
+    permissions:
+      send_messages: Send private messages
+
+  # Translations in this namespace are used by the forum user interface.
+  forum:
+    composer:
+      recipients: Recipients
+      submit_button: Send message
+      to: "To:"
+
+    dialog_list:
+      load_more_button: => core.ref.load_more
+      title: Messages
+      view_all: View all messages
+
+    index:
+      messages_link: Messages
+
+    index_sort:
+      latest_button: Latest
+      newest_button: Newest
+      oldest_button: Oldest
+
+    messages_page:
+      empty_text: You have no messages yet. When you send or receive messages, they
+          will appear here.
+      hero:
+        title: Messages
+        subtitle: Your private conversations with other users
+      new_message_button: Send a Message
+      stream:
+        load_previous_button: Load previous messages
+        start_of_the_conversation: Start of the conversation
+      title: Messages
+
+    recipient_selection_modal:
+      title: Select the recipients of this message
+
+    user_controls:
+      send_message_button: Send a message
+
+  # Translations in this namespace are used by the forum and admin interfaces.
+  lib:
+
+    dialog:
+      title: Messaging {username}

@@ -1,4 +1,4 @@
-import Component from '../../common/Component';
+import Component, { type ComponentAttrs } from '../../common/Component';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
 import ConfirmDocumentUnload from '../../common/components/ConfirmDocumentUnload';
 import TextEditor from '../../common/components/TextEditor';
@@ -6,36 +6,35 @@ import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
 import classList from '../../common/utils/classList';
 import Avatar from '../../common/components/Avatar';
+import ComposerState from '../states/ComposerState';
+import type Mithril from 'mithril';
+
+export interface IComposerBodyAttrs extends ComponentAttrs {
+  composer: ComposerState;
+  originalContent?: string;
+  submitLabel: string;
+  placeholder: string;
+  user: any;
+  confirmExit: string;
+  disabled: boolean;
+}
 
 /**
  * The `ComposerBody` component handles the body, or the content, of the
  * composer. Subclasses should implement the `onsubmit` method and override
  * `headerTimes`.
- *
- * ### Attrs
- *
- * - `composer`
- * - `originalContent`
- * - `submitLabel`
- * - `placeholder`
- * - `user`
- * - `confirmExit`
- * - `disabled`
- *
- * @abstract
  */
-export default class ComposerBody extends Component {
-  oninit(vnode) {
+export default abstract class ComposerBody<CustomAttrs extends IComposerBodyAttrs = IComposerBodyAttrs> extends Component<CustomAttrs> {
+  protected loading = false;
+  protected composer!: ComposerState;
+  protected jumpToPreview?: () => void;
+
+  static focusOnSelector: null | (() => string) = null;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
     this.composer = this.attrs.composer;
-
-    /**
-     * Whether or not the component is loading.
-     *
-     * @type {Boolean}
-     */
-    this.loading = false;
 
     // Let the composer state know to ask for confirmation under certain
     // circumstances, if the body supports / requires it and has a corresponding
@@ -44,7 +43,7 @@ export default class ComposerBody extends Component {
       this.composer.preventClosingWhen(() => this.hasChanges(), this.attrs.confirmExit);
     }
 
-    this.composer.fields.content(this.attrs.originalContent || '');
+    this.composer.fields!.content(this.attrs.originalContent || '');
   }
 
   view() {
@@ -61,9 +60,9 @@ export default class ComposerBody extends Component {
                 disabled={this.loading || this.attrs.disabled}
                 composer={this.composer}
                 preview={this.jumpToPreview?.bind(this)}
-                onchange={this.composer.fields.content}
+                onchange={this.composer.fields!.content}
                 onsubmit={this.onsubmit.bind(this)}
-                value={this.composer.fields.content()}
+                value={this.composer.fields!.content()}
               />
             </div>
           </div>
@@ -75,30 +74,24 @@ export default class ComposerBody extends Component {
 
   /**
    * Check if there is any unsaved data.
-   *
-   * @return {boolean}
    */
-  hasChanges() {
-    const content = this.composer.fields.content();
+  hasChanges(): boolean {
+    const content = this.composer.fields!.content();
 
-    return content && content !== this.attrs.originalContent;
+    return Boolean(content) && content !== this.attrs.originalContent;
   }
 
   /**
    * Build an item list for the composer's header.
-   *
-   * @return {ItemList<import('mithril').Children>}
    */
   headerItems() {
-    return new ItemList();
+    return new ItemList<Mithril.Children>();
   }
 
   /**
    * Handle the submit event of the text editor.
-   *
-   * @abstract
    */
-  onsubmit() {}
+  abstract onsubmit(): void;
 
   /**
    * Stop loading.

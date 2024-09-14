@@ -3,6 +3,9 @@ import subclassOf from '../../common/utils/subclassOf';
 export default class PageState {
   constructor(type, data = {}) {
     this.type = type;
+    /**
+     * @type any
+     */
     this.data = data;
   }
 

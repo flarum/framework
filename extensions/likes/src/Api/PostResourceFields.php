@@ -15,6 +15,7 @@ use Flarum\Likes\Event\PostWasLiked;
 use Flarum\Likes\Event\PostWasUnliked;
 use Flarum\Post\Post;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Query\Expression;
 
 class PostResourceFields
@@ -51,7 +52,7 @@ class PostResourceFields
             Schema\Relationship\ToMany::make('likes')
                 ->type('users')
                 ->includable()
-                ->scope(function (Builder $query, Context $context) {
+                ->scope(function (BelongsToMany $query, Context $context) {
                     $actor = $context->getActor();
                     $grammar = $query->getQuery()->getGrammar();
 

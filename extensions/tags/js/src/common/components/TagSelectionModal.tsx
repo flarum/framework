@@ -128,7 +128,7 @@ export default class TagSelectionModal<
   }
 
   className() {
-    return classList('TagSelectionModal', this.attrs.className);
+    return classList('TagSelectionModal Modal--simple', this.attrs.className);
   }
 
   title() {

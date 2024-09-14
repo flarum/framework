@@ -25,7 +25,9 @@ trait GetsRelationAggregates
             throw new \InvalidArgumentException('Relation aggregates can only be used with number attributes');
         }
 
-        $this->relationAggregate = compact('relation', 'column', 'function', 'constrain');
+        $name = $this->name;
+
+        $this->relationAggregate = compact('name', 'relation', 'column', 'function', 'constrain');
 
         return $this;
     }

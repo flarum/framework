@@ -10,6 +10,9 @@ import type Post from 'flarum/common/models/Post';
 import type FlagListState from '../states/FlagListState';
 import type Flag from '../models/Flag';
 import { Page } from 'flarum/common/states/PaginatedListState';
+import ItemList from '@flarum/core/src/common/utils/ItemList';
+import Tooltip from '@flarum/core/src/common/components/Tooltip';
+import Button from '@flarum/core/src/common/components/Button';
 
 export interface IFlagListAttrs extends ComponentAttrs {
   state: FlagListState;
@@ -27,6 +30,7 @@ export default class FlagList<CustomAttrs extends IFlagListAttrs = IFlagListAttr
       <HeaderList
         className="FlagList"
         title={app.translator.trans('flarum-flags.forum.flagged_posts.title')}
+        controls={this.controlItems()}
         hasItems={state.hasItems()}
         loading={state.isLoading()}
         emptyText={app.translator.trans('flarum-flags.forum.flagged_posts.empty_text')}
@@ -35,6 +39,12 @@ export default class FlagList<CustomAttrs extends IFlagListAttrs = IFlagListAttr
         <ul className="HeaderListGroup-content">{this.content(state)}</ul>
       </HeaderList>
     );
+  }
+
+  controlItems() {
+    const items = new ItemList();
+
+    return items;
   }
 
   content(state: FlagListState) {

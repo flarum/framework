@@ -96,10 +96,6 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
             /** @var Relationship|null $relationship */
             $relationship = collect($context->fields($this))->first(fn ($f) => $f->name === $relationName);
 
-            if (! $relationship) {
-                throw new InvalidArgumentException("To use relation aggregates, the relationship field must be part of the resource. Missing field: $relationName for attribute $field->name.");
-            }
-
             EloquentBuffer::add($model, $relationName, $aggregate);
 
             return function () use ($model, $relationName, $relationship, $field, $context, $aggregate) {

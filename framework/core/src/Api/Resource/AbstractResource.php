@@ -24,6 +24,7 @@ abstract class AbstractResource extends BaseResource
     use Bootable;
     use Extendable;
     use HasSortMap;
+    /** @use HasHooks<M> */
     use HasHooks;
 
     public function id(Context $context): ?string

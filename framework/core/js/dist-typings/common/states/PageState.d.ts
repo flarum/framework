@@ -1,7 +1,10 @@
 export default class PageState {
     constructor(type: any, data?: {});
     type: any;
-    data: {};
+    /**
+     * @type any
+     */
+    data: any;
     /**
      * Determine whether the page matches the given class and data.
      *
