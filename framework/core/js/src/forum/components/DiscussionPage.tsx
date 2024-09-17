@@ -79,7 +79,7 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     }
   }
 
-  view() {
+  view(): Mithril.Children {
     return <div className="DiscussionPage">{this.viewItems().toArray()}</div>;
   }
 
