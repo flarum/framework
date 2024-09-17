@@ -46,7 +46,7 @@ export default class PostsSearchSource implements SearchSource {
     return (this.results.get(query) || []).map((post) => {
       return (
         <li className="PostSearchResult" data-index={'posts' + post.id()} data-id={post.id()}>
-          <MinimalDiscussionListItem discussion={post.discussion()} post={post} params={{ q: query }} />
+          <MinimalDiscussionListItem discussion={post.discussion()} post={post} params={{ q: query }} jumpTo={post.number()} author={post.user()} />
         </li>
       );
     }) as Array<Mithril.Vnode>;

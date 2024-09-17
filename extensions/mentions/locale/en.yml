@@ -119,4 +119,4 @@ flarum-mentions:
       posts:
         mentioned:
           key: mentioned
-          hint: The ID of the mentioned user
+          hint: The ID or username of the mentioned user

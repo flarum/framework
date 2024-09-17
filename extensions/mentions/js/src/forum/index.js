@@ -92,7 +92,7 @@ app.initializers.add('flarum-mentions', () => {
   });
   extend('flarum/forum/components/SearchModal', 'defaultFilters', function (filters) {
     if (app.current.data.routeName && app.current.data.routeName.includes('user.mentions') && app.current.data.user) {
-      filters.posts.mentioned = app.current.data.user.id();
+      filters.posts.mentioned = app.current.data.user.username();
     }
   });
 });

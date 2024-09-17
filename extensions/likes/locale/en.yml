@@ -53,4 +53,4 @@ flarum-likes:
       posts:
         likedBy:
           key: likedBy
-          hint: The ID of the user
+          hint: The ID or username of the user

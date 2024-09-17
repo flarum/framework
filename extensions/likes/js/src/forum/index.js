@@ -32,7 +32,7 @@ app.initializers.add('flarum-likes', () => {
   });
   extend('flarum/forum/components/SearchModal', 'defaultFilters', function (filters) {
     if (app.current.data.routeName && app.current.data.routeName.includes('user.likes') && app.current.data.user) {
-      filters.posts.likedBy = app.current.data.user.id();
+      filters.posts.likedBy = app.current.data.user.username();
     }
   });
 });
