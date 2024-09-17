@@ -70,18 +70,10 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
   contentItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
-    items.add('toolbar', this.toolbarView(), 100);
-    items.add('discussionList', this.discussionListView(), 90);
+    items.add('toolbar', <div className="IndexPage-toolbar">{this.toolbarItems().toArray()}</div>, 100);
+    items.add('discussionList', <DiscussionList state={app.discussions} />, 90);
 
     return items;
-  }
-
-  toolbarView(): Mithril.Children {
-    return <div className="IndexPage-toolbar">{this.toolbarItems().toArray()}</div>;
-  }
-
-  discussionListView(): Mithril.Children {
-    return <DiscussionList state={app.discussions} />;
   }
 
   toolbarItems(): ItemList<Mithril.Children> {
