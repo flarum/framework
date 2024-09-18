@@ -75,7 +75,7 @@ export default function () {
     return items;
   };
 
-  extend(Post.prototype, 'content', function (vdom) {
+  extend(Post.prototype, 'viewItems', function (items) {
     const post = this.attrs.post;
     const flags = post.flags();
 
@@ -83,7 +83,8 @@ export default function () {
 
     if (post.isHidden()) this.revealContent = true;
 
-    vdom.unshift(
+    items.add(
+      'flagged',
       <div className="Post-flagged">
         <div className="Post-flagged-flags">
           {flags.map((flag) => (
@@ -91,7 +92,8 @@ export default function () {
           ))}
         </div>
         <div className="Post-flagged-actions">{this.flagActionItems().toArray()}</div>
-      </div>
+      </div>,
+      110
     );
   });
 
