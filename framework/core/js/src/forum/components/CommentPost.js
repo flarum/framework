@@ -47,12 +47,23 @@ export default class CommentPost extends Post {
   }
 
   content() {
-    return super.content().concat([
+    return super.content().concat(this.contentItems().toArray());
+  }
+
+  contentItems() {
+    const items = new ItemList();
+
+    items.add(
+      'header',
       <header className="Post-header">
         <ul>{listItems(this.headerItems().toArray())}</ul>
       </header>,
-      <div className="Post-body">{this.bodyItems().toArray()}</div>,
-    ]);
+      100
+    );
+
+    items.add('body', <div className="Post-body">{this.bodyItems().toArray()}</div>, 90);
+
+    return items;
   }
 
   bodyItems() {
