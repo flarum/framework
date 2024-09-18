@@ -3,7 +3,7 @@ import Component, { ComponentAttrs } from '../../common/Component';
 import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
 import Dropdown from '../../common/components/Dropdown';
 import PostControls from '../utils/PostControls';
-import listItems from '../../common/helpers/listItems';
+import listItems, { ModdedChildrenWithItemName } from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
 import type PostModel from '../../common/models/Post';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
@@ -55,32 +55,44 @@ export default abstract class Post<CustomAttrs extends IPostAttrs = IPostAttrs> 
 
     return (
       <article {...attrs}>
-        <div>
-          {this.loading ? <LoadingIndicator /> : this.content()}
-          <aside className="Post-actions">
-            <ul>
-              {listItems(this.actionItems().toArray())}
-              {!!controls.length && (
-                <li>
-                  <Dropdown
-                    className="Post-controls"
-                    buttonClassName="Button Button--icon Button--flat"
-                    menuClassName="Dropdown-menu--right"
-                    icon="fas fa-ellipsis-h"
-                    onshow={() => this.$('.Post-controls').addClass('open')}
-                    onhide={() => this.$('.Post-controls').removeClass('open')}
-                    accessibleToggleLabel={app.translator.trans('core.forum.post_controls.toggle_dropdown_accessible_label')}
-                  >
-                    {controls}
-                  </Dropdown>
-                </li>
-              )}
-            </ul>
-          </aside>
-          <footer className="Post-footer">{footerItems.length ? <ul>{listItems(footerItems)}</ul> : null}</footer>
-        </div>
+        <div>{this.viewItems(controls, footerItems).toArray()}</div>
       </article>
     );
+  }
+
+  viewItems(controls: Mithril.Children[], footerItems: ModdedChildrenWithItemName[]): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add('content', this.loading ? <LoadingIndicator /> : this.content(), 100);
+
+    items.add(
+      'actions',
+      <aside className="Post-actions">
+        <ul>
+          {listItems(this.actionItems().toArray())}
+          {!!controls.length && (
+            <li>
+              <Dropdown
+                className="Post-controls"
+                buttonClassName="Button Button--icon Button--flat"
+                menuClassName="Dropdown-menu--right"
+                icon="fas fa-ellipsis-h"
+                onshow={() => this.$('.Post-controls').addClass('open')}
+                onhide={() => this.$('.Post-controls').removeClass('open')}
+                accessibleToggleLabel={app.translator.trans('core.forum.post_controls.toggle_dropdown_accessible_label')}
+              >
+                {controls}
+              </Dropdown>
+            </li>
+          )}
+        </ul>
+      </aside>,
+      90
+    );
+
+    items.add('footer', <footer className="Post-footer">{footerItems.length > 0 ? <ul>{listItems(footerItems)}</ul> : <ul></ul>}</footer>, 80);
+
+    return items;
   }
 
   onbeforeupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
@@ -147,7 +159,7 @@ export default abstract class Post<CustomAttrs extends IPostAttrs = IPostAttrs> 
   /**
    * Build an item list for the post's footer.
    */
-  footerItems(): ItemList<Mithril.Children> {
-    return new ItemList();
+  footerItems(): ItemList<ModdedChildrenWithItemName> {
+    return new ItemList<ModdedChildrenWithItemName>();
   }
 }
