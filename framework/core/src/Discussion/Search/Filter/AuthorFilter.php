@@ -44,6 +44,13 @@ class AuthorFilter implements FilterInterface
 
         $ids = $this->users->getIdsForUsernames($usernames);
 
+        // To be able to also use IDs.
+        $actualIds = array_diff($usernames, array_keys($ids));
+
+        if (! empty($actualIds)) {
+            $ids = array_merge($ids, $actualIds);
+        }
+
         $query->whereIn('discussions.user_id', $ids, 'and', $negate);
     }
 }

@@ -84,4 +84,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
      */
     setIndex(index: number, scrollToItem?: boolean): void;
     inputElement(): JQuery<HTMLInputElement>;
+    defaultActiveSource(): string | null;
+    defaultFilters(): Record<string, Record<string, any>>;
+    prefill(value: string): string;
 }

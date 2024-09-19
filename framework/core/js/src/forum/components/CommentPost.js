@@ -8,6 +8,8 @@ import ItemList from '../../common/utils/ItemList';
 import Button from '../../common/components/Button';
 import Link from '../../common/components/Link';
 import Avatar from '../../common/components/Avatar';
+import escapeRegExp from '../../common/utils/escapeRegExp';
+import highlight from '../../common/helpers/highlight';
 import Comment from './Comment';
 
 /**
@@ -58,6 +60,16 @@ export default class CommentPost extends Post {
   }
 
   content() {
+    let contentHtml = this.isEditing() ? '' : this.attrs.post.contentHtml();
+
+    if (!this.isEditing() && this.attrs.params?.q) {
+      const phrase = escapeRegExp(this.attrs.params.q);
+      const highlightRegExp = new RegExp(phrase + '|' + phrase.trim().replace(/\s+/g, '|'), 'gi');
+      contentHtml = highlight(contentHtml, highlightRegExp, undefined, true);
+    } else {
+      contentHtml = m.trust(contentHtml);
+    }
+
     return super
       .content()
       .concat([
@@ -66,7 +78,7 @@ export default class CommentPost extends Post {
           cardVisible={this.cardVisible}
           isEditing={this.isEditing()}
           isHidden={this.attrs.post.isHidden()}
-          contentHtml={this.attrs.post.contentHtml()}
+          contentHtml={contentHtml}
           user={this.attrs.post.user()}
         />,
       ]);

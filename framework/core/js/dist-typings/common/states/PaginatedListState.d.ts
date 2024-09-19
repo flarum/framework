@@ -1,13 +1,5 @@
 import Model from '../Model';
 import { ApiQueryParamsPlural, ApiResponsePlural } from '../Store';
-import type Mithril from 'mithril';
-export declare type SortMapItem = string | {
-    sort: string;
-    label: Mithril.Children;
-};
-export declare type SortMap = {
-    [key: string]: SortMapItem;
-};
 export interface Page<TModel> {
     number: number;
     items: TModel[];
@@ -33,7 +25,7 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
      */
     static DEFAULT_PAGE_SIZE: number;
     protected location: PaginationLocation;
-    protected pageSize: number | null;
+    pageSize: number | null;
     protected pages: Page<T>[];
     protected params: P;
     protected initialLoading: boolean;
@@ -96,10 +88,8 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     protected getPrevPageNumber(): number;
     protected paramsChanged(newParams: P): boolean;
     protected getAllItems(): T[];
-    push(model: T): void;
-    getSort(): string;
-    sortMap(): SortMap;
-    sortValue(sort: SortMapItem): string | undefined;
-    currentSort(): string | undefined;
-    changeSort(sort: string): void;
+    /**
+     * In the last request, has the user searched for a model?
+     */
+    isSearchResults(): boolean;
 }

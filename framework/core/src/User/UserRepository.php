@@ -86,7 +86,7 @@ class UserRepository
     {
         $query = $this->query()->whereIn('username', $usernames);
 
-        return $this->scopeVisibleTo($query, $actor)->pluck('id')->all();
+        return $this->scopeVisibleTo($query, $actor)->pluck('id', 'username')->all();
     }
 
     /**

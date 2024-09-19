@@ -146,7 +146,7 @@ class UserResource extends AbstractDatabaseResource
             Schema\Str::make('username')
                 ->requiredOnCreateWithout(['token'])
                 ->unique('users', 'username', true)
-                ->regex('/^[a-z0-9_-]+$/i')
+                ->regex('/^(?![0-9]*$)[a-z0-9_-]+$/i')
                 ->validationMessages([
                     'username.regex' => $translator->trans('core.api.invalid_username_message'),
                     'username.required_without' => $translator->trans('validation.required', ['attribute' => $translator->trans('validation.attributes.username')])

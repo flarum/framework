@@ -4,9 +4,14 @@ import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
 import type Discussion from '../../common/models/Discussion';
 import type Mithril from 'mithril';
 import type { DiscussionListParams } from '../states/DiscussionListState';
+import Post from '../../common/models/Post';
+import type User from '../../common/models/User';
 export interface IDiscussionListItemAttrs extends ComponentAttrs {
     discussion: Discussion;
+    post?: Post;
     params: DiscussionListParams;
+    jumpTo?: number;
+    author?: User;
 }
 /**
  * The `DiscussionListItem` component shows a single discussion in the

@@ -110,3 +110,13 @@ flarum-mentions:
           {content}
       html:
         body: "{mentioner_display_name} mentioned a group you're a member of in [{title}]({url})."
+
+  # Translations in this namespace are used by the forum and admin interfaces.
+  lib:
+
+    # These translations are used by gambits. Gambit keys must be in snake_case, no spaces.
+    gambits:
+      posts:
+        mentioned:
+          key: mentioned
+          hint: The ID or username of the mentioned user
