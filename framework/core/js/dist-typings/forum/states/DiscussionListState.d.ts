@@ -18,10 +18,6 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
      * translation) to the API sort value that they represent.
      */
     sortMap(): any;
-    /**
-     * In the last request, has the user searched for a discussion?
-     */
-    isSearchResults(): boolean;
     removeDiscussion(discussion: Discussion): void;
     deleteDiscussion(discussion: Discussion): void;
     /**
