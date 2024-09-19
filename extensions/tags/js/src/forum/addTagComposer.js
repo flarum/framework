@@ -2,10 +2,10 @@ import app from 'flarum/forum/app';
 import { extend, override } from 'flarum/common/extend';
 import IndexSidebar from 'flarum/forum/components/IndexSidebar';
 import classList from 'flarum/common/utils/classList';
+import Button from 'flarum/common/components/Button';
 
 import tagsLabel from '../common/helpers/tagsLabel';
 import getSelectableTags from './utils/getSelectableTags';
-import Button from '@flarum/core/src/common/components/Button';
 
 export default function addTagComposer() {
   extend(IndexSidebar.prototype, 'newDiscussionAction', function (promise) {
