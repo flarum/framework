@@ -48,7 +48,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 );
 
                 $assets->setLessImportDirs([
-                    $paths->vendor.'/components/font-awesome/less' => ''
+                    $paths->vendor.'/components/font-awesome/css' => ''
                 ]);
 
                 $assets->css($this->addBaseCss(...));
