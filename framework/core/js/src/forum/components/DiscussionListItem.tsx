@@ -153,9 +153,15 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
         text={app.translator.trans('core.forum.discussion_list.started_text', { user, ago: humanTime(discussion.createdAt()) })}
         position="right"
       >
-        <Link className="DiscussionListItem-author-avatar" href={user ? app.route.user(user) : '#'}>
-          <Avatar user={user || null} title="" />
-        </Link>
+        {user ? (
+          <Link className="DiscussionListItem-author-avatar" href={app.route.user(user)}>
+            <Avatar user={user} title="" />
+          </Link>
+        ) : (
+          <span className="DiscussionListItem-author-avatar">
+            <Avatar user={null} title="" />
+          </span>
+        )}
       </Tooltip>,
       100
     );
