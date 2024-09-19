@@ -6,7 +6,11 @@ import PostMentionedNotification from './components/PostMentionedNotification';
 import UserMentionedNotification from './components/UserMentionedNotification';
 import GroupMentionedNotification from './components/GroupMentionedNotification';
 
+import commonExtend from '../common/extend';
+
 export default [
+  ...commonExtend,
+
   new Extend.Routes() //
     .add('user.mentions', '/u/:username/mentions', MentionsUserPage),
 

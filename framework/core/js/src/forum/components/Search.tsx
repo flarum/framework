@@ -8,6 +8,7 @@ import type Mithril from 'mithril';
 import ItemList from '../../common/utils/ItemList';
 import DiscussionsSearchSource from './DiscussionsSearchSource';
 import UsersSearchSource from './UsersSearchSource';
+import PostsSearchSource from './PostsSearchSource';
 
 export interface SearchAttrs extends ComponentAttrs {
   /** The type of alert this is. Will be used to give the alert a class name of `Alert--{type}`. */
@@ -129,6 +130,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
 
     if (app.forum.attribute('canViewForum')) {
       items.add('discussions', new DiscussionsSearchSource());
+      items.add('posts', new PostsSearchSource());
     }
 
     if (app.forum.attribute('canSearchUsers')) {

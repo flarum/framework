@@ -270,7 +270,9 @@ class PostResource extends AbstractDatabaseResource
     {
         return [
             SortColumn::make('number'),
-            SortColumn::make('createdAt'),
+            SortColumn::make('createdAt')
+                ->ascendingAlias('oldest')
+                ->descendingAlias('newest'),
         ];
     }
 

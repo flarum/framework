@@ -76,13 +76,6 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
     return map;
   }
 
-  /**
-   * In the last request, has the user searched for a discussion?
-   */
-  isSearchResults(): boolean {
-    return !!this.params.q;
-  }
-
   removeDiscussion(discussion: Discussion): void {
     this.eventEmitter.emit('discussion.deleted', discussion);
   }

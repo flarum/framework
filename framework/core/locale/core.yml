@@ -494,16 +494,16 @@ core:
       mark_all_as_read_confirmation: "Are you sure you want to mark all discussions as read?"
       mark_all_as_read_tooltip: => core.ref.mark_all_as_read
       meta_title_text: => core.ref.all_discussions
-      refresh_tooltip: Refresh
+      refresh_tooltip: => core.ref.refresh
       start_discussion_button: => core.ref.start_a_discussion
       toggle_sidenav_dropdown_accessible_label: Toggle navigation dropdown menu
 
     # These translations are used by the sorting control above the discussion list.
     index_sort:
       latest_button: Latest
-      newest_button: Newest
-      oldest_button: Oldest
-      relevance_button: Relevance
+      newest_button: => core.ref.newest
+      oldest_button: => core.ref.oldest
+      relevance_button: => core.ref.relevance
       toggle_dropdown_accessible_label: Change discussion list sorting
       top_button: Top
 
@@ -546,6 +546,12 @@ core:
       restore_button: => core.ref.restore
       toggle_dropdown_accessible_label: Toggle post controls dropdown menu
 
+    # These translations are used in the post list.
+    post_list:
+      empty_text: It looks as though there are no posts here.
+      in_discussion_text: "In {discussion}"
+      load_more_button: => core.ref.load_more
+
     # These translations are used in the scrubber to the right of the post stream.
     post_scrubber:
       now_link: Now
@@ -560,6 +566,17 @@ core:
       load_more_button: => core.ref.load_more
       reply_placeholder: => core.ref.write_a_reply
       time_lapsed_text: "{period} later"
+
+    # These translations are used by the sorting control above the post list.
+    posts_sort:
+      newest_button: => core.ref.newest
+      oldest_button: => core.ref.oldest
+      relevance_button: => core.ref.relevance
+
+    # These translations are used in the posts search page.
+    posts:
+      meta_title_text: Post search results
+      refresh_tooltip: => core.ref.refresh
 
     # These translations are used by the rename discussion modal.
     rename_discussion:
@@ -769,6 +786,9 @@ core:
       discussions:
         all_button: 'Search all discussions for "{query}"'
         heading: => core.ref.discussions
+      posts:
+        all_button: 'Search all posts for "{query}"'
+        heading: => core.ref.posts
       users:
         heading: => core.ref.users
 
@@ -786,6 +806,10 @@ core:
           key: hidden
         unread:
           key: unread
+      posts:
+        discussion:
+          key: discussion
+          hint: the ID of the discussion
       users:
         email:
           key: email
@@ -891,7 +915,7 @@ core:
 
   # Translations in this namespace are used in messages output by the API.
   api:
-    invalid_username_message: "The username may only contain letters, numbers, and dashes."
+    invalid_username_message: "The username may only contain letters, numbers, and dashes. With at least one letter."
     invalid_filter_type:
       must_be_numeric_message: "The {filter} filter must be numeric."
       must_not_be_array_message: "The {filter} filter must not be an array."
@@ -1001,16 +1025,20 @@ core:
     mark_all_as_read: Mark All as Read
     never: Never
     new_token: New Token
+    newest: Newest
     next_page: Next Page
     notifications: Notifications
     okay: OK # Referenced by flarum-tags.yml
+    oldest: Oldest
     password: Password
     posts: Posts # Referenced by flarum-statistics.yml
     previous_page: Previous Page
+    relevance: Relevance
     remember_me_label: Remember Me
     remove: Remove
     rename: Rename
     reply: Reply # Referenced by flarum-mentions.yml
+    refresh: Refresh
     reset_your_password: Reset Your Password
     restore: Restore
     save_changes: Save Changes

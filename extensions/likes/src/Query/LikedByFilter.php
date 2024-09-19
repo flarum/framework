@@ -13,6 +13,7 @@ use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
+use Flarum\User\UserRepository;
 
 /**
  * @implements FilterInterface<DatabaseSearchState>
@@ -21,6 +22,11 @@ class LikedByFilter implements FilterInterface
 {
     use ValidateFilterTrait;
 
+    public function __construct(
+        protected UserRepository $users
+    ) {
+    }
+
     public function getFilterKey(): string
     {
         return 'likedBy';
@@ -28,7 +34,13 @@ class LikedByFilter implements FilterInterface
 
     public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $likedId = $this->asInt($value);
+        $likedUsername = $this->asString($value);
+
+        $likedId = $this->users->getIdForUsername($likedUsername);
+
+        if (! $likedId) {
+            $likedId = intval($likedUsername);
+        }
 
         $state
             ->getQuery()

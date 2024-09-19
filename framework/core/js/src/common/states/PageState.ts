@@ -1,7 +1,12 @@
 import subclassOf from '../../common/utils/subclassOf';
 
 export default class PageState {
-  constructor(type, data = {}) {
+  public type: Function | null;
+  public data: {
+    routeName?: string | null;
+  } & Record<string, any>;
+
+  constructor(type: Function | null, data: any = {}) {
     this.type = type;
     this.data = data;
   }
@@ -13,7 +18,7 @@ export default class PageState {
    * @param {Record<string, unknown>} data
    * @return {boolean}
    */
-  matches(type, data = {}) {
+  matches(type: Function, data: any = {}) {
     // Fail early when the page is of a different type
     if (!subclassOf(this.type, type)) return false;
 
@@ -22,11 +27,11 @@ export default class PageState {
     return Object.keys(data).every((key) => this.data[key] === data[key]);
   }
 
-  get(key) {
+  get(key: string): any {
     return this.data[key];
   }
 
-  set(key, value) {
+  set(key: string, value: any) {
     this.data[key] = value;
   }
 }

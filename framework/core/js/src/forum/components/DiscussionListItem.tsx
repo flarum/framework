@@ -20,10 +20,15 @@ import type Mithril from 'mithril';
 import type { DiscussionListParams } from '../states/DiscussionListState';
 import Icon from '../../common/components/Icon';
 import Avatar from '../../common/components/Avatar';
+import Post from '../../common/models/Post';
+import type User from '../../common/models/User';
 
 export interface IDiscussionListItemAttrs extends ComponentAttrs {
   discussion: Discussion;
+  post?: Post;
   params: DiscussionListParams;
+  jumpTo?: number;
+  author?: User;
 }
 
 /**
@@ -140,7 +145,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     const items = new ItemList<Mithril.Children>();
 
     const discussion = this.attrs.discussion;
-    const user = discussion.user();
+    const user = this.attrs.author || discussion.user();
 
     items.add(
       'avatar',
@@ -179,6 +184,10 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
   }
 
   getJumpTo() {
+    if (this.attrs.jumpTo) {
+      return this.attrs.jumpTo;
+    }
+
     const discussion = this.attrs.discussion;
     let jumpTo = 0;
 
@@ -262,7 +271,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     const items = new ItemList<Mithril.Children>();
 
     if (this.attrs.params.q) {
-      const post = this.attrs.discussion.mostRelevantPost() || this.attrs.discussion.firstPost();
+      const post = this.attrs.post || this.attrs.discussion.mostRelevantPost() || this.attrs.discussion.firstPost();
 
       if (post && post.contentType() === 'comment') {
         const excerpt = highlight(post.contentPlain() ?? '', this.highlightRegExp, 175);

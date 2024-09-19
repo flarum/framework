@@ -32,7 +32,6 @@ use Flarum\User\Search\FulltextFilter as UserFulltextFilter;
 use Flarum\User\Search\UserSearcher;
 use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 
 class SearchServiceProvider extends AbstractServiceProvider
@@ -65,6 +64,7 @@ class SearchServiceProvider extends AbstractServiceProvider
         $this->container->singleton('flarum.search.fulltext', function () {
             return [
                 DiscussionSearcher::class => DiscussionFulltextFilter::class,
+                PostSearcher::class => PostFilter\FulltextFilter::class,
                 UserSearcher::class => UserFulltextFilter::class
             ];
         });
