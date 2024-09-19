@@ -112,7 +112,7 @@ class RegisterAsyncChunksPlugin {
 
                   // This is a chunk with many modules, we need to register all of them.
                   modules?.forEach((module) => {
-                    if (!module.resource.includes(`${path.sep}src${path.sep}`)) {
+                    if (!module.resource?.includes(`${path.sep}src${path.sep}`)) {
                       return;
                     }
 
