@@ -32,6 +32,10 @@ export default class Task extends Model {
     return Model.attribute<string>('output').call(this);
   }
 
+  guessedCause() {
+    return Model.attribute<string>('guessedCause').call(this);
+  }
+
   createdAt() {
     return Model.attribute('createdAt', Model.transformDate).call(this);
   }

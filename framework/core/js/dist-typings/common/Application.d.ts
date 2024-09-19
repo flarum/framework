@@ -15,17 +15,13 @@ import type { ComponentAttrs } from './Component';
 import Model, { SavedModelData } from './Model';
 import IHistory from './IHistory';
 import IExtender from './extenders/IExtender';
+import SearchManager from './SearchManager';
+import { ColorScheme } from './components/ThemeMode';
 export declare type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 export declare type FlarumGenericRoute = RouteItem<any, any, any>;
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
     errorHandler?: (error: RequestError) => void;
     url: string;
-    /**
-     * Manipulate the response text before it is parsed into JSON.
-     *
-     * @deprecated Please use `modifyText` instead.
-     */
-    extract?: (responseText: string) => string;
     /**
      * Manipulate the response text before it is parsed into JSON.
      *
@@ -97,6 +93,12 @@ export interface RouteResolver<Attrs extends ComponentAttrs, Comp extends Compon
      */
     render?(this: this, vnode: Mithril.Vnode<Attrs, Comp>): Mithril.Children;
 }
+export declare enum MaintenanceMode {
+    NO_MAINTENANCE = "none",
+    HIGH_MAINTENANCE = "high",
+    LOW_MAINTENANCE = "low",
+    SAFE_MODE = "safe"
+}
 export interface ApplicationData {
     apiDocument: ApiPayload | null;
     locale: string;
@@ -106,6 +108,8 @@ export interface ApplicationData {
         userId: number;
         csrfToken: string;
     };
+    maintenanceMode?: MaintenanceMode;
+    bisecting?: boolean;
     [key: string]: unknown;
 }
 /**
@@ -146,6 +150,7 @@ export default class Application {
      * The app's data store.
      */
     store: Store;
+    search: SearchManager;
     /**
      * A local cache that can be used to store data at the application level, so
      * that is persists between different routes.
@@ -186,6 +191,7 @@ export default class Application {
     history: IHistory | null;
     pane: any;
     data: ApplicationData;
+    allowUserColorScheme: boolean;
     private _title;
     private _titleCount;
     private set title(value);
@@ -204,6 +210,11 @@ export default class Application {
         extend?: IExtender[];
     }>): void;
     protected mount(basePath?: string): void;
+    private initColorScheme;
+    getSystemColorSchemePreference(): ColorScheme | string;
+    watchSystemColorSchemePreference(callback: () => void): void;
+    setColorScheme(scheme: ColorScheme | string): void;
+    setColoredHeader(value: boolean): void;
     /**
      * Get the API response document that has been preloaded into the application.
      */

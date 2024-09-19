@@ -1,0 +1,1247 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 14.11 (Debian 14.11-1.pgdg120+2)
+-- Dumped by pg_dump version 15.6 (Debian 15.6-0+deb12u1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+--
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON SCHEMA public IS '';
+
+
+SET default_tablespace = '';
+
+--
+-- Name: db_prefix_access_tokens; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.db_prefix_access_tokens (
+    token character varying(40) NOT NULL,
+    user_id integer NOT NULL,
+    last_activity_at timestamp(0) without time zone,
+    created_at timestamp(0) without time zone NOT NULL,
+    type character varying(100) NOT NULL,
+    id integer NOT NULL,
+    title character varying(150),
+    last_ip_address character varying(45),
+    last_user_agent character varying(255)
+);
+
+
+--
+-- Name: db_prefix_access_tokens_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.db_prefix_access_tokens_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: db_prefix_access_tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.db_prefix_access_tokens_id_seq OWNED BY public.db_prefix_access_tokens.id;
+
+
+--
+-- Name: db_prefix_api_keys; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.db_prefix_api_keys (
+    key character varying(100) NOT NULL,
+    id integer NOT NULL,
+    allowed_ips character varying(255),
+    scopes character varying(255),
+    user_id integer,
+    created_at timestamp(0) without time zone NOT NULL,
+    last_activity_at timestamp(0) without time zone
+);
+
+
+--
+-- Name: db_prefix_api_keys_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.db_prefix_api_keys_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: db_prefix_api_keys_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.db_prefix_api_keys_id_seq OWNED BY public.db_prefix_api_keys.id;
+
+
+--
+-- Name: db_prefix_discussion_user; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.db_prefix_discussion_user (
+    user_id integer NOT NULL,
+    discussion_id integer NOT NULL,
+    last_read_at timestamp(0) without time zone,
+    last_read_post_number integer
+);
+
+
+--
+-- Name: db_prefix_discussions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.db_prefix_discussions (
+    id integer NOT NULL,
+    title character varying(200) NOT NULL,
+    comment_count integer DEFAULT 1 NOT NULL,
+    participant_count integer DEFAULT 0 NOT NULL,
+    created_at timestamp(0) without time zone NOT NULL,
+    user_id integer,
+    first_post_id integer,
+    last_posted_at timestamp(0) without time zone,
+    last_posted_user_id integer,
+    last_post_id integer,
+    last_post_number integer,
+    hidden_at timestamp without time zone,
+    hidden_user_id integer,
+    slug character varying(255) NOT NULL,
+    is_private boolean DEFAULT false NOT NULL
+);
+
+
+--
+-- Name: db_prefix_discussions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.db_prefix_discussions_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: db_prefix_discussions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.db_prefix_discussions_id_seq OWNED BY public.db_prefix_discussions.id;
+
+
+--
+-- Name: db_prefix_email_tokens; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.db_prefix_email_tokens (
+    token character varying(100) NOT NULL,
+    email character varying(150) NOT NULL,
+    user_id integer NOT NULL,
+    created_at timestamp(0) without time zone NOT NULL
+);
+
+
+--
+-- Name: db_prefix_group_permission; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.db_prefix_group_permission (
+    group_id integer NOT NULL,
+    permission character varying(100) NOT NULL,
+    created_at timestamp(0) without time zone
+);
+
+
+--
+-- Name: db_prefix_group_user; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.db_prefix_group_user (
+    user_id integer NOT NULL,
+    group_id integer NOT NULL,
+    created_at timestamp(0) without time zone
+);
+
+
+--
+-- Name: db_prefix_groups; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.db_prefix_groups (
+    id integer NOT NULL,
+    name_singular character varying(100) NOT NULL,
+    name_plural character varying(100) NOT NULL,
+    color character varying(20),
+    icon character varying(100),
+    is_hidden boolean DEFAULT false NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- Name: db_prefix_groups_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.db_prefix_groups_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: db_prefix_groups_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.db_prefix_groups_id_seq OWNED BY public.db_prefix_groups.id;
+
+
+--
+-- Name: db_prefix_login_providers; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.db_prefix_login_providers (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    provider character varying(100) NOT NULL,
+    identifier character varying(100) NOT NULL,
+    created_at timestamp(0) without time zone,
+    last_login_at timestamp(0) without time zone
+);
+
+
+--
+-- Name: db_prefix_login_providers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.db_prefix_login_providers_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: db_prefix_login_providers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.db_prefix_login_providers_id_seq OWNED BY public.db_prefix_login_providers.id;
+
+
+--
+-- Name: db_prefix_migrations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.db_prefix_migrations (
+    id integer NOT NULL,
+    migration character varying(255) NOT NULL,
+    extension character varying(255)
+);
+
+
+--
+-- Name: db_prefix_migrations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.db_prefix_migrations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: db_prefix_migrations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.db_prefix_migrations_id_seq OWNED BY public.db_prefix_migrations.id;
+
+
+--
+-- Name: db_prefix_notifications; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.db_prefix_notifications (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    from_user_id integer,
+    type character varying(100) NOT NULL,
+    subject_id integer,
+    data json,
+    created_at timestamp(0) without time zone NOT NULL,
+    is_deleted boolean DEFAULT false NOT NULL,
+    read_at timestamp(0) without time zone
+);
+
+
+--
+-- Name: db_prefix_notifications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.db_prefix_notifications_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: db_prefix_notifications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.db_prefix_notifications_id_seq OWNED BY public.db_prefix_notifications.id;
+
+
+--
+-- Name: db_prefix_password_tokens; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.db_prefix_password_tokens (
+    token character varying(100) NOT NULL,
+    user_id integer NOT NULL,
+    created_at timestamp(0) without time zone NOT NULL
+);
+
+
+--
+-- Name: db_prefix_post_user; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.db_prefix_post_user (
+    post_id integer NOT NULL,
+    user_id integer NOT NULL
+);
+
+
+--
+-- Name: db_prefix_posts; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.db_prefix_posts (
+    id integer NOT NULL,
+    discussion_id integer NOT NULL,
+    number integer,
+    created_at timestamp(0) without time zone NOT NULL,
+    user_id integer,
+    type character varying(100),
+    content text,
+    edited_at timestamp(0) without time zone,
+    edited_user_id integer,
+    hidden_at timestamp(0) without time zone,
+    hidden_user_id integer,
+    ip_address character varying(45),
+    is_private boolean DEFAULT false NOT NULL
+);
+
+
+--
+-- Name: COLUMN db_prefix_posts.content; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.db_prefix_posts.content IS ' ';
+
+
+--
+-- Name: db_prefix_posts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.db_prefix_posts_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: db_prefix_posts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.db_prefix_posts_id_seq OWNED BY public.db_prefix_posts.id;
+
+
+--
+-- Name: db_prefix_registration_tokens; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.db_prefix_registration_tokens (
+    token character varying(100) NOT NULL,
+    payload text,
+    created_at timestamp(0) without time zone NOT NULL,
+    provider character varying(255) NOT NULL,
+    identifier character varying(255) NOT NULL,
+    user_attributes text
+);
+
+
+--
+-- Name: db_prefix_settings; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.db_prefix_settings (
+    key character varying(100) NOT NULL,
+    value text
+);
+
+
+--
+-- Name: db_prefix_unsubscribe_tokens; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.db_prefix_unsubscribe_tokens (
+    id bigint NOT NULL,
+    user_id integer NOT NULL,
+    email_type character varying(255) NOT NULL,
+    token character varying(100) NOT NULL,
+    unsubscribed_at timestamp(0) without time zone,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- Name: db_prefix_unsubscribe_tokens_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.db_prefix_unsubscribe_tokens_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: db_prefix_unsubscribe_tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.db_prefix_unsubscribe_tokens_id_seq OWNED BY public.db_prefix_unsubscribe_tokens.id;
+
+
+--
+-- Name: db_prefix_users; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.db_prefix_users (
+    id integer NOT NULL,
+    username character varying(100) NOT NULL,
+    email character varying(150) NOT NULL,
+    is_email_confirmed boolean DEFAULT false NOT NULL,
+    password character varying(100) NOT NULL,
+    avatar_url character varying(100),
+    preferences json,
+    joined_at timestamp(0) without time zone,
+    last_seen_at timestamp(0) without time zone,
+    marked_all_as_read_at timestamp(0) without time zone,
+    read_notifications_at timestamp(0) without time zone,
+    discussion_count integer DEFAULT 0 NOT NULL,
+    comment_count integer DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: db_prefix_users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.db_prefix_users_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: db_prefix_users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.db_prefix_users_id_seq OWNED BY public.db_prefix_users.id;
+
+
+--
+-- Name: db_prefix_access_tokens id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_access_tokens ALTER COLUMN id SET DEFAULT nextval('public.db_prefix_access_tokens_id_seq'::regclass);
+
+
+--
+-- Name: db_prefix_api_keys id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_api_keys ALTER COLUMN id SET DEFAULT nextval('public.db_prefix_api_keys_id_seq'::regclass);
+
+
+--
+-- Name: db_prefix_discussions id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_discussions ALTER COLUMN id SET DEFAULT nextval('public.db_prefix_discussions_id_seq'::regclass);
+
+
+--
+-- Name: db_prefix_groups id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_groups ALTER COLUMN id SET DEFAULT nextval('public.db_prefix_groups_id_seq'::regclass);
+
+
+--
+-- Name: db_prefix_login_providers id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_login_providers ALTER COLUMN id SET DEFAULT nextval('public.db_prefix_login_providers_id_seq'::regclass);
+
+
+--
+-- Name: db_prefix_migrations id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_migrations ALTER COLUMN id SET DEFAULT nextval('public.db_prefix_migrations_id_seq'::regclass);
+
+
+--
+-- Name: db_prefix_notifications id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_notifications ALTER COLUMN id SET DEFAULT nextval('public.db_prefix_notifications_id_seq'::regclass);
+
+
+--
+-- Name: db_prefix_posts id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_posts ALTER COLUMN id SET DEFAULT nextval('public.db_prefix_posts_id_seq'::regclass);
+
+
+--
+-- Name: db_prefix_unsubscribe_tokens id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_unsubscribe_tokens ALTER COLUMN id SET DEFAULT nextval('public.db_prefix_unsubscribe_tokens_id_seq'::regclass);
+
+
+--
+-- Name: db_prefix_users id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_users ALTER COLUMN id SET DEFAULT nextval('public.db_prefix_users_id_seq'::regclass);
+
+
+--
+-- Name: db_prefix_access_tokens db_prefix_access_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_access_tokens
+    ADD CONSTRAINT db_prefix_access_tokens_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: db_prefix_access_tokens db_prefix_access_tokens_token_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_access_tokens
+    ADD CONSTRAINT db_prefix_access_tokens_token_unique UNIQUE (token);
+
+
+--
+-- Name: db_prefix_api_keys db_prefix_api_keys_key_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_api_keys
+    ADD CONSTRAINT db_prefix_api_keys_key_unique UNIQUE (key);
+
+
+--
+-- Name: db_prefix_api_keys db_prefix_api_keys_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_api_keys
+    ADD CONSTRAINT db_prefix_api_keys_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: db_prefix_registration_tokens db_prefix_auth_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_registration_tokens
+    ADD CONSTRAINT db_prefix_auth_tokens_pkey PRIMARY KEY (token);
+
+
+--
+-- Name: db_prefix_settings db_prefix_config_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_settings
+    ADD CONSTRAINT db_prefix_config_pkey PRIMARY KEY (key);
+
+
+--
+-- Name: db_prefix_discussions db_prefix_discussions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_discussions
+    ADD CONSTRAINT db_prefix_discussions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: db_prefix_email_tokens db_prefix_email_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_email_tokens
+    ADD CONSTRAINT db_prefix_email_tokens_pkey PRIMARY KEY (token);
+
+
+--
+-- Name: db_prefix_groups db_prefix_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_groups
+    ADD CONSTRAINT db_prefix_groups_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: db_prefix_login_providers db_prefix_login_providers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_login_providers
+    ADD CONSTRAINT db_prefix_login_providers_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: db_prefix_login_providers db_prefix_login_providers_provider_identifier_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_login_providers
+    ADD CONSTRAINT db_prefix_login_providers_provider_identifier_unique UNIQUE (provider, identifier);
+
+
+--
+-- Name: db_prefix_migrations db_prefix_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_migrations
+    ADD CONSTRAINT db_prefix_migrations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: db_prefix_notifications db_prefix_notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_notifications
+    ADD CONSTRAINT db_prefix_notifications_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: db_prefix_password_tokens db_prefix_password_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_password_tokens
+    ADD CONSTRAINT db_prefix_password_tokens_pkey PRIMARY KEY (token);
+
+
+--
+-- Name: db_prefix_group_permission db_prefix_permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_group_permission
+    ADD CONSTRAINT db_prefix_permissions_pkey PRIMARY KEY (group_id, permission);
+
+
+--
+-- Name: db_prefix_post_user db_prefix_post_user_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_post_user
+    ADD CONSTRAINT db_prefix_post_user_pkey PRIMARY KEY (post_id, user_id);
+
+
+--
+-- Name: db_prefix_posts db_prefix_posts_discussion_id_number_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_posts
+    ADD CONSTRAINT db_prefix_posts_discussion_id_number_unique UNIQUE (discussion_id, number);
+
+
+--
+-- Name: db_prefix_posts db_prefix_posts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_posts
+    ADD CONSTRAINT db_prefix_posts_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: db_prefix_unsubscribe_tokens db_prefix_unsubscribe_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_unsubscribe_tokens
+    ADD CONSTRAINT db_prefix_unsubscribe_tokens_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: db_prefix_unsubscribe_tokens db_prefix_unsubscribe_tokens_token_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_unsubscribe_tokens
+    ADD CONSTRAINT db_prefix_unsubscribe_tokens_token_unique UNIQUE (token);
+
+
+--
+-- Name: db_prefix_discussion_user db_prefix_users_discussions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_discussion_user
+    ADD CONSTRAINT db_prefix_users_discussions_pkey PRIMARY KEY (user_id, discussion_id);
+
+
+--
+-- Name: db_prefix_users db_prefix_users_email_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_users
+    ADD CONSTRAINT db_prefix_users_email_unique UNIQUE (email);
+
+
+--
+-- Name: db_prefix_group_user db_prefix_users_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_group_user
+    ADD CONSTRAINT db_prefix_users_groups_pkey PRIMARY KEY (user_id, group_id);
+
+
+--
+-- Name: db_prefix_users db_prefix_users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_users
+    ADD CONSTRAINT db_prefix_users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: db_prefix_users db_prefix_users_username_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_users
+    ADD CONSTRAINT db_prefix_users_username_unique UNIQUE (username);
+
+
+--
+-- Name: db_prefix_access_tokens_type_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_access_tokens_type_index ON public.db_prefix_access_tokens USING btree (type);
+
+
+--
+-- Name: db_prefix_discussions_comment_count_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_discussions_comment_count_index ON public.db_prefix_discussions USING btree (comment_count);
+
+
+--
+-- Name: db_prefix_discussions_created_at_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_discussions_created_at_index ON public.db_prefix_discussions USING btree (created_at);
+
+
+--
+-- Name: db_prefix_discussions_hidden_at_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_discussions_hidden_at_index ON public.db_prefix_discussions USING btree (hidden_at);
+
+
+--
+-- Name: db_prefix_discussions_last_posted_at_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_discussions_last_posted_at_index ON public.db_prefix_discussions USING btree (last_posted_at);
+
+
+--
+-- Name: db_prefix_discussions_last_posted_user_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_discussions_last_posted_user_id_index ON public.db_prefix_discussions USING btree (last_posted_user_id);
+
+
+--
+-- Name: db_prefix_discussions_participant_count_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_discussions_participant_count_index ON public.db_prefix_discussions USING btree (participant_count);
+
+
+--
+-- Name: db_prefix_discussions_title_fulltext; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_discussions_title_fulltext ON public.db_prefix_discussions USING gin (to_tsvector('english'::regconfig, (title)::text));
+
+
+--
+-- Name: db_prefix_discussions_user_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_discussions_user_id_index ON public.db_prefix_discussions USING btree (user_id);
+
+
+--
+-- Name: db_prefix_notifications_user_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_notifications_user_id_index ON public.db_prefix_notifications USING btree (user_id);
+
+
+--
+-- Name: db_prefix_posts_content_fulltext; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_posts_content_fulltext ON public.db_prefix_posts USING gin (to_tsvector('english'::regconfig, content));
+
+
+--
+-- Name: db_prefix_posts_discussion_id_created_at_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_posts_discussion_id_created_at_index ON public.db_prefix_posts USING btree (discussion_id, created_at);
+
+
+--
+-- Name: db_prefix_posts_discussion_id_number_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_posts_discussion_id_number_index ON public.db_prefix_posts USING btree (discussion_id, number);
+
+
+--
+-- Name: db_prefix_posts_type_created_at_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_posts_type_created_at_index ON public.db_prefix_posts USING btree (type, created_at);
+
+
+--
+-- Name: db_prefix_posts_type_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_posts_type_index ON public.db_prefix_posts USING btree (type);
+
+
+--
+-- Name: db_prefix_posts_user_id_created_at_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_posts_user_id_created_at_index ON public.db_prefix_posts USING btree (user_id, created_at);
+
+
+--
+-- Name: db_prefix_unsubscribe_tokens_email_type_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_unsubscribe_tokens_email_type_index ON public.db_prefix_unsubscribe_tokens USING btree (email_type);
+
+
+--
+-- Name: db_prefix_unsubscribe_tokens_token_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_unsubscribe_tokens_token_index ON public.db_prefix_unsubscribe_tokens USING btree (token);
+
+
+--
+-- Name: db_prefix_unsubscribe_tokens_user_id_email_type_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_unsubscribe_tokens_user_id_email_type_index ON public.db_prefix_unsubscribe_tokens USING btree (user_id, email_type);
+
+
+--
+-- Name: db_prefix_unsubscribe_tokens_user_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_unsubscribe_tokens_user_id_index ON public.db_prefix_unsubscribe_tokens USING btree (user_id);
+
+
+--
+-- Name: db_prefix_users_comment_count_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_users_comment_count_index ON public.db_prefix_users USING btree (comment_count);
+
+
+--
+-- Name: db_prefix_users_discussion_count_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_users_discussion_count_index ON public.db_prefix_users USING btree (discussion_count);
+
+
+--
+-- Name: db_prefix_users_joined_at_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_users_joined_at_index ON public.db_prefix_users USING btree (joined_at);
+
+
+--
+-- Name: db_prefix_users_last_seen_at_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX db_prefix_users_last_seen_at_index ON public.db_prefix_users USING btree (last_seen_at);
+
+
+--
+-- Name: db_prefix_access_tokens db_prefix_access_tokens_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_access_tokens
+    ADD CONSTRAINT db_prefix_access_tokens_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.db_prefix_users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: db_prefix_api_keys db_prefix_api_keys_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_api_keys
+    ADD CONSTRAINT db_prefix_api_keys_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.db_prefix_users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: db_prefix_discussion_user db_prefix_discussion_user_discussion_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_discussion_user
+    ADD CONSTRAINT db_prefix_discussion_user_discussion_id_foreign FOREIGN KEY (discussion_id) REFERENCES public.db_prefix_discussions(id) ON DELETE CASCADE;
+
+
+--
+-- Name: db_prefix_discussion_user db_prefix_discussion_user_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_discussion_user
+    ADD CONSTRAINT db_prefix_discussion_user_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.db_prefix_users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: db_prefix_discussions db_prefix_discussions_first_post_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_discussions
+    ADD CONSTRAINT db_prefix_discussions_first_post_id_foreign FOREIGN KEY (first_post_id) REFERENCES public.db_prefix_posts(id) ON DELETE SET NULL;
+
+
+--
+-- Name: db_prefix_discussions db_prefix_discussions_hidden_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_discussions
+    ADD CONSTRAINT db_prefix_discussions_hidden_user_id_foreign FOREIGN KEY (hidden_user_id) REFERENCES public.db_prefix_users(id) ON DELETE SET NULL;
+
+
+--
+-- Name: db_prefix_discussions db_prefix_discussions_last_post_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_discussions
+    ADD CONSTRAINT db_prefix_discussions_last_post_id_foreign FOREIGN KEY (last_post_id) REFERENCES public.db_prefix_posts(id) ON DELETE SET NULL;
+
+
+--
+-- Name: db_prefix_discussions db_prefix_discussions_last_posted_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_discussions
+    ADD CONSTRAINT db_prefix_discussions_last_posted_user_id_foreign FOREIGN KEY (last_posted_user_id) REFERENCES public.db_prefix_users(id) ON DELETE SET NULL;
+
+
+--
+-- Name: db_prefix_discussions db_prefix_discussions_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_discussions
+    ADD CONSTRAINT db_prefix_discussions_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.db_prefix_users(id) ON DELETE SET NULL;
+
+
+--
+-- Name: db_prefix_email_tokens db_prefix_email_tokens_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_email_tokens
+    ADD CONSTRAINT db_prefix_email_tokens_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.db_prefix_users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: db_prefix_group_permission db_prefix_group_permission_group_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_group_permission
+    ADD CONSTRAINT db_prefix_group_permission_group_id_foreign FOREIGN KEY (group_id) REFERENCES public.db_prefix_groups(id) ON DELETE CASCADE;
+
+
+--
+-- Name: db_prefix_group_user db_prefix_group_user_group_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_group_user
+    ADD CONSTRAINT db_prefix_group_user_group_id_foreign FOREIGN KEY (group_id) REFERENCES public.db_prefix_groups(id) ON DELETE CASCADE;
+
+
+--
+-- Name: db_prefix_group_user db_prefix_group_user_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_group_user
+    ADD CONSTRAINT db_prefix_group_user_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.db_prefix_users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: db_prefix_login_providers db_prefix_login_providers_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_login_providers
+    ADD CONSTRAINT db_prefix_login_providers_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.db_prefix_users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: db_prefix_notifications db_prefix_notifications_from_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_notifications
+    ADD CONSTRAINT db_prefix_notifications_from_user_id_foreign FOREIGN KEY (from_user_id) REFERENCES public.db_prefix_users(id) ON DELETE SET NULL;
+
+
+--
+-- Name: db_prefix_notifications db_prefix_notifications_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_notifications
+    ADD CONSTRAINT db_prefix_notifications_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.db_prefix_users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: db_prefix_password_tokens db_prefix_password_tokens_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_password_tokens
+    ADD CONSTRAINT db_prefix_password_tokens_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.db_prefix_users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: db_prefix_post_user db_prefix_post_user_post_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_post_user
+    ADD CONSTRAINT db_prefix_post_user_post_id_foreign FOREIGN KEY (post_id) REFERENCES public.db_prefix_posts(id) ON DELETE CASCADE;
+
+
+--
+-- Name: db_prefix_post_user db_prefix_post_user_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_post_user
+    ADD CONSTRAINT db_prefix_post_user_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.db_prefix_users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: db_prefix_posts db_prefix_posts_discussion_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_posts
+    ADD CONSTRAINT db_prefix_posts_discussion_id_foreign FOREIGN KEY (discussion_id) REFERENCES public.db_prefix_discussions(id) ON DELETE CASCADE;
+
+
+--
+-- Name: db_prefix_posts db_prefix_posts_edited_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_posts
+    ADD CONSTRAINT db_prefix_posts_edited_user_id_foreign FOREIGN KEY (edited_user_id) REFERENCES public.db_prefix_users(id) ON DELETE SET NULL;
+
+
+--
+-- Name: db_prefix_posts db_prefix_posts_hidden_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_posts
+    ADD CONSTRAINT db_prefix_posts_hidden_user_id_foreign FOREIGN KEY (hidden_user_id) REFERENCES public.db_prefix_users(id) ON DELETE SET NULL;
+
+
+--
+-- Name: db_prefix_posts db_prefix_posts_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_posts
+    ADD CONSTRAINT db_prefix_posts_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.db_prefix_users(id) ON DELETE SET NULL;
+
+
+--
+-- Name: db_prefix_unsubscribe_tokens db_prefix_unsubscribe_tokens_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.db_prefix_unsubscribe_tokens
+    ADD CONSTRAINT db_prefix_unsubscribe_tokens_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.db_prefix_users(id) ON DELETE CASCADE;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 14.11 (Debian 14.11-1.pgdg120+2)
+-- Dumped by pg_dump version 15.6 (Debian 15.6-0+deb12u1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Data for Name: db_prefix_migrations; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+INSERT INTO public.db_prefix_migrations VALUES (1,'2015_02_24_000000_create_access_tokens_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (2,'2015_02_24_000000_create_api_keys_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (3,'2015_02_24_000000_create_config_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (4,'2015_02_24_000000_create_discussions_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (5,'2015_02_24_000000_create_email_tokens_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (6,'2015_02_24_000000_create_groups_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (7,'2015_02_24_000000_create_notifications_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (8,'2015_02_24_000000_create_password_tokens_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (9,'2015_02_24_000000_create_permissions_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (10,'2015_02_24_000000_create_posts_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (11,'2015_02_24_000000_create_users_discussions_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (12,'2015_02_24_000000_create_users_groups_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (13,'2015_02_24_000000_create_users_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (14,'2015_09_15_000000_create_auth_tokens_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (15,'2015_09_20_224327_add_hide_to_discussions',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (16,'2015_09_22_030432_rename_notification_read_time',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (17,'2015_10_07_130531_rename_config_to_settings',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (18,'2015_10_24_194000_add_ip_address_to_posts',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (19,'2015_12_05_042721_change_access_tokens_columns',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (20,'2015_12_17_194247_change_settings_value_column_to_text',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (21,'2016_02_04_095452_add_slug_to_discussions',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (22,'2017_04_07_114138_add_is_private_to_discussions',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (23,'2017_04_07_114138_add_is_private_to_posts',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (24,'2018_01_11_093900_change_access_tokens_columns',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (25,'2018_01_11_094000_change_access_tokens_add_foreign_keys',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (26,'2018_01_11_095000_change_api_keys_columns',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (27,'2018_01_11_101800_rename_auth_tokens_to_registration_tokens',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (28,'2018_01_11_102000_change_registration_tokens_rename_id_to_token',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (29,'2018_01_11_102100_change_registration_tokens_created_at_to_datetime',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (30,'2018_01_11_120604_change_posts_table_to_innodb',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (31,'2018_01_11_155200_change_discussions_rename_columns',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (32,'2018_01_11_155300_change_discussions_add_foreign_keys',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (33,'2018_01_15_071700_rename_users_discussions_to_discussion_user',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (34,'2018_01_15_071800_change_discussion_user_rename_columns',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (35,'2018_01_15_071900_change_discussion_user_add_foreign_keys',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (36,'2018_01_15_072600_change_email_tokens_rename_id_to_token',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (37,'2018_01_15_072700_change_email_tokens_add_foreign_keys',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (38,'2018_01_15_072800_change_email_tokens_created_at_to_datetime',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (39,'2018_01_18_130400_rename_permissions_to_group_permission',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (40,'2018_01_18_130500_change_group_permission_add_foreign_keys',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (41,'2018_01_18_130600_rename_users_groups_to_group_user',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (42,'2018_01_18_130700_change_group_user_add_foreign_keys',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (43,'2018_01_18_133000_change_notifications_columns',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (44,'2018_01_18_133100_change_notifications_add_foreign_keys',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (45,'2018_01_18_134400_change_password_tokens_rename_id_to_token',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (46,'2018_01_18_134500_change_password_tokens_add_foreign_keys',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (47,'2018_01_18_134600_change_password_tokens_created_at_to_datetime',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (48,'2018_01_18_135000_change_posts_rename_columns',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (49,'2018_01_18_135100_change_posts_add_foreign_keys',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (50,'2018_01_30_112238_add_fulltext_index_to_discussions_title',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (51,'2018_01_30_220100_create_post_user_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (52,'2018_01_30_222900_change_users_rename_columns',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (55,'2018_09_15_041340_add_users_indicies',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (56,'2018_09_15_041828_add_discussions_indicies',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (57,'2018_09_15_043337_add_notifications_indices',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (58,'2018_09_15_043621_add_posts_indices',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (59,'2018_09_22_004100_change_registration_tokens_columns',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (60,'2018_09_22_004200_create_login_providers_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (61,'2018_10_08_144700_add_shim_prefix_to_group_icons',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (62,'2019_10_12_195349_change_posts_add_discussion_foreign_key',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (63,'2020_03_19_134512_change_discussions_default_comment_count',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (64,'2020_04_21_130500_change_permission_groups_add_is_hidden',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (65,'2021_03_02_040000_change_access_tokens_add_type',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (66,'2021_03_02_040500_change_access_tokens_add_id',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (67,'2021_03_02_041000_change_access_tokens_add_title_ip_agent',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (68,'2021_04_18_040500_change_migrations_add_id_primary_key',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (69,'2021_04_18_145100_change_posts_content_column_to_mediumtext',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (70,'2021_05_10_000000_rename_permissions',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (71,'2022_05_20_000000_add_timestamps_to_groups_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (72,'2022_05_20_000001_add_created_at_to_group_user_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (73,'2022_05_20_000002_add_created_at_to_group_permission_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (74,'2022_07_14_000000_add_type_index_to_posts',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (75,'2022_07_14_000001_add_type_created_at_composite_index_to_posts',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (76,'2022_08_06_000000_change_access_tokens_last_activity_at_to_nullable',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (77,'2023_08_19_000000_create_unsubscribe_tokens_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (78,'2023_10_23_000000_drop_post_number_index_column_from_discussions_table',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (79,'2024_05_05_000000_add_sqlite_keys',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (80,'2024_05_05_000001_convert_preferences_to_json_in_users',NULL);
+INSERT INTO public.db_prefix_migrations VALUES (81,'2024_05_07_000001_convert_data_to_json_in_notifications.php',NULL);
+
+--
+-- Name: db_prefix_migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.db_prefix_migrations_id_seq', 81, true);
+
+
+--
+-- PostgreSQL database dump complete
+--

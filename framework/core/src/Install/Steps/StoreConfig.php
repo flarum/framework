@@ -44,12 +44,12 @@ class StoreConfig implements ReversibleStep
     private function buildConfig(): array
     {
         return [
-            'debug'    => $this->debugMode,
+            'debug' => $this->debugMode,
             'database' => $this->dbConfig->toArray(),
-            'url'      => (string) $this->baseUrl,
-            'paths'    => $this->getPathsConfig(),
-            'headers'  => [
-                'poweredByHeader'  => true,
+            'url' => (string) $this->baseUrl,
+            'paths' => $this->getPathsConfig(),
+            'headers' => [
+                'poweredByHeader' => true,
                 'referrerPolicy' => 'same-origin',
             ]
         ];
@@ -58,7 +58,7 @@ class StoreConfig implements ReversibleStep
     private function getPathsConfig(): array
     {
         return [
-            'api'   => 'api',
+            'api' => 'api',
             'admin' => 'admin',
         ];
     }

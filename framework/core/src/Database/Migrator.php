@@ -13,9 +13,7 @@ use Flarum\Database\Exception\MigrationKeyMissing;
 use Flarum\Extension\Extension;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Database\MySqlConnection;
 use Illuminate\Filesystem\Filesystem;
-use InvalidArgumentException;
 use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -31,12 +29,6 @@ class Migrator
         protected ConnectionInterface $connection,
         protected Filesystem $files
     ) {
-        if (! ($connection instanceof MySqlConnection)) {
-            throw new InvalidArgumentException('Only MySQL connections are supported');
-        }
-
-        // Workaround for https://github.com/laravel/framework/issues/1186
-        $connection->getDoctrineSchemaManager()->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
     }
 
     /**
@@ -67,8 +59,38 @@ class Migrator
         // Once we have the array of migrations, we will spin through them and run the
         // migrations "up" so the changes are made to the databases. We'll then log
         // that the migration was run so we don't repeat it next time we execute.
-        foreach ($migrations as $file) {
-            $this->runUp($path, $file, $extension);
+        $this->runUpMigrations($migrations, $path, $extension);
+    }
+
+    protected function runUpMigrations(array $migrations, string $path, ?Extension $extension = null): void
+    {
+        $process = function () use ($migrations, $path, $extension) {
+            foreach ($migrations as $migration) {
+                $this->runUp($path, $migration, $extension);
+            }
+        };
+
+        // PgSQL allows DDL statements in transactions.
+        if ($this->connection->getDriverName() === 'pgsql') {
+            $this->connection->transaction($process);
+        } else {
+            $process();
+        }
+    }
+
+    protected function runDownMigrations(array $migrations, string $path, ?Extension $extension = null): void
+    {
+        $process = function () use ($migrations, $path, $extension) {
+            foreach ($migrations as $migration) {
+                $this->runDown($path, $migration, $extension);
+            }
+        };
+
+        // PgSQL allows DDL statements in transactions.
+        if ($this->connection->getDriverName() === 'pgsql') {
+            $this->connection->transaction($process);
+        } else {
+            $process();
         }
     }
 
@@ -101,9 +123,7 @@ class Migrator
         if ($count === 0) {
             $this->note('<info>Nothing to rollback.</info>');
         } else {
-            foreach ($migrations as $migration) {
-                $this->runDown($path, $migration, $extension);
-            }
+            $this->runDownMigrations($migrations, $path, $extension);
         }
 
         return $count;
@@ -207,17 +227,23 @@ class Migrator
      *
      * @param string $path to the directory containing the dump.
      */
-    public function installFromSchema(string $path): void
+    public function installFromSchema(string $path, string $driver): bool
     {
-        $schemaPath = "$path/install.dump";
+        $schemaPath = "$path/$driver-install.dump";
+
+        if (! file_exists($schemaPath)) {
+            return false;
+        }
 
         $startTime = microtime(true);
 
         $dump = file_get_contents($schemaPath);
 
+        $dumpWithoutComments = preg_replace('/^--.*$/m', '', $dump);
+
         $this->connection->getSchemaBuilder()->disableForeignKeyConstraints();
 
-        foreach (explode(';', $dump) as $statement) {
+        foreach (explode(';', $dumpWithoutComments) as $statement) {
             $statement = trim($statement);
 
             if (empty($statement) || str_starts_with($statement, '/*')) {
@@ -232,10 +258,16 @@ class Migrator
             $this->connection->statement($statement);
         }
 
+        if ($driver === 'pgsql') {
+            $this->connection->statement('SELECT pg_catalog.set_config(\'search_path\', \'public\', false)');
+        }
+
         $this->connection->getSchemaBuilder()->enableForeignKeyConstraints();
 
         $runTime = number_format((microtime(true) - $startTime) * 1000, 2);
         $this->note('<info>Loaded stored database schema.</info> ('.$runTime.'ms)');
+
+        return true;
     }
 
     public function setOutput(OutputInterface $output): static
@@ -248,6 +280,14 @@ class Migrator
     protected function note(string $message): void
     {
         $this->output?->writeln($message);
+    }
+
+    /**
+     * Get the migration repository instance.
+     */
+    public function getRepository(): MigrationRepositoryInterface
+    {
+        return $this->repository;
     }
 
     public function repositoryExists(): bool

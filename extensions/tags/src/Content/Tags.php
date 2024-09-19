@@ -58,8 +58,16 @@ class Tags
 
     protected function getTagsDocument(Request $request): array
     {
-        return json_decode($this->api->withParentRequest($request)->withQueryParams([
-            'include' => 'children,lastPostedDiscussion,parent'
-        ])->get('/tags')->getBody(), true);
+        return json_decode(
+            $this->api
+                ->withoutErrorHandling()
+                ->withParentRequest($request)
+                ->withQueryParams([
+                    'include' => 'children,lastPostedDiscussion,parent'
+                ])
+                ->get('/tags')
+                ->getBody(),
+            true
+        );
     }
 }

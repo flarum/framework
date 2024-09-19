@@ -11,7 +11,9 @@ namespace Flarum\Statistics\Api\Controller;
 
 use Carbon\Carbon;
 use DateTime;
+use Exception;
 use Flarum\Discussion\Discussion;
+use Flarum\Http\Exception\InvalidParameterException;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\Post;
 use Flarum\Post\RegisteredTypesScope;
@@ -24,7 +26,6 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Tobscure\JsonApi\Exception\InvalidParameterException;
 
 class ShowStatisticsData implements RequestHandlerInterface
 {
@@ -130,12 +131,24 @@ class ShowStatisticsData implements RequestHandlerInterface
             $endDate = new DateTime();
         }
 
+        $formats = match ($query->getConnection()->getDriverName()) {
+            'pgsql' => ['YYYY-MM-DD HH24:00:00', 'YYYY-MM-DD'],
+            default => ['%Y-%m-%d %H:00:00', '%Y-%m-%d'],
+        };
+
+        // if within the last 24 hours, group by hour
+        $format = "CASE WHEN $column > ? THEN '$formats[0]' ELSE '$formats[1]' END";
+
+        $dbFormattedDatetime = match ($query->getConnection()->getDriverName()) {
+            'sqlite' => "strftime($format, $column)",
+            'pgsql' => "TO_CHAR($column, $format)",
+            'mysql' => "DATE_FORMAT($column, $format)",
+            default => throw new Exception('Unsupported database driver'),
+        };
+
         $results = $query
             ->selectRaw(
-                'DATE_FORMAT(
-                    @date := '.$column.',
-                    IF(@date > ?, \'%Y-%m-%d %H:00:00\', \'%Y-%m-%d\') -- if within the last 24 hours, group by hour
-                ) as time_group',
+                $dbFormattedDatetime.' as time_group',
                 [new DateTime('-25 hours')]
             )
             ->selectRaw('COUNT(id) as count')

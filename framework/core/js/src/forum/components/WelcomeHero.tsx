@@ -13,11 +13,6 @@ const LOCAL_STORAGE_KEY = 'welcomeHidden';
  * forum.
  */
 export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
-  /**
-   * @deprecated Extend the `isHidden` method instead.
-   */
-  hidden: boolean = false;
-
   oninit(vnode: Mithril.Vnode<IWelcomeHeroAttrs, this>) {
     super.oninit(vnode);
   }
@@ -60,7 +55,6 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
   isHidden(): boolean {
     if (!app.forum.attribute<string>('welcomeTitle')?.trim()) return true;
     if (localStorage.getItem(LOCAL_STORAGE_KEY)) return true;
-    if (this.hidden) return true;
 
     return false;
   }

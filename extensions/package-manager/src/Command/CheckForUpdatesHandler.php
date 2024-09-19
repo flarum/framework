@@ -7,18 +7,24 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Command;
+namespace Flarum\ExtensionManager\Command;
 
-use Flarum\PackageManager\Composer\ComposerAdapter;
-use Flarum\PackageManager\Exception\ComposerCommandFailedException;
-use Flarum\PackageManager\Settings\LastUpdateCheck;
+use Flarum\Extension\ExtensionManager;
+use Flarum\ExtensionManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Composer\ComposerJson;
+use Flarum\ExtensionManager\Exception\ComposerCommandFailedException;
+use Flarum\ExtensionManager\Settings\LastUpdateCheck;
+use Flarum\ExtensionManager\Support\Util;
+use Illuminate\Support\Collection;
 use Symfony\Component\Console\Input\ArrayInput;
 
 class CheckForUpdatesHandler
 {
     public function __construct(
-        private ComposerAdapter $composer,
-        private LastUpdateCheck $lastUpdateCheck
+        protected ComposerAdapter $composer,
+        protected LastUpdateCheck $lastUpdateCheck,
+        protected ExtensionManager $extensions,
+        protected ComposerJson $composerJson
     ) {
     }
 
@@ -45,14 +51,10 @@ class CheckForUpdatesHandler
         $firstOutput = $this->runComposerCommand(false, $command);
         $firstOutput = json_decode($this->cleanJson($firstOutput), true);
 
-        $majorUpdates = false;
-
-        foreach ($firstOutput['installed'] as $package) {
-            if (isset($package['latest-status']) && $package['latest-status'] === 'update-possible') {
-                $majorUpdates = true;
-                break;
-            }
-        }
+        $installed = new Collection($firstOutput['installed'] ?? []);
+        $majorUpdates = $installed->contains(function (array $package) {
+            return isset($package['latest-status']) && $package['latest-status'] === 'update-possible' && Util::isMajorUpdate($package['version'], $package['latest']);
+        });
 
         if ($majorUpdates) {
             $secondOutput = $this->runComposerCommand(true, $command);
@@ -63,10 +65,22 @@ class CheckForUpdatesHandler
             $secondOutput = ['installed' => []];
         }
 
-        foreach ($firstOutput['installed'] as &$mainPackageUpdate) {
+        $updates = new Collection();
+        $composerJson = $this->composerJson->get();
+
+        foreach ($installed as $mainPackageUpdate) {
+            // Skip if not an extension
+            if (! $this->extensions->getExtension(Util::nameToId($mainPackageUpdate['name']))) {
+                continue;
+            }
+
             $mainPackageUpdate['latest-minor'] = $mainPackageUpdate['latest-major'] = null;
 
-            if (isset($mainPackageUpdate['latest-status']) && $mainPackageUpdate['latest-status'] === 'update-possible') {
+            if ($mainPackageUpdate['latest-status'] === 'up-to-date' && Util::isMajorUpdate($mainPackageUpdate['version'], $mainPackageUpdate['latest'])) {
+                continue;
+            }
+
+            if (isset($mainPackageUpdate['latest-status']) && $mainPackageUpdate['latest-status'] === 'update-possible' && Util::isMajorUpdate($mainPackageUpdate['version'], $mainPackageUpdate['latest'])) {
                 $mainPackageUpdate['latest-major'] = $mainPackageUpdate['latest'];
 
                 $minorPackageUpdate = array_filter($secondOutput['installed'], function ($package) use ($mainPackageUpdate) {
@@ -79,10 +93,14 @@ class CheckForUpdatesHandler
             } else {
                 $mainPackageUpdate['latest-minor'] = $mainPackageUpdate['latest'] ?? null;
             }
+
+            $mainPackageUpdate['required-as'] = $composerJson['require'][$mainPackageUpdate['name']] ?? null;
+
+            $updates->push($mainPackageUpdate);
         }
 
         return $this->lastUpdateCheck
-            ->with('installed', $firstOutput['installed'])
+            ->with('installed', $updates->values()->toArray())
             ->save();
     }
 
@@ -102,7 +120,6 @@ class CheckForUpdatesHandler
     {
         $input = [
             'command' => 'outdated',
-            '-D' => true,
             '--format' => 'json',
         ];
 

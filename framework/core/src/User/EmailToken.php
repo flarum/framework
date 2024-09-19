@@ -65,7 +65,7 @@ class EmailToken extends AbstractModel
         /** @var static|null $token */
         $token = $query->find($id);
 
-        if (! $token || $token->created_at->diffInDays() >= 1) {
+        if (! $token || $token->created_at->diffInDays(null, true) >= 1) {
             throw new InvalidConfirmationTokenException;
         }
 

@@ -1,5 +1,5 @@
 import app from '../../forum/app';
-import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Button from '../../common/components/Button';
 import LogInButtons from './LogInButtons';
 import extractText from '../../common/utils/extractText';
@@ -7,7 +7,7 @@ import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
 import type Mithril from 'mithril';
 
-export interface ISignupModalAttrs extends IInternalModalAttrs {
+export interface ISignupModalAttrs extends IFormModalAttrs {
   username?: string;
   email?: string;
   password?: string;
@@ -20,7 +20,7 @@ export type SignupBody = {
   email: string;
 } & ({ token: string } | { password: string });
 
-export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignupModalAttrs> extends Modal<CustomAttrs> {
+export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignupModalAttrs> extends FormModal<CustomAttrs> {
   /**
    * The value of the username input.
    */

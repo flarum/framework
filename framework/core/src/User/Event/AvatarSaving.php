@@ -10,14 +10,14 @@
 namespace Flarum\User\Event;
 
 use Flarum\User\User;
-use Intervention\Image\Image;
+use Intervention\Image\Interfaces\ImageInterface;
 
 class AvatarSaving
 {
     public function __construct(
         public User $user,
         public User $actor,
-        public Image $image
+        public ImageInterface $image
     ) {
     }
 }

@@ -20,6 +20,12 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
     );
 
     $map->get(
+        '/posts',
+        'posts',
+        $route->toForum(Content\Posts::class)
+    );
+
+    $map->get(
         '/d/{id:\d+(?:-[^/]*)?}[/{near:[^/]*}]',
         'discussion',
         $route->toForum(Content\Discussion::class)
@@ -65,6 +71,12 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         '/global-logout',
         'globalLogout',
         $route->toController(Controller\GlobalLogOutController::class)
+    );
+
+    $map->get(
+        '/maintenance/login',
+        'maintenance.login',
+        $route->toController(Controller\LogInViewController::class)
     );
 
     $map->post(

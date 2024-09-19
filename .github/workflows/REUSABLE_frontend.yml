@@ -86,20 +86,30 @@ on:
         type: string
         required: false
 
+      runner_type:
+        description: The type of runner to use for the jobs. This should be one of the types supported by the `runs-on` keyword.
+        type: string
+        required: false
+        default: 'ubuntu-latest'
+
     secrets:
       bundlewatch_github_token:
         description: The GitHub token to use for Bundlewatch.
+        required: false
+      composer_auth:
+        description: The Composer auth tokens to use for private packages.
         required: false
 
 env:
   COMPOSER_ROOT_VERSION: dev-main
   ci_script: ${{ inputs.js_package_manager == 'yarn' && 'yarn install --immutable' || 'npm ci' }}
   cache_dependency_path: ${{ inputs.cache_dependency_path || format(inputs.js_package_manager == 'yarn' && '{0}/yarn.lock' || '{0}/package-lock.json', inputs.frontend_directory) }}
+  COMPOSER_AUTH: ${{ secrets.composer_auth }}
 
 jobs:
   build:
     name: Checks & Build
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner_type }}
 
     if: >-
       ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')

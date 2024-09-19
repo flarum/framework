@@ -20,7 +20,7 @@ export default function addTagFilter() {
       return this.currentActiveTag;
     }
 
-    const slug = this.search.params().tags;
+    const slug = this.search.state.params().tags;
     let tag = null;
 
     if (slug) {
@@ -39,7 +39,7 @@ export default function addTagFilter() {
       //    - We loaded in that child tag (and its siblings) in the API document
       //    - We first navigated to the current tag's parent, which would have loaded in the current tag's siblings.
       this.store
-        .find('tags', slug, { include: 'children,children.parent,parent,state' })
+        .find('tags', slug, { include: 'children,children.parent,parent' })
         .then(() => {
           this.currentActiveTag = findTag(slug);
 
@@ -124,14 +124,8 @@ export default function addTagFilter() {
     }
 
     if (this.params.tags) {
-      const filter = params.filter ?? {};
-      filter.tag = this.params.tags;
-      // TODO: replace this with a more robust system.
-      const q = filter.q;
-      if (q) {
-        filter.q = `${q} tag:${this.params.tags}`;
-      }
-      params.filter = filter;
+      params.filter ||= {};
+      params.filter.tag = this.params.tags;
     }
   });
 }

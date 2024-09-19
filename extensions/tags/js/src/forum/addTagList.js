@@ -24,7 +24,7 @@ export default function addTagList() {
 
     items.add('separator', <Separator />, -12);
 
-    const params = app.search.stickyParams();
+    const params = app.search.state.stickyParams();
     const tags = app.store.all('tags');
     const currentTag = app.currentTag();
 

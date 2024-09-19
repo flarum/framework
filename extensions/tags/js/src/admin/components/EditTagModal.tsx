@@ -1,5 +1,5 @@
 import app from 'flarum/admin/app';
-import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
+import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
 import ColorPreviewInput from 'flarum/common/components/ColorPreviewInput';
 import ItemList from 'flarum/common/utils/ItemList';
@@ -12,7 +12,7 @@ import type Mithril from 'mithril';
 import tagLabel from '../../common/helpers/tagLabel';
 import type Tag from '../../common/models/Tag';
 
-export interface EditTagModalAttrs extends IInternalModalAttrs {
+export interface EditTagModalAttrs extends IFormModalAttrs {
   primary?: boolean;
   model?: Tag;
 }
@@ -21,7 +21,7 @@ export interface EditTagModalAttrs extends IInternalModalAttrs {
  * The `EditTagModal` component shows a modal dialog which allows the user
  * to create or edit a tag.
  */
-export default class EditTagModal extends Modal<EditTagModalAttrs> {
+export default class EditTagModal extends FormModal<EditTagModalAttrs> {
   tag!: Tag;
 
   name!: Stream<string>;
@@ -30,7 +30,7 @@ export default class EditTagModal extends Modal<EditTagModalAttrs> {
   color!: Stream<string>;
   icon!: Stream<string>;
   isHidden!: Stream<boolean>;
-  primary!: Stream<boolean>;
+  isPrimary!: Stream<boolean>;
 
   oninit(vnode: Mithril.Vnode<EditTagModalAttrs, this>) {
     super.oninit(vnode);
@@ -43,7 +43,7 @@ export default class EditTagModal extends Modal<EditTagModalAttrs> {
     this.color = Stream(this.tag.color() || '');
     this.icon = Stream(this.tag.icon() || '');
     this.isHidden = Stream(this.tag.isHidden() || false);
-    this.primary = Stream(this.attrs.primary || false);
+    this.isPrimary = Stream(this.attrs.primary || false);
   }
 
   className() {
@@ -164,7 +164,7 @@ export default class EditTagModal extends Modal<EditTagModalAttrs> {
       color: this.color(),
       icon: this.icon(),
       isHidden: this.isHidden(),
-      primary: this.primary(),
+      isPrimary: this.isPrimary(),
     };
   }
 
@@ -189,8 +189,6 @@ export default class EditTagModal extends Modal<EditTagModalAttrs> {
         children.forEach((tag) =>
           tag.pushData({
             attributes: { isChild: false },
-            // @deprecated. Temporary hack for type safety, remove before v1.3.
-            relationships: { parent: null as any as [] },
           })
         );
         m.redraw();

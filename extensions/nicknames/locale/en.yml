@@ -1,5 +1,8 @@
 flarum-nicknames:
   admin:
+    basics:
+      display_name_driver_options:
+        nickname: Nickname
     permissions:
       edit_own_nickname_label: Edit own nickname
     settings:

@@ -11,6 +11,7 @@ namespace Flarum\Tests\unit\Foundation;
 
 use Flarum\Extension\ExtensionManager;
 use Flarum\Testing\unit\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ExtensionDependencyResolutionTest extends TestCase
 {
@@ -39,7 +40,7 @@ class ExtensionDependencyResolutionTest extends TestCase
         $this->optionalDependencyCategories = new FakeExtension('flarum-categories', ['flarum-tags'], ['flarum-tag-backgrounds', 'non-existent-optional-dependency']);
     }
 
-    /** @test */
+    #[Test]
     public function works_with_empty_set()
     {
         $expected = [
@@ -51,7 +52,7 @@ class ExtensionDependencyResolutionTest extends TestCase
         $this->assertEquals($expected, ExtensionManager::resolveExtensionOrder([]));
     }
 
-    /** @test */
+    #[Test]
     public function works_with_proper_data()
     {
         $exts = [$this->tags, $this->categories, $this->tagBackgrounds, $this->something, $this->help];
@@ -65,7 +66,7 @@ class ExtensionDependencyResolutionTest extends TestCase
         $this->assertEquals($expected, ExtensionManager::resolveExtensionOrder($exts));
     }
 
-    /** @test */
+    #[Test]
     public function works_with_missing_dependencies()
     {
         $exts = [$this->tags, $this->categories, $this->tagBackgrounds, $this->something, $this->help, $this->missing];
@@ -79,7 +80,7 @@ class ExtensionDependencyResolutionTest extends TestCase
         $this->assertEquals($expected, ExtensionManager::resolveExtensionOrder($exts));
     }
 
-    /** @test */
+    #[Test]
     public function works_with_circular_dependencies()
     {
         $exts = [$this->tags, $this->categories, $this->tagBackgrounds, $this->something, $this->help, $this->circular1, $this->circular2];
@@ -93,7 +94,7 @@ class ExtensionDependencyResolutionTest extends TestCase
         $this->assertEquals($expected, ExtensionManager::resolveExtensionOrder($exts));
     }
 
-    /** @test */
+    #[Test]
     public function works_with_optional_dependencies()
     {
         $exts = [$this->tags, $this->optionalDependencyCategories, $this->tagBackgrounds, $this->something, $this->help];
@@ -107,7 +108,7 @@ class ExtensionDependencyResolutionTest extends TestCase
         $this->assertEquals($expected, ExtensionManager::resolveExtensionOrder($exts));
     }
 
-    /** @test */
+    #[Test]
     public function works_with_optional_dependencies_if_optional_dependency_missing()
     {
         $exts = [$this->tags, $this->optionalDependencyCategories, $this->something, $this->help];

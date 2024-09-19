@@ -15,8 +15,6 @@ use Illuminate\Database\Eloquent\Collection;
 
 class TagRepository
 {
-    private const TAG_RELATIONS = ['children', 'parent', 'parent.children'];
-
     /**
      * @return Builder<Tag>
      */
@@ -28,32 +26,6 @@ class TagRepository
     public function queryVisibleTo(?User $actor = null): Builder
     {
         return $this->scopeVisibleTo($this->query(), $actor);
-    }
-
-    /**
-     * @return Builder<Tag>
-     */
-    public function with(array|string $relations, User $actor): Builder
-    {
-        return $this->query()->with($this->getAuthorizedRelations($relations, $actor));
-    }
-
-    public function getAuthorizedRelations(array|string $relations, User $actor): array
-    {
-        $relations = is_string($relations) ? explode(',', $relations) : $relations;
-        $relationsArray = [];
-
-        foreach ($relations as $relation) {
-            if (in_array($relation, self::TAG_RELATIONS, true)) {
-                $relationsArray[$relation] = function ($query) use ($actor) {
-                    $query->whereVisibleTo($actor);
-                };
-            } else {
-                $relationsArray[] = $relation;
-            }
-        }
-
-        return $relationsArray;
     }
 
     /**

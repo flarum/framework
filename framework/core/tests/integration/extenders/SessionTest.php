@@ -18,33 +18,28 @@ use Flarum\User\SessionDriverInterface;
 use Illuminate\Session\FileSessionHandler;
 use Illuminate\Session\NullSessionHandler;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\Test;
 use SessionHandlerInterface;
 
 class SessionTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function default_driver_exists_by_default()
     {
         $this->expectNotToPerformAssertions();
         $this->app()->getContainer()->make('session.handler');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_driver_doesnt_exist_by_default()
     {
         $this->expectException(InvalidArgumentException::class);
         $this->app()->getContainer()->make('session')->driver('flarum-acme');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_driver_exists_if_added()
     {
         $this->extend((new Extend\Session())->driver('flarum-acme', AcmeSessionDriver::class));
@@ -54,9 +49,7 @@ class SessionTest extends TestCase
         $this->assertEquals(NullSessionHandler::class, $driver->getHandler()::class);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_driver_overrides_laravel_defined_drivers_if_added()
     {
         $this->extend((new Extend\Session())->driver('redis', AcmeSessionDriver::class));
@@ -66,9 +59,7 @@ class SessionTest extends TestCase
         $this->assertEquals(NullSessionHandler::class, $driver->getHandler()::class);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function uses_default_driver_if_driver_from_config_file_not_configured()
     {
         $this->config('session.driver', null);
@@ -78,9 +69,7 @@ class SessionTest extends TestCase
         $this->assertEquals(FileSessionHandler::class, $handler::class);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function uses_default_driver_if_configured_driver_from_config_file_unavailable()
     {
         $this->config('session.driver', 'nevergonnagiveyouup');
@@ -90,9 +79,7 @@ class SessionTest extends TestCase
         $this->assertEquals(FileSessionHandler::class, $handler::class);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function uses_custom_driver_from_config_file_if_configured_and_available()
     {
         $this->extend(

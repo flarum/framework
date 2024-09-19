@@ -12,21 +12,18 @@ namespace Flarum\Tests\integration\extenders;
 use Flarum\Extend;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Contracts\View\Factory;
+use PHPUnit\Framework\Attributes\Test;
 
 class ViewTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_view_namespace_does_not_exist_by_default()
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->app()->getContainer()->make(Factory::class)->make('integration.test::test');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_view_namespace_can_be_added_by_extender()
     {
         $this->extend(
@@ -37,9 +34,7 @@ class ViewTest extends TestCase
         $this->assertEquals('<html><body>Hello World!</body></html>', trim($this->app()->getContainer()->make(Factory::class)->make('integration.test::test')->render()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_add_view_to_namespace_by_prepend_extender()
     {
         $this->extend(
@@ -50,9 +45,7 @@ class ViewTest extends TestCase
         $this->assertEquals('<html><body>Hello World!</body></html>', trim($this->app()->getContainer()->make(Factory::class)->make('flarum::test')->render()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_override_view_in_namespace_by_prepend_extender()
     {
         $this->extend(

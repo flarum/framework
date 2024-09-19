@@ -159,7 +159,17 @@ class Notification extends AbstractModel
      */
     public function scopeMatchingBlueprint(Builder $query, BlueprintInterface $blueprint): Builder
     {
-        return $query->where(static::getBlueprintAttributes($blueprint));
+        $attributes = static::getBlueprintAttributes($blueprint);
+
+        $data = $attributes['data'];
+        unset($attributes['data']);
+
+        return $query->where($attributes)
+            ->whenPgSql(function ($query) use ($data) {
+                return $query->whereRaw('data::text = ?', [$data]);
+            }, function ($query) use ($data) {
+                return $query->where('data', $data);
+            });
     }
 
     /**

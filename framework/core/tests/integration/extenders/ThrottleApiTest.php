@@ -12,6 +12,8 @@ namespace Flarum\Tests\integration\extenders;
 use Flarum\Extend;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class ThrottleApiTest extends TestCase
 {
@@ -25,15 +27,13 @@ class ThrottleApiTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ]
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function list_discussions_not_restricted_by_default()
     {
         $response = $this->send($this->request('GET', '/api/discussions', ['authenticatedAs' => 2]));
@@ -41,9 +41,7 @@ class ThrottleApiTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function list_discussions_can_be_restricted()
     {
         $this->extend((new Extend\ThrottleApi)->set('blockListDiscussions', function ($request) {
@@ -57,9 +55,7 @@ class ThrottleApiTest extends TestCase
         $this->assertEquals(429, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function false_overrides_true_for_evaluating_throttlers()
     {
         $this->extend(
@@ -80,9 +76,7 @@ class ThrottleApiTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function throttling_applies_to_api_client()
     {
         $this->extend((new Extend\ThrottleApi)->set('blockRegistration', function ($request) {

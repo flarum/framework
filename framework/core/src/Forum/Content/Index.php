@@ -10,6 +10,7 @@
 namespace Flarum\Forum\Content;
 
 use Flarum\Api\Client;
+use Flarum\Api\Resource\DiscussionResource;
 use Flarum\Frontend\Document;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\TranslatorInterface;
@@ -25,7 +26,8 @@ class Index
         protected Factory $view,
         protected SettingsRepositoryInterface $settings,
         protected UrlGenerator $url,
-        protected TranslatorInterface $translator
+        protected TranslatorInterface $translator,
+        protected DiscussionResource $resource,
     ) {
     }
 
@@ -36,14 +38,15 @@ class Index
         $sort = Arr::pull($queryParams, 'sort');
         $q = Arr::pull($queryParams, 'q');
         $page = max(1, intval(Arr::pull($queryParams, 'page')));
-        $filters = Arr::pull($queryParams, 'filter', []);
 
-        $sortMap = resolve('flarum.forum.discussions.sortmap');
+        $sortMap = $this->resource->sortMap();
 
         $params = [
-            'sort' => $sort && isset($sortMap[$sort]) ? $sortMap[$sort] : '',
-            'filter' => $filters,
-            'page' => ['offset' => ($page - 1) * 20, 'limit' => 20]
+            ...$queryParams,
+            'sort' => $sort && isset($sortMap[$sort]) ? $sortMap[$sort] : null,
+            'page' => [
+                'number' => $page
+            ],
         ];
 
         if ($q) {
@@ -69,6 +72,13 @@ class Index
      */
     protected function getApiDocument(Request $request, array $params): object
     {
-        return json_decode($this->api->withParentRequest($request)->withQueryParams($params)->get('/discussions')->getBody());
+        return json_decode(
+            $this->api
+                ->withoutErrorHandling()
+                ->withParentRequest($request)
+                ->withQueryParams($params)
+                ->get('/discussions')
+                ->getBody()
+        );
     }
 }

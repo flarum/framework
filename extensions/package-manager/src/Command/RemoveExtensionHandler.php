@@ -7,25 +7,32 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Command;
+namespace Flarum\ExtensionManager\Command;
 
 use Flarum\Extension\ExtensionManager;
-use Flarum\PackageManager\Composer\ComposerAdapter;
-use Flarum\PackageManager\Exception\ComposerCommandFailedException;
-use Flarum\PackageManager\Exception\ExtensionNotInstalledException;
-use Flarum\PackageManager\Extension\Event\Removed;
+use Flarum\ExtensionManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Composer\ComposerJson;
+use Flarum\ExtensionManager\Exception\ComposerCommandFailedException;
+use Flarum\ExtensionManager\Exception\ExtensionNotInstalledException;
+use Flarum\ExtensionManager\Exception\IndirectExtensionDependencyCannotBeRemovedException;
+use Flarum\ExtensionManager\Extension\Event\Removed;
 use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Input\StringInput;
 
 class RemoveExtensionHandler
 {
     public function __construct(
-        private ComposerAdapter $composer,
-        private ExtensionManager $extensions,
-        private Dispatcher $events
+        protected ComposerAdapter $composer,
+        protected ExtensionManager $extensions,
+        protected Dispatcher $events,
+        protected ComposerJson $composerJson
     ) {
     }
 
+    /**
+     * @throws \Flarum\User\Exception\PermissionDeniedException
+     * @throws \Exception
+     */
     public function handle(RemoveExtension $command): void
     {
         $command->actor->assertAdmin();
@@ -38,6 +45,13 @@ class RemoveExtensionHandler
 
         if (isset($command->task)) {
             $command->task->package = $extension->name;
+        }
+
+        $json = $this->composerJson->get();
+
+        // If this extension is not a direct dependency, we can't actually remove it.
+        if (! isset($json['require'][$extension->name]) && ! isset($json['require-dev'][$extension->name])) {
+            throw new IndirectExtensionDependencyCannotBeRemovedException($command->extensionId);
         }
 
         $output = $this->composer->run(

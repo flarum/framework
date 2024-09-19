@@ -7,25 +7,42 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Listener;
+namespace Flarum\ExtensionManager\Listener;
 
 use Flarum\Bus\Dispatcher;
-use Flarum\PackageManager\Command\CheckForUpdates;
-use Flarum\PackageManager\Event\FlarumUpdated;
-use Flarum\PackageManager\Extension\Event\Updated;
-use Flarum\PackageManager\Settings\LastUpdateCheck;
-use Flarum\PackageManager\Settings\LastUpdateRun;
+use Flarum\ExtensionManager\Command\CheckForUpdates;
+use Flarum\ExtensionManager\Event\FlarumUpdated;
+use Flarum\ExtensionManager\Extension\Event\Updated;
+use Flarum\ExtensionManager\Settings\LastUpdateCheck;
+use Flarum\ExtensionManager\Settings\LastUpdateRun;
 
 class ReCheckForUpdates
 {
-    public function __construct(
-        private readonly LastUpdateRun $lastUpdateRun,
-        private readonly LastUpdateCheck $lastUpdateCheck,
-        private readonly Dispatcher $bus
-    ) {
+    /**
+     * @var LastUpdateRun
+     */
+    private $lastUpdateRun;
+    /**
+     * @var LastUpdateCheck
+     */
+    private $lastUpdateCheck;
+
+    /**
+     * @var Dispatcher
+     */
+    private $bus;
+
+    public function __construct(LastUpdateRun $lastUpdateRun, LastUpdateCheck $lastUpdateCheck, Dispatcher $bus)
+    {
+        $this->lastUpdateRun = $lastUpdateRun;
+        $this->lastUpdateCheck = $lastUpdateCheck;
+        $this->bus = $bus;
     }
 
-    public function handle(FlarumUpdated|Updated $event): void
+    /**
+     * @param FlarumUpdated|Updated $event
+     */
+    public function handle($event): void
     {
         $previousUpdateCheck = $this->lastUpdateCheck->get();
 

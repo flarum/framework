@@ -127,7 +127,7 @@ class Extension implements Arrayable
     /**
      * Dot notation getter for composer.json attributes.
      *
-     * @see https://laravel.com/docs/10.x/helpers#arrays
+     * @see https://laravel.com/docs/11.x/helpers#arrays
      */
     public function composerJsonAttribute(string $name): mixed
     {
@@ -453,15 +453,15 @@ class Extension implements Arrayable
     public function toArray(): array
     {
         return (array) array_merge([
-            'id'                     => $this->getId(),
-            'version'                => $this->getVersion(),
-            'path'                   => $this->getPath(),
-            'icon'                   => $this->getIcon(),
-            'hasAssets'              => $this->hasAssets(),
-            'hasMigrations'          => $this->hasMigrations(),
+            'id' => $this->getId(),
+            'version' => $this->getVersion(),
+            'path' => $this->getPath(),
+            'icon' => $this->getIcon(),
+            'hasAssets' => $this->hasAssets(),
+            'hasMigrations' => $this->hasMigrations(),
             'extensionDependencyIds' => $this->getExtensionDependencyIds(),
-            'optionalDependencyIds'  => $this->getOptionalDependencyIds(),
-            'links'                  => $this->getLinks(),
+            'optionalDependencyIds' => $this->getOptionalDependencyIds(),
+            'links' => $this->getLinks(),
         ], $this->composerJson);
     }
 

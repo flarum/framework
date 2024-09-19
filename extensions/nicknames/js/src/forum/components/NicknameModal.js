@@ -1,10 +1,10 @@
 import app from 'flarum/forum/app';
-import Modal from 'flarum/common/components/Modal';
+import FormModal from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
 import Stream from 'flarum/common/utils/Stream';
-import Form from '@flarum/core/src/common/components/Form';
+import Form from 'flarum/common/components/Form';
 
-export default class NicknameModal extends Modal {
+export default class NicknameModal extends FormModal {
   oninit(vnode) {
     super.oninit(vnode);
     this.nickname = Stream(app.session.user.displayName());

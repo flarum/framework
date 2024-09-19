@@ -10,11 +10,16 @@
 namespace Flarum\Likes\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
-use Flarum\Likes\Api\LoadLikesRelationship;
+use Flarum\Likes\Api\PostResourceFields;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListPostsTest extends TestCase
 {
@@ -30,13 +35,13 @@ class ListPostsTest extends TestCase
         $this->extension('flarum-likes');
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 100, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 101, 'comment_count' => 1],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 101, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
             ],
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 ['id' => 102, 'username' => 'user102', 'email' => '102@machine.local', 'is_email_confirmed' => 1],
                 ['id' => 103, 'username' => 'user103', 'email' => '103@machine.local', 'is_email_confirmed' => 1],
@@ -51,17 +56,17 @@ class ListPostsTest extends TestCase
                 ['id' => 112, 'username' => 'user112', 'email' => '112@machine.local', 'is_email_confirmed' => 1],
             ],
             'post_likes' => [
-                ['user_id' => 102, 'post_id' => 101],
-                ['user_id' => 104, 'post_id' => 101],
-                ['user_id' => 105, 'post_id' => 101],
-                ['user_id' => 106, 'post_id' => 101],
-                ['user_id' => 107, 'post_id' => 101],
-                ['user_id' => 108, 'post_id' => 101],
-                ['user_id' => 109, 'post_id' => 101],
-                ['user_id' => 110, 'post_id' => 101],
-                ['user_id' => 2, 'post_id' => 101],
-                ['user_id' => 111, 'post_id' => 101],
-                ['user_id' => 112, 'post_id' => 101],
+                ['user_id' => 102, 'post_id' => 101, 'created_at' => Carbon::now()->addMinutes(2)],
+                ['user_id' => 104, 'post_id' => 101, 'created_at' => Carbon::now()->addMinutes(3)],
+                ['user_id' => 105, 'post_id' => 101, 'created_at' => Carbon::now()->addMinutes(4)],
+                ['user_id' => 106, 'post_id' => 101, 'created_at' => Carbon::now()->addMinutes(5)],
+                ['user_id' => 107, 'post_id' => 101, 'created_at' => Carbon::now()->addMinutes(6)],
+                ['user_id' => 108, 'post_id' => 101, 'created_at' => Carbon::now()->addMinutes(7)],
+                ['user_id' => 109, 'post_id' => 101, 'created_at' => Carbon::now()->addMinutes(8)],
+                ['user_id' => 110, 'post_id' => 101, 'created_at' => Carbon::now()->addMinutes(9)],
+                ['user_id' => 2, 'post_id' => 101, 'created_at' => Carbon::now()->addMinutes(10)],
+                ['user_id' => 111, 'post_id' => 101, 'created_at' => Carbon::now()->addMinutes(11)],
+                ['user_id' => 112, 'post_id' => 101, 'created_at' => Carbon::now()->addMinutes(12)],
             ],
             'group_permission' => [
                 ['group_id' => Group::GUEST_ID, 'permission' => 'searchUsers'],
@@ -69,9 +74,7 @@ class ListPostsTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function liked_filter_works()
     {
         $response = $this->send(
@@ -92,9 +95,7 @@ class ListPostsTest extends TestCase
         ], $ids, 'IDs do not match');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function liked_filter_works_negated()
     {
         $response = $this->send(
@@ -113,7 +114,7 @@ class ListPostsTest extends TestCase
         $this->assertEqualsCanonicalizing([1, 103], $ids, 'IDs do not match');
     }
 
-    /** @test */
+    #[Test]
     public function likes_relation_returns_limited_results_and_shows_only_visible_posts_in_show_post_endpoint()
     {
         // List posts endpoint
@@ -132,14 +133,14 @@ class ListPostsTest extends TestCase
         $likes = $data['relationships']['likes']['data'];
 
         // Only displays a limited amount of likes
-        $this->assertCount(LoadLikesRelationship::$maxLikes, $likes);
+        $this->assertCount(PostResourceFields::$maxLikes, $likes);
         // Displays the correct count of likes
         $this->assertEquals(11, $data['attributes']['likesCount']);
         // Of the limited amount of likes, the actor always appears
         $this->assertEquals([2, 102, 104, 105], Arr::pluck($likes, 'id'));
     }
 
-    /** @test */
+    #[Test]
     public function likes_relation_returns_limited_results_and_shows_only_visible_posts_in_list_posts_endpoint()
     {
         // List posts endpoint
@@ -159,18 +160,16 @@ class ListPostsTest extends TestCase
         $likes = $data[0]['relationships']['likes']['data'];
 
         // Only displays a limited amount of likes
-        $this->assertCount(LoadLikesRelationship::$maxLikes, $likes);
+        $this->assertCount(PostResourceFields::$maxLikes, $likes);
         // Displays the correct count of likes
         $this->assertEquals(11, $data[0]['attributes']['likesCount']);
         // Of the limited amount of likes, the actor always appears
         $this->assertEquals([2, 102, 104, 105], Arr::pluck($likes, 'id'));
     }
 
-    /**
-     * @dataProvider likesIncludeProvider
-     * @test
-     */
-    public function likes_relation_returns_limited_results_and_shows_only_visible_posts_in_show_discussion_endpoint(string $include)
+    #[Test]
+    #[DataProvider('likesIncludeProvider')]
+    public function likes_relation_returns_limited_results_and_shows_only_visible_posts_in_show_discussion_endpoint(?string $include)
     {
         // Show discussion endpoint
         $response = $this->send(
@@ -181,30 +180,35 @@ class ListPostsTest extends TestCase
             ])
         );
 
-        $included = json_decode($response->getBody()->getContents(), true)['included'];
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $included = json_decode($body, true)['included'] ?? [];
 
         $likes = collect($included)
             ->where('type', 'posts')
             ->where('id', 101)
-            ->first()['relationships']['likes']['data'];
+            ->first()['relationships']['likes']['data'] ?? null;
 
         // Only displays a limited amount of likes
-        $this->assertCount(LoadLikesRelationship::$maxLikes, $likes);
+        $this->assertNotNull($likes, $body);
+        $this->assertCount(PostResourceFields::$maxLikes, $likes);
         // Displays the correct count of likes
         $this->assertEquals(11, collect($included)
             ->where('type', 'posts')
             ->where('id', 101)
-            ->first()['attributes']['likesCount']);
+            ->first()['attributes']['likesCount'] ?? null, $body);
         // Of the limited amount of likes, the actor always appears
-        $this->assertEquals([2, 102, 104, 105], Arr::pluck($likes, 'id'));
+        $this->assertEquals([2, 102, 104, 105], Arr::pluck($likes, 'id'), $body);
     }
 
-    public function likesIncludeProvider(): array
+    public static function likesIncludeProvider(): array
     {
         return [
             ['posts,posts.likes'],
             ['posts.likes'],
-            [''],
+            [null],
         ];
     }
 }

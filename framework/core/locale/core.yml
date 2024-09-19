@@ -7,8 +7,58 @@ core:
   # Translations in this namespace are used by the admin interface.
   admin:
 
+    # These translations are used in the Advanced page.
+    advanced:
+      description: "Configure advanced settings for your forum."
+      maintenance:
+        bisect:
+          begin_button_text: Begin Bisect
+          continue_button_text: Continue Bisect
+          label: Extension Bisect
+          help: Helps to identify the extension causing some issue you observed. This automatically puts the forum in maintenance mode (low) until the process is over.
+        bisect_modal:
+          description: >
+            This puts the forum in maintenance mode (low) until the process is over.
+            In each step some extensions will be disabled until we find the one causing the issue. So do not be surprised to see missing features or different theme design.
+            Keep this page open, and try to reproduce the issue after each step in a separate page. You can always come back to this page if you mistakenly close it.
+          end_button: Close and go to extension page
+          issue_question: Does the issue still occur?
+          issue_question_help: Try reproducing the issue in a separate page and answer based on the result.
+          no_button: No
+          result_description: >
+            Forum is no longer in maintenance mode. Extension bisect is over. Based on your responses to each step, the cause of the issue is the following extension:
+          start_button: Start bisect
+          stop_button: Stop bisect
+          steps_left: "Steps left: {steps}"
+          total_steps: This will take around {steps} steps.
+          title: Extension Bisect
+          yes_button: Yes
+        config_override:
+          label: Your <code>config.php</code> file is overriding these settings.
+          help: You can still change these settings here, but they will not take effect until you set <code>offline</code> to <code>0</code> in your <code>config.php</code> file.
+        help: Put your forum in maintenance mode to prevent users from accessing it.
+        options:
+          none: No maintenance.
+          high: High maintenance mode. No one can access the forum (can only be enabled through config.php)
+          low: Low maintenance mode. Admins can access the forum.
+          safe: Safe mode. No extensions are booted and only admins can access the forum.
+        safe_mode_extensions: Extensions allowed to boot during safe mode
+        safe_mode_extensions_override_help: "This setting is overridden by the <code>safe_mode_extensions</code> key in your <code>config.php</code> file. (<b>{extensions}</b>)"
+        section_label: Maintenance
+      pgsql:
+        search_configuration: Search configuration to use
+      search:
+        section_label: Search Drivers
+        driver_heading: "Search Driver: {model}"
+        driver_text: Select a driver to be used for searching this model.
+        driver_options:
+          default: Default database search
+        no_other_drivers: No search drivers are available yet. Install a search driver extension to be able to configure it.
+      title: Advanced
+
     # These translations are used in the Appearance page.
     appearance:
+      allow_user_color_scheme_label: Allow users to choose their own color scheme
       colored_header_label: Colored Header
       colors_heading: Colors
       colors_primary_label: Primary Color
@@ -21,7 +71,6 @@ core:
       custom_styles_cannot_use_less_features: "The @import and data-uri features are not allowed in custom LESS."
       custom_styles_heading: Custom Styles
       custom_styles_text: Customize your forum's appearance by adding your own Less/CSS code to be applied on top of Flarum's default styles.
-      dark_mode_label: Dark Mode
       description: "Customize your forum's colors, logos, and other variables."
       edit_css_button: Edit Custom CSS
       edit_footer_button: => core.ref.custom_footer_title
@@ -32,12 +81,21 @@ core:
       logo_heading: Logo
       logo_text: Upload an image to be displayed in place of the forum title.
       title: Appearance
+      color_scheme_label: Color Scheme (default)
+      color_schemes:
+        auto_mode_label: User system or configured preference
+        dark_hc_mode_label: => core.ref.dark_hc_mode_label
+        dark_mode_label: => core.ref.dark_mode_label
+        light_hc_mode_label: => core.ref.light_hc_mode_label
+        light_mode_label: => core.ref.light_mode_label
 
     # These translations are used in the Basics page.
     basics:
       all_discussions_label: => core.ref.all_discussions
       default_language_heading: Default Language
       description: "Set your forum title, language, and other basic settings."
+      display_name_driver_options:
+        username: Username
       display_name_heading: User Display Name
       display_name_text: Select the driver that should be used for users' display names. By default, the username is shown.
       forum_description_heading: Forum Description
@@ -46,6 +104,13 @@ core:
       home_page_heading: Home Page
       home_page_text: Choose the page which users will first see when they visit your forum.
       show_language_selector_label: Show language selector
+      slug_driver_options:
+        discussions:
+          default: ID with slug
+          utf8: ID with UTF-8 slug
+        users:
+          default: Username
+          id: ID
       slug_driver_heading: "Slug Driver: {model}"
       slug_driver_text: Select a driver to be used for slugging this model.
       title: Basics
@@ -78,6 +143,7 @@ core:
           inactive: Inactive
           never-run: Never run
       title: Dashboard
+      toggle_advanced_page_button: Toggle Advanced Page
       tools_button: Tools
 
     # These translations are used in the debug warning widget.
@@ -154,6 +220,7 @@ core:
     extension:
       configure_scopes: Configure Scopes
       confirm_purge: Purging will remove all database entries and assets related to the extension. It will not uninstall the extension; that must be done via Composer. Are you sure you want to continue?
+      database_driver_mismatch: This extension does not support your configured database driver.
       disabled: Disabled
       enable_to_see: Enable the extension to view and change settings.
       enabled: Enabled
@@ -173,6 +240,7 @@ core:
         button_label: README
         no_readme: This extension does not appear to have a README file
         title: "{extName} documentation"
+      safe_mode_warning: Safe mode is currently enabled. Extensions are not booted and their settings are therefore inaccessible.
 
     # These translations are used in the secondary header.
     header:
@@ -183,8 +251,16 @@ core:
     loading:
       title: Please Wait...
 
+    # These translations are used anywhere to localize model names for drivers.
+    models:
+      discussions: => core.ref.discussions
+      posts: => core.ref.posts
+      users: => core.ref.users
+
     # These translations are used in the navigation bar.
     nav:
+      advanced_button: => core.admin.advanced.title
+      advanced_title: => core.admin.advanced.description
       appearance_button: => core.admin.appearance.title
       appearance_title: => core.admin.appearance.description
       basics_button: => core.admin.basics.title
@@ -418,29 +494,29 @@ core:
       mark_all_as_read_confirmation: "Are you sure you want to mark all discussions as read?"
       mark_all_as_read_tooltip: => core.ref.mark_all_as_read
       meta_title_text: => core.ref.all_discussions
-      refresh_tooltip: Refresh
+      refresh_tooltip: => core.ref.refresh
       start_discussion_button: => core.ref.start_a_discussion
       toggle_sidenav_dropdown_accessible_label: Toggle navigation dropdown menu
 
     # These translations are used by the sorting control above the discussion list.
     index_sort:
       latest_button: Latest
-      newest_button: Newest
-      oldest_button: Oldest
-      relevance_button: Relevance
+      newest_button: => core.ref.newest
+      oldest_button: => core.ref.oldest
+      relevance_button: => core.ref.relevance
       toggle_dropdown_accessible_label: Change discussion list sorting
       top_button: Top
 
     # These translations are used in the Log In modal dialog.
     log_in:
       forgot_password_link: "Forgot password?"
-      invalid_login_message: Your login details were incorrect.
+      invalid_login_message: => core.ref.invalid_login_message
       password_placeholder: => core.ref.password
-      remember_me_label: Remember Me
+      remember_me_label: => core.ref.remember_me_label
       sign_up_text: "Don't have an account? <a>Sign Up</a>"
       submit_button: => core.ref.log_in
       title: => core.ref.log_in
-      username_or_email_placeholder: Username or Email
+      username_or_email_placeholder: => core.ref.username_or_email_placeholder
 
     # These translations are used by the Notifications dropdown, a.k.a. "the bell".
     notifications:
@@ -470,6 +546,12 @@ core:
       restore_button: => core.ref.restore
       toggle_dropdown_accessible_label: Toggle post controls dropdown menu
 
+    # These translations are used in the post list.
+    post_list:
+      empty_text: It looks as though there are no posts here.
+      in_discussion_text: "In {discussion}"
+      load_more_button: => core.ref.load_more
+
     # These translations are used in the scrubber to the right of the post stream.
     post_scrubber:
       now_link: Now
@@ -485,16 +567,32 @@ core:
       reply_placeholder: => core.ref.write_a_reply
       time_lapsed_text: "{period} later"
 
+    # These translations are used by the sorting control above the post list.
+    posts_sort:
+      newest_button: => core.ref.newest
+      oldest_button: => core.ref.oldest
+      relevance_button: => core.ref.relevance
+
+    # These translations are used in the posts search page.
+    posts:
+      meta_title_text: Post search results
+      refresh_tooltip: => core.ref.refresh
+
     # These translations are used by the rename discussion modal.
     rename_discussion:
       submit_button: => core.ref.rename
       title: Rename Discussion
 
-    # These translations are used by the search results dropdown list.
+    # These translations are used by the search modal.
     search:
-      all_discussions_button: 'Search all discussions for "{query}"'
-      discussions_heading: => core.ref.discussions
-      users_heading: => core.ref.users
+      gambit_plus_button_a11y_label: Add a positive filter
+      gambit_minus_button_a11y_label: Add a negative filter
+      title: Search
+      no_results_text: It looks like there are no results here.
+      no_search_text: You have not searched for anything yet.
+      options_heading: Search options
+      placeholder: Search...
+      preview_heading: Search preview
 
     # These translations are used in the Security page.
     security:
@@ -535,6 +633,13 @@ core:
       account_heading: Account
       change_email_button: => core.ref.change_email
       change_password_button: => core.ref.change_password
+      color_scheme_heading: Color Scheme
+      color_schemes:
+        auto_mode_label: System preference
+        dark_hc_mode_label: => core.ref.dark_hc_mode_label
+        dark_mode_label: => core.ref.dark_mode_label
+        light_hc_mode_label: => core.ref.light_hc_mode_label
+        light_mode_label: => core.ref.light_mode_label
       notification_checkbox_a11y_label_template: 'Receive "{description}" notifications via {method}'
       notifications_heading: => core.ref.notifications
       notify_by_email_heading: => core.ref.email
@@ -627,6 +732,7 @@ core:
     # These translations are displayed as error messages.
     error:
       circular_dependencies_message: "Circular dependencies detected: {extensions}. Aborting. Please disable one of the extensions and try again."
+      db_error_message: "Database query failed. This may be caused by an incompatibility between an extension and your database driver."
       dependent_extensions_message: "Cannot disable {extension} until the following dependent extensions are disabled: {extensions}"
       extension_initialiation_failed_message: "{extension} failed to initialize, check the browser console for further information."
       generic_message: "Oops! Something went wrong. Please reload the page and try again."
@@ -637,6 +743,10 @@ core:
       permission_denied_message: You do not have permission to do that.
       rate_limit_exceeded_message: You're going a little too quickly. Please try again in a few seconds.
       render_failed_message: Sorry, we encountered an error while displaying this content. If you're a user, please try again later. If you're an administrator, take a look in your Flarum log files for more information.
+
+    # These translations are used in the input component.
+    input:
+      clear_button: Clear input
 
     # These translations are used in the loading indicator component.
     loading_indicator:
@@ -651,14 +761,62 @@ core:
     modal:
       close: Close
 
+    # These translations are used in multi-select components.
+    multi_select:
+      placeholder: Select multiple options
+
     # These translations are used in the navigation header.
     nav:
       drawer_button: Open Navigation Drawer
+
+    # These translations are used in forum & admin notices.
+    notices:
+      bisecting: Running an extension bisect process to determine which extension is causing an issue.
+      bisecting_continue: Continue bisecting
+      maintenance_mode_low: Down for maintenance. Only administrators can access the forum.
+      maintenance_mode_safe: Down for maintenance with safe mode. Only administrators can access the forum and no extensions are booted.
 
     # These translations are used as suffixes when abbreviating numbers.
     number_suffix:
       kilo_text: K
       mega_text: M
+
+    # These translations are used by search sources.
+    search_source:
+      discussions:
+        all_button: 'Search all discussions for "{query}"'
+        heading: => core.ref.discussions
+      posts:
+        all_button: 'Search all posts for "{query}"'
+        heading: => core.ref.posts
+      users:
+        heading: => core.ref.users
+
+    # These translations are used by gambits. Gambit keys must be in snake_case, no spaces.
+    gambits:
+      boolean_key: is
+      discussions:
+        author:
+          key: author
+          hint: username or comma-separated list of usernames
+        created:
+          key: created
+          hint: 2020-12-31 or 2020-12-31..2021-09-30
+        hidden:
+          key: hidden
+        unread:
+          key: unread
+      posts:
+        discussion:
+          key: discussion
+          hint: the ID of the discussion
+      users:
+        email:
+          key: email
+          hint: example@machine.local
+        group:
+          key: group
+          hint: singular or plural group names
 
     # These translations are used to punctuate a series of items.
     series:
@@ -708,6 +866,9 @@ core:
       csrf_token_mismatch: You have been inactive for too long.
       csrf_token_mismatch_return_link: Go back, to try again
       invalid_confirmation_token: This confirmation link has already been used or is invalid.
+      maintenance_mode_link: Administrator login
+      maintenance_mode_message: This forum is currently down for maintenance. Please check back later.
+      maintenance_mode_title: Maintenance
       not_authenticated: You do not have permission to access this page. Try again after logging in.
       not_found: The page you requested could not be found.
       not_found_return_link: "Return to {forum}"
@@ -725,6 +886,15 @@ core:
       log_out_button: => core.ref.log_out
       log_out_confirmation: "Are you sure you want to log out of {forum}?"
       title: => core.ref.log_out
+
+    # Translations in this namespace are displayed on the login interface.
+    log_in:
+      invalid_login_message: => core.ref.invalid_login_message
+      username_or_email_placeholder: => core.ref.username_or_email_placeholder
+      password_placeholder: => core.ref.password
+      remember_me_label: => core.ref.remember_me_label
+      submit_button: => core.ref.log_in
+      title: => core.ref.log_in
 
     # Translations in this namespace are displayed by the Reset Password interface.
     reset_password:
@@ -745,7 +915,7 @@ core:
 
   # Translations in this namespace are used in messages output by the API.
   api:
-    invalid_username_message: "The username may only contain letters, numbers, and dashes."
+    invalid_username_message: "The username may only contain letters, numbers, and dashes. With at least one letter."
     invalid_filter_type:
       must_be_numeric_message: "The {filter} filter must be numeric."
       must_not_be_array_message: "The {filter} filter must not be an array."
@@ -833,6 +1003,8 @@ core:
     custom_footer_title: Edit Custom Footer
     custom_header_text: "Add HTML to be displayed at the very top of the page, above Flarum's own header."
     custom_header_title: Edit Custom Header
+    dark_hc_mode_label: Dark High Contrast Mode
+    dark_mode_label: Dark Mode
     delete: Delete
     delete_forever: Delete Forever
     discussions: Discussions # Referenced by flarum-statistics.yml
@@ -843,6 +1015,9 @@ core:
     generic_confirmation_message: "Are you sure you want to proceed? This action cannot be undone."
     icon: Icon
     icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the <code>fas fa-</code> prefix."
+    invalid_login_message: Your login details were incorrect.
+    light_hc_mode_label: Light High Contrast Mode
+    light_mode_label: Light Mode
     load_more: Load More
     loading: Loading...
     log_in: Log In
@@ -850,15 +1025,20 @@ core:
     mark_all_as_read: Mark All as Read
     never: Never
     new_token: New Token
+    newest: Newest
     next_page: Next Page
     notifications: Notifications
     okay: OK # Referenced by flarum-tags.yml
+    oldest: Oldest
     password: Password
     posts: Posts # Referenced by flarum-statistics.yml
     previous_page: Previous Page
+    relevance: Relevance
+    remember_me_label: Remember Me
     remove: Remove
     rename: Rename
     reply: Reply # Referenced by flarum-mentions.yml
+    refresh: Refresh
     reset_your_password: Reset Your Password
     restore: Restore
     save_changes: Save Changes
@@ -869,6 +1049,7 @@ core:
     some_others: "{count, plural, one {# other} other {# others}}" # Referenced by flarum-likes.yml, flarum-mentions.yml
     start_a_discussion: Start a Discussion
     username: Username
+    username_or_email_placeholder: Username or Email
     users: Users # Referenced by flarum-statistics.yml
     view: View
     write_a_reply: Write a Reply...

@@ -16,10 +16,9 @@ return [
             $table->timestamp('created_at')->nullable();
         });
 
-        // do this manually because dbal doesn't recognize timestamp columns
-        $connection = $schema->getConnection();
-        $prefix = $connection->getTablePrefix();
-        $connection->statement("ALTER TABLE `${prefix}group_permission` MODIFY created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP");
+        $schema->table('group_permission', function (Blueprint $table) {
+            $table->timestamp('created_at')->nullable()->useCurrent()->change();
+        });
     },
 
     'down' => function (Builder $schema) {

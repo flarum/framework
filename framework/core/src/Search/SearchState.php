@@ -9,30 +9,71 @@
 
 namespace Flarum\Search;
 
-use Flarum\Query\AbstractQueryState;
+use Closure;
+use Flarum\Search\Filter\FilterInterface;
+use Flarum\User\User;
 
-class SearchState extends AbstractQueryState
+class SearchState
 {
     /**
-     * @var GambitInterface[]
+     * @var FilterInterface[]
      */
-    protected array $activeGambits = [];
+    protected array $activeFilters = [];
 
-    /**
-     * Get a list of the gambits that are active in this search.
-     *
-     * @return GambitInterface[]
-     */
-    public function getActiveGambits(): array
+    final public function __construct(
+        protected User $actor,
+        /**
+         * Whether this is a fulltext search or just filtering.
+         */
+        protected bool $fulltextSearch,
+        /**
+         * An array of sort-order pairs, where the column
+         *     is the key, and the order is the value. The order may be 'asc',
+         *     'desc', or an array of IDs to order by.
+         *     Alternatively, a callable may be used.
+         *
+         * @var array<string, string|int[]>|Closure $defaultSort
+         */
+        protected array|Closure $defaultSort = []
+    ) {
+    }
+
+    public function getActor(): User
     {
-        return $this->activeGambits;
+        return $this->actor;
+    }
+
+    public function getDefaultSort(): array|Closure
+    {
+        return $this->defaultSort;
     }
 
     /**
-     * Add a gambit as being active in this search.
+     * Set the default sort order for the search. This will only be applied if
+     * a sort order has not been specified in the search criteria.
      */
-    public function addActiveGambit(GambitInterface $gambit): void
+    public function setDefaultSort(array|Closure $defaultSort): void
     {
-        $this->activeGambits[] = $gambit;
+        $this->defaultSort = $defaultSort;
+    }
+
+    public function isFulltextSearch(): bool
+    {
+        return $this->fulltextSearch;
+    }
+
+    /**
+     * Get a list of the filters that are active.
+     *
+     * @return FilterInterface[]
+     */
+    public function getActiveFilters(): array
+    {
+        return $this->activeFilters;
+    }
+
+    public function addActiveFilter(FilterInterface $filter): void
+    {
+        $this->activeFilters[] = $filter;
     }
 }

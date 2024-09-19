@@ -10,11 +10,13 @@
 namespace Flarum\Nicknames\Tests\integration;
 
 use Flarum\Group\Group;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
-class UpdateTest extends TestCase
+class EditUserTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
@@ -27,15 +29,13 @@ class UpdateTest extends TestCase
 
         $this->extension('flarum-nicknames');
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cant_edit_own_nickname_if_not_allowed()
     {
         $this->database()->table('group_permission')->where('permission', 'user.editOwnNickname')->where('group_id', Group::MEMBER_ID)->delete();
@@ -45,6 +45,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'nickname' => 'new nickname',
                         ],
@@ -53,12 +54,10 @@ class UpdateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_edit_own_nickname_if_allowed()
     {
         $this->prepareDatabase([
@@ -72,6 +71,7 @@ class UpdateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'nickname' => 'new nickname',
                         ],
@@ -80,8 +80,34 @@ class UpdateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
 
         $this->assertEquals('new nickname', User::find(2)->nickname);
+    }
+
+    #[Test]
+    public function cant_edit_nickname_if_invalid_regex()
+    {
+        $this->setting('flarum-nicknames.set_on_registration', true);
+        $this->setting('flarum-nicknames.regex', '^[A-z]+$');
+
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/2', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'type' => 'users',
+                        'attributes' => [
+                            'nickname' => '007',
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(422, $response->getStatusCode(), $body);
+        $this->assertStringContainsString($this->app()->getContainer()->make(TranslatorInterface::class)->trans('flarum-nicknames.api.invalid_nickname_message'), $body);
     }
 }

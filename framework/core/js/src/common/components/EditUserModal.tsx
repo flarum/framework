@@ -1,5 +1,5 @@
 import app from '../../common/app';
-import Modal, { IInternalModalAttrs } from './Modal';
+import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Button from './Button';
 import GroupBadge from './GroupBadge';
 import Group from '../models/Group';
@@ -11,11 +11,11 @@ import type User from '../models/User';
 import type { SaveAttributes, SaveRelationships } from '../Model';
 import Form from './Form';
 
-export interface IEditUserModalAttrs extends IInternalModalAttrs {
+export interface IEditUserModalAttrs extends IFormModalAttrs {
   user: User;
 }
 
-export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEditUserModalAttrs> extends Modal<CustomAttrs> {
+export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEditUserModalAttrs> extends FormModal<CustomAttrs> {
   protected username!: Stream<string>;
   protected email!: Stream<string>;
   protected isEmailConfirmed!: Stream<boolean>;
@@ -82,20 +82,16 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
           'email',
           <div className="Form-group">
             <label>{app.translator.trans('core.lib.edit_user.email_heading')}</label>
-            <div>
-              <input
-                className="FormControl"
-                placeholder={extractText(app.translator.trans('core.lib.edit_user.email_label'))}
-                bidi={this.email}
-                disabled={this.nonAdminEditingAdmin()}
-              />
-            </div>
+            <input
+              className="FormControl"
+              placeholder={extractText(app.translator.trans('core.lib.edit_user.email_label'))}
+              bidi={this.email}
+              disabled={this.nonAdminEditingAdmin()}
+            />
             {!this.isEmailConfirmed() && this.userIsAdmin(app.session.user) && (
-              <div>
-                <Button className="Button Button--block" loading={this.loading} onclick={this.activate.bind(this)}>
-                  {app.translator.trans('core.lib.edit_user.activate_button')}
-                </Button>
-              </div>
+              <Button className="Button Button--block" loading={this.loading} onclick={this.activate.bind(this)}>
+                {app.translator.trans('core.lib.edit_user.activate_button')}
+              </Button>
             )}
           </div>,
           30
@@ -120,17 +116,17 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
                 />
                 {app.translator.trans('core.lib.edit_user.set_password_label')}
               </label>
-              {this.setPassword() && (
-                <input
-                  className="FormControl"
-                  type="password"
-                  name="password"
-                  placeholder={extractText(app.translator.trans('core.lib.edit_user.password_label'))}
-                  bidi={this.password}
-                  disabled={this.nonAdminEditingAdmin()}
-                />
-              )}
             </div>
+            {this.setPassword() && (
+              <input
+                className="FormControl"
+                type="password"
+                name="password"
+                placeholder={extractText(app.translator.trans('core.lib.edit_user.password_label'))}
+                bidi={this.password}
+                disabled={this.nonAdminEditingAdmin()}
+              />
+            )}
           </div>,
           20
         );
