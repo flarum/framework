@@ -2,12 +2,13 @@ import app from 'flarum/forum/app';
 import HeaderDropdown from 'flarum/forum/components/HeaderDropdown';
 import type { IHeaderDropdownAttrs } from 'flarum/forum/components/HeaderDropdown';
 import classList from 'flarum/common/utils/classList';
-
-import DialogDropdownList from './DialogDropdownList';
+import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 
 export interface IDialogsDropdownAttrs extends IHeaderDropdownAttrs {}
 
 export default class DialogsDropdown<CustomAttrs extends IDialogsDropdownAttrs = IDialogsDropdownAttrs> extends HeaderDropdown<CustomAttrs> {
+  protected DialogDropdownList: any = null;
+
   static initAttrs(attrs: IDialogsDropdownAttrs) {
     attrs.className = classList('DialogsDropdown', attrs.className);
     attrs.label = attrs.label || app.translator.trans('flarum-messages.forum.header.dropdown_tooltip');
@@ -17,7 +18,15 @@ export default class DialogsDropdown<CustomAttrs extends IDialogsDropdownAttrs =
   }
 
   getContent() {
-    return <DialogDropdownList state={this.attrs.state} />;
+    if (!this.DialogDropdownList) {
+      import('./DialogDropdownList').then((DialogDropdownList) => {
+        this.DialogDropdownList = DialogDropdownList.default;
+      });
+
+      return <LoadingIndicator />;
+    }
+
+    return <this.DialogDropdownList state={this.attrs.state} />;
   }
 
   goToRoute() {
