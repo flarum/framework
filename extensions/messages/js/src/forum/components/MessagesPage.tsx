@@ -10,7 +10,7 @@ import Stream from 'flarum/common/utils/Stream';
 import InfoTile from 'flarum/common/components/InfoTile';
 import MessagesSidebar from './MessagesSidebar';
 import DialogSection from './DialogSection';
-import listItems from '@flarum/core/src/common/helpers/listItems';
+import listItems from 'flarum/common/helpers/listItems';
 import ItemList from 'flarum/common/utils/ItemList';
 import Dropdown from 'flarum/common/components/Dropdown';
 import Button from 'flarum/common/components/Button';

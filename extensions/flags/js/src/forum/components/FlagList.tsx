@@ -10,9 +10,7 @@ import type Post from 'flarum/common/models/Post';
 import type FlagListState from '../states/FlagListState';
 import type Flag from '../models/Flag';
 import { Page } from 'flarum/common/states/PaginatedListState';
-import ItemList from '@flarum/core/src/common/utils/ItemList';
-import Tooltip from '@flarum/core/src/common/components/Tooltip';
-import Button from '@flarum/core/src/common/components/Button';
+import ItemList from 'flarum/common/utils/ItemList';
 
 export interface IFlagListAttrs extends ComponentAttrs {
   state: FlagListState;

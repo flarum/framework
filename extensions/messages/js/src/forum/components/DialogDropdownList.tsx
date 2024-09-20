@@ -6,9 +6,9 @@ import type Mithril from 'mithril';
 import DialogListState from '../states/DialogListState';
 import DialogList from './DialogList';
 import LinkButton from 'flarum/common/components/LinkButton';
-import ItemList from '@flarum/core/src/common/utils/ItemList';
-import Tooltip from '@flarum/core/src/common/components/Tooltip';
-import Button from '@flarum/core/src/common/components/Button';
+import ItemList from 'flarum/common/utils/ItemList';
+import Tooltip from 'flarum/common/components/Tooltip';
+import Button from 'flarum/common/components/Button';
 
 export interface IDialogListDropdownAttrs extends ComponentAttrs {
   state: DialogListState;

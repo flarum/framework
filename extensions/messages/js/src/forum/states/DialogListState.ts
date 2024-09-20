@@ -1,7 +1,7 @@
 import app from 'flarum/forum/app';
 import PaginatedListState, { PaginatedListParams, type SortMap } from 'flarum/common/states/PaginatedListState';
 import Dialog from '../../common/models/Dialog';
-import { PaginatedListRequestParams } from '@flarum/core/src/common/states/PaginatedListState';
+import { type PaginatedListRequestParams } from 'flarum/common/states/PaginatedListState';
 
 export interface DialogListParams extends PaginatedListParams {
   sort?: string;
