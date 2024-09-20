@@ -94,8 +94,8 @@
   color: var(--control-color);
 
   .FormControl {
-    background-color: var(--body-bg);
-    color: var(--text-color);
+    --form-control-bg: var(--body-bg);
+    --form-control-color: var(--text-color);
   }
 
   .Form--centered {
@@ -117,6 +117,12 @@
   color: var(--muted-color);
 }
 
+.Modal-divider {
+  border-width: 1px;
+  margin-left: -16px;
+  margin-right: -16px;
+}
+
 .Modal--inverted {
   .Modal-header {
     background-color: var(--control-bg);
@@ -125,6 +131,25 @@
   .Modal-body {
     background-color: transparent;
     color: unset;
+  }
+}
+
+.Modal--flat {
+  .Modal-header {
+    background-color: transparent;
+    text-align: start;
+    padding: 18px 18px 0 18px;
+    color: var(--control-color);
+  }
+  .Modal-body {
+    background-color: transparent;
+    color: unset;
+    padding: 18px 16px;
+
+    .FormControl:not(:focus) {
+      --form-control-bg: var(--control-bg);
+      --form-control-color: var(--control-color);
+    }
   }
 }
 

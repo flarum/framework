@@ -2,8 +2,8 @@ import app from 'flarum/forum/app';
 import Modal from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
 import fullTime from 'flarum/common/helpers/fullTime';
+import Form from 'flarum/common/components/Form';
 import { isPermanentSuspensionDate, localStorageKey } from '../helpers/suspensionHelper';
-import Form from '@flarum/core/src/common/components/Form';
 
 export default class SuspensionInfoModal extends Modal {
   oninit(vnode) {

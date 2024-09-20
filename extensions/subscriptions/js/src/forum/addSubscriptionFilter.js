@@ -9,7 +9,7 @@ import GlobalSearchState from 'flarum/forum/states/GlobalSearchState';
 export default function addSubscriptionFilter() {
   extend(IndexSidebar.prototype, 'navItems', function (items) {
     if (app.session.user) {
-      const params = app.search.stickyParams();
+      const params = app.search.state.stickyParams();
 
       items.add(
         'following',
@@ -36,12 +36,7 @@ export default function addSubscriptionFilter() {
   extend(DiscussionListState.prototype, 'requestParams', function (params) {
     if (this.params.onFollowing) {
       params.filter ||= {};
-
-      if (params.filter.q) {
-        params.filter.q += ' is:following';
-      } else {
-        params.filter.subscription = 'following';
-      }
+      params.filter.subscription = 'following';
     }
   });
 }

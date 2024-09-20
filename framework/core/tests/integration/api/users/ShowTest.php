@@ -11,6 +11,8 @@ namespace Flarum\Tests\integration\api\users;
 
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class ShowTest extends TestCase
 {
@@ -24,7 +26,7 @@ class ShowTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
         ]);
@@ -40,9 +42,7 @@ class ShowTest extends TestCase
         $this->database()->table('group_permission')->where('permission', 'searchUsers')->where('group_id', 3)->delete();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_can_see_user()
     {
         $response = $this->send(
@@ -54,9 +54,7 @@ class ShowTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_can_see_user_via_slug()
     {
         $response = $this->send(
@@ -70,9 +68,7 @@ class ShowTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guest_can_see_user_by_default()
     {
         $response = $this->send(
@@ -82,9 +78,7 @@ class ShowTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guest_can_see_user_by_slug_by_default()
     {
         $response = $this->send(
@@ -96,9 +90,7 @@ class ShowTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guest_cant_see_user_if_blocked()
     {
         $this->forbidGuestsFromSeeingForum();
@@ -110,9 +102,7 @@ class ShowTest extends TestCase
         $this->assertEquals(404, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guest_cant_see_user_by_slug_if_blocked()
     {
         $this->forbidGuestsFromSeeingForum();
@@ -126,9 +116,7 @@ class ShowTest extends TestCase
         $this->assertEquals(404, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_see_themselves()
     {
         $response = $this->send(
@@ -140,9 +128,7 @@ class ShowTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_see_themselves_via_slug()
     {
         $response = $this->send(
@@ -156,9 +142,7 @@ class ShowTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_see_others_by_default()
     {
         $response = $this->send(
@@ -170,9 +154,7 @@ class ShowTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_see_others_by_default_via_slug()
     {
         $response = $this->send(
@@ -186,9 +168,7 @@ class ShowTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_still_see_others_via_slug_even_if_cant_search()
     {
         $this->forbidMembersFromSearchingUsers();

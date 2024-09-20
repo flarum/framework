@@ -12,6 +12,7 @@ namespace Flarum\Nicknames\Tests\integration;
 use Flarum\Extend;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class RegisterTest extends TestCase
 {
@@ -26,9 +27,7 @@ class RegisterTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_register_with_nickname()
     {
         $this->setting('flarum-nicknames.set_on_registration', true);
@@ -44,7 +43,7 @@ class RegisterTest extends TestCase
             ])
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals(201, $response->getStatusCode(), $response->getBody()->getContents());
 
         /** @var User $user */
         $user = User::where('username', 'test')->firstOrFail();
@@ -54,9 +53,7 @@ class RegisterTest extends TestCase
         $this->assertEquals('test@machine.local', $user->email);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cant_register_with_nickname_if_not_allowed()
     {
         $this->setting('flarum-nicknames.set_on_registration', false);
@@ -72,12 +69,10 @@ class RegisterTest extends TestCase
             ])
         );
 
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cant_register_with_nickname_if_invalid_regex()
     {
         $this->setting('flarum-nicknames.set_on_registration', true);
@@ -94,12 +89,10 @@ class RegisterTest extends TestCase
             ])
         );
 
-        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertEquals(422, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_register_with_nickname_if_valid_regex()
     {
         $this->setting('flarum-nicknames.set_on_registration', true);
@@ -116,6 +109,6 @@ class RegisterTest extends TestCase
             ])
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals(201, $response->getStatusCode(), $response->getBody()->getContents());
     }
 }

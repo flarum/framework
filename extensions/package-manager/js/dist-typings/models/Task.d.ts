@@ -6,6 +6,7 @@ export default class Task extends Model {
     command(): string;
     package(): string;
     output(): string;
+    guessedCause(): string;
     createdAt(): Date | null | undefined;
     startedAt(): Date;
     finishedAt(): Date;

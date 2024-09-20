@@ -6,16 +6,11 @@ import Badge from 'flarum/common/components/Badge';
 import User from 'flarum/common/models/User';
 
 import SuspendUserModal from './components/SuspendUserModal';
-import UserSuspendedNotification from './components/UserSuspendedNotification';
-import UserUnsuspendedNotification from './components/UserUnsuspendedNotification';
 import checkForSuspension from './checkForSuspension';
 
 export { default as extend } from './extend';
 
 app.initializers.add('flarum-suspend', () => {
-  app.notificationComponents.userSuspended = UserSuspendedNotification;
-  app.notificationComponents.userUnsuspended = UserUnsuspendedNotification;
-
   extend(UserControls, 'moderationControls', (items, user) => {
     if (user.canSuspend()) {
       items.add(

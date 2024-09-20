@@ -14,11 +14,12 @@ export default class Tag extends Model {
     defaultSort(): string | null;
     isChild(): boolean;
     isHidden(): boolean;
+    isPrimary(): boolean;
     discussionCount(): number;
     lastPostedAt(): Date | null | undefined;
     lastPostedDiscussion(): false | Discussion | null;
     isRestricted(): boolean;
     canStartDiscussion(): boolean;
     canAddToDiscussion(): boolean;
-    isPrimary(): boolean;
+    isPrimaryParent(): boolean;
 }

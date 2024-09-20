@@ -6,13 +6,9 @@ import addSubscriptionControls from './addSubscriptionControls';
 import addSubscriptionFilter from './addSubscriptionFilter';
 import addSubscriptionSettings from './addSubscriptionSettings';
 
-import NewPostNotification from './components/NewPostNotification';
-
 export { default as extend } from './extend';
 
-app.initializers.add('subscriptions', function () {
-  app.notificationComponents.newPost = NewPostNotification;
-
+app.initializers.add('flarum-subscriptions', () => {
   addSubscriptionBadge();
   addSubscriptionControls();
   addSubscriptionFilter();

@@ -1,15 +1,15 @@
 import app from 'flarum/forum/app';
-import Modal from 'flarum/common/components/Modal';
+import FormModal from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
 import Stream from 'flarum/common/utils/Stream';
 import withAttr from 'flarum/common/utils/withAttr';
 import ItemList from 'flarum/common/utils/ItemList';
+import Form from 'flarum/common/components/Form';
+import FieldSet from 'flarum/common/components/FieldSet';
 
 import { getPermanentSuspensionDate } from '../helpers/suspensionHelper';
-import Form from '@flarum/core/src/common/components/Form';
-import FieldSet from '@flarum/core/src/common/components/FieldSet';
 
-export default class SuspendUserModal extends Modal {
+export default class SuspendUserModal extends FormModal {
   oninit(vnode) {
     super.oninit(vnode);
 

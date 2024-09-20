@@ -10,9 +10,12 @@
 namespace Flarum\Tags\Tests\integration\api\discussions;
 
 use Flarum\Group\Group;
+use Flarum\Tags\Tag;
 use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class CreateTest extends TestCase
 {
@@ -29,8 +32,8 @@ class CreateTest extends TestCase
         $this->extension('flarum-tags');
 
         $this->prepareDatabase([
-            'tags' => $this->tags(),
-            'users' => [
+            Tag::class => $this->tags(),
+            User::class => [
                 $this->normalUser(),
             ],
             'group_permission' => [
@@ -43,9 +46,7 @@ class CreateTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_can_create_discussion_without_tags()
     {
         $response = $this->send(
@@ -53,6 +54,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
@@ -65,9 +67,7 @@ class CreateTest extends TestCase
         $this->assertEquals(201, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cant_create_discussion_without_tags()
     {
         $response = $this->send(
@@ -75,6 +75,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
@@ -85,11 +86,31 @@ class CreateTest extends TestCase
         );
 
         $this->assertEquals(422, $response->getStatusCode());
+
+        $response = $this->send(
+            $this->request('POST', '/api/discussions', [
+                'authenticatedAs' => 2,
+                'json' => [
+                    'data' => [
+                        'type' => 'discussions',
+                        'attributes' => [
+                            'title' => 'test - too-obscure',
+                            'content' => 'predetermined content for automated testing - too-obscure',
+                        ],
+                        'relationships' => [
+                            'tags' => [
+                                'data' => []
+                            ]
+                        ]
+                    ]
+                ],
+            ])
+        );
+
+        $this->assertEquals(422, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_create_discussion_without_tags_if_bypass_permission_granted()
     {
         $this->prepareDatabase([
@@ -103,6 +124,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
@@ -115,9 +137,7 @@ class CreateTest extends TestCase
         $this->assertEquals(201, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_create_discussion_in_primary_tag()
     {
         $response = $this->send(
@@ -125,6 +145,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
@@ -141,12 +162,10 @@ class CreateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cant_create_discussion_in_primary_tag_where_can_view_but_cant_start()
     {
         $response = $this->send(
@@ -154,6 +173,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
@@ -173,9 +193,7 @@ class CreateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cant_create_discussion_in_primary_tag_where_can_view_but_cant_start_with_bypass_permission_granted()
     {
         $this->prepareDatabase([
@@ -189,6 +207,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
@@ -208,9 +227,7 @@ class CreateTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_create_discussion_in_tag_where_can_view_and_can_start()
     {
         $response = $this->send(
@@ -218,6 +235,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
@@ -238,9 +256,7 @@ class CreateTest extends TestCase
         $this->assertEquals(201, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cant_create_discussion_in_child_tag_without_parent_tag()
     {
         $response = $this->send(
@@ -248,6 +264,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
@@ -267,9 +284,7 @@ class CreateTest extends TestCase
         $this->assertEquals(422, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_create_discussion_in_child_tag_with_parent_tag()
     {
         $response = $this->send(
@@ -277,6 +292,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
@@ -297,9 +313,7 @@ class CreateTest extends TestCase
         $this->assertEquals(201, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function primary_tag_required_by_default()
     {
         $response = $this->send(
@@ -307,6 +321,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',

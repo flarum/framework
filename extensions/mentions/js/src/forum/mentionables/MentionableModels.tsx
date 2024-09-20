@@ -2,7 +2,6 @@ import type MentionableModel from './MentionableModel';
 import type Model from 'flarum/common/Model';
 import type Mithril from 'mithril';
 import MentionsDropdownItem from '../components/MentionsDropdownItem';
-import { throttle } from 'flarum/common/utils/throttleDebounce';
 
 export default class MentionableModels {
   protected mentionables?: MentionableModel[];
@@ -33,7 +32,7 @@ export default class MentionableModels {
    * Don't send API calls searching for models until at least 2 characters have been typed.
    * This focuses the mention results on models already loaded.
    */
-  public readonly search = throttle(250, async (): Promise<void> => {
+  public readonly search = async (): Promise<void> => {
     if (!this.typed || this.typed.length <= 1) return;
 
     const typedLower = this.typed.toLowerCase();
@@ -51,7 +50,7 @@ export default class MentionableModels {
     this.searched.push(typedLower);
 
     return Promise.resolve();
-  });
+  };
 
   public matches(mentionable: MentionableModel, model: Model): boolean {
     return mentionable.matches(model, this.typed?.toLowerCase() || '');

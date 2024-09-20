@@ -14,6 +14,7 @@ use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Post\Post;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -30,6 +31,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Flag extends AbstractModel
 {
     use ScopeVisibilityTrait;
+    use HasFactory;
+
+    public $timestamps = true;
+
+    public const UPDATED_AT = null;
 
     protected $casts = ['created_at' => 'datetime'];
 

@@ -1,47 +1,48 @@
 import { extend } from 'flarum/common/extend';
 import TextEditorButton from 'flarum/common/components/TextEditorButton';
 import KeyboardNavigatable from 'flarum/common/utils/KeyboardNavigatable';
+import Tooltip from 'flarum/common/components/Tooltip';
+import AutocompleteReader from 'flarum/common/utils/AutocompleteReader';
 
 import AutocompleteDropdown from './fragments/AutocompleteDropdown';
 import getEmojiIconCode from './helpers/getEmojiIconCode';
 import cdn from '../common/cdn';
 
 export default function addComposerAutocomplete() {
-  const $container = $('<div class="ComposerBody-emojiDropdownContainer"></div>');
-  const dropdown = new AutocompleteDropdown();
   let emojiMap = null;
 
   extend('flarum/common/components/TextEditor', 'oninit', function () {
     this._loaders.push(async () => await import('./emojiMap').then((m) => (emojiMap = m.default)));
+    // prettier-ignore
+    this.commonEmoji = [
+      '😀', '😁', '😂', '😃', '😄', '😅', '😆', '😇', '😈', '😉', '😊', '😋', '😌', '😍', '😎', '😏', '😐️', '😑', '😒',
+      '😓', '😔', '😕', '😖', '😗', '😘', '😙', '😚', '😛', '😜', '😝', '😞', '😟', '😠', '😡', '😢', '😣', '😤', '😥',
+      '😦', '😧', '😨', '😩', '😪', '😫', '😬', '😭', '😮', '😮‍💨', '😯', '😰', '😱', '😲', '😳', '😴', '😵', '😵‍💫',
+      '😶', '😶‍🌫️', '😷', '😸', '😹', '😺', '😻', '😼', '😽', '😾', '😿', '🙀', '🙁', '🙂', '🙃', '🙄',
+    ];
   });
 
   extend('flarum/common/components/TextEditor', 'onbuild', function () {
+    this.emojiDropdown = new AutocompleteDropdown();
     const $editor = this.$('.TextEditor-editor').wrap('<div class="ComposerBody-emojiWrapper"></div>');
 
     this.navigator = new KeyboardNavigatable();
     this.navigator
-      .when(() => dropdown.active)
-      .onUp(() => dropdown.navigate(-1))
-      .onDown(() => dropdown.navigate(1))
-      .onSelect(dropdown.complete.bind(dropdown))
-      .onCancel(dropdown.hide.bind(dropdown))
+      .when(() => this.emojiDropdown.active)
+      .onUp(() => this.emojiDropdown.navigate(-1))
+      .onDown(() => this.emojiDropdown.navigate(1))
+      .onSelect(this.emojiDropdown.complete.bind(this.emojiDropdown))
+      .onCancel(this.emojiDropdown.hide.bind(this.emojiDropdown))
       .bindTo($editor);
 
-    $editor.after($container);
+    $editor.after($('<div class="ComposerBody-emojiDropdownContainer"></div>'));
   });
 
   extend('flarum/common/components/TextEditor', 'buildEditorParams', function (params) {
     const emojiKeys = Object.keys(emojiMap);
+    const resolvedCdn = cdn();
 
-    let relEmojiStart;
-    let absEmojiStart;
-    let typed;
-
-    const applySuggestion = (replacement) => {
-      this.attrs.composer.editor.replaceBeforeCursor(absEmojiStart - 1, replacement + ' ');
-
-      dropdown.hide();
-    };
+    const autocompleteReader = new AutocompleteReader(':');
 
     params.inputListeners.push(() => {
       const selection = this.attrs.composer.editor.getSelectionRange();
@@ -50,42 +51,34 @@ export default function addComposerAutocomplete() {
 
       if (selection[1] - cursor > 0) return;
 
-      // Search backwards from the cursor for an ':' symbol. If we find
-      // one and followed by a whitespace, we will want to show the
-      // autocomplete dropdown!
       const lastChunk = this.attrs.composer.editor.getLastNChars(15);
-      absEmojiStart = 0;
-      for (let i = lastChunk.length - 1; i >= 0; i--) {
-        const character = lastChunk.substr(i, 1);
-        // check what user typed, emoji names only contains alphanumeric,
-        // underline, '+' and '-'
-        if (!/[a-z0-9]|\+|\-|_|\:/.test(character)) break;
-        // make sure ':' preceded by a whitespace or newline
-        if (character === ':' && (i == 0 || /\s/.test(lastChunk.substr(i - 1, 1)))) {
-          relEmojiStart = i + 1;
-          absEmojiStart = cursor - lastChunk.length + i + 1;
-          break;
-        }
-      }
+      const autocompleting = autocompleteReader.check(lastChunk, cursor, /[a-z0-9]|\+|\-|_|\:/);
 
-      dropdown.hide();
-      dropdown.active = false;
+      this.emojiDropdown.hide();
+      this.emojiDropdown.active = false;
 
-      if (absEmojiStart) {
-        typed = lastChunk.substring(relEmojiStart).toLowerCase();
+      if (autocompleting) {
+        const typed = autocompleting.typed;
+        const emojiDropdown = this.emojiDropdown;
+
+        const applySuggestion = (replacement) => {
+          this.attrs.composer.editor.replaceBeforeCursor(autocompleting.absoluteStart - 1, replacement + ' ');
+          this.emojiDropdown.hide();
+        };
 
         const makeSuggestion = function ({ emoji, name, code }) {
           return (
-            <button
-              key={emoji}
-              onclick={() => applySuggestion(emoji)}
-              onmouseenter={function () {
-                dropdown.setIndex($(this).parent().index() - 1);
-              }}
-            >
-              <img alt={emoji} className="emoji" draggable="false" loading="lazy" src={`${cdn()}72x72/${code}.png`} />
-              {name}
-            </button>
+            <Tooltip text={name}>
+              <button
+                key={emoji}
+                onclick={() => applySuggestion(emoji)}
+                onmouseenter={function () {
+                  emojiDropdown.setIndex($(this).parent().index() - 1);
+                }}
+              >
+                <img alt={emoji} className="emoji" draggable="false" loading="lazy" src={`${resolvedCdn}72x72/${code}.png`} title={name} />
+              </button>
+            </Tooltip>
           );
         };
 
@@ -99,7 +92,7 @@ export default function addComposerAutocomplete() {
           };
           const regTyped = fuzzyRegexp(typed);
 
-          let maxSuggestions = 7;
+          let maxSuggestions = 40;
 
           const findMatchingEmojis = (matcher) => {
             for (let i = 0; i < emojiKeys.length && maxSuggestions > 0; i++) {
@@ -108,7 +101,7 @@ export default function addComposerAutocomplete() {
               if (similarEmoji.indexOf(curEmoji) === -1) {
                 const names = emojiMap[curEmoji];
                 for (let name of names) {
-                  if (matcher(name)) {
+                  if (matcher(name, curEmoji)) {
                     --maxSuggestions;
                     similarEmoji.push(curEmoji);
                     break;
@@ -119,10 +112,17 @@ export default function addComposerAutocomplete() {
           };
 
           // First, try to find all emojis starting with the given string
-          findMatchingEmojis((emoji) => emoji.indexOf(typed) === 0);
+          findMatchingEmojis((emojiName, emoji) => {
+            // If no input is provided yet, match the most common emojis.
+            if (!typed) {
+              return this.commonEmoji?.includes(emoji);
+            }
+
+            return emojiName.indexOf(typed) === 0;
+          });
 
           // If there are still suggestions left, try for some fuzzy matches
-          findMatchingEmojis((emoji) => regTyped.test(emoji));
+          findMatchingEmojis((emojiName) => regTyped.test(emojiName));
 
           const suggestions = similarEmoji
             .map((emoji) => ({
@@ -133,14 +133,14 @@ export default function addComposerAutocomplete() {
             .map(makeSuggestion);
 
           if (suggestions.length) {
-            dropdown.items = suggestions;
-            m.render($container[0], dropdown.render());
+            this.emojiDropdown.items = suggestions;
+            m.render(this.$('.ComposerBody-emojiDropdownContainer')[0], this.emojiDropdown.render());
 
-            dropdown.show();
-            const coordinates = this.attrs.composer.editor.getCaretCoordinates(absEmojiStart);
-            const width = dropdown.$().outerWidth();
-            const height = dropdown.$().outerHeight();
-            const parent = dropdown.$().offsetParent();
+            this.emojiDropdown.show();
+            const coordinates = this.attrs.composer.editor.getCaretCoordinates(autocompleting.absoluteStart);
+            const width = this.emojiDropdown.$().outerWidth();
+            const height = this.emojiDropdown.$().outerHeight();
+            const parent = this.emojiDropdown.$().offsetParent();
             let left = coordinates.left;
             let top = coordinates.top + 15;
 
@@ -156,15 +156,15 @@ export default function addComposerAutocomplete() {
             top = Math.max(-(parent.offset().top - $(document).scrollTop()), top);
             left = Math.max(-parent.offset().left, left);
 
-            dropdown.show(left, top);
+            this.emojiDropdown.show(left, top);
           }
         };
 
         buildSuggestions();
 
-        dropdown.setIndex(0);
-        dropdown.$().scrollTop(0);
-        dropdown.active = true;
+        this.emojiDropdown.setIndex(0);
+        this.emojiDropdown.$().scrollTop(0);
+        this.emojiDropdown.active = true;
       }
     });
   });

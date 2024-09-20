@@ -6,6 +6,8 @@ import Navigation from '../common/components/Navigation';
 import AdminNav from './components/AdminNav';
 import ExtensionData from './utils/ExtensionData';
 import IHistory from '../common/IHistory';
+import SearchManager from '../common/SearchManager';
+import SearchState from '../common/states/SearchState';
 
 export type Extension = {
   id: string;
@@ -30,9 +32,17 @@ export type Extension = {
   extra: {
     'flarum-extension': {
       title: string;
+      'database-support'?: string[];
     };
   };
+  require?: Record<string, string>;
 };
+
+export enum DatabaseDriver {
+  MySQL = 'MySQL',
+  PostgreSQL = 'PostgreSQL',
+  SQLite = 'SQLite',
+}
 
 export interface AdminApplicationData extends ApplicationData {
   extensions: Record<string, Extension>;
@@ -40,7 +50,19 @@ export interface AdminApplicationData extends ApplicationData {
   modelStatistics: Record<string, { total: number }>;
   displayNameDrivers: string[];
   slugDrivers: Record<string, string[]>;
+  searchDrivers: Record<string, string[]>;
   permissions: Record<string, string[]>;
+  maintenanceByConfig: boolean;
+  safeModeExtensions?: string[] | null;
+  safeModeExtensionsConfig?: string[] | null;
+
+  dbDriver: DatabaseDriver;
+  dbVersion: string;
+  dbOptions: Record<string, string>;
+  phpVersion: string;
+  queueDriver: string;
+  schedulerStatus: string;
+  sessionDriver: string;
 }
 
 export default class AdminApplication extends Application {
@@ -63,6 +85,8 @@ export default class AdminApplication extends Application {
     },
     home: () => {},
   };
+
+  search: SearchManager<SearchState> = new SearchManager(new SearchState());
 
   /**
    * Settings are serialized to the admin dashboard as strings.

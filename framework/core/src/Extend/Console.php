@@ -44,7 +44,7 @@ class Console implements ExtenderInterface
      * The callback should apply relevant methods to $event, and does not need to return anything.
      *
      * @see https://laravel.com/api/8.x/Illuminate/Console/Scheduling/Event.html
-     * @see https://laravel.com/docs/10.x/scheduling#schedule-frequency-options
+     * @see https://laravel.com/docs/11.x/scheduling#schedule-frequency-options
      * for more information on available methods and what they do.
      *
      * @param array $args An array of args to call the command with.

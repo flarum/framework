@@ -10,6 +10,7 @@
 namespace Flarum\Tags\Content;
 
 use Flarum\Api\Client;
+use Flarum\Api\Resource\DiscussionResource;
 use Flarum\Frontend\Document;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\SlugManager;
@@ -27,7 +28,8 @@ class Tag
         protected Factory $view,
         protected TagRepository $tags,
         protected TranslatorInterface $translator,
-        protected SlugManager $slugger
+        protected SlugManager $slugger,
+        protected DiscussionResource $resource
     ) {
     }
 
@@ -42,7 +44,7 @@ class Tag
         $page = Arr::pull($queryParams, 'page', 1);
         $filters = Arr::pull($queryParams, 'filter', []);
 
-        $sortMap = $this->getSortMap();
+        $sortMap = $this->resource->sortMap();
 
         $tag = $this->slugger->forResource(TagModel::class)->fromSlug($slug, $actor);
 
@@ -79,14 +81,6 @@ class Tag
     }
 
     /**
-     * Get a map of sort query param values and their API sort params.
-     */
-    protected function getSortMap(): array
-    {
-        return resolve('flarum.forum.discussions.sortmap');
-    }
-
-    /**
      * Get the result of an API request to list discussions.
      */
     protected function getApiDocument(Request $request, array $params): object
@@ -96,8 +90,15 @@ class Tag
 
     protected function getTagsDocument(Request $request, string $slug): object
     {
-        return json_decode($this->api->withParentRequest($request)->withQueryParams([
-            'include' => 'children,children.parent,parent,parent.children.parent,state'
-        ])->get("/tags/$slug")->getBody());
+        return json_decode(
+            $this->api
+                ->withoutErrorHandling()
+                ->withParentRequest($request)
+                ->withQueryParams([
+                    'include' => 'children,children.parent,parent,parent.children.parent'
+                ])
+                ->get("/tags/$slug")
+                ->getBody()
+        );
     }
 }

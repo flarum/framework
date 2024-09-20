@@ -8,4 +8,5 @@ export interface IFlagListAttrs extends ComponentAttrs {
 export default class FlagList<CustomAttrs extends IFlagListAttrs = IFlagListAttrs> extends Component<CustomAttrs, FlagListState> {
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     view(): JSX.Element;
+    content(state: FlagListState): JSX.Element[][] | null;
 }

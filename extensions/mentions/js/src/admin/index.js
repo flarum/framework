@@ -1,6 +1,8 @@
 import app from 'flarum/admin/app';
 
-app.initializers.add('flarum-mentions', function () {
+export { default as extend } from './extend';
+
+app.initializers.add('flarum-mentions', () => {
   app.extensionData
     .for('flarum-mentions')
     .registerSetting({

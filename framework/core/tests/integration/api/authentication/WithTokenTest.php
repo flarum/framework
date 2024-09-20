@@ -12,6 +12,8 @@ namespace Flarum\Tests\integration\api\authentication;
 use Flarum\Http\AccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class WithTokenTest extends TestCase
 {
@@ -25,15 +27,13 @@ class WithTokenTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_generates_token()
     {
         $response = $this->send(
@@ -63,9 +63,7 @@ class WithTokenTest extends TestCase
         $this->assertEquals(2, AccessToken::whereToken($token)->firstOrFail()->user_id);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function failure_with_invalid_credentials()
     {
         $response = $this->send(

@@ -34,7 +34,6 @@ class Discussion
         $page = max(1, intval(Arr::get($queryParams, 'page')), 1 + intdiv($near, 20));
 
         $params = [
-            'id' => $id,
             'page' => [
                 'near' => $near,
                 'offset' => ($page - 1) * 20,
@@ -95,16 +94,14 @@ class Discussion
     protected function getApiDocument(Request $request, string $id, array $params): object
     {
         $params['bySlug'] = true;
-        $response = $this->api
-            ->withParentRequest($request)
-            ->withQueryParams($params)
-            ->get("/discussions/$id");
-        $statusCode = $response->getStatusCode();
 
-        if ($statusCode === 404) {
-            throw new RouteNotFoundException;
-        }
-
-        return json_decode($response->getBody());
+        return json_decode(
+            $this->api
+                ->withoutErrorHandling()
+                ->withParentRequest($request)
+                ->withQueryParams($params)
+                ->get("/discussions/$id")
+                ->getBody()
+        );
     }
 }

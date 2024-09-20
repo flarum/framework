@@ -6,7 +6,7 @@ import DiscussionPage from 'flarum/forum/components/DiscussionPage';
 import IndexPage from 'flarum/forum/components/IndexPage';
 import { truncate } from 'flarum/common/utils/string';
 
-export default function addStickyControl() {
+export default function addStickyExcerpt() {
   extend(DiscussionListState.prototype, 'requestParams', function (params) {
     if (app.current.matches(IndexPage) || app.current.matches(DiscussionPage)) {
       params.include.push('firstPost');

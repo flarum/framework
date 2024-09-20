@@ -11,11 +11,12 @@ namespace Flarum\Tests\unit\Foundation;
 
 use Flarum\Http\RouteCollection;
 use Flarum\Testing\unit\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 use RuntimeException;
 
 class RouteCollectionTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function it_errors_when_nonexistent_route_requested()
     {
         $collection = new RouteCollection();
@@ -25,7 +26,7 @@ class RouteCollectionTest extends TestCase
         $collection->getPath('nonexistent');
     }
 
-    /** @test */
+    #[Test]
     public function it_properly_processes_a_simple_route_with_no_parameters()
     {
         $collection = new RouteCollection();
@@ -35,7 +36,7 @@ class RouteCollectionTest extends TestCase
         $this->assertEquals('/custom/route', $collection->getPath('custom'));
     }
 
-    /** @test */
+    #[Test]
     public function it_properly_processes_a_route_with_all_parameters_required()
     {
         $collection = new RouteCollection();
@@ -49,7 +50,7 @@ class RouteCollectionTest extends TestCase
         ]));
     }
 
-    /** @test */
+    #[Test]
     public function it_works_if_optional_parameters_are_missing()
     {
         $collection = new RouteCollection();
@@ -61,7 +62,7 @@ class RouteCollectionTest extends TestCase
         ]));
     }
 
-    /** @test */
+    #[Test]
     public function it_works_with_optional_parameters()
     {
         $collection = new RouteCollection();

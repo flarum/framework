@@ -7,15 +7,15 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Command;
+namespace Flarum\ExtensionManager\Command;
 
 use Flarum\Extension\ExtensionManager;
-use Flarum\PackageManager\Composer\ComposerAdapter;
-use Flarum\PackageManager\Exception\ComposerRequireFailedException;
-use Flarum\PackageManager\Exception\ExtensionAlreadyInstalledException;
-use Flarum\PackageManager\Extension\Event\Installed;
-use Flarum\PackageManager\Extension\ExtensionUtils;
-use Flarum\PackageManager\RequirePackageValidator;
+use Flarum\ExtensionManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Exception\ComposerRequireFailedException;
+use Flarum\ExtensionManager\Exception\ExtensionAlreadyInstalledException;
+use Flarum\ExtensionManager\Extension\Event\Installed;
+use Flarum\ExtensionManager\RequirePackageValidator;
+use Flarum\ExtensionManager\Support\Util;
 use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Input\StringInput;
 
@@ -29,13 +29,17 @@ class RequireExtensionHandler
     ) {
     }
 
+    /**
+     * @throws \Flarum\User\Exception\PermissionDeniedException
+     * @throws \Exception
+     */
     public function handle(RequireExtension $command): array
     {
         $command->actor->assertAdmin();
 
         $this->validator->assertValid(['package' => $command->package]);
 
-        $extensionId = ExtensionUtils::nameToId($command->package);
+        $extensionId = Util::nameToId($command->package);
         $extension = $this->extensions->getExtension($extensionId);
 
         if (! empty($extension)) {
@@ -50,7 +54,7 @@ class RequireExtensionHandler
         }
 
         $output = $this->composer->run(
-            new StringInput("require $packageName"),
+            new StringInput("require $packageName -W"),
             $command->task ?? null
         );
 

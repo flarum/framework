@@ -4,6 +4,13 @@
 
   &-header {
     margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    column-gap: 8px;
+  }
+
+  &-totalUsers {
+    margin: 0;
   }
 
   &-actions {
@@ -75,7 +82,7 @@
       &--shaded {
         background: var(--body-bg-shaded);
 
-        & when (@config-dark-mode = true) {
+        [data-theme^=dark] & {
           background: var(--body-bg-light);
         }
       }

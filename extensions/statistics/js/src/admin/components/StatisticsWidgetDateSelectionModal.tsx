@@ -1,7 +1,7 @@
 import app from 'flarum/admin/app';
 import ItemList from 'flarum/common/utils/ItemList';
-import generateElementId from 'flarum/admin/utils/generateElementId';
-import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
+import generateElementId from 'flarum/common/utils/generateElementId';
+import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
 
 import Mithril from 'mithril';
 import Button from 'flarum/common/components/Button';
@@ -22,7 +22,7 @@ export interface IDateSelection {
   end: number;
 }
 
-export interface IStatisticsWidgetDateSelectionModalAttrs extends IInternalModalAttrs {
+export interface IStatisticsWidgetDateSelectionModalAttrs extends IFormModalAttrs {
   onModalSubmit: (dates: IDateSelection) => void;
   value?: IDateSelection;
 }
@@ -38,7 +38,7 @@ interface IStatisticsWidgetDateSelectionModalState {
   };
 }
 
-export default class StatisticsWidgetDateSelectionModal extends Modal<IStatisticsWidgetDateSelectionModalAttrs> {
+export default class StatisticsWidgetDateSelectionModal extends FormModal<IStatisticsWidgetDateSelectionModalAttrs> {
   /* @ts-expect-error core typings don't allow us to set the type of the state attr :( */
   state: IStatisticsWidgetDateSelectionModalState = {
     inputs: {

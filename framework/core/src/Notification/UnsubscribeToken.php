@@ -30,7 +30,7 @@ class UnsubscribeToken extends AbstractModel
     protected $table = 'unsubscribe_tokens';
 
     protected $casts = [
-        'user_id'        => 'int',
+        'user_id' => 'int',
         'unsubscribed_at' => 'datetime'
     ];
 

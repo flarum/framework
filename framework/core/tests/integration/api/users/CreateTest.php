@@ -14,6 +14,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\RegistrationToken;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class CreateTest extends TestCase
 {
@@ -29,9 +30,7 @@ class CreateTest extends TestCase
         $this->setting('mail_driver', 'log');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cannot_create_user_without_data()
     {
         $response = $this->send(
@@ -39,15 +38,19 @@ class CreateTest extends TestCase
                 'POST',
                 '/api/users',
                 [
-                    'json' => ['data' => ['attributes' => []]],
+                    'json' => ['data' => [
+                        'type' => 'users',
+                        'attributes' => [],
+                    ]],
                 ]
             )->withAttribute('bypassCsrfToken', true)
         );
 
-        $this->assertEquals(422, $response->getStatusCode());
+        $body = (string) $response->getBody();
+
+        $this->assertEquals(422, $response->getStatusCode(), $body);
 
         // The response body should contain details about the failed validation
-        $body = (string) $response->getBody();
         $this->assertJson($body);
         $this->assertEquals([
             'errors' => [
@@ -73,9 +76,7 @@ class CreateTest extends TestCase
         ], json_decode($body, true));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_create_user()
     {
         $response = $this->send(
@@ -96,7 +97,7 @@ class CreateTest extends TestCase
             )->withAttribute('bypassCsrfToken', true)
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
 
         /** @var User $user */
         $user = User::where('username', 'test')->firstOrFail();
@@ -106,9 +107,7 @@ class CreateTest extends TestCase
         $this->assertEquals('test@machine.local', $user->email);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admins_can_create_activated_users()
     {
         $response = $this->send(
@@ -139,9 +138,7 @@ class CreateTest extends TestCase
         $this->assertEquals(1, $user->is_email_confirmed);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function disabling_sign_up_prevents_user_creation()
     {
         /** @var SettingsRepositoryInterface $settings */
@@ -170,9 +167,7 @@ class CreateTest extends TestCase
         $settings->set('allow_sign_up', true);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cannot_create_user_with_invalid_avatar_uri_scheme()
     {
         // Boot app
@@ -186,7 +181,7 @@ class CreateTest extends TestCase
                 'username' => 'test',
                 'email' => 'test@machine.local',
                 'is_email_confirmed' => 1,
-                'avatar_url' =>  'file://localhost/etc/passwd'
+                'avatar_url' => 'file://localhost/etc/passwd'
             ], []),
             'scheme' => 'file'
         ];
@@ -227,18 +222,16 @@ class CreateTest extends TestCase
             $this->assertJson($body);
             $decodedBody = json_decode($body, true);
 
-            $this->assertEquals(500, $response->getStatusCode());
+            $this->assertEquals(422, $response->getStatusCode(), $body);
 
             $firstError = $decodedBody['errors'][0];
 
             // Check that the error is an invalid URI
-            $this->assertStringStartsWith('InvalidArgumentException: Provided avatar URL must have scheme http or https. Scheme provided was '.$regToken['scheme'].'.', $firstError['detail']);
+            $this->assertStringContainsString('Provided avatar URL must have scheme http or https. Scheme provided was '.$regToken['scheme'].'.', $firstError['detail']);
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cannot_create_user_with_invalid_avatar_uri()
     {
         // Boot app
@@ -251,28 +244,28 @@ class CreateTest extends TestCase
             'username' => 'test',
             'email' => 'test@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  'https://127.0.0.1/image.png'
+            'avatar_url' => 'https://127.0.0.1/image.png'
         ], []);
 
         $regTokens[] = RegistrationToken::generate('flarum', '1', [
             'username' => 'test',
             'email' => 'test@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  'https://i_do_not_exist.flarum.org/image.png'
+            'avatar_url' => 'https://i_do_not_exist.flarum.org/image.png'
         ], []);
 
         $regTokens[] = RegistrationToken::generate('flarum', '1', [
             'username' => 'test',
             'email' => 'test@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  '../image.png'
+            'avatar_url' => '../image.png'
         ], []);
 
         $regTokens[] = RegistrationToken::generate('flarum', '1', [
             'username' => 'test',
             'email' => 'test@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  'image.png'
+            'avatar_url' => 'image.png'
         ], []);
 
         // Test each reg token
@@ -301,18 +294,16 @@ class CreateTest extends TestCase
             $this->assertJson($body);
             $decodedBody = json_decode($body, true);
 
-            $this->assertEquals(500, $response->getStatusCode());
+            $this->assertEquals(422, $response->getStatusCode(), $body);
 
             $firstError = $decodedBody['errors'][0];
 
             // Check that the error is an invalid URI
-            $this->assertStringStartsWith('InvalidArgumentException: Provided avatar URL must be a valid URI.', $firstError['detail']);
+            $this->assertStringContainsString('Provided avatar URL must be a valid URI.', $firstError['detail']);
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_create_user_with_valid_avatar_uri()
     {
         // Boot app
@@ -325,28 +316,28 @@ class CreateTest extends TestCase
             'username' => 'test1',
             'email' => 'test1@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  'https://raw.githubusercontent.com/flarum/framework/main/framework/core/tests/fixtures/assets/avatar.png'
+            'avatar_url' => 'https://raw.githubusercontent.com/flarum/framework/main/framework/core/tests/fixtures/assets/avatar.png'
         ], []);
 
         $regTokens[] = RegistrationToken::generate('flarum', '2', [
             'username' => 'test2',
             'email' => 'test2@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  'https://raw.githubusercontent.com/flarum/framework/main/framework/core/tests/fixtures/assets/avatar.jpg'
+            'avatar_url' => 'https://raw.githubusercontent.com/flarum/framework/main/framework/core/tests/fixtures/assets/avatar.jpg'
         ], []);
 
         $regTokens[] = RegistrationToken::generate('flarum', '3', [
             'username' => 'test3',
             'email' => 'test3@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  'https://raw.githubusercontent.com/flarum/framework/main/framework/core/tests/fixtures/assets/avatar.gif'
+            'avatar_url' => 'https://raw.githubusercontent.com/flarum/framework/main/framework/core/tests/fixtures/assets/avatar.gif'
         ], []);
 
         $regTokens[] = RegistrationToken::generate('flarum', '4', [
             'username' => 'test4',
             'email' => 'test4@machine.local',
             'is_email_confirmed' => 1,
-            'avatar_url' =>  'http://raw.githubusercontent.com/flarum/framework/main/framework/core/tests/fixtures/assets/avatar.png'
+            'avatar_url' => 'http://raw.githubusercontent.com/flarum/framework/main/framework/core/tests/fixtures/assets/avatar.png'
         ], []);
 
         /**
@@ -374,7 +365,7 @@ class CreateTest extends TestCase
                 )->withAttribute('bypassCsrfToken', true)
             );
 
-            $this->assertEquals(201, $response->getStatusCode());
+            $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
 
             $user = User::where('username', $regToken->user_attributes['username'])->firstOrFail();
 

@@ -16,6 +16,10 @@ parameters:
     - stubs/Illuminate/Contracts/Filesystem/Cloud.stub
     - stubs/Illuminate/Contracts/Filesystem/Filesystem.stub
 
+    # We know for a fact the JsonApi object used internally is always the Flarum one.
+    - stubs/Tobyz/JsonApiServer/JsonApi.stub
+    - stubs/Tobyz/JsonApiServer/Context.stub
+
 services:
 	-
 		class: Flarum\PHPStan\Relations\ModelRelationsExtension

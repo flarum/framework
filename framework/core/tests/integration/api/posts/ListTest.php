@@ -10,11 +10,15 @@
 namespace Flarum\Tests\integration\api\posts;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
-class ListTests extends TestCase
+class ListTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
@@ -23,18 +27,18 @@ class ListTests extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 2],
                 ['id' => 2, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 2],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'number' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>something</p></t>'],
                 ['id' => 2, 'number' => 1, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>something</p></t>'],
                 ['id' => 3, 'number' => 2, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>something</p></t>'],
                 ['id' => 4, 'number' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>something</p></t>'],
                 ['id' => 5, 'number' => 3, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 2, 'type' => 'discussionRenamed', 'content' => '<t><p>something</p></t>'],
             ],
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
         ]);
@@ -45,9 +49,7 @@ class ListTests extends TestCase
         $this->database()->table('group_permission')->where('permission', 'viewForum')->where('group_id', 2)->delete();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guests_cant_see_anything_if_not_allowed()
     {
         $this->forbidGuestsFromSeeingForum();
@@ -62,24 +64,22 @@ class ListTests extends TestCase
         $this->assertEqualsCanonicalizing([], $data['data']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function authorized_users_can_see_posts()
     {
         $response = $this->send(
             $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $data = json_decode($body, true);
 
         $this->assertEquals(5, count($data['data']));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function author_filter_works()
     {
         $response = $this->send(
@@ -95,9 +95,7 @@ class ListTests extends TestCase
         $this->assertEqualsCanonicalizing(['1', '2'], Arr::pluck($data['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function author_filter_works_with_multiple_values()
     {
         $response = $this->send(
@@ -113,9 +111,7 @@ class ListTests extends TestCase
         $this->assertEqualsCanonicalizing(['1', '2', '3', '4', '5'], Arr::pluck($data['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function discussion_filter_works()
     {
         $response = $this->send(
@@ -131,9 +127,7 @@ class ListTests extends TestCase
         $this->assertEqualsCanonicalizing(['1', '3'], Arr::pluck($data['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function type_filter_works()
     {
         $response = $this->send(
@@ -149,9 +143,7 @@ class ListTests extends TestCase
         $this->assertEqualsCanonicalizing(['5'], Arr::pluck($data['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function number_filter_works()
     {
         $response = $this->send(
@@ -167,9 +159,7 @@ class ListTests extends TestCase
         $this->assertEqualsCanonicalizing(['3', '4'], Arr::pluck($data['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function id_filter_works()
     {
         $response = $this->send(
@@ -185,9 +175,7 @@ class ListTests extends TestCase
         $this->assertEqualsCanonicalizing(['4'], Arr::pluck($data['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function id_filter_works_with_multiple_ids()
     {
         $response = $this->send(

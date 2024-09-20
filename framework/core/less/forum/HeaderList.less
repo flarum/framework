@@ -32,7 +32,7 @@
       // dropdown menu – but the drawer may have .light-contents() applied to
       // it. In this case we will need to reset the button's styles back to
       // normal.
-      & when (@config-colored-header = true) {
+      [data-colored-header=true] & {
         color: var(--control-color);
 
         &:hover,
@@ -196,7 +196,7 @@
       .add-keyboard-focus-ring-offset(4px);
 
       // Needs more specificity to fix hover/focus styles not applying in dropdown
-      .HeaderListItem & when (@config-colored-header = true) {
+      [data-colored-header=true] .HeaderListItem & {
         color: var(--control-color);
 
         &:hover,

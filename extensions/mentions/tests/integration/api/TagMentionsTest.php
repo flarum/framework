@@ -10,10 +10,15 @@
 namespace Flarum\Mentions\Tests\integration\api;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
 use Flarum\Post\CommentPost;
+use Flarum\Post\Post;
+use Flarum\Tags\Tag;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class TagMentionsTest extends TestCase
 {
@@ -26,20 +31,20 @@ class TagMentionsTest extends TestCase
         $this->extension('flarum-tags', 'flarum-mentions');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 ['id' => 3, 'username' => 'potato', 'email' => 'potato@machine.local', 'is_email_confirmed' => 1],
                 ['id' => 4, 'username' => 'toby', 'email' => 'toby@machine.local', 'is_email_confirmed' => 1],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 2, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 3, 'first_post_id' => 4, 'comment_count' => 2],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 4, 'number' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'comment', 'content' => '<r><TAGMENTION id="1" slug="test_old_slug" tagname="TestOldName">#test_old_slug</TAGMENTION></r>'],
                 ['id' => 7, 'number' => 5, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 2021, 'type' => 'comment', 'content' => '<r><TAGMENTION id="3" slug="support" tagname="Support">#deleted_relation</TAGMENTION></r>'],
                 ['id' => 8, 'number' => 6, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 4, 'type' => 'comment', 'content' => '<r><TAGMENTION id="2020" slug="i_am_a_deleted_tag" tagname="i_am_a_deleted_tag">#i_am_a_deleted_tag</TAGMENTION></r>'],
                 ['id' => 10, 'number' => 11, 'discussion_id' => 2, 'created_at' => Carbon::now(), 'user_id' => 4, 'type' => 'comment', 'content' => '<r><TAGMENTION id="5" slug="laravel">#laravel</TAGMENTION></r>'],
             ],
-            'tags' => [
+            Tag::class => [
                 ['id' => 1, 'name' => 'Test', 'slug' => 'test', 'is_restricted' => 0],
                 ['id' => 2, 'name' => 'Flarum', 'slug' => 'flarum', 'is_restricted' => 0],
                 ['id' => 3, 'name' => 'Support', 'slug' => 'support', 'is_restricted' => 0],
@@ -60,7 +65,7 @@ class TagMentionsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function mentioning_a_valid_tag_with_valid_format_works()
     {
         $response = $this->send(
@@ -68,11 +73,12 @@ class TagMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '#flarum',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -88,7 +94,7 @@ class TagMentionsTest extends TestCase
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsTags->find(2));
     }
 
-    /** @test */
+    #[Test]
     public function mentioning_a_valid_tag_using_cjk_slug_with_valid_format_works()
     {
         $response = $this->send(
@@ -96,11 +102,12 @@ class TagMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '#戦い',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -117,7 +124,7 @@ class TagMentionsTest extends TestCase
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsTags->find(6));
     }
 
-    /** @test */
+    #[Test]
     public function mentioning_an_invalid_tag_doesnt_work()
     {
         $response = $this->send(
@@ -125,11 +132,12 @@ class TagMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '#franzofflarum',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -145,7 +153,7 @@ class TagMentionsTest extends TestCase
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsTags);
     }
 
-    /** @test */
+    #[Test]
     public function mentioning_a_tag_when_tags_disabled_does_not_cause_errors()
     {
         $this->extensions = ['flarum-mentions'];
@@ -155,11 +163,12 @@ class TagMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '#test',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -175,7 +184,7 @@ class TagMentionsTest extends TestCase
         $this->assertNull(CommentPost::find($response['data']['id'])->mentionsTags);
     }
 
-    /** @test */
+    #[Test]
     public function mentioning_a_restricted_tag_doesnt_work_without_privileges()
     {
         $response = $this->send(
@@ -183,11 +192,12 @@ class TagMentionsTest extends TestCase
                 'authenticatedAs' => 3,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '#dev',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -203,7 +213,7 @@ class TagMentionsTest extends TestCase
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsTags);
     }
 
-    /** @test */
+    #[Test]
     public function mentioning_a_restricted_tag_works_with_privileges()
     {
         $response = $this->send(
@@ -211,11 +221,12 @@ class TagMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '#dev',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -231,7 +242,7 @@ class TagMentionsTest extends TestCase
         $this->assertCount(1, CommentPost::find($response['data']['id'])->mentionsTags);
     }
 
-    /** @test */
+    #[Test]
     public function mentioning_multiple_tags_works()
     {
         $response = $this->send(
@@ -239,11 +250,12 @@ class TagMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '#test #flarum #support #laravel #franzofflarum',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -262,7 +274,7 @@ class TagMentionsTest extends TestCase
         $this->assertCount(4, CommentPost::find($response['data']['id'])->mentionsTags);
     }
 
-    /** @test */
+    #[Test]
     public function tag_mentions_render_with_fresh_data()
     {
         $response = $this->send(
@@ -280,7 +292,7 @@ class TagMentionsTest extends TestCase
         $this->assertCount(1, CommentPost::find($response['data']['id'])->mentionsTags);
     }
 
-    /** @test */
+    #[Test]
     public function tag_mentions_dont_cause_errors_when_tags_disabled()
     {
         $this->extensions = ['flarum-mentions'];
@@ -294,7 +306,7 @@ class TagMentionsTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /** @test */
+    #[Test]
     public function tag_mentions_unparse_with_fresh_data()
     {
         $response = $this->send(
@@ -311,7 +323,7 @@ class TagMentionsTest extends TestCase
         $this->assertCount(1, CommentPost::find($response['data']['id'])->mentionsTags);
     }
 
-    /** @test */
+    #[Test]
     public function deleted_tag_mentions_unparse_and_render_as_expected()
     {
         // No reason to hide a deleted tag's name.
@@ -334,7 +346,7 @@ class TagMentionsTest extends TestCase
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsTags);
     }
 
-    /** @test */
+    #[Test]
     public function deleted_tag_mentions_relation_unparse_and_render_as_expected()
     {
         // No reason to hide a deleted tag's name.
@@ -357,7 +369,7 @@ class TagMentionsTest extends TestCase
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsTags);
     }
 
-    /** @test */
+    #[Test]
     public function editing_a_post_that_has_a_tag_mention_works()
     {
         $response = $this->send(
@@ -365,6 +377,7 @@ class TagMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '#laravel',
                         ],

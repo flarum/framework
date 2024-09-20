@@ -7,13 +7,14 @@ import Button from '../../common/components/Button';
 import SelectDropdown from '../../common/components/SelectDropdown';
 import listItems from '../../common/helpers/listItems';
 import LinkButton from '../../common/components/LinkButton';
+import classList from '../../common/utils/classList';
 
 export interface IndexSidebarAttrs extends ComponentAttrs {}
 
 export default class IndexSidebar<CustomAttrs extends IndexSidebarAttrs = IndexSidebarAttrs> extends Component<CustomAttrs> {
   view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
     return (
-      <nav className="IndexPage-nav sideNav">
+      <nav className={classList('IndexPage-nav sideNav', this.attrs.className)}>
         <ul>{listItems(this.items().toArray())}</ul>
       </nav>
     );
@@ -65,7 +66,7 @@ export default class IndexSidebar<CustomAttrs extends IndexSidebarAttrs = IndexS
    */
   navItems() {
     const items = new ItemList<Mithril.Children>();
-    const params = app.search.stickyParams();
+    const params = app.search.state.stickyParams();
 
     items.add(
       'allDiscussions',

@@ -8,6 +8,7 @@ import errorHandler from '../utils/errorHandler';
 import jumpToQueue from '../utils/jumpToQueue';
 import { Extension } from 'flarum/admin/AdminApplication';
 import extractText from 'flarum/common/utils/extractText';
+import RequestError from 'flarum/common/utils/RequestError';
 
 export type UpdatedPackage = {
   name: string;
@@ -16,6 +17,8 @@ export type UpdatedPackage = {
   'latest-minor': string | null;
   'latest-major': string | null;
   'latest-status': string;
+  'required-as': string;
+  'direct-dependency': boolean;
   description: string;
 };
 
@@ -43,7 +46,7 @@ export type LastUpdateRun = {
   limitedPackages: () => string[];
 };
 
-export type LoadingTypes = UpdaterLoadingTypes | InstallerLoadingTypes | MajorUpdaterLoadingTypes;
+export type LoadingTypes = UpdaterLoadingTypes | InstallerLoadingTypes | MajorUpdaterLoadingTypes | 'queued-action';
 
 export type CoreUpdate = {
   package: UpdatedPackage;
@@ -58,7 +61,7 @@ export default class ControlSectionState {
   public extensionUpdates!: Extension[];
   public coreUpdate: CoreUpdate | null = null;
   get lastUpdateRun(): LastUpdateRun {
-    const lastUpdateRun = JSON.parse(app.data.settings['flarum-package-manager.last_update_run']) as LastUpdateRun;
+    const lastUpdateRun = JSON.parse(app.data.settings['flarum-extension-manager.last_update_run']) as LastUpdateRun;
 
     lastUpdateRun.limitedPackages = () => [
       ...lastUpdateRun.major.limitedPackages,
@@ -70,7 +73,7 @@ export default class ControlSectionState {
   }
 
   constructor() {
-    this.lastUpdateCheck = JSON.parse(app.data.settings['flarum-package-manager.last_update_check']) as LastUpdateCheck;
+    this.lastUpdateCheck = JSON.parse(app.data.settings['flarum-extension-manager.last_update_check']) as LastUpdateCheck;
     this.extensionUpdates = this.formatExtensionUpdates(this.lastUpdateCheck);
     this.coreUpdate = this.formatCoreUpdate(this.lastUpdateCheck);
   }
@@ -79,12 +82,44 @@ export default class ControlSectionState {
     return (name && this.loading === name) || (!name && this.loading !== null);
   }
 
-  isLoadingOtherThan(name: LoadingTypes): boolean {
-    return this.loading !== null && this.loading !== name;
+  hasOperationRunning(): boolean {
+    return this.isLoading() || app.extensionManager.queue.hasPending();
   }
 
   setLoading(name: LoadingTypes): void {
     this.loading = name;
+  }
+
+  requirePackage(data: any) {
+    app.extensionManager.control.setLoading('extension-install');
+    app.modal.show(LoadingModal);
+
+    app
+      .request<AsyncBackendResponse & { id: number }>({
+        method: 'POST',
+        url: `${app.forum.attribute('apiUrl')}/extension-manager/extensions`,
+        body: {
+          data,
+        },
+      })
+      .then((response) => {
+        if (response.processing) {
+          jumpToQueue();
+        } else {
+          const extensionId = response.id;
+          app.alerts.show(
+            { type: 'success' },
+            app.translator.trans('flarum-extension-manager.admin.extensions.successful_install', { extension: extensionId })
+          );
+          window.location.href = `${app.forum.attribute('adminUrl')}#/extension/${extensionId}`;
+          window.location.reload();
+        }
+      })
+      .catch(errorHandler)
+      .finally(() => {
+        app.modal.close();
+        m.redraw();
+      });
   }
 
   checkForUpdates() {
@@ -93,7 +128,7 @@ export default class ControlSectionState {
     app
       .request<AsyncBackendResponse | LastUpdateCheck>({
         method: 'POST',
-        url: `${app.forum.attribute('apiUrl')}/package-manager/check-for-updates`,
+        url: `${app.forum.attribute('apiUrl')}/extension-manager/check-for-updates`,
       })
       .then((response) => {
         if ((response as AsyncBackendResponse).processing) {
@@ -102,51 +137,55 @@ export default class ControlSectionState {
           this.lastUpdateCheck = response as LastUpdateCheck;
           this.extensionUpdates = this.formatExtensionUpdates(response as LastUpdateCheck);
           this.coreUpdate = this.formatCoreUpdate(response as LastUpdateCheck);
+          this.setLoading(null);
           m.redraw();
         }
       })
       .catch(errorHandler)
       .finally(() => {
-        this.setLoading(null);
         m.redraw();
       });
   }
 
   updateCoreMinor() {
-    if (confirm(extractText(app.translator.trans('flarum-package-manager.admin.minor_update_confirmation.content')))) {
+    if (confirm(extractText(app.translator.trans('flarum-extension-manager.admin.minor_update_confirmation.content')))) {
       app.modal.show(LoadingModal);
       this.setLoading('minor-update');
 
       app
         .request<AsyncBackendResponse | null>({
           method: 'POST',
-          url: `${app.forum.attribute('apiUrl')}/package-manager/minor-update`,
+          url: `${app.forum.attribute('apiUrl')}/extension-manager/minor-update`,
         })
         .then((response) => {
           if (response?.processing) {
             jumpToQueue();
           } else {
-            app.alerts.show({ type: 'success' }, app.translator.trans('flarum-package-manager.admin.update_successful'));
+            app.alerts.show({ type: 'success' }, app.translator.trans('flarum-extension-manager.admin.update_successful'));
             window.location.reload();
           }
         })
         .catch(errorHandler)
         .finally(() => {
-          this.setLoading(null);
           app.modal.close();
           m.redraw();
         });
     }
   }
 
-  updateExtension(extension: Extension) {
+  updateExtension(extension: Extension, updateMode: 'soft' | 'hard') {
     app.modal.show(LoadingModal);
     this.setLoading('extension-update');
 
     app
       .request<AsyncBackendResponse | null>({
         method: 'PATCH',
-        url: `${app.forum.attribute('apiUrl')}/package-manager/extensions/${extension.id}`,
+        url: `${app.forum.attribute('apiUrl')}/extension-manager/extensions/${extension.id}`,
+        body: {
+          data: {
+            updateMode,
+          },
+        },
       })
       .then((response) => {
         if (response?.processing) {
@@ -154,7 +193,7 @@ export default class ControlSectionState {
         } else {
           app.alerts.show(
             { type: 'success' },
-            app.translator.trans('flarum-package-manager.admin.extensions.successful_update', {
+            app.translator.trans('flarum-extension-manager.admin.extensions.successful_update', {
               extension: extension.extra['flarum-extension'].title,
             })
           );
@@ -163,7 +202,6 @@ export default class ControlSectionState {
       })
       .catch(errorHandler)
       .finally(() => {
-        this.setLoading(null);
         app.modal.close();
         m.redraw();
       });
@@ -176,19 +214,18 @@ export default class ControlSectionState {
     app
       .request<AsyncBackendResponse | null>({
         method: 'POST',
-        url: `${app.forum.attribute('apiUrl')}/package-manager/global-update`,
+        url: `${app.forum.attribute('apiUrl')}/extension-manager/global-update`,
       })
       .then((response) => {
         if (response?.processing) {
           jumpToQueue();
         } else {
-          app.alerts.show({ type: 'success' }, app.translator.trans('flarum-package-manager.admin.updater.global_update_successful'));
+          app.alerts.show({ type: 'success' }, app.translator.trans('flarum-extension-manager.admin.updater.global_update_successful'));
           window.location.reload();
         }
       })
       .catch(errorHandler)
       .finally(() => {
-        this.setLoading(null);
         app.modal.close();
         m.redraw();
       });
@@ -226,14 +263,46 @@ export default class ControlSectionState {
         version: app.data.settings.version,
         icon: {
           // @ts-ignore
-          backgroundImage: `url(${app.data.resources[0]['attributes']['baseUrl']}/assets/extensions/flarum-package-manager/flarum.svg`,
+          backgroundImage: `url(${app.data.resources[0]['attributes']['baseUrl']}/assets/extensions/flarum-extension-manager/flarum.svg`,
         },
         extra: {
           'flarum-extension': {
-            title: extractText(app.translator.trans('flarum-package-manager.admin.updater.flarum')),
+            title: extractText(app.translator.trans('flarum-extension-manager.admin.updater.flarum')),
           },
         },
       },
     };
+  }
+
+  majorUpdate({ dryRun }: { dryRun: boolean }) {
+    app.extensionManager.control.setLoading(dryRun ? 'major-update-dry-run' : 'major-update');
+    app.modal.show(LoadingModal);
+    const updateState = this.lastUpdateRun.major;
+
+    app
+      .request<AsyncBackendResponse | null>({
+        method: 'POST',
+        url: `${app.forum.attribute('apiUrl')}/extension-manager/major-update`,
+        body: {
+          data: { dryRun },
+        },
+      })
+      .then((response) => {
+        if (response?.processing) {
+          jumpToQueue();
+        } else {
+          app.alerts.show({ type: 'success' }, app.translator.trans('flarum-extension-manager.admin.update_successful'));
+          window.location.reload();
+        }
+      })
+      .catch(errorHandler)
+      .catch((e: RequestError) => {
+        app.modal.close();
+        updateState.status = 'failure';
+        updateState.incompatibleExtensions = e.response?.errors?.pop()?.incompatible_extensions as string[];
+      })
+      .finally(() => {
+        m.redraw();
+      });
   }
 }

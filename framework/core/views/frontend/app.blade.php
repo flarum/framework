@@ -1,6 +1,5 @@
 <!doctype html>
-<html @if ($direction) dir="{{ $direction }}" @endif
-      @if ($language) lang="{{ $language }}" @endif>
+<html @if ($direction) dir="{{ $direction }}" @endif @if ($language) lang="{{ $language }}" @endif @class($extraClasses) {!! $extraAttributes !!}>
     <head>
         <meta charset="utf-8">
         <title>{{ $title }}</title>

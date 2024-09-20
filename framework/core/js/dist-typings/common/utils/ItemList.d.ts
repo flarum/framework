@@ -18,15 +18,6 @@ export default class ItemList<T> {
      */
     protected _items: Record<string, Item<T>>;
     /**
-     * A **read-only copy** of items in the list.
-     *
-     * We don't allow adding new items to the ItemList via setting new properties,
-     * nor do we allow modifying existing items directly.
-     *
-     * @deprecated Use {@link ItemList.toObject} instead.
-     */
-    get items(): DeepReadonly<Record<string, Item<T>>>;
-    /**
      * Check whether the list is empty.
      */
     isEmpty(): boolean;
@@ -51,30 +42,6 @@ export default class ItemList<T> {
      * will be positioned before items with a lower priority.
      */
     add(key: string, content: T, priority?: number): this;
-    /**
-     * Replace an item and/or priority in the list, only if it is already present.
-     *
-     * If `content` or `priority` are `null`, these values will not be replaced.
-     *
-     * If the provided `key` is not present, nothing will happen.
-     *
-     * @deprecated Please use the {@link ItemList.setContent} and {@link ItemList.setPriority}
-     * methods to replace items and their priorities. This method will be removed in Flarum 2.0.
-     *
-     * @param key The key of the item in the list
-     * @param content The item's new content
-     * @param priority The item's new priority
-     *
-     * @example <caption>Replace priority and not content.</caption>
-     * items.replace('myItem', null, 10);
-     *
-     * @example <caption>Replace content and not priority.</caption>
-     * items.replace('myItem', <p>My new value.</p>);
-     *
-     * @example <caption>Replace content and priority.</caption>
-     * items.replace('myItem', <p>My new value.</p>, 10);
-     */
-    replace(key: string, content?: T | null, priority?: number | null): this;
     /**
      * Replaces an item's content, if the provided item key exists.
      *

@@ -17,6 +17,8 @@ import AdminPage from './AdminPage';
 import { debounce } from '../../common/utils/throttleDebounce';
 import CreateUserModal from './CreateUserModal';
 import Icon from '../../common/components/Icon';
+import Input from '../../common/components/Input';
+import GambitsAutocompleteDropdown from '../../common/components/GambitsAutocompleteDropdown';
 
 type ColumnData = {
   /**
@@ -234,20 +236,24 @@ export default class UserListPage extends AdminPage {
   headerItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
+    const onchange = (value: string) => {
+      this.isLoadingPage = true;
+      this.query = value;
+      this.throttledSearch();
+    };
+
     items.add(
       'search',
-      <div className="Search-input">
-        <input
-          className="FormControl SearchBar"
+      <GambitsAutocompleteDropdown resource="users" query={this.query} onchange={onchange}>
+        <Input
           type="search"
           placeholder={app.translator.trans('core.admin.users.search_placeholder')}
-          oninput={(e: InputEvent) => {
-            this.isLoadingPage = true;
-            this.query = (e?.target as HTMLInputElement)?.value;
-            this.throttledSearch();
-          }}
+          clearable={true}
+          loading={this.isLoadingPage}
+          value={this.query}
+          onchange={onchange}
         />
-      </div>,
+      </GambitsAutocompleteDropdown>,
       100
     );
 
