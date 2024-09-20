@@ -13,6 +13,9 @@ export default class Dialog extends Model {
   lastMessageAt() {
     return Model.attribute<Date, string>('lastMessageAt', Model.transformDate).call(this);
   }
+  createdAt() {
+    return Model.attribute<Date, string>('createdAt', Model.transformDate).call(this);
+  }
 
   users() {
     return Model.hasMany<User>('users').call(this);

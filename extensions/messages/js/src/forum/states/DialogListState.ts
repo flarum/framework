@@ -24,7 +24,7 @@ export default class DialogListState<P extends DialogListParams = DialogListPara
 
   requestParams(): PaginatedListRequestParams {
     const params = {
-      include: ['lastMessage', 'users'],
+      include: ['lastMessage', 'users.groups'],
       filter: this.params.filter || {},
       sort: this.currentSort() || this.sortValue(Object.values(this.sortMap())[0]),
     };

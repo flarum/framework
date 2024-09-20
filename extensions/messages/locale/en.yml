@@ -20,6 +20,15 @@ flarum-messages:
       title: Messages
       view_all: View all messages
 
+    dialog_section:
+      controls:
+        details_button: Details
+      controls_toggle_label: Dialog control actions
+      details_modal:
+        created_at: Creation date
+        recipients: Participants
+        title: Conversation details
+
     index:
       messages_link: Messages
 

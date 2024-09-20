@@ -102,6 +102,7 @@ class DialogResource extends Resource\AbstractDatabaseResource
                 ->maxLength(255)
                 ->in(Dialog::$types),
             Schema\DateTime::make('lastMessageAt'),
+            Schema\DateTime::make('createdAt'),
 
             Schema\Integer::make('unreadCount')
                 ->countRelation('messages', function (Builder $query, Context $context) {
