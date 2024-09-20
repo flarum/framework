@@ -47,7 +47,7 @@ export default class DialogListItem<CustomAttrs extends IDialogListItemAttrs = I
               {humanTime(dialog.lastMessageAt()!)}
               {this.attrs.actions && <div className="DialogListItem-actions">{this.actionItems().toArray()}</div>}
             </div>
-            <div className="DialogListItem-lastMessage">{lastMessage ? lastMessage.contentPlain()?.slice(0, 50) : ''}</div>
+            <div className="DialogListItem-lastMessage">{lastMessage ? lastMessage.contentPlain()?.slice(0, 80) : ''}</div>
           </div>
         </Link>
       </li>

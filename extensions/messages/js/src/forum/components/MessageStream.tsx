@@ -119,7 +119,7 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
                     replyingTo: this.attrs.dialog,
                     onsubmit: (message: DialogMessage) => {
                       this.attrs.state.push(message);
-                      this.scrollToBottom();
+                      setTimeout(() => this.scrollToBottom(), 50);
                     },
                   })
                   .then(() => app.composer.show());
