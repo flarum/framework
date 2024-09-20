@@ -179,7 +179,7 @@ export default class PostStreamScrubber extends Component {
     heights.after = 100 - heights.before - heights.handle;
 
     // If the stream is paused, don't change height on scroll, as the viewport is being scrolled by the JS
-    // If a height change animation is already in progress, don't adjust height unless overriden
+    // If a height change animation is already in progress, don't adjust height unless overridden
     if ((options.fromScroll && this.stream.paused) || (this.adjustingHeight && !options.forceHeightChange)) return;
 
     const func = options.animate ? 'animate' : 'css';
