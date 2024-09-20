@@ -11,7 +11,7 @@ function options() {
     attributes: () => ({
       loading: 'lazy',
     }),
-  }
+  };
 }
 
 /**
