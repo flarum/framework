@@ -252,7 +252,7 @@ class Migrator
 
             $statement = str_replace(
                 'db_prefix_',
-                $this->connection->getTablePrefix(),
+                $this->connection->getTablePrefix() ?? '',
                 $statement
             );
             $this->connection->statement($statement);

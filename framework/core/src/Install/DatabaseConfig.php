@@ -21,7 +21,7 @@ class DatabaseConfig implements Arrayable
         private string $database,
         private readonly ?string $username,
         private readonly ?string $password,
-        private readonly string $prefix
+        private readonly ?string $prefix
     ) {
         $this->validate();
     }
