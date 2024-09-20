@@ -10,7 +10,7 @@
 namespace Flarum\Search\Database;
 
 use Flarum\Search\SearchState;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 
 class DatabaseSearchState extends SearchState
 {

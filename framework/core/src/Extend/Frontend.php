@@ -36,6 +36,7 @@ class Frontend implements ExtenderInterface
     private array $preloadArrs = [];
     private ?string $titleDriver = null;
     private array $jsDirectory = [];
+    private array $extraDocumentAttributes = [];
 
     /**
      * @param string $frontend: The name of the frontend.
@@ -187,6 +188,35 @@ class Frontend implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Adds document root attributes.
+     *
+     * @example ['data-test' => 'value']
+     * @example ['data-test' => function (ServerRequestInterface $request) { return 'value'; }]
+     *
+     * @param array<string, string|callable> $attributes
+     */
+    public function extraDocumentAttributes(array $attributes): self
+    {
+        $this->extraDocumentAttributes[] = $attributes;
+
+        return $this;
+    }
+
+    /**
+     * Adds document root classes.
+     *
+     * Can either be a string or an array of strings.
+     *
+     * An array can be of a format acceptable by the @class blade directive.
+     *
+     * @example ['class1', 'class2' => true, 'class3' => false]
+     */
+    public function extraDocumentClasses(string|array|callable $classes): self
+    {
+        return $this->extraDocumentAttributes(['class' => $classes]);
+    }
+
     public function extend(Container $container, Extension $extension = null): void
     {
         $this->registerAssets($container, $this->getModuleName($extension));
@@ -194,6 +224,7 @@ class Frontend implements ExtenderInterface
         $this->registerContent($container);
         $this->registerPreloads($container);
         $this->registerTitleDriver($container);
+        $this->registerDocumentAttributes($container);
     }
 
     private function registerAssets(Container $container, string $moduleName): void
@@ -329,5 +360,24 @@ class Frontend implements ExtenderInterface
                 return $container->make($this->titleDriver);
             });
         }
+    }
+
+    private function registerDocumentAttributes(Container $container): void
+    {
+        if (empty($this->extraDocumentAttributes)) {
+            return;
+        }
+
+        $container->resolving(
+            "flarum.frontend.$this->frontend",
+            function (ActualFrontend $frontend, Container $container) {
+                $frontend->content(function (Document $document) use ($container) {
+                    foreach ($this->extraDocumentAttributes as $classes) {
+                        $classes = is_callable($classes) ? ContainerUtil::wrapCallback($classes, $container) : $classes;
+                        $document->extraAttributes[] = $classes;
+                    }
+                }, 111);
+            }
+        );
     }
 }

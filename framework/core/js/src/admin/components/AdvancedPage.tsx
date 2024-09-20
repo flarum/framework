@@ -4,13 +4,15 @@ import type { IPageAttrs } from '../../common/components/Page';
 import type Mithril from 'mithril';
 import Form from '../../common/components/Form';
 import extractText from '../../common/utils/extractText';
-import FormSectionGroup, { FormSection } from './FormSectionGroup';
+import FormSectionGroup from './FormSectionGroup';
+import FormSection from './FormSection';
 import ItemList from '../../common/utils/ItemList';
 import InfoTile from '../../common/components/InfoTile';
 import { MaintenanceMode } from '../../common/Application';
 import Button from '../../common/components/Button';
 import classList from '../../common/utils/classList';
 import ExtensionBisect from './ExtensionBisect';
+import { DatabaseDriver } from '../AdminApplication';
 
 export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends AdminPage<CustomAttrs> {
   searchDriverOptions: Record<string, Record<string, string>> = {};
@@ -67,6 +69,10 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
     items.add('search', this.searchDrivers(), 100);
 
     items.add('maintenance', this.maintenance(), 90);
+
+    if (app.data.dbDriver === DatabaseDriver.PostgreSQL) {
+      items.add(DatabaseDriver.PostgreSQL, this.pgsqlSettings(), 80);
+    }
 
     return items;
   }
@@ -183,6 +189,21 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
               {app.translator.trans('core.admin.advanced.maintenance.bisect.' + (app.data.bisecting ? 'continue_button_text' : 'begin_button_text'))}
             </Button>
           </div>
+        </Form>
+      </FormSection>
+    );
+  }
+
+  pgsqlSettings() {
+    return (
+      <FormSection label={DatabaseDriver.PostgreSQL}>
+        <Form>
+          {this.buildSettingComponent({
+            type: 'select',
+            setting: 'pgsql_search_configuration',
+            options: app.data.dbOptions.search_configurations,
+            label: app.translator.trans('core.admin.advanced.pgsql.search_configuration'),
+          })}
         </Form>
       </FormSection>
     );

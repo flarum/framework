@@ -5,7 +5,7 @@ import BasicsPage from 'flarum/admin/components/BasicsPage';
 import extractText from 'flarum/common/utils/extractText';
 import { extend } from 'flarum/common/extend';
 
-app.initializers.add('flarum/nicknames', () => {
+app.initializers.add('flarum-nicknames', () => {
   app.extensionData
     .for('flarum-nicknames')
     .registerSetting(function () {

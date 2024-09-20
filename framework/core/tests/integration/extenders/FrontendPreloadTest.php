@@ -11,14 +11,13 @@ namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Extend;
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class FrontendPreloadTest extends TestCase
 {
     private $customPreloadUrls = ['/my-preload', '/my-preload2'];
 
-    /**
-     * @test
-     */
+    #[Test]
     public function default_preloads_are_present()
     {
         $response = $this->send(
@@ -39,9 +38,7 @@ class FrontendPreloadTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function preloads_can_be_added()
     {
         $urls = $this->customPreloadUrls;
@@ -65,9 +62,7 @@ class FrontendPreloadTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function preloads_can_be_added_via_callable()
     {
         $urls = $this->customPreloadUrls;

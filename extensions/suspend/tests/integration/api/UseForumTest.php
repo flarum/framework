@@ -15,6 +15,7 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class UseForumTest extends TestCase
 {
@@ -40,7 +41,7 @@ class UseForumTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function suspended_user_cannot_create_discussions()
     {
         $response = $this->send(
@@ -48,6 +49,7 @@ class UseForumTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'Test post',
                             'content' => '<t><p>Hello, world!</p></t>'
@@ -60,7 +62,7 @@ class UseForumTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /** @test */
+    #[Test]
     public function suspended_user_cannot_reply_to_discussions()
     {
         $response = $this->send(
@@ -68,6 +70,7 @@ class UseForumTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '<t><p>Hello, world!</p></t>'
                         ],

@@ -193,8 +193,17 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function populateDatabase(): void
     {
-        // We temporarily disable foreign key checks to simplify this process.
+        /**
+         * We temporarily disable foreign key checks to simplify this process.
+         * SQLite ignores this statement since we are inside a transaction.
+         * So we do that before starting a transaction.
+         * @see BeginTransactionAndSetDatabase
+         */
         $this->database()->getSchemaBuilder()->disableForeignKeyConstraints();
+
+        if ($this->database()->getDriverName() === 'pgsql') {
+            $this->database()->statement("SET session_replication_role = 'replica'");
+        }
 
         $databaseContent = [];
 
@@ -208,12 +217,18 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                     'unique' => $instance->uniqueKeys ?? null,
                 ];
             } else {
+                if (class_exists($tableOrModelClass) && is_subclass_of($tableOrModelClass, Model::class)) {
+                    $tableOrModelClass = (new $tableOrModelClass)->getTable();
+                }
+
                 $databaseContent[$tableOrModelClass] = [
                     'rows' => $_rows,
                     'unique' => null,
                 ];
             }
         }
+
+        $tables = [];
 
         // Then, insert all rows required for this test case.
         foreach ($databaseContent as $table => $data) {
@@ -229,7 +244,22 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                 }
 
                 $this->database()->table($table)->updateOrInsert($unique, $row);
+
+                if (isset($row['id'])) {
+                    $tables[$table] = 'id';
+                }
             }
+        }
+
+        if ($this->database()->getDriverName() === 'pgsql') {
+            // PgSQL doesn't auto-increment the sequence when inserting the IDs manually.
+            foreach ($tables as $table => $id) {
+                $wrappedTable = $this->database()->getSchemaGrammar()->wrapTable($table);
+                $seq = $this->database()->getSchemaGrammar()->wrapTable($table.'_'.$id.'_seq');
+                $this->database()->statement("SELECT setval('$seq', (SELECT MAX($id) FROM $wrappedTable))");
+            }
+
+            $this->database()->statement("SET session_replication_role = 'origin'");
         }
 
         // And finally, turn on foreign key checks again.

@@ -16,8 +16,9 @@ use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
 use Flarum\Tags\Tag;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 
 /**
  * @implements FilterInterface<DatabaseSearchState>
@@ -53,7 +54,7 @@ class TagFilter implements FilterInterface
             $query->where(function (Builder $query) use ($slugs, $negate, $actor) {
                 foreach ($slugs as $slug) {
                     if ($slug === 'untagged') {
-                        $query->whereIn('discussions.id', function (Builder $query) {
+                        $query->whereIn('discussions.id', function (QueryBuilder $query) {
                             $query->select('discussion_id')
                                 ->from('discussion_tag');
                         }, 'or', ! $negate);
@@ -65,7 +66,7 @@ class TagFilter implements FilterInterface
                             $id = null;
                         }
 
-                        $query->whereIn('discussions.id', function (Builder $query) use ($id) {
+                        $query->whereIn('discussions.id', function (QueryBuilder $query) use ($id) {
                             $query->select('discussion_id')
                                 ->from('discussion_tag')
                                 ->where('tag_id', $id);

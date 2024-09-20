@@ -18,4 +18,5 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
     sectionItems(): ItemList<Mithril.Children>;
     searchDrivers(): JSX.Element;
     maintenance(): JSX.Element;
+    pgsqlSettings(): JSX.Element;
 }

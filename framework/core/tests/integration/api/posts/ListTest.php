@@ -16,6 +16,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListTest extends TestCase
 {
@@ -48,9 +49,7 @@ class ListTest extends TestCase
         $this->database()->table('group_permission')->where('permission', 'viewForum')->where('group_id', 2)->delete();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guests_cant_see_anything_if_not_allowed()
     {
         $this->forbidGuestsFromSeeingForum();
@@ -65,24 +64,22 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing([], $data['data']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function authorized_users_can_see_posts()
     {
         $response = $this->send(
             $this->request('GET', '/api/posts', ['authenticatedAs' => 1])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $data = json_decode($body, true);
 
         $this->assertEquals(5, count($data['data']));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function author_filter_works()
     {
         $response = $this->send(
@@ -98,9 +95,7 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing(['1', '2'], Arr::pluck($data['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function author_filter_works_with_multiple_values()
     {
         $response = $this->send(
@@ -116,9 +111,7 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing(['1', '2', '3', '4', '5'], Arr::pluck($data['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function discussion_filter_works()
     {
         $response = $this->send(
@@ -134,9 +127,7 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing(['1', '3'], Arr::pluck($data['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function type_filter_works()
     {
         $response = $this->send(
@@ -152,9 +143,7 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing(['5'], Arr::pluck($data['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function number_filter_works()
     {
         $response = $this->send(
@@ -170,9 +159,7 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing(['3', '4'], Arr::pluck($data['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function id_filter_works()
     {
         $response = $this->send(
@@ -188,9 +175,7 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing(['4'], Arr::pluck($data['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function id_filter_works_with_multiple_ids()
     {
         $response = $this->send(

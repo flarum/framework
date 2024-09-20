@@ -1,7 +1,24 @@
+@following-bg: #ffea7b;
+@following-color: #de8e00;
+
 :root {
-  --following-bg: #ffea7b;
-  --following-color: #de8e00;
+  --following-bg: @following-bg;
+  --following-color: @following-color;
   --ignoring-bg: #aaa;
+}
+
+[data-theme^=light] {
+  .Button--color-vars(@following-color, #fff2ae, 'button--follow');
+}
+
+[data-theme=light-hc], [data-theme=dark-hc] {
+  @following-color-hc: darken(@following-color, 23%);
+  --following-color: @following-color-hc;
+  .Button--color-vars(@following-color-hc, #fff2ae, 'button--follow');
+}
+
+[data-theme^=dark] {
+  .Button--color-vars(#784d00, #fbb94c, 'button--follow');
 }
 
 .Badge--following {
@@ -12,12 +29,7 @@
   --badge-bg: var(--ignoring-bg);
 }
 .SubscriptionMenu-button--follow {
-  & when (@config-dark-mode = false) {
-    .Button--color(#de8e00, #fff2ae);
-  }
-  & when (@config-dark-mode = true) {
-    .Button--color(#784d00, #fbb94c);
-  }
+  .Button--color-auto('button--follow');
 }
 .SubscriptionMenu .Dropdown-menu {
   min-width: 260px;

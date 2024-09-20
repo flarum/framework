@@ -30,22 +30,13 @@ class CommentPost extends Post
 
     protected $observables = ['hidden'];
 
-    public static function reply(int $discussionId, string $content, int $userId, ?string $ipAddress, ?User $actor = null): static
+    public static function boot()
     {
-        $post = new static;
+        parent::boot();
 
-        $post->created_at = Carbon::now();
-        $post->discussion_id = $discussionId;
-        $post->user_id = $userId;
-        $post->type = static::$type;
-        $post->ip_address = $ipAddress;
-
-        // Set content last, as the parsing may rely on other post attributes.
-        $post->setContentAttribute($content, $actor);
-
-        $post->raise(new Posted($post));
-
-        return $post;
+        static::creating(function (self $post) {
+            $post->raise(new Posted($post));
+        });
     }
 
     public function revise(string $content, User $actor): static

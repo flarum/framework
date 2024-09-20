@@ -227,10 +227,8 @@
 // the page toolbar that we styled earlier. We lay its contents out
 // horizontally.
 @media @phone {
-  .App-drawer {
-    & when (@config-colored-header = true) {
-      .light-contents(@name: 'header-colored');
-    }
+  [data-colored-header=true] .App-drawer {
+    .light-contents(@name: 'header-colored');
   }
 }
 
@@ -258,7 +256,7 @@
       box-shadow: 0 2px 6px var(--shadow-color);
     }
 
-    & when (@config-colored-header = true) {
+    [data-colored-header=true] & {
       .light-contents(@name: 'header-colored');
     }
   }

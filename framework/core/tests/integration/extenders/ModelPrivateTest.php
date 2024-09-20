@@ -9,34 +9,42 @@
 
 namespace Flarum\Tests\integration\extenders;
 
+use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class ModelPrivateTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    /**
-     * @test
-     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Discussion::unguard();
+    }
+
+    #[Test]
     public function discussion_isnt_saved_as_private_by_default()
     {
         $this->app();
 
         $user = User::find(1);
 
-        $discussion = Discussion::start('Some Discussion', $user);
-        $discussion->save();
+        $discussion = Discussion::create([
+            'title' => 'Some Discussion',
+            'user_id' => $user->id,
+            'created_at' => Carbon::now(),
+        ]);
 
         $this->assertNull($discussion->is_private);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function discussion_is_saved_as_private_if_privacy_checker_added()
     {
         $this->extend(
@@ -50,18 +58,22 @@ class ModelPrivateTest extends TestCase
 
         $user = User::find(1);
 
-        $privateDiscussion = Discussion::start('Private Discussion', $user);
-        $publicDiscussion = Discussion::start('Public Discussion', $user);
-        $privateDiscussion->save();
-        $publicDiscussion->save();
+        $privateDiscussion = Discussion::create([
+            'title' => 'Private Discussion',
+            'user_id' => $user->id,
+            'created_at' => Carbon::now(),
+        ]);
+        $publicDiscussion = Discussion::create([
+            'title' => 'Public Discussion',
+            'user_id' => $user->id,
+            'created_at' => Carbon::now(),
+        ]);
 
         $this->assertTrue($privateDiscussion->is_private);
         $this->assertFalse($publicDiscussion->is_private);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function discussion_is_saved_as_private_if_privacy_checker_added_via_invokable_class()
     {
         $this->extend(
@@ -73,18 +85,22 @@ class ModelPrivateTest extends TestCase
 
         $user = User::find(1);
 
-        $privateDiscussion = Discussion::start('Private Discussion', $user);
-        $publicDiscussion = Discussion::start('Public Discussion', $user);
-        $privateDiscussion->save();
-        $publicDiscussion->save();
+        $privateDiscussion = Discussion::create([
+            'title' => 'Private Discussion',
+            'user_id' => $user->id,
+            'created_at' => Carbon::now(),
+        ]);
+        $publicDiscussion = Discussion::create([
+            'title' => 'Public Discussion',
+            'user_id' => $user->id,
+            'created_at' => Carbon::now(),
+        ]);
 
         $this->assertTrue($privateDiscussion->is_private);
         $this->assertFalse($publicDiscussion->is_private);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function private_checkers_that_return_false_dont_matter()
     {
         $this->extend(
@@ -102,10 +118,16 @@ class ModelPrivateTest extends TestCase
 
         $user = User::find(1);
 
-        $privateDiscussion = Discussion::start('Private Discussion', $user);
-        $publicDiscussion = Discussion::start('Public Discussion', $user);
-        $privateDiscussion->save();
-        $publicDiscussion->save();
+        $privateDiscussion = Discussion::create([
+            'title' => 'Private Discussion',
+            'user_id' => $user->id,
+            'created_at' => Carbon::now(),
+        ]);
+        $publicDiscussion = Discussion::create([
+            'title' => 'Public Discussion',
+            'user_id' => $user->id,
+            'created_at' => Carbon::now(),
+        ]);
 
         $this->assertTrue($privateDiscussion->is_private);
         $this->assertFalse($publicDiscussion->is_private);

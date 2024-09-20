@@ -16,6 +16,7 @@ import Model, { SavedModelData } from './Model';
 import IHistory from './IHistory';
 import IExtender from './extenders/IExtender';
 import SearchManager from './SearchManager';
+import { ColorScheme } from './components/ThemeMode';
 export declare type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 export declare type FlarumGenericRoute = RouteItem<any, any, any>;
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
@@ -190,6 +191,7 @@ export default class Application {
     history: IHistory | null;
     pane: any;
     data: ApplicationData;
+    allowUserColorScheme: boolean;
     private _title;
     private _titleCount;
     private set title(value);
@@ -208,6 +210,11 @@ export default class Application {
         extend?: IExtender[];
     }>): void;
     protected mount(basePath?: string): void;
+    private initColorScheme;
+    getSystemColorSchemePreference(): ColorScheme | string;
+    watchSystemColorSchemePreference(callback: () => void): void;
+    setColorScheme(scheme: ColorScheme | string): void;
+    setColoredHeader(value: boolean): void;
     /**
      * Get the API response document that has been preloaded into the application.
      */

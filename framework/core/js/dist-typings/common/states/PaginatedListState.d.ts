@@ -25,7 +25,7 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
      */
     static DEFAULT_PAGE_SIZE: number;
     protected location: PaginationLocation;
-    protected pageSize: number | null;
+    pageSize: number | null;
     protected pages: Page<T>[];
     protected params: P;
     protected initialLoading: boolean;
@@ -88,4 +88,8 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     protected getPrevPageNumber(): number;
     protected paramsChanged(newParams: P): boolean;
     protected getAllItems(): T[];
+    /**
+     * In the last request, has the user searched for a model?
+     */
+    isSearchResults(): boolean;
 }

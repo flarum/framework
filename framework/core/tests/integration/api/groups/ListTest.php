@@ -13,6 +13,7 @@ use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListTest extends TestCase
 {
@@ -32,9 +33,7 @@ class ListTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shows_limited_index_for_guest()
     {
         $response = $this->send(
@@ -48,9 +47,7 @@ class ListTest extends TestCase
         $this->assertEquals(['1', '2', '3', '4'], Arr::pluck($data['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shows_index_for_admin()
     {
         $response = $this->send(
@@ -66,9 +63,7 @@ class ListTest extends TestCase
         $this->assertEquals(['1', '2', '3', '4', '10'], Arr::pluck($data['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function filters_only_public_groups_for_admin()
     {
         $response = $this->send(
@@ -87,9 +82,7 @@ class ListTest extends TestCase
         $this->assertEquals(['1', '2', '3', '4'], Arr::pluck($data['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function filters_only_hidden_groups_for_admin()
     {
         $response = $this->send(
@@ -108,9 +101,7 @@ class ListTest extends TestCase
         $this->assertEquals(['10'], Arr::pluck($data['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function filters_only_public_groups_for_guest()
     {
         $response = $this->send(
@@ -127,9 +118,7 @@ class ListTest extends TestCase
         $this->assertEquals(['1', '2', '3', '4'], Arr::pluck($data['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function hides_hidden_groups_when_filtering_for_guest()
     {
         $response = $this->send(
@@ -147,9 +136,7 @@ class ListTest extends TestCase
         $this->assertEquals([], Arr::pluck($data['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function paginates_groups_without_filter()
     {
         $response = $this->send(
@@ -166,9 +153,7 @@ class ListTest extends TestCase
         $this->assertEquals(['3', '4'], Arr::pluck($data['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function paginates_groups_with_filter()
     {
         $response = $this->send(
@@ -187,9 +172,7 @@ class ListTest extends TestCase
         $this->assertEmpty($data['data']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function sorts_groups_by_name()
     {
         $response = $this->send(

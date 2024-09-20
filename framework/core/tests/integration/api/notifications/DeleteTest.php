@@ -14,6 +14,8 @@ use Flarum\Discussion\Discussion;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class DeleteTest extends TestCase
 {
@@ -45,10 +47,8 @@ class DeleteTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider canDeleteAllNotifications
-     * @test
-     */
+    #[Test]
+    #[DataProvider('canDeleteAllNotifications')]
     public function user_can_delete_all_notifications(int $authenticatedAs)
     {
         $this->app();
@@ -63,7 +63,7 @@ class DeleteTest extends TestCase
         $this->assertEquals(0, User::query()->find($authenticatedAs)->notifications()->count());
     }
 
-    public function canDeleteAllNotifications(): array
+    public static function canDeleteAllNotifications(): array
     {
         return [
             [1],

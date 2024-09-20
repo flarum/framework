@@ -24,7 +24,7 @@ use League\Flysystem\Local\LocalFilesystemAdapter;
 
 class EnableBundledExtensions implements Step
 {
-    public const EXTENSION_WHITELIST = [
+    public const DEFAULT_ENABLED_EXTENSIONS = [
         'flarum-approval',
         'flarum-bbcode',
         'flarum-emoji',
@@ -54,7 +54,7 @@ class EnableBundledExtensions implements Step
         private readonly string $assetPath,
         ?array $enabledExtensions = null
     ) {
-        $this->enabledExtensions = $enabledExtensions ?? self::EXTENSION_WHITELIST;
+        $this->enabledExtensions = $enabledExtensions ?? self::DEFAULT_ENABLED_EXTENSIONS;
     }
 
     public function getMessage(): string
@@ -123,7 +123,7 @@ class EnableBundledExtensions implements Step
 
     private function getMigrator(): Migrator
     {
-        return $this->migrator = $this->migrator ?? new Migrator(
+        return $this->migrator ??= new Migrator(
             new DatabaseMigrationRepository($this->database, 'migrations'),
             $this->database,
             new \Illuminate\Filesystem\Filesystem

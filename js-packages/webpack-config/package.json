@@ -1,7 +1,7 @@
 {
   "name": "flarum-webpack-config",
   "type": "module",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "Webpack config for Flarum JS and TS transpilation.",
   "main": "src/index.cjs",
   "author": "Flarum Team",

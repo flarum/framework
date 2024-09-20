@@ -15,6 +15,7 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListWithFulltextSearchTest extends TestCase
 {
@@ -68,11 +69,13 @@ class ListWithFulltextSearchTest extends TestCase
         $this->database()->table('posts')->delete();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_search_for_word_or_title_in_post()
     {
+        if ($this->database()->getDriverName() === 'sqlite') {
+            return $this->markTestSkipped('No fulltext search in SQLite.');
+        }
+
         $response = $this->send(
             $this->request('GET', '/api/discussions')
                 ->withQueryParams([
@@ -81,7 +84,10 @@ class ListWithFulltextSearchTest extends TestCase
                 ])
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($body = $response->getBody()->getContents(), true);
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
         $ids = array_map(function ($row) {
             return $row['id'];
         }, $data['data']);
@@ -89,11 +95,13 @@ class ListWithFulltextSearchTest extends TestCase
         $this->assertEqualsCanonicalizing(['2', '1', '3'], $ids, 'IDs do not match');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function ignores_non_word_characters_when_searching()
     {
+        if ($this->database()->getDriverName() === 'sqlite') {
+            return $this->markTestSkipped('No fulltext search in SQLite.');
+        }
+
         $response = $this->send(
             $this->request('GET', '/api/discussions')
                 ->withQueryParams([
@@ -110,11 +118,13 @@ class ListWithFulltextSearchTest extends TestCase
         $this->assertEqualsCanonicalizing(['2', '1', '3'], $ids, 'IDs do not match');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_search_telugu_like_languages()
     {
+        if ($this->database()->getDriverName() === 'sqlite') {
+            return $this->markTestSkipped('No fulltext search in SQLite.');
+        }
+
         $response = $this->send(
             $this->request('GET', '/api/discussions')
                 ->withQueryParams([
@@ -132,11 +142,13 @@ class ListWithFulltextSearchTest extends TestCase
         $this->assertEqualsCanonicalizing(['6'], Arr::pluck($data['included'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_search_cjk_languages()
     {
+        if ($this->database()->getDriverName() === 'sqlite') {
+            return $this->markTestSkipped('No fulltext search in SQLite.');
+        }
+
         $response = $this->send(
             $this->request('GET', '/api/discussions')
                 ->withQueryParams([
@@ -154,11 +166,13 @@ class ListWithFulltextSearchTest extends TestCase
         $this->assertEqualsCanonicalizing(['7'], Arr::pluck($data['included'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function search_for_special_characters_gives_empty_result()
     {
+        if ($this->database()->getDriverName() === 'sqlite') {
+            return $this->markTestSkipped('No fulltext search in SQLite.');
+        }
+
         $response = $this->send(
             $this->request('GET', '/api/discussions')
                 ->withQueryParams([

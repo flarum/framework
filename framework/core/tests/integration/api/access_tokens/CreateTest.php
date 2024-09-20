@@ -13,6 +13,8 @@ use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class CreateTest extends TestCase
 {
@@ -42,10 +44,8 @@ class CreateTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider canCreateTokens
-     * @test
-     */
+    #[Test]
+    #[DataProvider('canCreateTokens')]
     public function user_can_create_developer_tokens(int $authenticatedAs)
     {
         $response = $this->send(
@@ -53,6 +53,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => $authenticatedAs,
                 'json' => [
                     'data' => [
+                        'type' => 'access-tokens',
                         'attributes' => [
                             'title' => 'Dev'
                         ]
@@ -61,13 +62,11 @@ class CreateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
     }
 
-    /**
-     * @dataProvider cannotCreateTokens
-     * @test
-     */
+    #[Test]
+    #[DataProvider('cannotCreateTokens')]
     public function user_cannot_delete_other_users_tokens(int $authenticatedAs)
     {
         $response = $this->send(
@@ -75,6 +74,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => $authenticatedAs,
                 'json' => [
                     'data' => [
+                        'type' => 'access-tokens',
                         'attributes' => [
                             'title' => 'Dev'
                         ]
@@ -83,24 +83,28 @@ class CreateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode(), (string) $response->getBody());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_create_token_without_title()
     {
         $response = $this->send(
             $this->request('POST', '/api/access-tokens', [
                 'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'type' => 'access-tokens',
+                        'attributes' => []
+                    ]
+                ]
             ])
         );
 
-        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertEquals(422, $response->getStatusCode(), (string) $response->getBody());
     }
 
-    public function canCreateTokens(): array
+    public static function canCreateTokens(): array
     {
         return [
             [1], // Admin
@@ -108,7 +112,7 @@ class CreateTest extends TestCase
         ];
     }
 
-    public function cannotCreateTokens(): array
+    public static function cannotCreateTokens(): array
     {
         return [
             [2]

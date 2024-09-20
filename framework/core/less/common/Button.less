@@ -163,8 +163,9 @@
 .Button--text {
   background: transparent !important;
   padding: 0;
-  color: inherit !important;
+  --button-color: inherit;
   line-height: inherit;
+  vertical-align: baseline;
 
   &:hover {
     text-decoration: underline;
@@ -174,6 +175,10 @@
   .open > &.Dropdown-toggle {
     box-shadow: none;
   }
+}
+.Button--link.Button--text {
+  .text-link();
+  --button-color: currentColor;
 }
 .Button--primary {
   .Button--color-auto('button-primary');

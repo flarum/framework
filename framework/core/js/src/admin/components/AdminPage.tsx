@@ -181,6 +181,13 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
   }
 
   /**
+   * Called when `saveSettings` fails to complete.
+   */
+  onsavefailed(): void {
+    this.loading = false;
+  }
+
+  /**
    * Returns a function that fetches the setting from the `app` global.
    */
   setting(key: string, fallback: string = ''): Stream<string> {
@@ -232,7 +239,8 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
           app.modal.show(LoadingModal);
           window.location.reload();
         }
-      });
+      })
+      .catch(this.onsavefailed.bind(this));
   }
 
   modelLocale(): Record<string, string> {

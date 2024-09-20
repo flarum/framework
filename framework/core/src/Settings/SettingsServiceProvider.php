@@ -30,6 +30,7 @@ class SettingsServiceProvider extends AbstractServiceProvider
                 'search_driver_Flarum\Group\Group' => 'default',
                 'search_driver_Flarum\Post\Post' => 'default',
                 'search_driver_Flarum\Http\AccessToken' => 'default',
+                'pgsql_search_configuration' => 'english',
             ]);
         });
 

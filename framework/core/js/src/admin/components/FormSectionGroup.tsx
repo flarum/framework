@@ -16,20 +16,3 @@ export default class FormSectionGroup<CustomAttrs extends IFormSectionGroupAttrs
     );
   }
 }
-
-export interface IFormSectionAttrs extends ComponentAttrs {
-  label: any;
-}
-
-export class FormSection<CustomAttrs extends IFormSectionAttrs = IFormSectionAttrs> extends Component<CustomAttrs> {
-  view(vnode: Mithril.Vnode<CustomAttrs, this>) {
-    const { className, ...attrs } = this.attrs;
-
-    return (
-      <div className={classList('FormSection', className)} {...attrs}>
-        <label>{this.attrs.label}</label>
-        <div className="FormSection-body">{vnode.children}</div>
-      </div>
-    );
-  }
-}

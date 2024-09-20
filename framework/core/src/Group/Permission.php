@@ -26,6 +26,8 @@ class Permission extends AbstractModel
         'created_at' => 'datetime'
     ];
 
+    public $incrementing = false;
+
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);

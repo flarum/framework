@@ -9,8 +9,10 @@ import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
 import ComposerPostPreview from './ComposerPostPreview';
 import Link from '../../common/components/Link';
-import UserCard from './UserCard.js';
+import UserCard from './UserCard';
 import Avatar from '../../common/components/Avatar';
+import escapeRegExp from '../../common/utils/escapeRegExp';
+import highlight from '../../common/helpers/highlight';
 
 /**
  * The `CommentPost` component displays a standard `comment`-typed post. This
@@ -60,6 +62,16 @@ export default class CommentPost extends Post {
   }
 
   content() {
+    let contentHtml = this.isEditing() ? '' : this.attrs.post.contentHtml();
+
+    if (!this.isEditing() && this.attrs.params?.q) {
+      const phrase = escapeRegExp(this.attrs.params.q);
+      const highlightRegExp = new RegExp(phrase + '|' + phrase.trim().replace(/\s+/g, '|'), 'gi');
+      contentHtml = highlight(contentHtml, highlightRegExp, undefined, true);
+    } else {
+      contentHtml = m.trust(contentHtml);
+    }
+
     return super.content().concat([
       <header className="Post-header">
         <ul>{listItems(this.headerItems().toArray())}</ul>
@@ -68,9 +80,7 @@ export default class CommentPost extends Post {
           <UserCard user={this.attrs.post.user()} className="UserCard--popover" controlsButtonClassName="Button Button--icon Button--flat" />
         )}
       </header>,
-      <div className="Post-body">
-        {this.isEditing() ? <ComposerPostPreview className="Post-preview" composer={app.composer} /> : m.trust(this.attrs.post.contentHtml())}
-      </div>,
+      <div className="Post-body">{this.isEditing() ? <ComposerPostPreview className="Post-preview" composer={app.composer} /> : contentHtml}</div>,
     ]);
   }
 

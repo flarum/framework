@@ -12,6 +12,8 @@ namespace integration\api\users;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class DeleteTest extends TestCase
 {
@@ -33,10 +35,8 @@ class DeleteTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider authorizedUsersProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('authorizedUsersProvider')]
     public function can_delete_user(int $actorId, int $userId)
     {
         $this->database()->table('group_permission')->insert([
@@ -54,7 +54,7 @@ class DeleteTest extends TestCase
         $this->assertNull(User::find($userId));
     }
 
-    public function authorizedUsersProvider()
+    public static function authorizedUsersProvider()
     {
         return [
             'admin can delete user' => [1, 2],
@@ -63,10 +63,8 @@ class DeleteTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider unauthorizedUsersProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('unauthorizedUsersProvider')]
     public function cannot_delete_user(int $actorId, int $userId)
     {
         $response = $this->send(
@@ -79,7 +77,7 @@ class DeleteTest extends TestCase
         $this->assertNotNull(User::find($userId));
     }
 
-    public function unauthorizedUsersProvider()
+    public static function unauthorizedUsersProvider()
     {
         return [
             'user without permission cannot delete self' => [2, 2],

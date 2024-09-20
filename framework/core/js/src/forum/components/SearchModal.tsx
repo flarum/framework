@@ -65,7 +65,10 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
 
     this.searchState = this.attrs.searchState;
     this.sources = this.attrs.sources;
-    this.query = Stream(this.searchState.getValue() || '');
+    this.activeSource = Stream(
+      this.defaultActiveSource() ? this.sources.find((source) => source.resource === this.defaultActiveSource()) || this.sources[0] : this.sources[0]
+    );
+    this.query = Stream(this.prefill(this.searchState.getValue() || '').trim());
   }
 
   title(): Mithril.Children {
@@ -77,9 +80,6 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
   }
 
   content(): Mithril.Children {
-    // Initialize the active source.
-    if (!this.activeSource) this.activeSource = Stream(this.sources[0]);
-
     this.gambitsAutocomplete[this.activeSource().resource] ||= new GambitsAutocomplete(
       this.activeSource().resource,
       () => this.inputElement(),
@@ -431,5 +431,46 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
 
   inputElement(): JQuery<HTMLInputElement> {
     return this.$('.SearchModal-input') as JQuery<HTMLInputElement>;
+  }
+
+  defaultActiveSource(): string | null {
+    const inDiscussion =
+      app.current.data.routeName && ['discussion', 'discussion.near'].includes(app.current.data.routeName) && app.current.data.discussion;
+    const inUser = app.current.data.routeName && app.current.data.routeName.includes('user.posts') && app.current.data.user;
+    const inPosts = app.current.data.routeName && app.current.data.routeName === 'posts';
+
+    if (inDiscussion || inUser || inPosts) {
+      return 'posts';
+    }
+
+    return null;
+  }
+
+  defaultFilters(): Record<string, Record<string, any>> {
+    const filters: Record<string, Record<string, any>> = {};
+
+    this.sources.forEach((source) => {
+      filters[source.resource] = {};
+    });
+
+    if (app.current.data.routeName && ['discussion', 'discussion.near'].includes(app.current.data.routeName) && app.current.data.discussion) {
+      filters.posts.discussion = app.current.data.discussion.id();
+    }
+
+    if (app.current.data.routeName && app.current.data.routeName.includes('user.posts') && app.current.data.user) {
+      filters.posts.author = app.current.data.user.username();
+    }
+
+    return filters;
+  }
+
+  prefill(value: string): string {
+    const newQuery = app.search.gambits.from(this.activeSource().resource, value, this.defaultFilters()[this.activeSource().resource] || {});
+
+    if (!value.includes(newQuery.replace(value, '').trim())) {
+      return newQuery;
+    }
+
+    return value;
   }
 }

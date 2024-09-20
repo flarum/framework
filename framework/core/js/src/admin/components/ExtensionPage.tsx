@@ -20,6 +20,7 @@ import Form from '../../common/components/Form';
 import Icon from '../../common/components/Icon';
 import { MaintenanceMode } from '../../common/Application';
 import InfoTile from '../../common/components/InfoTile';
+import Alert from '../../common/components/Alert';
 
 export interface ExtensionPageAttrs extends IPageAttrs {
   id: string;
@@ -79,8 +80,19 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
   }
 
   body(vnode: Mithril.VnodeDOM<Attrs, this>) {
+    const supportsDbDriver =
+      !this.extension.extra['flarum-extension']['database-support'] ||
+      this.extension.extra['flarum-extension']['database-support'].map((driver) => driver.toLowerCase()).includes(app.data.dbDriver.toLowerCase());
+
     return this.isEnabled() ? (
-      <div className="ExtensionPage-body">{this.sections(vnode).toArray()}</div>
+      <div className="ExtensionPage-body">
+        {!supportsDbDriver && (
+          <Alert type="error" dismissible={false}>
+            {app.translator.trans('core.admin.extension.database_driver_mismatch')}
+          </Alert>
+        )}
+        {this.sections(vnode).toArray()}
+      </div>
     ) : (
       <div className="container">
         <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.enable_to_see')}</h3>
@@ -187,7 +199,6 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
         }
       };
 
-      // TODO v2.0: rename `uninstall` to `purge`
       items.add(
         'uninstall',
         <Button icon="fas fa-trash-alt" className="Button Button--primary" onclick={purge.bind(this)}>
@@ -224,6 +235,27 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
         );
       }
     });
+
+    let supportedDatabases = this.extension.extra['flarum-extension']['database-support'] ?? null;
+    if (supportedDatabases && supportedDatabases.length) {
+      supportedDatabases = supportedDatabases.map((database: string) => {
+        return (
+          {
+            mysql: 'MySQL',
+            sqlite: 'SQLite',
+            pgsql: 'PostgreSQL',
+          }[database] || database
+        );
+      });
+
+      items.add(
+        'database-support',
+        <span className="LinkButton">
+          <Icon name="fas fa-database" />
+          {supportedDatabases.join(', ')}
+        </span>
+      );
+    }
 
     const extension = this.extension;
     items.add(

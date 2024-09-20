@@ -124,6 +124,7 @@ class UserServiceProvider extends AbstractServiceProvider
         User::registerPreference('discloseOnline', 'boolval', true);
         User::registerPreference('indexProfile', 'boolval', true);
         User::registerPreference('locale');
+        User::registerPreference('colorScheme', 'strval', 'auto');
 
         User::registerVisibilityScoper(new ScopeUserVisibility(), 'view');
     }

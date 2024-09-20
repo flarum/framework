@@ -36,7 +36,7 @@ class ComposerAdapter
     {
         $this->application->resetComposer();
 
-        $this->output = $this->output ?? new BufferedOutput();
+        $this->output ??= new BufferedOutput();
 
         // This hack is necessary so that relative path repositories are resolved properly.
         $currDir = getcwd();

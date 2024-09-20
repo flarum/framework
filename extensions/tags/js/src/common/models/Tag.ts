@@ -44,6 +44,9 @@ export default class Tag extends Model {
   isHidden() {
     return Model.attribute<boolean>('isHidden').call(this);
   }
+  isPrimary() {
+    return Model.attribute<boolean>('isPrimary').call(this);
+  }
 
   discussionCount() {
     return Model.attribute<number>('discussionCount').call(this);
@@ -65,7 +68,7 @@ export default class Tag extends Model {
     return Model.attribute<boolean>('canAddToDiscussion').call(this);
   }
 
-  isPrimary() {
+  isPrimaryParent() {
     return computed<boolean, this>('position', 'parent', (position, parent) => position !== null && parent === false).call(this);
   }
 }

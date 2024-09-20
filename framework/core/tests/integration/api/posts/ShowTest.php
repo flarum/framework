@@ -15,6 +15,7 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class ShowTest extends TestCase
 {
@@ -41,9 +42,7 @@ class ShowTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function properly_formatted_post_rendered_correctly()
     {
         $response = $this->send(
@@ -62,9 +61,7 @@ class ShowTest extends TestCase
         $this->assertEquals($data['data']['attributes']['contentHtml'], '<p>valid</p>');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function malformed_post_caught_by_renderer()
     {
         $response = $this->send(

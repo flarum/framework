@@ -16,7 +16,6 @@ use Flarum\Discussion\Event\Deleted;
 use Flarum\Discussion\Event\Hidden;
 use Flarum\Discussion\Event\Renamed;
 use Flarum\Discussion\Event\Restored;
-use Flarum\Discussion\Event\Started;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Notification\Notification;
 use Flarum\Post\MergeableInterface;
@@ -109,22 +108,10 @@ class Discussion extends AbstractModel
             $discussion->raise(new Deleted($discussion));
 
             Notification::whereSubject($discussion)->delete();
+
+            // SQLite foreign constraints don't work since they were added *after* the table creation.
+            $discussion->posts()->delete();
         });
-    }
-
-    public static function start(string $title, User $user): static
-    {
-        $discussion = new static;
-
-        $discussion->title = $title;
-        $discussion->created_at = Carbon::now();
-        $discussion->user_id = $user->id;
-
-        $discussion->setRelation('user', $user);
-
-        $discussion->raise(new Started($discussion));
-
-        return $discussion;
     }
 
     public function rename(string $title): static
@@ -196,7 +183,7 @@ class Discussion extends AbstractModel
 
     public function refreshLastPost(): static
     {
-        if ($lastPost = $this->comments()->latest()->first()) {
+        if ($lastPost = $this->comments()->latest()->latest('id')->first()) {
             /** @var Post $lastPost */
             $this->setLastPost($lastPost);
         }

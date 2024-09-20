@@ -17,6 +17,7 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
 
 class FrontendTitleTest extends TestCase
@@ -40,17 +41,13 @@ class FrontendTitleTest extends TestCase
         $this->setting('forum_title', 'Flarum');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function basic_title_driver_is_used_by_default()
     {
         $this->assertTitleEquals('Test Discussion - Flarum');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_title_driver_works_if_set()
     {
         $this->extend((new Frontend('forum'))->title(CustomTitleDriver::class));

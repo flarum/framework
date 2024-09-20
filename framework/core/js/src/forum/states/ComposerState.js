@@ -70,6 +70,8 @@ class ComposerState {
     }
 
     this.body = body;
+
+    return componentClass;
   }
 
   /**

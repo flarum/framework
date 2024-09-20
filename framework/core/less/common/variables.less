@@ -3,11 +3,12 @@
 
 @config-primary-color:             #536F90;
 @config-secondary-color:           #536F90;
-@config-dark-mode:                 false;
-@config-colored-header:            false;
 
 // ---------------------------------
 // COLORS
+
+@primary-color:                    @config-primary-color;
+@secondary-color:                  @config-secondary-color;
 
 @primary-hue:                      hue(@primary-color);
 @primary-sat:                      saturation(@primary-color);
@@ -15,76 +16,82 @@
 @secondary-hue:                    hue(@secondary-color);
 @secondary-sat:                    saturation(@secondary-color);
 
+// SCHEMES
+
 @body-bg-light:                    #fff;
 @body-bg-dark:                     hsl(@secondary-hue, min(20%, @secondary-sat), 10%);
 
-// Derive the primary/secondary colors from the config variables. In dark mode,
-// we make the user-set colors a bit darker, otherwise they will stand out too
-// much.
-.define-colors(@config-dark-mode);
-.define-colors(false) {
-  @primary-color:                  @config-primary-color;
-  @secondary-color:                @config-secondary-color;
+@muted-color-light:                hsl(@secondary-hue, min(20%, @secondary-sat), 50%);
+@muted-color-dark:                 hsl(@secondary-hue, min(15%, @secondary-sat), 50%);
+@muted-more-color-light:           #aaa;
+@muted-more-color-dark:            hsl(@secondary-hue, min(10%, @secondary-sat), 40%);
 
-  @body-bg:                        @body-bg-light;
-  @text-color:                     #111;
-  @link-color:                     saturate(@primary-color, 10%);
-  @heading-color:                  @text-color;
-  @muted-color:                    hsl(@secondary-hue, min(20%, @secondary-sat), 50%);
-  @muted-more-color:               #aaa;
-  @shadow-color:                   rgba(0, 0, 0, 0.35);
+@link-color:                       saturate(@primary-color, 10%);
 
-  @control-bg:                     hsl(@secondary-hue, min(50%, @secondary-sat), 93%);
-  @control-color:                  @muted-color;
-  @control-danger-bg:              #fdd;
-  @control-danger-color:           #d66;
-  @control-success-bg:             #B4F1AF;
-  @control-success-color:          #33722D;
-  @control-warning-bg:             #fff2ae;
-  @control-warning-color:          #ad6c00;
+@control-bg-light:                 hsl(@secondary-hue, min(50%, @secondary-sat), 93%);
+@control-bg-dark:                  hsl(@secondary-hue, min(20%, @secondary-sat), 13%);
 
-  @overlay-bg:                     fade(@secondary-color, 90%);
+@control-color-light:              @muted-color-light;
+@control-color-dark:               @muted-color-dark;
 
-  @code-bg:                        darken(@body-bg, 3%);
-  @code-color:                     lighten(@text-color, 30%);
-}
-.define-colors(true) {
-  @primary-color:                  @config-primary-color;
-  @secondary-color:                @config-secondary-color;
+@control-danger-bg-light:          #fdd;
+@control-danger-bg-dark:           #411;
+@control-danger-color-light:       #d66;
+@control-danger-color-dark:        #a88;
 
-  @body-bg:                        @body-bg-dark;
-  @text-color:                     #ddd;
-  @link-color:                     saturate(@primary-color, 10%);
-  @heading-color:                  @text-color;
-  @muted-color:                    hsl(@secondary-hue, min(15%, @secondary-sat), 50%);
-  @muted-more-color:               hsl(@secondary-hue, min(10%, @secondary-sat), 40%);
-  @shadow-color:                   rgba(0, 0, 0, 0.5);
+@text-color-light:                 #111;
+@text-color-dark:                  #ddd;
 
-  @control-bg:                     hsl(@secondary-hue, min(20%, @secondary-sat), 13%);
-  @control-color:                  @muted-color;
-  @control-danger-bg:              #411;
-  @control-danger-color:           #a88;
-  @control-success-bg:             #B4F1AF;
-  @control-success-color:          #33722D;
-  @control-warning-bg:             #fff2ae;
-  @control-warning-color:          #ad6c00;
+@heading-color-light:              @text-color-light;
+@heading-color-dark:               @text-color-dark;
 
-  @overlay-bg:                     fade(darken(@body-bg, 5%), 90%);
+@shadow-color-light:               rgba(0, 0, 0, 0.35);
+@shadow-color-dark:                rgba(0, 0, 0, 0.5);
 
-  @code-bg:                        darken(@body-bg, 3%);
-  @code-color:                     #fff;
-}
+@overlay-bg-light:                 fade(@secondary-color, 90%);
+@overlay-bg-dark:                  fade(darken(@body-bg-dark, 5%), 90%);
 
-// Beyond dark or light mode, we need stable colors depending on the luminosity
-// of the parents element's background. This allow not to change the color
-// variable depending on the dark/light mode to get the same final color, and
-// thus to simplify the logic.
+@code-bg-light:                    darken(@body-bg-light, 3%);
+@code-bg-dark:                     darken(@body-bg-dark, 3%);
+
+@code-color-light:                 lighten(@text-color-light, 30%);
+@code-color-dark:                  #fff;
+
 @text-on-dark:                     @body-bg-light;
 @text-on-light:                    @body-bg-dark;
 
-@hero-bg:                          @control-bg;
-@hero-color:                       @control-color;
-@hero-muted-color:                 @control-color;
+@discussion-title-color-light:     mix(@heading-color-light, @body-bg-light, 55%);
+@discussion-title-color-dark:      mix(@heading-color-dark, @body-bg-dark, 55%);
+
+// Header colors depend on whether the header is colored,
+// and whether we are on light or dark modes.
+
+@header-bg-light:                      @body-bg-light;
+@header-color-light:                   @primary-color;
+@header-control-bg-light:              @control-bg-light;
+@header-control-color-light:           @control-color-light;
+
+@header-bg-dark:                       @body-bg-dark;
+@header-color-dark:                    @primary-color;
+@header-control-bg-dark:               @control-bg-dark;
+@header-control-color-dark:            @control-color-dark;
+
+@header-bg-colored-light:              @primary-color;
+@header-color-colored-light:           @body-bg-light;
+@header-control-bg-colored-light:      mix(#000, @header-bg-colored-light, 10%);
+@header-control-color-colored-light:   mix(@body-bg-light, @header-bg-colored-light, 60%);
+
+@header-bg-colored-dark:               @primary-color;
+@header-color-colored-dark:            @body-bg-dark;
+@header-control-bg-colored-dark:       mix(#000, @header-bg-colored-dark, 10%);
+@header-control-color-colored-dark:    mix(@body-bg-dark, @header-bg-colored-dark, 60%);
+
+// COMMON COLORS
+
+@control-success-bg:               #B4F1AF;
+@control-success-color:            #33722D;
+@control-warning-bg:               #fff2ae;
+@control-warning-color:            #ad6c00;
 
 @error-color:                      #d83e3e;
 
@@ -98,20 +105,6 @@
 @alert-success-color:              #33722D;
 
 @validation-error-color:           @error-color;
-
-.define-header(@config-colored-header);
-.define-header(false) {
-  @header-bg:                      @body-bg;
-  @header-color:                   @primary-color;
-  @header-control-bg:              @control-bg;
-  @header-control-color:           @control-color;
-}
-.define-header(true) {
-  @header-bg:                      @primary-color;
-  @header-color:                   @body-bg;
-  @header-control-bg:              mix(#000, @header-bg, 10%);
-  @header-control-color:           mix(@body-bg, @header-bg, 60%);
-}
 
 // ---------------------------------
 // LAYOUT

@@ -14,6 +14,8 @@ use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ResponseInterface;
 
 class SuspendUserTest extends TestCase
@@ -44,10 +46,8 @@ class SuspendUserTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider allowedToSuspendUser
-     * @test
-     */
+    #[Test]
+    #[DataProvider('allowedToSuspendUser')]
     public function can_suspend_user_if_allowed(?int $authenticatedAs, int $targetUserId, string $message)
     {
         $response = $this->sendSuspensionRequest($authenticatedAs, $targetUserId);
@@ -55,10 +55,8 @@ class SuspendUserTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
-    /**
-     * @dataProvider unallowedToSuspendUser
-     * @test
-     */
+    #[Test]
+    #[DataProvider('unallowedToSuspendUser')]
     public function cannot_suspend_user_if_not_allowed(?int $authenticatedAs, int $targetUserId, string $message)
     {
         $response = $this->sendSuspensionRequest($authenticatedAs, $targetUserId);
@@ -66,7 +64,7 @@ class SuspendUserTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    public function allowedToSuspendUser(): array
+    public static function allowedToSuspendUser(): array
     {
         return [
             [1, 2, 'Admin can suspend any user'],
@@ -75,7 +73,7 @@ class SuspendUserTest extends TestCase
         ];
     }
 
-    public function unallowedToSuspendUser(): array
+    public static function unallowedToSuspendUser(): array
     {
         return [
             [1, 1, 'Admin cannot suspend self'],
@@ -93,6 +91,7 @@ class SuspendUserTest extends TestCase
                 'authenticatedAs' => $authenticatedAs,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'suspendedUntil' => Carbon::now()->addDay(),
                             'suspendReason' => 'Suspended for acme reasons.',

@@ -17,6 +17,7 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class GroupMentionsTest extends TestCase
 {
@@ -63,9 +64,7 @@ class GroupMentionsTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function rendering_a_valid_group_mention_works()
     {
         $response = $this->send(
@@ -83,9 +82,7 @@ class GroupMentionsTest extends TestCase
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsGroups->find(4));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mentioning_an_invalid_group_doesnt_work()
     {
         $response = $this->send(
@@ -93,11 +90,12 @@ class GroupMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"InvalidGroup"#g99',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ]
                     ],
                 ],
@@ -113,9 +111,7 @@ class GroupMentionsTest extends TestCase
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsGroups);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function deleted_group_mentions_render_with_deleted_label()
     {
         $deleted_text = $this->app()->getContainer()->make('translator')->trans('flarum-mentions.forum.group_mention.deleted_text');
@@ -137,9 +133,7 @@ class GroupMentionsTest extends TestCase
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsGroups);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function group_mentions_render_with_fresh_data()
     {
         $response = $this->send(
@@ -158,9 +152,7 @@ class GroupMentionsTest extends TestCase
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsGroups->find(11));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mentioning_a_group_as_an_admin_user_works()
     {
         $response = $this->send(
@@ -168,11 +160,12 @@ class GroupMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"Mods"#g4',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ]
                     ]
                 ]
@@ -190,9 +183,7 @@ class GroupMentionsTest extends TestCase
         $this->assertCount(1, CommentPost::find($response['data']['id'])->mentionsGroups);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mentioning_multiple_groups_as_an_admin_user_works()
     {
         $response = $this->send(
@@ -200,11 +191,12 @@ class GroupMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"Admins"#g1 @"Mods"#g4',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ]
                     ]
                 ]
@@ -224,9 +216,7 @@ class GroupMentionsTest extends TestCase
         $this->assertCount(2, CommentPost::find($response['data']['id'])->mentionsGroups);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mentioning_a_virtual_group_as_an_admin_user_does_not_work()
     {
         $response = $this->send(
@@ -234,20 +224,23 @@ class GroupMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"Members"#g3 @"Guests"#g2',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ]
                     ]
                 ]
             ])
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $body = $response->getBody()->getContents();
 
-        $response = json_decode($response->getBody(), true);
+        $this->assertEquals(201, $response->getStatusCode(), $body);
+
+        $response = json_decode($body, true);
 
         $this->assertStringNotContainsString('@Members', $response['data']['attributes']['contentHtml']);
         $this->assertStringNotContainsString('@Guests', $response['data']['attributes']['contentHtml']);
@@ -256,18 +249,14 @@ class GroupMentionsTest extends TestCase
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsGroups);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function regular_user_does_not_have_group_mention_permission_by_default()
     {
         $this->database();
         $this->assertFalse(User::find(3)->can('mentionGroups'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function regular_user_does_have_group_mention_permission_when_added()
     {
         $this->prepareDatabase([
@@ -280,9 +269,7 @@ class GroupMentionsTest extends TestCase
         $this->assertTrue(User::find(3)->can('mentionGroups'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_without_permission_cannot_mention_groups()
     {
         $response = $this->send(
@@ -290,11 +277,12 @@ class GroupMentionsTest extends TestCase
                 'authenticatedAs' => 3,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"Mods"#g4',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -311,9 +299,7 @@ class GroupMentionsTest extends TestCase
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsGroups);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_with_permission_can_mention_groups()
     {
         $response = $this->send(
@@ -321,11 +307,12 @@ class GroupMentionsTest extends TestCase
                 'authenticatedAs' => 4,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"Mods"#g4',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -342,9 +329,7 @@ class GroupMentionsTest extends TestCase
         $this->assertCount(1, CommentPost::find($response['data']['id'])->mentionsGroups);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_with_permission_cannot_mention_hidden_groups()
     {
         $response = $this->send(
@@ -352,11 +337,12 @@ class GroupMentionsTest extends TestCase
                 'authenticatedAs' => 4,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => '@"Ninjas"#g10',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => 2]],
+                            'discussion' => ['data' => ['type' => 'discussions', 'id' => 2]],
                         ],
                     ],
                 ],
@@ -373,9 +359,7 @@ class GroupMentionsTest extends TestCase
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsGroups);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function editing_a_post_that_has_a_mention_works()
     {
         $response = $this->send(
@@ -383,6 +367,7 @@ class GroupMentionsTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => 'New content with @"Mods"#g4 mention',
                         ],

@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\forum;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class IndexTest extends TestCase
 {
@@ -29,9 +30,7 @@ class IndexTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guest_not_serialized_by_current_user_serializer()
     {
         $response = $this->send(
@@ -42,9 +41,7 @@ class IndexTest extends TestCase
         $this->assertStringNotContainsString('preferences', $response->getBody()->getContents());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_serialized_by_current_user_serializer()
     {
         $response = $this->send(

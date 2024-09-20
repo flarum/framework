@@ -18,6 +18,8 @@ use Flarum\Http\SessionAccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class DeleteTest extends TestCase
 {
@@ -56,10 +58,8 @@ class DeleteTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider canDeleteTokensDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('canDeleteTokensDataProvider')]
     public function user_can_delete_tokens(int $authenticatedAs, array $canDeleteIds)
     {
         foreach ($canDeleteIds as $id) {
@@ -71,10 +71,8 @@ class DeleteTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider cannotDeleteTokensDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('cannotDeleteTokensDataProvider')]
     public function user_cannot_delete_tokens(int $authenticatedAs, array $canDeleteIds)
     {
         foreach ($canDeleteIds as $id) {
@@ -86,9 +84,7 @@ class DeleteTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_delete_current_session_token()
     {
         $responseWithSession = $this->send(
@@ -120,9 +116,7 @@ class DeleteTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_terminate_all_other_sessions()
     {
         $responseWithSession = $this->send(
@@ -165,9 +159,7 @@ class DeleteTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function terminting_all_other_sessions_does_not_delete_dev_tokens()
     {
         $response = $this->send(
@@ -186,7 +178,7 @@ class DeleteTest extends TestCase
         );
     }
 
-    public function canDeleteTokensDataProvider(): array
+    public static function canDeleteTokensDataProvider(): array
     {
         return [
             // Admin can delete any user tokens.
@@ -201,7 +193,7 @@ class DeleteTest extends TestCase
         ];
     }
 
-    public function cannotDeleteTokensDataProvider(): array
+    public static function cannotDeleteTokensDataProvider(): array
     {
         return [
             // Normal users cannot delete other users' tokens.

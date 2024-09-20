@@ -33,7 +33,7 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
   public static DEFAULT_PAGE_SIZE = 20;
 
   protected location!: PaginationLocation;
-  protected pageSize: number | null;
+  public pageSize: number | null;
 
   protected pages: Page<T>[] = [];
   protected params: P = {} as P;
@@ -120,6 +120,10 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
       },
       include,
     };
+
+    if (typeof params.include === 'undefined') {
+      delete params.include;
+    }
 
     return app.store.find<T[]>(this.type, params).then((results) => {
       /*
@@ -262,5 +266,12 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     return this.getPages()
       .map((pg) => pg.items)
       .flat();
+  }
+
+  /**
+   * In the last request, has the user searched for a model?
+   */
+  isSearchResults(): boolean {
+    return !!this.params.q;
   }
 }

@@ -31,13 +31,14 @@ class Index
         $extensionsEnabled = json_decode($this->settings->get('extensions_enabled', '{}'), true);
         $csrfToken = $request->getAttribute('session')->token();
 
-        $mysqlVersion = $document->payload['mysqlVersion'];
+        $dbDriver = $document->payload['dbDriver'];
+        $dbVersion = $document->payload['dbVersion'];
         $phpVersion = $document->payload['phpVersion'];
         $flarumVersion = Application::VERSION;
 
         $document->content = $this->view->make(
             'flarum.admin::frontend.content.admin',
-            compact('extensions', 'extensionsEnabled', 'csrfToken', 'flarumVersion', 'phpVersion', 'mysqlVersion')
+            compact('extensions', 'extensionsEnabled', 'csrfToken', 'flarumVersion', 'phpVersion', 'dbVersion', 'dbDriver')
         );
 
         return $document;

@@ -18,6 +18,8 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListTest extends TestCase
 {
@@ -110,9 +112,7 @@ class ListTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_sees_all()
     {
         $response = $this->send(
@@ -129,9 +129,7 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing(['1', '2', '3', '4', '5', '6'], $ids);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_sees_where_allowed()
     {
         $response = $this->send(
@@ -148,9 +146,7 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing(['1', '2', '3', '4'], $ids);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guest_can_see_where_allowed()
     {
         $response = $this->send(
@@ -165,10 +161,8 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing(['1', '2'], $ids);
     }
 
-    /**
-     * @dataProvider seeWhereAllowedWhenMoreTagsAreRequiredThanAvailableDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('seeWhereAllowedWhenMoreTagsAreRequiredThanAvailableDataProvider')]
     public function actor_can_see_where_allowed_when_more_tags_are_required_than_available(string $type, int $actorId, array $expectedDiscussions)
     {
         if ($type === 'secondary') {
@@ -201,7 +195,7 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing($expectedDiscussions, $ids);
     }
 
-    public function seeWhereAllowedWhenMoreTagsAreRequiredThanAvailableDataProvider(): array
+    public static function seeWhereAllowedWhenMoreTagsAreRequiredThanAvailableDataProvider(): array
     {
         return [
             // admin_can_see_where_allowed_when_more_primary_tags_are_required_than_available
@@ -219,10 +213,8 @@ class ListTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider filterByTagsDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('filterByTagsDataProvider')]
     public function can_filter_by_authorized_tags(int $authenticatedAs, string $tags, array $expectedDiscussionIds)
     {
         $response = $this->send(
@@ -242,7 +234,7 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing($expectedDiscussionIds, array_map('intval', $ids));
     }
 
-    public function filterByTagsDataProvider(): array
+    public static function filterByTagsDataProvider(): array
     {
         return [
             // Admin can filter by any tag.
