@@ -110,12 +110,13 @@
     "require": {
         "php": "^8.2",
         "ext-json": "*",
-        "components/font-awesome": "^5.15.0",
+        "components/font-awesome": "^6.5.2",
         "composer/composer": "^2.7",
         "dflydev/fig-cookies": "^3.0",
         "doctrine/dbal": "^3.6.2",
         "dragonmantank/cron-expression": "^3.3",
         "fakerphp/faker": "^1.9.1",
+        "flarum/json-api-server": "^0.1.0",
         "franzl/whoops-middleware": "2.0",
         "guzzlehttp/guzzle": "*",
         "illuminate/bus": "^11.0",
@@ -164,7 +165,6 @@
         "symfony/postmark-mailer": "^7.0",
         "symfony/translation": "^7.0",
         "symfony/yaml": "^7.0",
-        "flarum/json-api-server": "^0.1.0",
         "wikimedia/less.php": "^4.1"
     },
     "require-dev": {
