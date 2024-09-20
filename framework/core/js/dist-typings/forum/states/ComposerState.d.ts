@@ -142,7 +142,7 @@ declare class ComposerState {
      */
     minimumHeight(): number;
     /**
-     * Maximum height of the Composer.
+     * Maxmimum height of the Composer.
      * @returns {number}
      */
     maximumHeight(): number;

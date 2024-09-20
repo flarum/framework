@@ -4,7 +4,7 @@ export default class GlobalSearchState extends SearchState {
     private initialValueSet;
     constructor(cachedSearches?: never[]);
     getValue(): string;
-    protected initializeValue(): void;
+    protected intializeValue(): void;
     protected currPageProvidesSearch(): boolean;
     /**
      * @inheritdoc
