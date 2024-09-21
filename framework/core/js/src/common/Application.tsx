@@ -293,7 +293,7 @@ export default class Application {
 
         caughtInitializationErrors.push(() =>
           fireApplicationError(
-            extractText(app.translator.trans('core.lib.error.extension_initialization_failed_message', { extension })),
+            extractText(app.translator.trans('core.lib.error.extension_initialiation_failed_message', { extension })),
             `${extension} failed to initialize`,
             e
           )
