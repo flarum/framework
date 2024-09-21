@@ -105,8 +105,8 @@ INSERT INTO db_prefix_migrations VALUES(49,'2018_01_18_135100_change_posts_add_f
 INSERT INTO db_prefix_migrations VALUES(50,'2018_01_30_112238_add_fulltext_index_to_discussions_title',NULL);
 INSERT INTO db_prefix_migrations VALUES(51,'2018_01_30_220100_create_post_user_table',NULL);
 INSERT INTO db_prefix_migrations VALUES(52,'2018_01_30_222900_change_users_rename_columns',NULL);
-INSERT INTO db_prefix_migrations VALUES(55,'2018_09_15_041340_add_users_indices',NULL);
-INSERT INTO db_prefix_migrations VALUES(56,'2018_09_15_041828_add_discussions_indices',NULL);
+INSERT INTO db_prefix_migrations VALUES(55,'2018_09_15_041340_add_users_indicies',NULL);
+INSERT INTO db_prefix_migrations VALUES(56,'2018_09_15_041828_add_discussions_indicies',NULL);
 INSERT INTO db_prefix_migrations VALUES(57,'2018_09_15_043337_add_notifications_indices',NULL);
 INSERT INTO db_prefix_migrations VALUES(58,'2018_09_15_043621_add_posts_indices',NULL);
 INSERT INTO db_prefix_migrations VALUES(59,'2018_09_22_004100_change_registration_tokens_columns',NULL);
