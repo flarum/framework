@@ -52,6 +52,10 @@ export default class PostsSearchSource implements SearchSource {
     }) as Array<Mithril.Vnode>;
   }
 
+  customGrouping(): boolean {
+    return false;
+  }
+
   fullPage(query: string): Mithril.Vnode {
     const filter = app.search.gambits.apply('posts', { q: query });
     const q = filter.q || null;

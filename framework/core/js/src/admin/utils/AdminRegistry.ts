@@ -2,15 +2,15 @@ import type Mithril from 'mithril';
 import ItemList from '../../common/utils/ItemList';
 import { SettingsComponentOptions } from '../components/AdminPage';
 import ExtensionPage, { ExtensionPageAttrs } from '../components/ExtensionPage';
-import { PermissionConfig, PermissionType } from '../components/PermissionGrid';
+import type { PermissionConfig, PermissionType } from '../components/PermissionGrid';
 
-type SettingConfigInput = SettingsComponentOptions | (() => Mithril.Children);
+export type SettingConfigInput = SettingsComponentOptions | (() => Mithril.Children);
 
-type SettingConfigInternal = SettingsComponentOptions | ((() => Mithril.Children) & { setting: string });
+export type SettingConfigInternal = SettingsComponentOptions | ((() => Mithril.Children) & { setting: string });
 
 export type CustomExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionPageAttrs> = new () => ExtensionPage<Attrs>;
 
-type ExtensionConfig = {
+export type ExtensionConfig = {
   settings?: ItemList<SettingConfigInternal>;
   permissions?: {
     view?: ItemList<PermissionConfig>;
@@ -37,7 +37,7 @@ type InnerDataActiveExtension = {
 
 const noActiveExtensionErrorMessage = 'You must select an active extension via `.for()` before using extensionData.';
 
-export default class ExtensionData {
+export default class AdminRegistry {
   protected state: InnerDataActiveExtension | InnerDataNoActiveExtension = {
     currentExtension: null,
     data: {},
@@ -47,7 +47,7 @@ export default class ExtensionData {
    * This function simply takes the extension id
    *
    * @example
-   * app.extensionData.for('flarum-tags')
+   * app.registry.for('flarum-tags')
    *
    * flarum/flags -> flarum-flags | acme/extension -> acme-extension
    */
@@ -114,7 +114,11 @@ export default class ExtensionData {
 
     const permissionsForType = permissions[permissionType] || new ItemList();
 
-    permissionsForType.add(content.permission, content, priority);
+    if (!content.permission && !content.id) {
+      throw new Error('Permission definition must have either a permission or id attribute.');
+    }
+
+    permissionsForType.add(content.permission || content.id!, content, priority);
 
     this.state.data[this.state.currentExtension].permissions = { ...permissions, [permissionType]: permissionsForType };
 
@@ -145,7 +149,7 @@ export default class ExtensionData {
   /**
    * Get an ItemList of all extensions' registered permissions
    */
-  getAllExtensionPermissions(type: PermissionType): ItemList<PermissionConfig> {
+  getAllPermissions(type: PermissionType): ItemList<PermissionConfig> {
     const items = new ItemList<PermissionConfig>();
 
     Object.keys(this.state.data).map((extension) => {
@@ -182,5 +186,9 @@ export default class ExtensionData {
    */
   getPage<Attrs extends ExtensionPageAttrs = ExtensionPageAttrs>(extension: string): CustomExtensionPage<Attrs> | undefined {
     return this.state.data[extension]?.page as CustomExtensionPage<Attrs> | undefined;
+  }
+
+  getData() {
+    return this.state.data;
   }
 }

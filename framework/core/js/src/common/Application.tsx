@@ -280,7 +280,7 @@ export default class Application {
     this.translator.setLocale(payload.locale);
   }
 
-  public boot() {
+  protected initialize(): CallableFunction[] {
     const caughtInitializationErrors: CallableFunction[] = [];
 
     this.initializers.toArray().forEach((initializer) => {
@@ -301,17 +301,29 @@ export default class Application {
       }
     });
 
+    return caughtInitializationErrors;
+  }
+
+  public boot() {
+    const caughtInitializationErrors: CallableFunction[] = this.initialize();
+
     this.store.pushPayload({ data: this.data.resources });
 
     this.forum = this.store.getById('forums', '1')!;
 
     this.session = new Session(this.store.getById<User>('users', String(this.data.session.userId)) ?? null, this.data.session.csrfToken);
 
+    this.beforeMount();
+
     this.mount();
 
     this.initialRoute = window.location.href;
 
     caughtInitializationErrors.forEach((handler) => handler());
+  }
+
+  protected beforeMount(): void {
+    // ...
   }
 
   public bootExtensions(extensions: Record<string, { extend?: IExtender[] }>) {

@@ -1,7 +1,7 @@
 import '../common/common';
 
 import './utils/saveSettings';
-import './utils/ExtensionData';
+import './utils/AdminRegistry';
 import './utils/isExtensionEnabled';
 import './utils/getCategorizedExtensions';
 

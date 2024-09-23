@@ -1,0 +1,35 @@
+.GeneralSearchResult {
+  .ExtensionIcon {
+    --size: 32px;
+    flex-shrink: 0;
+  }
+
+  &-group {
+    border-top: none;
+  }
+
+  &-tree {
+    font-weight: bold;
+
+    &-separator {
+      color: var(--muted-more-color);
+      padding: 0 8px;
+    }
+  }
+
+  &-help {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--muted-color);
+    font-size: 12px;
+  }
+
+  &-info {
+    overflow: hidden;
+  }
+
+  mark {
+    background-color: var(--highlight-color);
+  }
+}

@@ -34,19 +34,19 @@ export default class ExtensionPermissionGrid<
   }
 
   viewItems() {
-    return app.extensionData.getExtensionPermissions(this.extensionId, 'view') || new ItemList();
+    return app.registry.getExtensionPermissions(this.extensionId, 'view') || new ItemList();
   }
 
   startItems() {
-    return app.extensionData.getExtensionPermissions(this.extensionId, 'start') || new ItemList();
+    return app.registry.getExtensionPermissions(this.extensionId, 'start') || new ItemList();
   }
 
   replyItems() {
-    return app.extensionData.getExtensionPermissions(this.extensionId, 'reply') || new ItemList();
+    return app.registry.getExtensionPermissions(this.extensionId, 'reply') || new ItemList();
   }
 
   moderateItems() {
-    return app.extensionData.getExtensionPermissions(this.extensionId, 'moderate') || new ItemList();
+    return app.registry.getExtensionPermissions(this.extensionId, 'moderate') || new ItemList();
   }
 
   scopeControlItems() {

@@ -12,7 +12,7 @@ import ConfigureAuth from './ConfigureAuth';
 
 export default class SettingsPage extends ExtensionPage {
   content() {
-    const settings = app.extensionData.getSettings(this.extension.id);
+    const settings = app.registry.getSettings(this.extension.id);
 
     const warnings = [app.translator.trans('flarum-extension-manager.admin.settings.access_warning')];
 

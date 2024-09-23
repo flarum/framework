@@ -70,6 +70,10 @@ export default class UsersSearchSource implements SearchSource {
     });
   }
 
+  customGrouping(): boolean {
+    return false;
+  }
+
   fullPage(query: string): null {
     return null;
   }
