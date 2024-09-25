@@ -22,8 +22,7 @@
         "source": "https://github.com/flarum/extension-manager"
     },
     "require": {
-        "flarum/core": "^2.0",
-        "composer/composer": "^2.7"
+        "flarum/core": "^2.0"
     },
     "require-dev": {
         "flarum/testing": "^2.0",

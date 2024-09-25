@@ -37,6 +37,7 @@
     },
     "require": {
         "php": "^8.2",
+        "composer/composer": "^2.7",
         "components/font-awesome": "^6.5.2",
         "dflydev/fig-cookies": "^3.0",
         "doctrine/dbal": "^3.6",
