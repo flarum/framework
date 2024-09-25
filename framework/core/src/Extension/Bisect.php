@@ -10,7 +10,7 @@
 namespace Flarum\Extension;
 
 use Closure;
-use Composer\Command\ClearCacheCommand;
+use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Settings\SettingsRepositoryInterface;
 use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -32,7 +32,7 @@ class Bisect
     public function __construct(
         protected ExtensionManager $extensions,
         protected SettingsRepositoryInterface $settings,
-        protected ClearCacheCommand $clearCache,
+        protected CacheClearCommand $clearCache,
     ) {
         $this->state = BisectState::continueOrStart(
             $ids = $this->extensions->getEnabled(),
