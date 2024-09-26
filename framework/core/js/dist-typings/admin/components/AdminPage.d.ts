@@ -186,6 +186,10 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
      */
     onsaved(): void;
     /**
+     * Called when `saveSettings` completes with errors.
+     */
+    onsavefailed(): void;
+    /**
      * Returns a function that fetches the setting from the `app` global.
      */
     setting(key: string, fallback?: string): Stream<string>;
