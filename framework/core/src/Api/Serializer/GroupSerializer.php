@@ -49,10 +49,10 @@ class GroupSerializer extends AbstractSerializer
 
         return [
             'nameSingular' => $this->translateGroupName($group->name_singular),
-            'namePlural'   => $this->translateGroupName($group->name_plural),
-            'color'        => $group->color,
-            'icon'         => $group->icon,
-            'isHidden'     => $group->is_hidden
+            'namePlural' => $this->translateGroupName($group->name_plural),
+            'color' => $group->color,
+            'icon' => $group->icon,
+            'isHidden' => $group->is_hidden
         ];
     }
 

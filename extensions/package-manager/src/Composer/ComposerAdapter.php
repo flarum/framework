@@ -11,10 +11,10 @@ namespace Flarum\ExtensionManager\Composer;
 
 use Composer\Config;
 use Composer\Console\Application;
-use Flarum\Foundation\Paths;
 use Flarum\ExtensionManager\OutputLogger;
 use Flarum\ExtensionManager\Support\Util;
 use Flarum\ExtensionManager\Task\Task;
+use Flarum\Foundation\Paths;
 use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -68,7 +68,7 @@ class ComposerAdapter
         chdir($this->paths->base);
 
         if ($safeMode) {
-            $temporaryVendorDir = $this->paths->base . DIRECTORY_SEPARATOR . 'temp-vendor';
+            $temporaryVendorDir = $this->paths->base.DIRECTORY_SEPARATOR.'temp-vendor';
             if (! $this->filesystem->isDirectory($temporaryVendorDir)) {
                 $this->filesystem->makeDirectory($temporaryVendorDir);
             }

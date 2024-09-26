@@ -9,9 +9,9 @@
 
 namespace Flarum\ExtensionManager\Api\Controller;
 
-use Flarum\Http\RequestUtil;
 use Flarum\ExtensionManager\Command\CheckForUpdates;
 use Flarum\ExtensionManager\Job\Dispatcher;
+use Flarum\Http\RequestUtil;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

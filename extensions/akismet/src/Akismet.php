@@ -50,7 +50,7 @@ class Akismet
         $client = new Client();
 
         return $client->request('POST', "$this->apiUrl/$type", [
-            'headers'     => [
+            'headers' => [
                 'User-Agent' => "Flarum/$this->flarumVersion | Akismet/$this->extensionVersion",
             ],
             'form_params' => $this->params,
