@@ -29,7 +29,7 @@ class SendEmailNotificationJob extends AbstractJob
     public function __construct(MailableInterface $blueprint, User $recipient)
     {
         parent::__construct();
-        
+
         $this->blueprint = $blueprint;
         $this->recipient = $recipient;
     }

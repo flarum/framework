@@ -28,5 +28,4 @@ class AbstractJob implements ShouldQueue
             $this->onQueue(static::$onQueue);
         }
     }
-
 }
