@@ -19,4 +19,14 @@ class AbstractJob implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+
+    public static ?string $onQueue = null;
+
+    public function __construct()
+    {
+        if (static::$onQueue) {
+            $this->onQueue(static::$onQueue);
+        }
+    }
+
 }
