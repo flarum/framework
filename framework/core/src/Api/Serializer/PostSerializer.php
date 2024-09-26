@@ -45,9 +45,9 @@ class PostSerializer extends BasicPostSerializer
         }
 
         $attributes += [
-            'canEdit'   => $canEdit,
+            'canEdit' => $canEdit,
             'canDelete' => $this->actor->can('delete', $post),
-            'canHide'   => $this->actor->can('hide', $post)
+            'canHide' => $this->actor->can('hide', $post)
         ];
 
         return $attributes;

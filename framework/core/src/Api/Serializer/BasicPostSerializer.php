@@ -53,8 +53,8 @@ class BasicPostSerializer extends AbstractSerializer
         }
 
         $attributes = [
-            'number'      => (int) $post->number,
-            'createdAt'   => $this->formatDate($post->created_at),
+            'number' => (int) $post->number,
+            'createdAt' => $this->formatDate($post->created_at),
             'contentType' => $post->type
         ];
 

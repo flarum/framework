@@ -10,10 +10,10 @@
 namespace Flarum\ExtensionManager\Api\Controller;
 
 use Flarum\Api\Controller\AbstractListController;
-use Flarum\Http\RequestUtil;
-use Flarum\Http\UrlGenerator;
 use Flarum\ExtensionManager\Api\Serializer\TaskSerializer;
 use Flarum\ExtensionManager\Task\Task;
+use Flarum\Http\RequestUtil;
+use Flarum\Http\UrlGenerator;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
