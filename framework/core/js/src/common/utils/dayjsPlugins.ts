@@ -20,5 +20,5 @@ const customFormats: import('dayjs').PluginFunc = function (_option, c, _factory
 };
 
 export default {
-  customFormats
+  customFormats,
 };
