@@ -11,11 +11,11 @@ import 'jquery.hotkeys/jquery.hotkeys';
 
 import relativeTime from 'dayjs/plugin/relativeTime';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
-import { customFormats } from './utils/dayjsPlugins';
+import dayjsPlugins from './utils/dayjsPlugins';
 
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
-dayjs.extend(customFormats);
+dayjs.extend(dayjsPlugins.customFormats);
 
 import './registry';
 

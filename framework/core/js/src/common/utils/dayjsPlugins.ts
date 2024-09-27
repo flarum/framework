@@ -1,4 +1,4 @@
-export const customFormats: import('dayjs').PluginFunc = function (_option, c, _factory) {
+const customFormats: import('dayjs').PluginFunc = function (_option, c, _factory) {
   const proto = c.prototype;
   const oldFormat = proto.format;
 
@@ -17,4 +17,8 @@ export const customFormats: import('dayjs').PluginFunc = function (_option, c, _
     });
     return oldFormat.call(this, result);
   };
+};
+
+export default {
+  customFormats
 };
