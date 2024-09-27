@@ -14,7 +14,7 @@ export const customFormats: import('dayjs').PluginFunc = function (_option, c, _
         const { formats = {} } = (this as any).$locale();
         const result = template?.replace(/(\[[^\]]+])|(f{1,2}|F{1,2})/g, (_, a, b) => {
             const B = b && b.toUpperCase();
-            return a || formats[b] || englishFormats[b] || t(formats[B]);
+            return a || formats[b] || englishFormats[b] || t(formats[B]) || t(englishFormats[B]);
         });
         return oldFormat.call(this, result);
     }
