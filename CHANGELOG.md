@@ -470,7 +470,7 @@ looks rather complex and messy compared to the full list of changes made for thi
 - Pass filter params to getApiDocument (https://github.com/flarum/framework/pull/3037)
 - Use author filter instead of gambit to get a user's discussions (https://github.com/flarum/framework/pull/3068)
 - [A11Y] Accessibility improvements for the Search component (https://github.com/flarum/framework/pull/3017)
-- Add determinsm to extension order resolution (https://github.com/flarum/framework/pull/3076)
+- Add determinism to extension order resolution (https://github.com/flarum/framework/pull/3076)
 - Add cache control headers to the admin area (https://github.com/flarum/framework/pull/3097)
 
 ### Fixed

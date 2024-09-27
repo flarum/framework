@@ -69,7 +69,7 @@ flarum-subscriptions:
         body: |
           {poster_display_name} just posted in a discussion you're following: [{title}]({url}).
 
-          You won't recieve any more notifications about this discussion until you're up-to-date.
+          You won't receive any more notifications about this discussion until you're up-to-date.
 
   ##
   # REUSED TRANSLATIONS - These keys should not be used directly in code!

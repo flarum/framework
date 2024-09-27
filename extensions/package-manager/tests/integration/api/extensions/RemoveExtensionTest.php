@@ -37,7 +37,7 @@ class RemoveExtensionTest extends TestCase
     }
 
     #[Test]
-    public function removing_a_non_existant_extension_fails()
+    public function removing_a_non_existent_extension_fails()
     {
         $response = $this->send(
             $this->request('DELETE', '/api/extension-manager/extensions/flarum-potato', [

@@ -40,7 +40,7 @@ body:
     validations:
       required: false
   - type: textarea
-    id: enironment
+    id: environment
     attributes:
       label: Environment
       value: |

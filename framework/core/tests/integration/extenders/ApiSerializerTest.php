@@ -165,7 +165,7 @@ class ApiSerializerTest extends TestCase
     }
 
     #[Test]
-    public function custom_attributes_can_be_overriden()
+    public function custom_attributes_can_be_overridden()
     {
         $this->extend(
             (new Extend\ApiResource(UserResource::class))

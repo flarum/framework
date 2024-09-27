@@ -20,7 +20,7 @@ class ContainerUtil
      * @param Container $container
      *
      * @return callable
-     * @internal Backwards compatability not guaranteed.
+     * @internal Backwards compatibility not guaranteed.
      */
     public static function wrapCallback(callable|string $callback, Container $container): callable
     {

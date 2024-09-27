@@ -32,7 +32,7 @@ class ListWithFulltextSearchTest extends TestCase
 
         // We need to insert these outside of a transaction, because FULLTEXT indexing,
         // which is needed for search, doesn't happen in transactions.
-        // We clean it up explcitly at the end.
+        // We clean it up explicitly at the end.
         $this->database()->table('discussions')->insert($this->rowsThroughFactory(Discussion::class, [
             ['id' => 1, 'title' => 'lightsail in title', 'user_id' => 1],
             ['id' => 2, 'title' => 'lightsail in title too', 'created_at' => Carbon::createFromDate(2020, 01, 01)->toDateTimeString(), 'user_id' => 1],

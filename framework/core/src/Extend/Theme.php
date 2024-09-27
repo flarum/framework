@@ -24,7 +24,7 @@ class Theme implements ExtenderInterface
     /**
      * This can be used to override `LESS` files that are imported within the code.
      * For example, core's `forum.less` file imports a `forum/DiscussionListItem.less` file.
-     * The contents of this file can be overriden with this method.
+     * The contents of this file can be overridden with this method.
      *
      * @param string $file : Relative path of the file to override, for example: `forum/Hero.less`
      * @param string $newFilePath : Absolute path of the new file.
@@ -41,7 +41,7 @@ class Theme implements ExtenderInterface
     /**
      * This method allows overriding LESS file sources.
      * For example `forum.less`, `admin.less`, `mixins.less` and `variables.less` are file sources,
-     * and can therefore be overriden using this method.
+     * and can therefore be overridden using this method.
      *
      * @param string $file : Name of the file to override, for example: `admin.less`
      * @param string $newFilePath : Absolute path of the new file.

@@ -289,19 +289,19 @@ function makePrefix(index: number, unorderedList: boolean): string {
 }
 
 function clearExistingListStyle(style: StyleArgs, selectedText: string): [UndoResult, UndoResult, string] {
-  let undoResultOpositeList: UndoResult;
+  let undoResultOppositeList: UndoResult;
   let undoResult: UndoResult;
   let pristineText;
   if (style.orderedList) {
     undoResult = undoOrderedListStyle(selectedText);
-    undoResultOpositeList = undoUnorderedListStyle(undoResult.text);
-    pristineText = undoResultOpositeList.text;
+    undoResultOppositeList = undoUnorderedListStyle(undoResult.text);
+    pristineText = undoResultOppositeList.text;
   } else {
     undoResult = undoUnorderedListStyle(selectedText);
-    undoResultOpositeList = undoOrderedListStyle(undoResult.text);
-    pristineText = undoResultOpositeList.text;
+    undoResultOppositeList = undoOrderedListStyle(undoResult.text);
+    pristineText = undoResultOppositeList.text;
   }
-  return [undoResult, undoResultOpositeList, pristineText];
+  return [undoResult, undoResultOppositeList, pristineText];
 }
 
 function listStyle(textarea: HTMLTextAreaElement, style: StyleArgs): SelectionRange {
@@ -316,7 +316,7 @@ function listStyle(textarea: HTMLTextAreaElement, style: StyleArgs): SelectionRa
 
   // If the user intent was to do an undo, we will stop after this.
   // Otherwise, we will still undo to other list type to prevent list stacking
-  const [undoResult, undoResultOpositeList, pristineText] = clearExistingListStyle(style, selectedText);
+  const [undoResult, undoResultOppositeList, pristineText] = clearExistingListStyle(style, selectedText);
 
   const prefixedLines = pristineText.split('\n').map((value, index) => {
     return `${makePrefix(index, style.unorderedList)}${value}`;
@@ -326,7 +326,7 @@ function listStyle(textarea: HTMLTextAreaElement, style: StyleArgs): SelectionRa
     return previousValue + makePrefix(currentIndex, style.unorderedList).length;
   }, 0);
 
-  const totalPrefixLengthOpositeList = prefixedLines.reduce((previousValue, _currentValue, currentIndex) => {
+  const totalPrefixLengthOppositeList = prefixedLines.reduce((previousValue, _currentValue, currentIndex) => {
     return previousValue + makePrefix(currentIndex, !style.unorderedList).length;
   }, 0);
 
@@ -348,9 +348,9 @@ function listStyle(textarea: HTMLTextAreaElement, style: StyleArgs): SelectionRa
     selectionStart = Math.max(selectionStart + makePrefix(0, style.unorderedList).length + newlinesToAppend.length, 0);
     selectionEnd = selectionStart;
   } else {
-    if (undoResultOpositeList.processed) {
+    if (undoResultOppositeList.processed) {
       selectionStart = Math.max(textarea.selectionStart + newlinesToAppend.length, 0);
-      selectionEnd = textarea.selectionEnd + newlinesToAppend.length + totalPrefixLength - totalPrefixLengthOpositeList;
+      selectionEnd = textarea.selectionEnd + newlinesToAppend.length + totalPrefixLength - totalPrefixLengthOppositeList;
     } else {
       selectionStart = Math.max(textarea.selectionStart + newlinesToAppend.length, 0);
       selectionEnd = textarea.selectionEnd + newlinesToAppend.length + totalPrefixLength;

@@ -47,7 +47,7 @@ parameters:
 		# This assumes that the phpdoc telling it it's not nullable is correct, that's not the case for internal Laravel typings.
 		- message: '#^Property [A-z0-9-_:$,\\]+ \([A-z]+\) on left side of \?\? is not nullable\.$#'
 
-		# Ignore overriden classes from packages so that it's always easier to keep track of what's being overriden.
+		# Ignore overridden classes from packages so that it's always easier to keep track of what's being overridden.
 		- message: '#^Method Flarum\\Api\\Serializer\:\:[A-z0-9_]+\(\) has parameter \$[A-z0-9_]+ with no type specified\.$#'
 		- message: '#^Method Flarum\\Api\\Endpoint\\[A-z0-9_]+\:\:[A-z0-9_]+\(\) has parameter \$[A-z0-9_]+ with no type specified\.$#'
 

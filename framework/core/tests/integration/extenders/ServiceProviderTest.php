@@ -37,7 +37,7 @@ class ServiceProviderTest extends TestCase
         $this->app();
 
         $this->assertEquals(
-            'overriden_by_custom_provider_register',
+            'overridden_by_custom_provider_register',
             $this->app->getContainer()->make('flarum.forum.middleware')
         );
     }
@@ -54,7 +54,7 @@ class ServiceProviderTest extends TestCase
         $this->app();
 
         $this->assertEquals(
-            'overriden_by_second_custom_provider_register',
+            'overridden_by_second_custom_provider_register',
             $this->app->getContainer()->make('flarum.forum.middleware')
         );
     }
@@ -72,7 +72,7 @@ class ServiceProviderTest extends TestCase
         $this->app();
 
         $this->assertEquals(
-            'overriden_by_third_custom_provider_boot',
+            'overridden_by_third_custom_provider_boot',
             $this->app->getContainer()->make('flarum.forum.middleware')
         );
     }
@@ -84,7 +84,7 @@ class CustomServiceProvider extends AbstractServiceProvider
     {
         // First we override the singleton here.
         $this->app->extend('flarum.forum.middleware', function () {
-            return 'overriden_by_custom_provider_register';
+            return 'overridden_by_custom_provider_register';
         });
     }
 }
@@ -93,9 +93,9 @@ class SecondCustomServiceProvider extends AbstractServiceProvider
 {
     public function register()
     {
-        // Second we check that the singleton was overriden here.
+        // Second we check that the singleton was overridden here.
         $this->app->extend('flarum.forum.middleware', function ($forumRoutes) {
-            return 'overriden_by_second_custom_provider_register';
+            return 'overridden_by_second_custom_provider_register';
         });
     }
 }
@@ -106,7 +106,7 @@ class ThirdCustomProvider extends AbstractServiceProvider
     {
         // Third we override one last time here, to make sure this is the final result.
         $this->app->extend('flarum.forum.middleware', function ($forumRoutes) {
-            return 'overriden_by_third_custom_provider_boot';
+            return 'overridden_by_third_custom_provider_boot';
         });
     }
 }

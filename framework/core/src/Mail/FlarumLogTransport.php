@@ -27,7 +27,7 @@ class FlarumLogTransport extends LogTransport
             $string = quoted_printable_decode($string);
         }
 
-        // Overriden to use info, so the log driver works in non-debug mode.
+        // Overridden to use info, so the log driver works in non-debug mode.
         $this->logger->info($string);
 
         return new SentMessage($message, $envelope ?? Envelope::create($message));
