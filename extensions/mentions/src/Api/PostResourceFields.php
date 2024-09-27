@@ -9,7 +9,9 @@
 
 namespace Flarum\Mentions\Api;
 
+use Flarum\Api\Context;
 use Flarum\Api\Schema;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class PostResourceFields
@@ -20,7 +22,9 @@ class PostResourceFields
     {
         return [
             Schema\Integer::make('mentionedByCount')
-                ->countRelation('mentionedBy'),
+                ->countRelation('mentionedBy', function (Builder $query, Context $context) {
+                    $query->whereVisibleTo($context->getActor());
+                }),
 
             Schema\Relationship\ToMany::make('mentionedBy')
                 ->type('posts')
