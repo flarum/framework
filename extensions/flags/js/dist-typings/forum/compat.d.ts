@@ -7,6 +7,7 @@ declare const _default: {
     'flags/components/FlagPostModal': typeof FlagPostModal;
     'flags/components/FlagsPage': typeof FlagsPage;
     'flags/components/FlagsDropdown': typeof FlagsDropdown;
+    'flags/states/FlagListState': typeof FlagListState;
 };
 export default _default;
 import addFlagsToPosts from "./addFlagsToPosts";
@@ -17,3 +18,4 @@ import FlagList from "./components/FlagList";
 import FlagPostModal from "./components/FlagPostModal";
 import FlagsPage from "./components/FlagsPage";
 import FlagsDropdown from "./components/FlagsDropdown";
+import FlagListState from "./states/FlagListState";
