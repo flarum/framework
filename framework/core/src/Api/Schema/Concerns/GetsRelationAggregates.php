@@ -15,7 +15,7 @@ use Tobyz\JsonApiServer\Schema\Type\Number;
 trait GetsRelationAggregates
 {
     /**
-     * @var array{relation: string, column: string, function: string, constrain: Closure}|null
+     * @var array{name: string, relation: string, column: string, function: string, constrain: Closure}|null
      */
     public ?array $relationAggregate = null;
 

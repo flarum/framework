@@ -66,7 +66,7 @@ abstract class EloquentBuffer
             // may be multiple if this is a polymorphic relationship. We
             // start by getting the resource types this relationship
             // could possibly contain.
-            /** @var AbstractDatabaseResource[] $resources */
+            /** @var (AbstractDatabaseResource|AbstractResource)[] $resources */
             $resources = $context->api->resources;
 
             if ($relationship && $type = $relationship->collections) {
