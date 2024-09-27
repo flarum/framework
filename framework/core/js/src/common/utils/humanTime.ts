@@ -21,7 +21,7 @@ export default function humanTime(time: dayjs.ConfigType): string {
   // in the string. If it wasn't this year, we'll show the year as well.
   if (d.diff(now, 'day') < -30) {
     if (d.isSame(now, 'year')) {
-      ago = d.format('D MMM');
+      ago = d.format('f');
     } else {
       ago = d.format('ll');
     }
