@@ -84,8 +84,6 @@ trait SavesAndValidatesData
         $attributeValidator = $factory->make($attributesAsData, $rules['attributes'], $messages, $attributes);
         $relationshipValidator = $factory->make($relationshipsAsData, $rules['relationships'], $messages, $attributes);
 
-//        dd($attributesAsData, $relationshipsAsData, $rules['attributes'], $rules['relationships']);
-
         $this->validate('attributes', $attributeValidator);
         $this->validate('relationships', $relationshipValidator);
     }
