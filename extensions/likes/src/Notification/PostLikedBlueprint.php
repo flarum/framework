@@ -10,11 +10,12 @@
 namespace Flarum\Likes\Notification;
 
 use Flarum\Database\AbstractModel;
+use Flarum\Notification\AlertableInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Post\Post;
 use Flarum\User\User;
 
-class PostLikedBlueprint implements BlueprintInterface
+class PostLikedBlueprint implements BlueprintInterface, AlertableInterface
 {
     public function __construct(
         public Post $post,

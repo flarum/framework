@@ -34,6 +34,8 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
+    (new Extend\View())->namespace('flarum-messages', __DIR__.'/views'),
+
     (new Extend\Model(User::class))
         ->belongsToMany('dialogs', Dialog::class, 'dialog_user')
         ->hasMany('dialogMessages', DialogMessage::class, 'user_id'),
@@ -78,4 +80,10 @@ return [
 
     (new Extend\ServiceProvider())
         ->register(DialogServiceProvider::class),
+
+    (new Extend\Notification())
+        ->type(Notification\MessageReceivedBlueprint::class, ['email']),
+
+    (new Extend\Event())
+        ->listen(DialogMessage\Event\Created::class, Listener\SendNotificationWhenMessageSent::class),
 ];

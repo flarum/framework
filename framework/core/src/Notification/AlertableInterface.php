@@ -7,14 +7,12 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\Messages\DialogMessage\Event;
+namespace Flarum\Notification;
 
-use Flarum\Messages\DialogMessage;
-
-class Created
+/**
+ * The notification Alert driver only picks up notifications that implement this interface.
+ */
+interface AlertableInterface
 {
-    public function __construct(
-        public DialogMessage $message
-    ) {
-    }
+    //
 }

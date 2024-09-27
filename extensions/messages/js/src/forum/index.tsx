@@ -2,12 +2,12 @@ import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
 import IndexSidebar from 'flarum/forum/components/IndexSidebar';
 import LinkButton from 'flarum/common/components/LinkButton';
-import DialogListState from './states/DialogListState';
 import HeaderSecondary from 'flarum/forum/components/HeaderSecondary';
-import DialogsDropdown from './components/DialogsDropdown';
-import type Dialog from '../common/models/Dialog';
 import UserControls from 'flarum/forum/utils/UserControls';
 import Button from 'flarum/common/components/Button';
+import type Dialog from '../common/models/Dialog';
+import DialogsDropdown from './components/DialogsDropdown';
+import DialogListState from './states/DialogListState';
 
 export { default as extend } from './extend';
 
@@ -35,7 +35,11 @@ app.initializers.add('flarum-messages', () => {
     if (app.session.user) {
       items.add(
         'messages',
-        <LinkButton href={app.route('messages')} icon="far fa-envelope" active={['messages', 'dialog'].includes(app.current.data.routeName)}>
+        <LinkButton
+          href={app.route('messages')}
+          icon="far fa-envelope"
+          active={app.current.data.routeName && ['messages', 'dialog'].includes(app.current.data.routeName)}
+        >
           {app.translator.trans('flarum-messages.forum.index.messages_link')}
         </LinkButton>,
         95
@@ -71,5 +75,13 @@ app.initializers.add('flarum-messages', () => {
         </Button>
       );
     }
+  });
+
+  extend('flarum/forum/components/NotificationGrid', 'notificationTypes', function (items) {
+    items.add('messageReceived', {
+      name: 'messageReceived',
+      icon: 'fas fa-envelope',
+      label: app.translator.trans('flarum-messages.forum.settings.notify_message_received_label'),
+    });
   });
 });

@@ -11,12 +11,13 @@ namespace Flarum\Mentions\Notification;
 
 use Flarum\Database\AbstractModel;
 use Flarum\Locale\TranslatorInterface;
+use Flarum\Notification\AlertableInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\MailableInterface;
 use Flarum\Post\Post;
 use Flarum\User\User;
 
-class PostMentionedBlueprint implements BlueprintInterface, MailableInterface
+class PostMentionedBlueprint implements BlueprintInterface, AlertableInterface, MailableInterface
 {
     public function __construct(
         public Post $post,
