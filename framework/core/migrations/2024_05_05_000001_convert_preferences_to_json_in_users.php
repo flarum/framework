@@ -22,9 +22,11 @@ return [
                 $table->json('preferences_json')->nullable();
             });
 
-            $schema->getConnection()->table('users')->update([
-                'preferences_json' => $schema->getConnection()->raw("CAST(CONVERT($preferences USING utf8mb4) AS JSON)"),
-            ]);
+            if ($schema->getConnection()->getDriverName() === 'mysql') {
+                $schema->getConnection()->table('users')->update([
+                    'preferences_json' => $schema->getConnection()->raw("CAST(CONVERT($preferences USING utf8mb4) AS JSON)"),
+                ]);
+            }
 
             $schema->table('users', function (Blueprint $table) {
                 $table->dropColumn('preferences');
@@ -47,9 +49,11 @@ return [
                 $table->binary('preferences_binary')->nullable();
             });
 
-            $schema->getConnection()->table('users')->update([
-                'preferences_binary' => $schema->getConnection()->raw($preferences),
-            ]);
+            if ($schema->getConnection()->getDriverName() === 'mysql') {
+                $schema->getConnection()->table('users')->update([
+                    'preferences_binary' => $schema->getConnection()->raw($preferences),
+                ]);
+            }
 
             $schema->table('users', function (Blueprint $table) {
                 $table->dropColumn('preferences');

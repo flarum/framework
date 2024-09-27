@@ -21,9 +21,11 @@ return [
                 $table->json('data_json')->nullable();
             });
 
-            $schema->getConnection()->table('notifications')->update([
-                'data_json' => $schema->getConnection()->raw('CAST(CONVERT(data USING utf8mb4) AS JSON)'),
-            ]);
+            if ($schema->getConnection()->getDriverName() === 'mysql') {
+                $schema->getConnection()->table('notifications')->update([
+                    'data_json' => $schema->getConnection()->raw('CAST(CONVERT(data USING utf8mb4) AS JSON)'),
+                ]);
+            }
 
             $schema->table('notifications', function (Blueprint $table) {
                 $table->dropColumn('data');
@@ -45,9 +47,11 @@ return [
                 $table->binary('data_binary')->nullable();
             });
 
-            $schema->getConnection()->table('notifications')->update([
-                'data_binary' => $schema->getConnection()->raw('data'),
-            ]);
+            if ($schema->getConnection()->getDriverName() === 'mysql') {
+                $schema->getConnection()->table('notifications')->update([
+                    'data_binary' => $schema->getConnection()->raw('data'),
+                ]);
+            }
 
             $schema->table('notifications', function (Blueprint $table) {
                 $table->dropColumn('data');
