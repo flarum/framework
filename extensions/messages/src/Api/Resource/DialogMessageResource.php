@@ -72,7 +72,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
 
                         return $actor->can('sendMessage', $dialog);
                     } else {
-                        return $actor->can('startDialog');
+                        return $actor->can('sendAnyMessage');
                     }
                 }),
             Endpoint\Index::make()
@@ -150,7 +150,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
         );
 
         if (! $model->dialog_id) {
-            $context->getActor()->assertCan('startDialog');
+            $context->getActor()->assertCan('sendAnyMessage');
 
             $users = array_filter(Arr::pluck($data['attributes']['users'] ?? [], 'id'), fn (mixed $id) => $id && $id != $model->user_id);
 

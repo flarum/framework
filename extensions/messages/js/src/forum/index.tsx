@@ -49,7 +49,7 @@ app.initializers.add('flarum-messages', () => {
 
   extend(HeaderSecondary.prototype, 'items', function (items) {
     if (app.session.user?.attribute<boolean>('canSendAnyMessage')) {
-      items.add('flags', <DialogsDropdown state={app.dropdownDialogs} />, 15);
+      items.add('messages', <DialogsDropdown state={app.dropdownDialogs} />, 15);
     }
   });
 
