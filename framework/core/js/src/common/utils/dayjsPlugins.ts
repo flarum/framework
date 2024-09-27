@@ -6,8 +6,8 @@ export const customFormats: import('dayjs').PluginFunc = function (_option, c, _
         format?.replace(/(\[[^\]]+])|(MMMM|MM|DD|dddd)/g, (_, a, b) => a || b.slice(1))
 
     const englishFormats: Record<string, string> = {
-        F: "DD MMMM",
-        FF: "MMMM YYYY"
+        F: 'DD MMMM',
+        FF: 'MMMM YYYY'
     };
 
     proto.format = function(template) {
