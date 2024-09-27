@@ -20,7 +20,10 @@ class AbstractJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public static ?string $onQueue = null;
+    /**
+     * @var string|null
+     */
+    public static  $onQueue = null;
 
     public function __construct()
     {
