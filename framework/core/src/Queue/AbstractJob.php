@@ -23,7 +23,7 @@ class AbstractJob implements ShouldQueue
     /**
      * @var string|null
      */
-    public static  $onQueue = null;
+    public static $onQueue = null;
 
     public function __construct()
     {
