@@ -9,6 +9,7 @@
 
 namespace Flarum\Messages\Tests\integration\api\dialogs;
 
+use Carbon\Carbon;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
 use Flarum\Messages\UserDialogState;
@@ -48,8 +49,8 @@ class UpdateTest extends TestCase
                 ['id' => 111, 'dialog_id' => 102, 'user_id' => 3, 'content' => '<p>Hello, Bob!</p>'],
             ],
             'dialog_user' => [
-                ['dialog_id' => 102, 'user_id' => 3, 'last_read_message_id' => 0, 'last_read_at' => null],
-                ['dialog_id' => 102, 'user_id' => 4, 'last_read_message_id' => 0, 'last_read_at' => null],
+                ['dialog_id' => 102, 'user_id' => 3, 'last_read_message_id' => 0, 'last_read_at' => null, 'joined_at' => Carbon::now()],
+                ['dialog_id' => 102, 'user_id' => 4, 'last_read_message_id' => 0, 'last_read_at' => null, 'joined_at' => Carbon::now()],
             ],
         ]);
     }

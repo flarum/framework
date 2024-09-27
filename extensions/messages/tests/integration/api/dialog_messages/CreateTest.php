@@ -9,6 +9,7 @@
 
 namespace Flarum\Messages\Tests\integration\api\dialog_messages;
 
+use Carbon\Carbon;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
@@ -38,8 +39,8 @@ class CreateTest extends TestCase
                 ['id' => 102, 'dialog_id' => 102, 'user_id' => 4, 'content' => 'Hello, Karlach!'],
             ],
             'dialog_user' => [
-                ['dialog_id' => 102, 'user_id' => 4],
-                ['dialog_id' => 102, 'user_id' => 5],
+                ['dialog_id' => 102, 'user_id' => 4, 'joined_at' => Carbon::now()],
+                ['dialog_id' => 102, 'user_id' => 5, 'joined_at' => Carbon::now()],
             ],
         ]);
     }

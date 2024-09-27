@@ -9,6 +9,7 @@
 
 namespace Flarum\Messages\Tests\integration\api;
 
+use Carbon\Carbon;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
@@ -46,12 +47,12 @@ class ListTest extends TestCase
                 ['id' => 107, 'dialog_id' => 104, 'user_id' => 5, 'content' => 'Hello, Gale!'],
             ],
             'dialog_user' => [
-                ['dialog_id' => 102, 'user_id' => 3],
-                ['dialog_id' => 102, 'user_id' => 4],
-                ['dialog_id' => 103, 'user_id' => 3],
-                ['dialog_id' => 103, 'user_id' => 5],
-                ['dialog_id' => 104, 'user_id' => 4],
-                ['dialog_id' => 104, 'user_id' => 5],
+                ['dialog_id' => 102, 'user_id' => 3, 'joined_at' => Carbon::now()],
+                ['dialog_id' => 102, 'user_id' => 4, 'joined_at' => Carbon::now()],
+                ['dialog_id' => 103, 'user_id' => 3, 'joined_at' => Carbon::now()],
+                ['dialog_id' => 103, 'user_id' => 5, 'joined_at' => Carbon::now()],
+                ['dialog_id' => 104, 'user_id' => 4, 'joined_at' => Carbon::now()],
+                ['dialog_id' => 104, 'user_id' => 5, 'joined_at' => Carbon::now()],
             ],
         ]);
     }
