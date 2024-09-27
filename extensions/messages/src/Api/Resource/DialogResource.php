@@ -72,10 +72,15 @@ class DialogResource extends Resource\AbstractDatabaseResource
                     $column = $grammar->wrap('last_message_id');
 
                     UserDialogState::query()
-                        ->join('dialogs', 'dialogs.id', '=', 'dialog_user.dialog_id')
                         ->where('dialog_user.user_id', $context->getActor()->id)
                         ->update([
-                            'last_read_message_id' => $connection->raw("$table.$column"),
+                            'last_read_message_id' => $connection->raw('('.$grammar->compileSelect(
+                                Dialog::query()
+                                    ->select('last_message_id')
+                                    ->from('dialogs')
+                                    ->whereColumn('dialogs.id', 'dialog_user.dialog_id')
+                                    ->toBase()
+                            ).')'),
                             'last_read_at' => Carbon::now(),
                         ]);
                 })

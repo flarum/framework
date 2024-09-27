@@ -91,7 +91,7 @@ class UpdateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertEquals(204, $response->getStatusCode(), json_encode(json_decode($response->getBody()->getContents()), JSON_PRETTY_PRINT));
 
         $state = UserDialogState::query()
             ->where('dialog_id', 102)
