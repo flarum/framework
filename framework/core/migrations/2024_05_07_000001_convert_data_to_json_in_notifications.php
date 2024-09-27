@@ -22,7 +22,7 @@ return [
             });
 
             $schema->getConnection()->table('notifications')->update([
-                'data_json' => $schema->getConnection()->raw("CAST(CONVERT(data USING utf8mb4) AS JSON)"),
+                'data_json' => $schema->getConnection()->raw('CAST(CONVERT(data USING utf8mb4) AS JSON)'),
             ]);
 
             $schema->table('notifications', function (Blueprint $table) {

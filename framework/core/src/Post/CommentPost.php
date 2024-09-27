@@ -11,14 +11,12 @@ namespace Flarum\Post;
 
 use Carbon\Carbon;
 use Flarum\Formatter\Formattable;
-use Flarum\Formatter\Formatter;
 use Flarum\Formatter\HasFormattedContent;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
 use Flarum\Post\Event\Revised;
 use Flarum\User\User;
-use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * A standard comment in a discussion.

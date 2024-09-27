@@ -7,9 +7,8 @@
  * LICENSE file that was distributed with this source code.
  */
 
-use Illuminate\Database\Schema\Blueprint;
-
 use Flarum\Database\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 return Migration::createTable(
     'dialog_user',
@@ -23,4 +22,3 @@ return Migration::createTable(
         $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
     }
 );
-

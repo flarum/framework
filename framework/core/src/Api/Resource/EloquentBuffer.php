@@ -58,7 +58,6 @@ abstract class EloquentBuffer
             $relationship,
             $context,
             $aggregate,
-            $model,
         ) {
             $query = $relation instanceof Relation ? $relation->getQuery() : $relation;
 
@@ -84,7 +83,7 @@ abstract class EloquentBuffer
                     $modelClass = $resource instanceof AbstractDatabaseResource ? get_class($resource->newModel($context)) : null;
 
                     if ($resource instanceof AbstractDatabaseResource && ! isset($constrain[$modelClass])) {
-                        $constrain[$modelClass] = function (Builder $query) use ($resource, $context, $relationship, $aggregate, $relation) {
+                        $constrain[$modelClass] = function (Builder $query) use ($resource, $context, $relationship, $relation) {
                             /** @var Endpoint $endpoint */
                             $endpoint = $context->endpoint;
 

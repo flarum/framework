@@ -12,7 +12,6 @@ namespace Flarum\Messages;
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Formatter\Formattable;
-use Flarum\Formatter\Formatter;
 use Flarum\Formatter\HasFormattedContent;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\User\User;
