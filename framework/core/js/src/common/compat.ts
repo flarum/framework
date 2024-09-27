@@ -3,6 +3,7 @@ import extenders from './extenders';
 import Session from './Session';
 import Store from './Store';
 import BasicEditorDriver from './utils/BasicEditorDriver';
+import bidi from './utils/bidi';
 import evented from './utils/evented';
 import EventEmitter from './utils/EventEmitter';
 import KeyboardNavigatable from './utils/KeyboardNavigatable';
@@ -14,6 +15,7 @@ import computed from './utils/computed';
 import insertText from './utils/insertText';
 import styleSelectedText from './utils/styleSelectedText';
 import Drawer from './utils/Drawer';
+import * as EditorDriverInterface from './utils/EditorDriverInterface';
 import anchorScroll from './utils/anchorScroll';
 import RequestError from './utils/RequestError';
 import abbreviateNumber from './utils/abbreviateNumber';
@@ -36,6 +38,7 @@ import mapRoutes from './utils/mapRoutes';
 import withAttr from './utils/withAttr';
 import * as FocusTrap from './utils/focusTrap';
 import isDark from './utils/isDark';
+import AccessToken from './models/AccessToken';
 import Notification from './models/Notification';
 import User from './models/User';
 import Post from './models/Post';
@@ -62,6 +65,7 @@ import Link from './components/Link';
 import LinkButton from './components/LinkButton';
 import Checkbox from './components/Checkbox';
 import ColorPreviewInput from './components/ColorPreviewInput';
+import ConfirmDocumentUnload from './components/ConfirmDocumentUnload';
 import SelectDropdown from './components/SelectDropdown';
 import ModalManager from './components/ModalManager';
 import Button from './components/Button';
@@ -75,6 +79,8 @@ import Model from './Model';
 import Application from './Application';
 import fullTime from './helpers/fullTime';
 import avatar from './helpers/avatar';
+import fireApplicationError from './helpers/fireApplicationError';
+import * as fireDebugWarning from './helpers/fireDebugWarning';
 import icon from './helpers/icon';
 import humanTimeHelper from './helpers/humanTime';
 import punctuateSeries from './helpers/punctuateSeries';
@@ -98,6 +104,7 @@ export default {
   Session: Session,
   Store: Store,
   'utils/BasicEditorDriver': BasicEditorDriver,
+  'utils/bidi': bidi,
   'utils/evented': evented,
   'utils/EventEmitter': EventEmitter,
   'utils/KeyboardNavigatable': KeyboardNavigatable,
@@ -109,6 +116,7 @@ export default {
   'utils/insertText': insertText,
   'utils/styleSelectedText': styleSelectedText,
   'utils/Drawer': Drawer,
+  'utils/EditorDriverInterface': EditorDriverInterface,
   'utils/anchorScroll': anchorScroll,
   'utils/RequestError': RequestError,
   'utils/abbreviateNumber': abbreviateNumber,
@@ -132,6 +140,7 @@ export default {
   'utils/isObject': isObject,
   'utils/focusTrap': FocusTrap,
   'utils/isDark': isDark,
+  'models/AccessToken': AccessToken,
   'models/Notification': Notification,
   'models/User': User,
   'models/Post': Post,
@@ -159,6 +168,7 @@ export default {
   'components/LinkButton': LinkButton,
   'components/Checkbox': Checkbox,
   'components/ColorPreviewInput': ColorPreviewInput,
+  'components/ConfirmDocumentUnload': ConfirmDocumentUnload,
   'components/SelectDropdown': SelectDropdown,
   'components/ModalManager': ModalManager,
   'components/Button': Button,
@@ -173,6 +183,8 @@ export default {
   Application: Application,
   'helpers/fullTime': fullTime,
   'helpers/avatar': avatar,
+  'helpers/fireApplicationError': fireApplicationError,
+  'helpers/fireDebugWarning': fireDebugWarning,
   'helpers/icon': icon,
   'helpers/humanTime': humanTimeHelper,
   'helpers/punctuateSeries': punctuateSeries,

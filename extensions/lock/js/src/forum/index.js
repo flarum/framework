@@ -22,3 +22,9 @@ app.initializers.add('flarum-lock', () => {
     });
   });
 });
+
+// Expose compat API
+import lockCompat from './compat';
+import { compat } from '@flarum/core/forum';
+
+Object.assign(compat, lockCompat);

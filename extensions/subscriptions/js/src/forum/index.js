@@ -29,3 +29,9 @@ app.initializers.add('subscriptions', function () {
     });
   });
 });
+
+// Expose compat API
+import subscriptionsCompat from './compat';
+import { compat } from '@flarum/core/forum';
+
+Object.assign(compat, subscriptionsCompat);
