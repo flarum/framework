@@ -77,6 +77,7 @@ import routes from './routes';
 import ForumApplication from './ForumApplication';
 import isSafariMobile from './utils/isSafariMobile';
 import AccessTokensList from './components/AccessTokensList';
+import DiscussionsSearchItem from './components/DiscussionsSearchItem';
 
 export default Object.assign(compat, {
   'utils/PostControls': PostControls,
@@ -116,6 +117,7 @@ export default Object.assign(compat, {
   'components/IndexPage': IndexPage,
   'components/DiscussionRenamedNotification': DiscussionRenamedNotification,
   'components/DiscussionsSearchSource': DiscussionsSearchSource,
+  'components/DiscussionsSearchItem': DiscussionsSearchItem,
   'components/HeaderSecondary': HeaderSecondary,
   'components/ComposerButton': ComposerButton,
   'components/DiscussionList': DiscussionList,

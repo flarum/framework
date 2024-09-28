@@ -1,10 +1,9 @@
 import app from '../../forum/app';
-import highlight from '../../common/helpers/highlight';
 import LinkButton from '../../common/components/LinkButton';
-import Link from '../../common/components/Link';
 import { SearchSource } from './Search';
 import type Mithril from 'mithril';
 import Discussion from '../../common/models/Discussion';
+import DiscussionsSearchItem from './DiscussionsSearchItem';
 
 /**
  * The `DiscussionsSearchSource` finds and displays discussion search results in
@@ -12,16 +11,19 @@ import Discussion from '../../common/models/Discussion';
  */
 export default class DiscussionsSearchSource implements SearchSource {
   protected results = new Map<string, Discussion[]>();
+  queryString: string | null = null;
 
   async search(query: string): Promise<void> {
     query = query.toLowerCase();
 
     this.results.set(query, []);
 
+    this.setQueryString(query);
+
     const params = {
-      filter: { q: query },
-      page: { limit: 3 },
-      include: 'mostRelevantPost',
+      filter: { q: this.queryString || query },
+      page: { limit: this.limit() },
+      include: this.includes().join(','),
     };
 
     return app.store.find<Discussion[]>('discussions', params).then((results) => {
@@ -36,26 +38,33 @@ export default class DiscussionsSearchSource implements SearchSource {
     const results = (this.results.get(query) || []).map((discussion) => {
       const mostRelevantPost = discussion.mostRelevantPost();
 
-      return (
-        <li className="DiscussionSearchResult" data-index={'discussions' + discussion.id()}>
-          <Link href={app.route.discussion(discussion, (mostRelevantPost && mostRelevantPost.number()) || 0)}>
-            <div className="DiscussionSearchResult-title">{highlight(discussion.title(), query)}</div>
-            {!!mostRelevantPost && (
-              <div className="DiscussionSearchResult-excerpt">{highlight(mostRelevantPost.contentPlain() ?? '', query, 100)}</div>
-            )}
-          </Link>
-        </li>
-      );
+      return <DiscussionsSearchItem query={query} discussion={discussion} mostRelevantPost={mostRelevantPost} />;
     }) as Array<Mithril.Vnode>;
 
     return [
       <li className="Dropdown-header">{app.translator.trans('core.forum.search.discussions_heading')}</li>,
       <li>
-        <LinkButton icon="fas fa-search" href={app.route('index', { q: query })}>
+        <LinkButton icon="fas fa-search" href={app.route('index', { q: this.queryString })}>
           {app.translator.trans('core.forum.search.all_discussions_button', { query })}
         </LinkButton>
       </li>,
       ...results,
     ];
+  }
+
+  includes(): string[] {
+    return ['mostRelevantPost'];
+  }
+
+  limit(): number {
+    return 3;
+  }
+
+  queryMutators(): string[] {
+    return [];
+  }
+
+  setQueryString(query: string): void {
+    this.queryString = query + ' ' + this.queryMutators().join(' ');
   }
 }
