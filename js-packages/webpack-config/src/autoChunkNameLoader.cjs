@@ -63,7 +63,12 @@ module.exports = function autoChunkNameLoader(source) {
         let chunkPath = relativePathToImport;
 
         if (absolutePathToImport.includes('src')) {
-          chunkPath = absolutePathToImport.split('src/')[1];
+          chunkPath = absolutePathToImport.split(`src${path.sep}`)[1];
+        }
+
+        if (path.sep == "\\") {
+          // separator on windows is "\", the resolver only works with "/".
+          chunkPath = chunkPath.replace(/\\/g, "/");
         }
 
         const webpackCommentOptions = {
