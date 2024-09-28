@@ -11,9 +11,3 @@ app.initializers.add('flarum-emoji', () => {
   // render emoji as image in Posts content and title.
   renderEmoji();
 });
-
-// Expose compat API
-import emojiCompat from './compat';
-import { compat } from '@flarum/core/forum';
-
-Object.assign(compat, emojiCompat);

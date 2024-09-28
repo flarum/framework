@@ -13,9 +13,3 @@ app.initializers.add('flarum-statistics', () => {
 
   app.extensionData.for('flarum-statistics').registerPage(StatisticsPage);
 });
-
-// Expose compat API
-import statisticsCompat from './compat';
-import { compat } from '@flarum/core/admin';
-
-Object.assign(compat, statisticsCompat);
