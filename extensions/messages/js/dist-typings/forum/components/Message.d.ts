@@ -17,9 +17,9 @@ export default abstract class Message<CustomAttrs extends IMessageAttrs = IMessa
     controls(): Mithril.Children[];
     freshness(): Date;
     createdByStarter(): boolean;
-    onbeforeupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): any;
+    onbeforeupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): boolean;
     onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
-    elementAttrs(): any;
+    elementAttrs(): Record<string, unknown>;
     header(): Mithril.Children;
     content(): Mithril.Children[];
     classes(existing?: string): string[];

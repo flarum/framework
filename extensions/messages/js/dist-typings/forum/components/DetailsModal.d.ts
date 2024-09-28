@@ -1,4 +1,4 @@
-/// <reference types="flarum/@types/translator-icu-rich" />
+/// <reference types="@flarum/core/dist-typings/@types/translator-icu-rich" />
 import Modal, { type IInternalModalAttrs } from 'flarum/common/components/Modal';
 import type Dialog from '../../common/models/Dialog';
 import ItemList from 'flarum/common/utils/ItemList';
