@@ -6,6 +6,14 @@ const ConcatenatedModule = require('webpack/lib/optimize/ConcatenatedModule');
 class RegisterAsyncChunksPlugin {
   static registry = {};
 
+  processUrlPath(urlPath) {
+    if (path.sep == "\\") {
+      // separator on windows is "\", this will cause escape issues when used in url path.
+      return urlPath.replace(/\\/g, '/');
+    }
+    return urlPath;
+  }
+
   apply(compiler) {
     compiler.hooks.thisCompilation.tap('RegisterAsyncChunksPlugin', (compilation) => {
       let alreadyOptimized = false;
@@ -63,6 +71,8 @@ class RegisterAsyncChunksPlugin {
               // Each line that has a webpackChunkName comment.
               [...module._source._value.matchAll(/.*\/\* webpackChunkName: .* \*\/.*/gm)].forEach(([match]) => {
                 [...match.matchAll(/(.*?) webpackChunkName: '([^']*)'.*? \*\/ '([^']+)'.*?/gm)].forEach(([match, _, urlPath, importPath]) => {
+                  urlPath = this.processUrlPath(urlPath);
+
                   // Import path is relative to module.resource, so we need to resolve it
                   const importPathResolved = path.resolve(path.dirname(module.resource), importPath);
                   const thisComposerJson = require(path.resolve(process.cwd(), '../composer.json'));
@@ -118,7 +128,7 @@ class RegisterAsyncChunksPlugin {
 
                     // The path right after the src/ directory, without the extension.
                     const regPathSep = `\\${path.sep}`;
-                    const urlPath = module.resource.replace(new RegExp(`.*${regPathSep}src${regPathSep}([^.]+)\..+`), '$1');
+                    const urlPath = this.processUrlPath(module.resource.replace(new RegExp(`.*${regPathSep}src${regPathSep}([^.]+)\..+`), '$1'));
 
                     if (!registrableModulesUrlPaths.has(urlPath)) {
                       registrableModulesUrlPaths.set(urlPath, [relevantChunk.id, moduleId, namespace, urlPath]);
