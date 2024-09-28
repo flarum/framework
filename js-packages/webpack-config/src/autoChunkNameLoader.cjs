@@ -67,8 +67,8 @@ module.exports = function autoChunkNameLoader(source) {
         }
 
         if (path.sep == "\\") {
-          // separator on windows is "\", the resolver only works with "/".
-          chunkPath = chunkPath.replace(/\\/g, "/");
+          // separator on windows is '\', the resolver only works with '/'.
+          chunkPath = chunkPath.replace(/\\/g, '/');
         }
 
         const webpackCommentOptions = {

@@ -9,7 +9,7 @@ class RegisterAsyncChunksPlugin {
   processUrlPath(urlPath) {
     if (path.sep == "\\") {
       // separator on windows is "\", this will cause escape issues when used in url path.
-      return urlPath.replace(/\\/g, "/");
+      return urlPath.replace(/\\/g, '/');
     }
     return urlPath;
   }
