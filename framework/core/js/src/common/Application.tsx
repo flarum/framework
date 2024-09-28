@@ -248,7 +248,7 @@ export default class Application {
 
   allowUserColorScheme!: boolean;
 
-  refs: Record<string, unknown> = {
+  refs: Record<string, string> = {
     fontawesome: 'https://fontawesome.com/v6/icons?o=r&m=free',
   };
 
