@@ -4,10 +4,7 @@ module.exports = (options = {}) => ({
   testEnvironment: 'jsdom',
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
   transform: {
-    '^.+\\.[tj]sx?$': [
-      'babel-jest',
-      require('flarum-webpack-config/babel.config.cjs'),
-    ],
+    '^.+\\.[tj]sx?$': ['babel-jest', require('flarum-webpack-config/babel.config.cjs')],
     '^.+\\.tsx?$': [
       'ts-jest',
       {

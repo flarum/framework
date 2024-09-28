@@ -20,7 +20,7 @@ yarn add -D @flarum/prettier-config
 {
   "name": "my-cool-package",
   "version": "1.0.0",
-  "prettier": "@flarum/prettier-config",
+  "prettier": "@flarum/prettier-config"
   // ...
 }
 ```
