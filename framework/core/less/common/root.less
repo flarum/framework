@@ -45,7 +45,6 @@
   --control-danger-bg:             @@control-danger-bg;
   --control-danger-color:          @@control-danger-color;
   --control-body-bg-mix:           mix(@@control-bg, @@body-bg, 50%);
-  --control-muted-color:           lighten(@@control-color, 40%);
 
   // ---------------------------------
   // COMPONENT COLORS
@@ -83,6 +82,8 @@
 [data-theme^=light] {
   .scheme(light);
 
+  --control-muted-color:           lighten(@control-color-light, 40%);
+
   --search-gambit:                 var(--control-bg-shaded);
 
   // ---------------------------------
@@ -116,6 +117,8 @@
 
 [data-theme^=dark] {
   .scheme(dark);
+
+  --control-muted-color:           darken(@control-color-dark, 25%);
 
   --search-gambit:                 var(--control-bg-light);
 
@@ -212,6 +215,15 @@
   --usercard-bg:                   var(--control-bg);
   --hero-bg:                       var(--control-bg);
   --hero-color:                    var(--control-color);
+
+  --pill-bg:                      var(--control-bg);
+  --pill-color:                   var(--control-color);
+  --pill-bg-alt:                  var(--body-bg);
+  --pill-color-alt:               var(--text-color);
+
+  --bubble-bg:                    var(--control-color);
+  --bubble-color:                 var(--body-bg);
+  --bubble-shadow-color:          var(--body-bg);
 
   --highlight-color:               #FFE300;
 

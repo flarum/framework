@@ -1,15 +1,12 @@
 import app from '../../forum/app';
-import Component, { ComponentAttrs } from '../../common/Component';
-import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
-import Dropdown from '../../common/components/Dropdown';
 import PostControls from '../utils/PostControls';
-import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
 import type PostModel from '../../common/models/Post';
-import LoadingIndicator from '../../common/components/LoadingIndicator';
-import type Mithril from 'mithril';
+import Mithril from 'mithril';
+import AbstractPost, { type IAbstractPostAttrs } from './AbstractPost';
+import type User from '../../common/models/User';
 
-export interface IPostAttrs extends ComponentAttrs {
+export interface IPostAttrs extends IAbstractPostAttrs {
   post: PostModel;
 }
 
@@ -18,124 +15,64 @@ export interface IPostAttrs extends ComponentAttrs {
  * includes a controls dropdown; subclasses must implement `content` and `attrs`
  * methods.
  */
-export default abstract class Post<CustomAttrs extends IPostAttrs = IPostAttrs> extends Component<CustomAttrs> {
-  /**
-   * May be set by subclasses.
-   */
-  loading = false;
-
-  /**
-   * Ensures that the post will not be redrawn
-   * unless new data comes in.
-   */
-  subtree!: SubtreeRetainer;
-
+export default abstract class Post<CustomAttrs extends IPostAttrs = IPostAttrs> extends AbstractPost<CustomAttrs> {
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
-
-    this.loading = false;
-
-    this.subtree = new SubtreeRetainer(
-      () => this.loading,
-      () => this.attrs.post.freshness,
-      () => {
-        const user = this.attrs.post.user();
-        return user && user.freshness;
-      }
-    );
   }
 
-  view(vnode: Mithril.Vnode<CustomAttrs, this>) {
-    const attrs = this.elementAttrs();
+  user(): User | null | false {
+    return this.attrs.post.user();
+  }
 
-    attrs.className = this.classes(attrs.className as string | undefined).join(' ');
+  controls(): Mithril.Children[] {
+    return PostControls.controls(this.attrs.post, this).toArray();
+  }
 
-    const controls = PostControls.controls(this.attrs.post, this).toArray();
-    const footerItems = this.footerItems().toArray();
+  freshness(): Date {
+    return this.attrs.post.freshness;
+  }
 
-    return (
-      <article {...attrs}>
-        {this.header()}
-        <div className="Post-container">
-          <div className="Post-side">{this.sideItems().toArray()}</div>
-          <div className="Post-main">
-            {this.loading ? <LoadingIndicator /> : this.content()}
-            <aside className="Post-actions">
-              <ul>
-                {listItems(this.actionItems().toArray())}
-                {!!controls.length && (
-                  <li>
-                    <Dropdown
-                      className="Post-controls"
-                      buttonClassName="Button Button--icon Button--flat"
-                      menuClassName="Dropdown-menu--right"
-                      icon="fas fa-ellipsis-h"
-                      onshow={() => this.$('.Post-controls').addClass('open')}
-                      onhide={() => this.$('.Post-controls').removeClass('open')}
-                      accessibleToggleLabel={app.translator.trans('core.forum.post_controls.toggle_dropdown_accessible_label')}
-                    >
-                      {controls}
-                    </Dropdown>
-                  </li>
-                )}
-              </ul>
-            </aside>
-            <footer className="Post-footer">{footerItems.length ? <ul>{listItems(footerItems)}</ul> : null}</footer>
-          </div>
-        </div>
-      </article>
-    );
+  createdByStarter(): boolean {
+    const user = this.attrs.post.user();
+    const discussion = this.attrs.post.discussion();
+
+    return user && user === discussion.user();
   }
 
   onbeforeupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
-    super.onbeforeupdate(vnode);
-
-    return this.subtree.needsRebuild();
+    return super.onbeforeupdate(vnode);
   }
 
   onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.onupdate(vnode);
-
-    const $actions = this.$('.Post-actions');
-    const $controls = this.$('.Post-controls');
-
-    $actions.toggleClass('openWithin', $controls.hasClass('open'));
   }
 
   /**
    * Get attributes for the post element.
    */
   elementAttrs(): Record<string, unknown> {
-    return {};
+    return super.elementAttrs();
   }
 
   header(): Mithril.Children {
-    return null;
+    return super.header();
   }
 
   /**
    * Get the post's content.
    */
-  content(): Mithril.Children {
-    return [];
+  content(): Mithril.Children[] {
+    return super.content();
   }
 
   /**
    * Get the post's classes.
    */
   classes(existing?: string): string[] {
-    let classes = (existing || '').split(' ').concat(['Post']);
+    let classes = super.classes(existing);
 
     const user = this.attrs.post.user();
     const discussion = this.attrs.post.discussion();
-
-    if (this.loading) {
-      classes.push('Post--loading');
-    }
-
-    if (user && user === app.session.user) {
-      classes.push('Post--by-actor');
-    }
 
     if (user && user === discussion.user()) {
       classes.push('Post--by-start-user');
@@ -148,25 +85,21 @@ export default abstract class Post<CustomAttrs extends IPostAttrs = IPostAttrs> 
    * Build an item list for the post's actions.
    */
   actionItems(): ItemList<Mithril.Children> {
-    return new ItemList();
+    return super.actionItems();
   }
 
   /**
    * Build an item list for the post's footer.
    */
   footerItems(): ItemList<Mithril.Children> {
-    return new ItemList();
+    return super.footerItems();
   }
 
   sideItems(): ItemList<Mithril.Children> {
-    const items = new ItemList<Mithril.Children>();
-
-    items.add('avatar', this.avatar(), 100);
-
-    return items;
+    return super.sideItems();
   }
 
   avatar(): Mithril.Children {
-    return null;
+    return super.avatar();
   }
 }

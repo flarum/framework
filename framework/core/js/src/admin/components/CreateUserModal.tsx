@@ -218,6 +218,8 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
         } else {
           this.hide();
         }
+
+        this.alertAttrs = null;
       })
       .finally(() => {
         this.bulkAdd(false);

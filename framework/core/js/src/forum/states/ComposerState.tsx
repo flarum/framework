@@ -2,55 +2,60 @@ import app from '../../forum/app';
 import subclassOf from '../../common/utils/subclassOf';
 import Stream from '../../common/utils/Stream';
 import Component from '../../common/Component';
+import type EditorDriverInterface from '../../common/utils/EditorDriverInterface';
+import type ComposerBody from '../components/ComposerBody';
+import type Discussion from '../../common/models/Discussion';
 
 class ComposerState {
+  static Position = {
+    HIDDEN: 'hidden',
+    NORMAL: 'normal',
+    MINIMIZED: 'minimized',
+    FULLSCREEN: 'fullScreen',
+  };
+
+  /**
+   * The composer's current position.
+   */
+  position = ComposerState.Position.HIDDEN;
+
+  /**
+   * The composer's intended height, which can be modified by the user
+   * (by dragging the composer handle).
+   */
+  height: number | null = null;
+
+  /**
+   * The dynamic component being shown inside the composer.
+   */
+  body: any = { attrs: {} };
+
+  /**
+   * A reference to the text editor that allows text manipulation.
+   */
+  editor: EditorDriverInterface | null = null;
+
+  /**
+   * If the composer was loaded and mounted.
+   */
+  mounted: boolean = false;
+
+  protected onExit: { callback: () => boolean; message: string } | null = null;
+
+  /**
+   * Fields of the composer.
+   */
+  public fields!: Record<string, Stream<any>> & { content: Stream<string> };
+
   constructor() {
-    /**
-     * The composer's current position.
-     *
-     * @type {ComposerState.Position}
-     */
-    this.position = ComposerState.Position.HIDDEN;
-
-    /**
-     * The composer's intended height, which can be modified by the user
-     * (by dragging the composer handle).
-     *
-     * @type {number}
-     */
-    this.height = null;
-
-    /**
-     * The dynamic component being shown inside the composer.
-     *
-     * @type {Object}
-     */
-    this.body = { attrs: {} };
-
-    /**
-     * A reference to the text editor that allows text manipulation.
-     *
-     * @type {import('../../common/utils/EditorDriverInterface')|null}
-     */
-    this.editor = null;
-
-    /**
-     * If the composer was loaded and mounted.
-     *
-     * @type {boolean}
-     */
-    this.mounted = false;
-
     this.clear();
   }
 
   /**
    * Load a content component into the composer.
    *
-   * @param {() => Promise<any & { default: typeof import('../components/ComposerBody') }> | typeof import('../components/ComposerBody').default} componentClass
-   * @param {object} attrs
    */
-  async load(componentClass, attrs) {
+  async load(componentClass: () => Promise<any & { default: ComposerBody }> | ComposerBody, attrs: object) {
     if (!(componentClass.prototype instanceof Component)) {
       componentClass = (await componentClass()).default;
     }
@@ -98,7 +103,7 @@ class ComposerState {
   async show() {
     if (!this.mounted) {
       const Composer = (await import('../components/Composer')).default;
-      m.mount(document.getElementById('composer'), { view: () => <Composer state={this} /> });
+      m.mount(document.getElementById('composer')!, { view: () => <Composer state={this} /> });
       this.mounted = true;
     }
 
@@ -160,11 +165,10 @@ class ComposerState {
   /**
    * Determine whether the body matches the given component class and data.
    *
-   * @param {object} type The component class to check against. Subclasses are accepted as well.
-   * @param {object} data
-   * @return {boolean}
+   * @param type The component class to check against. Subclasses are accepted as well.
+   * @param data
    */
-  bodyMatches(type, data = {}) {
+  bodyMatches(type: object, data: any = {}): boolean {
     // Fail early when the body is of a different type
     if (!subclassOf(this.body.componentClass, type)) return false;
 
@@ -204,7 +208,7 @@ class ComposerState {
    * @param {import('../../common/models/Discussion').default} discussion
    * @return {boolean}
    */
-  composingReplyTo(discussion) {
+  composingReplyTo(discussion: Discussion) {
     const ReplyComposer = flarum.reg.checkModule('core', 'forum/components/ReplyComposer');
 
     if (!ReplyComposer) return false;
@@ -216,10 +220,11 @@ class ComposerState {
    * Confirm with the user that they want to close the composer and lose their
    * content.
    *
-   * @return {boolean} Whether or not the exit was cancelled.
+   * @return Whether or not the exit was cancelled.
    */
-  preventExit() {
+  preventExit(): boolean | void {
     if (!this.isVisible()) return;
+
     if (!this.onExit) return;
 
     if (this.onExit.callback()) {
@@ -233,11 +238,8 @@ class ComposerState {
    * The provided callback will be used to determine whether asking for
    * confirmation is necessary. If the callback returns true at the time of
    * closing, the provided text will be shown in a standard confirmation dialog.
-   *
-   * @param {() => boolean} callback
-   * @param {string} message
    */
-  preventClosingWhen(callback, message) {
+  preventClosingWhen(callback: () => boolean, message: string) {
     this.onExit = { callback, message };
   }
 
@@ -250,40 +252,31 @@ class ComposerState {
   }
 
   /**
-   * Maxmimum height of the Composer.
-   * @returns {number}
+   * Maximum height of the Composer.
    */
-  maximumHeight() {
-    return $(window).height() - $('#header').outerHeight();
+  maximumHeight(): number {
+    return $(window).height()! - $('#header').outerHeight()!;
   }
 
   /**
    * Computed the composer's current height, based on the intended height, and
    * the composer's current state. This will be applied to the composer
    * content's DOM element.
-   * @returns {number | string}
    */
-  computedHeight() {
+  computedHeight(): number | string {
     // If the composer is minimized, then we don't want to set a height; we'll
     // let the CSS decide how high it is. If it's fullscreen, then we need to
     // make it as high as the window.
     if (this.position === ComposerState.Position.MINIMIZED) {
       return '';
     } else if (this.position === ComposerState.Position.FULLSCREEN) {
-      return $(window).height();
+      return $(window).height()!;
     }
 
     // Otherwise, if it's normal or hidden, then we use the intended height.
     // We don't let the composer get too small or too big, though.
-    return Math.max(this.minimumHeight(), Math.min(this.height, this.maximumHeight()));
+    return Math.max(this.minimumHeight(), Math.min(this.height || 0, this.maximumHeight()));
   }
 }
-
-ComposerState.Position = {
-  HIDDEN: 'hidden',
-  NORMAL: 'normal',
-  MINIMIZED: 'minimized',
-  FULLSCREEN: 'fullScreen',
-};
 
 export default ComposerState;

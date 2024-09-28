@@ -1,0 +1,31 @@
+{
+    "name": "@flarum/messages",
+    "private": true,
+    "version": "0.0.0",
+    "devDependencies": {
+        "flarum-webpack-config": "^3.0.0",
+        "webpack": "^5.65.0",
+        "webpack-cli": "^4.9.1",
+        "prettier": "^2.5.1",
+        "@flarum/prettier-config": "^1.0.0",
+        "flarum-tsconfig": "^1.0.2",
+        "typescript": "^4.5.4",
+        "typescript-coverage-report": "^0.6.1",
+        "@flarum/jest-config": "^1.0.1"
+    },
+    "scripts": {
+        "dev": "webpack --mode development --watch",
+        "build": "webpack --mode production",
+        "analyze": "cross-env ANALYZER=true yarn run build",
+        "format": "prettier --write src",
+        "format-check": "prettier --check src",
+        "clean-typings": "npx rimraf dist-typings && mkdir dist-typings",
+        "build-typings": "yarn run clean-typings && ([ -e src/@types ] && cp -r src/@types dist-typings/@types || true) && tsc && yarn run post-build-typings",
+        "post-build-typings": "find dist-typings -type f -name '*.d.ts' -print0 | xargs -0 sed -i 's,../src/@types,@types,g'",
+        "check-typings": "tsc --noEmit --emitDeclarationOnly false",
+        "check-typings-coverage": "typescript-coverage-report",
+        "test": "yarn node --experimental-vm-modules $(yarn bin jest)"
+    },
+    "prettier": "@flarum/prettier-config",
+    "type": "module"
+}

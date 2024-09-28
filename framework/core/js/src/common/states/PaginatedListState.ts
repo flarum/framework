@@ -1,6 +1,19 @@
 import app from '../../common/app';
 import Model from '../Model';
 import { ApiQueryParamsPlural, ApiResponsePlural } from '../Store';
+import type Mithril from 'mithril';
+import setRouteWithForcedRefresh from '../utils/setRouteWithForcedRefresh';
+
+export type SortMapItem =
+  | string
+  | {
+      sort: string;
+      label: Mithril.Children;
+    };
+
+export type SortMap = {
+  [key: string]: SortMapItem;
+};
 
 export interface Page<TModel> {
   number: number;
@@ -273,5 +286,56 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
    */
   isSearchResults(): boolean {
     return !!this.params.q;
+  }
+
+  public push(model: T): void {
+    const lastPage = this.pages[this.pages.length - 1];
+
+    if (lastPage && lastPage.items.length < (this.pageSize || PaginatedListState.DEFAULT_PAGE_SIZE)) {
+      lastPage.items.push(model);
+    } else {
+      this.pages.push({
+        number: lastPage ? lastPage.number + 1 : 1,
+        items: [model],
+        hasNext: lastPage.hasNext,
+        hasPrev: Boolean(lastPage),
+      });
+    }
+
+    m.redraw();
+  }
+
+  getSort(): string {
+    return this.params.sort || '';
+  }
+
+  sortMap(): SortMap {
+    return {};
+  }
+
+  sortValue(sort: SortMapItem): string | undefined {
+    return typeof sort === 'string' ? sort : sort?.sort;
+  }
+
+  currentSort(): string | undefined {
+    return this.sortValue(this.sortMap()[this.getSort()]);
+  }
+
+  changeSort(sort: string) {
+    let currentSort: string | undefined;
+
+    if (sort === Object.keys(this.sortMap())[0]) {
+      currentSort = undefined;
+    } else {
+      currentSort = sort;
+    }
+
+    this.refreshParams(
+      {
+        ...this.params,
+        sort: currentSort,
+      },
+      1
+    );
   }
 }

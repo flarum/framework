@@ -164,7 +164,9 @@ export default class Composer extends Component {
    * Draw focus to the first focusable content element (the text editor).
    */
   focus() {
-    this.$('.Composer-content :input:enabled:visible, .TextEditor-editor').first().focus();
+    this.$(this.attrs.state.body.componentClass.focusOnSelector?.() || '.Composer-content :input:enabled:visible, .TextEditor-editor')
+      .first()
+      .focus();
   }
 
   /**

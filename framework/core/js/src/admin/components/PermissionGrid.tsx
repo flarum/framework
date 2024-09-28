@@ -177,7 +177,7 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
         label: app.translator.trans('core.admin.permissions.global_heading'),
         render: (item: PermissionGridEntry) => {
           if ('setting' in item) {
-            return item.setting();
+            return item.setting?.();
           } else if ('permission' in item) {
             return <PermissionDropdown permission={item.permission} allowGuest={item.allowGuest} />;
           }

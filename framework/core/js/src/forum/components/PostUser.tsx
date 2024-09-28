@@ -1,20 +1,23 @@
 import app from '../../forum/app';
-import Component from '../../common/Component';
+import Component, { type ComponentAttrs } from '../../common/Component';
 import Link from '../../common/components/Link';
-import UserCard from './UserCard';
 import username from '../../common/helpers/username';
 import userOnline from '../../common/helpers/userOnline';
 import listItems from '../../common/helpers/listItems';
 import Avatar from '../../common/components/Avatar';
+import type Model from '../../common/Model';
+import type Post from '../../common/models/Post';
+import type User from '../../common/models/User';
+
+export interface IPostUserAttrs extends ComponentAttrs {
+  /** Can be a post or similar model like private message */
+  post: Post | (Model & { user: () => User | null | false });
+}
 
 /**
  * The `PostUser` component shows the avatar and username of a post's author.
- *
- * ### Attrs
- *
- * - `post`
  */
-export default class PostUser extends Component {
+export default class PostUser<CustomAttrs extends IPostUserAttrs = IPostUserAttrs> extends Component<CustomAttrs> {
   view() {
     const post = this.attrs.post;
     const user = post.user();

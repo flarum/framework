@@ -18,7 +18,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Str;
-use InvalidArgumentException;
 use RuntimeException;
 use Tobyz\JsonApiServer\Context;
 use Tobyz\JsonApiServer\Pagination\OffsetPagination;
@@ -95,10 +94,6 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
 
             /** @var Relationship|null $relationship */
             $relationship = collect($context->fields($this))->first(fn ($f) => $f->name === $relationName);
-
-            if (! $relationship) {
-                throw new InvalidArgumentException("To use relation aggregates, the relationship field must be part of the resource. Missing field: $relationName for attribute $field->name.");
-            }
 
             EloquentBuffer::add($model, $relationName, $aggregate);
 

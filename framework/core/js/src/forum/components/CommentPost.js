@@ -5,14 +5,12 @@ import PostUser from './PostUser';
 import PostMeta from './PostMeta';
 import PostEdited from './PostEdited';
 import ItemList from '../../common/utils/ItemList';
-import listItems from '../../common/helpers/listItems';
 import Button from '../../common/components/Button';
-import ComposerPostPreview from './ComposerPostPreview';
 import Link from '../../common/components/Link';
-import UserCard from './UserCard';
 import Avatar from '../../common/components/Avatar';
 import escapeRegExp from '../../common/utils/escapeRegExp';
 import highlight from '../../common/helpers/highlight';
+import Comment from './Comment';
 
 /**
  * The `CommentPost` component displays a standard `comment`-typed post. This
@@ -62,26 +60,19 @@ export default class CommentPost extends Post {
   }
 
   content() {
-    let contentHtml = this.isEditing() ? '' : this.attrs.post.contentHtml();
-
-    if (!this.isEditing() && this.attrs.params?.q) {
-      const phrase = escapeRegExp(this.attrs.params.q);
-      const highlightRegExp = new RegExp(phrase + '|' + phrase.trim().replace(/\s+/g, '|'), 'gi');
-      contentHtml = highlight(contentHtml, highlightRegExp, undefined, true);
-    } else {
-      contentHtml = m.trust(contentHtml);
-    }
-
-    return super.content().concat([
-      <header className="Post-header">
-        <ul>{listItems(this.headerItems().toArray())}</ul>
-
-        {!this.attrs.post.isHidden() && this.cardVisible && (
-          <UserCard user={this.attrs.post.user()} className="UserCard--popover" controlsButtonClassName="Button Button--icon Button--flat" />
-        )}
-      </header>,
-      <div className="Post-body">{this.isEditing() ? <ComposerPostPreview className="Post-preview" composer={app.composer} /> : contentHtml}</div>,
-    ]);
+    return super
+      .content()
+      .concat([
+        <Comment
+          headerItems={this.headerItems()}
+          cardVisible={this.cardVisible}
+          isEditing={this.isEditing()}
+          isHidden={this.attrs.post.isHidden()}
+          contentHtml={this.attrs.post.contentHtml()}
+          user={this.attrs.post.user()}
+          search={this.params?.q}
+        />,
+      ]);
   }
 
   refreshContent() {

@@ -9,6 +9,7 @@ import Avatar from '../../common/components/Avatar';
 import type { SearchSource } from './Search';
 import extractText from '../../common/utils/extractText';
 import listItems from '../../common/helpers/listItems';
+import UserSearchResult from './UserSearchResult';
 
 /**
  * The `UsersSearchSource` finds and displays user search results in the search
@@ -53,21 +54,7 @@ export default class UsersSearchSource implements SearchSource {
 
     if (!results.length) return [];
 
-    return results.map((user) => {
-      const name = username(user, (name: string) => highlight(name, query));
-
-      return (
-        <li className="UserSearchResult" data-index={'users' + user.id()} data-id={user.id()}>
-          <Link href={app.route.user(user)}>
-            <Avatar user={user} />
-            <div className="UserSearchResult-name">
-              {name}
-              <div className="badges badges--packed">{listItems(user.badges().toArray())}</div>
-            </div>
-          </Link>
-        </li>
-      );
-    });
+    return results.map((user) => <UserSearchResult user={user} query={query} />);
   }
 
   customGrouping(): boolean {

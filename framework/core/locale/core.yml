@@ -831,6 +831,14 @@ core:
       three_text: "{first}, {second}, and {third}"
       two_text: "{first} and {second}"
 
+    # These translations are used in the generic user selection modal.
+    user_selection_modal:
+      empty_results: No users found matching your search.
+      max_items_to_select: "{count, plural, one {Select up to # user} other {Select up to # users}}"
+      search_placeholder: => core.ref.search_users
+      submit_button: => core.ref.okay
+      title: Select relevant users
+
     # These translations are used to modify usernames.
     username:
       deleted_text: "[deleted]"
