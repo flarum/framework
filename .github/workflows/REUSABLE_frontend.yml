@@ -74,7 +74,7 @@ on:
         description: The node version to use for the workflow.
         type: number
         required: false
-        default: 16
+        default: 20
 
       js_package_manager:
         description: "Enable TypeScript?"
