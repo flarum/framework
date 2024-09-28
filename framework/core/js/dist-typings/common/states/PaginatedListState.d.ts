@@ -1,11 +1,11 @@
 import Model from '../Model';
 import { ApiQueryParamsPlural, ApiResponsePlural } from '../Store';
 import type Mithril from 'mithril';
-export declare type SortMapItem = string | {
+export type SortMapItem = string | {
     sort: string;
     label: Mithril.Children;
 };
-export declare type SortMap = {
+export type SortMap = {
     [key: string]: SortMapItem;
 };
 export interface Page<TModel> {

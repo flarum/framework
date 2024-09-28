@@ -17,8 +17,8 @@ import IHistory from './IHistory';
 import IExtender from './extenders/IExtender';
 import SearchManager from './SearchManager';
 import { ColorScheme } from './components/ThemeMode';
-export declare type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
-export declare type FlarumGenericRoute = RouteItem<any, any, any>;
+export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
+export type FlarumGenericRoute = RouteItem<any, any, any>;
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
     errorHandler?: (error: RequestError) => void;
     url: string;
@@ -29,14 +29,14 @@ export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.Request
      */
     modifyText?: (responseText: string) => string;
 }
-export declare type NewComponent<Comp> = new () => Comp;
-export declare type AsyncNewComponent<Comp> = () => Promise<any & {
+export type NewComponent<Comp> = new () => Comp;
+export type AsyncNewComponent<Comp> = () => Promise<any & {
     default: NewComponent<Comp>;
 }>;
 /**
  * A valid route definition.
  */
-export declare type RouteItem<Attrs extends ComponentAttrs, Comp extends Component<Attrs & {
+export type RouteItem<Attrs extends ComponentAttrs, Comp extends Component<Attrs & {
     routeName: string;
 }>, RouteArgs extends Record<string, unknown> = {}> = {
     /**

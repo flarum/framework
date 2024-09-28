@@ -1,4 +1,4 @@
-export declare type GeneralIndexItem = {
+export type GeneralIndexItem = {
     id: string;
     tree?: string[];
     label: string;
@@ -6,8 +6,8 @@ export declare type GeneralIndexItem = {
     link?: string;
     visible?: () => boolean;
 };
-export declare type GeneralIndexData = Record<string, Record<'settings' | 'permissions', GeneralIndexItem[]>>;
-export declare type GeneralIndexGroup = {
+export type GeneralIndexData = Record<string, Record<'settings' | 'permissions', GeneralIndexItem[]>>;
+export type GeneralIndexGroup = {
     label: string;
     icon: {
         name: string;

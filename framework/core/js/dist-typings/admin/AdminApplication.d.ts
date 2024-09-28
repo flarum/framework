@@ -5,7 +5,7 @@ import IHistory from '../common/IHistory';
 import SearchManager from '../common/SearchManager';
 import SearchState from '../common/states/SearchState';
 import GeneralSearchIndex from './states/GeneralSearchIndex';
-export declare type Extension = {
+export type Extension = {
     id: string;
     name: string;
     version: string;

@@ -25,7 +25,7 @@ export interface ApiQueryParamsPlural {
     sort?: string;
     meta?: MetaInformation;
 }
-export declare type ApiQueryParams = ApiQueryParamsPlural | ApiQueryParamsSingle;
+export type ApiQueryParams = ApiQueryParamsPlural | ApiQueryParamsSingle;
 export interface ApiPayloadSingle {
     data: SavedModelData;
     included?: SavedModelData[];
@@ -45,14 +45,14 @@ export interface ApiPayloadPlural {
         perPage?: number;
     };
 }
-export declare type ApiPayload = ApiPayloadSingle | ApiPayloadPlural;
-export declare type ApiResponseSingle<M extends Model> = M & {
+export type ApiPayload = ApiPayloadSingle | ApiPayloadPlural;
+export type ApiResponseSingle<M extends Model> = M & {
     payload: ApiPayloadSingle;
 };
-export declare type ApiResponsePlural<M extends Model> = M[] & {
+export type ApiResponsePlural<M extends Model> = M[] & {
     payload: ApiPayloadPlural;
 };
-export declare type ApiResponse<M extends Model> = ApiResponseSingle<M> | ApiResponsePlural<M>;
+export type ApiResponse<M extends Model> = ApiResponseSingle<M> | ApiResponsePlural<M>;
 interface ApiQueryRequestOptions<ResponseType> extends Omit<FlarumRequestOptions<ResponseType>, 'url'> {
 }
 interface StoreData {

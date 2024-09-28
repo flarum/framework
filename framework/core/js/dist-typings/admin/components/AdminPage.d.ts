@@ -13,7 +13,7 @@ export interface AdminHeaderOptions {
      */
     className: string;
 }
-export declare type SettingsComponentOptions = FieldComponentOptions & {
+export type SettingsComponentOptions = FieldComponentOptions & {
     setting: string;
     json?: boolean;
     refreshAfterSaving?: boolean;
@@ -21,10 +21,10 @@ export declare type SettingsComponentOptions = FieldComponentOptions & {
 /**
  * Valid attrs that can be returned by the `headerInfo` function
  */
-export declare type AdminHeaderAttrs = AdminHeaderOptions & Partial<Omit<Mithril.Attributes, 'class'>>;
-export declare type SettingValue = string;
-export declare type MutableSettings = Record<string, Stream<SettingValue>>;
-export declare type SaveSubmitEvent = SubmitEvent & {
+export type AdminHeaderAttrs = AdminHeaderOptions & Partial<Omit<Mithril.Attributes, 'class'>>;
+export type SettingValue = string;
+export type MutableSettings = Record<string, Stream<SettingValue>>;
+export type SaveSubmitEvent = SubmitEvent & {
     redraw: boolean;
 };
 export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends Page<CustomAttrs> {

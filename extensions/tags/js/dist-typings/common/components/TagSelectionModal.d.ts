@@ -44,7 +44,7 @@ export interface ITagSelectionModalAttrs extends IFormModalAttrs {
     /** Callback for when the selection is submitted. */
     onsubmit?: (selected: Tag[]) => void;
 }
-export declare type ITagSelectionModalState = undefined;
+export type ITagSelectionModalState = undefined;
 export default class TagSelectionModal<CustomAttrs extends ITagSelectionModalAttrs = ITagSelectionModalAttrs, CustomState extends ITagSelectionModalState = ITagSelectionModalState> extends FormModal<CustomAttrs, CustomState> {
     protected loading: boolean;
     protected tags: Tag[];

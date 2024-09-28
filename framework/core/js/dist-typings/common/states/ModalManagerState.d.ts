@@ -7,7 +7,7 @@ import Modal, { IDismissibleOptions } from '../components/Modal';
  * https://github.com/Microsoft/TypeScript/issues/1213
  * Therefore, we have to use this ugly, messy workaround.
  */
-declare type UnsafeModalClass = ComponentClass<any, Modal> & {
+type UnsafeModalClass = ComponentClass<any, Modal> & {
     get dismissibleOptions(): IDismissibleOptions;
     component: typeof Component.component;
 };
@@ -15,10 +15,10 @@ declare type UnsafeModalClass = ComponentClass<any, Modal> & {
  * Alternatively, `show` takes an async function that returns a modal class.
  * This is useful for lazy-loading modals.
  */
-declare type AsyncModalClass = () => Promise<any & {
+type AsyncModalClass = () => Promise<any & {
     default: UnsafeModalClass;
 }>;
-declare type ModalItem = {
+type ModalItem = {
     componentClass: UnsafeModalClass;
     attrs?: Record<string, unknown>;
     key: number;

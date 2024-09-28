@@ -4,7 +4,7 @@ import type User from '../../common/models/User';
 import type { IPageAttrs } from '../../common/components/Page';
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
-declare type ColumnData = {
+type ColumnData = {
     /**
      * Column title
      */

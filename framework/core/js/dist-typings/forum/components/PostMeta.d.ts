@@ -3,7 +3,7 @@ import Component, { type ComponentAttrs } from '../../common/Component';
 import Post from '../../common/models/Post';
 import type Model from '../../common/Model';
 import type User from '../../common/models/User';
-declare type ModelType = Post | (Model & {
+type ModelType = Post | (Model & {
     user: () => User | null | false;
     createdAt: () => Date;
 });
