@@ -1,4 +1,4 @@
-/// <reference path="../../../src/@types/translator-icu-rich.d.ts" />
+/// <reference path="../../@types/translator-icu-rich.d.ts" />
 /// <reference types="mithril" />
 import AdminPage from './AdminPage';
 export default class PermissionsPage extends AdminPage {

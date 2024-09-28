@@ -1,3 +1,4 @@
+/// <reference path="../../../../../../framework/core/js/src/@types/translator-icu-rich.d.ts" />
 /// <reference types="flarum/@types/translator-icu-rich" />
 export default class DiscussionTaggedPost extends EventPost {
     static initAttrs(attrs: any): void;
