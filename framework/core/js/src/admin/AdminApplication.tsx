@@ -4,10 +4,17 @@ import routes, { AdminRoutes } from './routes';
 import Application, { ApplicationData } from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import AdminNav from './components/AdminNav';
-import ExtensionData from './utils/ExtensionData';
+import AdminRegistry from './utils/AdminRegistry';
 import IHistory from '../common/IHistory';
 import SearchManager from '../common/SearchManager';
 import SearchState from '../common/states/SearchState';
+import app from './app';
+import BasicsPage from './components/BasicsPage';
+import GeneralSearchIndex from './states/GeneralSearchIndex';
+import AppearancePage from './components/AppearancePage';
+import MailPage from './components/MailPage';
+import AdvancedPage from './components/AdvancedPage';
+import PermissionsPage from './components/PermissionsPage';
 
 export type Extension = {
   id: string;
@@ -32,10 +39,18 @@ export type Extension = {
   extra: {
     'flarum-extension': {
       title: string;
+      category?: string;
+      'database-support'?: string[];
     };
   };
   require?: Record<string, string>;
 };
+
+export enum DatabaseDriver {
+  MySQL = 'MySQL',
+  PostgreSQL = 'PostgreSQL',
+  SQLite = 'SQLite',
+}
 
 export interface AdminApplicationData extends ApplicationData {
   extensions: Record<string, Extension>;
@@ -48,10 +63,24 @@ export interface AdminApplicationData extends ApplicationData {
   maintenanceByConfig: boolean;
   safeModeExtensions?: string[] | null;
   safeModeExtensionsConfig?: string[] | null;
+
+  dbDriver: DatabaseDriver;
+  dbVersion: string;
+  dbOptions: Record<string, string>;
+  phpVersion: string;
+  queueDriver: string;
+  schedulerStatus: string;
+  sessionDriver: string;
 }
 
 export default class AdminApplication extends Application {
-  extensionData = new ExtensionData();
+  /**
+   * Stores the available settings, permissions, and custom pages of the app.
+   * Allows the global search to find these items.
+   *
+   * @internal
+   */
+  registry = new AdminRegistry();
 
   extensionCategories = {
     feature: 30,
@@ -74,6 +103,12 @@ export default class AdminApplication extends Application {
   search: SearchManager<SearchState> = new SearchManager(new SearchState());
 
   /**
+   * Custom settings and custom permissions do not go through the registry.
+   * The general index is used to manually add these items to be picked up by the search.
+   */
+  generalIndex: GeneralSearchIndex = new GeneralSearchIndex();
+
+  /**
    * Settings are serialized to the admin dashboard as strings.
    * Additional encoding/decoding is possible, but must take
    * place on the client side.
@@ -91,6 +126,14 @@ export default class AdminApplication extends Application {
     routes(this);
 
     this.route = (Object.getPrototypeOf(Object.getPrototypeOf(this)) as Application).route.bind(this);
+  }
+
+  protected beforeMount(): void {
+    BasicsPage.register();
+    AppearancePage.register();
+    MailPage.register();
+    AdvancedPage.register();
+    PermissionsPage.register();
   }
 
   /**

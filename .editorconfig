@@ -23,3 +23,6 @@ indent_size = 2
 
 [*.neon]
 indent_style = tab
+
+[{install,update}.php]
+indent_size = 2

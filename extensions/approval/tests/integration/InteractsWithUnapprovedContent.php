@@ -64,7 +64,7 @@ trait InteractsWithUnapprovedContent
     /**
      * null: Guest, 2: Normal User.
      */
-    public function unallowedUsers(): array
+    public static function unallowedUsers(): array
     {
         return [[null], [2]];
     }
@@ -72,7 +72,7 @@ trait InteractsWithUnapprovedContent
     /**
      * 1: Admin, 3: Permission Given, 4: Discussions Author.
      */
-    public function allowedUsers(): array
+    public static function allowedUsers(): array
     {
         return [[1], [3], [4]];
     }

@@ -11,12 +11,14 @@ namespace Flarum\Mentions\Tests\integration\api\discussions;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
-use Flarum\Mentions\Api\LoadMentionedByRelationship;
+use Flarum\Mentions\Api\PostResourceFields;
 use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListPostsTest extends TestCase
 {
@@ -52,9 +54,7 @@ class ListPostsTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mentioned_filter_works()
     {
         $response = $this->send(
@@ -71,9 +71,7 @@ class ListPostsTest extends TestCase
         $this->assertEqualsCanonicalizing(['2', '3'], $ids, 'IDs do not match');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mentioned_filter_works_negated()
     {
         $response = $this->send(
@@ -90,9 +88,7 @@ class ListPostsTest extends TestCase
         $this->assertEqualsCanonicalizing(['4'], $ids, 'IDs do not match');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mentioned_filter_works_with_sort()
     {
         $response = $this->send(
@@ -116,40 +112,40 @@ class ListPostsTest extends TestCase
     {
         $this->prepareDatabase([
             Discussion::class => [
-                ['id' => 100, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 101, 'comment_count' => 12],
+                ['id' => 100, 'title' => __CLASS__, 'created_at' => Carbon::parse('2024-05-04'), 'user_id' => 1, 'first_post_id' => 101, 'comment_count' => 12],
             ],
             Post::class => [
-                ['id' => 101, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 102, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 103, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>', 'is_private' => 1],
-                ['id' => 104, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 105, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 106, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 107, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 108, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 109, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 110, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 111, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
-                ['id' => 112, 'discussion_id' => 100, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 101, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04'), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 102, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(2), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 103, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(3), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>', 'is_private' => 1],
+                ['id' => 104, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(4), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 105, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(5), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 106, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(6), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 107, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(7), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 108, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(8), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 109, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(9), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 110, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(10), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 111, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(11), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
+                ['id' => 112, 'discussion_id' => 100, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(12), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>text</p></t>'],
             ],
             'post_mentions_post' => [
-                ['post_id' => 102, 'mentions_post_id' => 101],
-                ['post_id' => 103, 'mentions_post_id' => 101],
-                ['post_id' => 104, 'mentions_post_id' => 101],
-                ['post_id' => 105, 'mentions_post_id' => 101],
-                ['post_id' => 106, 'mentions_post_id' => 101],
-                ['post_id' => 107, 'mentions_post_id' => 101],
-                ['post_id' => 108, 'mentions_post_id' => 101],
-                ['post_id' => 109, 'mentions_post_id' => 101],
-                ['post_id' => 110, 'mentions_post_id' => 101],
-                ['post_id' => 111, 'mentions_post_id' => 101],
-                ['post_id' => 112, 'mentions_post_id' => 101],
-                ['post_id' => 103, 'mentions_post_id' => 112],
+                ['post_id' => 102, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(2)],
+                ['post_id' => 103, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(3)],
+                ['post_id' => 104, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(4)],
+                ['post_id' => 105, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(5)],
+                ['post_id' => 106, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(6)],
+                ['post_id' => 107, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(7)],
+                ['post_id' => 108, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(8)],
+                ['post_id' => 109, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(9)],
+                ['post_id' => 110, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(10)],
+                ['post_id' => 111, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(11)],
+                ['post_id' => 112, 'mentions_post_id' => 101, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(12)],
+                ['post_id' => 103, 'mentions_post_id' => 112, 'created_at' => Carbon::parse('2024-05-04')->addMinutes(13)],
             ],
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function mentioned_by_relation_returns_limited_results_and_shows_only_visible_posts_in_show_post_endpoint()
     {
         $this->prepareMentionedByData();
@@ -170,12 +166,12 @@ class ListPostsTest extends TestCase
         $mentionedBy = $data['relationships']['mentionedBy']['data'];
 
         // Only displays a limited amount of mentioned by posts
-        $this->assertCount(LoadMentionedByRelationship::$maxMentionedBy, $mentionedBy);
+        $this->assertCount(PostResourceFields::$maxMentionedBy, $mentionedBy);
         // Of the limited amount of mentioned by posts, they must be visible to the actor
         $this->assertEquals([102, 104, 105, 106], Arr::pluck($mentionedBy, 'id'));
     }
 
-    /** @test */
+    #[Test]
     public function mentioned_by_relation_returns_limited_results_and_shows_only_visible_posts_in_list_posts_endpoint()
     {
         $this->prepareMentionedByData();
@@ -187,26 +183,25 @@ class ListPostsTest extends TestCase
             ])->withQueryParams([
                 'filter' => ['discussion' => 100],
                 'include' => 'mentionedBy',
+                'sort' => 'createdAt',
             ])
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($body = $response->getBody()->getContents(), true)['data'];
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $body);
 
         $mentionedBy = $data[0]['relationships']['mentionedBy']['data'];
 
         // Only displays a limited amount of mentioned by posts
-        $this->assertCount(LoadMentionedByRelationship::$maxMentionedBy, $mentionedBy);
+        $this->assertCount(PostResourceFields::$maxMentionedBy, $mentionedBy);
         // Of the limited amount of mentioned by posts, they must be visible to the actor
         $this->assertEquals([102, 104, 105, 106], Arr::pluck($mentionedBy, 'id'));
     }
 
-    /**
-     * @dataProvider mentionedByIncludeProvider
-     * @test
-     */
-    public function mentioned_by_relation_returns_limited_results_and_shows_only_visible_posts_in_show_discussion_endpoint(string $include)
+    #[Test]
+    #[DataProvider('mentionedByIncludeProvider')]
+    public function mentioned_by_relation_returns_limited_results_and_shows_only_visible_posts_in_show_discussion_endpoint(?string $include)
     {
         $this->prepareMentionedByData();
 
@@ -219,29 +214,32 @@ class ListPostsTest extends TestCase
             ])
         );
 
-        $included = json_decode($response->getBody()->getContents(), true)['included'];
+        $included = json_decode($body = $response->getBody()->getContents(), true)['included'] ?? [];
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
 
         $mentionedBy = collect($included)
             ->where('type', 'posts')
             ->where('id', 101)
-            ->first()['relationships']['mentionedBy']['data'];
+            ->first()['relationships']['mentionedBy']['data'] ?? null;
 
+        $this->assertNotNull($mentionedBy, 'Mentioned by relation not included');
         // Only displays a limited amount of mentioned by posts
-        $this->assertCount(LoadMentionedByRelationship::$maxMentionedBy, $mentionedBy);
+        $this->assertCount(PostResourceFields::$maxMentionedBy, $mentionedBy);
         // Of the limited amount of mentioned by posts, they must be visible to the actor
         $this->assertEquals([102, 104, 105, 106], Arr::pluck($mentionedBy, 'id'));
     }
 
-    public function mentionedByIncludeProvider(): array
+    public static function mentionedByIncludeProvider(): array
     {
         return [
             ['posts,posts.mentionedBy'],
             ['posts.mentionedBy'],
-            [''],
+            [null],
         ];
     }
 
-    /** @test */
+    #[Test]
     public function mentioned_by_count_only_includes_visible_posts_to_actor()
     {
         $this->prepareMentionedByData();
@@ -253,10 +251,54 @@ class ListPostsTest extends TestCase
             ])
         );
 
-        $data = json_decode($response->getBody()->getContents(), true)['data'];
+        $data = json_decode($body = $response->getBody()->getContents(), true)['data'] ?? [];
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $body);
 
         $this->assertEquals(0, $data['attributes']['mentionedByCount']);
+    }
+
+    #[Test]
+    public function mentioned_by_count_works_on_show_endpoint()
+    {
+        $this->prepareMentionedByData();
+
+        // List posts endpoint
+        $response = $this->send(
+            $this->request('GET', '/api/posts/101', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $data = json_decode($body = $response->getBody()->getContents(), true)['data'] ?? [];
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $this->assertEquals(10, $data['attributes']['mentionedByCount']);
+    }
+
+    #[Test]
+    public function mentioned_by_count_works_on_list_endpoint()
+    {
+        $this->prepareMentionedByData();
+
+        // List posts endpoint
+        $response = $this->send(
+            $this->request('GET', '/api/posts', [
+                'authenticatedAs' => 1,
+            ])->withQueryParams([
+                'filter' => ['discussion' => 100],
+            ])
+        );
+
+        $data = json_decode($body = $response->getBody()->getContents(), true)['data'] ?? [];
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $post101 = collect($data)->where('id', 101)->first();
+        $post112 = collect($data)->where('id', 112)->first();
+
+        $this->assertEquals(10, $post101['attributes']['mentionedByCount']);
+        $this->assertEquals(0, $post112['attributes']['mentionedByCount']);
     }
 }

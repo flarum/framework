@@ -38,6 +38,7 @@ import IHistory from './IHistory';
 import IExtender from './extenders/IExtender';
 import AccessToken from './models/AccessToken';
 import SearchManager from './SearchManager';
+import { ColorScheme } from './components/ThemeMode';
 
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 
@@ -245,6 +246,8 @@ export default class Application {
 
   data!: ApplicationData;
 
+  allowUserColorScheme!: boolean;
+
   private _title: string = '';
   private _titleCount: number = 0;
 
@@ -277,7 +280,7 @@ export default class Application {
     this.translator.setLocale(payload.locale);
   }
 
-  public boot() {
+  protected initialize(): CallableFunction[] {
     const caughtInitializationErrors: CallableFunction[] = [];
 
     this.initializers.toArray().forEach((initializer) => {
@@ -298,17 +301,29 @@ export default class Application {
       }
     });
 
+    return caughtInitializationErrors;
+  }
+
+  public boot() {
+    const caughtInitializationErrors: CallableFunction[] = this.initialize();
+
     this.store.pushPayload({ data: this.data.resources });
 
     this.forum = this.store.getById('forums', '1')!;
 
     this.session = new Session(this.store.getById<User>('users', String(this.data.session.userId)) ?? null, this.data.session.csrfToken);
 
+    this.beforeMount();
+
     this.mount();
 
     this.initialRoute = window.location.href;
 
     caughtInitializationErrors.forEach((handler) => handler());
+  }
+
+  protected beforeMount(): void {
+    // ...
   }
 
   public bootExtensions(extensions: Record<string, { extend?: IExtender[] }>) {
@@ -356,7 +371,59 @@ export default class Application {
 
     document.body.classList.add('ontouchstart' in window ? 'touch' : 'no-touch');
 
+    this.initColorScheme();
+
     liveHumanTimes();
+  }
+
+  private initColorScheme(forumDefault: string | null = null): void {
+    forumDefault ??= app.forum.attribute('colorScheme') ?? 'auto';
+    this.allowUserColorScheme = forumDefault === 'auto';
+    const userConfiguredPreference = this.session.user?.preferences()?.colorScheme;
+
+    let scheme;
+
+    if (this.allowUserColorScheme) {
+      scheme = userConfiguredPreference;
+    }
+
+    scheme ||= forumDefault;
+
+    this.setColorScheme(scheme);
+
+    // Listen for browser color scheme changes and update the theme accordingly
+    if (this.allowUserColorScheme) {
+      this.watchSystemColorSchemePreference(() => {
+        this.initColorScheme(forumDefault);
+      });
+    }
+  }
+
+  getSystemColorSchemePreference(): ColorScheme | string {
+    let colorScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
+    if (window.matchMedia('(prefers-contrast: more)').matches) {
+      colorScheme += '-hc';
+    }
+
+    return colorScheme;
+  }
+
+  watchSystemColorSchemePreference(callback: () => void): void {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', callback);
+    window.matchMedia('(prefers-contrast: more)').addEventListener('change', callback);
+  }
+
+  setColorScheme(scheme: ColorScheme | string): void {
+    if (scheme === ColorScheme.Auto) {
+      scheme = this.getSystemColorSchemePreference();
+    }
+
+    document.documentElement.setAttribute('data-theme', scheme);
+  }
+
+  setColoredHeader(value: boolean): void {
+    document.documentElement.setAttribute('data-colored-header', value ? 'true' : 'false');
   }
 
   /**
@@ -559,7 +626,11 @@ export default class Application {
         break;
 
       default:
-        if (this.requestWasCrossOrigin(error)) {
+        const code = error.response?.errors?.[0]?.code;
+
+        if (code === 'db_error' && app.session.user?.isAdmin()) {
+          content = app.translator.trans('core.lib.error.db_error_message');
+        } else if (this.requestWasCrossOrigin(error)) {
           content = app.translator.trans('core.lib.error.generic_cross_origin_message');
         } else {
           content = app.translator.trans('core.lib.error.generic_message');

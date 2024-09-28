@@ -82,7 +82,7 @@
       &--shaded {
         background: var(--body-bg-shaded);
 
-        & when (@config-dark-mode = true) {
+        [data-theme^=dark] & {
           background: var(--body-bg-light);
         }
       }

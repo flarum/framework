@@ -30,7 +30,8 @@ class HandledError
     public function __construct(
         private readonly Throwable $error,
         private readonly string $type,
-        private readonly int $statusCode
+        private readonly int $statusCode,
+        private bool $report = false
     ) {
     }
 
@@ -58,7 +59,7 @@ class HandledError
 
     public function shouldBeReported(): bool
     {
-        return $this->type === 'unknown';
+        return $this->type === 'unknown' || $this->report;
     }
 
     public function getDetails(): array

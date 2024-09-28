@@ -13,6 +13,7 @@ use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class ShowTest extends TestCase
 {
@@ -32,9 +33,7 @@ class ShowTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shows_public_group_for_guest()
     {
         $response = $this->send(
@@ -48,9 +47,7 @@ class ShowTest extends TestCase
         $this->assertEquals('1', Arr::get($data, 'data.id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shows_public_group_for_admin()
     {
         $response = $this->send(
@@ -66,9 +63,7 @@ class ShowTest extends TestCase
         $this->assertEquals('1', Arr::get($data, 'data.id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function hides_hidden_group_for_guest()
     {
         $response = $this->send(
@@ -76,12 +71,10 @@ class ShowTest extends TestCase
         );
 
         // Hidden group should not be returned for guest
-        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals(404, $response->getStatusCode(), (string) $response->getBody());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shows_hidden_group_for_admin()
     {
         $response = $this->send(
@@ -97,9 +90,7 @@ class ShowTest extends TestCase
         $this->assertEquals('10', Arr::get($data, 'data.id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function rejects_request_for_non_existing_group()
     {
         $response = $this->send(
@@ -110,7 +101,7 @@ class ShowTest extends TestCase
 
         // If group does not exist in database, controller
         // should reject the request with 404 Not found
-        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals(404, $response->getStatusCode(), (string) $response->getBody());
     }
 
     protected function hiddenGroup(): array

@@ -30,6 +30,8 @@ export default class TagsPage<CustomAttrs extends ITagsPageAttrs = ITagsPageAttr
 
     app.history.push('tags', extractText(app.translator.trans('flarum-tags.forum.header.back_to_tags_tooltip')));
 
+    app.current.set('noTagsList', true);
+
     this.tags = [];
 
     const preloaded = app.preloadedApiDocument<Tag[]>();
@@ -59,7 +61,7 @@ export default class TagsPage<CustomAttrs extends ITagsPageAttrs = ITagsPageAttr
 
   view() {
     return (
-      <PageStructure className="TagsPage" hero={this.hero.bind(this)} sidebar={this.sidebar.bind(this)}>
+      <PageStructure className="TagsPage Page--vertical" hero={this.hero.bind(this)} sidebar={this.sidebar.bind(this)}>
         {this.contentItems().toArray()}
       </PageStructure>
     );

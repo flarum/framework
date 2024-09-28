@@ -15,6 +15,7 @@ use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class TagPolicyTest extends TestCase
 {
@@ -42,9 +43,7 @@ class TagPolicyTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function has_ability_when_allowed_in_restricted_tag()
     {
         $this->app();
@@ -54,9 +53,7 @@ class TagPolicyTest extends TestCase
         $this->assertTrue(User::find(2)->can('arbitraryAbility!', $tag));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function has_ability_in_child_when_allowed_in_top_tag_and_child()
     {
         $this->app();
@@ -66,9 +63,7 @@ class TagPolicyTest extends TestCase
         $this->assertTrue(User::find(2)->can('arbitraryAbility!', $tag));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function doesnt_have_ability_in_child_when_allowed_in_child_but_not_parent()
     {
         $this->app();
@@ -80,9 +75,7 @@ class TagPolicyTest extends TestCase
         $this->assertFalse(User::find(2)->can('arbitraryAbility!', $tag));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function nonrestricted_tag_falls_back_to_global_when_allowed()
     {
         $this->prepareDatabase([
@@ -98,9 +91,7 @@ class TagPolicyTest extends TestCase
         $this->assertTrue(User::find(2)->can('arbitraryAbility!', $tag));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function nonrestricted_tag_falls_back_to_global_when_not_allowed()
     {
         $this->app();

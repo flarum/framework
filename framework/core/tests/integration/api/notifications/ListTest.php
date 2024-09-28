@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\api\notifications;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListTest extends TestCase
 {
@@ -31,9 +32,7 @@ class ListTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function disallows_index_for_guest()
     {
         $response = $this->send(
@@ -43,9 +42,7 @@ class ListTest extends TestCase
         $this->assertEquals(401, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shows_index_for_user()
     {
         $response = $this->send(
@@ -54,6 +51,6 @@ class ListTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
     }
 }

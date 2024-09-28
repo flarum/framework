@@ -101,18 +101,18 @@ abstract class Migration
     {
         return [
             'up' => function (Builder $schema) use ($tableName, $columnNames) {
-                $schema->table($tableName, function (Blueprint $table) use ($columnNames) {
-                    foreach ($columnNames as $from => $to) {
+                foreach ($columnNames as $from => $to) {
+                    $schema->table($tableName, function (Blueprint $table) use ($from, $to) {
                         $table->renameColumn($from, $to);
-                    }
-                });
+                    });
+                }
             },
             'down' => function (Builder $schema) use ($tableName, $columnNames) {
-                $schema->table($tableName, function (Blueprint $table) use ($columnNames) {
-                    foreach ($columnNames as $to => $from) {
+                foreach ($columnNames as $to => $from) {
+                    $schema->table($tableName, function (Blueprint $table) use ($from, $to) {
                         $table->renameColumn($from, $to);
-                    }
-                });
+                    });
+                }
             }
         ];
     }

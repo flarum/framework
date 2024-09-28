@@ -1,4 +1,5 @@
-import Application, { AsyncNewComponent, FlarumGenericRoute, NewComponent } from '../Application';
+import type Application from '../Application';
+import type { AsyncNewComponent, FlarumGenericRoute, NewComponent } from '../Application';
 import IExtender, { IExtensionModule } from './IExtender';
 
 type HelperRoute = (...args: any) => string;

@@ -5,5 +5,4 @@ import './components/EditTagModal';
 
 import './addTagsHomePageOption';
 import './addTagChangePermission';
-import './addTagPermission';
 import './addTagsPermissionScope';

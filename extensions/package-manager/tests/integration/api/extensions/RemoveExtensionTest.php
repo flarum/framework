@@ -11,22 +11,19 @@ namespace Flarum\ExtensionManager\Tests\integration\api\extensions;
 
 use Flarum\ExtensionManager\Tests\integration\RefreshComposerSetup;
 use Flarum\ExtensionManager\Tests\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class RemoveExtensionTest extends TestCase
 {
     use RefreshComposerSetup;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function extension_installed_by_default()
     {
         $this->assertExtensionExists('flarum-tags');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function removing_an_extension_works()
     {
         $response = $this->send(
@@ -39,9 +36,7 @@ class RemoveExtensionTest extends TestCase
         $this->assertExtensionNotExists('flarum-tags');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function removing_a_non_existant_extension_fails()
     {
         $response = $this->send(

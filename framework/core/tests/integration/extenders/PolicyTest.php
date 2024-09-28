@@ -19,6 +19,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\Access\AbstractPolicy;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class PolicyTest extends TestCase
 {
@@ -48,9 +49,7 @@ class PolicyTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unrelated_user_cant_hide_discussion_by_default()
     {
         $response = $this->send(
@@ -60,9 +59,7 @@ class PolicyTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unrelated_user_can_hide_discussion_if_allowed()
     {
         $this->extend(
@@ -77,9 +74,7 @@ class PolicyTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unrelated_user_cant_hide_discussion_if_denied()
     {
         $this->extend(
@@ -95,9 +90,7 @@ class PolicyTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unrelated_user_can_hide_discussion_if_force_allowed()
     {
         $this->extend(
@@ -114,9 +107,7 @@ class PolicyTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unrelated_user_cant_hide_discussion_if_force_denied()
     {
         $this->extend(
@@ -134,9 +125,7 @@ class PolicyTest extends TestCase
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function regular_user_can_start_discussions_by_default()
     {
         $this->app();
@@ -146,9 +135,7 @@ class PolicyTest extends TestCase
         $this->assertEquals(true, $user->can('startDiscussion'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function regular_user_cant_start_discussions_if_blocked_by_global_policy()
     {
         $this->extend(
@@ -163,9 +150,7 @@ class PolicyTest extends TestCase
         $this->assertEquals(false, $user->can('startDiscussion'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function global_policy_doesnt_apply_if_argument_provided()
     {
         $this->extend(
@@ -180,9 +165,7 @@ class PolicyTest extends TestCase
         $this->assertEquals(true, $user->can('startDiscussion', Discussion::find(1)));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unrelated_user_cant_hide_post_by_default()
     {
         $this->app();
@@ -192,9 +175,7 @@ class PolicyTest extends TestCase
         $this->assertEquals(false, $user->can('hide', Post::find(1)));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unrelated_user_can_hide_post_if_allowed()
     {
         $this->extend(
@@ -207,9 +188,7 @@ class PolicyTest extends TestCase
         $this->assertEquals(true, $user->can('hide', Post::find(1)));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function policies_are_inherited_to_child_classes()
     {
         $this->extend(

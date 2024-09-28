@@ -29,7 +29,7 @@ export default class GlobalSearchState extends SearchState {
   }
 
   protected currPageProvidesSearch(): boolean {
-    return app.current.type && app.current.type.providesInitialSearch;
+    return app.current.type && 'providesInitialSearch' in app.current.type && (app.current.type as any).providesInitialSearch;
   }
 
   /**

@@ -2,9 +2,11 @@ import Component, { ComponentAttrs } from '../../common/Component';
 import ItemList from '../../common/utils/ItemList';
 import type Mithril from 'mithril';
 export interface PermissionConfig {
-    permission: string;
+    permission?: string;
     icon: string;
     label: Mithril.Children;
+    id?: string;
+    setting?: () => Mithril.Children;
     allowGuest?: boolean;
 }
 export interface PermissionSetting {

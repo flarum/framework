@@ -11,10 +11,11 @@ namespace Flarum\Notification\Blueprint;
 
 use Flarum\Database\AbstractModel;
 use Flarum\Discussion\Discussion;
+use Flarum\Notification\AlertableInterface;
 use Flarum\Post\DiscussionRenamedPost;
 use Flarum\User\User;
 
-class DiscussionRenamedBlueprint implements BlueprintInterface
+class DiscussionRenamedBlueprint implements BlueprintInterface, AlertableInterface
 {
     public function __construct(
         protected DiscussionRenamedPost $post

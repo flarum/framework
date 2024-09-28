@@ -12,6 +12,8 @@ namespace Flarum\Tags\Tests\integration\api\tags;
 use Flarum\Tags\Tag;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListWithFulltextSearchTest extends TestCase
 {
@@ -36,10 +38,8 @@ class ListWithFulltextSearchTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider searchDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('searchDataProvider')]
     public function can_search_for_tags(string $search, array $expected)
     {
         $response = $this->send(
@@ -56,7 +56,7 @@ class ListWithFulltextSearchTest extends TestCase
         $this->assertEquals($expected, Arr::pluck($data, 'id'));
     }
 
-    public function searchDataProvider(): array
+    public static function searchDataProvider(): array
     {
         return [
             ['fla', [8]],

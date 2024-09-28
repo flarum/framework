@@ -62,7 +62,7 @@ class DiscussionPolicy extends AbstractPolicy
             if (
                 $allowEditTags === '-1'
                 || ($allowEditTags === 'reply' && $discussion->participant_count <= 1)
-                || (is_numeric($allowEditTags) && $discussion->created_at->diffInMinutes(new Carbon) < $allowEditTags)
+                || (is_numeric($allowEditTags) && $discussion->created_at->diffInMinutes(new Carbon, true) < $allowEditTags)
             ) {
                 return $this->allow();
             }

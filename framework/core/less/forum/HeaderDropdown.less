@@ -26,21 +26,10 @@
   color: var(--header-color);
 }
 
-.HeaderDropdown-unread {
-  position: absolute;
-  top: 2px;
-  left: 18px;
-  background: var(--header-control-color);
-  color: var(--header-bg);
-  font-size: 11px;
-  font-weight: bold;
-  padding: 2px 4px 3px;
-  line-height: 1em;
-  border-radius: 10px;
-  box-shadow: 0 0 0 1px var(--header-bg);
-  min-width: 16px;
-  height: 16px;
-  text-align: center;
+.HeaderDropdownBubble {
+  --bubble-bg: var(--header-control-color);
+  --bubble-color: var(--header-bg);
+  --bubble-shadow-color: var(--header-bg);
 
   @media @phone {
     left: 20px;
@@ -48,5 +37,29 @@
 
   .new & {
     background: var(--header-color);
+  }
+}
+
+.Bubble {
+  position: absolute;
+  top: 2px;
+  left: 18px;
+  background: var(--bubble-bg);
+  color: var(--bubble-color);
+  font-size: 11px;
+  font-weight: bold;
+  padding: 2px 4px 3px;
+  line-height: 1em;
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px var(--bubble-shadow-color);
+  min-width: 16px;
+  height: 16px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &--primary {
+    --bubble-bg: var(--primary-color);
   }
 }

@@ -39,7 +39,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Arr;
-use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 /**
  * @property int $id
@@ -72,7 +71,6 @@ class User extends AbstractModel
 {
     use EventGeneratorTrait;
     use ScopeVisibilityTrait;
-    use HasEagerLimit;
     use HasFactory;
 
     protected $casts = [
@@ -154,20 +152,12 @@ class User extends AbstractModel
 
             Notification::whereSubject($user)->delete();
         });
-    }
 
-    public static function register(?string $username, ?string $email, ?string $password): static
-    {
-        $user = new static;
+        static::creating(function (self $user) {
+            $user->joined_at = Carbon::now();
 
-        $user->username = $username;
-        $user->email = $email;
-        $user->password = $password;
-        $user->joined_at = Carbon::now();
-
-        $user->raise(new Registered($user));
-
-        return $user;
+            $user->raise(new Registered($user));
+        });
     }
 
     public static function setGate(Access\Gate $gate): void
@@ -375,7 +365,9 @@ class User extends AbstractModel
     public function getNewNotificationCount(): int
     {
         return $this->unreadNotifications()
-            ->where('created_at', '>', $this->read_notifications_at ?? 0)
+            ->when($this->read_notifications_at, function (Builder|HasMany $query) {
+                $query->where('created_at', '>', $this->read_notifications_at);
+            })
             ->count();
     }
 
@@ -446,7 +438,7 @@ class User extends AbstractModel
     {
         $now = Carbon::now();
 
-        if ($this->last_seen_at === null || $this->last_seen_at->diffInSeconds($now) > User::LAST_SEEN_UPDATE_DIFF) {
+        if ($this->last_seen_at === null || $this->last_seen_at->diffInSeconds($now, true) > User::LAST_SEEN_UPDATE_DIFF) {
             $this->last_seen_at = $now;
         }
 

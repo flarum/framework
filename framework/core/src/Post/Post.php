@@ -20,7 +20,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Query\Expression;
-use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 /**
  * @property int $id
@@ -45,7 +44,6 @@ class Post extends AbstractModel
 {
     use EventGeneratorTrait;
     use ScopeVisibilityTrait;
-    use HasEagerLimit;
     use HasFactory;
 
     protected $table = 'posts';
@@ -95,8 +93,7 @@ class Post extends AbstractModel
             $post->number = new Expression('('.
                 $db->table('posts', 'pn')
                     ->whereRaw($db->getTablePrefix().'pn.discussion_id = '.intval($post->discussion_id))
-                    // IFNULL only works on MySQL/MariaDB
-                    ->selectRaw('IFNULL(MAX('.$db->getTablePrefix().'pn.number), 0) + 1')
+                    ->selectRaw('COALESCE(MAX('.$db->getTablePrefix().'pn.number), 0) + 1')
                     ->toSql()
             .')');
         });

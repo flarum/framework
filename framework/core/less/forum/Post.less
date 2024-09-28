@@ -18,7 +18,7 @@
 .Post-header {
   margin-bottom: 15px;
 
-  &, a {
+  &, a, .Button--text.Button--link {
     color: var(--muted-color);
   }
   > ul {
@@ -34,8 +34,8 @@
 
   .UserCard {
     position: absolute;
-    top: 15px;
-    left: 16px;
+    top: 0;
+    left: 0;
     z-index: var(--zindex-dropdown);
     transition: opacity 0.2s, transform 0.2s;
     transform: scale(0.95);
@@ -218,6 +218,10 @@
 }
 .PostMeta {
   display: inline;
+}
+.PostMeta > .Button {
+  line-height: 1;
+  vertical-align: baseline;
 }
 .PostMeta .Dropdown-menu {
   width: 420px;
@@ -454,7 +458,6 @@
 
   .Post-avatar {
     .Avatar--size(32px);
-    display: block;
   }
 
   .Post-main {

@@ -45,6 +45,8 @@ core:
         safe_mode_extensions: Extensions allowed to boot during safe mode
         safe_mode_extensions_override_help: "This setting is overridden by the <code>safe_mode_extensions</code> key in your <code>config.php</code> file. (<b>{extensions}</b>)"
         section_label: Maintenance
+      pgsql:
+        search_configuration: Search configuration to use
       search:
         section_label: Search Drivers
         driver_heading: "Search Driver: {model}"
@@ -56,6 +58,7 @@ core:
 
     # These translations are used in the Appearance page.
     appearance:
+      allow_user_color_scheme_label: Allow users to choose their own color scheme
       colored_header_label: Colored Header
       colors_heading: Colors
       colors_primary_label: Primary Color
@@ -68,7 +71,6 @@ core:
       custom_styles_cannot_use_less_features: "The @import and data-uri features are not allowed in custom LESS."
       custom_styles_heading: Custom Styles
       custom_styles_text: Customize your forum's appearance by adding your own Less/CSS code to be applied on top of Flarum's default styles.
-      dark_mode_label: Dark Mode
       description: "Customize your forum's colors, logos, and other variables."
       edit_css_button: Edit Custom CSS
       edit_footer_button: => core.ref.custom_footer_title
@@ -79,6 +81,13 @@ core:
       logo_heading: Logo
       logo_text: Upload an image to be displayed in place of the forum title.
       title: Appearance
+      color_scheme_label: Color Scheme (default)
+      color_schemes:
+        auto_mode_label: User system or configured preference
+        dark_hc_mode_label: => core.ref.dark_hc_mode_label
+        dark_mode_label: => core.ref.dark_mode_label
+        light_hc_mode_label: => core.ref.light_hc_mode_label
+        light_mode_label: => core.ref.light_mode_label
 
     # These translations are used in the Basics page.
     basics:
@@ -211,6 +220,7 @@ core:
     extension:
       configure_scopes: Configure Scopes
       confirm_purge: Purging will remove all database entries and assets related to the extension. It will not uninstall the extension; that must be done via Composer. Are you sure you want to continue?
+      database_driver_mismatch: This extension does not support your configured database driver.
       disabled: Disabled
       enable_to_see: Enable the extension to view and change settings.
       enabled: Enabled
@@ -236,6 +246,8 @@ core:
     header:
       get_help: Get Help
       log_out_button: => core.ref.log_out
+      search_placeholder: Search...
+      search_role_label: Search
 
     # These translations are used in the modal dialog displayed when loading extensions.
     loading:
@@ -320,6 +332,11 @@ core:
       members_button: => core.group.members
       signup_closed_button: Closed
       signup_open_button: Open
+
+    # These translations are used by the admin-specific search sources.
+    search_source:
+      general:
+        heading: General
 
     # These translations are used generically in setting fields.
     settings:
@@ -470,7 +487,6 @@ core:
       log_in_link: => core.ref.log_in
       log_out_button: => core.ref.log_out
       profile_button: Profile
-      search_clear_button_accessible_label: Clear search query
       search_placeholder: Search Forum
       search_role_label: Search Forum
       session_dropdown_accessible_label: Toggle session options dropdown menu
@@ -484,16 +500,16 @@ core:
       mark_all_as_read_confirmation: "Are you sure you want to mark all discussions as read?"
       mark_all_as_read_tooltip: => core.ref.mark_all_as_read
       meta_title_text: => core.ref.all_discussions
-      refresh_tooltip: Refresh
+      refresh_tooltip: => core.ref.refresh
       start_discussion_button: => core.ref.start_a_discussion
       toggle_sidenav_dropdown_accessible_label: Toggle navigation dropdown menu
 
     # These translations are used by the sorting control above the discussion list.
     index_sort:
       latest_button: Latest
-      newest_button: Newest
-      oldest_button: Oldest
-      relevance_button: Relevance
+      newest_button: => core.ref.newest
+      oldest_button: => core.ref.oldest
+      relevance_button: => core.ref.relevance
       toggle_dropdown_accessible_label: Change discussion list sorting
       top_button: Top
 
@@ -536,6 +552,12 @@ core:
       restore_button: => core.ref.restore
       toggle_dropdown_accessible_label: Toggle post controls dropdown menu
 
+    # These translations are used in the post list.
+    post_list:
+      empty_text: It looks as though there are no posts here.
+      in_discussion_text: "In {discussion}"
+      load_more_button: => core.ref.load_more
+
     # These translations are used in the scrubber to the right of the post stream.
     post_scrubber:
       now_link: Now
@@ -551,21 +573,21 @@ core:
       reply_placeholder: => core.ref.write_a_reply
       time_lapsed_text: "{period} later"
 
+    # These translations are used by the sorting control above the post list.
+    posts_sort:
+      newest_button: => core.ref.newest
+      oldest_button: => core.ref.oldest
+      relevance_button: => core.ref.relevance
+
+    # These translations are used in the posts search page.
+    posts:
+      meta_title_text: Post search results
+      refresh_tooltip: => core.ref.refresh
+
     # These translations are used by the rename discussion modal.
     rename_discussion:
       submit_button: => core.ref.rename
       title: Rename Discussion
-
-    # These translations are used by the search modal.
-    search:
-      gambit_plus_button_a11y_label: Add a positive filter
-      gambit_minus_button_a11y_label: Add a negative filter
-      title: Search
-      no_results_text: It looks like there are no results here.
-      no_search_text: You have not searched for anything yet.
-      options_heading: Search options
-      placeholder: Search...
-      preview_heading: Search preview
 
     # These translations are used in the Security page.
     security:
@@ -606,6 +628,13 @@ core:
       account_heading: Account
       change_email_button: => core.ref.change_email
       change_password_button: => core.ref.change_password
+      color_scheme_heading: Color Scheme
+      color_schemes:
+        auto_mode_label: System preference
+        dark_hc_mode_label: => core.ref.dark_hc_mode_label
+        dark_mode_label: => core.ref.dark_mode_label
+        light_hc_mode_label: => core.ref.light_hc_mode_label
+        light_mode_label: => core.ref.light_mode_label
       notification_checkbox_a11y_label_template: 'Receive "{description}" notifications via {method}'
       notifications_heading: => core.ref.notifications
       notify_by_email_heading: => core.ref.email
@@ -698,6 +727,7 @@ core:
     # These translations are displayed as error messages.
     error:
       circular_dependencies_message: "Circular dependencies detected: {extensions}. Aborting. Please disable one of the extensions and try again."
+      db_error_message: "Database query failed. This may be caused by an incompatibility between an extension and your database driver."
       dependent_extensions_message: "Cannot disable {extension} until the following dependent extensions are disabled: {extensions}"
       extension_initialiation_failed_message: "{extension} failed to initialize, check the browser console for further information."
       generic_message: "Oops! Something went wrong. Please reload the page and try again."
@@ -708,6 +738,32 @@ core:
       permission_denied_message: You do not have permission to do that.
       rate_limit_exceeded_message: You're going a little too quickly. Please try again in a few seconds.
       render_failed_message: Sorry, we encountered an error while displaying this content. If you're a user, please try again later. If you're an administrator, take a look in your Flarum log files for more information.
+
+    # These translations are used by gambits. Gambit keys must be in snake_case, no spaces.
+    gambits:
+      boolean_key: is
+      discussions:
+        author:
+          key: author
+          hint: username or comma-separated list of usernames
+        created:
+          key: created
+          hint: 2020-12-31 or 2020-12-31..2021-09-30
+        hidden:
+          key: hidden
+        unread:
+          key: unread
+      posts:
+        discussion:
+          key: discussion
+          hint: the ID of the discussion
+      users:
+        email:
+          key: email
+          hint: example@machine.local
+        group:
+          key: group
+          hint: singular or plural group names
 
     # These translations are used in the input component.
     input:
@@ -746,41 +802,42 @@ core:
       kilo_text: K
       mega_text: M
 
+    # These translations are used by the abstract search component and search modal.
+    search:
+      gambit_plus_button_a11y_label: Add a positive filter
+      gambit_minus_button_a11y_label: Add a negative filter
+      title: Search
+      no_results_text: It looks like there are no results here.
+      no_search_text: You have not searched for anything yet.
+      options_heading: Search options
+      placeholder: Search...
+      preview_heading: Search preview
+      search_clear_button_accessible_label: Clear search query
+
     # These translations are used by search sources.
     search_source:
       discussions:
         all_button: 'Search all discussions for "{query}"'
         heading: => core.ref.discussions
+      posts:
+        all_button: 'Search all posts for "{query}"'
+        heading: => core.ref.posts
       users:
         heading: => core.ref.users
-
-    # These translations are used by gambits. Gambit keys must be in snake_case, no spaces.
-    gambits:
-      boolean_key: is
-      discussions:
-        author:
-          key: author
-          hint: username or comma-separated list of usernames
-        created:
-          key: created
-          hint: 2020-12-31 or 2020-12-31..2021-09-30
-        hidden:
-          key: hidden
-        unread:
-          key: unread
-      users:
-        email:
-          key: email
-          hint: example@machine.local
-        group:
-          key: group
-          hint: singular or plural group names
 
     # These translations are used to punctuate a series of items.
     series:
       glue_text: ", "
       three_text: "{first}, {second}, and {third}"
       two_text: "{first} and {second}"
+
+    # These translations are used in the generic user selection modal.
+    user_selection_modal:
+      empty_results: No users found matching your search.
+      max_items_to_select: "{count, plural, one {Select up to # user} other {Select up to # users}}"
+      search_placeholder: => core.ref.search_users
+      submit_button: => core.ref.okay
+      title: Select relevant users
 
     # These translations are used to modify usernames.
     username:
@@ -873,7 +930,7 @@ core:
 
   # Translations in this namespace are used in messages output by the API.
   api:
-    invalid_username_message: "The username may only contain letters, numbers, and dashes."
+    invalid_username_message: "The username may only contain letters, numbers, and dashes. With at least one letter."
     invalid_filter_type:
       must_be_numeric_message: "The {filter} filter must be numeric."
       must_not_be_array_message: "The {filter} filter must not be an array."
@@ -961,6 +1018,8 @@ core:
     custom_footer_title: Edit Custom Footer
     custom_header_text: "Add HTML to be displayed at the very top of the page, above Flarum's own header."
     custom_header_title: Edit Custom Header
+    dark_hc_mode_label: Dark High Contrast Mode
+    dark_mode_label: Dark Mode
     delete: Delete
     delete_forever: Delete Forever
     discussions: Discussions # Referenced by flarum-statistics.yml
@@ -972,6 +1031,8 @@ core:
     icon: Icon
     icon_text: "Enter the name of any <a>FontAwesome</a> icon class, <em>including</em> the <code>fas fa-</code> prefix."
     invalid_login_message: Your login details were incorrect.
+    light_hc_mode_label: Light High Contrast Mode
+    light_mode_label: Light Mode
     load_more: Load More
     loading: Loading...
     log_in: Log In
@@ -979,16 +1040,20 @@ core:
     mark_all_as_read: Mark All as Read
     never: Never
     new_token: New Token
+    newest: Newest
     next_page: Next Page
     notifications: Notifications
     okay: OK # Referenced by flarum-tags.yml
+    oldest: Oldest
     password: Password
     posts: Posts # Referenced by flarum-statistics.yml
     previous_page: Previous Page
+    relevance: Relevance
     remember_me_label: Remember Me
     remove: Remove
     rename: Rename
     reply: Reply # Referenced by flarum-mentions.yml
+    refresh: Refresh
     reset_your_password: Reset Your Password
     restore: Restore
     save_changes: Save Changes

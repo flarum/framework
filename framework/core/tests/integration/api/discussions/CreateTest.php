@@ -14,6 +14,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class CreateTest extends TestCase
 {
@@ -33,9 +34,7 @@ class CreateTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cannot_create_discussion_without_content()
     {
         $response = $this->send(
@@ -43,6 +42,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'Test post',
                             'content' => '',
@@ -52,10 +52,11 @@ class CreateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(422, $response->getStatusCode());
+        $body = (string) $response->getBody();
+
+        $this->assertEquals(422, $response->getStatusCode(), $body);
 
         // The response body should contain details about the failed validation
-        $body = (string) $response->getBody();
         $this->assertJson($body);
         $this->assertEquals([
             'errors' => [
@@ -69,9 +70,7 @@ class CreateTest extends TestCase
         ], json_decode($body, true));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cannot_create_discussion_without_title()
     {
         $response = $this->send(
@@ -79,6 +78,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => '',
                             'content' => 'Test post',
@@ -105,9 +105,7 @@ class CreateTest extends TestCase
         ], json_decode($body, true));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_create_discussion()
     {
         $response = $this->send(
@@ -115,6 +113,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
@@ -124,19 +123,19 @@ class CreateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(201, $response->getStatusCode(), $body);
 
         /** @var Discussion $discussion */
         $discussion = Discussion::firstOrFail();
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($body, true);
 
         $this->assertEquals('test - too-obscure', $discussion->title);
         $this->assertEquals('test - too-obscure', Arr::get($data, 'data.attributes.title'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_create_discussion_with_current_lang_slug_transliteration()
     {
         // Forum default is traditional Chinese.
@@ -147,6 +146,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => '我是一个土豆',
                             'content' => 'predetermined content for automated testing',
@@ -164,9 +164,7 @@ class CreateTest extends TestCase
         $this->assertEquals('wo-shi-yi-ge-tu-dou', $discussion->slug);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_create_discussion_with_forum_locale_transliteration()
     {
         // Forum default is traditional Chinese.
@@ -179,6 +177,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => '我是一个土豆',
                             'content' => 'predetermined content for automated testing',
@@ -196,16 +195,15 @@ class CreateTest extends TestCase
         $this->assertEquals('wo-shi-yi-ge-tu-dou', $discussion->slug);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function discussion_creation_limited_by_throttler()
     {
-        $this->send(
+        $response = $this->send(
             $this->request('POST', '/api/discussions', [
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
@@ -215,11 +213,14 @@ class CreateTest extends TestCase
             ])
         );
 
+        $this->assertEquals(201, $response->getStatusCode());
+
         $response = $this->send(
             $this->request('POST', '/api/discussions', [
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'Second predetermined content for automated testing - too-obscure',
@@ -232,9 +233,7 @@ class CreateTest extends TestCase
         $this->assertEquals(429, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function throttler_doesnt_apply_to_admin()
     {
         $this->send(
@@ -242,6 +241,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'predetermined content for automated testing - too-obscure',
@@ -256,6 +256,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'test - too-obscure',
                             'content' => 'Second predetermined content for automated testing - too-obscure',

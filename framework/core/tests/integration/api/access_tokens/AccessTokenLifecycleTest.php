@@ -14,6 +14,7 @@ use Flarum\Http\AccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Laminas\Diactoros\ServerRequest;
+use PHPUnit\Framework\Attributes\Test;
 
 class AccessTokenLifecycleTest extends TestCase
 {
@@ -35,9 +36,7 @@ class AccessTokenLifecycleTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function tokens_expire()
     {
         $this->populateDatabase();
@@ -52,9 +51,7 @@ class AccessTokenLifecycleTest extends TestCase
         $this->assertEquals(['a', 'b'], AccessToken::whereExpired(Carbon::parse('2027-01-01 01:00:00'))->pluck('token')->sort()->values()->all());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function tokens_valid()
     {
         $this->populateDatabase();
@@ -69,9 +66,7 @@ class AccessTokenLifecycleTest extends TestCase
         $this->assertEquals(['c'], AccessToken::whereValid(Carbon::parse('2027-01-01 01:00:00'))->pluck('token')->all());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function touch_updates_lifetime()
     {
         $this->populateDatabase();
@@ -87,9 +82,7 @@ class AccessTokenLifecycleTest extends TestCase
         $this->assertTrue(AccessToken::whereValid(Carbon::parse('2021-01-01 03:30:00'))->whereToken('a')->exists());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function touch_without_request()
     {
         $this->populateDatabase();
@@ -104,9 +97,7 @@ class AccessTokenLifecycleTest extends TestCase
         $this->assertNull($token->last_user_agent);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function touch_with_request()
     {
         $this->populateDatabase();
@@ -123,9 +114,7 @@ class AccessTokenLifecycleTest extends TestCase
         $this->assertEquals('Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36', $token->last_user_agent);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function long_user_agent_id_truncated()
     {
         $this->populateDatabase();

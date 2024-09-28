@@ -19,6 +19,7 @@ use Flarum\Testing\integration\TestCase;
 use Flarum\User\Guest;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class DiscussionVisibilityTest extends TestCase
 {
@@ -82,9 +83,7 @@ class DiscussionVisibilityTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_sees_all()
     {
         $this->app();
@@ -96,9 +95,7 @@ class DiscussionVisibilityTest extends TestCase
         $this->assertEqualsCanonicalizing([1, 2, 3, 4, 5, 6, 7], $ids);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_sees_where_allowed()
     {
         $this->app();
@@ -110,9 +107,7 @@ class DiscussionVisibilityTest extends TestCase
         $this->assertEqualsCanonicalizing([1, 2, 3, 4, 7], $ids);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_sees_only_in_restricted_tags_without_global_perm()
     {
         $this->database()->table('group_permission')->where('permission', 'arbitraryAbility')->delete();
@@ -124,9 +119,7 @@ class DiscussionVisibilityTest extends TestCase
         $this->assertEqualsCanonicalizing([7], $ids);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guest_can_see_where_allowed()
     {
         $this->app();
@@ -138,9 +131,7 @@ class DiscussionVisibilityTest extends TestCase
         $this->assertEqualsCanonicalizing([1, 2], $ids);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guest_cant_see_without_global_perm()
     {
         $this->database()->table('group_permission')->where('permission', 'arbitraryAbility')->delete();

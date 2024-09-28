@@ -13,6 +13,7 @@ use Flarum\Extend;
 use Flarum\Formatter\Formatter;
 use Flarum\Testing\integration\RefreshesFormatterCache;
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class FormatterTest extends TestCase
 {
@@ -23,9 +24,7 @@ class FormatterTest extends TestCase
         return $this->app()->getContainer()->make(Formatter::class);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_formatter_config_doesnt_work_by_default()
     {
         $formatter = $this->getFormatter();
@@ -33,9 +32,7 @@ class FormatterTest extends TestCase
         $this->assertEquals('<t>[B]something[/B]</t>', $formatter->parse('[B]something[/B]'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_formatter_config_works_if_added_with_closure()
     {
         $this->extend((new Extend\Formatter)->configure(function ($config) {
@@ -47,9 +44,7 @@ class FormatterTest extends TestCase
         $this->assertEquals('<b>something</b>', $formatter->render($formatter->parse('[B]something[/B]')));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_formatter_config_works_if_added_with_invokable_class()
     {
         $this->extend((new Extend\Formatter)->configure(InvokableConfig::class));
@@ -59,17 +54,13 @@ class FormatterTest extends TestCase
         $this->assertEquals('<b>something</b>', $formatter->render($formatter->parse('[B]something[/B]')));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_formatter_parsing_doesnt_work_by_default()
     {
         $this->assertEquals('<t>Text&lt;a&gt;</t>', $this->getFormatter()->parse('Text<a>'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_formatter_parsing_works_if_added_with_closure()
     {
         $this->extend((new Extend\Formatter)->parse(function ($parser, $context, $text) {
@@ -79,9 +70,7 @@ class FormatterTest extends TestCase
         $this->assertEquals('<t>ReplacedText&lt;a&gt;</t>', $this->getFormatter()->parse('Text<a>'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_formatter_parsing_works_if_added_with_invokable_class()
     {
         $this->extend((new Extend\Formatter)->parse(InvokableParsing::class));
@@ -89,17 +78,13 @@ class FormatterTest extends TestCase
         $this->assertEquals('<t>ReplacedText&lt;a&gt;</t>', $this->getFormatter()->parse('Text<a>'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_formatter_unparsing_doesnt_work_by_default()
     {
         $this->assertEquals('Text<a>', $this->getFormatter()->unparse('<t>Text&lt;a&gt;</t>'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_formatter_unparsing_works_if_added_with_closure()
     {
         $this->extend((new Extend\Formatter)->unparse(function ($context, $xml) {
@@ -109,9 +94,7 @@ class FormatterTest extends TestCase
         $this->assertEquals('ReplacedText<a>', $this->getFormatter()->unparse('<t>Text&lt;a&gt;</t>'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_formatter_unparsing_works_if_added_with_invokable_class()
     {
         $this->extend((new Extend\Formatter)->unparse(InvokableUnparsing::class));
@@ -119,17 +102,13 @@ class FormatterTest extends TestCase
         $this->assertEquals('ReplacedText<a>', $this->getFormatter()->unparse('<t>Text&lt;a&gt;</t>'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_formatter_rendering_doesnt_work_by_default()
     {
         $this->assertEquals('Text', $this->getFormatter()->render('<p>Text</p>'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_formatter_rendering_works_if_added_with_closure()
     {
         $this->extend((new Extend\Formatter)->render(function ($renderer, $context, $xml, $request) {
@@ -139,9 +118,7 @@ class FormatterTest extends TestCase
         $this->assertEquals('ReplacedText', $this->getFormatter()->render('<html>Text</html>'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_formatter_rendering_works_if_added_with_invokable_class()
     {
         $this->extend((new Extend\Formatter)->render(InvokableRendering::class));

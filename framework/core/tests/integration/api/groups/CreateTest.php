@@ -14,6 +14,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class CreateTest extends TestCase
 {
@@ -33,9 +34,7 @@ class CreateTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_cannot_create_group_without_data()
     {
         $response = $this->send(
@@ -45,12 +44,10 @@ class CreateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertEquals(400, $response->getStatusCode(), (string) $response->getBody());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_can_create_group()
     {
         $response = $this->send(
@@ -58,6 +55,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'groups',
                         'attributes' => [
                             'nameSingular' => 'flarumite',
                             'namePlural' => 'flarumites',
@@ -69,10 +67,12 @@ class CreateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(201, $response->getStatusCode(), $body);
 
         // Verify API response body
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = json_decode($body, true);
         $this->assertEquals('flarumite', Arr::get($data, 'data.attributes.nameSingular'));
         $this->assertEquals('flarumites', Arr::get($data, 'data.attributes.namePlural'));
         $this->assertEquals('test', Arr::get($data, 'data.attributes.icon'));
@@ -86,9 +86,7 @@ class CreateTest extends TestCase
         $this->assertNull($group->color);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function normal_user_cannot_create_group()
     {
         $response = $this->send(
@@ -96,6 +94,7 @@ class CreateTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'groups',
                         'attributes' => [
                             'nameSingular' => 'flarumite',
                             'namePlural' => 'flarumites',

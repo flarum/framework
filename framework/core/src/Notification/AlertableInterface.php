@@ -1,0 +1,18 @@
+<?php
+
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
+namespace Flarum\Notification;
+
+/**
+ * The notification Alert driver only picks up notifications that implement this interface.
+ */
+interface AlertableInterface
+{
+    //
+}

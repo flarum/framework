@@ -65,7 +65,7 @@ class Config implements ArrayAccess
 
     public function safeModeExtensions(): ?array
     {
-        return $this->data['safe_mode_extensions'];
+        return $this->data['safe_mode_extensions'] ?? null;
     }
 
     private function requireKeys(mixed ...$keys): void
@@ -81,12 +81,12 @@ class Config implements ArrayAccess
 
     public function offsetGet($offset): mixed
     {
-        return Arr::get($this->data, $offset);
+        return Arr::get($this->data, $offset, Arr::get($this->defaults(), $offset));
     }
 
     public function offsetExists($offset): bool
     {
-        return Arr::has($this->data, $offset);
+        return Arr::has($this->data, $offset) || Arr::has($this->defaults(), $offset);
     }
 
     public function offsetSet($offset, $value): void
@@ -102,5 +102,15 @@ class Config implements ArrayAccess
     public function environment(): string
     {
         return $this->data['env'] ?? 'production';
+    }
+
+    protected function defaults(): array
+    {
+        // Mostly needed for Laravel internals.
+        return [
+            'app' => [
+                'timezone' => 'UTC',
+            ],
+        ];
     }
 }

@@ -6,7 +6,7 @@ import AutocompleteReader from 'flarum/common/utils/AutocompleteReader';
 
 import AutocompleteDropdown from './fragments/AutocompleteDropdown';
 import getEmojiIconCode from './helpers/getEmojiIconCode';
-import cdn from './cdn';
+import cdn from '../common/cdn';
 
 export default function addComposerAutocomplete() {
   let emojiMap = null;
@@ -40,6 +40,7 @@ export default function addComposerAutocomplete() {
 
   extend('flarum/common/components/TextEditor', 'buildEditorParams', function (params) {
     const emojiKeys = Object.keys(emojiMap);
+    const resolvedCdn = cdn();
 
     const autocompleteReader = new AutocompleteReader(':');
 
@@ -75,7 +76,7 @@ export default function addComposerAutocomplete() {
                   emojiDropdown.setIndex($(this).parent().index() - 1);
                 }}
               >
-                <img alt={emoji} className="emoji" draggable="false" loading="lazy" src={`${cdn}72x72/${code}.png`} title={name} />
+                <img alt={emoji} className="emoji" draggable="false" loading="lazy" src={`${resolvedCdn}72x72/${code}.png`} title={name} />
               </button>
             </Tooltip>
           );

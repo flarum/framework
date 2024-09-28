@@ -1,4 +1,5 @@
-import Application, { AsyncNewComponent, NewComponent } from '../Application';
+import type Application from '../Application';
+import type { AsyncNewComponent, NewComponent } from '../Application';
 import IExtender, { IExtensionModule } from './IExtender';
 declare type HelperRoute = (...args: any) => string;
 export default class Routes implements IExtender {

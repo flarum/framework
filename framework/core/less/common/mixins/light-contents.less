@@ -33,6 +33,10 @@
     background: var(~"--@{name}-control-bg-fadedin", fadein(@control-bg, 5%));
     color: var(~"--@{name}-control-color", @control-color);
   }
+
+  .Dropdown-menu>li>a, .Dropdown-menu>li>button, .Dropdown-menu>li>span {
+    color: var(--text-color);
+  }
 }
 
 .light-contents-vars(@color: #fff; @control-bg: fade(#000, 10%); @control-color: #fff; @name: 'light-content') {

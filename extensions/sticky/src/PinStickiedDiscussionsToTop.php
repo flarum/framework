@@ -9,16 +9,18 @@
 
 namespace Flarum\Sticky;
 
+use DateTime;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\SearchCriteria;
 use Flarum\Tags\Search\Filter\TagFilter;
+use Illuminate\Database\Query\Builder;
 
 class PinStickiedDiscussionsToTop
 {
     public function __invoke(DatabaseSearchState $state, SearchCriteria $criteria): void
     {
         if ($criteria->sortIsDefault && ! $state->isFulltextSearch()) {
-            $query = $state->getQuery();
+            $query = $state->getQuery()->getQuery();
 
             // If we are viewing a specific tag, then pin all stickied
             // discussions to the top no matter what.
@@ -45,22 +47,28 @@ class PinStickiedDiscussionsToTop
             $sticky->where('is_sticky', true);
             unset($sticky->orders);
 
+            $epochTime = (new DateTime('@0'))->format('Y-m-d H:i:s');
+
+            /** @var Builder $q */
+            foreach ([$sticky, $query] as $q) {
+                $read = $q->newQuery()
+                    ->selectRaw('1')
+                    ->from('discussion_user as sticky')
+                    ->whereColumn('sticky.discussion_id', 'id')
+                    ->where('sticky.user_id', '=', $state->getActor()->id)
+                    ->whereColumn('sticky.last_read_post_number', '>=', 'last_post_number');
+
+                // Add the bindings manually (rather than as the second
+                // argument in orderByRaw) for now due to a bug in Laravel which
+                // would add the bindings in the wrong order.
+                $q->selectRaw('(is_sticky and not exists ('.$read->toSql().') and last_posted_at > ?) as is_unread_sticky', array_merge($read->getBindings(), [$state->getActor()->marked_all_as_read_at ?: $epochTime]));
+            }
+
             $query->union($sticky);
 
-            $read = $query->newQuery()
-                ->selectRaw('1')
-                ->from('discussion_user as sticky')
-                ->whereColumn('sticky.discussion_id', 'id')
-                ->where('sticky.user_id', '=', $state->getActor()->id)
-                ->whereColumn('sticky.last_read_post_number', '>=', 'last_post_number');
+            $query->orderByDesc('is_unread_sticky');
 
-            // Add the bindings manually (rather than as the second
-            // argument in orderByRaw) for now due to a bug in Laravel which
-            // would add the bindings in the wrong order.
-            $query->orderByRaw('is_sticky and not exists ('.$read->toSql().') and last_posted_at > ? desc')
-                ->addBinding(array_merge($read->getBindings(), [$state->getActor()->marked_all_as_read_at ?: 0]), 'union');
-
-            $query->unionOrders = array_merge($query->unionOrders, $query->orders);
+            $query->unionOrders = array_merge($query->unionOrders ?? [], $query->orders ?? []);
             $query->unionLimit = $query->limit;
             $query->unionOffset = $query->offset;
 

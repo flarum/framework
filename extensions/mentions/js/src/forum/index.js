@@ -1,4 +1,4 @@
-import { extend } from 'flarum/common/extend';
+import { extend, override } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
 import { getPlainContent } from 'flarum/common/utils/string';
 import textContrastClass from 'flarum/common/helpers/textContrastClass';
@@ -17,7 +17,7 @@ app.mentionFormats = new MentionFormats();
 
 export { default as extend } from './extend';
 
-app.initializers.add('flarum-mentions', function () {
+app.initializers.add('flarum-mentions', () => {
   // For every mention of a post inside a post's content, set up a hover handler
   // that shows a preview of the mentioned post.
   addPostMentionPreviews();
@@ -78,6 +78,22 @@ app.initializers.add('flarum-mentions', function () {
     this.$('.GroupMention--colored, .TagMention--colored').each(function () {
       this.classList.add(textContrastClass(getComputedStyle(this).getPropertyValue('--color')));
     });
+  });
+
+  // Auto scope the search to the current user mentioned posts.
+  override('flarum/forum/components/SearchModal', 'defaultActiveSource', function (original) {
+    const orig = original();
+
+    if (!orig && app.current.data.routeName && app.current.data.routeName.includes('user.mentions') && app.current.data.user) {
+      return 'posts';
+    }
+
+    return orig;
+  });
+  extend('flarum/forum/components/SearchModal', 'defaultFilters', function (filters) {
+    if (app.current.data.routeName && app.current.data.routeName.includes('user.mentions') && app.current.data.user) {
+      filters.posts.mentioned = app.current.data.user.username();
+    }
   });
 });
 

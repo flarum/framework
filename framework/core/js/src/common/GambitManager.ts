@@ -5,6 +5,7 @@ import HiddenGambit from './query/discussions/HiddenGambit';
 import UnreadGambit from './query/discussions/UnreadGambit';
 import EmailGambit from './query/users/EmailGambit';
 import GroupGambit from './query/users/GroupGambit';
+import DiscussionGambit from './query/discussions/DiscussionGambit';
 
 /**
  * The gambit registry. A map of resource types to gambit classes that
@@ -15,6 +16,7 @@ import GroupGambit from './query/users/GroupGambit';
 export default class GambitManager {
   gambits: Record<string, Array<new () => IGambit>> = {
     discussions: [AuthorGambit, CreatedGambit, HiddenGambit, UnreadGambit],
+    posts: [AuthorGambit, DiscussionGambit],
     users: [EmailGambit, GroupGambit],
   };
 
@@ -43,7 +45,7 @@ export default class GambitManager {
 
     for (const gambit of gambits) {
       for (const bit of bits) {
-        const pattern = `^(-?)${gambit.pattern()}$`;
+        const pattern = new RegExp(`^(-?)${gambit.pattern()}$`, 'i');
         let matches = bit.match(pattern);
 
         if (matches) {

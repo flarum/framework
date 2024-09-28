@@ -14,6 +14,7 @@ use Flarum\Testing\integration\TestCase;
 use Flarum\User\EmailToken;
 use Flarum\User\PasswordToken;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class PasswordEmailTokensTest extends TestCase
 {
@@ -30,7 +31,7 @@ class PasswordEmailTokensTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function actor_has_no_tokens_by_default()
     {
         $this->app();
@@ -39,7 +40,7 @@ class PasswordEmailTokensTest extends TestCase
         $this->assertEquals(0, EmailToken::query()->where('user_id', 2)->count());
     }
 
-    /** @test */
+    #[Test]
     public function password_tokens_are_generated_when_requesting_password_reset()
     {
         $response = $this->send(
@@ -55,7 +56,7 @@ class PasswordEmailTokensTest extends TestCase
         $this->assertEquals(1, PasswordToken::query()->where('user_id', 2)->count());
     }
 
-    /** @test */
+    #[Test]
     public function password_tokens_are_deleted_after_password_reset()
     {
         $this->app();
@@ -94,7 +95,7 @@ class PasswordEmailTokensTest extends TestCase
         $this->assertEquals(0, PasswordToken::query()->where('user_id', 2)->count());
     }
 
-    /** @test */
+    #[Test]
     public function email_tokens_are_generated_when_requesting_email_change()
     {
         $response = $this->send(
@@ -102,6 +103,7 @@ class PasswordEmailTokensTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'users',
                         'attributes' => [
                             'email' => 'new-normal@machine.local'
                         ]
@@ -113,11 +115,11 @@ class PasswordEmailTokensTest extends TestCase
             ])
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $response->getBody());
         $this->assertEquals(1, EmailToken::query()->where('user_id', 2)->count());
     }
 
-    /** @test */
+    #[Test]
     public function email_tokens_are_deleted_when_confirming_email()
     {
         $this->app();
@@ -139,7 +141,7 @@ class PasswordEmailTokensTest extends TestCase
         $this->assertEquals(0, EmailToken::query()->where('user_id', 2)->count());
     }
 
-    /** @test */
+    #[Test]
     public function email_tokens_are_deleted_after_password_reset()
     {
         $this->app();
@@ -178,7 +180,7 @@ class PasswordEmailTokensTest extends TestCase
         $this->assertEquals(0, EmailToken::query()->where('user_id', 2)->count());
     }
 
-    /** @test */
+    #[Test]
     public function password_tokens_are_deleted_when_confirming_email()
     {
         $this->app();

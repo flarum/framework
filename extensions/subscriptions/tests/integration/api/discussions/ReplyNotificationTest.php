@@ -17,6 +17,8 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class ReplyNotificationTest extends TestCase
 {
@@ -41,15 +43,15 @@ class ReplyNotificationTest extends TestCase
                 ['id' => 33, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 33, 'comment_count' => 6, 'last_post_number' => 6, 'last_post_id' => 38],
             ],
             Post::class => [
-                ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 1],
-                ['id' => 2, 'discussion_id' => 2, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 1],
+                ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::createFromDate(1975, 5, 21)->addMinutes(1)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 1],
+                ['id' => 2, 'discussion_id' => 2, 'created_at' => Carbon::createFromDate(1975, 5, 21)->addMinutes(2)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 1],
 
-                ['id' => 33, 'discussion_id' => 33, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 1],
-                ['id' => 34, 'discussion_id' => 33, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 2],
-                ['id' => 35, 'discussion_id' => 33, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 3],
-                ['id' => 36, 'discussion_id' => 33, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 4],
-                ['id' => 37, 'discussion_id' => 33, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 5],
-                ['id' => 38, 'discussion_id' => 33, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 6],
+                ['id' => 33, 'discussion_id' => 33, 'created_at' => Carbon::createFromDate(1975, 5, 21)->addMinutes(3)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 1],
+                ['id' => 34, 'discussion_id' => 33, 'created_at' => Carbon::createFromDate(1975, 5, 21)->addMinutes(4)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 2],
+                ['id' => 35, 'discussion_id' => 33, 'created_at' => Carbon::createFromDate(1975, 5, 21)->addMinutes(5)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 3],
+                ['id' => 36, 'discussion_id' => 33, 'created_at' => Carbon::createFromDate(1975, 5, 21)->addMinutes(6)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 4],
+                ['id' => 37, 'discussion_id' => 33, 'created_at' => Carbon::createFromDate(1975, 5, 21)->addMinutes(7)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 5],
+                ['id' => 38, 'discussion_id' => 33, 'created_at' => Carbon::createFromDate(1975, 5, 21)->addMinutes(8)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'number' => 6],
             ],
             'discussion_user' => [
                 ['discussion_id' => 1, 'user_id' => 1, 'last_read_post_number' => 1, 'subscription' => 'follow'],
@@ -62,10 +64,8 @@ class ReplyNotificationTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider replyingSendsNotificationsDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('replyingSendsNotificationsDataProvider')]
     public function replying_to_a_discussion_with_comment_post_as_last_post_sends_reply_notification(int $userId, int $discussionId, int $newNotificationCount)
     {
         $this->app();
@@ -96,7 +96,7 @@ class ReplyNotificationTest extends TestCase
         $this->assertEquals($newNotificationCount, $mainUser->getUnreadNotificationCount());
     }
 
-    public function replyingSendsNotificationsDataProvider(): array
+    public static function replyingSendsNotificationsDataProvider(): array
     {
         return [
             'admin receives a notification when another replies to a discussion they are following and caught up to' => [1, 1, 1],
@@ -106,7 +106,7 @@ class ReplyNotificationTest extends TestCase
         ];
     }
 
-    /** @test */
+    #[Test]
     public function replying_to_a_discussion_with_event_post_as_last_post_sends_reply_notification()
     {
         $this->app();
@@ -120,6 +120,7 @@ class ReplyNotificationTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'title' => 'ACME',
                         ],
@@ -134,6 +135,7 @@ class ReplyNotificationTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'discussions',
                         'attributes' => [
                             'lastReadPostNumber' => 2,
                         ],
@@ -149,6 +151,7 @@ class ReplyNotificationTest extends TestCase
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => 'reply with predetermined content for automated testing - too-obscure',
                         ],
@@ -163,10 +166,8 @@ class ReplyNotificationTest extends TestCase
         $this->assertEquals(1, $mainUser->getUnreadNotificationCount());
     }
 
-    /**
-     * @dataProvider deleteLastPostsProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('deleteLastPostsProvider')]
     public function deleting_last_posts_then_posting_new_one_sends_reply_notification(array $postIds)
     {
         $this->prepareDatabase([
@@ -204,6 +205,7 @@ class ReplyNotificationTest extends TestCase
                 'authenticatedAs' => 3,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => 'reply with predetermined content for automated testing - too-obscure',
                         ],
@@ -218,7 +220,7 @@ class ReplyNotificationTest extends TestCase
         $this->assertEquals(1, $mainUser->getUnreadNotificationCount());
     }
 
-    public function deleteLastPostsProvider(): array
+    public static function deleteLastPostsProvider(): array
     {
         return [
             [[10, 9, 8]],
@@ -226,7 +228,7 @@ class ReplyNotificationTest extends TestCase
         ];
     }
 
-    /** @test */
+    #[Test]
     public function approving_reply_sends_reply_notification()
     {
         // Flags was only specified because it is required for approval.
@@ -250,6 +252,7 @@ class ReplyNotificationTest extends TestCase
                 'authenticatedAs' => 4,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => 'reply with predetermined content for automated testing - too-obscure',
                         ],
@@ -271,6 +274,7 @@ class ReplyNotificationTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'isApproved' => 1,
                         ],
@@ -282,7 +286,7 @@ class ReplyNotificationTest extends TestCase
         $this->assertEquals(1, $mainUser->getUnreadNotificationCount());
     }
 
-    /** @test */
+    #[Test]
     public function replying_to_a_discussion_with_a_restricted_post_only_sends_notifications_to_allowed_users()
     {
         // Add visibility scoper to only allow admin
@@ -310,6 +314,7 @@ class ReplyNotificationTest extends TestCase
                 'authenticatedAs' => 3,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => 'restricted-test-post',
                         ],

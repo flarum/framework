@@ -1,20 +1,16 @@
 import type Mithril from 'mithril';
 
 import app from '../app';
-import highlight from '../../common/helpers/highlight';
-import username from '../../common/helpers/username';
-import Link from '../../common/components/Link';
 import type User from '../../common/models/User';
-import Avatar from '../../common/components/Avatar';
 import type { SearchSource } from './Search';
 import extractText from '../../common/utils/extractText';
-import listItems from '../../common/helpers/listItems';
+import UserSearchResult from '../../common/components/UserSearchResult';
 
 /**
  * The `UsersSearchSource` finds and displays user search results in the search
  * dropdown.
  */
-export default class UsersSearchResults implements SearchSource {
+export default class UsersSearchSource implements SearchSource {
   protected results = new Map<string, User[]>();
 
   public resource: string = 'users';
@@ -53,21 +49,11 @@ export default class UsersSearchResults implements SearchSource {
 
     if (!results.length) return [];
 
-    return results.map((user) => {
-      const name = username(user, (name: string) => highlight(name, query));
+    return results.map((user) => <UserSearchResult user={user} query={query} />);
+  }
 
-      return (
-        <li className="UserSearchResult" data-index={'users' + user.id()} data-id={user.id()}>
-          <Link href={app.route.user(user)}>
-            <Avatar user={user} />
-            <div className="UserSearchResult-name">
-              {name}
-              <div className="badges badges--packed">{listItems(user.badges().toArray())}</div>
-            </div>
-          </Link>
-        </li>
-      );
-    });
+  customGrouping(): boolean {
+    return false;
   }
 
   fullPage(query: string): null {
