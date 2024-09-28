@@ -8,6 +8,7 @@ import username from '../../common/helpers/username';
 import highlight from '../../common/helpers/highlight';
 import classList from '../../common/utils/classList';
 import type Mithril from 'mithril';
+import type ForumApplication from '../../forum/ForumApplication';
 
 export interface IUserSearchResultAttrs extends ComponentAttrs {
   user: User;
@@ -26,7 +27,17 @@ export default class UserSearchResult<CustomAttrs extends IUserSearchResultAttrs
         data-id={user.id()}
         onclick={this.attrs.onclick}
       >
-        {this.attrs.onclick ? <button type="button">{this.content(vnode)}</button> : <Link href={app.route.user(user)}>{this.content(vnode)}</Link>}
+        {this.attrs.onclick ? (
+          <button type="button">{this.content(vnode)}</button>
+        ) : (
+          <Link
+            href={
+              'user' in app.route ? (app as unknown as ForumApplication).route.user(user) : app.forum.attribute('baseUrl') + '/u/' + user.username()
+            }
+          >
+            {this.content(vnode)}
+          </Link>
+        )}
       </li>
     );
   }

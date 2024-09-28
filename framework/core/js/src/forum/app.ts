@@ -1,7 +1,5 @@
 import Forum from './ForumApplication';
 
-console.error('No');
-
 const app = new Forum();
 
 // @ts-expect-error We need to do this for backwards compatibility purposes.
