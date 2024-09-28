@@ -15,7 +15,6 @@ import AffixedSidebar from './components/AffixedSidebar';
 import DiscussionPage from './components/DiscussionPage';
 import DiscussionListPane from './components/DiscussionListPane';
 import LogInModal from './components/LogInModal';
-import NewAccessTokenModal from './components/NewAccessTokenModal';
 import ComposerBody from './components/ComposerBody';
 import ForgotPasswordModal from './components/ForgotPasswordModal';
 import Notification from './components/Notification';
@@ -85,7 +84,6 @@ declare const _default: {
     Session: typeof import("../common/Session").default;
     Store: typeof import("../common/Store").default;
     'utils/BasicEditorDriver': typeof BasicEditorDriver;
-    'utils/bidi': typeof import("../common/utils/bidi").default;
     'utils/evented': {
         handlers: Record<string, unknown>;
         getHandlers(event: string): Function[];
@@ -104,7 +102,6 @@ declare const _default: {
     'utils/insertText': typeof import("../common/utils/insertText").default;
     'utils/styleSelectedText': typeof import("../common/utils/styleSelectedText").default;
     'utils/Drawer': typeof import("../common/utils/Drawer").default;
-    'utils/EditorDriverInterface': typeof import("../common/utils/EditorDriverInterface");
     'utils/anchorScroll': typeof import("../common/utils/anchorScroll").default;
     'utils/RequestError': typeof import("../common/utils/RequestError").default;
     'utils/abbreviateNumber': typeof import("../common/utils/abbreviateNumber").default;
@@ -128,7 +125,6 @@ declare const _default: {
     'utils/isObject': typeof import("../common/utils/isObject").default;
     'utils/focusTrap': typeof import("../common/utils/focusTrap");
     'utils/isDark': typeof import("../common/utils/isDark").default;
-    'models/AccessToken': typeof import("../common/models/AccessToken").default;
     'models/Notification': typeof import("../common/models/Notification").default;
     'models/User': typeof import("../common/models/User").default;
     'models/Post': typeof import("../common/models/Post").default;
@@ -156,7 +152,6 @@ declare const _default: {
     'components/LinkButton': typeof import("../common/components/LinkButton").default;
     'components/Checkbox': typeof import("../common/components/Checkbox").default;
     'components/ColorPreviewInput': typeof import("../common/components/ColorPreviewInput").default;
-    'components/ConfirmDocumentUnload': typeof import("../common/components/ConfirmDocumentUnload").default;
     'components/SelectDropdown': typeof import("../common/components/SelectDropdown").default;
     'components/ModalManager': typeof import("../common/components/ModalManager").default;
     'components/Button': typeof import("../common/components/Button").default;
@@ -171,8 +166,6 @@ declare const _default: {
     Application: typeof import("../common/Application").default;
     'helpers/fullTime': typeof import("../common/helpers/fullTime").default;
     'helpers/avatar': typeof import("../common/helpers/avatar").default;
-    'helpers/fireApplicationError': typeof import("../common/helpers/fireApplicationError").default;
-    'helpers/fireDebugWarning': typeof import("../common/helpers/fireDebugWarning");
     'helpers/icon': typeof import("../common/helpers/icon").default;
     'helpers/humanTime': typeof import("../common/helpers/humanTime").default;
     'helpers/punctuateSeries': typeof import("../common/helpers/punctuateSeries").default;
@@ -235,7 +228,6 @@ declare const _default: {
     'components/DiscussionPage': typeof DiscussionPage;
     'components/DiscussionListPane': typeof DiscussionListPane;
     'components/LogInModal': typeof LogInModal;
-    'components/NewAccessTokenModal': typeof NewAccessTokenModal;
     'components/ComposerBody': typeof ComposerBody;
     'components/ForgotPasswordModal': typeof ForgotPasswordModal;
     'components/Notification': typeof Notification;

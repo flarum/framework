@@ -12,7 +12,6 @@ declare const _default: {
     'tags/components/TagHero': typeof TagHero;
     'tags/components/TagDiscussionModal': typeof TagDiscussionModal;
     'tags/components/TagsPage': typeof TagsPage;
-    'tags/components/ToggleButton': typeof ToggleButton;
     'tags/components/DiscussionTaggedPost': typeof DiscussionTaggedPost;
     'tags/components/TagLinkButton': typeof TagLinkButton;
     'tags/addTagList': typeof addTagList;
@@ -26,7 +25,6 @@ import addTagControl from "./addTagControl";
 import TagHero from "./components/TagHero";
 import TagDiscussionModal from "./components/TagDiscussionModal";
 import TagsPage from "./components/TagsPage";
-import ToggleButton from "./components/ToggleButton";
 import DiscussionTaggedPost from "./components/DiscussionTaggedPost";
 import TagLinkButton from "./components/TagLinkButton";
 import addTagList from "./addTagList";

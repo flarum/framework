@@ -13,7 +13,6 @@ import ExtensionsWidget from './components/ExtensionsWidget';
 import HeaderSecondary from './components/HeaderSecondary';
 import SettingsModal from './components/SettingsModal';
 import DashboardWidget from './components/DashboardWidget';
-import DebugWarningWidget from './components/DebugWarningWidget';
 import ExtensionPage from './components/ExtensionPage';
 import ExtensionLinkButton from './components/ExtensionLinkButton';
 import PermissionGrid from './components/PermissionGrid';
@@ -27,7 +26,6 @@ import UserListPage from './components/UserListPage';
 import EditCustomHeaderModal from './components/EditCustomHeaderModal';
 import PermissionsPage from './components/PermissionsPage';
 import PermissionDropdown from './components/PermissionDropdown';
-import ReadmeModal from './components/ReadmeModal';
 import AdminNav from './components/AdminNav';
 import AdminHeader from './components/AdminHeader';
 import EditCustomCssModal from './components/EditCustomCssModal';
@@ -36,8 +34,6 @@ import routes from './routes';
 import AdminApplication from './AdminApplication';
 import generateElementId from './utils/generateElementId';
 import CreateUserModal from './components/CreateUserModal';
-import ExtensionReadme from './models/ExtensionReadme';
-import ExtensionPageResolver from './resolvers/ExtensionPageResolver';
 declare const _default: {
     extenders: {
         Model: typeof import("../common/extenders/Model").default;
@@ -49,7 +45,6 @@ declare const _default: {
     Session: typeof import("../common/Session").default;
     Store: typeof import("../common/Store").default;
     'utils/BasicEditorDriver': typeof import("../common/utils/BasicEditorDriver").default;
-    'utils/bidi': typeof import("../common/utils/bidi").default;
     'utils/evented': {
         handlers: Record<string, unknown>;
         getHandlers(event: string): Function[];
@@ -68,7 +63,6 @@ declare const _default: {
     'utils/insertText': typeof import("../common/utils/insertText").default;
     'utils/styleSelectedText': typeof import("../common/utils/styleSelectedText").default;
     'utils/Drawer': typeof import("../common/utils/Drawer").default;
-    'utils/EditorDriverInterface': typeof import("../common/utils/EditorDriverInterface");
     'utils/anchorScroll': typeof import("../common/utils/anchorScroll").default;
     'utils/RequestError': typeof import("../common/utils/RequestError").default;
     'utils/abbreviateNumber': typeof import("../common/utils/abbreviateNumber").default;
@@ -92,7 +86,6 @@ declare const _default: {
     'utils/isObject': typeof import("../common/utils/isObject").default;
     'utils/focusTrap': typeof import("../common/utils/focusTrap");
     'utils/isDark': typeof import("../common/utils/isDark").default;
-    'models/AccessToken': typeof import("../common/models/AccessToken").default;
     'models/Notification': typeof import("../common/models/Notification").default;
     'models/User': typeof import("../common/models/User").default;
     'models/Post': typeof import("../common/models/Post").default;
@@ -120,7 +113,6 @@ declare const _default: {
     'components/LinkButton': typeof import("../common/components/LinkButton").default;
     'components/Checkbox': typeof import("../common/components/Checkbox").default;
     'components/ColorPreviewInput': typeof import("../common/components/ColorPreviewInput").default;
-    'components/ConfirmDocumentUnload': typeof import("../common/components/ConfirmDocumentUnload").default;
     'components/SelectDropdown': typeof import("../common/components/SelectDropdown").default;
     'components/ModalManager': typeof import("../common/components/ModalManager").default;
     'components/Button': typeof import("../common/components/Button").default;
@@ -135,8 +127,6 @@ declare const _default: {
     Application: typeof import("../common/Application").default;
     'helpers/fullTime': typeof import("../common/helpers/fullTime").default;
     'helpers/avatar': typeof import("../common/helpers/avatar").default;
-    'helpers/fireApplicationError': typeof import("../common/helpers/fireApplicationError").default;
-    'helpers/fireDebugWarning': typeof import("../common/helpers/fireDebugWarning");
     'helpers/icon': typeof import("../common/helpers/icon").default;
     'helpers/humanTime': typeof import("../common/helpers/humanTime").default;
     'helpers/punctuateSeries': typeof import("../common/helpers/punctuateSeries").default;
@@ -167,7 +157,6 @@ declare const _default: {
     'components/HeaderSecondary': typeof HeaderSecondary;
     'components/SettingsModal': typeof SettingsModal;
     'components/DashboardWidget': typeof DashboardWidget;
-    'components/DebugWarningWidget': typeof DebugWarningWidget;
     'components/ExtensionPage': typeof ExtensionPage;
     'components/ExtensionLinkButton': typeof ExtensionLinkButton;
     'components/PermissionGrid': typeof PermissionGrid;
@@ -181,14 +170,11 @@ declare const _default: {
     'components/EditCustomHeaderModal': typeof EditCustomHeaderModal;
     'components/PermissionsPage': typeof PermissionsPage;
     'components/PermissionDropdown': typeof PermissionDropdown;
-    'components/ReadmeModal': typeof ReadmeModal;
     'components/AdminNav': typeof AdminNav;
     'components/AdminHeader': typeof AdminHeader;
     'components/EditCustomCssModal': typeof EditCustomCssModal;
     'components/EditGroupModal': typeof EditGroupModal;
     'components/CreateUserModal': typeof CreateUserModal;
-    'models/ExtensionReadme': typeof ExtensionReadme;
-    'resolvers/ExtensionPageResolver': typeof ExtensionPageResolver;
     routes: typeof routes;
     AdminApplication: typeof AdminApplication;
 };

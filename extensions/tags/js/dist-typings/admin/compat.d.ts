@@ -11,7 +11,6 @@ declare const _default: {
     'tags/addTagChangePermission': typeof addTagChangePermission;
     'tags/components/TagsPage': typeof TagsPage;
     'tags/components/EditTagModal': typeof EditTagModal;
-    'tags/components/SelectTagsSettingComponent': typeof SelectTagsSettingComponent;
     'tags/addTagPermission': typeof addTagPermission;
     'tags/addTagsPermissionScope': typeof addTagsPermissionScope;
 };
@@ -20,6 +19,5 @@ import addTagsHomePageOption from "./addTagsHomePageOption";
 import addTagChangePermission from "./addTagChangePermission";
 import TagsPage from "./components/TagsPage";
 import EditTagModal from "./components/EditTagModal";
-import SelectTagsSettingComponent from "./components/SelectTagsSettingComponent";
 import addTagPermission from "./addTagPermission";
 import addTagsPermissionScope from "./addTagsPermissionScope";
