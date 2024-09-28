@@ -39,6 +39,7 @@ import IExtender from './extenders/IExtender';
 import AccessToken from './models/AccessToken';
 import SearchManager from './SearchManager';
 import { ColorScheme } from './components/ThemeMode';
+import references from './references';
 
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 
@@ -248,6 +249,8 @@ export default class Application {
 
   allowUserColorScheme!: boolean;
 
+  refs: Record<string, unknown> = {};
+
   private _title: string = '';
   private _titleCount: number = 0;
 
@@ -320,6 +323,8 @@ export default class Application {
     this.initialRoute = window.location.href;
 
     caughtInitializationErrors.forEach((handler) => handler());
+
+    references(this);
   }
 
   protected beforeMount(): void {
