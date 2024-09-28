@@ -21,6 +21,10 @@ class AbstractJob implements ShouldQueue
     use SerializesModels;
 
     /**
+     * The name of the queue on which the job should be placed.
+     * 
+     * This is only effective on jobs dispatched via Redis.
+     * 
      * @var string|null
      */
     public static $sendOnQueue = null;
