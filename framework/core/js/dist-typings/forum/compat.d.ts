@@ -73,6 +73,7 @@ import routes from './routes';
 import ForumApplication from './ForumApplication';
 import isSafariMobile from './utils/isSafariMobile';
 import AccessTokensList from './components/AccessTokensList';
+import DiscussionsSearchItem from './components/DiscussionsSearchItem';
 declare const _default: {
     extenders: {
         Model: typeof import("../common/extenders/Model").default;
@@ -249,6 +250,7 @@ declare const _default: {
     'components/IndexPage': typeof IndexPage;
     'components/DiscussionRenamedNotification': typeof DiscussionRenamedNotification;
     'components/DiscussionsSearchSource': typeof DiscussionsSearchSource;
+    'components/DiscussionsSearchItem': typeof DiscussionsSearchItem;
     'components/HeaderSecondary': typeof HeaderSecondary;
     'components/ComposerButton': typeof ComposerButton;
     'components/DiscussionList': typeof DiscussionList;

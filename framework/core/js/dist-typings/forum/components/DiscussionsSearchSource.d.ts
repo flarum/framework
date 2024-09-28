@@ -7,6 +7,11 @@ import Discussion from '../../common/models/Discussion';
  */
 export default class DiscussionsSearchSource implements SearchSource {
     protected results: Map<string, Discussion[]>;
+    queryString: string | null;
     search(query: string): Promise<void>;
     view(query: string): Array<Mithril.Vnode>;
+    includes(): string[];
+    limit(): number;
+    queryMutators(): string[];
+    setQueryString(query: string): void;
 }
