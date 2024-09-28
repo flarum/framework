@@ -161,8 +161,8 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
     if (lastTime && dt > 1000 * 60 * 60 * 24 * 4) {
       return (
         <div className="PostStream-timeGap">
-          {/* @ts-ignore */}
           <span>
+            {/* @ts-ignore */}
             {app.translator.trans('flarum-messages.forum.messages_page.stream.time_lapsed_text', { period: dayjs().add(dt, 'ms').fromNow(true) })}
           </span>
         </div>
