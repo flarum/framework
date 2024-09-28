@@ -246,7 +246,7 @@ export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupA
       if ((TextareaSettingTypes as readonly string[]).includes(type)) {
         settingElement = <textarea id={inputId} aria-describedby={helpTextId} bidi={stream} {...attrs} />;
       } else {
-        let Tag: VnodeElementTag = 'input';
+        let Tag: VnodeElementTag | typeof ColorPreviewInput = 'input';
 
         if (type === ColorPreviewSettingType) {
           Tag = ColorPreviewInput;

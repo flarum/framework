@@ -7,7 +7,6 @@ import { disableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock';
 import type ModalManagerState from '../states/ModalManagerState';
 import type Mithril from 'mithril';
 import LoadingIndicator from './LoadingIndicator';
-import * as process from 'node:process';
 
 interface IModalManagerAttrs {
   state: ModalManagerState;
