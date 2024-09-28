@@ -1,4 +1,4 @@
-/// <reference path="../../../src/@types/translator-icu-rich.d.ts" />
+/// <reference path="../../@types/translator-icu-rich.d.ts" />
 import AdminPage from './AdminPage';
 import ItemList from '../../common/utils/ItemList';
 import type Mithril from 'mithril';

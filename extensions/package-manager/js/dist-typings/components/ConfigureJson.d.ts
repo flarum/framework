@@ -1,6 +1,6 @@
 import type Mithril from 'mithril';
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
-import { type SettingsComponentOptions } from '@flarum/core/src/admin/components/AdminPage';
+import { type SettingsComponentOptions } from 'flarum/admin/components/AdminPage';
 import { type CommonFieldOptions } from 'flarum/common/components/FormGroup';
 import type ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';

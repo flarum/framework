@@ -1,63 +1,59 @@
-export default ComposerState;
+import Stream from '../../common/utils/Stream';
+import type EditorDriverInterface from '../../common/utils/EditorDriverInterface';
+import type ComposerBody from '../components/ComposerBody';
+import type Discussion from '../../common/models/Discussion';
 declare class ComposerState {
-    /**
-     * The composer's current position.
-     *
-     * @type {ComposerState.Position}
-     */
-    position: {
+    static Position: {
         HIDDEN: string;
         NORMAL: string;
         MINIMIZED: string;
         FULLSCREEN: string;
     };
     /**
+     * The composer's current position.
+     */
+    position: string;
+    /**
      * The composer's intended height, which can be modified by the user
      * (by dragging the composer handle).
-     *
-     * @type {number}
      */
-    height: number;
+    height: number | null;
     /**
      * The dynamic component being shown inside the composer.
-     *
-     * @type {Object}
      */
-    body: Object;
+    body: any;
     /**
      * A reference to the text editor that allows text manipulation.
-     *
-     * @type {import('../../common/utils/EditorDriverInterface')|null}
      */
-    editor: typeof import("../../common/utils/EditorDriverInterface") | null;
+    editor: EditorDriverInterface | null;
     /**
      * If the composer was loaded and mounted.
-     *
-     * @type {boolean}
      */
     mounted: boolean;
+    protected onExit: {
+        callback: () => boolean;
+        message: string;
+    } | null;
+    /**
+     * Fields of the composer.
+     */
+    fields: Record<string, Stream<any>> & {
+        content: Stream<string>;
+    };
+    constructor();
     /**
      * Load a content component into the composer.
      *
-     * @param {() => Promise<any & { default: typeof import('../components/ComposerBody') }> | typeof import('../components/ComposerBody').default} componentClass
-     * @param {object} attrs
      */
     load(componentClass: () => Promise<any & {
-        default: typeof import('../components/ComposerBody');
-    }> | typeof import('../components/ComposerBody').default, attrs: object): Promise<(() => Promise<any & {
-        default: typeof import('../components/ComposerBody');
-    }> | typeof import('../components/ComposerBody').default) | undefined>;
+        default: ComposerBody;
+    }> | ComposerBody, attrs: object): Promise<(() => Promise<any & {
+        default: ComposerBody;
+    }> | ComposerBody) | undefined>;
     /**
      * Clear the composer's content component.
      */
     clear(): void;
-    onExit: {
-        callback: () => boolean;
-        message: string;
-    } | null | undefined;
-    fields: {
-        content: Stream<string>;
-    } | undefined;
     /**
      * Show the composer.
      */
@@ -87,11 +83,10 @@ declare class ComposerState {
     /**
      * Determine whether the body matches the given component class and data.
      *
-     * @param {object} type The component class to check against. Subclasses are accepted as well.
-     * @param {object} data
-     * @return {boolean}
+     * @param type The component class to check against. Subclasses are accepted as well.
+     * @param data
      */
-    bodyMatches(type: object, data?: object): boolean;
+    bodyMatches(type: object, data?: any): boolean;
     /**
      * Determine whether or not the Composer is visible.
      *
@@ -117,23 +112,20 @@ declare class ComposerState {
      * @param {import('../../common/models/Discussion').default} discussion
      * @return {boolean}
      */
-    composingReplyTo(discussion: import('../../common/models/Discussion').default): boolean;
+    composingReplyTo(discussion: Discussion): boolean;
     /**
      * Confirm with the user that they want to close the composer and lose their
      * content.
      *
-     * @return {boolean} Whether or not the exit was cancelled.
+     * @return Whether or not the exit was cancelled.
      */
-    preventExit(): boolean;
+    preventExit(): boolean | void;
     /**
      * Configure when / what to ask the user before closing the composer.
      *
      * The provided callback will be used to determine whether asking for
      * confirmation is necessary. If the callback returns true at the time of
      * closing, the provided text will be shown in a standard confirmation dialog.
-     *
-     * @param {() => boolean} callback
-     * @param {string} message
      */
     preventClosingWhen(callback: () => boolean, message: string): void;
     /**
@@ -142,24 +134,14 @@ declare class ComposerState {
      */
     minimumHeight(): number;
     /**
-     * Maxmimum height of the Composer.
-     * @returns {number}
+     * Maximum height of the Composer.
      */
     maximumHeight(): number;
     /**
      * Computed the composer's current height, based on the intended height, and
      * the composer's current state. This will be applied to the composer
      * content's DOM element.
-     * @returns {number | string}
      */
     computedHeight(): number | string;
 }
-declare namespace ComposerState {
-    namespace Position {
-        const HIDDEN: string;
-        const NORMAL: string;
-        const MINIMIZED: string;
-        const FULLSCREEN: string;
-    }
-}
-import Stream from "../../common/utils/Stream";
+export default ComposerState;

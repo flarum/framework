@@ -1,5 +1,6 @@
+/// <reference path="../../../../../framework/core/js/src/@types/translator-icu-rich.d.ts" />
 /// <reference types="mithril" />
-/// <reference types="@flarum/core/dist-typings/@types/translator-icu-rich" />
+/// <reference types="flarum/@types/translator-icu-rich" />
 import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Task from '../models/Task';
 interface TaskOutputModalAttrs extends IInternalModalAttrs {
