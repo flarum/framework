@@ -32,7 +32,11 @@ export default class Badge<CustomAttrs extends IBadgeAttrs = IBadgeAttrs> extend
 
     const iconChild = iconName ? <Icon name={iconName} className="Badge-icon" /> : m.trust('&nbsp;');
 
-    const newStyle = { ...style, '--badge-bg': color };
+    const newStyle = { ...style };
+
+    if (!process.env.testing) {
+      newStyle['--badge-bg'] = color;
+    }
 
     const badgeAttrs = {
       ...attrs,

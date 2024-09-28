@@ -43,7 +43,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
               data-modal-number={i}
               role="dialog"
               aria-modal="true"
-              style={{ '--modal-number': i }}
+              style={!process.env.testing && { '--modal-number': i }}
               aria-hidden={this.attrs.state.modal !== modal && 'true'}
             >
               {!!Tag && [
@@ -66,7 +66,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
             className="Modal-backdrop backdrop"
             ontransitionend={this.onBackdropTransitionEnd.bind(this)}
             data-showing={!!this.attrs.state.modalList.length || this.attrs.state.loadingModal}
-            style={{ '--modal-count': this.attrs.state.modalList.length + Number(this.attrs.state.loadingModal) }}
+            style={!process.env.testing && { '--modal-count': this.attrs.state.modalList.length + Number(this.attrs.state.loadingModal) }}
           >
             {this.attrs.state.loadingModal && <LoadingIndicator />}
           </div>
@@ -122,7 +122,9 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
           this.focusTrap = createFocusTrap(this.activeDialogElement as HTMLElement, { allowOutsideClick: true });
           this.focusTrap!.activate?.();
 
-          disableBodyScroll(this.activeDialogManagerElement!, { reserveScrollBarGap: true });
+          if (this.activeDialogManagerElement) {
+            disableBodyScroll(this.activeDialogManagerElement, { reserveScrollBarGap: true });
+          }
         }
 
         // Update key of current opened modal
@@ -136,21 +138,21 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
   /**
    * Get current active dialog
    */
-  private get activeDialogElement(): HTMLElement {
-    return document.body.querySelector(`.ModalManager[data-modal-key="${this.attrs.state.modal?.key}"] .Modal`) as HTMLElement;
+  private get activeDialogElement(): HTMLElement | null {
+    return document.body.querySelector(`.ModalManager[data-modal-key="${this.attrs.state.modal?.key}"] .Modal`) as HTMLElement | null;
   }
 
   /**
    * Get current active dialog
    */
-  private get activeDialogManagerElement(): HTMLElement {
-    return document.body.querySelector(`.ModalManager[data-modal-key="${this.attrs.state.modal?.key}"]`) as HTMLElement;
+  private get activeDialogManagerElement(): HTMLElement | null {
+    return document.body.querySelector(`.ModalManager[data-modal-key="${this.attrs.state.modal?.key}"]`) as HTMLElement | null;
   }
 
   animateShow(readyCallback: () => void = () => {}): void {
     if (!this.attrs.state.modal) return;
 
-    this.activeDialogElement.addEventListener(
+    this.activeDialogElement?.addEventListener(
       'transitionend',
       () => {
         readyCallback();
@@ -159,7 +161,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     );
 
     requestAnimationFrame(() => {
-      this.activeDialogElement.classList.add('in');
+      this.activeDialogElement?.classList.add('in');
     });
   }
 
@@ -176,10 +178,10 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
       closedCallback();
     };
 
-    this.activeDialogElement.addEventListener('transitionend', afterModalClosedCallback, { once: true });
+    this.activeDialogElement?.addEventListener('transitionend', afterModalClosedCallback, { once: true });
 
-    this.activeDialogElement.classList.remove('in');
-    this.activeDialogElement.classList.add('out');
+    this.activeDialogElement?.classList.remove('in');
+    this.activeDialogElement?.classList.add('out');
   }
 
   protected handleEscPress(e: KeyboardEvent): void {

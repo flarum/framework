@@ -1,5 +1,4 @@
 import Component, { ComponentAttrs } from '../Component';
-import listItems from '../helpers/listItems';
 import classList from '../utils/classList';
 import Mithril from 'mithril';
 

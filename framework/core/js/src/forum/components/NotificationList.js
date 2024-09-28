@@ -8,6 +8,7 @@ import ItemList from '../../common/utils/ItemList';
 import Tooltip from '../../common/components/Tooltip';
 import HeaderList from './HeaderList';
 import HeaderListGroup from './HeaderListGroup';
+import NotificationType from './NotificationType';
 
 /**
  * The `NotificationList` component displays a list of the logged-in user's
@@ -116,12 +117,7 @@ export default class NotificationList extends Component {
                 )
               }
             >
-              {group.notifications
-                .map((notification) => {
-                  const NotificationComponent = app.notificationComponents[notification.contentType()];
-                  return !!NotificationComponent ? <NotificationComponent notification={notification} /> : null;
-                })
-                .filter((component) => !!component)}
+              {group.notifications.map((notification) => <NotificationType notification={notification} />).filter((component) => !!component)}
             </HeaderListGroup>
           );
         });

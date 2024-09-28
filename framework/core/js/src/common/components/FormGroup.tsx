@@ -74,14 +74,14 @@ const StackedFormControlType = 'stacked-text' as const;
  * Valid options for the setting component builder to generate a Switch.
  */
 export interface SwitchFieldComponentOptions extends CommonFieldOptions {
-  type: typeof BooleanSettingTypes[number];
+  type: (typeof BooleanSettingTypes)[number];
 }
 
 /**
  * Valid options for the setting component builder to generate a Select dropdown.
  */
 export interface SelectFieldComponentOptions extends CommonFieldOptions {
-  type: typeof SelectSettingTypes[number] | typeof RadioSettingTypes[number];
+  type: (typeof SelectSettingTypes)[number] | (typeof RadioSettingTypes)[number];
   /**
    * Map of values to their labels
    */
@@ -101,7 +101,7 @@ export interface SelectFieldComponentOptions extends CommonFieldOptions {
  * Valid options for the setting component builder to generate a Textarea.
  */
 export interface TextareaFieldComponentOptions extends CommonFieldOptions {
-  type: typeof TextareaSettingTypes[number];
+  type: (typeof TextareaSettingTypes)[number];
 }
 
 /**
@@ -246,7 +246,7 @@ export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupA
       if ((TextareaSettingTypes as readonly string[]).includes(type)) {
         settingElement = <textarea id={inputId} aria-describedby={helpTextId} bidi={stream} {...attrs} />;
       } else {
-        let Tag: VnodeElementTag = 'input';
+        let Tag: VnodeElementTag | typeof ColorPreviewInput = 'input';
 
         if (type === ColorPreviewSettingType) {
           Tag = ColorPreviewInput;

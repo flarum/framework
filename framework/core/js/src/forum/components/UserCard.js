@@ -30,7 +30,7 @@ export default class UserCard extends Component {
     const color = user.color();
 
     return (
-      <div className={classList('UserCard', this.attrs.className)} style={color && { '--usercard-bg': color }}>
+      <div className={classList('UserCard', this.attrs.className)} style={color && !process.env.testing && { '--usercard-bg': color }}>
         <div className="darkenBackground">
           <div className="container">
             <div className="UserCard-profile">{this.profileItems().toArray()}</div>
