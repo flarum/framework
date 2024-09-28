@@ -36,7 +36,7 @@ export default class Avatar<CustomAttrs extends IAvatarAttrs = IAvatarAttrs> ext
       }
 
       content = username.charAt(0).toUpperCase();
-      attrs.style = !process.env.testing && { '--avatar-bg': user.color() };
+      attrs.style = !window.testing && { '--avatar-bg': user.color() };
     }
 
     return <span {...attrs}>{content}</span>;

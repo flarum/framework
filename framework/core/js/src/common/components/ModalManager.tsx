@@ -43,7 +43,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
               data-modal-number={i}
               role="dialog"
               aria-modal="true"
-              style={!process.env.testing && { '--modal-number': i }}
+              style={!window.testing && { '--modal-number': i }}
               aria-hidden={this.attrs.state.modal !== modal && 'true'}
             >
               {!!Tag && [
@@ -66,7 +66,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
             className="Modal-backdrop backdrop"
             ontransitionend={this.onBackdropTransitionEnd.bind(this)}
             data-showing={!!this.attrs.state.modalList.length || this.attrs.state.loadingModal}
-            style={!process.env.testing && { '--modal-count': this.attrs.state.modalList.length + Number(this.attrs.state.loadingModal) }}
+            style={!window.testing && { '--modal-count': this.attrs.state.modalList.length + Number(this.attrs.state.loadingModal) }}
           >
             {this.attrs.state.loadingModal && <LoadingIndicator />}
           </div>

@@ -12,8 +12,6 @@ import jsdom from 'jsdom';
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
 
-process.env.testing = true;
-
 const dom = new jsdom.JSDOM('', {
   pretendToBeVisual: false,
 });
@@ -26,6 +24,7 @@ global.requestAnimationFrame = (callback) => callback();
 
 // Some other needed pollyfills.
 window.$ = jquery;
+window.testing = true;
 window.m = m;
 window.$.fn.tooltip = () => {};
 window.matchMedia = () => ({

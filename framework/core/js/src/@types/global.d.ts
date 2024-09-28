@@ -112,6 +112,13 @@ interface FlarumObject {
 
 declare const flarum: FlarumObject;
 
+interface Window {
+  /**
+   * Whether we are in testing mode or not.
+   */
+  testing?: boolean;
+}
+
 // Extend JQuery with our custom functions, defined with $.fn
 interface JQuery {
   /**

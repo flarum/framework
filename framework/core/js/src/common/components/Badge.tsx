@@ -34,7 +34,7 @@ export default class Badge<CustomAttrs extends IBadgeAttrs = IBadgeAttrs> extend
 
     const newStyle = { ...style };
 
-    if (!process.env.testing) {
+    if (!window.testing) {
       newStyle['--badge-bg'] = color;
     }
 
