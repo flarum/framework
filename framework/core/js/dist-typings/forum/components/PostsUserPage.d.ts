@@ -48,4 +48,5 @@ export default class PostsUserPage extends UserPage {
      * Parse results and append them to the activity feed.
      */
     parseResults(results: Post[]): Post[];
+    discussionTitle(post: Post): string;
 }
