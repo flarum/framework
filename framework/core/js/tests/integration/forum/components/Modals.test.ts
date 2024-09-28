@@ -9,7 +9,7 @@ import ForgotPasswordModal from '../../../../src/forum/components/ForgotPassword
 import LogInModal from '../../../../src/forum/components/LogInModal';
 import NewAccessTokenModal from '../../../../src/forum/components/NewAccessTokenModal';
 import RenameDiscussionModal from '../../../../src/forum/components/RenameDiscussionModal';
-import SearchModal from '../../../../src/forum/components/SearchModal';
+import SearchModal from '../../../../src/common/components/SearchModal';
 import SignUpModal from '../../../../src/forum/components/SignUpModal';
 
 beforeAll(() => bootstrapForum());
