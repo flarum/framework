@@ -70,7 +70,7 @@ export default class PostsUserPage extends UserPage {
             <li>
               <div className="PostsUserPage-discussion">
                 {app.translator.trans('core.forum.user.in_discussion_text', {
-                  discussion: <Link href={app.route.post(post)}>{post.discussion().title()}</Link>,
+                  discussion: <Link href={app.route.post(post)}>{this.discussionTitle(post)}</Link>,
                 })}
               </div>
 
@@ -141,5 +141,9 @@ export default class PostsUserPage extends UserPage {
     m.redraw();
 
     return results;
+  }
+
+  discussionTitle(post: Post): string {
+    return post.discussion().title();
   }
 }
