@@ -23,8 +23,7 @@
         "build-typings": "yarn run clean-typings && ([ -e src/@types ] && cp -r src/@types dist-typings/@types || true) && tsc && yarn run post-build-typings",
         "post-build-typings": "find dist-typings -type f -name '*.d.ts' -print0 | xargs -0 sed -i 's,../src/@types,@types,g'",
         "check-typings": "tsc --noEmit --emitDeclarationOnly false",
-        "check-typings-coverage": "typescript-coverage-report",
-        "test": "yarn node --experimental-vm-modules $(yarn bin jest)"
+        "check-typings-coverage": "typescript-coverage-report"
     },
     "prettier": "@flarum/prettier-config",
     "type": "module"
