@@ -23,12 +23,12 @@ class AbstractJob implements ShouldQueue
     /**
      * @var string|null
      */
-    public static $onQueue = null;
+    public static $sendOnQueue = null;
 
     public function __construct()
     {
-        if (static::$onQueue) {
-            $this->onQueue(static::$onQueue);
+        if (static::$sendOnQueue) {
+            $this->onQueue(static::$sendOnQueue);
         }
     }
 }
