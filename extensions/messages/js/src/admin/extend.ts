@@ -1,6 +1,6 @@
 import Extend from 'flarum/common/extenders';
 import commonExtend from '../common/extend';
-import app from '@flarum/core/dist-typings/admin/app';
+import app from 'flarum/admin/app';
 
 export default [
   ...commonExtend,
