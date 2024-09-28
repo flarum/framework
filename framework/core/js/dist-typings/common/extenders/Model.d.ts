@@ -1,5 +1,5 @@
 import IExtender, { IExtensionModule } from './IExtender';
-import Application from '../Application';
+import type Application from '../Application';
 import ActualModel from '../Model';
 export default class Model implements IExtender {
     private readonly model;

@@ -1,4 +1,4 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
+/// <reference path="../../../src/@types/translator-icu-rich.d.ts" />
 import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Mithril from 'mithril';
 import ItemList from '../../common/utils/ItemList';

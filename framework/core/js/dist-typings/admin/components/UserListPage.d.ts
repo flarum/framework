@@ -1,4 +1,4 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
+/// <reference path="../../../src/@types/translator-icu-rich.d.ts" />
 import Mithril from 'mithril';
 import type User from '../../common/models/User';
 import type { IPageAttrs } from '../../common/components/Page';

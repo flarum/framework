@@ -1,4 +1,4 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
+/// <reference path="../../../src/@types/translator-icu-rich.d.ts" />
 import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
 import ExtensionReadme from '../models/ExtensionReadme';
 import type Mithril from 'mithril';
