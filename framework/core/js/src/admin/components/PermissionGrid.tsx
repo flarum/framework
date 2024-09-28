@@ -8,9 +8,11 @@ import type Mithril from 'mithril';
 import Icon from '../../common/components/Icon';
 
 export interface PermissionConfig {
-  permission: string;
+  permission?: string;
   icon: string;
   label: Mithril.Children;
+  id?: string;
+  setting?: () => Mithril.Children;
   allowGuest?: boolean;
 }
 
@@ -137,64 +139,7 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
   viewItems() {
     const items = new ItemList<PermissionGridEntry>();
 
-    items.add(
-      'viewForum',
-      {
-        icon: 'fas fa-eye',
-        label: app.translator.trans('core.admin.permissions.view_forum_label'),
-        permission: 'viewForum',
-        allowGuest: true,
-      },
-      100
-    );
-
-    items.add(
-      'viewHiddenGroups',
-      {
-        icon: 'fas fa-users',
-        label: app.translator.trans('core.admin.permissions.view_hidden_groups_label'),
-        permission: 'viewHiddenGroups',
-      },
-      100
-    );
-
-    items.add(
-      'searchUsers',
-      {
-        icon: 'fas fa-users',
-        label: app.translator.trans('core.admin.permissions.search_users_label'),
-        permission: 'searchUsers',
-        allowGuest: true,
-      },
-      100
-    );
-
-    items.add(
-      'signUp',
-      {
-        icon: 'fas fa-user-plus',
-        label: app.translator.trans('core.admin.permissions.sign_up_label'),
-        setting: () => (
-          <SettingDropdown
-            key="allow_sign_up"
-            options={[
-              { value: '1', label: app.translator.trans('core.admin.permissions_controls.signup_open_button') },
-              { value: '0', label: app.translator.trans('core.admin.permissions_controls.signup_closed_button') },
-            ]}
-            lazyDraw
-          />
-        ),
-      },
-      90
-    );
-
-    items.add('viewLastSeenAt', {
-      icon: 'far fa-clock',
-      label: app.translator.trans('core.admin.permissions.view_last_seen_at_label'),
-      permission: 'user.viewLastSeenAt',
-    });
-
-    items.merge(app.extensionData.getAllExtensionPermissions('view'));
+    items.merge(app.registry.getAllPermissions('view'));
 
     return items;
   }
@@ -202,56 +147,7 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
   startItems() {
     const items = new ItemList<PermissionGridEntry>();
 
-    items.add(
-      'start',
-      {
-        icon: 'fas fa-edit',
-        label: app.translator.trans('core.admin.permissions.start_discussions_label'),
-        permission: 'startDiscussion',
-      },
-      100
-    );
-
-    items.add(
-      'allowRenaming',
-      {
-        icon: 'fas fa-i-cursor',
-        label: app.translator.trans('core.admin.permissions.allow_renaming_label'),
-        setting: () => {
-          const minutes = parseInt(app.data.settings.allow_renaming, 10);
-
-          return (
-            <SettingDropdown
-              defaultLabel={
-                minutes
-                  ? app.translator.trans('core.admin.permissions_controls.allow_some_minutes_button', { count: minutes })
-                  : app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button')
-              }
-              key="allow_renaming"
-              options={[
-                { value: '-1', label: app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button') },
-                { value: '10', label: app.translator.trans('core.admin.permissions_controls.allow_ten_minutes_button') },
-                { value: 'reply', label: app.translator.trans('core.admin.permissions_controls.allow_until_reply_button') },
-              ]}
-              lazyDraw
-            />
-          );
-        },
-      },
-      90
-    );
-
-    items.add(
-      'createAccessToken',
-      {
-        icon: 'fas fa-key',
-        label: app.translator.trans('core.admin.permissions.create_access_token_label'),
-        permission: 'createAccessToken',
-      },
-      80
-    );
-
-    items.merge(app.extensionData.getAllExtensionPermissions('start'));
+    items.merge(app.registry.getAllPermissions('start'));
 
     return items;
   }
@@ -259,70 +155,7 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
   replyItems() {
     const items = new ItemList<PermissionGridEntry>();
 
-    items.add(
-      'reply',
-      {
-        icon: 'fas fa-reply',
-        label: app.translator.trans('core.admin.permissions.reply_to_discussions_label'),
-        permission: 'discussion.reply',
-      },
-      100
-    );
-
-    items.add(
-      'allowPostEditing',
-      {
-        icon: 'fas fa-pencil-alt',
-        label: app.translator.trans('core.admin.permissions.allow_post_editing_label'),
-        setting: () => {
-          const minutes = parseInt(app.data.settings.allow_post_editing, 10);
-
-          return (
-            <SettingDropdown
-              defaultLabel={
-                minutes
-                  ? app.translator.trans('core.admin.permissions_controls.allow_some_minutes_button', { count: minutes })
-                  : app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button')
-              }
-              key="allow_post_editing"
-              options={[
-                { value: '-1', label: app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button') },
-                { value: '10', label: app.translator.trans('core.admin.permissions_controls.allow_ten_minutes_button') },
-                { value: 'reply', label: app.translator.trans('core.admin.permissions_controls.allow_until_reply_button') },
-              ]}
-            />
-          );
-        },
-      },
-      90
-    );
-
-    items.add(
-      'hideOwnPosts',
-      {
-        icon: 'far fa-trash-alt',
-        label: app.translator.trans('core.admin.permissions.allow_hide_own_posts_label'),
-        setting: () => {
-          const minutes = parseInt(app.data.settings.allow_hide_own_posts, 10);
-
-          return SettingDropdown.component({
-            defaultLabel: minutes
-              ? app.translator.trans('core.admin.permissions_controls.allow_some_minutes_button', { count: minutes })
-              : app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button'),
-            key: 'allow_hide_own_posts',
-            options: [
-              { value: '-1', label: app.translator.trans('core.admin.permissions_controls.allow_indefinitely_button') },
-              { value: '10', label: app.translator.trans('core.admin.permissions_controls.allow_ten_minutes_button') },
-              { value: 'reply', label: app.translator.trans('core.admin.permissions_controls.allow_until_reply_button') },
-              { value: '0', label: app.translator.trans('core.admin.permissions_controls.allow_never_button') },
-            ],
-          });
-        },
-      },
-      80
-    );
-
-    items.merge(app.extensionData.getAllExtensionPermissions('reply'));
+    items.merge(app.registry.getAllPermissions('reply'));
 
     return items;
   }
@@ -330,127 +163,7 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
   moderateItems() {
     const items = new ItemList<PermissionGridEntry>();
 
-    items.add(
-      'viewIpsPosts',
-      {
-        icon: 'fas fa-bullseye',
-        label: app.translator.trans('core.admin.permissions.view_post_ips_label'),
-        permission: 'discussion.viewIpsPosts',
-      },
-      110
-    );
-
-    items.add(
-      'renameDiscussions',
-      {
-        icon: 'fas fa-i-cursor',
-        label: app.translator.trans('core.admin.permissions.rename_discussions_label'),
-        permission: 'discussion.rename',
-      },
-      100
-    );
-
-    items.add(
-      'hideDiscussions',
-      {
-        icon: 'far fa-trash-alt',
-        label: app.translator.trans('core.admin.permissions.delete_discussions_label'),
-        permission: 'discussion.hide',
-      },
-      90
-    );
-
-    items.add(
-      'deleteDiscussions',
-      {
-        icon: 'fas fa-times',
-        label: app.translator.trans('core.admin.permissions.delete_discussions_forever_label'),
-        permission: 'discussion.delete',
-      },
-      80
-    );
-
-    items.add(
-      'postWithoutThrottle',
-      {
-        icon: 'fas fa-swimmer',
-        label: app.translator.trans('core.admin.permissions.post_without_throttle_label'),
-        permission: 'postWithoutThrottle',
-      },
-      70
-    );
-
-    items.add(
-      'editPosts',
-      {
-        icon: 'fas fa-pencil-alt',
-        label: app.translator.trans('core.admin.permissions.edit_posts_label'),
-        permission: 'discussion.editPosts',
-      },
-      70
-    );
-
-    items.add(
-      'hidePosts',
-      {
-        icon: 'far fa-trash-alt',
-        label: app.translator.trans('core.admin.permissions.delete_posts_label'),
-        permission: 'discussion.hidePosts',
-      },
-      60
-    );
-
-    items.add(
-      'deletePosts',
-      {
-        icon: 'fas fa-times',
-        label: app.translator.trans('core.admin.permissions.delete_posts_forever_label'),
-        permission: 'discussion.deletePosts',
-      },
-      60
-    );
-
-    items.add(
-      'userEditCredentials',
-      {
-        icon: 'fas fa-user-cog',
-        label: app.translator.trans('core.admin.permissions.edit_users_credentials_label'),
-        permission: 'user.editCredentials',
-      },
-      60
-    );
-
-    items.add(
-      'userEditGroups',
-      {
-        icon: 'fas fa-users-cog',
-        label: app.translator.trans('core.admin.permissions.edit_users_groups_label'),
-        permission: 'user.editGroups',
-      },
-      60
-    );
-
-    items.add(
-      'userEdit',
-      {
-        icon: 'fas fa-address-card',
-        label: app.translator.trans('core.admin.permissions.edit_users_label'),
-        permission: 'user.edit',
-      },
-      60
-    );
-
-    items.add(
-      'moderateAccessTokens',
-      {
-        icon: 'fas fa-key',
-        label: app.translator.trans('core.admin.permissions.moderate_access_tokens_label'),
-        permission: 'moderateAccessTokens',
-      },
-      60
-    );
-
-    items.merge(app.extensionData.getAllExtensionPermissions('moderate'));
+    items.merge(app.registry.getAllPermissions('moderate'));
 
     return items;
   }

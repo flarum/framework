@@ -168,7 +168,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
       this.refreshAfterSaving.push(setting);
     }
 
-    return <FormGroup stream={bidi} {...attrs} />;
+    return <FormGroup stream={bidi} getSetting={this.setting.bind(this)} {...attrs} />;
   }
 
   /**
@@ -243,7 +243,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
       .catch(this.onsavefailed.bind(this));
   }
 
-  modelLocale(): Record<string, string> {
+  static modelLocale(): Record<string, string> {
     return {
       'Flarum\\Discussion\\Discussion': extractText(app.translator.trans('core.admin.models.discussions')),
       'Flarum\\User\\User': extractText(app.translator.trans('core.admin.models.users')),

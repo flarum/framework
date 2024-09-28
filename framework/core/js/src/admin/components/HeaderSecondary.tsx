@@ -1,9 +1,11 @@
-import app from '../../admin/app';
+import app from '../app';
 import Component from '../../common/Component';
 import LinkButton from '../../common/components/LinkButton';
 import SessionDropdown from './SessionDropdown';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
+import type Mithril from 'mithril';
+import Search from './Search';
 
 /**
  * The `HeaderSecondary` component displays secondary header controls.
@@ -15,11 +17,11 @@ export default class HeaderSecondary extends Component {
 
   /**
    * Build an item list for the controls.
-   *
-   * @return {ItemList<import('mithril').Children>}
    */
   items() {
-    const items = new ItemList();
+    const items = new ItemList<Mithril.Children>();
+
+    items.add('search', <Search state={app.search.state} />, 30);
 
     items.add(
       'help',

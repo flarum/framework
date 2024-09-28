@@ -1,14 +1,16 @@
+import Extend from 'flarum/common/extenders';
 import app from 'flarum/admin/app';
+import commonExtend from '../common/extend';
 
-export { default as extend } from './extend';
+export default [
+  ...commonExtend,
 
-app.initializers.add('flarum-suspend', () => {
-  app.extensionData.for('flarum-suspend').registerPermission(
-    {
+  new Extend.Admin().permission(
+    () => ({
       icon: 'fas fa-ban',
       label: app.translator.trans('flarum-suspend.admin.permissions.suspend_users_label'),
       permission: 'user.suspend',
-    },
+    }),
     'moderate'
-  );
-});
+  ),
+];
