@@ -1,20 +1,20 @@
 import app from '../app';
-import type { IFormModalAttrs } from '../../common/components/FormModal';
-import FormModal from '../../common/components/FormModal';
+import type { IFormModalAttrs } from './FormModal';
+import FormModal from './FormModal';
 import type Mithril from 'mithril';
-import type SearchState from '../../common/states/SearchState';
-import KeyboardNavigatable from '../../common/utils/KeyboardNavigatable';
-import SearchManager from '../../common/SearchManager';
-import extractText from '../../common/utils/extractText';
-import Input from '../../common/components/Input';
-import Button from '../../common/components/Button';
-import Stream from '../../common/utils/Stream';
-import InfoTile from '../../common/components/InfoTile';
-import LoadingIndicator from '../../common/components/LoadingIndicator';
-import type { SearchSource } from './Search';
-import type IGambit from '../../common/query/IGambit';
-import ItemList from '../../common/utils/ItemList';
-import GambitsAutocomplete from '../../common/utils/GambitsAutocomplete';
+import type SearchState from '../states/SearchState';
+import KeyboardNavigatable from '../utils/KeyboardNavigatable';
+import SearchManager from '../SearchManager';
+import extractText from '../utils/extractText';
+import Input from './Input';
+import Button from './Button';
+import Stream from '../utils/Stream';
+import InfoTile from './InfoTile';
+import LoadingIndicator from './LoadingIndicator';
+import type IGambit from '../query/IGambit';
+import ItemList from '../utils/ItemList';
+import GambitsAutocomplete from '../utils/GambitsAutocomplete';
+import type { SearchSource } from './AbstractSearch';
 
 export interface ISearchModalAttrs extends IFormModalAttrs {
   onchange: (value: string) => void;
@@ -72,7 +72,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
   }
 
   title(): Mithril.Children {
-    return app.translator.trans('core.forum.search.title');
+    return app.translator.trans('core.lib.search.title');
   }
 
   className(): string {
@@ -87,7 +87,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
       (value: string) => this.search(value)
     );
 
-    const searchLabel = extractText(app.translator.trans('core.forum.search.placeholder'));
+    const searchLabel = extractText(app.translator.trans('core.lib.search.placeholder'));
 
     return (
       <div className="Modal-body SearchModal-body">
@@ -97,7 +97,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
             type="search"
             loading={!!this.loadingSources.length}
             clearable={true}
-            clearLabel={app.translator.trans('core.forum.header.search_clear_button_accessible_label')}
+            clearLabel={app.translator.trans('core.lib.header.search_clear_button_accessible_label')}
             prefixIcon="fas fa-search"
             aria-label={searchLabel}
             placeholder={searchLabel}
@@ -157,6 +157,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     const gambits = this.gambits();
     const fullPageLink = this.activeSource().fullPage(this.query());
     const results = this.activeSource()?.view(this.query());
+    const customGrouping = this.activeSource().customGrouping();
 
     if (shouldShowResults && fullPageLink) {
       items.add(
@@ -175,7 +176,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
         <div className="SearchModal-section">
           <hr className="Modal-divider" />
           <ul className="Dropdown-menu SearchModal-options" aria-live={gambits.length ? 'polite' : undefined}>
-            <li className="Dropdown-header">{app.translator.trans('core.forum.search.options_heading')}</li>
+            <li className="Dropdown-header">{app.translator.trans('core.lib.search.options_heading')}</li>
             {gambits}
           </ul>
         </div>,
@@ -188,16 +189,16 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
       <div className="SearchModal-section">
         <hr className="Modal-divider" />
         <ul className="Dropdown-menu SearchModal-results" aria-live={shouldShowResults ? 'polite' : undefined}>
-          <li className="Dropdown-header">{app.translator.trans('core.forum.search.preview_heading')}</li>
+          {!customGrouping && <li className="Dropdown-header">{app.translator.trans('core.lib.search.preview_heading')}</li>}
           {!shouldShowResults && (
             <li className="Dropdown-message">
-              <InfoTile icon="fas fa-search">{app.translator.trans('core.forum.search.no_search_text')}</InfoTile>
+              <InfoTile icon="fas fa-search">{app.translator.trans('core.lib.search.no_search_text')}</InfoTile>
             </li>
           )}
           {shouldShowResults && results}
           {shouldShowResults && !results?.length && (
             <li className="Dropdown-message">
-              <InfoTile icon="far fa-tired">{app.translator.trans('core.forum.search.no_results_text')}</InfoTile>
+              <InfoTile icon="far fa-tired">{app.translator.trans('core.lib.search.no_results_text')}</InfoTile>
             </li>
           )}
           {loading && (

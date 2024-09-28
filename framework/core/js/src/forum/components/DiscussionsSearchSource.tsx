@@ -52,6 +52,10 @@ export default class DiscussionsSearchSource implements SearchSource {
     }) as Array<Mithril.Vnode>;
   }
 
+  customGrouping(): boolean {
+    return false;
+  }
+
   fullPage(query: string): Mithril.Vnode {
     const filter = app.search.gambits.apply('discussions', { q: query });
     const q = filter.q || null;

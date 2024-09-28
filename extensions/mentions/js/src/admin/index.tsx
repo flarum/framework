@@ -2,6 +2,6 @@ import app from 'flarum/admin/app';
 
 export { default as extend } from './extend';
 
-app.initializers.add('flarum-flags', () => {
+app.initializers.add('flarum-mentions', () => {
   // ...
 });

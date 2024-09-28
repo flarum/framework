@@ -57,6 +57,10 @@ export default class UsersSearchSource implements SearchSource {
     return results.map((user) => <UserSearchResult user={user} query={query} />);
   }
 
+  customGrouping(): boolean {
+    return false;
+  }
+
   fullPage(query: string): null {
     return null;
   }
