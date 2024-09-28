@@ -113,5 +113,5 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
      * Saves the modified settings to the database.
      */
     saveSettings(e: SaveSubmitEvent): Promise<void>;
-    modelLocale(): Record<string, string>;
+    static modelLocale(): Record<string, string>;
 }

@@ -1,9 +1,10 @@
 import { AdminRoutes } from './routes';
 import Application, { ApplicationData } from '../common/Application';
-import ExtensionData from './utils/ExtensionData';
+import AdminRegistry from './utils/AdminRegistry';
 import IHistory from '../common/IHistory';
 import SearchManager from '../common/SearchManager';
 import SearchState from '../common/states/SearchState';
+import GeneralSearchIndex from './states/GeneralSearchIndex';
 export declare type Extension = {
     id: string;
     name: string;
@@ -27,6 +28,7 @@ export declare type Extension = {
     extra: {
         'flarum-extension': {
             title: string;
+            category?: string;
             'database-support'?: string[];
         };
     };
@@ -59,7 +61,13 @@ export interface AdminApplicationData extends ApplicationData {
     sessionDriver: string;
 }
 export default class AdminApplication extends Application {
-    extensionData: ExtensionData;
+    /**
+     * Stores the available settings, permissions, and custom pages of the app.
+     * Allows the global search to find these items.
+     *
+     * @internal
+     */
+    registry: AdminRegistry;
     extensionCategories: {
         feature: number;
         theme: number;
@@ -67,6 +75,11 @@ export default class AdminApplication extends Application {
     };
     history: IHistory;
     search: SearchManager<SearchState>;
+    /**
+     * Custom settings and custom permissions do not go through the registry.
+     * The general index is used to manually add these items to be picked up by the search.
+     */
+    generalIndex: GeneralSearchIndex;
     /**
      * Settings are serialized to the admin dashboard as strings.
      * Additional encoding/decoding is possible, but must take
@@ -77,6 +90,7 @@ export default class AdminApplication extends Application {
     data: AdminApplicationData;
     route: typeof Application.prototype.route & AdminRoutes;
     constructor();
+    protected beforeMount(): void;
     /**
      * @inheritdoc
      */

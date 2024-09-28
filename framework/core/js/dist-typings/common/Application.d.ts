@@ -205,7 +205,9 @@ export default class Application {
     private requestErrorAlert;
     initialRoute: string;
     load(payload: Application['data']): void;
+    protected initialize(): CallableFunction[];
     boot(): void;
+    protected beforeMount(): void;
     bootExtensions(extensions: Record<string, {
         extend?: IExtender[];
     }>): void;

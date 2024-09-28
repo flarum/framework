@@ -2,13 +2,13 @@ import type Mithril from 'mithril';
 import ItemList from '../../common/utils/ItemList';
 import { SettingsComponentOptions } from '../components/AdminPage';
 import ExtensionPage, { ExtensionPageAttrs } from '../components/ExtensionPage';
-import { PermissionConfig, PermissionType } from '../components/PermissionGrid';
-declare type SettingConfigInput = SettingsComponentOptions | (() => Mithril.Children);
-declare type SettingConfigInternal = SettingsComponentOptions | ((() => Mithril.Children) & {
+import type { PermissionConfig, PermissionType } from '../components/PermissionGrid';
+export declare type SettingConfigInput = SettingsComponentOptions | (() => Mithril.Children);
+export declare type SettingConfigInternal = SettingsComponentOptions | ((() => Mithril.Children) & {
     setting: string;
 });
 export declare type CustomExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionPageAttrs> = new () => ExtensionPage<Attrs>;
-declare type ExtensionConfig = {
+export declare type ExtensionConfig = {
     settings?: ItemList<SettingConfigInternal>;
     permissions?: {
         view?: ItemList<PermissionConfig>;
@@ -30,13 +30,13 @@ declare type InnerDataActiveExtension = {
         [key: string]: ExtensionConfig;
     };
 };
-export default class ExtensionData {
+export default class AdminRegistry {
     protected state: InnerDataActiveExtension | InnerDataNoActiveExtension;
     /**
      * This function simply takes the extension id
      *
      * @example
-     * app.extensionData.for('flarum-tags')
+     * app.registry.for('flarum-tags')
      *
      * flarum/flags -> flarum-flags | acme/extension -> acme-extension
      */
@@ -79,7 +79,7 @@ export default class ExtensionData {
     /**
      * Get an ItemList of all extensions' registered permissions
      */
-    getAllExtensionPermissions(type: PermissionType): ItemList<PermissionConfig>;
+    getAllPermissions(type: PermissionType): ItemList<PermissionConfig>;
     /**
      * Get a singular extension's registered permissions
      */
@@ -92,5 +92,10 @@ export default class ExtensionData {
      * Returns an extension's custom page component if it exists.
      */
     getPage<Attrs extends ExtensionPageAttrs = ExtensionPageAttrs>(extension: string): CustomExtensionPage<Attrs> | undefined;
+    getData(): {
+        [key: string]: ExtensionConfig;
+    } | {
+        [key: string]: ExtensionConfig | undefined;
+    };
 }
 export {};

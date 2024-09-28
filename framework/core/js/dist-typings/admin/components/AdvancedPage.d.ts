@@ -1,4 +1,4 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
+/// <reference path="../../../src/@types/translator-icu-rich.d.ts" />
 import AdminPage from './AdminPage';
 import type { IPageAttrs } from '../../common/components/Page';
 import type Mithril from 'mithril';
@@ -19,4 +19,5 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
     searchDrivers(): JSX.Element;
     maintenance(): JSX.Element;
     pgsqlSettings(): JSX.Element;
+    static register(): void;
 }

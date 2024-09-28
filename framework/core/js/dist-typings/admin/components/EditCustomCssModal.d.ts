@@ -1,4 +1,4 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
+/// <reference path="../../../src/@types/translator-icu-rich.d.ts" />
 /// <reference types="mithril" />
 import SettingsModal from './SettingsModal';
 export default class EditCustomCssModal extends SettingsModal {

@@ -1,12 +1,12 @@
-import type { IFormModalAttrs } from '../../common/components/FormModal';
-import FormModal from '../../common/components/FormModal';
+import type { IFormModalAttrs } from './FormModal';
+import FormModal from './FormModal';
 import type Mithril from 'mithril';
-import type SearchState from '../../common/states/SearchState';
-import KeyboardNavigatable from '../../common/utils/KeyboardNavigatable';
-import Stream from '../../common/utils/Stream';
-import type { SearchSource } from './Search';
-import ItemList from '../../common/utils/ItemList';
-import GambitsAutocomplete from '../../common/utils/GambitsAutocomplete';
+import type SearchState from '../states/SearchState';
+import KeyboardNavigatable from '../utils/KeyboardNavigatable';
+import Stream from '../utils/Stream';
+import ItemList from '../utils/ItemList';
+import GambitsAutocomplete from '../utils/GambitsAutocomplete';
+import type { SearchSource } from './AbstractSearch';
 export interface ISearchModalAttrs extends IFormModalAttrs {
     onchange: (value: string) => void;
     searchState: SearchState;

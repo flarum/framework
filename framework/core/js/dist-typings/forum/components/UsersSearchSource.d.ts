@@ -12,6 +12,7 @@ export default class UsersSearchSource implements SearchSource {
     isCached(query: string): boolean;
     search(query: string, limit: number): Promise<void>;
     view(query: string): Array<Mithril.Vnode>;
+    customGrouping(): boolean;
     fullPage(query: string): null;
     gotoItem(id: string): string | null;
 }

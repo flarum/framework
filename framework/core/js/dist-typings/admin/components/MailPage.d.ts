@@ -1,4 +1,4 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
+/// <reference path="../../../src/@types/translator-icu-rich.d.ts" />
 import AdminPage from './AdminPage';
 import type { IPageAttrs } from '../../common/components/Page';
 import type { AlertIdentifier } from '../../common/states/AlertManagerState';
@@ -34,4 +34,5 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
     mailSettingItems(): ItemList<Mithril.Children>;
     sendTestEmail(): void;
     saveSettings(e: SaveSubmitEvent): Promise<void>;
+    static register(): void;
 }
