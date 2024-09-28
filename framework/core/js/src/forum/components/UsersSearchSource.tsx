@@ -1,15 +1,10 @@
 import type Mithril from 'mithril';
 
 import app from '../app';
-import highlight from '../../common/helpers/highlight';
-import username from '../../common/helpers/username';
-import Link from '../../common/components/Link';
 import type User from '../../common/models/User';
-import Avatar from '../../common/components/Avatar';
 import type { SearchSource } from './Search';
 import extractText from '../../common/utils/extractText';
-import listItems from '../../common/helpers/listItems';
-import UserSearchResult from './UserSearchResult';
+import UserSearchResult from '../../common/components/UserSearchResult';
 
 /**
  * The `UsersSearchSource` finds and displays user search results in the search

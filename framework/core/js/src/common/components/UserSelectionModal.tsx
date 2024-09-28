@@ -9,7 +9,7 @@ import Button from './Button';
 import LoadingIndicator from './LoadingIndicator';
 import { throttle } from '../utils/throttleDebounce';
 import InfoTile from './InfoTile';
-import UserSearchResult from '../../forum/components/UserSearchResult';
+import UserSearchResult from '../../common/components/UserSearchResult';
 import Pill from './Pill';
 
 export interface IUserSelectionModalAttrs extends IFormModalAttrs {

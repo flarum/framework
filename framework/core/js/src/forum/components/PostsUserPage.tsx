@@ -1,11 +1,4 @@
-import app from '../../forum/app';
 import UserPage, { IUserPageAttrs } from './UserPage';
-import LoadingIndicator from '../../common/components/LoadingIndicator';
-import Button from '../../common/components/Button';
-import Link from '../../common/components/Link';
-import Placeholder from '../../common/components/Placeholder';
-import CommentPost from './CommentPost';
-import type Post from '../../common/models/Post';
 import type Mithril from 'mithril';
 import type User from '../../common/models/User';
 import PostListState from '../states/PostListState';
