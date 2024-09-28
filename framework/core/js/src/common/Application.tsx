@@ -377,7 +377,7 @@ export default class Application {
   }
 
   private initColorScheme(forumDefault: string | null = null): void {
-    forumDefault ??= document.documentElement.getAttribute('data-theme') ?? 'auto';
+    forumDefault ??= app.forum.attribute('colorScheme') ?? 'auto';
     this.allowUserColorScheme = forumDefault === 'auto';
     const userConfiguredPreference = this.session.user?.preferences()?.colorScheme;
 
