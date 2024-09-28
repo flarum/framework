@@ -13,9 +13,3 @@ app.initializers.add('flarum-sticky', () => {
   addStickyExcerpt();
   addStickyClass();
 });
-
-// Expose compat API
-import stickyCompat from './compat';
-import { compat } from '@flarum/core/forum';
-
-Object.assign(compat, stickyCompat);

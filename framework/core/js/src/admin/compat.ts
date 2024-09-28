@@ -15,7 +15,6 @@ import ExtensionsWidget from './components/ExtensionsWidget';
 import HeaderSecondary from './components/HeaderSecondary';
 import SettingsModal from './components/SettingsModal';
 import DashboardWidget from './components/DashboardWidget';
-import DebugWarningWidget from './components/DebugWarningWidget';
 import ExtensionPage from './components/ExtensionPage';
 import ExtensionLinkButton from './components/ExtensionLinkButton';
 import PermissionGrid from './components/PermissionGrid';
@@ -29,7 +28,6 @@ import UserListPage from './components/UserListPage';
 import EditCustomHeaderModal from './components/EditCustomHeaderModal';
 import PermissionsPage from './components/PermissionsPage';
 import PermissionDropdown from './components/PermissionDropdown';
-import ReadmeModal from './components/ReadmeModal';
 import AdminNav from './components/AdminNav';
 import AdminHeader from './components/AdminHeader';
 import EditCustomCssModal from './components/EditCustomCssModal';
@@ -38,8 +36,6 @@ import routes from './routes';
 import AdminApplication from './AdminApplication';
 import generateElementId from './utils/generateElementId';
 import CreateUserModal from './components/CreateUserModal';
-import ExtensionReadme from './models/ExtensionReadme';
-import ExtensionPageResolver from './resolvers/ExtensionPageResolver';
 
 export default Object.assign(compat, {
   'utils/saveSettings': saveSettings,
@@ -58,7 +54,6 @@ export default Object.assign(compat, {
   'components/HeaderSecondary': HeaderSecondary,
   'components/SettingsModal': SettingsModal,
   'components/DashboardWidget': DashboardWidget,
-  'components/DebugWarningWidget': DebugWarningWidget,
   'components/ExtensionPage': ExtensionPage,
   'components/ExtensionLinkButton': ExtensionLinkButton,
   'components/PermissionGrid': PermissionGrid,
@@ -72,14 +67,11 @@ export default Object.assign(compat, {
   'components/EditCustomHeaderModal': EditCustomHeaderModal,
   'components/PermissionsPage': PermissionsPage,
   'components/PermissionDropdown': PermissionDropdown,
-  'components/ReadmeModal': ReadmeModal,
   'components/AdminNav': AdminNav,
   'components/AdminHeader': AdminHeader,
   'components/EditCustomCssModal': EditCustomCssModal,
   'components/EditGroupModal': EditGroupModal,
   'components/CreateUserModal': CreateUserModal,
-  'models/ExtensionReadme': ExtensionReadme,
-  'resolvers/ExtensionPageResolver': ExtensionPageResolver,
   routes: routes,
   AdminApplication: AdminApplication,
 });
