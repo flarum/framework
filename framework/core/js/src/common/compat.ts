@@ -91,6 +91,7 @@ import AlertManagerState from './states/AlertManagerState';
 import ModalManagerState from './states/ModalManagerState';
 import PageState from './states/PageState';
 import LabelValue from './components/LabelValue';
+import IPAddress from './components/IPAddress';
 
 export default {
   extenders,
@@ -169,6 +170,7 @@ export default {
   'components/Tooltip': Tooltip,
   'components/EditUserModal': EditUserModal,
   'components/LabelValue': LabelValue,
+  'components/IPAddress': IPAddress,
   Model: Model,
   Application: Application,
   'helpers/fullTime': fullTime,
