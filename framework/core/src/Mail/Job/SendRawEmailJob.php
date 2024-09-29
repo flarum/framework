@@ -21,6 +21,8 @@ class SendRawEmailJob extends AbstractJob
 
     public function __construct(string $email, string $subject, string $body)
     {
+        parent::__construct();
+
         $this->email = $email;
         $this->subject = $subject;
         $this->body = $body;

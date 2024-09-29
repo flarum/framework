@@ -47,6 +47,8 @@ class SendMentionsNotificationsJob extends AbstractJob
 
     public function __construct(CommentPost $post, array $userMentions, array $postMentions, array $groupMentions)
     {
+        parent::__construct();
+
         $this->post = $post;
         $this->userMentions = $userMentions;
         $this->postMentions = $postMentions;

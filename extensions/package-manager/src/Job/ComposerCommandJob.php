@@ -32,6 +32,8 @@ class ComposerCommandJob extends AbstractJob implements ShouldBeUnique
 
     public function __construct(AbstractActionCommand $command, string $phpVersion)
     {
+        parent::__construct();
+
         $this->command = $command;
         $this->phpVersion = $phpVersion;
     }

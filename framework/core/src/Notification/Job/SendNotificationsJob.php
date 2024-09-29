@@ -28,6 +28,8 @@ class SendNotificationsJob extends AbstractJob
 
     public function __construct(BlueprintInterface $blueprint, array $recipients = [])
     {
+        parent::__construct();
+
         $this->blueprint = $blueprint;
         $this->recipients = $recipients;
     }
