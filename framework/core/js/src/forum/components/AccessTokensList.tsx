@@ -11,6 +11,7 @@ import Tooltip from '../../common/components/Tooltip';
 import type Mithril from 'mithril';
 import type AccessToken from '../../common/models/AccessToken';
 import { NestedStringArray } from '@askvortsov/rich-icu-message-formatter';
+import IPAddress from '../../common/components/IPAddress';
 
 export interface IAccessTokensListAttrs extends ComponentAttrs {
   tokens: AccessToken[];
@@ -100,7 +101,12 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
             token.lastActivityAt() ? (
               <>
                 {humanTime(token.lastActivityAt())}
-                {token.lastIpAddress() && ` — ${token.lastIpAddress()}`}
+                {token.lastIpAddress() && (
+                  <span>
+                    {' '}
+                    — <IPAddress ip={token.lastIpAddress()} />
+                  </span>
+                )}
                 {this.attrs.type === 'developer_token' && token.device() && (
                   <>
                     {' '}

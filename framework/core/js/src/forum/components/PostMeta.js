@@ -3,6 +3,7 @@ import Component from '../../common/Component';
 import humanTime from '../../common/helpers/humanTime';
 import fullTime from '../../common/helpers/fullTime';
 import ItemList from '../../common/utils/ItemList';
+import IPAddress from '../../common/components/IPAddress';
 
 /**
  * The `PostMeta` component displays the time of a post, and when clicked, shows
@@ -78,7 +79,13 @@ export default class PostMeta extends Component {
 
     items.add('post-time', <span className="PostMeta-time">{fullTime(time)}</span>, 90);
 
-    items.add('post-ip', <span className="PostMeta-ip">{post.data.attributes.ipAddress}</span>, 80);
+    items.add(
+      'post-ip',
+      <span className="PostMeta-ip">
+        <IPAddress ip={post.data.attributes.ipAddress} />
+      </span>,
+      80
+    );
 
     items.add(
       'permalink',
