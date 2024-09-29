@@ -182,6 +182,7 @@ export default class Application {
     history: IHistory | null;
     pane: any;
     data: ApplicationData;
+    refs: Record<string, string>;
     private _title;
     private _titleCount;
     private set title(value);
