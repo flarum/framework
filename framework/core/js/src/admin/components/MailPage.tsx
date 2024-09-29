@@ -6,8 +6,9 @@ import LoadingIndicator from '../../common/components/LoadingIndicator';
 import AdminPage from './AdminPage';
 import type { IPageAttrs } from '../../common/components/Page';
 import type { AlertIdentifier } from '../../common/states/AlertManagerState';
-import type Mithril from 'mithril';
+import Mithril from 'mithril';
 import type { SaveSubmitEvent } from './AdminPage';
+import ItemList from '../../common/utils/ItemList';
 
 export interface MailSettings {
   data: {
@@ -65,55 +66,7 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
       return <LoadingIndicator />;
     }
 
-    const fields = this.driverFields![this.setting('mail_driver')()];
-    const fieldKeys = Object.keys(fields);
-
-    return (
-      <div className="Form">
-        {this.buildSettingComponent({
-          type: 'text',
-          setting: 'mail_from',
-          label: app.translator.trans('core.admin.email.addresses_heading'),
-        })}
-        {this.buildSettingComponent({
-          type: 'select',
-          setting: 'mail_driver',
-          options: Object.keys(this.driverFields!).reduce((memo, val) => ({ ...memo, [val]: val }), {}),
-          label: app.translator.trans('core.admin.email.driver_heading'),
-        })}
-        {this.status!.sending || <Alert dismissible={false}>{app.translator.trans('core.admin.email.not_sending_message')}</Alert>}
-
-        {!!fieldKeys.length && (
-          <FieldSet label={app.translator.trans(`core.admin.email.${this.setting('mail_driver')()}_heading`)} className="MailPage-MailSettings">
-            <div className="MailPage-MailSettings-input">
-              {fieldKeys.map((field) => {
-                const fieldInfo = fields[field];
-
-                return (
-                  <>
-                    {this.buildSettingComponent({
-                      type: typeof fieldInfo === 'string' ? 'text' : 'select',
-                      label: app.translator.trans(`core.admin.email.${field}_label`),
-                      setting: field,
-                      options: fieldInfo,
-                    })}
-                    {this.status!.errors[field] && <p className="ValidationError">{this.status!.errors[field]}</p>}
-                  </>
-                );
-              })}
-            </div>
-          </FieldSet>
-        )}
-        {this.submitButton()}
-
-        <FieldSet label={app.translator.trans('core.admin.email.send_test_mail_heading')} className="MailPage-MailSettings">
-          <div className="helpText">{app.translator.trans('core.admin.email.send_test_mail_text', { email: app.session.user!.email() })}</div>
-          <Button className="Button Button--primary" disabled={this.sendingTest || this.isChanged()} onclick={() => this.sendTestEmail()}>
-            {app.translator.trans('core.admin.email.send_test_mail_button')}
-          </Button>
-        </FieldSet>
-      </div>
-    );
+    return <div className="Form">{this.contentItems().toArray()}</div>;
   }
 
   sendTestEmail() {
@@ -141,5 +94,75 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
 
   saveSettings(e: SaveSubmitEvent) {
     return super.saveSettings(e).then(() => this.refresh());
+  }
+
+  contentItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+    const fields = this.driverFields![this.setting('mail_driver')()];
+    const fieldKeys = Object.keys(fields);
+
+    items.add(
+      'mail-from',
+      this.buildSettingComponent({
+        type: 'text',
+        setting: 'mail_from',
+        label: app.translator.trans('core.admin.email.addresses_heading'),
+      }),
+      100
+    );
+
+    items.add(
+      'mail-driver',
+      this.buildSettingComponent({
+        type: 'select',
+        setting: 'mail_driver',
+        options: Object.keys(this.driverFields!).reduce((memo, val) => ({ ...memo, [val]: val }), {}),
+        label: app.translator.trans('core.admin.email.driver_heading'),
+      }),
+      90
+    );
+
+    !this.status!.sending &&
+      items.add('not-sending', <Alert dismissible={false}>{app.translator.trans('core.admin.email.not_sending_message')}</Alert>, 80);
+
+    !!fieldKeys.length &&
+      items.add(
+        'driver-settings',
+        <FieldSet label={app.translator.trans(`core.admin.email.${this.setting('mail_driver')()}_heading`)} className="MailPage-MailSettings">
+          <div className="MailPage-MailSettings-input">
+            {fieldKeys.map((field) => {
+              const fieldInfo = fields[field];
+
+              return (
+                <>
+                  {this.buildSettingComponent({
+                    type: typeof fieldInfo === 'string' ? 'text' : 'select',
+                    label: app.translator.trans(`core.admin.email.${field}_label`),
+                    setting: field,
+                    options: fieldInfo,
+                  })}
+                  {this.status!.errors[field] && <p className="ValidationError">{this.status!.errors[field]}</p>}
+                </>
+              );
+            })}
+          </div>
+        </FieldSet>,
+        70
+      );
+
+    items.add('submit-button', this.submitButton(), 60);
+
+    items.add(
+      'email-test',
+      <FieldSet label={app.translator.trans('core.admin.email.send_test_mail_heading')} className="MailPage-MailSettings">
+        <div className="helpText">{app.translator.trans('core.admin.email.send_test_mail_text', { email: app.session.user!.email() })}</div>
+        <Button className="Button Button--primary" disabled={this.sendingTest || this.isChanged()} onclick={() => this.sendTestEmail()}>
+          {app.translator.trans('core.admin.email.send_test_mail_button')}
+        </Button>
+      </FieldSet>,
+      0
+    );
+
+    return items;
   }
 }

@@ -19,52 +19,7 @@ export default class AppearancePage extends AdminPage {
   }
 
   content() {
-    return (
-      <>
-        <div className="Form">
-          <fieldset className="AppearancePage-colors">
-            <legend>{app.translator.trans('core.admin.appearance.colors_heading')}</legend>
-            {this.colorItems().toArray()}
-          </fieldset>
-        </div>
-
-        <fieldset>
-          <legend>{app.translator.trans('core.admin.appearance.logo_heading')}</legend>
-          <div className="helpText">{app.translator.trans('core.admin.appearance.logo_text')}</div>
-          <UploadImageButton name="logo" />
-        </fieldset>
-
-        <fieldset>
-          <legend>{app.translator.trans('core.admin.appearance.favicon_heading')}</legend>
-          <div className="helpText">{app.translator.trans('core.admin.appearance.favicon_text')}</div>
-          <UploadImageButton name="favicon" />
-        </fieldset>
-
-        <fieldset>
-          <legend>{app.translator.trans('core.admin.appearance.custom_header_heading')}</legend>
-          <div className="helpText">{app.translator.trans('core.admin.appearance.custom_header_text')}</div>
-          <Button className="Button" onclick={() => app.modal.show(EditCustomHeaderModal)}>
-            {app.translator.trans('core.admin.appearance.edit_header_button')}
-          </Button>
-        </fieldset>
-
-        <fieldset>
-          <legend>{app.translator.trans('core.admin.appearance.custom_footer_heading')}</legend>
-          <div className="helpText">{app.translator.trans('core.admin.appearance.custom_footer_text')}</div>
-          <Button className="Button" onclick={() => app.modal.show(EditCustomFooterModal)}>
-            {app.translator.trans('core.admin.appearance.edit_footer_button')}
-          </Button>
-        </fieldset>
-
-        <fieldset>
-          <legend>{app.translator.trans('core.admin.appearance.custom_styles_heading')}</legend>
-          <div className="helpText">{app.translator.trans('core.admin.appearance.custom_styles_text')}</div>
-          <Button className="Button" onclick={() => app.modal.show(EditCustomCssModal)}>
-            {app.translator.trans('core.admin.appearance.edit_css_button')}
-          </Button>
-        </fieldset>
-      </>
-    );
+    return this.contentItems().toArray();
   }
 
   colorItems() {
@@ -118,5 +73,78 @@ export default class AppearancePage extends AdminPage {
 
   onsaved() {
     window.location.reload();
+  }
+
+  contentItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add(
+      'colors',
+      <div className="Form">
+        <fieldset className="AppearancePage-colors">
+          <legend>{app.translator.trans('core.admin.appearance.colors_heading')}</legend>
+          {this.colorItems().toArray()}
+        </fieldset>
+      </div>,
+      100
+    );
+
+    items.add(
+      'logo',
+      <fieldset>
+        <legend>{app.translator.trans('core.admin.appearance.logo_heading')}</legend>
+        <div className="helpText">{app.translator.trans('core.admin.appearance.logo_text')}</div>
+        <UploadImageButton name="logo" />
+      </fieldset>,
+      90
+    );
+
+    items.add(
+      'favicon',
+      <fieldset>
+        <legend>{app.translator.trans('core.admin.appearance.favicon_heading')}</legend>
+        <div className="helpText">{app.translator.trans('core.admin.appearance.favicon_text')}</div>
+        <UploadImageButton name="favicon" />
+      </fieldset>,
+      80
+    );
+
+    items.add(
+      'custom-header',
+      <fieldset>
+        <legend>{app.translator.trans('core.admin.appearance.custom_header_heading')}</legend>
+        <div className="helpText">{app.translator.trans('core.admin.appearance.custom_header_text')}</div>
+        <Button className="Button" onclick={() => app.modal.show(EditCustomHeaderModal)}>
+          {app.translator.trans('core.admin.appearance.edit_header_button')}
+        </Button>
+      </fieldset>,
+      70
+    );
+
+    items.add(
+      'custom-footer',
+      <fieldset>
+        <legend>{app.translator.trans('core.admin.appearance.custom_footer_heading')}</legend>
+        <div className="helpText">{app.translator.trans('core.admin.appearance.custom_footer_text')}</div>
+        <Button className="Button" onclick={() => app.modal.show(EditCustomFooterModal)}>
+          {app.translator.trans('core.admin.appearance.edit_footer_button')}
+        </Button>
+      </fieldset>,
+      60
+    );
+
+    items.add(
+      'custom-css',
+      <fieldset>
+        <legend>{app.translator.trans('core.admin.appearance.custom_styles_heading')}</legend>
+        <div className="helpText">{app.translator.trans('core.admin.appearance.custom_styles_text')}</div>
+        <Button className="Button" onclick={() => app.modal.show(EditCustomCssModal)}>
+          {app.translator.trans('core.admin.appearance.edit_css_button')}
+        </Button>
+      </fieldset>,
+      50
+    );
+
+    return items;
   }
 }
