@@ -78,7 +78,7 @@ export default class PostMeta extends Component {
 
     items.add('post-time', <span className="PostMeta-time">{fullTime(time)}</span>, 90);
 
-    items.add('post-ip', <span className="PostMeta-ip">{post.data.attributes.ipAddress}</span>);
+    items.add('post-ip', <span className="PostMeta-ip">{post.data.attributes.ipAddress}</span>, 80);
 
     items.add(
       'permalink',
