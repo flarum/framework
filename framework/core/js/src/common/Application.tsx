@@ -237,6 +237,10 @@ export default class Application {
 
   data!: ApplicationData;
 
+  refs: Record<string, string> = {
+    fontawesome: 'https://fontawesome.com/v5/search?o=r&m=free',
+  };
+
   private _title: string = '';
   private _titleCount: number = 0;
 
