@@ -17,16 +17,28 @@ export default class PostPreview extends Component {
   view() {
     const post = this.attrs.post;
     const user = post.user();
-    const content = post.contentType() === 'comment' && post.contentPlain();
-    const excerpt = content ? highlight(content, this.attrs.highlight, 300) : '';
 
     return (
       <Link className="PostPreview" href={app.route.post(post)} onclick={this.attrs.onclick}>
         <span className="PostPreview-content">
           {avatar(user)}
-          {username(user)} <span className="PostPreview-excerpt">{excerpt}</span>
+          {username(user)} <span className="PostPreview-excerpt">{this.excerpt()}</span>
         </span>
       </Link>
     );
+  }
+
+  /**
+   * @returns {string|undefined|null}
+   */
+  content() {
+    return this.attrs.post.contentType() === 'comment' && this.attrs.post.contentPlain();
+  }
+
+  /**
+   * @returns {string}
+   */
+  excerpt() {
+    return this.content() ? highlight(this.content(), this.attrs.highlight, 300) : '';
   }
 }
