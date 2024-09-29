@@ -87,6 +87,7 @@ import AlertManagerState from './states/AlertManagerState';
 import ModalManagerState from './states/ModalManagerState';
 import PageState from './states/PageState';
 import LabelValue from './components/LabelValue';
+import IPAddress from './components/IPAddress';
 declare const _default: {
     extenders: {
         Model: typeof import("./extenders/Model").default;
@@ -176,6 +177,7 @@ declare const _default: {
     'components/Tooltip': typeof Tooltip;
     'components/EditUserModal': typeof EditUserModal;
     'components/LabelValue': typeof LabelValue;
+    'components/IPAddress': typeof IPAddress;
     Model: typeof Model;
     Application: typeof Application;
     'helpers/fullTime': typeof fullTime;

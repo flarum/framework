@@ -123,6 +123,7 @@ declare const _default: {
     'components/Tooltip': typeof import("../common/components/Tooltip").default;
     'components/EditUserModal': typeof import("../common/components/EditUserModal").default;
     'components/LabelValue': typeof import("../common/components/LabelValue").default;
+    'components/IPAddress': typeof import("../common/components/IPAddress").default;
     Model: typeof import("../common/Model").default;
     Application: typeof import("../common/Application").default;
     'helpers/fullTime': typeof import("../common/helpers/fullTime").default;
