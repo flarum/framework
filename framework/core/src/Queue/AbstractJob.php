@@ -22,9 +22,9 @@ class AbstractJob implements ShouldQueue
 
     /**
      * The name of the queue on which the job should be placed.
-     * 
+     *
      * This is only effective on jobs that extend `\Flarum\Queue\AbstractJob` and dispatched via Redis.
-     * 
+     *
      * @var string|null
      */
     public static $sendOnQueue = null;
