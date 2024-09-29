@@ -2,8 +2,9 @@
 import AdminPage from './AdminPage';
 import type { IPageAttrs } from '../../common/components/Page';
 import type { AlertIdentifier } from '../../common/states/AlertManagerState';
-import type Mithril from 'mithril';
+import Mithril from 'mithril';
 import type { SaveSubmitEvent } from './AdminPage';
+import ItemList from '../../common/utils/ItemList';
 export interface MailSettings {
     data: {
         attributes: {
@@ -32,4 +33,5 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
     content(): JSX.Element;
     sendTestEmail(): void;
     saveSettings(e: SaveSubmitEvent): Promise<void>;
+    contentItems(): ItemList<Mithril.Children>;
 }

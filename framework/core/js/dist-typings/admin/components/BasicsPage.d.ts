@@ -2,7 +2,7 @@
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
 import type { IPageAttrs } from '../../common/components/Page';
-import type Mithril from 'mithril';
+import Mithril from 'mithril';
 export declare type HomePageItem = {
     path: string;
     label: Mithril.Children;
@@ -24,4 +24,5 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
      * object with `path` and `label` properties.
      */
     homePageItems(): ItemList<HomePageItem>;
+    contentItems(): ItemList<Mithril.Children>;
 }

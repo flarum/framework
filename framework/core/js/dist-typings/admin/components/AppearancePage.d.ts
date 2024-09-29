@@ -9,7 +9,10 @@ export default class AppearancePage extends AdminPage {
         title: import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
         description: import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
     };
-    content(): JSX.Element;
+    content(): (Mithril.Children & {
+        itemName: string;
+    })[];
     colorItems(): ItemList<Mithril.Children>;
     onsaved(): void;
+    contentItems(): ItemList<Mithril.Children>;
 }
