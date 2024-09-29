@@ -1,5 +1,6 @@
 import Component from '../../common/Component';
 import type Mithril from 'mithril';
+import ItemList from '../../common/utils/ItemList';
 export interface IWelcomeHeroAttrs {
 }
 /**
@@ -23,4 +24,6 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
      * @returns if the welcome hero is hidden.
      */
     isHidden(): boolean;
+    viewItems(): ItemList<Mithril.Children>;
+    contentItems(): ItemList<Mithril.Children>;
 }
