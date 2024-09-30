@@ -79,13 +79,21 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     }
   }
 
-  view() {
-    return (
-      <div className="DiscussionPage">
-        <DiscussionListPane state={app.discussions} />
-        <div className="DiscussionPage-discussion">{this.discussion ? this.pageContent().toArray() : this.loadingItems().toArray()}</div>
-      </div>
+  view(): Mithril.Children {
+    return <div className="DiscussionPage">{this.viewItems().toArray()}</div>;
+  }
+
+  viewItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add('pane', <DiscussionListPane state={app.discussions} />, 100);
+    items.add(
+      'discussions',
+      <div className="DiscussionPage-discussion">{this.discussion ? this.pageContent().toArray() : this.loadingItems().toArray()}</div>,
+      90
     );
+
+    return items;
   }
 
   /**
