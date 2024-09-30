@@ -62,5 +62,5 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
      * just the first/last post indicator.
      */
     infoItems(): ItemList<Mithril.Children>;
-    replyCountItem(): ItemList<Mithril.Children>;
+    replyCountItem(): JSX.Element;
 }
