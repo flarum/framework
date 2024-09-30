@@ -128,7 +128,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     items.add('authorAvatar', this.authorAvatarView(), 100);
     items.add('badges', this.badgesView(), 90);
     items.add('main', this.mainView(), 80);
-    items.add('replyCount', this.replyCountItem().toArray(), 70);
+    items.add('replyCount', this.replyCountItem(), 70);
 
     return items;
   }
@@ -274,38 +274,30 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     return items;
   }
 
-  replyCountItem(): ItemList<Mithril.Children> {
-    const items = new ItemList<Mithril.Children>();
-
+  replyCountItem() {
     const discussion = this.attrs.discussion;
     const showUnread = !this.showRepliesCount() && discussion.isUnread();
 
     if (showUnread) {
-      items.add(
-        'unreadCount',
+      return (
         <button className="Button--ua-reset DiscussionListItem-count" onclick={this.markAsRead.bind(this)}>
           <span aria-hidden="true">{abbreviateNumber(discussion.unreadCount())}</span>
 
           <span className="visually-hidden">
             {app.translator.trans('core.forum.discussion_list.unread_replies_a11y_label', { count: discussion.replyCount() })}
           </span>
-        </button>,
-        100
-      );
-    } else {
-      items.add(
-        'count',
-        <span className="DiscussionListItem-count">
-          <span aria-hidden="true">{abbreviateNumber(discussion.replyCount())}</span>
-
-          <span className="visually-hidden">
-            {app.translator.trans('core.forum.discussion_list.total_replies_a11y_label', { count: discussion.replyCount() })}
-          </span>
-        </span>,
-        100
+        </button>
       );
     }
 
-    return items;
+    return (
+      <span className="DiscussionListItem-count">
+        <span aria-hidden="true">{abbreviateNumber(discussion.replyCount())}</span>
+
+        <span className="visually-hidden">
+          {app.translator.trans('core.forum.discussion_list.total_replies_a11y_label', { count: discussion.replyCount() })}
+        </span>
+      </span>
+    );
   }
 }
