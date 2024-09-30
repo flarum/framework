@@ -24,12 +24,15 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
         className: string;
     };
     view(): JSX.Element;
+    viewItems(): ItemList<Mithril.Children>;
     controlsView(controls: Mithril.ChildArray): Mithril.Children;
     slidableUnderneathView(): Mithril.Children;
     contentView(): Mithril.Children;
+    contentItems(): ItemList<Mithril.Children>;
     authorAvatarView(): Mithril.Children;
     badgesView(): Mithril.Children;
     mainView(): Mithril.Children;
+    mainItems(): ItemList<Mithril.Children>;
     getJumpTo(): number;
     oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
     onbeforeupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): boolean;
@@ -59,5 +62,5 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
      * just the first/last post indicator.
      */
     infoItems(): ItemList<Mithril.Children>;
-    replyCountItem(): JSX.Element;
+    replyCountItem(): ItemList<Mithril.Children>;
 }
