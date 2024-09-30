@@ -19,6 +19,10 @@ export default class PostStream extends Component<import("../../common/Component
     /**
      * @returns {ItemList<import('mithril').Children>}
      */
+    afterFirstPostItems(): ItemList<import('mithril').Children>;
+    /**
+     * @returns {ItemList<import('mithril').Children>}
+     */
     endItems(): ItemList<import('mithril').Children>;
     onupdate(vnode: any): void;
     oncreate(vnode: any): void;
