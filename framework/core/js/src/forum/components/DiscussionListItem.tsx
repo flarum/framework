@@ -63,18 +63,22 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
   }
 
   view() {
-    const discussion = this.attrs.discussion;
-
-    const controls = DiscussionControls.controls(discussion, this).toArray();
     const attrs = this.elementAttrs();
 
-    return (
-      <div {...attrs}>
-        {this.controlsView(controls)}
-        {this.slidableUnderneathView()}
-        {this.contentView()}
-      </div>
-    );
+    return <div {...attrs}>{this.viewItems().toArray()}</div>;
+  }
+
+  viewItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    const discussion = this.attrs.discussion;
+    const controls = DiscussionControls.controls(discussion, this).toArray();
+
+    items.add('controls', this.controlsView(controls), 100);
+    items.add('slidableUnderneath', this.slidableUnderneathView(), 90);
+    items.add('content', this.contentView(), 80);
+
+    return items;
   }
 
   controlsView(controls: Mithril.ChildArray): Mithril.Children {
@@ -113,12 +117,20 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
 
     return (
       <div className={classList('DiscussionListItem-content', 'Slidable-content', { unread: isUnread, read: isRead })}>
-        {this.authorAvatarView()}
-        {this.badgesView()}
-        {this.mainView()}
-        {this.replyCountItem()}
+        {this.contentItems().toArray()}
       </div>
     );
+  }
+
+  contentItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add('authorAvatar', this.authorAvatarView(), 100);
+    items.add('badges', this.badgesView(), 90);
+    items.add('main', this.mainView(), 80);
+    items.add('replyCount', this.replyCountItem().toArray(), 70);
+
+    return items;
   }
 
   authorAvatarView(): Mithril.Children {
@@ -149,10 +161,20 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
 
     return (
       <Link href={app.route.discussion(discussion, jumpTo)} className="DiscussionListItem-main">
-        <h2 className="DiscussionListItem-title">{highlight(discussion.title(), this.highlightRegExp)}</h2>
-        <ul className="DiscussionListItem-info">{listItems(this.infoItems().toArray())}</ul>
+        {this.mainItems().toArray()}
       </Link>
     );
+  }
+
+  mainItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    const discussion = this.attrs.discussion;
+
+    items.add('title', <h2 className="DiscussionListItem-title">{highlight(discussion.title(), this.highlightRegExp)}</h2>, 100);
+    items.add('info', <ul className="DiscussionListItem-info">{listItems(this.infoItems().toArray())}</ul>, 90);
+
+    return items;
   }
 
   getJumpTo() {
@@ -252,30 +274,38 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     return items;
   }
 
-  replyCountItem() {
+  replyCountItem(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
     const discussion = this.attrs.discussion;
     const showUnread = !this.showRepliesCount() && discussion.isUnread();
 
     if (showUnread) {
-      return (
+      items.add(
+        'unreadCount',
         <button className="Button--ua-reset DiscussionListItem-count" onclick={this.markAsRead.bind(this)}>
           <span aria-hidden="true">{abbreviateNumber(discussion.unreadCount())}</span>
 
           <span className="visually-hidden">
             {app.translator.trans('core.forum.discussion_list.unread_replies_a11y_label', { count: discussion.replyCount() })}
           </span>
-        </button>
+        </button>,
+        100
+      );
+    } else {
+      items.add(
+        'count',
+        <span className="DiscussionListItem-count">
+          <span aria-hidden="true">{abbreviateNumber(discussion.replyCount())}</span>
+
+          <span className="visually-hidden">
+            {app.translator.trans('core.forum.discussion_list.total_replies_a11y_label', { count: discussion.replyCount() })}
+          </span>
+        </span>,
+        100
       );
     }
 
-    return (
-      <span className="DiscussionListItem-count">
-        <span aria-hidden="true">{abbreviateNumber(discussion.replyCount())}</span>
-
-        <span className="visually-hidden">
-          {app.translator.trans('core.forum.discussion_list.total_replies_a11y_label', { count: discussion.replyCount() })}
-        </span>
-      </span>
-    );
+    return items;
   }
 }
