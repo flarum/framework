@@ -28,7 +28,8 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     protected useBrowserScrollRestoration: boolean;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     onremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
-    view(): JSX.Element;
+    view(): Mithril.Children;
+    viewItems(): ItemList<Mithril.Children>;
     /**
      * List of components shown while the discussion is loading.
      */
