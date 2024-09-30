@@ -60,17 +60,29 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
             <nav className="IndexPage-nav sideNav">
               <ul>{listItems(this.sidebarItems().toArray())}</ul>
             </nav>
-            <div className="IndexPage-results sideNavOffset">
-              <div className="IndexPage-toolbar">
-                <ul className="IndexPage-toolbar-view">{listItems(this.viewItems().toArray())}</ul>
-                <ul className="IndexPage-toolbar-action">{listItems(this.actionItems().toArray())}</ul>
-              </div>
-              <DiscussionList state={app.discussions} />
-            </div>
+            <div className="IndexPage-results sideNavOffset">{this.contentItems().toArray()}</div>
           </div>
         </div>
       </div>
     );
+  }
+
+  contentItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add('toolbar', <div className="IndexPage-toolbar">{this.toolbarItems().toArray()}</div>, 100);
+    items.add('discussionList', <DiscussionList state={app.discussions} />, 90);
+
+    return items;
+  }
+
+  toolbarItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add('view', <ul className="IndexPage-toolbar-view">{listItems(this.viewItems().toArray())}</ul>, 100);
+    items.add('action', <ul className="IndexPage-toolbar-action">{listItems(this.actionItems().toArray())}</ul>, 90);
+
+    return items;
   }
 
   setTitle() {
