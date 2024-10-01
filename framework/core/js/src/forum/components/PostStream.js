@@ -5,7 +5,7 @@ import PostLoading from './LoadingPost';
 import ReplyPlaceholder from './ReplyPlaceholder';
 import Button from '../../common/components/Button';
 import ItemList from '../../common/utils/ItemList';
-import extractText from "../../common/utils/extractText";
+import extractText from '../../common/utils/extractText';
 
 /**
  * The `PostStream` component displays an infinitely-scrollable wall of posts in

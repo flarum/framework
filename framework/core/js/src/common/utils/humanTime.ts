@@ -1,6 +1,6 @@
 import app from '../../common/app';
 import dayjs from 'dayjs';
-import extractText from "./extractText";
+import extractText from './extractText';
 
 /**
  * The `humanTime` utility converts a date to a localized, human-readable time-
