@@ -1,3 +1,4 @@
+import type { Dayjs } from 'dayjs';
 import { RichMessageFormatter, mithrilRichHandler, NestedStringArray } from '@askvortsov/rich-icu-message-formatter';
 import { pluralTypeHandler, selectTypeHandler } from '@ultraq/icu-message-formatter';
 import username from './helpers/username';
@@ -87,5 +88,17 @@ export default class Translator {
     }
 
     return id;
+  }
+
+  /**
+   * Formats the time.
+   * 
+   * The format of the time will be chosen by the following order:
+   * - The format ID defined in current locale.
+   * - The provided fallback format.
+   * - DayJS default format.
+   */
+  format(time: Dayjs, id?: string, fallback?: string): string {
+    return time.format(id && (this.translations[id] ?? fallback));
   }
 }

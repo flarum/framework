@@ -10,13 +10,12 @@ import 'bootstrap/js/transition';
 import 'jquery.hotkeys/jquery.hotkeys';
 
 import relativeTime from 'dayjs/plugin/relativeTime';
+import localizedFormat from "dayjs/plugin/localizedFormat";
 
 dayjs.extend(relativeTime);
+dayjs.extend(localizedFormat);
 
 import './registry';
-
-import { customFormats } from './utils/localizedFormat';
-dayjs.extend(customFormats);
 
 import patchMithril from './utils/patchMithril';
 
