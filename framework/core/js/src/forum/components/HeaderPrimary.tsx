@@ -17,7 +17,7 @@ export default class HeaderPrimary extends Component {
    *
    * @return {ItemList<import('mithril').Children>}
    */
-  
+
   items(): ItemList<Mithril.Children> {
     return new ItemList<Mithril.Children>();
   }
