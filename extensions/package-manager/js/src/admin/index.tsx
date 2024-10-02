@@ -82,3 +82,9 @@ app.initializers.add('flarum-extension-manager', (app) => {
     );
   });
 });
+
+// Expose compat API
+import packageManagerCompat from './compat';
+import { compat } from '@flarum/core/admin';
+
+Object.assign(compat, packageManagerCompat);

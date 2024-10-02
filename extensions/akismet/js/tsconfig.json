@@ -15,6 +15,7 @@
     "declarationDir": "./dist-typings",
     "paths": {
       "flarum/*": ["../../../framework/core/js/dist-typings/*"],
+      "@flarum/core/*": ["../../../framework/core/js/dist-typings/*"],
       "flarum/flags/*": ["../../flags/js/dist-typings/*"]
     }
   }

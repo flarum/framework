@@ -6,6 +6,7 @@ import FlagList from './components/FlagList';
 import FlagPostModal from './components/FlagPostModal';
 import FlagsPage from './components/FlagsPage';
 import FlagsDropdown from './components/FlagsDropdown';
+import FlagListState from './states/FlagListState';
 
 export default {
   'flags/addFlagsToPosts': addFlagsToPosts,
@@ -16,4 +17,5 @@ export default {
   'flags/components/FlagPostModal': FlagPostModal,
   'flags/components/FlagsPage': FlagsPage,
   'flags/components/FlagsDropdown': FlagsDropdown,
+  'flags/states/FlagListState': FlagListState,
 };

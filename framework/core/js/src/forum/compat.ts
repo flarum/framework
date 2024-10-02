@@ -19,6 +19,7 @@ import AffixedSidebar from './components/AffixedSidebar';
 import DiscussionPage from './components/DiscussionPage';
 import DiscussionListPane from './components/DiscussionListPane';
 import LogInModal from './components/LogInModal';
+import NewAccessTokenModal from './components/NewAccessTokenModal';
 import ComposerBody from './components/ComposerBody';
 import ForgotPasswordModal from './components/ForgotPasswordModal';
 import Notification from './components/Notification';
@@ -101,6 +102,7 @@ export default Object.assign(compat, {
   'components/DiscussionPage': DiscussionPage,
   'components/DiscussionListPane': DiscussionListPane,
   'components/LogInModal': LogInModal,
+  'components/NewAccessTokenModal': NewAccessTokenModal,
   'components/ComposerBody': ComposerBody,
   'components/ForgotPasswordModal': ForgotPasswordModal,
   'components/Notification': Notification,

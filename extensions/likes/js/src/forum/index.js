@@ -24,3 +24,9 @@ app.initializers.add('flarum-likes', () => {
     });
   });
 });
+
+// Expose compat API
+import likesCompat from './compat';
+import { compat } from '@flarum/core/forum';
+
+Object.assign(compat, likesCompat);
