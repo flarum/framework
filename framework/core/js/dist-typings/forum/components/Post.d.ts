@@ -1,5 +1,6 @@
 import Component, { ComponentAttrs } from '../../common/Component';
 import SubtreeRetainer from '../../common/utils/SubtreeRetainer';
+import { ModdedChildrenWithItemName } from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
 import type PostModel from '../../common/models/Post';
 import type Mithril from 'mithril';
@@ -23,6 +24,7 @@ export default abstract class Post<CustomAttrs extends IPostAttrs = IPostAttrs> 
     subtree: SubtreeRetainer;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     view(vnode: Mithril.Vnode<CustomAttrs, this>): JSX.Element;
+    viewItems(controls: Mithril.Children[], footerItems: ModdedChildrenWithItemName[]): ItemList<Mithril.Children>;
     onbeforeupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): boolean;
     onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
     /**
@@ -44,5 +46,5 @@ export default abstract class Post<CustomAttrs extends IPostAttrs = IPostAttrs> 
     /**
      * Build an item list for the post's footer.
      */
-    footerItems(): ItemList<Mithril.Children>;
+    footerItems(): ItemList<ModdedChildrenWithItemName>;
 }

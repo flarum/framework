@@ -25,6 +25,8 @@ export default class CommentPost extends Post<import("./Post").IPostAttrs> {
      */
     cardVisible: boolean | undefined;
     content(): any;
+    contentItems(): ItemList<any>;
+    bodyItems(): ItemList<any>;
     refreshContent(): void;
     contentHtml: any;
     oncreate(vnode: any): void;
