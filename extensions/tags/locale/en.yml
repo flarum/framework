@@ -49,6 +49,9 @@ flarum-tags:
       required_primary_text: Enter the minimum and maximum number of primary tags that may be applied to a discussion.
       required_secondary_heading: Required Number of Secondary Tags
       required_secondary_text: Enter the minimum and maximum number of secondary tags that may be applied to a discussion.
+      show_tags_in_discussion_search_results:
+        label: Show Tags in Discussion Search Results
+        help: "When enabled, tags will be displayed in the search results for discussions."
       title: Tag Settings
 
     # These translations are used in the Tags page.

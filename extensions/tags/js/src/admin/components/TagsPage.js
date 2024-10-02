@@ -118,6 +118,14 @@ export default class TagsPage extends ExtensionPage {
                     <input className="FormControl" type="number" min={minSecondaryTags()} bidi={maxSecondaryTags} />
                   </div>
                 </div>
+                <div className="Form-group">
+                  {this.buildSettingComponent({
+                    setting: 'flarum-tags.show_tags_in_discussion_search_results',
+                    type: 'boolean',
+                    label: app.translator.trans('flarum-tags.admin.tag_settings.show_tags_in_discussion_search_results.label'),
+                    help: app.translator.trans('flarum-tags.admin.tag_settings.show_tags_in_discussion_search_results.help'),
+                  })}
+                </div>
                 <div className="Form-group">{this.submitButton()}</div>
               </div>
             </div>

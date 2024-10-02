@@ -100,6 +100,8 @@ return [
         ->prepareDataForSerialization(LoadForumTagsRelationship::class),
 
     (new Extend\Settings())
+        ->default('flarum-tags.show_tags_in_discussion_search_results', false)
+        ->serializeToForum('showTagsInDiscussionSearchResults', 'flarum-tags.show_tags_in_discussion_search_results', 'boolVal')
         ->serializeToForum('minPrimaryTags', 'flarum-tags.min_primary_tags')
         ->serializeToForum('maxPrimaryTags', 'flarum-tags.max_primary_tags')
         ->serializeToForum('minSecondaryTags', 'flarum-tags.min_secondary_tags')

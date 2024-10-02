@@ -18,10 +18,12 @@ app.initializers.add('flarum-tags', function () {
   addTagLabels();
   addTagControl();
   addTagComposer();
+  addTagsToDiscussionSearch();
 });
 
 // Expose compat API
 import tagsCompat from './compat';
 import { compat } from '@flarum/core/forum';
+import addTagsToDiscussionSearch from './addTagsToDiscussionSearch';
 
 Object.assign(compat, tagsCompat);
