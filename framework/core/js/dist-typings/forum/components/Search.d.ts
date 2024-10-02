@@ -55,6 +55,12 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
      *
      * @deprecated Replace with`this.searchState` instead.
      */
+    /**
+     * The instance of `SearchState` for this component.
+     *
+     * @deprecated Replace with`this.searchState` instead.
+     */
+    // @ts-expect-error This is a get accessor, while superclass defines this as a property. This is needed to prevent breaking changes, however.
     get state(): SearchState;
     set state(state: SearchState);
     /**
