@@ -3,7 +3,6 @@ import Component from '../../common/Component';
 import icon from '../../common/helpers/icon';
 import formatNumber from '../../common/utils/formatNumber';
 import ScrollListener from '../../common/utils/ScrollListener';
-import { NestedStringArray } from '@askvortsov/rich-icu-message-formatter';
 
 /**
  * The `PostStreamScrubber` component displays a scrubber which can be used to
@@ -93,24 +92,14 @@ export default class PostStreamScrubber extends Component {
     );
   }
 
-  /**
-   * @returns {NestedStringArray|string}
-   */
   firstPostLabel() {
     return app.translator.trans('core.forum.post_scrubber.original_post_link');
   }
 
-  /**
-   * @param {number} unreadCount
-   * @returns {NestedStringArray|string}
-   */
   unreadLabel(unreadCount) {
     return app.translator.trans('core.forum.post_scrubber.unread_text', { count: unreadCount });
   }
 
-  /**
-   * @returns {NestedStringArray|string}
-   */
   lastPostLabel() {
     return app.translator.trans('core.forum.post_scrubber.now_link');
   }
