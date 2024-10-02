@@ -18,6 +18,7 @@ import extractText from '../../common/utils/extractText';
 import AdminPage from './AdminPage';
 import { debounce } from '../../common/utils/throttleDebounce';
 import CreateUserModal from './CreateUserModal';
+import Dropdown from '../../common/components/Dropdown';
 
 type ColumnData = {
   /**
@@ -425,17 +426,18 @@ export default class UserListPage extends AdminPage {
     );
 
     columns.add(
-      'editUser',
+      'userActions',
       {
-        name: app.translator.trans('core.admin.users.grid.columns.edit_user.title'),
+        name: app.translator.trans('core.admin.users.grid.columns.user_actions.title'),
         content: (user: User) => (
-          <Button
-            className="Button UserList-editModalBtn"
-            title={app.translator.trans('core.admin.users.grid.columns.edit_user.tooltip', { username: user.username() })}
-            onclick={() => app.modal.show(EditUserModal, { user })}
+          <Dropdown
+            className="User-controls"
+            buttonClassName="Button Button--icon Button--flat"
+            menuClassName="Dropdown-menu--right"
+            icon="fas fa-ellipsis-h"
           >
-            {app.translator.trans('core.admin.users.grid.columns.edit_user.button')}
-          </Button>
+            {this.userActionItems(user).toArray()}
+          </Dropdown>
         ),
       },
       -90
@@ -451,6 +453,24 @@ export default class UserListPage extends AdminPage {
       title: app.translator.trans('core.admin.users.title'),
       description: app.translator.trans('core.admin.users.description'),
     };
+  }
+
+  userActionItems(user: User): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add(
+      'editUser',
+      <Button
+        icon="fas fa-pencil-alt"
+        className="Button UserList-editModalBtn"
+        title={app.translator.trans('core.admin.users.grid.columns.edit_user.tooltip', { username: user.username() })}
+        onclick={() => app.modal.show(EditUserModal, { user })}
+      >
+        {app.translator.trans('core.admin.users.grid.columns.edit_user.button')}
+      </Button>
+    );
+
+    return items;
   }
 
   /**
