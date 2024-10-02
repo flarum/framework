@@ -64,7 +64,7 @@ export default class PostStreamScrubber extends Component {
         <div className="Dropdown-menu dropdown-menu">
           <div className="Scrubber">
             <a className="Scrubber-first" onclick={this.goToFirst.bind(this)}>
-              {icon('fas fa-angle-double-up')} {app.translator.trans('core.forum.post_scrubber.original_post_link')}
+              {icon('fas fa-angle-double-up')} {this.firstPostLabel()}
             </a>
 
             <div className="Scrubber-scrollbar">
@@ -79,17 +79,29 @@ export default class PostStreamScrubber extends Component {
               <div className="Scrubber-after" />
 
               <div className="Scrubber-unread" oncreate={styleUnread} onupdate={styleUnread}>
-                {app.translator.trans('core.forum.post_scrubber.unread_text', { count: unreadCount })}
+                {this.unreadLabel(unreadCount)}
               </div>
             </div>
 
             <a className="Scrubber-last" onclick={this.goToLast.bind(this)}>
-              {icon('fas fa-angle-double-down')} {app.translator.trans('core.forum.post_scrubber.now_link')}
+              {icon('fas fa-angle-double-down')} {this.lastPostLabel()}
             </a>
           </div>
         </div>
       </div>
     );
+  }
+
+  firstPostLabel() {
+    return app.translator.trans('core.forum.post_scrubber.original_post_link');
+  }
+
+  unreadLabel(unreadCount) {
+    return app.translator.trans('core.forum.post_scrubber.unread_text', { count: unreadCount });
+  }
+
+  lastPostLabel() {
+    return app.translator.trans('core.forum.post_scrubber.now_link');
   }
 
   onupdate(vnode) {
