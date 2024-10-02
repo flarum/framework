@@ -94,7 +94,7 @@ export default class PostStreamScrubber extends Component {
   }
 
   /**
-   * @returns {NestedStringArray}
+   * @returns {NestedStringArray|string}
    */
   firstPostLabel() {
     return app.translator.trans('core.forum.post_scrubber.original_post_link');
@@ -102,14 +102,14 @@ export default class PostStreamScrubber extends Component {
 
   /**
    * @param {number} unreadCount
-   * @returns {NestedStringArray}
+   * @returns {NestedStringArray|string}
    */
   unreadLabel(unreadCount) {
     return app.translator.trans('core.forum.post_scrubber.unread_text', { count: unreadCount });
   }
 
   /**
-   * @returns {NestedStringArray}
+   * @returns {NestedStringArray|string}
    */
   lastPostLabel() {
     return app.translator.trans('core.forum.post_scrubber.now_link');
