@@ -271,7 +271,6 @@ core:
 
           edit_user:
             button: => core.ref.edit
-            title: => core.ref.edit_user
             tooltip: Edit {username}
 
           email:
@@ -285,6 +284,9 @@ core:
 
           join_time:
             title: Joined
+
+          user_actions:
+            title: Actions
 
           user_id:
             title: ID
