@@ -79,6 +79,7 @@ export default class UserListPage extends AdminPage {
         title: import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
         description: import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
     };
+    userActionItems(user: User): ItemList<Mithril.Children>;
     /**
      * Asynchronously fetch the next set of users to be rendered.
      *
