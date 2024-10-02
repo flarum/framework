@@ -10,7 +10,8 @@
     // This will output typings to `dist-typings`
     "declarationDir": "./dist-typings",
     "paths": {
-      "flarum/*": ["../../../framework/core/js/dist-typings/*"]
+      "flarum/*": ["../../../framework/core/js/dist-typings/*"],
+      "@flarum/core/*": ["../../../framework/core/js/dist-typings/*"],
     }
   }
 }
