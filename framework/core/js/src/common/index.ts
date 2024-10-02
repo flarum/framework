@@ -10,7 +10,7 @@ import 'bootstrap/js/transition';
 import 'jquery.hotkeys/jquery.hotkeys';
 
 import relativeTime from 'dayjs/plugin/relativeTime';
-import localizedFormat from "dayjs/plugin/localizedFormat";
+import localizedFormat from 'dayjs/plugin/localizedFormat';
 
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);

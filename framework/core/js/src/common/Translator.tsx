@@ -99,14 +99,14 @@ export default class Translator {
 
   /**
    * Formats the time.
-   * 
+   *
    * The format of the time will be chosen by the following order:
    * - The format ID defined in current locale.
    * - The provided fallback format.
    * - DayJS default format.
    */
   formatDateTime(time: Dayjs, id?: string, fallback?: string): string {
-    const formatCallback = (id && this.dateTimeFormats.has(id)) && this.dateTimeFormats.get(id);
+    const formatCallback = id && this.dateTimeFormats.has(id) && this.dateTimeFormats.get(id);
     if (formatCallback) {
       const result = formatCallback(fallback);
       if (result) return result;
