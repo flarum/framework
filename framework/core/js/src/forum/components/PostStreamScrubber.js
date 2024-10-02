@@ -3,6 +3,7 @@ import Component from '../../common/Component';
 import icon from '../../common/helpers/icon';
 import formatNumber from '../../common/utils/formatNumber';
 import ScrollListener from '../../common/utils/ScrollListener';
+import { NestedStringArray } from '@askvortsov/rich-icu-message-formatter';
 
 /**
  * The `PostStreamScrubber` component displays a scrubber which can be used to
@@ -64,7 +65,7 @@ export default class PostStreamScrubber extends Component {
         <div className="Dropdown-menu dropdown-menu">
           <div className="Scrubber">
             <a className="Scrubber-first" onclick={this.goToFirst.bind(this)}>
-              {icon('fas fa-angle-double-up')} {app.translator.trans('core.forum.post_scrubber.original_post_link')}
+              {icon('fas fa-angle-double-up')} {this.firstPostLabel()}
             </a>
 
             <div className="Scrubber-scrollbar">
@@ -79,17 +80,39 @@ export default class PostStreamScrubber extends Component {
               <div className="Scrubber-after" />
 
               <div className="Scrubber-unread" oncreate={styleUnread} onupdate={styleUnread}>
-                {app.translator.trans('core.forum.post_scrubber.unread_text', { count: unreadCount })}
+                {this.unreadLabel(unreadCount)}
               </div>
             </div>
 
             <a className="Scrubber-last" onclick={this.goToLast.bind(this)}>
-              {icon('fas fa-angle-double-down')} {app.translator.trans('core.forum.post_scrubber.now_link')}
+              {icon('fas fa-angle-double-down')} {this.lastPostLabel()}
             </a>
           </div>
         </div>
       </div>
     );
+  }
+
+  /**
+   * @returns {NestedStringArray}
+   */
+  firstPostLabel() {
+    return app.translator.trans('core.forum.post_scrubber.original_post_link');
+  }
+
+  /**
+   * @param {number} unreadCount
+   * @returns {NestedStringArray}
+   */
+  unreadLabel(unreadCount) {
+    return app.translator.trans('core.forum.post_scrubber.unread_text', { count: unreadCount });
+  }
+
+  /**
+   * @returns {NestedStringArray}
+   */
+  lastPostLabel() {
+    return app.translator.trans('core.forum.post_scrubber.now_link');
   }
 
   onupdate(vnode) {
