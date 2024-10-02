@@ -22,9 +22,9 @@ export default function humanTime(time: dayjs.ConfigType): string {
   // in the string. If it wasn't this year, we'll show the year as well.
   if (d.diff(now, 'day') < -30) {
     if (d.isSame(now, 'year')) {
-      ago = app.translator.format(d, 'core.lib.datetime_formats.human_time_short');
+      ago = app.translator.formatDateTime(d, 'core.lib.datetime_formats.human_time_short');
     } else {
-      ago = app.translator.format(d, 'core.lib.datetime_formats.human_time_full');
+      ago = app.translator.formatDateTime(d, 'core.lib.datetime_formats.human_time_full');
     }
   } else {
     ago = d.fromNow();

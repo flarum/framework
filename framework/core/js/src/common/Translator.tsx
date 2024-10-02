@@ -5,15 +5,22 @@ import username from './helpers/username';
 import User from './models/User';
 import extract from './utils/extract';
 import extractText from './utils/extractText';
+import ItemList from './utils/ItemList';
 
 type Translations = Record<string, string>;
 type TranslatorParameters = Record<string, unknown>;
+type DateTimeFormatCallback = (fallback?: string) => string | void;
 
 export default class Translator {
   /**
    * A map of translation keys to their translated values.
    */
   translations: Translations = {};
+
+  /**
+   * A item list of date time format callbacks.
+   */
+  dateTimeFormats: ItemList<DateTimeFormatCallback> = new ItemList();
 
   /**
    * The underlying ICU MessageFormatter util.
@@ -98,7 +105,12 @@ export default class Translator {
    * - The provided fallback format.
    * - DayJS default format.
    */
-  format(time: Dayjs, id?: string, fallback?: string): string {
+  formatDateTime(time: Dayjs, id?: string, fallback?: string): string {
+    const formatCallback = (id && this.dateTimeFormats.has(id)) && this.dateTimeFormats.get(id);
+    if (formatCallback) {
+      const result = formatCallback(fallback);
+      if (result) return result;
+    }
     return time.format(id && (this.translations[id] ?? fallback));
   }
 }
