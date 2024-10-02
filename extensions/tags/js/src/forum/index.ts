@@ -7,6 +7,7 @@ import addTagFilter from './addTagFilter';
 import addTagLabels from './addTagLabels';
 import addTagControl from './addTagControl';
 import addTagComposer from './addTagComposer';
+import addTagsToDiscussionSearch from './addTagsToDiscussionSearch';
 
 export { default as extend } from './extend';
 
@@ -24,6 +25,5 @@ app.initializers.add('flarum-tags', function () {
 // Expose compat API
 import tagsCompat from './compat';
 import { compat } from '@flarum/core/forum';
-import addTagsToDiscussionSearch from './addTagsToDiscussionSearch';
 
 Object.assign(compat, tagsCompat);
