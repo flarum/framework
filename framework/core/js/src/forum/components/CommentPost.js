@@ -47,14 +47,35 @@ export default class CommentPost extends Post {
   }
 
   content() {
-    return super.content().concat([
+    return super.content().concat(this.contentItems().toArray());
+  }
+
+  contentItems() {
+    const items = new ItemList();
+
+    items.add(
+      'header',
       <header className="Post-header">
         <ul>{listItems(this.headerItems().toArray())}</ul>
       </header>,
-      <div className="Post-body">
-        {this.isEditing() ? <ComposerPostPreview className="Post-preview" composer={app.composer} /> : m.trust(this.attrs.post.contentHtml())}
-      </div>,
-    ]);
+      100
+    );
+
+    items.add('body', <div className="Post-body">{this.bodyItems().toArray()}</div>, 90);
+
+    return items;
+  }
+
+  bodyItems() {
+    const items = new ItemList();
+
+    items.add(
+      'content',
+      this.isEditing() ? <ComposerPostPreview className="Post-preview" composer={app.composer} /> : m.trust(this.attrs.post.contentHtml()),
+      100
+    );
+
+    return items;
   }
 
   refreshContent() {
