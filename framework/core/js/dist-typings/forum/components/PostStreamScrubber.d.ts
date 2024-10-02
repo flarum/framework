@@ -1,3 +1,4 @@
+/// <reference path="../../@types/translator-icu-rich.d.ts" />
 /**
  * The `PostStreamScrubber` component displays a scrubber which can be used to
  * navigate/scrub through a post stream.
@@ -14,6 +15,9 @@ export default class PostStreamScrubber extends Component<import("../../common/C
     handlers: {} | undefined;
     scrollListener: ScrollListener | undefined;
     view(): JSX.Element;
+    firstPostLabel(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    unreadLabel(unreadCount: any): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    lastPostLabel(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
     onupdate(vnode: any): void;
     oncreate(vnode: any): void;
     dragging: boolean | undefined;
