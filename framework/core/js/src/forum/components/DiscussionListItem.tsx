@@ -74,7 +74,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     const discussion = this.attrs.discussion;
     const controls = DiscussionControls.controls(discussion, this).toArray();
 
-    !!controls.length && items.add('controls', this.controlsView(controls), 100);
+    items.add('controls', this.controlsView(controls), 100);
     items.add('slidableUnderneath', this.slidableUnderneathView(), 90);
     items.add('content', this.contentView(), 80);
 
@@ -83,14 +83,18 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
 
   controlsView(controls: Mithril.ChildArray): Mithril.Children {
     return (
-      <Dropdown
-        icon="fas fa-ellipsis-v"
-        className="DiscussionListItem-controls"
-        buttonClassName="Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right"
-        accessibleToggleLabel={app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label')}
-      >
-        {controls}
-      </Dropdown>
+      <>
+        {!!controls.length && (
+          <Dropdown
+            icon="fas fa-ellipsis-v"
+            className="DiscussionListItem-controls"
+            buttonClassName="Button Button--icon Button--flat Slidable-underneath Slidable-underneath--right"
+            accessibleToggleLabel={app.translator.trans('core.forum.discussion_controls.toggle_dropdown_accessible_label')}
+          >
+            {controls}
+          </Dropdown>
+        )}
+      </>
     );
   }
 
