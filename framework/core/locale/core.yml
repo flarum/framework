@@ -655,6 +655,12 @@ core:
       kilo_text: K
       mega_text: M
 
+    # These translations are used for formatting dates using dayjs.
+    datetime_formats:
+      humanTimeShort: D MMM
+      humanTimeLong: ll
+      scrubber: MMMM YYYY
+
     # These translations are used to punctuate a series of items.
     series:
       glue_text: ", "

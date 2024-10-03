@@ -5,6 +5,7 @@ import PostLoading from './LoadingPost';
 import ReplyPlaceholder from './ReplyPlaceholder';
 import Button from '../../common/components/Button';
 import ItemList from '../../common/utils/ItemList';
+import extractText from '../../common/utils/extractText';
 
 /**
  * The `PostStream` component displays an infinitely-scrollable wall of posts in
@@ -292,7 +293,7 @@ export default class PostStream extends Component {
     // set the index to the last post.
     this.stream.index = indexFromViewPort !== null ? indexFromViewPort + 1 : this.stream.count();
     this.stream.visible = visible;
-    if (period) this.stream.description = dayjs(period).format('MMMM YYYY');
+    if (period) this.stream.description = dayjs(period).format(extractText(app.translator.trans('core.lib.datetime_formats.scrubber')));
   }
 
   /**

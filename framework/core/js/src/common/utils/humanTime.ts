@@ -1,4 +1,6 @@
+import app from '../../common/app';
 import dayjs from 'dayjs';
+import extractText from './extractText';
 
 /**
  * The `humanTime` utility converts a date to a localized, human-readable time-
@@ -23,9 +25,9 @@ export default function humanTime(time: dayjs.ConfigType): string {
   // in the string. If it wasn't this year, we'll show the year as well.
   if (diff < -30 * day) {
     if (d.year() === dayjs().year()) {
-      ago = d.format('D MMM');
+      ago = d.format(extractText(app.translator.trans('core.lib.datetime_formats.humanTimeShort')));
     } else {
-      ago = d.format('ll');
+      ago = d.format(extractText(app.translator.trans('core.lib.datetime_formats.humanTimeLong')));
     }
   } else {
     ago = d.fromNow();
