@@ -109,7 +109,7 @@ export default class Translator {
     const format = id && (this.translations[id] ?? id);
     const formatCallback = id && this.dateTimeFormats.has(id) && this.dateTimeFormats.get(id);
     if (formatCallback) {
-      const result = formatCallback(format);
+      const result = formatCallback.apply(this, [format]);
       if (result) return result;
     }
     return time.format(format);
