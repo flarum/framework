@@ -845,6 +845,7 @@ core:
 
     # These are DayJS formats used in core.
     datetime_formats:
+      full_time: LLLL
       human_time_short: D MMM
       human_time_full: ll
       post_stream_scrubber: MMMM YYYY
