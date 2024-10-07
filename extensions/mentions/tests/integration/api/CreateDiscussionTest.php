@@ -9,10 +9,8 @@
 
 namespace Flarum\Mentions\Tests\integration\api;
 
-use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Testing\integration\TestCase;
-use Illuminate\Support\Arr;
 
 class CreateDiscussionTest extends TestCase
 {
