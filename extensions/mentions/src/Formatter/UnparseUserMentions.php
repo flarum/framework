@@ -31,9 +31,9 @@ class UnparseUserMentions
      *
      * @param string $xml
      * @param mixed $context
-     * @return string $xml to be unparsed
+     * @return mixed $xml to be unparsed
      */
-    public function __invoke($context, string $xml)
+    public function __invoke($context, $xml)
     {
         $xml = $this->updateUserMentionTags($context, $xml);
         $xml = $this->unparseUserMentionTags($xml);

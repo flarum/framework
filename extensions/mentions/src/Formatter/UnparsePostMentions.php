@@ -30,9 +30,9 @@ class UnparsePostMentions
      *
      * @param string $xml
      * @param mixed $context
-     * @return string $xml to be unparsed
+     * @return mixed $xml to be unparsed
      */
-    public function __invoke($context, string $xml)
+    public function __invoke($context, $xml)
     {
         $xml = $this->updatePostMentionTags($context, $xml);
         $xml = $this->unparsePostMentionTags($xml);
