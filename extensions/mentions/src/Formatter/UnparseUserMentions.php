@@ -29,7 +29,7 @@ class UnparseUserMentions
     /**
      * Configure rendering for user mentions.
      *
-     * @param string $xml
+     * @param string|null $xml
      * @param mixed $context
      * @return mixed $xml to be unparsed
      */
