@@ -10,7 +10,6 @@
 namespace Flarum\Tests\integration\api\discussions;
 
 use Flarum\Discussion\Discussion;
-use Flarum\Extend;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
