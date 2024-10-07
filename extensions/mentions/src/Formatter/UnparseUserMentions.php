@@ -35,6 +35,10 @@ class UnparseUserMentions
      */
     public function __invoke($context, $xml)
     {
+        if ($xml === null) {
+            return $xml;
+        }
+
         $xml = $this->updateUserMentionTags($context, $xml);
         $xml = $this->unparseUserMentionTags($xml);
 

@@ -34,6 +34,10 @@ class UnparsePostMentions
      */
     public function __invoke($context, $xml)
     {
+        if ($xml === null) {
+            return $xml;
+        }
+
         $xml = $this->updatePostMentionTags($context, $xml);
         $xml = $this->unparsePostMentionTags($xml);
 

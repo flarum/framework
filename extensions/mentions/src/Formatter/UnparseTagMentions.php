@@ -24,6 +24,10 @@ class UnparseTagMentions
      */
     public function __invoke($context, $xml)
     {
+        if ($xml === null) {
+            return $xml;
+        }
+
         $xml = $this->updateTagMentionTags($context, $xml);
         $xml = $this->unparseTagMentionTags($xml);
 
