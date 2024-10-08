@@ -1,5 +1,33 @@
 # Changelog
 
+## [v1.8.6](https://github.com/flarum/framework/compare/v1.8.5...v1.8.6)
+### Fixed
+* reset admin page save button in catch handler (https://github.com/flarum/framework/pull/3963)
+* suspended users can remove avatar (https://github.com/flarum/framework/pull/3998)
+* return null if content left empty in formatter (https://github.com/flarum/framework/pull/4059)
+### Changed
+* allow DiscussionsSearchSource to be extended (https://github.com/flarum/framework/pull/4025)
+* allow modifying the discussion title on PostsUserPage (https://github.com/flarum/framework/pull/4031)
+* make it easier to modify AppearancePage, BasicsPage, MailPage (https://github.com/flarum/framework/pull/4037)
+* point fontawesome links at v5 free (https://github.com/flarum/framework/pull/4038)
+* make WelcomeHero extensible (https://github.com/flarum/framework/pull/4039)
+* make PostMeta extensible (https://github.com/flarum/framework/pull/4040)
+* extensible TagHero (https://github.com/flarum/framework/pull/4041)
+* allow extending PostPreview content (https://github.com/flarum/framework/pull/4043)
+* allow classes that extends AbstractJob to be placed on a specified queue (https://github.com/flarum/framework/pull/4026)
+* use common component for ip address display (https://github.com/flarum/framework/pull/4042)
+* make it easier to add content after the first post (https://github.com/flarum/framework/pull/4050)
+* improve extensibility of IndexPage (https://github.com/flarum/framework/pull/4045)
+* improve extensibility of DiscussionPage (https://github.com/flarum/framework/pull/4046)
+* backport & improve extensibility of DiscussionListItem (https://github.com/flarum/framework/pull/4048)
+* improve & use extensibility of CommentPost & Post (https://github.com/flarum/framework/pull/4047)
+* allow labels of PostStreamScrubber to be customized (https://github.com/flarum/framework/pull/4049)
+* allow to customize time formats through translations (https://github.com/flarum/framework/pull/4053)
+### Added
+* Export all missing modules in compat (https://github.com/flarum/framework/pull/4044)
+* Add (some) missing shims (https://github.com/flarum/framework/pull/4027)
+* provide an 'actions' dropdown for extensions to add their additional buttons to the admin UserListPage (https://github.com/flarum/framework/pull/4054)
+
 ## [v1.8.5](https://github.com/flarum/framework/compare/v1.8.4...v1.8.5)
 ### Fixed
 * Logout controller allows open redirects [#3948]
