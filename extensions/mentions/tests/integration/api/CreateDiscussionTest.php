@@ -34,6 +34,41 @@ class CreateDiscussionTest extends TestCase
     /**
      * @test
      */
+    public function cannot_create_discussion_with_empty_string()
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/discussions', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'title' => 'Test post',
+                            'content' => '',
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(422, $response->getStatusCode());
+
+        $body = (string) $response->getBody();
+        $this->assertJson($body);
+        $this->assertEquals([
+            'errors' => [
+                [
+                    'status' => '422',
+                    'code' => 'validation_error',
+                    'detail' => 'The content field is required.',
+                    'source' => ['pointer' => '/data/attributes/content'],
+                ],
+            ],
+        ], json_decode($body, true));
+    }
+
+    /**
+     * @test
+     */
     public function cannot_create_discussion_without_content_property()
     {
         $response = $this->send(
