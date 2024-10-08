@@ -4,9 +4,6 @@
 ### Fixed
 * reset admin page save button in catch handler (https://github.com/flarum/framework/pull/3963)
 * suspended users can remove avatar (https://github.com/flarum/framework/pull/3998)
-* revert extensibility improvement for replyCountItem() (https://github.com/flarum/framework/pull/4051)
-* js error as guest on DiscussionListItem (https://github.com/flarum/framework/pull/4056)
-* still return controls view item, even if empty (https://github.com/flarum/framework/pull/4057)
 * return null if content left empty in formatter (https://github.com/flarum/framework/pull/4059)
 ### Changed
 * allow DiscussionsSearchSource to be extended (https://github.com/flarum/framework/pull/4025)
