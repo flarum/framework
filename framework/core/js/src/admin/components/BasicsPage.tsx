@@ -89,9 +89,9 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
       90
     );
 
-    items.add(
-      'default-locale',
-      Object.keys(this.localeOptions).length > 1 && (
+    Object.keys(this.localeOptions).length > 1 &&
+      items.add(
+        'default-locale',
         <>
           {this.buildSettingComponent({
             type: 'select',
@@ -104,10 +104,9 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
             setting: 'show_language_selector',
             label: app.translator.trans('core.admin.basics.show_language_selector_label'),
           })}
-        </>
-      ),
-      80
-    );
+        </>,
+        80
+      );
 
     items.add(
       'home-page',
@@ -136,9 +135,10 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
       60
     );
 
-    items.add(
-      'display-name-driver',
-      Object.keys(this.displayNameOptions).length > 1 &&
+    Object.keys(this.displayNameOptions).length > 1 &&
+      items.add(
+        'display-name-driver',
+
         this.buildSettingComponent({
           type: 'select',
           setting: 'display_name_driver',
@@ -146,8 +146,8 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
           label: app.translator.trans('core.admin.basics.display_name_heading'),
           help: app.translator.trans('core.admin.basics.display_name_text'),
         }),
-      50
-    );
+        50
+      );
 
     items.add(
       'slug-driver',
