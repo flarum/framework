@@ -139,7 +139,7 @@ class Formatter
             $xml = $callback($context, $xml);
         }
 
-        return Unparser::unparse($xml);
+        return $xml !== null ? Unparser::unparse($xml) : null;
     }
 
     /**
