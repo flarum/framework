@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.8.7](https://github.com/flarum/framework/compare/v1.8.6...v1.8.7)
+### Fixed
+* BasicsPage not viewable if only one language pack enabled, and/or `flarum/nicknames` not enabled (https://github.com/flarum/framework/pull/4062)
+
 ## [v1.8.6](https://github.com/flarum/framework/compare/v1.8.5...v1.8.6)
 ### Fixed
 * reset admin page save button in catch handler (https://github.com/flarum/framework/pull/3963)
