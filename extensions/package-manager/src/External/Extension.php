@@ -80,22 +80,22 @@ class Extension
         return $value;
     }
 
-    public function __get($key)
+    public function __get(string $key): mixed
     {
         return $this->getAttribute($key);
     }
 
-    public function __set($key, $value)
+    public function __set(string $key, mixed $value): void
     {
         $this->setAttribute($key, $value);
     }
 
-    public function __isset($key)
+    public function __isset(string $key): bool
     {
         return isset($this->attributes[$key]);
     }
 
-    public function __unset($key)
+    public function __unset(string $key): void
     {
         unset($this->attributes[$key]);
     }

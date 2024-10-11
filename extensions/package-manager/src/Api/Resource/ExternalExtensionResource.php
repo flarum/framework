@@ -132,7 +132,7 @@ class ExternalExtensionResource extends AbstractResource implements Listable, Pa
 
     public function query(Context $context): object
     {
-        return (new RequestWrapper($this->cache, 'https://flarum.org/api/extensions', 'GET', null, [
+        return (new RequestWrapper($this->cache, 'https://flarum.org/api/extensions', 'GET', [
             'Accept' => 'application/json',
         ]))->withQueryParams([
             'filter' => [

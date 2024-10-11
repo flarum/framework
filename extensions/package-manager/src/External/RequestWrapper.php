@@ -27,7 +27,6 @@ class RequestWrapper
         protected Repository $cache,
         string $uri,
         string $method,
-        mixed $body = null,
         array $headers = [],
     ) {
         $this->request = new Request($uri, $method, 'php://temp', $headers);
