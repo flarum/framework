@@ -133,13 +133,13 @@ class ExternalExtensionResource extends AbstractResource implements Listable, Pa
     public function query(Context $context): object
     {
         return (new RequestWrapper($this->cache, 'https://flarum.org/api/extensions', 'GET', null, [
-                'Accept' => 'application/json',
-            ]))->withQueryParams([
-                'filter' => [
-                    // @todo
-                    'compatible-with' => '1.8.6', // Application::VERSION,
-                ],
-            ]);
+            'Accept' => 'application/json',
+        ]))->withQueryParams([
+            'filter' => [
+                // @todo
+                'compatible-with' => '1.8.6', // Application::VERSION,
+            ],
+        ]);
     }
 
     public function paginate(object $query, OffsetPagination $pagination): void
@@ -156,7 +156,6 @@ class ExternalExtensionResource extends AbstractResource implements Listable, Pa
     public function results(object $query, Context $context): iterable
     {
         /** @var RequestWrapper $query */
-
         $json = $query->cache(function (RequestWrapper $query) {
             try {
                 $response = (new Client())->send($query->getRequest());

@@ -1,10 +1,16 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\ExtensionManager\External;
 
 use Closure;
 use Illuminate\Contracts\Cache\Repository;
-use Illuminate\Support\Collection;
 use Laminas\Diactoros\Request;
 
 /**
@@ -42,6 +48,7 @@ class RequestWrapper
     {
         $new = $this->request->$name(...$arguments);
         $this->request = $new;
+
         return $this;
     }
 

@@ -11,7 +11,6 @@ namespace Flarum\ExtensionManager\Composer;
 
 use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
-use Flarum\ExtensionManager\Support\Util;
 use Flarum\Foundation\Paths;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
