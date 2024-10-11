@@ -136,8 +136,7 @@ class ExternalExtensionResource extends AbstractResource implements Listable, Pa
             'Accept' => 'application/json',
         ]))->withQueryParams([
             'filter' => [
-                // @todo
-                'compatible-with' => '1.8.6', // Application::VERSION,
+                'compatible-with' => Application::VERSION,
             ],
         ]);
     }
