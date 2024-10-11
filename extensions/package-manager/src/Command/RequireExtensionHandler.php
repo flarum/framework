@@ -9,6 +9,7 @@
 
 namespace Flarum\ExtensionManager\Command;
 
+use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
 use Flarum\ExtensionManager\Composer\ComposerAdapter;
 use Flarum\ExtensionManager\Exception\ComposerRequireFailedException;
@@ -39,7 +40,7 @@ class RequireExtensionHandler
 
         $this->validator->assertValid(['package' => $command->package]);
 
-        $extensionId = Util::nameToId($command->package);
+        $extensionId = Extension::nameToId($command->package);
         $extension = $this->extensions->getExtension($extensionId);
 
         if (! empty($extension)) {

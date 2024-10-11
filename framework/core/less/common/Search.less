@@ -47,43 +47,15 @@
     row-gap: 6px;
   }
 
-  &-tabs {
-    &-nav + .Modal-divider {
-      margin-top: 0;
+  &-tabs-content {
+    .Dropdown--expanded();
+
+    .Dropdown-header {
+      color: var(--muted-more-color);
     }
 
-    &-nav {
-      margin-bottom: -1px;
-      display: flex;
-      column-gap: 4px;
-      padding: 0 14px;
-
-      > .Button {
-        border-radius: 0;
-        font-size: 15px;
-        padding: 12px 8px;
-        border-bottom: 2px solid;
-        border-color: transparent;
-
-        &[active] {
-          --button-color: var(--text-color);
-          --link-color: var(--text-color);
-          border-color: var(--primary-color);
-          font-weight: bold;
-        }
-      }
-    }
-
-    &-content {
-      .Dropdown--expanded();
-
-      .Dropdown-header {
-        color: var(--muted-more-color);
-      }
-
-      > .SearchModal-section:first-of-type .Modal-divider {
-        margin-top: -1px;
-      }
+    > .SearchModal-section:first-of-type .Modal-divider {
+      margin-top: -1px;
     }
   }
 

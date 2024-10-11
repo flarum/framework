@@ -15,6 +15,7 @@ use Flarum\Api\Endpoint\Concerns\ExtractsListingParams;
 use Flarum\Api\Endpoint\Concerns\HasAuthorization;
 use Flarum\Api\Endpoint\Concerns\HasCustomHooks;
 use Flarum\Api\Endpoint\Concerns\IncludesData;
+use Flarum\Api\Resource\AbstractDatabaseResource;
 use Flarum\Api\Resource\AbstractResource;
 use Flarum\Api\Resource\Contracts\Countable;
 use Flarum\Api\Resource\Contracts\Listable;
@@ -31,7 +32,6 @@ use Tobyz\JsonApiServer\Pagination\OffsetPagination;
 use Tobyz\JsonApiServer\Pagination\Pagination;
 use Tobyz\JsonApiServer\Schema\Concerns\HasMeta;
 
-use function Tobyz\JsonApiServer\apply_filters;
 use function Tobyz\JsonApiServer\json_api_response;
 use function Tobyz\JsonApiServer\parse_sort_string;
 
@@ -70,10 +70,12 @@ class Index extends Endpoint
     {
         $this->route('GET', '/')
             ->query(function ($query, ?Pagination $pagination, Context $context): Context {
+                $collection = $context->collection;
+
                 // This model has a searcher API, so we'll use that instead of the default.
                 // The searcher API allows swapping the default search engine for a custom one.
                 $search = $context->api->getContainer()->make(SearchManager::class);
-                $modelClass = $query->getModel()::class;
+                $modelClass = $collection instanceof AbstractDatabaseResource ? $collection->model() : null;
 
                 if ($query instanceof Builder && $search->searchable($modelClass)) {
                     $actor = $context->getActor();
@@ -147,14 +149,14 @@ class Index extends Endpoint
 
                 $meta = $this->serializeMeta($context);
 
+                $models = $collection->results($query, $context);
+
                 if (
                     $collection instanceof Countable &&
                     ! is_null($total = $collection->count($query, $context))
                 ) {
                     $meta['page']['total'] = $total;
                 }
-
-                $models = $collection->results($query, $context);
 
                 $models = $this->callAfterHook($context, $models);
 
@@ -245,14 +247,28 @@ class Index extends Endpoint
 
         $collection = $context->collection;
 
-        if (! $collection instanceof \Tobyz\JsonApiServer\Resource\Listable) {
+        if (! $collection instanceof Listable) {
             throw new RuntimeException(
                 sprintf('%s must implement %s', $collection::class, \Tobyz\JsonApiServer\Resource\Listable::class),
             );
         }
 
         try {
-            apply_filters($query, $filters, $collection, $context);
+            $context = $context->withCollection($collection);
+            $availableFilters = $collection->filters();
+
+            foreach ($filters as $name => $value) {
+                foreach ($availableFilters as $filter) {
+                    if ($filter->name === $name && $filter->isVisible($context)) {
+                        $filter->apply($query, $value, $context);
+                        continue 2;
+                    }
+                }
+
+                throw (new BadRequestException("Invalid filter: $name"))->setSource([
+                    'parameter' => "[$name]",
+                ]);
+            }
         } catch (Sourceable $e) {
             throw $e->prependSource(['parameter' => 'filter']);
         }

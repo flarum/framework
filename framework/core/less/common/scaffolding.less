@@ -73,6 +73,29 @@ p {
   margin: 0 auto;
 }
 
+.loading-container {
+  position: relative;
+
+  &::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(128, 128, 128, 0.2);
+  }
+
+  .LoadingIndicator-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+}
+
 mark {
   background: var(--highlight-color);
   padding: 1px;

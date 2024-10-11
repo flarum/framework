@@ -143,11 +143,17 @@
 @screen-desktop-max:               (@screen-desktop-hd - 0.02);
 
 @screen-desktop-hd:                1100px;
+@screen-desktop-xl:                1600px;
+@screen-desktop-xxl:               2000px;
+@screen-desktop-xxxl:              3000px;
 
 @phone:                            ~"(max-width: @{screen-phone-max})";
 @tablet:                           ~"(min-width: @{screen-tablet}) and (max-width: @{screen-tablet-max})";
 @desktop:                          ~"(min-width: @{screen-desktop}) and (max-width: @{screen-desktop-max})";
 @desktop-hd:                       ~"(min-width: @{screen-desktop-hd})";
+@desktop-xl:                       ~"(min-width: @{screen-desktop-xl})";
+@desktop-xxl:                      ~"(min-width: @{screen-desktop-xxl})";
+@desktop-xxxl:                     ~"(min-width: @{screen-desktop-xxxl})";
 
 @tablet-up:                        ~"(min-width: @{screen-tablet})";
 @desktop-up:                       ~"(min-width: @{screen-desktop})";

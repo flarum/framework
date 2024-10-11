@@ -4,7 +4,6 @@ import ExtensionPage from 'flarum/admin/components/ExtensionPage';
 import Button from 'flarum/common/components/Button';
 import LoadingModal from 'flarum/admin/components/LoadingModal';
 import isExtensionEnabled from 'flarum/admin/utils/isExtensionEnabled';
-import Task from './models/Task';
 import jumpToQueue from './utils/jumpToQueue';
 import { AsyncBackendResponse } from './shims';
 import ExtensionManagerState from './states/ExtensionManagerState';
@@ -12,8 +11,6 @@ import ExtensionManagerState from './states/ExtensionManagerState';
 export { default as extend } from './extend';
 
 app.initializers.add('flarum-extension-manager', (app) => {
-  app.store.models['extension-manager-tasks'] = Task;
-
   app.extensionManager = new ExtensionManagerState();
 
   if (app.data['flarum-extension-manager.using_sync_queue']) {

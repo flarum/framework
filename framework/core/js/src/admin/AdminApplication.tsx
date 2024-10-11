@@ -16,13 +16,14 @@ import MailPage from './components/MailPage';
 import AdvancedPage from './components/AdvancedPage';
 import PermissionsPage from './components/PermissionsPage';
 
-export type Extension = {
+export interface Extension {
   id: string;
   name: string;
   version: string;
   description?: string;
   icon?: {
     name: string;
+    [key: string]: string;
   };
   links: {
     authors?: {
@@ -44,7 +45,7 @@ export type Extension = {
     };
   };
   require?: Record<string, string>;
-};
+}
 
 export enum DatabaseDriver {
   MySQL = 'MySQL',
