@@ -139,7 +139,9 @@ class SaveTagsToDatabase
 
         $validator = $this->validator->make(
             [$key => $count],
-            [$key => ['numeric', $min === $max ? "size:$min" : "between:$min,$max"]], $messages, $customAttributes
+            [$key => ['numeric', $min === $max ? "size:$min" : "between:$min,$max"]],
+            $messages,
+            $customAttributes
         );
 
         if ($validator->fails()) {

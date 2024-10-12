@@ -20,7 +20,7 @@ class SuspendValidator extends AbstractValidator
         'suspendedUntil' => ['nullable', 'date'],
     ];
 
-     /**
+    /**
      * {@inheritdoc}
      */
     protected function attributes()
