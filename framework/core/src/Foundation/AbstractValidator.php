@@ -82,6 +82,14 @@ abstract class AbstractValidator
     }
 
     /**
+     * @return array
+     */
+    protected function attributes()
+    {
+        return [];
+    }
+
+    /**
      * Make a new validator instance for this model.
      *
      * @param array $attributes
@@ -90,8 +98,10 @@ abstract class AbstractValidator
     protected function makeValidator(array $attributes)
     {
         $rules = Arr::only($this->getRules(), array_keys($attributes));
+        $messages = $this->getMessages();
+        $customAttributes = $this->attributes();
 
-        $validator = $this->validator->make($attributes, $rules, $this->getMessages());
+        $validator = $this->validator->make($attributes, $rules, $messages, $customAttributes);
 
         foreach ($this->configuration as $callable) {
             $callable($this, $validator);
