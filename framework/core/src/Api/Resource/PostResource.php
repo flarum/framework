@@ -101,7 +101,6 @@ class PostResource extends AbstractDatabaseResource
                 ->defaultInclude([
                     'user',
                     'discussion',
-                    'discussion.posts',
                     'discussion.lastPostedUser'
                 ]),
             Endpoint\Update::make()

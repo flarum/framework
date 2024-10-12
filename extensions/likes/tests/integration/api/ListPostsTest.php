@@ -173,9 +173,10 @@ class ListPostsTest extends TestCase
     {
         // Show discussion endpoint
         $response = $this->send(
-            $this->request('GET', '/api/discussions/100', [
+            $this->request('GET', '/api/posts', [
                 'authenticatedAs' => 2,
             ])->withQueryParams([
+                'filter' => ['discussion' => 100],
                 'include' => $include,
             ])
         );
@@ -184,7 +185,7 @@ class ListPostsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode(), $body);
 
-        $included = json_decode($body, true)['included'] ?? [];
+        $included = json_decode($body, true)['data'] ?? [];
 
         $likes = collect($included)
             ->where('type', 'posts')
@@ -206,8 +207,7 @@ class ListPostsTest extends TestCase
     public static function likesIncludeProvider(): array
     {
         return [
-            ['posts,posts.likes'],
-            ['posts.likes'],
+            ['likes'],
             [null],
         ];
     }
