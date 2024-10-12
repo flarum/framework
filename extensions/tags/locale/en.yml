@@ -126,3 +126,11 @@ flarum-tags:
     choose_tags_placeholder: "{count, plural, one {Choose 1 more tag} other {Choose # more tags}}"
     name: Name
     tags: Tags
+
+validation:
+  attributes:
+    name: name
+    slug: slug
+    is_hidden: hidden
+    description: description
+    color: color
