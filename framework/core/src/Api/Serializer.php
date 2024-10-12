@@ -174,7 +174,7 @@ class Serializer extends \Tobyz\JsonApiServer\Serializer
         }
 
         throw new RuntimeException(
-            'No resource type defined to represent model ' . get_class($model),
+            'No resource type defined to represent model '.get_class($model),
         );
     }
 

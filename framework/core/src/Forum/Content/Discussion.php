@@ -130,7 +130,7 @@ class Discussion
                 ->withoutErrorHandling()
                 ->withParentRequest($request)
                 ->withQueryParams($params)
-                ->get("/posts")
+                ->get('/posts')
                 ->getBody()
         );
     }
