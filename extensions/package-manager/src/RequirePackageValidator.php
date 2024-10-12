@@ -21,4 +21,14 @@ class RequirePackageValidator extends AbstractValidator
     protected $rules = [
         'package' => ['required', 'string', 'regex:'.self::PACKAGE_NAME_REGEX]
     ];
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function attributes()
+    {
+        return [
+            'package' => $this->translator->trans('validation.attributes.package')
+        ];
+    }
 }
