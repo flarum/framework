@@ -2,7 +2,8 @@ import IExtender, { IExtensionModule } from './IExtender';
 import type AdminApplication from '../../admin/AdminApplication';
 import type { CustomExtensionPage, SettingConfigInternal } from '../../admin/utils/AdminRegistry';
 import type { PermissionConfig, PermissionType } from '../../admin/components/PermissionGrid';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
+import type { GeneralIndexItem } from '../../admin/states/GeneralSearchIndex';
 export default class Admin implements IExtender<AdminApplication> {
     protected settings: {
         setting?: () => SettingConfigInternal;
@@ -15,6 +16,10 @@ export default class Admin implements IExtender<AdminApplication> {
         priority: number;
     }[];
     protected customPage: CustomExtensionPage | null;
+    protected generalIndexes: {
+        settings?: () => GeneralIndexItem[];
+        permissions?: () => GeneralIndexItem[];
+    };
     /**
      * Register a setting to be shown on the extension's settings page.
      */
@@ -31,5 +36,9 @@ export default class Admin implements IExtender<AdminApplication> {
      * Register a custom page to be shown in the admin interface.
      */
     page(page: CustomExtensionPage): this;
+    /**
+     * Register a custom general search index entry.
+     */
+    generalIndexItems(type: 'settings' | 'permissions', items: () => GeneralIndexItem[]): this;
     extend(app: AdminApplication, extension: IExtensionModule): void;
 }
