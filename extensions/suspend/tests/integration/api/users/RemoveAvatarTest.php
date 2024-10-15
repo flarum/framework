@@ -31,12 +31,14 @@ class RemoveAvatarTest extends TestCase
                 ['id' => 3, 'username' => 'acme', 'email' => 'acme@machine.local', 'is_email_confirmed' => 1, 'suspended_until' => Carbon::now()->addDay(), 'suspend_message' => 'You have been suspended.', 'suspend_reason' => 'Suspended for acme reasons.'],
                 ['id' => 4, 'username' => 'acme4', 'email' => 'acme4@machine.local', 'is_email_confirmed' => 1],
                 ['id' => 5, 'username' => 'acme5', 'email' => 'acme5@machine.local', 'is_email_confirmed' => 1, 'suspended_until' => Carbon::now()->subDay(), 'suspend_message' => 'You have been suspended.', 'suspend_reason' => 'Suspended for acme reasons.'],
+                ['id' => 6, 'username' => 'acme6', 'email' => 'acme6@machine.local', 'is_email_confirmed' => 1, 'suspended_until' => Carbon::now()->subWeek(), 'suspend_message' => 'You have been suspended.', 'suspend_reason' => 'Suspended for acme reasons.'],
             ],
             'groups' => [
                 ['id' => 5, 'name_singular' => 'can_edit_users', 'name_plural' => 'can_edit_users', 'is_hidden' => 0]
             ],
             'group_user' => [
-                ['user_id' => 2, 'group_id' => 5]
+                ['user_id' => 2, 'group_id' => 5],
+                ['user_id' => 6, 'group_id' => 1],
             ],
             'group_permission' => [
                 ['permission' => 'user.edit', 'group_id' => 5],
@@ -73,6 +75,9 @@ class RemoveAvatarTest extends TestCase
             [4, 4, 'Normal user can remove their own avatar'],
             [1, 3, 'Admin can remove avatar of suspended user'],
             [2, 3, 'Normal user with permission can remove avatar of suspended user'],
+            [1, 6, 'Admin can remove avatar of expired suspended user'],
+            [2, 6, 'Normal user with permission can remove avatar of expired suspended user'],
+            [6, 6, 'Admin user can remove avatar if they have an expired suspension'],
         ];
     }
 

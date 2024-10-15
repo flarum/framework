@@ -18,7 +18,7 @@ class PreventAvatarDeletionBySuspendedUser
         $actor = $event->actor;
         $user = $event->user;
 
-        if ($actor->id === $user->id && $user->suspended_until) {
+        if (! $actor->isAdmin() && $actor->id === $user->id && $user->suspended_until && $user->suspended_until->isFuture()) {
             throw new PermissionDeniedException();
         }
     }
