@@ -23,4 +23,18 @@ class TagValidator extends AbstractValidator
         'description' => ['string', 'max:700'],
         'color' => ['regex:/^#([a-f0-9]{6}|[a-f0-9]{3})$/i'],
     ];
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function attributes()
+    {
+        return [
+            'name' => $this->translator->trans('validation.attributes.name'),
+            'slug' => $this->translator->trans('validation.attributes.slug'),
+            'is_hidden' => $this->translator->trans('validation.attributes.is_hidden'),
+            'description' => $this->translator->trans('validation.attributes.description'),
+            'color' => $this->translator->trans('validation.attributes.color'),
+        ];
+    }
 }

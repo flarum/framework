@@ -69,3 +69,7 @@ flarum-suspend:
         You have been unsuspended. You can head back to the forum by clicking on the following link:
 
         {forum_url}
+
+validation:
+  attributes:
+    suspended_until: suspended until

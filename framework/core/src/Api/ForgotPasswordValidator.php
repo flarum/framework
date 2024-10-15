@@ -26,4 +26,14 @@ class ForgotPasswordValidator extends AbstractValidator
     protected $rules = [
         'email' => ['required', 'email']
     ];
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function attributes()
+    {
+        return [
+            'email' => $this->translator->trans('validation.attributes.email')
+        ];
+    }
 }
