@@ -5,13 +5,14 @@ import IHistory from '../common/IHistory';
 import SearchManager from '../common/SearchManager';
 import SearchState from '../common/states/SearchState';
 import GeneralSearchIndex from './states/GeneralSearchIndex';
-export type Extension = {
+export interface Extension {
     id: string;
     name: string;
     version: string;
     description?: string;
     icon?: {
         name: string;
+        [key: string]: string;
     };
     links: {
         authors?: {
@@ -33,7 +34,7 @@ export type Extension = {
         };
     };
     require?: Record<string, string>;
-};
+}
 export declare enum DatabaseDriver {
     MySQL = "MySQL",
     PostgreSQL = "PostgreSQL",

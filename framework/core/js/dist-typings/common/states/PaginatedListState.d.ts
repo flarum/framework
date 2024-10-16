@@ -34,11 +34,13 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     static DEFAULT_PAGE_SIZE: number;
     protected location: PaginationLocation;
     pageSize: number | null;
+    totalItems: number | null;
     protected pages: Page<T>[];
     protected params: P;
     protected initialLoading: boolean;
     protected loadingPrev: boolean;
     protected loadingNext: boolean;
+    protected loadingPage: boolean;
     protected constructor(params?: P, page?: number, pageSize?: number | null);
     abstract get type(): string;
     clear(): void;
@@ -67,6 +69,7 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
      */
     refreshParams(newParams: P, page: number): Promise<void>;
     refresh(page?: number): Promise<void>;
+    goto(page: number): Promise<void>;
     getPages(): Page<T>[];
     getLocation(): PaginationLocation;
     isLoading(): boolean;
@@ -106,4 +109,5 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     sortValue(sort: SortMapItem): string | undefined;
     currentSort(): string | undefined;
     changeSort(sort: string): void;
+    changeFilter(key: string, value: string): void;
 }

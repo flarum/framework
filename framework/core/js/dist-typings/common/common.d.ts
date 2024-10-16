@@ -29,6 +29,7 @@ import './utils/patchMithril';
 import './utils/classList';
 import './utils/extractText';
 import './utils/formatNumber';
+import './utils/formatAmount';
 import './utils/mapRoutes';
 import './utils/withAttr';
 import './utils/focusTrap';

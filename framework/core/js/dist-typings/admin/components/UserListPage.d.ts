@@ -50,10 +50,6 @@ export default class UserListPage extends AdminPage {
      * `undefined` when page loads as no data has been fetched.
      */
     private pageData;
-    /**
-     * Are there more users available?
-     */
-    private moreData;
     private isLoadingPage;
     oninit(vnode: Mithril.Vnode<IPageAttrs, this>): void;
     /**
@@ -89,8 +85,6 @@ export default class UserListPage extends AdminPage {
      * @param pageNumber The **zero-based** page number to load and display
      */
     loadPage(pageNumber: number): Promise<void>;
-    nextPage(): void;
-    previousPage(): void;
     /**
      * @param page The **1-based** page number
      */

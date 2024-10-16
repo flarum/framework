@@ -1,6 +1,11 @@
 import { FlarumRequestOptions } from './Application';
 import Model, { ModelData, SavedModelData } from './Model';
 export interface MetaInformation {
+    page?: {
+        limit?: number;
+        offset?: number;
+        total?: number;
+    };
     [key: string]: any;
 }
 export interface ApiQueryParamsSingle {
