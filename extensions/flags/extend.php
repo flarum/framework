@@ -52,11 +52,6 @@ return [
     (new Extend\ApiResource(Resource\ForumResource::class))
         ->fields(ForumResourceFields::class),
 
-    (new Extend\ApiResource(Resource\DiscussionResource::class))
-        ->endpoint(Endpoint\Show::class, function (Endpoint\Show $endpoint) {
-            return $endpoint->addDefaultInclude(['posts.flags', 'posts.flags.user']);
-        }),
-
     (new Extend\ApiResource(Resource\PostResource::class))
         ->endpoint([Endpoint\Index::class, Endpoint\Show::class], function (Endpoint\Index|Endpoint\Show $endpoint) {
             return $endpoint->addDefaultInclude(['flags', 'flags.user']);

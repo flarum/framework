@@ -146,23 +146,16 @@ class Serializer extends \Tobyz\JsonApiServer\Serializer
      */
     public function addIncluded(Relationship $field, $model, ?array $include): array
     {
-        if (is_object($model)) {
-            $relatedResource = $this->resourceForModel($field, $model);
+        $relatedResource = $this->resourceForModel($field, $model);
 
-            if ($include === null) {
-                return [
-                    'type' => $relatedResource->type(),
-                    'id' => $relatedResource->getId($model, $this->context),
-                ];
-            }
-
-            $data = $this->addToMap($relatedResource, $model, $include);
-        } else {
-            $data = [
-                'type' => $field->collections[0],
-                'id' => (string) $model,
+        if ($include === null) {
+            return [
+                'type' => $relatedResource->type(),
+                'id' => $relatedResource->getId($model, $this->context),
             ];
         }
+
+        $data = $this->addToMap($relatedResource, $model, $include);
 
         return [
             'type' => $data['type'],
