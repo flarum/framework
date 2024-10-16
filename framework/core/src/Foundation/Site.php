@@ -35,6 +35,8 @@ class Site
             error_reporting($config->inDebugMode() ? E_ALL : E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
         }
 
+        ini_set('display_errors', $config->inDebugMode() ? 1 : 0);
+
         return (
             new InstalledSite($paths, $config)
         )->extendWith(static::loadExtenders($paths->base));
