@@ -330,7 +330,7 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
         return new ($this->model());
     }
 
-    public function filters(): array
+    final public function filters(): array
     {
         throw new RuntimeException('Not supported in Flarum, please use a model searcher instead https://docs.flarum.org/extend/search.');
     }

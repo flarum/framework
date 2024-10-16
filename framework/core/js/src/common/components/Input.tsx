@@ -14,7 +14,6 @@ export interface IInputAttrs extends ComponentAttrs {
   clearable?: boolean;
   clearLabel?: string;
   loading?: boolean;
-  inputClassName?: string;
   onchange?: (value: string) => void;
   value?: string;
   stream?: Stream<string>;

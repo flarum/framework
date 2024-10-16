@@ -4,7 +4,7 @@ flarum-extension-manager:
       add_label: New authentication method
       add_modal:
         host_label: Host
-        host_placeholder: "example: extiverse.com"
+        host_placeholder: "example: bearer.flarum.org"
         submit_button: Submit
         token_label: Token
         type_label: Type
@@ -70,7 +70,7 @@ flarum-extension-manager:
       install: Install a new extension
       install_help: >
         Fill in the extension package name to proceed. You can specify a <semantic_link>semantic version</semantic_link> using the format <code>vendor/package-name:version</code>.
-        Visit {extiverse} to browse extensions.
+        Visit {link} to browse extensions.
       proceed: Proceed
       remove: Uninstall
       successful_install: "{extension} was installed successfully, redirecting.."
@@ -100,8 +100,34 @@ flarum-extension-manager:
       content: This will also update any other extensions/packages with availabe updates.
 
     sections:
-      control:
-        title: Manager
+      discover:
+        description: Add new features and integrations to your Flarum forum with extensions.
+        empty_results: Looks like there are no extensions available.
+        extension:
+          badges:
+            compatible: Compatible
+            fof: Friends Of Flarum
+            flarum: Flarum
+            incompatible: Incompatible
+            premium: Premium
+            unstable: Unstable
+          downloads: "{count, plural, one {{formattedCount} download} other {{formattedCount} downloads}}"
+        premium_extension_terms: Premium extension terms
+        search: Search...
+        server_error: Service currently unavailable, please try again later.
+        sort:
+          toggle_dropdown_accessible_label: Toggle sort options
+          top: Most Downloads
+          latest: Latest
+        tabs:
+          discover: Discover
+          extensions: Extensions
+          languages: Languages
+          themes: Themes
+        title: Extensions
+        party_filter:
+          all: All
+          premium: Premium
       queue:
         columns:
           details: Details
@@ -133,6 +159,9 @@ flarum-extension-manager:
           running: Running
         task_just_started: Task just started
         title: Queue
+      settings:
+        title: Options and Queue
+        description: Configure the extension manager and check operations in the queue.
 
     settings:
       title: => core.ref.settings
@@ -148,7 +177,7 @@ flarum-extension-manager:
           Set to 0 to keep all tasks.
 
     updater:
-      up_to_date: Everything is up to date!
+      up_to_date: No pending updates.
       check_for_updates: Check for updates
       flarum: Flarum Core
       global_update_successful: Successfully updated all packages.
