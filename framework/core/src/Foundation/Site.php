@@ -31,7 +31,9 @@ class Site
 
         $config = static::loadConfig($paths->base);
 
-        error_reporting($config->inDebugMode() ? E_ALL : E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+        if (function_exists('error_reporting')) {
+            error_reporting($config->inDebugMode() ? E_ALL : E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+        }
 
         return (
             new InstalledSite($paths, $config)
