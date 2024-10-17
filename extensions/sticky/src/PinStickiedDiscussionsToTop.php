@@ -91,12 +91,8 @@ class PinStickiedDiscussionsToTop
     /**
      * Pin all stickied discussions to the top of the query.
      * This is done by prepending an order clause to the query.
-     *
-     * @param $query
-     *
-     * @return void
      */
-    protected function pinStickiedToTop($query): void
+    protected function pinStickiedToTop(Builder $query): void
     {
         if (! is_array($query->orders)) {
             $query->orders = [];
