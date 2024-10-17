@@ -109,5 +109,5 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     sortValue(sort: SortMapItem): string | undefined;
     currentSort(): string | undefined;
     changeSort(sort: string): void;
-    changeFilter(key: string, value: string): void;
+    changeFilter(key: string, value: any): void;
 }
