@@ -45,7 +45,7 @@ class ComposerAdapter
         chdir($this->paths->base);
 
         if ($safeMode) {
-            $temporaryVendorDir = $this->paths->base . DIRECTORY_SEPARATOR . 'temp-vendor';
+            $temporaryVendorDir = $this->paths->base.DIRECTORY_SEPARATOR.'temp-vendor';
             if (! $this->filesystem->isDirectory($temporaryVendorDir)) {
                 $this->filesystem->makeDirectory($temporaryVendorDir);
             }
