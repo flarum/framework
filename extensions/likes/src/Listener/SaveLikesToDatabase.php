@@ -34,7 +34,7 @@ class SaveLikesToDatabase
         $post = $event->post;
         $data = $event->data;
 
-        if ($post->exists && isset($data['attributes']['isLiked'])) {
+        if ($post->exists && isset($data['attributes']['isLiked']) && $post->type === 'comment') {
             $actor = $event->actor;
             $liked = (bool) $data['attributes']['isLiked'];
 
