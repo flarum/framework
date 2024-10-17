@@ -96,7 +96,10 @@ export default abstract class AbstractSearch<T extends SearchAttrs = SearchAttrs
     };
 
     return (
-      <div role="search" className="Search" aria-label={this.attrs.a11yRoleLabel}>
+      <div role="search" className="Search" aria-label={this.attrs.a11yRoleLabel} onclick={() => {
+        this.$('input').blur();
+        setTimeout(() => openSearchModal(), 150);
+      }}>
         <Input
           type="search"
           className="Search-input"
@@ -112,7 +115,6 @@ export default abstract class AbstractSearch<T extends SearchAttrs = SearchAttrs
             else this.searchState.setValue(value);
           }}
           inputAttrs={{
-            onclick: () => setTimeout(() => openSearchModal(), 150),
             // for keyboard navigation, click event would be triggered on keydown
             onkeydown: (e: KeyboardEvent) => {
               if (e.key === 'Enter') {
