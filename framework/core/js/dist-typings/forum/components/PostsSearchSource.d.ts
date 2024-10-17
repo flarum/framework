@@ -12,6 +12,7 @@ export default class PostsSearchSource implements SearchSource {
     isCached(query: string): boolean;
     search(query: string, limit: number): Promise<void>;
     view(query: string): Array<Mithril.Vnode>;
+    customGrouping(): boolean;
     fullPage(query: string): Mithril.Vnode;
     gotoItem(id: string): string | null;
 }

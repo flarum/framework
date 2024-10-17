@@ -3,18 +3,15 @@ import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
 import type { IPageAttrs } from '../../common/components/Page';
 import type Mithril from 'mithril';
-export declare type HomePageItem = {
+export type HomePageItem = {
     path: string;
     label: Mithril.Children;
 };
-export declare type DriverLocale = {
+export type DriverLocale = {
     display_name: Record<string, string>;
     slug: Record<string, Record<string, string>>;
 };
 export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends AdminPage<CustomAttrs> {
-    localeOptions: Record<string, string>;
-    displayNameOptions: Record<string, string>;
-    slugDriverOptions: Record<string, Record<string, string>>;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     headerInfo(): {
         className: string;
@@ -27,6 +24,7 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
      * Build a list of options for the default homepage. Each option must be an
      * object with `path` and `label` properties.
      */
-    homePageItems(): ItemList<HomePageItem>;
-    driverLocale(): DriverLocale;
+    static homePageItems(): ItemList<HomePageItem>;
+    static driverLocale(): DriverLocale;
+    static register(): void;
 }

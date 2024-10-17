@@ -5,6 +5,7 @@ import LoadingPost from './LoadingPost';
 import ReplyPlaceholder from './ReplyPlaceholder';
 import Button from '../../common/components/Button';
 import ItemList from '../../common/utils/ItemList';
+import PostType from './PostType';
 
 /**
  * The `PostStream` component displays an infinitely-scrollable wall of posts in
@@ -47,8 +48,7 @@ export default class PostStream extends Component {
 
       if (post) {
         const time = post.createdAt();
-        const PostComponent = app.postComponents[post.contentType()];
-        content = !!PostComponent && <PostComponent post={post} />;
+        content = <PostType post={post} />;
 
         attrs.key = 'post' + post.id();
         attrs.oncreate = postFadeIn;

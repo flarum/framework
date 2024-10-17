@@ -11,6 +11,7 @@ namespace Flarum\Tests\integration\extenders;
 
 use Flarum\Database\AbstractModel;
 use Flarum\Extend;
+use Flarum\Notification\AlertableInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Driver\NotificationDriverInterface;
 use Flarum\Notification\Notification;
@@ -118,7 +119,7 @@ class NotificationTest extends TestCase
     }
 }
 
-class CustomNotificationType implements BlueprintInterface
+class CustomNotificationType implements BlueprintInterface, AlertableInterface
 {
     public function getFromUser(): ?User
     {

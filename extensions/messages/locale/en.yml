@@ -1,0 +1,89 @@
+flarum-messages:
+
+  # Translations in this namespace are used by the admin interface.
+  admin:
+    permissions:
+      send_messages: Send private messages
+
+  # Translations in this namespace are used by the forum user interface.
+  forum:
+    composer:
+      discard_confirmation: You have not sent your message. Are you sure you want to discard it?
+      placeholder: Write a message...
+      recipients: Recipients
+      submit_button: Send message
+      to: "To:"
+
+    dialog_list:
+      load_more_button: => core.ref.load_more
+      mark_as_read_tooltip: Mark as read
+      title: Messages
+      view_all: View all messages
+
+    dialog_section:
+      controls:
+        details_button: Details
+      controls_toggle_label: Dialog control actions
+      details_modal:
+        created_at: Creation date
+        recipients: Participants
+        title: Conversation details
+
+    index:
+      messages_link: Messages
+
+    index_sort:
+      latest_button: Latest
+      newest_button: Newest
+      oldest_button: Oldest
+
+    messages_page:
+      empty_text: You have no messages yet. When you send or receive messages, they
+        will appear here.
+      hero:
+        title: Messages
+        subtitle: Your private conversations with other users
+      mark_all_as_read_tooltip: Mark all as read
+      new_message_button: Send a Message
+      refresh_tooltip: Refresh
+      stream:
+        load_previous_button: Load previous messages
+        start_of_the_conversation: Start of the conversation
+        time_lapsed_text: => core.forum.post_stream.time_lapsed_text
+      title: Messages
+
+    recipient_selection_modal:
+      title: Select the recipients of this message
+
+    settings:
+      notify_message_received_label: Someone sends me a message
+
+    user_controls:
+      send_message_button: Send a message
+
+    notifications:
+      message_received_text: Message Received notification from {user}
+
+  # Translations in this namespace are used in emails sent by the forum.
+  email:
+
+    # These translations are used in emails sent when a user is mentioned
+    message_received:
+      subject: "{user_display_name} sent you a message"
+      plain:
+        body: |
+          {user_display_name} sent you a new message.
+
+          {url}
+
+          ---
+
+          {content}
+      html:
+        body: "{user_display_name} sent you a [new message]({url})."
+
+  # Translations in this namespace are used by the forum and admin interfaces.
+  lib:
+
+    dialog:
+      title: Messaging {username}

@@ -2,9 +2,11 @@ import Component, { ComponentAttrs } from '../../common/Component';
 import ItemList from '../../common/utils/ItemList';
 import type Mithril from 'mithril';
 export interface PermissionConfig {
-    permission: string;
+    permission?: string;
     icon: string;
     label: Mithril.Children;
+    id?: string;
+    setting?: () => Mithril.Children;
     allowGuest?: boolean;
 }
 export interface PermissionSetting {
@@ -12,8 +14,8 @@ export interface PermissionSetting {
     icon: string;
     label: Mithril.Children;
 }
-export declare type PermissionGridEntry = PermissionConfig | PermissionSetting;
-export declare type PermissionType = 'view' | 'start' | 'reply' | 'moderate';
+export type PermissionGridEntry = PermissionConfig | PermissionSetting;
+export type PermissionType = 'view' | 'start' | 'reply' | 'moderate';
 export interface ScopeItem {
     label: Mithril.Children;
     render: (permission: PermissionGridEntry) => Mithril.Children;

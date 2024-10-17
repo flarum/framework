@@ -160,6 +160,9 @@
     color: var(--link-color);
   }
 }
+.Button--compact {
+  padding: 4px 10px;
+}
 .Button--text {
   background: transparent !important;
   padding: 0;
@@ -197,6 +200,14 @@
 }
 .Button--warning {
   .Button--color-auto('control-warning');
+}
+.Button--dashed {
+  background: none;
+  border: 1px dashed var(--button-bg);
+}
+.Button--outline {
+  background: none;
+  border: 1px solid var(--button-bg);
 }
 .Button--more {
   padding: 2px 4px;

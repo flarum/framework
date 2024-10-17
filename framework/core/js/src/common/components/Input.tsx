@@ -1,4 +1,4 @@
-import app from '../../forum/app';
+import app from '../../common/app';
 import Component from '../Component';
 import Icon from './Icon';
 import LoadingIndicator from './LoadingIndicator';
@@ -14,7 +14,6 @@ export interface IInputAttrs extends ComponentAttrs {
   clearable?: boolean;
   clearLabel?: string;
   loading?: boolean;
-  inputClassName?: string;
   onchange?: (value: string) => void;
   value?: string;
   stream?: Stream<string>;

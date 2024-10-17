@@ -27,6 +27,7 @@ import './components/HeaderSecondary';
 import './components/DiscussionList';
 import './components/AvatarEditor';
 import './components/Post';
+import './components/LoadingPost';
 import './components/TerminalPost';
 import './components/NotificationsDropdown';
 import './components/UserPage';

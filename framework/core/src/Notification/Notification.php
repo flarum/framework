@@ -177,7 +177,7 @@ class Notification extends AbstractModel
      *
      * @param User[] $recipients
      */
-    public static function notify(array $recipients, BlueprintInterface $blueprint): void
+    public static function notify(array $recipients, BlueprintInterface&AlertableInterface $blueprint): void
     {
         $attributes = static::getBlueprintAttributes($blueprint);
         $now = Carbon::now()->toDateTimeString();

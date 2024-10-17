@@ -73,8 +73,16 @@ trait SavesAndValidatesData
             $factory = new Factory($translator);
         }
 
-        $attributeValidator = $factory->make($data['attributes'], $rules['attributes'], $messages, $attributes);
-        $relationshipValidator = $factory->make($data['relationships'], $rules['relationships'], $messages, $attributes);
+        $attributesAsData = $data['attributes'] ?? [];
+        // Allows referring to other types of data in validation rules, ex: required_without:relationships.fieldName
+        $attributesAsData['relationships'] = $data['relationships'] ?? [];
+
+        $relationshipsAsData = $data['relationships'] ?? [];
+        // Allows referring to other types of data in validation rules, ex: required_without:attributes.fieldName
+        $relationshipsAsData['attributes'] = $data['attributes'] ?? [];
+
+        $attributeValidator = $factory->make($attributesAsData, $rules['attributes'], $messages, $attributes);
+        $relationshipValidator = $factory->make($relationshipsAsData, $rules['relationships'], $messages, $attributes);
 
         $this->validate('attributes', $attributeValidator);
         $this->validate('relationships', $relationshipValidator);

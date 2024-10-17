@@ -33,6 +33,8 @@ parameters:
 	  - extensions/suspend/extend.php
 	  - extensions/tags/src
 	  - extensions/tags/extend.php
+	  - extensions/messages/src
+	  - extensions/messages/extend.php
 	excludePaths:
 		- *.blade.php
 	databaseMigrationsPath: ['framework/core/migrations']

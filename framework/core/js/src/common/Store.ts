@@ -4,6 +4,11 @@ import Model, { ModelData, SavedModelData } from './Model';
 import GambitManager from './GambitManager';
 
 export interface MetaInformation {
+  page?: {
+    limit?: number;
+    offset?: number;
+    total?: number;
+  };
   [key: string]: any;
 }
 

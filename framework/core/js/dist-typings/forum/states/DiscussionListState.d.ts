@@ -1,4 +1,4 @@
-import PaginatedListState, { Page, PaginatedListParams, PaginatedListRequestParams } from '../../common/states/PaginatedListState';
+import PaginatedListState, { Page, PaginatedListParams, PaginatedListRequestParams, type SortMap } from '../../common/states/PaginatedListState';
 import Discussion from '../../common/models/Discussion';
 import { ApiResponsePlural } from '../../common/Store';
 import EventEmitter from '../../common/utils/EventEmitter';
@@ -17,7 +17,7 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
      * Get a map of sort keys (which appear in the URL, and are used for
      * translation) to the API sort value that they represent.
      */
-    sortMap(): any;
+    sortMap(): SortMap;
     removeDiscussion(discussion: Discussion): void;
     deleteDiscussion(discussion: Discussion): void;
     /**

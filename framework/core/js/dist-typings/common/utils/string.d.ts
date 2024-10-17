@@ -11,7 +11,7 @@ export declare function truncate(string: string, length: number, start?: number)
  * to *suggest* slugs that can be overridden by the user.
  */
 export declare function slug(string: string, mode?: SluggingMode): string;
-declare enum SluggingMode {
+export declare enum SluggingMode {
     ALPHANUMERIC = "alphanum",
     UTF8 = "utf8"
 }
@@ -40,4 +40,3 @@ export declare function camelCaseToSnakeCase(str: string): string;
  * @returns A random string of provided length
  */
 export declare function generateRandomString(length: number): string;
-export {};

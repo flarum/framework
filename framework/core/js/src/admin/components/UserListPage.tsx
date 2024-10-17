@@ -19,6 +19,7 @@ import CreateUserModal from './CreateUserModal';
 import Icon from '../../common/components/Icon';
 import Input from '../../common/components/Input';
 import GambitsAutocompleteDropdown from '../../common/components/GambitsAutocompleteDropdown';
+import Pagination from '../../common/components/Pagination';
 
 type ColumnData = {
   /**
@@ -77,11 +78,6 @@ export default class UserListPage extends AdminPage {
    * `undefined` when page loads as no data has been fetched.
    */
   private pageData: User[] | undefined = undefined;
-
-  /**
-   * Are there more users available?
-   */
-  private moreData: boolean = false;
 
   private isLoadingPage: boolean = false;
 
@@ -160,76 +156,13 @@ export default class UserListPage extends AdminPage {
         {/* Loading spinner that shows when a new page is being loaded */}
         {this.isLoadingPage && <LoadingIndicator size="large" />}
       </section>,
-      <nav className="UserListPage-gridPagination">
-        <Button
-          disabled={this.pageNumber === 0}
-          title={app.translator.trans('core.admin.users.pagination.first_page_button')}
-          onclick={this.goToPage.bind(this, 1)}
-          icon="fas fa-step-backward"
-          className="Button Button--icon UserListPage-firstPageBtn"
-        />
-        <Button
-          disabled={this.pageNumber === 0}
-          title={app.translator.trans('core.admin.users.pagination.back_button')}
-          onclick={this.previousPage.bind(this)}
-          icon="fas fa-chevron-left"
-          className="Button Button--icon UserListPage-backBtn"
-        />
-        <span className="UserListPage-pageNumber">
-          {app.translator.trans('core.admin.users.pagination.page_counter', {
-            // https://technology.blog.gov.uk/2020/02/24/why-the-gov-uk-design-system-team-changed-the-input-type-for-numbers/
-            current: (
-              <input
-                type="text"
-                inputmode="numeric"
-                pattern="[0-9]*"
-                value={this.loadingPageNumber + 1}
-                aria-label={extractText(app.translator.trans('core.admin.users.pagination.go_to_page_textbox_a11y_label'))}
-                autocomplete="off"
-                className="FormControl UserListPage-pageNumberInput"
-                onchange={(e: InputEvent) => {
-                  const target = e.target as HTMLInputElement;
-                  let pageNumber = parseInt(target.value);
-
-                  if (isNaN(pageNumber)) {
-                    // Invalid value, reset to current page
-                    target.value = (this.pageNumber + 1).toString();
-                    return;
-                  }
-
-                  if (pageNumber < 1) {
-                    // Lower constraint
-                    pageNumber = 1;
-                  } else if (pageNumber > this.getTotalPageCount()) {
-                    // Upper constraint
-                    pageNumber = this.getTotalPageCount();
-                  }
-
-                  target.value = pageNumber.toString();
-
-                  this.goToPage(pageNumber);
-                }}
-              />
-            ),
-            currentNum: this.pageNumber + 1,
-            total: this.getTotalPageCount(),
-          })}
-        </span>
-        <Button
-          disabled={!this.moreData}
-          title={app.translator.trans('core.admin.users.pagination.next_button')}
-          onclick={this.nextPage.bind(this)}
-          icon="fas fa-chevron-right"
-          className="Button Button--icon UserListPage-nextBtn"
-        />
-        <Button
-          disabled={!this.moreData}
-          title={app.translator.trans('core.admin.users.pagination.last_page_button')}
-          onclick={this.goToPage.bind(this, this.getTotalPageCount())}
-          icon="fas fa-step-forward"
-          className="Button Button--icon UserListPage-lastPageBtn"
-        />
-      </nav>,
+      <Pagination
+        currentPage={this.pageNumber + 1}
+        loadingPageNumber={this.loadingPageNumber + 1}
+        total={this.userCount}
+        perPage={this.numPerPage}
+        onChange={this.goToPage.bind(this)}
+      />,
     ];
   }
 
@@ -482,9 +415,6 @@ export default class UserListPage extends AdminPage {
         },
       })
       .then((apiData) => {
-        // Next link won't be present if there's no more data
-        this.moreData = !!apiData.payload?.links?.next;
-
         let data = apiData;
 
         // @ts-ignore
@@ -509,16 +439,6 @@ export default class UserListPage extends AdminPage {
       });
   }
 
-  nextPage() {
-    this.isLoadingPage = true;
-    this.loadPage(this.pageNumber + 1);
-  }
-
-  previousPage() {
-    this.isLoadingPage = true;
-    this.loadPage(this.pageNumber - 1);
-  }
-
   /**
    * @param page The **1-based** page number
    */
@@ -532,6 +452,7 @@ export default class UserListPage extends AdminPage {
     const params = new URLSearchParams(search?.[1] ?? '');
 
     params.set('page', `${pageNumber}`);
-    window.location.hash = search?.[0] + '?' + params.toString();
+    // window.location.hash = search?.[0] + '?' + params.toString();
+    window.history.replaceState(null, '', search?.[0] + '?' + params.toString());
   }
 }

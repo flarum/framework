@@ -5,6 +5,7 @@ import Select from 'flarum/common/components/Select';
 import Stream from 'flarum/common/utils/Stream';
 import Button from 'flarum/common/components/Button';
 import { type Repository } from './ConfigureComposer';
+import Form from 'flarum/common/components/Form';
 
 export interface IRepositoryModalAttrs extends IInternalModalAttrs {
   onsubmit: (repository: Repository, key: string) => void;
@@ -41,31 +42,33 @@ export default class RepositoryModal<CustomAttrs extends IRepositoryModalAttrs =
 
     return (
       <div className="Modal-body">
-        <div className="Form-group">
-          <label>{app.translator.trans('flarum-extension-manager.admin.composer.repositories.add_modal.name_label')}</label>
-          <input className="FormControl" bidi={this.name} />
-        </div>
-        <div className="Form-group">
-          <label>{app.translator.trans('flarum-extension-manager.admin.composer.repositories.add_modal.type_label')}</label>
-          <Select
-            options={types}
-            value={this.repository().type}
-            onchange={(value: 'composer' | 'vcs' | 'path') => this.repository({ ...this.repository(), type: value })}
-          />
-        </div>
-        <div className="Form-group">
-          <label>{app.translator.trans('flarum-extension-manager.admin.composer.repositories.add_modal.url')}</label>
-          <input
-            className="FormControl"
-            onchange={(e: Event) => this.repository({ ...this.repository(), url: (e.target as HTMLInputElement).value })}
-            value={this.repository().url}
-          />
-        </div>
-        <div className="Form-group">
-          <Button className="Button Button--primary" onclick={this.submit.bind(this)}>
-            {app.translator.trans('flarum-extension-manager.admin.composer.repositories.add_modal.submit_button')}
-          </Button>
-        </div>
+        <Form>
+          <div className="Form-group">
+            <label>{app.translator.trans('flarum-extension-manager.admin.composer.repositories.add_modal.name_label')}</label>
+            <input className="FormControl" bidi={this.name} />
+          </div>
+          <div className="Form-group">
+            <label>{app.translator.trans('flarum-extension-manager.admin.composer.repositories.add_modal.type_label')}</label>
+            <Select
+              options={types}
+              value={this.repository().type}
+              onchange={(value: 'composer' | 'vcs' | 'path') => this.repository({ ...this.repository(), type: value })}
+            />
+          </div>
+          <div className="Form-group">
+            <label>{app.translator.trans('flarum-extension-manager.admin.composer.repositories.add_modal.url')}</label>
+            <input
+              className="FormControl"
+              onchange={(e: Event) => this.repository({ ...this.repository(), url: (e.target as HTMLInputElement).value })}
+              value={this.repository().url}
+            />
+          </div>
+          <div className="Form-group">
+            <Button className="Button Button--primary" onclick={this.submit.bind(this)}>
+              {app.translator.trans('flarum-extension-manager.admin.composer.repositories.add_modal.submit_button')}
+            </Button>
+          </div>
+        </Form>
       </div>
     );
   }

@@ -23,7 +23,7 @@ export interface SavedModelData {
     attributes?: ModelAttributes;
     relationships?: ModelRelationships;
 }
-export declare type ModelData = UnsavedModelData | SavedModelData;
+export type ModelData = UnsavedModelData | SavedModelData;
 export interface SaveRelationships {
     [relationship: string]: null | Model | Model[];
 }

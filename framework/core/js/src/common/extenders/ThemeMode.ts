@@ -1,4 +1,4 @@
-import Application from '../Application';
+import type Application from '../Application';
 import IExtender, { IExtensionModule } from './IExtender';
 import ThemeModeComponent, { type ColorSchemeData } from '../components/ThemeMode';
 

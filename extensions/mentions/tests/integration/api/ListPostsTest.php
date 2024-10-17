@@ -207,14 +207,15 @@ class ListPostsTest extends TestCase
 
         // Show discussion endpoint
         $response = $this->send(
-            $this->request('GET', '/api/discussions/100', [
+            $this->request('GET', '/api/posts', [
                 'authenticatedAs' => 2,
             ])->withQueryParams([
+                'filter' => ['discussion' => 100],
                 'include' => $include,
             ])
         );
 
-        $included = json_decode($body = $response->getBody()->getContents(), true)['included'] ?? [];
+        $included = json_decode($body = $response->getBody()->getContents(), true)['data'] ?? [];
 
         $this->assertEquals(200, $response->getStatusCode(), $body);
 
@@ -233,8 +234,7 @@ class ListPostsTest extends TestCase
     public static function mentionedByIncludeProvider(): array
     {
         return [
-            ['posts,posts.mentionedBy'],
-            ['posts.mentionedBy'],
+            ['mentionedBy'],
             [null],
         ];
     }

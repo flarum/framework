@@ -88,26 +88,31 @@ class ShowTest extends TestCase
     public function guest_cannot_see_hidden_posts()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions/4')
+            $this->request('GET', '/api/posts')
+                ->withQueryParams([
+                    'filter' => ['discussion' => 4]
+                ])
         );
 
         $json = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertEmpty(Arr::get($json, 'data.relationships.posts.data'));
+        $this->assertEmpty(Arr::get($json, 'data'));
     }
 
     #[Test]
     public function author_can_see_hidden_posts()
     {
         $response = $this->send(
-            $this->request('GET', '/api/discussions/4', [
+            $this->request('GET', '/api/posts', [
                 'authenticatedAs' => 2,
+            ])->withQueryParams([
+                'filter' => ['discussion' => 4]
             ])
         );
 
         $json = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertEquals(2, Arr::get($json, 'data.relationships.posts.data.0.id'), $response->getBody()->getContents());
+        $this->assertEquals(2, Arr::get($json, 'data.0.id'), $response->getBody()->getContents());
     }
 
     #[Test]

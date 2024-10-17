@@ -54,11 +54,11 @@ export declare enum GambitType {
     KeyValue = "key:value",
     Grouped = "grouped"
 }
-export declare type KeyValueGambitSuggestion = {
+export type KeyValueGambitSuggestion = {
     key: string;
     hint: string;
 };
-export declare type GroupedGambitSuggestion = {
+export type GroupedGambitSuggestion = {
     group: 'is' | 'has' | string;
     key: string | string[];
 };

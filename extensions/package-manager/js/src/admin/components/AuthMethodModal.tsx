@@ -5,6 +5,7 @@ import Select from 'flarum/common/components/Select';
 import Stream from 'flarum/common/utils/Stream';
 import Button from 'flarum/common/components/Button';
 import extractText from 'flarum/common/utils/extractText';
+import Form from 'flarum/common/components/Form';
 
 export interface IAuthMethodModalAttrs extends IInternalModalAttrs {
   onsubmit: (type: string, host: string, token: string) => void;
@@ -45,38 +46,40 @@ export default class AuthMethodModal<CustomAttrs extends IAuthMethodModalAttrs =
 
     return (
       <div className="Modal-body">
-        <div className="Form-group">
-          <label>{app.translator.trans('flarum-extension-manager.admin.auth_config.add_modal.type_label')}</label>
-          <Select options={types} value={this.type()} onchange={this.type} />
-        </div>
-        <div className="Form-group">
-          <label>{app.translator.trans('flarum-extension-manager.admin.auth_config.add_modal.host_label')}</label>
-          <input
-            className="FormControl"
-            bidi={this.host}
-            placeholder={app.translator.trans('flarum-extension-manager.admin.auth_config.add_modal.host_placeholder')}
-          />
-        </div>
-        <div className="Form-group">
-          <label>{app.translator.trans('flarum-extension-manager.admin.auth_config.add_modal.token_label')}</label>
-          <textarea
-            className="FormControl"
-            oninput={(e: InputEvent) => this.token((e.target as HTMLTextAreaElement).value)}
-            rows="6"
-            placeholder={
-              this.token().startsWith('unchanged:')
-                ? extractText(app.translator.trans('flarum-extension-manager.admin.auth_config.add_modal.unchanged_token_placeholder'))
-                : ''
-            }
-          >
-            {this.token().startsWith('unchanged:') ? '' : this.token()}
-          </textarea>
-        </div>
-        <div className="Form-group">
-          <Button className="Button Button--primary" onclick={this.submit.bind(this)}>
-            {app.translator.trans('flarum-extension-manager.admin.auth_config.add_modal.submit_button')}
-          </Button>
-        </div>
+        <Form>
+          <div className="Form-group">
+            <label>{app.translator.trans('flarum-extension-manager.admin.auth_config.add_modal.type_label')}</label>
+            <Select options={types} value={this.type()} onchange={this.type} />
+          </div>
+          <div className="Form-group">
+            <label>{app.translator.trans('flarum-extension-manager.admin.auth_config.add_modal.host_label')}</label>
+            <input
+              className="FormControl"
+              bidi={this.host}
+              placeholder={app.translator.trans('flarum-extension-manager.admin.auth_config.add_modal.host_placeholder')}
+            />
+          </div>
+          <div className="Form-group">
+            <label>{app.translator.trans('flarum-extension-manager.admin.auth_config.add_modal.token_label')}</label>
+            <textarea
+              className="FormControl"
+              oninput={(e: InputEvent) => this.token((e.target as HTMLTextAreaElement).value)}
+              rows="6"
+              placeholder={
+                this.token().startsWith('unchanged:')
+                  ? extractText(app.translator.trans('flarum-extension-manager.admin.auth_config.add_modal.unchanged_token_placeholder'))
+                  : ''
+              }
+            >
+              {this.token().startsWith('unchanged:') ? '' : this.token()}
+            </textarea>
+          </div>
+          <div className="Form-group">
+            <Button className="Button Button--primary" onclick={this.submit.bind(this)}>
+              {app.translator.trans('flarum-extension-manager.admin.auth_config.add_modal.submit_button')}
+            </Button>
+          </div>
+        </Form>
       </div>
     );
   }

@@ -101,6 +101,8 @@ class ForumResource extends AbstractResource implements Findable
                 ->get(fn () => $this->settings->get('theme_primary_color')),
             Schema\Str::make('themeSecondaryColor')
                 ->get(fn () => $this->settings->get('theme_secondary_color')),
+            Schema\Str::make('colorScheme')
+                ->get(fn () => $this->settings->get('color_scheme')),
             Schema\Str::make('logoUrl')
                 ->get(fn () => $this->getLogoUrl()),
             Schema\Str::make('faviconUrl')

@@ -59,12 +59,15 @@ class ModelVisibilityTest extends TestCase
         );
 
         $response = $this->send(
-            $this->request('GET', '/api/discussions/2')
+            $this->request('GET', '/api/posts')
+                ->withQueryParams([
+                    'filter' => ['discussion' => 2]
+                ])
         );
 
         $json = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertEquals(1, Arr::get($json, 'data.relationships.posts.data.0.id'));
+        $this->assertEquals(1, Arr::get($json, 'data.0.id'));
     }
 
     #[Test]

@@ -14,10 +14,12 @@ export default class Form<CustomAttrs extends IFormAttrs = IFormAttrs> extends C
 
     return (
       <div className={classList('Form', className)} {...attrs}>
-        <div className="Form-header">
-          {label && <label>{label}</label>}
-          {description && <p className="helpText">{description}</p>}
-        </div>
+        {(label || description) && (
+          <div className="Form-header">
+            {label && <label>{label}</label>}
+            {description && <p className="helpText">{description}</p>}
+          </div>
+        )}
         <div className="Form-body">{vnode.children}</div>
       </div>
     );
