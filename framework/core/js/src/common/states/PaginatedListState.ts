@@ -351,7 +351,7 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     );
   }
 
-  changeFilter(key: string, value: string) {
+  changeFilter(key: string, value: any) {
     this.refreshParams(
       {
         ...this.params,
