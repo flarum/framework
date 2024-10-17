@@ -24,6 +24,7 @@ use Flarum\Frontend\RecompileFrontendAssets;
 use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Filesystem\Filesystem;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger;
@@ -56,6 +57,7 @@ class ExtensionManagerServiceProvider extends AbstractServiceProvider
                 $composer,
                 $container->make(OutputLogger::class),
                 $container->make(Paths::class),
+                $container->make(Filesystem::class)
             );
         });
 
