@@ -92,12 +92,24 @@ on:
         required: false
         default: 'ubuntu-latest'
 
+      git_actor_name:
+        description: The name of the git actor to use for the bundled JS output.
+        type: string
+        required: false
+      git_actor_email:
+        description: The email of the git actor to use for the bundled JS output.
+        type: string
+        required: false
+
     secrets:
       bundlewatch_github_token:
         description: The GitHub token to use for Bundlewatch.
         required: false
       composer_auth:
         description: The Composer auth tokens to use for private packages.
+        required: false
+      git_actor_token:
+        description: The Personal Access Token forthe git actor.
         required: false
 
 env:
@@ -110,6 +122,9 @@ jobs:
   build:
     name: Checks & Build
     runs-on: ${{ inputs.runner_type }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GIT_ACTOR_TOKEN: ${{ secrets.git_actor_token }}
 
     if: >-
       ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')
@@ -117,6 +132,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.git_actor_token != '' && secrets.git_actor_token || secrets.GITHUB_TOKEN }}
 
       - name: Set up Node
         uses: actions/setup-node@v3
@@ -154,6 +171,8 @@ jobs:
           package_manager: ${{ inputs.js_package_manager }}
           js_path: ${{ inputs.frontend_directory }}
           do_not_commit: ${{ github.ref != format('refs/heads/{0}', inputs.main_git_branch) || github.event_name != 'push' }}
+          git_actor_name: ${{ inputs.git_actor_name || '' }}
+          git_actor_email: ${{ inputs.git_actor_email || '' }}
 
       - name: Check bundle size change
         if: ${{ inputs.enable_bundlewatch }}
