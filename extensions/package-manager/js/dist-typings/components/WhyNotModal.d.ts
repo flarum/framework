@@ -1,4 +1,4 @@
-/// <reference path="../../../../../framework/core/js/src/@types/translator-icu-rich.d.ts" />
+/// <reference path="../../../../../framework/core/@types/translator-icu-rich.d.ts" />
 /// <reference types="flarum/@types/translator-icu-rich" />
 import type Mithril from 'mithril';
 import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';

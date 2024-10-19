@@ -12,7 +12,7 @@ export default class ScrollListener {
     constructor(callback: (top: number) => void, element?: Window | Element);
     callback: (top: number) => void;
     ticking: boolean;
-    element: Element | Window;
+    element: Window | Element;
     /**
      * On each animation frame, as long as the listener is active, run the
      * `update` method.

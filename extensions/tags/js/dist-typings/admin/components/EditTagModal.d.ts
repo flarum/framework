@@ -1,4 +1,4 @@
-/// <reference path="../../../../../../framework/core/js/src/@types/translator-icu-rich.d.ts" />
+/// <reference path="../../../../../../framework/core/@types/translator-icu-rich.d.ts" />
 /// <reference types="flarum/@types/translator-icu-rich" />
 import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import ItemList from 'flarum/common/utils/ItemList';
