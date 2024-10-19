@@ -49,9 +49,9 @@ declare namespace DiscussionControls {
      * @param {boolean} goToLast Whether or not to scroll down to the last post if the discussion is being viewed.
      * @param {boolean} forceRefresh Whether or not to force a reload of the composer component, even if it is already open for this discussion.
      *
-     * @return {Promise<void>}
+     * @return {Promise<ComposerState>}
      */
-    function replyAction(goToLast: boolean, forceRefresh: boolean): Promise<void>;
+    function replyAction(goToLast: boolean, forceRefresh: boolean): Promise<ComposerState>;
     /**
      * Hide a discussion.
      *
