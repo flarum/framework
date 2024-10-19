@@ -21,6 +21,6 @@ export default class ExternalExtension extends Model {
     downloads: () => number;
     readonly installed = false;
     isSupported(): boolean;
-    isStable(): boolean;
+    isProductionReady(): boolean;
     toLocalExtension(): Extension;
 }
