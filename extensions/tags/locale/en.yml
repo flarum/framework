@@ -134,3 +134,5 @@ flarum-tags:
       is_hidden: hidden
       description: description
       color: color
+      tag_count_primary: => validation.attributes.tag_count_primary
+      tag_count_secondary: => validation.attributes.tag_count_secondary
