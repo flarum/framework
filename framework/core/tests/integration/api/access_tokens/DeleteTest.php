@@ -101,7 +101,7 @@ class DeleteTest extends TestCase
         $sessionToken = AccessToken::query()
             ->where('user_id', 1)
             ->where('type', SessionAccessToken::$type)
-            ->latest()
+            ->latest('id')
             ->first();
 
         $csrfToken = $responseWithSession->getHeaderLine('X-CSRF-Token');
