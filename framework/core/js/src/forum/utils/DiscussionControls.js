@@ -159,37 +159,33 @@ const DiscussionControls = {
    * @param {boolean} goToLast Whether or not to scroll down to the last post if the discussion is being viewed.
    * @param {boolean} forceRefresh Whether or not to force a reload of the composer component, even if it is already open for this discussion.
    *
-   * @return {Promise<void>}
+   * @return {Promise<ComposerState>}
    */
-  replyAction(goToLast, forceRefresh) {
-    return new Promise((resolve, reject) => {
-      if (app.session.user) {
-        if (this.canReply()) {
-          if (!app.composer.composingReplyTo(this) || forceRefresh) {
-            app.composer
-              .load(() => import('../components/ReplyComposer'), {
-                user: app.session.user,
-                discussion: this,
-              })
-              .then(() => app.composer.show());
-          } else {
-            app.composer.show();
-          }
-
-          if (goToLast && app.viewingDiscussion(this) && !app.composer.isFullScreen()) {
-            app.current.get('stream').goToNumber('reply');
-          }
-
-          return resolve(app.composer);
-        } else {
-          return reject();
+  async replyAction(goToLast, forceRefresh) {
+    if (app.session.user) {
+      if (this.canReply()) {
+        if (!app.composer.composingReplyTo(this) || forceRefresh) {
+          await app.composer.load(() => import('../components/ReplyComposer'), {
+            user: app.session.user,
+            discussion: this,
+          });
         }
+
+        await app.composer.show();
+
+        if (goToLast && app.viewingDiscussion(this) && !app.composer.isFullScreen()) {
+          await app.current.get('stream').goToNumber('reply');
+        }
+
+        return Promise.resolve(app.composer);
+      } else {
+        return Promise.reject();
       }
+    }
 
-      app.modal.show(() => import('../components/LogInModal'));
+    await app.modal.show(() => import('../components/LogInModal'));
 
-      return reject();
-    });
+    return Promise.reject();
   },
 
   /**

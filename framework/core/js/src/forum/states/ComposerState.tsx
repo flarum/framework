@@ -111,6 +111,9 @@ class ComposerState {
 
     this.position = ComposerState.Position.NORMAL;
     m.redraw.sync();
+
+    // Sleep for a short time to allow the composer to render before subsequent actions.
+    await new Promise((resolve) => setTimeout(resolve, 80));
   }
 
   /**
