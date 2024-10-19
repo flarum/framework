@@ -159,7 +159,7 @@ const DiscussionControls = {
    * @param {boolean} goToLast Whether or not to scroll down to the last post if the discussion is being viewed.
    * @param {boolean} forceRefresh Whether or not to force a reload of the composer component, even if it is already open for this discussion.
    *
-   * @return {Promise<ComposerState>}
+   * @return {Promise<import('../states/ComposerState.js')>}
    */
   async replyAction(goToLast, forceRefresh) {
     if (app.session.user) {
