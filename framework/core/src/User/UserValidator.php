@@ -70,4 +70,16 @@ class UserValidator extends AbstractValidator
             'username.regex' => $this->translator->trans('core.api.invalid_username_message')
         ];
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function attributes()
+    {
+        return [
+            'username' => $this->translator->trans('validation.attributes.username'),
+            'email' => $this->translator->trans('validation.attributes.email'),
+            'password' => $this->translator->trans('validation.attributes.password')
+        ];
+    }
 }

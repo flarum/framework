@@ -20,4 +20,15 @@ class UpdateExtensionValidator extends AbstractValidator
         'extensionId' => 'required|string',
         'updateMode' => 'required|in:soft,hard',
     ];
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function attributes()
+    {
+        return [
+            'extensionId' => $this->translator->trans('flarum-extension-manager.validation.attributes.extension_id'),
+            'updateMode' => $this->translator->trans('flarum-extension-manager.validation.attributes.update_mode')
+        ];
+    }
 }

@@ -19,4 +19,14 @@ class SuspendValidator extends AbstractValidator
     protected $rules = [
         'suspendedUntil' => ['nullable', 'date'],
     ];
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function attributes()
+    {
+        return [
+            'suspendedUntil' => $this->translator->trans('flarum-suspend.validation.attributes.suspended_until')
+        ];
+    }
 }

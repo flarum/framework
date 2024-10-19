@@ -20,4 +20,14 @@ class DiscussionValidator extends AbstractValidator
             'max:80'
         ]
     ];
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function attributes()
+    {
+        return [
+            'title' => $this->translator->trans('validation.attributes.title')
+        ];
+    }
 }

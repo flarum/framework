@@ -23,4 +23,18 @@ class TagValidator extends AbstractValidator
         'description' => ['string', 'max:700'],
         'color' => ['regex:/^#([a-f0-9]{6}|[a-f0-9]{3})$/i'],
     ];
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function attributes()
+    {
+        return [
+            'name' => $this->translator->trans('flarum-tags.validation.attributes.name'),
+            'slug' => $this->translator->trans('flarum-tags.validation.attributes.slug'),
+            'is_hidden' => $this->translator->trans('flarum-tags.validation.attributes.is_hidden'),
+            'description' => $this->translator->trans('flarum-tags.validation.attributes.description'),
+            'color' => $this->translator->trans('flarum-tags.validation.attributes.color'),
+        ];
+    }
 }
