@@ -1,8 +1,14 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
 
 use Flarum\Database\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 return Migration::createTable(
     'dialog_message_mentions_group',
@@ -16,4 +22,3 @@ return Migration::createTable(
         $table->foreign('mentions_group_id')->references('id')->on('groups')->cascadeOnDelete();
     }
 );
-
