@@ -130,7 +130,7 @@ export default class ExtensionCard<CustomAttrs extends IExtensionAttrs = IExtens
       );
     }
 
-    if (!extension.isStable()) {
+    if (!extension.isProductionReady()) {
       items.add(
         'unstable',
         <Badge
