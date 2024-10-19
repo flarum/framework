@@ -13,8 +13,9 @@ use Illuminate\Database\Schema\Blueprint;
 return Migration::createTable(
     'dialog_messages',
     function (Blueprint $table) {
-        $table->bigIncrements('id');
-        $table->foreignId('dialog_id')->constrained()->cascadeOnDelete();
+        $table->increments('id');
+        $table->unsignedInteger('dialog_id');
+        $table->foreign('dialog_id')->references('id')->on('dialogs')->cascadeOnDelete();
         $table->unsignedInteger('user_id')->nullable();
         $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
         $table->text('content');

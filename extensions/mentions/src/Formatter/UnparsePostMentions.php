@@ -9,6 +9,7 @@
 
 namespace Flarum\Mentions\Formatter;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Post\Post;
 use s9e\TextFormatter\Utils;
@@ -33,7 +34,7 @@ class UnparsePostMentions
     protected function updatePostMentionTags(mixed $context, string $xml): string
     {
         return Utils::replaceAttributes($xml, 'POSTMENTION', function ($attributes) use ($context) {
-            $post = (($context && isset($context->getRelations()['mentionsPosts'])) || $context instanceof Post)
+            $post = ($context instanceof AbstractModel && $context->isRelation('mentionsPosts'))
                 ? $context->mentionsPosts->find($attributes['id'])
                 : Post::find($attributes['id']);
 

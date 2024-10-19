@@ -16,6 +16,7 @@ use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
 use Flarum\Bus\Dispatcher;
+use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\ErrorHandling\LogReporter;
 use Flarum\Foundation\ValidationException;
 use Flarum\Locale\Translator;
@@ -36,6 +37,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
         protected Translator $translator,
         protected LogReporter $log,
         protected Dispatcher $bus,
+        protected ExtensionManager $extensions,
     ) {
     }
 
@@ -77,6 +79,20 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 }),
             Endpoint\Index::make()
                 ->authenticated()
+                ->defaultInclude([
+                    'user',
+                    'mentionsUsers',
+                    'mentionsPosts',
+                    'mentionsGroups',
+                    'mentionsTags',
+                ])
+                ->eagerLoad(function () {
+                    if ($this->extensions->isEnabled('flarum-mentions')) {
+                        return ['mentionsUsers', 'mentionsPosts', 'mentionsGroups', 'mentionsTags'];
+                    }
+
+                    return [];
+                })
                 ->paginate(),
         ];
     }
@@ -126,6 +142,18 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 ->includable()
                 ->writableOnCreate()
                 ->requiredOnCreateWithout(['attributes.users']),
+            Schema\Relationship\ToMany::make('mentionsUsers')
+                ->type('users')
+                ->includable(),
+            Schema\Relationship\ToMany::make('mentionsPosts')
+                ->type('posts')
+                ->includable(),
+            Schema\Relationship\ToMany::make('mentionsGroups')
+                ->type('groups')
+                ->includable(),
+            Schema\Relationship\ToMany::make('mentionsTags')
+                ->type('tags')
+                ->includable(),
 
         ];
     }

@@ -9,11 +9,11 @@
 
 namespace Flarum\Mentions\Formatter;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\SlugManager;
 use Flarum\Locale\TranslatorInterface;
 use Flarum\Post\Post;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use s9e\TextFormatter\Renderer;
 use s9e\TextFormatter\Utils;
 
@@ -27,17 +27,11 @@ class FormatPostMentions
 
     /**
      * Configure rendering for post mentions.
-     *
-     * @param \s9e\TextFormatter\Renderer $renderer
-     * @param mixed $context
-     * @param string $xml
-     * @param \Psr\Http\Message\ServerRequestInterface|null $request
-     * @return string $xml to be rendered
      */
-    public function __invoke(Renderer $renderer, $context, $xml, Request $request = null)
+    public function __invoke(Renderer $renderer, mixed $context, string $xml): string
     {
         return Utils::replaceAttributes($xml, 'POSTMENTION', function ($attributes) use ($context) {
-            $post = (($context && isset($context->getRelations()['mentionsPosts'])) || $context instanceof Post)
+            $post = ($context instanceof AbstractModel && $context->isRelation('mentionsPosts'))
                 ? $context->mentionsPosts->find($attributes['id'])
                 : Post::find($attributes['id']);
 
