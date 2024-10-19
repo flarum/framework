@@ -70,6 +70,6 @@ flarum-suspend:
 
         {forum_url}
 
-validation:
-  attributes:
-    suspended_until: suspended until
+  validation:
+    attributes:
+      suspended_until: suspended until

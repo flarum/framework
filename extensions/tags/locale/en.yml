@@ -127,12 +127,10 @@ flarum-tags:
     name: Name
     tags: Tags
 
-validation:
-  attributes:
-    name: name
-    slug: slug
-    is_hidden: hidden
-    description: description
-    color: color
-    tag_count_primary: number of primary tags
-    tag_count_secondary: number of secondary tags
+  validation:
+    attributes:
+      name: name
+      slug: slug
+      is_hidden: hidden
+      description: description
+      color: color
