@@ -109,7 +109,7 @@ on:
         description: The Composer auth tokens to use for private packages.
         required: false
       git_actor_token:
-        description: The personal access token for the custom git actor.
+        description: The personal access token from the custom git actor.
         required: false
 
 env:
