@@ -29,11 +29,11 @@ class ConfigureComposerValidator extends AbstractValidator
     protected function attributes()
     {
         return [
-            'minimum-stability' => $this->translator->trans('validation.attributes.minimum_stability'),
-            'repositories' => $this->translator->trans('validation.attributes.repositories'),
-            'repositories.*' => $this->translator->trans('validation.attributes.repositories_*'),
-            'repositories.*.type' => $this->translator->trans('validation.attributes.repositories_*_type'),
-            'repositories.*.url' => $this->translator->trans('validation.attributes.repositories_*_url'),
+            'minimum-stability' => $this->translator->trans('flarum-extension-manager.validation.attributes.minimum_stability'),
+            'repositories' => $this->translator->trans('flarum-extension-manager.validation.attributes.repositories'),
+            'repositories.*' => $this->translator->trans('flarum-extension-manager.validation.attributes.repositories_*'),
+            'repositories.*.type' => $this->translator->trans('flarum-extension-manager.validation.attributes.repositories_*_type'),
+            'repositories.*.url' => $this->translator->trans('flarum-extension-manager.validation.attributes.repositories_*_url'),
         ];
     }
 }

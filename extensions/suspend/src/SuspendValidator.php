@@ -26,7 +26,7 @@ class SuspendValidator extends AbstractValidator
     protected function attributes()
     {
         return [
-            'suspendedUntil' => $this->translator->trans('validation.attributes.suspended_until')
+            'suspendedUntil' => $this->translator->trans('flarum-suspend.validation.attributes.suspended_until')
         ];
     }
 }

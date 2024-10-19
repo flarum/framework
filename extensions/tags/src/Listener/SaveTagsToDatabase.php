@@ -163,8 +163,8 @@ class SaveTagsToDatabase
     protected function attributes()
     {
         return [
-            'tag_count_primary' => $this->translator->trans('validation.attributes.tag_count_primary'),
-            'tag_count_secondary' => $this->translator->trans('validation.attributes.tag_count_secondary'),
+            'tag_count_primary' => $this->translator->trans('flarum-tags.validation.attributes.tag_count_primary'),
+            'tag_count_secondary' => $this->translator->trans('flarum-tags.validation.attributes.tag_count_secondary'),
         ];
     }
 }

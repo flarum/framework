@@ -27,8 +27,8 @@ class UpdateExtensionValidator extends AbstractValidator
     protected function attributes()
     {
         return [
-            'extensionId' => $this->translator->trans('validation.attributes.extension_id'),
-            'updateMode' => $this->translator->trans('validation.attributes.update_mode')
+            'extensionId' => $this->translator->trans('flarum-extension-manager.validation.attributes.extension_id'),
+            'updateMode' => $this->translator->trans('flarum-extension-manager.validation.attributes.update_mode')
         ];
     }
 }

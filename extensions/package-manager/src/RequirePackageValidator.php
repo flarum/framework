@@ -28,7 +28,7 @@ class RequirePackageValidator extends AbstractValidator
     protected function attributes()
     {
         return [
-            'package' => $this->translator->trans('validation.attributes.package')
+            'package' => $this->translator->trans('flarum-extension-manager.validation.attributes.package')
         ];
     }
 }

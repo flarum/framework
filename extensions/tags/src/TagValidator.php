@@ -30,11 +30,11 @@ class TagValidator extends AbstractValidator
     protected function attributes()
     {
         return [
-            'name' => $this->translator->trans('validation.attributes.name'),
-            'slug' => $this->translator->trans('validation.attributes.slug'),
-            'is_hidden' => $this->translator->trans('validation.attributes.is_hidden'),
-            'description' => $this->translator->trans('validation.attributes.description'),
-            'color' => $this->translator->trans('validation.attributes.color'),
+            'name' => $this->translator->trans('flarum-tags.validation.attributes.name'),
+            'slug' => $this->translator->trans('flarum-tags.validation.attributes.slug'),
+            'is_hidden' => $this->translator->trans('flarum-tags.validation.attributes.is_hidden'),
+            'description' => $this->translator->trans('flarum-tags.validation.attributes.description'),
+            'color' => $this->translator->trans('flarum-tags.validation.attributes.color'),
         ];
     }
 }

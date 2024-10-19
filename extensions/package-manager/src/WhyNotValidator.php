@@ -27,8 +27,8 @@ class WhyNotValidator extends AbstractValidator
     protected function attributes()
     {
         return [
-            'package' => $this->translator->trans('validation.attributes.package'),
-            'version' => $this->translator->trans('validation.attributes.version')
+            'package' => $this->translator->trans('flarum-extension-manager.validation.attributes.package'),
+            'version' => $this->translator->trans('flarum-extension-manager.validation.attributes.version')
         ];
     }
 }
