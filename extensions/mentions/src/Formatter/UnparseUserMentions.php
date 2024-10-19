@@ -35,7 +35,7 @@ class UnparseUserMentions
     {
         return Utils::replaceAttributes($xml, 'USERMENTION', function ($attributes) use ($context) {
             $user = ($context instanceof AbstractModel && $context->isRelation('mentionsUsers'))
-                ? $context->mentionsUsers->find($attributes['id'])
+                ? $context->mentionsUsers->find($attributes['id']) // @phpstan-ignore-line
                 : User::find($attributes['id']);
 
             $attributes['displayname'] = $user?->display_name ?? $this->translator->trans('core.lib.username.deleted_text');

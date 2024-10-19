@@ -26,7 +26,7 @@ class FormatGroupMentions
     {
         return Utils::replaceAttributes($xml, 'GROUPMENTION', function ($attributes) use ($context) {
             $group = ($context instanceof AbstractModel && $context->isRelation('mentionsGroups'))
-                ? $context->mentionsGroups->find($attributes['id'])
+                ? $context->mentionsGroups->find($attributes['id']) // @phpstan-ignore-line
                 : Group::find($attributes['id']);
 
             if ($group) {

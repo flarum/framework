@@ -30,7 +30,7 @@ class UnparseTagMentions
         return Utils::replaceAttributes($xml, 'TAGMENTION', function (array $attributes) use ($context) {
             /** @var Tag|null $tag */
             $tag = ($context instanceof AbstractModel && $context->isRelation('mentionsTags'))
-                ? $context->mentionsTags->find($attributes['id'])
+                ? $context->mentionsTags->find($attributes['id']) // @phpstan-ignore-line
                 : Tag::query()->find($attributes['id']);
 
             if ($tag) {
