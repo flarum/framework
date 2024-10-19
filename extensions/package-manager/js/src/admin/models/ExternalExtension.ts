@@ -1,6 +1,7 @@
 import Model from 'flarum/common/Model';
 import app from 'flarum/admin/app';
 import type { Extension } from 'flarum/admin/AdminApplication';
+import { isProductionReady } from '../utils/versions';
 
 export default class ExternalExtension extends Model {
   extensionId = Model.attribute<string>('extensionId');
@@ -36,16 +37,8 @@ export default class ExternalExtension extends Model {
     return currentVersion.split('.')[0] === latestCompatibleVersion.split('.')[0];
   }
 
-  public isStable(): boolean {
-    const split = this.highestVersion().split('-');
-
-    if (split.length === 1) {
-      return true;
-    }
-
-    const stability = split[1].split('.');
-
-    return stability[0] === 'stable';
+  public isProductionReady(): boolean {
+    return isProductionReady(this.highestVersion());
   }
 
   public toLocalExtension(): Extension {
