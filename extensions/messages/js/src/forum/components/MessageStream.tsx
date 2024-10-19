@@ -117,9 +117,8 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
                   .load(() => import('./MessageComposer'), {
                     user: app.session.user,
                     replyingTo: this.attrs.dialog,
-                    onsubmit: (message: DialogMessage) => {
-                      this.attrs.state.push(message);
-                      setTimeout(() => this.scrollToBottom(), 50);
+                    onsubmit: () => {
+                      this.attrs.state.refresh().then(() => setTimeout(() => this.scrollToBottom(), 50));
                     },
                   })
                   .then(() => app.composer.show());

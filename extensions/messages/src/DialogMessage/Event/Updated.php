@@ -14,7 +14,7 @@ use Flarum\Messages\DialogMessage;
 class Updated
 {
     public function __construct(
-        protected DialogMessage $message
+        public DialogMessage $message
     ) {
     }
 }
