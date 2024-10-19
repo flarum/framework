@@ -57,10 +57,10 @@ class UpdateMentionsMetadataWhenVisible
         $message->unsetRelation('mentionsUsers');
     }
 
-    protected function syncPostMentions(DialogMessage $reply, array $mentioned): void
+    protected function syncPostMentions(DialogMessage $message, array $mentioned): void
     {
-        $reply->mentionsPosts()->sync($mentioned);
-        $reply->unsetRelation('mentionsPosts');
+        $message->mentionsPosts()->sync($mentioned);
+        $message->unsetRelation('mentionsPosts');
     }
 
     protected function syncGroupMentions(DialogMessage $message, array $mentioned): void
