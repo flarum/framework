@@ -1,4 +1,4 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
+/// <reference path="../../../src/@types/translator-icu-rich.d.ts" />
 import Notification from './Notification';
 /**
  * The `DiscussionRenamedNotification` component displays a notification which
