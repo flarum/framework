@@ -77,6 +77,8 @@
     },
     "require-dev": {
         "flarum/core": "*@dev",
+        "flarum/approval": "*@dev",
+        "flarum/flags": "*@dev",
         "flarum/tags": "*@dev",
         "flarum/testing": "^2.0"
     },
