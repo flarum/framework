@@ -318,7 +318,7 @@ export default class UserListPage extends AdminPage {
               )
             );
 
-            emailAddress.attr('aria-hidden', visible ? 'false' : 'true');
+            emailAddress.attr('aria-hidden', visible ? null : 'true');
 
             if (visible) {
               emailToggleButtonIcon.addClass('fa-eye');

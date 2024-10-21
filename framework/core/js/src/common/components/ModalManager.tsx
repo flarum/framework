@@ -98,7 +98,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
         // See: http://web-accessibility.carnegiemuseums.org/code/dialogs/
 
         if (!this.attrs.state.isModalOpen()) {
-          document.getElementById('app')?.setAttribute('aria-hidden', 'false');
+          document.getElementById('app')?.removeAttribute('aria-hidden');
           this.focusTrap!.deactivate?.();
           clearAllBodyScrollLocks();
 
