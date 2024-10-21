@@ -107,7 +107,7 @@ class CheckForUpdatesHandler
 
     /**
      * Composer can sometimes return text above the JSON.
-     * This method tries to remove such occurences.
+     * This method tries to remove such occurrences.
      */
     protected function cleanJson(string $composerOutput): string
     {

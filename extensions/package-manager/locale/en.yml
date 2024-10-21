@@ -97,7 +97,7 @@ flarum-extension-manager:
       update: Update
 
     minor_update_confirmation:
-      content: This will also update any other extensions/packages with availabe updates.
+      content: This will also update any other extensions/packages with available updates.
 
     sections:
       discover:

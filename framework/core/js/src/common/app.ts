@@ -7,7 +7,7 @@ const w = window as any;
  * Proxy app. Common JS is run first, at which point `window.app` is not
  * set as this is done by the namespaced JS.
  *
- * When the corrent value is set, this code would retain the reference to
+ * When the current value is set, this code would retain the reference to
  * the original invalid value.
  *
  * By using a proxy, we can ensure that our `window.app` value is always
