@@ -10,12 +10,14 @@
 namespace Flarum\Extend;
 
 use Flarum\Admin\WhenSavingSettings;
+use Flarum\Api\Controller\SetSettingsController;
 use Flarum\Api\Resource\ForumResource;
 use Flarum\Api\Schema\Attribute;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 class Settings implements ExtenderInterface
@@ -24,6 +26,7 @@ class Settings implements ExtenderInterface
     private array $defaults = [];
     private array $lessConfigs = [];
     private array $resetJsCacheFor = [];
+    private array $resetWhen = [];
 
     /**
      * Serialize a setting value to the ForumSerializer attributes.
@@ -58,6 +61,20 @@ class Settings implements ExtenderInterface
     public function default(string $key, mixed $value): self
     {
         $this->defaults[$key] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Delete a custom setting value when the callback returns true.
+     * This allows the setting to be reset to its default value.
+     *
+     * @param string $key: The key of the setting.
+     * @param (callable(mixed $value): bool) $callback: The callback to determine if the setting should be reset.
+     */
+    public function resetWhen(string $key, callable|string $callback): self
+    {
+        $this->resetWhen[$key] = $callback;
 
         return $this;
     }
@@ -111,6 +128,16 @@ class Settings implements ExtenderInterface
 
                 return $defaults;
             });
+        }
+
+        if (! empty($this->resetWhen)) {
+            foreach ($this->resetWhen as $key => $callback) {
+                Arr::set(
+                    SetSettingsController::$resetWhen,
+                    $key,
+                    ContainerUtil::wrapCallback($callback, $container)
+                );
+            }
         }
 
         if (! empty($this->settings)) {

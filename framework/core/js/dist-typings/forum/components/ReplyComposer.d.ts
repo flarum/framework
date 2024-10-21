@@ -7,8 +7,9 @@
  * - All of the attrs of ComposerBody
  * - `discussion`
  */
-export default class ReplyComposer extends ComposerBody {
+export default class ReplyComposer extends ComposerBody<import("./ComposerBody").IComposerBodyAttrs> {
     static initAttrs(attrs: any): void;
+    constructor();
     /**
      * Jump to the preview when triggered by the text editor.
      */

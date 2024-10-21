@@ -149,7 +149,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
           </div>
         </div>
         <div className="container">
-          {app.extensionData.extensionHasPermissions(this.extension.id) ? (
+          {app.registry.extensionHasPermissions(this.extension.id) ? (
             <ExtensionPermissionGrid extensionId={this.extension.id} />
           ) : (
             <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_permissions')}</h3>
@@ -162,7 +162,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
   }
 
   content(vnode: Mithril.VnodeDOM<Attrs, this>) {
-    const settings = app.extensionData.getSettings(this.extension.id);
+    const settings = app.registry.getSettings(this.extension.id);
 
     return (
       <div className="ExtensionPage-settings">

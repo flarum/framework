@@ -10,7 +10,7 @@ export interface IExportRegistry {
      */
     add(namespace: string, id: string, object: any): void;
     /**
-     * Add a function to run when object of id "id" is added (or overriden).
+     * Add a function to run when object of id "id" is added (or overridden).
      * If such an object is already registered, the handler will be applied immediately.
      */
     onLoad(namespace: string, id: string, handler: Function): void;
@@ -49,7 +49,7 @@ export interface IChunkRegistry {
      */
     asyncModuleImport(path: string): Promise<any>;
 }
-declare type Chunk = {
+type Chunk = {
     /**
      * The extension id of the chunk or 'core'.
      */
@@ -63,7 +63,7 @@ declare type Chunk = {
      */
     modules?: string[];
 };
-declare type Module = {
+type Module = {
     /**
      * The chunk ID the module belongs to.
      */
@@ -88,6 +88,7 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     loadChunk(original: Function, url: string, done: (...args: any) => Promise<void>, key: number, chunkId: number | string): Promise<void>;
     chunkUrl(chunkId: number | string): string | null;
     asyncModuleImport(path: string): Promise<any>;
+    clear(): void;
     namespaceAndIdFromPath(path: string): [string, string];
 }
 export {};

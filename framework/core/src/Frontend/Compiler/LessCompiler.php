@@ -96,7 +96,12 @@ class LessCompiler extends RevisionCompiler
             $parser->registerFunction($name, $callback);
         }
 
-        return $parser->getCss();
+        return $this->finalize($parser->getCss());
+    }
+
+    protected function finalize(string $parsedCss): string
+    {
+        return str_replace('url("../webfonts/', 'url("./fonts/', $parsedCss);
     }
 
     protected function overrideSources(array $sources): array

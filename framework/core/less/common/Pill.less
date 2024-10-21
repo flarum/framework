@@ -1,0 +1,50 @@
+.Pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+
+  &-alt {
+    --pill-bg: var(--pill-bg-alt);
+    --pill-color: var(--pill-color-alt);
+  }
+
+  &-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .Button {
+    height: auto;
+    width: auto;
+
+    .icon {
+      font-size: 12px;
+    }
+  }
+
+  > * {
+    padding: 6px 8px;
+    background-color: var(--pill-bg);
+    color: var(--pill-color);
+    border-radius: 0;
+    line-height: 20px;
+  }
+
+  img {
+    max-height: 16px;
+  }
+
+  .Avatar {
+    --size: 16px;
+  }
+
+  &-list {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+}

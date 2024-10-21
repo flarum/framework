@@ -13,6 +13,7 @@ use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
+use Flarum\User\UserRepository;
 
 /**
  * @implements FilterInterface<DatabaseSearchState>
@@ -21,6 +22,11 @@ class MentionedFilter implements FilterInterface
 {
     use ValidateFilterTrait;
 
+    public function __construct(
+        protected UserRepository $users
+    ) {
+    }
+
     public function getFilterKey(): string
     {
         return 'mentioned';
@@ -28,7 +34,13 @@ class MentionedFilter implements FilterInterface
 
     public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $mentionedId = $this->asInt($value);
+        $mentionedUsername = $this->asString($value);
+
+        $mentionedId = $this->users->getIdForUsername($mentionedUsername);
+
+        if (! $mentionedId) {
+            $mentionedId = intval($mentionedUsername);
+        }
 
         $state
             ->getQuery()

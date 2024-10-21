@@ -1,5 +1,5 @@
-declare type KeyboardEventHandler = (event: KeyboardEvent) => void;
-declare type ShouldHandle = (event: KeyboardEvent) => boolean;
+type KeyboardEventHandler = (event: KeyboardEvent) => void;
+type ShouldHandle = (event: KeyboardEvent) => boolean;
 declare enum Keys {
     Enter = 13,
     Escape = 27,

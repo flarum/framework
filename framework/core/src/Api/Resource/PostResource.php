@@ -101,7 +101,6 @@ class PostResource extends AbstractDatabaseResource
                 ->defaultInclude([
                     'user',
                     'discussion',
-                    'discussion.posts',
                     'discussion.lastPostedUser'
                 ]),
             Endpoint\Update::make()
@@ -270,7 +269,9 @@ class PostResource extends AbstractDatabaseResource
     {
         return [
             SortColumn::make('number'),
-            SortColumn::make('createdAt'),
+            SortColumn::make('createdAt')
+                ->ascendingAlias('oldest')
+                ->descendingAlias('newest'),
         ];
     }
 

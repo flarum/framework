@@ -5,6 +5,7 @@ import Store from './Store';
 import Search from './Search';
 import Notification from './Notification';
 import ThemeMode from './ThemeMode';
+import Admin from './Admin';
 declare const extenders: {
     Model: typeof Model;
     PostTypes: typeof PostTypes;
@@ -13,5 +14,6 @@ declare const extenders: {
     Search: typeof Search;
     Notification: typeof Notification;
     ThemeMode: typeof ThemeMode;
+    Admin: typeof Admin;
 };
 export default extenders;

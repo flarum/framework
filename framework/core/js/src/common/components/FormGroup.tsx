@@ -11,6 +11,7 @@ import type { IUploadImageButtonAttrs } from './UploadImageButton';
 import type { ComponentAttrs } from '../Component';
 import type Mithril from 'mithril';
 import MultiSelect from './MultiSelect';
+import FieldSet from './FieldSet';
 
 /**
  * A type that matches any valid value for the `type` attribute on an HTML `<input>` element.
@@ -63,22 +64,24 @@ export interface HTMLInputFieldComponentOptions extends CommonFieldOptions {
 
 const BooleanSettingTypes = ['bool', 'checkbox', 'switch', 'boolean'] as const;
 const SelectSettingTypes = ['select', 'dropdown', 'selectdropdown'] as const;
+const RadioSettingTypes = ['radio'] as const;
 const TextareaSettingTypes = ['textarea'] as const;
 const ColorPreviewSettingType = 'color-preview' as const;
 const ImageUploadSettingType = 'image-upload' as const;
+const StackedFormControlType = 'stacked-text' as const;
 
 /**
  * Valid options for the setting component builder to generate a Switch.
  */
 export interface SwitchFieldComponentOptions extends CommonFieldOptions {
-  type: typeof BooleanSettingTypes[number];
+  type: (typeof BooleanSettingTypes)[number];
 }
 
 /**
  * Valid options for the setting component builder to generate a Select dropdown.
  */
 export interface SelectFieldComponentOptions extends CommonFieldOptions {
-  type: typeof SelectSettingTypes[number];
+  type: (typeof SelectSettingTypes)[number] | (typeof RadioSettingTypes)[number];
   /**
    * Map of values to their labels
    */
@@ -98,7 +101,7 @@ export interface SelectFieldComponentOptions extends CommonFieldOptions {
  * Valid options for the setting component builder to generate a Textarea.
  */
 export interface TextareaFieldComponentOptions extends CommonFieldOptions {
-  type: typeof TextareaSettingTypes[number];
+  type: (typeof TextareaSettingTypes)[number];
 }
 
 /**
@@ -110,6 +113,14 @@ export interface ColorPreviewFieldComponentOptions extends CommonFieldOptions {
 
 export interface ImageUploadFieldComponentOptions extends CommonFieldOptions, IUploadImageButtonAttrs {
   type: typeof ImageUploadSettingType;
+}
+
+export interface StackedFormControlFieldComponentOptions extends CommonFieldOptions {
+  type: typeof StackedFormControlType;
+  textArea: {
+    setting: string;
+    [key: string]: unknown;
+  };
 }
 
 export interface CustomFieldComponentOptions extends CommonFieldOptions {
@@ -127,11 +138,13 @@ export type FieldComponentOptions =
   | TextareaFieldComponentOptions
   | ColorPreviewFieldComponentOptions
   | ImageUploadFieldComponentOptions
+  | StackedFormControlFieldComponentOptions
   | CustomFieldComponentOptions;
 
 export type IFormGroupAttrs = ComponentAttrs &
   FieldComponentOptions & {
     stream?: Stream<any>;
+    getSetting?: (key: string) => Stream<any>;
   };
 
 /**
@@ -166,7 +179,7 @@ export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupA
   view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children {
     const customFieldComponents = this.customFieldComponents();
 
-    const { help, type, label, stream, ...componentAttrs } = this.attrs;
+    const { help, type, label, stream, getSetting, containerClassName, ...componentAttrs } = this.attrs;
 
     // TypeScript being TypeScript
     const attrs = componentAttrs as unknown as Omit<IFormGroupAttrs, 'stream' | 'label' | 'help' | 'type'>;
@@ -183,7 +196,7 @@ export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupA
       return (
         // TODO: Add aria-describedby for switch help text.
         //? Requires changes to Checkbox component to allow providing attrs directly for the element(s).
-        <div className="Form-group">
+        <div className={classList('Form-group', containerClassName)}>
           <Switch state={!!value && value !== '0'} onchange={stream} {...attrs}>
             {label}
           </Switch>
@@ -198,6 +211,29 @@ export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupA
       settingElement = (
         <Tag id={inputId} aria-describedby={helpTextId} value={value || defaultValue} options={options} onchange={stream} {...otherAttrs} />
       );
+    } else if ((RadioSettingTypes as readonly string[]).includes(type)) {
+      const { default: defaultValue, options, multiple, ...otherAttrs } = attrs;
+
+      settingElement = (
+        <FieldSet {...otherAttrs}>
+          {options.map(({ value, label }: { value: string; label: string }) => (
+            <label className="checkbox">
+              <input type="radio" name="homePage" value={value} bidi={stream} />
+              {label}
+            </label>
+          ))}
+        </FieldSet>
+      );
+    } else if (type === StackedFormControlType) {
+      const { textArea, ...otherAttrs } = attrs;
+      const { setting: textAreaSetting, ...textAreaAttrs } = textArea;
+
+      settingElement = (
+        <div className="StackedFormControl" {...otherAttrs}>
+          <input type="text" className="FormControl" bidi={stream} />
+          <textarea className="FormControl" bidi={getSetting?.(textAreaSetting)} {...textAreaAttrs} />
+        </div>
+      );
     } else if (type === ImageUploadSettingType) {
       const { value, ...otherAttrs } = attrs;
 
@@ -210,7 +246,7 @@ export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupA
       if ((TextareaSettingTypes as readonly string[]).includes(type)) {
         settingElement = <textarea id={inputId} aria-describedby={helpTextId} bidi={stream} {...attrs} />;
       } else {
-        let Tag: VnodeElementTag = 'input';
+        let Tag: VnodeElementTag | typeof ColorPreviewInput = 'input';
 
         if (type === ColorPreviewSettingType) {
           Tag = ColorPreviewInput;
@@ -223,7 +259,7 @@ export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupA
     }
 
     return (
-      <div className="Form-group">
+      <div className={classList('Form-group', containerClassName)}>
         {label && <label for={inputId}>{label}</label>}
         {help && (
           <div id={helpTextId} className="helpText">

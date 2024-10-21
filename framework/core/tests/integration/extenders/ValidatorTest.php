@@ -40,7 +40,7 @@ class ValidatorTest extends TestCase
     {
         $this->app()->getContainer()->make(CustomUserValidator::class)->assertValid(['password' => 'simplePassword']);
 
-        // If we have gotten this far, no validation exception has been thrown, so the test is succesful.
+        // If we have gotten this far, no validation exception has been thrown, so the test is successful.
         $this->assertTrue(true);
     }
 
@@ -71,7 +71,7 @@ class ValidatorTest extends TestCase
 
         $this->app()->getContainer()->make(CustomValidator::class)->assertValid(['password' => 'simplePassword']);
 
-        // If we have gotten this far, no validation exception has been thrown, so the test is succesful.
+        // If we have gotten this far, no validation exception has been thrown, so the test is successful.
         $this->assertTrue(true);
     }
 }

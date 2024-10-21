@@ -9,10 +9,12 @@
 
 namespace Flarum\Notification\Driver;
 
+use Flarum\Notification\AlertableInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Job\SendNotificationsJob;
 use Flarum\User\User;
 use Illuminate\Contracts\Queue\Queue;
+use ReflectionClass;
 
 class AlertNotificationDriver implements NotificationDriverInterface
 {
@@ -23,17 +25,19 @@ class AlertNotificationDriver implements NotificationDriverInterface
 
     public function send(BlueprintInterface $blueprint, array $users): void
     {
-        if (count($users)) {
+        if ($blueprint instanceof AlertableInterface && count($users)) {
             $this->queue->push(new SendNotificationsJob($blueprint, $users));
         }
     }
 
     public function registerType(string $blueprintClass, array $driversEnabledByDefault): void
     {
-        User::registerPreference(
-            User::getNotificationPreferenceKey($blueprintClass::getType(), 'alert'),
-            boolval(...),
-            in_array('alert', $driversEnabledByDefault)
-        );
+        if ((new ReflectionClass($blueprintClass))->implementsInterface(AlertableInterface::class)) {
+            User::registerPreference(
+                User::getNotificationPreferenceKey($blueprintClass::getType(), 'alert'),
+                boolval(...),
+                in_array('alert', $driversEnabledByDefault)
+            );
+        }
     }
 }

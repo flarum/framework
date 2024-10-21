@@ -12,6 +12,7 @@ export interface IHeaderListAttrs extends ComponentAttrs {
   loading?: boolean;
   emptyText: string;
   loadMore?: () => void;
+  footer?: () => Mithril.Children;
 }
 
 export default class HeaderList<CustomAttrs extends IHeaderListAttrs = IHeaderListAttrs> extends Component<CustomAttrs> {
@@ -20,7 +21,7 @@ export default class HeaderList<CustomAttrs extends IHeaderListAttrs = IHeaderLi
   boundScrollHandler: (() => void) | null = null;
 
   view(vnode: Mithril.Vnode<CustomAttrs, this>) {
-    const { title, controls, hasItems, loading = false, emptyText, className, ...attrs } = vnode.attrs;
+    const { title, controls, hasItems, loading = false, emptyText, className, footer, ...attrs } = vnode.attrs;
 
     return (
       <div className={classList('HeaderList', className)} {...attrs}>
@@ -37,6 +38,7 @@ export default class HeaderList<CustomAttrs extends IHeaderListAttrs = IHeaderLi
             <div className="HeaderList-empty">{emptyText}</div>
           )}
         </div>
+        {!!footer && <div className="HeaderList-footer">{footer()}</div>}
       </div>
     );
   }

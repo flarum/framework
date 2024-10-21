@@ -1,10 +1,10 @@
 import SearchState from '../../common/states/SearchState';
-declare type SearchParams = Record<string, string>;
+type SearchParams = Record<string, string>;
 export default class GlobalSearchState extends SearchState {
     private initialValueSet;
     constructor(cachedSearches?: never[]);
     getValue(): string;
-    protected intializeValue(): void;
+    protected initializeValue(): void;
     protected currPageProvidesSearch(): boolean;
     /**
      * @inheritdoc

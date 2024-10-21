@@ -12,7 +12,7 @@ export interface IExportRegistry {
   add(namespace: string, id: string, object: any): void;
 
   /**
-   * Add a function to run when object of id "id" is added (or overriden).
+   * Add a function to run when object of id "id" is added (or overridden).
    * If such an object is already registered, the handler will be applied immediately.
    */
   onLoad(namespace: string, id: string, handler: Function): void;
@@ -219,6 +219,13 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
 
       return moduleExport;
     });
+  }
+
+  public clear(): void {
+    this.moduleExports.clear();
+    this.onLoads.clear();
+    this.chunks.clear();
+    this.chunkModules.clear();
   }
 
   namespaceAndIdFromPath(path: string): [string, string] {

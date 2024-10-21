@@ -20,7 +20,7 @@ export default function addTagList() {
       -10
     );
 
-    if (app.current.matches(TagsPage)) return;
+    if (app.current.get('noTagsList')) return;
 
     items.add('separator', <Separator />, -12);
 

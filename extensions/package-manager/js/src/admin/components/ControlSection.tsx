@@ -15,12 +15,7 @@ export default class ControlSection extends Component<ComponentAttrs> {
 
   view() {
     return (
-      <div className="ExtensionPage-permissions ExtensionManager-controlSection">
-        <div className="ExtensionPage-permissions-header">
-          <div className="container">
-            <h2 className="ExtensionTitle">{app.translator.trans('flarum-extension-manager.admin.sections.control.title')}</h2>
-          </div>
-        </div>
+      <div className="ExtensionPage-settings ExtensionManager-controlSection">
         <div className="container">
           {app.data['flarum-extension-manager.writable_dirs'] ? (
             <Form>

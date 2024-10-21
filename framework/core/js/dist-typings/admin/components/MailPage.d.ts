@@ -34,4 +34,5 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
     mailSettingItems(): ItemList<Mithril.Children>;
     sendTestEmail(): void;
     saveSettings(e: SaveSubmitEvent): Promise<void>;
+    static register(): void;
 }

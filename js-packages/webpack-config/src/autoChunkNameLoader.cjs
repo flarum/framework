@@ -1,7 +1,7 @@
-const path = require("path");
-const {getOptions} = require("loader-utils");
-const {validate} = require("schema-utils");
-const fs = require("fs");
+const path = require('path');
+const { getOptions } = require('loader-utils');
+const { validate } = require('schema-utils');
+const fs = require('fs');
 
 const optionsSchema = {
   type: 'object',
@@ -63,7 +63,12 @@ module.exports = function autoChunkNameLoader(source) {
         let chunkPath = relativePathToImport;
 
         if (absolutePathToImport.includes('src')) {
-          chunkPath = absolutePathToImport.split('src/')[1];
+          chunkPath = absolutePathToImport.split(`src${path.sep}`)[1];
+        }
+
+        if (path.sep == '\\') {
+          // separator on windows is '\', the resolver only works with '/'.
+          chunkPath = chunkPath.replace(/\\/g, '/');
         }
 
         const webpackCommentOptions = {
@@ -71,7 +76,9 @@ module.exports = function autoChunkNameLoader(source) {
           webpackMode: 'lazy-once',
         };
 
-        const comment = Object.entries(webpackCommentOptions).map(([key, value]) => `${key}: '${value}'`).join(', ');
+        const comment = Object.entries(webpackCommentOptions)
+          .map(([key, value]) => `${key}: '${value}'`)
+          .join(', ');
 
         // Return the new import statement
         return `${pre}import(/* ${comment} */ '${relativePathToImport}')`;

@@ -53,6 +53,7 @@
             "Flarum\\Subscriptions\\": "extensions/subscriptions/src",
             "Flarum\\Suspend\\": "extensions/suspend/src",
             "Flarum\\Tags\\": "extensions/tags/src",
+            "Flarum\\Messages\\": "extensions/messages/src",
             "Flarum\\PHPStan\\": "php-packages/phpstan/src",
             "Flarum\\Testing\\": "php-packages/testing/src"
         },
@@ -77,6 +78,7 @@
             "Flarum\\Subscriptions\\Tests\\": "extensions/subscriptions/tests",
             "Flarum\\Suspend\\Tests\\": "extensions/suspend/tests",
             "Flarum\\Tags\\Tests\\": "extensions/tags/tests",
+            "Flarum\\Messages\\Tests\\": "extensions/messages/tests",
             "Flarum\\Testing\\Tests\\": "php-packages/testing/tests"
         }
     },
@@ -101,18 +103,20 @@
         "flarum/subscriptions": "self.version",
         "flarum/suspend": "self.version",
         "flarum/tags": "self.version",
+        "flarum/messages": "self.version",
         "flarum/phpstan": "self.version",
         "flarum/testing": "self.version"
     },
     "require": {
         "php": "^8.2",
         "ext-json": "*",
-        "components/font-awesome": "^5.15.0",
+        "components/font-awesome": "^6.5.2",
         "composer/composer": "^2.7",
         "dflydev/fig-cookies": "^3.0",
         "doctrine/dbal": "^3.6.2",
         "dragonmantank/cron-expression": "^3.3",
         "fakerphp/faker": "^1.9.1",
+        "flarum/json-api-server": "^0.1.0",
         "franzl/whoops-middleware": "2.0",
         "guzzlehttp/guzzle": "*",
         "illuminate/bus": "^11.0",
@@ -161,7 +165,6 @@
         "symfony/postmark-mailer": "^7.0",
         "symfony/translation": "^7.0",
         "symfony/yaml": "^7.0",
-        "flarum/json-api-server": "^0.1.0",
         "wikimedia/less.php": "^4.1"
     },
     "require-dev": {
@@ -196,7 +199,8 @@
             "extensions/sticky",
             "extensions/subscriptions",
             "extensions/suspend",
-            "extensions/tags"
+            "extensions/tags",
+            "extensions/messages"
         ],
         "branch-alias": {
             "dev-main": "2.x-dev"

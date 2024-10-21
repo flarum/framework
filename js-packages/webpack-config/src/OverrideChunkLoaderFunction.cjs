@@ -11,11 +11,13 @@ class OverrideChunkLoaderFunction {
     // The function is called by webpack so we can't just override it.
     compiler.hooks.compilation.tap('OverrideChunkLoaderFunction', (compilation) => {
       compilation.mainTemplate.hooks.requireEnsure.tap('OverrideChunkLoaderFunction', (source) => {
-        return source + '\nconst originalLoadChunk = __webpack_require__.l;\n__webpack_require__.l = flarum.reg.loadChunk.bind(flarum.reg, originalLoadChunk);';
+        return (
+          source +
+          '\nconst originalLoadChunk = __webpack_require__.l;\n__webpack_require__.l = flarum.reg.loadChunk.bind(flarum.reg, originalLoadChunk);'
+        );
       });
     });
   }
 }
-
 
 module.exports = OverrideChunkLoaderFunction;

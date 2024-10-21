@@ -2,7 +2,7 @@ import { UpdaterLoadingTypes } from '../components/Updater';
 import { InstallerLoadingTypes } from '../components/Installer';
 import { MajorUpdaterLoadingTypes } from '../components/MajorUpdater';
 import { Extension } from 'flarum/admin/AdminApplication';
-export declare type UpdatedPackage = {
+export type UpdatedPackage = {
     name: string;
     version: string;
     latest: string;
@@ -13,28 +13,28 @@ export declare type UpdatedPackage = {
     'direct-dependency': boolean;
     description: string;
 };
-export declare type ComposerUpdates = {
+export type ComposerUpdates = {
     installed: UpdatedPackage[];
 };
-export declare type LastUpdateCheck = {
+export type LastUpdateCheck = {
     checkedAt: Date | null;
     updates: ComposerUpdates;
 };
-declare type UpdateType = 'major' | 'minor' | 'global';
-declare type UpdateStatus = 'success' | 'failure' | null;
-export declare type UpdateState = {
+type UpdateType = 'major' | 'minor' | 'global';
+type UpdateStatus = 'success' | 'failure' | null;
+export type UpdateState = {
     ranAt: Date | null;
     status: UpdateStatus;
     limitedPackages: string[];
     incompatibleExtensions: string[];
 };
-export declare type LastUpdateRun = {
+export type LastUpdateRun = {
     [key in UpdateType]: UpdateState;
 } & {
     limitedPackages: () => string[];
 };
-export declare type LoadingTypes = UpdaterLoadingTypes | InstallerLoadingTypes | MajorUpdaterLoadingTypes | 'queued-action';
-export declare type CoreUpdate = {
+export type LoadingTypes = UpdaterLoadingTypes | InstallerLoadingTypes | MajorUpdaterLoadingTypes | 'queued-action';
+export type CoreUpdate = {
     package: UpdatedPackage;
     extension: Extension;
 };

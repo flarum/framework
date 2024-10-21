@@ -22,6 +22,7 @@ export interface ForumRoutes {
 export default function (app: ForumApplication) {
   app.routes = {
     index: { path: '/all', component: IndexPage },
+    posts: { path: '/posts', component: () => import('./components/PostsPage') },
 
     discussion: { path: '/d/:id', component: DiscussionPage, resolverClass: DiscussionPageResolver },
     'discussion.near': { path: '/d/:id/:near', component: DiscussionPage, resolverClass: DiscussionPageResolver },

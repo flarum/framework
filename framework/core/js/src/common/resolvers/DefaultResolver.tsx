@@ -26,7 +26,7 @@ export default class DefaultResolver<
 
   /**
    * When a route change results in a changed key, a full page
-   * rerender occurs. This method can be overriden in subclasses
+   * rerender occurs. This method can be overridden in subclasses
    * to prevent rerenders on some route changes.
    */
   makeKey(): string {

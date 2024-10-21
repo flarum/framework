@@ -12,10 +12,11 @@ namespace Flarum\Lock\Notification;
 use Flarum\Database\AbstractModel;
 use Flarum\Discussion\Discussion;
 use Flarum\Lock\Post\DiscussionLockedPost;
+use Flarum\Notification\AlertableInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\User\User;
 
-class DiscussionLockedBlueprint implements BlueprintInterface
+class DiscussionLockedBlueprint implements BlueprintInterface, AlertableInterface
 {
     public function __construct(
         protected DiscussionLockedPost $post

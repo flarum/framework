@@ -35,4 +35,33 @@
       margin-top: 15px;
     }
   }
+
+  &--vertical {
+    @media @desktop-up {
+      --sidebar-width: 100%;
+      --gap: 30px;
+
+      .sideNav {
+        .sideNav--horizontal();
+        width: auto;
+        padding: 0;
+
+        &:after {
+          display: none;
+        }
+
+        > ul > li:first-child {
+          width: 190px;
+        }
+      }
+
+      .Page-container {
+        flex-direction: column;
+      }
+
+      .Page-content {
+        margin-top: 0;
+      }
+    }
+  }
 }

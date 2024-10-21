@@ -93,7 +93,7 @@ class ListTest extends TestCase
         $data = json_decode($body, true);
 
         $tagIds = array_map(function ($tag) {
-            return $tag['id'];
+            return (int) $tag['id'];
         }, array_filter($data['included'], function ($item) {
             return $item['type'] === 'tags';
         }));

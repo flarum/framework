@@ -168,7 +168,7 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
       this.refreshAfterSaving.push(setting);
     }
 
-    return <FormGroup stream={bidi} {...attrs} />;
+    return <FormGroup stream={bidi} getSetting={this.setting.bind(this)} {...attrs} />;
   }
 
   /**
@@ -178,6 +178,13 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
     this.loading = false;
 
     app.alerts.show({ type: 'success' }, app.translator.trans('core.admin.settings.saved_message'));
+  }
+
+  /**
+   * Called when `saveSettings` fails to complete.
+   */
+  onsavefailed(): void {
+    this.loading = false;
   }
 
   /**
@@ -232,10 +239,11 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
           app.modal.show(LoadingModal);
           window.location.reload();
         }
-      });
+      })
+      .catch(this.onsavefailed.bind(this));
   }
 
-  modelLocale(): Record<string, string> {
+  static modelLocale(): Record<string, string> {
     return {
       'Flarum\\Discussion\\Discussion': extractText(app.translator.trans('core.admin.models.discussions')),
       'Flarum\\User\\User': extractText(app.translator.trans('core.admin.models.users')),

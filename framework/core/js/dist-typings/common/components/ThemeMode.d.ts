@@ -13,7 +13,7 @@ export declare enum ColorScheme {
     LightHighContrast = "light-hc",
     DarkHighContrast = "dark-hc"
 }
-export declare type ColorSchemeData = {
+export type ColorSchemeData = {
     id: ColorScheme | string;
     label?: string | null;
 };

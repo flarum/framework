@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Str;
 use Tobyz\JsonApiServer\Laravel\Field\ToMany;
 use Tobyz\JsonApiServer\Laravel\Field\ToOne;
 use Tobyz\JsonApiServer\Schema\Field\Relationship;
@@ -40,12 +41,12 @@ abstract class EloquentBuffer
     }
 
     /**
-     * @param array{relation: string, column: string, function: string, constrain: callable|null}|null $aggregate
+     * @param array{name: string, relation: string, column: string, function: string, constrain: callable|null}|null $aggregate
      */
     public static function load(
         Model $model,
         string $relationName,
-        Relationship $relationship,
+        ?Relationship $relationship,
         Context $context,
         ?array $aggregate = null,
     ): void {
@@ -65,10 +66,10 @@ abstract class EloquentBuffer
             // may be multiple if this is a polymorphic relationship. We
             // start by getting the resource types this relationship
             // could possibly contain.
-            /** @var AbstractDatabaseResource[] $resources */
+            /** @var (AbstractDatabaseResource|AbstractResource)[] $resources */
             $resources = $context->api->resources;
 
-            if ($type = $relationship->collections) {
+            if ($relationship && $type = $relationship->collections) {
                 $resources = array_intersect_key($resources, array_flip($type));
             }
 
@@ -77,31 +78,31 @@ abstract class EloquentBuffer
             // method in order to apply type-specific scoping.
             $constrain = [];
 
-            foreach ($resources as $resource) {
-                $modelClass = get_class($resource->newModel($context));
+            if (! $aggregate && $relationship) {
+                foreach ($resources as $resource) {
+                    $modelClass = $resource instanceof AbstractDatabaseResource ? get_class($resource->newModel($context)) : null;
 
-                if ($resource instanceof AbstractDatabaseResource && ! isset($constrain[$modelClass])) {
-                    $constrain[$modelClass] = function (Builder $query) use ($resource, $context, $relationship, $aggregate) {
-                        if (! $aggregate) {
+                    if ($resource instanceof AbstractDatabaseResource && ! isset($constrain[$modelClass])) {
+                        $constrain[$modelClass] = function (Builder $query) use ($resource, $context, $relationship, $relation) {
                             /** @var Endpoint $endpoint */
                             $endpoint = $context->endpoint;
 
                             $query
                                 ->with($endpoint->getEagerLoadsFor($relationship->name, $context))
                                 ->with($endpoint->getWhereEagerLoadsFor($relationship->name, $context));
-                        }
 
-                        $resource->scope($query, $context);
+                            $resource->scope($query, $context);
 
-                        if ($aggregate && ! empty($aggregate['constrain'])) {
-                            ($aggregate['constrain'])($query, $context);
-                        }
-
-                        if (($relationship instanceof ToMany || $relationship instanceof ToOne) && $relationship->scope) {
-                            ($relationship->scope)($query, $context);
-                        }
-                    };
+                            if (($relationship instanceof ToMany || $relationship instanceof ToOne) && $relationship->scope) {
+                                ($relationship->scope)($relation, $context);
+                            }
+                        };
+                    }
                 }
+            } elseif (! empty($aggregate['constrain'])) {
+                $modelClass = get_class($relation->getModel());
+
+                $constrain[$modelClass] = fn (Builder $query) => ($aggregate['constrain'])($query, $context);
             }
 
             if ($relation instanceof MorphTo) {
@@ -115,7 +116,7 @@ abstract class EloquentBuffer
 
         $collection = $model->newCollection($models);
 
-        if (! $aggregate) {
+        if (! $aggregate && $relationship) {
             $collection->load([$relationName => $loader]);
 
             // Set the inverse relation on the loaded relations.
@@ -136,7 +137,8 @@ abstract class EloquentBuffer
                 }
             });
         } else {
-            $collection->loadAggregate([$relationName => $loader], $aggregate['column'], $aggregate['function']);
+            $alias = Str::snake($aggregate['name']);
+            $collection->loadAggregate(["$relationName as $alias" => $loader], $aggregate['column'], $aggregate['function']);
         }
 
         self::setBuffer($model, $relationName, $aggregate, []);

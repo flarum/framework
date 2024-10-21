@@ -246,6 +246,8 @@ core:
     header:
       get_help: Get Help
       log_out_button: => core.ref.log_out
+      search_placeholder: Search...
+      search_role_label: Search
 
     # These translations are used in the modal dialog displayed when loading extensions.
     loading:
@@ -330,6 +332,11 @@ core:
       members_button: => core.group.members
       signup_closed_button: Closed
       signup_open_button: Open
+
+    # These translations are used by the admin-specific search sources.
+    search_source:
+      general:
+        heading: General
 
     # These translations are used generically in setting fields.
     settings:
@@ -480,7 +487,6 @@ core:
       log_in_link: => core.ref.log_in
       log_out_button: => core.ref.log_out
       profile_button: Profile
-      search_clear_button_accessible_label: Clear search query
       search_placeholder: Search Forum
       search_role_label: Search Forum
       session_dropdown_accessible_label: Toggle session options dropdown menu
@@ -494,16 +500,16 @@ core:
       mark_all_as_read_confirmation: "Are you sure you want to mark all discussions as read?"
       mark_all_as_read_tooltip: => core.ref.mark_all_as_read
       meta_title_text: => core.ref.all_discussions
-      refresh_tooltip: Refresh
+      refresh_tooltip: => core.ref.refresh
       start_discussion_button: => core.ref.start_a_discussion
       toggle_sidenav_dropdown_accessible_label: Toggle navigation dropdown menu
 
     # These translations are used by the sorting control above the discussion list.
     index_sort:
       latest_button: Latest
-      newest_button: Newest
-      oldest_button: Oldest
-      relevance_button: Relevance
+      newest_button: => core.ref.newest
+      oldest_button: => core.ref.oldest
+      relevance_button: => core.ref.relevance
       toggle_dropdown_accessible_label: Change discussion list sorting
       top_button: Top
 
@@ -520,7 +526,7 @@ core:
 
     # These translations are used by the Notifications dropdown, a.k.a. "the bell".
     notifications:
-      delete_all_confirm: Are you sure you want to delete all notifications? This action is not reversable
+      delete_all_confirm: Are you sure you want to delete all notifications? This action is not reversible
       delete_all_tooltip: Delete all notifications
       discussion_renamed_text: "{username} changed the title"
       empty_text: No Notifications
@@ -546,6 +552,12 @@ core:
       restore_button: => core.ref.restore
       toggle_dropdown_accessible_label: Toggle post controls dropdown menu
 
+    # These translations are used in the post list.
+    post_list:
+      empty_text: It looks as though there are no posts here.
+      in_discussion_text: "In {discussion}"
+      load_more_button: => core.ref.load_more
+
     # These translations are used in the scrubber to the right of the post stream.
     post_scrubber:
       now_link: Now
@@ -561,21 +573,21 @@ core:
       reply_placeholder: => core.ref.write_a_reply
       time_lapsed_text: "{period} later"
 
+    # These translations are used by the sorting control above the post list.
+    posts_sort:
+      newest_button: => core.ref.newest
+      oldest_button: => core.ref.oldest
+      relevance_button: => core.ref.relevance
+
+    # These translations are used in the posts search page.
+    posts:
+      meta_title_text: Post search results
+      refresh_tooltip: => core.ref.refresh
+
     # These translations are used by the rename discussion modal.
     rename_discussion:
       submit_button: => core.ref.rename
       title: Rename Discussion
-
-    # These translations are used by the search modal.
-    search:
-      gambit_plus_button_a11y_label: Add a positive filter
-      gambit_minus_button_a11y_label: Add a negative filter
-      title: Search
-      no_results_text: It looks like there are no results here.
-      no_search_text: You have not searched for anything yet.
-      options_heading: Search options
-      placeholder: Search...
-      preview_heading: Search preview
 
     # These translations are used in the Security page.
     security:
@@ -727,6 +739,32 @@ core:
       rate_limit_exceeded_message: You're going a little too quickly. Please try again in a few seconds.
       render_failed_message: Sorry, we encountered an error while displaying this content. If you're a user, please try again later. If you're an administrator, take a look in your Flarum log files for more information.
 
+    # These translations are used by gambits. Gambit keys must be in snake_case, no spaces.
+    gambits:
+      boolean_key: is
+      discussions:
+        author:
+          key: author
+          hint: username or comma-separated list of usernames
+        created:
+          key: created
+          hint: 2020-12-31 or 2020-12-31..2021-09-30
+        hidden:
+          key: hidden
+        unread:
+          key: unread
+      posts:
+        discussion:
+          key: discussion
+          hint: the ID of the discussion
+      users:
+        email:
+          key: email
+          hint: example@machine.local
+        group:
+          key: group
+          hint: singular or plural group names
+
     # These translations are used in the input component.
     input:
       clear_button: Clear input
@@ -764,41 +802,42 @@ core:
       kilo_text: K
       mega_text: M
 
+    # These translations are used by the abstract search component and search modal.
+    search:
+      gambit_plus_button_a11y_label: Add a positive filter
+      gambit_minus_button_a11y_label: Add a negative filter
+      title: Search
+      no_results_text: It looks like there are no results here.
+      no_search_text: You have not searched for anything yet.
+      options_heading: Search options
+      placeholder: Search...
+      preview_heading: Search preview
+      search_clear_button_accessible_label: Clear search query
+
     # These translations are used by search sources.
     search_source:
       discussions:
         all_button: 'Search all discussions for "{query}"'
         heading: => core.ref.discussions
+      posts:
+        all_button: 'Search all posts for "{query}"'
+        heading: => core.ref.posts
       users:
         heading: => core.ref.users
-
-    # These translations are used by gambits. Gambit keys must be in snake_case, no spaces.
-    gambits:
-      boolean_key: is
-      discussions:
-        author:
-          key: author
-          hint: username or comma-separated list of usernames
-        created:
-          key: created
-          hint: 2020-12-31 or 2020-12-31..2021-09-30
-        hidden:
-          key: hidden
-        unread:
-          key: unread
-      users:
-        email:
-          key: email
-          hint: example@machine.local
-        group:
-          key: group
-          hint: singular or plural group names
 
     # These translations are used to punctuate a series of items.
     series:
       glue_text: ", "
       three_text: "{first}, {second}, and {third}"
       two_text: "{first} and {second}"
+
+    # These translations are used in the generic user selection modal.
+    user_selection_modal:
+      empty_results: No users found matching your search.
+      max_items_to_select: "{count, plural, one {Select up to # user} other {Select up to # users}}"
+      search_placeholder: => core.ref.search_users
+      submit_button: => core.ref.okay
+      title: Select relevant users
 
     # These translations are used to modify usernames.
     username:
@@ -891,7 +930,7 @@ core:
 
   # Translations in this namespace are used in messages output by the API.
   api:
-    invalid_username_message: "The username may only contain letters, numbers, and dashes."
+    invalid_username_message: "The username may only contain letters, numbers, and dashes. With at least one letter."
     invalid_filter_type:
       must_be_numeric_message: "The {filter} filter must be numeric."
       must_not_be_array_message: "The {filter} filter must not be an array."
@@ -1001,16 +1040,20 @@ core:
     mark_all_as_read: Mark All as Read
     never: Never
     new_token: New Token
+    newest: Newest
     next_page: Next Page
     notifications: Notifications
     okay: OK # Referenced by flarum-tags.yml
+    oldest: Oldest
     password: Password
     posts: Posts # Referenced by flarum-statistics.yml
     previous_page: Previous Page
+    relevance: Relevance
     remember_me_label: Remember Me
     remove: Remove
     rename: Rename
     reply: Reply # Referenced by flarum-mentions.yml
+    refresh: Refresh
     reset_your_password: Reset Your Password
     restore: Restore
     save_changes: Save Changes

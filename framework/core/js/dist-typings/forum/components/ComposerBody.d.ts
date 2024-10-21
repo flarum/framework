@@ -1,53 +1,42 @@
+import Component, { type ComponentAttrs } from '../../common/Component';
+import ItemList from '../../common/utils/ItemList';
+import ComposerState from '../states/ComposerState';
+import type Mithril from 'mithril';
+export interface IComposerBodyAttrs extends ComponentAttrs {
+    composer: ComposerState;
+    originalContent?: string;
+    submitLabel: string;
+    placeholder: string;
+    user: any;
+    confirmExit: string;
+    disabled: boolean;
+}
 /**
  * The `ComposerBody` component handles the body, or the content, of the
  * composer. Subclasses should implement the `onsubmit` method and override
  * `headerTimes`.
- *
- * ### Attrs
- *
- * - `composer`
- * - `originalContent`
- * - `submitLabel`
- * - `placeholder`
- * - `user`
- * - `confirmExit`
- * - `disabled`
- *
- * @abstract
  */
-export default class ComposerBody extends Component<import("../../common/Component").ComponentAttrs, undefined> {
-    constructor();
-    oninit(vnode: any): void;
-    composer: any;
-    /**
-     * Whether or not the component is loading.
-     *
-     * @type {Boolean}
-     */
-    loading: boolean | undefined;
+export default abstract class ComposerBody<CustomAttrs extends IComposerBodyAttrs = IComposerBodyAttrs> extends Component<CustomAttrs> {
+    protected loading: boolean;
+    protected composer: ComposerState;
+    protected jumpToPreview?: () => void;
+    static focusOnSelector: null | (() => string);
+    oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     view(): JSX.Element;
     /**
      * Check if there is any unsaved data.
-     *
-     * @return {boolean}
      */
     hasChanges(): boolean;
     /**
      * Build an item list for the composer's header.
-     *
-     * @return {ItemList<import('mithril').Children>}
      */
-    headerItems(): ItemList<import('mithril').Children>;
+    headerItems(): ItemList<Mithril.Children>;
     /**
      * Handle the submit event of the text editor.
-     *
-     * @abstract
      */
-    onsubmit(): void;
+    abstract onsubmit(): void;
     /**
      * Stop loading.
      */
     loaded(): void;
 }
-import Component from "../../common/Component";
-import ItemList from "../../common/utils/ItemList";

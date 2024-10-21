@@ -19,4 +19,5 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
     searchDrivers(): JSX.Element;
     maintenance(): JSX.Element;
     pgsqlSettings(): JSX.Element;
+    static register(): void;
 }
