@@ -7,6 +7,7 @@ flarum-sticky:
   # Translations in this namespace are used by the admin interface.
   admin:
     settings:
+      enable_display_excerpt: Show an excerpt of the first post when a sticky discussion is unread
       only_sticky_unread_discussions_label: Only sticky unread discussions
       only_sticky_unread_discussions_help: On the All Discussions page, unread sticky discussions pin to the top, while read sticky discussions follow the regular order.
 
