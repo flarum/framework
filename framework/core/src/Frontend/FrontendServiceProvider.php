@@ -102,7 +102,11 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     $settings = $container->make(SettingsRepositoryInterface::class);
 
                     // Add document classes/attributes for design use cases.
-                    $document->extraAttributes['data-theme'] = $settings->get('color_scheme');
+                    $document->extraAttributes['data-theme'] = function (ServerRequestInterface $request) use ($settings) {
+                        return $settings->get('color_scheme') === 'auto'
+                            ? RequestUtil::getActor($request)->getPreference('colorScheme')
+                            : $settings->get('color_scheme');
+                    };
                     $document->extraAttributes['data-colored-header'] = $settings->get('theme_colored_header') ? 'true' : 'false';
                     $document->extraAttributes['class'][] = function (ServerRequestInterface $request) {
                         return RequestUtil::getActor($request)->isGuest() ? 'guest-user' : 'logged-in';

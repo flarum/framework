@@ -15,7 +15,7 @@ use Tobyz\JsonApiServer\Schema\Type\Number;
 trait GetsRelationAggregates
 {
     /**
-     * @var array{relation: string, column: string, function: string, constrain: Closure}|null
+     * @var array{name: string, relation: string, column: string, function: string, constrain: Closure}|null
      */
     public ?array $relationAggregate = null;
 
@@ -25,7 +25,9 @@ trait GetsRelationAggregates
             throw new \InvalidArgumentException('Relation aggregates can only be used with number attributes');
         }
 
-        $this->relationAggregate = compact('relation', 'column', 'function', 'constrain');
+        $name = $this->name;
+
+        $this->relationAggregate = compact('name', 'relation', 'column', 'function', 'constrain');
 
         return $this;
     }

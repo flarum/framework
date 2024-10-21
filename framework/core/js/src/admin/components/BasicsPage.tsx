@@ -14,30 +14,8 @@ export type DriverLocale = {
 };
 
 export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> extends AdminPage<CustomAttrs> {
-  localeOptions: Record<string, string> = {};
-  displayNameOptions: Record<string, string> = {};
-  slugDriverOptions: Record<string, Record<string, string>> = {};
-
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
-
-    Object.keys(app.data.locales).forEach((i) => {
-      this.localeOptions[i] = `${app.data.locales[i]} (${i})`;
-    });
-
-    const driverLocale = this.driverLocale();
-
-    app.data.displayNameDrivers.forEach((identifier) => {
-      this.displayNameOptions[identifier] = driverLocale.display_name[identifier] || identifier;
-    });
-
-    Object.keys(app.data.slugDrivers).forEach((model) => {
-      this.slugDriverOptions[model] = {};
-
-      app.data.slugDrivers[model].forEach((option) => {
-        this.slugDriverOptions[model][option] = (driverLocale.slug[model] && driverLocale.slug[model][option]) || option;
-      });
-    });
   }
 
   headerInfo() {
@@ -50,86 +28,11 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
   }
 
   content() {
+    const settings = app.registry.getSettings('core-basics');
+
     return [
       <Form>
-        {this.buildSettingComponent({
-          type: 'text',
-          setting: 'forum_title',
-          label: app.translator.trans('core.admin.basics.forum_title_heading'),
-        })}
-        {this.buildSettingComponent({
-          type: 'text',
-          setting: 'forum_description',
-          label: app.translator.trans('core.admin.basics.forum_description_heading'),
-          help: app.translator.trans('core.admin.basics.forum_description_text'),
-        })}
-
-        {Object.keys(this.localeOptions).length > 1 && (
-          <>
-            {this.buildSettingComponent({
-              type: 'select',
-              setting: 'default_locale',
-              options: this.localeOptions,
-              label: app.translator.trans('core.admin.basics.default_language_heading'),
-            })}
-            {this.buildSettingComponent({
-              type: 'switch',
-              setting: 'show_language_selector',
-              label: app.translator.trans('core.admin.basics.show_language_selector_label'),
-            })}
-          </>
-        )}
-
-        <FieldSet
-          className="BasicsPage-homePage Form-group"
-          label={app.translator.trans('core.admin.basics.home_page_heading')}
-          description={app.translator.trans('core.admin.basics.home_page_text')}
-        >
-          {this.homePageItems()
-            .toArray()
-            .map(({ path, label }) => (
-              <label className="checkbox">
-                <input type="radio" name="homePage" value={path} bidi={this.setting('default_route')} />
-                {label}
-              </label>
-            ))}
-        </FieldSet>
-
-        <div className="Form-group BasicsPage-welcomeBanner-input">
-          <label>{app.translator.trans('core.admin.basics.welcome_banner_heading')}</label>
-          <div className="helpText">{app.translator.trans('core.admin.basics.welcome_banner_text')}</div>
-          <div className="StackedFormControl">
-            <input type="text" className="FormControl" bidi={this.setting('welcome_title')} />
-            <textarea className="FormControl" bidi={this.setting('welcome_message')} cols={80} rows={6} />
-          </div>
-        </div>
-
-        {Object.keys(this.displayNameOptions).length > 1 &&
-          this.buildSettingComponent({
-            type: 'select',
-            setting: 'display_name_driver',
-            options: this.displayNameOptions,
-            label: app.translator.trans('core.admin.basics.display_name_heading'),
-            help: app.translator.trans('core.admin.basics.display_name_text'),
-          })}
-
-        {Object.keys(this.slugDriverOptions).map((model) => {
-          const options = this.slugDriverOptions[model];
-          const modelLocale = this.modelLocale()[model] || model;
-
-          if (Object.keys(options).length > 1) {
-            return this.buildSettingComponent({
-              type: 'select',
-              setting: `slug_driver_${model}`,
-              options,
-              label: app.translator.trans('core.admin.basics.slug_driver_heading', { model: modelLocale }),
-              help: app.translator.trans('core.admin.basics.slug_driver_text', { model: modelLocale }),
-            });
-          }
-
-          return null;
-        })}
-
+        {settings?.map(this.buildSettingComponent.bind(this))}
         <div className="Form-group Form-controls">{this.submitButton()}</div>
       </Form>,
     ];
@@ -139,7 +42,7 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
    * Build a list of options for the default homepage. Each option must be an
    * object with `path` and `label` properties.
    */
-  homePageItems() {
+  static homePageItems() {
     const items = new ItemList<HomePageItem>();
 
     items.add('allDiscussions', {
@@ -150,7 +53,7 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
     return items;
   }
 
-  driverLocale(): DriverLocale {
+  static driverLocale(): DriverLocale {
     return {
       display_name: {
         username: extractText(app.translator.trans('core.admin.basics.display_name_driver_options.username')),
@@ -166,5 +69,119 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
         },
       },
     };
+  }
+
+  static register() {
+    app.generalIndex.group('core-basics', {
+      label: app.translator.trans('core.admin.basics.title', {}, true),
+      icon: {
+        name: 'fas fa-pencil-alt',
+      },
+      link: app.route('basics'),
+    });
+
+    const localeOptions: Record<string, string> = {};
+    const displayNameOptions: Record<string, string> = {};
+    const slugDriverOptions: Record<string, Record<string, string>> = {};
+
+    const driverLocale = BasicsPage.driverLocale();
+
+    Object.keys(app.data.locales).forEach((i) => {
+      localeOptions[i] = `${app.data.locales[i]} (${i})`;
+    });
+
+    app.data.displayNameDrivers.forEach((identifier) => {
+      displayNameOptions[identifier] = driverLocale.display_name[identifier] || identifier;
+    });
+
+    Object.keys(app.data.slugDrivers).forEach((model) => {
+      slugDriverOptions[model] = {};
+
+      app.data.slugDrivers[model].forEach((option) => {
+        slugDriverOptions[model][option] = (driverLocale.slug[model] && driverLocale.slug[model][option]) || option;
+      });
+    });
+
+    app.registry.for('core-basics');
+
+    app.registry
+      .registerSetting({
+        type: 'text',
+        setting: 'forum_title',
+        label: app.translator.trans('core.admin.basics.forum_title_heading'),
+      })
+      .registerSetting({
+        type: 'text',
+        setting: 'forum_description',
+        label: app.translator.trans('core.admin.basics.forum_description_heading'),
+        help: app.translator.trans('core.admin.basics.forum_description_text'),
+      });
+
+    if (Object.keys(localeOptions).length > 1) {
+      app.registry
+        .registerSetting({
+          type: 'select',
+          setting: 'default_locale',
+          options: localeOptions,
+          label: app.translator.trans('core.admin.basics.default_language_heading'),
+        })
+        .registerSetting({
+          type: 'switch',
+          setting: 'show_language_selector',
+          label: app.translator.trans('core.admin.basics.show_language_selector_label'),
+        });
+    }
+
+    app.registry
+      .registerSetting({
+        type: 'radio',
+        setting: 'default_route',
+        options: BasicsPage.homePageItems()
+          .toArray()
+          .map((item: HomePageItem) => ({
+            ...item,
+            value: item.path,
+          })),
+        label: app.translator.trans('core.admin.basics.home_page_heading', {}, true),
+        help: app.translator.trans('core.admin.basics.home_page_text', {}, true),
+        containerClassName: 'BasicsPage-homePage',
+      })
+      .registerSetting({
+        type: 'stacked-text',
+        setting: 'welcome_title',
+        textArea: {
+          setting: 'welcome_message',
+          cols: 80,
+          rows: 6,
+        },
+        label: app.translator.trans('core.admin.basics.welcome_banner_heading'),
+        help: app.translator.trans('core.admin.basics.welcome_banner_text'),
+        containerClassName: 'BasicsPage-welcomeBanner-input',
+      });
+
+    if (Object.keys(displayNameOptions).length > 1) {
+      app.registry.registerSetting({
+        type: 'select',
+        setting: 'display_name_driver',
+        options: displayNameOptions,
+        label: app.translator.trans('core.admin.basics.display_name_heading'),
+        help: app.translator.trans('core.admin.basics.display_name_text'),
+      });
+    }
+
+    Object.keys(slugDriverOptions).forEach((model) => {
+      const options = slugDriverOptions[model];
+      const modelLocale = AdminPage.modelLocale()[model] || model;
+
+      if (Object.keys(options).length > 1) {
+        app.registry.registerSetting({
+          type: 'select',
+          setting: `slug_driver_${model}`,
+          options,
+          label: app.translator.trans('core.admin.basics.slug_driver_heading', { model: modelLocale }),
+          help: app.translator.trans('core.admin.basics.slug_driver_text', { model: modelLocale }),
+        });
+      }
+    });
   }
 }

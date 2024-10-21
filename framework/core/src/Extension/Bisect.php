@@ -10,7 +10,7 @@
 namespace Flarum\Extension;
 
 use Closure;
-use Composer\Command\ClearCacheCommand;
+use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Settings\SettingsRepositoryInterface;
 use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -32,7 +32,7 @@ class Bisect
     public function __construct(
         protected ExtensionManager $extensions,
         protected SettingsRepositoryInterface $settings,
-        protected ClearCacheCommand $clearCache,
+        protected CacheClearCommand $cacheClear,
     ) {
         $this->state = BisectState::continueOrStart(
             $ids = $this->extensions->getEnabled(),
@@ -139,12 +139,12 @@ class Bisect
         $this->settings->set('extensions_enabled', json_encode($this->state->ids));
         $this->settings->set('maintenance_mode', 'none');
         $this->state->end();
-        $this->clearCache->run(new ArrayInput([]), new NullOutput());
+        $this->cacheClear->run(new ArrayInput([]), new NullOutput());
     }
 
     protected function rotateExtensions(array $enabled): void
     {
         $this->settings->set('extensions_enabled', json_encode($enabled));
-        $this->clearCache->run(new ArrayInput([]), new NullOutput());
+        $this->cacheClear->run(new ArrayInput([]), new NullOutput());
     }
 }

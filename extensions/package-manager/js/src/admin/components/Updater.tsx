@@ -4,9 +4,10 @@ import Button from 'flarum/common/components/Button';
 import humanTime from 'flarum/common/helpers/humanTime';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import MajorUpdater from './MajorUpdater';
-import ExtensionItem from './ExtensionItem';
-import { Extension } from 'flarum/admin/AdminApplication';
 import ItemList from 'flarum/common/utils/ItemList';
+import InfoTile from 'flarum/common/components/InfoTile';
+import ExtensionCard from './ExtensionCard';
+import { isProductionReady } from '../utils/versions';
 
 export interface IUpdaterAttrs extends ComponentAttrs {}
 
@@ -24,7 +25,7 @@ export default class Updater extends Component<IUpdaterAttrs> {
         <div className="ExtensionManager-updaterControls">{this.controlItems().toArray()}</div>
         {this.availableUpdatesView()}
       </div>,
-      core && core.package['latest-major'] ? (
+      core && core.package['latest-major'] && isProductionReady(core.package['latest-major']) ? (
         <MajorUpdater coreUpdate={core.package} updateState={app.extensionManager.control.lastUpdateRun.major} />
       ) : null,
     ];
@@ -59,8 +60,8 @@ export default class Updater extends Component<IUpdaterAttrs> {
 
     if (!(state.extensionUpdates.length || hasMinorCoreUpdate)) {
       return (
-        <div className="ExtensionManager-extensions">
-          <span className="helpText">{app.translator.trans('flarum-extension-manager.admin.updater.up_to_date')}</span>
+        <div className="ExtensionManager-extensions ExtensionManager-extensions--empty">
+          <InfoTile icon="fas fa-plug-circle-check">{app.translator.trans('flarum-extension-manager.admin.updater.up_to_date')}</InfoTile>
         </div>
       );
     }
@@ -69,7 +70,7 @@ export default class Updater extends Component<IUpdaterAttrs> {
       <div className="ExtensionManager-extensions">
         <div className="ExtensionManager-extensions-grid">
           {hasMinorCoreUpdate ? (
-            <ExtensionItem
+            <ExtensionCard
               extension={state.coreUpdate!.extension}
               updates={state.coreUpdate!.package}
               isCore={true}
@@ -77,8 +78,8 @@ export default class Updater extends Component<IUpdaterAttrs> {
               whyNotWarning={state.lastUpdateRun.limitedPackages().includes('flarum/core')}
             />
           ) : null}
-          {state.extensionUpdates.map((extension: Extension) => (
-            <ExtensionItem
+          {state.extensionUpdates.map((extension) => (
+            <ExtensionCard
               extension={extension}
               updates={state.packageUpdates[extension.id]}
               onClickUpdate={{

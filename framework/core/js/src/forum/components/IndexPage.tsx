@@ -157,7 +157,8 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
     const sortMap = app.discussions.sortMap();
 
     const sortOptions = Object.keys(sortMap).reduce((acc: any, sortId) => {
-      acc[sortId] = app.translator.trans(`core.forum.index_sort.${sortId}_button`);
+      const sort = sortMap[sortId];
+      acc[sortId] = typeof sort !== 'string' ? sort.label : app.translator.trans(`core.forum.index_sort.${sortId}_button`);
       return acc;
     }, {});
 

@@ -95,6 +95,11 @@
         "name": "tags",
         "gitRemote": "git@github.com:flarum/tags.git",
         "mainBranch": "main"
+      },
+      {
+        "name": "messages",
+        "gitRemote": "git@github.com:flarum/messages.git",
+        "mainBranch": "main"
       }
     ],
     "composer": [

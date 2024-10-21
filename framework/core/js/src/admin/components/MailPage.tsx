@@ -193,4 +193,35 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
   saveSettings(e: SaveSubmitEvent) {
     return super.saveSettings(e).then(() => this.refresh());
   }
+
+  static register() {
+    app.generalIndex.group('core-mail', {
+      label: app.translator.trans('core.admin.email.title', {}, true),
+      icon: {
+        name: 'fas fa-envelope',
+      },
+      link: app.route('mail'),
+    });
+
+    app.generalIndex.for('core-mail').add('settings', [
+      {
+        id: 'mail_from',
+        label: app.translator.trans('core.admin.email.addresses_heading', {}, true),
+      },
+      {
+        id: 'mail_format',
+        label: app.translator.trans('core.admin.email.format_heading', {}, true),
+        help: app.translator.trans('core.admin.email.format_help', {}, true),
+      },
+      {
+        id: 'mail_driver',
+        label: app.translator.trans('core.admin.email.driver_heading', {}, true),
+      },
+      {
+        id: 'send_test_mail_heading',
+        label: app.translator.trans('core.admin.email.send_test_mail_heading', {}, true),
+        help: app.translator.trans('core.admin.email.send_test_mail_text', { email: app.session.user!.email() }, true),
+      },
+    ]);
+  }
 }

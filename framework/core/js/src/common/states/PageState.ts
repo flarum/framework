@@ -8,6 +8,9 @@ export default class PageState {
 
   constructor(type: Function | null, data: any = {}) {
     this.type = type;
+    /**
+     * @type any
+     */
     this.data = data;
   }
 

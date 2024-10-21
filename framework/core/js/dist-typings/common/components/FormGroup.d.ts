@@ -13,7 +13,7 @@ import type Mithril from 'mithril';
  *
  * @see https://github.com/flarum/core/issues/3039
  */
-export declare type HTMLInputTypes = 'button' | 'checkbox' | 'color' | 'date' | 'datetime-local' | 'email' | 'file' | 'hidden' | 'image' | 'month' | 'number' | 'password' | 'radio' | 'range' | 'reset' | 'search' | 'submit' | 'tel' | 'text' | 'time' | 'url' | 'week';
+export type HTMLInputTypes = 'button' | 'checkbox' | 'color' | 'date' | 'datetime-local' | 'email' | 'file' | 'hidden' | 'image' | 'month' | 'number' | 'password' | 'radio' | 'range' | 'reset' | 'search' | 'submit' | 'tel' | 'text' | 'time' | 'url' | 'week';
 export interface CommonFieldOptions extends Mithril.Attributes {
     label?: Mithril.Children;
     help?: Mithril.Children;
@@ -30,20 +30,22 @@ export interface HTMLInputFieldComponentOptions extends CommonFieldOptions {
 }
 declare const BooleanSettingTypes: readonly ["bool", "checkbox", "switch", "boolean"];
 declare const SelectSettingTypes: readonly ["select", "dropdown", "selectdropdown"];
+declare const RadioSettingTypes: readonly ["radio"];
 declare const TextareaSettingTypes: readonly ["textarea"];
 declare const ColorPreviewSettingType: "color-preview";
 declare const ImageUploadSettingType: "image-upload";
+declare const StackedFormControlType: "stacked-text";
 /**
  * Valid options for the setting component builder to generate a Switch.
  */
 export interface SwitchFieldComponentOptions extends CommonFieldOptions {
-    type: typeof BooleanSettingTypes[number];
+    type: (typeof BooleanSettingTypes)[number];
 }
 /**
  * Valid options for the setting component builder to generate a Select dropdown.
  */
 export interface SelectFieldComponentOptions extends CommonFieldOptions {
-    type: typeof SelectSettingTypes[number];
+    type: (typeof SelectSettingTypes)[number] | (typeof RadioSettingTypes)[number];
     /**
      * Map of values to their labels
      */
@@ -60,7 +62,7 @@ export interface SelectFieldComponentOptions extends CommonFieldOptions {
  * Valid options for the setting component builder to generate a Textarea.
  */
 export interface TextareaFieldComponentOptions extends CommonFieldOptions {
-    type: typeof TextareaSettingTypes[number];
+    type: (typeof TextareaSettingTypes)[number];
 }
 /**
  * Valid options for the setting component builder to generate a ColorPreviewInput.
@@ -71,6 +73,13 @@ export interface ColorPreviewFieldComponentOptions extends CommonFieldOptions {
 export interface ImageUploadFieldComponentOptions extends CommonFieldOptions, IUploadImageButtonAttrs {
     type: typeof ImageUploadSettingType;
 }
+export interface StackedFormControlFieldComponentOptions extends CommonFieldOptions {
+    type: typeof StackedFormControlType;
+    textArea: {
+        setting: string;
+        [key: string]: unknown;
+    };
+}
 export interface CustomFieldComponentOptions extends CommonFieldOptions {
     type: string;
     [key: string]: unknown;
@@ -78,9 +87,10 @@ export interface CustomFieldComponentOptions extends CommonFieldOptions {
 /**
  * All valid options for the setting component builder.
  */
-export declare type FieldComponentOptions = HTMLInputFieldComponentOptions | SwitchFieldComponentOptions | SelectFieldComponentOptions | TextareaFieldComponentOptions | ColorPreviewFieldComponentOptions | ImageUploadFieldComponentOptions | CustomFieldComponentOptions;
-export declare type IFormGroupAttrs = ComponentAttrs & FieldComponentOptions & {
+export type FieldComponentOptions = HTMLInputFieldComponentOptions | SwitchFieldComponentOptions | SelectFieldComponentOptions | TextareaFieldComponentOptions | ColorPreviewFieldComponentOptions | ImageUploadFieldComponentOptions | StackedFormControlFieldComponentOptions | CustomFieldComponentOptions;
+export type IFormGroupAttrs = ComponentAttrs & FieldComponentOptions & {
     stream?: Stream<any>;
+    getSetting?: (key: string) => Stream<any>;
 };
 /**
  * Builds a field component based on the provided attributes.

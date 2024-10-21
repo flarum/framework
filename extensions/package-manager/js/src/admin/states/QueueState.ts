@@ -8,9 +8,10 @@ export default class QueueState {
   private limit = 20;
   private offset = 0;
   private total = 0;
+  private loading = false;
 
   load(params?: ApiQueryParamsPlural, actionTaken = false): Promise<Task[]> {
-    this.tasks = null;
+    this.loading = true;
     params = {
       page: {
         limit: this.limit,
@@ -22,7 +23,7 @@ export default class QueueState {
 
     return app.store.find<Task[]>('extension-manager-tasks', params || {}).then((data) => {
       this.tasks = data;
-      this.total = data.payload.meta?.total || 0;
+      this.total = data.payload.meta?.page?.total || 0;
 
       m.redraw();
 
@@ -40,12 +41,22 @@ export default class QueueState {
         app.extensionManager.control.setLoading(null);
       }
 
+      this.loading = false;
+
       return data;
     });
   }
 
+  isLoading() {
+    return this.loading;
+  }
+
   getItems() {
     return this.tasks;
+  }
+
+  getTotalItems() {
+    return this.total;
   }
 
   getTotalPages(): number {
@@ -54,6 +65,10 @@ export default class QueueState {
 
   pageNumber(): number {
     return Math.ceil(this.offset / this.limit);
+  }
+
+  getPerPage() {
+    return this.limit;
   }
 
   hasPrev(): boolean {
@@ -76,6 +91,11 @@ export default class QueueState {
       this.offset += this.limit;
       this.load();
     }
+  }
+
+  goto(page: number): void {
+    this.offset = (page - 1) * this.limit;
+    this.load();
   }
 
   pollQueue(actionTaken = false): void {

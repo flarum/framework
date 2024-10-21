@@ -40,7 +40,8 @@ class MinorUpdateHandler
 
         $output = $this->composer->run(
             new StringInput('update --prefer-dist --no-dev -a --with-all-dependencies'),
-            $command->task ?? null
+            $command->task ?? null,
+            true
         );
 
         if ($output->getExitCode() !== 0) {

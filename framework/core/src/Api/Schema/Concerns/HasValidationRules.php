@@ -153,6 +153,21 @@ trait HasValidationRules
         }, $condition);
     }
 
+    public function in(array $values, bool|callable $condition = true): static
+    {
+        return $this->rule(Rule::in($values), $condition);
+    }
+
+    public function notIn(array $values, bool|callable $condition = true): static
+    {
+        return $this->rule(Rule::notIn($values), $condition);
+    }
+
+    public function items(int $count, bool|callable $condition = true): static
+    {
+        return $this->rule("size:$count", $condition);
+    }
+
     protected function evaluate(Context $context, mixed $callback): mixed
     {
         if (is_string($callback) || ! is_callable($callback)) {

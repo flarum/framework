@@ -9,7 +9,7 @@
 
 namespace Flarum\Mentions\Formatter;
 
-use Flarum\Post\Post;
+use Flarum\Database\AbstractModel;
 use Flarum\Tags\Tag;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use s9e\TextFormatter\Renderer;
@@ -17,12 +17,12 @@ use s9e\TextFormatter\Utils;
 
 class FormatTagMentions
 {
-    public function __invoke(Renderer $renderer, mixed $context, ?string $xml, Request $request = null): string
+    public function __invoke(Renderer $renderer, mixed $context, string $xml, Request $request = null): string
     {
         return Utils::replaceAttributes($xml, 'TAGMENTION', function ($attributes) use ($context) {
             /** @var Tag|null $tag */
-            $tag = (($context && isset($context->getRelations()['mentionsTags'])) || $context instanceof Post)
-                ? $context->mentionsTags->find($attributes['id'])
+            $tag = ($context instanceof AbstractModel && $context->isRelation('mentionsTags'))
+                ? $context->mentionsTags->find($attributes['id']) // @phpstan-ignore-line
                 : Tag::query()->find($attributes['id']);
 
             if ($tag) {

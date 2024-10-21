@@ -9,12 +9,13 @@ import Icon from 'flarum/common/components/Icon';
 import ItemList from 'flarum/common/utils/ItemList';
 import extractText from 'flarum/common/utils/extractText';
 import Link from 'flarum/common/components/Link';
+import Pagination from 'flarum/common/components/Pagination';
+import classList from 'flarum/common/utils/classList';
 
 import Label from './Label';
 import TaskOutputModal from './TaskOutputModal';
 import humanDuration from '../utils/humanDuration';
 import Task, { TaskOperations } from '../models/Task';
-import Pagination from './Pagination';
 
 interface QueueTableColumn extends ComponentAttrs {
   label: string;
@@ -30,7 +31,7 @@ export default class QueueSection extends Component<{}> {
 
   view() {
     return (
-      <section id="ExtensionManager-queueSection" className="ExtensionPage-permissions ExtensionManager-queueSection">
+      <section id="ExtensionManager-queueSection" className="ExtensionPage-settings ExtensionManager-queueSection">
         <div className="ExtensionPage-permissions-header ExtensionManager-queueSection-header">
           <div className="container">
             <h2 className="ExtensionTitle">{app.translator.trans('flarum-extension-manager.admin.sections.queue.title')}</h2>
@@ -174,32 +175,43 @@ export default class QueueSection extends Component<{}> {
 
     return (
       <>
-        <table className="Table ExtensionManager-queueTable">
-          <thead>
-            <tr>
-              {columns.toArray().map((item, index) => (
-                <th key={index}>{item.label}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {tasks.map((task, index) => (
-              <tr key={index}>
-                {columns.toArray().map((item, index) => {
-                  const { label, content, ...attrs } = item;
-
-                  return (
-                    <td key={index} {...attrs}>
-                      {content(task)}
-                    </td>
-                  );
-                })}
+        <div
+          className={classList('Table-container', {
+            'loading-container': tasks && app.extensionManager.queue.isLoading(),
+          })}
+        >
+          <table className="Table ExtensionManager-queueTable">
+            <thead>
+              <tr>
+                {columns.toArray().map((item, index) => (
+                  <th key={index}>{item.label}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {tasks.map((task, index) => (
+                <tr key={index}>
+                  {columns.toArray().map((item, index) => {
+                    const { label, content, ...attrs } = item;
 
-        <Pagination list={app.extensionManager.queue} />
+                    return (
+                      <td key={index} {...attrs}>
+                        {content(task)}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {tasks && app.extensionManager.queue.isLoading() && <LoadingIndicator size="large" />}
+        </div>
+        <Pagination
+          total={app.extensionManager.queue.getTotalItems()}
+          currentPage={app.extensionManager.queue.pageNumber() + 1}
+          perPage={app.extensionManager.queue.getPerPage()}
+          onChange={(page: number) => app.extensionManager.queue.goto(page)}
+        />
       </>
     );
   }

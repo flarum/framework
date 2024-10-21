@@ -19,7 +19,7 @@ class TaskResource extends AbstractDatabaseResource
 {
     public function type(): string
     {
-        return 'package-manager-tasks';
+        return 'extension-manager-tasks';
     }
 
     public function model(): string

@@ -147,4 +147,55 @@ export default class AppearancePage extends AdminPage {
   onsaved() {
     window.location.reload();
   }
+
+  static register() {
+    app.generalIndex.group('core-appearance', {
+      label: app.translator.trans('core.admin.appearance.title', {}, true),
+      icon: {
+        name: 'fas fa-paint-brush',
+      },
+      link: app.route('appearance'),
+    });
+
+    app.generalIndex.for('core-appearance').add('settings', [
+      {
+        id: 'colors_heading',
+        label: app.translator.trans('core.admin.appearance.colors_heading', {}, true),
+        help: app.translator.trans('core.admin.appearance.colors_text', {}, true),
+      },
+      {
+        id: 'color_scheme',
+        label: app.translator.trans('core.admin.appearance.color_scheme_label', {}, true),
+      },
+      {
+        id: 'colored_header',
+        label: app.translator.trans('core.admin.appearance.colored_header_label', {}, true),
+      },
+      {
+        id: 'logo_heading',
+        label: app.translator.trans('core.admin.appearance.logo_heading', {}, true),
+        help: app.translator.trans('core.admin.appearance.logo_text', {}, true),
+      },
+      {
+        id: 'favicon_heading',
+        label: app.translator.trans('core.admin.appearance.favicon_heading', {}, true),
+        help: app.translator.trans('core.admin.appearance.favicon_text', {}, true),
+      },
+      {
+        id: 'custom_header_heading',
+        label: app.translator.trans('core.admin.appearance.custom_header_heading', {}, true),
+        help: app.translator.trans('core.admin.appearance.custom_header_text', {}, true),
+      },
+      {
+        id: 'custom_footer_heading',
+        label: app.translator.trans('core.admin.appearance.custom_footer_heading', {}, true),
+        help: app.translator.trans('core.admin.appearance.custom_footer_text', {}, true),
+      },
+      {
+        id: 'custom_styles_heading',
+        label: app.translator.trans('core.admin.appearance.custom_styles_heading', {}, true),
+        help: app.translator.trans('core.admin.appearance.custom_styles_text', {}, true),
+      },
+    ]);
+  }
 }

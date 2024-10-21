@@ -86,7 +86,7 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
           <Form>
             {Object.keys(this.searchDriverOptions).map((model) => {
               const options = this.searchDriverOptions[model];
-              const modelLocale = this.modelLocale()[model] || model;
+              const modelLocale = AdminPage.modelLocale()[model] || model;
 
               if (Object.keys(options).length > 1) {
                 return this.buildSettingComponent({
@@ -207,5 +207,33 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
         </Form>
       </FormSection>
     );
+  }
+
+  static register() {
+    app.generalIndex.group('core-advanced', {
+      label: app.translator.trans('core.admin.advanced.title', {}, true),
+      icon: {
+        name: 'fas fa-cog',
+      },
+      link: app.route('advanced'),
+    });
+
+    app.generalIndex.for('core-advanced').add('settings', [
+      {
+        id: 'maintenance_mode',
+        label: app.translator.trans('core.admin.advanced.maintenance.section_label', {}, true),
+        help: app.translator.trans('core.admin.advanced.maintenance.help', {}, true),
+      },
+      {
+        id: 'safe_mode_extensions',
+        label: app.translator.trans('core.admin.advanced.maintenance.safe_mode_extensions', {}, true),
+        visible: () => app.data.maintenanceMode === MaintenanceMode.SAFE_MODE,
+      },
+      {
+        id: 'extension_bisect',
+        label: app.translator.trans('core.admin.advanced.maintenance.bisect.label', {}, true),
+        help: app.translator.trans('core.admin.advanced.maintenance.bisect.help', {}, true),
+      },
+    ]);
   }
 }

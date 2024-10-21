@@ -221,6 +221,13 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     });
   }
 
+  public clear(): void {
+    this.moduleExports.clear();
+    this.onLoads.clear();
+    this.chunks.clear();
+    this.chunkModules.clear();
+  }
+
   namespaceAndIdFromPath(path: string): [string, string] {
     // Either we get a path like `flarum/forum/components/LogInModal` or `ext:flarum/tags/forum/components/TagPage`.
     const matches = /^(?:ext:([^\/]+)\/(?:flarum-(?:ext-)?)?([^\/]+)|(flarum))(?:\/(.+))?$/.exec(path);

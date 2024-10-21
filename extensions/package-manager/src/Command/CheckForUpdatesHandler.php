@@ -9,6 +9,7 @@
 
 namespace Flarum\ExtensionManager\Command;
 
+use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
 use Flarum\ExtensionManager\Composer\ComposerAdapter;
 use Flarum\ExtensionManager\Composer\ComposerJson;
@@ -70,7 +71,7 @@ class CheckForUpdatesHandler
 
         foreach ($installed as $mainPackageUpdate) {
             // Skip if not an extension
-            if (! $this->extensions->getExtension(Util::nameToId($mainPackageUpdate['name']))) {
+            if (! $this->extensions->getExtension(Extension::nameToId($mainPackageUpdate['name']))) {
                 continue;
             }
 
