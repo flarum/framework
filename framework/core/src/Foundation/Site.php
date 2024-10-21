@@ -31,8 +31,16 @@ class Site
             );
         }
 
+        $config = static::loadConfig($paths->base);
+
+        ini_set('display_errors', 0);
+
+        if (! $config->inDebugMode() && function_exists('error_reporting')) {
+            error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+        }
+
         return (
-            new InstalledSite($paths, static::loadConfig($paths->base))
+            new InstalledSite($paths, $config)
         )->extendWith(static::loadExtenders($paths->base));
     }
 
