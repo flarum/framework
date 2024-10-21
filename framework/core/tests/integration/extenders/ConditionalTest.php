@@ -10,29 +10,30 @@
 namespace Flarum\Tests\integration\extenders;
 
 use Exception;
-use Flarum\Api\Serializer\ForumSerializer;
+use Flarum\Api\Resource\ForumResource;
+use Flarum\Api\Schema\Boolean;
 use Flarum\Extend;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ConditionalTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    /** @test */
+    #[Test]
     public function conditional_works_if_condition_is_primitive_true()
     {
         $this->extend(
             (new Extend\Conditional())
-                ->when(true, function () {
-                    return [
-                        (new Extend\ApiSerializer(ForumSerializer::class))
-                            ->attributes(function () {
-                                return ['customConditionalAttribute' => true];
-                            })
-                    ];
-                })
+                ->when(true, fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ])
         );
 
         $this->app();
@@ -48,19 +49,18 @@ class ConditionalTest extends TestCase
         $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
 
-    /** @test */
+    #[Test]
     public function conditional_does_not_work_if_condition_is_primitive_false()
     {
         $this->extend(
             (new Extend\Conditional())
-                ->when(false, function () {
-                    return [
-                        (new Extend\ApiSerializer(ForumSerializer::class))
-                            ->attributes(function () {
-                                return ['customConditionalAttribute' => true];
-                            })
-                    ];
-                })
+                ->when(false, fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ])
         );
 
         $this->app();
@@ -76,21 +76,18 @@ class ConditionalTest extends TestCase
         $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
 
-    /** @test */
+    #[Test]
     public function conditional_works_if_condition_is_callable_true()
     {
         $this->extend(
             (new Extend\Conditional())
-                ->when(function () {
-                    return true;
-                }, function () {
-                    return [
-                        (new Extend\ApiSerializer(ForumSerializer::class))
-                            ->attributes(function () {
-                                return ['customConditionalAttribute' => true];
-                            })
-                    ];
-                })
+                ->when(fn () => true, fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ])
         );
 
         $this->app();
@@ -106,21 +103,18 @@ class ConditionalTest extends TestCase
         $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
 
-    /** @test */
+    #[Test]
     public function conditional_does_not_work_if_condition_is_callable_false()
     {
         $this->extend(
             (new Extend\Conditional())
-                ->when(function () {
-                    return false;
-                }, function () {
-                    return [
-                        (new Extend\ApiSerializer(ForumSerializer::class))
-                            ->attributes(function () {
-                                return ['customConditionalAttribute' => true];
-                            })
-                    ];
-                })
+                ->when(fn () => false, fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ])
         );
 
         $this->app();
@@ -136,7 +130,7 @@ class ConditionalTest extends TestCase
         $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
 
-    /** @test */
+    #[Test]
     public function conditional_injects_dependencies_to_condition_callable()
     {
         $this->expectNotToPerformAssertions();
@@ -147,20 +141,19 @@ class ConditionalTest extends TestCase
                     if (! $extensions) {
                         throw new Exception('ExtensionManager not injected');
                     }
-                }, function () {
-                    return [
-                        (new Extend\ApiSerializer(ForumSerializer::class))
-                            ->attributes(function () {
-                                return ['customConditionalAttribute' => true];
-                            })
-                    ];
-                })
+                }, fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ])
         );
 
         $this->app();
     }
 
-    /** @test */
+    #[Test]
     public function conditional_disabled_extension_not_enabled_applies_invokable_class()
     {
         $this->extend(
@@ -181,7 +174,7 @@ class ConditionalTest extends TestCase
         $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
 
-    /** @test */
+    #[Test]
     public function conditional_disabled_extension_enabled_does_not_apply_invokable_class()
     {
         $this->extension('flarum-tags');
@@ -199,12 +192,13 @@ class ConditionalTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($body = $response->getBody()->getContents(), true);
 
+        $this->assertArrayHasKey('data', $payload, $body);
         $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
 
-    /** @test */
+    #[Test]
     public function conditional_enabled_extension_disabled_does_not_apply_invokable_class()
     {
         $this->extend(
@@ -225,7 +219,7 @@ class ConditionalTest extends TestCase
         $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
 
-    /** @test */
+    #[Test]
     public function conditional_enabled_extension_enabled_applies_invokable_class()
     {
         $this->extension('flarum-tags');
@@ -242,12 +236,13 @@ class ConditionalTest extends TestCase
             ])
         );
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $payload = json_decode($body = $response->getBody()->getContents(), true);
 
+        $this->assertArrayHasKey('data', $payload, $body);
         $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
 
-    /** @test */
+    #[Test]
     public function conditional_does_not_instantiate_extender_if_condition_is_false_using_callable()
     {
         $this->extend(
@@ -268,7 +263,7 @@ class ConditionalTest extends TestCase
         $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
 
-    /** @test */
+    #[Test]
     public function conditional_does_instantiate_extender_if_condition_is_true_using_callable()
     {
         $this->extend(
@@ -289,19 +284,18 @@ class ConditionalTest extends TestCase
         $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
 
-    /** @test */
+    #[Test]
     public function conditional_does_not_instantiate_extender_if_condition_is_false_using_callback()
     {
         $this->extend(
             (new Extend\Conditional())
-                ->when(false, function () {
-                    return [
-                        (new Extend\ApiSerializer(ForumSerializer::class))
-                            ->attributes(function () {
-                                return ['customConditionalAttribute' => true];
-                            })
-                    ];
-                })
+                ->when(false, fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ])
         );
 
         $this->app();
@@ -317,19 +311,18 @@ class ConditionalTest extends TestCase
         $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
 
-    /** @test */
+    #[Test]
     public function conditional_does_instantiate_extender_if_condition_is_true_using_callback()
     {
         $this->extend(
             (new Extend\Conditional())
-                ->when(true, function () {
-                    return [
-                        (new Extend\ApiSerializer(ForumSerializer::class))
-                            ->attributes(function () {
-                                return ['customConditionalAttribute' => true];
-                            })
-                    ];
-                })
+                ->when(true, fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ])
         );
 
         $this->app();
@@ -345,7 +338,7 @@ class ConditionalTest extends TestCase
         $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
 
-    /** @test */
+    #[Test]
     public function conditional_does_not_work_if_extension_is_disabled()
     {
         $this->extend(
@@ -370,12 +363,11 @@ class TestExtender
     public function __invoke(): array
     {
         return [
-            (new Extend\ApiSerializer(ForumSerializer::class))
-                ->attributes(function () {
-                    return [
-                        'customConditionalAttribute' => true
-                    ];
-                })
+            (new Extend\ApiResource(ForumResource::class))
+                ->fields(fn () => [
+                    Boolean::make('customConditionalAttribute')
+                        ->get(fn () => true)
+                ])
         ];
     }
 }

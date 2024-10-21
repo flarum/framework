@@ -1,3 +1,22 @@
+.Page--cols {
+  &-container {
+    display: flex;
+  }
+
+  &-content {
+    width: var(--content-width);
+  }
+
+  &-sidebar {
+    width: var(--sidebar-width);
+    flex-shrink: 0;
+  }
+
+  &-content, &-sidebar {
+    margin-top: 30px;
+  }
+}
+
 .Page {
   --content-width: 100%;
   --sidebar-width: 190px;
@@ -16,23 +35,33 @@
       margin-top: 15px;
     }
   }
-}
 
-.Page--cols {
-  &-container {
-    display: flex;
-  }
+  &--vertical {
+    @media @desktop-up {
+      --sidebar-width: 100%;
+      --gap: 30px;
 
-  &-content {
-    width: var(--content-width);
-  }
+      .sideNav {
+        .sideNav--horizontal();
+        width: auto;
+        padding: 0;
 
-  &-sidebar {
-    width: var(--sidebar-width);
-    flex-shrink: 0;
-  }
+        &:after {
+          display: none;
+        }
 
-  &-content, &-sidebar {
-    margin-top: 30px;
+        > ul > li:first-child {
+          width: 190px;
+        }
+      }
+
+      .Page-container {
+        flex-direction: column;
+      }
+
+      .Page-content {
+        margin-top: 0;
+      }
+    }
   }
 }

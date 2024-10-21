@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Foundation\Config;
 use Flarum\Http\CookieFactory;
 use Flarum\Testing\unit\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class CookieFactoryTest extends TestCase
 {
@@ -25,7 +26,7 @@ class CookieFactoryTest extends TestCase
         return new CookieFactory($config);
     }
 
-    /** @test */
+    #[Test]
     public function can_create_cookies()
     {
         $cookie = $this->factory()->make('test', 'australia');
@@ -37,7 +38,7 @@ class CookieFactoryTest extends TestCase
         $this->assertEquals('/', $cookie->getPath());
     }
 
-    /** @test */
+    #[Test]
     public function can_override_cookie_settings_from_config()
     {
         $cookie = $this->factory([
@@ -55,7 +56,7 @@ class CookieFactoryTest extends TestCase
         $this->assertEquals('SameSite=None', $cookie->getSameSite()->asString());
     }
 
-    /** @test */
+    #[Test]
     public function can_expire_cookies()
     {
         $cookie = $this->factory()->expire('test');

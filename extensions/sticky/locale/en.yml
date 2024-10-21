@@ -6,6 +6,9 @@ flarum-sticky:
 
   # Translations in this namespace are used by the admin interface.
   admin:
+    settings:
+      only_sticky_unread_discussions_label: Only sticky unread discussions
+      only_sticky_unread_discussions_help: On the All Discussions page, unread sticky discussions pin to the top, while read sticky discussions follow the regular order.
 
     # These translations are used in the Permissions page of the admin interface.
     permissions:
@@ -31,6 +34,15 @@ flarum-sticky:
   ##
   # REUSED TRANSLATIONS - These keys should not be used directly in code!
   ##
+
+  # Translations in this namespace are used by the forum and admin interfaces.
+  lib:
+
+    # These translations are used by gambits. Gambit keys must be in snake_case, no spaces.
+    gambits:
+      discussions:
+        sticky:
+          key: sticky
 
   # Translations in this namespace are referenced by two or more unique keys.
   ref:

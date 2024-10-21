@@ -27,6 +27,11 @@ interface MigrationRepositoryInterface
     public function delete(string $file, ?string $extension = null): void;
 
     /**
+     * Create the migration repository table.
+     */
+    public function createRepository(): void;
+
+    /**
      * Determine if the migration repository exists.
      */
     public function repositoryExists(): bool;

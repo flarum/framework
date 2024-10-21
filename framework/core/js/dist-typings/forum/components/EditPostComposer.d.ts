@@ -8,8 +8,9 @@
  * - All of the attrs for ComposerBody
  * - `post`
  */
-export default class EditPostComposer extends ComposerBody {
+export default class EditPostComposer extends ComposerBody<import("./ComposerBody").IComposerBodyAttrs> {
     static initAttrs(attrs: any): void;
+    constructor();
     /**
      * Jump to the preview when triggered by the text editor.
      */

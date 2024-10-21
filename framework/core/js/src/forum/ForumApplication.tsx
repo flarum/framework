@@ -25,6 +25,7 @@ import type PostModel from '../common/models/Post';
 import extractText from '../common/utils/extractText';
 import Notices from './components/Notices';
 import Footer from './components/Footer';
+import SearchManager from '../common/SearchManager';
 
 export interface ForumApplicationData extends ApplicationData {}
 
@@ -61,10 +62,9 @@ export default class ForumApplication extends Application {
   notifications: NotificationListState = new NotificationListState();
 
   /**
-   * An object which stores previously searched queries and provides convenient
-   * tools for retrieving and managing search values.
+   * An object which stores the global search state and manages search capabilities.
    */
-  search: GlobalSearchState = new GlobalSearchState();
+  search: SearchManager<GlobalSearchState> = new SearchManager(new GlobalSearchState());
 
   /**
    * An object which controls the state of the composer.

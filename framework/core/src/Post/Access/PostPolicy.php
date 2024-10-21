@@ -41,7 +41,7 @@ class PostPolicy extends AbstractPolicy
 
             if ($allowEditing === '-1'
                 || ($allowEditing === 'reply' && $post->number >= $post->discussion->last_post_number)
-                || (is_numeric($allowEditing) && $post->created_at->diffInMinutes(new Carbon) < $allowEditing)) {
+                || (is_numeric($allowEditing) && $post->created_at->diffInMinutes(new Carbon, true) < $allowEditing)) {
                 return $this->allow();
             }
         }
@@ -56,7 +56,7 @@ class PostPolicy extends AbstractPolicy
 
             if ($allowHiding === '-1'
                 || ($allowHiding === 'reply' && $post->number >= $post->discussion->last_post_number)
-                || (is_numeric($allowHiding) && $post->created_at->diffInMinutes(new Carbon) < $allowHiding)) {
+                || (is_numeric($allowHiding) && $post->created_at->diffInMinutes(new Carbon, true) < $allowHiding)) {
                 return $this->allow();
             }
         }

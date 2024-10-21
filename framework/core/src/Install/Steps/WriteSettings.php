@@ -62,7 +62,7 @@ class WriteSettings implements Step
             'mail_from' => 'noreply@localhost',
             'slug_driver_Flarum\User\User' => 'default',
             'theme_colored_header' => '0',
-            'theme_dark_mode' => '0',
+            'color_scheme' => 'auto',
             'theme_primary_color' => '#4D698E',
             'theme_secondary_color' => '#4D698E',
             'welcome_message' => 'Enjoy your new forum! Hop over to discuss.flarum.org if you have any questions, or to join our community!',

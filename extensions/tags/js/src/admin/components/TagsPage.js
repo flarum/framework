@@ -6,11 +6,12 @@ import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import withAttr from 'flarum/common/utils/withAttr';
 import Form from 'flarum/common/components/Form';
+import FormSectionGroup from 'flarum/admin/components/FormSectionGroup';
+import FormSection from 'flarum/admin/components/FormSection';
 
 import EditTagModal from './EditTagModal';
 import tagIcon from '../../common/helpers/tagIcon';
 import sortTags from '../../common/utils/sortTags';
-import FormSectionGroup, { FormSection } from '@flarum/core/src/admin/components/FormSectionGroup';
 
 function tagItem(tag) {
   return (

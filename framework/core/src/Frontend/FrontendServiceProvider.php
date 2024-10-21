@@ -17,6 +17,7 @@ use Flarum\Foundation\Paths;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Driver\BasicTitleDriver;
 use Flarum\Frontend\Driver\TitleDriverInterface;
+use Flarum\Http\RequestUtil;
 use Flarum\Http\SlugManager;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\LocaleManager;
@@ -24,11 +25,16 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory as ViewFactory;
+use Psr\Http\Message\ServerRequestInterface;
 
 class FrontendServiceProvider extends AbstractServiceProvider
 {
     public function register(): void
     {
+        $this->container->singleton('flarum.assets', function (Container $container) {
+            return new AssetManager($container, $container->make(LocaleManager::class));
+        });
+
         $this->container->singleton('flarum.assets.factory', function (Container $container) {
             return function (string $name) use ($container) {
                 $paths = $container[Paths::class];
@@ -42,7 +48,7 @@ class FrontendServiceProvider extends AbstractServiceProvider
                 );
 
                 $assets->setLessImportDirs([
-                    $paths->vendor.'/components/font-awesome/less' => ''
+                    $paths->vendor.'/components/font-awesome/css' => ''
                 ]);
 
                 $assets->css($this->addBaseCss(...));
@@ -91,6 +97,20 @@ class FrontendServiceProvider extends AbstractServiceProvider
                         $default_preloads,
                         $document->preloads,
                     );
+
+                    /** @var SettingsRepositoryInterface $settings */
+                    $settings = $container->make(SettingsRepositoryInterface::class);
+
+                    // Add document classes/attributes for design use cases.
+                    $document->extraAttributes['data-theme'] = function (ServerRequestInterface $request) use ($settings) {
+                        return $settings->get('color_scheme') === 'auto'
+                            ? RequestUtil::getActor($request)->getPreference('colorScheme')
+                            : $settings->get('color_scheme');
+                    };
+                    $document->extraAttributes['data-colored-header'] = $settings->get('theme_colored_header') ? 'true' : 'false';
+                    $document->extraAttributes['class'][] = function (ServerRequestInterface $request) {
+                        return RequestUtil::getActor($request)->isGuest() ? 'guest-user' : 'logged-in';
+                    };
                 }, 160);
 
                 return $frontend;
@@ -142,23 +162,11 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
         $this->container->singleton('flarum.less.config', function (Container $container) {
             return [
-                'config-primary-color'   => [
+                'config-primary-color' => [
                     'key' => 'theme_primary_color',
                 ],
                 'config-secondary-color' => [
                     'key' => 'theme_secondary_color',
-                ],
-                'config-dark-mode'       => [
-                    'key' => 'theme_dark_mode',
-                    'callback' => function ($value) {
-                        return $value ? 'true' : 'false';
-                    },
-                ],
-                'config-colored-header'  => [
-                    'key' => 'theme_colored_header',
-                    'callback' => function ($value) {
-                        return $value ? 'true' : 'false';
-                    },
                 ],
             ];
         });
@@ -179,6 +187,10 @@ class FrontendServiceProvider extends AbstractServiceProvider
             });
 
             return $assets;
+        });
+
+        $this->container->afterResolving(AssetManager::class, function (AssetManager $assets) {
+            $assets->register('common', 'flarum.assets.common');
         });
     }
 

@@ -1,8 +1,7 @@
-/// <reference path="../@types/translator-icu-rich.d.ts" />
-import { RichMessageFormatter } from '@askvortsov/rich-icu-message-formatter';
+import { RichMessageFormatter, NestedStringArray } from '@askvortsov/rich-icu-message-formatter';
 import { pluralTypeHandler, selectTypeHandler } from '@ultraq/icu-message-formatter';
-declare type Translations = Record<string, string>;
-declare type TranslatorParameters = Record<string, unknown>;
+type Translations = Record<string, string>;
+type TranslatorParameters = Record<string, unknown>;
 export default class Translator {
     /**
      * A map of translation keys to their translated values.
@@ -36,6 +35,9 @@ export default class Translator {
      * @internal
      */
     protected preprocessParameters(parameters: TranslatorParameters): TranslatorParameters;
-    trans(id: string, parameters?: TranslatorParameters): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    trans(id: string, parameters: TranslatorParameters): NestedStringArray;
+    trans(id: string, parameters: TranslatorParameters, extract: false): NestedStringArray;
+    trans(id: string, parameters: TranslatorParameters, extract: true): string;
+    trans(id: string): NestedStringArray | string;
 }
 export {};

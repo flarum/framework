@@ -10,10 +10,14 @@
 namespace Flarum\Tests\integration\api\access_tokens;
 
 use Carbon\Carbon;
+use Flarum\Group\Group;
 use Flarum\Http\AccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListTest extends TestCase
 {
@@ -27,12 +31,12 @@ class ListTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'normal3', 'email' => 'normal3@machine.local', 'is_email_confirmed' => 1],
                 ['id' => 4, 'username' => 'normal4', 'email' => 'normal4@machine.local', 'is_email_confirmed' => 1],
             ],
-            'access_tokens' => [
+            AccessToken::class => [
                 ['id' => 1, 'token' => 'a', 'user_id' => 1, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'session'],
                 ['id' => 2, 'token' => 'b', 'user_id' => 1, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'session_remember'],
                 ['id' => 3, 'token' => 'c', 'user_id' => 1, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'developer'],
@@ -40,7 +44,7 @@ class ListTest extends TestCase
                 ['id' => 5, 'token' => 'e', 'user_id' => 2, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'developer'],
                 ['id' => 6, 'token' => 'f', 'user_id' => 3, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'developer'],
             ],
-            'groups' => [
+            Group::class => [
                 ['id' => 100, 'name_singular' => 'test', 'name_plural' => 'test']
             ],
             'group_user' => [
@@ -52,10 +56,8 @@ class ListTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider canViewTokensDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('canViewTokensDataProvider')]
     public function user_can_view_access_tokens(int $authenticatedAs, array $canViewIds)
     {
         $response = $this->send(
@@ -70,10 +72,8 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing(array_merge($canViewIds, [$testsTokenId]), Arr::pluck($data, 'id'));
     }
 
-    /**
-     * @dataProvider cannotSeeTokenValuesDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('cannotSeeTokenValuesDataProvider')]
     public function user_cannot_see_token_values(int $authenticatedAs, ?int $userId, array $tokenValues)
     {
         if ($userId) {
@@ -99,10 +99,8 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing($tokenValues, Arr::pluck($data, 'attributes.token'));
     }
 
-    /**
-     * @dataProvider needsPermissionToUseUserfilterDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('needsPermissionToUseUserfilterDataProvider')]
     public function user_needs_permissions_to_use_user_filter(int $authenticatedAs, int $userId, array $canViewIds)
     {
         $response = $this->send(
@@ -123,7 +121,7 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing($canViewIds, Arr::pluck($data, 'id'));
     }
 
-    public function canViewTokensDataProvider(): array
+    public static function canViewTokensDataProvider(): array
     {
         return [
             // Admin can view his and others access tokens.
@@ -138,7 +136,7 @@ class ListTest extends TestCase
         ];
     }
 
-    public function cannotSeeTokenValuesDataProvider(): array
+    public static function cannotSeeTokenValuesDataProvider(): array
     {
         return [
             // Admin can only see his own developer token value.
@@ -159,7 +157,7 @@ class ListTest extends TestCase
         ];
     }
 
-    public function needsPermissionToUseUserfilterDataProvider(): array
+    public static function needsPermissionToUseUserfilterDataProvider(): array
     {
         return [
             // Admin can use user filter.

@@ -15,7 +15,7 @@ use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\User\Guest;
 use Flarum\User\UserRepository;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @implements FilterInterface<DatabaseSearchState>

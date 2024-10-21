@@ -1,5 +1,5 @@
-import SearchState from './SearchState';
-declare type SearchParams = Record<string, string>;
+import SearchState from '../../common/states/SearchState';
+type SearchParams = Record<string, string>;
 export default class GlobalSearchState extends SearchState {
     private initialValueSet;
     constructor(cachedSearches?: never[]);

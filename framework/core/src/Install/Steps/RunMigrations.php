@@ -19,6 +19,7 @@ class RunMigrations implements Step
 {
     public function __construct(
         private readonly ConnectionInterface $database,
+        private readonly string $driver,
         private readonly string $path
     ) {
     }
@@ -32,7 +33,10 @@ class RunMigrations implements Step
     {
         $migrator = $this->getMigrator();
 
-        $migrator->installFromSchema($this->path);
+        if (! $migrator->installFromSchema($this->path, $this->driver)) {
+            $migrator->getRepository()->createRepository();
+        }
+
         $migrator->run($this->path);
     }
 

@@ -1,10 +1,11 @@
-import IGambit from './query/IGambit';
+import type IGambit from './query/IGambit';
 import AuthorGambit from './query/discussions/AuthorGambit';
 import CreatedGambit from './query/discussions/CreatedGambit';
 import HiddenGambit from './query/discussions/HiddenGambit';
 import UnreadGambit from './query/discussions/UnreadGambit';
 import EmailGambit from './query/users/EmailGambit';
 import GroupGambit from './query/users/GroupGambit';
+import DiscussionGambit from './query/discussions/DiscussionGambit';
 
 /**
  * The gambit registry. A map of resource types to gambit classes that
@@ -15,21 +16,36 @@ import GroupGambit from './query/users/GroupGambit';
 export default class GambitManager {
   gambits: Record<string, Array<new () => IGambit>> = {
     discussions: [AuthorGambit, CreatedGambit, HiddenGambit, UnreadGambit],
+    posts: [AuthorGambit, DiscussionGambit],
     users: [EmailGambit, GroupGambit],
   };
 
   public apply(type: string, filter: Record<string, any>): Record<string, any> {
-    const gambits = this.gambits[type] || [];
+    filter.q = this.match(type, filter.q, (gambit, matches, negate) => {
+      const additions = gambit.toFilter(matches, negate);
 
-    if (gambits.length === 0) return filter;
+      Object.keys(additions).forEach((key) => {
+        if (key in filter && gambit.predicates && Array.isArray(additions[key])) {
+          filter[key] = filter[key].concat(additions[key]);
+        } else {
+          filter[key] = additions[key];
+        }
+      });
+    });
 
-    const bits: string[] = filter.q.split(' ');
+    return filter;
+  }
 
-    for (const gambitClass of gambits) {
-      const gambit = new gambitClass();
+  public match(type: string, query: string, onmatch: (gambit: IGambit, matches: string[], negate: boolean, bit: string) => void): string {
+    const gambits = this.for(type).filter((gambit) => gambit.enabled());
 
+    if (gambits.length === 0) return query;
+
+    const bits: string[] = query.split(' ');
+
+    for (const gambit of gambits) {
       for (const bit of bits) {
-        const pattern = `^(-?)${gambit.pattern()}$`;
+        const pattern = new RegExp(`^(-?)${gambit.pattern()}$`, 'i');
         let matches = bit.match(pattern);
 
         if (matches) {
@@ -37,26 +53,25 @@ export default class GambitManager {
 
           matches.splice(1, 1);
 
-          Object.assign(filter, gambit.toFilter(matches, negate));
+          onmatch(gambit, matches, negate, bit);
 
-          filter.q = filter.q.replace(bit, '');
+          query = query.replace(bit, '');
         }
       }
     }
 
-    filter.q = filter.q.trim().replace(/\s+/g, ' ');
+    query = query.trim().replace(/\s+/g, ' ');
 
-    return filter;
+    return query;
   }
 
   public from(type: string, q: string, filter: Record<string, any>): string {
-    const gambits = this.gambits[type] || [];
+    const gambits = this.for(type);
 
     if (gambits.length === 0) return q;
 
     Object.keys(filter).forEach((key) => {
-      for (const gambitClass of gambits) {
-        const gambit = new gambitClass();
+      for (const gambit of gambits) {
         const negate = key[0] === '-';
 
         if (negate) key = key.substring(1);
@@ -68,5 +83,9 @@ export default class GambitManager {
     });
 
     return q;
+  }
+
+  for(type: string): Array<IGambit> {
+    return (this.gambits[type] || []).map((gambitClass) => new gambitClass());
   }
 }

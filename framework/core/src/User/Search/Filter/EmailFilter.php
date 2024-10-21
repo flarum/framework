@@ -13,7 +13,7 @@ use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @implements FilterInterface<DatabaseSearchState>
@@ -29,7 +29,7 @@ class EmailFilter implements FilterInterface
 
     public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        if (! $state->getActor()->hasPermission('user.edit')) {
+        if (! $state->getActor()->hasPermission('user.editCredentials')) {
             return;
         }
 

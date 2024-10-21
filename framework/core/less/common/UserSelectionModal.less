@@ -1,0 +1,31 @@
+.UserSelectionModal-form {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+
+  &-input {
+    flex-grow: 1;
+  }
+}
+
+.UserSelectionModal {
+  .Dropdown--expanded();
+
+  .UserSearchResult {
+    margin: 0;
+
+    > * {
+      padding: 12px 20px;
+    }
+  }
+
+  &-selected {
+    margin-top: 8px;
+  }
+
+  &-list {
+    overflow: auto;
+    max-height: 50vh;
+  }
+}

@@ -7,16 +7,18 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Job;
+namespace Flarum\ExtensionManager\Job;
 
 use Flarum\Bus\Dispatcher;
-use Flarum\PackageManager\Command\AbstractActionCommand;
-use Flarum\PackageManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Command\AbstractActionCommand;
+use Flarum\ExtensionManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Exception\ComposerCommandFailedException;
 use Flarum\Queue\AbstractJob;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Throwable;
 
-class ComposerCommandJob extends AbstractJob
+class ComposerCommandJob extends AbstractJob implements ShouldBeUnique
 {
     public function __construct(
         protected AbstractActionCommand $command,
@@ -27,9 +29,9 @@ class ComposerCommandJob extends AbstractJob
     public function handle(Dispatcher $bus): void
     {
         try {
-            ComposerAdapter::setPhpVersion($this->phpVersion);
-
             $this->command->task->start();
+
+            ComposerAdapter::setPhpVersion($this->phpVersion);
 
             $bus->dispatch($this->command);
 
@@ -41,13 +43,20 @@ class ComposerCommandJob extends AbstractJob
 
     public function abort(Throwable $exception): void
     {
-        if (! $this->command->task->output) {
+        if (empty($this->command->task->output)) {
             $this->command->task->output = $exception->getMessage();
         }
 
-        $this->command->task->end(false);
+        if ($exception instanceof ComposerCommandFailedException) {
+            $this->command->task->guessed_cause = $exception->guessCause();
+        }
 
-        $this->fail($exception);
+        $this->command->task->end(false);
+    }
+
+    public function failed(Throwable $exception): void
+    {
+        $this->abort($exception);
     }
 
     public function middleware(): array

@@ -12,4 +12,5 @@ export default class AppearancePage extends AdminPage {
     content(): JSX.Element;
     colorItems(): ItemList<Mithril.Children>;
     onsaved(): void;
+    static register(): void;
 }

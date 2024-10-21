@@ -12,6 +12,7 @@ import type Mithril from 'mithril';
 import type Discussion from '../../common/models/Discussion';
 import PageStructure from './PageStructure';
 import IndexSidebar from './IndexSidebar';
+import PostsPage from './PostsPage';
 
 export interface IIndexPageAttrs extends IPageAttrs {}
 
@@ -33,6 +34,14 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
       this.lastDiscussion = app.previous.get('discussion');
     }
 
+    const params = app.search.state.params();
+
+    // If there is an active search and the user is coming from the PostsPage,
+    // then we will clear the search state so that discussions aren't searched.
+    if (app.previous.matches(PostsPage)) {
+      app.search.state.clear();
+    }
+
     // If the user is coming from the discussion list, then they have either
     // just switched one of the parameters (filter, sort, search) or they
     // probably want to refresh the results. We will clear the discussion list
@@ -41,7 +50,9 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
       app.discussions.clear();
     }
 
-    app.discussions.refreshParams(app.search.params(), (m.route.param('page') && Number(m.route.param('page'))) || 1);
+    if (!app.previous.matches(PostsPage) || !params.q) {
+      app.discussions.refreshParams(params, (m.route.param('page') && Number(m.route.param('page'))) || 1);
+    }
 
     app.history.push('index', extractText(app.translator.trans('core.forum.header.back_to_index_tooltip')));
 
@@ -146,7 +157,8 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
     const sortMap = app.discussions.sortMap();
 
     const sortOptions = Object.keys(sortMap).reduce((acc: any, sortId) => {
-      acc[sortId] = app.translator.trans(`core.forum.index_sort.${sortId}_button`);
+      const sort = sortMap[sortId];
+      acc[sortId] = typeof sort !== 'string' ? sort.label : app.translator.trans(`core.forum.index_sort.${sortId}_button`);
       return acc;
     }, {});
 
@@ -154,15 +166,15 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
       'sort',
       <Dropdown
         buttonClassName="Button"
-        label={sortOptions[app.search.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0]}
+        label={sortOptions[app.search.state.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0]}
         accessibleToggleLabel={app.translator.trans('core.forum.index_sort.toggle_dropdown_accessible_label')}
       >
         {Object.keys(sortOptions).map((value) => {
           const label = sortOptions[value];
-          const active = (app.search.params().sort || Object.keys(sortMap)[0]) === value;
+          const active = (app.search.state.params().sort || Object.keys(sortMap)[0]) === value;
 
           return (
-            <Button icon={active ? 'fas fa-check' : true} onclick={app.search.changeSort.bind(app.search, value)} active={active}>
+            <Button icon={active ? 'fas fa-check' : true} onclick={() => app.search.state.changeSort(value)} active={active}>
               {label}
             </Button>
           );
@@ -184,6 +196,7 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
       'refresh',
       <Button
         title={app.translator.trans('core.forum.index.refresh_tooltip')}
+        aria-label={app.translator.trans('core.forum.index.refresh_tooltip')}
         icon="fas fa-sync"
         className="Button Button--icon"
         onclick={() => {
@@ -201,6 +214,7 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
         'markAllAsRead',
         <Button
           title={app.translator.trans('core.forum.index.mark_all_as_read_tooltip')}
+          aria-label={app.translator.trans('core.forum.index.mark_all_as_read_tooltip')}
           icon="fas fa-check"
           className="Button Button--icon"
           onclick={this.markAllAsRead.bind(this)}

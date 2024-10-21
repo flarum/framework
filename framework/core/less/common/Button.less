@@ -33,6 +33,23 @@
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
     }
+
+    .Form--centered & {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+
+  &, & > .Button {
+    max-width: 100%;
+  }
+}
+
+.ButtonGroup--block {
+  width: 100%;
+
+  .Button {
+    flex-grow: 1;
   }
 }
 
@@ -143,11 +160,15 @@
     color: var(--link-color);
   }
 }
+.Button--compact {
+  padding: 4px 10px;
+}
 .Button--text {
   background: transparent !important;
   padding: 0;
-  color: inherit !important;
+  --button-color: inherit;
   line-height: inherit;
+  vertical-align: baseline;
 
   &:hover {
     text-decoration: underline;
@@ -157,6 +178,10 @@
   .open > &.Dropdown-toggle {
     box-shadow: none;
   }
+}
+.Button--link.Button--text {
+  .text-link();
+  --button-color: currentColor;
 }
 .Button--primary {
   .Button--color-auto('button-primary');
@@ -169,6 +194,20 @@
 }
 .Button--danger {
   .Button--color-auto('control-danger');
+}
+.Button--success {
+  .Button--color-auto('control-success');
+}
+.Button--warning {
+  .Button--color-auto('control-warning');
+}
+.Button--dashed {
+  background: none;
+  border: 1px dashed var(--button-bg);
+}
+.Button--outline {
+  background: none;
+  border: 1px solid var(--button-bg);
 }
 .Button--more {
   padding: 2px 4px;
@@ -208,12 +247,14 @@
   border-radius: 18px;
 
   .Avatar {
-    margin: -2px 5px -2px -6px;
+    margin: -2px 0 -2px -6px;
     .Avatar--size(24px);
   }
 }
 .Button-label {
   line-height: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .Button-icon {
   line-height: inherit;

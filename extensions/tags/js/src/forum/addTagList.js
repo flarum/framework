@@ -20,11 +20,11 @@ export default function addTagList() {
       -10
     );
 
-    if (app.current.matches(TagsPage)) return;
+    if (app.current.get('noTagsList')) return;
 
     items.add('separator', <Separator />, -12);
 
-    const params = app.search.stickyParams();
+    const params = app.search.state.stickyParams();
     const tags = app.store.all('tags');
     const currentTag = app.currentTag();
 

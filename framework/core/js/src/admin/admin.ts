@@ -1,10 +1,9 @@
 import '../common/common';
 
 import './utils/saveSettings';
-import './utils/ExtensionData';
+import './utils/AdminRegistry';
 import './utils/isExtensionEnabled';
 import './utils/getCategorizedExtensions';
-import './utils/generateElementId';
 
 import './components/SettingDropdown';
 import './components/EditCustomFooterModal';
@@ -22,7 +21,6 @@ import './components/ExtensionLinkButton';
 import './components/PermissionGrid';
 import './components/ExtensionPermissionGrid';
 import './components/MailPage';
-import './components/UploadImageButton';
 import './components/LoadingModal';
 import './components/DashboardPage';
 import './components/BasicsPage';

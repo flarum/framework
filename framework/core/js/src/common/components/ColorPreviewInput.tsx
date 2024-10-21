@@ -1,13 +1,22 @@
 import type Mithril from 'mithril';
-
 import Component, { ComponentAttrs } from '../Component';
 import classList from '../utils/classList';
-
 import Icon from './Icon';
 
-export default class ColorPreviewInput extends Component {
-  view(vnode: Mithril.Vnode<ComponentAttrs, this>) {
-    const { className, id, ...attrs } = this.attrs;
+export interface IColorPreviewInputAttrs extends ComponentAttrs {
+  value: string;
+  id?: string;
+  type?: string;
+  onchange?: (event: { target: { value: string } }) => void;
+}
+
+export default class ColorPreviewInput<
+  CustomAttributes extends IColorPreviewInputAttrs = IColorPreviewInputAttrs
+> extends Component<CustomAttributes> {
+  view(vnode: Mithril.Vnode<CustomAttributes, this>) {
+    const { className, id, ...otherAttrs } = this.attrs;
+
+    const attrs = otherAttrs as unknown as IColorPreviewInputAttrs;
 
     attrs.type ||= 'text';
 

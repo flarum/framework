@@ -13,10 +13,12 @@ use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Post\CommentPost;
+use Flarum\Post\Post;
 use Flarum\Search\IndexerInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use PHPUnit\Framework\Assert;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class SearchIndexTest extends TestCase
 {
@@ -27,11 +29,11 @@ class SearchIndexTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'DISCUSSION 1', 'created_at' => Carbon::now()->subDays(1)->toDateTimeString(), 'hidden_at' => null, 'comment_count' => 1, 'user_id' => 1, 'first_post_id' => 1],
                 ['id' => 2, 'title' => 'DISCUSSION 2', 'created_at' => Carbon::now()->subDays(2)->toDateTimeString(), 'hidden_at' => Carbon::now(), 'comment_count' => 1, 'user_id' => 1],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'number' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<r><p>content</p></r>', 'hidden_at' => null],
                 ['id' => 2, 'number' => 2, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<r><p>content</p></r>', 'hidden_at' => Carbon::now()],
             ],
@@ -41,13 +43,18 @@ class SearchIndexTest extends TestCase
     public static function modelProvider(): array
     {
         return [
-            ['discussions', Discussion::class, 'title'],
-            ['posts', CommentPost::class, 'content'],
+            ['discussions', Discussion::class, [
+                'title' => 'test',
+                'content' => 'test!',
+            ]],
+            ['posts', CommentPost::class, [
+                'content' => 'test!!',
+            ]],
         ];
     }
 
-    /** @dataProvider modelProvider */
-    public function test_indexer_triggered_on_create(string $type, string $modelClass, string $attribute)
+    #[DataProvider('modelProvider')]
+    public function test_indexer_triggered_on_create(string $type, string $modelClass, array $attributes)
     {
         $this->extend(
             (new Extend\SearchIndex())
@@ -60,9 +67,8 @@ class SearchIndexTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
-                        'attributes' => [
-                            $attribute => 'test',
-                        ],
+                        'type' => $type,
+                        'attributes' => $attributes,
                         'relationships' => ($type === 'posts' ? [
                             'discussion' => [
                                 'data' => [
@@ -70,7 +76,7 @@ class SearchIndexTest extends TestCase
                                     'id' => 1,
                                 ],
                             ],
-                        ] : null),
+                        ] : []),
                     ]
                 ],
             ]),
@@ -79,8 +85,8 @@ class SearchIndexTest extends TestCase
         Assert::assertEquals('save', TestIndexer::$triggered, $response->getBody()->getContents());
     }
 
-    /** @dataProvider modelProvider */
-    public function test_indexer_triggered_on_save(string $type, string $modelClass, string $attribute)
+    #[DataProvider('modelProvider')]
+    public function test_indexer_triggered_on_save(string $type, string $modelClass, array $attributes)
     {
         $this->extend(
             (new Extend\SearchIndex())
@@ -93,9 +99,8 @@ class SearchIndexTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
-                        'attributes' => [
-                            $attribute => 'changed'
-                        ]
+                        'type' => $type,
+                        'attributes' => $type === 'discussions' ? array_diff_key($attributes, ['content' => null]) : $attributes,
                     ]
                 ],
             ]),
@@ -104,8 +109,8 @@ class SearchIndexTest extends TestCase
         Assert::assertEquals('save', TestIndexer::$triggered, $response->getBody()->getContents());
     }
 
-    /** @dataProvider modelProvider */
-    public function test_indexer_triggered_on_delete(string $type, string $modelClass, string $attribute)
+    #[DataProvider('modelProvider')]
+    public function test_indexer_triggered_on_delete(string $type, string $modelClass, array $attributes)
     {
         $this->extend(
             (new Extend\SearchIndex())
@@ -123,8 +128,8 @@ class SearchIndexTest extends TestCase
         Assert::assertEquals('delete', TestIndexer::$triggered, $response->getBody()->getContents());
     }
 
-    /** @dataProvider modelProvider */
-    public function test_indexer_triggered_on_hide(string $type, string $modelClass, string $attribute)
+    #[DataProvider('modelProvider')]
+    public function test_indexer_triggered_on_hide(string $type, string $modelClass, array $attributes)
     {
         $this->extend(
             (new Extend\SearchIndex())
@@ -137,6 +142,7 @@ class SearchIndexTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => $type,
                         'attributes' => [
                             'isHidden' => true
                         ]
@@ -148,8 +154,8 @@ class SearchIndexTest extends TestCase
         Assert::assertEquals('delete', TestIndexer::$triggered, $response->getBody()->getContents());
     }
 
-    /** @dataProvider modelProvider */
-    public function test_indexer_triggered_on_restore(string $type, string $modelClass, string $attribute)
+    #[DataProvider('modelProvider')]
+    public function test_indexer_triggered_on_restore(string $type, string $modelClass, array $attributes)
     {
         $this->extend(
             (new Extend\SearchIndex())
@@ -162,6 +168,7 @@ class SearchIndexTest extends TestCase
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
+                        'type' => $type,
                         'attributes' => [
                             'isHidden' => false
                         ]

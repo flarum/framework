@@ -13,14 +13,13 @@ use Flarum\Extend\Frontend;
 use Flarum\Frontend\Document;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class FrontendContentTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function content_added_with_low_priority_by_default()
     {
         $title = null;
@@ -39,9 +38,7 @@ class FrontendContentTest extends TestCase
         $this->assertNotNull($title, $body);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function content_can_be_added_with_high_priority()
     {
         $title = 1;
@@ -60,9 +57,7 @@ class FrontendContentTest extends TestCase
         $this->assertNull($title, $body);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function contents_can_be_added_with_different_priorities()
     {
         $test = [];

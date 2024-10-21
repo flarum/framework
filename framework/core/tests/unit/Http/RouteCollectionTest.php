@@ -11,10 +11,11 @@ namespace Flarum\Tests\unit\Http;
 
 use Flarum\Http\RouteCollection;
 use Flarum\Testing\unit\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class RouteCollectionTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function can_add_routes()
     {
         $routeCollection = (new RouteCollection)
@@ -29,7 +30,7 @@ class RouteCollectionTest extends TestCase
         $this->assertEquals('/posts', $routeCollection->getPath('forum.posts.delete'));
     }
 
-    /** @test */
+    #[Test]
     public function can_add_routes_late()
     {
         $routeCollection = (new RouteCollection)->addRoute('GET', '/index', 'index', function () {
@@ -45,7 +46,7 @@ class RouteCollectionTest extends TestCase
         $this->assertEquals('/posts', $routeCollection->getPath('forum.posts.delete'));
     }
 
-    /** @test */
+    #[Test]
     public function must_provide_required_parameters()
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -58,7 +59,7 @@ class RouteCollectionTest extends TestCase
         $routeCollection->getPath('user', []);
     }
 
-    /** @test */
+    #[Test]
     public function dont_need_to_provide_optional_parameters()
     {
         $routeCollection = (new RouteCollection)->addRoute('GET', '/user/{user}[/{test}]', 'user', function () {
@@ -70,7 +71,7 @@ class RouteCollectionTest extends TestCase
         $this->assertEquals('/user/SomeUser', $path);
     }
 
-    /** @test */
+    #[Test]
     public function can_provide_optional_parameters()
     {
         $routeCollection = (new RouteCollection)->addRoute('GET', '/user/{user}[/{test}]', 'user', function () {

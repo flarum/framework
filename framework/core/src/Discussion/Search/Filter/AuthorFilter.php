@@ -14,7 +14,7 @@ use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Search\ValidateFilterTrait;
 use Flarum\User\UserRepository;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @implements FilterInterface<DatabaseSearchState>
@@ -43,6 +43,13 @@ class AuthorFilter implements FilterInterface
         $usernames = $this->asStringArray($rawUsernames);
 
         $ids = $this->users->getIdsForUsernames($usernames);
+
+        // To be able to also use IDs.
+        $actualIds = array_diff($usernames, array_keys($ids));
+
+        if (! empty($actualIds)) {
+            $ids = array_merge($ids, $actualIds);
+        }
 
         $query->whereIn('discussions.user_id', $ids, 'and', $negate);
     }

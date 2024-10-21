@@ -21,63 +21,30 @@ class SetupScript
 {
     use UsesTmpDir;
 
-    /**
-     * Test database host.
-     *
-     * @var string
-     */
-    protected $host;
+    protected string $driver;
+    protected string $host;
+    protected int $port;
+    protected string $name;
+    protected string $user;
+    protected string $pass;
+    protected string $pref;
 
-    /**
-     * Test database port.
-     *
-     * @var int
-     */
-    protected $port;
-
-    /**
-     * Test database name.
-     *
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * Test database username.
-     *
-     * @var string
-     */
-    protected $user;
-
-    /**
-     * Test database password.
-     *
-     * @var string
-     */
-    protected $pass;
-
-    /**
-     * Test database prefix.
-     *
-     * @var string
-     */
-    protected $pref;
-
-    /**
-     * @var DatabaseConfig
-     */
-    protected $dbConfig;
+    protected DatabaseConfig $dbConfig;
 
     /**
      * Settings to be applied during installation.
-     * @var array
      */
-    protected $settings = ['mail_driver' => 'log'];
+    protected array $settings = ['mail_driver' => 'log'];
 
     public function __construct()
     {
+        $this->driver = getenv('DB_DRIVER') ?: 'mysql';
         $this->host = getenv('DB_HOST') ?: 'localhost';
-        $this->port = intval(getenv('DB_PORT') ?: 3306);
+        $this->port = intval(getenv('DB_PORT') ?: match ($this->driver) {
+            'mysql' => 3306,
+            'pgsql' => 5432,
+            default => 0,
+        });
         $this->name = getenv('DB_DATABASE') ?: 'flarum_test';
         $this->user = getenv('DB_USERNAME') ?: 'root';
         $this->pass = getenv('DB_PASSWORD') ?? 'root';
@@ -88,7 +55,12 @@ class SetupScript
     {
         $tmp = $this->tmpDir();
 
-        echo "Connecting to database $this->name at $this->host:$this->port.\n";
+        if ($this->driver === 'sqlite') {
+            echo "Connecting to SQLite database at $this->name.\n";
+        } else {
+            echo "Connecting to database $this->name at $this->host:$this->port.\n";
+        }
+
         echo "Warning: all tables will be dropped to ensure clean state. DO NOT use your production database!\n";
         echo "Logging in as $this->user with password '$this->pass'.\n";
         echo "Table prefix: '$this->pref'\n";
@@ -103,22 +75,31 @@ class SetupScript
 
         echo "\nOff we go...\n";
 
-        $this->dbConfig = new DatabaseConfig('mysql', $this->host, $this->port, $this->name, $this->user, $this->pass, $this->pref);
+        $this->dbConfig = new DatabaseConfig(
+            $this->driver,
+            $this->host,
+            $this->port,
+            $this->name,
+            $this->user,
+            $this->pass,
+            $this->pref
+        );
 
-        echo "\nWiping DB to ensure clean state\n";
-        $this->wipeDb();
-        echo "Success! Proceeding to installation...\n";
+        $paths = new Paths([
+            'base' => $tmp,
+            'public' => "$tmp/public",
+            'storage' => "$tmp/storage",
+            'vendor' => getenv('FLARUM_TEST_VENDOR_PATH') ?: getcwd().'/vendor',
+        ]);
 
         $this->setupTmpDir();
+        $this->dbConfig->prepare($paths);
 
-        $installation = new Installation(
-            new Paths([
-                'base' => $tmp,
-                'public' => "$tmp/public",
-                'storage' => "$tmp/storage",
-                'vendor' => getenv('FLARUM_TEST_VENDOR_PATH') ?: getcwd().'/vendor',
-            ])
-        );
+        echo "\nWiping DB to ensure clean state\n";
+        $this->wipeDb($paths);
+        echo "Success! Proceeding to installation...\n";
+
+        $installation = new Installation($paths);
 
         $pipeline = $installation
             ->configPath('config.php')
@@ -140,7 +121,7 @@ class SetupScript
         echo "Installation complete\n";
     }
 
-    protected function wipeDb()
+    protected function wipeDb(Paths $paths)
     {
         // Reuse the connection step to include version checks
         (new ConnectToDatabase($this->dbConfig, function ($db) {
@@ -149,7 +130,7 @@ class SetupScript
 
             $builder->dropAllTables();
             $builder->dropAllViews();
-        }))->run();
+        }, $paths->base))->run();
     }
 
     /**

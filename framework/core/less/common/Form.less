@@ -61,9 +61,17 @@
 
 .FieldSet, .FieldSet-items, .Form, .Form-body {
   > * {
-    min-width: 100%;
+    width: 100%;
     margin-bottom: 0;
   }
+}
+
+.FieldSet-label:empty {
+  display: none;
+}
+
+.FieldSet--min .FieldSet-items > * {
+  width: auto;
 }
 
 .FieldSet--col .FieldSet-items, .Form-controls {
@@ -78,6 +86,12 @@
 
 .Form-group, .FieldSet {
   gap: 10px;
+}
+
+.Form-group--danger {
+  border: 2px solid var(--alert-error-bg);
+  border-radius: var(--border-radius);
+  background-color: transparent;
 }
 
 .FieldSet-items {

@@ -9,7 +9,7 @@ import GlobalSearchState from 'flarum/forum/states/GlobalSearchState';
 export default function addSubscriptionFilter() {
   extend(IndexSidebar.prototype, 'navItems', function (items) {
     if (app.session.user) {
-      const params = app.search.stickyParams();
+      const params = app.search.state.stickyParams();
 
       items.add(
         'following',

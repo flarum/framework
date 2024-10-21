@@ -16,6 +16,9 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\EmailToken;
 use Flarum\User\PasswordToken;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class GlobalLogoutTest extends TestCase
 {
@@ -33,10 +36,10 @@ class GlobalLogoutTest extends TestCase
         );
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser()
             ],
-            'access_tokens' => [
+            AccessToken::class => [
                 ['id' => 1, 'token' => 'a', 'user_id' => 1, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'session'],
                 ['id' => 2, 'token' => 'b', 'user_id' => 1, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'session_remember'],
                 ['id' => 3, 'token' => 'c', 'user_id' => 1, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'developer'],
@@ -55,10 +58,8 @@ class GlobalLogoutTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider canGloballyLogoutDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('canGloballyLogoutDataProvider')]
     public function can_globally_log_out(int $authenticatedAs)
     {
         $response = $this->send(
@@ -74,7 +75,7 @@ class GlobalLogoutTest extends TestCase
         $this->assertEquals(0, PasswordToken::query()->where('user_id', $authenticatedAs)->count());
     }
 
-    public function canGloballyLogoutDataProvider(): array
+    public static function canGloballyLogoutDataProvider(): array
     {
         return [
             // Admin

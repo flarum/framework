@@ -13,6 +13,8 @@ use Carbon\Carbon;
 use Flarum\Api\ApiKey;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class WithApiKeyTest extends TestCase
 {
@@ -26,19 +28,17 @@ class WithApiKeyTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
-            'api_keys' => [
+            ApiKey::class => [
                 ['key' => 'mastertoken', 'user_id' => null, 'created_at' => Carbon::now()->toDateTimeString()],
                 ['key' => 'personaltoken', 'user_id' => 2, 'created_at' => Carbon::now()->toDateTimeString()],
             ]
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cannot_authorize_without_key()
     {
         $response = $this->send(
@@ -49,9 +49,7 @@ class WithApiKeyTest extends TestCase
         $this->assertFalse($data['data']['attributes']['canSearchUsers']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function master_token_can_authenticate_as_anyone()
     {
         $response = $this->send(
@@ -68,9 +66,7 @@ class WithApiKeyTest extends TestCase
         $this->assertNotNull($key->last_activity_at);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function personal_api_token_cannot_authenticate_as_anyone()
     {
         $response = $this->send(
@@ -87,9 +83,7 @@ class WithApiKeyTest extends TestCase
         $this->assertNotNull($key->last_activity_at);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function personal_api_token_authenticates_user()
     {
         $response = $this->send(

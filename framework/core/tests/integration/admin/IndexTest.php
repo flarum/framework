@@ -11,6 +11,7 @@ namespace Flarum\Tests\integration\admin;
 
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 
 class IndexTest extends TestCase
 {
@@ -22,13 +23,13 @@ class IndexTest extends TestCase
     protected function setUp(): void
     {
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser()
             ]
         ]);
     }
 
-    public function admin_can_access_admin_route(): void
+    public function test_admin_can_access_admin_route(): void
     {
         $response = $this->send(
             $this->request('GET', '/admin', [
@@ -39,7 +40,7 @@ class IndexTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function user_cannot_access_admin_route(): void
+    public function test_user_cannot_access_admin_route(): void
     {
         $response = $this->send(
             $this->request('GET', '/admin', [

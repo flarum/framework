@@ -37,12 +37,6 @@
   position: absolute;
   top: 0;
   left: -2px;
-
-  .Badge {
-    margin-left: -10px;
-    position: relative;
-    pointer-events: auto;
-  }
 }
 .DiscussionListItem-title {
   margin: 0 0 3px;
@@ -112,6 +106,41 @@
 
   .unread & {
     cursor: pointer;
+  }
+}
+
+.MinimalDiscussionListItem {
+  .DiscussionListItem-info .item-excerpt {
+    margin-right: 0;
+  }
+
+  .DiscussionListItem-badges {
+    position: relative;
+    padding: 0;
+    margin: 0;
+    inset: unset;
+    width: auto;
+    text-align: start;
+    padding-inline-start: 8px;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  .DiscussionListItem-title {
+    display: flex;
+    column-gap: 8px;
+    align-items: center;
+    margin-bottom: 6px;
+    line-height: normal;
+    white-space: nowrap;
+
+    > div {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 }
 

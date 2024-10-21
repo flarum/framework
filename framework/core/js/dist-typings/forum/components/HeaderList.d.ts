@@ -9,6 +9,7 @@ export interface IHeaderListAttrs extends ComponentAttrs {
     loading?: boolean;
     emptyText: string;
     loadMore?: () => void;
+    footer?: () => Mithril.Children;
 }
 export default class HeaderList<CustomAttrs extends IHeaderListAttrs = IHeaderListAttrs> extends Component<CustomAttrs> {
     $content: JQuery<any> | null;

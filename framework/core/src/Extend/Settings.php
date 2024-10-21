@@ -9,9 +9,10 @@
 
 namespace Flarum\Extend;
 
+use Flarum\Admin\WhenSavingSettings;
+use Flarum\Api\Resource\ForumResource;
+use Flarum\Api\Schema\Attribute;
 use Flarum\Api\Controller\SetSettingsController;
-use Flarum\Api\Serializer\AbstractSerializer;
-use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -24,6 +25,7 @@ class Settings implements ExtenderInterface
     private array $settings = [];
     private array $defaults = [];
     private array $lessConfigs = [];
+    private array $resetJsCacheFor = [];
     private array $filter = [];
 
     /**
@@ -97,6 +99,19 @@ class Settings implements ExtenderInterface
         return $this;
     }
 
+    /**
+     * Register a setting that should trigger JS cache clear when saved.
+     *
+     * @param string $setting: The key of the setting.
+     * @return self
+     */
+    public function resetJsCacheFor(string $setting): self
+    {
+        $this->resetJsCacheFor[] = $setting;
+
+        return $this;
+    }
+
     public function extend(Container $container, Extension $extension = null): void
     {
         if (! empty($this->defaults)) {
@@ -124,11 +139,10 @@ class Settings implements ExtenderInterface
         }
 
         if (! empty($this->settings)) {
-            AbstractSerializer::addAttributeMutator(
-                ForumSerializer::class,
-                function () use ($container) {
+            (new ApiResource(ForumResource::class))
+                ->fields(function () use ($container) {
                     $settings = $container->make(SettingsRepositoryInterface::class);
-                    $attributes = [];
+                    $fields = [];
 
                     foreach ($this->settings as $key => $setting) {
                         $value = $settings->get($key);
@@ -138,12 +152,12 @@ class Settings implements ExtenderInterface
                             $value = $callback($value);
                         }
 
-                        $attributes[$setting['attributeName']] = $value;
+                        $fields[] = Attribute::make($setting['attributeName'])->get(fn () => $value);
                     }
 
-                    return $attributes;
-                }
-            );
+                    return $fields;
+                })
+                ->extend($container, $extension);
         }
 
         if (! empty($this->lessConfigs)) {
@@ -157,6 +171,12 @@ class Settings implements ExtenderInterface
                 }
 
                 return array_merge($existingConfig, $config);
+            });
+        }
+
+        if (! empty($this->resetJsCacheFor)) {
+            $container->afterResolving(WhenSavingSettings::class, function (WhenSavingSettings $whenSavingSettings) {
+                $whenSavingSettings->resetJsCacheFor($this->resetJsCacheFor);
             });
         }
     }

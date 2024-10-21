@@ -10,7 +10,7 @@ import addTagComposer from './addTagComposer';
 
 export { default as extend } from './extend';
 
-app.initializers.add('flarum-tags', function () {
+app.initializers.add('flarum-tags', () => {
   app.tagList = new TagListState();
 
   addTagList();

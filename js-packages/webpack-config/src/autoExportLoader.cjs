@@ -91,14 +91,14 @@ function addAutoExports(source, pathToModule, moduleName) {
       }
 
       // 2.3. Finally, we check for all named exports
-      //      these can be `export function|class|.. Name ..`
+      //      these can be `export function|class|enum|.. Name ..`
       //      or `export { ... };
       {
-        const matches = [...source.matchAll(/export\s+?(?:\* as|function|{\s*([A-z0-9, ]+)+\s?}|const|abstract\s?|class)+?\s?([A-Za-z_]*)?/gm)];
+        const matches = [...source.matchAll(/export\s+?(?:\* as|function|{\s*([A-z0-9, ]+)+\s?}|const|let|abstract\s?|class)+?\s?([A-Za-z_]*)?/gm)];
 
         if (matches.length) {
           const map = matches.reduce((map, match) => {
-            const names = match[1] ? match[1].split(',') : (match[2] ? [match[2]] : null);
+            const names = match[1] ? match[1].split(',') : match[2] ? [match[2]] : null;
 
             if (!names) {
               return map;
@@ -179,7 +179,8 @@ module.exports = function autoExportLoader(source) {
   // Get the path of the module to be exported
   // relative to the src directory.
   // Example: src/forum/components/UserCard.js => forum/components
-  const pathToModule = path.relative(path.resolve(this.rootContext, 'src'), this.resourcePath)
+  const pathToModule = path
+    .relative(path.resolve(this.rootContext, 'src'), this.resourcePath)
     .replaceAll(path.sep, '/')
     .replace(/[A-Za-z_]+\.[A-Za-z_]+$/, '');
 

@@ -1,7 +1,11 @@
 import { FlarumRequestOptions } from './Application';
 import Model, { ModelData, SavedModelData } from './Model';
-import GambitManager from './GambitManager';
 export interface MetaInformation {
+    page?: {
+        limit?: number;
+        offset?: number;
+        total?: number;
+    };
     [key: string]: any;
 }
 export interface ApiQueryParamsSingle {
@@ -26,7 +30,7 @@ export interface ApiQueryParamsPlural {
     sort?: string;
     meta?: MetaInformation;
 }
-export declare type ApiQueryParams = ApiQueryParamsPlural | ApiQueryParamsSingle;
+export type ApiQueryParams = ApiQueryParamsPlural | ApiQueryParamsSingle;
 export interface ApiPayloadSingle {
     data: SavedModelData;
     included?: SavedModelData[];
@@ -46,14 +50,14 @@ export interface ApiPayloadPlural {
         perPage?: number;
     };
 }
-export declare type ApiPayload = ApiPayloadSingle | ApiPayloadPlural;
-export declare type ApiResponseSingle<M extends Model> = M & {
+export type ApiPayload = ApiPayloadSingle | ApiPayloadPlural;
+export type ApiResponseSingle<M extends Model> = M & {
     payload: ApiPayloadSingle;
 };
-export declare type ApiResponsePlural<M extends Model> = M[] & {
+export type ApiResponsePlural<M extends Model> = M[] & {
     payload: ApiPayloadPlural;
 };
-export declare type ApiResponse<M extends Model> = ApiResponseSingle<M> | ApiResponsePlural<M>;
+export type ApiResponse<M extends Model> = ApiResponseSingle<M> | ApiResponsePlural<M>;
 interface ApiQueryRequestOptions<ResponseType> extends Omit<FlarumRequestOptions<ResponseType>, 'url'> {
 }
 interface StoreData {
@@ -77,11 +81,6 @@ export default class Store {
     models: Record<string, {
         new (): Model;
     }>;
-    /**
-     * The gambit manager that will convert search query gambits
-     * into API filters.
-     */
-    gambits: GambitManager;
     constructor(models: Record<string, {
         new (): Model;
     }>);

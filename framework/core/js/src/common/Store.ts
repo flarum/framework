@@ -4,6 +4,11 @@ import Model, { ModelData, SavedModelData } from './Model';
 import GambitManager from './GambitManager';
 
 export interface MetaInformation {
+  page?: {
+    limit?: number;
+    offset?: number;
+    total?: number;
+  };
   [key: string]: any;
 }
 
@@ -88,12 +93,6 @@ export default class Store {
    * should be used to represent resources of that type.
    */
   models: Record<string, { new (): Model }>;
-
-  /**
-   * The gambit manager that will convert search query gambits
-   * into API filters.
-   */
-  gambits = new GambitManager();
 
   constructor(models: Record<string, { new (): Model }>) {
     this.models = models;
@@ -186,7 +185,7 @@ export default class Store {
     }
 
     if ('filter' in params && params?.filter?.q) {
-      params.filter = this.gambits.apply(type, params.filter);
+      params.filter = app.search.gambits.apply(type, params.filter);
     }
 
     return app

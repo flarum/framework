@@ -1,0 +1,51 @@
+.ExtensionManager-DiscoverSection .Tabs-divider {
+  margin-left: -30px;
+  margin-right: -30px;
+}
+
+.ExtensionManager-DiscoverSection-list-inner {
+  --cards: 1;
+  --gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, calc((100% / var(--cards)) - (var(--gap) - (var(--gap) / var(--cards)))));
+  gap: var(--gap);
+
+  &--empty {
+    display: block;
+  }
+
+  @media @tablet-up {
+    --cards: 2;
+  }
+
+  @media @desktop-xl {
+    --cards: 3;
+  }
+
+  @media @desktop-xxl {
+    --cards: 4;
+  }
+
+  @media @desktop-xxxl {
+    --cards: 5;
+  }
+}
+
+.ExtensionManager-DiscoverSection-toolbar {
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+
+  &-primary, &-secondary {
+    display: flex;
+    gap: 8px;
+  }
+}
+
+.ExtensionManager-DiscoverSection-footer {
+  margin: 24px 0 0;
+
+  > * {
+    margin-top: 16px;
+  }
+}

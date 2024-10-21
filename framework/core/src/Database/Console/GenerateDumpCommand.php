@@ -10,6 +10,7 @@
 namespace Flarum\Database\Console;
 
 use Flarum\Console\AbstractCommand;
+use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
 use Illuminate\Database\Connection;
 use Illuminate\Database\MySqlConnection;
@@ -19,6 +20,7 @@ class GenerateDumpCommand extends AbstractCommand
 {
     public function __construct(
         protected Connection $connection,
+        protected Config $config,
         protected Paths $paths
     ) {
         parent::__construct();
@@ -33,7 +35,8 @@ class GenerateDumpCommand extends AbstractCommand
 
     protected function fire(): int
     {
-        $dumpPath = __DIR__.'/../../../migrations/install.dump';
+        $driver = $this->config['database.driver'];
+        $dumpPath = __DIR__."/../../../migrations/$driver-install.dump";
         /** @var Connection&MySqlConnection $connection */
         $connection = resolve('db.connection');
 

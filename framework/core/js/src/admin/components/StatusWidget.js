@@ -34,7 +34,7 @@ export default class StatusWidget extends DashboardWidget {
 
     items.add('version-flarum', [<strong>Flarum</strong>, <br />, app.forum.attribute('version')], 100);
     items.add('version-php', [<strong>PHP</strong>, <br />, app.data.phpVersion], 90);
-    items.add('version-mysql', [<strong>MySQL</strong>, <br />, app.data.mysqlVersion], 80);
+    items.add('version-db', [<strong>{app.data.dbDriver}</strong>, <br />, app.data.dbVersion], 80);
     if (app.data.schedulerStatus) {
       items.add(
         'schedule-status',
@@ -72,24 +72,22 @@ export default class StatusWidget extends DashboardWidget {
       <Button onclick={this.handleClearCache.bind(this)}>{app.translator.trans('core.admin.dashboard.clear_cache_button')}</Button>
     );
 
-    if (!app.data.advancedPageEmpty) {
-      items.add(
-        'toggleAdvancedPage',
-        <Button
-          onclick={() => {
-            saveSettings({
-              show_advanced_settings: !app.data.settings.show_advanced_settings,
-            });
+    items.add(
+      'toggleAdvancedPage',
+      <Button
+        onclick={() => {
+          saveSettings({
+            show_advanced_settings: !app.data.settings.show_advanced_settings,
+          });
 
-            if (app.data.settings.show_advanced_settings) {
-              m.route.set(app.route('advanced'));
-            }
-          }}
-        >
-          {app.translator.trans('core.admin.dashboard.toggle_advanced_page_button')}
-        </Button>
-      );
-    }
+          if (app.data.settings.show_advanced_settings) {
+            m.route.set(app.route('advanced'));
+          }
+        }}
+      >
+        {app.translator.trans('core.admin.dashboard.toggle_advanced_page_button')}
+      </Button>
+    );
 
     return items;
   }

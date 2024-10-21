@@ -16,7 +16,6 @@ use Flarum\Discussion\Event\Deleted;
 use Flarum\Discussion\Event\Hidden;
 use Flarum\Discussion\Event\Renamed;
 use Flarum\Discussion\Event\Restored;
-use Flarum\Discussion\Event\Started;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Notification\Notification;
 use Flarum\Post\MergeableInterface;
@@ -24,6 +23,7 @@ use Flarum\Post\Post;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -60,6 +60,7 @@ class Discussion extends AbstractModel
 {
     use EventGeneratorTrait;
     use ScopeVisibilityTrait;
+    use HasFactory;
 
     /**
      * An array of posts that have been modified during this request.
@@ -107,22 +108,10 @@ class Discussion extends AbstractModel
             $discussion->raise(new Deleted($discussion));
 
             Notification::whereSubject($discussion)->delete();
+
+            // SQLite foreign constraints don't work since they were added *after* the table creation.
+            $discussion->posts()->delete();
         });
-    }
-
-    public static function start(string $title, User $user): static
-    {
-        $discussion = new static;
-
-        $discussion->title = $title;
-        $discussion->created_at = Carbon::now();
-        $discussion->user_id = $user->id;
-
-        $discussion->setRelation('user', $user);
-
-        $discussion->raise(new Started($discussion));
-
-        return $discussion;
     }
 
     public function rename(string $title): static
@@ -194,7 +183,7 @@ class Discussion extends AbstractModel
 
     public function refreshLastPost(): static
     {
-        if ($lastPost = $this->comments()->latest()->first()) {
+        if ($lastPost = $this->comments()->latest()->latest('id')->first()) {
             /** @var Post $lastPost */
             $this->setLastPost($lastPost);
         }

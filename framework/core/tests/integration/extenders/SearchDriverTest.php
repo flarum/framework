@@ -9,11 +9,11 @@
 
 namespace Flarum\Tests\integration\extenders;
 
-use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Discussion\Search\Filter\UnreadFilter;
 use Flarum\Extend;
+use Flarum\Post\Post;
 use Flarum\Search\AbstractFulltextFilter;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Search\Database\DatabaseSearchState;
@@ -24,6 +24,7 @@ use Flarum\Search\SearchState;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class SearchDriverTest extends TestCase
 {
@@ -37,13 +38,13 @@ class SearchDriverTest extends TestCase
         // which is needed for search, doesn't happen in transactions.
         // We clean it up explcitly at the end.
         $this->database()->table('discussions')->insert([
-            ['id' => 1, 'title' => 'DISCUSSION 1', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
-            ['id' => 2, 'title' => 'DISCUSSION 2', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
+            Discussion::factory()->raw(['id' => 1, 'title' => 'DISCUSSION 1', 'user_id' => 1]),
+            Discussion::factory()->raw(['id' => 2, 'title' => 'DISCUSSION 2', 'user_id' => 1]),
         ]);
 
         $this->database()->table('posts')->insert([
-            ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>not in text</p></t>'],
-            ['id' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>lightsail in text</p></t>'],
+            Post::factory()->raw(['id' => 1, 'discussion_id' => 1, 'user_id' => 1, 'content' => '<t><p>not in text</p></t>']),
+            Post::factory()->raw(['id' => 2, 'discussion_id' => 2, 'user_id' => 1, 'content' => '<t><p>lightsail in text</p></t>']),
         ]);
 
         // We need to call these again, since we rolled back the transaction started by `::app()`.
@@ -78,9 +79,7 @@ class SearchDriverTest extends TestCase
             ->getResults();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function works_as_expected_with_no_modifications()
     {
         $this->prepDb();
@@ -94,9 +93,7 @@ class SearchDriverTest extends TestCase
         $this->assertStringContainsString('DISCUSSION 2', $searchForSecond);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_full_text_gambit_has_effect_if_added()
     {
         $this->extend(
@@ -107,9 +104,7 @@ class SearchDriverTest extends TestCase
         $this->assertEquals('[]', json_encode($this->searchDiscussions('in text', 5)));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_filter_has_effect_if_added()
     {
         $this->extend(
@@ -125,9 +120,7 @@ class SearchDriverTest extends TestCase
         $this->assertEquals('[]', json_encode($this->searchDiscussions('', 5, ['noResult' => '1'])));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function existing_filter_can_be_replaced()
     {
         $this->extend(
@@ -142,9 +135,7 @@ class SearchDriverTest extends TestCase
         $this->assertEquals('[]', json_encode($this->searchDiscussions('', 5, ['noResult' => '1'])));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function search_mutator_has_effect_if_added()
     {
         $this->extend(
@@ -159,9 +150,7 @@ class SearchDriverTest extends TestCase
         $this->assertEquals('[]', json_encode($this->searchDiscussions('in text', 5)));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function search_mutator_has_effect_if_added_with_invokable_class()
     {
         $this->extend(

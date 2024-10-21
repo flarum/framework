@@ -79,9 +79,6 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
     }
   }
 
-  /**
-   * @todo split into FormModal and Modal in 2.0
-   */
   view() {
     if (this.alertAttrs) {
       this.alertAttrs.dismissible = false;
@@ -165,7 +162,7 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
     m.redraw();
   }
 
-  private get dismissibleOptions(): IDismissibleOptions {
+  protected get dismissibleOptions(): IDismissibleOptions {
     return (this.constructor as typeof Modal).dismissibleOptions;
   }
 }

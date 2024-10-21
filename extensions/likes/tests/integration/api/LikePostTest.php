@@ -10,9 +10,15 @@
 namespace Flarum\Likes\Tests\integration\api;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
+use Flarum\Group\Group;
 use Flarum\Post\CommentPost;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ResponseInterface;
 
 class LikePostTest extends TestCase
@@ -26,21 +32,21 @@ class LikePostTest extends TestCase
         $this->extension('flarum-likes');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 ['id' => 1, 'username' => 'Muralf', 'email' => 'muralf@machine.local', 'is_email_confirmed' => 1],
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'Acme', 'email' => 'acme@machine.local', 'is_email_confirmed' => 1],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 2],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'number' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>something</p></t>'],
                 ['id' => 3, 'number' => 2, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>something</p></t>'],
                 ['id' => 5, 'number' => 3, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 3, 'type' => 'discussionRenamed', 'content' => '<t><p>something</p></t>'],
                 ['id' => 6, 'number' => 4, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>something</p></t>'],
             ],
-            'groups' => [
+            Group::class => [
                 ['id' => 5, 'name_singular' => 'Acme', 'name_plural' => 'Acme', 'is_hidden' => 0],
                 ['id' => 6, 'name_singular' => 'Acme1', 'name_plural' => 'Acme1', 'is_hidden' => 0]
             ],
@@ -56,10 +62,8 @@ class LikePostTest extends TestCase
         $this->database()->table('group_permission')->insert(['permission' => 'discussion.likePosts', 'group_id' => 5]);
     }
 
-    /**
-     * @dataProvider allowedUsersToLike
-     * @test
-     */
+    #[Test]
+    #[DataProvider('allowedUsersToLike')]
     public function can_like_a_post_if_allowed(int $postId, ?int $authenticatedAs, string $message, bool $canLikeOwnPost = null)
     {
         if (! is_null($canLikeOwnPost)) {
@@ -72,14 +76,12 @@ class LikePostTest extends TestCase
 
         $post = CommentPost::query()->find($postId);
 
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
         $this->assertNotNull($post->likes->where('id', $authenticatedAs)->first(), $message);
     }
 
-    /**
-     * @dataProvider unallowedUsersToLike
-     * @test
-     */
+    #[Test]
+    #[DataProvider('unallowedUsersToLike')]
     public function cannot_like_a_post_if_not_allowed(int $postId, ?int $authenticatedAs, string $message, bool $canLikeOwnPost = null)
     {
         if (! is_null($canLikeOwnPost)) {
@@ -92,14 +94,12 @@ class LikePostTest extends TestCase
 
         $post = CommentPost::query()->find($postId);
 
-        $this->assertEquals(403, $response->getStatusCode(), $message);
+        $this->assertContainsEquals($response->getStatusCode(), [401, 403], $message);
         $this->assertNull($post->likes->where('id', $authenticatedAs)->first());
     }
 
-    /**
-     * @dataProvider allowedUsersToLike
-     * @test
-     */
+    #[Test]
+    #[DataProvider('allowedUsersToLike')]
     public function can_dislike_a_post_if_liked_and_allowed(int $postId, ?int $authenticatedAs, string $message, bool $canLikeOwnPost = null)
     {
         if (! is_null($canLikeOwnPost)) {
@@ -117,7 +117,7 @@ class LikePostTest extends TestCase
         $this->assertNull($post->likes->where('id', $authenticatedAs)->first(), $message);
     }
 
-    public function allowedUsersToLike(): array
+    public static function allowedUsersToLike(): array
     {
         return [
             [1, 1, 'Admin can like any post'],
@@ -126,7 +126,7 @@ class LikePostTest extends TestCase
         ];
     }
 
-    public function unallowedUsersToLike(): array
+    public static function unallowedUsersToLike(): array
     {
         return [
             [1, null, 'Guest cannot like any post'],
