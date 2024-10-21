@@ -16,7 +16,7 @@ export default function addStickyExcerpt() {
   extend(DiscussionListItem.prototype, 'infoItems', function (items) {
     const discussion = this.attrs.discussion;
 
-    if (discussion.isSticky() && !this.attrs.params.q && !discussion.lastReadPostNumber()) {
+    if (app.forum.attribute('excerptDisplayEnabled') && discussion.isSticky() && !this.attrs.params.q && !discussion.lastReadPostNumber()) {
       const firstPost = discussion.firstPost();
 
       if (firstPost) {
