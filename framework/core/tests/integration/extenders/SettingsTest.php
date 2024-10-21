@@ -188,6 +188,54 @@ class SettingsTest extends TestCase
     }
 
     #[Test]
+    public function resetting_setting_returns_default_value()
+    {
+        $this->extend(
+            (new Extend\Settings())
+                ->default('custom-prefix.filter_this_setting', 'extenderDefault')
+                ->resetWhen('custom-prefix.filter_this_setting', function (mixed $value): bool {
+                    return $value === '';
+                })
+        );
+
+        $this->send(
+            $this->request('POST', '/api/settings', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'custom-prefix.filter_this_setting' => ''
+                ]
+            ])
+        );
+
+        $value = $this->app()
+            ->getContainer()
+            ->make('flarum.settings')
+            ->get('custom-prefix.filter_this_setting');
+
+        $this->assertEquals('extenderDefault', $value);
+    }
+
+    #[Test]
+    public function not_resetting_setting_returns_value()
+    {
+        $this->send(
+            $this->request('POST', '/api/settings', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'custom-prefix.filter_this_setting' => ''
+                ]
+            ])
+        );
+
+        $value = $this->app()
+            ->getContainer()
+            ->make('flarum.settings')
+            ->get('custom-prefix.filter_this_setting');
+
+        $this->assertEquals('', $value);
+    }
+
+    #[Test]
     public function custom_less_var_does_not_work_by_default()
     {
         $this->extend(

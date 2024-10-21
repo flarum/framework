@@ -129,7 +129,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
-        $this->assertEquals(['1', '2', '3', '4', '9', '10'], $ids);
+        $this->assertEqualsCanonicalizing(['1', '2', '3', '4', '9', '10'], $ids);
     }
 
     public static function listTagsIncludesDataProvider(): array

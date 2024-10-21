@@ -12,7 +12,7 @@
 
 ### Fixed
 - UI does not reflect bypass tag requirements permission (https://github.com/flarum/tags/pull/148).
-- Occassional errors when deleting flagged posts (https://github.com/flarum/tags/pull/154)
+- Occasional errors when deleting flagged posts (https://github.com/flarum/tags/pull/154)
 - Tag discussion count doesn't adjust when deleting first/only post of the discussion (https://github.com/flarum/tags/pull/154)
 
 ## [1.1.0](https://github.com/flarum/tags/compare/v1.0.3...v1.1.0)

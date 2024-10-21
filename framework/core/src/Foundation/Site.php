@@ -18,6 +18,8 @@ class Site
     {
         $paths = new Paths($paths);
 
+        define('FLARUM_START', microtime(true));
+
         date_default_timezone_set('UTC');
 
         if (! static::hasConfigFile($paths->base)) {

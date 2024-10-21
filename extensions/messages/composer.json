@@ -25,6 +25,9 @@
         "flarum-extension": {
             "title": "Messages",
             "category": "feature",
+            "optional-dependencies": [
+                "flarum/tags"
+            ],
             "icon": {
                 "name": "fas fa-envelope-open",
                 "color": "#ffffff",

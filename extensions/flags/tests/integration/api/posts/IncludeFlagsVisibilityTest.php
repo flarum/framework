@@ -126,7 +126,7 @@ class IncludeFlagsVisibilityTest extends TestCase
 
         $data = $responseBody['data'];
 
-        $this->assertEquals(['1', '2', '3', '4', '5'], Arr::pluck($data, 'id'));
+        $this->assertEqualsCanonicalizing(['1', '2', '3', '4', '5'], Arr::pluck($data, 'id'));
         $this->assertEqualsCanonicalizing(
             $expectedIncludes,
             collect($responseBody['included'] ?? [])

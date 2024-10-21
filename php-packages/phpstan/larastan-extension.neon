@@ -233,11 +233,6 @@ services:
             - phpstan.broker.dynamicMethodReturnTypeExtension
 
     -
-        class: Larastan\Larastan\ReturnTypes\RelationFindExtension
-        tags:
-            - phpstan.broker.dynamicMethodReturnTypeExtension
-
-    -
         class: Larastan\Larastan\ReturnTypes\RelationCollectionExtension
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension

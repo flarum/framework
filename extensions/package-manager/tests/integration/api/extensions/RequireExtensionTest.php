@@ -77,7 +77,7 @@ class RequireExtensionTest extends TestCase
     }
 
     #[Test]
-    public function requiring_an_uncompatible_extension_fails()
+    public function requiring_an_incompatible_extension_fails()
     {
         $response = $this->send(
             $this->request('POST', '/api/extension-manager/extensions', [
@@ -95,7 +95,7 @@ class RequireExtensionTest extends TestCase
     }
 
     #[Test]
-    public function requiring_an_uncompatible_extension_with_specific_version_fails()
+    public function requiring_an_incompatible_extension_with_specific_version_fails()
     {
         $response = $this->send(
             $this->request('POST', '/api/extension-manager/extensions', [
