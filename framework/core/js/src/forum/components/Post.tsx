@@ -90,7 +90,7 @@ export default abstract class Post<CustomAttrs extends IPostAttrs = IPostAttrs> 
       90
     );
 
-    items.add('footer', <footer className="Post-footer">{footerItems.length > 0 ? <ul>{listItems(footerItems)}</ul> : <ul></ul>}</footer>, 80);
+    items.add('footer', <footer className="Post-footer">{footerItems.length > 0 ? <ul>{listItems(footerItems)}</ul> : null}</footer>, 80);
 
     return items;
   }
