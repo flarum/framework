@@ -26,7 +26,7 @@ class Settings implements ExtenderInterface
     private array $defaults = [];
     private array $lessConfigs = [];
     private array $resetJsCacheFor = [];
-    private array $filter = [];
+    private array $resetWhen = [];
 
     /**
      * Serialize a setting value to the ForumSerializer attributes.
@@ -66,13 +66,15 @@ class Settings implements ExtenderInterface
     }
 
     /**
-     * Reset a setting to default when callback returns true.
+     * Delete a custom setting value when the callback returns true.
+     * This allows the setting to be reset to its default value.
+     *
      * @param string $key: The key of the setting.
-     * @param (callable(mixed $value): bool)|bool $callback: Boolean to determine whether the setting needs deleted.
+     * @param (callable(mixed $value): bool) $callback: The callback to determine if the setting should be reset.
      */
-    public function filter(string $key, callable|bool $callback): self
+    public function resetWhen(string $key, callable|string $callback): self
     {
-        $this->filter[$key] = $callback;
+        $this->resetWhen[$key] = $callback;
 
         return $this;
     }
@@ -128,10 +130,10 @@ class Settings implements ExtenderInterface
             });
         }
 
-        if (! empty($this->filter)) {
-            foreach ($this->filter as $key => $callback) {
+        if (! empty($this->resetWhen)) {
+            foreach ($this->resetWhen as $key => $callback) {
                 Arr::set(
-                    SetSettingsController::$filter,
+                    SetSettingsController::$resetWhen,
                     $key,
                     ContainerUtil::wrapCallback($callback, $container)
                 );

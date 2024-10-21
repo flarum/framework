@@ -21,7 +21,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class SetSettingsController implements RequestHandlerInterface
 {
-    public static array $filter = [];
+    public static array $resetWhen = [];
 
     public function __construct(
         protected SettingsRepositoryInterface $settings,
@@ -39,14 +39,8 @@ class SetSettingsController implements RequestHandlerInterface
 
         foreach ($settings as $k => $v) {
             $this->dispatcher->dispatch(new Event\Serializing($k, $v));
-            $filterCallback = Arr::get(static::$filter, $k);
-            $shouldFilter = false;
 
-            if (! is_null($filterCallback)) {
-                $shouldFilter = $filterCallback($v);
-            }
-
-            if ($shouldFilter) {
+            if (! is_null($resetWhen = Arr::get(static::$resetWhen, $k)) && $resetWhen($v)) {
                 $this->settings->delete($k);
             } else {
                 $this->settings->set($k, $v);
