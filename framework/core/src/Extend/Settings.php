@@ -10,9 +10,9 @@
 namespace Flarum\Extend;
 
 use Flarum\Admin\WhenSavingSettings;
+use Flarum\Api\Controller\SetSettingsController;
 use Flarum\Api\Resource\ForumResource;
 use Flarum\Api\Schema\Attribute;
-use Flarum\Api\Controller\SetSettingsController;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
