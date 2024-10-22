@@ -31,6 +31,10 @@ return [
 
     new Extend\Locales(__DIR__.'/locale'),
 
+    (new Extend\Settings())
+        ->serializeToForum('excerptDisplayEnabled', 'flarum-sticky.enable_display_excerpt', 'boolval')
+        ->default('flarum-sticky.enable_display_excerpt', true),
+
     (new Extend\Model(Discussion::class))
         ->cast('is_sticky', 'bool'),
 
@@ -50,4 +54,8 @@ return [
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addFilter(DiscussionSearcher::class, StickyFilter::class)
         ->addMutator(DiscussionSearcher::class, PinStickiedDiscussionsToTop::class),
+
+    (new Extend\Settings())
+        ->default('flarum-sticky.only_sticky_unread_discussions', true)
+        ->serializeToForum('onlyStickyUnreadDiscussions', 'flarum-sticky.only_sticky_unread_discussions', 'boolval'),
 ];

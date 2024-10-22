@@ -25,8 +25,8 @@ abstract class Migration
     {
         return [
             'up' => function (Builder $schema) use ($name, $definition) {
-                $schema->create($name, function (Blueprint $table) use ($definition) {
-                    $definition($table);
+                $schema->create($name, function (Blueprint $table) use ($definition, $schema) {
+                    $definition($table, $schema);
                 });
             },
             'down' => function (Builder $schema) use ($name) {
@@ -40,8 +40,8 @@ abstract class Migration
         return [
             'up' => function (Builder $schema) use ($name, $definition) {
                 if (! $schema->hasTable($name)) {
-                    $schema->create($name, function (Blueprint $table) use ($definition) {
-                        $definition($table);
+                    $schema->create($name, function (Blueprint $table) use ($definition, $schema) {
+                        $definition($table, $schema);
                     });
                 }
             },

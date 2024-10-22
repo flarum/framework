@@ -36,24 +36,7 @@
 
     // Table refreshing overlay
     &--loadingPage {
-      &::after {
-        content: "";
-        display: block;
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: rgba(128, 128, 128, 0.2);
-      }
-
-      .LoadingIndicator-container {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-      }
+      .loading-container();
     }
 
     &--loaded,
@@ -87,26 +70,6 @@
         }
       }
     }
-  }
-
-  &-gridPagination {
-    display: grid;
-    grid-template-columns: auto auto 1fr auto auto;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-    margin-top: 16px;
-  }
-
-  &-pageNumber {
-    text-align: center;
-  }
-
-  &-pageNumberInput {
-    display: inline-block;
-    margin: 0 8px;
-    width: auto;
-    max-width: 80px;
   }
 }
 

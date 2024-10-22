@@ -44,7 +44,8 @@ class GlobalUpdateHandler
 
         $output = $this->composer->run(
             new ArrayInput($input),
-            $command->task ?? null
+            $command->task ?? null,
+            true
         );
 
         if ($output->getExitCode() !== 0) {

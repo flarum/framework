@@ -1,2 +1,2 @@
-declare const _default: (import("flarum/common/extenders/Routes").default | import("flarum/common/extenders/Store").default)[];
+declare const _default: (import("flarum/common/extenders/Store").default | import("flarum/common/extenders/Routes").default)[];
 export default _default;

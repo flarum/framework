@@ -526,7 +526,7 @@ core:
 
     # These translations are used by the Notifications dropdown, a.k.a. "the bell".
     notifications:
-      delete_all_confirm: Are you sure you want to delete all notifications? This action is not reversable
+      delete_all_confirm: Are you sure you want to delete all notifications? This action is not reversible
       delete_all_tooltip: Delete all notifications
       discussion_renamed_text: "{username} changed the title"
       empty_text: No Notifications

@@ -7,7 +7,7 @@ import Alert from 'flarum/common/components/Alert';
 
 import { UpdatedPackage, UpdateState } from '../states/ControlSectionState';
 import WhyNotModal from './WhyNotModal';
-import ExtensionItem from './ExtensionItem';
+import ExtensionCard from './ExtensionCard';
 import classList from 'flarum/common/utils/classList';
 
 export interface MajorUpdaterAttrs extends ComponentAttrs {
@@ -27,7 +27,6 @@ export default class MajorUpdater<T extends MajorUpdaterAttrs = MajorUpdaterAttr
   }
 
   view(): Mithril.Children {
-    // @todo move Form-group--danger class to core for reuse
     return (
       <div
         className={classList('Form-group Form-group--danger ExtensionManager-majorUpdate', {
@@ -63,7 +62,7 @@ export default class MajorUpdater<T extends MajorUpdaterAttrs = MajorUpdaterAttr
         {this.updateState.incompatibleExtensions.length ? (
           <div className="ExtensionManager-majorUpdate-incompatibleExtensions ExtensionManager-extensions-grid">
             {this.updateState.incompatibleExtensions.map((extension: string) => (
-              <ExtensionItem
+              <ExtensionCard
                 extension={app.data.extensions[extension.replace('flarum-', '').replace('flarum-ext-', '').replace('/', '-')]}
                 updates={{}}
                 onClickUpdate={null}

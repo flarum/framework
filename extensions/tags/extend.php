@@ -178,10 +178,4 @@ return [
             return $endpoint
                 ->addDefaultInclude(['eventPostMentionsTags']);
         }),
-
-    (new Extend\ApiResource(Resource\DiscussionResource::class))
-        ->endpoint(Endpoint\Show::class, function (Endpoint\Show $endpoint) {
-            return $endpoint
-                ->addDefaultInclude(['posts.eventPostMentionsTags']);
-        }),
 ];

@@ -13,9 +13,9 @@ use Illuminate\Database\Schema\Blueprint;
 return Migration::createTable(
     'dialogs',
     function (Blueprint $table) {
-        $table->bigIncrements('id');
-        $table->unsignedBigInteger('first_message_id')->nullable();
-        $table->unsignedBigInteger('last_message_id')->nullable();
+        $table->increments('id');
+        $table->unsignedInteger('first_message_id')->nullable();
+        $table->unsignedInteger('last_message_id')->nullable();
         $table->dateTime('last_message_at')->nullable();
         $table->unsignedInteger('last_message_user_id')->nullable();
         $table->foreign('last_message_user_id')->references('id')->on('users')->nullOnDelete();

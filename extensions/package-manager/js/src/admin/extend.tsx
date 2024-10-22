@@ -2,8 +2,14 @@ import Extend from 'flarum/common/extenders';
 import app from 'flarum/admin/app';
 import extractText from 'flarum/common/utils/extractText';
 import SettingsPage from './components/SettingsPage';
+import Task from './models/Task';
+import ExternalExtension from './models/ExternalExtension';
 
 export default [
+  new Extend.Store() //
+    .add('extension-manager-tasks', Task)
+    .add('external-extensions', ExternalExtension),
+
   new Extend.Admin()
     .setting(() => ({
       setting: 'flarum-extension-manager.queue_jobs',
@@ -27,5 +33,26 @@ export default [
       help: app.translator.trans('flarum-extension-manager.admin.settings.task_retention_days_help'),
       type: 'number',
     }))
-    .page(SettingsPage),
+    .page(SettingsPage)
+    .generalIndexItems('settings', () => [
+      {
+        id: 'minimum-stability',
+        label: app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.label', {}, true),
+        help: app.translator.trans('flarum-extension-manager.admin.composer.minimum_stability.help', {}, true),
+      },
+      {
+        id: 'repositories',
+        label: app.translator.trans('flarum-extension-manager.admin.composer.repositories.label', {}, true),
+        help: app.translator.trans('flarum-extension-manager.admin.composer.repositories.help', {}, true),
+      },
+      {
+        id: 'composer-auth',
+        label: app.translator.trans('flarum-extension-manager.admin.auth_config.title', {}, true),
+      },
+      {
+        id: 'updates',
+        label: app.translator.trans('flarum-extension-manager.admin.updater.updater_title', {}, true),
+        help: app.translator.trans('flarum-extension-manager.admin.updater.updater_help', {}, true),
+      },
+    ]),
 ];

@@ -262,6 +262,7 @@ export default class ControlSectionState {
         name: 'flarum/core',
         version: app.data.settings.version,
         icon: {
+          name: '',
           // @ts-ignore
           backgroundImage: `url(${app.data.resources[0]['attributes']['baseUrl']}/assets/extensions/flarum-extension-manager/flarum.svg`,
         },
@@ -270,6 +271,7 @@ export default class ControlSectionState {
             title: extractText(app.translator.trans('flarum-extension-manager.admin.updater.flarum')),
           },
         },
+        links: {},
       },
     };
   }

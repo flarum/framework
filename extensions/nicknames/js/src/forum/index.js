@@ -57,7 +57,7 @@ app.initializers.add('flarum-nicknames', () => {
   extend('flarum/forum/components/SignUpModal', 'oninit', function () {
     if (app.forum.attribute('displayNameDriver') !== 'nickname') return;
 
-    this.nickname = Stream(this.attrs.username || '');
+    this.nickname = Stream(this.attrs.nickname || this.attrs.username || '');
   });
 
   extend('flarum/forum/components/SignUpModal', 'onready', function () {

@@ -9,8 +9,8 @@
 
 namespace Flarum\ExtensionManager\Composer;
 
+use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
-use Flarum\ExtensionManager\Support\Util;
 use Flarum\Foundation\Paths;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
@@ -39,7 +39,7 @@ class ComposerJson
                 }
 
                 // Only extensions can all be set to * versioning.
-                if (! $this->extensions->getExtension(Util::nameToId($packageName))) {
+                if (! $this->extensions->getExtension(Extension::nameToId($packageName))) {
                     continue;
                 }
 

@@ -12,8 +12,10 @@ namespace Flarum\Mail;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Contracts\Validation\Factory;
+use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Support\Arr;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 
@@ -81,5 +83,10 @@ class MailServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->alias('mailer', MailerContract::class);
+    }
+
+    public function boot(Dispatcher $events): void
+    {
+        $events->listen(MessageSending::class, MutateEmail::class);
     }
 }

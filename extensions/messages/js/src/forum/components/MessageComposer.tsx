@@ -134,7 +134,6 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
       })
       .then((message) => {
         this.composer.hide();
-        // @todo: app.dialogs.refresh();
         // @ts-ignore
         m.route.set(app.route('dialog', { id: message.data.relationships!.dialog.data.id }));
         this.attrs.onsubmit?.(message);

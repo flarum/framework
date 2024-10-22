@@ -192,6 +192,7 @@ export default class Application {
     pane: any;
     data: ApplicationData;
     allowUserColorScheme: boolean;
+    refs: Record<string, string>;
     private _title;
     private _titleCount;
     private set title(value);

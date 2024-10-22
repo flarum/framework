@@ -83,5 +83,7 @@ return [
         ->type(Notification\MessageReceivedBlueprint::class, ['email']),
 
     (new Extend\Event())
-        ->listen(DialogMessage\Event\Created::class, Listener\SendNotificationWhenMessageSent::class),
+        ->listen(DialogMessage\Event\Created::class, Listener\SendNotificationWhenMessageSent::class)
+        ->listen(DialogMessage\Event\Created::class, Listener\UpdateMentionsMetadataWhenVisible::class)
+        ->listen(DialogMessage\Event\Updated::class, Listener\UpdateMentionsMetadataWhenVisible::class),
 ];

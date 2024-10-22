@@ -75,7 +75,6 @@ class DiscussionResource extends AbstractDatabaseResource
                 ->authenticated()
                 ->can('startDiscussion')
                 ->defaultInclude([
-                    'posts',
                     'user',
                     'lastPostedUser',
                     'firstPost',
@@ -89,12 +88,14 @@ class DiscussionResource extends AbstractDatabaseResource
             Endpoint\Show::make()
                 ->defaultInclude([
                     'user',
-                    'posts',
-                    'posts.discussion',
-                    'posts.user',
-                    'posts.user.groups',
-                    'posts.editedUser',
-                    'posts.hiddenUser'
+                    'lastPostedUser',
+                    'firstPost',
+                    'firstPost.discussion',
+                    'firstPost.user',
+                    'firstPost.user.groups',
+                    'firstPost.editedUser',
+                    'firstPost.hiddenUser',
+                    'lastPost'
                 ]),
             Endpoint\Index::make()
                 ->defaultInclude([
@@ -206,54 +207,14 @@ class DiscussionResource extends AbstractDatabaseResource
                 ->type('posts'),
             Schema\Relationship\ToMany::make('posts')
                 ->withLinkage(function (Context $context) {
-                    return $context->showing(self::class);
+                    return $context->showing(self::class)
+                        || $context->creating(self::class)
+                        || $context->creating(PostResource::class);
                 })
-                ->includable()
-                // @todo: remove this, and send a second request from the frontend to /posts instead. Revert Serializer::addIncluded while you're at it.
                 ->get(function (Discussion $discussion, Context $context) {
-                    $showingDiscussion = $context->showing(self::class);
-
-                    if (! $showingDiscussion) {
-                        return fn () => $discussion->posts->all();
-                    }
-
-                    /** @var Endpoint\Show $endpoint */
-                    $endpoint = $context->endpoint;
-
-                    $actor = $context->getActor();
-
-                    $limit = PostResource::$defaultLimit;
-
-                    if (($near = Arr::get($context->request->getQueryParams(), 'page.near')) > 1) {
-                        $offset = $this->posts->getIndexForNumber($discussion->id, $near, $actor);
-                        $offset = max(0, $offset - $limit / 2);
-                    } else {
-                        $offset = $endpoint->extractOffsetValue($context, $endpoint->defaultExtracts($context));
-                    }
-
-                    /** @var Endpoint\Endpoint $endpoint */
-                    $endpoint = $context->endpoint;
-
-                    $posts = $discussion->posts()
-                        ->whereVisibleTo($actor)
-                        ->with($endpoint->getEagerLoadsFor('posts', $context))
-                        ->with($endpoint->getWhereEagerLoadsFor('posts', $context))
-                        ->orderBy('number')
-                        ->skip($offset)
-                        ->take($limit)
-                        ->get();
-
-                    /** @var Post $post */
-                    foreach ($posts as $post) {
-                        $post->setRelation('discussion', $discussion);
-                    }
-
-                    $allPosts = $discussion->posts()->whereVisibleTo($actor)->orderBy('number')->pluck('id')->all();
-                    $loadedPosts = $posts->all();
-
-                    array_splice($allPosts, $offset, $limit, $loadedPosts);
-
-                    return $allPosts;
+                    // @todo: is it possible to refactor the frontend to not need all post IDs?
+                    //       some kind of percentage-based stream scrubber?
+                    return $discussion->posts()->whereVisibleTo($context->getActor())->select('id')->get()->all();
                 }),
             Schema\Relationship\ToOne::make('mostRelevantPost')
                 ->visible(fn (Discussion $model, Context $context) => $context->listing())

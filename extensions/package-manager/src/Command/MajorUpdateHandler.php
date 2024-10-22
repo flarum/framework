@@ -89,7 +89,7 @@ class MajorUpdateHandler
             $input['--dry-run'] = true;
         }
 
-        $output = $this->composer->run(new ArrayInput($input), $command->task ?? null);
+        $output = $this->composer->run(new ArrayInput($input), $command->task ?? null, true);
 
         if ($output->getExitCode() !== 0) {
             throw new MajorUpdateFailedException('*', $output->getContents(), $majorVersion);

@@ -2,12 +2,14 @@ import IExtender, { IExtensionModule } from './IExtender';
 import type AdminApplication from '../../admin/AdminApplication';
 import type { CustomExtensionPage, SettingConfigInternal } from '../../admin/utils/AdminRegistry';
 import type { PermissionConfig, PermissionType } from '../../admin/components/PermissionGrid';
-import Mithril from 'mithril';
+import type Mithril from 'mithril';
+import type { GeneralIndexItem } from '../../admin/states/GeneralSearchIndex';
 
 export default class Admin implements IExtender<AdminApplication> {
   protected settings: { setting?: () => SettingConfigInternal; customSetting?: () => Mithril.Children; priority: number }[] = [];
   protected permissions: { permission: () => PermissionConfig; type: PermissionType; priority: number }[] = [];
   protected customPage: CustomExtensionPage | null = null;
+  protected generalIndexes: { settings?: () => GeneralIndexItem[]; permissions?: () => GeneralIndexItem[] } = {};
 
   /**
    * Register a setting to be shown on the extension's settings page.
@@ -45,6 +47,15 @@ export default class Admin implements IExtender<AdminApplication> {
     return this;
   }
 
+  /**
+   * Register a custom general search index entry.
+   */
+  generalIndexItems(type: 'settings' | 'permissions', items: () => GeneralIndexItem[]) {
+    this.generalIndexes[type] = items;
+
+    return this;
+  }
+
   extend(app: AdminApplication, extension: IExtensionModule) {
     app.registry.for(extension.name);
 
@@ -59,5 +70,17 @@ export default class Admin implements IExtender<AdminApplication> {
     if (this.customPage) {
       app.registry.registerPage(this.customPage);
     }
+
+    app.generalIndex.for(extension.name);
+
+    Object.keys(this.generalIndexes).forEach((key) => {
+      if (key !== 'settings' && key !== 'permissions') return;
+
+      const callback = this.generalIndexes[key];
+
+      if (callback) {
+        app.generalIndex.add(key, callback());
+      }
+    });
   }
 }

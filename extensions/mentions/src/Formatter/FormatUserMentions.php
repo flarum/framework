@@ -9,9 +9,9 @@
 
 namespace Flarum\Mentions\Formatter;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Http\SlugManager;
 use Flarum\Locale\TranslatorInterface;
-use Flarum\Post\Post;
 use Flarum\User\User;
 use s9e\TextFormatter\Renderer;
 use s9e\TextFormatter\Utils;
@@ -27,8 +27,8 @@ class FormatUserMentions
     public function __invoke(Renderer $renderer, mixed $context, string $xml): string
     {
         return Utils::replaceAttributes($xml, 'USERMENTION', function ($attributes) use ($context) {
-            $user = (($context && isset($context->getRelations()['mentionsUsers'])) || $context instanceof Post)
-                ? $context->mentionsUsers->find($attributes['id'])
+            $user = ($context instanceof AbstractModel && $context->isRelation('mentionsUsers'))
+                ? $context->mentionsUsers->find($attributes['id']) // @phpstan-ignore-line
                 : User::find($attributes['id']);
 
             $attributes['deleted'] = false;

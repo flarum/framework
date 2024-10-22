@@ -59,7 +59,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
-        $this->assertEquals(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14'], $ids);
+        $this->assertEqualsCanonicalizing(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14'], $ids);
     }
 
     #[Test]
@@ -79,7 +79,7 @@ class ListTest extends TestCase
         // 6, 7, 8 aren't included because child access shouldnt work unless parent
         // access is also given.
         $ids = Arr::pluck($data, 'id');
-        $this->assertEquals(['1', '2', '3', '4', '9', '10', '11'], $ids);
+        $this->assertEqualsCanonicalizing(['1', '2', '3', '4', '9', '10', '11'], $ids);
     }
 
     #[Test]
@@ -103,8 +103,8 @@ class ListTest extends TestCase
         // 5 isnt included because parent access doesnt necessarily give child access
         // 6, 7, 8 aren't included because child access shouldnt work unless parent
         // access is also given.
-        $this->assertEquals(['1', '2', '3', '4', '9', '10', '11'], Arr::pluck($data, 'id'));
-        $this->assertEquals(
+        $this->assertEqualsCanonicalizing(['1', '2', '3', '4', '9', '10', '11'], Arr::pluck($data, 'id'));
+        $this->assertEqualsCanonicalizing(
             $expectedIncludes,
             collect($data)
             ->pluck('relationships.'.$include.'.data')
@@ -129,7 +129,7 @@ class ListTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
-        $this->assertEquals(['1', '2', '3', '4', '9', '10'], $ids);
+        $this->assertEqualsCanonicalizing(['1', '2', '3', '4', '9', '10'], $ids);
     }
 
     public static function listTagsIncludesDataProvider(): array

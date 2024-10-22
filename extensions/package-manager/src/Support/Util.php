@@ -15,14 +15,6 @@ use Symfony\Component\Console\Input\InputInterface;
 
 class Util
 {
-    public static function nameToId(string $name): string
-    {
-        [$vendor, $package] = explode('/', $name);
-        $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
-
-        return "$vendor-$package";
-    }
-
     public static function isMajorUpdate(string $currentVersion, string $latestVersion): bool
     {
         // Drop any v prefixes

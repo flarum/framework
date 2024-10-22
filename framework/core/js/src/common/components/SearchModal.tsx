@@ -126,9 +126,9 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
 
   tabs(): JSX.Element {
     return (
-      <div className="SearchModal-tabs">
-        <div className="SearchModal-tabs-nav">{this.tabItems().toArray()}</div>
-        <div className="SearchModal-tabs-content">{this.activeTabItems().toArray()}</div>
+      <div className="Tabs">
+        <div className="Tabs-nav">{this.tabItems().toArray()}</div>
+        <div className="Tabs-content SearchModal-tabs-content">{this.activeTabItems().toArray()}</div>
       </div>
     );
   }

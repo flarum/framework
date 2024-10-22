@@ -14,8 +14,8 @@ use Flarum\Messages\DialogMessage;
 class Updating
 {
     public function __construct(
-        protected DialogMessage $message,
-        protected array $data
+        public DialogMessage $message,
+        public array $data
     ) {
     }
 }
