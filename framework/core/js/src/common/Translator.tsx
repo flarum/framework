@@ -9,7 +9,7 @@ import ItemList from './utils/ItemList';
 
 type Translations = Record<string, string>;
 type TranslatorParameters = Record<string, unknown>;
-type DateTimeFormatCallback = (format?: string) => string | void;
+type DateTimeFormatCallback = (id?: string) => string | void;
 
 export default class Translator {
   /**
@@ -105,13 +105,14 @@ export default class Translator {
    * - The format defined in current locale.
    * - DayJS default format.
    */
-  formatDateTime(time: Dayjs, id?: string): string {
-    const format = id && (this.translations[id] ?? id);
-    const formatCallback = id && this.dateTimeFormats.has(id) && this.dateTimeFormats.get(id);
+  formatDateTime(time: Dayjs, id: string): string {
+    const formatCallback = this.dateTimeFormats.has(id) && this.dateTimeFormats.get(id);
+
     if (formatCallback) {
-      const result = formatCallback.apply(this, [format]);
+      const result = formatCallback.apply(this, [id]);
       if (result) return result;
     }
-    return time.format(format);
+
+    return time.format(this.translations[id]);
   }
 }

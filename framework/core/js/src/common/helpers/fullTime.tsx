@@ -10,7 +10,7 @@ export default function fullTime(time: Date): Mithril.Vnode {
   const d = dayjs(time);
 
   const datetime = d.format();
-  const full = app.translator.formatDateTime(d, 'core.lib.datetime_formats.full_time');
+  const full = app.translator.formatDateTime(d, 'core.lib.datetime_formats.fullTime');
 
   return (
     <time pubdate datetime={datetime}>
