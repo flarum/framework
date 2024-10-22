@@ -1,7 +1,7 @@
 import Model from 'flarum/common/Model';
 export declare type TaskOperations = 'extension_install' | 'extension_remove' | 'extension_update' | 'update_global' | 'update_minor' | 'update_major' | 'update_check' | 'why_not';
 export default class Task extends Model {
-    status(): "running" | "pending" | "success" | "failure";
+    status(): "pending" | "running" | "failure" | "success";
     operation(): TaskOperations;
     command(): string;
     package(): string;
