@@ -74,7 +74,7 @@ on:
         description: The node version to use for the workflow.
         type: number
         required: false
-        default: 16
+        default: 20
 
       js_package_manager:
         description: "Enable TypeScript?"
@@ -117,6 +117,7 @@ env:
   ci_script: ${{ inputs.js_package_manager == 'yarn' && 'yarn install --immutable' || 'npm ci' }}
   cache_dependency_path: ${{ inputs.cache_dependency_path || format(inputs.js_package_manager == 'yarn' && '{0}/yarn.lock' || '{0}/package-lock.json', inputs.frontend_directory) }}
   COMPOSER_AUTH: ${{ secrets.composer_auth }}
+  DISABLE_V8_COMPILE_CACHE: 1
 
 jobs:
   build:
@@ -131,12 +132,12 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.git_actor_token != '' && secrets.git_actor_token || secrets.GITHUB_TOKEN }}
 
       - name: Set up Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node_version }}
           cache: ${{ inputs.js_package_manager }}
@@ -159,7 +160,7 @@ jobs:
         working-directory: ${{ inputs.frontend_directory }}
 
       - name: JS Checks & Production Build
-        uses: flarum/action-build@v3
+        uses: flarum/action-build@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           build_script: ${{ inputs.build_script }}
