@@ -42,6 +42,10 @@ class Dialog extends AbstractModel
 
     protected $table = 'dialogs';
 
+    protected $casts = [
+        'last_message_at' => 'datetime'
+    ];
+
     public $timestamps = true;
 
     public static array $types = ['direct'];
