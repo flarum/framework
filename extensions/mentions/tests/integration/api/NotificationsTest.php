@@ -14,6 +14,7 @@ use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class NotificationsTest extends TestCase
 {
@@ -43,7 +44,7 @@ class NotificationsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function approving_reply_sends_mention_notification()
     {
         $this->extensions = ['flarum-flags', 'flarum-approval', 'flarum-mentions'];
