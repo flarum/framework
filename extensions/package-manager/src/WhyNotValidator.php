@@ -20,4 +20,15 @@ class WhyNotValidator extends AbstractValidator
         'package' => ['required', 'string', 'regex:'.RequirePackageValidator::PACKAGE_NAME_REGEX],
         'version' => ['sometimes', 'string', 'regex:/(?:\*|[A-z0-9.-]+)/i']
     ];
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function attributes()
+    {
+        return [
+            'package' => $this->translator->trans('flarum-extension-manager.validation.attributes.package'),
+            'version' => $this->translator->trans('flarum-extension-manager.validation.attributes.version')
+        ];
+    }
 }

@@ -134,13 +134,37 @@ class SaveTagsToDatabase
         $max = $this->settings->get('flarum-tags.max_'.$type.'_tags');
         $key = 'tag_count_'.$type;
 
+        $messages = $this->getMessages();
+        $customAttributes = $this->attributes();
+
         $validator = $this->validator->make(
             [$key => $count],
-            [$key => ['numeric', $min === $max ? "size:$min" : "between:$min,$max"]]
+            [$key => ['numeric', $min === $max ? "size:$min" : "between:$min,$max"]],
+            $messages,
+            $customAttributes
         );
 
         if ($validator->fails()) {
             throw new ValidationException([], ['tags' => $validator->getMessageBag()->first($key)]);
         }
+    }
+
+    /**
+     * @return array
+     */
+    protected function getMessages()
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    protected function attributes()
+    {
+        return [
+            'tag_count_primary' => $this->translator->trans('flarum-tags.validation.attributes.tag_count_primary'),
+            'tag_count_secondary' => $this->translator->trans('flarum-tags.validation.attributes.tag_count_secondary'),
+        ];
     }
 }

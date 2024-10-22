@@ -19,4 +19,14 @@ class PostValidator extends AbstractValidator
             'max:65535'
         ]
     ];
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function attributes()
+    {
+        return [
+            'content' => $this->translator->trans('validation.attributes.content')
+        ];
+    }
 }

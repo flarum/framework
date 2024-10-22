@@ -17,4 +17,15 @@ class GroupValidator extends AbstractValidator
         'name_singular' => ['required'],
         'name_plural' => ['required']
     ];
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function attributes()
+    {
+        return [
+            'name_singular' => $this->translator->trans('validation.attributes.name_singular'),
+            'name_plural' => $this->translator->trans('validation.attributes.name_plural'),
+        ];
+    }
 }

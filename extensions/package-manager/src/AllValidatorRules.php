@@ -17,8 +17,10 @@ trait AllValidatorRules
     protected function makeValidator(array $attributes)
     {
         $rules = $this->getRules();
+        $messages = $this->getMessages();
+        $customAttributes = $this->attributes();
 
-        $validator = $this->validator->make($attributes, $rules, $this->getMessages());
+        $validator = $this->validator->make($attributes, $rules, $messages, $customAttributes);
 
         foreach ($this->configuration as $callable) {
             $callable($this, $validator);
