@@ -846,10 +846,10 @@ core:
     # These are DayJS formats used in core.
     datetime_formats:
       fullTime: LLLL
-      userListJoinDate: LLL
       humanTimeShort: D MMM
       humanTimeLong: ll
       scrubber: MMMM YYYY
+      userListJoinDate: LLL
 
   # Translations in this namespace are used in views other than Flarum's normal JS client.
   views:
