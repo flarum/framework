@@ -36,6 +36,7 @@ class UserDialogState extends AbstractModel
         'user_id' => 'integer',
         'dialog_id' => 'integer',
         'joined_at' => 'datetime',
+        'last_read_at' => 'datetime',
         'last_read_message_id' => 'integer'
     ];
 
