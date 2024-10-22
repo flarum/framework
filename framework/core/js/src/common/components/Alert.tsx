@@ -61,17 +61,19 @@ export default class Alert<T extends AlertAttrs = AlertAttrs> extends Component<
     return (
       <div {...attrs}>
         <div className={classList('Alert-container', attrs.containerClassName)}>
-          {!!title && (
-            <div className="Alert-title">
-              {!!icon && (
-                <span className="Alert-title-icon">
-                  <Icon name={icon} />
-                </span>
-              )}
-              <span className="Alert-title-text">{title}</span>
-            </div>
-          )}
-          <span className="Alert-body">{content}</span>
+          <div className="Alert-content">
+            {!!title && (
+              <div className="Alert-title">
+                {!!icon && (
+                  <span className="Alert-title-icon">
+                    <Icon name={icon} />
+                  </span>
+                )}
+                <span className="Alert-title-text">{title}</span>
+              </div>
+            )}
+            <span className="Alert-body">{content}</span>
+          </div>
           <ul className="Alert-controls">{listItems(controls.concat(dismissControl))}</ul>
         </div>
       </div>
