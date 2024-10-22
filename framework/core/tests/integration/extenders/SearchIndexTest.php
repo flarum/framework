@@ -18,6 +18,7 @@ use Flarum\Search\IndexerInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use PHPUnit\Framework\Assert;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class SearchIndexTest extends TestCase
 {
@@ -52,7 +53,7 @@ class SearchIndexTest extends TestCase
         ];
     }
 
-    /** @dataProvider modelProvider */
+    #[DataProvider('modelProvider')]
     public function test_indexer_triggered_on_create(string $type, string $modelClass, array $attributes)
     {
         $this->extend(
@@ -84,7 +85,7 @@ class SearchIndexTest extends TestCase
         Assert::assertEquals('save', TestIndexer::$triggered, $response->getBody()->getContents());
     }
 
-    /** @dataProvider modelProvider */
+    #[DataProvider('modelProvider')]
     public function test_indexer_triggered_on_save(string $type, string $modelClass, array $attributes)
     {
         $this->extend(
@@ -108,7 +109,7 @@ class SearchIndexTest extends TestCase
         Assert::assertEquals('save', TestIndexer::$triggered, $response->getBody()->getContents());
     }
 
-    /** @dataProvider modelProvider */
+    #[DataProvider('modelProvider')]
     public function test_indexer_triggered_on_delete(string $type, string $modelClass, array $attributes)
     {
         $this->extend(
@@ -127,7 +128,7 @@ class SearchIndexTest extends TestCase
         Assert::assertEquals('delete', TestIndexer::$triggered, $response->getBody()->getContents());
     }
 
-    /** @dataProvider modelProvider */
+    #[DataProvider('modelProvider')]
     public function test_indexer_triggered_on_hide(string $type, string $modelClass, array $attributes)
     {
         $this->extend(
@@ -153,7 +154,7 @@ class SearchIndexTest extends TestCase
         Assert::assertEquals('delete', TestIndexer::$triggered, $response->getBody()->getContents());
     }
 
-    /** @dataProvider modelProvider */
+    #[DataProvider('modelProvider')]
     public function test_indexer_triggered_on_restore(string $type, string $modelClass, array $attributes)
     {
         $this->extend(

@@ -24,6 +24,7 @@ use Flarum\Search\SearchState;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class SearchDriverTest extends TestCase
 {
@@ -35,7 +36,7 @@ class SearchDriverTest extends TestCase
 
         // We need to insert these outside of a transaction, because FULLTEXT indexing,
         // which is needed for search, doesn't happen in transactions.
-        // We clean it up explcitly at the end.
+        // We clean it up explicitly at the end.
         $this->database()->table('discussions')->insert([
             Discussion::factory()->raw(['id' => 1, 'title' => 'DISCUSSION 1', 'user_id' => 1]),
             Discussion::factory()->raw(['id' => 2, 'title' => 'DISCUSSION 2', 'user_id' => 1]),
@@ -78,9 +79,7 @@ class SearchDriverTest extends TestCase
             ->getResults();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function works_as_expected_with_no_modifications()
     {
         $this->prepDb();
@@ -94,9 +93,7 @@ class SearchDriverTest extends TestCase
         $this->assertStringContainsString('DISCUSSION 2', $searchForSecond);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_full_text_gambit_has_effect_if_added()
     {
         $this->extend(
@@ -107,9 +104,7 @@ class SearchDriverTest extends TestCase
         $this->assertEquals('[]', json_encode($this->searchDiscussions('in text', 5)));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_filter_has_effect_if_added()
     {
         $this->extend(
@@ -125,9 +120,7 @@ class SearchDriverTest extends TestCase
         $this->assertEquals('[]', json_encode($this->searchDiscussions('', 5, ['noResult' => '1'])));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function existing_filter_can_be_replaced()
     {
         $this->extend(
@@ -142,9 +135,7 @@ class SearchDriverTest extends TestCase
         $this->assertEquals('[]', json_encode($this->searchDiscussions('', 5, ['noResult' => '1'])));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function search_mutator_has_effect_if_added()
     {
         $this->extend(
@@ -159,9 +150,7 @@ class SearchDriverTest extends TestCase
         $this->assertEquals('[]', json_encode($this->searchDiscussions('in text', 5)));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function search_mutator_has_effect_if_added_with_invokable_class()
     {
         $this->extend(

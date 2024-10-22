@@ -84,7 +84,7 @@ class Extension implements Arrayable
         $this->assignId();
     }
 
-    protected static function nameToId(string $name): string
+    public static function nameToId(string $name): string
     {
         [$vendor, $package] = explode('/', $name);
         $package = str_replace(['flarum-ext-', 'flarum-'], '', $package);
@@ -127,7 +127,7 @@ class Extension implements Arrayable
     /**
      * Dot notation getter for composer.json attributes.
      *
-     * @see https://laravel.com/docs/10.x/helpers#arrays
+     * @see https://laravel.com/docs/11.x/helpers#arrays
      */
     public function composerJsonAttribute(string $name): mixed
     {

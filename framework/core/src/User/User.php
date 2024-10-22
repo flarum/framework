@@ -39,7 +39,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Arr;
-use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 /**
  * @property int $id
@@ -72,7 +71,6 @@ class User extends AbstractModel
 {
     use EventGeneratorTrait;
     use ScopeVisibilityTrait;
-    use HasEagerLimit;
     use HasFactory;
 
     protected $casts = [
@@ -440,7 +438,7 @@ class User extends AbstractModel
     {
         $now = Carbon::now();
 
-        if ($this->last_seen_at === null || $this->last_seen_at->diffInSeconds($now) > User::LAST_SEEN_UPDATE_DIFF) {
+        if ($this->last_seen_at === null || $this->last_seen_at->diffInSeconds($now, true) > User::LAST_SEEN_UPDATE_DIFF) {
             $this->last_seen_at = $now;
         }
 

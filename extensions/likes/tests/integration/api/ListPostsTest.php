@@ -18,6 +18,8 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListPostsTest extends TestCase
 {
@@ -72,9 +74,7 @@ class ListPostsTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function liked_filter_works()
     {
         $response = $this->send(
@@ -95,9 +95,7 @@ class ListPostsTest extends TestCase
         ], $ids, 'IDs do not match');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function liked_filter_works_negated()
     {
         $response = $this->send(
@@ -116,7 +114,7 @@ class ListPostsTest extends TestCase
         $this->assertEqualsCanonicalizing([1, 103], $ids, 'IDs do not match');
     }
 
-    /** @test */
+    #[Test]
     public function likes_relation_returns_limited_results_and_shows_only_visible_posts_in_show_post_endpoint()
     {
         // List posts endpoint
@@ -142,7 +140,7 @@ class ListPostsTest extends TestCase
         $this->assertEquals([2, 102, 104, 105], Arr::pluck($likes, 'id'));
     }
 
-    /** @test */
+    #[Test]
     public function likes_relation_returns_limited_results_and_shows_only_visible_posts_in_list_posts_endpoint()
     {
         // List posts endpoint
@@ -169,17 +167,16 @@ class ListPostsTest extends TestCase
         $this->assertEquals([2, 102, 104, 105], Arr::pluck($likes, 'id'));
     }
 
-    /**
-     * @dataProvider likesIncludeProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('likesIncludeProvider')]
     public function likes_relation_returns_limited_results_and_shows_only_visible_posts_in_show_discussion_endpoint(?string $include)
     {
         // Show discussion endpoint
         $response = $this->send(
-            $this->request('GET', '/api/discussions/100', [
+            $this->request('GET', '/api/posts', [
                 'authenticatedAs' => 2,
             ])->withQueryParams([
+                'filter' => ['discussion' => 100],
                 'include' => $include,
             ])
         );
@@ -188,7 +185,7 @@ class ListPostsTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode(), $body);
 
-        $included = json_decode($body, true)['included'] ?? [];
+        $included = json_decode($body, true)['data'] ?? [];
 
         $likes = collect($included)
             ->where('type', 'posts')
@@ -207,11 +204,10 @@ class ListPostsTest extends TestCase
         $this->assertEquals([2, 102, 104, 105], Arr::pluck($likes, 'id'), $body);
     }
 
-    public function likesIncludeProvider(): array
+    public static function likesIncludeProvider(): array
     {
         return [
-            ['posts,posts.likes'],
-            ['posts.likes'],
+            ['likes'],
             [null],
         ];
     }

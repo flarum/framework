@@ -17,6 +17,8 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListPostsTest extends TestCase
 {
@@ -52,9 +54,7 @@ class ListPostsTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mentioned_filter_works()
     {
         $response = $this->send(
@@ -71,9 +71,7 @@ class ListPostsTest extends TestCase
         $this->assertEqualsCanonicalizing(['2', '3'], $ids, 'IDs do not match');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mentioned_filter_works_negated()
     {
         $response = $this->send(
@@ -90,9 +88,7 @@ class ListPostsTest extends TestCase
         $this->assertEqualsCanonicalizing(['4'], $ids, 'IDs do not match');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mentioned_filter_works_with_sort()
     {
         $response = $this->send(
@@ -149,7 +145,7 @@ class ListPostsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function mentioned_by_relation_returns_limited_results_and_shows_only_visible_posts_in_show_post_endpoint()
     {
         $this->prepareMentionedByData();
@@ -175,7 +171,7 @@ class ListPostsTest extends TestCase
         $this->assertEquals([102, 104, 105, 106], Arr::pluck($mentionedBy, 'id'));
     }
 
-    /** @test */
+    #[Test]
     public function mentioned_by_relation_returns_limited_results_and_shows_only_visible_posts_in_list_posts_endpoint()
     {
         $this->prepareMentionedByData();
@@ -203,24 +199,23 @@ class ListPostsTest extends TestCase
         $this->assertEquals([102, 104, 105, 106], Arr::pluck($mentionedBy, 'id'));
     }
 
-    /**
-     * @dataProvider mentionedByIncludeProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('mentionedByIncludeProvider')]
     public function mentioned_by_relation_returns_limited_results_and_shows_only_visible_posts_in_show_discussion_endpoint(?string $include)
     {
         $this->prepareMentionedByData();
 
         // Show discussion endpoint
         $response = $this->send(
-            $this->request('GET', '/api/discussions/100', [
+            $this->request('GET', '/api/posts', [
                 'authenticatedAs' => 2,
             ])->withQueryParams([
+                'filter' => ['discussion' => 100],
                 'include' => $include,
             ])
         );
 
-        $included = json_decode($body = $response->getBody()->getContents(), true)['included'] ?? [];
+        $included = json_decode($body = $response->getBody()->getContents(), true)['data'] ?? [];
 
         $this->assertEquals(200, $response->getStatusCode(), $body);
 
@@ -236,16 +231,15 @@ class ListPostsTest extends TestCase
         $this->assertEquals([102, 104, 105, 106], Arr::pluck($mentionedBy, 'id'));
     }
 
-    public function mentionedByIncludeProvider(): array
+    public static function mentionedByIncludeProvider(): array
     {
         return [
-            ['posts,posts.mentionedBy'],
-            ['posts.mentionedBy'],
+            ['mentionedBy'],
             [null],
         ];
     }
 
-    /** @test */
+    #[Test]
     public function mentioned_by_count_only_includes_visible_posts_to_actor()
     {
         $this->prepareMentionedByData();
@@ -264,7 +258,7 @@ class ListPostsTest extends TestCase
         $this->assertEquals(0, $data['attributes']['mentionedByCount']);
     }
 
-    /** @test */
+    #[Test]
     public function mentioned_by_count_works_on_show_endpoint()
     {
         $this->prepareMentionedByData();
@@ -283,7 +277,7 @@ class ListPostsTest extends TestCase
         $this->assertEquals(10, $data['attributes']['mentionedByCount']);
     }
 
-    /** @test */
+    #[Test]
     public function mentioned_by_count_works_on_list_endpoint()
     {
         $this->prepareMentionedByData();

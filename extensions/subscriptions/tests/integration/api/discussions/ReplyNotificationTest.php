@@ -17,6 +17,8 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class ReplyNotificationTest extends TestCase
 {
@@ -62,10 +64,8 @@ class ReplyNotificationTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider replyingSendsNotificationsDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('replyingSendsNotificationsDataProvider')]
     public function replying_to_a_discussion_with_comment_post_as_last_post_sends_reply_notification(int $userId, int $discussionId, int $newNotificationCount)
     {
         $this->app();
@@ -96,7 +96,7 @@ class ReplyNotificationTest extends TestCase
         $this->assertEquals($newNotificationCount, $mainUser->getUnreadNotificationCount());
     }
 
-    public function replyingSendsNotificationsDataProvider(): array
+    public static function replyingSendsNotificationsDataProvider(): array
     {
         return [
             'admin receives a notification when another replies to a discussion they are following and caught up to' => [1, 1, 1],
@@ -106,7 +106,7 @@ class ReplyNotificationTest extends TestCase
         ];
     }
 
-    /** @test */
+    #[Test]
     public function replying_to_a_discussion_with_event_post_as_last_post_sends_reply_notification()
     {
         $this->app();
@@ -166,10 +166,8 @@ class ReplyNotificationTest extends TestCase
         $this->assertEquals(1, $mainUser->getUnreadNotificationCount());
     }
 
-    /**
-     * @dataProvider deleteLastPostsProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('deleteLastPostsProvider')]
     public function deleting_last_posts_then_posting_new_one_sends_reply_notification(array $postIds)
     {
         $this->prepareDatabase([
@@ -222,7 +220,7 @@ class ReplyNotificationTest extends TestCase
         $this->assertEquals(1, $mainUser->getUnreadNotificationCount());
     }
 
-    public function deleteLastPostsProvider(): array
+    public static function deleteLastPostsProvider(): array
     {
         return [
             [[10, 9, 8]],
@@ -230,7 +228,7 @@ class ReplyNotificationTest extends TestCase
         ];
     }
 
-    /** @test */
+    #[Test]
     public function approving_reply_sends_reply_notification()
     {
         // Flags was only specified because it is required for approval.
@@ -288,7 +286,7 @@ class ReplyNotificationTest extends TestCase
         $this->assertEquals(1, $mainUser->getUnreadNotificationCount());
     }
 
-    /** @test */
+    #[Test]
     public function replying_to_a_discussion_with_a_restricted_post_only_sends_notifications_to_allowed_users()
     {
         // Add visibility scoper to only allow admin

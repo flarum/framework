@@ -13,14 +13,13 @@ use Flarum\Extend;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class AuthTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function standard_password_works_by_default()
     {
         $this->app();
@@ -30,9 +29,7 @@ class AuthTest extends TestCase
         $this->assertTrue($user->checkPassword('password'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function standard_password_can_be_disabled()
     {
         $this->extend(
@@ -47,9 +44,7 @@ class AuthTest extends TestCase
         $this->assertFalse($user->checkPassword('password'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_checker_can_be_added()
     {
         $this->extend(
@@ -65,9 +60,7 @@ class AuthTest extends TestCase
         $this->assertTrue($user->checkPassword('DefinitelyNotThePassword'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function false_checker_overrides_true()
     {
         $this->extend(

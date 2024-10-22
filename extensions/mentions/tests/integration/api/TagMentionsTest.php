@@ -18,6 +18,7 @@ use Flarum\Tags\Tag;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class TagMentionsTest extends TestCase
 {
@@ -64,7 +65,7 @@ class TagMentionsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function mentioning_a_valid_tag_with_valid_format_works()
     {
         $response = $this->send(
@@ -93,7 +94,7 @@ class TagMentionsTest extends TestCase
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsTags->find(2));
     }
 
-    /** @test */
+    #[Test]
     public function mentioning_a_valid_tag_using_cjk_slug_with_valid_format_works()
     {
         $response = $this->send(
@@ -123,7 +124,7 @@ class TagMentionsTest extends TestCase
         $this->assertNotNull(CommentPost::find($response['data']['id'])->mentionsTags->find(6));
     }
 
-    /** @test */
+    #[Test]
     public function mentioning_an_invalid_tag_doesnt_work()
     {
         $response = $this->send(
@@ -152,7 +153,7 @@ class TagMentionsTest extends TestCase
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsTags);
     }
 
-    /** @test */
+    #[Test]
     public function mentioning_a_tag_when_tags_disabled_does_not_cause_errors()
     {
         $this->extensions = ['flarum-mentions'];
@@ -183,7 +184,7 @@ class TagMentionsTest extends TestCase
         $this->assertNull(CommentPost::find($response['data']['id'])->mentionsTags);
     }
 
-    /** @test */
+    #[Test]
     public function mentioning_a_restricted_tag_doesnt_work_without_privileges()
     {
         $response = $this->send(
@@ -212,7 +213,7 @@ class TagMentionsTest extends TestCase
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsTags);
     }
 
-    /** @test */
+    #[Test]
     public function mentioning_a_restricted_tag_works_with_privileges()
     {
         $response = $this->send(
@@ -241,7 +242,7 @@ class TagMentionsTest extends TestCase
         $this->assertCount(1, CommentPost::find($response['data']['id'])->mentionsTags);
     }
 
-    /** @test */
+    #[Test]
     public function mentioning_multiple_tags_works()
     {
         $response = $this->send(
@@ -273,7 +274,7 @@ class TagMentionsTest extends TestCase
         $this->assertCount(4, CommentPost::find($response['data']['id'])->mentionsTags);
     }
 
-    /** @test */
+    #[Test]
     public function tag_mentions_render_with_fresh_data()
     {
         $response = $this->send(
@@ -291,7 +292,7 @@ class TagMentionsTest extends TestCase
         $this->assertCount(1, CommentPost::find($response['data']['id'])->mentionsTags);
     }
 
-    /** @test */
+    #[Test]
     public function tag_mentions_dont_cause_errors_when_tags_disabled()
     {
         $this->extensions = ['flarum-mentions'];
@@ -305,7 +306,7 @@ class TagMentionsTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /** @test */
+    #[Test]
     public function tag_mentions_unparse_with_fresh_data()
     {
         $response = $this->send(
@@ -322,7 +323,7 @@ class TagMentionsTest extends TestCase
         $this->assertCount(1, CommentPost::find($response['data']['id'])->mentionsTags);
     }
 
-    /** @test */
+    #[Test]
     public function deleted_tag_mentions_unparse_and_render_as_expected()
     {
         // No reason to hide a deleted tag's name.
@@ -345,7 +346,7 @@ class TagMentionsTest extends TestCase
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsTags);
     }
 
-    /** @test */
+    #[Test]
     public function deleted_tag_mentions_relation_unparse_and_render_as_expected()
     {
         // No reason to hide a deleted tag's name.
@@ -368,7 +369,7 @@ class TagMentionsTest extends TestCase
         $this->assertCount(0, CommentPost::find($response['data']['id'])->mentionsTags);
     }
 
-    /** @test */
+    #[Test]
     public function editing_a_post_that_has_a_tag_mention_works()
     {
         $response = $this->send(

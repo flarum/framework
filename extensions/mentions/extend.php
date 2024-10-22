@@ -48,8 +48,7 @@ return [
         ->belongsToMany('mentionedBy', Post::class, 'post_mentions_post', 'mentions_post_id', 'post_id')
         ->belongsToMany('mentionsPosts', Post::class, 'post_mentions_post', 'post_id', 'mentions_post_id')
         ->belongsToMany('mentionsUsers', User::class, 'post_mentions_user', 'post_id', 'mentions_user_id')
-        ->belongsToMany('mentionsGroups', Group::class, 'post_mentions_group', 'post_id', 'mentions_group_id')
-        ->belongsToMany('mentionsUsers', User::class, 'post_mentions_user', 'post_id', 'mentions_user_id'),
+        ->belongsToMany('mentionsGroups', Group::class, 'post_mentions_group', 'post_id', 'mentions_group_id'),
 
     new Extend\Locales(__DIR__.'/locale'),
 
@@ -82,15 +81,6 @@ return [
                     'lastPost.mentionsPosts.user', 'lastPost.mentionsPosts.discussion', 'lastPost.mentionsGroups',
                 ],
             ]);
-        })
-        ->endpoint(Endpoint\Show::class, function (Endpoint\Show $endpoint): Endpoint\Show {
-            return $endpoint->addDefaultInclude(['posts.mentionedBy', 'posts.mentionedBy.user', 'posts.mentionedBy.discussion'])
-                ->eagerLoadWhenIncluded([
-                    'posts' => [
-                        'posts.mentionsUsers', 'posts.mentionsPosts', 'posts.mentionsPosts.user',
-                        'posts.mentionsPosts.discussion', 'posts.mentionsGroups'
-                    ],
-                ]);
         }),
 
     (new Extend\ApiResource(Resource\UserResource::class))
@@ -129,9 +119,6 @@ return [
                 ]),
 
             (new Extend\ApiResource(Resource\DiscussionResource::class))
-                ->endpoint(Endpoint\Show::class, function (Endpoint\Show $endpoint): Endpoint\Show {
-                    return $endpoint->eagerLoadWhenIncluded(['posts' => ['posts.mentionsTags']]);
-                })
                 ->endpoint(Endpoint\Index::class, function (Endpoint\Index $endpoint): Endpoint\Index {
                     return $endpoint->eagerLoadWhenIncluded(['firstPost' => ['firstPost.mentionsTags'], 'lastPost' => ['lastPost.mentionsTags']]);
                 }),

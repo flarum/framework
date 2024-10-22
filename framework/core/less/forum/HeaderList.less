@@ -5,7 +5,7 @@
     margin-right: 12px;
   }
 
-  &-header {
+  &-header, &-footer {
     @media @tablet-up {
       padding: 12px 15px;
       border-bottom: 1px solid var(--control-bg);
@@ -47,6 +47,13 @@
       .icon {
         margin-right: 0;
       }
+    }
+  }
+
+  &-footer {
+    @media @tablet-up {
+      border-bottom: none;
+      border-top: 1px solid var(--control-bg);
     }
   }
 
@@ -107,7 +114,46 @@
   }
 }
 
+.CompactActions {
+  &:hover &-actions,
+  &:focus &-actions,
+  &:focus-within &-actions {
+    > .Button {
+      opacity: 1;
+    }
+  }
+
+  &-actions {
+    grid-area: actions;
+
+    > .Button {
+      line-height: inherit;
+      padding: 0;
+      opacity: 0;
+
+      .add-keyboard-focus-ring();
+      .add-keyboard-focus-ring-offset(4px);
+
+      // Needs more specificity to fix hover/focus styles not applying in dropdown
+      [data-colored-header=true] .HeaderListItem & {
+        color: var(--control-color);
+
+        &:hover,
+        &:focus {
+          color: var(--link-color);
+        }
+      }
+
+      .icon {
+        font-size: 13px;
+      }
+    }
+  }
+}
+
 .HeaderListItem {
+  .CompactActions();
+
   padding: 8px 16px;
   color: var(--muted-color) !important; // required to override .light-contents applied to header
   overflow: hidden;
@@ -135,10 +181,6 @@
   &:focus-within {
     text-decoration: none;
     background: var(--control-bg);
-
-    .HeaderListItem-actions > .Button {
-      opacity: 1;
-    }
   }
 
   .Avatar {
@@ -182,33 +224,6 @@
     line-height: 19px;
     font-weight: bold;
     text-transform: uppercase;
-  }
-
-  &-actions {
-    grid-area: actions;
-
-    > .Button {
-      line-height: inherit;
-      padding: 0;
-      opacity: 0;
-
-      .add-keyboard-focus-ring();
-      .add-keyboard-focus-ring-offset(4px);
-
-      // Needs more specificity to fix hover/focus styles not applying in dropdown
-      [data-colored-header=true] .HeaderListItem & {
-        color: var(--control-color);
-
-        &:hover,
-        &:focus {
-          color: var(--link-color);
-        }
-      }
-
-      .icon {
-        font-size: 13px;
-      }
-    }
   }
 
   &-excerpt {

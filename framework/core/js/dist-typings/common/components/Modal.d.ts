@@ -40,9 +40,6 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
     alertAttrs: AlertAttrs | null;
     oncreate(vnode: Mithril.VnodeDOM<ModalAttrs, this>): void;
     onbeforeremove(vnode: Mithril.VnodeDOM<ModalAttrs, this>): Promise<void> | void;
-    /**
-     * @todo split into FormModal and Modal in 2.0
-     */
     view(): JSX.Element;
     protected wrapper(children: Mithril.Children): Mithril.Children;
     protected inner(): Mithril.Children;

@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\extenders;
 use Flarum\Extend;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class CsrfTest extends TestCase
 {
@@ -21,9 +22,7 @@ class CsrfTest extends TestCase
         'email' => 'test@machine.local',
     ];
 
-    /**
-     * @test
-     */
+    #[Test]
     public function create_user_post_needs_csrf_token_by_default()
     {
         $response = $this->send(
@@ -39,9 +38,7 @@ class CsrfTest extends TestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function create_user_post_doesnt_need_csrf_token_if_whitelisted()
     {
         $this->extend(

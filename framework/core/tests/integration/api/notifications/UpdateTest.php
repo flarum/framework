@@ -16,6 +16,7 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class UpdateTest extends TestCase
 {
@@ -44,9 +45,7 @@ class UpdateTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_mark_all_as_read()
     {
         $response = $this->send(

@@ -13,11 +13,12 @@ use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Flarum\Database\AbstractModel;
 use Flarum\Locale\TranslatorInterface;
+use Flarum\Notification\AlertableInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\MailableInterface;
 use Flarum\User\User;
 
-class UserSuspendedBlueprint implements BlueprintInterface, MailableInterface
+class UserSuspendedBlueprint implements BlueprintInterface, AlertableInterface, MailableInterface
 {
     public function __construct(
         public User $user

@@ -19,6 +19,7 @@ use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Database\PostgresConnection;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListTest extends TestCase
 {
@@ -70,9 +71,7 @@ class ListTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_can_see_one_flag_per_visible_post()
     {
         $response = $this->send(
@@ -96,9 +95,7 @@ class ListTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function regular_user_sees_own_flags_of_visible_posts()
     {
         $response = $this->send(
@@ -115,9 +112,7 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing(['2', '4'], $ids);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mod_can_see_one_flag_per_visible_post()
     {
         $response = $this->send(
@@ -134,9 +129,7 @@ class ListTest extends TestCase
         $this->assertCount(3, $data);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guest_cant_see_flags()
     {
         $response = $this->send(

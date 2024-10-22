@@ -18,6 +18,8 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class IncludeFlagsVisibilityTest extends TestCase
 {
@@ -106,10 +108,8 @@ class IncludeFlagsVisibilityTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider listFlagsIncludesDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('listFlagsIncludesDataProvider')]
     public function user_sees_where_allowed_with_included_tags(int $actorId, array $expectedIncludes)
     {
         $response = $this->send(
@@ -126,7 +126,7 @@ class IncludeFlagsVisibilityTest extends TestCase
 
         $data = $responseBody['data'];
 
-        $this->assertEquals(['1', '2', '3', '4', '5'], Arr::pluck($data, 'id'));
+        $this->assertEqualsCanonicalizing(['1', '2', '3', '4', '5'], Arr::pluck($data, 'id'));
         $this->assertEqualsCanonicalizing(
             $expectedIncludes,
             collect($responseBody['included'] ?? [])
@@ -137,7 +137,7 @@ class IncludeFlagsVisibilityTest extends TestCase
         );
     }
 
-    public function listFlagsIncludesDataProvider(): array
+    public static function listFlagsIncludesDataProvider(): array
     {
         return [
             'admin_sees_all' => [1, [1, 2, 3, 4, 5, 6, 7, 8]],

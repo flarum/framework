@@ -1,10 +1,9 @@
 import IExtender, { IExtensionModule } from './IExtender';
 import type Component from '../Component';
-import ForumApplication from '../../forum/ForumApplication';
-import type Application from '../Application';
+import type ForumApplication from '../../forum/ForumApplication';
 import type { NewComponent } from '../Application';
 
-export default class Notification implements IExtender {
+export default class Notification implements IExtender<ForumApplication> {
   private notificationComponents: Record<string, new () => Component> = {};
 
   /**
@@ -19,7 +18,7 @@ export default class Notification implements IExtender {
     return this;
   }
 
-  extend(app: Application, extension: IExtensionModule): void {
-    Object.assign((app as unknown as ForumApplication).notificationComponents, this.notificationComponents);
+  extend(app: ForumApplication, extension: IExtensionModule): void {
+    Object.assign(app.notificationComponents, this.notificationComponents);
   }
 }

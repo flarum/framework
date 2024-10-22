@@ -1,7 +1,7 @@
 import { RichMessageFormatter, NestedStringArray } from '@askvortsov/rich-icu-message-formatter';
 import { pluralTypeHandler, selectTypeHandler } from '@ultraq/icu-message-formatter';
-declare type Translations = Record<string, string>;
-declare type TranslatorParameters = Record<string, unknown>;
+type Translations = Record<string, string>;
+type TranslatorParameters = Record<string, unknown>;
 export default class Translator {
     /**
      * A map of translation keys to their translated values.

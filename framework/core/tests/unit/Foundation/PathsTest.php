@@ -12,10 +12,11 @@ namespace Flarum\Tests\unit\Foundation;
 use Flarum\Foundation\Paths;
 use Flarum\Testing\unit\TestCase;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\Test;
 
 class PathsTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function it_complains_when_paths_are_missing()
     {
         $this->expectException(InvalidArgumentException::class);
@@ -25,7 +26,7 @@ class PathsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_makes_paths_available_as_properties()
     {
         $paths = new Paths([
@@ -39,7 +40,7 @@ class PathsTest extends TestCase
         $this->assertEquals('/var/www/flarum/storage', $paths->storage);
     }
 
-    /** @test */
+    #[Test]
     public function it_derives_the_vendor_dir_from_the_base_path()
     {
         $paths = new Paths([
@@ -51,7 +52,7 @@ class PathsTest extends TestCase
         $this->assertEquals('/var/www/flarum/vendor', $paths->vendor);
     }
 
-    /** @test */
+    #[Test]
     public function it_allows_setting_a_custom_vendor_dir()
     {
         $paths = new Paths([
@@ -64,7 +65,7 @@ class PathsTest extends TestCase
         $this->assertEquals('/share/composer-vendor', $paths->vendor);
     }
 
-    /** @test */
+    #[Test]
     public function it_strips_trailing_forward_slashes_from_paths()
     {
         $paths = new Paths([
@@ -78,7 +79,7 @@ class PathsTest extends TestCase
         $this->assertEquals('/var/www/flarum/storage', $paths->storage);
     }
 
-    /** @test */
+    #[Test]
     public function it_strips_trailing_backslashes_from_paths()
     {
         $paths = new Paths([

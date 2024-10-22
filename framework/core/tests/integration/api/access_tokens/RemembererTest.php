@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Http\AccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class RemembererTest extends TestCase
 {
@@ -33,9 +34,7 @@ class RemembererTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function non_remember_tokens_cannot_be_used()
     {
         $this->populateDatabase();
@@ -54,9 +53,7 @@ class RemembererTest extends TestCase
         $this->assertFalse($data['data']['attributes']['canSearchUsers']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function expired_tokens_cannot_be_used()
     {
         $this->populateDatabase();
@@ -75,9 +72,7 @@ class RemembererTest extends TestCase
         $this->assertFalse($data['data']['attributes']['canSearchUsers']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function valid_tokens_can_be_used()
     {
         $this->populateDatabase();

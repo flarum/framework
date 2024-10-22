@@ -10,7 +10,9 @@
 namespace Flarum\ExtensionManager;
 
 use Flarum\Extend;
+use Flarum\ExtensionManager\Api\Resource\ExternalExtensionResource;
 use Flarum\ExtensionManager\Api\Resource\TaskResource;
+use Flarum\ExtensionManager\Exception\CannotFetchExternalExtension;
 use Flarum\Foundation\Paths;
 use Flarum\Frontend\Document;
 use Illuminate\Contracts\Queue\Queue;
@@ -29,6 +31,7 @@ return [
         ->post('/extension-manager/composer', 'extension-manager.composer', Api\Controller\ConfigureComposerController::class),
 
     new Extend\ApiResource(TaskResource::class),
+    new Extend\ApiResource(ExternalExtensionResource::class),
 
     (new Extend\Frontend('admin'))
         ->css(__DIR__.'/less/admin.less')
@@ -62,8 +65,10 @@ return [
         ->handler(Exception\ComposerRequireFailedException::class, Exception\ExceptionHandler::class)
         ->handler(Exception\ComposerUpdateFailedException::class, Exception\ExceptionHandler::class)
         ->handler(Exception\MajorUpdateFailedException::class, Exception\ExceptionHandler::class)
+        ->type(CannotFetchExternalExtension::class, 'cannot_fetch_external_extension')
         ->status('extension_already_installed', 409)
         ->status('extension_not_installed', 409)
         ->status('no_new_major_version', 409)
-        ->status('extension_not_directly_dependency', 409),
+        ->status('extension_not_directly_dependency', 409)
+        ->status('cannot_fetch_external_extension', 503),
 ];

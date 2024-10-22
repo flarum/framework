@@ -15,6 +15,7 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListWithFulltextSearchTest extends TestCase
 {
@@ -31,7 +32,7 @@ class ListWithFulltextSearchTest extends TestCase
 
         // We need to insert these outside of a transaction, because FULLTEXT indexing,
         // which is needed for search, doesn't happen in transactions.
-        // We clean it up explcitly at the end.
+        // We clean it up explicitly at the end.
         $this->database()->table('discussions')->insert($this->rowsThroughFactory(Discussion::class, [
             ['id' => 1, 'title' => 'lightsail in title', 'user_id' => 1],
             ['id' => 2, 'title' => 'lightsail in title too', 'created_at' => Carbon::createFromDate(2020, 01, 01)->toDateTimeString(), 'user_id' => 1],
@@ -68,9 +69,7 @@ class ListWithFulltextSearchTest extends TestCase
         $this->database()->table('posts')->delete();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_search_for_word_or_title_in_post()
     {
         if ($this->database()->getDriverName() === 'sqlite') {
@@ -96,9 +95,7 @@ class ListWithFulltextSearchTest extends TestCase
         $this->assertEqualsCanonicalizing(['2', '1', '3'], $ids, 'IDs do not match');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function ignores_non_word_characters_when_searching()
     {
         if ($this->database()->getDriverName() === 'sqlite') {
@@ -121,9 +118,7 @@ class ListWithFulltextSearchTest extends TestCase
         $this->assertEqualsCanonicalizing(['2', '1', '3'], $ids, 'IDs do not match');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_search_telugu_like_languages()
     {
         if ($this->database()->getDriverName() === 'sqlite') {
@@ -147,9 +142,7 @@ class ListWithFulltextSearchTest extends TestCase
         $this->assertEqualsCanonicalizing(['6'], Arr::pluck($data['included'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_search_cjk_languages()
     {
         if ($this->database()->getDriverName() === 'sqlite') {
@@ -173,9 +166,7 @@ class ListWithFulltextSearchTest extends TestCase
         $this->assertEqualsCanonicalizing(['7'], Arr::pluck($data['included'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function search_for_special_characters_gives_empty_result()
     {
         if ($this->database()->getDriverName() === 'sqlite') {

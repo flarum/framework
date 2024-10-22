@@ -8,6 +8,7 @@ import Stream from '../../common/utils/Stream';
 import type Mithril from 'mithril';
 import RequestError from '../../common/utils/RequestError';
 import type { LoginParams } from '../../common/Session';
+import ForgotPasswordModal from './ForgotPasswordModal';
 
 export interface ILoginModalAttrs extends IFormModalAttrs {
   identification?: string;
@@ -122,10 +123,16 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
     return (
       <>
         <p className="LogInModal-forgotPassword">
-          <a onclick={this.forgotPassword.bind(this)}>{app.translator.trans('core.forum.log_in.forgot_password_link')}</a>
+          <Button className="Button Button--text Button--link" onclick={this.forgotPassword.bind(this)}>
+            {app.translator.trans('core.forum.log_in.forgot_password_link')}
+          </Button>
         </p>
         {app.forum.attribute<boolean>('allowSignUp') && (
-          <p className="LogInModal-signUp">{app.translator.trans('core.forum.log_in.sign_up_text', { a: <a onclick={this.signUp.bind(this)} /> })}</p>
+          <p className="LogInModal-signUp">
+            {app.translator.trans('core.forum.log_in.sign_up_text', {
+              a: <Button className="Button Button--text Button--link" onclick={this.signUp.bind(this)} />,
+            })}
+          </p>
         )}
       </>
     );
@@ -139,7 +146,7 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
     const email = this.identification();
     const attrs = email.includes('@') ? { email } : undefined;
 
-    app.modal.show(() => import('./ForgotPasswordModal'), attrs);
+    app.modal.show(ForgotPasswordModal, attrs);
   }
 
   /**

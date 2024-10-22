@@ -13,6 +13,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class ShowTest extends TestCase
 {
@@ -32,9 +33,7 @@ class ShowTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guest_user_does_not_see_actor_relationship()
     {
         $response = $this->send(
@@ -49,9 +48,7 @@ class ShowTest extends TestCase
         $this->assertNull(Arr::get($json, 'data.relationships.actor.data'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function normal_user_sees_most_information()
     {
         $response = $this->send(
@@ -73,9 +70,7 @@ class ShowTest extends TestCase
         $this->assertEquals(2, Arr::get($json, 'data.relationships.actor.data.id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_user_sees_even_more()
     {
         $response = $this->send(

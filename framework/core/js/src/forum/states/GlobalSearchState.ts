@@ -17,19 +17,19 @@ export default class GlobalSearchState extends SearchState {
     // We can't do this in the constructor, as this class is instantiated
     // before pages are rendered, and we need app.current.
     if (!this.initialValueSet && this.currPageProvidesSearch()) {
-      this.intializeValue();
+      this.initializeValue();
     }
 
     return super.getValue();
   }
 
-  protected intializeValue() {
+  protected initializeValue() {
     this.setValue(this.getInitialSearch());
     this.initialValueSet = true;
   }
 
   protected currPageProvidesSearch(): boolean {
-    return app.current.type && app.current.type.providesInitialSearch;
+    return app.current.type && 'providesInitialSearch' in app.current.type && (app.current.type as any).providesInitialSearch;
   }
 
   /**

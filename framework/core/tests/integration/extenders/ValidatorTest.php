@@ -14,6 +14,7 @@ use Flarum\Foundation\AbstractValidator;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Validation\ValidationException;
+use PHPUnit\Framework\Attributes\Test;
 
 class ValidatorTest extends TestCase
 {
@@ -34,20 +35,16 @@ class ValidatorTest extends TestCase
         $this->extend((new Extend\Validator(CustomUserValidator::class))->configure(CustomValidatorClass::class));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_validation_rule_does_not_exist_by_default()
     {
         $this->app()->getContainer()->make(CustomUserValidator::class)->assertValid(['password' => 'simplePassword']);
 
-        // If we have gotten this far, no validation exception has been thrown, so the test is succesful.
+        // If we have gotten this far, no validation exception has been thrown, so the test is successful.
         $this->assertTrue(true);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_validation_rule_exists_if_added()
     {
         $this->extendToRequireLongPassword();
@@ -57,9 +54,7 @@ class ValidatorTest extends TestCase
         $this->app()->getContainer()->make(CustomUserValidator::class)->assertValid(['password' => 'simplePassword']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_validation_rule_exists_if_added_via_invokable_class()
     {
         $this->extendToRequireLongPasswordViaInvokableClass();
@@ -69,16 +64,14 @@ class ValidatorTest extends TestCase
         $this->app()->getContainer()->make(CustomUserValidator::class)->assertValid(['password' => 'simplePassword']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_validation_rule_doesnt_affect_other_validators()
     {
         $this->extendToRequireLongPassword();
 
         $this->app()->getContainer()->make(CustomValidator::class)->assertValid(['password' => 'simplePassword']);
 
-        // If we have gotten this far, no validation exception has been thrown, so the test is succesful.
+        // If we have gotten this far, no validation exception has been thrown, so the test is successful.
         $this->assertTrue(true);
     }
 }

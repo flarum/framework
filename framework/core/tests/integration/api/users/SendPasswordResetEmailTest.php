@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\Throttler\PasswordResetThrottler;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class SendPasswordResetEmailTest extends TestCase
 {
@@ -34,7 +35,7 @@ class SendPasswordResetEmailTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function users_can_send_password_reset_emails_in_moderate_intervals()
     {
         for ($i = 0; $i < 2; $i++) {
@@ -55,7 +56,7 @@ class SendPasswordResetEmailTest extends TestCase
         $this->assertEquals(204, $response->getStatusCode());
     }
 
-    /** @test */
+    #[Test]
     public function users_cant_send_confirmation_emails_too_fast()
     {
         for ($i = 0; $i < 2; $i++) {
@@ -72,7 +73,7 @@ class SendPasswordResetEmailTest extends TestCase
         $this->assertEquals(429, $response->getStatusCode());
     }
 
-    /** @test */
+    #[Test]
     public function request_password_reset_does_not_leak_user_existence()
     {
         $response = $this->send(

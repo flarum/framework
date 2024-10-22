@@ -16,6 +16,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListTest extends TestCase
 {
@@ -57,9 +58,7 @@ class ListTest extends TestCase
         $user->save();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function shows_index_for_guest()
     {
         $response = $this->send(
@@ -72,9 +71,7 @@ class ListTest extends TestCase
         $this->assertEquals(3, count($data['data']));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function author_filter_works()
     {
         $response = $this->send(
@@ -95,9 +92,7 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing(['2', '3'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function author_filter_works_negated()
     {
         $response = $this->send(
@@ -114,9 +109,7 @@ class ListTest extends TestCase
         $this->assertEquals(['1'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function created_filter_works_with_date()
     {
         $response = $this->send(
@@ -135,9 +128,7 @@ class ListTest extends TestCase
         $this->assertEquals(['3'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function created_filter_works_negated_with_date()
     {
         $response = $this->send(
@@ -154,9 +145,7 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing(['1', '2'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function created_filter_works_with_range()
     {
         $response = $this->send(
@@ -173,9 +162,7 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing(['2', '3'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function created_filter_works_negated_with_range()
     {
         $response = $this->send(
@@ -192,9 +179,7 @@ class ListTest extends TestCase
         $this->assertEquals(['1'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function hidden_filter_works()
     {
         $response = $this->send(
@@ -211,9 +196,7 @@ class ListTest extends TestCase
         $this->assertEquals(['4'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function hidden_filter_works_negated()
     {
         $response = $this->send(
@@ -230,9 +213,7 @@ class ListTest extends TestCase
         $this->assertEqualsCanonicalizing(['1', '2', '3'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unread_filter_works()
     {
         $this->app();
@@ -252,9 +233,7 @@ class ListTest extends TestCase
         $this->assertEquals(['3'], Arr::pluck($data, 'id'), 'IDs do not match');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unread_filter_works_when_negated()
     {
         $this->app();

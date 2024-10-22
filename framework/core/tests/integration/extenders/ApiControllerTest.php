@@ -26,6 +26,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 use Tobyz\JsonApiServer\Schema\Field\Field;
 
 class ApiControllerTest extends TestCase
@@ -57,9 +58,7 @@ class ApiControllerTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function after_endpoint_callback_works_if_added()
     {
         $this->extend(
@@ -84,9 +83,7 @@ class ApiControllerTest extends TestCase
         $this->assertEquals('dataSerializationPrepCustomTitle', $payload['data']['attributes']['title'], $body);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function after_endpoint_callback_works_with_invokable_classes()
     {
         $this->extend(
@@ -107,9 +104,7 @@ class ApiControllerTest extends TestCase
         $this->assertEquals(CustomAfterEndpointInvokableClass::class, $payload['data']['attributes']['title'], $body);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function after_endpoint_callback_works_if_added_to_parent_class()
     {
         $this->extend(
@@ -136,9 +131,7 @@ class ApiControllerTest extends TestCase
         $this->assertEquals('dataSerializationPrepCustomTitle2', $payload['data']['attributes']['title']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function after_endpoint_callback_prioritizes_child_classes()
     {
         $this->extend(
@@ -173,9 +166,7 @@ class ApiControllerTest extends TestCase
         $this->assertEquals('dataSerializationPrepCustomTitle4', $payload['data']['attributes']['title'], $body);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function before_endpoint_callback_works_if_added_to_parent_class()
     {
         $this->extend(
@@ -199,9 +190,7 @@ class ApiControllerTest extends TestCase
         $this->assertStringContainsString('error on purpose', $body, $body);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function before_endpoint_callback_prioritizes_child_classes()
     {
         $this->extend(
@@ -231,9 +220,7 @@ class ApiControllerTest extends TestCase
         $this->assertStringContainsString('error on purpose from abstract resource', $body, $body);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_relationship_not_included_by_default()
     {
         $response = $this->send(
@@ -248,9 +235,7 @@ class ApiControllerTest extends TestCase
         $this->assertArrayNotHasKey('customApiControllerRelation2', $payload['data']['relationships']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_relationship_included_if_added()
     {
         $this->extend(
@@ -278,9 +263,7 @@ class ApiControllerTest extends TestCase
         $this->assertArrayHasKey('customApiControllerRelation', $payload['data']['relationships'] ?? [], $body);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_relationship_optionally_included_if_added()
     {
         $this->extend(
@@ -307,9 +290,7 @@ class ApiControllerTest extends TestCase
         $this->assertArrayHasKey('customApiControllerRelation2', $payload['data']['relationships'] ?? []);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_relationship_included_by_default()
     {
         $response = $this->send(
@@ -323,9 +304,7 @@ class ApiControllerTest extends TestCase
         $this->assertArrayHasKey('groups', $payload['data']['relationships']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_relationship_not_included_if_removed()
     {
         $this->extend(
@@ -346,9 +325,7 @@ class ApiControllerTest extends TestCase
         $this->assertArrayNotHasKey('groups', Arr::get($payload, 'data.relationships', []));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_relationship_not_optionally_included_if_removed()
     {
         $this->extend(
@@ -374,9 +351,7 @@ class ApiControllerTest extends TestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_limit_doesnt_work_by_default()
     {
         $response = $this->send(
@@ -390,9 +365,7 @@ class ApiControllerTest extends TestCase
         $this->assertCount(3, $payload['data']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_limit_works_if_set()
     {
         $this->extend(
@@ -413,9 +386,7 @@ class ApiControllerTest extends TestCase
         $this->assertCount(1, $payload['data']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_max_limit_works_if_set()
     {
         $this->extend(
@@ -438,9 +409,7 @@ class ApiControllerTest extends TestCase
         $this->assertCount(1, $payload['data']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_sort_field_doesnt_exist_by_default()
     {
         $response = $this->send(
@@ -454,9 +423,7 @@ class ApiControllerTest extends TestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_sort_field_exists_if_added()
     {
         $this->extend(
@@ -480,9 +447,7 @@ class ApiControllerTest extends TestCase
         $this->assertEquals([3, 1, 2], Arr::pluck($payload['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_sort_field_exists_by_default()
     {
         $response = $this->send(
@@ -496,9 +461,7 @@ class ApiControllerTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_sort_field_doesnt_exist_if_removed()
     {
         $this->extend(
@@ -517,9 +480,7 @@ class ApiControllerTest extends TestCase
         $this->assertEquals(400, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_sort_field_works_if_set()
     {
         $this->extend(
@@ -544,9 +505,7 @@ class ApiControllerTest extends TestCase
         $this->assertEquals([2, 1, 3], Arr::pluck($payload['data'], 'id'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_first_level_relation_is_not_loaded_by_default()
     {
         $users = null;
@@ -573,9 +532,7 @@ class ApiControllerTest extends TestCase
         $this->assertTrue($users->filter->relationLoaded('firstLevelRelation')->isEmpty());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_first_level_relation_is_loaded_if_added()
     {
         $users = null;
@@ -604,9 +561,7 @@ class ApiControllerTest extends TestCase
         $this->assertFalse($users->filter->relationLoaded('firstLevelRelation')->isEmpty(), $response->getBody()->getContents());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_second_level_relation_is_not_loaded_by_default()
     {
         $users = null;
@@ -634,9 +589,7 @@ class ApiControllerTest extends TestCase
         $this->assertTrue($users->pluck('firstLevelRelation')->filter->relationLoaded('secondLevelRelation')->isEmpty());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_second_level_relation_is_loaded_if_added()
     {
         $users = null;
@@ -667,9 +620,7 @@ class ApiControllerTest extends TestCase
         $this->assertFalse($users->pluck('firstLevelRelation')->filter->relationLoaded('secondLevelRelation')->isEmpty());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_second_level_relation_is_not_loaded_when_first_level_is_not()
     {
         $users = null;
@@ -698,9 +649,7 @@ class ApiControllerTest extends TestCase
         $this->assertTrue($users->pluck('firstLevelRelation')->filter->relationLoaded('secondLevelRelation')->isEmpty());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_callable_first_level_relation_is_loaded_if_added()
     {
         $users = null;
@@ -729,9 +678,7 @@ class ApiControllerTest extends TestCase
         $this->assertFalse($users->filter->relationLoaded('firstLevelRelation')->isEmpty());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_callable_second_level_relation_is_loaded_if_added()
     {
         $users = null;

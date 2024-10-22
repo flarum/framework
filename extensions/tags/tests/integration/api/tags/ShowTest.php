@@ -16,6 +16,8 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class ShowTest extends TestCase
 {
@@ -43,7 +45,7 @@ class ShowTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function can_show_tag_with_url_decoded_utf8_slug()
     {
         $this->prepareDatabase([
@@ -65,7 +67,7 @@ class ShowTest extends TestCase
         $this->assertEquals(200, $response2->getStatusCode());
     }
 
-    /** @test */
+    #[Test]
     public function can_show_tag_with_url_encoded_utf8_slug()
     {
         $this->prepareDatabase([
@@ -87,10 +89,8 @@ class ShowTest extends TestCase
         $this->assertEquals(200, $response2->getStatusCode());
     }
 
-    /**
-     * @dataProvider showTagIncludes
-     * @test
-     */
+    #[Test]
+    #[DataProvider('showTagIncludes')]
     public function user_sees_tag_relations_where_allowed(string $include, array $expectedIncludes)
     {
         $response = $this->send(
@@ -109,7 +109,7 @@ class ShowTest extends TestCase
         $this->assertEqualsCanonicalizing($expectedIncludes, Arr::pluck($included, 'id'));
     }
 
-    public function showTagIncludes(): array
+    public static function showTagIncludes(): array
     {
         return [
             ['children', []],

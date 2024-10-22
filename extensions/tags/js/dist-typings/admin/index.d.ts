@@ -1,2 +1,2 @@
-export { default as extend } from '../common/extend';
+export { default as extend } from './extend';
 import './admin';

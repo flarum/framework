@@ -20,6 +20,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Contracts\Events\Dispatcher;
+use PHPUnit\Framework\Attributes\Test;
 
 class EventTest extends TestCase
 {
@@ -47,9 +48,7 @@ class EventTest extends TestCase
             );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_listener_doesnt_work_by_default()
     {
         $group = $this->buildGroup();
@@ -57,9 +56,7 @@ class EventTest extends TestCase
         $this->assertEquals('test group', $group->name_singular);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_listener_works_with_closure()
     {
         $this->extend((new Extend\Event)->listen(Created::class, function (Created $event) {
@@ -71,9 +68,7 @@ class EventTest extends TestCase
         $this->assertEquals('modified group', $group->name_singular);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_listener_works_with_class_with_handle_method_and_can_inject_stuff()
     {
         // Because it injects a translator, this also tests that stuff can be injected into this callback.
@@ -84,9 +79,7 @@ class EventTest extends TestCase
         $this->assertEquals('Admin', $group->name_singular);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_subscriber_works()
     {
         // Because it injects a translator, this also tests that stuff can be injected into this callback.
@@ -97,9 +90,7 @@ class EventTest extends TestCase
         $this->assertEquals('Admin', $group->name_singular);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_subscriber_applied_after_app_booted()
     {
         // Because it injects a translator, this also tests that stuff can be injected into this callback.

@@ -1,0 +1,242 @@
+.MessagesPage-sidebar {
+  flex-shrink: 0;
+  width: 280px;
+}
+
+.MessagesPage-content {
+  display: flex;
+  gap: 32px;
+
+  .Avatar {
+    --size: 40px;
+  }
+}
+
+.MessageComposer-recipients {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--control-color);
+
+  .Avatar {
+    --size: 24px;
+  }
+
+  &-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 4px;
+  }
+}
+
+.DialogList-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .Avatar {
+    --size: 42px;
+  }
+
+  .DialogDropdownList & {
+    gap: 0
+  }
+}
+
+.DialogListItem {
+  .CompactActions();
+
+  &-button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-color);
+    text-decoration: none;
+    padding: 10px 12px;
+    border-radius: var(--border-radius);
+
+    &:hover, &.active {
+      text-decoration: none;
+      background-color: var(--control-bg);
+
+      .DialogListItem-lastMessage {
+        color: var(--control-color);
+      }
+    }
+
+    .DialogDropdownList & {
+      border-radius: 0;
+    }
+  }
+
+  &-title {
+    font-weight: 500;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    white-space: nowrap;
+    align-items: center;
+
+    .username {
+      max-width: 56%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  &-content {
+    overflow: hidden;
+    flex-grow: 1;
+  }
+
+  &-avatar {
+    flex-shrink: 0;
+    position: relative;
+
+    .Bubble {
+      top: -4px;
+      right: -4px;
+      left: unset;
+      height: 18px;
+      min-width: 18px;
+    }
+  }
+
+  &-lastMessage {
+    color: var(--muted-more-color);
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &--unread &-button:not(:hover) {
+    background-color: var(--control-body-bg-mix);
+  }
+
+  &--unread &-title {
+    font-weight: bold;
+  }
+
+  &--unread &-lastMessage {
+    color: var(--control-color);
+  }
+
+  time {
+    font-size: 11px;
+    line-height: 19px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: var(--control-color);
+  }
+
+  .DialogDropdownList &-title {
+    justify-content: flex-start;
+    gap: 10px;
+  }
+
+  .DialogDropdownList &-actions {
+    margin-inline-start: auto;
+  }
+}
+
+.DialogSection {
+  flex-grow: 1;
+  padding-inline-start: 32px;
+
+  &-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--control-bg);
+
+    a {
+      color: var(--text-color);
+    }
+
+    &-actions {
+      margin-inline-start: auto;
+    }
+
+    &-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+  }
+}
+
+.Message {
+  padding-right: 0;
+
+  .PostUser-badges {
+    margin-left: -72px;
+  }
+}
+
+.MessageStream {
+  --avatar-column-width: 55px;
+  padding-inline-end: 0.5rem;
+  margin-inline-start: -32px;
+  padding-inline-start: 32px;
+  padding-bottom: 1px;
+  mask-image: linear-gradient(180deg, transparent 0%, var(--body-bg) 3%, var(--body-bg) 97%, transparent 100%);
+}
+
+.MessageStream, .DialogList {
+  max-height: calc(100vh - var(--header-height) - 140px - 235px);
+  overflow: auto;
+}
+
+.DialogList-loadMore {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.DetailsModal-infoGroups {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.DetailsModal-info {
+  &-title {
+    text-transform: uppercase;
+    font-weight: bold;
+    color: var(--muted-more-color);
+    margin-bottom: 8px;
+  }
+
+  &-content {
+    color: var(--control-color);
+  }
+}
+
+.DetailsModal-recipient {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .Avatar {
+    --size: 38px;
+  }
+
+  a {
+    color: var(--text-color);
+    font-size: 14px;
+    font-weight: bold;
+  }
+}
+
+.DetailsModal-recipients-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

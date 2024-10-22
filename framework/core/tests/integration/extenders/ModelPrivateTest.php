@@ -15,6 +15,7 @@ use Flarum\Extend;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class ModelPrivateTest extends TestCase
 {
@@ -27,9 +28,7 @@ class ModelPrivateTest extends TestCase
         Discussion::unguard();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function discussion_isnt_saved_as_private_by_default()
     {
         $this->app();
@@ -45,9 +44,7 @@ class ModelPrivateTest extends TestCase
         $this->assertNull($discussion->is_private);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function discussion_is_saved_as_private_if_privacy_checker_added()
     {
         $this->extend(
@@ -76,9 +73,7 @@ class ModelPrivateTest extends TestCase
         $this->assertFalse($publicDiscussion->is_private);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function discussion_is_saved_as_private_if_privacy_checker_added_via_invokable_class()
     {
         $this->extend(
@@ -105,9 +100,7 @@ class ModelPrivateTest extends TestCase
         $this->assertFalse($publicDiscussion->is_private);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function private_checkers_that_return_false_dont_matter()
     {
         $this->extend(

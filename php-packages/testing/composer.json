@@ -10,7 +10,7 @@
     "require": {
         "ext-json": "*",
         "mockery/mockery": "^1.5",
-        "phpunit/phpunit": "^9.0"
+        "phpunit/phpunit": "^11.0"
     },
     "require-dev": {
         "flarum/core": "*@dev"

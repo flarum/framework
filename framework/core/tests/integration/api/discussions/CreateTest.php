@@ -14,6 +14,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class CreateTest extends TestCase
 {
@@ -33,9 +34,7 @@ class CreateTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cannot_create_discussion_without_content()
     {
         $response = $this->send(
@@ -71,9 +70,7 @@ class CreateTest extends TestCase
         ], json_decode($body, true));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cannot_create_discussion_without_title()
     {
         $response = $this->send(
@@ -108,9 +105,7 @@ class CreateTest extends TestCase
         ], json_decode($body, true));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_create_discussion()
     {
         $response = $this->send(
@@ -140,9 +135,7 @@ class CreateTest extends TestCase
         $this->assertEquals('test - too-obscure', Arr::get($data, 'data.attributes.title'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_create_discussion_with_current_lang_slug_transliteration()
     {
         // Forum default is traditional Chinese.
@@ -171,9 +164,7 @@ class CreateTest extends TestCase
         $this->assertEquals('wo-shi-yi-ge-tu-dou', $discussion->slug);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_create_discussion_with_forum_locale_transliteration()
     {
         // Forum default is traditional Chinese.
@@ -204,9 +195,7 @@ class CreateTest extends TestCase
         $this->assertEquals('wo-shi-yi-ge-tu-dou', $discussion->slug);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function discussion_creation_limited_by_throttler()
     {
         $response = $this->send(
@@ -244,9 +233,7 @@ class CreateTest extends TestCase
         $this->assertEquals(429, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function throttler_doesnt_apply_to_admin()
     {
         $this->send(

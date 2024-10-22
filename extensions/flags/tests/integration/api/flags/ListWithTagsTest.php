@@ -19,6 +19,7 @@ use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use PHPUnit\Framework\Attributes\Test;
 
 class ListWithTagsTest extends TestCase
 {
@@ -101,9 +102,7 @@ class ListWithTagsTest extends TestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_can_see_one_flag_per_post()
     {
         $response = $this->send(
@@ -122,9 +121,7 @@ class ListWithTagsTest extends TestCase
         $this->assertCount(7, $data);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function regular_user_sees_own_flags()
     {
         $response = $this->send(
@@ -141,9 +138,7 @@ class ListWithTagsTest extends TestCase
         $this->assertEqualsCanonicalizing(['2', '4'], $ids);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function mod_can_see_one_flag_per_post()
     {
         $response = $this->send(
@@ -162,9 +157,7 @@ class ListWithTagsTest extends TestCase
         $this->assertCount(5, $data);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guest_cant_see_flags()
     {
         $response = $this->send(

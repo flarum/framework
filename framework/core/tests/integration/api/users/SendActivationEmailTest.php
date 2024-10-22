@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\Throttler\EmailActivationThrottler;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class SendActivationEmailTest extends TestCase
 {
@@ -34,7 +35,7 @@ class SendActivationEmailTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function users_can_send_confirmation_emails_in_moderate_intervals()
     {
         for ($i = 0; $i < 2; $i++) {
@@ -52,7 +53,7 @@ class SendActivationEmailTest extends TestCase
         $this->assertEquals(204, $response->getStatusCode());
     }
 
-    /** @test */
+    #[Test]
     public function users_cant_send_confirmation_emails_too_fast()
     {
         for ($i = 0; $i < 2; $i++) {

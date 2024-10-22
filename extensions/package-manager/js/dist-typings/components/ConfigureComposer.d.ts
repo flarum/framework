@@ -1,6 +1,6 @@
 import type Mithril from 'mithril';
 import ConfigureJson, { type IConfigureJson } from './ConfigureJson';
-export declare type Repository = {
+export type Repository = {
     type: 'composer' | 'vcs' | 'path';
     url: string;
 };

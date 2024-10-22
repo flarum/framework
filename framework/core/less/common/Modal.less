@@ -152,6 +152,33 @@
     }
   }
 }
+.Modal--simple {
+  @media @tablet-up {
+    .Modal-header {
+      background: var(--control-bg);
+      padding: 20px 20px 0;
+
+      & h3 {
+        text-align: left;
+        color: var(--control-color);
+        font-size: 16px;
+      }
+    }
+  }
+
+  .Modal-body {
+    padding: 20px;
+
+    @media @phone {
+      padding: 15px;
+    }
+  }
+
+  .Modal-footer {
+    padding: 1px 0 0;
+    text-align: left;
+  }
+}
 
 @media @phone {
   .ModalManager {
@@ -174,7 +201,7 @@
     margin: 0;
     -webkit-transform: none !important;
     transform: none !important;
-    top: 100vh;
+    top: 100dvh;
 
     &.fade {
       opacity: 1;
@@ -187,7 +214,7 @@
   .Modal-content {
     border-radius: 0;
     border: 0;
-    min-height: 100vh;
+    min-height: 100dvh;
     padding-top: var(--header-height-phone);
     box-shadow: none;
   }
