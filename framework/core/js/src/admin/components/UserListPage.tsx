@@ -273,7 +273,7 @@ export default class UserListPage extends AdminPage {
         name: app.translator.trans('core.admin.users.grid.columns.join_time.title'),
         content: (user: User) => (
           <span className="UserList-joinDate" title={user.joinTime()}>
-            {app.translator.formatDateTime(dayjs(user.joinTime()), 'core.lib.datetime_formats.fullTimeShort')}
+            {app.translator.formatDateTime(dayjs(user.joinTime()), 'core.lib.datetime_formats.userListJoinDate')}
           </span>
         ),
       },
