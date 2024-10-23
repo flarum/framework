@@ -9,58 +9,36 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\JsonApi;
 use Flarum\Http\RequestUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Intervention\Image\Image;
+use Intervention\Image\Interfaces\EncodedImageInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
-use Tobscure\JsonApi\Document;
 
 abstract class UploadImageController extends ShowForumController
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
+    protected Filesystem $uploadDir;
+    protected string $fileExtension = 'png';
+    protected string $filePathSettingKey = '';
+    protected string $filenamePrefix = '';
 
-    /**
-     * @var Filesystem
-     */
-    protected $uploadDir;
+    public function __construct(
+        JsonApi $api,
+        protected SettingsRepositoryInterface $settings,
+        Factory $filesystemFactory
+    ) {
+        parent::__construct($api);
 
-    /**
-     * @var string
-     */
-    protected $fileExtension = 'png';
-
-    /**
-     * @var string
-     */
-    protected $filePathSettingKey = '';
-
-    /**
-     * @var string
-     */
-    protected $filenamePrefix = '';
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     * @param Factory $filesystemFactory
-     */
-    public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory)
-    {
-        $this->settings = $settings;
         $this->uploadDir = $filesystemFactory->disk('flarum-assets');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function data(ServerRequestInterface $request, Document $document)
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         RequestUtil::getActor($request)->assertAdmin();
 
@@ -78,12 +56,8 @@ abstract class UploadImageController extends ShowForumController
 
         $this->settings->set($this->filePathSettingKey, $uploadName);
 
-        return parent::data($request, $document);
+        return parent::handle($request);
     }
 
-    /**
-     * @param UploadedFileInterface $file
-     * @return Image
-     */
-    abstract protected function makeImage(UploadedFileInterface $file): Image;
+    abstract protected function makeImage(UploadedFileInterface $file): EncodedImageInterface;
 }

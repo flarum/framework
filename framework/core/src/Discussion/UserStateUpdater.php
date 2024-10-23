@@ -14,9 +14,9 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class UserStateUpdater
 {
-    public function subscribe(Dispatcher $events)
+    public function subscribe(Dispatcher $events): void
     {
-        $events->listen(Deleted::class, [$this, 'whenPostWasDeleted']);
+        $events->listen(Deleted::class, $this->whenPostWasDeleted(...));
     }
 
     /**
@@ -24,7 +24,7 @@ class UserStateUpdater
      * If user A read a discussion all the way to post number N, and X last posts were deleted,
      * then we need to update user A's read status to the new N-X post number so that they get notified by new posts.
      */
-    public function whenPostWasDeleted(Deleted $event)
+    public function whenPostWasDeleted(Deleted $event): void
     {
         /*
          * We check if it's greater because at this point the DiscussionMetadataUpdater should have updated the last post.

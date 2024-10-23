@@ -9,38 +9,46 @@
 
 namespace Flarum\Tests\integration\extenders;
 
+use Flarum\Api\JsonApi;
+use Flarum\Api\Resource\GroupResource;
 use Flarum\Extend;
 use Flarum\Foundation\Application;
-use Flarum\Group\Command\CreateGroup;
 use Flarum\Group\Event\Created;
+use Flarum\Group\Group;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
-use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
 use Illuminate\Contracts\Events\Dispatcher;
-use Symfony\Contracts\Translation\TranslatorInterface;
+use PHPUnit\Framework\Attributes\Test;
 
 class EventTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    protected function buildGroup()
+    protected function buildGroup(): Group
     {
-        $bus = $this->app()->getContainer()->make(BusDispatcher::class);
+        /** @var JsonApi $api */
+        $api = $this->app()->getContainer()->make(JsonApi::class);
 
-        return $bus->dispatch(
-            new CreateGroup(User::find(1), ['attributes' => [
-                'nameSingular' => 'test group',
-                'namePlural' => 'test groups',
-                'color' => '#000000',
-                'icon' => 'fas fa-crown',
-            ]])
-        );
+        return $api->forResource(GroupResource::class)
+            ->forEndpoint('create')
+            ->process(
+                body: [
+                    'data' => [
+                        'attributes' => [
+                            'nameSingular' => 'test group',
+                            'namePlural' => 'test groups',
+                            'color' => '#000000',
+                            'icon' => 'fas fa-crown',
+                        ]
+                    ],
+                ],
+                options: ['actor' => User::find(1)]
+            );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_listener_doesnt_work_by_default()
     {
         $group = $this->buildGroup();
@@ -48,9 +56,7 @@ class EventTest extends TestCase
         $this->assertEquals('test group', $group->name_singular);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_listener_works_with_closure()
     {
         $this->extend((new Extend\Event)->listen(Created::class, function (Created $event) {
@@ -62,9 +68,7 @@ class EventTest extends TestCase
         $this->assertEquals('modified group', $group->name_singular);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_listener_works_with_class_with_handle_method_and_can_inject_stuff()
     {
         // Because it injects a translator, this also tests that stuff can be injected into this callback.
@@ -75,9 +79,7 @@ class EventTest extends TestCase
         $this->assertEquals('Admin', $group->name_singular);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_subscriber_works()
     {
         // Because it injects a translator, this also tests that stuff can be injected into this callback.
@@ -88,9 +90,7 @@ class EventTest extends TestCase
         $this->assertEquals('Admin', $group->name_singular);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_subscriber_applied_after_app_booted()
     {
         // Because it injects a translator, this also tests that stuff can be injected into this callback.

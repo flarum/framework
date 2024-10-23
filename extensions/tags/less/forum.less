@@ -19,14 +19,10 @@
 }
 .TagLinkButton {
   &.child {
-    @media @tablet-up {
-      padding-top: 4px;
-      padding-bottom: 4px;
-    }
     margin-left: 10px;
 
     .TagIcon {
-      display: none;
+      visibility: hidden;
     }
   }
 
@@ -36,6 +32,7 @@
 }
 .DiscussionComposer-changeTags {
   margin-right: 15px;
+  line-height: inherit;
 
   &.disabled {
     opacity: 0.5;
@@ -67,27 +64,6 @@
         max-width: 400px;
         -webkit-mask-image: none;
       }
-    }
-  }
-}
-@media @desktop-up {
-  .TagsPage {
-    .sideNav {
-      .sideNav--horizontal();
-      float: none;
-      width: auto;
-      padding-top: 0;
-
-      &:after {
-        display: none;
-      }
-
-      > ul > li:first-child {
-        width: 190px;
-      }
-    }
-    .sideNavOffset {
-      margin: 15px 0 0;
     }
   }
 }

@@ -9,61 +9,44 @@
 
 namespace Flarum\Mentions\Notification;
 
+use Flarum\Database\AbstractModel;
+use Flarum\Locale\TranslatorInterface;
+use Flarum\Notification\AlertableInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\MailableInterface;
 use Flarum\Post\Post;
-use Symfony\Contracts\Translation\TranslatorInterface;
+use Flarum\User\User;
 
-class GroupMentionedBlueprint implements BlueprintInterface, MailableInterface
+class GroupMentionedBlueprint implements BlueprintInterface, AlertableInterface, MailableInterface
 {
-    /**
-     * @var Post
-     */
-    public $post;
-
-    /**
-     * @param Post $post
-     */
-    public function __construct(Post $post)
-    {
-        $this->post = $post;
+    public function __construct(
+        public Post $post
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getSubject()
+    public function getSubject(): ?AbstractModel
     {
         return $this->post;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getFromUser()
+    public function getFromUser(): ?User
     {
         return $this->post->user;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getData()
+    public function getData(): mixed
     {
+        return null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getEmailView()
+    public function getEmailViews(): array
     {
-        return ['text' => 'flarum-mentions::emails.groupMentioned'];
+        return [
+            'text' => 'flarum-mentions::emails.plain.groupMentioned',
+            'html' => 'flarum-mentions::emails.html.groupMentioned', ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getEmailSubject(TranslatorInterface $translator)
+    public function getEmailSubject(TranslatorInterface $translator): string
     {
         return $translator->trans('flarum-mentions.email.group_mentioned.subject', [
             '{mentioner_display_name}' => $this->post->user->display_name,
@@ -71,18 +54,12 @@ class GroupMentionedBlueprint implements BlueprintInterface, MailableInterface
         ]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getType()
+    public static function getType(): string
     {
         return 'groupMentioned';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubjectModel()
+    public static function getSubjectModel(): string
     {
         return Post::class;
     }

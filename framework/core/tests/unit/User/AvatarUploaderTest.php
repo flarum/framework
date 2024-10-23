@@ -16,7 +16,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Database\Eloquent\Model;
-use Intervention\Image\ImageManagerStatic;
+use Intervention\Image\ImageManager;
 use Mockery as m;
 
 class AvatarUploaderTest extends TestCase
@@ -93,7 +93,7 @@ class AvatarUploaderTest extends TestCase
         $user->changeAvatarPath('ABCDEFGHabcdefgh.png');
         $user->syncOriginal();
 
-        $this->uploader->upload($user, ImageManagerStatic::canvas(50, 50));
+        $this->uploader->upload($user, ImageManager::gd()->create(50, 50));
 
         // Simulate saving
         foreach ($user->releaseAfterSaveCallbacks() as $callback) {

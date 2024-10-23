@@ -21,20 +21,13 @@ use Symfony\Component\Console\Question\Question;
 
 class UserDataProvider implements DataProviderInterface
 {
-    protected $input;
+    protected BaseUrl $baseUrl;
 
-    protected $output;
-
-    protected $questionHelper;
-
-    /** @var BaseUrl */
-    protected $baseUrl;
-
-    public function __construct(InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper)
-    {
-        $this->input = $input;
-        $this->output = $output;
-        $this->questionHelper = $questionHelper;
+    public function __construct(
+        protected InputInterface $input,
+        protected OutputInterface $output,
+        protected QuestionHelper $questionHelper
+    ) {
     }
 
     public function configure(Installation $installation): Installation
@@ -49,20 +42,31 @@ class UserDataProvider implements DataProviderInterface
 
     private function getDatabaseConfiguration(): DatabaseConfig
     {
-        $host = $this->ask('Database host (required):');
-        $port = 3306;
+        $driver = $this->ask('Database driver (mysql, sqlite, pgsql) (Default: mysql):', 'mysql');
+        $port = match ($driver) {
+            'mysql' => 3306,
+            'pgsql' => 5432,
+            default => 0,
+        };
 
-        if (Str::contains($host, ':')) {
-            list($host, $port) = explode(':', $host, 2);
+        if (in_array($driver, ['mysql', 'pgsql'])) {
+            $host = $this->ask('Database host (required):');
+
+            if (Str::contains($host, ':')) {
+                list($host, $port) = explode(':', $host, 2);
+            }
+
+            $user = $this->ask('Database user (required):');
+            $password = $this->secret('Database password:');
         }
 
         return new DatabaseConfig(
-            'mysql',
-            $host,
+            $driver,
+            $host ?? null,
             intval($port),
             $this->ask('Database name (required):'),
-            $this->ask('Database user (required):'),
-            $this->secret('Database password:'),
+            $user ?? null,
+            $password ?? null,
             $this->ask('Prefix:')
         );
     }
@@ -83,7 +87,7 @@ class UserDataProvider implements DataProviderInterface
         );
     }
 
-    private function askForAdminPassword()
+    private function askForAdminPassword(): string
     {
         while (true) {
             $password = $this->secret('Admin password (required >= 8 characters):');
@@ -104,7 +108,7 @@ class UserDataProvider implements DataProviderInterface
         }
     }
 
-    private function getSettings()
+    private function getSettings(): array
     {
         $title = $this->ask('Forum title:');
 
@@ -115,14 +119,14 @@ class UserDataProvider implements DataProviderInterface
         ];
     }
 
-    private function ask($question, $default = null)
+    private function ask(string $question, string $default = null): mixed
     {
         $question = new Question("<question>$question</question> ", $default);
 
         return $this->questionHelper->ask($this->input, $this->output, $question);
     }
 
-    private function secret($question)
+    private function secret(string $question): mixed
     {
         $question = new Question("<question>$question</question> ");
 
@@ -131,7 +135,7 @@ class UserDataProvider implements DataProviderInterface
         return $this->questionHelper->ask($this->input, $this->output, $question);
     }
 
-    private function validationError($message)
+    private function validationError(string $message): void
     {
         $this->output->writeln("<error>$message</error>");
         $this->output->writeln('Please try again.');

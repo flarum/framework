@@ -17,36 +17,30 @@ use Illuminate\Filesystem\Filesystem;
 
 class RunMigrations implements Step
 {
-    /**
-     * @var ConnectionInterface
-     */
-    private $database;
-
-    /**
-     * @var string
-     */
-    private $path;
-
-    public function __construct(ConnectionInterface $database, $path)
-    {
-        $this->database = $database;
-        $this->path = $path;
+    public function __construct(
+        private readonly ConnectionInterface $database,
+        private readonly string $driver,
+        private readonly string $path
+    ) {
     }
 
-    public function getMessage()
+    public function getMessage(): string
     {
         return 'Running migrations';
     }
 
-    public function run()
+    public function run(): void
     {
         $migrator = $this->getMigrator();
 
-        $migrator->installFromSchema($this->path);
+        if (! $migrator->installFromSchema($this->path, $this->driver)) {
+            $migrator->getRepository()->createRepository();
+        }
+
         $migrator->run($this->path);
     }
 
-    private function getMigrator()
+    private function getMigrator(): Migrator
     {
         $repository = new DatabaseMigrationRepository(
             $this->database,

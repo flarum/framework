@@ -74,7 +74,7 @@ on:
         description: The node version to use for the workflow.
         type: number
         required: false
-        default: 16
+        default: 20
 
       js_package_manager:
         description: "Enable TypeScript?"
@@ -86,30 +86,41 @@ on:
         type: string
         required: false
 
+      runner_type:
+        description: The type of runner to use for the jobs. This should be one of the types supported by the `runs-on` keyword.
+        type: string
+        required: false
+        default: 'ubuntu-latest'
+
     secrets:
       bundlewatch_github_token:
         description: The GitHub token to use for Bundlewatch.
+        required: false
+      composer_auth:
+        description: The Composer auth tokens to use for private packages.
         required: false
 
 env:
   COMPOSER_ROOT_VERSION: dev-main
   ci_script: ${{ inputs.js_package_manager == 'yarn' && 'yarn install --immutable' || 'npm ci' }}
   cache_dependency_path: ${{ inputs.cache_dependency_path || format(inputs.js_package_manager == 'yarn' && '{0}/yarn.lock' || '{0}/package-lock.json', inputs.frontend_directory) }}
+  COMPOSER_AUTH: ${{ secrets.composer_auth }}
+  DISABLE_V8_COMPILE_CACHE: 1
 
 jobs:
   build:
     name: Checks & Build
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner_type }}
 
     if: >-
       ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node_version }}
           cache: ${{ inputs.js_package_manager }}
@@ -132,7 +143,7 @@ jobs:
         working-directory: ${{ inputs.frontend_directory }}
 
       - name: JS Checks & Production Build
-        uses: flarum/action-build@v3
+        uses: flarum/action-build@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           build_script: ${{ inputs.build_script }}
@@ -152,3 +163,4 @@ jobs:
         env:
           BUNDLEWATCH_GITHUB_TOKEN: ${{ secrets.bundlewatch_github_token }}
           CI_COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+          CI_BRANCH_BASE: ${{ github.event.pull_request.base.ref }}

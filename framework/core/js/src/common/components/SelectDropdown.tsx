@@ -1,9 +1,8 @@
 import Dropdown, { IDropdownAttrs } from './Dropdown';
-import icon from '../helpers/icon';
-import extractText from '../utils/extractText';
 import classList from '../utils/classList';
 import type Component from '../Component';
 import type Mithril from 'mithril';
+import Icon from './Icon';
 
 /**
  * Determines via a vnode is currently "active".
@@ -29,7 +28,7 @@ function isActive(vnode: Mithril.Children): boolean {
 }
 
 export interface ISelectDropdownAttrs extends IDropdownAttrs {
-  defaultLabel: string;
+  defaultLabel: Mithril.Children;
 }
 
 /**
@@ -50,8 +49,9 @@ export default class SelectDropdown<CustomAttrs extends ISelectDropdownAttrs = I
     const activeChild = children.find(isActive);
     let label = (activeChild && typeof activeChild === 'object' && 'children' in activeChild && activeChild.children) || this.attrs.defaultLabel;
 
-    label = extractText(label);
-
-    return [<span className="Button-label">{label}</span>, this.attrs.caretIcon ? icon(this.attrs.caretIcon, { className: 'Button-caret' }) : null];
+    return [
+      <span className="Button-label">{label}</span>,
+      this.attrs.caretIcon ? <Icon name={this.attrs.caretIcon} className="Button-caret" /> : null,
+    ];
   }
 }

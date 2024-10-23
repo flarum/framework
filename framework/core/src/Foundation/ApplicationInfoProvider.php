@@ -23,91 +23,23 @@ use SessionHandlerInterface;
 
 class ApplicationInfoProvider
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var Translator
-     */
-    protected $translator;
-
-    /**
-     * @var Schedule
-     */
-    protected $schedule;
-
-    /**
-     * @var ConnectionInterface
-     */
-    protected $db;
-
-    /**
-     * @var Config
-     */
-    protected $config;
-
-    /**
-     * @var SessionManager
-     */
-    protected $session;
-
-    /**
-     * @var SessionHandlerInterface
-     */
-    protected $sessionHandler;
-
-    /**
-     * @var Queue
-     */
-    protected $queue;
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     * @param Translator $translator
-     * @param Schedule $schedule
-     * @param ConnectionInterface $db
-     * @param Config $config
-     * @param SessionManager $session
-     * @param SessionHandlerInterface $sessionHandler
-     * @param Queue $queue
-     */
     public function __construct(
-        SettingsRepositoryInterface $settings,
-        Translator $translator,
-        Schedule $schedule,
-        ConnectionInterface $db,
-        Config $config,
-        SessionManager $session,
-        SessionHandlerInterface $sessionHandler,
-        Queue $queue
+        protected SettingsRepositoryInterface $settings,
+        protected Translator $translator,
+        protected Schedule $schedule,
+        protected ConnectionInterface $db,
+        protected Config $config,
+        protected SessionManager $session,
+        protected SessionHandlerInterface $sessionHandler,
+        protected Queue $queue
     ) {
-        $this->settings = $settings;
-        $this->translator = $translator;
-        $this->schedule = $schedule;
-        $this->db = $db;
-        $this->config = $config;
-        $this->session = $session;
-        $this->sessionHandler = $sessionHandler;
-        $this->queue = $queue;
     }
 
-    /**
-     * Identify if any tasks are registered with the scheduler.
-     *
-     * @return bool
-     */
     public function scheduledTasksRegistered(): bool
     {
         return count($this->schedule->events()) > 0;
     }
 
-    /**
-     * Gets the current status of the scheduler.
-     *
-     * @return string
-     */
     public function getSchedulerStatus(): string
     {
         $status = $this->settings->get('schedule.last_run');
@@ -122,15 +54,10 @@ class ApplicationInfoProvider
             : $this->translator->trans('core.admin.dashboard.status.scheduler.inactive');
     }
 
-    /**
-     * Identify the queue driver in use.
-     *
-     * @return string
-     */
     public function identifyQueueDriver(): string
     {
         // Get class name
-        $queue = get_class($this->queue);
+        $queue = $this->queue::class;
         // Drop the namespace
         $queue = Str::afterLast($queue, '\\');
         // Lowercase the class name
@@ -141,14 +68,37 @@ class ApplicationInfoProvider
         return $queue;
     }
 
-    /**
-     * Identify the version of the database we are connected to.
-     *
-     * @return string
-     */
     public function identifyDatabaseVersion(): string
     {
-        return $this->db->selectOne('select version() as version')->version;
+        return match ($this->config['database.driver']) {
+            'mysql', 'pgsql' => $this->db->selectOne('select version() as version')->version,
+            'sqlite' => $this->db->selectOne('select sqlite_version() as version')->version,
+            default => 'Unknown',
+        };
+    }
+
+    public function identifyDatabaseDriver(): string
+    {
+        return match ($this->config['database.driver']) {
+            'mysql' => 'MySQL',
+            'pgsql' => 'PostgreSQL',
+            'sqlite' => 'SQLite',
+            default => $this->config['database.driver'],
+        };
+    }
+
+    public function identifyDatabaseOptions(): array
+    {
+        if ($this->config['database.driver'] === 'pgsql') {
+            return [
+                'search_configurations' => collect($this->db->select('SELECT * FROM pg_ts_config'))
+                    ->pluck('cfgname')
+                    ->mapWithKeys(fn (string $cfgname) => [$cfgname => $cfgname])
+                    ->toArray(),
+            ];
+        }
+
+        return [];
     }
 
     /**
@@ -170,7 +120,7 @@ class ApplicationInfoProvider
             // Try to get the configured driver instance.
             // Driver instances are created on demand.
             $this->session->driver($configuredDriver);
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             // An exception is thrown if the configured driver is not a valid driver.
             // So we fallback to the default driver.
             $driver = $defaultDriver;
@@ -181,7 +131,7 @@ class ApplicationInfoProvider
          * And compare that to the current configured driver.
          */
         // Get class name
-        $handlerName = get_class($this->sessionHandler);
+        $handlerName = $this->sessionHandler::class;
         // Drop the namespace
         $handlerName = Str::afterLast($handlerName, '\\');
         // Lowercase the class name
@@ -200,11 +150,6 @@ class ApplicationInfoProvider
         return $driver;
     }
 
-    /**
-     * Identifiy the current PHP version.
-     *
-     * @return string
-     */
     public function identifyPHPVersion(): string
     {
         return PHP_VERSION;

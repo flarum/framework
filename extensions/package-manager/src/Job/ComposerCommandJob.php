@@ -7,39 +7,31 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Job;
+namespace Flarum\ExtensionManager\Job;
 
 use Flarum\Bus\Dispatcher;
-use Flarum\PackageManager\Command\AbstractActionCommand;
-use Flarum\PackageManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Command\AbstractActionCommand;
+use Flarum\ExtensionManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Exception\ComposerCommandFailedException;
 use Flarum\Queue\AbstractJob;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Throwable;
 
-class ComposerCommandJob extends AbstractJob
+class ComposerCommandJob extends AbstractJob implements ShouldBeUnique
 {
-    /**
-     * @var AbstractActionCommand
-     */
-    protected $command;
-
-    /**
-     * @var string
-     */
-    protected $phpVersion;
-
-    public function __construct(AbstractActionCommand $command, string $phpVersion)
-    {
-        $this->command = $command;
-        $this->phpVersion = $phpVersion;
+    public function __construct(
+        protected AbstractActionCommand $command,
+        protected string $phpVersion
+    ) {
     }
 
-    public function handle(Dispatcher $bus)
+    public function handle(Dispatcher $bus): void
     {
         try {
-            ComposerAdapter::setPhpVersion($this->phpVersion);
-
             $this->command->task->start();
+
+            ComposerAdapter::setPhpVersion($this->phpVersion);
 
             $bus->dispatch($this->command);
 
@@ -49,18 +41,25 @@ class ComposerCommandJob extends AbstractJob
         }
     }
 
-    public function abort(Throwable $exception)
+    public function abort(Throwable $exception): void
     {
-        if (! $this->command->task->output) {
+        if (empty($this->command->task->output)) {
             $this->command->task->output = $exception->getMessage();
         }
 
-        $this->command->task->end(false);
+        if ($exception instanceof ComposerCommandFailedException) {
+            $this->command->task->guessed_cause = $exception->guessCause();
+        }
 
-        $this->fail($exception);
+        $this->command->task->end(false);
     }
 
-    public function middleware()
+    public function failed(Throwable $exception): void
+    {
+        $this->abort($exception);
+    }
+
+    public function middleware(): array
     {
         return [
             new WithoutOverlapping(),

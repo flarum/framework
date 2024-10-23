@@ -14,11 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ScopeAccessTokenVisibility
 {
-    /**
-     * @param User $actor
-     * @param Builder $query
-     */
-    public function __invoke(User $actor, $query)
+    public function __invoke(User $actor, Builder $query): void
     {
         if ($actor->isGuest()) {
             $query->whereRaw('FALSE');

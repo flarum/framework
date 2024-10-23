@@ -7,62 +7,41 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Command;
+namespace Flarum\ExtensionManager\Command;
 
-use Flarum\PackageManager\Composer\ComposerAdapter;
-use Flarum\PackageManager\Composer\ComposerJson;
-use Flarum\PackageManager\Event\FlarumUpdated;
-use Flarum\PackageManager\Exception\ComposerUpdateFailedException;
-use Flarum\PackageManager\Settings\LastUpdateCheck;
+use Flarum\ExtensionManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Composer\ComposerJson;
+use Flarum\ExtensionManager\Event\FlarumUpdated;
+use Flarum\ExtensionManager\Exception\ComposerUpdateFailedException;
+use Flarum\ExtensionManager\Settings\LastUpdateCheck;
 use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Input\StringInput;
 
 class MinorUpdateHandler
 {
-    /**
-     * @var ComposerAdapter
-     */
-    protected $composer;
-
-    /**
-     * @var \Flarum\PackageManager\Settings\LastUpdateCheck
-     */
-    protected $lastUpdateCheck;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @var ComposerJson
-     */
-    protected $composerJson;
-
-    public function __construct(ComposerAdapter $composer, LastUpdateCheck $lastUpdateCheck, Dispatcher $events, ComposerJson $composerJson)
-    {
-        $this->composer = $composer;
-        $this->lastUpdateCheck = $lastUpdateCheck;
-        $this->events = $events;
-        $this->composerJson = $composerJson;
+    public function __construct(
+        protected ComposerAdapter $composer,
+        protected LastUpdateCheck $lastUpdateCheck,
+        protected Dispatcher $events,
+        protected ComposerJson $composerJson
+    ) {
     }
 
     /**
      * @throws \Flarum\User\Exception\PermissionDeniedException
      * @throws ComposerUpdateFailedException
      */
-    public function handle(MinorUpdate $command)
+    public function handle(MinorUpdate $command): void
     {
         $command->actor->assertAdmin();
 
-        $coreRequirement = $this->composerJson->get()['require']['flarum/core'];
-
+        // Set all extensions to * versioning.
         $this->composerJson->require('*', '*');
-        $this->composerJson->require('flarum/core', $coreRequirement);
 
         $output = $this->composer->run(
             new StringInput('update --prefer-dist --no-dev -a --with-all-dependencies'),
-            $command->task ?? null
+            $command->task ?? null,
+            true
         );
 
         if ($output->getExitCode() !== 0) {

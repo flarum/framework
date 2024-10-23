@@ -7,44 +7,39 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Composer;
+namespace Flarum\ExtensionManager\Composer;
 
+use Flarum\Extension\Extension;
+use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Paths;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 
 class ComposerJson
 {
-    /**
-     * @var Paths
-     */
-    protected $paths;
+    protected ?array $initialJson = null;
 
-    /**
-     * @var Filesystem
-     */
-    protected $filesystem;
-
-    /**
-     * @var array
-     */
-    protected $initialJson;
-
-    public function __construct(Paths $paths, Filesystem $filesystem)
-    {
-        $this->paths = $paths;
-        $this->filesystem = $filesystem;
+    public function __construct(
+        protected Paths $paths,
+        protected Filesystem $filesystem,
+        protected ExtensionManager $extensions
+    ) {
     }
 
     public function require(string $packageName, string $version): void
     {
         $composerJson = $this->get();
 
-        if (strpos($packageName, '*') === false) {
+        if (! str_contains($packageName, '*')) {
             $composerJson['require'][$packageName] = $version;
         } else {
             foreach ($composerJson['require'] as $p => $v) {
                 if ($version === '*@dev') {
+                    continue;
+                }
+
+                // Only extensions can all be set to * versioning.
+                if (! $this->extensions->getExtension(Extension::nameToId($packageName))) {
                     continue;
                 }
 
@@ -83,7 +78,7 @@ class ComposerJson
         return $json;
     }
 
-    protected function set(array $json): void
+    public function set(array $json): void
     {
         $this->filesystem->put($this->getComposerJsonPath(), json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     }

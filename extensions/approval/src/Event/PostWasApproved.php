@@ -14,25 +14,9 @@ use Flarum\User\User;
 
 class PostWasApproved
 {
-    /**
-     * The post that was approved.
-     *
-     * @var Post
-     */
-    public $post;
-
-    /**
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * @param Post $post
-     * @param User $actor
-     */
-    public function __construct(Post $post, User $actor)
-    {
-        $this->post = $post;
-        $this->actor = $actor;
+    public function __construct(
+        public Post $post,
+        public User $actor
+    ) {
     }
 }

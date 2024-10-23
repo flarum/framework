@@ -1,17 +1,23 @@
 import app from '../../forum/app';
-import PaginatedListState, { Page, PaginatedListParams, PaginatedListRequestParams } from '../../common/states/PaginatedListState';
+import PaginatedListState, { Page, PaginatedListParams, PaginatedListRequestParams, type SortMap } from '../../common/states/PaginatedListState';
 import Discussion from '../../common/models/Discussion';
 import { ApiResponsePlural } from '../../common/Store';
+import EventEmitter from '../../common/utils/EventEmitter';
 
 export interface DiscussionListParams extends PaginatedListParams {
   sort?: string;
 }
 
+const globalEventEmitter = new EventEmitter();
+
 export default class DiscussionListState<P extends DiscussionListParams = DiscussionListParams> extends PaginatedListState<Discussion, P> {
   protected extraDiscussions: Discussion[] = [];
+  protected eventEmitter: EventEmitter;
 
   constructor(params: P, page: number = 1) {
-    super(params, page, 20);
+    super(params, page, null);
+
+    this.eventEmitter = globalEventEmitter.on('discussion.deleted', this.deleteDiscussion.bind(this));
   }
 
   get type(): string {
@@ -22,7 +28,7 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
     const params = {
       include: ['user', 'lastPostedUser'],
       filter: this.params.filter || {},
-      sort: this.sortMap()[this.params.sort ?? ''],
+      sort: this.currentSort(),
     };
 
     if (this.params.q) {
@@ -38,6 +44,7 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
 
     if (preloadedDiscussions) {
       this.initialLoading = false;
+      this.pageSize = preloadedDiscussions.payload.meta?.perPage || DiscussionListState.DEFAULT_PAGE_SIZE;
 
       return Promise.resolve(preloadedDiscussions);
     }
@@ -55,7 +62,7 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
    * Get a map of sort keys (which appear in the URL, and are used for
    * translation) to the API sort value that they represent.
    */
-  sortMap() {
+  sortMap(): SortMap {
     const map: any = {};
 
     if (this.params.q) {
@@ -69,14 +76,11 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
     return map;
   }
 
-  /**
-   * In the last request, has the user searched for a discussion?
-   */
-  isSearchResults(): boolean {
-    return !!this.params.q;
+  removeDiscussion(discussion: Discussion): void {
+    this.eventEmitter.emit('discussion.deleted', discussion);
   }
 
-  removeDiscussion(discussion: Discussion): void {
+  deleteDiscussion(discussion: Discussion): void {
     for (const page of this.pages) {
       const index = page.items.indexOf(discussion);
 

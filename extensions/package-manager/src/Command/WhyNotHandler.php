@@ -7,43 +7,28 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Command;
+namespace Flarum\ExtensionManager\Command;
 
-use Flarum\PackageManager\Composer\ComposerAdapter;
-use Flarum\PackageManager\Exception\ComposerRequireFailedException;
-use Flarum\PackageManager\WhyNotValidator;
+use Flarum\ExtensionManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Exception\ComposerRequireFailedException;
+use Flarum\ExtensionManager\WhyNotValidator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Input\StringInput;
 
 class WhyNotHandler
 {
-    /**
-     * @var ComposerAdapter
-     */
-    protected $composer;
-
-    /**
-     * @var WhyNotValidator
-     */
-    protected $validator;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    public function __construct(ComposerAdapter $composer, WhyNotValidator $validator, Dispatcher $events)
-    {
-        $this->composer = $composer;
-        $this->validator = $validator;
-        $this->events = $events;
+    public function __construct(
+        protected ComposerAdapter $composer,
+        protected WhyNotValidator $validator,
+        protected Dispatcher $events
+    ) {
     }
 
     /**
      * @throws \Flarum\User\Exception\PermissionDeniedException
      * @throws \Exception
      */
-    public function handle(WhyNot $command)
+    public function handle(WhyNot $command): array
     {
         $command->actor->assertAdmin();
 

@@ -13,6 +13,7 @@ use Flarum\Database\AbstractModel;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $user_id
@@ -26,32 +27,18 @@ class TagState extends AbstractModel
 {
     use EventGeneratorTrait;
 
-    /**
-     * {@inheritdoc}
-     */
     protected $table = 'tag_user';
 
-    /**
-     * {@inheritdoc}
-     */
-    protected $dates = ['marked_as_read_at'];
+    protected $casts = ['marked_as_read_at' => 'datetime'];
 
-    /**
-     * Define the relationship with the tag that this state is for.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function tag()
+    public $incrementing = false;
+
+    public function tag(): BelongsTo
     {
         return $this->belongsTo(Tag::class);
     }
 
-    /**
-     * Define the relationship with the user that this state is for.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

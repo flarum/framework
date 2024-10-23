@@ -2,6 +2,7 @@ import app from '../app';
 import Component from '../../common/Component';
 import Button from '../../common/components/Button';
 import type Mithril from 'mithril';
+import ItemList from '../../common/utils/ItemList';
 
 export interface IWelcomeHeroAttrs {}
 
@@ -12,11 +13,6 @@ const LOCAL_STORAGE_KEY = 'welcomeHidden';
  * forum.
  */
 export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
-  /**
-   * @deprecated Extend the `isHidden` method instead.
-   */
-  hidden: boolean = false;
-
   oninit(vnode: Mithril.Vnode<IWelcomeHeroAttrs, this>) {
     super.oninit(vnode);
   }
@@ -29,8 +25,8 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
     };
 
     return (
-      <header class="Hero WelcomeHero">
-        <div class="container">
+      <header className="Hero WelcomeHero">
+        <div className="container">
           <Button
             icon="fas fa-times"
             onclick={slideUp}
@@ -38,10 +34,7 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
             aria-label={app.translator.trans('core.forum.welcome_hero.hide')}
           />
 
-          <div class="containerNarrow">
-            <h1 class="Hero-title">{app.forum.attribute('welcomeTitle')}</h1>
-            <div class="Hero-subtitle">{m.trust(app.forum.attribute('welcomeMessage'))}</div>
-          </div>
+          <div className="containerNarrow">{this.welcomeItems().toArray()}</div>
         </div>
       </header>
     );
@@ -62,8 +55,16 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
   isHidden(): boolean {
     if (!app.forum.attribute<string>('welcomeTitle')?.trim()) return true;
     if (localStorage.getItem(LOCAL_STORAGE_KEY)) return true;
-    if (this.hidden) return true;
 
     return false;
+  }
+
+  welcomeItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add('hero-title', <h1 className="Hero-title">{app.forum.attribute('welcomeTitle')}</h1>, 20);
+    items.add('hero-subtitle', <div className="Hero-subtitle">{m.trust(app.forum.attribute('welcomeMessage'))}</div>, 10);
+
+    return items;
   }
 }

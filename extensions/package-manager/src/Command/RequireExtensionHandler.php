@@ -7,59 +7,39 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Command;
+namespace Flarum\ExtensionManager\Command;
 
+use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
-use Flarum\PackageManager\Composer\ComposerAdapter;
-use Flarum\PackageManager\Exception\ComposerRequireFailedException;
-use Flarum\PackageManager\Exception\ExtensionAlreadyInstalledException;
-use Flarum\PackageManager\Extension\Event\Installed;
-use Flarum\PackageManager\Extension\ExtensionUtils;
-use Flarum\PackageManager\RequirePackageValidator;
+use Flarum\ExtensionManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Exception\ComposerRequireFailedException;
+use Flarum\ExtensionManager\Exception\ExtensionAlreadyInstalledException;
+use Flarum\ExtensionManager\Extension\Event\Installed;
+use Flarum\ExtensionManager\RequirePackageValidator;
 use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Input\StringInput;
 
 class RequireExtensionHandler
 {
-    /**
-     * @var ComposerAdapter
-     */
-    protected $composer;
-
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    /**
-     * @var RequirePackageValidator
-     */
-    protected $validator;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    public function __construct(ComposerAdapter $composer, ExtensionManager $extensions, RequirePackageValidator $validator, Dispatcher $events)
-    {
-        $this->composer = $composer;
-        $this->extensions = $extensions;
-        $this->validator = $validator;
-        $this->events = $events;
+    public function __construct(
+        protected ComposerAdapter $composer,
+        protected ExtensionManager $extensions,
+        protected RequirePackageValidator $validator,
+        protected Dispatcher $events
+    ) {
     }
 
     /**
      * @throws \Flarum\User\Exception\PermissionDeniedException
      * @throws \Exception
      */
-    public function handle(RequireExtension $command)
+    public function handle(RequireExtension $command): array
     {
         $command->actor->assertAdmin();
 
         $this->validator->assertValid(['package' => $command->package]);
 
-        $extensionId = ExtensionUtils::nameToId($command->package);
+        $extensionId = Extension::nameToId($command->package);
         $extension = $this->extensions->getExtension($extensionId);
 
         if (! empty($extension)) {
@@ -69,13 +49,14 @@ class RequireExtensionHandler
         $packageName = $command->package;
 
         // Auto append :* if not requiring a specific version.
-        if (strpos($packageName, ':') === false) {
+        if (! str_contains($packageName, ':')) {
             $packageName .= ':*';
         }
 
         $output = $this->composer->run(
-            new StringInput("require $packageName"),
-            $command->task ?? null
+            new StringInput("require $packageName -W"),
+            $command->task ?? null,
+            true
         );
 
         if ($output->getExitCode() !== 0) {

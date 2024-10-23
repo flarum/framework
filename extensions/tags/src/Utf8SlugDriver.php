@@ -18,19 +18,13 @@ use Flarum\User\User;
  */
 class Utf8SlugDriver implements SlugDriverInterface
 {
-    /**
-     * @var TagRepository
-     */
-    protected $repository;
-
-    public function __construct(TagRepository $repository)
-    {
-        $this->repository = $repository;
+    public function __construct(
+        protected TagRepository $repository
+    ) {
     }
 
     /**
      * @param Tag $instance
-     * @return string
      */
     public function toSlug(AbstractModel $instance): string
     {
@@ -38,8 +32,6 @@ class Utf8SlugDriver implements SlugDriverInterface
     }
 
     /**
-     * @param string $slug
-     * @param User $actor
      * @return Tag
      */
     public function fromSlug(string $slug, User $actor): AbstractModel

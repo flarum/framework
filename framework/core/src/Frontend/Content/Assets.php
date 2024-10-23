@@ -10,6 +10,7 @@
 namespace Flarum\Frontend\Content;
 
 use Flarum\Foundation\Config;
+use Flarum\Frontend\Assets as FrontendAssets;
 use Flarum\Frontend\Compiler\CompilerInterface;
 use Flarum\Frontend\Document;
 use Illuminate\Contracts\Container\Container;
@@ -18,42 +19,29 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Assets
 {
-    /**
-     * @var Container
-     */
-    protected $container;
+    protected FrontendAssets $assets;
+    protected FrontendAssets $commonAssets;
 
-    /**
-     * @var Config
-     */
-    protected $config;
-
-    /**
-     * @var \Flarum\Frontend\Assets
-     */
-    protected $assets;
-
-    public function __construct(Container $container, Config $config)
-    {
-        $this->container = $container;
-        $this->config = $config;
+    public function __construct(
+        protected Container $container,
+        protected Config $config
+    ) {
     }
 
     /**
      * Sets the frontend to generate assets for.
      *
-     * @param string $name frontend name
-     * @return $this
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function forFrontend(string $name): Assets
+    public function forFrontend(string $name): self
     {
         $this->assets = $this->container->make('flarum.assets.'.$name);
+        $this->commonAssets = $this->container->make('flarum.assets.common');
 
         return $this;
     }
 
-    public function __invoke(Document $document, Request $request)
+    public function __invoke(Document $document, Request $request): void
     {
         $locale = $request->getAttribute('locale');
 
@@ -69,23 +57,24 @@ class Assets
     /**
      * Assembles JS and CSS compilers to be used to generate frontend assets.
      *
-     * @param string|null $locale
      * @return array[]
      */
     protected function assembleCompilers(?string $locale): array
     {
-        return [
-            'js' => [$this->assets->makeJs(), $this->assets->makeLocaleJs($locale)],
+        $frontendCompilers = [
+            'js' => [$this->assets->makeJs(), $this->assets->makeLocaleJs($locale), $this->assets->makeJsDirectory()],
             'css' => [$this->assets->makeCss(), $this->assets->makeLocaleCss($locale)]
         ];
+
+        $commonCompilers = [
+            'js' => [$this->commonAssets->makeJsDirectory()],
+        ];
+
+        return array_merge_recursive($commonCompilers, $frontendCompilers);
     }
 
     /**
      * Adds URLs of frontend JS and CSS to the {@link Document} class.
-     *
-     * @param Document $document
-     * @param array $compilers
-     * @return void
      */
     protected function addAssetsToDocument(Document $document, array $compilers): void
     {
@@ -96,11 +85,10 @@ class Assets
     /**
      * Force compilation of assets when in debug mode.
      *
-     * @param array $compilers
+     * @param CompilerInterface[] $compilers
      */
     protected function forceCommit(array $compilers): void
     {
-        /** @var CompilerInterface $compiler */
         foreach ($compilers as $compiler) {
             $compiler->commit(true);
         }

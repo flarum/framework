@@ -13,16 +13,8 @@ use Flarum\Extension\Extension;
 
 class Enabled
 {
-    /**
-     * @var Extension
-     */
-    public $extension;
-
-    /**
-     * @param Extension $extension
-     */
-    public function __construct(Extension $extension)
-    {
-        $this->extension = $extension;
+    public function __construct(
+        public Extension $extension
+    ) {
     }
 }

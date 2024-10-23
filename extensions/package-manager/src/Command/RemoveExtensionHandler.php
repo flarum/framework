@@ -7,45 +7,33 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Command;
+namespace Flarum\ExtensionManager\Command;
 
 use Flarum\Extension\ExtensionManager;
-use Flarum\PackageManager\Composer\ComposerAdapter;
-use Flarum\PackageManager\Exception\ComposerCommandFailedException;
-use Flarum\PackageManager\Exception\ExtensionNotInstalledException;
-use Flarum\PackageManager\Extension\Event\Removed;
+use Flarum\ExtensionManager\Composer\ComposerAdapter;
+use Flarum\ExtensionManager\Composer\ComposerJson;
+use Flarum\ExtensionManager\Exception\ComposerCommandFailedException;
+use Flarum\ExtensionManager\Exception\ExtensionNotInstalledException;
+use Flarum\ExtensionManager\Exception\IndirectExtensionDependencyCannotBeRemovedException;
+use Flarum\ExtensionManager\Extension\Event\Removed;
 use Illuminate\Contracts\Events\Dispatcher;
 use Symfony\Component\Console\Input\StringInput;
 
 class RemoveExtensionHandler
 {
-    /**
-     * @var ComposerAdapter
-     */
-    protected $composer;
-
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    public function __construct(ComposerAdapter $composer, ExtensionManager $extensions, Dispatcher $events)
-    {
-        $this->composer = $composer;
-        $this->extensions = $extensions;
-        $this->events = $events;
+    public function __construct(
+        protected ComposerAdapter $composer,
+        protected ExtensionManager $extensions,
+        protected Dispatcher $events,
+        protected ComposerJson $composerJson
+    ) {
     }
 
     /**
      * @throws \Flarum\User\Exception\PermissionDeniedException
      * @throws \Exception
      */
-    public function handle(RemoveExtension $command)
+    public function handle(RemoveExtension $command): void
     {
         $command->actor->assertAdmin();
 
@@ -59,9 +47,17 @@ class RemoveExtensionHandler
             $command->task->package = $extension->name;
         }
 
+        $json = $this->composerJson->get();
+
+        // If this extension is not a direct dependency, we can't actually remove it.
+        if (! isset($json['require'][$extension->name]) && ! isset($json['require-dev'][$extension->name])) {
+            throw new IndirectExtensionDependencyCannotBeRemovedException($command->extensionId);
+        }
+
         $output = $this->composer->run(
             new StringInput("remove $extension->name"),
-            $command->task ?? null
+            $command->task ?? null,
+            true
         );
 
         if ($output->getExitCode() !== 0) {

@@ -9,38 +9,32 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\JsonApi;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Factory;
-use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
+use Intervention\Image\Interfaces\EncodedImageInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
 class UploadLogoController extends UploadImageController
 {
-    protected $filePathSettingKey = 'logo_path';
+    protected string $filePathSettingKey = 'logo_path';
+    protected string $filenamePrefix = 'logo';
 
-    protected $filenamePrefix = 'logo';
-
-    /**
-     * @var ImageManager
-     */
-    protected $imageManager;
-
-    public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory, ImageManager $imageManager)
-    {
-        parent::__construct($settings, $filesystemFactory);
-
-        $this->imageManager = $imageManager;
+    public function __construct(
+        JsonApi $api,
+        SettingsRepositoryInterface $settings,
+        Factory $filesystemFactory,
+        protected ImageManager $imageManager
+    ) {
+        parent::__construct($api, $settings, $filesystemFactory);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function makeImage(UploadedFileInterface $file): Image
+    protected function makeImage(UploadedFileInterface $file): EncodedImageInterface
     {
-        $encodedImage = $this->imageManager->make($file->getStream())->heighten(60, function ($constraint) {
-            $constraint->upsize();
-        })->encode('png');
+        $encodedImage = $this->imageManager->read($file->getStream()->getMetadata('uri'))
+            ->scale(height: 60)
+            ->toPng();
 
         return $encodedImage;
     }

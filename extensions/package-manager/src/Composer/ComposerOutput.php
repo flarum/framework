@@ -7,24 +7,14 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Composer;
+namespace Flarum\ExtensionManager\Composer;
 
 class ComposerOutput
 {
-    /**
-     * @var int
-     */
-    protected $exitCode;
-
-    /**
-     * @var string
-     */
-    protected $contents;
-
-    public function __construct(int $exitCode, string $contents)
-    {
-        $this->exitCode = $exitCode;
-        $this->contents = $contents;
+    public function __construct(
+        protected int $exitCode,
+        protected string $contents
+    ) {
     }
 
     public function getExitCode(): int

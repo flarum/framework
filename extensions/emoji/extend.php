@@ -11,9 +11,13 @@ use Flarum\Extend;
 use s9e\TextFormatter\Configurator;
 
 return [
+    (new Extend\Frontend('admin'))
+        ->js(__DIR__.'/js/dist/admin.js'),
+
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
-        ->css(__DIR__.'/less/forum.less'),
+        ->css(__DIR__.'/less/forum.less')
+        ->jsDirectory(__DIR__.'/js/dist/forum'),
 
     (new Extend\Formatter)
         ->configure(function (Configurator $config) {
@@ -29,4 +33,8 @@ return [
         }),
 
     new Extend\Locales(__DIR__.'/locale'),
+
+    (new Extend\Settings)
+        ->serializeToForum('flarum-emoji.cdn', 'flarum-emoji.cdn')
+        ->default('flarum-emoji.cdn', 'https://cdn.jsdelivr.net/gh/twitter/twemoji@[version]/assets/'),
 ];

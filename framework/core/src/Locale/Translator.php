@@ -9,29 +9,25 @@
 
 namespace Flarum\Locale;
 
-use Illuminate\Contracts\Translation\Translator as TranslatorContract;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 use Symfony\Component\Translation\Translator as BaseTranslator;
 
-class Translator extends BaseTranslator implements TranslatorContract
+class Translator extends BaseTranslator implements TranslatorInterface
 {
     const REFERENCE_REGEX = '/^=>\s*([a-z0-9_\-\.]+)$/i';
 
-    public function get($key, array $replace = [], $locale = null)
+    public function get($key, array $replace = [], $locale = null): string
     {
         return $this->trans($key, $replace, null, $locale);
     }
 
-    public function choice($key, $number, array $replace = [], $locale = null)
+    public function choice($key, $number, array $replace = [], $locale = null): string
     {
         // Symfony's translator uses ICU MessageFormat, which pluralizes based on arguments.
         return $this->trans($key, $replace, null, $locale);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCatalogue($locale = null)
+    public function getCatalogue(?string $locale = null): MessageCatalogueInterface
     {
         if (null === $locale) {
             $locale = $this->getLocale();
@@ -55,27 +51,18 @@ class Translator extends BaseTranslator implements TranslatorContract
         return $catalogue;
     }
 
-    /**
-     * @param MessageCatalogueInterface $catalogue
-     */
-    private function parseCatalogue(MessageCatalogueInterface $catalogue)
+    private function parseCatalogue(MessageCatalogueInterface $catalogue): void
     {
         foreach ($catalogue->all() as $domain => $messages) {
             foreach ($messages as $id => $translation) {
-                if (preg_match(self::REFERENCE_REGEX, $translation, $matches)) {
+                if (! empty($translation) && preg_match(self::REFERENCE_REGEX, $translation, $matches)) {
                     $catalogue->set($id, $this->getTranslation($catalogue, $id, $domain), $domain);
                 }
             }
         }
     }
 
-    /**
-     * @param MessageCatalogueInterface $catalogue
-     * @param string $id
-     * @param string $domain
-     * @return string
-     */
-    private function getTranslation(MessageCatalogueInterface $catalogue, $id, $domain)
+    private function getTranslation(MessageCatalogueInterface $catalogue, string $id, string $domain): string
     {
         $translation = $catalogue->get($id, $domain);
 
@@ -86,7 +73,7 @@ class Translator extends BaseTranslator implements TranslatorContract
         return $translation;
     }
 
-    public function setLocale($locale)
+    public function setLocale($locale): void
     {
         parent::setLocale($locale);
     }

@@ -1,5 +1,4 @@
 import app from '../../forum/app';
-import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
 import Dropdown, { IDropdownAttrs } from '../../common/components/Dropdown';
 import LinkButton from '../../common/components/LinkButton';
@@ -8,6 +7,7 @@ import ItemList from '../../common/utils/ItemList';
 import Separator from '../../common/components/Separator';
 import extractText from '../../common/utils/extractText';
 import type Mithril from 'mithril';
+import Avatar from '../../common/components/Avatar';
 
 export interface ISessionDropdownAttrs extends IDropdownAttrs {}
 
@@ -33,7 +33,7 @@ export default class SessionDropdown<CustomAttrs extends ISessionDropdownAttrs =
   getButtonContent() {
     const user = app.session.user;
 
-    return [avatar(user), ' ', <span className="Button-label">{username(user)}</span>];
+    return [<Avatar user={user} />, ' ', <span className="Button-label">{username(user)}</span>];
   }
 
   /**
@@ -45,54 +45,37 @@ export default class SessionDropdown<CustomAttrs extends ISessionDropdownAttrs =
 
     items.add(
       'profile',
-      LinkButton.component(
-        {
-          icon: 'fas fa-user',
-          href: app.route.user(user),
-        },
-        app.translator.trans('core.forum.header.profile_button')
-      ),
+      <LinkButton icon="fas fa-user" href={app.route.user(user)}>
+        {app.translator.trans('core.forum.header.profile_button')}
+      </LinkButton>,
       100
     );
 
     items.add(
       'settings',
-      LinkButton.component(
-        {
-          icon: 'fas fa-cog',
-          href: app.route('settings'),
-        },
-        app.translator.trans('core.forum.header.settings_button')
-      ),
+      <LinkButton icon="fas fa-cog" href={app.route('settings')}>
+        {app.translator.trans('core.forum.header.settings_button')}
+      </LinkButton>,
       50
     );
 
     if (app.forum.attribute('adminUrl')) {
       items.add(
         'administration',
-        LinkButton.component(
-          {
-            icon: 'fas fa-wrench',
-            href: app.forum.attribute('adminUrl'),
-            target: '_blank',
-          },
-          app.translator.trans('core.forum.header.admin_button')
-        ),
+        <LinkButton icon="fas fa-wrench" href={app.forum.attribute('adminUrl')} target="_blank">
+          {app.translator.trans('core.forum.header.admin_button')}
+        </LinkButton>,
         0
       );
     }
 
-    items.add('separator', Separator.component(), -90);
+    items.add('separator', <Separator />, -90);
 
     items.add(
       'logOut',
-      Button.component(
-        {
-          icon: 'fas fa-sign-out-alt',
-          onclick: app.session.logout.bind(app.session),
-        },
-        app.translator.trans('core.forum.header.log_out_button')
-      ),
+      <Button icon="fas fa-sign-out-alt" onclick={app.session.logout.bind(app.session)}>
+        {app.translator.trans('core.forum.header.log_out_button')}
+      </Button>,
       -100
     );
 

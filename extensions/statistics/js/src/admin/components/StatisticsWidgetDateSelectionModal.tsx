@@ -1,7 +1,7 @@
 import app from 'flarum/admin/app';
 import ItemList from 'flarum/common/utils/ItemList';
-import generateElementId from 'flarum/admin/utils/generateElementId';
-import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
+import generateElementId from 'flarum/common/utils/generateElementId';
+import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
 
 import Mithril from 'mithril';
 import Button from 'flarum/common/components/Button';
@@ -22,7 +22,7 @@ export interface IDateSelection {
   end: number;
 }
 
-export interface IStatisticsWidgetDateSelectionModalAttrs extends IInternalModalAttrs {
+export interface IStatisticsWidgetDateSelectionModalAttrs extends IFormModalAttrs {
   onModalSubmit: (dates: IDateSelection) => void;
   value?: IDateSelection;
 }
@@ -38,7 +38,7 @@ interface IStatisticsWidgetDateSelectionModalState {
   };
 }
 
-export default class StatisticsWidgetDateSelectionModal extends Modal<IStatisticsWidgetDateSelectionModalAttrs> {
+export default class StatisticsWidgetDateSelectionModal extends FormModal<IStatisticsWidgetDateSelectionModalAttrs> {
   /* @ts-expect-error core typings don't allow us to set the type of the state attr :( */
   state: IStatisticsWidgetDateSelectionModalState = {
     inputs: {
@@ -71,7 +71,7 @@ export default class StatisticsWidgetDateSelectionModal extends Modal<IStatistic
   }
 
   content(): Mithril.Children {
-    return <div class="Modal-body">{this.items().toArray()}</div>;
+    return <div className="Modal-body">{this.items().toArray()}</div>;
   }
 
   items(): ItemList<Mithril.Children> {
@@ -81,7 +81,7 @@ export default class StatisticsWidgetDateSelectionModal extends Modal<IStatistic
 
     items.add(
       'date_start',
-      <div class="Form-group">
+      <div className="Form-group">
         <label htmlFor={this.state.ids.startDate}>{app.translator.trans('flarum-statistics.admin.date_selection_modal.start_date')}</label>
         <input
           type="date"
@@ -96,7 +96,7 @@ export default class StatisticsWidgetDateSelectionModal extends Modal<IStatistic
 
     items.add(
       'date_end',
-      <div class="Form-group">
+      <div className="Form-group">
         <label htmlFor={this.state.ids.endDate}>{app.translator.trans('flarum-statistics.admin.date_selection_modal.end_date')}</label>
         <input
           type="date"
@@ -111,7 +111,7 @@ export default class StatisticsWidgetDateSelectionModal extends Modal<IStatistic
 
     items.add(
       'submit',
-      <Button class="Button Button--primary" type="submit">
+      <Button className="Button Button--primary" type="submit">
         {app.translator.trans('flarum-statistics.admin.date_selection_modal.submit_button')}
       </Button>,
       0

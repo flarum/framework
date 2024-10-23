@@ -7,14 +7,15 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Tests\integration\api;
+namespace Flarum\ExtensionManager\Tests\integration\api;
 
-use Flarum\PackageManager\Event\FlarumUpdated;
-use Flarum\PackageManager\Settings\LastUpdateRun;
-use Flarum\PackageManager\Tests\integration\ChangeComposerConfig;
-use Flarum\PackageManager\Tests\integration\DummyExtensions;
-use Flarum\PackageManager\Tests\integration\RefreshComposerSetup;
-use Flarum\PackageManager\Tests\integration\TestCase;
+use Flarum\ExtensionManager\Event\FlarumUpdated;
+use Flarum\ExtensionManager\Settings\LastUpdateRun;
+use Flarum\ExtensionManager\Tests\integration\ChangeComposerConfig;
+use Flarum\ExtensionManager\Tests\integration\DummyExtensions;
+use Flarum\ExtensionManager\Tests\integration\RefreshComposerSetup;
+use Flarum\ExtensionManager\Tests\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class MinorUpdateTest extends TestCase
 {
@@ -22,9 +23,7 @@ class MinorUpdateTest extends TestCase
     use ChangeComposerConfig;
     use DummyExtensions;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_update_to_next_minor_version()
     {
         $this->makeDummyExtensionCompatibleWith('flarum/dummy-compatible-extension', '^1.0.0');
@@ -43,7 +42,7 @@ class MinorUpdateTest extends TestCase
         ]);
 
         $response = $this->send(
-            $this->request('POST', '/api/package-manager/minor-update', [
+            $this->request('POST', '/api/extension-manager/minor-update', [
                 'authenticatedAs' => 1,
             ])
         );
@@ -53,9 +52,7 @@ class MinorUpdateTest extends TestCase
         $this->assertPackageVersion('flarum/dummy-compatible-extension', '*');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_update_with_latest_ext_incompatible_with_latest_core()
     {
         $this->makeDummyExtensionCompatibleWith('flarum/dummy-extension', '1.0.0');
@@ -69,7 +66,7 @@ class MinorUpdateTest extends TestCase
         ]);
 
         $this->send(
-            $this->request('POST', '/api/package-manager/check-for-updates', [
+            $this->request('POST', '/api/extension-manager/check-for-updates', [
                 'authenticatedAs' => 1,
             ])
         );
@@ -77,7 +74,7 @@ class MinorUpdateTest extends TestCase
         $this->forgetComposerApp();
 
         $response = $this->send(
-            $this->request('POST', '/api/package-manager/minor-update', [
+            $this->request('POST', '/api/extension-manager/minor-update', [
                 'authenticatedAs' => 1,
             ])
         );

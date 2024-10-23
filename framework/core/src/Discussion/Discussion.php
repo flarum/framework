@@ -16,13 +16,17 @@ use Flarum\Discussion\Event\Deleted;
 use Flarum\Discussion\Event\Hidden;
 use Flarum\Discussion\Event\Renamed;
 use Flarum\Discussion\Event\Restored;
-use Flarum\Discussion\Event\Started;
 use Flarum\Foundation\EventGeneratorTrait;
 use Flarum\Notification\Notification;
 use Flarum\Post\MergeableInterface;
 use Flarum\Post\Post;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
@@ -32,7 +36,6 @@ use Illuminate\Support\Str;
  * @property string $slug
  * @property int $comment_count
  * @property int $participant_count
- * @property int $post_number_index !!DEPRECATED!!
  * @property \Carbon\Carbon $created_at
  * @property int|null $user_id
  * @property int|null $first_post_id
@@ -42,57 +45,53 @@ use Illuminate\Support\Str;
  * @property int|null $last_post_number
  * @property \Carbon\Carbon|null $hidden_at
  * @property int|null $hidden_user_id
- * @property UserState|null $state
- * @property \Illuminate\Database\Eloquent\Collection $posts
- * @property \Illuminate\Database\Eloquent\Collection $comments
- * @property \Illuminate\Database\Eloquent\Collection $participants
- * @property Post|null $firstPost
- * @property User|null $user
- * @property Post|null $lastPost
- * @property User|null $lastPostedUser
- * @property \Illuminate\Database\Eloquent\Collection $readers
  * @property bool $is_private
+ * @property-read UserState|null $state
+ * @property-read \Illuminate\Database\Eloquent\Collection $posts
+ * @property-read \Illuminate\Database\Eloquent\Collection $comments
+ * @property-read \Illuminate\Database\Eloquent\Collection $participants
+ * @property-read Post|null $firstPost
+ * @property-read User|null $user
+ * @property-read Post|null $lastPost
+ * @property-read User|null $lastPostedUser
+ * @property-read \Illuminate\Database\Eloquent\Collection $readers
  */
 class Discussion extends AbstractModel
 {
     use EventGeneratorTrait;
     use ScopeVisibilityTrait;
+    use HasFactory;
 
     /**
      * An array of posts that have been modified during this request.
      *
      * @var array
      */
-    protected $modifiedPosts = [];
+    protected array $modifiedPosts = [];
 
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['created_at', 'last_posted_at', 'hidden_at'];
-
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
     protected $casts = [
-        'is_private' => 'boolean'
+        'id' => 'integer',
+        'comment_count' => 'integer',
+        'participant_count' => 'integer',
+        'user_id' => 'integer',
+        'first_post_id' => 'integer',
+        'last_posted_user_id' => 'integer',
+        'last_post_id' => 'integer',
+        'last_post_number' => 'integer',
+        'hidden_user_id' => 'integer',
+        'is_private' => 'boolean',
+        'created_at' => 'datetime',
+        'last_posted_at' => 'datetime',
+        'hidden_at' => 'datetime',
     ];
+
+    protected $observables = ['hidden'];
 
     /**
      * The user for which the state relationship should be loaded.
-     *
-     * @var User|null
      */
-    protected static $stateUser;
+    protected static ?User $stateUser = null;
 
-    /**
-     * Boot the model.
-     *
-     * @return void
-     */
     public static function boot()
     {
         parent::boot();
@@ -109,38 +108,13 @@ class Discussion extends AbstractModel
             $discussion->raise(new Deleted($discussion));
 
             Notification::whereSubject($discussion)->delete();
+
+            // SQLite foreign constraints don't work since they were added *after* the table creation.
+            $discussion->posts()->delete();
         });
     }
 
-    /**
-     * Start a new discussion. Raises the DiscussionWasStarted event.
-     *
-     * @param string $title
-     * @param User $user
-     * @return static
-     */
-    public static function start($title, User $user)
-    {
-        $discussion = new static;
-
-        $discussion->title = $title;
-        $discussion->created_at = Carbon::now();
-        $discussion->user_id = $user->id;
-
-        $discussion->setRelation('user', $user);
-
-        $discussion->raise(new Started($discussion));
-
-        return $discussion;
-    }
-
-    /**
-     * Rename the discussion. Raises the DiscussionWasRenamed event.
-     *
-     * @param string $title
-     * @return $this
-     */
-    public function rename($title)
+    public function rename(string $title): static
     {
         if ($this->title !== $title) {
             $oldTitle = $this->title;
@@ -152,48 +126,43 @@ class Discussion extends AbstractModel
         return $this;
     }
 
-    /**
-     * Hide the discussion.
-     *
-     * @param User $actor
-     * @return $this
-     */
-    public function hide(User $actor = null)
+    public function hide(?User $actor = null): static
     {
         if (! $this->hidden_at) {
             $this->hidden_at = Carbon::now();
-            $this->hidden_user_id = $actor ? $actor->id : null;
+            $this->hidden_user_id = $actor?->id;
 
             $this->raise(new Hidden($this));
+
+            $this->saved(function (self $model) {
+                if ($model === $this) {
+                    $model->fireModelEvent('hidden', false);
+                }
+            });
         }
 
         return $this;
     }
 
-    /**
-     * Restore the discussion.
-     *
-     * @return $this
-     */
-    public function restore()
+    public function restore(): static
     {
         if ($this->hidden_at !== null) {
             $this->hidden_at = null;
             $this->hidden_user_id = null;
 
             $this->raise(new Restored($this));
+
+            $this->saved(function (self $model) {
+                if ($model === $this) {
+                    $model->fireModelEvent('restored', false);
+                }
+            });
         }
 
         return $this;
     }
 
-    /**
-     * Set the discussion's first post details.
-     *
-     * @param Post $post
-     * @return $this
-     */
-    public function setFirstPost(Post $post)
+    public function setFirstPost(Post $post): static
     {
         $this->created_at = $post->created_at;
         $this->user_id = $post->user_id;
@@ -202,13 +171,7 @@ class Discussion extends AbstractModel
         return $this;
     }
 
-    /**
-     * Set the discussion's last post details.
-     *
-     * @param Post $post
-     * @return $this
-     */
-    public function setLastPost(Post $post)
+    public function setLastPost(Post $post): static
     {
         $this->last_posted_at = $post->created_at;
         $this->last_posted_user_id = $post->user_id;
@@ -218,14 +181,9 @@ class Discussion extends AbstractModel
         return $this;
     }
 
-    /**
-     * Refresh a discussion's last post details.
-     *
-     * @return $this
-     */
-    public function refreshLastPost()
+    public function refreshLastPost(): static
     {
-        if ($lastPost = $this->comments()->latest()->first()) {
+        if ($lastPost = $this->comments()->latest()->latest('id')->first()) {
             /** @var Post $lastPost */
             $this->setLastPost($lastPost);
         }
@@ -233,24 +191,14 @@ class Discussion extends AbstractModel
         return $this;
     }
 
-    /**
-     * Refresh the discussion's comment count.
-     *
-     * @return $this
-     */
-    public function refreshCommentCount()
+    public function refreshCommentCount(): static
     {
         $this->comment_count = $this->comments()->count();
 
         return $this;
     }
 
-    /**
-     * Refresh the discussion's participant count.
-     *
-     * @return $this
-     */
-    public function refreshParticipantCount()
+    public function refreshParticipantCount(): static
     {
         $this->participant_count = $this->participants()->count('users.id');
 
@@ -265,13 +213,13 @@ class Discussion extends AbstractModel
      * DiscussionRenamedPost, and delete if the title has been reverted
      * completely.)
      *
-     * @template T of \Flarum\Post\MergeableInterface
+     * @template T of MergeableInterface
      * @param T $post The post to save.
      * @return T The resulting post. It may or may not be the same post as
      *     was originally intended to be saved. It also may not exist, if the
      *     merge logic resulted in deletion.
      */
-    public function mergePost(MergeableInterface $post)
+    public function mergePost(MergeableInterface $post): MergeableInterface
     {
         $lastPost = $this->posts()->latest()->first();
 
@@ -283,29 +231,27 @@ class Discussion extends AbstractModel
     /**
      * Get the posts that have been modified during this request.
      *
-     * @return array
+     * @return Post[]
      */
-    public function getModifiedPosts()
+    public function getModifiedPosts(): array
     {
         return $this->modifiedPosts;
     }
 
     /**
-     * Define the relationship with the discussion's posts.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany<Post>
      */
-    public function posts()
+    public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
     }
 
     /**
-     * Define the relationship with the discussion's publicly-visible comments.
+     * The discussion's publicly-visible comments.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<Post>
+     * @return HasMany<Post>
      */
-    public function comments()
+    public function comments(): HasMany
     {
         return $this->posts()
             ->where('is_private', false)
@@ -317,9 +263,9 @@ class Discussion extends AbstractModel
      * Query the discussion's participants (a list of unique users who have
      * posted in the discussion).
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
-    public function participants()
+    public function participants(): Builder
     {
         return User::join('posts', 'posts.user_id', '=', 'users.id')
             ->where('posts.discussion_id', $this->id)
@@ -329,83 +275,50 @@ class Discussion extends AbstractModel
             ->distinct();
     }
 
-    /**
-     * Define the relationship with the discussion's first post.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function firstPost()
+    public function firstPost(): BelongsTo
     {
         return $this->belongsTo(Post::class, 'first_post_id');
     }
 
-    /**
-     * Define the relationship with the discussion's author.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /**
-     * Define the relationship with the discussion's last post.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function lastPost()
+    public function lastPost(): BelongsTo
     {
         return $this->belongsTo(Post::class, 'last_post_id');
     }
 
-    /**
-     * Define the relationship with the discussion's most recent author.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function lastPostedUser()
+    public function lastPostedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'last_posted_user_id');
     }
 
-    /**
-     * Define the relationship with the discussion's most relevant post.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function mostRelevantPost()
+    public function mostRelevantPost(): BelongsTo
     {
         return $this->belongsTo(Post::class, 'most_relevant_post_id');
     }
 
     /**
-     * Define the relationship with the discussion's readers.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany<User>
      */
-    public function readers()
+    public function readers(): BelongsToMany
     {
         return $this->belongsToMany(User::class);
     }
 
     /**
-     * Define the relationship with the discussion's state for a particular
-     * user.
-     *
      * If no user is passed (i.e. in the case of eager loading the 'state'
      * relation), then the static `$stateUser` property is used.
      *
-     * @param User|null $user
-     * @return HasOne
-     *
      * @see Discussion::setStateUser()
      */
-    public function state(User $user = null): HasOne
+    public function state(?User $user = null): HasOne
     {
         $user = $user ?: static::$stateUser;
 
-        return $this->hasOne(UserState::class)->where('user_id', $user ? $user->id : null);
+        return $this->hasOne(UserState::class)->where('user_id', $user?->id);
     }
 
     /**
@@ -429,7 +342,7 @@ class Discussion extends AbstractModel
     /**
      * Set the user for which the state relationship should be loaded.
      */
-    public static function setStateUser(User $user)
+    public static function setStateUser(User $user): void
     {
         static::$stateUser = $user;
     }
@@ -439,7 +352,7 @@ class Discussion extends AbstractModel
      *
      * This automatically creates a matching slug for the discussion.
      */
-    protected function setTitleAttribute(string $title)
+    protected function setTitleAttribute(string $title): void
     {
         $this->attributes['title'] = $title;
         $this->slug = Str::slug(

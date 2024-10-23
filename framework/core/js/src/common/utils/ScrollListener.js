@@ -1,15 +1,18 @@
 /**
- * The `ScrollListener` class sets up a listener that handles window scroll
+ * The `ScrollListener` class sets up a listener that handles element scroll
  * events.
  */
 export default class ScrollListener {
   /**
    * @param {(top: number) => void} callback The callback to run when the scroll position
    *     changes.
+   * @param {Window|Element} element The element to listen for scroll events on. Defaults to
+   *    `window`.
    */
-  constructor(callback) {
+  constructor(callback, element = window) {
     this.callback = callback;
     this.ticking = false;
+    this.element = element;
   }
 
   /**
@@ -37,23 +40,23 @@ export default class ScrollListener {
    * Run the callback, whether there was a scroll event or not.
    */
   update() {
-    this.callback(window.pageYOffset);
+    this.callback(this.element.pageYOffset);
   }
 
   /**
-   * Start listening to and handling the window's scroll position.
+   * Start listening to and handling the element's scroll position.
    */
   start() {
     if (!this.active) {
-      window.addEventListener('scroll', (this.active = this.loop.bind(this)), { passive: true });
+      this.element.addEventListener('scroll', (this.active = this.loop.bind(this)), { passive: true });
     }
   }
 
   /**
-   * Stop listening to and handling the window's scroll position.
+   * Stop listening to and handling the element's scroll position.
    */
   stop() {
-    window.removeEventListener('scroll', this.active);
+    this.element.removeEventListener('scroll', this.active);
 
     this.active = null;
   }

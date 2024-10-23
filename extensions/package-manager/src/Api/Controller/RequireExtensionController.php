@@ -7,11 +7,11 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Api\Controller;
+namespace Flarum\ExtensionManager\Api\Controller;
 
+use Flarum\ExtensionManager\Command\RequireExtension;
+use Flarum\ExtensionManager\Job\Dispatcher;
 use Flarum\Http\RequestUtil;
-use Flarum\PackageManager\Command\RequireExtension;
-use Flarum\PackageManager\Job\Dispatcher;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -20,14 +20,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class RequireExtensionController implements RequestHandlerInterface
 {
-    /**
-     * @var Dispatcher
-     */
-    protected $bus;
-
-    public function __construct(Dispatcher $bus)
-    {
-        $this->bus = $bus;
+    public function __construct(
+        protected Dispatcher $bus
+    ) {
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface

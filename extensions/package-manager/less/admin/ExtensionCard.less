@@ -1,0 +1,128 @@
+.ExtensionCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-radius: var(--border-radius);
+  padding: 12px;
+  border: 1px solid var(--control-bg);
+  color: var(--control-color);
+}
+
+.ExtensionCard-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ExtensionCard-header .ExtensionIcon {
+  --size: 36px;
+  background-color: transparent;
+  flex-shrink: 0;
+}
+
+.ExtensionCard-badges {
+  display: flex;
+  gap: 4px;
+}
+
+.ExtensionCard-badge--premium {
+  --badge-bg: #FBDB33;
+  --badge-color: #4B4940;
+}
+
+.ExtensionCard--core .ExtensionIcon, .ExtensionCard-badge--flarum::before {
+  filter: grayscale(1) brightness(3.5);
+}
+
+.ExtensionCard-badge--flarum {
+  background-color: #e7672e;
+  position: relative;
+
+  &::before {
+    background-image: url('../extensions/flarum-extension-manager/flarum.svg');
+    background-size: 100%;
+    content: '';
+    display: block;
+    position: absolute;
+    width: 80%;
+    height: 80%;
+  }
+}
+
+.ExtensionCard-actions {
+  margin-inline-start: auto;
+}
+
+.ExtensionCard-header h4 {
+  color: var(--text-color);
+  font-size: 14px;
+  margin: 0;
+  max-width: 45%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ExtensionCard-meta {
+  display: flex;
+  gap: 12px;
+}
+
+.ExtensionCard-badges .Badge {
+  --size: 18px;
+}
+
+.ExtensionCard-meta > * {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ExtensionCard-body {
+  margin-bottom: 6px;
+  flex-grow: 1;
+
+  p {
+    margin-bottom: 0;
+  }
+}
+
+.ExtensionCard {
+  &-version {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &-latest {
+      text-transform: lowercase;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+    }
+  }
+
+  &--core {
+    --bg-hover: #e2571a;
+    --text-color: #fff;
+    --button-color: #fff;
+    --button-bg-hover: var(--bg-hover);
+    background-color: #e7672e;
+    border-color: var(--bg-hover);
+    color: #fff;
+
+    .Button--danger {
+      color: #fff;
+      --button-bg-hover: var(--bg-hover);
+    }
+  }
+
+  &--core .ExtensionIcon {
+    background-size: 100%;
+    background-color: transparent;
+  }
+
+  &--danger {
+    background-color: var(--control-danger-bg);
+    border-color: var(--control-danger-bg-hover);
+    color: var(--control-danger-color);
+  }
+}

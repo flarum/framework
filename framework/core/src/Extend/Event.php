@@ -15,8 +15,8 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class Event implements ExtenderInterface
 {
-    private $listeners = [];
-    private $subscribers = [];
+    private array $listeners = [];
+    private array $subscribers = [];
 
     /**
      * Add a listener to a domain event dispatched by flarum or a flarum extension.
@@ -32,7 +32,7 @@ class Event implements ExtenderInterface
      *
      * @return self
      */
-    public function listen(string $event, $listener): self
+    public function listen(string $event, callable|string $listener): self
     {
         $this->listeners[] = [$event, $listener];
 
@@ -44,7 +44,7 @@ class Event implements ExtenderInterface
      * Event subscribers are classes that may subscribe to multiple events from within the subscriber class itself,
      * allowing you to define several event handlers within a single class.
      *
-     * @see https://laravel.com/docs/8.x/events#writing-event-subscribers
+     * @see https://laravel.com/docs/11.x/events#writing-event-subscribers
      *
      * @param string $subscriber: The ::class attribute of the subscriber class.
      * @return self
@@ -56,7 +56,7 @@ class Event implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         $events = $container->make(Dispatcher::class);
 

@@ -17,17 +17,15 @@ use Symfony\Component\Translation\MessageCatalogueInterface;
 
 class Locales implements ExtenderInterface, LifecycleInterface
 {
-    private $directory;
-
     /**
      * @param string $directory: Directory of the locale files.
      */
-    public function __construct(string $directory)
-    {
-        $this->directory = $directory;
+    public function __construct(
+        private readonly string $directory
+    ) {
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         $container->resolving(
             LocaleManager::class,
@@ -56,12 +54,12 @@ class Locales implements ExtenderInterface, LifecycleInterface
         );
     }
 
-    public function onEnable(Container $container, Extension $extension)
+    public function onEnable(Container $container, Extension $extension): void
     {
         $container->make(LocaleManager::class)->clearCache();
     }
 
-    public function onDisable(Container $container, Extension $extension)
+    public function onDisable(Container $container, Extension $extension): void
     {
         $container->make(LocaleManager::class)->clearCache();
     }

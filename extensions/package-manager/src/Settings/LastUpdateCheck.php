@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Settings;
+namespace Flarum\ExtensionManager\Settings;
 
 use Carbon\Carbon;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -15,19 +15,14 @@ use Illuminate\Support\Arr;
 
 class LastUpdateCheck implements JsonSetting
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
+    protected array $data = [];
 
-    protected $data = [];
-
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
-        $this->settings = $settings;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings
+    ) {
     }
 
-    public function with(string $key, $value): JsonSetting
+    public function with(string $key, mixed $value): JsonSetting
     {
         $this->data[$key] = $value;
 
@@ -53,7 +48,7 @@ class LastUpdateCheck implements JsonSetting
 
     public static function key(): string
     {
-        return 'flarum-package-manager.last_update_check';
+        return 'flarum-extension-manager.last_update_check';
     }
 
     public static function default(): array

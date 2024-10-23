@@ -1,4 +1,6 @@
 .ExtensionPage {
+  padding-bottom: 30px;
+
   &-header {
     .helpText {
       margin-bottom: 5px;
@@ -26,6 +28,10 @@
           background: var(--muted-more-color);
         }
       }
+    }
+
+    .container {
+      .clearfix();
     }
   }
 
@@ -101,7 +107,7 @@
     margin-top: 20px;
     padding: 10px 0;
 
-    input {
+    input, .ColorInput {
       max-width: 400px;
     }
   }
@@ -124,6 +130,12 @@
     &-header {
       margin: 20px 0 20px;
       padding: 5px 0;
+    }
+  }
+
+  &-body {
+    .InfoTile {
+      padding: 4rem 0;
     }
   }
 }

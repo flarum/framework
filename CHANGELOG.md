@@ -1,5 +1,58 @@
 # Changelog
 
+## [v1.8.1](https://github.com/flarum/framework/compare/v1.8.0...v1.8.1)
+### Fixed
+* recover temporary solution for html entities in browser title (e72541e35de4f71f9d870bbd9bb46ddf586bdf1d)
+* custom contrast color affected by parents (577890d89c593ae5b6cb96083fab69e2f1ae600c)
+* reply placeholder wrong positioning (253a3d281dbf5ce3fa712b629b80587cf67e7dbe)
+* (mentions) missed post mentions UI changes with lazy loading [#3832]
+* (mentions) cannot use newly introduced mentionables extender [#3849]
+* (mentions) missing slug from post mention links ([5a4bb7c](5a4bb7ccf226f66dd44816cb69b3d7cfe4ad7f7c))
+
+## [v1.8.0](https://github.com/flarum/framework/compare/v1.7.1...v1.8.0)
+### Fixed
+- (a11y) reply placeholder not accessible [#3793]
+- (bbcode) highlight.js does not work after changing post content [#3817]
+- (bbcode) localize quote `wrote` string [#3809]
+- (mentions) mentions XHR fired even after mentioning is done [#3806]
+- (package-manager) available core updates cause an error in the dashboard ([fab71f2](fab71f2d01fa20ce9b3002833339dc5ea3ea6301))
+- (tags) not all tags are loaded in the permission grid [#3804]
+- (tags) tag discussion modal filters with exact matches only after first index [#3786]
+- (testing) always clear cache in integration test's tearDown [#3818]
+- `UserSecurityPage` not exported ([232618a](232618aba604ab003425df38b895208c863d3260))
+- `isDark()` utility can receive null value [#3774]
+- approving a post does not bump user `comment_count` [#3790]
+- circular dependencies disable all involved extensions [#3785]
+- color input overflowing the input box [#3796]
+- deleting a discussion from the profile does not visually remove it [#3799]
+- discussion page showing horizontal scroll on iOS [#3821]
+- empty string displayed as SelectDropdown title [#3773]
+- filter values are not validated [#3795]
+- infinite scroll not initialized for notifications on big screens [#3733]
+- notification subject discussion eager loading fails [#3788]
+- null as 2nd param in `preg_match` is deprecated [#3801]
+- unread count in post stream not visible [#3791]
+- unreadable badge icon on certain colors [#3810]
+- integrity constraint violation [#3772]
+### Changed
+- (core,mentions) limit `mentionedBy` post relation results [#3780]
+- (likes) limit `likes` relationship results [#3781]
+- Change some methods from private to protected, to be able to extend the affected classes [#3802]
+- Do not catch exceptions when testing Console commands [#3813]
+- drop usage of jquery in `install` and `update` interfaces [#3797]
+- extensibility improvements [#3729]
+- major frontend JS cleanup [#3609]
+- revert ineffective code for encoding of page title [#3768]
+- speed up post creation time [#3808]
+### Added
+- (mentions,tags) tag mentions [#3769]
+- add delete own posts permission [#3784]
+- add a trait to flush the formatter cache in tests [#3811]
+- add user creation to users list page [#3744]
+- cli command for enabling or disabling an extension [#3816]
+- conditional extenders [#3759]
+- provide old content to `Revised` event [#3789]
+
 ## [v1.7.1](https://github.com/flarum/framework/compare/v1.7.0...v1.7.1)
 ### Fixed
 - (tags) composer tag selection modal using wrong primary max & min numbers (abc9670659426b765274376945b818b70d84848c)
@@ -417,7 +470,7 @@ looks rather complex and messy compared to the full list of changes made for thi
 - Pass filter params to getApiDocument (https://github.com/flarum/framework/pull/3037)
 - Use author filter instead of gambit to get a user's discussions (https://github.com/flarum/framework/pull/3068)
 - [A11Y] Accessibility improvements for the Search component (https://github.com/flarum/framework/pull/3017)
-- Add determinsm to extension order resolution (https://github.com/flarum/framework/pull/3076)
+- Add determinism to extension order resolution (https://github.com/flarum/framework/pull/3076)
 - Add cache control headers to the admin area (https://github.com/flarum/framework/pull/3097)
 
 ### Fixed

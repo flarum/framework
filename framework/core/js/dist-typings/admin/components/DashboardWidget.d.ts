@@ -1,9 +1,9 @@
-import type { Children, Vnode } from 'mithril';
+import type Mithril from 'mithril';
 import Component, { ComponentAttrs } from '../../common/Component';
 export interface IDashboardWidgetAttrs extends ComponentAttrs {
 }
 export default class DashboardWidget<CustomAttrs extends IDashboardWidgetAttrs = IDashboardWidgetAttrs> extends Component<CustomAttrs> {
-    view(vnode: Vnode<CustomAttrs, this>): Children;
+    view(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children;
     className(): string;
-    content(): Children;
+    content(vnode: Mithril.Vnode<CustomAttrs, this>): Mithril.Children;
 }

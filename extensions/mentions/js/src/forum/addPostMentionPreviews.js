@@ -14,10 +14,14 @@ export default function addPostMentionPreviews() {
     const parentPost = this.attrs.post;
     const $parentPost = this.$();
 
-    this.$().on('click', '.UserMention:not(.UserMention--deleted), .PostMention:not(.PostMention--deleted)', function (e) {
-      m.route.set(this.getAttribute('href'));
-      e.preventDefault();
-    });
+    this.$().on(
+      'click',
+      '.UserMention:not(.UserMention--deleted), .PostMention:not(.PostMention--deleted), .TagMention:not(.TagMention--deleted)',
+      function (e) {
+        m.route.set(this.getAttribute('href'));
+        e.preventDefault();
+      }
+    );
 
     this.$('.PostMention:not(.PostMention--deleted)').each(function () {
       const $this = $(this);
@@ -76,14 +80,14 @@ export default function addPostMentionPreviews() {
             const discussion = post.discussion();
 
             m.render($preview[0], [
-              discussion !== parentPost.discussion() ? (
+              discussion !== parentPost.discussion() && (
                 <li>
                   <span className="PostMention-preview-discussion">{discussion.title()}</span>
                 </li>
-              ) : (
-                ''
               ),
-              <li>{PostPreview.component({ post })}</li>,
+              <li>
+                <PostPreview post={post} />
+              </li>,
             ]);
             positionPreview();
           };
@@ -92,7 +96,7 @@ export default function addPostMentionPreviews() {
           if (post && post.discussion()) {
             showPost(post);
           } else {
-            m.render($preview[0], LoadingIndicator.component());
+            m.render($preview[0], <LoadingIndicator />);
             app.store.find('posts', id).then(showPost);
             positionPreview();
           }

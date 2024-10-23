@@ -9,7 +9,6 @@
 
 namespace Flarum\Forum\Controller;
 
-use Flarum\Http\Exception\TokenMismatchException;
 use Flarum\Http\Rememberer;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\SessionAuthenticator;
@@ -26,57 +25,15 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class LogOutController implements RequestHandlerInterface
 {
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    /**
-     * @var SessionAuthenticator
-     */
-    protected $authenticator;
-
-    /**
-     * @var Rememberer
-     */
-    protected $rememberer;
-
-    /**
-     * @var Factory
-     */
-    protected $view;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @param Dispatcher $events
-     * @param SessionAuthenticator $authenticator
-     * @param Rememberer $rememberer
-     * @param Factory $view
-     * @param UrlGenerator $url
-     */
     public function __construct(
-        Dispatcher $events,
-        SessionAuthenticator $authenticator,
-        Rememberer $rememberer,
-        Factory $view,
-        UrlGenerator $url
+        protected Dispatcher $events,
+        protected SessionAuthenticator $authenticator,
+        protected Rememberer $rememberer,
+        protected Factory $view,
+        protected UrlGenerator $url
     ) {
-        $this->events = $events;
-        $this->authenticator = $authenticator;
-        $this->rememberer = $rememberer;
-        $this->view = $view;
-        $this->url = $url;
     }
 
-    /**
-     * @param Request $request
-     * @return ResponseInterface
-     * @throws TokenMismatchException
-     */
     public function handle(Request $request): ResponseInterface
     {
         $session = $request->getAttribute('session');

@@ -21,15 +21,12 @@ use Illuminate\Database\Schema\Builder;
  */
 abstract class Migration
 {
-    /**
-     * Create a table.
-     */
-    public static function createTable($name, callable $definition)
+    public static function createTable(string $name, callable $definition): array
     {
         return [
             'up' => function (Builder $schema) use ($name, $definition) {
-                $schema->create($name, function (Blueprint $table) use ($definition) {
-                    $definition($table);
+                $schema->create($name, function (Blueprint $table) use ($definition, $schema) {
+                    $definition($table, $schema);
                 });
             },
             'down' => function (Builder $schema) use ($name) {
@@ -38,16 +35,13 @@ abstract class Migration
         ];
     }
 
-    /**
-     * Create a table if it doesn't already exist.
-     */
-    public static function createTableIfNotExists($name, callable $definition)
+    public static function createTableIfNotExists(string $name, callable $definition): array
     {
         return [
             'up' => function (Builder $schema) use ($name, $definition) {
                 if (! $schema->hasTable($name)) {
-                    $schema->create($name, function (Blueprint $table) use ($definition) {
-                        $definition($table);
+                    $schema->create($name, function (Blueprint $table) use ($definition, $schema) {
+                        $definition($table, $schema);
                     });
                 }
             },
@@ -57,10 +51,7 @@ abstract class Migration
         ];
     }
 
-    /**
-     * Rename a table.
-     */
-    public static function renameTable($from, $to)
+    public static function renameTable(string $from, string $to): array
     {
         return [
             'up' => function (Builder $schema) use ($from, $to) {
@@ -72,10 +63,7 @@ abstract class Migration
         ];
     }
 
-    /**
-     * Add columns to a table.
-     */
-    public static function addColumns($tableName, array $columnDefinitions)
+    public static function addColumns(string $tableName, array $columnDefinitions): array
     {
         return [
             'up' => function (Builder $schema) use ($tableName, $columnDefinitions) {
@@ -94,10 +82,7 @@ abstract class Migration
         ];
     }
 
-    /**
-     * Drop columns from a table.
-     */
-    public static function dropColumns($tableName, array $columnDefinitions)
+    public static function dropColumns(string $tableName, array $columnDefinitions): array
     {
         $inverse = static::addColumns($tableName, $columnDefinitions);
 
@@ -107,33 +92,27 @@ abstract class Migration
         ];
     }
 
-    /**
-     * Rename a column.
-     */
-    public static function renameColumn($tableName, $from, $to)
+    public static function renameColumn(string $tableName, string $from, string $to): array
     {
         return static::renameColumns($tableName, [$from => $to]);
     }
 
-    /**
-     * Rename multiple columns.
-     */
-    public static function renameColumns($tableName, array $columnNames)
+    public static function renameColumns(string $tableName, array $columnNames): array
     {
         return [
             'up' => function (Builder $schema) use ($tableName, $columnNames) {
-                $schema->table($tableName, function (Blueprint $table) use ($columnNames) {
-                    foreach ($columnNames as $from => $to) {
+                foreach ($columnNames as $from => $to) {
+                    $schema->table($tableName, function (Blueprint $table) use ($from, $to) {
                         $table->renameColumn($from, $to);
-                    }
-                });
+                    });
+                }
             },
             'down' => function (Builder $schema) use ($tableName, $columnNames) {
-                $schema->table($tableName, function (Blueprint $table) use ($columnNames) {
-                    foreach ($columnNames as $to => $from) {
+                foreach ($columnNames as $to => $from) {
+                    $schema->table($tableName, function (Blueprint $table) use ($from, $to) {
                         $table->renameColumn($from, $to);
-                    }
-                });
+                    });
+                }
             }
         ];
     }
@@ -141,10 +120,10 @@ abstract class Migration
     /**
      * Add default values for config values.
      *
-     * @deprecated Use the Settings extender's `default` method instead to register settings.
+     * You generally should use the Settings extender's `default` method instead to register settings.
      * @see Settings::default()
      */
-    public static function addSettings(array $defaults)
+    public static function addSettings(array $defaults): array
     {
         return [
             'up' => function (Builder $schema) use ($defaults) {
@@ -168,10 +147,7 @@ abstract class Migration
         ];
     }
 
-    /**
-     * Add default permissions.
-     */
-    public static function addPermissions(array $permissions)
+    public static function addPermissions(array $permissions): array
     {
         $rows = [];
 

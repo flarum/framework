@@ -10,29 +10,30 @@
 namespace Flarum\Http\Filter;
 
 use Flarum\Api\Controller\ListAccessTokensController;
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\FilterInterface;
+use Flarum\Search\SearchState;
+use Flarum\Search\ValidateFilterTrait;
 
 /**
  * Filters an access tokens request by the related user.
  *
  * @see ListAccessTokensController
+ * @implements FilterInterface<DatabaseSearchState>
  */
 class UserFilter implements FilterInterface
 {
-    /**
-     * @inheritDoc
-     */
+    use ValidateFilterTrait;
+
     public function getFilterKey(): string
     {
         return 'user';
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $filterState->getQuery()->where('user_id', $negate ? '!=' : '=', $filterValue);
+        $value = $this->asInt($value);
+
+        $state->getQuery()->where('user_id', $negate ? '!=' : '=', $value);
     }
 }

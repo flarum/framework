@@ -1,13 +1,14 @@
 import app from '../../forum/app';
-import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Button from '../../common/components/Button';
 import extractText from '../../common/utils/extractText';
 import Stream from '../../common/utils/Stream';
 import Mithril from 'mithril';
 import RequestError from '../../common/utils/RequestError';
 import ItemList from '../../common/utils/ItemList';
+import Form from '../../common/components/Form';
 
-export interface IForgotPasswordModalAttrs extends IInternalModalAttrs {
+export interface IForgotPasswordModalAttrs extends IFormModalAttrs {
   email?: string;
 }
 
@@ -15,7 +16,7 @@ export interface IForgotPasswordModalAttrs extends IInternalModalAttrs {
  * The `ForgotPasswordModal` component displays a modal which allows the user to
  * enter their email address and request a link to reset their password.
  */
-export default class ForgotPasswordModal<CustomAttrs extends IForgotPasswordModalAttrs = IForgotPasswordModalAttrs> extends Modal<CustomAttrs> {
+export default class ForgotPasswordModal<CustomAttrs extends IForgotPasswordModalAttrs = IForgotPasswordModalAttrs> extends FormModal<CustomAttrs> {
   /**
    * The value of the email input.
    */
@@ -41,24 +42,23 @@ export default class ForgotPasswordModal<CustomAttrs extends IForgotPasswordModa
     if (this.success) {
       return (
         <div className="Modal-body">
-          <div className="Form Form--centered">
+          <Form className="Form--centered">
             <p className="helpText">{app.translator.trans('core.forum.forgot_password.email_sent_message')}</p>
-            <div className="Form-group">
+            <div className="Form-group Form-controls">
               <Button className="Button Button--primary Button--block" onclick={this.hide.bind(this)}>
                 {app.translator.trans('core.forum.forgot_password.dismiss_button')}
               </Button>
             </div>
-          </div>
+          </Form>
         </div>
       );
     }
 
     return (
       <div className="Modal-body">
-        <div className="Form Form--centered">
-          <p className="helpText">{app.translator.trans('core.forum.forgot_password.text')}</p>
+        <Form className="Form--centered" description={app.translator.trans('core.forum.forgot_password.text')}>
           {this.fields().toArray()}
-        </div>
+        </Form>
       </div>
     );
   }
@@ -86,15 +86,10 @@ export default class ForgotPasswordModal<CustomAttrs extends IForgotPasswordModa
 
     items.add(
       'submit',
-      <div className="Form-group">
-        {Button.component(
-          {
-            className: 'Button Button--primary Button--block',
-            type: 'submit',
-            loading: this.loading,
-          },
-          app.translator.trans('core.forum.forgot_password.submit_button')
-        )}
+      <div className="Form-group Form-controls">
+        <Button className="Button Button--primary Button--block" type="submit" loading={this.loading}>
+          {app.translator.trans('core.forum.forgot_password.submit_button')}
+        </Button>
       </div>,
       -10
     );

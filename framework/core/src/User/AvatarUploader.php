@@ -12,33 +12,29 @@ namespace Flarum\User;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Str;
-use Intervention\Image\Image;
+use Intervention\Image\Interfaces\ImageInterface;
 
 class AvatarUploader
 {
-    /**
-     * @var Filesystem
-     */
-    protected $uploadDir;
+    protected Filesystem $uploadDir;
 
     public function __construct(Factory $filesystemFactory)
     {
         $this->uploadDir = $filesystemFactory->disk('flarum-avatars');
     }
 
-    /**
-     * @param User $user
-     * @param Image $image
-     */
-    public function upload(User $user, Image $image)
+    public function upload(User $user, ImageInterface $image): void
     {
-        if (extension_loaded('exif')) {
-            $image->orientate();
+        $image = $image->cover(100, 100);
+        $avatarPath = Str::random();
+
+        if ($image->isAnimated()) {
+            $encodedImage = $image->toGif();
+            $avatarPath .= '.gif';
+        } else {
+            $encodedImage = $image->toPng();
+            $avatarPath .= '.png';
         }
-
-        $encodedImage = $image->fit(100, 100)->encode('png');
-
-        $avatarPath = Str::random().'.png';
 
         $this->removeFileAfterSave($user);
         $user->changeAvatarPath($avatarPath);
@@ -49,9 +45,8 @@ class AvatarUploader
     /**
      * Handle the removal of the old avatar file after a successful user save
      * We don't place this in remove() because otherwise we would call changeAvatarPath 2 times when uploading.
-     * @param User $user
      */
-    protected function removeFileAfterSave(User $user)
+    protected function removeFileAfterSave(User $user): void
     {
         $avatarPath = $user->getRawOriginal('avatar_url');
 
@@ -67,10 +62,7 @@ class AvatarUploader
         });
     }
 
-    /**
-     * @param User $user
-     */
-    public function remove(User $user)
+    public function remove(User $user): void
     {
         $this->removeFileAfterSave($user);
 

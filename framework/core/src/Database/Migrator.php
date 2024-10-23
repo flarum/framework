@@ -11,10 +11,10 @@ namespace Flarum\Database;
 
 use Flarum\Database\Exception\MigrationKeyMissing;
 use Flarum\Extension\Extension;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Database\MySqlConnection;
 use Illuminate\Filesystem\Filesystem;
-use InvalidArgumentException;
+use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -22,84 +22,34 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Migrator
 {
-    /**
-     * The migration repository implementation.
-     *
-     * @var \Flarum\Database\MigrationRepositoryInterface
-     */
-    protected $repository;
+    protected ?OutputInterface $output = null;
 
-    /**
-     * The filesystem instance.
-     *
-     * @var \Illuminate\Filesystem\Filesystem
-     */
-    protected $files;
-
-    /**
-     * The output interface implementation.
-     *
-     * @var OutputInterface|null
-     */
-    protected $output;
-
-    /**
-     * @var ConnectionInterface
-     */
-    protected $connection;
-
-    /**
-     * Create a new migrator instance.
-     */
     public function __construct(
-        MigrationRepositoryInterface $repository,
-        ConnectionInterface $connection,
-        Filesystem $files
+        protected MigrationRepositoryInterface $repository,
+        protected ConnectionInterface $connection,
+        protected Filesystem $files
     ) {
-        $this->files = $files;
-        $this->repository = $repository;
-
-        if (! ($connection instanceof MySqlConnection)) {
-            throw new InvalidArgumentException('Only MySQL connections are supported');
-        }
-
-        $this->connection = $connection;
-
-        // Workaround for https://github.com/laravel/framework/issues/1186
-        $connection->getDoctrineSchemaManager()->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
     }
 
     /**
      * Run the outstanding migrations at a given path.
-     *
-     * @param  string    $path
-     * @param  Extension|null $extension
-     * @return void
      */
-    public function run($path, Extension $extension = null)
+    public function run(string $path, ?Extension $extension = null): void
     {
         $files = $this->getMigrationFiles($path);
 
-        $ran = $this->repository->getRan($extension ? $extension->getId() : null);
+        $ran = $this->repository->getRan($extension?->getId());
 
         $migrations = array_diff($files, $ran);
 
         $this->runMigrationList($path, $migrations, $extension);
     }
 
-    /**
-     * Run an array of migrations.
-     *
-     * @param  string    $path
-     * @param  array     $migrations
-     * @param  Extension|null $extension
-     * @return void
-     */
-    public function runMigrationList($path, $migrations, Extension $extension = null)
+    public function runMigrationList(string $path, array $migrations, ?Extension $extension = null): void
     {
         // First we will just make sure that there are any migrations to run. If there
         // aren't, we will just make a note of it to the developer so they're aware
-        // that all of the migrations have been run against this database system.
+        // that all the migrations have been run against this database system.
         if (count($migrations) == 0) {
             $this->note('<info>Nothing to migrate.</info>');
 
@@ -109,39 +59,60 @@ class Migrator
         // Once we have the array of migrations, we will spin through them and run the
         // migrations "up" so the changes are made to the databases. We'll then log
         // that the migration was run so we don't repeat it next time we execute.
-        foreach ($migrations as $file) {
-            $this->runUp($path, $file, $extension);
+        $this->runUpMigrations($migrations, $path, $extension);
+    }
+
+    protected function runUpMigrations(array $migrations, string $path, ?Extension $extension = null): void
+    {
+        $process = function () use ($migrations, $path, $extension) {
+            foreach ($migrations as $migration) {
+                $this->runUp($path, $migration, $extension);
+            }
+        };
+
+        // PgSQL allows DDL statements in transactions.
+        if ($this->connection->getDriverName() === 'pgsql') {
+            $this->connection->transaction($process);
+        } else {
+            $process();
+        }
+    }
+
+    protected function runDownMigrations(array $migrations, string $path, ?Extension $extension = null): void
+    {
+        $process = function () use ($migrations, $path, $extension) {
+            foreach ($migrations as $migration) {
+                $this->runDown($path, $migration, $extension);
+            }
+        };
+
+        // PgSQL allows DDL statements in transactions.
+        if ($this->connection->getDriverName() === 'pgsql') {
+            $this->connection->transaction($process);
+        } else {
+            $process();
         }
     }
 
     /**
      * Run "up" a migration instance.
-     *
-     * @param  string    $path
-     * @param  string    $file
-     * @param  Extension|null $extension
-     * @return void
      */
-    protected function runUp($path, $file, Extension $extension = null)
+    protected function runUp(string $path, string $file, ?Extension $extension = null): void
     {
         $this->resolveAndRunClosureMigration($path, $file);
 
         // Once we have run a migrations class, we will log that it was run in this
         // repository so that we don't try to run it next time we do a migration
         // in the application. A migration repository keeps the migrate order.
-        $this->repository->log($file, $extension ? $extension->getId() : null);
+        $this->repository->log($file, $extension?->getId());
 
         $this->note("<info>Migrated:</info> $file");
     }
 
     /**
-     * Rolls all of the currently applied migrations back.
-     *
-     * @param  string    $path
-     * @param  Extension|null $extension
-     * @return int
+     * Rolls all the currently applied migrations back.
      */
-    public function reset($path, Extension $extension = null)
+    public function reset(string $path, ?Extension $extension = null): int
     {
         $migrations = array_reverse($this->repository->getRan(
             $extension ? $extension->getId() : null
@@ -152,9 +123,7 @@ class Migrator
         if ($count === 0) {
             $this->note('<info>Nothing to rollback.</info>');
         } else {
-            foreach ($migrations as $migration) {
-                $this->runDown($path, $migration, $extension);
-            }
+            $this->runDownMigrations($migrations, $path, $extension);
         }
 
         return $count;
@@ -162,21 +131,15 @@ class Migrator
 
     /**
      * Run "down" a migration instance.
-     *
-     * @param  string    $path
-     * @param  string    $file
-     * @param  string    $path
-     * @param  Extension $extension
-     * @return void
      */
-    protected function runDown($path, $file, Extension $extension = null)
+    protected function runDown(string $path, string $file, ?Extension $extension = null): void
     {
         $this->resolveAndRunClosureMigration($path, $file, 'down');
 
         // Once we have successfully run the migration "down" we will remove it from
-        // the migration repository so it will be considered to have not been run
+        // the migration repository, so it will be considered to have not been run
         // by the application then will be able to fire by any later operation.
-        $this->repository->delete($file, $extension ? $extension->getId() : null);
+        $this->repository->delete($file, $extension?->getId());
 
         $this->note("<info>Rolled back:</info> $file");
     }
@@ -184,13 +147,11 @@ class Migrator
     /**
      * Runs a closure migration based on the migrate direction.
      *
-     * @param        $migration
-     * @param string $direction
      * @throws MigrationKeyMissing
      */
-    protected function runClosureMigration($migration, $direction = 'up')
+    protected function runClosureMigration(array $migration, string $direction = 'up'): void
     {
-        if (is_array($migration) && array_key_exists($direction, $migration)) {
+        if (array_key_exists($direction, $migration)) {
             call_user_func($migration[$direction], $this->connection->getSchemaBuilder());
         } else {
             throw new MigrationKeyMissing($direction);
@@ -200,12 +161,9 @@ class Migrator
     /**
      * Resolves and run a migration and assign the filename to the exception if needed.
      *
-     * @param string $path
-     * @param string $file
-     * @param string $direction
-     * @throws MigrationKeyMissing
+     * @throws MigrationKeyMissing|FileNotFoundException
      */
-    protected function resolveAndRunClosureMigration(string $path, string $file, string $direction = 'up')
+    protected function resolveAndRunClosureMigration(string $path, string $file, string $direction = 'up'): void
     {
         $migration = $this->resolve($path, $file);
 
@@ -245,16 +203,20 @@ class Migrator
     /**
      * Resolve a migration instance from a file.
      *
-     * @param  string $path
-     * @param  string $file
-     * @return array
+     * @throws FileNotFoundException|RuntimeException
      */
-    public function resolve($path, $file)
+    public function resolve(string $path, string $file): array
     {
         $migration = "$path/$file.php";
 
         if ($this->files->exists($migration)) {
-            return $this->files->getRequire($migration);
+            $migrationContents = $this->files->getRequire($migration);
+
+            if (! is_array($migrationContents)) {
+                throw new RuntimeException('Migration must return an array with up and down keys');
+            }
+
+            return $migrationContents;
         }
 
         return [];
@@ -265,69 +227,70 @@ class Migrator
      *
      * @param string $path to the directory containing the dump.
      */
-    public function installFromSchema(string $path)
+    public function installFromSchema(string $path, string $driver): bool
     {
-        $schemaPath = "$path/install.dump";
+        $schemaPath = "$path/$driver-install.dump";
+
+        if (! file_exists($schemaPath)) {
+            return false;
+        }
 
         $startTime = microtime(true);
 
         $dump = file_get_contents($schemaPath);
 
+        $dumpWithoutComments = preg_replace('/^--.*$/m', '', $dump);
+
         $this->connection->getSchemaBuilder()->disableForeignKeyConstraints();
 
-        foreach (explode(';', $dump) as $statement) {
+        foreach (explode(';', $dumpWithoutComments) as $statement) {
             $statement = trim($statement);
 
-            if (empty($statement) || substr($statement, 0, 2) === '/*') {
+            if (empty($statement) || str_starts_with($statement, '/*')) {
                 continue;
             }
 
             $statement = str_replace(
                 'db_prefix_',
-                $this->connection->getTablePrefix(),
+                $this->connection->getTablePrefix() ?? '',
                 $statement
             );
             $this->connection->statement($statement);
+        }
+
+        if ($driver === 'pgsql') {
+            $this->connection->statement('SELECT pg_catalog.set_config(\'search_path\', \'public\', false)');
         }
 
         $this->connection->getSchemaBuilder()->enableForeignKeyConstraints();
 
         $runTime = number_format((microtime(true) - $startTime) * 1000, 2);
         $this->note('<info>Loaded stored database schema.</info> ('.$runTime.'ms)');
+
+        return true;
     }
 
-    /**
-     * Set the output implementation that should be used by the console.
-     *
-     * @param OutputInterface $output
-     * @return $this
-     */
-    public function setOutput(OutputInterface $output)
+    public function setOutput(OutputInterface $output): static
     {
         $this->output = $output;
 
         return $this;
     }
 
-    /**
-     * Write a note to the conosle's output.
-     *
-     * @param string $message
-     * @return void
-     */
-    protected function note($message)
+    protected function note(string $message): void
     {
-        if ($this->output) {
-            $this->output->writeln($message);
-        }
+        $this->output?->writeln($message);
     }
 
     /**
-     * Determine if the migration repository exists.
-     *
-     * @return bool
+     * Get the migration repository instance.
      */
-    public function repositoryExists()
+    public function getRepository(): MigrationRepositoryInterface
+    {
+        return $this->repository;
+    }
+
+    public function repositoryExists(): bool
     {
         return $this->repository->repositoryExists();
     }

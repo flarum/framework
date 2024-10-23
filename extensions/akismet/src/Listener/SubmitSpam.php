@@ -14,17 +14,12 @@ use Flarum\Post\Event\Hidden;
 
 class SubmitSpam
 {
-    /**
-     * @var Akismet
-     */
-    protected $akismet;
-
-    public function __construct(Akismet $akismet)
-    {
-        $this->akismet = $akismet;
+    public function __construct(
+        protected Akismet $akismet
+    ) {
     }
 
-    public function handle(Hidden $event)
+    public function handle(Hidden $event): void
     {
         if (! $this->akismet->isConfigured()) {
             return;

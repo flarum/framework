@@ -24,9 +24,19 @@ export default class TextEditor extends Component<import("../Component").Compone
      * Whether the editor is disabled.
      */
     disabled: any;
+    /**
+     * Whether the editor is loading.
+     */
+    loading: boolean | undefined;
+    /**
+     * Async operations to complete before the editor is ready.
+     */
+    _loaders: any[] | undefined;
     view(): JSX.Element;
     oncreate(vnode: any): void;
+    onbuild(): void;
     onupdate(vnode: any): void;
+    _load(): Promise<void>;
     buildEditorParams(): {
         classNames: string[];
         disabled: any;

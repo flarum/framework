@@ -12,6 +12,7 @@ namespace Flarum\Testing\integration\Extend;
 use Flarum\Extend\ExtenderInterface;
 use Flarum\Extension\Extension;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Database\Connection;
 use Illuminate\Database\ConnectionInterface;
 
 class BeginTransactionAndSetDatabase implements ExtenderInterface
@@ -26,9 +27,15 @@ class BeginTransactionAndSetDatabase implements ExtenderInterface
         $this->setDbOnTestCase = $setDbOnTestCase;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
+        /** @var Connection $db */
         $db = $container->make(ConnectionInterface::class);
+
+        // SQLite requires this be done outside a transaction.
+        if ($db->getDriverName() === 'sqlite') {
+            $db->getSchemaBuilder()->disableForeignKeyConstraints();
+        }
 
         $db->beginTransaction();
 

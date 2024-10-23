@@ -1,3 +1,17 @@
+/// <reference types="mithril" />
+import Component, { type ComponentAttrs } from '../Component';
+export type Option = {
+    label: string;
+    disabled?: boolean | ((value: any) => boolean);
+    tooltip?: string;
+};
+export interface ISelectAttrs extends ComponentAttrs {
+    options: Record<string, string | Option>;
+    onchange?: (value: any) => void;
+    value?: any;
+    disabled?: boolean;
+    wrapperAttrs?: Record<string, string>;
+}
 /**
  * The `Select` component displays a <select> input, surrounded with some extra
  * elements for styling. It accepts the following attrs:
@@ -10,8 +24,7 @@
  *
  * Other attributes are passed directly to the `<select>` element rendered to the DOM.
  */
-export default class Select extends Component<import("../Component").ComponentAttrs, undefined> {
-    constructor();
+export default class Select<CustomAttrs extends ISelectAttrs = ISelectAttrs> extends Component<CustomAttrs> {
     view(): JSX.Element;
+    input(): JSX.Element;
 }
-import Component from "../Component";

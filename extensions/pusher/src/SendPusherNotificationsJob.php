@@ -12,27 +12,18 @@ namespace Flarum\Pusher;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Queue\AbstractJob;
 use Flarum\User\User;
-use Pusher;
+use Pusher\Pusher;
 
 class SendPusherNotificationsJob extends AbstractJob
 {
-    /**
-     * @var BlueprintInterface
-     */
-    private $blueprint;
-
-    /**
-     * @var User[]
-     */
-    private $recipients;
-
-    public function __construct(BlueprintInterface $blueprint, array $recipients)
-    {
-        $this->blueprint = $blueprint;
-        $this->recipients = $recipients;
+    public function __construct(
+        private readonly BlueprintInterface $blueprint,
+        /** @var User[] */
+        private readonly array $recipients
+    ) {
     }
 
-    public function handle(Pusher $pusher)
+    public function handle(Pusher $pusher): void
     {
         foreach ($this->recipients as $user) {
             if ($user->shouldAlert($this->blueprint::getType())) {

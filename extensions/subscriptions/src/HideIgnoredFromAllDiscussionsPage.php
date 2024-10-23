@@ -9,18 +9,18 @@
 
 namespace Flarum\Subscriptions;
 
-use Flarum\Filter\FilterState;
-use Flarum\Query\QueryCriteria;
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\SearchCriteria;
 
 class HideIgnoredFromAllDiscussionsPage
 {
-    public function __invoke(FilterState $filterState, QueryCriteria $criteria)
+    public function __invoke(DatabaseSearchState $state, SearchCriteria $criteria): void
     {
         // We only want to hide on the "all discussions" page.
-        if (count($filterState->getActiveFilters()) === 0) {
+        if (count($state->getActiveFilters()) === 0 && ! $state->isFulltextSearch()) {
             // TODO: might be better as `id IN (subquery)`?
-            $actor = $filterState->getActor();
-            $filterState->getQuery()->whereNotExists(function ($query) use ($actor) {
+            $actor = $state->getActor();
+            $state->getQuery()->whereNotExists(function ($query) use ($actor) {
                 $query->selectRaw(1)
                     ->from('discussion_user')
                     ->whereColumn('discussions.id', 'discussion_id')

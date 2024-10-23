@@ -1,7 +1,6 @@
 import app from '../../forum/app';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
-import EditUserModal from '../../common/components/EditUserModal';
 import UserPage from '../components/UserPage';
 import ItemList from '../../common/utils/ItemList';
 
@@ -9,7 +8,7 @@ import ItemList from '../../common/utils/ItemList';
  * The `UserControls` utility constructs a list of buttons for a user which
  * perform actions on it.
  */
-export default {
+const UserControls = {
   /**
    * Get a list of controls for a user.
    *
@@ -143,6 +142,8 @@ export default {
    * @param {import('../../common/models/User').default} user
    */
   editAction(user) {
-    app.modal.show(EditUserModal, { user });
+    app.modal.show(() => import('../../common/components/EditUserModal'), { user });
   },
 };
+
+export default UserControls;

@@ -15,54 +15,22 @@ use Flarum\Foundation\Config;
 
 class CookieFactory
 {
-    /**
-     * The prefix for the cookie names.
-     *
-     * @var string
-     */
-    protected $prefix;
+    protected string $prefix;
+    protected string $path;
+    protected string $domain;
+    protected bool $secure;
+    protected ?string $samesite = null;
 
-    /**
-     * A path scope for the cookies.
-     *
-     * @var string
-     */
-    protected $path;
-
-    /**
-     * A domain scope for the cookies.
-     *
-     * @var string
-     */
-    protected $domain;
-
-    /**
-     * Whether the cookie(s) can be requested only over HTTPS.
-     *
-     * @var bool
-     */
-    protected $secure;
-
-    /**
-     * Same Site cookie value.
-     *
-     * @var string|null
-     */
-    protected $samesite;
-
-    /**
-     * @param Config $config
-     */
     public function __construct(Config $config)
     {
         // If necessary, we will use the forum's base URL to determine smart defaults for cookie settings
         $url = $config->url();
 
         // Get the cookie settings from the config or use the default values
-        $this->prefix = $config['cookie.name'] ?? 'flarum';
-        $this->path = $config['cookie.path'] ?? $url->getPath() ?: '/';
-        $this->domain = $config['cookie.domain'];
-        $this->secure = $config['cookie.secure'] ?? $url->getScheme() === 'https';
+        $this->prefix = (string) ($config['cookie.name'] ?? 'flarum');
+        $this->path = (string) ($config['cookie.path'] ?? $url->getPath() ?: '/');
+        $this->domain = (string) $config['cookie.domain'];
+        $this->secure = (bool) ($config['cookie.secure'] ?? $url->getScheme() === 'https');
         $this->samesite = $config['cookie.samesite'];
     }
 
@@ -71,13 +39,8 @@ class CookieFactory
      *
      * This method returns a cookie instance for use with the Set-Cookie HTTP header.
      * It will be pre-configured according to Flarum's base URL and protocol.
-     *
-     * @param  string  $name
-     * @param  string  $value
-     * @param  int     $maxAge
-     * @return \Dflydev\FigCookies\SetCookie
      */
-    public function make(string $name, string $value = null, int $maxAge = null): SetCookie
+    public function make(string $name, ?string $value = null, ?int $maxAge = null): SetCookie
     {
         $cookie = SetCookie::create($this->getName($name), $value);
 
@@ -104,9 +67,6 @@ class CookieFactory
 
     /**
      * Make an expired cookie instance.
-     *
-     * @param string $name
-     * @return \Dflydev\FigCookies\SetCookie
      */
     public function expire(string $name): SetCookie
     {
@@ -115,9 +75,6 @@ class CookieFactory
 
     /**
      * Get a cookie name.
-     *
-     * @param string $name
-     * @return string
      */
     public function getName(string $name): string
     {

@@ -4,10 +4,7 @@ module.exports = (options = {}) => ({
   testEnvironment: 'jsdom',
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
   transform: {
-    '^.+\\.[tj]sx?$': [
-      'babel-jest',
-      require('flarum-webpack-config/babel.config.js'),
-    ],
+    '^.+\\.[tj]sx?$': ['babel-jest', require('flarum-webpack-config/babel.config.cjs')],
     '^.+\\.tsx?$': [
       'ts-jest',
       {
@@ -16,6 +13,7 @@ module.exports = (options = {}) => ({
     ],
   },
   preset: 'ts-jest',
+  setupFiles: [path.resolve(__dirname, 'pollyfills.js')],
   setupFilesAfterEnv: [path.resolve(__dirname, 'setup-env.js')],
   moduleDirectories: ['node_modules', 'src'],
   ...options,

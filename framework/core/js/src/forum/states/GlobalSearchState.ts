@@ -1,6 +1,6 @@
 import app from '../../forum/app';
 import setRouteWithForcedRefresh from '../../common/utils/setRouteWithForcedRefresh';
-import SearchState from './SearchState';
+import SearchState from '../../common/states/SearchState';
 
 type SearchParams = Record<string, string>;
 
@@ -17,26 +17,33 @@ export default class GlobalSearchState extends SearchState {
     // We can't do this in the constructor, as this class is instantiated
     // before pages are rendered, and we need app.current.
     if (!this.initialValueSet && this.currPageProvidesSearch()) {
-      this.intializeValue();
+      this.initializeValue();
     }
 
     return super.getValue();
   }
 
-  protected intializeValue() {
+  protected initializeValue() {
     this.setValue(this.getInitialSearch());
     this.initialValueSet = true;
   }
 
   protected currPageProvidesSearch(): boolean {
-    return app.current.type && app.current.type.providesInitialSearch;
+    return app.current.type && 'providesInitialSearch' in app.current.type && (app.current.type as any).providesInitialSearch;
   }
 
   /**
    * @inheritdoc
    */
   getInitialSearch(): string {
-    return this.currPageProvidesSearch() ? this.params().q : '';
+    return this.currPageProvidesSearch() ? this.searchToQuery() : '';
+  }
+
+  private searchToQuery(): string {
+    const q = this.params().q || '';
+    const filter = this.params().filter || {};
+
+    return app.search.gambits.from('users', app.search.gambits.from('discussions', q, filter), filter).trim();
   }
 
   /**
@@ -57,7 +64,7 @@ export default class GlobalSearchState extends SearchState {
    * 'x' is clicked in the search box in the header.
    */
   protected clearInitialSearch() {
-    const { q, ...params } = this.params();
+    const { q, filter, ...params } = this.params();
 
     setRouteWithForcedRefresh(app.route(app.current.get('routeName'), params));
   }
@@ -71,6 +78,9 @@ export default class GlobalSearchState extends SearchState {
     return {
       sort: m.route.param('sort'),
       q: m.route.param('q'),
+      // Objects must be copied, otherwise they are passed by reference.
+      // Which could end up undesirably modifying the mithril route params.
+      filter: Object.assign({}, m.route.param('filter')),
     };
   }
 
@@ -79,8 +89,6 @@ export default class GlobalSearchState extends SearchState {
    */
   params(): SearchParams {
     const params = this.stickyParams();
-
-    params.filter = m.route.param('filter');
 
     return params;
   }

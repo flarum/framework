@@ -9,46 +9,31 @@
 
 namespace Flarum\Api\Controller;
 
+use Flarum\Api\JsonApi;
 use Flarum\Foundation\ValidationException;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Factory;
-use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
+use Intervention\Image\Interfaces\EncodedImageInterface;
 use Psr\Http\Message\UploadedFileInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UploadFaviconController extends UploadImageController
 {
-    protected $filePathSettingKey = 'favicon_path';
+    protected string $filePathSettingKey = 'favicon_path';
+    protected string $filenamePrefix = 'favicon';
 
-    protected $filenamePrefix = 'favicon';
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @var ImageManager
-     */
-    protected $imageManager;
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     * @param Factory $filesystemFactory
-     */
-    public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory, TranslatorInterface $translator, ImageManager $imageManager)
-    {
-        parent::__construct($settings, $filesystemFactory);
-
-        $this->translator = $translator;
-        $this->imageManager = $imageManager;
+    public function __construct(
+        JsonApi $api,
+        SettingsRepositoryInterface $settings,
+        Factory $filesystemFactory,
+        protected TranslatorInterface $translator,
+        protected ImageManager $imageManager
+    ) {
+        parent::__construct($api, $settings, $filesystemFactory);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function makeImage(UploadedFileInterface $file): Image
+    protected function makeImage(UploadedFileInterface $file): EncodedImageInterface
     {
         $this->fileExtension = pathinfo($file->getClientFilename(), PATHINFO_EXTENSION);
 
@@ -62,10 +47,9 @@ class UploadFaviconController extends UploadImageController
             ]);
         }
 
-        $encodedImage = $this->imageManager->make($file->getStream())->resize(64, 64, function ($constraint) {
-            $constraint->aspectRatio();
-            $constraint->upsize();
-        })->encode('png');
+        $encodedImage = $this->imageManager->read($file->getStream()->getMetadata('uri'))
+            ->scale(64, 64)
+            ->toPng();
 
         $this->fileExtension = 'png';
 

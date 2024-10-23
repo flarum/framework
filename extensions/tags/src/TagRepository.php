@@ -11,63 +11,28 @@ namespace Flarum\Tags;
 
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class TagRepository
 {
-    private const TAG_RELATIONS = ['children', 'parent', 'parent.children'];
-
     /**
-     * Get a new query builder for the tags table.
-     *
-     * @return Builder
+     * @return Builder<Tag>
      */
-    public function query()
+    public function query(): Builder
     {
         return Tag::query();
     }
 
-    /**
-     * @param array|string $relations
-     * @param User $actor
-     * @return Builder<Tag>
-     */
-    public function with($relations, User $actor): Builder
+    public function queryVisibleTo(?User $actor = null): Builder
     {
-        return $this->query()->with($this->getAuthorizedRelations($relations, $actor));
-    }
-
-    /**
-     * @param array|string $relations
-     * @param User $actor
-     * @return array
-     */
-    public function getAuthorizedRelations($relations, User $actor): array
-    {
-        $relations = is_string($relations) ? explode(',', $relations) : $relations;
-        $relationsArray = [];
-
-        foreach ($relations as $relation) {
-            if (in_array($relation, self::TAG_RELATIONS, true)) {
-                $relationsArray[$relation] = function ($query) use ($actor) {
-                    $query->whereVisibleTo($actor);
-                };
-            } else {
-                $relationsArray[] = $relation;
-            }
-        }
-
-        return $relationsArray;
+        return $this->scopeVisibleTo($this->query(), $actor);
     }
 
     /**
      * Find a tag by ID, optionally making sure it is visible to a certain
      * user, or throw an exception.
-     *
-     * @param int $id
-     * @param User|null $actor
-     * @return Tag
      */
-    public function findOrFail($id, User $actor = null)
+    public function findOrFail(int $id, User $actor = null): Tag
     {
         $query = Tag::where('id', $id);
 
@@ -78,10 +43,9 @@ class TagRepository
      * Find all tags, optionally making sure they are visible to a
      * certain user.
      *
-     * @param User|null $user
-     * @return \Illuminate\Database\Eloquent\Collection<Tag>
+     * @return Collection<int, Tag>
      */
-    public function all(User $user = null)
+    public function all(User $user = null): Collection
     {
         $query = Tag::query();
 
@@ -90,12 +54,8 @@ class TagRepository
 
     /**
      * Get the ID of a tag with the given slug.
-     *
-     * @param string $slug
-     * @param User|null $user
-     * @return int
      */
-    public function getIdForSlug($slug, User $user = null): ?int
+    public function getIdForSlug(string $slug, User $user = null): ?int
     {
         $query = Tag::where('slug', $slug);
 
@@ -106,10 +66,9 @@ class TagRepository
      * Scope a query to only include records that are visible to a user.
      *
      * @param Builder<Tag> $query
-     * @param User|null $user
      * @return Builder<Tag>
      */
-    protected function scopeVisibleTo(Builder $query, User $user = null)
+    protected function scopeVisibleTo(Builder $query, ?User $user = null): Builder
     {
         if ($user !== null) {
             $query->whereVisibleTo($user);

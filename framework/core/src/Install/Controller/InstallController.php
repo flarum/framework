@@ -27,38 +27,13 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class InstallController implements RequestHandlerInterface
 {
-    /**
-     * @var Installation
-     */
-    protected $installation;
-
-    /**
-     * @var SessionAuthenticator
-     */
-    protected $authenticator;
-
-    /**
-     * @var Rememberer
-     */
-    protected $rememberer;
-
-    /**
-     * InstallController constructor.
-     * @param Installation $installation
-     * @param SessionAuthenticator $authenticator
-     * @param Rememberer $rememberer
-     */
-    public function __construct(Installation $installation, SessionAuthenticator $authenticator, Rememberer $rememberer)
-    {
-        $this->installation = $installation;
-        $this->authenticator = $authenticator;
-        $this->rememberer = $rememberer;
+    public function __construct(
+        protected Installation $installation,
+        protected SessionAuthenticator $authenticator,
+        protected Rememberer $rememberer
+    ) {
     }
 
-    /**
-     * @param Request $request
-     * @return ResponseInterface
-     */
     public function handle(Request $request): ResponseInterface
     {
         $input = $request->getParsedBody();
@@ -101,27 +76,30 @@ class InstallController implements RequestHandlerInterface
 
     private function makeDatabaseConfig(array $input): DatabaseConfig
     {
-        $host = Arr::get($input, 'mysqlHost');
-        $port = 3306;
+        $driver = Arr::get($input, 'dbDriver');
+        $host = Arr::get($input, 'dbHost');
+        $port = match ($driver) {
+            'mysql' => 3306,
+            'pgsql' => 5432,
+            default => 0,
+        };
 
         if (Str::contains($host, ':')) {
             list($host, $port) = explode(':', $host, 2);
         }
 
         return new DatabaseConfig(
-            'mysql',
+            $driver,
             $host,
             intval($port),
-            Arr::get($input, 'mysqlDatabase'),
-            Arr::get($input, 'mysqlUsername'),
-            Arr::get($input, 'mysqlPassword'),
+            Arr::get($input, 'dbName'),
+            Arr::get($input, 'dbUsername'),
+            Arr::get($input, 'dbPassword'),
             Arr::get($input, 'tablePrefix')
         );
     }
 
     /**
-     * @param array $input
-     * @return AdminUser
      * @throws ValidationFailed
      */
     private function makeAdminUser(array $input): AdminUser

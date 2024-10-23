@@ -14,20 +14,17 @@ use Flarum\Post\AbstractEventPost;
 use Flarum\Post\MergeableInterface;
 use Flarum\Post\Post;
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class PostTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_post_type_doesnt_exist_by_default()
     {
         $this->assertArrayNotHasKey('customPost', Post::getModels());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_post_type_exists_if_added()
     {
         $this->extend((new Extend\Post)->type(PostTestCustomPost::class));
@@ -41,15 +38,9 @@ class PostTest extends TestCase
 
 class PostTestCustomPost extends AbstractEventPost implements MergeableInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static $type = 'customPost';
+    public static string $type = 'customPost';
 
-    /**
-     * {@inheritdoc}
-     */
-    public function saveAfter(Post $previous = null)
+    public function saveAfter(Post $previous = null): static
     {
         $this->save();
 

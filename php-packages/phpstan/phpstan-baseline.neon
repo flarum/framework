@@ -1,5 +1,11 @@
 parameters:
+	reportUnmatchedIgnoredErrors: false
 	ignoreErrors:
+		-
+			identifier: missingType.iterableValue
+		-
+			identifier: missingType.generics
+
 		# Remove this group below with larastan 2.0 (i.e Flarum 2.0)
 		- message: "#Relation '[A-z_-]+' is not found in [A-z\_]+ model.#"
 		  reportUnmatched: false
@@ -16,8 +22,33 @@ parameters:
 		#	@TODO: needs discussion.
 		- message: "#^Unsafe usage of new static[()]{2}.$#"
 		  reportUnmatched: false
+		- message: "#^Static access to instance property .*#"
+		  reportUnmatched: false
 
 		# ConnectionInterface lacks methods that exist in the implementation,
 		# yet we don't want to inject the implementation.
 		- message: '#^Call to an undefined method Illuminate\\Database\\ConnectionInterface\:\:[A-z0-9_]+\(\)\.$#'
 		  reportUnmatched: false
+
+		# By default when a callable parameter is typed with for example 3 parameters,
+		# and the implementation only accepts two of them, PHPStan complains.
+		# At the time of adding this error, there are no configuration values to make it
+		# ignore this error, so we have to ignore it globally.
+		- message: '#^Parameter \#[0-9]+ \$[A-z0-9_]+ of method Flarum\Extend\[A-z0-9_:\\()]+ expects \(?callable\([A-z0-9_,|\\: ()-]+\)\)?, (callable|Closure)\([A-z0-9_,|\\: ()-]+\) given\.$#'
+		  reportUnmatched: false
+
+		# PHPStan suddenly doesn't recognize callables can be function names?
+		- message: '#^Parameter \#[0-9]+ \$[A-z0-9_]+ of function [A-z0-9_:\\()]+ expects \(?callable\([A-z0-9_,|\\: ()-]+, ''[A-z0-9_:\\()]+'' given\.$#'
+		  reportUnmatched: false
+
+		# Not if we're using our own static make method.
+		- message: '#^Called ''Model\:\:make\(\)'' which performs unnecessary work, use ''new Model\(\)''\.$#'
+
+		# This assumes that the phpdoc telling it it's not nullable is correct, that's not the case for internal Laravel typings.
+		- message: '#^Property [A-z0-9-_:$,\\]+ \([A-z]+\) on left side of \?\? is not nullable\.$#'
+
+		# Ignore overridden classes from packages so that it's always easier to keep track of what's being overridden.
+		- message: '#^Method Flarum\\Api\\Serializer\:\:[A-z0-9_]+\(\) has parameter \$[A-z0-9_]+ with no type specified\.$#'
+		- message: '#^Method Flarum\\Api\\Endpoint\\[A-z0-9_]+\:\:[A-z0-9_]+\(\) has parameter \$[A-z0-9_]+ with no type specified\.$#'
+
+		- message: '#^Unable to resolve the template type TRelatedModel in call to method Illuminate\\Database\\Eloquent\\Model\:\:[A-z]+\(\)$#'

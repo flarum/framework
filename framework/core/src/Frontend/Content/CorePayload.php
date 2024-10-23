@@ -9,27 +9,24 @@
 
 namespace Flarum\Frontend\Content;
 
+use Flarum\Extension\BisectState;
+use Flarum\Foundation\MaintenanceMode;
 use Flarum\Frontend\Document;
 use Flarum\Http\RequestUtil;
 use Flarum\Locale\LocaleManager;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class CorePayload
 {
-    /**
-     * @var LocaleManager
-     */
-    private $locales;
-
-    /**
-     * @param LocaleManager $locales
-     */
-    public function __construct(LocaleManager $locales)
-    {
-        $this->locales = $locales;
+    public function __construct(
+        private readonly LocaleManager $locales,
+        private readonly MaintenanceMode $maintenance,
+        private readonly SettingsRepositoryInterface $settings
+    ) {
     }
 
-    public function __invoke(Document $document, Request $request)
+    public function __invoke(Document $document, Request $request): void
     {
         $document->payload = array_merge(
             $document->payload,
@@ -37,19 +34,29 @@ class CorePayload
         );
     }
 
-    private function buildPayload(Document $document, Request $request)
+    private function buildPayload(Document $document, Request $request): array
     {
         $data = $this->getDataFromApiDocument($document->getForumApiDocument());
 
-        return [
+        $payload = [
             'resources' => $data,
             'session' => [
                 'userId' => RequestUtil::getActor($request)->id,
                 'csrfToken' => $request->getAttribute('session')->token()
             ],
             'locales' => $this->locales->getLocales(),
-            'locale' => $request->getAttribute('locale')
+            'locale' => $request->getAttribute('locale'),
         ];
+
+        if ($this->maintenance->inMaintenanceMode()) {
+            $payload['maintenanceMode'] = $this->maintenance->mode();
+        }
+
+        if ($this->settings->get(BisectState::SETTING)) {
+            $payload['bisecting'] = true;
+        }
+
+        return $payload;
     }
 
     private function getDataFromApiDocument(array $apiDocument): array

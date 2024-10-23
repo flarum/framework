@@ -9,42 +9,26 @@
 
 namespace Flarum\Frontend\Compiler\Source;
 
+use Closure;
+
 /**
  * @internal
  */
 class StringSource implements SourceInterface
 {
-    /**
-     * @var callable
-     */
-    protected $callback;
+    private ?string $content = null;
 
-    private $content;
-
-    /**
-     * @param callable $callback
-     */
-    public function __construct(callable $callback)
-    {
-        $this->callback = $callback;
+    public function __construct(
+        protected Closure $callback
+    ) {
     }
 
-    /**
-     * @return string
-     */
     public function getContent(): string
     {
-        if (is_null($this->content)) {
-            $this->content = call_user_func($this->callback);
-        }
-
-        return $this->content;
+        return $this->content ??= call_user_func($this->callback);
     }
 
-    /**
-     * @return mixed
-     */
-    public function getCacheDifferentiator()
+    public function getCacheDifferentiator(): string
     {
         return $this->getContent();
     }

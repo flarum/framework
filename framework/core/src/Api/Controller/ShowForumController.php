@@ -9,34 +9,24 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Api\Serializer\ForumSerializer;
-use Flarum\Group\Group;
-use Flarum\Http\RequestUtil;
+use Flarum\Api\JsonApi;
+use Flarum\Api\Resource\ForumResource;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Tobscure\JsonApi\Document;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class ShowForumController extends AbstractShowController
+class ShowForumController implements RequestHandlerInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $serializer = ForumSerializer::class;
+    public function __construct(
+        protected JsonApi $api
+    ) {
+    }
 
-    /**
-     * {@inheritdoc}
-     */
-    public $include = ['groups', 'actor', 'actor.groups'];
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function data(ServerRequestInterface $request, Document $document)
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $actor = RequestUtil::getActor($request);
-
-        return [
-            'groups' => Group::whereVisibleTo($actor)->get(),
-            'actor' => $actor->isGuest() ? null : $actor
-        ];
+        return $this->api
+            ->forResource(ForumResource::class)
+            ->forEndpoint('show')
+            ->handle($request);
     }
 }

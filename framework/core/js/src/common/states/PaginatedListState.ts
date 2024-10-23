@@ -1,6 +1,19 @@
 import app from '../../common/app';
 import Model from '../Model';
 import { ApiQueryParamsPlural, ApiResponsePlural } from '../Store';
+import type Mithril from 'mithril';
+import setRouteWithForcedRefresh from '../utils/setRouteWithForcedRefresh';
+
+export type SortMapItem =
+  | string
+  | {
+      sort: string;
+      label: Mithril.Children;
+    };
+
+export type SortMap = {
+  [key: string]: SortMapItem;
+};
 
 export interface Page<TModel> {
   number: number;
@@ -25,8 +38,16 @@ export interface PaginatedListRequestParams extends Omit<ApiQueryParamsPlural, '
 }
 
 export default abstract class PaginatedListState<T extends Model, P extends PaginatedListParams = PaginatedListParams> {
+  /**
+   * This value should not be relied upon when preloading an API document.
+   * In those cases the pageSize should be taken from the meta information of the preloaded
+   * document. Checkout `DiscussionListState.loadPage` for an example.
+   */
+  public static DEFAULT_PAGE_SIZE = 20;
+
   protected location!: PaginationLocation;
-  protected pageSize: number;
+  public pageSize: number | null;
+  public totalItems: number | null = null;
 
   protected pages: Page<T>[] = [];
   protected params: P = {} as P;
@@ -34,8 +55,9 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
   protected initialLoading: boolean = false;
   protected loadingPrev: boolean = false;
   protected loadingNext: boolean = false;
+  protected loadingPage: boolean = false;
 
-  protected constructor(params: P = {} as P, page: number = 1, pageSize: number = 20) {
+  protected constructor(params: P = {} as P, page: number = 1, pageSize: number | null = null) {
     this.params = params;
 
     this.location = { page };
@@ -108,12 +130,34 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
       ...reqParams,
       page: {
         ...reqParams.page,
-        offset: this.pageSize * (page - 1),
+        offset: (this.pageSize && this.pageSize * (page - 1)) || 0,
+        limit: this.pageSize || undefined,
       },
       include,
     };
 
-    return app.store.find<T[]>(this.type, params);
+    if (typeof params.include === 'undefined') {
+      delete params.include;
+    }
+
+    return app.store.find<T[]>(this.type, params).then((results) => {
+      const usedPerPage = results.payload?.meta?.perPage;
+      const usedTotal = results.payload?.meta?.page?.total;
+
+      /*
+       * If this state does not rely on a preloaded API document to know the page size,
+       * then there is no initial list, and therefore the page size can be taken from subsequent requests.
+       */
+      if (!this.pageSize || (usedPerPage && this.pageSize !== usedPerPage)) {
+        this.pageSize = usedPerPage || PaginatedListState.DEFAULT_PAGE_SIZE;
+      }
+
+      if (!this.totalItems || (usedTotal && this.totalItems !== usedTotal)) {
+        this.totalItems = usedTotal || null;
+      }
+
+      return results;
+    });
   }
 
   /**
@@ -152,14 +196,25 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
 
     this.clear();
 
+    return this.goto(page);
+  }
+
+  public goto(page: number): Promise<void> {
     this.location = { page };
 
-    return this.loadPage()
+    if (!this.initialLoading) {
+      this.loadingPage = true;
+    }
+
+    return this.loadPage(page)
       .then((results) => {
         this.pages = [];
         this.parseResults(this.location.page, results);
       })
-      .finally(() => (this.initialLoading = false));
+      .finally(() => {
+        this.initialLoading = false;
+        this.loadingPage = false;
+      });
   }
 
   public getPages(): Page<T>[] {
@@ -170,7 +225,7 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
   }
 
   public isLoading(): boolean {
-    return this.initialLoading || this.loadingNext || this.loadingPrev;
+    return this.initialLoading || this.loadingNext || this.loadingPrev || this.loadingPage;
   }
   public isInitialLoading(): boolean {
     return this.initialLoading;
@@ -244,5 +299,68 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     return this.getPages()
       .map((pg) => pg.items)
       .flat();
+  }
+
+  /**
+   * In the last request, has the user searched for a model?
+   */
+  isSearchResults(): boolean {
+    return !!this.params.q;
+  }
+
+  public push(model: T): void {
+    const lastPage = this.pages[this.pages.length - 1];
+
+    if (lastPage && lastPage.items.length < (this.pageSize || PaginatedListState.DEFAULT_PAGE_SIZE)) {
+      lastPage.items.push(model);
+    } else {
+      this.pages.push({
+        number: lastPage ? lastPage.number + 1 : 1,
+        items: [model],
+        hasNext: lastPage.hasNext,
+        hasPrev: Boolean(lastPage),
+      });
+    }
+
+    m.redraw();
+  }
+
+  getSort(): string {
+    return this.params.sort || '';
+  }
+
+  sortMap(): SortMap {
+    return {};
+  }
+
+  sortValue(sort: SortMapItem): string | undefined {
+    return typeof sort === 'string' ? sort : sort?.sort;
+  }
+
+  currentSort(): string | undefined {
+    return this.sortValue(this.sortMap()[this.getSort()]);
+  }
+
+  changeSort(sort: string) {
+    this.refreshParams(
+      {
+        ...this.params,
+        sort: sort,
+      },
+      1
+    );
+  }
+
+  changeFilter(key: string, value: any) {
+    this.refreshParams(
+      {
+        ...this.params,
+        filter: {
+          ...this.params.filter,
+          [key]: value,
+        },
+      },
+      1
+    );
   }
 }

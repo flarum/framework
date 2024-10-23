@@ -7,17 +7,13 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Job;
+namespace Flarum\ExtensionManager\Job;
 
 class DispatcherResponse
 {
-    public $queueJobs;
-
-    public $data;
-
-    public function __construct(bool $queueJobs, ?array $data)
-    {
-        $this->queueJobs = $queueJobs;
-        $this->data = $data;
+    public function __construct(
+        public bool $queueJobs,
+        public ?array $data
+    ) {
     }
 }

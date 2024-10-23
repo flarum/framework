@@ -7,32 +7,22 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Settings;
+namespace Flarum\ExtensionManager\Settings;
 
 use Carbon\Carbon;
-use Flarum\PackageManager\Event\FlarumUpdated;
+use Flarum\ExtensionManager\Event\FlarumUpdated;
 use Flarum\Settings\SettingsRepositoryInterface;
 
 class LastUpdateRun implements JsonSetting
 {
     public const SUCCESS = 'success';
     public const FAILURE = 'failure';
+    protected array $data;
+    protected ?string $activeUpdate;
 
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    protected $data;
-
-    /**
-     * @var string|null
-     */
-    protected $activeUpdate;
-
-    public function __construct(SettingsRepositoryInterface $settings)
-    {
-        $this->settings = $settings;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings,
+    ) {
         $this->data = self::default();
     }
 
@@ -47,7 +37,7 @@ class LastUpdateRun implements JsonSetting
         return $this;
     }
 
-    public function with(string $key, $value): JsonSetting
+    public function with(string $key, mixed $value): JsonSetting
     {
         $this->data[$this->activeUpdate][$key] = $value;
 
@@ -76,7 +66,7 @@ class LastUpdateRun implements JsonSetting
 
     public static function key(): string
     {
-        return 'flarum-package-manager.last_update_run';
+        return 'flarum-extension-manager.last_update_run';
     }
 
     public static function default(): array

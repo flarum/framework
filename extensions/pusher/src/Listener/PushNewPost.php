@@ -14,27 +14,17 @@ use Flarum\Post\Event\Posted;
 use Flarum\User\Guest;
 use Flarum\User\User;
 use Illuminate\Support\Str;
-use Pusher;
+use Pusher\Pusher;
 
 class PushNewPost
 {
-    /**
-     * @var Pusher
-     */
-    protected $pusher;
-
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    public function __construct(Pusher $pusher, ExtensionManager $extensions)
-    {
-        $this->pusher = $pusher;
-        $this->extensions = $extensions;
+    public function __construct(
+        protected Pusher $pusher,
+        protected ExtensionManager $extensions
+    ) {
     }
 
-    public function handle(Posted $event)
+    public function handle(Posted $event): void
     {
         $channels = [];
 
@@ -42,15 +32,15 @@ class PushNewPost
             $channels[] = 'public';
         } else {
             // Retrieve private channels, used for each user.
-            $response = $this->pusher->get_channels([
+            $response = $this->pusher->getChannels([
                 'filter_by_prefix' => 'private-user'
             ]);
 
+            // @phpstan-ignore-next-line
             if (! $response) {
                 return;
             }
 
-            // @phpstan-ignore-next-line
             foreach ($response->channels as $name => $channel) {
                 $userId = Str::after($name, 'private-user');
 

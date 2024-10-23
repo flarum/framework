@@ -4,10 +4,9 @@ import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
 export interface ILoadingModalAttrs extends IInternalModalAttrs {}
 
 export default class LoadingModal<ModalAttrs extends ILoadingModalAttrs = ILoadingModalAttrs> extends Modal<ModalAttrs> {
-  /**
-   * @inheritdoc
-   */
-  static readonly isDismissible: boolean = false;
+  protected static readonly isDismissibleViaCloseButton: boolean = false;
+  protected static readonly isDismissibleViaEscKey: boolean = false;
+  protected static readonly isDismissibleViaBackdropClick: boolean = false;
 
   className() {
     return 'LoadingModal Modal--small';
@@ -18,10 +17,6 @@ export default class LoadingModal<ModalAttrs extends ILoadingModalAttrs = ILoadi
   }
 
   content() {
-    return '';
-  }
-
-  onsubmit(e: Event): void {
-    throw new Error('LoadingModal should not throw errors.');
+    return null;
   }
 }

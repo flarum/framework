@@ -18,26 +18,11 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Index
 {
-    /**
-     * @var Factory
-     */
-    protected $view;
-
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensions;
-
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    public function __construct(Factory $view, ExtensionManager $extensions, SettingsRepositoryInterface $settings)
-    {
-        $this->view = $view;
-        $this->extensions = $extensions;
-        $this->settings = $settings;
+    public function __construct(
+        protected Factory $view,
+        protected ExtensionManager $extensions,
+        protected SettingsRepositoryInterface $settings
+    ) {
     }
 
     public function __invoke(Document $document, Request $request): Document
@@ -46,13 +31,14 @@ class Index
         $extensionsEnabled = json_decode($this->settings->get('extensions_enabled', '{}'), true);
         $csrfToken = $request->getAttribute('session')->token();
 
-        $mysqlVersion = $document->payload['mysqlVersion'];
+        $dbDriver = $document->payload['dbDriver'];
+        $dbVersion = $document->payload['dbVersion'];
         $phpVersion = $document->payload['phpVersion'];
         $flarumVersion = Application::VERSION;
 
         $document->content = $this->view->make(
             'flarum.admin::frontend.content.admin',
-            compact('extensions', 'extensionsEnabled', 'csrfToken', 'flarumVersion', 'phpVersion', 'mysqlVersion')
+            compact('extensions', 'extensionsEnabled', 'csrfToken', 'flarumVersion', 'phpVersion', 'dbVersion', 'dbDriver')
         );
 
         return $document;

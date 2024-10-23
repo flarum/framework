@@ -1,0 +1,65 @@
+.HeaderDropdown {
+  .Dropdown-menu {
+    padding: 0;
+
+    .HeaderList-content {
+      max-height: ~"min(70vh, 800px)";
+      overflow: auto;
+    }
+  }
+  & .Dropdown-toggle .Button-label {
+    margin-left: 7px;
+  }
+}
+@media @tablet-up {
+  .HeaderDropdown {
+    .Dropdown-menu {
+      width: 425px;
+    }
+    .Dropdown-toggle {
+      .Button--icon();
+    }
+  }
+}
+
+.HeaderDropdown .Dropdown-toggle.new .Button-icon {
+  color: var(--header-color);
+}
+
+.HeaderDropdownBubble {
+  --bubble-bg: var(--header-control-color);
+  --bubble-color: var(--header-bg);
+  --bubble-shadow-color: var(--header-bg);
+
+  @media @phone {
+    left: 20px;
+  }
+
+  .new & {
+    background: var(--header-color);
+  }
+}
+
+.Bubble {
+  position: absolute;
+  top: 2px;
+  left: 18px;
+  background: var(--bubble-bg);
+  color: var(--bubble-color);
+  font-size: 11px;
+  font-weight: bold;
+  padding: 2px 4px 3px;
+  line-height: 1em;
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px var(--bubble-shadow-color);
+  min-width: 16px;
+  height: 16px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &--primary {
+    --bubble-bg: var(--primary-color);
+  }
+}

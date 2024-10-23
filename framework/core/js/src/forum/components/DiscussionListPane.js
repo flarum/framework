@@ -22,7 +22,7 @@ export default class DiscussionListPane extends Component {
       return;
     }
 
-    return <aside className="DiscussionPage-list">{this.enoughSpace() && <DiscussionList state={this.attrs.state} />}</aside>;
+    return <aside className="DiscussionListPane">{this.enoughSpace() && <DiscussionList state={this.attrs.state} />}</aside>;
   }
 
   oncreate(vnode) {
@@ -38,7 +38,7 @@ export default class DiscussionListPane extends Component {
 
     $(document).on('mousemove', hotEdge);
 
-    // When coming from another discussion, scroll to the previous postition
+    // When coming from another discussion, scroll to the previous position
     // to prevent the discussion list jumping around.
     if (app.previous.matches(DiscussionPage)) {
       const top = app.cache.discussionListPaneScrollTop || 0;

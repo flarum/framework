@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import type Mithril from 'mithril';
+import app from '../app';
 import humanTimeUtil from '../utils/humanTime';
 
 /**
@@ -11,7 +12,7 @@ export default function humanTime(time: Date): Mithril.Vnode {
   const d = dayjs(time);
 
   const datetime = d.format();
-  const full = d.format('LLLL');
+  const full = app.translator.formatDateTime(d, 'core.lib.datetime_formats.fullTime');
   const ago = humanTimeUtil(time);
 
   return (

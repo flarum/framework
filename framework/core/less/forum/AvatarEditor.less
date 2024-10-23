@@ -2,12 +2,17 @@
   position: relative;
 
   .Dropdown-toggle {
+    margin: 4px;
+    font-size: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .Dropdown-toggle {
     opacity: 0;
     position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     border-radius: 100%;
     background: rgba(0, 0, 0, 0.6);
     text-align: center;
@@ -26,10 +31,7 @@
   .LoadingIndicator-container {
     color: #fff;
     position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
   }
   @media @tablet-up {
     .Dropdown-menu {

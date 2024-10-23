@@ -11,22 +11,27 @@ namespace Flarum\Notification;
 
 use Carbon\Carbon;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class NotificationRepository
 {
     /**
-     * Find a user's notifications.
-     *
-     * @param User $user
-     * @param int|null $limit
-     * @param int $offset
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection<int, Notification>
      */
-    public function findByUser(User $user, $limit = null, $offset = 0)
+    public function findByUser(User $user, ?int $limit = null, int $offset = 0): Collection
+    {
+        return $this->query($user, $limit, $offset)->get();
+    }
+
+    /**
+     * @return Builder<Notification>
+     */
+    public function query(User $user, ?int $limit = null, int $offset = 0): Builder
     {
         $primaries = Notification::query()
             ->selectRaw('MAX(id) AS id')
-            ->selectRaw('SUM(read_at IS NULL) AS unread_count')
+            ->selectRaw('COUNT(read_at IS NULL) AS unread_count')
             ->where('user_id', $user->id)
             ->whereIn('type', $user->getAlertableNotificationTypes())
             ->where('is_deleted', false)
@@ -39,26 +44,19 @@ class NotificationRepository
         return Notification::query()
             ->select('notifications.*', 'p.unread_count')
             ->joinSub($primaries, 'p', 'notifications.id', '=', 'p.id')
-            ->latest()
-            ->get();
+            ->latest();
     }
 
-    /**
-     * Mark all of a user's notifications as read.
-     *
-     * @param User $user
-     *
-     * @return void
-     */
-    public function markAllAsRead(User $user)
+    public function markAllAsRead(User $user): void
     {
-        Notification::where('user_id', $user->id)
+        Notification::query()
+            ->where('user_id', $user->id)
             ->whereNull('read_at')
             ->update(['read_at' => Carbon::now()]);
     }
 
-    public function deleteAll(User $user)
+    public function deleteAll(User $user): void
     {
-        Notification::where('user_id', $user->id)->delete();
+        Notification::query()->where('user_id', $user->id)->delete();
     }
 }

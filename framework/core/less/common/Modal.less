@@ -20,15 +20,18 @@
 }
 
 .Modal-backdrop {
+  --loading-indicator-color: var(--body-bg);
+
   background: var(--overlay-bg);
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   opacity: 0;
   transition: opacity 0.2s ease-out;
   z-index: ~"calc(var(--zindex-modal) + var(--modal-count) - 2)";
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &[data-showing] {
     opacity: 1;
@@ -91,15 +94,14 @@
   color: var(--control-color);
 
   .FormControl {
-    background-color: var(--body-bg);
-    color: var(--text-color);
+    --form-control-bg: var(--body-bg);
+    --form-control-color: var(--text-color);
   }
 
   .Form--centered {
     .helpText {
       font-size: 14px;
       line-height: 1.5em;
-      margin-bottom: 25px;
       text-align: left;
     }
   }
@@ -115,6 +117,12 @@
   color: var(--muted-color);
 }
 
+.Modal-divider {
+  border-width: 1px;
+  margin-left: -16px;
+  margin-right: -16px;
+}
+
 .Modal--inverted {
   .Modal-header {
     background-color: var(--control-bg);
@@ -123,6 +131,52 @@
   .Modal-body {
     background-color: transparent;
     color: unset;
+  }
+}
+
+.Modal--flat {
+  .Modal-header {
+    background-color: transparent;
+    text-align: start;
+    padding: 18px 18px 0 18px;
+    color: var(--control-color);
+  }
+  .Modal-body {
+    background-color: transparent;
+    color: unset;
+    padding: 18px 16px;
+
+    .FormControl:not(:focus) {
+      --form-control-bg: var(--control-bg);
+      --form-control-color: var(--control-color);
+    }
+  }
+}
+.Modal--simple {
+  @media @tablet-up {
+    .Modal-header {
+      background: var(--control-bg);
+      padding: 20px 20px 0;
+
+      & h3 {
+        text-align: left;
+        color: var(--control-color);
+        font-size: 16px;
+      }
+    }
+  }
+
+  .Modal-body {
+    padding: 20px;
+
+    @media @phone {
+      padding: 15px;
+    }
+  }
+
+  .Modal-footer {
+    padding: 1px 0 0;
+    text-align: left;
   }
 }
 
@@ -147,7 +201,7 @@
     margin: 0;
     -webkit-transform: none !important;
     transform: none !important;
-    top: 100vh;
+    top: 100dvh;
 
     &.fade {
       opacity: 1;
@@ -160,7 +214,7 @@
   .Modal-content {
     border-radius: 0;
     border: 0;
-    min-height: 100vh;
+    min-height: 100dvh;
     padding-top: var(--header-height-phone);
     box-shadow: none;
   }

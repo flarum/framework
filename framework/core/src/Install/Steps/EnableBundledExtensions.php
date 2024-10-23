@@ -19,12 +19,12 @@ use Illuminate\Database\ConnectionInterface;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
+use League\Flysystem\Local\LocalFilesystemAdapter;
 
 class EnableBundledExtensions implements Step
 {
-    const EXTENSION_WHITELIST = [
+    public const DEFAULT_ENABLED_EXTENSIONS = [
         'flarum-approval',
         'flarum-bbcode',
         'flarum-emoji',
@@ -42,51 +42,35 @@ class EnableBundledExtensions implements Step
     ];
 
     /**
-     * @var ConnectionInterface
+     * @var string[]
      */
-    private $database;
+    private array $enabledExtensions;
 
-    /**
-     * @var string
-     */
-    private $vendorPath;
+    private ?Migrator $migrator;
 
-    /**
-     * @var string
-     */
-    private $assetPath;
-
-    /**
-     * @var string[]|null
-     */
-    private $enabledExtensions;
-
-    /**
-     * @var Migrator|null
-     */
-    private $migrator;
-
-    public function __construct(ConnectionInterface $database, $vendorPath, $assetPath, $enabledExtensions = null)
-    {
-        $this->database = $database;
-        $this->vendorPath = $vendorPath;
-        $this->assetPath = $assetPath;
-        $this->enabledExtensions = $enabledExtensions ?? self::EXTENSION_WHITELIST;
+    public function __construct(
+        private readonly ConnectionInterface $database,
+        private readonly string $vendorPath,
+        private readonly string $assetPath,
+        ?array $enabledExtensions = null
+    ) {
+        $this->enabledExtensions = $enabledExtensions ?? self::DEFAULT_ENABLED_EXTENSIONS;
     }
 
-    public function getMessage()
+    public function getMessage(): string
     {
         return 'Enabling bundled extensions';
     }
 
-    public function run()
+    public function run(): void
     {
         $extensions = ExtensionManager::resolveExtensionOrder($this->loadExtensions()->all())['valid'];
 
         foreach ($extensions as $extension) {
             $extension->migrate($this->getMigrator());
+            $adapter = new LocalFilesystemAdapter($this->assetPath);
             $extension->copyAssetsTo(
-                new FilesystemAdapter(new Filesystem(new Local($this->assetPath)))
+                new FilesystemAdapter(new Filesystem($adapter), $adapter)
             );
         }
 
@@ -98,9 +82,9 @@ class EnableBundledExtensions implements Step
     }
 
     /**
-     * @return \Illuminate\Support\Collection<Extension>
+     * @return Collection<string, Extension>
      */
-    private function loadExtensions()
+    private function loadExtensions(): Collection
     {
         $json = file_get_contents("$this->vendorPath/composer/installed.json");
         $installed = json_decode($json, true);
@@ -139,7 +123,7 @@ class EnableBundledExtensions implements Step
 
     private function getMigrator(): Migrator
     {
-        return $this->migrator = $this->migrator ?? new Migrator(
+        return $this->migrator ??= new Migrator(
             new DatabaseMigrationRepository($this->database, 'migrations'),
             $this->database,
             new \Illuminate\Filesystem\Filesystem

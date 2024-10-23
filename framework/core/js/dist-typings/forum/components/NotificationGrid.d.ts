@@ -100,4 +100,3 @@ export default class NotificationGrid extends Component<import("../../common/Com
 }
 import Component from "../../common/Component";
 import ItemList from "../../common/utils/ItemList";
-import icon from "../../common/helpers/icon";

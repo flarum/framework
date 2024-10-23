@@ -9,6 +9,7 @@
 
 namespace Flarum\Notification\Job;
 
+use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\MailableInterface;
 use Flarum\Notification\NotificationMailer;
 use Flarum\Queue\AbstractJob;
@@ -16,23 +17,13 @@ use Flarum\User\User;
 
 class SendEmailNotificationJob extends AbstractJob
 {
-    /**
-     * @var MailableInterface
-     */
-    private $blueprint;
-
-    /**
-     * @var User
-     */
-    private $recipient;
-
-    public function __construct(MailableInterface $blueprint, User $recipient)
-    {
-        $this->blueprint = $blueprint;
-        $this->recipient = $recipient;
+    public function __construct(
+        private readonly MailableInterface&BlueprintInterface $blueprint,
+        private readonly User $recipient
+    ) {
     }
 
-    public function handle(NotificationMailer $mailer)
+    public function handle(NotificationMailer $mailer): void
     {
         $mailer->send($this->blueprint, $this->recipient);
     }

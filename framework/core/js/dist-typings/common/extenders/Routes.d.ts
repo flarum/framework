@@ -1,6 +1,7 @@
-import Application from '../Application';
+import type Application from '../Application';
+import type { AsyncNewComponent, NewComponent } from '../Application';
 import IExtender, { IExtensionModule } from './IExtender';
-declare type HelperRoute = (...args: any) => string;
+type HelperRoute = (...args: any) => string;
 export default class Routes implements IExtender {
     private routes;
     private helpers;
@@ -11,7 +12,7 @@ export default class Routes implements IExtender {
      * @param path The path of the route.
      * @param component must extend `Page` component.
      */
-    add(name: string, path: `/${string}`, component: any): Routes;
+    add(name: string, path: `/${string}`, component: NewComponent<any> | AsyncNewComponent<any>): Routes;
     helper(name: string, callback: HelperRoute): Routes;
     extend(app: Application, extension: IExtensionModule): void;
 }

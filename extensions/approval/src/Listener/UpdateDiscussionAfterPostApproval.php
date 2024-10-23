@@ -13,7 +13,7 @@ use Flarum\Approval\Event\PostWasApproved;
 
 class UpdateDiscussionAfterPostApproval
 {
-    public function handle(PostWasApproved $event)
+    public function handle(PostWasApproved $event): void
     {
         $post = $event->post;
         $discussion = $post->discussion;
@@ -35,6 +35,11 @@ class UpdateDiscussionAfterPostApproval
         if ($discussion->user) {
             $user->refreshCommentCount();
             $user->save();
+        }
+
+        if ($post->user) {
+            $post->user->refreshCommentCount();
+            $post->user->save();
         }
     }
 }

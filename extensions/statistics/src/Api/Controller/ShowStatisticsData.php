@@ -11,7 +11,9 @@ namespace Flarum\Statistics\Api\Controller;
 
 use Carbon\Carbon;
 use DateTime;
+use Exception;
 use Flarum\Discussion\Discussion;
+use Flarum\Http\Exception\InvalidParameterException;
 use Flarum\Http\RequestUtil;
 use Flarum\Post\Post;
 use Flarum\Post\RegisteredTypesScope;
@@ -24,37 +26,25 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Tobscure\JsonApi\Exception\InvalidParameterException;
 
 class ShowStatisticsData implements RequestHandlerInterface
 {
     /**
      * The amount of time to cache lifetime statistics data for in seconds.
      */
-    public static $lifetimeStatsCacheTtl = 300;
+    public static int $lifetimeStatsCacheTtl = 300;
 
     /**
      * The amount of time to cache timed statistics data for in seconds.
      */
-    public static $timedStatsCacheTtl = 900;
+    public static int $timedStatsCacheTtl = 900;
 
-    protected $entities = [];
+    protected array $entities = [];
 
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var CacheRepository
-     */
-    protected $cache;
-
-    public function __construct(SettingsRepositoryInterface $settings, CacheRepository $cache)
-    {
-        $this->settings = $settings;
-        $this->cache = $cache;
-
+    public function __construct(
+        protected SettingsRepositoryInterface $settings,
+        protected CacheRepository $cache
+    ) {
         $this->entities = [
             'users' => [User::query(), 'joined_at'],
             'discussions' => [Discussion::query(), 'created_at'],
@@ -108,7 +98,7 @@ class ShowStatisticsData implements RequestHandlerInterface
         return $this->getTimedStatistics($model);
     }
 
-    private function getLifetimeStatistics()
+    private function getLifetimeStatistics(): array
     {
         return $this->cache->remember('flarum-subscriptions.lifetime_stats', self::$lifetimeStatsCacheTtl, function () {
             return array_map(function ($entity) {
@@ -117,14 +107,14 @@ class ShowStatisticsData implements RequestHandlerInterface
         });
     }
 
-    private function getTimedStatistics(string $model)
+    private function getTimedStatistics(string $model): array
     {
         return $this->cache->remember("flarum-subscriptions.timed_stats.$model", self::$lifetimeStatsCacheTtl, function () use ($model) {
             return $this->getTimedCounts($this->entities[$model][0], $this->entities[$model][1]);
         });
     }
 
-    private function getTimedCounts(Builder $query, string $column, ?DateTime $startDate = null, ?DateTime $endDate = null)
+    private function getTimedCounts(Builder $query, string $column, ?DateTime $startDate = null, ?DateTime $endDate = null): array
     {
         $diff = $startDate && $endDate ? $startDate->diff($endDate) : null;
 
@@ -141,12 +131,24 @@ class ShowStatisticsData implements RequestHandlerInterface
             $endDate = new DateTime();
         }
 
+        $formats = match ($query->getConnection()->getDriverName()) {
+            'pgsql' => ['YYYY-MM-DD HH24:00:00', 'YYYY-MM-DD'],
+            default => ['%Y-%m-%d %H:00:00', '%Y-%m-%d'],
+        };
+
+        // if within the last 24 hours, group by hour
+        $format = "CASE WHEN $column > ? THEN '$formats[0]' ELSE '$formats[1]' END";
+
+        $dbFormattedDatetime = match ($query->getConnection()->getDriverName()) {
+            'sqlite' => "strftime($format, $column)",
+            'pgsql' => "TO_CHAR($column, $format)",
+            'mysql' => "DATE_FORMAT($column, $format)",
+            default => throw new Exception('Unsupported database driver'),
+        };
+
         $results = $query
             ->selectRaw(
-                'DATE_FORMAT(
-                    @date := '.$column.',
-                    IF(@date > ?, \'%Y-%m-%d %H:00:00\', \'%Y-%m-%d\') -- if within the last 24 hours, group by hour
-                ) as time_group',
+                $dbFormattedDatetime.' as time_group',
                 [new DateTime('-25 hours')]
             )
             ->selectRaw('COUNT(id) as count')

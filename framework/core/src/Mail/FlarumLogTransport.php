@@ -10,24 +10,26 @@
 namespace Flarum\Mail;
 
 use Illuminate\Mail\Transport\LogTransport;
-use Swift_Mime_SimpleMessage;
+use Symfony\Component\Mailer\Envelope;
+use Symfony\Component\Mailer\SentMessage;
+use Symfony\Component\Mime\RawMessage;
 
 class FlarumLogTransport extends LogTransport
 {
     /**
      * {@inheritdoc}
-     *
-     * @return int
      */
-    public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null)
+    public function send(RawMessage $message, Envelope $envelope = null): ?SentMessage
     {
-        $this->beforeSendPerformed($message);
+        $string = $message->toString();
 
-        // Overriden to use info, so the log driver works in non-debug mode.
-        $this->logger->info($this->getMimeEntityString($message));
+        if (str_contains($string, 'Content-Transfer-Encoding: quoted-printable')) {
+            $string = quoted_printable_decode($string);
+        }
 
-        $this->sendPerformed($message);
+        // Overridden to use info, so the log driver works in non-debug mode.
+        $this->logger->info($string);
 
-        return $this->numberOfRecipients($message);
+        return new SentMessage($message, $envelope ?? Envelope::create($message));
     }
 }

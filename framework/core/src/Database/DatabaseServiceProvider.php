@@ -9,25 +9,40 @@
 
 namespace Flarum\Database;
 
+use Faker\Factory as FakerFactory;
+use Faker\Generator as FakerGenerator;
 use Flarum\Foundation\AbstractServiceProvider;
+use Flarum\Foundation\Paths;
 use Illuminate\Container\Container as ContainerImplementation;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Capsule\Manager;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\ConnectionResolverInterface;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\Str;
 
 class DatabaseServiceProvider extends AbstractServiceProvider
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function register()
+    protected static array $fakers = [];
+
+    public function register(): void
     {
+        $this->registerEloquentFactory();
+        $this->registerBuilderMacros();
+
         $this->container->singleton(Manager::class, function (ContainerImplementation $container) {
             $manager = new Manager($container);
 
             $config = $container['flarum']->config('database');
-            $config['engine'] = 'InnoDB';
+
+            if ($config['driver'] === 'mysql') {
+                $config['engine'] = 'InnoDB';
+            } elseif ($config['driver'] === 'sqlite' && ! file_exists($config['database'])) {
+                $config['database'] = $container->make(Paths::class)->base.'/'.$config['database'];
+            }
+
             $config['prefix_indexes'] = true;
 
             $manager->addConnection($config, 'flarum');
@@ -66,10 +81,67 @@ class DatabaseServiceProvider extends AbstractServiceProvider
         });
     }
 
-    public function boot(Container $container)
+    protected function registerBuilderMacros(): void
+    {
+        $drivers = [
+            'mysql' => 'MySql',
+            'pgsql' => 'PgSql',
+            'sqlite' => 'Sqlite',
+        ];
+
+        foreach ([QueryBuilder::class, EloquentBuilder::class] as $builder) {
+            foreach ($drivers as $driver => $macro) {
+                $builder::macro('when'.$macro, function ($callback, $else) use ($driver) {
+                    /** @var QueryBuilder|EloquentBuilder $this */
+                    if ($this->getConnection()->getDriverName() === $driver) {
+                        $callback($this);
+                    } else {
+                        $else($this);
+                    }
+
+                    return $this;
+                });
+
+                $builder::macro('unless'.$macro, function ($callback, $else) use ($driver) {
+                    /** @var QueryBuilder|EloquentBuilder $this */
+                    if ($this->getConnection()->getDriverName() !== $driver) {
+                        $callback($this);
+                    } else {
+                        $else($this);
+                    }
+
+                    return $this;
+                });
+            }
+        }
+    }
+
+    protected function registerEloquentFactory(): void
+    {
+        $this->app->singleton(FakerGenerator::class, function ($app, $parameters) {
+            $locale = $parameters['locale'] ?? 'en_US';
+
+            if (! isset(static::$fakers[$locale])) {
+                static::$fakers[$locale] = FakerFactory::create($locale);
+            }
+
+            static::$fakers[$locale]->unique(true);
+
+            return static::$fakers[$locale];
+        });
+    }
+
+    public function boot(Container $container): void
     {
         AbstractModel::setConnectionResolver($container->make(ConnectionResolverInterface::class));
         AbstractModel::setEventDispatcher($container->make('events'));
+
+        Factory::guessFactoryNamesUsing(function (string $modelName) {
+            return $modelName.'Factory';
+        });
+        Factory::guessModelNamesUsing(function (Factory $factory) {
+            return Str::replaceLast('Factory', '', $factory::class);
+        });
 
         foreach ($container->make('flarum.database.model_private_checkers') as $modelClass => $checkers) {
             $modelClass::saving(function ($instance) use ($checkers) {

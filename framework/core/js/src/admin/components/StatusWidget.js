@@ -6,6 +6,7 @@ import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
 import LoadingModal from './LoadingModal';
 import LinkButton from '../../common/components/LinkButton';
+import saveSettings from '../utils/saveSettings.js';
 
 export default class StatusWidget extends DashboardWidget {
   className() {
@@ -33,14 +34,14 @@ export default class StatusWidget extends DashboardWidget {
 
     items.add('version-flarum', [<strong>Flarum</strong>, <br />, app.forum.attribute('version')], 100);
     items.add('version-php', [<strong>PHP</strong>, <br />, app.data.phpVersion], 90);
-    items.add('version-mysql', [<strong>MySQL</strong>, <br />, app.data.mysqlVersion], 80);
+    items.add('version-db', [<strong>{app.data.dbDriver}</strong>, <br />, app.data.dbVersion], 80);
     if (app.data.schedulerStatus) {
       items.add(
         'schedule-status',
         [
           <span>
             <strong>{app.translator.trans('core.admin.dashboard.status.headers.scheduler-status')}</strong>{' '}
-            <LinkButton href="https://discuss.flarum.org/d/24118" external={true} target="_blank" icon="fas fa-info-circle" />
+            <LinkButton href="https://docs.flarum.org/scheduler" external={true} target="_blank" icon="fas fa-info-circle" />
           </span>,
           <br />,
           app.data.schedulerStatus,
@@ -69,6 +70,23 @@ export default class StatusWidget extends DashboardWidget {
     items.add(
       'clearCache',
       <Button onclick={this.handleClearCache.bind(this)}>{app.translator.trans('core.admin.dashboard.clear_cache_button')}</Button>
+    );
+
+    items.add(
+      'toggleAdvancedPage',
+      <Button
+        onclick={() => {
+          saveSettings({
+            show_advanced_settings: !app.data.settings.show_advanced_settings,
+          });
+
+          if (app.data.settings.show_advanced_settings) {
+            m.route.set(app.route('advanced'));
+          }
+        }}
+      >
+        {app.translator.trans('core.admin.dashboard.toggle_advanced_page_button')}
+      </Button>
     );
 
     return items;

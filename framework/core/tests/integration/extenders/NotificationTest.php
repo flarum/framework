@@ -9,7 +9,9 @@
 
 namespace Flarum\Tests\integration\extenders;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Extend;
+use Flarum\Notification\AlertableInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\Driver\NotificationDriverInterface;
 use Flarum\Notification\Notification;
@@ -17,76 +19,35 @@ use Flarum\Notification\NotificationSyncer;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class NotificationTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function notification_type_doesnt_exist_by_default()
     {
         $this->assertArrayNotHasKey('customNotificationType', Notification::getSubjectModels());
     }
 
-    /**
-     * @test
-     */
-    public function notification_serializer_doesnt_exist_by_default()
-    {
-        $this->app();
-
-        $this->assertNotContains(
-            'customNotificationTypeSerializer',
-            $this->app->getContainer()->make('flarum.api.notification_serializers')
-        );
-    }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function notification_driver_doesnt_exist_by_default()
     {
         $this->assertArrayNotHasKey('customNotificationDriver', NotificationSyncer::getNotificationDrivers());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function notification_type_exists_if_added()
     {
-        $this->extend((new Extend\Notification)->type(
-            CustomNotificationType::class,
-            'customNotificationTypeSerializer'
-        ));
+        $this->extend((new Extend\Notification)->type(CustomNotificationType::class));
 
         $this->app();
 
         $this->assertArrayHasKey('customNotificationType', Notification::getSubjectModels());
     }
 
-    /**
-     * @test
-     */
-    public function notification_serializer_exists_if_added()
-    {
-        $this->extend((new Extend\Notification)->type(
-            CustomNotificationType::class,
-            'customNotificationTypeSerializer'
-        ));
-
-        $this->app();
-
-        $this->assertContains(
-            'customNotificationTypeSerializer',
-            $this->app->getContainer()->make('flarum.api.notification_serializers')
-        );
-    }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function notification_driver_exists_if_added()
     {
         $this->extend((new Extend\Notification())->driver(
@@ -99,16 +60,14 @@ class NotificationTest extends TestCase
         $this->assertArrayHasKey('customNotificationDriver', NotificationSyncer::getNotificationDrivers());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function notification_driver_enabled_types_exist_if_added()
     {
         $this->extend(
             (new Extend\Notification())
-                ->type(CustomNotificationType::class, 'customSerializer')
-                ->type(SecondCustomNotificationType::class, 'secondCustomSerializer', ['customDriver'])
-                ->type(ThirdCustomNotificationType::class, 'thirdCustomSerializer')
+                ->type(CustomNotificationType::class)
+                ->type(SecondCustomNotificationType::class, ['customDriver'])
+                ->type(ThirdCustomNotificationType::class)
                 ->driver('customDriver', CustomNotificationDriver::class, [CustomNotificationType::class])
                 ->driver('secondCustomDriver', SecondCustomNotificationDriver::class, [SecondCustomNotificationType::class])
         );
@@ -124,14 +83,12 @@ class NotificationTest extends TestCase
         $this->assertEmpty($blueprints[ThirdCustomNotificationType::class]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function notification_before_sending_callback_works_if_added()
     {
         $this->extend(
             (new Extend\Notification)
-                ->type(CustomNotificationType::class, 'customNotificationTypeSerializer')
+                ->type(CustomNotificationType::class)
                 ->driver('customNotificationDriver', CustomNotificationDriver::class)
                 ->beforeSending(function ($blueprint, $users) {
                     if ($blueprint instanceof CustomNotificationType) {
@@ -143,7 +100,7 @@ class NotificationTest extends TestCase
         );
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'hani']
             ],
@@ -162,29 +119,29 @@ class NotificationTest extends TestCase
     }
 }
 
-class CustomNotificationType implements BlueprintInterface
+class CustomNotificationType implements BlueprintInterface, AlertableInterface
 {
-    public function getFromUser()
+    public function getFromUser(): ?User
     {
         return null;
     }
 
-    public function getSubject()
+    public function getSubject(): ?AbstractModel
     {
         return null;
     }
 
-    public function getData()
+    public function getData(): array
     {
         return [];
     }
 
-    public static function getType()
+    public static function getType(): string
     {
         return 'customNotificationType';
     }
 
-    public static function getSubjectModel()
+    public static function getSubjectModel(): string
     {
         return 'customNotificationTypeSubjectModel';
     }
@@ -192,7 +149,7 @@ class CustomNotificationType implements BlueprintInterface
 
 class SecondCustomNotificationType extends CustomNotificationType
 {
-    public static function getType()
+    public static function getType(): string
     {
         return 'secondCustomNotificationType';
     }
@@ -200,7 +157,7 @@ class SecondCustomNotificationType extends CustomNotificationType
 
 class ThirdCustomNotificationType extends CustomNotificationType
 {
-    public static function getType()
+    public static function getType(): string
     {
         return 'thirdCustomNotificationType';
     }

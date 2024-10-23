@@ -1,6 +1,6 @@
 import IExtender, { IExtensionModule } from './IExtender';
-import Application from '../Application';
-export default class PostTypes implements IExtender {
+import type ForumApplication from '../../forum/ForumApplication';
+export default class PostTypes implements IExtender<ForumApplication> {
     private postComponents;
     /**
      * Register a new post component type.
@@ -10,5 +10,5 @@ export default class PostTypes implements IExtender {
      * @param component The component class to render the post.
      */
     add(name: string, component: any): PostTypes;
-    extend(app: Application, extension: IExtensionModule): void;
+    extend(app: ForumApplication, extension: IExtensionModule): void;
 }

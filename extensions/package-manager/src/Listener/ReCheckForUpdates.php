@@ -7,14 +7,14 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Listener;
+namespace Flarum\ExtensionManager\Listener;
 
 use Flarum\Bus\Dispatcher;
-use Flarum\PackageManager\Command\CheckForUpdates;
-use Flarum\PackageManager\Event\FlarumUpdated;
-use Flarum\PackageManager\Extension\Event\Updated;
-use Flarum\PackageManager\Settings\LastUpdateCheck;
-use Flarum\PackageManager\Settings\LastUpdateRun;
+use Flarum\ExtensionManager\Command\CheckForUpdates;
+use Flarum\ExtensionManager\Event\FlarumUpdated;
+use Flarum\ExtensionManager\Extension\Event\Updated;
+use Flarum\ExtensionManager\Settings\LastUpdateCheck;
+use Flarum\ExtensionManager\Settings\LastUpdateRun;
 
 class ReCheckForUpdates
 {

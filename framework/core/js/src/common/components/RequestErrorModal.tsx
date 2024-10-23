@@ -12,7 +12,7 @@ export default class RequestErrorModal<CustomAttrs extends IRequestErrorModalAtt
   }
 
   title() {
-    return this.attrs.error.xhr ? `${this.attrs.error.xhr.status} ${this.attrs.error.xhr.statusText}` : '';
+    return !!this.attrs.error.xhr && `${this.attrs.error.xhr.status} ${this.attrs.error.xhr.statusText}`;
   }
 
   content() {
@@ -28,6 +28,19 @@ export default class RequestErrorModal<CustomAttrs extends IRequestErrorModalAtt
       responseText = JSON.stringify(error.response, null, 2);
     } else {
       responseText = error.responseText;
+    }
+
+    if (responseText?.includes('<script> Sfdump = window.Sfdump')) {
+      responseText = (
+        <iframe
+          srcdoc={responseText}
+          className="RequestErrorModal-iframe"
+          onload={(e: Event) => {
+            const iframe = e.target as HTMLIFrameElement;
+            iframe.style.height = (iframe.contentWindow?.document.body.offsetHeight || 0) + 50 + 'px';
+          }}
+        />
+      );
     }
 
     return (

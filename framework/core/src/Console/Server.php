@@ -12,22 +12,25 @@ namespace Flarum\Console;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\SiteInterface;
-use Illuminate\Container\Container;
+use Illuminate\Console\Events\CommandFinished;
+use Illuminate\Console\Events\CommandStarting;
+use Illuminate\Contracts\Container\Container;
+use Illuminate\Events\Dispatcher;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\ConsoleEvents;
+use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
+use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class Server
 {
-    private $site;
-
-    public function __construct(SiteInterface $site)
-    {
-        $this->site = $site;
+    public function __construct(
+        private readonly SiteInterface $site
+    ) {
     }
 
-    public function listen()
+    public function listen(): never
     {
         $app = $this->site->bootApp();
 
@@ -37,18 +40,32 @@ class Server
             $console->add($command);
         }
 
-        $this->handleErrors($console);
+        $this->handleEvents($console, $app->getContainer());
 
         exit($console->run());
     }
 
-    private function handleErrors(Application $console)
+    private function handleEvents(Application $console, Container $container): void
     {
         $dispatcher = new EventDispatcher();
 
-        $dispatcher->addListener(ConsoleEvents::ERROR, function (ConsoleErrorEvent $event) {
-            $container = Container::getInstance();
+        $dispatcher->addListener(ConsoleEvents::COMMAND, function (ConsoleCommandEvent $event) use ($container) {
+            $events = $container->make(Dispatcher::class);
 
+            $events->dispatch(
+                new CommandStarting($event->getCommand()->getName(), $event->getInput(), $event->getOutput())
+            );
+        });
+
+        $dispatcher->addListener(ConsoleEvents::TERMINATE, function (ConsoleTerminateEvent $event) use ($container) {
+            $events = $container->make(Dispatcher::class);
+
+            $events->dispatch(
+                new CommandFinished($event->getCommand()->getName(), $event->getInput(), $event->getOutput(), $event->getExitCode())
+            );
+        });
+
+        $dispatcher->addListener(ConsoleEvents::ERROR, function (ConsoleErrorEvent $event) use ($container) {
             /** @var Registry $registry */
             $registry = $container->make(Registry::class);
             $error = $registry->handle($event->getError());

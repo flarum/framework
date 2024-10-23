@@ -19,11 +19,16 @@
         }
     ],
     "require": {
-        "flarum/core": "^1.7"
+        "flarum/core": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flarum\\BBCode\\": "src"
+        }
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "1.x-dev"
+            "dev-main": "2.x-dev"
         },
         "flarum-extension": {
             "title": "BBCode",

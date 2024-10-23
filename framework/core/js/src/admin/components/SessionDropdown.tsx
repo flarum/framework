@@ -1,10 +1,10 @@
 import app from '../../admin/app';
-import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
 import Dropdown, { IDropdownAttrs } from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
 import ItemList from '../../common/utils/ItemList';
 import type Mithril from 'mithril';
+import Avatar from '../../common/components/Avatar';
 
 export interface ISessionDropdownAttrs extends IDropdownAttrs {}
 
@@ -28,7 +28,7 @@ export default class SessionDropdown<CustomAttrs extends ISessionDropdownAttrs =
   getButtonContent() {
     const user = app.session.user;
 
-    return [avatar(user), ' ', <span className="Button-label">{username(user)}</span>];
+    return [<Avatar user={user} />, ' ', <span className="Button-label">{username(user)}</span>];
   }
 
   /**
@@ -39,13 +39,9 @@ export default class SessionDropdown<CustomAttrs extends ISessionDropdownAttrs =
 
     items.add(
       'logOut',
-      Button.component(
-        {
-          icon: 'fas fa-sign-out-alt',
-          onclick: app.session.logout.bind(app.session),
-        },
-        app.translator.trans('core.admin.header.log_out_button')
-      ),
+      <Button icon="fas fa-sign-out-alt" onclick={app.session.logout.bind(app.session)}>
+        {app.translator.trans('core.admin.header.log_out_button')}
+      </Button>,
       -100
     );
 

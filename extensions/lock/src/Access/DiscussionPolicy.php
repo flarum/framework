@@ -15,15 +15,12 @@ use Flarum\User\User;
 
 class DiscussionPolicy extends AbstractPolicy
 {
-    /**
-     * @param User $actor
-     * @param Discussion $discussion
-     * @return string|void
-     */
-    public function reply(User $actor, Discussion $discussion)
+    public function reply(User $actor, Discussion $discussion): ?string
     {
         if ($discussion->is_locked && $actor->cannot('lock', $discussion)) {
             return $this->deny();
         }
+
+        return null;
     }
 }

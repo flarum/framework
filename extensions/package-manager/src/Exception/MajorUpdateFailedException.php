@@ -7,25 +7,21 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Exception;
+namespace Flarum\ExtensionManager\Exception;
 
 use Composer\Semver\Semver;
-use Flarum\PackageManager\Event\FlarumUpdated;
-use Flarum\PackageManager\Settings\LastUpdateRun;
+use Flarum\ExtensionManager\Event\FlarumUpdated;
+use Flarum\ExtensionManager\Settings\LastUpdateRun;
 
 class MajorUpdateFailedException extends ComposerCommandFailedException
 {
     private const INCOMPATIBLE_REGEX = '/^ +- (?<ext>[A-z0-9\/-]+) [A-z0-9.-_\/]+ requires flarum\/core (?<coreReq>(?:[A-z0-9.><=_ -](?!->))+)/m';
 
-    /**
-     * @var string
-     */
-    private $majorVersion;
-
-    public function __construct(string $packageName, string $output, string $majorVersion)
-    {
-        $this->majorVersion = $majorVersion;
-
+    public function __construct(
+        string $packageName,
+        string $output,
+        private readonly string $majorVersion
+    ) {
         parent::__construct($packageName, $output);
     }
 

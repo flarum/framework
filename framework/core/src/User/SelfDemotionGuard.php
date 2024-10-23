@@ -18,10 +18,10 @@ class SelfDemotionGuard
 {
     /**
      * Prevent an admin from removing their admin permission via the API.
-     * @param Saving $event
+     *
      * @throws PermissionDeniedException
      */
-    public function handle(Saving $event)
+    public function handle(Saving $event): void
     {
         // Non-admin users pose no problem
         if (! $event->actor->isAdmin()) {

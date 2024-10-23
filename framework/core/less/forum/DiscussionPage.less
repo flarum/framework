@@ -23,15 +23,23 @@
   }
 }
 @media @tablet-up {
-  .DiscussionPage-discussion {
-    > .container {
-      display: grid;
-      grid-gap: 75px;
-      grid-template-columns: 1fr 150px;
-      grid-template-areas: 'stream nav';
+  .DiscussionPage {
+    --sidebar-width: 150px;
+    --gap: 55px;
 
-      &::before, &::after {
-        content: none;
+    .Page {
+      .Page--cols();
+
+      &-container {
+        flex-direction: row-reverse;
+      }
+
+      &-content {
+        margin-top: 10px;
+      }
+
+      &-sidebar {
+        margin-top: 0;
       }
     }
   }
@@ -39,7 +47,6 @@
   .DiscussionPage-nav {
     align-self: start;
     position: sticky;
-    grid-area: nav;
     top: var(--header-height);
     padding-top: 32px;
     z-index: 1;
@@ -49,116 +56,16 @@
         margin-bottom: 10px;
       }
     }
-    .ButtonGroup, .Button {
+    .ButtonGroup, :not(.ButtonGroup) > .Button {
       width: 100%;
     }
     .ButtonGroup:not(.itemCount1) {
-      .Button:first-child {
+      .Button:first-of-type {
         width: 77%;
       }
       .Dropdown-toggle {
         width: 22%;
       }
-    }
-  }
-
-  .DiscussionPage-stream {
-    grid-area: stream;
-    max-width: 100%;
-    min-width: 0;
-  }
-}
-
-// ------------------------------------
-// Discussions Pane
-
-@media @phone {
-  .DiscussionPage-list {
-    display: none;
-  }
-}
-
-@media @tablet-up {
-  .DiscussionPage-list {
-    left: calc(~"-6px - var(--pane-width)");
-    position: absolute;
-    z-index: var(--zindex-pane);
-    overflow: auto;
-    top: var(--header-height);
-    height: ~"calc(100vh - var(--header-height))";
-    width: var(--pane-width);
-    background: var(--body-bg);
-    padding-bottom: 40px;
-    border-top: 1px solid var(--control-bg);
-    box-shadow: 0 6px 6px var(--shadow-color);
-    transition: left 0.2s;
-
-    .affix & {
-      position: fixed;
-      bottom: 0;
-      height: auto;
-    }
-    .paneShowing & {
-      left: 0;
-    }
-    .DiscussionListItem {
-      margin: 0;
-      padding: 0;
-      border-radius: 0;
-
-      &.active {
-        background: var(--control-bg);
-      }
-    }
-    .DiscussionListItem-controls {
-      top: 5px;
-    }
-    .DiscussionListItem-content {
-      padding-left: 52px + 15px;
-      padding-right: 65px + 15px;
-    }
-    .DiscussionListItem-title {
-      font-size: 14px;
-    }
-    .DiscussionListItem-info {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .DiscussionListItem-relevantPosts {
-      margin-left: -52px;
-      margin-right: -65px;
-    }
-    .DiscussionListItem-count {
-      margin-top: 11px;
-    }
-  }
-}
-
-@media @desktop-hd {
-  .DiscussionPage-list {
-    .panePinned & {
-      left: 0;
-      transition: none;
-    }
-  }
-  // When the pane is pinned, move the other page content inwards
-  .App-content, .App-footer {
-    .hasPane.panePinned & {
-      margin-left: var(--pane-width);
-
-      .container {
-        max-width: 100%;
-        padding-left: 30px;
-        padding-right: 30px;
-      }
-    }
-  }
-  .App-header .container {
-    transition: width 0.2s;
-
-    .hasPane.panePinned & {
-      width: 100%;
     }
   }
 }

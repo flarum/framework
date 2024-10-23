@@ -1,40 +1,60 @@
-import app from '@flarum/core/src/forum/app';
-import ForumApplication from '@flarum/core/src/forum/ForumApplication';
-import jsYaml from 'js-yaml';
-import fs from 'fs';
+import mixin from '@flarum/core/src/common/utils/mixin';
+import ExportRegistry from '@flarum/core/src/common/ExportRegistry';
 import jquery from 'jquery';
 import m from 'mithril';
-import flatten from 'flat';
+import dayjs from 'dayjs';
 import './test-matchers';
 
-// Boot the Flarum app.
-function bootApp() {
-  ForumApplication.prototype.mount = () => {};
-  window.flarum = { extensions: {} };
-  app.load({
-    apiDocument: null,
-    locale: 'en',
-    locales: {},
-    resources: [
-      {
-        type: 'forums',
-        id: '1',
-        attributes: {},
-      },
-    ],
-    session: {
-      userId: 0,
-      csrfToken: 'test',
-    },
-  });
-  app.translator.addTranslations(flatten(jsYaml.load(fs.readFileSync('../locale/core.yml', 'utf8'))));
-  app.bootExtensions(window.flarum.extensions);
-  app.boot();
-}
+import relativeTime from 'dayjs/plugin/relativeTime';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import jsdom from 'jsdom';
 
-beforeAll(() => {
-  window.$ = jquery;
-  window.m = m;
+dayjs.extend(relativeTime);
+dayjs.extend(localizedFormat);
 
-  bootApp();
+const dom = new jsdom.JSDOM('', {
+  pretendToBeVisual: false,
+});
+
+// Fill in the globals Mithril.js needs to operate. Also, the first two are often
+// useful to have just in tests.
+global.window = dom.window;
+global.document = dom.window.document;
+global.requestAnimationFrame = (callback) => callback();
+
+// Some other needed pollyfills.
+window.$ = jquery;
+window.testing = true;
+window.m = m;
+window.$.fn.tooltip = () => {};
+window.matchMedia = () => ({
+  addListener: () => {},
+  removeListener: () => {},
+});
+window.scrollTo = () => {};
+
+// Flarum specific globals.
+global.flarum = {
+  extensions: {},
+  reg: new (mixin(ExportRegistry, {
+    checkModule: () => true,
+  }))(),
+};
+
+// Prepare basic dom structure.
+document.body.innerHTML = `
+<div id="app">
+  <main class="App-content">
+    <div id="notices"></div>
+    <div id="content"></div>
+  </main>
+</div>
+`;
+
+beforeEach(() => {
+  flarum.reg.clear();
+});
+
+afterAll(() => {
+  dom.window.close();
 });

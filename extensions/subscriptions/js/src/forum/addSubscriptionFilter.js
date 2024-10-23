@@ -2,23 +2,20 @@ import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
 import LinkButton from 'flarum/common/components/LinkButton';
 import IndexPage from 'flarum/forum/components/IndexPage';
+import IndexSidebar from 'flarum/forum/components/IndexSidebar';
 import DiscussionListState from 'flarum/forum/states/DiscussionListState';
 import GlobalSearchState from 'flarum/forum/states/GlobalSearchState';
 
 export default function addSubscriptionFilter() {
-  extend(IndexPage.prototype, 'navItems', function (items) {
+  extend(IndexSidebar.prototype, 'navItems', function (items) {
     if (app.session.user) {
-      const params = app.search.stickyParams();
+      const params = app.search.state.stickyParams();
 
       items.add(
         'following',
-        LinkButton.component(
-          {
-            href: app.route('following', params),
-            icon: 'fas fa-star',
-          },
-          app.translator.trans('flarum-subscriptions.forum.index.following_link')
-        ),
+        <LinkButton href={app.route('following', params)} icon="fas fa-star">
+          {app.translator.trans('flarum-subscriptions.forum.index.following_link')}
+        </LinkButton>,
         50
       );
     }
@@ -39,12 +36,7 @@ export default function addSubscriptionFilter() {
   extend(DiscussionListState.prototype, 'requestParams', function (params) {
     if (this.params.onFollowing) {
       params.filter ||= {};
-
-      if (params.filter.q) {
-        params.filter.q += ' is:following';
-      } else {
-        params.filter.subscription = 'following';
-      }
+      params.filter.subscription = 'following';
     }
   });
 }

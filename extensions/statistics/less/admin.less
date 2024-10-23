@@ -11,13 +11,14 @@
 
   &-title {
     margin: 0 20px;
-    color: @muted-color;
+    color: var(--muted-color);
   }
 
   &-entities {
     display: flex;
     align-items: flex-end;
     margin: 0 20px;
+    overflow: auto;
 
     & > :not(:last-child) {
       margin-right: 10px;
@@ -29,7 +30,7 @@
     min-width: 130px;
     font-size: 12px;
     font-weight: bold;
-    color: @muted-color;
+    color: var(--muted-color);
   }
 
   &-label {
@@ -39,7 +40,7 @@
   &-entity {
     min-width: 130px;
     padding: 15px 20px;
-    color: @text-color;
+    color: var(--text-color);
     font-size: 20px;
 
     .StatisticsWidget:not(.StatisticsWidget--mini) & {
@@ -47,12 +48,12 @@
 
       &:hover,
       &:focus-visible {
-        background: mix(@control-bg, @body-bg, 50%);
+        background: var(--control-body-bg-mix);
         text-decoration: none;
       }
 
       &.active {
-        border-top: 4px solid @primary-color;
+        border-top: 4px solid var(--primary-color);
         padding-top: 11px;
       }
     }
@@ -75,10 +76,10 @@
     font-weight: bold;
     text-transform: uppercase;
     font-size: 12px;
-    color: @muted-color;
+    color: var(--muted-color);
 
     .active & {
-      color: @primary-color;
+      color: var(--primary-color);
     }
   }
 

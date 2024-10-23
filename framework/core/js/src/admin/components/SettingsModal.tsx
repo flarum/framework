@@ -1,29 +1,30 @@
 import app from '../../admin/app';
-import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Button from '../../common/components/Button';
 import Stream from '../../common/utils/Stream';
 import saveSettings from '../utils/saveSettings';
 import Mithril from 'mithril';
 import { MutableSettings, SettingValue } from './AdminPage';
+import Form from '../../common/components/Form';
 
-export interface ISettingsModalAttrs extends IInternalModalAttrs {}
+export interface ISettingsModalAttrs extends IFormModalAttrs {}
 
-export default abstract class SettingsModal<CustomAttrs extends ISettingsModalAttrs = ISettingsModalAttrs> extends Modal<CustomAttrs> {
+export default abstract class SettingsModal<CustomAttrs extends ISettingsModalAttrs = ISettingsModalAttrs> extends FormModal<CustomAttrs> {
   settings: MutableSettings = {};
   loading: boolean = false;
 
   form(): Mithril.Children {
-    return '';
+    return null;
   }
 
   content() {
     return (
       <div className="Modal-body">
-        <div className="Form">
+        <Form>
           {this.form()}
 
           <div className="Form-group">{this.submitButton()}</div>
-        </div>
+        </Form>
       </div>
     );
   }

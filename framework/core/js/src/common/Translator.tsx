@@ -1,17 +1,26 @@
-import { RichMessageFormatter, mithrilRichHandler } from '@askvortsov/rich-icu-message-formatter';
+import type { Dayjs } from 'dayjs';
+import { RichMessageFormatter, mithrilRichHandler, NestedStringArray } from '@askvortsov/rich-icu-message-formatter';
 import { pluralTypeHandler, selectTypeHandler } from '@ultraq/icu-message-formatter';
 import username from './helpers/username';
 import User from './models/User';
 import extract from './utils/extract';
+import extractText from './utils/extractText';
+import ItemList from './utils/ItemList';
 
 type Translations = Record<string, string>;
 type TranslatorParameters = Record<string, unknown>;
+type DateTimeFormatCallback = (id?: string) => string | void;
 
 export default class Translator {
   /**
    * A map of translation keys to their translated values.
    */
   translations: Translations = {};
+
+  /**
+   * A item list of date time format callbacks.
+   */
+  dateTimeFormats: ItemList<DateTimeFormatCallback> = new ItemList();
 
   /**
    * The underlying ICU MessageFormatter util.
@@ -69,14 +78,41 @@ export default class Translator {
     return parameters;
   }
 
-  trans(id: string, parameters: TranslatorParameters = {}) {
+  trans(id: string, parameters: TranslatorParameters): NestedStringArray;
+  trans(id: string, parameters: TranslatorParameters, extract: false): NestedStringArray;
+  trans(id: string, parameters: TranslatorParameters, extract: true): string;
+  trans(id: string): NestedStringArray | string;
+  trans(id: string, parameters: TranslatorParameters = {}, extract = false) {
     const translation = this.translations[id];
 
     if (translation) {
       parameters = this.preprocessParameters(parameters);
-      return this.formatter.rich(translation, parameters);
+      const locale = this.formatter.rich(translation, parameters);
+
+      if (extract) return extractText(locale);
+
+      return locale;
     }
 
     return id;
+  }
+
+  /**
+   * Formats the time.
+   *
+   * The format of the time will be chosen by the following order:
+   * - Custom format defined in the item list.
+   * - The format defined in current locale.
+   * - DayJS default format.
+   */
+  formatDateTime(time: Dayjs, id: string): string {
+    const formatCallback = this.dateTimeFormats.has(id) && this.dateTimeFormats.get(id);
+
+    if (formatCallback) {
+      const result = formatCallback.apply(this, [id]);
+      if (result) return result;
+    }
+
+    return time.format(this.translations[id]);
   }
 }

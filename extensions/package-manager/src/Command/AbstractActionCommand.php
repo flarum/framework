@@ -7,21 +7,15 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Command;
+namespace Flarum\ExtensionManager\Command;
 
-use Flarum\PackageManager\Task\Task;
+use Flarum\ExtensionManager\Task\Task;
 
 abstract class AbstractActionCommand
 {
-    /**
-     * @var Task|null
-     */
-    public $task = null;
-
-    /**
-     * @var string|null
-     */
-    public $package = null;
+    public ?Task $task = null;
+    public ?string $package = null;
+    public ?string $extensionId = null;
 
     abstract public function getOperationName(): string;
 }

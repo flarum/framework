@@ -9,26 +9,31 @@
 
 namespace Flarum\Extend;
 
-use Flarum\Api\Serializer\AbstractSerializer;
-use Flarum\Api\Serializer\ForumSerializer;
+use Flarum\Admin\WhenSavingSettings;
+use Flarum\Api\Controller\SetSettingsController;
+use Flarum\Api\Resource\ForumResource;
+use Flarum\Api\Schema\Attribute;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 class Settings implements ExtenderInterface
 {
-    private $settings = [];
-    private $defaults = [];
-    private $lessConfigs = [];
+    private array $settings = [];
+    private array $defaults = [];
+    private array $lessConfigs = [];
+    private array $resetJsCacheFor = [];
+    private array $resetWhen = [];
 
     /**
      * Serialize a setting value to the ForumSerializer attributes.
      *
      * @param string $attributeName: The attribute name to be used in the ForumSerializer attributes array.
      * @param string $key: The key of the setting.
-     * @param string|callable|null $callback: Optional callback to modify the value before serialization.
+     * @param (callable(mixed $value): mixed)|class-string|null $callback: Optional callback to modify the value before serialization.
      *
      * The callback can be a closure or an invokable class, and should accept:
      * - mixed $value: The value of the setting.
@@ -36,13 +41,11 @@ class Settings implements ExtenderInterface
      * The callable should return:
      * - mixed $value: The modified value.
      *
-     * @todo remove $default in 2.0
-     * @param mixed $default: Deprecated optional default serialized value. Will be run through the optional callback.
      * @return self
      */
-    public function serializeToForum(string $attributeName, string $key, $callback = null, $default = null): self
+    public function serializeToForum(string $attributeName, string $key, callable|string $callback = null): self
     {
-        $this->settings[$key] = compact('attributeName', 'callback', 'default');
+        $this->settings[$key] = compact('attributeName', 'callback');
 
         return $this;
     }
@@ -55,9 +58,23 @@ class Settings implements ExtenderInterface
      * @param mixed $value: The setting value.
      * @return self
      */
-    public function default(string $key, $value): self
+    public function default(string $key, mixed $value): self
     {
         $this->defaults[$key] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Delete a custom setting value when the callback returns true.
+     * This allows the setting to be reset to its default value.
+     *
+     * @param string $key: The key of the setting.
+     * @param (callable(mixed $value): bool) $callback: The callback to determine if the setting should be reset.
+     */
+    public function resetWhen(string $key, callable|string $callback): self
+    {
+        $this->resetWhen[$key] = $callback;
 
         return $this;
     }
@@ -67,7 +84,7 @@ class Settings implements ExtenderInterface
      *
      * @param string $configName: The name of the configuration variable, in hyphen case.
      * @param string $key: The key of the setting.
-     * @param string|callable|null $callback: Optional callback to modify the value.
+     * @param (callable(mixed $value): mixed)|class-string|null $callback: Optional callback to modify the value.
      *
      * The callback can be a closure or an invokable class, and should accept:
      * - mixed $value: The value of the setting.
@@ -77,14 +94,27 @@ class Settings implements ExtenderInterface
      *
      * @return self
      */
-    public function registerLessConfigVar(string $configName, string $key, $callback = null): self
+    public function registerLessConfigVar(string $configName, string $key, callable|string $callback = null): self
     {
         $this->lessConfigs[$configName] = compact('key', 'callback');
 
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    /**
+     * Register a setting that should trigger JS cache clear when saved.
+     *
+     * @param string $setting: The key of the setting.
+     * @return self
+     */
+    public function resetJsCacheFor(string $setting): self
+    {
+        $this->resetJsCacheFor[] = $setting;
+
+        return $this;
+    }
+
+    public function extend(Container $container, Extension $extension = null): void
     {
         if (! empty($this->defaults)) {
             $container->extend('flarum.settings.default', function (Collection $defaults) {
@@ -100,27 +130,36 @@ class Settings implements ExtenderInterface
             });
         }
 
+        if (! empty($this->resetWhen)) {
+            foreach ($this->resetWhen as $key => $callback) {
+                Arr::set(
+                    SetSettingsController::$resetWhen,
+                    $key,
+                    ContainerUtil::wrapCallback($callback, $container)
+                );
+            }
+        }
+
         if (! empty($this->settings)) {
-            AbstractSerializer::addAttributeMutator(
-                ForumSerializer::class,
-                function () use ($container) {
+            (new ApiResource(ForumResource::class))
+                ->fields(function () use ($container) {
                     $settings = $container->make(SettingsRepositoryInterface::class);
-                    $attributes = [];
+                    $fields = [];
 
                     foreach ($this->settings as $key => $setting) {
-                        $value = $settings->get($key, $setting['default']);
+                        $value = $settings->get($key);
 
                         if (isset($setting['callback'])) {
                             $callback = ContainerUtil::wrapCallback($setting['callback'], $container);
                             $value = $callback($value);
                         }
 
-                        $attributes[$setting['attributeName']] = $value;
+                        $fields[] = Attribute::make($setting['attributeName'])->get(fn () => $value);
                     }
 
-                    return $attributes;
-                }
-            );
+                    return $fields;
+                })
+                ->extend($container, $extension);
         }
 
         if (! empty($this->lessConfigs)) {
@@ -134,6 +173,12 @@ class Settings implements ExtenderInterface
                 }
 
                 return array_merge($existingConfig, $config);
+            });
+        }
+
+        if (! empty($this->resetJsCacheFor)) {
+            $container->afterResolving(WhenSavingSettings::class, function (WhenSavingSettings $whenSavingSettings) {
+                $whenSavingSettings->resetJsCacheFor($this->resetJsCacheFor);
             });
         }
     }

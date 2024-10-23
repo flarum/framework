@@ -1,6 +1,5 @@
 import app from '../app';
 import Component, { ComponentAttrs } from '../../common/Component';
-import icon from '../../common/helpers/icon';
 import Button from '../../common/components/Button';
 import humanTime from '../../common/helpers/humanTime';
 import ItemList from '../../common/utils/ItemList';
@@ -11,6 +10,7 @@ import Tooltip from '../../common/components/Tooltip';
 import type Mithril from 'mithril';
 import type AccessToken from '../../common/models/AccessToken';
 import { NestedStringArray } from '@askvortsov/rich-icu-message-formatter';
+import Icon from '../../common/components/Icon';
 
 export interface IAccessTokensListAttrs extends ComponentAttrs {
   tokens: AccessToken[];
@@ -52,7 +52,13 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
   tokenViewItems(token: AccessToken): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
-    items.add('icon', <div className="AccessTokensList-item-icon">{icon(this.attrs.icon || 'fas fa-key')}</div>, 50);
+    items.add(
+      'icon',
+      <div className="AccessTokensList-item-icon">
+        <Icon name={this.attrs.icon || 'fas fa-key'} />
+      </div>,
+      50
+    );
 
     items.add('info', <div className="AccessTokensList-item-info">{this.tokenInfoItems(token).toArray()}</div>, 40);
 

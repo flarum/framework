@@ -7,11 +7,11 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Settings;
+namespace Flarum\ExtensionManager\Settings;
 
 interface JsonSetting
 {
-    public function with(string $key, $value): self;
+    public function with(string $key, mixed $value): self;
 
     public function save(): array;
 

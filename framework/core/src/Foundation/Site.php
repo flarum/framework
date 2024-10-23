@@ -14,13 +14,11 @@ use RuntimeException;
 
 class Site
 {
-    /**
-     * @param array $paths
-     * @return SiteInterface
-     */
-    public static function fromPaths(array $paths)
+    public static function fromPaths(array $paths): SiteInterface
     {
         $paths = new Paths($paths);
+
+        define('FLARUM_START', microtime(true));
 
         date_default_timezone_set('UTC');
 
@@ -33,17 +31,25 @@ class Site
             );
         }
 
+        $config = static::loadConfig($paths->base);
+
+        ini_set('display_errors', 0);
+
+        if (! $config->inDebugMode() && function_exists('error_reporting')) {
+            error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+        }
+
         return (
-            new InstalledSite($paths, static::loadConfig($paths->base))
+            new InstalledSite($paths, $config)
         )->extendWith(static::loadExtenders($paths->base));
     }
 
-    protected static function hasConfigFile($basePath)
+    protected static function hasConfigFile(string $basePath): bool
     {
         return file_exists("$basePath/config.php");
     }
 
-    protected static function loadConfig($basePath): Config
+    protected static function loadConfig(string $basePath): Config
     {
         $config = include "$basePath/config.php";
 
@@ -54,7 +60,7 @@ class Site
         return new Config($config);
     }
 
-    protected static function loadExtenders($basePath): array
+    protected static function loadExtenders(string $basePath): array
     {
         $extenderFile = "$basePath/extend.php";
 

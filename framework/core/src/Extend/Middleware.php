@@ -11,28 +11,28 @@ namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
 use Illuminate\Contracts\Container\Container;
+use Psr\Http\Server\MiddlewareInterface;
 
 class Middleware implements ExtenderInterface
 {
-    private $addMiddlewares = [];
-    private $removeMiddlewares = [];
-    private $replaceMiddlewares = [];
-    private $insertBeforeMiddlewares = [];
-    private $insertAfterMiddlewares = [];
-    private $frontend;
+    private array $addMiddlewares = [];
+    private array $removeMiddlewares = [];
+    private array $replaceMiddlewares = [];
+    private array $insertBeforeMiddlewares = [];
+    private array $insertAfterMiddlewares = [];
 
     /**
      * @param string $frontend: The name of the frontend.
      */
-    public function __construct(string $frontend)
-    {
-        $this->frontend = $frontend;
+    public function __construct(
+        private readonly string $frontend
+    ) {
     }
 
     /**
      * Adds a new middleware to the frontend.
      *
-     * @param string $middleware: ::class attribute of the middleware class.
+     * @param class-string<MiddlewareInterface> $middleware: ::class attribute of the middleware class.
      *                            Must implement \Psr\Http\Server\MiddlewareInterface.
      * @return self
      */
@@ -46,9 +46,9 @@ class Middleware implements ExtenderInterface
     /**
      * Replaces an existing middleware of the frontend.
      *
-     * @param string $originalMiddleware: ::class attribute of the original middleware class.
+     * @param class-string<MiddlewareInterface> $originalMiddleware: ::class attribute of the original middleware class.
      *                                    Or container binding name.
-     * @param string $newMiddleware: ::class attribute of the middleware class.
+     * @param class-string<MiddlewareInterface> $newMiddleware: ::class attribute of the middleware class.
      *                            Must implement \Psr\Http\Server\MiddlewareInterface.
      * @return self
      */
@@ -62,7 +62,7 @@ class Middleware implements ExtenderInterface
     /**
      * Removes a middleware from the frontend.
      *
-     * @param string $middleware: ::class attribute of the middleware class.
+     * @param class-string<MiddlewareInterface> $middleware: ::class attribute of the middleware class.
      * @return self
      */
     public function remove(string $middleware): self
@@ -75,9 +75,9 @@ class Middleware implements ExtenderInterface
     /**
      * Inserts a middleware before an existing middleware.
      *
-     * @param string $originalMiddleware: ::class attribute of the original middleware class.
+     * @param class-string<MiddlewareInterface> $originalMiddleware: ::class attribute of the original middleware class.
      *                                    Or container binding name.
-     * @param string $newMiddleware: ::class attribute of the middleware class.
+     * @param class-string<MiddlewareInterface> $newMiddleware: ::class attribute of the middleware class.
      *                            Must implement \Psr\Http\Server\MiddlewareInterface.
      * @return self
      */
@@ -91,9 +91,9 @@ class Middleware implements ExtenderInterface
     /**
      * Inserts a middleware after an existing middleware.
      *
-     * @param string $originalMiddleware: ::class attribute of the original middleware class.
+     * @param class-string<MiddlewareInterface> $originalMiddleware: ::class attribute of the original middleware class.
      *                                    Or container binding name.
-     * @param string $newMiddleware: ::class attribute of the middleware class.
+     * @param class-string<MiddlewareInterface> $newMiddleware: ::class attribute of the middleware class.
      *                            Must implement \Psr\Http\Server\MiddlewareInterface.
      * @return self
      */
@@ -104,9 +104,9 @@ class Middleware implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
-        $container->extend("flarum.{$this->frontend}.middleware", function ($existingMiddleware) {
+        $container->extend("flarum.$this->frontend.middleware", function ($existingMiddleware) {
             foreach ($this->addMiddlewares as $addMiddleware) {
                 $existingMiddleware[] = $addMiddleware;
             }
@@ -139,9 +139,7 @@ class Middleware implements ExtenderInterface
                 );
             }
 
-            $existingMiddleware = array_diff($existingMiddleware, $this->removeMiddlewares);
-
-            return $existingMiddleware;
+            return array_diff($existingMiddleware, $this->removeMiddlewares);
         });
     }
 }

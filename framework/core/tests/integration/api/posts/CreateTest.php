@@ -10,9 +10,14 @@
 namespace Flarum\Tests\integration\api\posts;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class CreateTest extends TestCase
 {
@@ -26,19 +31,19 @@ class CreateTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 1],
                 // Discussion with deleted first post.
                 ['id' => 2, 'title' => __CLASS__, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => null],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'number' => 1, 'created_at' => Carbon::now()->subDay()->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t></t>'],
             ],
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'restricted', 'email' => 'restricted@machine.local', 'is_email_confirmed' => 1],
             ],
-            'groups' => [
+            Group::class => [
                 ['id' => 40, 'name_singular' => 'tess', 'name_plural' => 'tess'],
             ],
             'group_user' => [
@@ -50,10 +55,8 @@ class CreateTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider discussionRepliesPrvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('discussionRepliesPrvider')]
     public function can_create_reply_if_allowed(int $actorId, int $discussionId, int $responseStatus)
     {
         // Reset permissions for normal users group.
@@ -68,21 +71,24 @@ class CreateTest extends TestCase
                 'authenticatedAs' => $actorId,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => 'reply with predetermined content for automated testing - too-obscure',
                         ],
                         'relationships' => [
-                            'discussion' => ['data' => ['id' => $discussionId]],
+                            'discussion' => [
+                                'data' => ['type' => 'discussions', 'id' => $discussionId]
+                            ],
                         ],
                     ],
                 ],
             ])
         );
 
-        $this->assertEquals($responseStatus, $response->getStatusCode());
+        $this->assertEquals($responseStatus, $response->getStatusCode(), (string) $response->getBody());
     }
 
-    public function discussionRepliesPrvider(): array
+    public static function discussionRepliesPrvider(): array
     {
         return [
             // [$actorId, $discussionId, $responseStatus]
@@ -93,16 +99,15 @@ class CreateTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function limited_by_throttler()
     {
-        $this->send(
+        $response = $this->send(
             $this->request('POST', '/api/posts', [
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => 'reply with predetermined content for automated testing - too-obscure',
                         ],
@@ -114,11 +119,14 @@ class CreateTest extends TestCase
             ])
         );
 
+        $this->assertEquals(201, $response->getStatusCode(), (string) $response->getBody());
+
         $response = $this->send(
             $this->request('POST', '/api/posts', [
                 'authenticatedAs' => 2,
                 'json' => [
                     'data' => [
+                        'type' => 'posts',
                         'attributes' => [
                             'content' => 'Second reply with predetermined content for automated testing - too-obscure',
                         ],
@@ -130,6 +138,6 @@ class CreateTest extends TestCase
             ])
         );
 
-        $this->assertEquals(429, $response->getStatusCode());
+        $this->assertEquals(429, $response->getStatusCode(), (string) $response->getBody());
     }
 }

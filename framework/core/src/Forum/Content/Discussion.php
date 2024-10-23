@@ -19,50 +19,21 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Discussion
 {
-    /**
-     * @var Client
-     */
-    protected $api;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @var Factory
-     */
-    protected $view;
-
-    /**
-     * @param Client $api
-     * @param UrlGenerator $url
-     * @param Factory $view
-     */
-    public function __construct(Client $api, UrlGenerator $url, Factory $view)
-    {
-        $this->api = $api;
-        $this->url = $url;
-        $this->view = $view;
+    public function __construct(
+        protected Client $api,
+        protected UrlGenerator $url,
+        protected Factory $view
+    ) {
     }
 
-    public function __invoke(Document $document, Request $request)
+    public function __invoke(Document $document, Request $request): Document
     {
         $queryParams = $request->getQueryParams();
         $id = Arr::get($queryParams, 'id');
         $near = intval(Arr::get($queryParams, 'near'));
         $page = max(1, intval(Arr::get($queryParams, 'page')), 1 + intdiv($near, 20));
 
-        $params = [
-            'id' => $id,
-            'page' => [
-                'near' => $near,
-                'offset' => ($page - 1) * 20,
-                'limit' => 20
-            ]
-        ];
-
-        $apiDocument = $this->getApiDocument($request, $id, $params);
+        $apiDocument = $this->getApiDocument($request, $id);
 
         $getResource = function ($link) use ($apiDocument) {
             return Arr::first($apiDocument->included, function ($value) use ($link) {
@@ -85,9 +56,21 @@ class Discussion
                 ($queryString ? '?'.$queryString : '');
         };
 
+        $params = [
+            'filter' => [
+                'discussion' => intval($id),
+            ],
+            'page' => [
+                'near' => $near,
+                'offset' => ($page - 1) * 20,
+                'limit' => 20,
+            ],
+        ];
+
+        $postsApiDocument = $this->getPostsApiDocument($request, $params);
         $posts = [];
 
-        foreach ($apiDocument->included as $resource) {
+        foreach ($postsApiDocument->data as $resource) {
             if ($resource->type === 'posts' && isset($resource->relationships->discussion) && isset($resource->attributes->contentHtml)) {
                 $posts[] = $resource;
             }
@@ -98,6 +81,15 @@ class Discussion
 
         $document->title = $apiDocument->data->attributes->title;
         $document->content = $this->view->make('flarum.forum::frontend.content.discussion', compact('apiDocument', 'page', 'hasPrevPage', 'hasNextPage', 'getResource', 'posts', 'url'));
+
+        $apiDocument->included = array_values(array_filter($apiDocument->included, function ($value) {
+            return $value->type !== 'posts';
+        }));
+        $apiDocument->included = array_merge($apiDocument->included, $postsApiDocument->data, $postsApiDocument->included);
+        $apiDocument->included = array_values(array_filter($apiDocument->included, function ($value) use ($apiDocument) {
+            return $value->type !== 'discussions' || $value->id !== $apiDocument->data->id;
+        }));
+
         $document->payload['apiDocument'] = $apiDocument;
 
         $document->canonicalUrl = $url([]);
@@ -112,19 +104,34 @@ class Discussion
      *
      * @throws RouteNotFoundException
      */
-    protected function getApiDocument(Request $request, string $id, array $params)
+    protected function getApiDocument(Request $request, string $id, array $params = []): object
     {
         $params['bySlug'] = true;
-        $response = $this->api
-            ->withParentRequest($request)
-            ->withQueryParams($params)
-            ->get("/discussions/$id");
-        $statusCode = $response->getStatusCode();
 
-        if ($statusCode === 404) {
-            throw new RouteNotFoundException;
-        }
+        return json_decode(
+            $this->api
+                ->withoutErrorHandling()
+                ->withParentRequest($request)
+                ->withQueryParams($params)
+                ->get("/discussions/$id")
+                ->getBody()
+        );
+    }
 
-        return json_decode($response->getBody());
+    /**
+     * Get the result of an API request to list the posts of a discussion.
+     *
+     * @throws RouteNotFoundException
+     */
+    protected function getPostsApiDocument(Request $request, array $params): object
+    {
+        return json_decode(
+            $this->api
+                ->withoutErrorHandling()
+                ->withParentRequest($request)
+                ->withQueryParams($params)
+                ->get('/posts')
+                ->getBody()
+        );
     }
 }

@@ -6,9 +6,9 @@ import DiscussionPage from 'flarum/forum/components/DiscussionPage';
 import IndexPage from 'flarum/forum/components/IndexPage';
 import { truncate } from 'flarum/common/utils/string';
 
-export default function addStickyControl() {
+export default function addStickyExcerpt() {
   extend(DiscussionListState.prototype, 'requestParams', function (params) {
-    if (app.current.matches(IndexPage) || app.current.matches(DiscussionPage)) {
+    if (app.forum.attribute('excerptDisplayEnabled') && (app.current.matches(IndexPage) || app.current.matches(DiscussionPage))) {
       params.include.push('firstPost');
     }
   });
@@ -16,7 +16,7 @@ export default function addStickyControl() {
   extend(DiscussionListItem.prototype, 'infoItems', function (items) {
     const discussion = this.attrs.discussion;
 
-    if (discussion.isSticky() && !this.attrs.params.q && !discussion.lastReadPostNumber()) {
+    if (app.forum.attribute('excerptDisplayEnabled') && discussion.isSticky() && !this.attrs.params.q && !discussion.lastReadPostNumber()) {
       const firstPost = discussion.firstPost();
 
       if (firstPost) {

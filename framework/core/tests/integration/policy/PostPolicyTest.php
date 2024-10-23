@@ -10,10 +10,12 @@
 namespace Flarum\Tests\integration\policy;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
 use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class PostPolicyTest extends TestCase
 {
@@ -27,14 +29,14 @@ class PostPolicyTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'Editable discussion', 'created_at' => Carbon::parse('2021-11-01 13:00:00')->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 1, 'comment_count' => 2, 'is_private' => 0, 'last_post_number' => 2],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'number' => 1, 'created_at' => Carbon::parse('2021-11-01 13:00:00')->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t></t>'],
                 ['id' => 2, 'discussion_id' => 1, 'number' => 2, 'created_at' => Carbon::parse('2021-11-01 13:00:03')->toDateTimeString(), 'user_id' => 2, 'type' => 'comment', 'content' => '<t></t>'],
             ],
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ]
         ]);
@@ -47,9 +49,7 @@ class PostPolicyTest extends TestCase
         Carbon::setTestNow();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function edit_indefinitely()
     {
         $this->setting('allow_post_editing', '-1');
@@ -72,9 +72,7 @@ class PostPolicyTest extends TestCase
         $this->assertTrue($user->can('edit', $lastPost));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function edit_until_reply()
     {
         $this->setting('allow_post_editing', 'reply');
@@ -97,9 +95,7 @@ class PostPolicyTest extends TestCase
         $this->assertTrue($user->can('edit', $lastPost));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function edit_10_minutes()
     {
         $this->setting('allow_post_editing', '10');
@@ -120,5 +116,97 @@ class PostPolicyTest extends TestCase
 
         $this->assertFalse($user->can('edit', $earlierPost));
         $this->assertFalse($user->can('edit', $lastPost));
+    }
+
+    #[Test]
+    public function hide_indefinitely()
+    {
+        $this->setting('allow_hide_own_posts', '-1');
+        $this->app();
+
+        $user = User::findOrFail(2);
+        $earlierPost = Post::findOrFail(1);
+        $lastPost = Post::findOrFail(2);
+
+        // Date close to "now"
+        Carbon::setTestNow('2021-11-01 13:00:05');
+
+        $this->assertTrue($user->can('hide', $earlierPost));
+        $this->assertTrue($user->can('hide', $lastPost));
+
+        // Date further into the future
+        Carbon::setTestNow('2025-01-01 13:00:00');
+
+        $this->assertTrue($user->can('hide', $earlierPost));
+        $this->assertTrue($user->can('hide', $lastPost));
+    }
+
+    #[Test]
+    public function hide_until_reply()
+    {
+        $this->setting('allow_hide_own_posts', 'reply');
+        $this->app();
+
+        $user = User::findOrFail(2);
+        $earlierPost = Post::findOrFail(1);
+        $lastPost = Post::findOrFail(2);
+
+        // Date close to "now"
+        Carbon::setTestNow('2021-11-01 13:00:05');
+
+        $this->assertFalse($user->can('hide', $earlierPost));
+        $this->assertTrue($user->can('hide', $lastPost));
+
+        // Date further into the future
+        Carbon::setTestNow('2025-01-01 13:00:00');
+
+        $this->assertFalse($user->can('hide', $earlierPost));
+        $this->assertTrue($user->can('hide', $lastPost));
+    }
+
+    #[Test]
+    public function hide_10_minutes()
+    {
+        $this->setting('allow_hide_own_posts', '10');
+        $this->app();
+
+        $user = User::findOrFail(2);
+        $earlierPost = Post::findOrFail(1);
+        $lastPost = Post::findOrFail(2);
+
+        // Date close to "now"
+        Carbon::setTestNow('2021-11-01 13:00:05');
+
+        $this->assertTrue($user->can('hide', $earlierPost));
+        $this->assertTrue($user->can('hide', $lastPost));
+
+        // Date further into the future
+        Carbon::setTestNow('2025-01-01 13:00:00');
+
+        $this->assertFalse($user->can('hide', $earlierPost));
+        $this->assertFalse($user->can('hide', $lastPost));
+    }
+
+    #[Test]
+    public function hide_never()
+    {
+        $this->setting('allow_hide_own_posts', '0');
+        $this->app();
+
+        $user = User::findOrFail(2);
+        $earlierPost = Post::findOrFail(1);
+        $lastPost = Post::findOrFail(2);
+
+        // Date close to "now"
+        Carbon::setTestNow('2021-11-01 13:00:05');
+
+        $this->assertFalse($user->can('hide', $earlierPost));
+        $this->assertFalse($user->can('hide', $lastPost));
+
+        // Date further into the future
+        Carbon::setTestNow('2025-01-01 13:00:00');
+
+        $this->assertFalse($user->can('hide', $earlierPost));
+        $this->assertFalse($user->can('hide', $lastPost));
     }
 }

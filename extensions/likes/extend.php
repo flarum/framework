@@ -9,16 +9,20 @@
 
 namespace Flarum\Likes;
 
-use Flarum\Api\Controller;
-use Flarum\Api\Serializer\BasicUserSerializer;
-use Flarum\Api\Serializer\PostSerializer;
+use Flarum\Api\Endpoint;
+use Flarum\Api\Resource;
 use Flarum\Extend;
+use Flarum\Likes\Api\PostResourceFields;
 use Flarum\Likes\Event\PostWasLiked;
 use Flarum\Likes\Event\PostWasUnliked;
 use Flarum\Likes\Notification\PostLikedBlueprint;
 use Flarum\Likes\Query\LikedByFilter;
-use Flarum\Post\Filter\PostFilterer;
+use Flarum\Likes\Query\LikedFilter;
+use Flarum\Post\Event\Deleted;
+use Flarum\Post\Filter\PostSearcher;
 use Flarum\Post\Post;
+use Flarum\Search\Database\DatabaseSearchDriver;
+use Flarum\User\Search\UserSearcher;
 use Flarum\User\User;
 
 return [
@@ -35,33 +39,27 @@ return [
     new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Notification())
-        ->type(PostLikedBlueprint::class, PostSerializer::class, ['alert']),
+        ->type(PostLikedBlueprint::class, ['alert']),
 
-    (new Extend\ApiSerializer(PostSerializer::class))
-        ->hasMany('likes', BasicUserSerializer::class)
-        ->attribute('canLike', function (PostSerializer $serializer, $model) {
-            return (bool) $serializer->getActor()->can('like', $model);
-        }),
-
-    (new Extend\ApiController(Controller\ShowDiscussionController::class))
-        ->addInclude('posts.likes'),
-
-    (new Extend\ApiController(Controller\ListPostsController::class))
-        ->addInclude('likes'),
-    (new Extend\ApiController(Controller\ShowPostController::class))
-        ->addInclude('likes'),
-    (new Extend\ApiController(Controller\CreatePostController::class))
-        ->addInclude('likes'),
-    (new Extend\ApiController(Controller\UpdatePostController::class))
-        ->addInclude('likes'),
+    (new Extend\ApiResource(Resource\PostResource::class))
+        ->fields(PostResourceFields::class)
+        ->endpoint(
+            [Endpoint\Index::class, Endpoint\Show::class, Endpoint\Create::class, Endpoint\Update::class],
+            function (Endpoint\Index|Endpoint\Show|Endpoint\Create|Endpoint\Update $endpoint): Endpoint\Endpoint {
+                return $endpoint->addDefaultInclude(['likes']);
+            }
+        ),
 
     (new Extend\Event())
         ->listen(PostWasLiked::class, Listener\SendNotificationWhenPostIsLiked::class)
         ->listen(PostWasUnliked::class, Listener\SendNotificationWhenPostIsUnliked::class)
-        ->subscribe(Listener\SaveLikesToDatabase::class),
+        ->listen(Deleted::class, function (Deleted $event) {
+            $event->post->likes()->detach();
+        }),
 
-    (new Extend\Filter(PostFilterer::class))
-        ->addFilter(LikedByFilter::class),
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
+        ->addFilter(PostSearcher::class, LikedByFilter::class)
+        ->addFilter(UserSearcher::class, LikedFilter::class),
 
     (new Extend\Settings())
         ->default('flarum-likes.like_own_post', true),

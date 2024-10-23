@@ -1,13 +1,19 @@
-/// <reference path="../@types/translator-icu-rich.d.ts" />
-import { RichMessageFormatter } from '@askvortsov/rich-icu-message-formatter';
+import type { Dayjs } from 'dayjs';
+import { RichMessageFormatter, NestedStringArray } from '@askvortsov/rich-icu-message-formatter';
 import { pluralTypeHandler, selectTypeHandler } from '@ultraq/icu-message-formatter';
-declare type Translations = Record<string, string>;
-declare type TranslatorParameters = Record<string, unknown>;
+import ItemList from './utils/ItemList';
+type Translations = Record<string, string>;
+type TranslatorParameters = Record<string, unknown>;
+type DateTimeFormatCallback = (id?: string) => string | void;
 export default class Translator {
     /**
      * A map of translation keys to their translated values.
      */
     translations: Translations;
+    /**
+     * A item list of date time format callbacks.
+     */
+    dateTimeFormats: ItemList<DateTimeFormatCallback>;
     /**
      * The underlying ICU MessageFormatter util.
      */
@@ -36,6 +42,18 @@ export default class Translator {
      * @internal
      */
     protected preprocessParameters(parameters: TranslatorParameters): TranslatorParameters;
-    trans(id: string, parameters?: TranslatorParameters): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    trans(id: string, parameters: TranslatorParameters): NestedStringArray;
+    trans(id: string, parameters: TranslatorParameters, extract: false): NestedStringArray;
+    trans(id: string, parameters: TranslatorParameters, extract: true): string;
+    trans(id: string): NestedStringArray | string;
+    /**
+     * Formats the time.
+     *
+     * The format of the time will be chosen by the following order:
+     * - Custom format defined in the item list.
+     * - The format defined in current locale.
+     * - DayJS default format.
+     */
+    formatDateTime(time: Dayjs, id: string): string;
 }
 export {};

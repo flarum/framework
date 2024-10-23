@@ -9,23 +9,12 @@ export default function addSubscriptionBadge() {
 
     switch (this.subscription()) {
       case 'follow':
-        badge = Badge.component({
-          label: app.translator.trans('flarum-subscriptions.forum.badge.following_tooltip'),
-          icon: 'fas fa-star',
-          type: 'following',
-        });
+        badge = <Badge label={app.translator.trans('flarum-subscriptions.forum.badge.following_tooltip')} icon="fas fa-star" type="following" />;
         break;
 
       case 'ignore':
-        badge = Badge.component({
-          label: app.translator.trans('flarum-subscriptions.forum.badge.ignoring_tooltip'),
-          icon: 'far fa-eye-slash',
-          type: 'ignoring',
-        });
+        badge = <Badge label={app.translator.trans('flarum-subscriptions.forum.badge.ignoring_tooltip')} icon="far fa-eye-slash" type="ignoring" />;
         break;
-
-      default:
-      // no default
     }
 
     if (badge) {

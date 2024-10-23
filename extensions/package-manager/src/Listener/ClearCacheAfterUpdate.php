@@ -7,37 +7,22 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Listener;
+namespace Flarum\ExtensionManager\Listener;
 
 use Composer\Command\ClearCacheCommand;
 use Flarum\Database\Console\MigrateCommand;
+use Flarum\ExtensionManager\Event\FlarumUpdated;
 use Flarum\Foundation\Console\AssetsPublishCommand;
-use Flarum\PackageManager\Event\FlarumUpdated;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 
 class ClearCacheAfterUpdate
 {
-    /**
-     * @var ClearCacheCommand
-     */
-    private $clearCache;
-
-    /**
-     * @var AssetsPublishCommand
-     */
-    private $publishAssets;
-
-    /**
-     * @var MigrateCommand
-     */
-    private $migrate;
-
-    public function __construct(ClearCacheCommand $clearCache, AssetsPublishCommand $publishAssets, MigrateCommand $migrate)
-    {
-        $this->clearCache = $clearCache;
-        $this->publishAssets = $publishAssets;
-        $this->migrate = $migrate;
+    public function __construct(
+        private ClearCacheCommand $clearCache,
+        private AssetsPublishCommand $publishAssets,
+        private MigrateCommand $migrate
+    ) {
     }
 
     /**

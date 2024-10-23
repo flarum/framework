@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Task;
+namespace Flarum\ExtensionManager\Task;
 
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
@@ -19,9 +19,10 @@ use Flarum\Database\AbstractModel;
  * @property string $command
  * @property string $package
  * @property string $output
+ * @property string|null $guessed_cause
  * @property Carbon $created_at
- * @property Carbon $started_at
- * @property Carbon $finished_at
+ * @property Carbon|null $started_at
+ * @property Carbon|null $finished_at
  * @property float $peak_memory_used
  */
 class Task extends AbstractModel
@@ -48,9 +49,9 @@ class Task extends AbstractModel
 
     public const UPDATED_AT = null;
 
-    protected $table = 'package_manager_tasks';
+    protected $table = 'extension_manager_tasks';
 
-    protected $fillable = ['command', 'output'];
+    protected $guarded = ['id'];
 
     public $timestamps = true;
 
@@ -84,6 +85,14 @@ class Task extends AbstractModel
 
     public function end(bool $success): bool
     {
+        if ($this->finished_at) {
+            return true;
+        }
+
+        if (! $this->started_at) {
+            $this->start();
+        }
+
         $this->status = $success ? static::SUCCESS : static::FAILURE;
         $this->finished_at = Carbon::now();
         $this->peak_memory_used = round(memory_get_peak_usage() / 1024);

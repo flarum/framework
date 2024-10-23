@@ -3,6 +3,8 @@ import type Mithril from 'mithril';
 export interface IDropdownAttrs extends ComponentAttrs {
     /** A class name to apply to the dropdown toggle button. */
     buttonClassName?: string;
+    /** Additional attributes to apply to the dropdown toggle button. */
+    buttonAttrs?: Record<string, string>;
     /** A class name to apply to the dropdown menu. */
     menuClassName?: string;
     /** The name of an icon to show in the dropdown toggle button. */
@@ -13,6 +15,8 @@ export interface IDropdownAttrs extends ComponentAttrs {
     label: Mithril.Children;
     /** The label used to describe the dropdown toggle button to assistive readers. Defaults to 'Toggle dropdown menu'. */
     accessibleToggleLabel?: string;
+    /** An optional tooltip to show when hovering over the dropdown toggle button. */
+    tooltip?: string;
     /** An action to take when the dropdown is collapsed. */
     onhide?: () => void;
     /** An action to take when the dropdown is opened. */

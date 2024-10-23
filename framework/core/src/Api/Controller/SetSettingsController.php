@@ -13,6 +13,7 @@ use Flarum\Http\RequestUtil;
 use Flarum\Settings\Event;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -20,28 +21,14 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class SetSettingsController implements RequestHandlerInterface
 {
-    /**
-     * @var \Flarum\Settings\SettingsRepositoryInterface
-     */
-    protected $settings;
+    public static array $resetWhen = [];
 
-    /**
-     * @var Dispatcher
-     */
-    protected $dispatcher;
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     */
-    public function __construct(SettingsRepositoryInterface $settings, Dispatcher $dispatcher)
-    {
-        $this->settings = $settings;
-        $this->dispatcher = $dispatcher;
+    public function __construct(
+        protected SettingsRepositoryInterface $settings,
+        protected Dispatcher $dispatcher
+    ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         RequestUtil::getActor($request)->assertAdmin();
@@ -53,7 +40,11 @@ class SetSettingsController implements RequestHandlerInterface
         foreach ($settings as $k => $v) {
             $this->dispatcher->dispatch(new Event\Serializing($k, $v));
 
-            $this->settings->set($k, $v);
+            if (! is_null($resetWhen = Arr::get(static::$resetWhen, $k)) && $resetWhen($v)) {
+                $this->settings->delete($k);
+            } else {
+                $this->settings->set($k, $v);
+            }
         }
 
         $this->dispatcher->dispatch(new Event\Saved($settings));

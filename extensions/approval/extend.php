@@ -7,9 +7,10 @@
  * LICENSE file that was distributed with this source code.
  */
 
-use Flarum\Api\Serializer\BasicDiscussionSerializer;
-use Flarum\Api\Serializer\PostSerializer;
+use Flarum\Api\Resource;
+use Flarum\Api\Schema;
 use Flarum\Approval\Access;
+use Flarum\Approval\Api\PostResourceFields;
 use Flarum\Approval\Event\PostWasApproved;
 use Flarum\Approval\Listener;
 use Flarum\Discussion\Discussion;
@@ -36,17 +37,13 @@ return [
         ->default('is_approved', true)
         ->cast('is_approved', 'bool'),
 
-    (new Extend\ApiSerializer(BasicDiscussionSerializer::class))
-        ->attribute('isApproved', function ($serializer, Discussion $discussion) {
-            return $discussion->is_approved;
-        }),
+    (new Extend\ApiResource(Resource\DiscussionResource::class))
+        ->fields(fn () => [
+            Schema\Boolean::make('isApproved'),
+        ]),
 
-    (new Extend\ApiSerializer(PostSerializer::class))
-        ->attribute('isApproved', function ($serializer, Post $post) {
-            return (bool) $post->is_approved;
-        })->attribute('canApprove', function (PostSerializer $serializer, Post $post) {
-            return (bool) $serializer->getActor()->can('approvePosts', $post->discussion);
-        }),
+    (new Extend\ApiResource(Resource\PostResource::class))
+        ->fields(PostResourceFields::class),
 
     new Extend\Locales(__DIR__.'/locale'),
 
@@ -65,8 +62,8 @@ return [
         ->scope(Access\ScopePrivateDiscussionVisibility::class, 'viewPrivate'),
 
     (new Extend\ModelPrivate(Discussion::class))
-        ->checker([Listener\UnapproveNewContent::class, 'markUnapprovedContentAsPrivate']),
+        ->checker(Listener\UnapproveNewContent::markUnapprovedContentAsPrivate(...)),
 
     (new Extend\ModelPrivate(CommentPost::class))
-        ->checker([Listener\UnapproveNewContent::class, 'markUnapprovedContentAsPrivate']),
+        ->checker(Listener\UnapproveNewContent::markUnapprovedContentAsPrivate(...)),
 ];

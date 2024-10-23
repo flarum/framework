@@ -9,44 +9,26 @@
 
 namespace Flarum\Mentions\Formatter;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Http\SlugManager;
-use Flarum\Post\Post;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\User\User;
 use s9e\TextFormatter\Renderer;
 use s9e\TextFormatter\Utils;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FormatUserMentions
 {
-    /**
-     * @var SlugManager
-     */
-    private $slugManager;
-
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
-
-    public function __construct(SlugManager $slugManager, TranslatorInterface $translator)
-    {
-        $this->slugManager = $slugManager;
-        $this->translator = $translator;
+    public function __construct(
+        private readonly TranslatorInterface $translator,
+        private readonly SlugManager $slugManager
+    ) {
     }
 
-    /**
-     * Configure rendering for user mentions.
-     *
-     * @param \s9e\TextFormatter\Renderer $renderer
-     * @param mixed $context
-     * @param string $xml
-     * @return string $xml to be rendered
-     */
-    public function __invoke(Renderer $renderer, $context, string $xml)
+    public function __invoke(Renderer $renderer, mixed $context, string $xml): string
     {
         return Utils::replaceAttributes($xml, 'USERMENTION', function ($attributes) use ($context) {
-            $user = (($context && isset($context->getRelations()['mentionsUsers'])) || $context instanceof Post)
-                ? $context->mentionsUsers->find($attributes['id'])
+            $user = ($context instanceof AbstractModel && $context->isRelation('mentionsUsers'))
+                ? $context->mentionsUsers->find($attributes['id']) // @phpstan-ignore-line
                 : User::find($attributes['id']);
 
             $attributes['deleted'] = false;

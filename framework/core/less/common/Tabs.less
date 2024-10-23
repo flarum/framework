@@ -1,0 +1,32 @@
+.Tabs {
+  &-nav + .Modal-divider {
+    margin-top: 0;
+  }
+
+  &-nav {
+    margin-bottom: -1px;
+    display: flex;
+    column-gap: 4px;
+    padding: 0 14px;
+
+    > .Button {
+      border-radius: 0;
+      font-size: 15px;
+      padding: 12px 8px;
+      border-bottom: 2px solid;
+      border-color: transparent;
+
+      &[active] {
+        --button-color: var(--text-color);
+        --link-color: var(--text-color);
+        border-color: var(--primary-color);
+        font-weight: bold;
+      }
+    }
+  }
+
+  &-divider {
+    margin-top: -1px;
+    border-width: 1px;
+  }
+}

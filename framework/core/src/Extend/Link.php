@@ -9,6 +9,7 @@
 
 namespace Flarum\Extend;
 
+use Closure;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\Config;
 use Illuminate\Contracts\Container\Container;
@@ -18,24 +19,24 @@ use s9e\TextFormatter\Utils;
 
 class Link implements ExtenderInterface
 {
-    protected $setRel = null;
-    protected $setTarget = null;
+    protected Closure|null $setRel = null;
+    protected Closure|null $setTarget = null;
 
-    public function setRel(callable $callable)
+    public function setRel(Closure $callable): self
     {
         $this->setRel = $callable;
 
         return $this;
     }
 
-    public function setTarget(callable $callable)
+    public function setTarget(Closure $callable): self
     {
         $this->setTarget = $callable;
 
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null)
+    public function extend(Container $container, Extension $extension = null): void
     {
         $siteUrl = $container->make(Config::class)->url();
 

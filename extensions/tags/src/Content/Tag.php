@@ -10,58 +10,30 @@
 namespace Flarum\Tags\Content;
 
 use Flarum\Api\Client;
+use Flarum\Api\Resource\DiscussionResource;
 use Flarum\Frontend\Document;
 use Flarum\Http\RequestUtil;
 use Flarum\Http\SlugManager;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Tags\Tag as TagModel;
 use Flarum\Tags\TagRepository;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Tag
 {
-    /**
-     * @var Client
-     */
-    protected $api;
-
-    /**
-     * @var Factory
-     */
-    protected $view;
-
-    /**
-     * @var TagRepository
-     */
-    protected $tags;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @var SlugManager
-     */
-    protected $slugger;
-
     public function __construct(
-        Client $api,
-        Factory $view,
-        TagRepository $tags,
-        TranslatorInterface $translator,
-        SlugManager $slugger
+        protected Client $api,
+        protected Factory $view,
+        protected TagRepository $tags,
+        protected TranslatorInterface $translator,
+        protected SlugManager $slugger,
+        protected DiscussionResource $resource
     ) {
-        $this->api = $api;
-        $this->view = $view;
-        $this->tags = $tags;
-        $this->translator = $translator;
-        $this->slugger = $slugger;
     }
 
-    public function __invoke(Document $document, Request $request)
+    public function __invoke(Document $document, Request $request): Document
     {
         $queryParams = $request->getQueryParams();
         $actor = RequestUtil::getActor($request);
@@ -72,7 +44,7 @@ class Tag
         $page = Arr::pull($queryParams, 'page', 1);
         $filters = Arr::pull($queryParams, 'filter', []);
 
-        $sortMap = $this->getSortMap();
+        $sortMap = $this->resource->sortMap();
 
         $tag = $this->slugger->forResource(TagModel::class)->fromSlug($slug, $actor);
 
@@ -109,27 +81,24 @@ class Tag
     }
 
     /**
-     * Get a map of sort query param values and their API sort params.
-     *
-     * @return array
-     */
-    private function getSortMap()
-    {
-        return resolve('flarum.forum.discussions.sortmap');
-    }
-
-    /**
      * Get the result of an API request to list discussions.
      */
-    private function getApiDocument(Request $request, array $params)
+    protected function getApiDocument(Request $request, array $params): object
     {
         return json_decode($this->api->withParentRequest($request)->withQueryParams($params)->get('/discussions')->getBody());
     }
 
-    private function getTagsDocument(Request $request, string $slug)
+    protected function getTagsDocument(Request $request, string $slug): object
     {
-        return json_decode($this->api->withParentRequest($request)->withQueryParams([
-            'include' => 'children,children.parent,parent,parent.children.parent,state'
-        ])->get("/tags/$slug")->getBody());
+        return json_decode(
+            $this->api
+                ->withoutErrorHandling()
+                ->withParentRequest($request)
+                ->withQueryParams([
+                    'include' => 'children,children.parent,parent,parent.children.parent'
+                ])
+                ->get("/tags/$slug")
+                ->getBody()
+        );
     }
 }

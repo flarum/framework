@@ -15,6 +15,8 @@ use Flarum\Extension\Event\Disabling;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Extension\Event\Enabling;
 use Flarum\Extension\Event\Uninstalled;
+use Flarum\Extension\Exception\CircularDependenciesException;
+use Flarum\Foundation\MaintenanceMode;
 use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
@@ -28,52 +30,20 @@ use Illuminate\Support\Collection;
 
 class ExtensionManager
 {
-    protected $config;
-
-    /**
-     * @var Paths
-     */
-    protected $paths;
-
-    protected $container;
-
-    protected $migrator;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $dispatcher;
-
-    /**
-     * @var Filesystem
-     */
-    protected $filesystem;
-
-    /**
-     * @var Collection|null
-     */
-    protected $extensions;
+    protected ?Collection $extensions = null;
 
     public function __construct(
-        SettingsRepositoryInterface $config,
-        Paths $paths,
-        Container $container,
-        Migrator $migrator,
-        Dispatcher $dispatcher,
-        Filesystem $filesystem
+        protected SettingsRepositoryInterface $config,
+        protected Paths $paths,
+        protected Container $container,
+        protected Migrator $migrator,
+        protected Dispatcher $dispatcher,
+        protected Filesystem $filesystem,
+        protected MaintenanceMode $maintenance,
     ) {
-        $this->config = $config;
-        $this->paths = $paths;
-        $this->container = $container;
-        $this->migrator = $migrator;
-        $this->dispatcher = $dispatcher;
-        $this->filesystem = $filesystem;
     }
 
-    /**
-     * @return Collection
-     */
-    public function getExtensions()
+    public function getExtensions(): Collection
     {
         if (is_null($this->extensions) && $this->filesystem->exists($this->paths->vendor.'/composer/installed.json')) {
             $extensions = new Collection();
@@ -105,31 +75,18 @@ class ExtensionManager
                     $composerJsonConfs[$packagePath] = $package;
                 }
 
-                if ($subextPaths = Arr::get($package, 'extra.flarum-subextensions', [])) {
-                    foreach ($subextPaths as $subExtPath) {
-                        $subPackagePath = "$packagePath/$subExtPath";
-                        $conf = json_decode($this->filesystem->get("$subPackagePath/composer.json"), true);
-
-                        if (Arr::get($conf, 'type') === 'flarum-extension') {
-                            $composerJsonConfs[$subPackagePath] = $conf;
-                        }
-                    }
+                if ($subExtConfs = $this->subExtensionConfsFromJson($package, $packagePath)) {
+                    $composerJsonConfs = array_merge($composerJsonConfs, $subExtConfs);
                 }
             }
 
             foreach ($composerJsonConfs as $path => $package) {
                 $installedSet[Arr::get($package, 'name')] = true;
-
-                // Instantiates an Extension object using the package path and composer.json file.
-                $extension = new Extension($path, $package);
-
-                // Per default all extensions are installed if they are registered in composer.
-                $extension->setInstalled(true);
-                $extension->setVersion(Arr::get($package, 'version'));
-
+                $extension = $this->extensionFromJson($package, $path);
                 $extensions->put($extension->getId(), $extension);
             }
 
+            /** @var Extension $extension */
             foreach ($extensions as $extension) {
                 $extension->calculateDependencies($installedSet);
             }
@@ -140,7 +97,7 @@ class ExtensionManager
                 $extension = $extensions->get($enabledKey);
                 if (is_null($extension)) {
                     $needsReset = true;
-                } else {
+                } else { // @phpstan-ignore-line
                     $enabledExtensions[] = $extension;
                 }
             }
@@ -157,25 +114,22 @@ class ExtensionManager
         return $this->extensions;
     }
 
-    /**
-     * Loads an Extension with all information.
-     *
-     * @param string $name
-     * @return Extension|null
-     */
-    public function getExtension($name)
+    public function getExtensionsById(array $ids): Collection
+    {
+        return $this->getExtensions()->filter(function (Extension $extension) use ($ids) {
+            return in_array($extension->getId(), $ids);
+        });
+    }
+
+    public function getExtension(string $name): ?Extension
     {
         return $this->getExtensions()->get($name);
     }
 
     /**
-     * Enables the extension.
-     *
-     * @param string $name
-     *
      * @internal
      */
-    public function enable($name)
+    public function enable(string $name): void
     {
         if ($this->isEnabled($name)) {
             return;
@@ -211,13 +165,9 @@ class ExtensionManager
     }
 
     /**
-     * Disables an extension.
-     *
-     * @param string $name
-     *
      * @internal
      */
-    public function disable($name)
+    public function disable(string $name): void
     {
         $extension = $this->getExtension($name);
         $enabledExtensions = $this->getEnabledExtensions();
@@ -249,12 +199,9 @@ class ExtensionManager
     }
 
     /**
-     * Uninstalls an extension.
-     *
-     * @param string $name
      * @internal
      */
-    public function uninstall($name)
+    public function uninstall(string $name): void
     {
         $extension = $this->getExtension($name);
 
@@ -271,38 +218,30 @@ class ExtensionManager
 
     /**
      * Copy the assets from an extension's assets directory into public view.
-     *
-     * @param Extension $extension
      */
-    protected function publishAssets(Extension $extension)
+    protected function publishAssets(Extension $extension): void
     {
         $extension->copyAssetsTo($this->getAssetsFilesystem());
     }
 
     /**
      * Delete an extension's assets from public view.
-     *
-     * @param Extension $extension
      */
-    protected function unpublishAssets(Extension $extension)
+    protected function unpublishAssets(Extension $extension): void
     {
         $this->getAssetsFilesystem()->deleteDirectory('extensions/'.$extension->getId());
     }
 
     /**
      * Get the path to an extension's published asset.
-     *
-     * @param Extension $extension
-     * @param string    $path
-     * @return string
      */
-    public function getAsset(Extension $extension, $path)
+    public function getAsset(Extension $extension, string $path): string
     {
         return $this->getAssetsFilesystem()->url($extension->getId()."/$path");
     }
 
     /**
-     * Get an instance of the assets filesystem.
+     * Get an instance of the `assets` filesystem.
      * This is resolved dynamically because Flarum's filesystem configuration
      * might not be booted yet when the ExtensionManager singleton initializes.
      */
@@ -314,13 +253,9 @@ class ExtensionManager
     /**
      * Runs the database migrations for the extension.
      *
-     * @param Extension $extension
-     * @param string $direction
-     * @return int
-     *
      * @internal
      */
-    public function migrate(Extension $extension, $direction = 'up')
+    public function migrate(Extension $extension, string $direction = 'up'): ?int
     {
         $this->container->bind(Builder::class, function ($container) {
             return $container->make(ConnectionInterface::class)->getSchemaBuilder();
@@ -332,32 +267,25 @@ class ExtensionManager
     /**
      * Runs the database migrations to reset the database to its old state.
      *
-     * @param Extension $extension
-     * @return void
-     *
      * @internal
      */
-    public function migrateDown(Extension $extension)
+    public function migrateDown(Extension $extension): void
     {
         $this->migrate($extension, 'down');
     }
 
     /**
      * The database migrator.
-     *
-     * @return Migrator
      */
-    public function getMigrator()
+    public function getMigrator(): Migrator
     {
         return $this->migrator;
     }
 
     /**
-     * Get only enabled extensions.
-     *
-     * @return array|Extension[]
+     * @return Extension[]
      */
-    public function getEnabledExtensions()
+    public function getEnabledExtensions(): array
     {
         $enabled = [];
         $extensions = $this->getExtensions();
@@ -373,12 +301,22 @@ class ExtensionManager
 
     /**
      * Call on all enabled extensions to extend the Flarum application.
-     *
-     * @param Container $container
      */
-    public function extend(Container $container)
+    public function extend(Container $container): void
     {
-        foreach ($this->getEnabledExtensions() as $extension) {
+        $extensions = $this->getEnabledExtensions();
+
+        if ($this->maintenance->inSafeMode()) {
+            $safeModeExtensions = $this->maintenance->safeModeExtensions();
+
+            $extensions = array_filter($extensions, function (Extension $extension) use ($safeModeExtensions) {
+                return in_array($extension->getId(), $safeModeExtensions, true);
+            });
+
+            $extensions = $this->sortDependencies($extensions);
+        }
+
+        foreach ($extensions as $extension) {
             $extension->extend($container);
         }
     }
@@ -386,9 +324,9 @@ class ExtensionManager
     /**
      * The id's of the enabled extensions.
      *
-     * @return array
+     * @return string[]
      */
-    public function getEnabled()
+    public function getEnabled(): array
     {
         return json_decode($this->config->get('extensions_enabled'), true) ?? [];
     }
@@ -396,26 +334,37 @@ class ExtensionManager
     /**
      * Persist the currently enabled extensions.
      *
-     * @param array $enabledExtensions
+     * @param Extension[] $enabledExtensions
+     * @throws CircularDependenciesException
      */
-    protected function setEnabledExtensions(array $enabledExtensions)
+    protected function setEnabledExtensions(array $enabledExtensions): void
     {
-        $sortedEnabled = static::resolveExtensionOrder($enabledExtensions)['valid'];
-
-        $sortedEnabledIds = array_map(function (Extension $extension) {
+        $this->config->set('extensions_enabled', json_encode(array_map(function (Extension $extension) {
             return $extension->getId();
-        }, $sortedEnabled);
-
-        $this->config->set('extensions_enabled', json_encode($sortedEnabledIds));
+        }, $this->sortDependencies($enabledExtensions))));
     }
 
     /**
-     * Whether the extension is enabled.
+     * Apply a topological sort to the extensions to ensure that they are in the correct order.
      *
-     * @param $extension
-     * @return bool
+     * @param Extension[] $extensions
+     * @return Extension[]
+     * @throws CircularDependenciesException
      */
-    public function isEnabled($extension)
+    public function sortDependencies(array $extensions): array
+    {
+        $resolved = static::resolveExtensionOrder($extensions);
+
+        if (! empty($resolved['circularDependencies'])) {
+            throw new Exception\CircularDependenciesException(
+                $this->getExtensionsById($resolved['circularDependencies'])->values()->all()
+            );
+        }
+
+        return $resolved['valid'];
+    }
+
+    public function isEnabled(string $extension): bool
     {
         $enabled = $this->getEnabledExtensions();
 
@@ -425,14 +374,14 @@ class ExtensionManager
     /**
      * Returns the titles of the extensions passed.
      *
-     * @param array $exts
+     * @param Extension[] $extensions
      * @return string[]
      */
-    public static function pluckTitles(array $exts)
+    public static function pluckTitles(array $extensions): array
     {
         return array_map(function (Extension $extension) {
             return $extension->getTitle();
-        }, $exts);
+        }, $extensions);
     }
 
     /**
@@ -450,7 +399,7 @@ class ExtensionManager
      *
      * @internal
      */
-    public static function resolveExtensionOrder($extensionList)
+    public static function resolveExtensionOrder(array $extensionList): array
     {
         $extensionIdMapping = []; // Used for caching so we don't rerun ->getExtensions every time.
 
@@ -531,5 +480,37 @@ class ExtensionManager
             'missingDependencies' => $missingDependencies,
             'circularDependencies' => $circularDependencies
         ];
+    }
+
+    protected function extensionFromJson(array $package, string $path): Extension
+    {
+        // Instantiates an Extension object using the package path and composer.json file.
+        $extension = new Extension($path, $package);
+
+        // Per default all extensions are installed if they are registered in composer.
+        $extension->setInstalled(true);
+        $extension->setVersion(Arr::get($package, 'version', '0.0'));
+
+        return $extension;
+    }
+
+    protected function subExtensionConfsFromJson(array $package, string $packagePath): ?array
+    {
+        if (! ($subExtPaths = Arr::get($package, 'extra.flarum-subextensions', []))) {
+            return null;
+        }
+
+        $subExtConfs = [];
+
+        foreach ($subExtPaths as $subExtPath) {
+            $subPackagePath = "$packagePath/$subExtPath";
+            $conf = json_decode($this->filesystem->get("$subPackagePath/composer.json"), true);
+
+            if (Arr::get($conf, 'type') === 'flarum-extension') {
+                $subExtConfs[$subPackagePath] = $conf;
+            }
+        }
+
+        return $subExtConfs;
     }
 }

@@ -2,6 +2,27 @@
   // Pad bottom of page to make nav area look less squashed
   padding-bottom: 24px;
 
+  &-header {
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    column-gap: 8px;
+  }
+
+  &-totalUsers {
+    margin: 0;
+  }
+
+  &-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    * + * {
+      margin-left: 8px;
+    }
+  }
+
   &-grid {
     width: 100%;
     position: relative;
@@ -15,24 +36,7 @@
 
     // Table refreshing overlay
     &--loadingPage {
-      &::after {
-        content: "";
-        display: block;
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: rgba(128, 128, 128, 0.2);
-      }
-
-      .LoadingIndicator-container {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-      }
+      .loading-container();
     }
 
     &--loaded,
@@ -61,31 +65,11 @@
       &--shaded {
         background: var(--body-bg-shaded);
 
-        & when (@config-dark-mode = true) {
+        [data-theme^=dark] & {
           background: var(--body-bg-light);
         }
       }
     }
-  }
-
-  &-gridPagination {
-    display: grid;
-    grid-template-columns: auto auto 1fr auto auto;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-    margin-top: 16px;
-  }
-
-  &-pageNumber {
-    text-align: center;
-  }
-
-  &-pageNumberInput {
-    display: inline-block;
-    margin: 0 8px;
-    width: auto;
-    max-width: 80px;
   }
 }
 

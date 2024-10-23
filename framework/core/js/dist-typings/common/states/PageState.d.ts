@@ -1,7 +1,9 @@
 export default class PageState {
-    constructor(type: any, data?: {});
-    type: any;
-    data: {};
+    type: Function | null;
+    data: {
+        routeName?: string | null;
+    } & Record<string, any>;
+    constructor(type: Function | null, data?: any);
     /**
      * Determine whether the page matches the given class and data.
      *
@@ -9,7 +11,7 @@ export default class PageState {
      * @param {Record<string, unknown>} data
      * @return {boolean}
      */
-    matches(type: object, data?: Record<string, unknown>): boolean;
-    get(key: any): any;
-    set(key: any, value: any): void;
+    matches(type: Function, data?: any): boolean;
+    get(key: string): any;
+    set(key: string, value: any): void;
 }

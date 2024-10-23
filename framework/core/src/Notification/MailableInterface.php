@@ -9,23 +9,24 @@
 
 namespace Flarum\Notification;
 
-use Symfony\Contracts\Translation\TranslatorInterface;
+use Flarum\Locale\TranslatorInterface;
 
 interface MailableInterface
 {
     /**
-     * Get the name of the view to construct a notification email with.
+     * Get the names of the views to construct a notification email with.
      *
-     * @return string|array
+     * To provide the best experience for the user, Flarum expects both a `text` and `html` view.
+     *
+     * @return array{
+     *     text: string,
+     *     html: string
+     * }
      */
-    public function getEmailView();
+    public function getEmailViews(): array;
 
     /**
      * Get the subject line for a notification email.
-     *
-     * @param TranslatorInterface $translator
-     *
-     * @return string
      */
-    public function getEmailSubject(TranslatorInterface $translator);
+    public function getEmailSubject(TranslatorInterface $translator): string;
 }

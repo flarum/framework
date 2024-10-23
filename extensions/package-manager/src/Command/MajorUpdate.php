@@ -7,27 +7,17 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Command;
+namespace Flarum\ExtensionManager\Command;
 
-use Flarum\PackageManager\Task\Task;
+use Flarum\ExtensionManager\Task\Task;
 use Flarum\User\User;
 
 class MajorUpdate extends AbstractActionCommand
 {
-    /**
-     * @var \Flarum\User\User
-     */
-    public $actor;
-
-    /**
-     * @var bool
-     */
-    public $dryRun;
-
-    public function __construct(User $actor, bool $dryRun)
-    {
-        $this->actor = $actor;
-        $this->dryRun = $dryRun;
+    public function __construct(
+        public User $actor,
+        public bool $dryRun
+    ) {
     }
 
     public function getOperationName(): string

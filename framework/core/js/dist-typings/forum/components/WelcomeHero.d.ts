@@ -1,5 +1,6 @@
 import Component from '../../common/Component';
 import type Mithril from 'mithril';
+import ItemList from '../../common/utils/ItemList';
 export interface IWelcomeHeroAttrs {
 }
 /**
@@ -7,10 +8,6 @@ export interface IWelcomeHeroAttrs {
  * forum.
  */
 export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
-    /**
-     * @deprecated Extend the `isHidden` method instead.
-     */
-    hidden: boolean;
     oninit(vnode: Mithril.Vnode<IWelcomeHeroAttrs, this>): void;
     view(vnode: Mithril.Vnode<IWelcomeHeroAttrs, this>): JSX.Element | null;
     /**
@@ -23,4 +20,5 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
      * @returns if the welcome hero is hidden.
      */
     isHidden(): boolean;
+    welcomeItems(): ItemList<Mithril.Children>;
 }
