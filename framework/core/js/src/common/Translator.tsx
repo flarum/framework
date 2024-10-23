@@ -3,7 +3,7 @@ import type { Dayjs } from 'dayjs';
 import User from './models/User';
 import extract from './utils/extract';
 import formatMessage, { Translation } from 'format-message';
-import fireDebugWarning, { fireDeprecationWarning } from './helpers/fireDebugWarning';
+import fireDebugWarning from './helpers/fireDebugWarning';
 import extractText from './utils/extractText';
 import ItemList from './utils/ItemList';
 
@@ -55,18 +55,12 @@ export default class Translator {
       translations: {
         [locale]: Object.assign(this.translations, translations),
       },
-      missingReplacement: (key: string) => {
-        fireDebugWarning(`Missing translation for key: ${key}`);
-
-        return key;
-      },
     });
   }
 
   /**
    * A temporary system to preprocess parameters.
    * Should not be used by extensions.
-   * TODO: An extender will be added in v1.x.
    *
    * @internal
    */
@@ -92,7 +86,7 @@ export default class Translator {
 
     for (const tag of tags) {
       if (!parameters[tag]) {
-        fireDeprecationWarning(
+        fireDebugWarning(
           `Any HTML tags used within translations must have corresponding mithril component parameters.\nCaught in translation: \n\n"""\n${translation}\n"""`,
           '',
           'v2.0',
@@ -138,6 +132,8 @@ export default class Translator {
       if (extract) return extractText(locale);
 
       return locale;
+    } else {
+      fireDebugWarning(`Missing translation for key: "${id}"`);
     }
 
     return id;

@@ -9,7 +9,7 @@ export default function bootstrap(Application, app, payload = {}) {
 
   app.load({
     apiDocument: null,
-    locale: null,
+    locale: 'en',
     locales: {},
     resources: [
       {
@@ -36,7 +36,7 @@ export default function bootstrap(Application, app, payload = {}) {
     ...payload,
   });
 
-  app.translator.addTranslations(flatten(jsYaml.load(fs.readFileSync('../locale/core.yml', 'utf8'))));
   app.translator.setLocale('en');
+  app.translator.addTranslations(flatten(jsYaml.load(fs.readFileSync('../locale/core.yml', 'utf8'))));
   app.drawer = new Drawer();
 }
