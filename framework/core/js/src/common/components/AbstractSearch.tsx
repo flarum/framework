@@ -96,10 +96,15 @@ export default abstract class AbstractSearch<T extends SearchAttrs = SearchAttrs
     };
 
     return (
-      <div role="search" className="Search" aria-label={this.attrs.a11yRoleLabel} onclick={() => {
-        this.$('input').blur();
-        setTimeout(() => openSearchModal(), 150);
-      }}>
+      <div
+        role="search"
+        className="Search"
+        aria-label={this.attrs.a11yRoleLabel}
+        onclick={() => {
+          this.$('input').blur();
+          setTimeout(() => openSearchModal(), 150);
+        }}
+      >
         <Input
           type="search"
           className="Search-input"
