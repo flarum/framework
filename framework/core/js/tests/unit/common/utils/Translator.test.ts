@@ -17,13 +17,23 @@ test('placeholders encoding', () => {
   expect(extractText(translator.trans('test1', { placeholder: translator.trans('test2', { placeholder: "'" }) }))).toBe("test1 test2 ' test2 test1");
 });
 
+// This is how the backend translator behaves. The only discrepancy with the frontend translator.
+// test('missing placeholders', () => {
+//   const translator = new Translator();
+//   translator.addTranslations({
+//     test1: 'test1 {placeholder} test1',
+//   });
+//
+//   expect(extractText(translator.trans('test1', {}))).toBe('test1 {placeholder} test1');
+// });
+
 test('missing placeholders', () => {
   const translator = new Translator();
   translator.addTranslations({
     test1: 'test1 {placeholder} test1',
   });
 
-  expect(extractText(translator.trans('test1', {}))).toBe('test1 {placeholder} test1');
+  expect(extractText(translator.trans('test1', {}))).toBe('test1 {undefined} test1');
 });
 
 test('escaped placeholders', () => {

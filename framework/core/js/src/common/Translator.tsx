@@ -127,7 +127,10 @@ export default class Translator {
 
       this.translations[id] = translation;
 
-      const locale = this.formatter.rich({ id, default: id }, parameters);
+      let locale = this.formatter.rich({ id, default: id }, parameters);
+
+      // convert undefined args to {undefined}.
+      locale = locale instanceof Array ? locale.map((arg) => (arg === undefined ? '{undefined}' : arg)) : locale;
 
       if (extract) return extractText(locale);
 
