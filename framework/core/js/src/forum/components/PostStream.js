@@ -270,7 +270,7 @@ export default class PostStream extends Component {
     // set the index to the last post.
     this.stream.index = indexFromViewPort !== null ? indexFromViewPort + 1 : this.stream.count();
     this.stream.visible = visible;
-    if (period) this.stream.description = dayjs(period).format('MMMM YYYY');
+    if (period) this.stream.description = app.translator.formatDateTime(dayjs(period), 'core.lib.datetime_formats.scrubber');
   }
 
   /**

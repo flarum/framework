@@ -843,6 +843,14 @@ core:
     username:
       deleted_text: "[deleted]"
 
+    # These are DayJS formats used in core.
+    datetime_formats:
+      fullTime: LLLL
+      humanTimeShort: D MMM
+      humanTimeLong: ll
+      scrubber: MMMM YYYY
+      userListJoinDate: LLL
+
   # Translations in this namespace are used in views other than Flarum's normal JS client.
   views:
     # Translations in this namespace are displayed by the basic HTML admin index.
