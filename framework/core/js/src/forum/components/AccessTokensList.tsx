@@ -9,7 +9,6 @@ import classList from '../../common/utils/classList';
 import Tooltip from '../../common/components/Tooltip';
 import type Mithril from 'mithril';
 import type AccessToken from '../../common/models/AccessToken';
-import { NestedStringArray } from '@askvortsov/rich-icu-message-formatter';
 import Icon from '../../common/components/Icon';
 
 export interface IAccessTokensListAttrs extends ComponentAttrs {
@@ -187,7 +186,7 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
     m.redraw();
   }
 
-  generateTokenTitle(token: AccessToken): NestedStringArray {
+  generateTokenTitle(token: AccessToken): any[] | string {
     const name = token.title() || app.translator.trans('core.forum.security.token_title_placeholder');
     const value = this.tokenValueDisplay(token);
 

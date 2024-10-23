@@ -9,7 +9,6 @@ import extractText from './extractText';
  * // "1.2K"
  */
 export default function abbreviateNumber(number: number): string {
-  // TODO: translation
   if (number >= 1000000) {
     return Math.floor(number / 1000000) + extractText(app.translator.trans('core.lib.number_suffix.mega_text'));
   } else if (number >= 1000) {

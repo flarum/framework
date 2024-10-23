@@ -3,7 +3,7 @@ import type { Dayjs } from 'dayjs';
 import User from './models/User';
 import extract from './utils/extract';
 import formatMessage, { Translation } from 'format-message';
-import { fireDeprecationWarning } from './helpers/fireDebugWarning';
+import fireDebugWarning, { fireDeprecationWarning } from './helpers/fireDebugWarning';
 import extractText from './utils/extractText';
 import ItemList from './utils/ItemList';
 
@@ -36,7 +36,7 @@ export default class Translator {
     this.formatter.setup({
       locale,
       translations: {
-        [locale]: this.formatter.setup().translations.tmp ?? {},
+        [locale]: this.formatter.setup().translations[locale] ?? {},
       },
     });
   }
@@ -49,20 +49,18 @@ export default class Translator {
   }
 
   addTranslations(translations: Translations) {
+    const locale = this.getLocale();
+
     this.formatter.setup({
       translations: {
-        // The locale has not been set yet by this time.
-        // @TODO: in v2.0 we should add translations with the locale info.
-        tmp: Object.assign(this.translations, translations),
+        [locale]: Object.assign(this.translations, translations),
+      },
+      missingReplacement: (key: string) => {
+        fireDebugWarning(`Missing translation for key: ${key}`);
+
+        return key;
       },
     });
-  }
-
-  /**
-   * An extensible entrypoint for extenders to register type handlers for translations.
-   */
-  protected formatterTypeHandlers() {
-    return this.formatter;
   }
 
   /**
@@ -123,15 +121,16 @@ export default class Translator {
     return parameters;
   }
 
-  trans(id: string, parameters: TranslatorParameters): NestedStringArray;
-  trans(id: string, parameters: TranslatorParameters, extract: false): NestedStringArray;
+  trans(id: string, parameters: TranslatorParameters): any[];
+  trans(id: string, parameters: TranslatorParameters, extract: false): any[];
   trans(id: string, parameters: TranslatorParameters, extract: true): string;
-  trans(id: string): NestedStringArray | string;
+  trans(id: string): any[] | string;
   trans(id: string, parameters: TranslatorParameters = {}, extract = false) {
     const translation = this.preprocessTranslation(this.translations[id]);
 
     if (translation) {
       parameters = this.preprocessParameters(parameters, translation);
+
       this.translations[id] = translation;
 
       const locale = this.formatter.rich({ id, default: id }, parameters);
@@ -160,7 +159,7 @@ export default class Translator {
       if (result) return result;
     }
 
-    return time.format(this.translations[id]);
+    return time.format(this.preprocessTranslation(this.translations[id]));
   }
 
   /**
@@ -168,7 +167,6 @@ export default class Translator {
    * formatter supported that, but the new one doesn't, so attributes are auto dropped
    * to avoid errors.
    *
-   * @deprecated Will be removed in v2.0
    * @private
    */
   private preprocessTranslation(translation: string | Translation | undefined): string | undefined {
@@ -180,14 +178,13 @@ export default class Translator {
     // remove the attributes for backwards compatibility. Will be removed in v2.0.
     // And if it did have attributes, then we'll fire a warning
     if (translation.match(/<\w+ [^>]+>/g)) {
-      fireDeprecationWarning(
-        `Any HTML tags used within translations must be simple tags, without attributes.\nCaught in translation: \n\n"""\n${translation}\n"""`,
-        '',
-        'v2.0',
-        'flarum/framework'
+      fireDebugWarning(
+        `Any HTML tags used within translations must be simple tags, without attributes.\nCaught in translation: \n\n"""\n${translation}\n"""`
       );
+
+      return translation.replace(/<(\w+)([^>]*)>/g, '<$1>');
     }
 
-    return translation.replace(/<(\w+)([^>]*)>/g, '<$1>');
+    return translation;
   }
 }
