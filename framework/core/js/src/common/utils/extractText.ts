@@ -5,7 +5,10 @@ import type Mithril from 'mithril';
  */
 export default function extractText(vdom: Mithril.Children): string {
   if (vdom instanceof Array) {
-    return vdom.map((element) => extractText(element)).join('');
+    return vdom
+      .filter((item) => item !== undefined)
+      .map((element) => extractText(element))
+      .join('');
   } else if (typeof vdom === 'object' && vdom !== null) {
     return extractText(vdom.children);
   } else {
