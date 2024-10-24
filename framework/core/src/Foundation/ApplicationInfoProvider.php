@@ -57,7 +57,7 @@ class ApplicationInfoProvider
     public function identifyQueueDriver(): string
     {
         // Get class name
-        $queue = get_class($this->queue);
+        $queue = $this->queue::class;
         // Drop the namespace
         $queue = Str::afterLast($queue, '\\');
         // Lowercase the class name
@@ -70,7 +70,35 @@ class ApplicationInfoProvider
 
     public function identifyDatabaseVersion(): string
     {
-        return $this->db->selectOne('select version() as version')->version;
+        return match ($this->config['database.driver']) {
+            'mysql', 'pgsql' => $this->db->selectOne('select version() as version')->version,
+            'sqlite' => $this->db->selectOne('select sqlite_version() as version')->version,
+            default => 'Unknown',
+        };
+    }
+
+    public function identifyDatabaseDriver(): string
+    {
+        return match ($this->config['database.driver']) {
+            'mysql' => 'MySQL',
+            'pgsql' => 'PostgreSQL',
+            'sqlite' => 'SQLite',
+            default => $this->config['database.driver'],
+        };
+    }
+
+    public function identifyDatabaseOptions(): array
+    {
+        if ($this->config['database.driver'] === 'pgsql') {
+            return [
+                'search_configurations' => collect($this->db->select('SELECT * FROM pg_ts_config'))
+                    ->pluck('cfgname')
+                    ->mapWithKeys(fn (string $cfgname) => [$cfgname => $cfgname])
+                    ->toArray(),
+            ];
+        }
+
+        return [];
     }
 
     /**
@@ -103,7 +131,7 @@ class ApplicationInfoProvider
          * And compare that to the current configured driver.
          */
         // Get class name
-        $handlerName = get_class($this->sessionHandler);
+        $handlerName = $this->sessionHandler::class;
         // Drop the namespace
         $handlerName = Str::afterLast($handlerName, '\\');
         // Lowercase the class name

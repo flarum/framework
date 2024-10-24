@@ -24,7 +24,7 @@ export default class WhyNotModal<CustomAttrs extends WhyNotModalAttrs = WhyNotMo
   }
 
   title() {
-    return app.translator.trans('flarum-package-manager.admin.why_not_modal.title');
+    return app.translator.trans('flarum-extension-manager.admin.why_not_modal.title');
   }
 
   oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
@@ -41,7 +41,7 @@ export default class WhyNotModal<CustomAttrs extends WhyNotModalAttrs = WhyNotMo
     app
       .request<WhyNotResponse>({
         method: 'POST',
-        url: `${app.forum.attribute('apiUrl')}/package-manager/why-not`,
+        url: `${app.forum.attribute('apiUrl')}/extension-manager/why-not`,
         body: {
           data: {
             package: this.attrs.package,

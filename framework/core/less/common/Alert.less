@@ -3,6 +3,7 @@
   border-radius: var(--border-radius);
   line-height: 1.5;
 
+  --loading-indicator-color: var(--alert-color);
   background: var(--alert-bg);
 
   &,
@@ -66,10 +67,17 @@
     display: none;
   }
 }
+.Alert-content {
+  flex-direction: column;
+}
 .Alert-title {
   margin-bottom: 8px;
   font-weight: bold;
-  display: flex;
   align-items: center;
   gap: 8px;
+}
+.Alert-container,
+.Alert-content,
+.Alert-title {
+  display: flex;
 }

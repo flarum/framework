@@ -5,6 +5,9 @@
 * recover temporary solution for html entities in browser title (e72541e35de4f71f9d870bbd9bb46ddf586bdf1d)
 * custom contrast color affected by parents (577890d89c593ae5b6cb96083fab69e2f1ae600c)
 * reply placeholder wrong positioning (253a3d281dbf5ce3fa712b629b80587cf67e7dbe)
+* (mentions) missed post mentions UI changes with lazy loading [#3832]
+* (mentions) cannot use newly introduced mentionables extender [#3849]
+* (mentions) missing slug from post mention links ([5a4bb7c](5a4bb7ccf226f66dd44816cb69b3d7cfe4ad7f7c))
 
 ## [v1.8.0](https://github.com/flarum/framework/compare/v1.7.1...v1.8.0)
 ### Fixed
@@ -467,7 +470,7 @@ looks rather complex and messy compared to the full list of changes made for thi
 - Pass filter params to getApiDocument (https://github.com/flarum/framework/pull/3037)
 - Use author filter instead of gambit to get a user's discussions (https://github.com/flarum/framework/pull/3068)
 - [A11Y] Accessibility improvements for the Search component (https://github.com/flarum/framework/pull/3017)
-- Add determinsm to extension order resolution (https://github.com/flarum/framework/pull/3076)
+- Add determinism to extension order resolution (https://github.com/flarum/framework/pull/3076)
 - Add cache control headers to the admin area (https://github.com/flarum/framework/pull/3097)
 
 ### Fixed

@@ -9,24 +9,34 @@
 
 namespace Flarum\Likes\Query;
 
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
-use Flarum\Filter\ValidateFilterTrait;
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\FilterInterface;
+use Flarum\Search\SearchState;
+use Flarum\Search\ValidateFilterTrait;
+use Flarum\User\UserRepository;
 
+/**
+ * @implements FilterInterface<DatabaseSearchState>
+ */
 class LikedFilter implements FilterInterface
 {
     use ValidateFilterTrait;
+
+    public function __construct(
+        protected UserRepository $users
+    ) {
+    }
 
     public function getFilterKey(): string
     {
         return 'liked';
     }
 
-    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $likedId = $this->asString($filterValue);
+        $likedId = $this->asString($value);
 
-        $filterState
+        $state
             ->getQuery()
             ->whereIn('id', function ($query) use ($likedId) {
                 $query->select('user_id')

@@ -10,19 +10,14 @@
 namespace Flarum\Filesystem;
 
 use Flarum\Foundation\AbstractServiceProvider;
-use Flarum\Foundation\Config;
 use Flarum\Foundation\Paths;
 use Flarum\Http\UrlGenerator;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Arr;
-use Intervention\Image\ImageManager;
-use RuntimeException;
+use League\Flysystem\Visibility;
 
 class FilesystemServiceProvider extends AbstractServiceProvider
 {
-    protected const INTERVENTION_DRIVERS = ['gd' => 'gd', 'imagick' => 'imagick'];
-
     public function register(): void
     {
         $this->container->singleton('files', function () {
@@ -33,14 +28,15 @@ class FilesystemServiceProvider extends AbstractServiceProvider
             return [
                 'flarum-assets' => function (Paths $paths, UrlGenerator $url) {
                     return [
-                        'root'   => "$paths->public/assets",
-                        'url'    => $url->to('forum')->path('assets')
+                        'root' => "$paths->public/assets",
+                        'url' => $url->to('forum')->path('assets'),
+                        'visibility' => Visibility::PUBLIC
                     ];
                 },
                 'flarum-avatars' => function (Paths $paths, UrlGenerator $url) {
                     return [
-                        'root'   => "$paths->public/assets/avatars",
-                        'url'    => $url->to('forum')->path('assets/avatars')
+                        'root' => "$paths->public/assets/avatars",
+                        'url' => $url->to('forum')->path('assets/avatars')
                     ];
                 },
             ];
@@ -62,27 +58,6 @@ class FilesystemServiceProvider extends AbstractServiceProvider
                 $container->make('flarum.filesystem.disks'),
                 $container->make('flarum.filesystem.resolved_drivers')
             );
-        });
-
-        $this->container->singleton(ImageManager::class, function (Container $container) {
-            /** @var Config $config */
-            $config = $this->container->make(Config::class);
-
-            $intervention = $config->offsetGet('intervention');
-            $driver = Arr::get($intervention, 'driver', self::INTERVENTION_DRIVERS['gd']);
-
-            // Check that the imagick library is actually available, else default back to gd.
-            if ($driver === self::INTERVENTION_DRIVERS['imagick'] && ! extension_loaded(self::INTERVENTION_DRIVERS['imagick'])) {
-                $driver = self::INTERVENTION_DRIVERS['gd'];
-            }
-
-            if (! Arr::has(self::INTERVENTION_DRIVERS, $driver)) {
-                throw new RuntimeException("intervention/image: $driver is not valid");
-            }
-
-            return new ImageManager([
-                'driver' => $driver
-            ]);
         });
     }
 }

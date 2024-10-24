@@ -14,6 +14,7 @@ use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -34,6 +35,7 @@ use Psr\Http\Message\ServerRequestInterface;
 class AccessToken extends AbstractModel
 {
     use ScopeVisibilityTrait;
+    use HasFactory;
 
     protected $table = 'access_tokens';
 
@@ -71,10 +73,20 @@ class AccessToken extends AbstractModel
      */
     private const LAST_ACTIVITY_UPDATE_DIFF = 90;
 
+    public ?array $uniqueKeys = ['token'];
+
     /**
      * Generate an access token for the specified user.
      */
     public static function generate(int $userId): static
+    {
+        $token = static::make($userId);
+        $token->save();
+
+        return $token;
+    }
+
+    public static function make(int $userId): static
     {
         if (static::class === self::class) {
             throw new \Exception('Use of AccessToken::generate() is not allowed: use the `generate` method on one of the subclasses.');
@@ -87,7 +99,6 @@ class AccessToken extends AbstractModel
         $token->user_id = $userId;
         $token->created_at = Carbon::now();
         $token->last_activity_at = Carbon::now();
-        $token->save();
 
         return $token;
     }
@@ -100,7 +111,7 @@ class AccessToken extends AbstractModel
     {
         $now = Carbon::now();
 
-        if ($this->last_activity_at === null || $this->last_activity_at->diffInSeconds($now) > AccessToken::LAST_ACTIVITY_UPDATE_DIFF) {
+        if ($this->last_activity_at === null || $this->last_activity_at->diffInSeconds($now, true) > AccessToken::LAST_ACTIVITY_UPDATE_DIFF) {
             $this->last_activity_at = $now;
         }
 

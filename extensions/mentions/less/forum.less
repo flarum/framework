@@ -1,7 +1,7 @@
 .PostMention, .UserMention, .GroupMention {
   background: var(--control-bg);
   color: var(--control-color);
-  border-radius: @border-radius;
+  border-radius: var(--border-radius);
   font-weight: 600;
 
   blockquote & {
@@ -30,10 +30,7 @@
     margin-left: 0;
   }
 
-  // @TODO: 2.0 use an icon in the XSLT template.
-  &:before {
-    .fas();
-    content: @fa-var-reply;
+  .icon {
     margin-right: 5px;
   }
 }
@@ -81,7 +78,7 @@
 .MentionsDropdown, .PostMention-preview, .Post-mentionedBy-preview {
   // @TODO: Rename to .MentionsDropdownItem, along with child classes. 2.0
   .PostPreview {
-    color: @muted-color;
+    color: var(--muted-color);
 
     .Avatar {
       .Avatar--size(24px);
@@ -93,7 +90,7 @@
       }
     }
     .username {
-      color: @text-color;
+      color: var(--text-color);
       font-weight: bold;
     }
   }

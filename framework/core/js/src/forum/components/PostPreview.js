@@ -1,9 +1,9 @@
 import app from '../../forum/app';
 import Component from '../../common/Component';
 import Link from '../../common/components/Link';
-import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
 import highlight from '../../common/helpers/highlight';
+import Avatar from '../../common/components/Avatar';
 
 /**
  * The `PostPreview` component shows a link to a post containing the avatar and
@@ -23,7 +23,7 @@ export default class PostPreview extends Component {
     return (
       <Link className="PostPreview" href={app.route.post(post)} onclick={this.attrs.onclick}>
         <span className="PostPreview-content">
-          {avatar(user)}
+          <Avatar user={user} />
           {username(user)} <span className="PostPreview-excerpt">{excerpt}</span>
         </span>
       </Link>

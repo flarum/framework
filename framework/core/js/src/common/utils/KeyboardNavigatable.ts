@@ -38,12 +38,7 @@ export default class KeyboardNavigatable {
    * This will be triggered by the Up key.
    */
   onUp(callback: KeyboardEventHandler): KeyboardNavigatable {
-    this.callbacks.set(Keys.ArrowUp, (e) => {
-      e.preventDefault();
-      callback(e);
-    });
-
-    return this;
+    return this.onDirection(callback, Keys.ArrowUp);
   }
 
   /**
@@ -52,7 +47,29 @@ export default class KeyboardNavigatable {
    * This will be triggered by the Down key.
    */
   onDown(callback: KeyboardEventHandler): KeyboardNavigatable {
-    this.callbacks.set(Keys.ArrowDown, (e) => {
+    return this.onDirection(callback, Keys.ArrowDown);
+  }
+
+  /**
+   * Provide a callback to be executed when navigating leftwards.
+   *
+   * This will be triggered by the Left key.
+   */
+  onLeft(callback: KeyboardEventHandler): KeyboardNavigatable {
+    return this.onDirection(callback, Keys.ArrowLeft);
+  }
+
+  /**
+   * Provide a callback to be executed when navigating rightwards.
+   *
+   * This will be triggered by the Right key.
+   */
+  onRight(callback: KeyboardEventHandler): KeyboardNavigatable {
+    return this.onDirection(callback, Keys.ArrowRight);
+  }
+
+  onDirection(callback: KeyboardEventHandler, direction: Keys): KeyboardNavigatable {
+    this.callbacks.set(direction, (e) => {
       e.preventDefault();
       callback(e);
     });

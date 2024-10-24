@@ -58,7 +58,7 @@ export default function () {
             if (
               item.permission === 'viewForum' ||
               item.permission === 'startDiscussion' ||
-              (item.permission.startsWith('discussion.') && item.tagScoped !== false) ||
+              (item.permission?.startsWith('discussion.') && item.tagScoped !== false) ||
               item.tagScoped
             ) {
               return <PermissionDropdown permission={`tag${tag.id()}.${item.permission}`} allowGuest={item.allowGuest} />;

@@ -54,7 +54,7 @@ declare type VnodeElementTag<Attrs = Record<string, unknown>, C extends Componen
  * import app from 'flarum/common/app';
  * ```
  */
-declare const app: never;
+declare const app: import('../common/Application').default;
 
 declare const m: import('mithril').Static;
 declare const dayjs: typeof import('dayjs');
@@ -98,9 +98,26 @@ interface FlarumObject {
    * }
    */
   extensions: Readonly<Record<string, ESModule>>;
+  /**
+   * Contains a registry of all exported modules,
+   * as well as chunks that can be imported and the modules
+   * each chunk contains.
+   */
+  reg: import('../common/ExportRegistry').default;
+  /**
+   * For early operations, this object stores whether we are in debug mode or not.
+   */
+  debug: boolean;
 }
 
 declare const flarum: FlarumObject;
+
+interface Window {
+  /**
+   * Whether we are in testing mode or not.
+   */
+  testing?: boolean;
+}
 
 // Extend JQuery with our custom functions, defined with $.fn
 interface JQuery {

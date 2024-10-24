@@ -12,7 +12,7 @@ export default class DiscussionPageResolver<Attrs extends IDiscussionPageAttrs =
      * Remove optional parts of a discussion's slug to keep the substring
      * that bijectively maps to a discussion object. By default this just
      * extracts the numerical ID from the slug. If a custom discussion
-     * slugging driver is used, this may need to be overriden.
+     * slugging driver is used, this may need to be overridden.
      * @param slug
      */
     canonicalizeDiscussionSlug(slug: string | undefined): string | undefined;
@@ -20,6 +20,6 @@ export default class DiscussionPageResolver<Attrs extends IDiscussionPageAttrs =
      * @inheritdoc
      */
     makeKey(): string;
-    onmatch(args: Attrs & RouteArgs, requestedPath: string, route: string): new () => DiscussionPage<Attrs>;
+    onmatch(args: Attrs & RouteArgs, requestedPath: string, route: string): Promise<import("../../common/Application").NewComponent<DiscussionPage<Attrs>>>;
     render(vnode: Mithril.Vnode<Attrs, DiscussionPage<Attrs>>): Mithril.Children;
 }

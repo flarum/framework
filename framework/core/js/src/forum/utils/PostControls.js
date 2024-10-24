@@ -1,5 +1,4 @@
 import app from '../../forum/app';
-import EditPostComposer from '../components/EditPostComposer';
 import Button from '../../common/components/Button';
 import Separator from '../../common/components/Separator';
 import ItemList from '../../common/utils/ItemList';
@@ -9,7 +8,7 @@ import extractText from '../../common/utils/extractText';
  * The `PostControls` utility constructs a list of buttons for a post which
  * perform actions on it.
  */
-export default {
+const PostControls = {
   /**
    * Get a list of controls for a post.
    *
@@ -121,8 +120,7 @@ export default {
    */
   editAction() {
     return new Promise((resolve) => {
-      app.composer.load(EditPostComposer, { post: this });
-      app.composer.show();
+      app.composer.load(() => import('../components/EditPostComposer'), { post: this }).then(() => app.composer.show());
 
       return resolve();
     });
@@ -183,3 +181,5 @@ export default {
       });
   },
 };
+
+export default PostControls;

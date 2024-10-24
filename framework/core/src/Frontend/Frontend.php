@@ -10,35 +10,33 @@
 namespace Flarum\Frontend;
 
 use Flarum\Api\Client;
-use Flarum\Frontend\Driver\TitleDriverInterface;
-use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\Container\Container;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class Frontend
 {
     /**
-     * @var callable[]
+     * @var array<array{callback: callable, priority: int}>
      */
     protected array $content = [];
 
     public function __construct(
-        protected Factory $view,
         protected Client $api,
-        protected TitleDriverInterface $titleDriver
+        protected Container $container
     ) {
     }
 
-    public function content(callable $content): void
+    public function content(callable $callback, int $priority): void
     {
-        $this->content[] = $content;
+        $this->content[] = compact('callback', 'priority');
     }
 
     public function document(Request $request): Document
     {
-        $forumDocument = $this->getForumDocument($request);
+        $forumApiDocument = $this->getForumDocument($request);
 
-        $document = new Document($this->view, $forumDocument, $request, $this->titleDriver);
+        $document = $this->container->makeWith(Document::class, compact('forumApiDocument', 'request'));
 
         $this->populate($document, $request);
 
@@ -47,15 +45,23 @@ class Frontend
 
     protected function populate(Document $document, Request $request): void
     {
-        foreach ($this->content as $content) {
-            $content($document, $request);
+        $content = $this->content;
+
+        usort($content, function ($a, $b) {
+            return $b['priority'] <=> $a['priority'];
+        });
+
+        foreach ($content as $item) {
+            $item['callback']($document, $request);
         }
     }
 
     private function getForumDocument(Request $request): array
     {
         return $this->getResponseBody(
-            $this->api->withParentRequest($request)->get('/')
+            $this->api->withoutErrorHandling()
+                ->withParentRequest($request)
+                ->get('/')
         );
     }
 

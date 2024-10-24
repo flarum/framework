@@ -26,6 +26,11 @@ class Installer implements AppInterface
     ) {
     }
 
+    public function getContainer(): Container
+    {
+        return $this->container;
+    }
+
     public function getRequestHandler(): RequestHandlerInterface
     {
         $pipe = new MiddlewarePipe;

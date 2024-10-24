@@ -7,30 +7,27 @@
  * LICENSE file that was distributed with this source code.
  */
 
-namespace Flarum\PackageManager\Tests\integration\api\extensions;
+namespace Flarum\ExtensionManager\Tests\integration\api\extensions;
 
-use Flarum\PackageManager\Tests\integration\RefreshComposerSetup;
-use Flarum\PackageManager\Tests\integration\TestCase;
+use Flarum\ExtensionManager\Tests\integration\RefreshComposerSetup;
+use Flarum\ExtensionManager\Tests\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class RequireExtensionTest extends TestCase
 {
     use RefreshComposerSetup;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function extension_uninstalled_by_default()
     {
         $this->assertExtensionNotExists('v17development-blog');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function requiring_an_existing_extension_fails()
     {
         $response = $this->send(
-            $this->request('POST', '/api/package-manager/extensions', [
+            $this->request('POST', '/api/extension-manager/extensions', [
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
@@ -43,13 +40,11 @@ class RequireExtensionTest extends TestCase
         $this->assertEquals(409, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function requiring_a_compatible_extension_works()
     {
         $response = $this->send(
-            $this->request('POST', '/api/package-manager/extensions', [
+            $this->request('POST', '/api/extension-manager/extensions', [
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
@@ -63,13 +58,11 @@ class RequireExtensionTest extends TestCase
         $this->assertExtensionExists('v17development-blog');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function requiring_a_compatible_extension_with_specific_version_works()
     {
         $response = $this->send(
-            $this->request('POST', '/api/package-manager/extensions', [
+            $this->request('POST', '/api/extension-manager/extensions', [
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
@@ -83,13 +76,11 @@ class RequireExtensionTest extends TestCase
         $this->assertExtensionExists('v17development-blog');
     }
 
-    /**
-     * @test
-     */
-    public function requiring_an_uncompatible_extension_fails()
+    #[Test]
+    public function requiring_an_incompatible_extension_fails()
     {
         $response = $this->send(
-            $this->request('POST', '/api/package-manager/extensions', [
+            $this->request('POST', '/api/extension-manager/extensions', [
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [
@@ -103,13 +94,11 @@ class RequireExtensionTest extends TestCase
         $this->assertEquals('extension_incompatible_with_instance', $this->errorDetails($response)['guessed_cause']);
     }
 
-    /**
-     * @test
-     */
-    public function requiring_an_uncompatible_extension_with_specific_version_fails()
+    #[Test]
+    public function requiring_an_incompatible_extension_with_specific_version_fails()
     {
         $response = $this->send(
-            $this->request('POST', '/api/package-manager/extensions', [
+            $this->request('POST', '/api/extension-manager/extensions', [
                 'authenticatedAs' => 1,
                 'json' => [
                     'data' => [

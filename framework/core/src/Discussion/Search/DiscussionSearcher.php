@@ -9,26 +9,15 @@
 
 namespace Flarum\Discussion\Search;
 
-use Flarum\Discussion\DiscussionRepository;
-use Flarum\Search\AbstractSearcher;
-use Flarum\Search\GambitManager;
+use Flarum\Discussion\Discussion;
+use Flarum\Search\Database\AbstractSearcher;
 use Flarum\User\User;
-use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Eloquent\Builder;
 
 class DiscussionSearcher extends AbstractSearcher
 {
-    public function __construct(
-        protected DiscussionRepository $discussions,
-        protected Dispatcher $events,
-        GambitManager $gambits,
-        array $searchMutators
-    ) {
-        parent::__construct($gambits, $searchMutators);
-    }
-
-    protected function getQuery(User $actor): Builder
+    public function getQuery(User $actor): Builder
     {
-        return $this->discussions->query()->select('discussions.*')->whereVisibleTo($actor);
+        return Discussion::whereVisibleTo($actor)->select('discussions.*');
     }
 }

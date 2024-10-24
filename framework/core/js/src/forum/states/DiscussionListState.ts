@@ -1,5 +1,5 @@
 import app from '../../forum/app';
-import PaginatedListState, { Page, PaginatedListParams, PaginatedListRequestParams } from '../../common/states/PaginatedListState';
+import PaginatedListState, { Page, PaginatedListParams, PaginatedListRequestParams, type SortMap } from '../../common/states/PaginatedListState';
 import Discussion from '../../common/models/Discussion';
 import { ApiResponsePlural } from '../../common/Store';
 import EventEmitter from '../../common/utils/EventEmitter';
@@ -15,7 +15,7 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
   protected eventEmitter: EventEmitter;
 
   constructor(params: P, page: number = 1) {
-    super(params, page, 20);
+    super(params, page, null);
 
     this.eventEmitter = globalEventEmitter.on('discussion.deleted', this.deleteDiscussion.bind(this));
   }
@@ -28,7 +28,7 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
     const params = {
       include: ['user', 'lastPostedUser'],
       filter: this.params.filter || {},
-      sort: this.sortMap()[this.params.sort ?? ''],
+      sort: this.currentSort(),
     };
 
     if (this.params.q) {
@@ -44,6 +44,7 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
 
     if (preloadedDiscussions) {
       this.initialLoading = false;
+      this.pageSize = preloadedDiscussions.payload.meta?.perPage || DiscussionListState.DEFAULT_PAGE_SIZE;
 
       return Promise.resolve(preloadedDiscussions);
     }
@@ -61,7 +62,7 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
    * Get a map of sort keys (which appear in the URL, and are used for
    * translation) to the API sort value that they represent.
    */
-  sortMap() {
+  sortMap(): SortMap {
     const map: any = {};
 
     if (this.params.q) {
@@ -73,13 +74,6 @@ export default class DiscussionListState<P extends DiscussionListParams = Discus
     map.oldest = 'createdAt';
 
     return map;
-  }
-
-  /**
-   * In the last request, has the user searched for a discussion?
-   */
-  isSearchResults(): boolean {
-    return !!this.params.q;
   }
 
   removeDiscussion(discussion: Discussion): void {

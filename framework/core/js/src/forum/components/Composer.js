@@ -164,7 +164,9 @@ export default class Composer extends Component {
    * Draw focus to the first focusable content element (the text editor).
    */
   focus() {
-    this.$('.Composer-content :input:enabled:visible, .TextEditor-editor').first().focus();
+    this.$(this.attrs.state.body.componentClass.focusOnSelector?.() || '.Composer-content :input:enabled:visible, .TextEditor-editor')
+      .first()
+      .focus();
   }
 
   /**
@@ -338,7 +340,10 @@ export default class Composer extends Component {
         items.add(
           'minimize',
           <ComposerButton
-            icon="fas fa-minus minimize"
+            icon={classList('fas minimize', {
+              'fa-minus': app.screen() !== 'phone',
+              'fa-times': app.screen() === 'phone',
+            })}
             title={app.translator.trans('core.forum.composer.minimize_tooltip')}
             onclick={this.state.minimize.bind(this.state)}
             itemClassName="App-backControl"

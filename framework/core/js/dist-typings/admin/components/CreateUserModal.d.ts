@@ -1,22 +1,21 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
-import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
 import type Mithril from 'mithril';
-export interface ICreateUserModalAttrs extends IInternalModalAttrs {
+export interface ICreateUserModalAttrs extends IFormModalAttrs {
     username?: string;
     email?: string;
     password?: string;
     token?: string;
     provided?: string[];
 }
-export declare type SignupBody = {
+export type SignupBody = {
     username: string;
     email: string;
     isEmailConfirmed: boolean;
     password: string;
 };
-export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs = ICreateUserModalAttrs> extends Modal<CustomAttrs> {
+export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs = ICreateUserModalAttrs> extends FormModal<CustomAttrs> {
     /**
      * The value of the username input.
      */
@@ -40,7 +39,7 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
     bulkAdd: Stream<boolean>;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     className(): string;
-    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    title(): string | any[];
     content(): JSX.Element;
     body(): JSX.Element;
     fields(): ItemList<unknown>;

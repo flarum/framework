@@ -9,22 +9,27 @@
 
 namespace Flarum\Console;
 
+use Carbon\Carbon;
 use Flarum\Console\Cache\Factory;
 use Flarum\Database\Console\MigrateCommand;
 use Flarum\Database\Console\ResetCommand;
+use Flarum\Extension\Console\BisectCommand;
 use Flarum\Extension\Console\ToggleExtensionCommand;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Console\AssetsPublishCommand;
 use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\Console\InfoCommand;
-use Flarum\Foundation\Console\ScheduleRunCommand;
+use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Console\Events\CommandFinished;
 use Illuminate\Console\Scheduling\CacheEventMutex;
 use Illuminate\Console\Scheduling\CacheSchedulingMutex;
 use Illuminate\Console\Scheduling\EventMutex;
 use Illuminate\Console\Scheduling\Schedule as LaravelSchedule;
 use Illuminate\Console\Scheduling\ScheduleListCommand;
+use Illuminate\Console\Scheduling\ScheduleRunCommand;
 use Illuminate\Console\Scheduling\SchedulingMutex;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Events\Dispatcher;
 
 class ConsoleServiceProvider extends AbstractServiceProvider
 {
@@ -50,7 +55,7 @@ class ConsoleServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->singleton(LaravelSchedule::class, function (Container $container) {
-            return $container->make(Schedule::class);
+            return $container->make(Schedule::class, ['timezone' => $container['config']['app.timezone']]);
         });
 
         $this->container->singleton('flarum.console.commands', function () {
@@ -62,7 +67,8 @@ class ConsoleServiceProvider extends AbstractServiceProvider
                 ResetCommand::class,
                 ScheduleListCommand::class,
                 ScheduleRunCommand::class,
-                ToggleExtensionCommand::class
+                ToggleExtensionCommand::class,
+                BisectCommand::class,
                 // Used internally to create DB dumps before major releases.
                 // \Flarum\Database\Console\GenerateDumpCommand::class
             ];
@@ -73,13 +79,20 @@ class ConsoleServiceProvider extends AbstractServiceProvider
         });
     }
 
-    public function boot(Container $container): void
+    public function boot(Container $container, Dispatcher $events, LaravelSchedule $schedule): void
     {
-        $schedule = $container->make(LaravelSchedule::class);
-
         foreach ($container->make('flarum.console.scheduled') as $scheduled) {
             $event = $schedule->command($scheduled['command'], $scheduled['args']);
             $scheduled['callback']($event);
         }
+
+        $events->listen(CommandFinished::class, function (CommandFinished $event) use ($container) {
+            $command = $event->command;
+            $settings = $container->make(SettingsRepositoryInterface::class);
+
+            if ($command === ScheduleRunCommand::getDefaultName()) {
+                $settings->set('schedule.last_run', Carbon::now());
+            }
+        });
     }
 }

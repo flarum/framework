@@ -12,6 +12,8 @@ namespace Flarum\Tests\integration\extenders;
 use Flarum\Extend;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class SettingsTest extends TestCase
 {
@@ -25,7 +27,7 @@ class SettingsTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser()
             ]
         ]);
@@ -34,9 +36,7 @@ class SettingsTest extends TestCase
         $this->setting('custom-prefix.custom_setting2', 'customValue');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_setting_isnt_serialized_by_default()
     {
         $response = $this->send(
@@ -50,9 +50,7 @@ class SettingsTest extends TestCase
         $this->assertArrayNotHasKey('customPrefix.customSetting', $payload['data']['attributes']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_setting_serialized_if_added()
     {
         $this->extend(
@@ -72,9 +70,7 @@ class SettingsTest extends TestCase
         $this->assertEquals('customValue', $payload['data']['attributes']['customPrefix.customSetting']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_setting_callback_works_if_added()
     {
         $this->extend(
@@ -96,9 +92,29 @@ class SettingsTest extends TestCase
         $this->assertEquals('customValueModified', $payload['data']['attributes']['customPrefix.customSetting']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
+    public function custom_setting_callback_can_cast_to_type()
+    {
+        $this->extend(
+            (new Extend\Settings())
+                ->serializeToForum('customPrefix.customSetting', 'custom-prefix.custom_setting', function ($value) {
+                    return (bool) $value;
+                })
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('customPrefix.customSetting', $payload['data']['attributes']);
+        $this->assertEquals(true, $payload['data']['attributes']['customPrefix.customSetting']);
+    }
+
+    #[Test]
     public function custom_setting_callback_works_with_invokable_class()
     {
         $this->extend(
@@ -118,55 +134,7 @@ class SettingsTest extends TestCase
         $this->assertEquals('customValueModifiedByInvokable', $payload['data']['attributes']['customPrefix.customSetting2']);
     }
 
-    /**
-     * @test
-     */
-    public function custom_setting_falls_back_to_default()
-    {
-        $this->extend(
-            (new Extend\Settings())
-                ->serializeToForum('customPrefix.noCustomSetting', 'custom-prefix.no_custom_setting', null, 'customDefault')
-        );
-
-        $response = $this->send(
-            $this->request('GET', '/api', [
-                'authenticatedAs' => 1,
-            ])
-        );
-
-        $payload = json_decode($response->getBody()->getContents(), true);
-
-        $this->assertArrayHasKey('customPrefix.noCustomSetting', $payload['data']['attributes']);
-        $this->assertEquals('customDefault', $payload['data']['attributes']['customPrefix.noCustomSetting']);
-    }
-
-    /**
-     * @test
-     */
-    public function custom_setting_default_passed_to_callback()
-    {
-        $this->extend(
-            (new Extend\Settings())
-                ->serializeToForum('customPrefix.noCustomSetting', 'custom-prefix.no_custom_setting', function ($value) {
-                    return $value.'Modified2';
-                }, 'customDefault')
-        );
-
-        $response = $this->send(
-            $this->request('GET', '/api', [
-                'authenticatedAs' => 1,
-            ])
-        );
-
-        $payload = json_decode($response->getBody()->getContents(), true);
-
-        $this->assertArrayHasKey('customPrefix.noCustomSetting', $payload['data']['attributes']);
-        $this->assertEquals('customDefaultModified2', $payload['data']['attributes']['customPrefix.noCustomSetting']);
-    }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_setting_default_prioritizes_extender()
     {
         $this->extend(
@@ -185,9 +153,7 @@ class SettingsTest extends TestCase
         $this->assertEquals('extenderDefault200', $settings->get('custom-prefix.unavailable_custom_setting200'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_setting_default_falls_back_to_parameter()
     {
         $this->extend(
@@ -203,9 +169,7 @@ class SettingsTest extends TestCase
         $this->assertEquals('defaultParameterValue', $value);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function null_custom_setting_returns_null()
     {
         $this->setting('custom-prefix.custom_null_setting', null);
@@ -223,9 +187,55 @@ class SettingsTest extends TestCase
         $this->assertEquals(null, $value);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
+    public function resetting_setting_returns_default_value()
+    {
+        $this->extend(
+            (new Extend\Settings())
+                ->default('custom-prefix.filter_this_setting', 'extenderDefault')
+                ->resetWhen('custom-prefix.filter_this_setting', function (mixed $value): bool {
+                    return $value === '';
+                })
+        );
+
+        $this->send(
+            $this->request('POST', '/api/settings', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'custom-prefix.filter_this_setting' => ''
+                ]
+            ])
+        );
+
+        $value = $this->app()
+            ->getContainer()
+            ->make('flarum.settings')
+            ->get('custom-prefix.filter_this_setting');
+
+        $this->assertEquals('extenderDefault', $value);
+    }
+
+    #[Test]
+    public function not_resetting_setting_returns_value()
+    {
+        $this->send(
+            $this->request('POST', '/api/settings', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'custom-prefix.filter_this_setting' => ''
+                ]
+            ])
+        );
+
+        $value = $this->app()
+            ->getContainer()
+            ->make('flarum.settings')
+            ->get('custom-prefix.filter_this_setting');
+
+        $this->assertEquals('', $value);
+    }
+
+    #[Test]
     public function custom_less_var_does_not_work_by_default()
     {
         $this->extend(
@@ -238,9 +248,7 @@ class SettingsTest extends TestCase
         $this->assertEquals(500, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_less_var_works_if_registered()
     {
         $this->extend(
@@ -258,9 +266,7 @@ class SettingsTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cant_save_setting_if_invalid_less_var()
     {
         $this->extend(

@@ -1,10 +1,10 @@
-import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Stream from '../../common/utils/Stream';
 import Mithril from 'mithril';
 import { MutableSettings, SettingValue } from './AdminPage';
-export interface ISettingsModalAttrs extends IInternalModalAttrs {
+export interface ISettingsModalAttrs extends IFormModalAttrs {
 }
-export default abstract class SettingsModal<CustomAttrs extends ISettingsModalAttrs = ISettingsModalAttrs> extends Modal<CustomAttrs> {
+export default abstract class SettingsModal<CustomAttrs extends ISettingsModalAttrs = ISettingsModalAttrs> extends FormModal<CustomAttrs> {
     settings: MutableSettings;
     loading: boolean;
     form(): Mithril.Children;

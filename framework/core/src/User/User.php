@@ -35,10 +35,10 @@ use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Arr;
-use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 /**
  * @property int $id
@@ -55,12 +55,23 @@ use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
  * @property \Carbon\Carbon|null $read_notifications_at
  * @property int $discussion_count
  * @property int $comment_count
+ * @property-read Collection<int, Group> $groups
+ * @property-read Collection<int, Group> $visibleGroups
+ * @property-read Collection<int, Notification> $notifications
+ * @property-read Collection<int, AccessToken> $accessTokens
+ * @property-read Collection<int, Post> $posts
+ * @property-read Collection<int, Discussion> $discussions
+ * @property-read Collection<int, Discussion> $read
+ * @property-read Collection<int, Notification> $unreadNotifications
+ * @property-read Collection<int, LoginProvider> $loginProviders
+ * @property-read Collection<int, EmailToken> $emailTokens
+ * @property-read Collection<int, PasswordToken> $passwordTokens
  */
 class User extends AbstractModel
 {
     use EventGeneratorTrait;
     use ScopeVisibilityTrait;
-    use HasEagerLimit;
+    use HasFactory;
 
     protected $casts = [
         'id' => 'integer',
@@ -141,20 +152,12 @@ class User extends AbstractModel
 
             Notification::whereSubject($user)->delete();
         });
-    }
 
-    public static function register(?string $username, ?string $email, ?string $password): static
-    {
-        $user = new static;
+        static::creating(function (self $user) {
+            $user->joined_at = Carbon::now();
 
-        $user->username = $username;
-        $user->email = $email;
-        $user->password = $password;
-        $user->joined_at = Carbon::now();
-
-        $user->raise(new Registered($user));
-
-        return $user;
+            $user->raise(new Registered($user));
+        });
     }
 
     public static function setGate(Access\Gate $gate): void
@@ -362,7 +365,9 @@ class User extends AbstractModel
     public function getNewNotificationCount(): int
     {
         return $this->unreadNotifications()
-            ->where('created_at', '>', $this->read_notifications_at ?? 0)
+            ->when($this->read_notifications_at, function (Builder|HasMany $query) {
+                $query->where('created_at', '>', $this->read_notifications_at);
+            })
             ->count();
     }
 
@@ -433,7 +438,7 @@ class User extends AbstractModel
     {
         $now = Carbon::now();
 
-        if ($this->last_seen_at === null || $this->last_seen_at->diffInSeconds($now) > User::LAST_SEEN_UPDATE_DIFF) {
+        if ($this->last_seen_at === null || $this->last_seen_at->diffInSeconds($now, true) > User::LAST_SEEN_UPDATE_DIFF) {
             $this->last_seen_at = $now;
         }
 
@@ -684,6 +689,16 @@ class User extends AbstractModel
         $this->discussion_count = $this->discussions()
             ->where('is_private', false)
             ->count();
+
+        return $this;
+    }
+
+    /**
+     * Set the value of a notification preference.
+     */
+    public function setNotificationPreference(string $type, string $method, bool $value): static
+    {
+        $this->setPreference(static::getNotificationPreferenceKey($type, $method), $value);
 
         return $this;
     }

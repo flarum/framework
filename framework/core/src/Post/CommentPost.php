@@ -10,40 +10,32 @@
 namespace Flarum\Post;
 
 use Carbon\Carbon;
-use Flarum\Formatter\Formatter;
+use Flarum\Formatter\Formattable;
+use Flarum\Formatter\HasFormattedContent;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
 use Flarum\Post\Event\Revised;
 use Flarum\User\User;
-use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * A standard comment in a discussion.
- *
- * @property string $parsed_content
  */
-class CommentPost extends Post
+class CommentPost extends Post implements Formattable
 {
+    use HasFormattedContent;
+
     public static string $type = 'comment';
-    protected static Formatter $formatter;
 
-    public static function reply(int $discussionId, string $content, int $userId, ?string $ipAddress, ?User $actor = null): static
+    protected $observables = ['hidden'];
+
+    public static function boot()
     {
-        $post = new static;
+        parent::boot();
 
-        $post->created_at = Carbon::now();
-        $post->discussion_id = $discussionId;
-        $post->user_id = $userId;
-        $post->type = static::$type;
-        $post->ip_address = $ipAddress;
-
-        // Set content last, as the parsing may rely on other post attributes.
-        $post->setContentAttribute($content, $actor);
-
-        $post->raise(new Posted($post));
-
-        return $post;
+        static::creating(function (self $post) {
+            $post->raise(new Posted($post));
+        });
     }
 
     public function revise(string $content, User $actor): static
@@ -69,6 +61,12 @@ class CommentPost extends Post
             $this->hidden_user_id = $actor?->id;
 
             $this->raise(new Hidden($this));
+
+            $this->saved(function (self $model) {
+                if ($model === $this) {
+                    $model->fireModelEvent('hidden', false);
+                }
+            });
         }
 
         return $this;
@@ -81,46 +79,14 @@ class CommentPost extends Post
             $this->hidden_user_id = null;
 
             $this->raise(new Restored($this));
+
+            $this->saved(function (self $model) {
+                if ($model === $this) {
+                    $model->fireModelEvent('restored', false);
+                }
+            });
         }
 
         return $this;
-    }
-
-    public function getContentAttribute(string $value): string
-    {
-        return static::$formatter->unparse($value, $this);
-    }
-
-    public function getParsedContentAttribute(): string
-    {
-        return $this->attributes['content'];
-    }
-
-    public function setContentAttribute(string $value, ?User $actor = null): void
-    {
-        $this->attributes['content'] = $value ? static::$formatter->parse($value, $this, $actor ?? $this->user) : null;
-    }
-
-    public function setParsedContentAttribute(string $value): void
-    {
-        $this->attributes['content'] = $value;
-    }
-
-    /**
-     * Get the content rendered as HTML.
-     */
-    public function formatContent(?ServerRequestInterface $request = null): string
-    {
-        return static::$formatter->render($this->attributes['content'], $this, $request);
-    }
-
-    public static function getFormatter(): Formatter
-    {
-        return static::$formatter;
-    }
-
-    public static function setFormatter(Formatter $formatter): void
-    {
-        static::$formatter = $formatter;
     }
 }

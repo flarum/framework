@@ -1,5 +1,4 @@
 /// <reference types="mithril" />
-/// <reference types="flarum/@types/translator-icu-rich" />
 import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Task from '../models/Task';
 interface TaskOutputModalAttrs extends IInternalModalAttrs {
@@ -7,7 +6,7 @@ interface TaskOutputModalAttrs extends IInternalModalAttrs {
 }
 export default class TaskOutputModal<CustomAttrs extends TaskOutputModalAttrs = TaskOutputModalAttrs> extends Modal<CustomAttrs> {
     className(): string;
-    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    title(): string | any[];
     content(): JSX.Element;
 }
 export {};

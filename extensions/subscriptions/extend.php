@@ -7,12 +7,9 @@
  * LICENSE file that was distributed with this source code.
  */
 
-use Flarum\Api\Serializer\BasicDiscussionSerializer;
-use Flarum\Api\Serializer\DiscussionSerializer;
+use Flarum\Api\Resource;
 use Flarum\Approval\Event\PostWasApproved;
-use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
-use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Discussion\UserState;
 use Flarum\Extend;
@@ -20,14 +17,19 @@ use Flarum\Post\Event\Deleted;
 use Flarum\Post\Event\Hidden;
 use Flarum\Post\Event\Posted;
 use Flarum\Post\Event\Restored;
+use Flarum\Search\Database\DatabaseSearchDriver;
+use Flarum\Subscriptions\Api\UserResourceFields;
+use Flarum\Subscriptions\Filter\SubscriptionFilter;
 use Flarum\Subscriptions\HideIgnoredFromAllDiscussionsPage;
 use Flarum\Subscriptions\Listener;
 use Flarum\Subscriptions\Notification\FilterVisiblePostsBeforeSending;
 use Flarum\Subscriptions\Notification\NewPostBlueprint;
-use Flarum\Subscriptions\Query\SubscriptionFilterGambit;
 use Flarum\User\User;
 
 return [
+    (new Extend\Frontend('admin'))
+        ->js(__DIR__.'/js/dist/admin.js'),
+
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
         ->css(__DIR__.'/less/forum.less')
@@ -45,18 +47,11 @@ return [
         ->namespace('flarum-subscriptions', __DIR__.'/views'),
 
     (new Extend\Notification())
-        ->type(NewPostBlueprint::class, BasicDiscussionSerializer::class, ['alert', 'email'])
+        ->type(NewPostBlueprint::class, ['alert', 'email'])
         ->beforeSending(FilterVisiblePostsBeforeSending::class),
 
-    (new Extend\ApiSerializer(DiscussionSerializer::class))
-        ->attribute('subscription', function (DiscussionSerializer $serializer, Discussion $discussion) {
-            if ($state = $discussion->state) {
-                return $state->subscription;
-            }
-        }),
-
-    (new Extend\User())
-        ->registerPreference('followAfterReply', 'boolval', false),
+    (new Extend\ApiResource(Resource\DiscussionResource::class))
+        ->fields(UserResourceFields::class),
 
     (new Extend\Event())
         ->listen(Saving::class, Listener\SaveSubscriptionToDatabase::class)
@@ -67,13 +62,11 @@ return [
         ->listen(Deleted::class, Listener\DeleteNotificationWhenPostIsHiddenOrDeleted::class)
         ->listen(Posted::class, Listener\FollowAfterReply::class),
 
-    (new Extend\Filter(DiscussionFilterer::class))
-        ->addFilter(SubscriptionFilterGambit::class)
-        ->addFilterMutator(HideIgnoredFromAllDiscussionsPage::class),
-
-    (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
-        ->addGambit(SubscriptionFilterGambit::class),
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
+        ->addFilter(DiscussionSearcher::class, SubscriptionFilter::class)
+        ->addMutator(DiscussionSearcher::class, HideIgnoredFromAllDiscussionsPage::class),
 
     (new Extend\User())
+        ->registerPreference('followAfterReply', 'boolval', false)
         ->registerPreference('flarum-subscriptions.notify_for_all_posts', 'boolval', false),
 ];

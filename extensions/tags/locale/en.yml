@@ -107,6 +107,13 @@ flarum-tags:
     # This translation is displayed in place of the name of a tag that's been deleted.
     deleted_tag_text: Deleted
 
+    # These translations are used by gambits. Gambit keys must be in snake_case, no spaces.
+    gambits:
+      discussions:
+        tag:
+          key: tag
+          hint: name of a tag, or comma-separated list of tag names, or "untagged"
+
     # These translations are used in the tag selection modal.
     tag_selection_modal:
       bypass_requirements: Bypass tag requirements

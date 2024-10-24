@@ -26,7 +26,9 @@
   > li {
     > a, > button, > span {
       padding: 8px 15px;
-      display: block;
+      display: flex;
+      align-items: center;
+      gap: 9px;
       width: 100%;
       color: var(--text-color);
       border-radius: 0;
@@ -41,17 +43,12 @@
       font-weight: normal;
       text-decoration: none;
       cursor: pointer;
-
-      &.hasIcon {
-        padding-left: 40px;
-      }
+      line-height: 20px;
 
       .Button-icon {
-        float: left;
-        margin-left: -25px;
-        margin-top: 2px;
         width: 16px;
         text-align: center;
+        flex-shrink: 0;
       }
 
       &.disabled {
@@ -65,7 +62,7 @@
       }
     }
     &.active {
-      > a, > button {
+      > a, > button, > .Dropdown-item {
         background: var(--control-bg);
       }
     }
@@ -135,7 +132,7 @@
   }
 
   @media @tablet-up {
-    .Dropdown-menu li:first-child {
+    &:not(.Dropdown--withMainAction) .Dropdown-menu li:first-child {
       &, + li.Dropdown-separator {
         display: none;
       }
@@ -232,4 +229,46 @@
       opacity: 1;
     }
   }
+}
+
+.AutocompleteDropdown {
+  position: relative;
+}
+
+.GambitsAutocomplete {
+  &-gambit {
+    display: flex;
+    align-items: center;
+
+    > button {
+      flex-grow: 1;
+      cursor: pointer;
+      gap: 4px;
+      display: flex;
+      align-items: center;
+      padding: 8px 15px;
+      margin: -8px 0 -8px -15px;
+    }
+    &-key {
+      font-weight: bold;
+    }
+    &-value {
+      color: var(--control-color);
+    }
+    &-actions {
+      flex-shrink: 0;
+      display: flex;
+      color: var(--control-color);
+      visibility: hidden;
+      margin-inline-end: -14px;
+
+      .Button {
+        margin: -8px 0;
+      }
+    }
+  }
+}
+
+li.active .GambitsAutocomplete-gambit-actions {
+  visibility: visible;
 }

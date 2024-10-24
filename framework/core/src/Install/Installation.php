@@ -14,7 +14,7 @@ use Illuminate\Database\ConnectionInterface;
 
 class Installation
 {
-    private string $configPath;
+    private ?string $configPath = null;
     private bool $debug = false;
     private BaseUrl $baseUrl;
     private array $customSettings = [];
@@ -33,7 +33,7 @@ class Installation
     ) {
     }
 
-    public function configPath(string $path): self
+    public function configPath(?string $path): self
     {
         $this->configPath = $path;
 
@@ -116,12 +116,15 @@ class Installation
     {
         $pipeline = new Pipeline;
 
+        $this->dbConfig->prepare($this->paths);
+
         $pipeline->pipe(function () {
             return new Steps\ConnectToDatabase(
                 $this->dbConfig,
                 function ($connection) {
                     $this->db = $connection;
-                }
+                },
+                $this->paths->base
             );
         });
 
@@ -135,7 +138,7 @@ class Installation
         });
 
         $pipeline->pipe(function () {
-            return new Steps\RunMigrations($this->db, $this->getMigrationPath());
+            return new Steps\RunMigrations($this->db, $this->dbConfig->toArray()['driver'], $this->getMigrationPath());
         });
 
         $pipeline->pipe(function () {

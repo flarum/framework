@@ -1,15 +1,16 @@
-import SearchState from './SearchState';
-declare type SearchParams = Record<string, string>;
+import SearchState from '../../common/states/SearchState';
+type SearchParams = Record<string, string>;
 export default class GlobalSearchState extends SearchState {
     private initialValueSet;
     constructor(cachedSearches?: never[]);
     getValue(): string;
-    protected intializeValue(): void;
+    protected initializeValue(): void;
     protected currPageProvidesSearch(): boolean;
     /**
      * @inheritdoc
      */
     getInitialSearch(): string;
+    private searchToQuery;
     /**
      * Clear the search input and the current controller's active search.
      */

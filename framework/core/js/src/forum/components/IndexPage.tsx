@@ -4,16 +4,15 @@ import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import DiscussionList from './DiscussionList';
 import WelcomeHero from './WelcomeHero';
-import DiscussionComposer from './DiscussionComposer';
-import LogInModal from './LogInModal';
 import DiscussionPage from './DiscussionPage';
 import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
-import LinkButton from '../../common/components/LinkButton';
-import SelectDropdown from '../../common/components/SelectDropdown';
 import extractText from '../../common/utils/extractText';
 import type Mithril from 'mithril';
 import type Discussion from '../../common/models/Discussion';
+import PageStructure from './PageStructure';
+import IndexSidebar from './IndexSidebar';
+import PostsPage from './PostsPage';
 
 export interface IIndexPageAttrs extends IPageAttrs {}
 
@@ -35,6 +34,14 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
       this.lastDiscussion = app.previous.get('discussion');
     }
 
+    const params = app.search.state.params();
+
+    // If there is an active search and the user is coming from the PostsPage,
+    // then we will clear the search state so that discussions aren't searched.
+    if (app.previous.matches(PostsPage)) {
+      app.search.state.clear();
+    }
+
     // If the user is coming from the discussion list, then they have either
     // just switched one of the parameters (filter, sort, search) or they
     // probably want to refresh the results. We will clear the discussion list
@@ -43,7 +50,9 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
       app.discussions.clear();
     }
 
-    app.discussions.refreshParams(app.search.params(), (m.route.param('page') && Number(m.route.param('page'))) || 1);
+    if (!app.previous.matches(PostsPage) || !params.q) {
+      app.discussions.refreshParams(params, (m.route.param('page') && Number(m.route.param('page'))) || 1);
+    }
 
     app.history.push('index', extractText(app.translator.trans('core.forum.header.back_to_index_tooltip')));
 
@@ -53,23 +62,13 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
 
   view() {
     return (
-      <div className="IndexPage">
-        {this.hero()}
-        <div className="container">
-          <div className="sideNavContainer">
-            <nav className="IndexPage-nav sideNav">
-              <ul>{listItems(this.sidebarItems().toArray())}</ul>
-            </nav>
-            <div className="IndexPage-results sideNavOffset">
-              <div className="IndexPage-toolbar">
-                <ul className="IndexPage-toolbar-view">{listItems(this.viewItems().toArray())}</ul>
-                <ul className="IndexPage-toolbar-action">{listItems(this.actionItems().toArray())}</ul>
-              </div>
-              <DiscussionList state={app.discussions} />
-            </div>
-          </div>
+      <PageStructure className="IndexPage" hero={this.hero.bind(this)} sidebar={this.sidebar.bind(this)}>
+        <div className="IndexPage-toolbar">
+          <ul className="IndexPage-toolbar-view">{listItems(this.viewItems().toArray())}</ul>
+          <ul className="IndexPage-toolbar-action">{listItems(this.actionItems().toArray())}</ul>
         </div>
-      </div>
+        <DiscussionList state={app.discussions} />
+      </PageStructure>
     );
   }
 
@@ -144,63 +143,8 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
     return <WelcomeHero />;
   }
 
-  /**
-   * Build an item list for the sidebar of the index page. By default this is a
-   * "New Discussion" button, and then a DropdownSelect component containing a
-   * list of navigation items.
-   */
-  sidebarItems() {
-    const items = new ItemList<Mithril.Children>();
-    const canStartDiscussion = app.forum.attribute('canStartDiscussion') || !app.session.user;
-
-    items.add(
-      'newDiscussion',
-      <Button
-        icon="fas fa-edit"
-        className="Button Button--primary IndexPage-newDiscussion"
-        itemClassName="App-primaryControl"
-        onclick={() => {
-          // If the user is not logged in, the promise rejects, and a login modal shows up.
-          // Since that's already handled, we dont need to show an error message in the console.
-          return this.newDiscussionAction().catch(() => {});
-        }}
-        disabled={!canStartDiscussion}
-      >
-        {app.translator.trans(`core.forum.index.${canStartDiscussion ? 'start_discussion_button' : 'cannot_start_discussion_button'}`)}
-      </Button>
-    );
-
-    items.add(
-      'nav',
-      <SelectDropdown
-        buttonClassName="Button"
-        className="App-titleControl"
-        accessibleToggleLabel={app.translator.trans('core.forum.index.toggle_sidenav_dropdown_accessible_label')}
-      >
-        {this.navItems().toArray()}
-      </SelectDropdown>
-    );
-
-    return items;
-  }
-
-  /**
-   * Build an item list for the navigation in the sidebar of the index page. By
-   * default this is just the 'All Discussions' link.
-   */
-  navItems() {
-    const items = new ItemList<Mithril.Children>();
-    const params = app.search.stickyParams();
-
-    items.add(
-      'allDiscussions',
-      <LinkButton href={app.route('index', params)} icon="far fa-comments">
-        {app.translator.trans('core.forum.index.all_discussions_link')}
-      </LinkButton>,
-      100
-    );
-
-    return items;
+  sidebar() {
+    return <IndexSidebar />;
   }
 
   /**
@@ -213,7 +157,8 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
     const sortMap = app.discussions.sortMap();
 
     const sortOptions = Object.keys(sortMap).reduce((acc: any, sortId) => {
-      acc[sortId] = app.translator.trans(`core.forum.index_sort.${sortId}_button`);
+      const sort = sortMap[sortId];
+      acc[sortId] = typeof sort !== 'string' ? sort.label : app.translator.trans(`core.forum.index_sort.${sortId}_button`);
       return acc;
     }, {});
 
@@ -221,15 +166,15 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
       'sort',
       <Dropdown
         buttonClassName="Button"
-        label={sortOptions[app.search.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0]}
+        label={sortOptions[app.search.state.params().sort] || Object.keys(sortMap).map((key) => sortOptions[key])[0]}
         accessibleToggleLabel={app.translator.trans('core.forum.index_sort.toggle_dropdown_accessible_label')}
       >
         {Object.keys(sortOptions).map((value) => {
           const label = sortOptions[value];
-          const active = (app.search.params().sort || Object.keys(sortMap)[0]) === value;
+          const active = (app.search.state.params().sort || Object.keys(sortMap)[0]) === value;
 
           return (
-            <Button icon={active ? 'fas fa-check' : true} onclick={app.search.changeSort.bind(app.search, value)} active={active}>
+            <Button icon={active ? 'fas fa-check' : true} onclick={() => app.search.state.changeSort(value)} active={active}>
               {label}
             </Button>
           );
@@ -251,6 +196,7 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
       'refresh',
       <Button
         title={app.translator.trans('core.forum.index.refresh_tooltip')}
+        aria-label={app.translator.trans('core.forum.index.refresh_tooltip')}
         icon="fas fa-sync"
         className="Button Button--icon"
         onclick={() => {
@@ -268,6 +214,7 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
         'markAllAsRead',
         <Button
           title={app.translator.trans('core.forum.index.mark_all_as_read_tooltip')}
+          aria-label={app.translator.trans('core.forum.index.mark_all_as_read_tooltip')}
           icon="fas fa-check"
           className="Button Button--icon"
           onclick={this.markAllAsRead.bind(this)}
@@ -276,24 +223,6 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
     }
 
     return items;
-  }
-
-  /**
-   * Open the composer for a new discussion or prompt the user to login.
-   */
-  newDiscussionAction(): Promise<unknown> {
-    return new Promise((resolve, reject) => {
-      if (app.session.user) {
-        app.composer.load(DiscussionComposer, { user: app.session.user });
-        app.composer.show();
-
-        return resolve(app.composer);
-      } else {
-        app.modal.show(LogInModal);
-
-        return reject();
-      }
-    });
   }
 
   /**

@@ -199,9 +199,24 @@ class Formatter
     protected function configureDefaultsOnLinks(string $xml): string
     {
         return Utils::replaceAttributes($xml, 'URL', function ($attributes) {
-            $attributes['rel'] = $attributes['rel'] ?? 'ugc nofollow';
+            $attributes['rel'] ??= 'ugc nofollow';
 
             return $attributes;
         });
+    }
+
+    /**
+     * Converts a plain text string (with or without Markdown) to it's HTML equivalent.
+     *
+     * @param ?string $content
+     * @return string
+     */
+    public function convert(?string $content): string
+    {
+        if (! $content) {
+            return '';
+        }
+
+        return $this->getRenderer()->render($this->getParser()->parse($content));
     }
 }

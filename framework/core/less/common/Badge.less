@@ -8,7 +8,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  vertical-align: middle;
   box-shadow: 0 2px 4px var(--shadow-color);
 
   .Badge-label {
@@ -17,6 +16,10 @@
 
   &, .Badge-icon {
     font-size: calc(~"0.56 * var(--size)");
+  }
+
+  &-icon {
+    line-height: normal;
   }
 }
 
@@ -32,8 +35,40 @@
   &, > li {
     display: inline-block;
   }
+
+  &--packed {
+    --packing-space: 10px;
+    padding-inline-start: var(--packing-space);
+
+    .Badge {
+      margin-left: calc(~"0px - var(--packing-space)");
+      position: relative;
+      pointer-events: auto;
+    }
+  }
+
+  &:empty {
+    display: none;
+  }
 }
 
 .Badge--hidden {
   --badge-bg: var(--badge-hidden-bg);
+}
+
+.Badge--flat {
+  box-shadow: none;
+}
+
+.Badge--square {
+  border-radius: var(--border-radius);
+}
+
+.Badge--danger {
+  --badge-color: var(--control-danger-color);
+  --badge-bg: var(--control-danger-bg);
+}
+
+.Badge--success {
+  --badge-bg: var(--success-color);
 }

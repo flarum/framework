@@ -1,5 +1,13 @@
 import Model from '../Model';
 import { ApiQueryParamsPlural, ApiResponsePlural } from '../Store';
+import type Mithril from 'mithril';
+export type SortMapItem = string | {
+    sort: string;
+    label: Mithril.Children;
+};
+export type SortMap = {
+    [key: string]: SortMapItem;
+};
 export interface Page<TModel> {
     number: number;
     items: TModel[];
@@ -18,14 +26,22 @@ export interface PaginatedListRequestParams extends Omit<ApiQueryParamsPlural, '
     include?: string | string[];
 }
 export default abstract class PaginatedListState<T extends Model, P extends PaginatedListParams = PaginatedListParams> {
+    /**
+     * This value should not be relied upon when preloading an API document.
+     * In those cases the pageSize should be taken from the meta information of the preloaded
+     * document. Checkout `DiscussionListState.loadPage` for an example.
+     */
+    static DEFAULT_PAGE_SIZE: number;
     protected location: PaginationLocation;
-    protected pageSize: number;
+    pageSize: number | null;
+    totalItems: number | null;
     protected pages: Page<T>[];
     protected params: P;
     protected initialLoading: boolean;
     protected loadingPrev: boolean;
     protected loadingNext: boolean;
-    protected constructor(params?: P, page?: number, pageSize?: number);
+    protected loadingPage: boolean;
+    protected constructor(params?: P, page?: number, pageSize?: number | null);
     abstract get type(): string;
     clear(): void;
     loadPrev(): Promise<void>;
@@ -53,6 +69,7 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
      */
     refreshParams(newParams: P, page: number): Promise<void>;
     refresh(page?: number): Promise<void>;
+    goto(page: number): Promise<void>;
     getPages(): Page<T>[];
     getLocation(): PaginationLocation;
     isLoading(): boolean;
@@ -82,4 +99,15 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
     protected getPrevPageNumber(): number;
     protected paramsChanged(newParams: P): boolean;
     protected getAllItems(): T[];
+    /**
+     * In the last request, has the user searched for a model?
+     */
+    isSearchResults(): boolean;
+    push(model: T): void;
+    getSort(): string;
+    sortMap(): SortMap;
+    sortValue(sort: SortMapItem): string | undefined;
+    currentSort(): string | undefined;
+    changeSort(sort: string): void;
+    changeFilter(key: string, value: any): void;
 }

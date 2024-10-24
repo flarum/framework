@@ -1,1 +1,1 @@
-export default function _default(): void;
+export default function addTagControl(): void;

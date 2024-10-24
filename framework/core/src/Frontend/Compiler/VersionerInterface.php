@@ -14,4 +14,6 @@ interface VersionerInterface
     public function putRevision(string $file, ?string $revision): void;
 
     public function getRevision(string $file): ?string;
+
+    public function allRevisions(): array;
 }

@@ -5,7 +5,7 @@ import type MentionFormat from '../mentionables/formats/MentionFormat';
 
 export default class Mentionables implements IExtender<ForumApplication> {
   protected formats: (new () => MentionFormat)[] = [];
-  protected mentionables: Record<string, (new () => MentionableModel)[]> = {};
+  protected mentionables: Record<string, (new (...args: any[]) => MentionableModel)[]> = {};
 
   /**
    * Register a new mention format.
@@ -26,7 +26,7 @@ export default class Mentionables implements IExtender<ForumApplication> {
    * @param mentionable The mentionable instance to register.
    *                    Must extend MentionableModel.
    */
-  mentionable(symbol: string, mentionable: new () => MentionableModel): this {
+  mentionable(symbol: string, mentionable: new (...args: any[]) => MentionableModel): this {
     if (!this.mentionables[symbol]) {
       this.mentionables[symbol] = [];
     }

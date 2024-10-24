@@ -9,7 +9,9 @@
 
 namespace Flarum\Mentions\Formatter;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Locale\TranslatorInterface;
+use Flarum\Post\Post;
 use s9e\TextFormatter\Utils;
 
 class UnparsePostMentions
@@ -31,10 +33,11 @@ class UnparsePostMentions
      */
     protected function updatePostMentionTags(mixed $context, string $xml): string
     {
-        $post = $context;
+        return Utils::replaceAttributes($xml, 'POSTMENTION', function ($attributes) use ($context) {
+            $post = ($context instanceof AbstractModel && $context->isRelation('mentionsPosts'))
+                ? $context->mentionsPosts->find($attributes['id']) // @phpstan-ignore-line
+                : Post::find($attributes['id']);
 
-        return Utils::replaceAttributes($xml, 'POSTMENTION', function ($attributes) use ($post) {
-            $post = $post->mentionsPosts->find($attributes['id']);
             if ($post && $post->user) {
                 $attributes['displayname'] = $post->user->display_name;
             }
@@ -47,7 +50,7 @@ class UnparsePostMentions
                 $attributes['displayname'] = $this->translator->trans('core.lib.username.deleted_text');
             }
 
-            if (strpos($attributes['displayname'], '"#') !== false) {
+            if (str_contains($attributes['displayname'], '"#')) {
                 $attributes['displayname'] = preg_replace('/"#[a-z]{0,3}[0-9]+/', '_', $attributes['displayname']);
             }
 
@@ -62,7 +65,7 @@ class UnparsePostMentions
     {
         $tagName = 'POSTMENTION';
 
-        if (strpos($xml, $tagName) === false) {
+        if (! str_contains($xml, $tagName)) {
             return $xml;
         }
 

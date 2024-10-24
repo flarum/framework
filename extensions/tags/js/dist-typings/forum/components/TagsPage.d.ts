@@ -1,20 +1,20 @@
-export default class TagsPage extends Page<import("flarum/common/components/Page").IPageAttrs, undefined> {
-    constructor();
-    oninit(vnode: any): void;
-    tags: any[] | import("../../common/models/Tag").default[] | undefined;
-    loading: boolean | undefined;
-    oncreate(vnode: any): void;
+import Page from 'flarum/common/components/Page';
+import type { IPageAttrs } from 'flarum/common/components/Page';
+import ItemList from 'flarum/common/utils/ItemList';
+import Mithril from 'mithril';
+import type Tag from '../../common/models/Tag';
+export interface ITagsPageAttrs extends IPageAttrs {
+}
+export default class TagsPage<CustomAttrs extends ITagsPageAttrs = ITagsPageAttrs> extends Page<CustomAttrs> {
+    private tags;
+    private loading;
+    oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
+    oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
     view(): JSX.Element;
-    pageContent(): ItemList<any>;
-    mainContent(): ItemList<any>;
-    content(): JSX.Element;
-    contentItems(): ItemList<any>;
+    contentItems(): ItemList<unknown>;
     hero(): JSX.Element;
     sidebar(): JSX.Element;
-    sidebarItems(): ItemList<import("mithril").Children>;
-    tagTileListView(pinned: any): JSX.Element;
-    tagTileView(tag: any): JSX.Element;
-    cloudView(cloud: any): JSX.Element;
+    tagTileListView(pinned: Tag[]): JSX.Element;
+    tagTileView(tag: Tag): JSX.Element;
+    cloudView(cloud: Tag[]): JSX.Element;
 }
-import Page from "flarum/common/components/Page";
-import ItemList from "flarum/common/utils/ItemList";

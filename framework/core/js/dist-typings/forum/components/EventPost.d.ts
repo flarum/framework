@@ -11,7 +11,7 @@
  */
 export default class EventPost extends Post<import("./Post").IPostAttrs> {
     constructor();
-    content(): any;
+    avatar(): JSX.Element;
     /**
      * Get the name of the event icon.
      *

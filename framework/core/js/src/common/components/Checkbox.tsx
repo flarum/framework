@@ -1,9 +1,9 @@
 import Component, { ComponentAttrs } from '../Component';
 import LoadingIndicator from './LoadingIndicator';
-import icon from '../helpers/icon';
 import classList from '../utils/classList';
 import withAttr from '../utils/withAttr';
 import type Mithril from 'mithril';
+import Icon from './Icon';
 
 export interface ICheckboxAttrs extends ComponentAttrs {
   state?: boolean;
@@ -49,7 +49,11 @@ export default class Checkbox<CustomAttrs extends ICheckboxAttrs = ICheckboxAttr
    * Get the template for the checkbox's display (tick/cross icon).
    */
   protected getDisplay(): Mithril.Children {
-    return this.attrs.loading ? <LoadingIndicator display="unset" size="small" /> : icon(this.attrs.state ? 'fas fa-check' : 'fas fa-times');
+    return this.attrs.loading ? (
+      <LoadingIndicator display="unset" size="small" />
+    ) : (
+      <Icon name={this.attrs.state ? 'fas fa-check' : 'fas fa-times'} />
+    );
   }
 
   /**

@@ -48,37 +48,36 @@ class UninstalledSite implements SiteInterface
 
     protected function bootLaravel(): Container
     {
-        $container = new \Illuminate\Container\Container;
-        $laravel = new Application($container, $this->paths);
+        $app = new Application($this->paths);
 
-        $container->instance('env', 'production');
-        $container->instance('flarum.config', new Config(['url' => $this->baseUrl]));
-        $container->alias('flarum.config', Config::class);
-        $container->instance('flarum.debug', true);
-        $container->instance('config', $config = $this->getIlluminateConfig());
+        $app->instance('env', 'production');
+        $app->instance('flarum.config', new Config(['url' => $this->baseUrl]));
+        $app->alias('flarum.config', Config::class);
+        $app->instance('flarum.debug', true);
+        $app->instance('config', $config = $this->getIlluminateConfig());
 
-        $this->registerLogger($container);
+        $this->registerLogger($app);
 
-        $laravel->register(ErrorServiceProvider::class);
-        $laravel->register(LocaleServiceProvider::class);
-        $laravel->register(FilesystemServiceProvider::class);
-        $laravel->register(SessionServiceProvider::class);
-        $laravel->register(ValidationServiceProvider::class);
+        $app->register(ErrorServiceProvider::class);
+        $app->register(LocaleServiceProvider::class);
+        $app->register(FilesystemServiceProvider::class);
+        $app->register(SessionServiceProvider::class);
+        $app->register(ValidationServiceProvider::class);
 
-        $laravel->register(InstallServiceProvider::class);
+        $app->register(InstallServiceProvider::class);
 
-        $container->singleton(
+        $app->singleton(
             SettingsRepositoryInterface::class,
             UninstalledSettingsRepository::class
         );
 
-        $container->singleton('view', function ($container) {
+        $app->singleton('view', function ($app) {
             $engines = new EngineResolver();
-            $engines->register('php', function () use ($container) {
-                return $container->make(PhpEngine::class);
+            $engines->register('php', function () use ($app) {
+                return $app->make(PhpEngine::class);
             });
-            $finder = new FileViewFinder($container->make('files'), []);
-            $dispatcher = $container->make(Dispatcher::class);
+            $finder = new FileViewFinder($app->make('files'), []);
+            $dispatcher = $app->make(Dispatcher::class);
 
             return new \Illuminate\View\Factory(
                 $engines,
@@ -87,9 +86,9 @@ class UninstalledSite implements SiteInterface
             );
         });
 
-        $laravel->boot();
+        $app->boot();
 
-        return $container;
+        return $app;
     }
 
     protected function getIlluminateConfig(): ConfigRepository

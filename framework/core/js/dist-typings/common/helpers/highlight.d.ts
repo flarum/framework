@@ -7,5 +7,7 @@ import type Mithril from 'mithril';
  * @param phrase The word or words to highlight.
  * @param [length] The number of characters to truncate the string to.
  *     The string will be truncated surrounding the first match.
+ * @param safe Whether the content is safe to render as HTML or
+ *    should be escaped (HTML entities encoded).
  */
-export default function highlight(string: string, phrase?: string | RegExp, length?: number): Mithril.Vnode<any, any> | string;
+export default function highlight(string: string, phrase?: string | RegExp, length?: number, safe?: boolean): Mithril.Vnode<any, any> | string;

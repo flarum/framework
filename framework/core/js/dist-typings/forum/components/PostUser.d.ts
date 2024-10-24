@@ -1,21 +1,17 @@
+/// <reference types="mithril" />
+import Component, { type ComponentAttrs } from '../../common/Component';
+import type Model from '../../common/Model';
+import type Post from '../../common/models/Post';
+import type User from '../../common/models/User';
+export interface IPostUserAttrs extends ComponentAttrs {
+    /** Can be a post or similar model like private message */
+    post: Post | (Model & {
+        user: () => User | null | false;
+    });
+}
 /**
  * The `PostUser` component shows the avatar and username of a post's author.
- *
- * ### Attrs
- *
- * - `post`
  */
-export default class PostUser extends Component<import("../../common/Component").ComponentAttrs, undefined> {
-    constructor();
+export default class PostUser<CustomAttrs extends IPostUserAttrs = IPostUserAttrs> extends Component<CustomAttrs> {
     view(): JSX.Element;
-    oncreate(vnode: any): void;
-    /**
-     * Show the user card.
-     */
-    showCard(): void;
-    /**
-     * Hide the user card.
-     */
-    hideCard(): void;
 }
-import Component from "../../common/Component";

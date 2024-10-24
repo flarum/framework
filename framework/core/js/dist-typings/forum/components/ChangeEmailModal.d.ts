@@ -1,5 +1,4 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
-import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Stream from '../../common/utils/Stream';
 import type Mithril from 'mithril';
 import RequestError from '../../common/utils/RequestError';
@@ -8,7 +7,7 @@ import ItemList from '../../common/utils/ItemList';
  * The `ChangeEmailModal` component shows a modal dialog which allows the user
  * to change their email address.
  */
-export default class ChangeEmailModal<CustomAttrs extends IInternalModalAttrs = IInternalModalAttrs> extends Modal<CustomAttrs> {
+export default class ChangeEmailModal<CustomAttrs extends IFormModalAttrs = IFormModalAttrs> extends FormModal<CustomAttrs> {
     /**
      * The value of the email input.
      */
@@ -23,7 +22,7 @@ export default class ChangeEmailModal<CustomAttrs extends IInternalModalAttrs = 
     success: boolean;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     className(): string;
-    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    title(): string | any[];
     content(): JSX.Element;
     fields(): ItemList<Mithril.Children>;
     onsubmit(e: SubmitEvent): void;

@@ -12,12 +12,13 @@ namespace Flarum\Suspend\Notification;
 use Carbon\CarbonInterface;
 use Flarum\Database\AbstractModel;
 use Flarum\Locale\TranslatorInterface;
+use Flarum\Notification\AlertableInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\MailableInterface;
 use Flarum\User\User;
 use Illuminate\Support\Carbon;
 
-class UserUnsuspendedBlueprint implements BlueprintInterface, MailableInterface
+class UserUnsuspendedBlueprint implements BlueprintInterface, AlertableInterface, MailableInterface
 {
     public function __construct(
         public User $user
@@ -49,9 +50,11 @@ class UserUnsuspendedBlueprint implements BlueprintInterface, MailableInterface
         return User::class;
     }
 
-    public function getEmailView(): string|array
+    public function getEmailViews(): array
     {
-        return ['text' => 'flarum-suspend::emails.unsuspended'];
+        return [
+            'text' => 'flarum-suspend::emails.plain.unsuspended',
+            'html' => 'flarum-suspend::emails.html.unsuspended', ];
     }
 
     public function getEmailSubject(TranslatorInterface $translator): string

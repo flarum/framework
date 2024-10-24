@@ -1,7 +1,12 @@
-export default class FlagsDropdown extends NotificationsDropdown<import("flarum/common/components/Dropdown").IDropdownAttrs> {
-    static initAttrs(attrs: any): void;
-    constructor();
-    getUnreadCount(): any;
-    getNewCount(): unknown;
+/// <reference types="mithril" />
+import HeaderDropdown from 'flarum/forum/components/HeaderDropdown';
+import type { IHeaderDropdownAttrs } from 'flarum/forum/components/HeaderDropdown';
+export interface IFlagsDropdownAttrs extends IHeaderDropdownAttrs {
 }
-import NotificationsDropdown from "flarum/forum/components/NotificationsDropdown";
+export default class FlagsDropdown<CustomAttrs extends IFlagsDropdownAttrs = IFlagsDropdownAttrs> extends HeaderDropdown<CustomAttrs> {
+    static initAttrs(attrs: IFlagsDropdownAttrs): void;
+    getContent(): JSX.Element;
+    goToRoute(): void;
+    getUnreadCount(): number;
+    getNewCount(): number;
+}

@@ -10,10 +10,12 @@
 namespace Flarum\Tags\Tests\integration\authorization;
 
 use Flarum\Group\Group;
+use Flarum\Tags\Tag;
 use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class GlobalPolicyTest extends TestCase
 {
@@ -30,16 +32,14 @@ class GlobalPolicyTest extends TestCase
         $this->extension('flarum-tags');
 
         $this->prepareDatabase([
-            'tags' => $this->tags(),
-            'users' => [
+            Tag::class => $this->tags(),
+            User::class => [
                 $this->normalUser(),
             ]
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cant_start_discussion_globally_if_permission_not_granted()
     {
         $this->database()->table('group_permission')->where('permission', 'startDiscussion')->delete();
@@ -47,9 +47,7 @@ class GlobalPolicyTest extends TestCase
         $this->assertFalse(User::find(2)->can('startDiscussion'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_start_discussion_globally_if_allowed_in_primary_tag()
     {
         $this->prepareDatabase([
@@ -63,9 +61,7 @@ class GlobalPolicyTest extends TestCase
         $this->assertTrue(User::find(2)->can('startDiscussion'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cant_start_discussion_globally_if_allowed_in_child_tag_only()
     {
         $this->prepareDatabase([
@@ -79,9 +75,7 @@ class GlobalPolicyTest extends TestCase
         $this->assertFalse(User::find(2)->can('startDiscussion'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cant_start_discussion_globally_if_allowed_in_secondary_tag()
     {
         $this->prepareDatabase([
@@ -95,9 +89,7 @@ class GlobalPolicyTest extends TestCase
         $this->assertFalse(User::find(2)->can('startDiscussion'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_start_discussion_globally_if_allowed_in_secondary_tag_and_minimums_adjusted()
     {
         $this->prepareDatabase([
@@ -114,9 +106,7 @@ class GlobalPolicyTest extends TestCase
         $this->assertTrue(User::find(2)->can('startDiscussion'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cant_start_discussion_globally_if_permission_in_insufficient_tags_requires_start_discussion_regardless_of_bypass()
     {
         $this->prepareDatabase([
@@ -130,9 +120,7 @@ class GlobalPolicyTest extends TestCase
         $this->assertFalse(User::find(2)->can('startDiscussion'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_start_discussion_globally_if_start_discussion_and_bypass_allows_regardless_of_tag_count()
     {
         $this->prepareDatabase([
@@ -146,9 +134,7 @@ class GlobalPolicyTest extends TestCase
         $this->assertTrue(User::find(2)->can('startDiscussion'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_start_discussion_globally_if_sufficient_tags_and_allows_regardless_of_start_discussion_and_bypass()
     {
         $this->database()->table('group_permission')->where('permission', 'bypassTagCounts')->delete();

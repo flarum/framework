@@ -1,8 +1,8 @@
 import app from '../../forum/app';
 import Component from '../../common/Component';
 import Checkbox from '../../common/components/Checkbox';
-import icon from '../../common/helpers/icon';
 import ItemList from '../../common/utils/ItemList';
+import Icon from '../../common/components/Icon';
 
 /**
  * The `NotificationGrid` component displays a table of notification types and
@@ -48,7 +48,7 @@ export default class NotificationGrid extends Component {
             <td />
             {this.methods.map((method) => (
               <th className="NotificationGrid-groupToggle" onclick={this.toggleMethod.bind(this, method.name)}>
-                {icon(method.icon)} {method.label}
+                <Icon name={method.icon} /> {method.label}
               </th>
             ))}
           </tr>
@@ -58,7 +58,7 @@ export default class NotificationGrid extends Component {
           {this.types.map((type) => (
             <tr>
               <td className="NotificationGrid-groupToggle" onclick={this.toggleType.bind(this, type.name)}>
-                {icon(type.icon)} {type.label}
+                <Icon name={type.icon} /> {type.label}
               </td>
               {this.methods.map((method) => {
                 const key = this.preferenceKey(type.name, method.name);

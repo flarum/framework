@@ -3,15 +3,12 @@ import app from './app';
 import History from './utils/History';
 import Pane from './utils/Pane';
 import DiscussionPage from './components/DiscussionPage';
-import SignUpModal from './components/SignUpModal';
 import HeaderPrimary from './components/HeaderPrimary';
 import HeaderSecondary from './components/HeaderSecondary';
-import Composer from './components/Composer';
 import DiscussionRenamedNotification from './components/DiscussionRenamedNotification';
 import CommentPost from './components/CommentPost';
 import DiscussionRenamedPost from './components/DiscussionRenamedPost';
 import routes, { ForumRoutes, makeRouteHelpers } from './routes';
-import alertEmailConfirmation from './utils/alertEmailConfirmation';
 import Application, { ApplicationData } from '../common/Application';
 import Navigation from '../common/components/Navigation';
 import NotificationListState from './states/NotificationListState';
@@ -26,6 +23,9 @@ import type Discussion from '../common/models/Discussion';
 import type NotificationModel from '../common/models/Notification';
 import type PostModel from '../common/models/Post';
 import extractText from '../common/utils/extractText';
+import Notices from './components/Notices';
+import Footer from './components/Footer';
+import SearchManager from '../common/SearchManager';
 
 export interface ForumApplicationData extends ApplicationData {}
 
@@ -62,10 +62,9 @@ export default class ForumApplication extends Application {
   notifications: NotificationListState = new NotificationListState();
 
   /**
-   * An object which stores previously searched queries and provides convenient
-   * tools for retrieving and managing search values.
+   * An object which stores the global search state and manages search capabilities.
    */
-  search: GlobalSearchState = new GlobalSearchState();
+  search: SearchManager<GlobalSearchState> = new SearchManager(new GlobalSearchState());
 
   /**
    * An object which controls the state of the composer.
@@ -119,9 +118,8 @@ export default class ForumApplication extends Application {
     m.mount(document.getElementById('header-navigation')!, Navigation);
     m.mount(document.getElementById('header-primary')!, HeaderPrimary);
     m.mount(document.getElementById('header-secondary')!, HeaderSecondary);
-    m.mount(document.getElementById('composer')!, { view: () => <Composer state={this.composer} /> });
-
-    alertEmailConfirmation(this);
+    m.mount(document.getElementById('notices')!, Notices);
+    m.mount(document.getElementById('footer')!, Footer);
 
     // Route the home link back home when clicked. We do not want it to register
     // if the user is opening it in a new tab, however.
@@ -164,7 +162,7 @@ export default class ForumApplication extends Application {
     if (payload.loggedIn) {
       window.location.reload();
     } else {
-      this.modal.show(SignUpModal, payload);
+      this.modal.show(() => import('./components/SignUpModal'), payload);
     }
   }
 }

@@ -13,13 +13,13 @@ use Illuminate\Database\Schema\Builder;
 return [
     'up' => function (Builder $schema) {
         $schema->table('settings', function (Blueprint $table) {
-            $table->text('value')->change();
+            $table->text('value')->nullable()->change();
         });
     },
 
     'down' => function (Builder $schema) {
         $schema->table('settings', function (Blueprint $table) {
-            $table->binary('value')->change();
+            $table->binary('value')->nullable()->change();
         });
     }
 ];

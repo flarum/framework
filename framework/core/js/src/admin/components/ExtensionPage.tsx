@@ -3,7 +3,6 @@ import Button from '../../common/components/Button';
 import Link from '../../common/components/Link';
 import LinkButton from '../../common/components/LinkButton';
 import Switch from '../../common/components/Switch';
-import icon from '../../common/helpers/icon';
 import punctuateSeries from '../../common/helpers/punctuateSeries';
 import listItems from '../../common/helpers/listItems';
 import ItemList from '../../common/utils/ItemList';
@@ -17,6 +16,11 @@ import { Extension } from '../AdminApplication';
 import { IPageAttrs } from '../../common/components/Page';
 import type Mithril from 'mithril';
 import extractText from '../../common/utils/extractText';
+import Form from '../../common/components/Form';
+import Icon from '../../common/components/Icon';
+import { MaintenanceMode } from '../../common/Application';
+import InfoTile from '../../common/components/InfoTile';
+import Alert from '../../common/components/Alert';
 
 export interface ExtensionPageAttrs extends IPageAttrs {
   id: string;
@@ -60,13 +64,38 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     return (
       <div className={'ExtensionPage ' + this.className()}>
         {this.header()}
-        {!this.isEnabled() ? (
+        {app.data.maintenanceMode === MaintenanceMode.SAFE_MODE && !app.data.safeModeExtensions?.includes(this.extension.id) ? (
           <div className="container">
-            <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.enable_to_see')}</h3>
+            <div className="ExtensionPage-body">
+              <InfoTile icon="fas fa-exclamation-triangle" type="warning">
+                {app.translator.trans('core.admin.extension.safe_mode_warning')}
+              </InfoTile>
+            </div>
           </div>
         ) : (
-          <div className="ExtensionPage-body">{this.sections(vnode).toArray()}</div>
+          this.body(vnode)
         )}
+      </div>
+    );
+  }
+
+  body(vnode: Mithril.VnodeDOM<Attrs, this>) {
+    const supportsDbDriver =
+      !this.extension.extra['flarum-extension']['database-support'] ||
+      this.extension.extra['flarum-extension']['database-support'].map((driver) => driver.toLowerCase()).includes(app.data.dbDriver.toLowerCase());
+
+    return this.isEnabled() ? (
+      <div className="ExtensionPage-body">
+        {!supportsDbDriver && (
+          <Alert type="error" dismissible={false}>
+            {app.translator.trans('core.admin.extension.database_driver_mismatch')}
+          </Alert>
+        )}
+        {this.sections(vnode).toArray()}
+      </div>
+    ) : (
+      <div className="container">
+        <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.enable_to_see')}</h3>
       </div>
     );
   }
@@ -79,7 +108,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
         <div className="container">
           <div className="ExtensionTitle">
             <span className="ExtensionIcon" style={this.extension.icon}>
-              {!!this.extension.icon && icon(this.extension.icon.name)}
+              {!!this.extension.icon && <Icon name={this.extension.icon.name} />}
             </span>
             <div className="ExtensionName">
               <h2>{this.extension.extra['flarum-extension'].title}</h2>
@@ -120,7 +149,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
           </div>
         </div>
         <div className="container">
-          {app.extensionData.extensionHasPermissions(this.extension.id) ? (
+          {app.registry.extensionHasPermissions(this.extension.id) ? (
             <ExtensionPermissionGrid extensionId={this.extension.id} />
           ) : (
             <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_permissions')}</h3>
@@ -133,16 +162,16 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
   }
 
   content(vnode: Mithril.VnodeDOM<Attrs, this>) {
-    const settings = app.extensionData.getSettings(this.extension.id);
+    const settings = app.registry.getSettings(this.extension.id);
 
     return (
       <div className="ExtensionPage-settings">
         <div className="container">
           {settings ? (
-            <div className="Form">
+            <Form>
               {settings.map(this.buildSettingComponent.bind(this))}
-              <div className="Form-group">{this.submitButton()}</div>
-            </div>
+              <div className="Form-group Form-controls">{this.submitButton()}</div>
+            </Form>
           ) : (
             <h3 className="ExtensionPage-subHeader">{app.translator.trans('core.admin.extension.no_settings')}</h3>
           )}
@@ -170,7 +199,6 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
         }
       };
 
-      // TODO v2.0: rename `uninstall` to `purge`
       items.add(
         'uninstall',
         <Button icon="fas fa-trash-alt" className="Button Button--primary" onclick={purge.bind(this)}>
@@ -194,7 +222,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
         </Link>
       ));
 
-      items.add('authors', [icon('fas fa-user'), <span>{punctuateSeries(authors)}</span>]);
+      items.add('authors', [<Icon name={'fas fa-user'} />, <span>{punctuateSeries(authors)}</span>]);
     }
 
     (Object.keys(this.infoFields) as (keyof ExtensionPage['infoFields'])[]).map((field) => {
@@ -207,6 +235,27 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
         );
       }
     });
+
+    let supportedDatabases = this.extension.extra['flarum-extension']['database-support'] ?? null;
+    if (supportedDatabases && supportedDatabases.length) {
+      supportedDatabases = supportedDatabases.map((database: string) => {
+        return (
+          {
+            mysql: 'MySQL',
+            sqlite: 'SQLite',
+            pgsql: 'PostgreSQL',
+          }[database] || database
+        );
+      });
+
+      items.add(
+        'database-support',
+        <span className="LinkButton">
+          <Icon name="fas fa-database" />
+          {supportedDatabases.join(', ')}
+        </span>
+      );
+    }
 
     const extension = this.extension;
     items.add(

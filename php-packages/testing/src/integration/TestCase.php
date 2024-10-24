@@ -9,15 +9,18 @@
 
 namespace Flarum\Testing\integration;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Extend\ExtenderInterface;
 use Flarum\Testing\integration\Setup\Bootstrapper;
 use Illuminate\Contracts\Cache\Store;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\ServerRequest;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use RuntimeException;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
@@ -46,6 +49,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     protected function app()
     {
         if (is_null($this->app)) {
+            $this->config('env', 'testing');
+
             $bootstrapper = new Bootstrapper(
                 $this->config,
                 $this->extensions,
@@ -168,13 +173,17 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     protected function database(): ConnectionInterface
     {
         $this->app();
+
         // Set in `BeginTransactionAndSetDatabase` extender.
         return $this->database;
     }
 
-    protected $databaseContent = [];
+    protected array $databaseContent = [];
 
-    protected function prepareDatabase(array $tableData)
+    /**
+     * @var array<string|class-string<Model>, array[]>
+     */
+    protected function prepareDatabase(array $tableData): void
     {
         $this->databaseContent = array_merge_recursive(
             $this->databaseContent,
@@ -182,30 +191,100 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         );
     }
 
-    protected function populateDatabase()
+    protected function populateDatabase(): void
     {
-        // We temporarily disable foreign key checks to simplify this process.
+        /**
+         * We temporarily disable foreign key checks to simplify this process.
+         * SQLite ignores this statement since we are inside a transaction.
+         * So we do that before starting a transaction.
+         * @see BeginTransactionAndSetDatabase
+         */
         $this->database()->getSchemaBuilder()->disableForeignKeyConstraints();
 
+        if ($this->database()->getDriverName() === 'pgsql') {
+            $this->database()->statement("SET session_replication_role = 'replica'");
+        }
+
+        $databaseContent = [];
+
+        foreach ($this->databaseContent as $tableOrModelClass => $_rows) {
+            if (class_exists($tableOrModelClass) && method_exists($tableOrModelClass, 'factory')) {
+                /** @var AbstractModel $instance */
+                $instance = (new $tableOrModelClass);
+
+                $databaseContent[$instance->getTable()] = [
+                    'rows' => $this->rowsThroughFactory($tableOrModelClass, $_rows),
+                    'unique' => $instance->uniqueKeys ?? null,
+                ];
+            } else {
+                if (class_exists($tableOrModelClass) && is_subclass_of($tableOrModelClass, Model::class)) {
+                    $tableOrModelClass = (new $tableOrModelClass)->getTable();
+                }
+
+                $databaseContent[$tableOrModelClass] = [
+                    'rows' => $_rows,
+                    'unique' => null,
+                ];
+            }
+        }
+
+        $tables = [];
+
         // Then, insert all rows required for this test case.
-        foreach ($this->databaseContent as $table => $rows) {
-            foreach ($rows as $row) {
+        foreach ($databaseContent as $table => $data) {
+            foreach ($data['rows'] as $row) {
+                $unique = $row;
+
                 if ($table === 'settings') {
-                    $this->database()->table($table)->updateOrInsert(
-                        ['key' => $row['key']],
-                        $row
-                    );
-                } else {
-                    $this->database()->table($table)->updateOrInsert(
-                        isset($row['id']) ? ['id' => $row['id']] : $row,
-                        $row
-                    );
+                    $unique = Arr::only($row, ['key']);
+                } elseif (isset($row['id'])) {
+                    $unique = Arr::only($row, ['id']);
+                } elseif ($data['unique']) {
+                    $unique = Arr::only($row, $data['unique']);
+                }
+
+                $this->database()->table($table)->updateOrInsert($unique, $row);
+
+                if (isset($row['id'])) {
+                    $tables[$table] = 'id';
                 }
             }
         }
 
+        if ($this->database()->getDriverName() === 'pgsql') {
+            // PgSQL doesn't auto-increment the sequence when inserting the IDs manually.
+            foreach ($tables as $table => $id) {
+                $wrappedTable = $this->database()->getSchemaGrammar()->wrapTable($table);
+                $seq = $this->database()->getSchemaGrammar()->wrapTable($table.'_'.$id.'_seq');
+                $this->database()->statement("SELECT setval('$seq', (SELECT MAX($id) FROM $wrappedTable))");
+            }
+
+            $this->database()->statement("SET session_replication_role = 'origin'");
+        }
+
         // And finally, turn on foreign key checks again.
         $this->database()->getSchemaBuilder()->enableForeignKeyConstraints();
+    }
+
+    protected function throughFactory(string $modelClass, array $attributes): array
+    {
+        if (! method_exists($modelClass, 'factory')) {
+            throw new RuntimeException("$modelClass must use the HasFactory trait and have a Factory class.");
+        }
+
+        /** @var \Illuminate\Database\Eloquent\Factories\Factory $factory */
+        $factory = $modelClass::factory();
+
+        return array_map(function (mixed $value) {
+            return is_array($value) ? json_encode($value) : $value;
+        }, $factory->raw($attributes));
+    }
+
+    protected function rowsThroughFactory(string $modelClass, array $rows): array
+    {
+        return array_map(function (array $row) use ($modelClass) {
+            return $this->throughFactory($modelClass, $row);
+        }, $rows);
     }
 
     /**

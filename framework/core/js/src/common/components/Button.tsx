@@ -1,10 +1,10 @@
 import type Mithril from 'mithril';
 import Component, { ComponentAttrs } from '../Component';
 import fireDebugWarning from '../helpers/fireDebugWarning';
-import icon from '../helpers/icon';
 import classList from '../utils/classList';
 import extractText from '../utils/extractText';
 import LoadingIndicator from './LoadingIndicator';
+import Icon from './Icon';
 
 export interface IButtonAttrs extends ComponentAttrs {
   /**
@@ -27,18 +27,6 @@ export interface IButtonAttrs extends ComponentAttrs {
    * Default: `false`
    */
   loading?: boolean;
-  /**
-   * **DEPRECATED:** Please use the `aria-label` attribute instead. For tooltips, use
-   * the `<Tooltip>` component.
-   *
-   * Accessible text for the button. This should always be present if the button only
-   * contains an icon.
-   *
-   * The textual content of this attribute is passed to the DOM element as `aria-label`.
-   *
-   * @deprecated
-   */
-  title?: string | Mithril.ChildArray;
   /**
    * Accessible text for the button. This should always be present if the button only
    * contains an icon.
@@ -68,13 +56,10 @@ export interface IButtonAttrs extends ComponentAttrs {
  */
 export default class Button<CustomAttrs extends IButtonAttrs = IButtonAttrs> extends Component<CustomAttrs> {
   view(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
-    let { type, title, 'aria-label': ariaLabel, icon: iconName, disabled, loading, className, class: _class, ...attrs } = this.attrs;
+    let { type, 'aria-label': ariaLabel, icon: iconName, disabled, loading, className, class: _class, ...attrs } = this.attrs;
 
     // If no `type` attr provided, set to "button"
     type ||= 'button';
-
-    // Use `title` attribute as `aria-label` if none provided
-    ariaLabel ||= title;
 
     // If given a translation object, extract the text.
     if (typeof ariaLabel === 'object') {
@@ -122,7 +107,7 @@ export default class Button<CustomAttrs extends IButtonAttrs = IButtonAttrs> ext
     const iconName = this.attrs.icon;
 
     return [
-      iconName && icon(iconName, { className: 'Button-icon' }),
+      iconName && <Icon name={iconName} className="Button-icon" />,
       children && <span className="Button-label">{children}</span>,
       this.attrs.loading && <LoadingIndicator size="small" display="inline" />,
     ];

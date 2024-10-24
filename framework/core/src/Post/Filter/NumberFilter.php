@@ -9,10 +9,14 @@
 
 namespace Flarum\Post\Filter;
 
-use Flarum\Filter\FilterInterface;
-use Flarum\Filter\FilterState;
-use Flarum\Filter\ValidateFilterTrait;
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\FilterInterface;
+use Flarum\Search\SearchState;
+use Flarum\Search\ValidateFilterTrait;
 
+/**
+ * @implements FilterInterface<DatabaseSearchState>
+ */
 class NumberFilter implements FilterInterface
 {
     use ValidateFilterTrait;
@@ -22,10 +26,10 @@ class NumberFilter implements FilterInterface
         return 'number';
     }
 
-    public function filter(FilterState $filterState, string|array $filterValue, bool $negate): void
+    public function filter(SearchState $state, string|array $value, bool $negate): void
     {
-        $number = $this->asInt($filterValue);
+        $number = $this->asInt($value);
 
-        $filterState->getQuery()->where('posts.number', $negate ? '!=' : '=', $number);
+        $state->getQuery()->where('posts.number', $negate ? '!=' : '=', $number);
     }
 }

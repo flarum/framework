@@ -54,7 +54,7 @@ class Registry
         if ($error instanceof KnownError) {
             $errorType = $error->getType();
         } else {
-            $errorClass = get_class($error);
+            $errorClass = $error::class;
             if (isset($this->classMap[$errorClass])) {
                 $errorType = $this->classMap[$errorClass];
             }
@@ -73,12 +73,12 @@ class Registry
 
     private function handleCustomTypes(Throwable $error): ?HandledError
     {
-        $errorClass = get_class($error);
+        foreach ($this->handlerMap as $class => $handler) {
+            if ($error instanceof $class) {
+                $handler = new $handler;
 
-        if (isset($this->handlerMap[$errorClass])) {
-            $handler = new $this->handlerMap[$errorClass];
-
-            return $handler->handle($error);
+                return $handler->handle($error);
+            }
         }
 
         return null;

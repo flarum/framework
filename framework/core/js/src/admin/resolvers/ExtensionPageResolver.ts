@@ -13,10 +13,10 @@ export default class ExtensionPageResolver<
   static extension: string | null = null;
 
   onmatch(args: Attrs & RouteArgs, requestedPath: string, route: string) {
-    const extensionPage = app.extensionData.getPage<Attrs>(args.id);
+    const extensionPage = app.registry.getPage<Attrs>(args.id);
 
     if (extensionPage) {
-      return extensionPage;
+      return Promise.resolve(extensionPage);
     }
 
     return super.onmatch(args, requestedPath, route);

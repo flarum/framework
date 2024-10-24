@@ -12,7 +12,7 @@ import app from '../app';
  * can fix.
  */
 export default function fireDebugWarning(...args: Parameters<typeof console.warn>): void {
-  if (!app.forum.attribute('debug')) return;
+  if (!app.data.resources.find((r) => r.type === 'forums')?.attributes?.debug) return;
 
   console.warn(...args);
 }

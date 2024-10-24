@@ -20,7 +20,7 @@
     },
     "devDependencies": {
         "flarum-tsconfig": "^1.0.2",
-        "flarum-webpack-config": "^2.0.0",
+        "flarum-webpack-config": "^3.0.0",
         "prettier": "^2.7.1",
         "typescript": "^4.5.4",
         "typescript-coverage-report": "^0.6.1",

@@ -1,5 +1,5 @@
 import app from '../../admin/app';
-import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Button from '../../common/components/Button';
 import Badge from '../../common/components/Badge';
 import Group from '../../common/models/Group';
@@ -9,8 +9,9 @@ import Stream from '../../common/utils/Stream';
 import Mithril from 'mithril';
 import extractText from '../../common/utils/extractText';
 import ColorPreviewInput from '../../common/components/ColorPreviewInput';
+import Form from '../../common/components/Form';
 
-export interface IEditGroupModalAttrs extends IInternalModalAttrs {
+export interface IEditGroupModalAttrs extends IFormModalAttrs {
   group?: Group;
 }
 
@@ -18,7 +19,7 @@ export interface IEditGroupModalAttrs extends IInternalModalAttrs {
  * The `EditGroupModal` component shows a modal dialog which allows the user
  * to create or edit a group.
  */
-export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = IEditGroupModalAttrs> extends Modal<CustomAttrs> {
+export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = IEditGroupModalAttrs> extends FormModal<CustomAttrs> {
   group!: Group;
   nameSingular!: Stream<string>;
   namePlural!: Stream<string>;
@@ -54,7 +55,7 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
   content() {
     return (
       <div className="Modal-body">
-        <div className="Form">{this.fields().toArray()}</div>
+        <Form>{this.fields().toArray()}</Form>
       </div>
     );
   }
@@ -66,7 +67,7 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
       'name',
       <div className="Form-group">
         <label>{app.translator.trans('core.admin.edit_group.name_label')}</label>
-        <div className="EditGroupModal-name-input">
+        <div className="StackedFormControl EditGroupModal-name-input">
           <input className="FormControl" placeholder={app.translator.trans('core.admin.edit_group.singular_placeholder')} bidi={this.nameSingular} />
           <input className="FormControl" placeholder={app.translator.trans('core.admin.edit_group.plural_placeholder')} bidi={this.namePlural} />
         </div>
@@ -88,7 +89,7 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
       <div className="Form-group">
         <label>{app.translator.trans('core.admin.edit_group.icon_label')}</label>
         <div className="helpText">
-          {app.translator.trans('core.admin.edit_group.icon_text', { a: <a href="https://fontawesome.com/v5/search?m=free" tabindex="-1" /> })}
+          {app.translator.trans('core.admin.edit_group.icon_text', { a: <a href={app.refs.fontawesome} tabindex="-1" /> })}
         </div>
         <input className="FormControl" placeholder="fas fa-bolt" bidi={this.icon} />
       </div>,
@@ -107,7 +108,7 @@ export default class EditGroupModal<CustomAttrs extends IEditGroupModalAttrs = I
 
     items.add(
       'submit',
-      <div className="Form-group">
+      <div className="Form-group Form-controls">
         <Button type="submit" className="Button Button--primary EditGroupModal-save" loading={this.loading}>
           {app.translator.trans('core.admin.edit_group.submit_button')}
         </Button>

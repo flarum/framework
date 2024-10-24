@@ -29,7 +29,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
  */
 class ViewFormatter implements HttpFormatter
 {
-    const ERRORS_WITH_VIEWS = ['csrf_token_mismatch', 'not_found'];
+    const ERRORS_WITH_VIEWS = ['csrf_token_mismatch', 'not_found', 'maintenance'];
 
     public function __construct(
         protected ViewFactory $view,

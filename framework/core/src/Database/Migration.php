@@ -25,8 +25,8 @@ abstract class Migration
     {
         return [
             'up' => function (Builder $schema) use ($name, $definition) {
-                $schema->create($name, function (Blueprint $table) use ($definition) {
-                    $definition($table);
+                $schema->create($name, function (Blueprint $table) use ($definition, $schema) {
+                    $definition($table, $schema);
                 });
             },
             'down' => function (Builder $schema) use ($name) {
@@ -40,8 +40,8 @@ abstract class Migration
         return [
             'up' => function (Builder $schema) use ($name, $definition) {
                 if (! $schema->hasTable($name)) {
-                    $schema->create($name, function (Blueprint $table) use ($definition) {
-                        $definition($table);
+                    $schema->create($name, function (Blueprint $table) use ($definition, $schema) {
+                        $definition($table, $schema);
                     });
                 }
             },
@@ -101,18 +101,18 @@ abstract class Migration
     {
         return [
             'up' => function (Builder $schema) use ($tableName, $columnNames) {
-                $schema->table($tableName, function (Blueprint $table) use ($columnNames) {
-                    foreach ($columnNames as $from => $to) {
+                foreach ($columnNames as $from => $to) {
+                    $schema->table($tableName, function (Blueprint $table) use ($from, $to) {
                         $table->renameColumn($from, $to);
-                    }
-                });
+                    });
+                }
             },
             'down' => function (Builder $schema) use ($tableName, $columnNames) {
-                $schema->table($tableName, function (Blueprint $table) use ($columnNames) {
-                    foreach ($columnNames as $to => $from) {
+                foreach ($columnNames as $to => $from) {
+                    $schema->table($tableName, function (Blueprint $table) use ($from, $to) {
                         $table->renameColumn($from, $to);
-                    }
-                });
+                    });
+                }
             }
         ];
     }
@@ -120,7 +120,7 @@ abstract class Migration
     /**
      * Add default values for config values.
      *
-     * @deprecated Use the Settings extender's `default` method instead to register settings.
+     * You generally should use the Settings extender's `default` method instead to register settings.
      * @see Settings::default()
      */
     public static function addSettings(array $defaults): array

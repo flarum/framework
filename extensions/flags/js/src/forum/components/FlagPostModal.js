@@ -1,12 +1,13 @@
 import app from 'flarum/forum/app';
-import Modal from 'flarum/common/components/Modal';
+import FormModal from 'flarum/common/components/FormModal';
+import Form from 'flarum/common/components/Form';
 import Button from 'flarum/common/components/Button';
 
 import Stream from 'flarum/common/utils/Stream';
 import withAttr from 'flarum/common/utils/withAttr';
 import ItemList from 'flarum/common/utils/ItemList';
 
-export default class FlagPostModal extends Modal {
+export default class FlagPostModal extends FormModal {
   oninit(vnode) {
     super.oninit(vnode);
 
@@ -28,31 +29,31 @@ export default class FlagPostModal extends Modal {
     if (this.success) {
       return (
         <div className="Modal-body">
-          <div className="Form Form--centered">
+          <Form className="Form--centered">
             <p className="helpText">{app.translator.trans('flarum-flags.forum.flag_post.confirmation_message')}</p>
-            <div className="Form-group">
+            <div className="Form-group Form-controls">
               <Button className="Button Button--primary Button--block" onclick={this.hide.bind(this)}>
                 {app.translator.trans('flarum-flags.forum.flag_post.dismiss_button')}
               </Button>
             </div>
-          </div>
+          </Form>
         </div>
       );
     }
 
     return (
       <div className="Modal-body">
-        <div className="Form Form--centered">
+        <Form className="Form--centered">
           <div className="Form-group">
             <div>{this.flagReasons().toArray()}</div>
           </div>
 
-          <div className="Form-group">
+          <div className="Form-group Form-controls">
             <Button className="Button Button--primary Button--block" type="submit" loading={this.loading} disabled={!this.reason()}>
               {app.translator.trans('flarum-flags.forum.flag_post.submit_button')}
             </Button>
           </div>
-        </div>
+        </Form>
       </div>
     );
   }
@@ -150,7 +151,6 @@ export default class FlagPostModal extends Modal {
           reason: this.reason() === 'other' ? null : this.reason(),
           reasonDetail: this.reasonDetail(),
           relationships: {
-            user: app.session.user,
             post: this.attrs.post,
           },
         },

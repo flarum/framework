@@ -22,41 +22,36 @@ use Illuminate\Filesystem\FilesystemAdapter;
 use InvalidArgumentException;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use League\Flysystem\Local\LocalFilesystemAdapter;
+use PHPUnit\Framework\Attributes\Test;
 
 class FilesystemTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_disk_doesnt_exist_by_default()
     {
         $this->expectException(InvalidArgumentException::class);
         $this->app()->getContainer()->make('filesystem')->disk('flarum-uploads');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_disk_exists_if_added_and_uses_local_adapter_by_default()
     {
         $this->extend((new Extend\Filesystem)->disk('flarum-uploads', function (Paths $paths, UrlGenerator $url) {
             return [
                 'root' => "$paths->public/assets/uploads",
-                'url'  => $url->to('forum')->path('assets/uploads')
+                'url' => $url->to('forum')->path('assets/uploads')
             ];
         }));
 
         /** @var FilesystemAdapter $uploadsDisk */
         $uploadsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-uploads');
 
-        $this->assertEquals(get_class($uploadsDisk->getAdapter()), LocalFilesystemAdapter::class);
+        $this->assertEquals($uploadsDisk->getAdapter()::class, LocalFilesystemAdapter::class);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_disk_exists_if_added_via_invokable_class_and_uses_local_adapter_by_default()
     {
         $this->extend((new Extend\Filesystem)->disk('flarum-uploads', UploadsDisk::class));
@@ -64,12 +59,10 @@ class FilesystemTest extends TestCase
         /** @var FilesystemAdapter $uploadsDisk */
         $uploadsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-uploads');
 
-        $this->assertEquals(get_class($uploadsDisk->getAdapter()), LocalFilesystemAdapter::class);
+        $this->assertEquals($uploadsDisk->getAdapter()::class, LocalFilesystemAdapter::class);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function disk_uses_local_adapter_if_configured_adapter_unavailable()
     {
         $this->app()->getContainer()->make(SettingsRepositoryInterface::class)->set('disk_driver.flarum-assets', 'nonexistent_driver');
@@ -77,12 +70,10 @@ class FilesystemTest extends TestCase
         /** @var FilesystemAdapter $assetsDisk */
         $assetsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets');
 
-        $this->assertEquals(get_class($assetsDisk->getAdapter()), LocalFilesystemAdapter::class);
+        $this->assertEquals($assetsDisk->getAdapter()::class, LocalFilesystemAdapter::class);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function disk_uses_local_adapter_if_configured_adapter_from_config_file_unavailable()
     {
         $this->config('disk_driver.flarum-assets', 'null');
@@ -90,12 +81,10 @@ class FilesystemTest extends TestCase
         /** @var FilesystemAdapter $assetsDisk */
         $assetsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets');
 
-        $this->assertEquals(get_class($assetsDisk->getAdapter()), LocalFilesystemAdapter::class);
+        $this->assertEquals($assetsDisk->getAdapter()::class, LocalFilesystemAdapter::class);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function disk_uses_custom_adapter_if_configured_and_available()
     {
         $this->extend(
@@ -107,12 +96,10 @@ class FilesystemTest extends TestCase
         /** @var FilesystemAdapter $assetsDisk */
         $assetsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets');
 
-        $this->assertEquals(get_class($assetsDisk->getAdapter()), InMemoryFilesystemAdapter::class);
+        $this->assertEquals($assetsDisk->getAdapter()::class, InMemoryFilesystemAdapter::class);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function disk_uses_custom_adapter_from_config_file_if_configured_and_available()
     {
         $this->extend(
@@ -124,7 +111,7 @@ class FilesystemTest extends TestCase
         /** @var FilesystemAdapter $assetsDisk */
         $assetsDisk = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets');
 
-        $this->assertEquals(get_class($assetsDisk->getAdapter()), InMemoryFilesystemAdapter::class);
+        $this->assertEquals($assetsDisk->getAdapter()::class, InMemoryFilesystemAdapter::class);
     }
 }
 
@@ -148,7 +135,7 @@ class UploadsDisk
     {
         return [
             'root' => "$paths->public/assets/uploads",
-            'url'  => $url->to('forum')->path('assets/uploads')
+            'url' => $url->to('forum')->path('assets/uploads')
         ];
     }
 }

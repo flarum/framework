@@ -1,5 +1,5 @@
 import app from '../../admin/app';
-import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
+import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Button from '../../common/components/Button';
 import extractText from '../../common/utils/extractText';
 import ItemList from '../../common/utils/ItemList';
@@ -7,8 +7,9 @@ import Stream from '../../common/utils/Stream';
 import type Mithril from 'mithril';
 import Switch from '../../common/components/Switch';
 import { generateRandomString } from '../../common/utils/string';
+import Form from '../../common/components/Form';
 
-export interface ICreateUserModalAttrs extends IInternalModalAttrs {
+export interface ICreateUserModalAttrs extends IFormModalAttrs {
   username?: string;
   email?: string;
   password?: string;
@@ -23,7 +24,7 @@ export type SignupBody = {
   password: string;
 };
 
-export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs = ICreateUserModalAttrs> extends Modal<CustomAttrs> {
+export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs = ICreateUserModalAttrs> extends FormModal<CustomAttrs> {
   /**
    * The value of the username input.
    */
@@ -79,7 +80,7 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
   body() {
     return (
       <>
-        <div className="Form Form--centered">{this.fields().toArray()}</div>
+        <Form className="Form--centered">{this.fields().toArray()}</Form>
       </>
     );
   }
@@ -206,11 +207,9 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
 
     this.loading = true;
 
-    app
-      .request({
-        url: app.forum.attribute('apiUrl') + '/users',
-        method: 'POST',
-        body: { data: { attributes: this.submitData() } },
+    app.store
+      .createRecord('users', {})
+      .save(this.submitData(), {
         errorHandler: this.onerror.bind(this),
       })
       .then(() => {
@@ -219,6 +218,8 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
         } else {
           this.hide();
         }
+
+        this.alertAttrs = null;
       })
       .finally(() => {
         this.bulkAdd(false);

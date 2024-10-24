@@ -1,14 +1,14 @@
 .TagIcon {
-  border-radius: @border-radius;
+  border-radius: var(--border-radius);
   width: 16px;
   height: 16px;
   display: inline-block;
   vertical-align: -3px;
   margin-left: 1px;
-  background: var(--color, @control-bg);
+  background: var(--color, var(--control-bg));
 
   &.untagged {
-    border: 1px dotted @muted-color;
+    border: 1px dotted var(--muted-color);
     background: transparent;
   }
 }

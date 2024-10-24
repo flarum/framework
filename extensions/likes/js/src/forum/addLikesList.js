@@ -4,7 +4,7 @@ import CommentPost from 'flarum/forum/components/CommentPost';
 import Link from 'flarum/common/components/Link';
 import punctuateSeries from 'flarum/common/helpers/punctuateSeries';
 import username from 'flarum/common/helpers/username';
-import icon from 'flarum/common/helpers/icon';
+import Icon from 'flarum/common/components/Icon';
 import Button from 'flarum/common/components/Button';
 
 import PostLikesModal from './components/PostLikesModal';
@@ -58,7 +58,7 @@ export default function () {
       items.add(
         'liked',
         <div className="Post-likedBy">
-          {icon('far fa-thumbs-up')}
+          <Icon name={'far fa-thumbs-up'} />
           {app.translator.trans(`flarum-likes.forum.post.liked_by${likes[0] === app.session.user ? '_self' : ''}_text`, {
             count: names.length,
             users: punctuateSeries(names),

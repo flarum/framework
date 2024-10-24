@@ -12,12 +12,13 @@ namespace Flarum\Subscriptions\Notification;
 use Flarum\Database\AbstractModel;
 use Flarum\Discussion\Discussion;
 use Flarum\Locale\TranslatorInterface;
+use Flarum\Notification\AlertableInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Notification\MailableInterface;
 use Flarum\Post\Post;
 use Flarum\User\User;
 
-class NewPostBlueprint implements BlueprintInterface, MailableInterface
+class NewPostBlueprint implements BlueprintInterface, AlertableInterface, MailableInterface
 {
     public function __construct(
         public Post $post
@@ -39,9 +40,11 @@ class NewPostBlueprint implements BlueprintInterface, MailableInterface
         return ['postNumber' => (int) $this->post->number];
     }
 
-    public function getEmailView(): string|array
+    public function getEmailViews(): array
     {
-        return ['text' => 'flarum-subscriptions::emails.newPost'];
+        return [
+            'text' => 'flarum-subscriptions::emails.plain.newPost',
+            'html' => 'flarum-subscriptions::emails.html.newPost', ];
     }
 
     public function getEmailSubject(TranslatorInterface $translator): string

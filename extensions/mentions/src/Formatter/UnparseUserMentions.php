@@ -9,8 +9,8 @@
 
 namespace Flarum\Mentions\Formatter;
 
+use Flarum\Database\AbstractModel;
 use Flarum\Locale\TranslatorInterface;
-use Flarum\Post\Post;
 use Flarum\User\User;
 use s9e\TextFormatter\Utils;
 
@@ -34,17 +34,13 @@ class UnparseUserMentions
     protected function updateUserMentionTags(mixed $context, string $xml): string
     {
         return Utils::replaceAttributes($xml, 'USERMENTION', function ($attributes) use ($context) {
-            $user = (($context && isset($context->getRelations()['mentionsUsers'])) || $context instanceof Post)
-                ? $context->mentionsUsers->find($attributes['id'])
+            $user = ($context instanceof AbstractModel && $context->isRelation('mentionsUsers'))
+                ? $context->mentionsUsers->find($attributes['id']) // @phpstan-ignore-line
                 : User::find($attributes['id']);
 
-            if ($user) {
-                $attributes['displayname'] = $user->display_name;
-            } else {
-                $attributes['displayname'] = $this->translator->trans('core.lib.username.deleted_text');
-            }
+            $attributes['displayname'] = $user?->display_name ?? $this->translator->trans('core.lib.username.deleted_text');
 
-            if (strpos($attributes['displayname'], '"#') !== false) {
+            if (str_contains($attributes['displayname'], '"#')) {
                 $attributes['displayname'] = preg_replace('/"#[a-z]{0,3}[0-9]+/', '_', $attributes['displayname']);
             }
 
@@ -59,7 +55,7 @@ class UnparseUserMentions
     {
         $tagName = 'USERMENTION';
 
-        if (strpos($xml, $tagName) === false) {
+        if (! str_contains($xml, $tagName)) {
             return $xml;
         }
 

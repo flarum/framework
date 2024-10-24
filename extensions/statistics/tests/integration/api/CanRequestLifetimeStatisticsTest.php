@@ -10,8 +10,12 @@
 namespace Flarum\Statistics\tests\integration\api;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class CanRequestLifetimeStatisticsTest extends TestCase
 {
@@ -36,17 +40,17 @@ class CanRequestLifetimeStatisticsTest extends TestCase
     protected function getDatabaseData(): array
     {
         return [
-            'users' => [
+            User::class => [
                 ['id' => 1, 'username' => 'Muralf', 'email' => 'muralf@machine.local', 'is_email_confirmed' => 1],
                 ['id' => 2, 'username' => 'normal', 'email' => 'normal@machine.local', 'is_email_confirmed' => 1, 'joined_at' => $this->nowTime->subDays(1)],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => $this->nowTime, 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
                 ['id' => 2, 'title' => __CLASS__, 'created_at' => $this->nowTime->subDays(1), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
                 ['id' => 3, 'title' => __CLASS__, 'created_at' => $this->nowTime->subDays(1), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
                 ['id' => 4, 'title' => __CLASS__, 'created_at' => $this->nowTime->subDays(2), 'last_posted_at' => Carbon::now(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Text</p></t>', 'is_private' => 0, 'number' => 1],
                 ['id' => 2, 'discussion_id' => 2, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Text</p></t>', 'is_private' => 0, 'number' => 1],
                 ['id' => 3, 'discussion_id' => 3, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Text</p></t>', 'is_private' => 0, 'number' => 1],
@@ -56,9 +60,7 @@ class CanRequestLifetimeStatisticsTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_request_lifetime_stats()
     {
         $response = $this->send(
@@ -75,9 +77,9 @@ class CanRequestLifetimeStatisticsTest extends TestCase
 
         $this->assertEqualsCanonicalizing(
             [
-                'users' => count($db['users']),
-                'discussions' => count($db['discussions']),
-                'posts' => count($db['posts']),
+                'users' => count($db[User::class]),
+                'discussions' => count($db[Discussion::class]),
+                'posts' => count($db[Post::class]),
             ],
             $body
         );

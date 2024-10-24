@@ -13,6 +13,8 @@ use Flarum\Extend;
 use Flarum\Http\AccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 class LoginTest extends TestCase
 {
@@ -28,15 +30,13 @@ class LoginTest extends TestCase
         );
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser()
             ]
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cant_login_without_data()
     {
         $response = $this->send(
@@ -48,9 +48,7 @@ class LoginTest extends TestCase
         $this->assertEquals(401, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function cant_login_with_wrong_password()
     {
         $response = $this->send(
@@ -65,9 +63,7 @@ class LoginTest extends TestCase
         $this->assertEquals(401, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_login_with_data()
     {
         $response = $this->send(

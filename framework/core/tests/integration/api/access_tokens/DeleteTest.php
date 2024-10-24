@@ -10,12 +10,16 @@
 namespace Flarum\Tests\integration\api\access_tokens;
 
 use Carbon\Carbon;
+use Flarum\Group\Group;
 use Flarum\Http\AccessToken;
 use Flarum\Http\DeveloperAccessToken;
 use Flarum\Http\RememberAccessToken;
 use Flarum\Http\SessionAccessToken;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 
 class DeleteTest extends TestCase
 {
@@ -29,12 +33,12 @@ class DeleteTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'normal3', 'email' => 'normal3@machine.local', 'is_email_confirmed' => 1],
                 ['id' => 4, 'username' => 'normal4', 'email' => 'normal4@machine.local', 'is_email_confirmed' => 1],
             ],
-            'access_tokens' => [
+            AccessToken::class => [
                 ['id' => 1, 'token' => 'a', 'user_id' => 1, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'session'],
                 ['id' => 2, 'token' => 'b', 'user_id' => 1, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'session_remember'],
                 ['id' => 3, 'token' => 'c', 'user_id' => 1, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'developer'],
@@ -42,7 +46,7 @@ class DeleteTest extends TestCase
                 ['id' => 5, 'token' => 'e', 'user_id' => 2, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'session'],
                 ['id' => 6, 'token' => 'f', 'user_id' => 3, 'last_activity_at' => Carbon::parse('2021-01-01 02:00:00'), 'type' => 'developer'],
             ],
-            'groups' => [
+            Group::class => [
                 ['id' => 100, 'name_singular' => 'test', 'name_plural' => 'test']
             ],
             'group_user' => [
@@ -54,10 +58,8 @@ class DeleteTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider canDeleteTokensDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('canDeleteTokensDataProvider')]
     public function user_can_delete_tokens(int $authenticatedAs, array $canDeleteIds)
     {
         foreach ($canDeleteIds as $id) {
@@ -69,10 +71,8 @@ class DeleteTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider cannotDeleteTokensDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('cannotDeleteTokensDataProvider')]
     public function user_cannot_delete_tokens(int $authenticatedAs, array $canDeleteIds)
     {
         foreach ($canDeleteIds as $id) {
@@ -84,9 +84,7 @@ class DeleteTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_cannot_delete_current_session_token()
     {
         $responseWithSession = $this->send(
@@ -103,7 +101,7 @@ class DeleteTest extends TestCase
         $sessionToken = AccessToken::query()
             ->where('user_id', 1)
             ->where('type', SessionAccessToken::$type)
-            ->latest()
+            ->latest('id')
             ->first();
 
         $csrfToken = $responseWithSession->getHeaderLine('X-CSRF-Token');
@@ -115,12 +113,10 @@ class DeleteTest extends TestCase
 
         $response = $this->send($request);
 
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_can_terminate_all_other_sessions()
     {
         $responseWithSession = $this->send(
@@ -163,9 +159,7 @@ class DeleteTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function terminting_all_other_sessions_does_not_delete_dev_tokens()
     {
         $response = $this->send(
@@ -184,7 +178,7 @@ class DeleteTest extends TestCase
         );
     }
 
-    public function canDeleteTokensDataProvider(): array
+    public static function canDeleteTokensDataProvider(): array
     {
         return [
             // Admin can delete any user tokens.
@@ -199,7 +193,7 @@ class DeleteTest extends TestCase
         ];
     }
 
-    public function cannotDeleteTokensDataProvider(): array
+    public static function cannotDeleteTokensDataProvider(): array
     {
         return [
             // Normal users cannot delete other users' tokens.

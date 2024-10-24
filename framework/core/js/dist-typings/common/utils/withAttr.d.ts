@@ -9,5 +9,4 @@
  * Replaces m.withAttr for Mithril 2.0.
  * @see https://mithril.js.org/archive/v0.2.5/mithril.withAttr.html
  */
-declare const _default: (key: string, cb: Function) => (this: Element) => void;
-export default _default;
+export default function withAttr(key: string, cb: Function): (this: Element) => void;

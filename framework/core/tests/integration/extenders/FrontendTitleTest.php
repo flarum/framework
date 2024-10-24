@@ -9,11 +9,15 @@
 
 namespace Flarum\Tests\integration\extenders;
 
+use Flarum\Discussion\Discussion;
 use Flarum\Extend\Frontend;
 use Flarum\Frontend\Document;
 use Flarum\Frontend\Driver\TitleDriverInterface;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
 
 class FrontendTitleTest extends TestCase
@@ -23,13 +27,13 @@ class FrontendTitleTest extends TestCase
     protected function setUp(): void
     {
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'Test Discussion', 'user_id' => 1, 'first_post_id' => 1]
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'user_id' => 2, 'type' => 'comment', 'content' => '<t><p>can i haz potat?</p></t>'],
             ],
         ]);
@@ -37,17 +41,13 @@ class FrontendTitleTest extends TestCase
         $this->setting('forum_title', 'Flarum');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function basic_title_driver_is_used_by_default()
     {
         $this->assertTitleEquals('Test Discussion - Flarum');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function custom_title_driver_works_if_set()
     {
         $this->extend((new Frontend('forum'))->title(CustomTitleDriver::class));
@@ -59,9 +59,9 @@ class FrontendTitleTest extends TestCase
     {
         $response = $this->send($this->request('GET', '/d/1'));
 
-        preg_match('/\<title\>(?<title>[^<]+)\<\/title\>/m', $response->getBody()->getContents(), $matches);
+        preg_match('/\<title\>(?<title>[^<]+)\<\/title\>/m', $body = $response->getBody()->getContents(), $matches);
 
-        $this->assertEquals($title, $matches['title']);
+        $this->assertEquals($title, $matches['title'] ?? null, $body);
     }
 }
 

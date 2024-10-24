@@ -1,8 +1,9 @@
 import app from '../../forum/app';
 import Component from '../../common/Component';
-import icon from '../../common/helpers/icon';
 import formatNumber from '../../common/utils/formatNumber';
 import ScrollListener from '../../common/utils/ScrollListener';
+import Icon from '../../common/components/Icon';
+import Button from '../../common/components/Button';
 
 /**
  * The `PostStreamScrubber` component displays a scrubber which can be used to
@@ -58,14 +59,14 @@ export default class PostStreamScrubber extends Component {
     return (
       <div className={classNames.join(' ')}>
         <button className="Button Dropdown-toggle" data-toggle="dropdown">
-          {viewing} {icon('fas fa-sort')}
+          {viewing} <Icon name={'fas fa-sort'} />
         </button>
 
         <div className="Dropdown-menu dropdown-menu">
           <div className="Scrubber">
-            <a className="Scrubber-first" onclick={this.goToFirst.bind(this)}>
-              {icon('fas fa-angle-double-up')} {app.translator.trans('core.forum.post_scrubber.original_post_link')}
-            </a>
+            <Button className="Scrubber-first Button Button--link" onclick={this.goToFirst.bind(this)} icon="fas fa-angle-double-up">
+              {app.translator.trans('core.forum.post_scrubber.original_post_link')}
+            </Button>
 
             <div className="Scrubber-scrollbar">
               <div className="Scrubber-before" />
@@ -83,9 +84,9 @@ export default class PostStreamScrubber extends Component {
               </div>
             </div>
 
-            <a className="Scrubber-last" onclick={this.goToLast.bind(this)}>
-              {icon('fas fa-angle-double-down')} {app.translator.trans('core.forum.post_scrubber.now_link')}
-            </a>
+            <Button className="Scrubber-last Button Button--link" onclick={this.goToLast.bind(this)} icon="fas fa-angle-double-down">
+              {app.translator.trans('core.forum.post_scrubber.now_link')}
+            </Button>
           </div>
         </div>
       </div>
@@ -178,7 +179,7 @@ export default class PostStreamScrubber extends Component {
     heights.after = 100 - heights.before - heights.handle;
 
     // If the stream is paused, don't change height on scroll, as the viewport is being scrolled by the JS
-    // If a height change animation is already in progress, don't adjust height unless overriden
+    // If a height change animation is already in progress, don't adjust height unless overridden
     if ((options.fromScroll && this.stream.paused) || (this.adjustingHeight && !options.forceHeightChange)) return;
 
     const func = options.animate ? 'animate' : 'css';

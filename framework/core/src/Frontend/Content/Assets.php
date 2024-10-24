@@ -20,6 +20,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class Assets
 {
     protected FrontendAssets $assets;
+    protected FrontendAssets $commonAssets;
 
     public function __construct(
         protected Container $container,
@@ -35,6 +36,7 @@ class Assets
     public function forFrontend(string $name): self
     {
         $this->assets = $this->container->make('flarum.assets.'.$name);
+        $this->commonAssets = $this->container->make('flarum.assets.common');
 
         return $this;
     }
@@ -59,10 +61,16 @@ class Assets
      */
     protected function assembleCompilers(?string $locale): array
     {
-        return [
-            'js' => [$this->assets->makeJs(), $this->assets->makeLocaleJs($locale)],
+        $frontendCompilers = [
+            'js' => [$this->assets->makeJs(), $this->assets->makeLocaleJs($locale), $this->assets->makeJsDirectory()],
             'css' => [$this->assets->makeCss(), $this->assets->makeLocaleCss($locale)]
         ];
+
+        $commonCompilers = [
+            'js' => [$this->commonAssets->makeJsDirectory()],
+        ];
+
+        return array_merge_recursive($commonCompilers, $frontendCompilers);
     }
 
     /**

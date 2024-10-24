@@ -1,7 +1,7 @@
 import Dropdown, { IDropdownAttrs } from './Dropdown';
 import type Mithril from 'mithril';
 export interface ISelectDropdownAttrs extends IDropdownAttrs {
-    defaultLabel: string;
+    defaultLabel: Mithril.Children;
 }
 /**
  * The `SelectDropdown` component is the same as a `Dropdown`, except the toggle

@@ -13,7 +13,6 @@ use Flarum\Http\RequestUtil;
 use Flarum\User\User;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\Diactoros\Uri;
-use Laminas\Stratigility\MiddlewarePipeInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -23,9 +22,10 @@ class Client
     protected ?ServerRequestInterface $parent = null;
     protected array $queryParams = [];
     protected array $body = [];
+    protected bool $errorHandling = true;
 
     public function __construct(
-        protected MiddlewarePipeInterface $pipe
+        protected ClientMiddlewarePipe $pipe
     ) {
     }
 
@@ -62,6 +62,22 @@ class Client
     {
         $new = clone $this;
         $new->body = $body;
+
+        return $new;
+    }
+
+    public function withoutErrorHandling(): Client
+    {
+        $new = clone $this;
+        $new->errorHandling = false;
+
+        return $new;
+    }
+
+    public function withErrorHandling(): Client
+    {
+        $new = clone $this;
+        $new->errorHandling = true;
 
         return $new;
     }
@@ -114,6 +130,8 @@ class Client
             $request = RequestUtil::withActor($request, $this->actor);
         }
 
-        return $this->pipe->handle($request);
+        return $this->pipe
+            ->errorHandling($this->errorHandling)
+            ->handle($request);
     }
 }

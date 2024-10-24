@@ -36,7 +36,36 @@ class Config implements ArrayAccess
 
     public function inMaintenanceMode(): bool
     {
-        return $this->data['offline'] ?? false;
+        return $this->inHighMaintenanceMode() || $this->inLowMaintenanceMode() || $this->inSafeMode();
+    }
+
+    public function inHighMaintenanceMode(): bool
+    {
+        return $this->maintenanceMode() === MaintenanceMode::HIGH;
+    }
+
+    public function inLowMaintenanceMode(): bool
+    {
+        return $this->maintenanceMode() === MaintenanceMode::LOW;
+    }
+
+    public function inSafeMode(): bool
+    {
+        return $this->maintenanceMode() === MaintenanceMode::SAFE;
+    }
+
+    public function maintenanceMode(): string
+    {
+        return match ($mode = $this->data['offline'] ?? MaintenanceMode::NONE) {
+            true => MaintenanceMode::HIGH,
+            false => MaintenanceMode::NONE,
+            default => $mode,
+        };
+    }
+
+    public function safeModeExtensions(): ?array
+    {
+        return $this->data['safe_mode_extensions'] ?? null;
     }
 
     private function requireKeys(mixed ...$keys): void
@@ -52,12 +81,12 @@ class Config implements ArrayAccess
 
     public function offsetGet($offset): mixed
     {
-        return Arr::get($this->data, $offset);
+        return Arr::get($this->data, $offset, Arr::get($this->defaults(), $offset));
     }
 
     public function offsetExists($offset): bool
     {
-        return Arr::has($this->data, $offset);
+        return Arr::has($this->data, $offset) || Arr::has($this->defaults(), $offset);
     }
 
     public function offsetSet($offset, $value): void
@@ -68,5 +97,20 @@ class Config implements ArrayAccess
     public function offsetUnset($offset): void
     {
         throw new RuntimeException('The Config is immutable');
+    }
+
+    public function environment(): string
+    {
+        return $this->data['env'] ?? 'production';
+    }
+
+    protected function defaults(): array
+    {
+        // Mostly needed for Laravel internals.
+        return [
+            'app' => [
+                'timezone' => 'UTC',
+            ],
+        ];
     }
 }

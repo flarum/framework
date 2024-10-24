@@ -3,10 +3,13 @@ import Button from '../../common/components/Button';
 import EditCustomCssModal from './EditCustomCssModal';
 import EditCustomHeaderModal from './EditCustomHeaderModal';
 import EditCustomFooterModal from './EditCustomFooterModal';
-import UploadImageButton from './UploadImageButton';
+import UploadImageButton from '../../common/components/UploadImageButton';
 import AdminPage from './AdminPage';
 import ItemList from '../../common/utils/ItemList';
 import type Mithril from 'mithril';
+import Form from '../../common/components/Form';
+import FieldSet from '../../common/components/FieldSet';
+import ThemeMode from '../../common/components/ThemeMode';
 
 export default class AppearancePage extends AdminPage {
   headerInfo() {
@@ -21,56 +24,59 @@ export default class AppearancePage extends AdminPage {
   content() {
     return (
       <>
-        <div className="Form">
-          <fieldset className="AppearancePage-colors">
-            <legend>{app.translator.trans('core.admin.appearance.colors_heading')}</legend>
+        <Form>
+          <FieldSet
+            className="AppearancePage-colors"
+            label={app.translator.trans('core.admin.appearance.colors_heading')}
+            description={app.translator.trans('core.admin.appearance.colors_text')}
+          >
             {this.colorItems().toArray()}
-          </fieldset>
-        </div>
+          </FieldSet>
+        </Form>
 
-        <fieldset>
-          <legend>{app.translator.trans('core.admin.appearance.logo_heading')}</legend>
-          <div className="helpText">{app.translator.trans('core.admin.appearance.logo_text')}</div>
-          <UploadImageButton name="logo" />
-        </fieldset>
+        <Form>
+          <div className="Form-group">
+            <label>{app.translator.trans('core.admin.appearance.logo_heading')}</label>
+            <div className="helpText">{app.translator.trans('core.admin.appearance.logo_text')}</div>
+            <UploadImageButton name="logo" routePath="logo" value={app.data.settings.logo_path} url={app.forum.attribute('logoUrl')} />
+          </div>
 
-        <fieldset>
-          <legend>{app.translator.trans('core.admin.appearance.favicon_heading')}</legend>
-          <div className="helpText">{app.translator.trans('core.admin.appearance.favicon_text')}</div>
-          <UploadImageButton name="favicon" />
-        </fieldset>
+          <div className="Form-group">
+            <label>{app.translator.trans('core.admin.appearance.favicon_heading')}</label>
+            <div className="helpText">{app.translator.trans('core.admin.appearance.favicon_text')}</div>
+            <UploadImageButton name="favicon" routePath="favicon" value={app.data.settings.favicon_path} url={app.forum.attribute('faviconUrl')} />
+          </div>
 
-        <fieldset>
-          <legend>{app.translator.trans('core.admin.appearance.custom_header_heading')}</legend>
-          <div className="helpText">{app.translator.trans('core.admin.appearance.custom_header_text')}</div>
-          <Button className="Button" onclick={() => app.modal.show(EditCustomHeaderModal)}>
-            {app.translator.trans('core.admin.appearance.edit_header_button')}
-          </Button>
-        </fieldset>
+          <div className="Form-group">
+            <label>{app.translator.trans('core.admin.appearance.custom_header_heading')}</label>
+            <div className="helpText">{app.translator.trans('core.admin.appearance.custom_header_text')}</div>
+            <Button className="Button" onclick={() => app.modal.show(EditCustomHeaderModal)}>
+              {app.translator.trans('core.admin.appearance.edit_header_button')}
+            </Button>
+          </div>
 
-        <fieldset>
-          <legend>{app.translator.trans('core.admin.appearance.custom_footer_heading')}</legend>
-          <div className="helpText">{app.translator.trans('core.admin.appearance.custom_footer_text')}</div>
-          <Button className="Button" onclick={() => app.modal.show(EditCustomFooterModal)}>
-            {app.translator.trans('core.admin.appearance.edit_footer_button')}
-          </Button>
-        </fieldset>
+          <div className="Form-group">
+            <label>{app.translator.trans('core.admin.appearance.custom_footer_heading')}</label>
+            <div className="helpText">{app.translator.trans('core.admin.appearance.custom_footer_text')}</div>
+            <Button className="Button" onclick={() => app.modal.show(EditCustomFooterModal)}>
+              {app.translator.trans('core.admin.appearance.edit_footer_button')}
+            </Button>
+          </div>
 
-        <fieldset>
-          <legend>{app.translator.trans('core.admin.appearance.custom_styles_heading')}</legend>
-          <div className="helpText">{app.translator.trans('core.admin.appearance.custom_styles_text')}</div>
-          <Button className="Button" onclick={() => app.modal.show(EditCustomCssModal)}>
-            {app.translator.trans('core.admin.appearance.edit_css_button')}
-          </Button>
-        </fieldset>
+          <div className="Form-group">
+            <label>{app.translator.trans('core.admin.appearance.custom_styles_heading')}</label>
+            <div className="helpText">{app.translator.trans('core.admin.appearance.custom_styles_text')}</div>
+            <Button className="Button" onclick={() => app.modal.show(EditCustomCssModal)}>
+              {app.translator.trans('core.admin.appearance.edit_css_button')}
+            </Button>
+          </div>
+        </Form>
       </>
     );
   }
 
   colorItems() {
     const items = new ItemList<Mithril.Children>();
-
-    items.add('helpText', <div className="helpText">{app.translator.trans('core.admin.appearance.colors_text')}</div>, 80);
 
     items.add(
       'theme-colors',
@@ -92,11 +98,29 @@ export default class AppearancePage extends AdminPage {
     );
 
     items.add(
-      'dark-mode',
-      this.buildSettingComponent({
-        type: 'switch',
-        setting: 'theme_dark_mode',
-        label: app.translator.trans('core.admin.appearance.dark_mode_label'),
+      'theme-modes',
+      this.buildSettingComponent(function () {
+        return (
+          <div className="Form-group">
+            <label>{app.translator.trans('core.admin.appearance.color_scheme_label')}</label>
+            <div className="ThemeMode-list">
+              {ThemeMode.colorSchemes.map((mode) => (
+                <ThemeMode
+                  mode={mode.id}
+                  label={mode.label || app.translator.trans('core.admin.appearance.color_schemes.' + mode.id.replace('-', '_') + '_mode_label')}
+                  onclick={() => {
+                    this.setting('color_scheme')(mode.id);
+
+                    this.setting('allow_user_color_scheme')(mode.id === 'auto' ? '1' : '0');
+
+                    app.setColorScheme(mode.id);
+                  }}
+                  selected={this.setting('color_scheme')() === mode.id}
+                />
+              ))}
+            </div>
+          </div>
+        );
       }),
       60
     );
@@ -107,16 +131,71 @@ export default class AppearancePage extends AdminPage {
         type: 'switch',
         setting: 'theme_colored_header',
         label: app.translator.trans('core.admin.appearance.colored_header_label'),
+        onchange: (value: boolean) => {
+          this.setting('theme_colored_header')(value ? '1' : '0');
+          app.setColoredHeader(value);
+        },
       }),
       50
     );
 
-    items.add('submit', this.submitButton(), 0);
+    items.add('submit', <div className="Form-group">{this.submitButton()}</div>, 0);
 
     return items;
   }
 
   onsaved() {
     window.location.reload();
+  }
+
+  static register() {
+    app.generalIndex.group('core-appearance', {
+      label: app.translator.trans('core.admin.appearance.title', {}, true),
+      icon: {
+        name: 'fas fa-paint-brush',
+      },
+      link: app.route('appearance'),
+    });
+
+    app.generalIndex.for('core-appearance').add('settings', [
+      {
+        id: 'colors_heading',
+        label: app.translator.trans('core.admin.appearance.colors_heading', {}, true),
+        help: app.translator.trans('core.admin.appearance.colors_text', {}, true),
+      },
+      {
+        id: 'color_scheme',
+        label: app.translator.trans('core.admin.appearance.color_scheme_label', {}, true),
+      },
+      {
+        id: 'colored_header',
+        label: app.translator.trans('core.admin.appearance.colored_header_label', {}, true),
+      },
+      {
+        id: 'logo_heading',
+        label: app.translator.trans('core.admin.appearance.logo_heading', {}, true),
+        help: app.translator.trans('core.admin.appearance.logo_text', {}, true),
+      },
+      {
+        id: 'favicon_heading',
+        label: app.translator.trans('core.admin.appearance.favicon_heading', {}, true),
+        help: app.translator.trans('core.admin.appearance.favicon_text', {}, true),
+      },
+      {
+        id: 'custom_header_heading',
+        label: app.translator.trans('core.admin.appearance.custom_header_heading', {}, true),
+        help: app.translator.trans('core.admin.appearance.custom_header_text', {}, true),
+      },
+      {
+        id: 'custom_footer_heading',
+        label: app.translator.trans('core.admin.appearance.custom_footer_heading', {}, true),
+        help: app.translator.trans('core.admin.appearance.custom_footer_text', {}, true),
+      },
+      {
+        id: 'custom_styles_heading',
+        label: app.translator.trans('core.admin.appearance.custom_styles_heading', {}, true),
+        help: app.translator.trans('core.admin.appearance.custom_styles_text', {}, true),
+      },
+    ]);
   }
 }

@@ -30,6 +30,19 @@ export default class RequestErrorModal<CustomAttrs extends IRequestErrorModalAtt
       responseText = error.responseText;
     }
 
+    if (responseText?.includes('<script> Sfdump = window.Sfdump')) {
+      responseText = (
+        <iframe
+          srcdoc={responseText}
+          className="RequestErrorModal-iframe"
+          onload={(e: Event) => {
+            const iframe = e.target as HTMLIFrameElement;
+            iframe.style.height = (iframe.contentWindow?.document.body.offsetHeight || 0) + 50 + 'px';
+          }}
+        />
+      );
+    }
+
     return (
       <div className="Modal-body">
         <pre>

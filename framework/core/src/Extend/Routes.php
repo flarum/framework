@@ -40,7 +40,6 @@ class Routes implements ExtenderInterface
      *
      * The handler should accept:
      * - \Psr\Http\Message\ServerRequestInterface $request
-     * - \Tobscure\JsonApi\Document $document: If it extends one of the Flarum Api controllers.
      *
      * The handler should return:
      * - \Psr\Http\Message\ResponseInterface $response
@@ -64,7 +63,6 @@ class Routes implements ExtenderInterface
      *
      * The handler should accept:
      * - \Psr\Http\Message\ServerRequestInterface $request
-     * - \Tobscure\JsonApi\Document $document: If it extends one of the Flarum Api controllers.
      *
      * The handler should return:
      * - \Psr\Http\Message\ResponseInterface $response
@@ -88,7 +86,6 @@ class Routes implements ExtenderInterface
      *
      * The handler should accept:
      * - \Psr\Http\Message\ServerRequestInterface $request
-     * - \Tobscure\JsonApi\Document $document: If it extends one of the Flarum Api controllers.
      *
      * The handler should return:
      * - \Psr\Http\Message\ResponseInterface $response
@@ -112,7 +109,6 @@ class Routes implements ExtenderInterface
      *
      * The handler should accept:
      * - \Psr\Http\Message\ServerRequestInterface $request
-     * - \Tobscure\JsonApi\Document $document: If it extends one of the Flarum Api controllers.
      *
      * The handler should return:
      * - \Psr\Http\Message\ResponseInterface $response
@@ -136,7 +132,6 @@ class Routes implements ExtenderInterface
      *
      * The handler should accept:
      * - \Psr\Http\Message\ServerRequestInterface $request
-     * - \Tobscure\JsonApi\Document $document: If it extends one of the Flarum Api controllers.
      *
      * The handler should return:
      * - \Psr\Http\Message\ResponseInterface $response

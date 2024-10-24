@@ -122,10 +122,10 @@ class ConfigureMentions
         $tag->template = '
             <xsl:choose>
                 <xsl:when test="@deleted != 1">
-                    <a href="{$DISCUSSION_URL}{@discussionid}/{@number}" class="PostMention" data-id="{@id}"><xsl:value-of select="@displayname"/></a>
+                    <a href="{$DISCUSSION_URL}{@discussionid}/{@number}" class="PostMention" data-id="{@id}"><i class="icon fas fa-reply"></i><xsl:value-of select="@displayname"/></a>
                 </xsl:when>
                 <xsl:otherwise>
-                    <span class="PostMention PostMention--deleted" data-id="{@id}"><xsl:value-of select="@displayname"/></span>
+                    <span class="PostMention PostMention--deleted" data-id="{@id}"><i class="icon fas fa-reply"></i><xsl:value-of select="@displayname"/></span>
                 </xsl:otherwise>
             </xsl:choose>';
 
