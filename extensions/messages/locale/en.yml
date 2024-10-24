@@ -29,6 +29,9 @@ flarum-messages:
         recipients: Participants
         title: Conversation details
 
+    header:
+      dropdown_tooltip: Messages
+
     index:
       messages_link: Messages
 
