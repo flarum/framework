@@ -1,4 +1,3 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
 import AdminPage from './AdminPage';
 import type { IPageAttrs } from '../../common/components/Page';
 import type Mithril from 'mithril';
@@ -10,8 +9,8 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
     headerInfo(): {
         className: string;
         icon: string;
-        title: import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
-        description: import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+        title: string | any[];
+        description: string | any[];
     };
     content(): JSX.Element[];
     driverLocale(): Record<string, Record<string, string>>;

@@ -1,4 +1,3 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
 import type { IPageAttrs } from '../../common/components/Page';
@@ -16,8 +15,8 @@ export default class BasicsPage<CustomAttrs extends IPageAttrs = IPageAttrs> ext
     headerInfo(): {
         className: string;
         icon: string;
-        title: import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
-        description: import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+        title: string | any[];
+        description: string | any[];
     };
     content(): JSX.Element[];
     /**

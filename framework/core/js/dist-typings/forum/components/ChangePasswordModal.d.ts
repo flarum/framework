@@ -1,4 +1,3 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
 import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Mithril from 'mithril';
 import ItemList from '../../common/utils/ItemList';
@@ -8,7 +7,7 @@ import ItemList from '../../common/utils/ItemList';
  */
 export default class ChangePasswordModal<CustomAttrs extends IFormModalAttrs = IFormModalAttrs> extends FormModal<CustomAttrs> {
     className(): string;
-    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    title(): string | any[];
     content(): JSX.Element;
     fields(): ItemList<Mithril.Children>;
     onsubmit(e: SubmitEvent): void;

@@ -1,4 +1,3 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
 import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import ItemList from '../../common/utils/ItemList';
 import Stream from '../../common/utils/Stream';
@@ -33,7 +32,7 @@ export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignup
     password: Stream<string>;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     className(): string;
-    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    title(): string | any[];
     content(): JSX.Element[];
     isProvided(field: string): boolean;
     body(): (false | JSX.Element)[];

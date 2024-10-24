@@ -2,7 +2,6 @@ import Component, { ComponentAttrs } from '../../common/Component';
 import ItemList from '../../common/utils/ItemList';
 import type Mithril from 'mithril';
 import type AccessToken from '../../common/models/AccessToken';
-import { NestedStringArray } from '@askvortsov/rich-icu-message-formatter';
 export interface IAccessTokensListAttrs extends ComponentAttrs {
     tokens: AccessToken[];
     type: 'session' | 'developer_token';
@@ -19,6 +18,6 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
     tokenInfoItems(token: AccessToken): ItemList<Mithril.Children>;
     tokenActionItems(token: AccessToken): ItemList<Mithril.Children>;
     revoke(token: AccessToken): Promise<void>;
-    generateTokenTitle(token: AccessToken): NestedStringArray;
+    generateTokenTitle(token: AccessToken): any[] | string;
     tokenValueDisplay(token: AccessToken): Mithril.Children;
 }

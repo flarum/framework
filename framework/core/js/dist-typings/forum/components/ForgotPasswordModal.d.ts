@@ -1,4 +1,3 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
 import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Stream from '../../common/utils/Stream';
 import Mithril from 'mithril';
@@ -19,7 +18,7 @@ export default class ForgotPasswordModal<CustomAttrs extends IForgotPasswordModa
     success: boolean;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     className(): string;
-    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    title(): string | any[];
     content(): JSX.Element;
     fields(): ItemList<unknown>;
     onsubmit(e: SubmitEvent): void;

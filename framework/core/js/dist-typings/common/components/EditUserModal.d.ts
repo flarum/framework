@@ -1,4 +1,3 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
 import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import ItemList from '../utils/ItemList';
 import Stream from '../utils/Stream';
@@ -17,7 +16,7 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
     protected groups: Record<string, Stream<boolean>>;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     className(): string;
-    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    title(): string | any[];
     content(): JSX.Element;
     fields(): ItemList<unknown>;
     activate(): void;

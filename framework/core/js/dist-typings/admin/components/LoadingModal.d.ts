@@ -1,4 +1,3 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
 import Modal, { IInternalModalAttrs } from '../../common/components/Modal';
 export interface ILoadingModalAttrs extends IInternalModalAttrs {
 }
@@ -7,6 +6,6 @@ export default class LoadingModal<ModalAttrs extends ILoadingModalAttrs = ILoadi
     protected static readonly isDismissibleViaEscKey: boolean;
     protected static readonly isDismissibleViaBackdropClick: boolean;
     className(): string;
-    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    title(): string | any[];
     content(): null;
 }

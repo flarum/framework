@@ -1,4 +1,3 @@
-/// <reference path="../../@types/translator-icu-rich.d.ts" />
 import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Stream from '../../common/utils/Stream';
 import Mithril from 'mithril';
@@ -16,7 +15,7 @@ export default class RenameDiscussionModal<CustomAttrs extends IRenameDiscussion
     newTitle: Stream<string>;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     className(): string;
-    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    title(): string | any[];
     content(): JSX.Element;
     onsubmit(e: SubmitEvent): Promise<void> | void;
 }
