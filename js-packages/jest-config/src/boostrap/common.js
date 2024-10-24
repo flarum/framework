@@ -36,6 +36,7 @@ export default function bootstrap(Application, app, payload = {}) {
     ...payload,
   });
 
+  app.translator.setLocale('en');
   app.translator.addTranslations(flatten(jsYaml.load(fs.readFileSync('../locale/core.yml', 'utf8'))));
   app.drawer = new Drawer();
 }

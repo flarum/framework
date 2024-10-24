@@ -10,15 +10,6 @@
     "@jridgewell/gen-mapping" "^0.3.5"
     "@jridgewell/trace-mapping" "^0.3.24"
 
-"@askvortsov/rich-icu-message-formatter@^0.2.4":
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/@askvortsov/rich-icu-message-formatter/-/rich-icu-message-formatter-0.2.4.tgz#5810886d6d6751e9b800640748355a87ea985556"
-  integrity sha512-JOdZ7iw7qF3uxC3cfY8dighM3rgrV0WufgwVeFD9VEkxB7IwA7DX2kHs24zk4CYPR6HQXUEnM6fwOy+VKUrc8w==
-  dependencies:
-    "@babel/runtime" "^7.11.2"
-    "@ultraq/array-utils" "^2.1.0"
-    "@ultraq/icu-message-formatter" "^0.12.0"
-
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.25.7":
   version "7.25.7"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.25.7.tgz#438f2c524071531d643c6f0188e1e28f130cebc7"
@@ -987,7 +978,7 @@
     "@babel/plugin-transform-modules-commonjs" "^7.25.7"
     "@babel/plugin-transform-typescript" "^7.25.7"
 
-"@babel/runtime@^7.1.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.20.1", "@babel/runtime@^7.8.4":
+"@babel/runtime@^7.1.2", "@babel/runtime@^7.20.1", "@babel/runtime@^7.8.4":
   version "7.25.7"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.25.7.tgz#7ffb53c37a8f247c8c4d335e89cdf16a2e0d0fb6"
   integrity sha512-FjoyLe754PMiYsFaN5C94ttGiOmBNYTf6pLr4xXHAT5uctHb092PBszndLDR5XA/jghQvn4n7JMHl7dmTgbm9w==
@@ -1544,25 +1535,6 @@
   integrity sha512-WpxBCKWPLr4xSsHgz511rFJAM+wS28w2zEO1QDNY5zM/S8ok70NNfztH0xwhqKyaK0OHCbN98LDAZuy1ctxDkA==
   dependencies:
     "@types/yargs-parser" "*"
-
-"@ultraq/array-utils@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@ultraq/array-utils/-/array-utils-2.1.0.tgz#56f16a1ea3ef46c5d5f04638b47c4fca4d71a8c1"
-  integrity sha512-TKO1zE6foqs5HG3+QH32yKwJ0zhZrm6J3UmltscveQmxCdbgIPXhNf3A8C9HakjyZDHVRK5pYZOU0tTl28YGFg==
-
-"@ultraq/function-utils@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@ultraq/function-utils/-/function-utils-0.3.0.tgz#63eb7dceff18fdca212fae11a59b3ee01f556917"
-  integrity sha512-AwFCYorRn0GE34hfgxaCmfnReHqcwWE6QwWPQf/1Zj7k3Zi0FATSJhbtDA+6ayV8p6AnhEntntXaMWMkK17tEQ==
-
-"@ultraq/icu-message-formatter@^0.12.0":
-  version "0.12.0"
-  resolved "https://registry.yarnpkg.com/@ultraq/icu-message-formatter/-/icu-message-formatter-0.12.0.tgz#15a812a323395d7e5b5e3c6c2cc92df3989b26ce"
-  integrity sha512-ebd/ZyC1lCVPPrX3AQ9h77NDK4d1nor0Grmv43e97+omWvJB29lbuT+9yM3sq4Ri1QKwTvKG1BUhXBz0oAAR2w==
-  dependencies:
-    "@babel/runtime" "^7.11.2"
-    "@ultraq/array-utils" "^2.1.0"
-    "@ultraq/function-utils" "^0.3.0"
 
 "@webassemblyjs/ast@1.12.1", "@webassemblyjs/ast@^1.12.1":
   version "1.12.1"
@@ -2723,6 +2695,34 @@ form-data@^4.0.0:
     combined-stream "^1.0.8"
     mime-types "^2.1.12"
 
+format-message-formats@^6.2.4:
+  version "6.2.4"
+  resolved "https://registry.yarnpkg.com/format-message-formats/-/format-message-formats-6.2.4.tgz#68b782e70c3c15f017377848c3225731e52ac4ea"
+  integrity sha512-smT/fAqBLqusWfWCKRAx6QBDAAbmYznWsIyTyk66COmvwt2Byiqd7SJe2ma9a5oV0kwRaOJpN/F4lr4YK/n6qQ==
+
+format-message-interpret@^6.2.4:
+  version "6.2.4"
+  resolved "https://registry.yarnpkg.com/format-message-interpret/-/format-message-interpret-6.2.4.tgz#28f579b9cd4b57f3de2ec2a4d9623f9870e9ed03"
+  integrity sha512-dRvz9mXhITApyOtfuFEb/XqvCe1u6RMkQW49UJHXS8w2S8cAHCqq5LNDFK+QK6XVzcofROycLb/k1uybTAKt2w==
+  dependencies:
+    format-message-formats "^6.2.4"
+    lookup-closest-locale "^6.2.0"
+
+format-message-parse@^6.2.4:
+  version "6.2.4"
+  resolved "https://registry.yarnpkg.com/format-message-parse/-/format-message-parse-6.2.4.tgz#2c9b39a32665bd247cb1c31ba2723932d9edf3f9"
+  integrity sha512-k7WqXkEzgXkW4wkHdS6Cv2Ou0rIFtiDelZjgoe1saW4p7FT7zS8OeAUpAekhormqzpeecR97e4vBft1zMsfFOQ==
+
+format-message@^6.2.4:
+  version "6.2.4"
+  resolved "https://registry.yarnpkg.com/format-message/-/format-message-6.2.4.tgz#0bd4b6161b036e3fbcf3207dce14a62e318b4c48"
+  integrity sha512-/24zYeSRy2ZlEO2OIctm7jOHvMpoWf+uhqFCaqqyZKi1C229zAAy2E5vF4lSSaMH0a2kewPrOzq6xN4Yy7cQrw==
+  dependencies:
+    format-message-formats "^6.2.4"
+    format-message-interpret "^6.2.4"
+    format-message-parse "^6.2.4"
+    lookup-closest-locale "^6.2.0"
+
 frappe-charts@^1.6.2:
   version "1.6.2"
   resolved "https://registry.yarnpkg.com/frappe-charts/-/frappe-charts-1.6.2.tgz#4671a943a8606e5020180fa65c8ea1835c510baf"
@@ -3747,6 +3747,11 @@ lodash@^4.17.15:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
+
+lookup-closest-locale@^6.2.0:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/lookup-closest-locale/-/lookup-closest-locale-6.2.0.tgz#57f665e604fd26f77142d48152015402b607bcf3"
+  integrity sha512-/c2kL+Vnp1jnV6K6RpDTHK3dgg0Tu2VVp+elEiJpjfS1UyY7AjOYHohRug6wT0OpoX2qFgNORndE9RqesfVxWQ==
 
 loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.4.0:
   version "1.4.0"
