@@ -8,7 +8,7 @@
     colors="true"
     processIsolation="false"
     stopOnFailure="false"
-    bootstrap="../../../php-packages/testing/bootstrap/monorepo.php"
+    bootstrap="../../bootstrap/monorepo.php"
 >
     <source>
         <include>
