@@ -13,6 +13,7 @@ use Flarum\Install\AdminUser;
 use Flarum\Install\BaseUrl;
 use Flarum\Install\DatabaseConfig;
 use Flarum\Install\Installation;
+use Flarum\Install\ValidationFailed;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -50,13 +51,13 @@ class UserDataProvider implements DataProviderInterface
         };
 
         if (in_array($driver, ['mysql', 'pgsql'])) {
-            $host = $this->ask('Database host (required):');
+            $host = $this->ask('Database host (required):', required: true);
 
             if (Str::contains($host, ':')) {
                 list($host, $port) = explode(':', $host, 2);
             }
 
-            $user = $this->ask('Database user (required):');
+            $user = $this->ask('Database user (required):', required: true);
             $password = $this->secret('Database password:');
         }
 
@@ -64,7 +65,7 @@ class UserDataProvider implements DataProviderInterface
             $driver,
             $host ?? null,
             intval($port),
-            $this->ask('Database name (required):'),
+            $this->ask('Database name (required):', required: true),
             $user ?? null,
             $password ?? null,
             $this->ask('Prefix:')
@@ -83,7 +84,7 @@ class UserDataProvider implements DataProviderInterface
         return new AdminUser(
             $this->ask('Admin username (Default: admin):', 'admin'),
             $this->askForAdminPassword(),
-            $this->ask('Admin email address (required):')
+            $this->ask('Admin email address (required):', required: true)
         );
     }
 
@@ -119,9 +120,19 @@ class UserDataProvider implements DataProviderInterface
         ];
     }
 
-    private function ask(string $question, string $default = null): mixed
+    private function ask(string $question, string $default = null, bool $required = false): mixed
     {
         $question = new Question("<question>$question</question> ", $default);
+
+        if ($required) {
+            $question->setValidator(function ($value) {
+                if (empty($value)) {
+                    throw new ValidationFailed('This value is required');
+                }
+
+                return $value;
+            });
+        }
 
         return $this->questionHelper->ask($this->input, $this->output, $question);
     }
