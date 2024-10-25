@@ -22,7 +22,7 @@ class SendNotificationWhenPostIsLiked
 
     public function handle(PostWasLiked $event): void
     {
-        if ($event->post->user && $event->post->user->id != $event->user->id) {
+        if (gettype($event->post->content) == "string" && $event->post->user && $event->post->user->id != $event->user->id) {
             $this->notifications->sync(
                 new PostLikedBlueprint($event->post, $event->user),
                 [$event->post->user]
