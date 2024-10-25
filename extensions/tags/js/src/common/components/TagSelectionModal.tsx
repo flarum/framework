@@ -77,7 +77,7 @@ export default class TagSelectionModal<
 
   protected textMeasurementCanvas: HTMLCanvasElement | undefined;
   protected textMeasurementCanvasCtx: CanvasRenderingContext2D | undefined;
-  protected textMeasurementFont: string = "";
+  protected textMeasurementFont: string = '';
 
   static initAttrs(attrs: ITagSelectionModalAttrs) {
     super.initAttrs(attrs);
