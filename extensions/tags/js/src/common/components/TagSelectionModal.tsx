@@ -75,6 +75,10 @@ export default class TagSelectionModal<
   protected navigator = new KeyboardNavigatable();
   protected indexTag?: Tag;
 
+  protected textMeasurementCanvas: HTMLCanvasElement | undefined;
+  protected textMeasurementCanvasCtx: CanvasRenderingContext2D | undefined;
+  protected textMeasurementFont: string = "";
+
   static initAttrs(attrs: ITagSelectionModalAttrs) {
     super.initAttrs(attrs);
 
@@ -102,6 +106,9 @@ export default class TagSelectionModal<
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
+    this.textMeasurementCanvas = document.createElement('canvas');
+    this.textMeasurementCanvasCtx = this.textMeasurementCanvas.getContext('2d') ?? undefined;
+
     this.navigator
       .onUp(() => this.setIndex(this.getCurrentNumericIndex() - 1, true))
       .onDown(() => this.setIndex(this.getCurrentNumericIndex() + 1, true))
@@ -127,6 +134,26 @@ export default class TagSelectionModal<
     });
   }
 
+  onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void {
+    super.onupdate(vnode);
+
+    if (!this.textMeasurementCanvasCtx) return;
+    const inputEl = vnode.dom.querySelector('.TagsInput > input.FormControl') as HTMLInputElement;
+    if (!inputEl) return;
+    const style = getComputedStyle(inputEl);
+    const font = `${style.getPropertyValue('font-weight')} ${style.getPropertyValue('font-size')} ${style.getPropertyValue('font-family')}`;
+    if (this.textMeasurementFont != font) {
+      this.textMeasurementCanvasCtx.font = this.textMeasurementFont = font;
+      m.redraw();
+    }
+  }
+
+  onremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void {
+    super.onremove(vnode);
+
+    this.textMeasurementCanvas?.remove();
+  }
+
   className() {
     return classList('TagSelectionModal Modal--simple', this.attrs.className);
   }
@@ -140,12 +167,16 @@ export default class TagSelectionModal<
       return <LoadingIndicator />;
     }
 
-    const filter = this.filter().toLowerCase();
+    const filterText = this.filter();
+    const filter = filterText.toLowerCase();
     const primaryCount = this.primaryCount();
     const secondaryCount = this.secondaryCount();
     const tags = this.getFilteredTags();
 
-    const inputWidth = Math.max(extractText(this.getInstruction(primaryCount, secondaryCount)).length, this.filter().length);
+    const instructionText = extractText(this.getInstruction(primaryCount, secondaryCount));
+    const inputChars = Math.max(instructionText.length, filterText.length);
+    const textWidth = filterText ? this.measureText(filterText)?.width : this.measureText(instructionText)?.width;
+    const inputWidth = textWidth ? `${textWidth}px` : `${inputChars}ch`;
 
     return [
       <div className="Modal-body">
@@ -169,7 +200,7 @@ export default class TagSelectionModal<
                 className="FormControl"
                 placeholder={extractText(this.getInstruction(primaryCount, secondaryCount))}
                 bidi={this.filter}
-                style={{ width: inputWidth + 'ch' }}
+                style={{ width: inputWidth }}
                 onkeydown={this.navigator.navigate.bind(this.navigator)}
                 onfocus={() => (this.focused = true)}
                 onblur={() => (this.focused = false)}
@@ -383,6 +414,13 @@ export default class TagSelectionModal<
     }
 
     return '';
+  }
+
+  /**
+   * Measures the metrics of the given text for tag input control and returns it in pixels.
+   */
+  protected measureText(text: string) {
+    return this.textMeasurementCanvasCtx?.measureText(text);
   }
 
   /**
