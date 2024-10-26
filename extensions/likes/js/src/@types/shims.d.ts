@@ -1,3 +1,5 @@
+import 'flarum/common/models/Post';
+
 import User from 'flarum/common/models/User';
 
 declare module 'flarum/common/models/Post' {

@@ -1,3 +1,9 @@
+import 'flarum/forum/routes';
+import 'flarum/common/Application';
+import 'flarum/common/models/Discussion';
+import 'flarum/forum/components/IndexPage';
+import 'flarum/admin/components/PermissionGrid';
+
 import type Tag from '../common/models/Tag';
 import type TagListState from '../common/states/TagListState';
 
