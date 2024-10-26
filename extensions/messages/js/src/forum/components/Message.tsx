@@ -1,4 +1,3 @@
-import app from 'flarum/forum/app';
 import ItemList from 'flarum/common/utils/ItemList';
 import Mithril from 'mithril';
 import AbstractPost, { type IAbstractPostAttrs } from 'flarum/forum/components/AbstractPost';

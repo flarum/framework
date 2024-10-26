@@ -1,7 +1,6 @@
 import app from '../app';
 import Component, { ComponentAttrs } from '../Component';
 import SearchState from '../states/SearchState';
-import extractText from '../utils/extractText';
 import ItemList from '../utils/ItemList';
 import Input from './Input';
 import type Mithril from 'mithril';

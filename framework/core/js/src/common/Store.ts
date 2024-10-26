@@ -1,7 +1,6 @@
 import app from '../common/app';
 import { FlarumRequestOptions } from './Application';
 import Model, { ModelData, SavedModelData } from './Model';
-import GambitManager from './GambitManager';
 
 export interface MetaInformation {
   page?: {

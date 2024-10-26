@@ -1,7 +1,6 @@
 import app from '../../admin/app';
 import Component, { ComponentAttrs } from '../../common/Component';
 import PermissionDropdown from './PermissionDropdown';
-import SettingDropdown from './SettingDropdown';
 import Button from '../../common/components/Button';
 import ItemList from '../../common/utils/ItemList';
 import type Mithril from 'mithril';

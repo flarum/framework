@@ -1,5 +1,5 @@
 import type Mithril from 'mithril';
-import Component, { ComponentAttrs } from '../Component';
+import { ComponentAttrs } from '../Component';
 import Separator from '../components/Separator';
 import classList from '../utils/classList';
 

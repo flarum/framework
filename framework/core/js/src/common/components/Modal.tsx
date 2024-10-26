@@ -6,7 +6,6 @@ import Button from './Button';
 import type Mithril from 'mithril';
 import type ModalManagerState from '../states/ModalManagerState';
 import type ModalManager from './ModalManager';
-import fireDebugWarning from '../helpers/fireDebugWarning';
 import classList from '../utils/classList';
 
 export interface IInternalModalAttrs {

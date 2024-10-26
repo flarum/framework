@@ -1,4 +1,3 @@
-import app from '../../forum/app';
 import PostControls from '../utils/PostControls';
 import ItemList from '../../common/utils/ItemList';
 import type PostModel from '../../common/models/Post';

@@ -8,7 +8,6 @@ import AdminRegistry from './utils/AdminRegistry';
 import IHistory from '../common/IHistory';
 import SearchManager from '../common/SearchManager';
 import SearchState from '../common/states/SearchState';
-import app from './app';
 import BasicsPage from './components/BasicsPage';
 import GeneralSearchIndex from './states/GeneralSearchIndex';
 import AppearancePage from './components/AppearancePage';

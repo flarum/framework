@@ -2,7 +2,6 @@ import app from '../../common/app';
 import Model from '../Model';
 import { ApiQueryParamsPlural, ApiResponsePlural } from '../Store';
 import type Mithril from 'mithril';
-import setRouteWithForcedRefresh from '../utils/setRouteWithForcedRefresh';
 
 export type SortMapItem =
   | string

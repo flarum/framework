@@ -1,6 +1,5 @@
 import Extend from 'flarum/common/extenders';
 import app from 'flarum/admin/app';
-import extractText from 'flarum/common/utils/extractText';
 import SettingsPage from './components/SettingsPage';
 import Task from './models/Task';
 import ExternalExtension from './models/ExternalExtension';

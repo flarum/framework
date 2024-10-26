@@ -1,5 +1,4 @@
 import app from '../../admin/app';
-import FieldSet from '../../common/components/FieldSet';
 import ItemList from '../../common/utils/ItemList';
 import AdminPage from './AdminPage';
 import type { IPageAttrs } from '../../common/components/Page';

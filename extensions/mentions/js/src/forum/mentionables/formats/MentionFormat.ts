@@ -1,5 +1,4 @@
 import type MentionableModel from '../MentionableModel';
-import type Model from 'flarum/common/Model';
 
 export default abstract class MentionFormat {
   protected instances?: MentionableModel[];
