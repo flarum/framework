@@ -1,3 +1,7 @@
+import 'flarum/forum/routes';
+import 'flarum/forum/ForumApplication';
+import 'flarum/forum/states/ComposerState';
+
 import type Dialog from '../common/models/Dialog';
 import DialogListState from '../forum/states/DialogListState';
 
