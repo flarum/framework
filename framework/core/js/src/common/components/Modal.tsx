@@ -34,15 +34,15 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
    *
    * If `false`, no close button is shown.
    */
-  protected static readonly isDismissibleViaCloseButton: boolean = true;
+  static isDismissibleViaCloseButton: boolean = true;
   /**
    * Can the modal be dismissed by pressing the Esc key on a keyboard?
    */
-  protected static readonly isDismissibleViaEscKey: boolean = true;
+  static isDismissibleViaEscKey: boolean = true;
   /**
    * Can the modal be dismissed via a click on the backdrop.
    */
-  protected static readonly isDismissibleViaBackdropClick: boolean = true;
+  static isDismissibleViaBackdropClick: boolean = true;
 
   static get dismissibleOptions(): IDismissibleOptions {
     return {
@@ -52,7 +52,7 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
     };
   }
 
-  protected loading: boolean = false;
+  loading: boolean = false;
 
   /**
    * Attributes for an alert component to show below the header.
@@ -103,11 +103,11 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
     );
   }
 
-  protected wrapper(children: Mithril.Children): Mithril.Children {
+  wrapper(children: Mithril.Children): Mithril.Children {
     return <>{children}</>;
   }
 
-  protected inner(): Mithril.Children {
+  inner(): Mithril.Children {
     return (
       <>
         <div className="Modal-header">
@@ -162,7 +162,7 @@ export default abstract class Modal<ModalAttrs extends IInternalModalAttrs = IIn
     m.redraw();
   }
 
-  protected get dismissibleOptions(): IDismissibleOptions {
+  get dismissibleOptions(): IDismissibleOptions {
     return (this.constructor as typeof Modal).dismissibleOptions;
   }
 }
