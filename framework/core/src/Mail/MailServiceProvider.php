@@ -17,7 +17,6 @@ use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Support\Arr;
-use Illuminate\View\Compilers\BladeCompiler;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 
 class MailServiceProvider extends AbstractServiceProvider
