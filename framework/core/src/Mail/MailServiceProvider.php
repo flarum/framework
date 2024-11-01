@@ -17,6 +17,7 @@ use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Support\Arr;
+use Illuminate\View\Compilers\BladeCompiler;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 
 class MailServiceProvider extends AbstractServiceProvider
@@ -83,6 +84,10 @@ class MailServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->alias('mailer', MailerContract::class);
+
+        $this->container->afterResolving(\Illuminate\Contracts\View\Factory::class, function (\Illuminate\Contracts\View\Factory $blade) {
+            $blade->addNamespace('mail', __DIR__.'/../../views/email');
+        });
     }
 
     public function boot(Dispatcher $events): void
