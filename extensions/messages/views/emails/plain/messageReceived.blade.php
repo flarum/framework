@@ -2,7 +2,7 @@
     /** @var \Flarum\Messages\Notification\MessageReceivedBlueprint $blueprint */
 @endphp
 
-<x-mail::plain.notification>
+<x-mail::plain.information>
 <x-slot:body>
 {!! $translator->trans('flarum-messages.email.message_received.plain.body', [
 '{user_display_name}' => $blueprint->message->user->display_name,

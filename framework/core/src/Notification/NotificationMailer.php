@@ -46,7 +46,7 @@ class NotificationMailer
         $username = $user->display_name;
         $userEmail = $user->email;
 
-        $data = compact('unsubscribeLink', 'settingsLink', 'type', 'forumTitle', 'username', 'userEmail');
+        $data = compact('blueprint', 'user', 'unsubscribeLink', 'settingsLink', 'type', 'forumTitle', 'username', 'userEmail');
 
         $this->view->share($data);
 
