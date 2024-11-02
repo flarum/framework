@@ -2,7 +2,7 @@
 /** @var \Flarum\Messages\Notification\MessageReceivedBlueprint $blueprint */
 @endphp
 
-<x-mail::html.information>
+<x-mail::html.notification>
     <x-slot:body>
         {!! $formatter->convert($translator->trans('flarum-messages.email.message_received.html.body', [
             '{user_display_name}' => $blueprint->message->user->display_name,
@@ -13,4 +13,4 @@
     <x-slot:preview>
         {!! $blueprint->message->formatContent() !!}
     </x-slot:preview>
-</x-mail::html.information>
+</x-mail::html.notification>
