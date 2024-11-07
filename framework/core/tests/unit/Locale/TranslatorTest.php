@@ -11,6 +11,7 @@ namespace Flarum\Tests\unit\Locale;
 
 use Flarum\Locale\Translator;
 use Flarum\Testing\unit\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
@@ -23,7 +24,7 @@ class TranslatorTest extends TestCase
      * translator works in the same way as JS translator.
      */
 
-    /** @test */
+    #[Test]
     public function placeholders_encoding()
     {
         $translator = new Translator('en');
@@ -37,7 +38,7 @@ class TranslatorTest extends TestCase
         $this->assertSame("test1 test2 ' test2 test1", $translator->trans('test1', ['placeholder' => $translator->trans('test2', ['placeholder' => "'"])]));
     }
 
-    /** @test */
+    #[Test]
     public function missing_placeholders()
     {
         $translator = new Translator('en');
@@ -49,7 +50,7 @@ class TranslatorTest extends TestCase
         $this->assertSame('test1 {placeholder} test1', $translator->trans('test1', []));
     }
 
-    /** @test */
+    #[Test]
     public function escaped_placeholders()
     {
         $translator = new Translator('en');
@@ -61,7 +62,7 @@ class TranslatorTest extends TestCase
         $this->assertSame("test1 ' {placeholder} test1", $translator->trans('test3', ['placeholder' => "'"]));
     }
 
-    /** @test */
+    #[Test]
     public function plural_rules()
     {
         $translator = new Translator('en');
@@ -74,7 +75,7 @@ class TranslatorTest extends TestCase
         $this->assertSame('Page 2 - A & B', $translator->trans('test4', ['forumName' => 'A & B', 'pageNumber' => 2]));
     }
 
-    /** @test */
+    #[Test]
     public function plural_rules_2()
     {
         $translator = new Translator('pl');

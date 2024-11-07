@@ -86,7 +86,7 @@ class Assets
         $this->sources[$type][] = $callback;
     }
 
-    private function populate(CompilerInterface $compiler, string $type, string $locale = null): void
+    private function populate(CompilerInterface $compiler, string $type, ?string $locale = null): void
     {
         $compiler->addSources(function (SourceCollector $sources) use ($type, $locale) {
             foreach ($this->sources[$type] as $callback) {

@@ -48,7 +48,7 @@ class Theme implements ExtenderInterface
      * @param string|null $extensionId : If overriding an extension file, specify its ID, for example: `flarum-tags`.
      * @return self
      */
-    public function overrideFileSource(string $file, string $newFilePath, string $extensionId = null): self
+    public function overrideFileSource(string $file, string $newFilePath, ?string $extensionId = null): self
     {
         $this->fileSourceOverrides[] = compact('file', 'newFilePath', 'extensionId');
 
@@ -136,7 +136,7 @@ class Theme implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         $container->extend('flarum.frontend.custom_less_functions', function (array $customFunctions) {
             return array_merge($customFunctions, $this->customFunctions);

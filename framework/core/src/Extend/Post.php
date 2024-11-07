@@ -31,7 +31,7 @@ class Post implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         foreach ($this->postTypes as $postType) {
             PostModel::setModel($postType::$type, $postType);

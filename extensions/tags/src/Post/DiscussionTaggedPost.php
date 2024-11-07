@@ -18,7 +18,7 @@ class DiscussionTaggedPost extends AbstractEventPost implements MergeableInterfa
 {
     public static string $type = 'discussionTagged';
 
-    public function saveAfter(Post $previous = null): static
+    public function saveAfter(?Post $previous = null): static
     {
         // If the previous post is another 'discussion tagged' post, and it's
         // by the same user, then we can merge this post into it. If we find

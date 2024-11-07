@@ -26,7 +26,7 @@ class SetSettingsBeforeBoot implements ExtenderInterface
         $this->settings = $settings;
     }
 
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         if (count($this->settings)) {
             $settings = $container->make(SettingsRepositoryInterface::class);

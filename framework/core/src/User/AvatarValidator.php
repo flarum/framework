@@ -90,7 +90,7 @@ class AvatarValidator extends AbstractValidator
         }
     }
 
-    protected function raise(string $error, array $parameters = [], string $rule = null): void
+    protected function raise(string $error, array $parameters = [], ?string $rule = null): void
     {
         // When we switched to intl ICU message format, the translation parameters
         // have become required to be in the format `{param}`.

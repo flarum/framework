@@ -21,7 +21,7 @@ class Mailer extends IlluminateMailer
         string $name,
         Factory $views,
         TransportInterface $transport,
-        Dispatcher $events = null,
+        ?Dispatcher $events,
         protected SettingsRepositoryInterface $settings
     ) {
         parent::__construct($name, $views, $transport, $events);

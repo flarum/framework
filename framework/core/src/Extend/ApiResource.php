@@ -59,7 +59,7 @@ class ApiResource implements ExtenderInterface
      * @param array $endpoints must be an array of names of the endpoints.
      * @param callable|class-string|null $condition a callable that returns a boolean or a string that represents whether this should be applied.
      */
-    public function removeEndpoints(array $endpoints, callable|string $condition = null): self
+    public function removeEndpoints(array $endpoints, callable|string|null $condition = null): self
     {
         $this->removeEndpoints[] = [$endpoints, $condition];
 
@@ -99,7 +99,7 @@ class ApiResource implements ExtenderInterface
      * @param array $fields must be an array of field names.
      * @param callable|class-string|null $condition a callable that returns a boolean or a string that represents whether this should be applied.
      */
-    public function removeFields(array $fields, callable|string $condition = null): self
+    public function removeFields(array $fields, callable|string|null $condition = null): self
     {
         $this->removeFields[] = [$fields, $condition];
 
@@ -139,7 +139,7 @@ class ApiResource implements ExtenderInterface
      * @param array $sorts must be an array of sort names.
      * @param callable|class-string|null $condition a callable that returns a boolean or a string that represents whether this should be applied.
      */
-    public function removeSorts(array $sorts, callable|string $condition = null): self
+    public function removeSorts(array $sorts, callable|string|null $condition = null): self
     {
         $this->removeSorts[] = [$sorts, $condition];
 
@@ -161,7 +161,7 @@ class ApiResource implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         if (! (new ReflectionClass($this->resourceClass))->isAbstract()) {
             $container->extend('flarum.api.resources', function (array $resources) {

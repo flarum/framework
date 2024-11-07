@@ -50,7 +50,7 @@ class Policy implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         $container->extend('flarum.policies', function ($existingPolicies) {
             foreach ($this->modelPolicies as $modelClass => $addPolicies) {

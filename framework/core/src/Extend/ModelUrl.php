@@ -41,7 +41,7 @@ class ModelUrl implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         if ($this->slugDrivers) {
             $container->extend('flarum.http.slugDrivers', function ($existingDrivers) {

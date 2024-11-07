@@ -108,7 +108,7 @@ class ErrorHandling implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         if (count($this->statuses)) {
             $container->extend('flarum.error.statuses', function ($statuses) {

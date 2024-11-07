@@ -101,7 +101,7 @@ class InfoCommand extends AbstractCommand
      * If the package seems to be a Git version, we extract the currently
      * checked out commit using the command line.
      */
-    private function findPackageVersion(string $path, string $fallback = null): ?string
+    private function findPackageVersion(string $path, ?string $fallback = null): ?string
     {
         if (file_exists("$path/.git")) {
             $cwd = getcwd();

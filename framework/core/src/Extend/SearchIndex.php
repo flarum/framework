@@ -30,7 +30,7 @@ class SearchIndex implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         if (empty($this->indexers)) {
             return;

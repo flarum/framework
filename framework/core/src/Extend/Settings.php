@@ -43,7 +43,7 @@ class Settings implements ExtenderInterface
      *
      * @return self
      */
-    public function serializeToForum(string $attributeName, string $key, callable|string $callback = null): self
+    public function serializeToForum(string $attributeName, string $key, callable|string|null $callback = null): self
     {
         $this->settings[$key] = compact('attributeName', 'callback');
 
@@ -94,7 +94,7 @@ class Settings implements ExtenderInterface
      *
      * @return self
      */
-    public function registerLessConfigVar(string $configName, string $key, callable|string $callback = null): self
+    public function registerLessConfigVar(string $configName, string $key, callable|string|null $callback = null): self
     {
         $this->lessConfigs[$configName] = compact('key', 'callback');
 
@@ -114,7 +114,7 @@ class Settings implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         if (! empty($this->defaults)) {
             $container->extend('flarum.settings.default', function (Collection $defaults) {

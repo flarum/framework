@@ -16,7 +16,7 @@ trait DispatchEventsTrait
     /**
      * Dispatch all events for an entity.
      */
-    public function dispatchEventsFor(mixed $entity, User $actor = null): void
+    public function dispatchEventsFor(mixed $entity, ?User $actor = null): void
     {
         if (! method_exists($entity, 'releaseEvents')) {
             throw new \InvalidArgumentException(

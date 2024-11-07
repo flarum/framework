@@ -33,7 +33,7 @@ class UserRepository
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function findOrFail(int|string $id, User $actor = null): Model
+    public function findOrFail(int|string $id, ?User $actor = null): Model
     {
         $query = $this->query()->where('id', $id);
 
@@ -48,7 +48,7 @@ class UserRepository
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function findOrFailByUsername(string $username, User $actor = null): Model
+    public function findOrFailByUsername(string $username, ?User $actor = null): Model
     {
         $query = $this->query()->where('username', $username);
 
@@ -75,14 +75,14 @@ class UserRepository
         return $this->query()->where('email', $email)->first();
     }
 
-    public function getIdForUsername(string $username, User $actor = null): ?int
+    public function getIdForUsername(string $username, ?User $actor = null): ?int
     {
         $query = $this->query()->where('username', $username);
 
         return $this->scopeVisibleTo($query, $actor)->value('id');
     }
 
-    public function getIdsForUsernames(array $usernames, User $actor = null): array
+    public function getIdsForUsernames(array $usernames, ?User $actor = null): array
     {
         $query = $this->query()->whereIn('username', $usernames);
 
@@ -93,7 +93,7 @@ class UserRepository
      * Find users by matching a string of words against their username,
      * optionally making sure they are visible to a certain user.
      */
-    public function getIdsForUsername(string $string, User $actor = null): array
+    public function getIdsForUsername(string $string, ?User $actor = null): array
     {
         $string = $this->escapeLikeString($string);
 
@@ -107,7 +107,7 @@ class UserRepository
     /**
      * @return Builder<User>
      */
-    protected function scopeVisibleTo(Builder $query, User $actor = null): Builder
+    protected function scopeVisibleTo(Builder $query, ?User $actor = null): Builder
     {
         if ($actor !== null) {
             $query->whereVisibleTo($actor);

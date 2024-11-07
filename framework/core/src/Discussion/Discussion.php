@@ -117,7 +117,7 @@ class Discussion extends AbstractModel
     /**
      * Start a new discussion. Raises the DiscussionWasStarted event.
      */
-    public static function start(?string $title, User $user, self $model = null): self
+    public static function start(?string $title, User $user, ?self $model = null): self
     {
         $discussion = $model ?? new static;
 

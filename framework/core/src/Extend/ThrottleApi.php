@@ -59,7 +59,7 @@ class ThrottleApi implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         $container->extend('flarum.api.throttlers', function ($throttlers) use ($container) {
             $throttlers = array_diff_key($throttlers, array_flip($this->removeThrottlers));

@@ -119,7 +119,7 @@ class UserDataProvider implements DataProviderInterface
         ];
     }
 
-    private function ask(string $question, string $default = null): mixed
+    private function ask(string $question, ?string $default = null): mixed
     {
         $question = new Question("<question>$question</question> ", $default);
 

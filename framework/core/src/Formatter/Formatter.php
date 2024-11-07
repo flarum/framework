@@ -63,7 +63,7 @@ class Formatter
         $this->renderingCallbacks[] = $callback;
     }
 
-    public function parse(string $text, mixed $context = null, User $user = null): string
+    public function parse(string $text, mixed $context = null, ?User $user = null): string
     {
         $parser = $this->getParser($context);
 
@@ -81,7 +81,7 @@ class Formatter
         return $parser->parse($text);
     }
 
-    public function render(string $xml, mixed $context = null, ServerRequestInterface $request = null): string
+    public function render(string $xml, mixed $context = null, ?ServerRequestInterface $request = null): string
     {
         $renderer = $this->getRenderer();
 
