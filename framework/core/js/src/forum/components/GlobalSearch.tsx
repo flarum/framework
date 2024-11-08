@@ -4,13 +4,15 @@ import GlobalDiscussionsSearchSource from './GlobalDiscussionsSearchSource';
 import GlobalUsersSearchSource from './GlobalUsersSearchSource';
 import GlobalPostsSearchSource from './GlobalPostsSearchSource';
 import AbstractGlobalSearch, {
-  type SearchAttrs,
+  type SearchAttrs as BaseSearchAttrs,
   type GlobalSearchSource as BaseGlobalSearchSource,
 } from '../../common/components/AbstractGlobalSearch';
 
 export interface GlobalSearchSource extends BaseGlobalSearchSource {}
 
-export default class GlobalSearch extends AbstractGlobalSearch {
+export interface SearchAttrs extends BaseSearchAttrs {}
+
+export default class GlobalSearch<Attrs extends SearchAttrs = SearchAttrs> extends AbstractGlobalSearch<Attrs> {
   static initAttrs(attrs: SearchAttrs) {
     attrs.label = app.translator.trans('core.forum.header.search_placeholder', {}, true);
     attrs.a11yRoleLabel = app.translator.trans('core.forum.header.search_role_label', {}, true);
