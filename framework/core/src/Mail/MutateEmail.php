@@ -15,10 +15,12 @@ class MutateEmail
 {
     public function handle(MessageSending $event): bool
     {
-        if (! empty($event->data['unsubscribeLink'])) {
+        $unsubscribeLink = $event->data['unsubscribeLink'] ?? null;
+
+        if ($unsubscribeLink) {
             $headers = $event->message->getHeaders();
 
-            $headers->addTextHeader('List-Unsubscribe', '<'.$event->data['unsubscribeLink'].'>');
+            $headers->addTextHeader('List-Unsubscribe', '<'.$unsubscribeLink.'>');
         }
 
         return true;
