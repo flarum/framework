@@ -19,7 +19,7 @@ class MigrationKeyMissing extends Exception
         parent::__construct("Migration file $fileNameWithSpace should contain an array with up/down (looking for $direction)");
     }
 
-    public function withFile(?string $file = null): self
+    public function withFile(string $file): self
     {
         return new self($this->direction, $file);
     }
