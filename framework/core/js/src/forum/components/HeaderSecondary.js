@@ -6,7 +6,7 @@ import SelectDropdown from '../../common/components/SelectDropdown';
 import NotificationsDropdown from './NotificationsDropdown';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
-import Search from '../components/Search';
+import GlobalSearch from './GlobalSearch';
 
 /**
  * The `HeaderSecondary` component displays secondary header controls, such as
@@ -26,7 +26,7 @@ export default class HeaderSecondary extends Component {
   items() {
     const items = new ItemList();
 
-    items.add('search', <Search state={app.search.state} />, 30);
+    items.add('search', <GlobalSearch state={app.search.state} />, 30);
 
     if (app.forum.attribute('showLanguageSelector') && Object.keys(app.data.locales).length > 1) {
       const locales = [];

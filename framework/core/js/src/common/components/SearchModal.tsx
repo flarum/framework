@@ -14,12 +14,12 @@ import LoadingIndicator from './LoadingIndicator';
 import type IGambit from '../query/IGambit';
 import ItemList from '../utils/ItemList';
 import GambitsAutocomplete from '../utils/GambitsAutocomplete';
-import type { SearchSource } from './AbstractSearch';
+import type { GlobalSearchSource } from './AbstractGlobalSearch';
 
 export interface ISearchModalAttrs extends IFormModalAttrs {
   onchange: (value: string) => void;
   searchState: SearchState;
-  sources: SearchSource[];
+  sources: GlobalSearchSource[];
 }
 
 export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearchModalAttrs> extends FormModal<CustomAttrs> {
@@ -32,12 +32,12 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
   /**
    * An array of SearchSources.
    */
-  protected sources!: SearchSource[];
+  protected sources!: GlobalSearchSource[];
 
   /**
    * The key of the currently-active search source.
    */
-  protected activeSource!: Stream<SearchSource>;
+  protected activeSource!: Stream<GlobalSearchSource>;
 
   /**
    * The sources that are still loading results.
@@ -214,7 +214,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     return items;
   }
 
-  switchSource(source: SearchSource) {
+  switchSource(source: GlobalSearchSource) {
     if (this.activeSource() !== source) {
       this.activeSource(source);
       this.search(this.query());

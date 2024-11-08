@@ -2,7 +2,7 @@ import bootstrapForum from '@flarum/jest-config/src/boostrap/forum';
 import mq from 'mithril-query';
 import { app } from '../../../../src/forum';
 import ModalManager from '../../../../src/common/components/ModalManager';
-import DiscussionsSearchSource from '../../../../src/forum/components/DiscussionsSearchSource';
+import GlobalDiscussionsSearchSource from '../../../../src/forum/components/GlobalDiscussionsSearchSource';
 import ChangeEmailModal from '../../../../src/forum/components/ChangeEmailModal';
 import ChangePasswordModal from '../../../../src/forum/components/ChangePasswordModal';
 import ForgotPasswordModal from '../../../../src/forum/components/ForgotPasswordModal';
@@ -87,7 +87,7 @@ describe('Modals', () => {
   test('SearchModal renders', () => {
     const manager = mq(ModalManager, { state: app.modal });
 
-    app.modal.show(SearchModal, { searchState: app.search.state, sources: [new DiscussionsSearchSource()] });
+    app.modal.show(SearchModal, { searchState: app.search.state, sources: [new GlobalDiscussionsSearchSource()] });
 
     manager.redraw();
 

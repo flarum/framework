@@ -5,7 +5,7 @@ import SessionDropdown from './SessionDropdown';
 import ItemList from '../../common/utils/ItemList';
 import listItems from '../../common/helpers/listItems';
 import type Mithril from 'mithril';
-import Search from './Search';
+import GlobalSearch from './GlobalSearch';
 
 /**
  * The `HeaderSecondary` component displays secondary header controls.
@@ -21,7 +21,7 @@ export default class HeaderSecondary extends Component {
   items() {
     const items = new ItemList<Mithril.Children>();
 
-    items.add('search', <Search state={app.search.state} />, 30);
+    items.add('search', <GlobalSearch state={app.search.state} />, 30);
 
     items.add(
       'help',
