@@ -41,7 +41,7 @@ export interface SearchAttrs extends ComponentAttrs {
 }
 
 /**
- * @todo: 2.0 refactored the global search UI and no longer uses this component
+ * @todo: 2.0 refactored the global search UI and no longer uses this component, now we use the GlobalSearch component.
  *        The component was kept to support extension usage of it on a local scope.
  *        We need to extract this component into a separate UI package instead as it is no longer needed by core.
  *
