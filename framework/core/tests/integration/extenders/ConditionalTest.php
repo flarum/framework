@@ -15,7 +15,6 @@ use Flarum\Extend;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use s9e\TextFormatter\Configurator\TemplateNormalizations\Custom;
 
 class ConditionalTest extends TestCase
 {
