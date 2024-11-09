@@ -26,6 +26,7 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Database\PostgresConnection;
 use Illuminate\Database\SQLiteConnection;
 use Illuminate\Support\Arr;
 use PHPUnit\Framework\Attributes\Test;
@@ -511,10 +512,10 @@ class ApiResourceTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        if ($this->database() instanceof SQLiteConnection) {
-            $this->assertEquals([2, 6, 5, 4, 1, 3], Arr::pluck($payload['data'], 'id'));
-        } else {
+        if ($this->database() instanceof PostgresConnection) {
             $this->assertEquals([2, 1, 4, 5, 6, 3], Arr::pluck($payload['data'], 'id'));
+        } else {
+            $this->assertEquals([2, 6, 5, 4, 1, 3], Arr::pluck($payload['data'], 'id'));
         }
     }
 
