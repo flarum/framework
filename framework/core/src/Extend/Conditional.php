@@ -48,6 +48,20 @@ class Conditional implements ExtenderInterface
     }
 
     /**
+     * Apply extenders only if a specific extension is disabled/not installed.
+     *
+     * @param string $extensionId The ID of the extension.
+     * @param ExtenderInterface[]|callable|string $extenders A callable returning an array of extenders, or an invokable class string.
+     * @return self
+     */
+    public function whenExtensionDisabled(string $extensionId, $extenders): self
+    {
+        return $this->when(function (ExtensionManager $extensions) use ($extensionId) {
+            return ! $extensions->isEnabled($extensionId);
+        }, $extenders);
+    }
+
+    /**
      * Apply extenders based on a condition.
      *
      * @param bool|callable $condition A boolean or callable that should return a boolean.

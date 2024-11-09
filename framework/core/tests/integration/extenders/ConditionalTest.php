@@ -15,6 +15,7 @@ use Flarum\Extend;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use s9e\TextFormatter\Configurator\TemplateNormalizations\Custom;
 
 class ConditionalTest extends TestCase
 {
@@ -158,6 +159,27 @@ class ConditionalTest extends TestCase
         );
 
         $this->app();
+    }
+
+    /** @test */
+    public function conditional_disabled_extension_not_enabled_applies_extender()
+    {
+        $this->extend(
+            (new Extend\Conditional())
+                ->whenExtensionDisabled('flarum-dummy-extension', TestExtender::class)
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
 
     /** @test */
