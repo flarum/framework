@@ -105,6 +105,8 @@ jobs:
             php_ini_values: error_reporting=E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED
           - php: 8.3
             php_ini_values: error_reporting=E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED
+          - php: 8.4
+            php_ini_values: error_reporting=E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED
 
         # To reduce number of actions, we exclude some PHP versions from running with some DB versions.
         exclude:
@@ -177,6 +179,8 @@ jobs:
     strategy:
       matrix:
         php: ${{ fromJSON(inputs.php_versions) }}
+        exclude:
+          - php: 8.4
 
     name: 'PHPStan PHP ${{ matrix.php }}'
 
