@@ -27,7 +27,6 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Database\PostgresConnection;
-use Illuminate\Database\SQLiteConnection;
 use Illuminate\Support\Arr;
 use PHPUnit\Framework\Attributes\Test;
 use Tobyz\JsonApiServer\Schema\Field\Field;
