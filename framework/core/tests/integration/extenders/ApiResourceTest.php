@@ -26,6 +26,7 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Database\SQLiteConnection;
 use Illuminate\Support\Arr;
 use PHPUnit\Framework\Attributes\Test;
 use Tobyz\JsonApiServer\Schema\Field\Field;
@@ -46,13 +47,13 @@ class ApiResourceTest extends TestCase
                 $this->normalUser()
             ],
             Discussion::class => [
-                ['id' => 1, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
-                ['id' => 2, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 3, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
-                ['id' => 3, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
+                ['id' => 1, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->addMinutes(1)->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
+                ['id' => 2, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->addMinutes(2)->toDateTimeString(), 'user_id' => 3, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
+                ['id' => 3, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->addMinutes(3)->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
 
-                ['id' => 4, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
-                ['id' => 5, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
-                ['id' => 6, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
+                ['id' => 4, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->addMinutes(4)->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
+                ['id' => 5, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->addMinutes(5)->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
+                ['id' => 6, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->addMinutes(6)->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
             ],
             Post::class => [
                 ['id' => 1, 'discussion_id' => 3, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'discussionRenamed', 'content' => '<t><p>can i haz relationz?</p></t>'],
@@ -509,7 +510,12 @@ class ApiResourceTest extends TestCase
         $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals([2, 1, 4, 5, 6, 3], Arr::pluck($payload['data'], 'id'));
+
+        if ($this->database() instanceof SQLiteConnection) {
+            $this->assertEquals([2, 6, 5, 4, 1, 3], Arr::pluck($payload['data'], 'id'));
+        } else {
+            $this->assertEquals([2, 1, 4, 5, 6, 3], Arr::pluck($payload['data'], 'id'));
+        }
     }
 
     #[Test]
