@@ -25,6 +25,8 @@ class ApiResource implements ExtenderInterface
     private array $removeEndpoints = [];
     private array $endpoint = [];
     private array $fields = [];
+    private array $fieldsBefore = [];
+    private array $fieldsAfter = [];
     private array $removeFields = [];
     private array $field = [];
     private array $sorts = [];
@@ -89,6 +91,32 @@ class ApiResource implements ExtenderInterface
     public function fields(callable|string $fields): self
     {
         $this->fields[] = $fields;
+
+        return $this;
+    }
+
+    /**
+     * Add fields to the resource before a certain field.
+     *
+     * @param string $before the name of the field to add the new fields before.
+     * @param callable|class-string $fields must be a callable that returns an array of objects that implement \Tobyz\JsonApiServer\Schema\Field.
+     */
+    public function fieldsBefore(string $before, callable|string $fields): self
+    {
+        $this->fieldsBefore[] = [$before, $fields];
+
+        return $this;
+    }
+
+    /**
+     * Add fields to the resource after a certain field.
+     *
+     * @param string $after the name of the field to add the new fields after.
+     * @param callable|class-string $fields must be a callable that returns an array of objects that implement \Tobyz\JsonApiServer\Schema\Field.
+     */
+    public function fieldsAfter(string $after, callable|string $fields): self
+    {
+        $this->fieldsAfter[] = [$after, $fields];
 
         return $this;
     }
@@ -219,6 +247,26 @@ class ApiResource implements ExtenderInterface
             foreach ($this->fields as $newFieldsCallback) {
                 $newFieldsCallback = ContainerUtil::wrapCallback($newFieldsCallback, $container);
                 $fields = array_merge($fields, $newFieldsCallback());
+            }
+
+            foreach ($this->fieldsBefore as [$before, $newFieldsCallback]) {
+                $newFieldsCallback = ContainerUtil::wrapCallback($newFieldsCallback, $container);
+                $newFields = $newFieldsCallback();
+                $beforeIndex = array_search($before, array_column($fields, 'name'));
+
+                if ($beforeIndex !== false) {
+                    array_splice($fields, $beforeIndex, 0, $newFields);
+                }
+            }
+
+            foreach ($this->fieldsAfter as [$after, $newFieldsCallback]) {
+                $newFieldsCallback = ContainerUtil::wrapCallback($newFieldsCallback, $container);
+                $newFields = $newFieldsCallback();
+                $afterIndex = array_search($after, array_column($fields, 'name'));
+
+                if ($afterIndex !== false) {
+                    array_splice($fields, $afterIndex + 1, 0, $newFields);
+                }
             }
 
             foreach ($this->removeFields as $field) {
