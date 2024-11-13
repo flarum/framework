@@ -27,7 +27,7 @@ return [
 
             if ($connection instanceof MariaDbConnection) {
                 $connection->table('notifications')->update([
-                    'data_json' => $connection->raw("IF(JSON_VALID(CONVERT(data USING utf8mb4)), CONVERT(data USING utf8mb4), NULL)"),
+                    'data_json' => $connection->raw('IF(JSON_VALID(CONVERT(data USING utf8mb4)), CONVERT(data USING utf8mb4), NULL)'),
                 ]);
             } elseif ($driver === 'mysql') {
                 $connection->table('notifications')->update([
@@ -48,7 +48,7 @@ return [
     'down' => function (Builder $schema) {
         $connection = $schema->getConnection();
         $driver = $connection->getDriverName();
-        
+
         if ($driver === 'pgsql') {
             $notifications = $connection->getSchemaGrammar()->wrapTable('notifications');
             $data = $connection->getSchemaGrammar()->wrap('data');

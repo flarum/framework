@@ -15,7 +15,7 @@ return [
     'up' => function (Builder $schema) {
         $connection = $schema->getConnection();
         $driver = $connection->getDriverName();
-        
+
         $preferences = $connection->getSchemaGrammar()->wrap('preferences');
 
         if ($driver === 'pgsql') {
@@ -49,7 +49,7 @@ return [
     'down' => function (Builder $schema) {
         $connection = $schema->getConnection();
         $driver = $connection->getDriverName();
-        
+
         $preferences = $connection->getSchemaGrammar()->wrap('preferences');
 
         if ($driver === 'pgsql') {
