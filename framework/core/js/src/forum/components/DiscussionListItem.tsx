@@ -221,7 +221,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     if ('ontouchstart' in window) {
       const slidableInstance = slidable(this.element);
 
-      this.$('.DiscussionListItem-controls').on('hidden.bs.dropdown', () => slidableInstance.reset());
+      this.element.querySelector('.DiscussionListItem-controls')?.addEventListener('hidden.bs.dropdown', () => slidableInstance.reset());
     }
   }
 

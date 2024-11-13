@@ -86,10 +86,10 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
     // previous hero. Maintain the same scroll position relative to the bottom
     // of the hero so that the sidebar doesn't jump around.
     const oldHeroHeight = app.cache.heroHeight as number;
-    const heroHeight = (app.cache.heroHeight = this.$('.Hero').outerHeight() || 0);
+    const heroHeight = (app.cache.heroHeight = this.element.querySelector('.Hero')?.getBoundingClientRect().height || 0);
     const scrollTop = app.cache.scrollTop as number;
 
-    $('#app').css('min-height', ($(window).height() || 0) + heroHeight);
+    document.getElementById('app')!.style.minHeight = window.innerHeight + heroHeight + 'px';
 
     // Let browser handle scrolling on page reload.
     if (app.previous.type == null) return;
@@ -97,26 +97,33 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
     // Only retain scroll position if we're coming from a discussion page.
     // Otherwise, we've just changed the filter, so we should go to the top of the page.
     if (this.lastDiscussion) {
-      $(window).scrollTop(scrollTop - oldHeroHeight + heroHeight);
+      window.scrollTo({
+        top: scrollTop - oldHeroHeight + heroHeight
+      });
     } else {
-      $(window).scrollTop(0);
+      window.scrollTo({
+        top: 0
+      });
     }
 
     // If we've just returned from a discussion page, then the constructor will
     // have set the `lastDiscussion` property. If this is the case, we want to
     // scroll down to that discussion so that it's in view.
     if (this.lastDiscussion) {
-      const $discussion = this.$(`li[data-id="${this.lastDiscussion.id()}"] .DiscussionListItem`);
+      const discussion = this.element.querySelector(`li[data-id="${this.lastDiscussion.id()}"] .DiscussionListItem`);
 
-      if ($discussion.length) {
-        const indexTop = $('#header').outerHeight() || 0;
-        const indexBottom = $(window).height() || 0;
-        const discussionOffset = $discussion.offset();
-        const discussionTop = (discussionOffset && discussionOffset.top) || 0;
-        const discussionBottom = discussionTop + ($discussion.outerHeight() || 0);
+      if (discussion) {
+        const indexTop = document.getElementById('header')?.getBoundingClientRect().height || 0;
+        const indexBottom = window.innerHeight || 0;
+        const discussionRect = discussion.getBoundingClientRect();
+        const discussionOffset = discussionRect.top + document.documentElement.scrollTop;
+        const discussionTop = discussionOffset || 0;
+        const discussionBottom = discussionTop + (discussionRect.height || 0);
 
         if (discussionTop < scrollTop + indexTop || discussionBottom > scrollTop + indexBottom) {
-          $(window).scrollTop(discussionTop - indexTop);
+          window.scrollTo({
+            top: discussionTop - indexTop
+          });
         }
       }
     }
@@ -127,13 +134,13 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
 
     // Save the scroll position so we can restore it when we return to the
     // discussion list.
-    app.cache.scrollTop = $(window).scrollTop();
+    app.cache.scrollTop = document.documentElement.scrollTop;
   }
 
   onremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.onremove(vnode);
 
-    $('#app').css('min-height', '');
+    document.getElementById('app')!.style.minHeight = '';
   }
 
   /**

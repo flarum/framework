@@ -13,11 +13,10 @@
  * @return {{ reset : () => void }}
  */
 export default function slidable(element) {
-  const $element = $(element);
   const threshold = 50;
 
-  let $underneathLeft;
-  let $underneathRight;
+  let underneathLeft;
+  let underneathRight;
 
   let startX;
   let startY;
@@ -29,19 +28,21 @@ export default function slidable(element) {
    * Animate the slider to a new position.
    *
    * @param {number} newPos
-   * @param {Partial<JQueryAnimationOptions>} [options]
+   * @param {Partial<KeyframeAnimationOptions & { complete: () => void }>} [options]
    */
   const animatePos = (newPos, options = {}) => {
-    // Since we can't animate the transform property with jQuery, we'll use a
-    // bit of a workaround. We set up the animation with a step function that
-    // will set the transform property, but then we animate an unused property
-    // (background-position-x) with jQuery.
-    options.duration ||= 'fast';
-    options.step = function (x) {
-      $(this).css('transform', 'translate(' + x + 'px, 0)');
-    };
+    options.duration ||= 200;
 
-    $element.find('.Slidable-content').animate({ 'background-position-x': newPos }, options);
+    const content = element.querySelector('.Slidable-content');
+    const anim = content.animate({
+      'transform': 'translate(' + newPos + 'px, 0)'
+    }, options);
+
+    anim.addEventListener('finish', () => {
+      content.style.transform = 'translate(' + newPos + 'px, 0)';
+      anim.cancel();
+      if (options.complete) options.complete();
+    });
   };
 
   /**
@@ -50,103 +51,99 @@ export default function slidable(element) {
   const reset = () => {
     animatePos(0, {
       complete: function () {
-        $element.removeClass('sliding');
-        $underneathLeft.hide();
-        $underneathRight.hide();
+        element.classList.remove('sliding');
+        if (underneathLeft) underneathLeft.style.display = 'none';
+        if (underneathRight) underneathRight.style.display = 'none';
         isSliding = false;
       },
     });
   };
 
-  $element
-    .find('.Slidable-content')
-    .on('touchstart', function (e) {
-      // Update the references to the elements underneath the slider, provided
-      // they're not disabled.
-      $underneathLeft = $element.find('.Slidable-underneath--left:not(.disabled)');
-      $underneathRight = $element.find('.Slidable-underneath--right:not(.disabled)');
+  const content = element.querySelector('.Slidable-content');
+  content.addEventListener('touchstart', (e) => {
+    // Update the references to the elements underneath the slider, provided
+    // they're not disabled.
+    underneathLeft = element.querySelector('.Slidable-underneath--left:not(.disabled)');
+    underneathRight = element.querySelector('.Slidable-underneath--right:not(.disabled)');
 
-      startX = e.originalEvent.targetTouches[0].clientX;
-      startY = e.originalEvent.targetTouches[0].clientY;
+    startX = e.targetTouches[0].clientX;
+    startY = e.targetTouches[0].clientY;
 
-      couldBeSliding = true;
-      pos = 0;
-    })
+    couldBeSliding = true;
+    pos = 0;
+  });
+  content.addEventListener('touchmove', function (e) {
+    const newX = e.targetTouches[0].clientX;
+    const newY = e.targetTouches[0].clientY;
 
-    .on('touchmove', function (e) {
-      const newX = e.originalEvent.targetTouches[0].clientX;
-      const newY = e.originalEvent.targetTouches[0].clientY;
+    // Once the user moves their touch in a direction that's more up/down than
+    // left/right, we'll assume they're scrolling the page. But if they do
+    // move in a horizontal direction at first, then we'll lock their touch
+    // into the slider.
+    if (couldBeSliding && Math.abs(newX - startX) > Math.abs(newY - startY)) {
+      isSliding = true;
+    }
+    couldBeSliding = false;
 
-      // Once the user moves their touch in a direction that's more up/down than
-      // left/right, we'll assume they're scrolling the page. But if they do
-      // move in a horizontal direction at first, then we'll lock their touch
-      // into the slider.
-      if (couldBeSliding && Math.abs(newX - startX) > Math.abs(newY - startY)) {
-        isSliding = true;
-      }
-      couldBeSliding = false;
+    if (isSliding) {
+      pos = newX - startX;
 
-      if (isSliding) {
-        pos = newX - startX;
+      // If there are controls underneath the either side, then we'll show/hide
+      // them depending on the slider's position. We also make the controls
+      // icon get a bit bigger the further they slide.
+      const toggle = (underneath, side) => {
+        if (underneath) {
+          const active = side === 'left' ? pos > 0 : pos < 0;
 
-        // If there are controls underneath the either side, then we'll show/hide
-        // them depending on the slider's position. We also make the controls
-        // icon get a bit bigger the further they slide.
-        const toggle = ($underneath, side) => {
-          if ($underneath.length) {
-            const active = side === 'left' ? pos > 0 : pos < 0;
-
-            if (active && $underneath.hasClass('Slidable-underneath--elastic')) {
-              pos -= pos * 0.5;
-            }
-            $underneath.toggle(active);
-
-            const scale = Math.max(0, Math.min(1, (Math.abs(pos) - 25) / threshold));
-            $underneath.find('.icon').css('transform', 'scale(' + scale + ')');
-          } else {
-            pos = Math[side === 'left' ? 'min' : 'max'](0, pos);
+          if (active && underneath.classList.contains('Slidable-underneath--elastic')) {
+            pos -= pos * 0.5;
           }
-        };
+          underneath.style.display = active ? 'block' : 'none';
 
-        toggle($underneathLeft, 'left');
-        toggle($underneathRight, 'right');
-
-        $(this).css('transform', 'translate(' + pos + 'px, 0)');
-        $(this).css('background-position-x', pos + 'px');
-
-        $element.toggleClass('sliding', !!pos);
-
-        e.preventDefault();
-      }
-    })
-
-    .on('touchend', function () {
-      // If the user releases the touch and the slider is past the threshold
-      // position on either side, then we will activate the control for that
-      // side. We will also animate the slider's position all the way to the
-      // other side, or back to its original position, depending on whether or
-      // not the side is 'elastic'.
-      const activate = ($underneath) => {
-        $underneath.click();
-
-        if ($underneath.hasClass('Slidable-underneath--elastic')) {
-          reset();
+          const scale = Math.max(0, Math.min(1, (Math.abs(pos) - 25) / threshold));
+          underneath.querySelector('.icon').style.transform = 'scale(' + scale + ')';
         } else {
-          animatePos((pos > 0 ? 1 : -1) * $element.width());
+          pos = Math[side === 'left' ? 'min' : 'max'](0, pos);
         }
       };
 
-      if ($underneathRight.length && pos < -threshold) {
-        activate($underneathRight);
-      } else if ($underneathLeft.length && pos > threshold) {
-        activate($underneathLeft);
-      } else {
-        reset();
-      }
+      toggle(underneathLeft, 'left');
+      toggle(underneathRight, 'right');
 
-      couldBeSliding = false;
-      isSliding = false;
-    });
+      this.style.transform = 'translate(' + pos + 'px, 0)';
+
+      element.classList.toggle('sliding', !!pos);
+
+      e.preventDefault();
+    }
+  });
+  content.addEventListener('touchend', (e) => {
+    // If the user releases the touch and the slider is past the threshold
+    // position on either side, then we will activate the control for that
+    // side. We will also animate the slider's position all the way to the
+    // other side, or back to its original position, depending on whether or
+    // not the side is 'elastic'.
+    const activate = (underneath) => {
+      underneath.click();
+
+      if (underneath.classList.contains('Slidable-underneath--elastic')) {
+        reset();
+      } else {
+        animatePos((pos > 0 ? 1 : -1) * element.clientWidth);
+      }
+    };
+
+    if (underneathRight && pos < -threshold) {
+      activate(underneathRight);
+    } else if (underneathLeft && pos > threshold) {
+      activate(underneathLeft);
+    } else {
+      reset();
+    }
+
+    couldBeSliding = false;
+    isSliding = false;
+  });
 
   return { reset };
 }

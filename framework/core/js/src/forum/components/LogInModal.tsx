@@ -164,7 +164,7 @@ export default class LogInModal<CustomAttrs extends ILoginModalAttrs = ILoginMod
   }
 
   onready() {
-    this.$('[name=' + (this.identification() ? 'password' : 'identification') + ']').trigger('select');
+    (this.element.querySelector(`[name=${this.identification() ? 'password' : 'identification'}]`) as HTMLInputElement).focus();
   }
 
   onsubmit(e: SubmitEvent) {

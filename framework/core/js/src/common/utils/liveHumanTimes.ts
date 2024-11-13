@@ -1,11 +1,10 @@
 import humanTime from './humanTime';
 
 function updateHumanTimes() {
-  $('[data-humantime]').each(function () {
-    const $this = $(this);
-    const ago = humanTime($this.attr('datetime'));
+  document.querySelectorAll('[data-humantime]').forEach(function (el) {
+    const ago = humanTime(el.getAttribute('datetime'));
 
-    $this.html(ago);
+    el.textContent = ago;
   });
 }
 

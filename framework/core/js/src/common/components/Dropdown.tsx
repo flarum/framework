@@ -40,6 +40,8 @@ export interface IDropdownAttrs extends ComponentAttrs {
 export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttrs> extends Component<CustomAttrs> {
   protected showing = false;
 
+  protected backdropElement: HTMLDivElement | null = null;
+
   static initAttrs(attrs: IDropdownAttrs) {
     attrs.className ||= '';
     attrs.buttonClassName ||= '';
@@ -67,7 +69,7 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
     // When opening the dropdown menu, work out if the menu goes beyond the
     // bottom of the viewport. If it does, we will apply class to make it show
     // above the toggle button instead of below it.
-    this.$().on('shown.bs.dropdown', () => {
+    this.element.addEventListener('shown.bs.dropdown', () => {
       const { lazyDraw, onshow } = this.attrs;
 
       this.showing = true;
@@ -88,31 +90,16 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
         m.redraw();
       }
 
-      const $menu = this.$('.Dropdown-menu');
-      const isRight = $menu.hasClass('Dropdown-menu--right');
-
-      const top = $menu.offset()?.top ?? 0;
-      const height = $menu.height() ?? 0;
-      const windowSrollTop = $(window).scrollTop() ?? 0;
-      const windowHeight = $(window).height() ?? 0;
-
-      $menu.removeClass('Dropdown-menu--top Dropdown-menu--right');
-
-      $menu.toggleClass('Dropdown-menu--top', top + height > windowSrollTop + windowHeight);
-
-      if (($menu.offset()?.top || 0) < 0) {
-        $menu.removeClass('Dropdown-menu--top');
-      }
-
-      const left = $menu.offset()?.left ?? 0;
-      const width = $menu.width() ?? 0;
-      const windowScrollLeft = $(window).scrollLeft() ?? 0;
-      const windowWidth = $(window).width() ?? 0;
-
-      $menu.toggleClass('Dropdown-menu--right', isRight || left + width > windowScrollLeft + windowWidth);
+      // Mithril doesn't really redraw this component
+      // Bootstrap 5 has removed the open class toggle and the backdrop
+      // these need to be added manually.
+      this.element.classList.add('open');
+      this.backdropElement = document.createElement('div');
+      this.backdropElement.classList.add('dropdown-backdrop');
+      this.element.append(this.backdropElement);
     });
 
-    this.$().on('hidden.bs.dropdown', () => {
+    this.element.addEventListener('hidden.bs.dropdown', () => {
       this.showing = false;
 
       if (this.attrs.onhide) {
@@ -120,6 +107,8 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
       }
 
       m.redraw();
+      this.element.classList.remove('open');
+      this.backdropElement?.remove();
     });
   }
 
@@ -132,7 +121,7 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
         className={'Dropdown-toggle ' + this.attrs.buttonClassName}
         aria-haspopup="menu"
         aria-label={this.attrs.accessibleToggleLabel}
-        data-toggle="dropdown"
+        data-bs-toggle="dropdown"
         onclick={this.attrs.onclick}
         {...this.attrs.buttonAttrs}
       >

@@ -87,14 +87,15 @@ export default class Drawer {
 
     if (!this.isOpen()) return;
 
-    const $drawer = $('#drawer');
+    const drawer = document.getElementById('drawer');
 
     // Used to prevent `visibility: hidden` from breaking the exit animation
-    $drawer.css('visibility', 'visible').one('transitionend', () => $drawer.css('visibility', ''));
+    drawer.style.visibility = 'visible';
+    drawer.addEventListener('transitionend', () => (drawer.style.visibility = ''), { once: true });
 
     this.appElement.classList.remove('drawerOpen');
 
-    this.$backdrop?.remove?.();
+    this.backdrop.remove();
   }
 
   /**
@@ -105,10 +106,13 @@ export default class Drawer {
 
     this.drawerAvailableMediaQuery.addListener(this.resizeHandler);
 
-    this.$backdrop = $('<div/>').addClass('drawer-backdrop fade').appendTo('body').on('click', this.hide.bind(this));
+    this.backdrop = document.createElement('div');
+    this.backdrop.classList.add('drawer-backdrop', 'fade');
+    this.backdrop.addEventListener('click', this.hide.bind(this));
+    document.body.append(this.backdrop);
 
     requestAnimationFrame(() => {
-      this.$backdrop.addClass('in');
+      this.backdrop.classList.add('show');
 
       this.focusTrap.activate();
     });

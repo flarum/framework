@@ -2,6 +2,7 @@ import Component from '../Component';
 import type Mithril from 'mithril';
 import classList from '../utils/classList';
 import extractText from '../utils/extractText';
+import BootstrapTooltip from 'bootstrap/js/dist/tooltip';
 
 export interface TooltipAttrs extends Mithril.CommonAttributes<TooltipAttrs, Tooltip> {
   /**
@@ -97,6 +98,8 @@ export interface TooltipAttrs extends Mithril.CommonAttributes<TooltipAttrs, Too
  *          </Tooltip>
  */
 export default class Tooltip extends Component<TooltipAttrs> {
+  private tooltip: BootstrapTooltip | null = null;
+
   private firstChild: Mithril.Vnode<any, any> | null = null;
   private childDomNode: HTMLElement | null = null;
 
@@ -186,11 +189,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
 
   private recreateTooltip() {
     if (this.shouldRecreateTooltip && this.childDomNode !== null) {
-      $(this.childDomNode).tooltip(
-        'destroy',
-        // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
-        'DANGEROUS_tooltip_jquery_fn_deprecation_exempt'
-      );
+      this.tooltip?.dispose();
       this.createTooltip();
       this.shouldRecreateTooltip = false;
     }
@@ -205,17 +204,9 @@ export default class Tooltip extends Component<TooltipAttrs> {
     if (this.childDomNode === null) return;
 
     if (this.attrs.tooltipVisible === true) {
-      $(this.childDomNode).tooltip(
-        'show',
-        // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
-        'DANGEROUS_tooltip_jquery_fn_deprecation_exempt'
-      );
+      this.tooltip?.show();
     } else if (this.attrs.tooltipVisible === false) {
-      $(this.childDomNode).tooltip(
-        'hide',
-        // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
-        'DANGEROUS_tooltip_jquery_fn_deprecation_exempt'
-      );
+      this.tooltip?.hide();
     }
   }
 
@@ -239,17 +230,13 @@ export default class Tooltip extends Component<TooltipAttrs> {
     this.childDomNode.setAttribute('title', realText);
     this.childDomNode.setAttribute('aria-label', realText);
 
-    // https://getbootstrap.com/docs/3.3/javascript/#tooltips-options
-    $(this.childDomNode).tooltip(
-      {
-        html,
-        delay,
-        placement: position,
-        trigger,
-      },
-      // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
-      'DANGEROUS_tooltip_jquery_fn_deprecation_exempt'
-    );
+    // https://getbootstrap.com/docs/5.0/components/tooltips/#options
+    this.tooltip = new BootstrapTooltip(this.childDomNode, {
+      html,
+      delay: delay || 0,
+      placement: position,
+      trigger: trigger as any
+    });
   }
 
   private getRealText(): string {

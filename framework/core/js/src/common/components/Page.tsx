@@ -43,11 +43,11 @@ export default abstract class Page<CustomAttrs extends IPageAttrs = IPageAttrs, 
     super.oncreate(vnode);
 
     if (this.bodyClass) {
-      $('#app').addClass(this.bodyClass);
+      document.getElementById('app')?.classList.add(...this.bodyClass.split(' '));
     }
 
     if (this.scrollTopOnCreate) {
-      $(window).scrollTop(0);
+      window.scrollTo({ top: 0 });
     }
 
     if ('scrollRestoration' in history) {
@@ -59,7 +59,7 @@ export default abstract class Page<CustomAttrs extends IPageAttrs = IPageAttrs, 
     super.onremove(vnode);
 
     if (this.bodyClass) {
-      $('#app').removeClass(this.bodyClass);
+      document.getElementById('app')?.classList.remove(...this.bodyClass.split(' '));
     }
   }
 }

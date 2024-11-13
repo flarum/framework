@@ -55,7 +55,7 @@ export default class IndexSidebar<CustomAttrs extends IndexSidebarAttrs = IndexS
       >
         {this.navItems().toArray()}
       </SelectDropdown>
-    );
+    ); // todo: fix resizing from mobile to larger screen can make side nav disappear until the dropdown hides.
 
     return items;
   }

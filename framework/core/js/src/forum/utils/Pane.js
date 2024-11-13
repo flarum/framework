@@ -15,12 +15,12 @@ export default class Pane {
     this.pinnedKey = 'panePinned';
 
     /**
-     * The page element.
+     * The page element's class list.
      *
-     * @type {jQuery}
+     * @type {DOMTokenList}
      * @protected
      */
-    this.$element = $(element);
+    this.elementClassList = element.classList;
 
     /**
      * Whether or not the pane is currently pinned.
@@ -109,6 +109,8 @@ export default class Pane {
    * @protected
    */
   render() {
-    this.$element.toggleClass('panePinned', this.pinned).toggleClass('hasPane', this.active).toggleClass('paneShowing', this.showing);
+    this.elementClassList.toggle('panePinned', this.pinned);
+    this.elementClassList.toggle('hasPane', this.active);
+    this.elementClassList.toggle('paneShowing', this.showing);
   }
 }

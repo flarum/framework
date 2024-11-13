@@ -86,12 +86,17 @@ export default abstract class AbstractGlobalSearch<T extends SearchAttrs = Searc
     this.searchState = this.attrs.state;
   }
 
+  blur() {
+    this.element.querySelector('input')?.blur();
+    return true;
+  }
+
   view() {
     // Hide the search view if no sources were loaded
     if (this.sourceItems().isEmpty()) return <div></div>;
 
     const openSearchModal = () => {
-      this.$('input').blur() &&
+      this.blur() &&
         app.modal.show(() => import('../../common/components/SearchModal'), { searchState: this.searchState, sources: this.sourceItems().toArray() });
     };
 
@@ -101,7 +106,7 @@ export default abstract class AbstractGlobalSearch<T extends SearchAttrs = Searc
         className="Search"
         aria-label={this.attrs.a11yRoleLabel}
         onclick={() => {
-          this.$('input').blur();
+          this.blur();
           setTimeout(() => openSearchModal(), 150);
         }}
       >
@@ -124,7 +129,7 @@ export default abstract class AbstractGlobalSearch<T extends SearchAttrs = Searc
             onkeydown: (e: KeyboardEvent) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
-                this.$('input').blur() && openSearchModal();
+                this.blur() && openSearchModal();
               }
             },
           }}
