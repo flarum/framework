@@ -22,7 +22,11 @@ return [
                 $table->json('preferences_json')->nullable();
             });
 
-            if ($schema->getConnection()->getDriverName() === 'mysql') {
+            if ($schema->getConnection()?->isMaria()) {
+                $schema->getConnection()->table('users')->update([
+                    'preferences_json' => $schema->getConnection()->raw("IF(JSON_VALID(CONVERT($preferences USING utf8mb4)), CONVERT($preferences USING utf8mb4), NULL)"),
+                ]);
+            } elseif ($schema->getConnection()->getDriverName() === 'mysql') {
                 $schema->getConnection()->table('users')->update([
                     'preferences_json' => $schema->getConnection()->raw("CAST(CONVERT($preferences USING utf8mb4) AS JSON)"),
                 ]);
