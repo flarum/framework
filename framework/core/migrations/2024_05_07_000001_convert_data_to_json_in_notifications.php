@@ -23,7 +23,7 @@ return [
 
             if ($schema->getConnection()?->isMaria()) {
                 $schema->getConnection()->table('notifications')->update([
-                    'data_json' => $schema->getConnection()->raw("IF(JSON_VALID(CONVERT(data USING utf8mb4)), CONVERT(data USING utf8mb4), NULL)"),
+                    'data_json' => $schema->getConnection()->raw('IF(JSON_VALID(CONVERT(data USING utf8mb4)), CONVERT(data USING utf8mb4), NULL)'),
                 ]);
             } elseif ($schema->getConnection()->getDriverName() === 'mysql') {
                 $schema->getConnection()->table('notifications')->update([
