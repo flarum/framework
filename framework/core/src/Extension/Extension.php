@@ -334,6 +334,19 @@ class Extension implements Arrayable
     }
 
     /**
+     * @return string|null
+     */
+    public function getNamespace(): ?string
+    {
+        return Collection::make($this->composerJsonAttribute('autoload.psr-4'))
+            ->filter(function ($source) {
+                return $source === 'src/';
+            })
+            ->keys()
+            ->first();
+    }
+
+    /**
      * @return string
      */
     public function getPath()

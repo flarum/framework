@@ -9,6 +9,7 @@
 
 namespace Flarum\Foundation;
 
+use Flarum\Foundation\ExtensionIdTrait;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
@@ -16,6 +17,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 abstract class AbstractValidator
 {
+    use ExtensionIdTrait;
+
     /**
      * @var array
      */
@@ -82,6 +85,22 @@ abstract class AbstractValidator
     }
 
     /**
+     * @return array
+     */
+    protected function getAttributeNames()
+    {
+        $extId = $this->getClassExtensionId();
+        $attributeNames = [];
+
+        foreach(array_keys($this->rules) as $attribute) {
+            $key = $extId ? "$extId.validation.attributes.$attribute" : "validation.attributes.$attribute";
+            $attributeNames[$attribute] = $this->translator->trans($key);
+        }
+
+        return $attributeNames;
+    }
+
+    /**
      * Make a new validator instance for this model.
      *
      * @param array $attributes
@@ -92,6 +111,7 @@ abstract class AbstractValidator
         $rules = Arr::only($this->getRules(), array_keys($attributes));
 
         $validator = $this->validator->make($attributes, $rules, $this->getMessages());
+        $validator->setAttributeNames($this->getAttributeNames());
 
         foreach ($this->configuration as $callable) {
             $callable($this, $validator);
