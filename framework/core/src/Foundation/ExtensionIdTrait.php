@@ -7,10 +7,10 @@
  * LICENSE file that was distributed with this source code.
  */
 
- namespace Flarum\Foundation;
+namespace Flarum\Foundation;
 
-use Flarum\Extension\ExtensionManager;
 use Flarum\Extension\Extension;
+use Flarum\Extension\ExtensionManager;
 
 trait ExtensionIdTrait
 {

@@ -9,7 +9,6 @@
 
 namespace Flarum\Foundation;
 
-use Flarum\Foundation\ExtensionIdTrait;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
@@ -92,7 +91,7 @@ abstract class AbstractValidator
         $extId = $this->getClassExtensionId();
         $attributeNames = [];
 
-        foreach(array_keys($this->rules) as $attribute) {
+        foreach (array_keys($this->rules) as $attribute) {
             $key = $extId ? "$extId.validation.attributes.$attribute" : "validation.attributes.$attribute";
             $attributeNames[$attribute] = $this->translator->trans($key);
         }
