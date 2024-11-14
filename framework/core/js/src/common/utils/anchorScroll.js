@@ -12,6 +12,8 @@
  * @param {() => void} callback The callback to run that will change page content.
  */
 export default function anchorScroll(element, callback) {
+  if (typeof element === 'string') element = document.querySelector(element);
+  if (!element) return;
   const relativeScroll = element.getBoundingClientRect().top;
 
   callback();
