@@ -151,7 +151,7 @@ export default class KeyboardNavigatable {
   }
 
   /**
-   * Set up the navigation key bindings on the given jQuery element.
+   * Set up the navigation key bindings on the given element.
    */
   bindTo(element: HTMLElement) {
     // Handle navigation key events on the navigatable element.
