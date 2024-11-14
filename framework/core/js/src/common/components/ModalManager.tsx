@@ -161,7 +161,7 @@ export default class ModalManager extends Component<IModalManagerAttrs> {
     );
 
     requestAnimationFrame(() => {
-      this.activeDialogElement?.classList.add('in');
+      this.activeDialogElement?.classList.add('show');
     });
   }
 
