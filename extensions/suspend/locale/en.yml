@@ -72,4 +72,4 @@ flarum-suspend:
 
   validation:
     attributes:
-      suspended_until: suspended until
+      suspendedUntil: suspended until
