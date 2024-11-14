@@ -90,7 +90,7 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
         m.redraw();
       }
 
-      // Mithril doesn't really redraw this component
+      // Mithril doesn't really redraw this component sometimes (e.g. Discussion list)
       // Bootstrap 5 has removed the open class toggle and the backdrop
       // these need to be added manually.
       this.element.classList.add('open');
