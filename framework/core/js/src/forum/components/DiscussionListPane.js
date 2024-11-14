@@ -28,7 +28,10 @@ export default class DiscussionListPane extends Component {
   oncreate(vnode) {
     super.oncreate(vnode);
 
+    document.addEventListener('mousemove', hotEdge);
+
     const list = vnode.dom;
+    if (!list) return;
 
     // When the mouse enters and leaves the discussions pane, we want to show
     // and hide the pane respectively. We also create a 10px 'hot edge' on the
@@ -36,8 +39,6 @@ export default class DiscussionListPane extends Component {
     const pane = app.pane;
     list.addEventListener('mouseenter', pane.show.bind(pane));
     list.addEventListener('mouseleave', pane.onmouseleave.bind(pane));
-
-    document.addEventListener('mousemove', hotEdge);
 
     // When coming from another discussion, scroll to the previous position
     // to prevent the discussion list jumping around.
@@ -66,7 +67,8 @@ export default class DiscussionListPane extends Component {
   }
 
   onremove(vnode) {
-    app.cache.discussionListPaneScrollTop = vnode.dom.scrollTop;
+    if (vnode.dom)
+      app.cache.discussionListPaneScrollTop = vnode.dom.scrollTop;
     document.removeEventListener('mousemove', hotEdge);
   }
 
