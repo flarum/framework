@@ -161,3 +161,23 @@ flarum-extension-manager:
 
     why_not_modal:
       title: Why Won't it Update
+
+  validation:
+    attributes:
+      minimum_stability: minimum stability
+      repositories: repositories
+      repositories.*: repositories
+      repositories.*.type: repository type
+      repositories.*.url: repository URL
+      extension_id: extension ID
+      update_mode: update mode
+      package: package
+      version: version
+      github_oauth: GitHub OAuth
+      github_oauth.*: GitHub OAuth
+      gitlab_oauth: GitLab OAuth
+      gitlab_oauth.*: GitLab OAuth
+      gitlab_token: GitLab Token
+      gitlab_token.*: GitLab Token
+      bearer: HTTP Bearer
+      bearer.*: HTTP Bearer
