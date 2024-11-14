@@ -30,7 +30,10 @@ export default abstract class FormModal<ModalAttrs extends IFormModalAttrs = IFo
    * @remark Focuses the first input in the modal.
    */
   onready(): void {
-    this.$().find('input, select, textarea').first().trigger('focus').trigger('select');
+    const input = this.element.querySelector('input, select, textarea') as (HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement);
+    if (!input) return;
+    input.focus();
+    input.dispatchEvent(new Event('select'));
   }
 
   /**
@@ -43,7 +46,7 @@ export default abstract class FormModal<ModalAttrs extends IFormModalAttrs = IFo
     m.redraw();
 
     if (error.status === 422 && error.response?.errors) {
-      this.$('form [name=' + (error.response.errors as any[])[0].source.pointer.replace('/data/attributes/', '') + ']').trigger('select');
+      this.element.querySelector(`form [name=${(error.response.errors as any[])[0].source.pointer.replace('/data/attributes/', '')}]`)?.dispatchEvent(new Event('select'));
     } else {
       this.onready();
     }

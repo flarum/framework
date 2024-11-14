@@ -109,7 +109,7 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
                     const target = e.target as HTMLInputElement;
                     this.setPassword(target.checked);
                     m.redraw.sync();
-                    if (target.checked) this.$('[name=password]').select();
+                    if (target.checked) this.element.querySelector('[name=password]')?.dispatchEvent(new Event('select'));
                     e.redraw = false;
                   }}
                   disabled={this.nonAdminEditingAdmin()}

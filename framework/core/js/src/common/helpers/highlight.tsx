@@ -32,7 +32,9 @@ export default function highlight(string: string, phrase?: string | RegExp, leng
   // Convert the string into HTML entities, then highlight all matches with
   // <mark> tags. Then we will return the result as a trusted HTML string.
   if (!safe) {
-    highlighted = $('<div/>').text(highlighted).html();
+    const el = document.createElement('div');
+    el.textContent = highlighted;
+    highlighted = el.innerHTML;
   }
 
   if (phrase) highlighted = highlighted.replace(regexp, '<mark>$&</mark>');

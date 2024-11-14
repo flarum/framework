@@ -12,10 +12,9 @@
  * @param {() => void} callback The callback to run that will change page content.
  */
 export default function anchorScroll(element, callback) {
-  const $window = $(window);
-  const relativeScroll = $(element).offset().top - $window.scrollTop();
+  const relativeScroll = element.getBoundingClientRect().top;
 
   callback();
 
-  $window.scrollTop($(element).offset().top - relativeScroll);
+  window.scrollTo({ top: element.getBoundingClientRect().top + document.documentElement.scrollTop - relativeScroll });
 }

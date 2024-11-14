@@ -104,7 +104,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
             value={this.query()}
             onchange={(value: string) => {
               this.query(value);
-              this.inputScroll(this.inputElement()[0]?.scrollLeft ?? 0);
+              this.inputScroll(this.inputElement()?.scrollLeft ?? 0);
             }}
             inputAttrs={{ className: 'SearchModal-input' }}
             renderInput={(attrs: any) => (
@@ -218,7 +218,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     if (this.activeSource() !== source) {
       this.activeSource(source);
       this.search(this.query());
-      this.inputElement().focus();
+      this.inputElement()?.focus();
       m.redraw();
     }
   }
@@ -280,7 +280,8 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     // Highlight the item that is currently selected.
     this.setIndex(this.getCurrentNumericIndex());
 
-    const $input = this.inputElement() as JQuery<HTMLInputElement>;
+    const input = this.inputElement();
+    if (!input) return;
 
     this.navigator = new KeyboardNavigatable();
     this.navigator
@@ -288,12 +289,12 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
       .onDown(() => this.setIndex(this.getCurrentNumericIndex() + 1, true))
       .onSelect(this.selectResult.bind(this), true)
       .onCancel(this.clear.bind(this))
-      .bindTo($input);
+      .bindTo(input);
 
     // Handle input key events on the search input, triggering results to load.
-    $input.on('input focus', function () {
+    ['input', 'focus'].forEach((ev) => input.addEventListener(ev as 'input'| 'focus', function() {
       search(this.value.toLowerCase());
-    });
+    }));
   }
 
   onremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
@@ -430,8 +431,8 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     }
   }
 
-  inputElement(): JQuery<HTMLInputElement> {
-    return this.$('.SearchModal-input') as JQuery<HTMLInputElement>;
+  inputElement(): HTMLInputElement | null {
+    return this.element?.querySelector('.SearchModal-input');
   }
 
   defaultActiveSource(): string | null {
