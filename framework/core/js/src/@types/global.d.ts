@@ -56,6 +56,14 @@ declare type VnodeElementTag<Attrs = Record<string, unknown>, C extends Componen
  */
 declare const app: import('../common/Application').default;
 
+/**
+ * @deprecated We are moving away from jQuery.
+ */
+declare const $: JQueryStatic;
+/**
+ * @deprecated We are moving away from jQuery.
+ */
+declare const jQuery: JQueryStatic;
 declare const m: import('mithril').Static;
 declare const dayjs: typeof import('dayjs');
 
