@@ -16,7 +16,12 @@ function tagItem(tag) {
       <div className="TagListItem-info">
         {tagIcon(tag)}
         <span className="TagListItem-name">{tag.name()}</span>
-        <Button className="Button Button--link" icon="fas fa-pencil-alt" onclick={() => app.modal.show(EditTagModal, { model: tag })} />
+        <Button
+          className="Button Button--link"
+          icon="fas fa-pencil-alt"
+          aria-label={app.translator.trans('flarum-tags.admin.tags.edit_tag_label', { tag: tag.name() })}
+          onclick={() => app.modal.show(EditTagModal, { model: tag })}
+        />
       </div>
       {!tag.isChild() && tag.position() !== null && (
         <ol className="TagListItem-children TagList">
