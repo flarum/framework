@@ -137,9 +137,11 @@ export default class ForumApplication extends Application {
     });
 
     if (isSafariMobile()) {
-      $(() => {
-        $('.App').addClass('mobile-safari');
-      });
+      const callback = () => {
+        document.querySelector('.App')?.classList.add('mobile-safari');
+      };
+      document.addEventListener('DOMContentLoaded', callback);
+      if (document.readyState != 'loading') callback();
     }
   }
 
