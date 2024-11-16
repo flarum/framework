@@ -86,7 +86,6 @@ class ApiResource implements ExtenderInterface
     /**
      * Add endpoints to the resource before all other endpoints.
      *
-     * @param string $after the name of the endpoint to add the new endpoints after.
      * @param callable|class-string $endpoints must be a callable that returns an array of objects that implement \Flarum\Api\Endpoint\Endpoint.
      */
     public function endpointsBeforeAll(callable|string $endpoints): self
