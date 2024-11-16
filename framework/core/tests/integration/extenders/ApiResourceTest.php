@@ -11,6 +11,7 @@ namespace Flarum\Tests\integration\extenders;
 
 use Carbon\Carbon;
 use Flarum\Api\Context;
+use Flarum\Api\Endpoint\Endpoint;
 use Flarum\Api\Endpoint\Index;
 use Flarum\Api\Endpoint\Show;
 use Flarum\Api\Resource\AbstractDatabaseResource;
@@ -89,6 +90,66 @@ class ApiResourceTest extends TestCase
         $payload = json_decode($body = $response->getBody()->getContents(), true);
 
         $this->assertEquals('dataSerializationPrepCustomTitle', $payload['data']['attributes']['title'], $body);
+    }
+
+    #[Test]
+    public function custom_endpoint_works_if_added()
+    {
+        $this->extend(
+            (new Extend\ApiResource(DiscussionResource::class))
+                ->endpoints(fn () => [
+                    Endpoint::make('custom')
+                        ->route('GET', '/{id}/custom')
+                        ->action(function (Context $context) {
+                            $discussion = $context->model;
+
+                            return [
+                                'data' => [
+                                    'message' => 'custom endpoint '.$discussion->id,
+                                ],
+                            ];
+                        }),
+                ])
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/1/custom', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($body = $response->getBody()->getContents(), true);
+
+        $this->assertEquals('custom endpoint 1', $payload['data']['message'], $body);
+    }
+
+    #[Test]
+    public function custom_endpoint_works_if_added_before_all()
+    {
+        $this->extend(
+            (new Extend\ApiResource(DiscussionResource::class))
+                ->endpointsBeforeAll(fn () => [
+                    Endpoint::make('custom')
+                        ->route('GET', '/custom')
+                        ->action(function (Context $context) {
+                            return [
+                                'data' => [
+                                    'message' => 'custom endpoint',
+                                ],
+                            ];
+                        }),
+                ])
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/custom', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($body = $response->getBody()->getContents(), true);
+
+        $this->assertEquals('custom endpoint', $payload['data']['message'], $body);
     }
 
     #[Test]

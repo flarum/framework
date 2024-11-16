@@ -148,6 +148,10 @@ class Endpoint implements \Tobyz\JsonApiServer\Endpoint\Endpoint
             return json_api_response($this->showResource($context, $data));
         }
 
+        if (is_array($data)) {
+            return json_api_response($data);
+        }
+
         return null;
     }
 }

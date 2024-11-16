@@ -22,6 +22,8 @@ use Tobyz\JsonApiServer\Schema\Sort;
 class ApiResource implements ExtenderInterface
 {
     private array $endpoints = [];
+    private array $endpointsBefore = [];
+    private array $endpointsAfter = [];
     private array $removeEndpoints = [];
     private array $endpoint = [];
     private array $fields = [];
@@ -51,6 +53,45 @@ class ApiResource implements ExtenderInterface
     public function endpoints(callable|string $endpoints): self
     {
         $this->endpoints[] = $endpoints;
+
+        return $this;
+    }
+
+    /**
+     * Add endpoints to the resource before a certain endpoint.
+     *
+     * @param string $before the name of the endpoint to add the new endpoints before.
+     * @param callable|class-string $endpoints must be a callable that returns an array of objects that implement \Flarum\Api\Endpoint\Endpoint.
+     */
+    public function endpointsBefore(string $before, callable|string $endpoints): self
+    {
+        $this->endpointsBefore[] = [$before, $endpoints];
+
+        return $this;
+    }
+
+    /**
+     * Add endpoints to the resource after a certain endpoint.
+     *
+     * @param string $after the name of the endpoint to add the new endpoints after.
+     * @param callable|class-string $endpoints must be a callable that returns an array of objects that implement \Flarum\Api\Endpoint\Endpoint.
+     */
+    public function endpointsAfter(string $after, callable|string $endpoints): self
+    {
+        $this->endpointsAfter[] = [$after, $endpoints];
+
+        return $this;
+    }
+
+    /**
+     * Add endpoints to the resource before all other endpoints.
+     *
+     * @param string $after the name of the endpoint to add the new endpoints after.
+     * @param callable|class-string $endpoints must be a callable that returns an array of objects that implement \Flarum\Api\Endpoint\Endpoint.
+     */
+    public function endpointsBeforeAll(callable|string $endpoints): self
+    {
+        $this->endpointsBefore[] = [0, $endpoints];
 
         return $this;
     }
@@ -212,6 +253,31 @@ class ApiResource implements ExtenderInterface
                 foreach ($this->endpoints as $newEndpointsCallback) {
                     $newEndpointsCallback = ContainerUtil::wrapCallback($newEndpointsCallback, $container);
                     $endpoints = array_merge($endpoints, $newEndpointsCallback());
+                }
+
+                foreach ($this->endpointsBefore as [$before, $newEndpointsCallback]) {
+                    $newEndpointsCallback = ContainerUtil::wrapCallback($newEndpointsCallback, $container);
+
+                    if ($before === 0) {
+                        array_unshift($endpoints, ...$newEndpointsCallback());
+                    } else {
+                        $newEndpoints = $newEndpointsCallback();
+                        $beforeIndex = array_search($before, array_column($endpoints, 'name'));
+
+                        if ($beforeIndex !== false) {
+                            array_splice($endpoints, $beforeIndex, 0, $newEndpoints);
+                        }
+                    }
+                }
+
+                foreach ($this->endpointsAfter as [$after, $newEndpointsCallback]) {
+                    $newEndpointsCallback = ContainerUtil::wrapCallback($newEndpointsCallback, $container);
+                    $newEndpoints = $newEndpointsCallback();
+                    $afterIndex = array_search($after, array_column($endpoints, 'name'));
+
+                    if ($afterIndex !== false) {
+                        array_splice($endpoints, $afterIndex + 1, 0, $newEndpoints);
+                    }
                 }
 
                 foreach ($this->removeEndpoints as $removeEndpointClass) {
