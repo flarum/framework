@@ -159,9 +159,9 @@ export default class SignUpModal<CustomAttrs extends ISignupModalAttrs = ISignup
 
   onready() {
     if (this.attrs.username && !this.attrs.email) {
-      this.$('[name=email]').select();
+      (this.element.querySelector('[name=email]') as HTMLInputElement)?.select();
     } else {
-      this.$('[name=username]').select();
+      (this.element.querySelector('[name=username]') as HTMLInputElement)?.select();
     }
   }
 

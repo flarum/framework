@@ -262,7 +262,7 @@ class ComposerState {
    * Maximum height of the Composer.
    */
   maximumHeight(): number {
-    return $(window).height()! - $('#header').outerHeight()!;
+    return window.innerHeight - document.getElementById('header')!.getBoundingClientRect().height;
   }
 
   /**
@@ -277,7 +277,7 @@ class ComposerState {
     if (this.position === ComposerState.Position.MINIMIZED) {
       return '';
     } else if (this.position === ComposerState.Position.FULLSCREEN) {
-      return $(window).height()!;
+      return window.innerHeight;
     }
 
     // Otherwise, if it's normal or hidden, then we use the intended height.

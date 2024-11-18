@@ -249,7 +249,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
     });
     input.addEventListener('focus', function() {
       this.addEventListener('mouseup', (e) => e.preventDefault(), { once: true });
-      this.dispatchEvent(new Event('select'));
+      this.select();
     });
 
     this.updateMaxHeightHandler = this.updateMaxHeight.bind(this);

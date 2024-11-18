@@ -107,7 +107,7 @@ export default abstract class AutocompleteDropdown<
       m.redraw();
 
       this.addEventListener('mouseup', (e) => e.preventDefault(), { once: true });
-      this.dispatchEvent(new Event('select'));
+      this.select();
     });
     input.addEventListener('blur', () => {
       component.hasFocus = false;

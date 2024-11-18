@@ -21,7 +21,19 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
     if (this.isHidden()) return null;
 
     const slideUp = () => {
-      this.$().slideUp(this.hide.bind(this));
+      const el = this.element as HTMLElement;
+      el.style.height = el.clientHeight + 'px';
+      el.style.overflow = 'hidden';
+      const anim = el.animate({
+        'height': '0'
+      }, {
+        duration: 400
+      });
+      anim.addEventListener('finish', () => {
+        el.style.height = '0';
+        anim.cancel();
+      })
+      anim.addEventListener('finish', this.hide.bind(this));
     };
 
     return (

@@ -33,7 +33,7 @@ export default abstract class FormModal<ModalAttrs extends IFormModalAttrs = IFo
     const input = this.element.querySelector('input, select, textarea') as (HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement);
     if (!input) return;
     input.focus();
-    input.dispatchEvent(new Event('select'));
+    if ('select' in input) input.select();
   }
 
   /**
@@ -46,7 +46,7 @@ export default abstract class FormModal<ModalAttrs extends IFormModalAttrs = IFo
     m.redraw();
 
     if (error.status === 422 && error.response?.errors) {
-      this.element.querySelector(`form [name=${(error.response.errors as any[])[0].source.pointer.replace('/data/attributes/', '')}]`)?.dispatchEvent(new Event('select'));
+      (this.element.querySelector(`form [name='${(error.response.errors as any[])[0].source.pointer.replace('/data/attributes/', '')}']`) as HTMLInputElement)?.select();
     } else {
       this.onready();
     }

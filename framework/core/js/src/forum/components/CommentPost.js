@@ -82,12 +82,12 @@ export default class CommentPost extends Post {
     // all of the <script> tags in the content and evaluate them. This is
     // necessary because TextFormatter outputs them for e.g. syntax highlighting.
     if (this.contentHtml !== contentHtml) {
-      this.$('.Post-body script').each(function () {
+      this.element.querySelectorAll('.Post-body script').forEach((el) => {
         const script = document.createElement('script');
-        script.textContent = this.textContent;
-        Array.from(this.attributes).forEach((attr) => script.setAttribute(attr.name, attr.value));
-        this.parentNode.replaceChild(script, this);
-      });
+        script.textContent = el.textContent;
+        Array.from(el.attributes).forEach((attr) => script.setAttribute(attr.name, attr.value));
+        this.parentNode.replaceChild(script, el);
+      })
     }
 
     this.contentHtml = contentHtml;
@@ -183,18 +183,19 @@ export default class CommentPost extends Post {
     this.cardVisible = true;
     m.redraw();
 
-    setTimeout(() => this.$('.UserCard').addClass('in'));
+    setTimeout(() => this.element.querySelector('.UserCard')?.classList.add('show'));
   }
 
   /**
    * Hide the user card.
    */
   hideCard() {
-    this.$('.UserCard')
-      .removeClass('in')
-      .one('transitionend webkitTransitionEnd oTransitionEnd', () => {
-        this.cardVisible = false;
-        m.redraw();
-      });
+    const userCard = this.element.querySelector('.UserCard');
+    if (!userCard) return;
+    userCard.classList.remove('show');
+    userCard.addEventListener('transitionend', () => {
+      this.cardVisible = false;
+      m.redraw();
+    }, { once: true });
   }
 }

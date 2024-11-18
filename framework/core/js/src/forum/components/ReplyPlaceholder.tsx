@@ -68,12 +68,12 @@ export default class ReplyPlaceholder<CustomAttrs extends IReplyPlaceholderAttrs
   }
 
   anchorPreview(preview: () => void) {
-    const anchorToBottom = $(window).scrollTop()! + $(window).height()! >= $(document).height()!;
+    const anchorToBottom = document.documentElement.scrollTop + window.innerHeight >= document.documentElement.clientHeight;
 
     preview();
 
     if (anchorToBottom) {
-      $(window).scrollTop($(document).height()!);
+      window.scrollTo({ top: document.documentElement.clientHeight });
     }
   }
 }
