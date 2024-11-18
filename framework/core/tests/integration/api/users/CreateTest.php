@@ -178,7 +178,7 @@ class CreateTest extends TestCase
      */
     public function admin_cannot_create_user_with_invalid_local_part_email()
     {
-        $email = str_repeat('a', 65) . '@machine.local';
+        $email = str_repeat('a', 65).'@machine.local';
 
         $response = $this->send(
             $this->request(
