@@ -176,6 +176,35 @@ class CreateTest extends TestCase
     /**
      * @test
      */
+    public function admin_cannot_create_user_with_invalid_local_part_email()
+    {
+        $email = str_repeat('a', 65) . '@machine.local';
+
+        $response = $this->send(
+            $this->request(
+                'POST',
+                '/api/users',
+                [
+                    'authenticatedAs' => 1,
+                    'json' => [
+                        'data' => [
+                            'attributes' => [
+                                'username' => 'test',
+                                'password' => 'too-obscure',
+                                'email' => $email,
+                            ],
+                        ]
+                    ],
+                ]
+            )
+        );
+
+        $this->assertEquals(422, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
     public function admin_can_create_user_with_longest_valid_domain()
     {
         $email = 't@'.str_repeat('a', 63).'.'.str_repeat('b', 63).'.'.str_repeat('c', 63).'.'.str_repeat('d', 58).'.x';
