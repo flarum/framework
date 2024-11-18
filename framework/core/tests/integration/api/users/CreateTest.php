@@ -178,7 +178,7 @@ class CreateTest extends TestCase
      */
     public function admin_can_create_user_with_longest_valid_domain()
     {
-        $email = 't@'.str_repeat('a', 63).'.'.str_repeat('b', 63).'.'.str_repeat('c', 63).'.'. str_repeat('d', 58).'.x';
+        $email = 't@'.str_repeat('a', 63).'.'.str_repeat('b', 63).'.'.str_repeat('c', 63).'.'.str_repeat('d', 58).'.x';
 
         $response = $this->send(
             $this->request(
