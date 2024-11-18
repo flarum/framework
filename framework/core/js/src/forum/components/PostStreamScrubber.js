@@ -41,7 +41,7 @@ export default class PostStreamScrubber extends Component {
       const newStyle = {
         top: 100 - unreadPercent * 100 + '%',
         height: unreadPercent * 100 + '%',
-        opacity: unreadPercent ? 1 : 0,
+        opacity: unreadPercent > 0 ? 1 : 0,
       };
 
       if (vnode.state.oldStyle) {
