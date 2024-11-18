@@ -87,7 +87,7 @@ export default class CommentPost extends Post {
         script.textContent = el.textContent;
         Array.from(el.attributes).forEach((attr) => script.setAttribute(attr.name, attr.value));
         this.parentNode.replaceChild(script, el);
-      })
+      });
     }
 
     this.contentHtml = contentHtml;
@@ -193,9 +193,13 @@ export default class CommentPost extends Post {
     const userCard = this.element.querySelector('.UserCard');
     if (!userCard) return;
     userCard.classList.remove('show');
-    userCard.addEventListener('transitionend', () => {
-      this.cardVisible = false;
-      m.redraw();
-    }, { once: true });
+    userCard.addEventListener(
+      'transitionend',
+      () => {
+        this.cardVisible = false;
+        m.redraw();
+      },
+      { once: true }
+    );
   }
 }

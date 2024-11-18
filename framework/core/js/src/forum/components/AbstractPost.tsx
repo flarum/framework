@@ -90,10 +90,9 @@ export default abstract class AbstractPost<CustomAttrs extends IAbstractPostAttr
   onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.onupdate(vnode);
 
-    this.element.querySelector('.Post-actions')?.classList.toggle(
-      'openWithin',
-      this.element.querySelector('.Post-controls')?.classList.contains('open')
-    );
+    this.element
+      .querySelector('.Post-actions')
+      ?.classList.toggle('openWithin', this.element.querySelector('.Post-controls')?.classList.contains('open'));
   }
 
   elementAttrs(): Record<string, unknown> {

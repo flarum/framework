@@ -235,7 +235,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
       html,
       delay: delay || 0,
       placement: position,
-      trigger: trigger as any
+      trigger: trigger as any,
     });
   }
 

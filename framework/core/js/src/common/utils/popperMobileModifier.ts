@@ -1,4 +1,4 @@
-import { type Modifier } from "@popperjs/core";
+import { type Modifier } from '@popperjs/core';
 
 export default {
   name: 'responsiveMobile',
@@ -13,8 +13,8 @@ export default {
         left: null as unknown as string,
         top: null as unknown as string,
         bottom: null as unknown as string,
-        transform: null as unknown as string
+        transform: null as unknown as string,
       };
     }
-  }
+  },
 } satisfies Modifier<any, any>;

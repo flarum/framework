@@ -34,9 +34,12 @@ export default function slidable(element) {
     options.duration ||= 200;
 
     const content = element.querySelector('.Slidable-content');
-    const anim = content.animate({
-      'transform': 'translate(' + newPos + 'px, 0)'
-    }, options);
+    const anim = content.animate(
+      {
+        transform: 'translate(' + newPos + 'px, 0)',
+      },
+      options
+    );
 
     anim.addEventListener('finish', () => {
       content.style.transform = 'translate(' + newPos + 'px, 0)';

@@ -102,7 +102,7 @@ export default abstract class AutocompleteDropdown<
       .onSelect(this.selectSuggestion.bind(this), true)
       .bindTo(input);
 
-    input.addEventListener('focus', function() {
+    input.addEventListener('focus', function () {
       component.hasFocus = true;
       m.redraw();
 
@@ -174,7 +174,7 @@ export default abstract class AutocompleteDropdown<
       fixedIndex = 0;
     }
 
-    items.forEach(el => el.classList.remove('active'));
+    items.forEach((el) => el.classList.remove('active'));
     const item = items[fixedIndex];
     const dropdown = item.parentElement!;
     item.classList.add('active');
@@ -201,7 +201,7 @@ export default abstract class AutocompleteDropdown<
       if (typeof scrollTop !== 'undefined') {
         dropdown.scrollTo({
           top: scrollTop,
-          behavior: 'smooth'
+          behavior: 'smooth',
         });
       }
     }

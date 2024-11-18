@@ -73,7 +73,7 @@ export default class UploadImageButton<CustomAttrs extends IUploadImageButtonAtt
           body,
         })
         .then(this.success.bind(this), this.failure.bind(this));
-    })
+    });
   }
 
   remove() {

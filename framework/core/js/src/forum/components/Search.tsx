@@ -202,7 +202,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
     searchResults.addEventListener('mousedown', (e) => e.preventDefault());
     searchResults.addEventListener('click', () => this.element.querySelector('input')?.blur());
     // Whenever the mouse is hovered over a search result, highlight it.
-    searchResults.addEventListener('mouseenter', function(e) {
+    searchResults.addEventListener('mouseenter', function (e) {
       const el = e.target as HTMLElement;
       if (el.parentElement != searchResults || el.tagName != 'LI' || el.classList.contains('Dropdown-header')) return;
       search.setIndex(search.selectableItems().indexOf(el as HTMLLIElement));
@@ -219,8 +219,8 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
       .bindTo(input);
 
     // Handle input key events on the search input, triggering results to load.
-    ['input', 'focus'].forEach(ev => {
-      input.addEventListener(ev as 'input' | 'focus', function() {
+    ['input', 'focus'].forEach((ev) => {
+      input.addEventListener(ev as 'input' | 'focus', function () {
         const query = this.value.toLowerCase();
 
         if (!query) return;
@@ -247,7 +247,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
         }, 250);
       });
     });
-    input.addEventListener('focus', function() {
+    input.addEventListener('focus', function () {
       this.addEventListener('mouseup', (e) => e.preventDefault(), { once: true });
       this.select();
     });
@@ -344,7 +344,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
       fixedIndex = 0;
     }
 
-    items.forEach(el => el.classList.remove('active'));
+    items.forEach((el) => el.classList.remove('active'));
     const item = items[fixedIndex];
     const dropdown = item.parentElement!;
     item.classList.add('active');
@@ -371,7 +371,7 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
       if (typeof scrollTop !== 'undefined') {
         dropdown.scrollTo({
           top: scrollTop,
-          behavior: 'smooth'
+          behavior: 'smooth',
         });
       }
     }

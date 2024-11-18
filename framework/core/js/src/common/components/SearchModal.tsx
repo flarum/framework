@@ -292,9 +292,11 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
       .bindTo(input);
 
     // Handle input key events on the search input, triggering results to load.
-    ['input', 'focus'].forEach((ev) => input.addEventListener(ev as 'input'| 'focus', function() {
-      search(this.value.toLowerCase());
-    }));
+    ['input', 'focus'].forEach((ev) =>
+      input.addEventListener(ev as 'input' | 'focus', function () {
+        search(this.value.toLowerCase());
+      })
+    );
   }
 
   onremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {

@@ -92,16 +92,22 @@ export default class NotificationGrid extends Component {
     super.oncreate(vnode);
 
     this.element.querySelectorAll('thead .NotificationGrid-groupToggle').forEach((toggle) => {
-      ['mouseenter', 'mouseleave'].forEach((ev) => toggle.addEventListener(ev, function(e) {
-        const i = parseInt(Array.from(this.parentElement.children).indexOf(this), 10) + 1;
-        this.closest('table').querySelectorAll('td:nth-child(' + i + ')').forEach((td) => td.classList.toggle('highlighted', e.type === 'mouseenter'));
-      }));
+      ['mouseenter', 'mouseleave'].forEach((ev) =>
+        toggle.addEventListener(ev, function (e) {
+          const i = parseInt(Array.from(this.parentElement.children).indexOf(this), 10) + 1;
+          this.closest('table')
+            .querySelectorAll('td:nth-child(' + i + ')')
+            .forEach((td) => td.classList.toggle('highlighted', e.type === 'mouseenter'));
+        })
+      );
     });
 
     this.element.querySelectorAll('tbody .NotificationGrid-groupToggle').forEach((toggle) => {
-      ['mouseenter', 'mouseleave'].forEach((ev) => toggle.addEventListener(ev, function(e) {
-        this.parentElement.querySelectorAll('td').forEach((td) => td.classList.toggle('highlighted', e.type === 'mouseenter'));
-      }));
+      ['mouseenter', 'mouseleave'].forEach((ev) =>
+        toggle.addEventListener(ev, function (e) {
+          this.parentElement.querySelectorAll('td').forEach((td) => td.classList.toggle('highlighted', e.type === 'mouseenter'));
+        })
+      );
     });
   }
 

@@ -67,8 +67,7 @@ export default class DiscussionListPane extends Component {
   }
 
   onremove(vnode) {
-    if (vnode.dom)
-      app.cache.discussionListPaneScrollTop = vnode.dom.scrollTop;
+    if (vnode.dom) app.cache.discussionListPaneScrollTop = vnode.dom.scrollTop;
     document.removeEventListener('mousemove', hotEdge);
   }
 

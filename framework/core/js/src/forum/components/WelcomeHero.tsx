@@ -24,15 +24,18 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
       const el = this.element as HTMLElement;
       el.style.height = el.clientHeight + 'px';
       el.style.overflow = 'hidden';
-      const anim = el.animate({
-        'height': '0'
-      }, {
-        duration: 400
-      });
+      const anim = el.animate(
+        {
+          height: '0',
+        },
+        {
+          duration: 400,
+        }
+      );
       anim.addEventListener('finish', () => {
         el.style.height = '0';
         anim.cancel();
-      })
+      });
       anim.addEventListener('finish', this.hide.bind(this));
     };
 

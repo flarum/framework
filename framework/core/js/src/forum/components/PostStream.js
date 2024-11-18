@@ -347,7 +347,9 @@ export default class PostStream extends Component {
    * @return {Promise}
    */
   scrollToIndex(index, animate, reply) {
-    const item = reply ? document.querySelector('.PostStream-item:last-child') : this.element.querySelector(`.PostStream-item[data-index='${index}']`);
+    const item = reply
+      ? document.querySelector('.PostStream-item:last-child')
+      : this.element.querySelector(`.PostStream-item[data-index='${index}']`);
 
     this.scrollToItem(item, animate, true, reply);
 
@@ -371,18 +373,18 @@ export default class PostStream extends Component {
     const index = parseInt(item.getAttribute('data-index'));
 
     const itemTopOffset = item.getBoundingClientRect().top + document.documentElement.scrollTop;
-      const itemTop = itemTopOffset- this.getMarginTop();
-      const itemBottom = itemTopOffset + item.clientHeight;
-      const scrollTop = document.documentElement.scrollTop;
-      const scrollBottom = scrollTop + window.innerHeight;
+    const itemTop = itemTopOffset - this.getMarginTop();
+    const itemBottom = itemTopOffset + item.clientHeight;
+    const scrollTop = document.documentElement.scrollTop;
+    const scrollBottom = scrollTop + window.innerHeight;
 
-      // If the item is already in the viewport, we may not need to scroll.
-      // If we're scrolling to the reply placeholder, we'll make sure its
-      // bottom will line up with the top of the composer.
-      if (force || itemTop < scrollTop || itemBottom > scrollBottom) {
-        const top = reply ? itemBottom - window.innerHeight + app.composer.computedHeight() : item.parentElement.children[0] == item ? 0 : itemTop;
+    // If the item is already in the viewport, we may not need to scroll.
+    // If we're scrolling to the reply placeholder, we'll make sure its
+    // bottom will line up with the top of the composer.
+    if (force || itemTop < scrollTop || itemBottom > scrollBottom) {
+      const top = reply ? itemBottom - window.innerHeight + app.composer.computedHeight() : item.parentElement.children[0] == item ? 0 : itemTop;
 
-          document.documentElement.scrollTo({ top, behavior: animate ? 'smooth' : 'instant' });
+      document.documentElement.scrollTo({ top, behavior: animate ? 'smooth' : 'instant' });
     }
 
     const updateScrubberHeight = () => {
@@ -411,7 +413,14 @@ export default class PostStream extends Component {
       let itemRect;
       if (reply) {
         const placeholder = document.querySelector('.PostStream-item:last-child');
-        window.scrollTo({ top: placeholder.getBoundingClientRect().top + document.documentElement.scrollTop + placeholder.clientHeight - window.innerHeight + app.composer.computedHeight() });
+        window.scrollTo({
+          top:
+            placeholder.getBoundingClientRect().top +
+            document.documentElement.scrollTop +
+            placeholder.clientHeight -
+            window.innerHeight +
+            app.composer.computedHeight(),
+        });
       } else if (index === 0) {
         window.scrollTo({ top: 0 });
       } else if ((itemRect = document.querySelector(`.PostStream-item[data-index='${index}']`))) {

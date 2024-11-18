@@ -31,6 +31,7 @@ export default class AffixedSidebar extends Component {
   }
 
   onresize() {
+    return;
     const $sidebar = this.$();
     const $header = $('#header');
     const $footer = $('#footer');

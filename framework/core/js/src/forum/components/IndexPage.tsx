@@ -98,11 +98,11 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
     // Otherwise, we've just changed the filter, so we should go to the top of the page.
     if (this.lastDiscussion) {
       window.scrollTo({
-        top: scrollTop - oldHeroHeight + heroHeight
+        top: scrollTop - oldHeroHeight + heroHeight,
       });
     } else {
       window.scrollTo({
-        top: 0
+        top: 0,
       });
     }
 
@@ -122,7 +122,7 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
 
         if (discussionTop < scrollTop + indexTop || discussionBottom > scrollTop + indexBottom) {
           window.scrollTo({
-            top: discussionTop - indexTop
+            top: discussionTop - indexTop,
           });
         }
       }

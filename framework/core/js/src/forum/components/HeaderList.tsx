@@ -47,7 +47,7 @@ export default class HeaderList<CustomAttrs extends IHeaderListAttrs = IHeaderLi
     super.oncreate(vnode);
 
     if (this.attrs.loadMore) {
-      this.content = this.element.querySelector(".HeaderList-content");
+      this.content = this.element.querySelector('.HeaderList-content');
 
       // If we are on the notifications page, the window will be scrolling and not the $notifications element.
       this.scrollParent = this.inPanel() ? this.content : document.documentElement;

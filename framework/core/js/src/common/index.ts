@@ -11,9 +11,7 @@ import popperMobileModifier from './utils/popperMobileModifier';
 
 Dropdown.Default.popperConfig = {
   strategy: 'fixed',
-  modifiers: [
-    popperMobileModifier
-  ]
+  modifiers: [popperMobileModifier],
 };
 
 dayjs.extend(relativeTime);
@@ -30,4 +28,3 @@ import app from './app';
 export { app };
 
 import './utils/arrayFlatPolyfill';
-
