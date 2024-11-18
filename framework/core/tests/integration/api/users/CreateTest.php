@@ -144,7 +144,7 @@ class CreateTest extends TestCase
      */
     public function admin_can_create_user_with_longest_possible_local_part_email()
     {
-        $email = str_repeat('a', 64) . '@machine.local';
+        $email = str_repeat('a', 64).'@machine.local';
 
         $response = $this->send(
             $this->request(
@@ -178,7 +178,7 @@ class CreateTest extends TestCase
      */
     public function admin_can_create_user_with_longest_valid_domain()
     {
-        $email = 't@' . str_repeat('a', 63) . '.' . str_repeat('b', 63) . '.' . str_repeat('c', 63) . '.' . str_repeat('d', 58) . '.x';
+        $email = 't@'.str_repeat('a', 63).'.'.str_repeat('b', 63).'.'.str_repeat('c', 63).'.'. str_repeat('d', 58).'.x';
 
         $response = $this->send(
             $this->request(
@@ -213,8 +213,8 @@ class CreateTest extends TestCase
     public function admin_can_create_user_with_longest_valid_email()
     {
         $localPart = str_repeat('a', 64);
-        $domain = str_repeat('a', 61) . '.' . str_repeat('a', 60) . '.' . str_repeat('a', 60) . '.local';
-        $email = $localPart . '@' . $domain;
+        $domain = str_repeat('a', 61).'.'.str_repeat('a', 60).'.'.str_repeat('a', 60).'.local';
+        $email = $localPart.'@'.$domain;
 
         $response = $this->send(
             $this->request(
@@ -248,7 +248,7 @@ class CreateTest extends TestCase
      */
     public function admin_cannot_create_user_with_invalid_email_length()
     {
-        $email = str_repeat('a', 65) . '@' . str_repeat('a', 256) . '.local';
+        $email = str_repeat('a', 65).'@'.str_repeat('a', 256).'.local';
 
         $response = $this->send(
             $this->request(
