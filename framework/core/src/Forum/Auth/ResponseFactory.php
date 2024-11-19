@@ -62,7 +62,7 @@ class ResponseFactory
         ));
     }
 
-    private function makeResponse(array $payload): HtmlResponse
+    protected function makeResponse(array $payload): HtmlResponse
     {
         $content = sprintf(
             '<script>window.close(); window.opener.app.authenticationComplete(%s);</script>',
@@ -72,7 +72,7 @@ class ResponseFactory
         return new HtmlResponse($content);
     }
 
-    private function makeLoggedInResponse(User $user)
+    protected function makeLoggedInResponse(User $user)
     {
         $response = $this->makeResponse(['loggedIn' => true]);
 
