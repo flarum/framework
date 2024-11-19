@@ -9,6 +9,7 @@
 
 namespace Flarum\Foundation;
 
+use Illuminate\Contracts\Cache\Store as Cache;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
@@ -17,6 +18,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 abstract class AbstractValidator
 {
     use ExtensionIdTrait;
+
+    public static string $CORE_VALIDATION_CACHE_KEY = 'core.validation.extension_id_class_names';
 
     /**
      * @var array
@@ -44,13 +47,19 @@ abstract class AbstractValidator
     protected $translator;
 
     /**
+     * @var Cache
+     */
+    protected $cache;
+
+    /**
      * @param Factory $validator
      * @param TranslatorInterface $translator
      */
-    public function __construct(Factory $validator, TranslatorInterface $translator)
+    public function __construct(Factory $validator, TranslatorInterface $translator, Cache $cache)
     {
         $this->validator = $validator;
         $this->translator = $translator;
+        $this->cache = $cache;
     }
 
     /**
@@ -88,6 +97,10 @@ abstract class AbstractValidator
      */
     protected function getAttributeNames()
     {
+        if ($this->cache->get(self::$CORE_VALIDATION_CACHE_KEY) !== null) {
+            return $this->cache->get(self::$CORE_VALIDATION_CACHE_KEY);
+        }
+
         $extId = $this->getClassExtensionId();
         $attributeNames = [];
 
@@ -95,6 +108,8 @@ abstract class AbstractValidator
             $key = $extId ? "$extId.validation.attributes.$attribute" : "validation.attributes.$attribute";
             $attributeNames[$attribute] = $this->translator->trans($key);
         }
+
+        $this->cache->forever(self::$CORE_VALIDATION_CACHE_KEY, $attributeNames);
 
         return $attributeNames;
     }
