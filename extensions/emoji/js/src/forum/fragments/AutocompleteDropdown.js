@@ -18,17 +18,15 @@ export default class AutocompleteDropdown extends Fragment {
   }
 
   show(left, top) {
-    this.$()
-      .show()
-      .css({
-        left: left + 'px',
-        top: top + 'px',
-      });
+    const style = this.element.style;
+    style.display = 'block';
+    style.left = left + 'px';
+    style.top = top + 'px';
     this.active = true;
   }
 
   hide() {
-    this.$().hide();
+    this.element.style.display = 'none';
     this.active = false;
   }
 
@@ -40,42 +38,51 @@ export default class AutocompleteDropdown extends Fragment {
   }
 
   complete() {
-    this.$('li:not(.Dropdown-header)').eq(this.index).find('button').click();
+    this.element.querySelectorAll('li:not(.Dropdown-header)')[this.index].querySelector('button').click();
   }
 
+  // todo: check if copied implementation matches the original behavior
   setIndex(index, scrollToItem) {
     if (this.keyWasJustPressed && !scrollToItem) return;
 
-    const $dropdown = this.$();
-    const $items = $dropdown.find('li:not(.Dropdown-header)');
+    const dropdown = this.element;
+    const items = dropdown.querySelectorAll('li:not(.Dropdown-header)');
     let rangedIndex = index;
 
     if (rangedIndex < 0) {
-      rangedIndex = $items.length - 1;
-    } else if (rangedIndex >= $items.length) {
+      rangedIndex = items.length - 1;
+    } else if (rangedIndex >= items.length) {
       rangedIndex = 0;
     }
 
     this.index = rangedIndex;
 
-    const $item = $items.removeClass('active').eq(rangedIndex).addClass('active');
+    items.forEach((el) => el.classList.remove('active'));
+    const item = items[rangedIndex];
+    item.classList.add('active');
 
     if (scrollToItem) {
-      const dropdownScroll = $dropdown.scrollTop();
-      const dropdownTop = $dropdown.offset().top;
-      const dropdownBottom = dropdownTop + $dropdown.outerHeight();
-      const itemTop = $item.offset().top;
-      const itemBottom = itemTop + $item.outerHeight();
+      const documentScrollTop = document.documentElement.scrollTop;
+      const dropdownScroll = dropdown.scrollTop;
+      const dropdownRect = dropdown.getBoundingClientRect();
+      const dropdownTop = dropdownRect.top + documentScrollTop;
+      const dropdownBottom = dropdownTop + dropdownRect.height;
+      const itemRect = item.getBoundingClientRect();
+      const itemTop = itemRect.top + documentScrollTop;
+      const itemBottom = itemTop + itemRect.height;
 
       let scrollTop;
       if (itemTop < dropdownTop) {
-        scrollTop = dropdownScroll - dropdownTop + itemTop - parseInt($dropdown.css('padding-top'), 10);
+        scrollTop = dropdownScroll - dropdownTop + itemTop - parseInt(getComputedStyle(dropdown).paddingTop, 10);
       } else if (itemBottom > dropdownBottom) {
-        scrollTop = dropdownScroll - dropdownBottom + itemBottom + parseInt($dropdown.css('padding-bottom'), 10);
+        scrollTop = dropdownScroll - dropdownBottom + itemBottom + parseInt(getComputedStyle(dropdown).paddingBottom, 10);
       }
 
       if (typeof scrollTop !== 'undefined') {
-        $dropdown.stop(true).animate({ scrollTop }, 100);
+        dropdown.scrollTo({
+          top: scrollTop,
+          behavior: 'smooth',
+        });
       }
     }
   }
