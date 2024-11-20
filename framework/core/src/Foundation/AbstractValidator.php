@@ -95,7 +95,7 @@ abstract class AbstractValidator
     protected function getAttributeNames()
     {
         $cache = resolve(Cache::class);
-        
+
         if ($cache->get(self::$CORE_VALIDATION_CACHE_KEY) !== null) {
             return $cache->get(self::$CORE_VALIDATION_CACHE_KEY);
         }
