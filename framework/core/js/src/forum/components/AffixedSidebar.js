@@ -33,13 +33,14 @@ export default class AffixedSidebar extends Component {
   onresize() {
     const header = document.getElementById('header');
     const affixElement = this.element.querySelector(':scope > ul');
+    const pageSidebar = this.element.closest('.Page-sidebar');
 
     // Don't affix the sidebar if it is taller than the viewport (otherwise
     // there would be no way to scroll through its content).
     const enabled = heightWithMargin(this.element) <= window.innerHeight - heightWithMargin(header);
     affixElement.classList.toggle('affix', enabled);
     if (enabled) {
-      const top = heightWithMargin(header) + parseInt(getComputedStyle(this.element).marginTop, 10);
+      const top = heightWithMargin(header) + parseInt(getComputedStyle(pageSidebar ?? this.element).marginTop, 10);
       affixElement.style.position = 'sticky';
       affixElement.style.top = top + 'px';
       this.element.style.display = 'initial'; // Workaround for sticky not working
