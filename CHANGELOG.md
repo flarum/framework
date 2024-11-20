@@ -1,5 +1,11 @@
 # Changelog
 
+## [v1.8.8](https://github.com/flarum/framework/compare/v1.8.7...v1.8.8)
+### Fixed
+* previously suspended admin users cannot remove their avatar after suspension (https://github.com/flarum/framework/pull/4071)
+* new search term not being passed (https://github.com/flarum/framework/pull/4083)
+* postfooter did not apply the empty subclass (https://github.com/flarum/framework/pull/4085)
+
 ## [v1.8.7](https://github.com/flarum/framework/compare/v1.8.6...v1.8.7)
 ### Fixed
 * BasicsPage not viewable if only one language pack enabled, and/or `flarum/nicknames` not enabled (https://github.com/flarum/framework/pull/4062)
