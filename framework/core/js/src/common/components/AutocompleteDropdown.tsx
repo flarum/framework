@@ -193,9 +193,9 @@ export default abstract class AutocompleteDropdown<
 
       let scrollTop;
       if (itemTop < dropdownTop) {
-        scrollTop = dropdownScroll - dropdownTop + itemTop - parseInt(dropdown.style.paddingTop, 10);
+        scrollTop = dropdownScroll - dropdownTop + itemTop - parseInt(getComputedStyle(dropdown).paddingTop, 10);
       } else if (itemBottom > dropdownBottom) {
-        scrollTop = dropdownScroll - dropdownBottom + itemBottom + parseInt(dropdown.style.paddingBottom, 10);
+        scrollTop = dropdownScroll - dropdownBottom + itemBottom + parseInt(getComputedStyle(dropdown).paddingBottom, 10);
       }
 
       if (typeof scrollTop !== 'undefined') {
