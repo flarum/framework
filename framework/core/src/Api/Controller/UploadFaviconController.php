@@ -9,13 +9,8 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Api\JsonApi;
-use Flarum\Foundation\ValidationException;
-use Flarum\Locale\TranslatorInterface;
-use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Filesystem\Factory;
-use Intervention\Image\ImageManager;
 use Intervention\Image\Interfaces\EncodedImageInterface;
+use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
 class UploadFaviconController extends UploadImageController
@@ -23,28 +18,12 @@ class UploadFaviconController extends UploadImageController
     protected string $filePathSettingKey = 'favicon_path';
     protected string $filenamePrefix = 'favicon';
 
-    public function __construct(
-        JsonApi $api,
-        SettingsRepositoryInterface $settings,
-        Factory $filesystemFactory,
-        protected TranslatorInterface $translator,
-        protected ImageManager $imageManager
-    ) {
-        parent::__construct($api, $settings, $filesystemFactory);
-    }
-
-    protected function makeImage(UploadedFileInterface $file): EncodedImageInterface
+    protected function makeImage(UploadedFileInterface $file): EncodedImageInterface|StreamInterface
     {
         $this->fileExtension = pathinfo($file->getClientFilename(), PATHINFO_EXTENSION);
 
         if ($this->fileExtension === 'ico') {
-            // @todo remove in 2.0
-            throw new ValidationException([
-                'message' => strtr($this->translator->trans('validation.mimes'), [
-                    ':attribute' => 'favicon',
-                    ':values' => 'jpeg,png,gif,webp',
-                ])
-            ]);
+            return $file->getStream();
         }
 
         $encodedImage = $this->imageManager->read($file->getStream()->getMetadata('uri'))
