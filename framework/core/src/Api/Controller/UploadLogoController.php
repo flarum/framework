@@ -9,10 +9,6 @@
 
 namespace Flarum\Api\Controller;
 
-use Flarum\Api\JsonApi;
-use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Filesystem\Factory;
-use Intervention\Image\ImageManager;
 use Intervention\Image\Interfaces\EncodedImageInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
