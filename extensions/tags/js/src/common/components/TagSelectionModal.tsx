@@ -155,7 +155,10 @@ export default class TagSelectionModal<
 
     // 1 CJK character's width equals to 2ch,
     // so we count 1 CJK character as 2 characters.
-    const inputWidth = Math.max(this.lengthWithCJK(extractText(this.getInstruction(primaryCount, secondaryCount))), this.lengthWithCJK(this.filter()));
+    const inputWidth = Math.max(
+      this.lengthWithCJK(extractText(this.getInstruction(primaryCount, secondaryCount))),
+      this.lengthWithCJK(this.filter())
+    );
 
     return [
       <div className="Modal-body">
