@@ -36,7 +36,7 @@ app.pageInfo = Stream({});
 
 const reposition = function () {
   const info = app.pageInfo();
-  this.$().css('top', Math.max(0, info.scrollTop - info.offsetTop));
+  this.element.style.top = Math.max(0, info.scrollTop - info.offsetTop) + 'px';
 };
 
 extend(ModalManager.prototype, 'show', reposition);
@@ -50,7 +50,7 @@ window.iFrameResizer = {
 
 extend('flarum/forum/components/PostStream', 'goToNumber', function (promise, number) {
   if (number === 'reply' && 'parentIFrame' in window && app.composer.isFullScreen()) {
-    const itemTop = this.$('.PostStream-item:last').offset().top;
+    const itemTop = this.element.getBoundingClientRect().top + document.documentElement.scrollTop;
     window.parentIFrame.scrollToOffset(0, itemTop);
   }
 });

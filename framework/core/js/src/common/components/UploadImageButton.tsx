@@ -52,29 +52,28 @@ export default class UploadImageButton<CustomAttrs extends IUploadImageButtonAtt
   upload() {
     if (this.loading) return;
 
-    const $input = $('<input type="file">');
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.style.display = 'none';
+    document.body.append(input);
+    input.click();
+    input.addEventListener('change', (e) => {
+      const body = new FormData();
+      // @ts-ignore
+      body.append(this.attrs.name, $(e.target)[0].files[0]);
 
-    $input
-      .appendTo('body')
-      .hide()
-      .trigger('click')
-      .on('change', (e) => {
-        const body = new FormData();
-        // @ts-ignore
-        body.append(this.attrs.name, $(e.target)[0].files[0]);
+      this.loading = true;
+      m.redraw();
 
-        this.loading = true;
-        m.redraw();
-
-        app
-          .request({
-            method: 'POST',
-            url: this.resourceUrl(),
-            serialize: (raw) => raw,
-            body,
-          })
-          .then(this.success.bind(this), this.failure.bind(this));
-      });
+      app
+        .request({
+          method: 'POST',
+          url: this.resourceUrl(),
+          serialize: (raw) => raw,
+          body,
+        })
+        .then(this.success.bind(this), this.failure.bind(this));
+    });
   }
 
   remove() {

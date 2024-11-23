@@ -9,7 +9,7 @@ export default class GambitsAutocomplete {
 
   constructor(
     public resource: string,
-    public jqueryInput: () => JQuery<HTMLInputElement>,
+    public inputElement: () => HTMLInputElement | null,
     public onchange: (value: string) => void,
     public afterSuggest: (value: string) => void
   ) {}
@@ -55,7 +55,7 @@ export default class GambitsAutocomplete {
 
     const autocompleteReader = new AutocompleteReader(null);
 
-    const cursorPosition = this.jqueryInput().prop('selectionStart') || query.length;
+    const cursorPosition = this.inputElement()?.selectionStart || query.length;
     const lastChunk = query.slice(0, cursorPosition);
     const autocomplete = autocompleteReader.check(lastChunk, cursorPosition, /\S+$/);
 
@@ -157,15 +157,15 @@ export default class GambitsAutocomplete {
   }
 
   suggest(text: string, fromTyped: string, start: number) {
-    const $input = this.jqueryInput();
+    const input = this.inputElement();
 
     const query = this.query;
     const replaced = query.slice(0, start) + text + query.slice(start + fromTyped.length);
 
     this.onchange(replaced);
-    $input[0].focus();
+    input?.focus();
     setTimeout(() => {
-      $input[0].setSelectionRange(start + text.length, start + text.length);
+      input?.setSelectionRange(start + text.length, start + text.length);
       m.redraw();
     }, 50);
 

@@ -30,7 +30,7 @@ export default class PostMeta<CustomAttrs extends IPostMetaAttrs = IPostMetaAttr
     // When the dropdown menu is shown, select the contents of the permalink
     // input so that the user can quickly copy the URL.
     const selectPermalink = function (this: Element, e: MouseEvent) {
-      setTimeout(() => $(this).parent().find('.PostMeta-permalink').select());
+      setTimeout(() => (this.parentElement?.querySelector('.PostMeta-permalink') as HTMLInputElement)?.select());
 
       e.redraw = false;
     };

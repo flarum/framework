@@ -199,7 +199,7 @@ export default class CreateUserModal<CustomAttrs extends ICreateUserModalAttrs =
   }
 
   onready() {
-    this.$('[name=username]').trigger('select');
+    (this.element.querySelector('[name="username"]') as HTMLInputElement).select();
   }
 
   onsubmit(e: SubmitEvent | null = null) {

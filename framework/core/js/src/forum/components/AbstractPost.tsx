@@ -66,8 +66,6 @@ export default abstract class AbstractPost<CustomAttrs extends IAbstractPostAttr
                       buttonClassName="Button Button--icon Button--flat"
                       menuClassName="Dropdown-menu--right"
                       icon="fas fa-ellipsis-h"
-                      onshow={() => this.$('.Post-controls').addClass('open')}
-                      onhide={() => this.$('.Post-controls').removeClass('open')}
                       accessibleToggleLabel={app.translator.trans('core.forum.post_controls.toggle_dropdown_accessible_label')}
                     >
                       {controls}
@@ -92,10 +90,9 @@ export default abstract class AbstractPost<CustomAttrs extends IAbstractPostAttr
   onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.onupdate(vnode);
 
-    const $actions = this.$('.Post-actions');
-    const $controls = this.$('.Post-controls');
-
-    $actions.toggleClass('openWithin', $controls.hasClass('open'));
+    this.element
+      .querySelector('.Post-actions')
+      ?.classList.toggle('openWithin', this.element.querySelector('.Post-controls')?.classList.contains('open'));
   }
 
   elementAttrs(): Record<string, unknown> {

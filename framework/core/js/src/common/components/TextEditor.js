@@ -77,7 +77,7 @@ export default class TextEditor extends Component {
   }
 
   onbuild() {
-    this.attrs.composer.editor = this.buildEditor(this.$('.TextEditor-editorContainer')[0]);
+    this.attrs.composer.editor = this.buildEditor(this.element.querySelector('.TextEditor-editorContainer'));
   }
 
   onupdate(vnode) {

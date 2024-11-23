@@ -24,7 +24,8 @@ export default function addComposerAutocomplete() {
 
   extend('flarum/common/components/TextEditor', 'onbuild', function () {
     this.emojiDropdown = new AutocompleteDropdown();
-    const $editor = this.$('.TextEditor-editor').wrap('<div class="ComposerBody-emojiWrapper"></div>');
+    const editor = this.element.querySelector('.TextEditor-editor');
+    editor.outerHTML = `<div class="ComposerBody-emojiWrapper">${editor.outerHTML}</div>`;
 
     this.navigator = new KeyboardNavigatable();
     this.navigator
@@ -33,9 +34,9 @@ export default function addComposerAutocomplete() {
       .onDown(() => this.emojiDropdown.navigate(1))
       .onSelect(this.emojiDropdown.complete.bind(this.emojiDropdown))
       .onCancel(this.emojiDropdown.hide.bind(this.emojiDropdown))
-      .bindTo($editor);
+      .bindTo(editor);
 
-    $editor.after($('<div class="ComposerBody-emojiDropdownContainer"></div>'));
+    editor.outerHTML = editor.outerHTML + '<div class="ComposerBody-emojiDropdownContainer"></div>';
   });
 
   extend('flarum/common/components/TextEditor', 'buildEditorParams', function (params) {
@@ -134,27 +135,28 @@ export default function addComposerAutocomplete() {
 
           if (suggestions.length) {
             this.emojiDropdown.items = suggestions;
-            m.render(this.$('.ComposerBody-emojiDropdownContainer')[0], this.emojiDropdown.render());
+            m.render(this.element.querySelector('.ComposerBody-emojiDropdownContainer'), this.emojiDropdown.render());
 
             this.emojiDropdown.show();
             const coordinates = this.attrs.composer.editor.getCaretCoordinates(autocompleting.absoluteStart);
-            const width = this.emojiDropdown.$().outerWidth();
-            const height = this.emojiDropdown.$().outerHeight();
-            const parent = this.emojiDropdown.$().offsetParent();
+            const rect = this.emojiDropdown.element.getBoundingClientRect();
+            const width = rect.width;
+            const height = rect.height;
+            const parent = this.emojiDropdown.element.offsetParent;
             let left = coordinates.left;
             let top = coordinates.top + 15;
 
             // Keep the dropdown inside the editor.
-            if (top + height > parent.height()) {
+            if (top + height > parent.clientHeight) {
               top = coordinates.top - height - 15;
             }
-            if (left + width > parent.width()) {
-              left = parent.width() - width;
+            if (left + width > parent.clientWidth) {
+              left = parent.clientWidth - width;
             }
 
             // Prevent the dropdown from going off screen on mobile
-            top = Math.max(-(parent.offset().top - $(document).scrollTop()), top);
-            left = Math.max(-parent.offset().left, left);
+            top = Math.max(-(parent.getBoundingClientRect().top), top);
+            left = Math.max(-parent.getBoundingClientRect().left + document.documentElement.scrollLeft, left);
 
             this.emojiDropdown.show(left, top);
           }
@@ -163,7 +165,7 @@ export default function addComposerAutocomplete() {
         buildSuggestions();
 
         this.emojiDropdown.setIndex(0);
-        this.emojiDropdown.$().scrollTop(0);
+        this.emojiDropdown.element.scrollTo({ top: 0 });
         this.emojiDropdown.active = true;
       }
     });

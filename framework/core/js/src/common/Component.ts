@@ -108,6 +108,7 @@ export default abstract class Component<Attrs extends ComponentAttrs = Component
    * @param [selector] a jQuery-compatible selector string
    * @returns the jQuery object for the DOM node
    * @final
+   * @deprecated We are moving away from jQuery.
    */
   $(selector?: string): JQuery {
     const $element = $(this.element) as JQuery<HTMLElement>;

@@ -16,8 +16,8 @@ export interface IHeaderListAttrs extends ComponentAttrs {
 }
 
 export default class HeaderList<CustomAttrs extends IHeaderListAttrs = IHeaderListAttrs> extends Component<CustomAttrs> {
-  $content: JQuery<any> | null = null;
-  $scrollParent: JQuery<any> | null = null;
+  content: HTMLDivElement | null = null;
+  scrollParent: HTMLElement | null = null;
   boundScrollHandler: (() => void) | null = null;
 
   view(vnode: Mithril.Vnode<CustomAttrs, this>) {
@@ -47,13 +47,13 @@ export default class HeaderList<CustomAttrs extends IHeaderListAttrs = IHeaderLi
     super.oncreate(vnode);
 
     if (this.attrs.loadMore) {
-      this.$content = this.$('.HeaderList-content');
+      this.content = this.element.querySelector('.HeaderList-content');
 
       // If we are on the notifications page, the window will be scrolling and not the $notifications element.
-      this.$scrollParent = this.inPanel() ? this.$content : $(window);
+      this.scrollParent = this.inPanel() ? this.content : document.documentElement;
 
       this.boundScrollHandler = this.scrollHandler.bind(this);
-      this.$scrollParent.on('scroll', this.boundScrollHandler);
+      this.scrollParent?.addEventListener('scroll', this.boundScrollHandler);
     }
   }
 
@@ -61,14 +61,14 @@ export default class HeaderList<CustomAttrs extends IHeaderListAttrs = IHeaderLi
     super.onremove(vnode);
 
     if (this.attrs.loadMore) {
-      this.$scrollParent!.off('scroll', this.boundScrollHandler!);
+      this.scrollParent?.removeEventListener('scroll', this.boundScrollHandler!);
     }
   }
 
   scrollHandler() {
     // Whole-page scroll events are listened to on `window`, but we need to get the actual
     // scrollHeight, scrollTop, and clientHeight from the document element.
-    const scrollParent = this.inPanel() ? this.$scrollParent![0] : document.documentElement;
+    const scrollParent = this.inPanel() ? this.scrollParent! : document.documentElement;
 
     // On very short screens, the scrollHeight + scrollTop might not reach the clientHeight
     // by a fraction of a pixel, so we compensate for that.
@@ -84,6 +84,6 @@ export default class HeaderList<CustomAttrs extends IHeaderListAttrs = IHeaderLi
    * we need to listen to scroll events on the window, and get scroll state from the body.
    */
   inPanel() {
-    return this.$content!.css('overflow') === 'auto';
+    return getComputedStyle(this.content!).overflow === 'auto';
   }
 }

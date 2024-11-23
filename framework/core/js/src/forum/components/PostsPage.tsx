@@ -62,7 +62,8 @@ export default class PostsPage<CustomAttrs extends IPostsPageAttrs = IPostsPageA
   onremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.onremove(vnode);
 
-    $('#app').css('min-height', '');
+    const app = document.getElementById('app');
+    if (app) app.style.minHeight = '';
   }
 
   /**

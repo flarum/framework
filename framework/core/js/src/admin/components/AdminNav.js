@@ -37,20 +37,17 @@ export default class AdminNav extends Component {
   }
 
   scrollToActive() {
-    const children = $('.Dropdown-menu').children('.active');
-    const nav = $('#admin-navigation');
-    const time = app.previous.type ? 250 : 0;
+    const children = document.querySelectorAll('.Dropdown-menu > .active');
+    const nav = document.getElementById('admin-navigation');
 
     if (
       children.length > 0 &&
-      (children[0].offsetTop > nav.scrollTop() + nav.outerHeight() || children[0].offsetTop + children[0].offsetHeight < nav.scrollTop())
+      (children[0].offsetTop > nav.scrollTop + nav.getBoundingClientRect().height || children[0].offsetTop + children[0].offsetHeight < nav.scrollTop)
     ) {
-      nav.animate(
-        {
-          scrollTop: children[0].offsetTop - nav.height() / 2,
-        },
-        time
-      );
+      nav.scrollTo({
+        top: children[0].offsetTop - nav.clientHeight / 2,
+        behavior: app.previous.type ? 'smooth' : 'instant'
+      });
     }
   }
 

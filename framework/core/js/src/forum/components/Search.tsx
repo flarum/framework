@@ -198,16 +198,17 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
     // Highlight the item that is currently selected.
     this.setIndex(this.getCurrentNumericIndex());
 
-    this.$('.Search-results')
-      .on('mousedown', (e) => e.preventDefault())
-      .on('click', () => this.$('input').trigger('blur'))
+    const searchResults = this.element.querySelector('.Search-results')!;
+    searchResults.addEventListener('mousedown', (e) => e.preventDefault());
+    searchResults.addEventListener('click', () => this.element.querySelector('input')?.blur());
+    // Whenever the mouse is hovered over a search result, highlight it.
+    searchResults.addEventListener('mouseenter', function (e) {
+      const el = e.target as HTMLElement;
+      if (el.parentElement != searchResults || el.tagName != 'LI' || el.classList.contains('Dropdown-header')) return;
+      search.setIndex(search.selectableItems().indexOf(el as HTMLLIElement));
+    });
 
-      // Whenever the mouse is hovered over a search result, highlight it.
-      .on('mouseenter', '> li:not(.Dropdown-header)', function () {
-        search.setIndex(search.selectableItems().index(this));
-      });
-
-    const $input = this.$('input') as JQuery<HTMLInputElement>;
+    const input = this.element.querySelector('input')!;
 
     this.navigator = new KeyboardNavigatable();
     this.navigator
@@ -215,11 +216,11 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
       .onDown(() => this.setIndex(this.getCurrentNumericIndex() + 1, true))
       .onSelect(this.selectResult.bind(this), true)
       .onCancel(this.clear.bind(this))
-      .bindTo($input);
+      .bindTo(input);
 
     // Handle input key events on the search input, triggering results to load.
-    $input
-      .on('input focus', function () {
+    ['input', 'focus'].forEach((ev) => {
+      input.addEventListener(ev as 'input' | 'focus', function () {
         const query = this.value.toLowerCase();
 
         if (!query) return;
@@ -244,13 +245,12 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
           state.cache(query);
           m.redraw();
         }, 250);
-      })
-
-      .on('focus', function () {
-        $(this)
-          .one('mouseup', (e) => e.preventDefault())
-          .trigger('select');
       });
+    });
+    input.addEventListener('focus', function () {
+      this.addEventListener('mouseup', (e) => e.preventDefault(), { once: true });
+      this.select();
+    });
 
     this.updateMaxHeightHandler = this.updateMaxHeight.bind(this);
     window.addEventListener('resize', this.updateMaxHeightHandler);
@@ -272,14 +272,14 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
 
     this.loadingSources = 0;
 
-    const selectedUrl = this.getItem(this.index).find('a').attr('href');
+    const selectedUrl = (this.getItem(this.index).querySelector('a') as HTMLLinkElement | null)?.href;
     if (this.searchState.getValue() && selectedUrl) {
       m.route.set(selectedUrl);
     } else {
       this.clear();
     }
 
-    this.$('input').blur();
+    this.element.querySelector('input')?.blur();
   }
 
   /**
@@ -304,8 +304,8 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
   /**
    * Get all of the search result items that are selectable.
    */
-  selectableItems(): JQuery {
-    return this.$('.Search-results > li:not(.Dropdown-header)');
+  selectableItems(): HTMLLIElement[] {
+    return Array.from(this.element.querySelectorAll('.Search-results > li:not(.Dropdown-header)'));
   }
 
   /**
@@ -313,21 +313,21 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
    * Returns zero if not found.
    */
   getCurrentNumericIndex(): number {
-    return Math.max(0, this.selectableItems().index(this.getItem(this.index)));
+    return Math.max(0, this.selectableItems().indexOf(this.getItem(this.index)));
   }
 
   /**
    * Get the <li> in the search results with the given index (numeric or named).
    */
-  getItem(index: number): JQuery {
-    const $items = this.selectableItems();
-    let $item = $items.filter(`[data-index="${index}"]`);
+  getItem(index: number): HTMLLIElement {
+    const items = this.selectableItems();
+    const filtered = items.filter((v) => v.getAttribute('data-index') == index.toString());
 
-    if (!$item.length) {
-      $item = $items.eq(index);
+    if (!filtered.length) {
+      return items[index];
     }
 
-    return $item;
+    return filtered[0];
   }
 
   /**
@@ -335,36 +335,44 @@ export default class Search<T extends SearchAttrs = SearchAttrs> extends Compone
    * index.
    */
   setIndex(index: number, scrollToItem: boolean = false) {
-    const $items = this.selectableItems();
-    const $dropdown = $items.parent();
+    const items = this.selectableItems();
 
     let fixedIndex = index;
     if (index < 0) {
-      fixedIndex = $items.length - 1;
-    } else if (index >= $items.length) {
+      fixedIndex = items.length - 1;
+    } else if (index >= items.length) {
       fixedIndex = 0;
     }
 
-    const $item = $items.removeClass('active').eq(fixedIndex).addClass('active');
+    items.forEach((el) => el.classList.remove('active'));
+    const item = items[fixedIndex];
+    const dropdown = item.parentElement!;
+    item.classList.add('active');
 
-    this.index = parseInt($item.attr('data-index') as string) || fixedIndex;
+    this.index = parseInt(item.getAttribute('data-index') as string) || fixedIndex;
 
     if (scrollToItem) {
-      const dropdownScroll = $dropdown.scrollTop()!;
-      const dropdownTop = $dropdown.offset()!.top;
-      const dropdownBottom = dropdownTop + $dropdown.outerHeight()!;
-      const itemTop = $item.offset()!.top;
-      const itemBottom = itemTop + $item.outerHeight()!;
+      const documentScrollTop = document.documentElement.scrollTop;
+      const dropdownScroll = dropdown.scrollTop!;
+      const dropdownRect = dropdown.getBoundingClientRect();
+      const dropdownTop = dropdownRect.top + documentScrollTop;
+      const dropdownBottom = dropdownTop + dropdownRect.height;
+      const itemRect = item.getBoundingClientRect();
+      const itemTop = itemRect.top + documentScrollTop;
+      const itemBottom = itemTop + itemRect.height;
 
       let scrollTop;
       if (itemTop < dropdownTop) {
-        scrollTop = dropdownScroll - dropdownTop + itemTop - parseInt($dropdown.css('padding-top'), 10);
+        scrollTop = dropdownScroll - dropdownTop + itemTop - parseInt(getComputedStyle(dropdown).paddingTop, 10);
       } else if (itemBottom > dropdownBottom) {
-        scrollTop = dropdownScroll - dropdownBottom + itemBottom + parseInt($dropdown.css('padding-bottom'), 10);
+        scrollTop = dropdownScroll - dropdownBottom + itemBottom + parseInt(getComputedStyle(dropdown).paddingBottom, 10);
       }
 
       if (typeof scrollTop !== 'undefined') {
-        $dropdown.stop(true).animate({ scrollTop }, 100);
+        dropdown.scrollTo({
+          top: scrollTop,
+          behavior: 'smooth',
+        });
       }
     }
   }

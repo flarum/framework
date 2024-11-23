@@ -6,6 +6,8 @@ import ReplyPlaceholder from './ReplyPlaceholder';
 import Button from '../../common/components/Button';
 import ItemList from '../../common/utils/ItemList';
 import PostType from './PostType';
+import heightWithMargin from '../../common/utils/heightWithMargin';
+import scrollEnd from '../../common/utils/scrollEnd';
 
 /**
  * The `PostStream` component displays an infinitely-scrollable wall of posts in
@@ -36,10 +38,10 @@ export default class PostStream extends Component {
     const postIds = this.discussion.postIds();
 
     const postFadeIn = (vnode) => {
-      $(vnode.dom).addClass('fadeIn');
+      vnode.dom.classList.add('fadeIn');
       // 500 is the duration of the fadeIn CSS animation + 100ms,
       // so the animation has time to complete
-      setTimeout(() => $(vnode.dom).removeClass('fadeIn'), 500);
+      setTimeout(() => vnode.dom.classList.remove('fadeIn'), 500);
     };
 
     const items = posts.map((post, i) => {
@@ -169,7 +171,7 @@ export default class PostStream extends Component {
    *
    * @param {number} top
    */
-  onscroll(top = window.pageYOffset) {
+  onscroll(top = window.screenY) {
     if (this.stream.paused || this.stream.pagesLoading) return;
 
     this.updateScrubber(top);
@@ -188,39 +190,40 @@ export default class PostStream extends Component {
    *
    * @param {number} top
    */
-  loadPostsIfNeeded(top = window.pageYOffset) {
+  loadPostsIfNeeded(top = window.screenY) {
     const marginTop = this.getMarginTop();
-    const viewportHeight = $(window).height() - marginTop;
+    const viewportHeight = window.innerHeight - marginTop;
     const viewportTop = top + marginTop;
     const loadAheadDistance = 300;
 
     if (this.stream.visibleStart > 0) {
-      const $item = this.$('.PostStream-item[data-index=' + this.stream.visibleStart + ']');
+      const item = this.element.querySelector(`.PostStream-item[data-index='${this.stream.visibleStart}']`);
 
-      if ($item.length && $item.offset().top > viewportTop - loadAheadDistance) {
+      if (item && item.getBoundingClientRect().top + document.documentElement.scrollTop > viewportTop - loadAheadDistance) {
         this.stream.loadPrevious();
       }
     }
 
     if (this.stream.visibleEnd < this.stream.count()) {
-      const $item = this.$('.PostStream-item[data-index=' + (this.stream.visibleEnd - 1) + ']');
+      const item = this.element.querySelector(`.PostStream-item[data-index='${this.stream.visibleEnd - 1}']`);
+      const itemRect = item?.getBoundingClientRect();
 
-      if ($item.length && $item.offset().top + $item.outerHeight(true) < viewportTop + viewportHeight + loadAheadDistance) {
+      if (item && itemRect.top + document.documentElement.scrollTop + heightWithMargin(item) < viewportTop + viewportHeight + loadAheadDistance) {
         this.stream.loadNext();
       }
     }
   }
 
-  updateScrubber(top = window.pageYOffset) {
+  updateScrubber(top = window.screenY) {
     const marginTop = this.getMarginTop();
-    const viewportHeight = $(window).height() - marginTop;
+    const viewportHeight = window.innerHeight - marginTop;
     const viewportTop = top + marginTop;
 
     // Before looping through all of the posts, we reset the scrollbar
     // properties to a 'default' state. These values reflect what would be
     // seen if the browser were scrolled right up to the top of the page,
     // and the viewport had a height of 0.
-    const $items = this.$('.PostStream-item[data-index]');
+    const items = this.element.querySelectorAll('.PostStream-item[data-index]');
     let visible = 0;
     let period = '';
     let indexFromViewPort = null;
@@ -228,10 +231,9 @@ export default class PostStream extends Component {
     // Now loop through each of the items in the discussion. An 'item' is
     // either a single post or a 'gap' of one or more posts that haven't
     // been loaded yet.
-    $items.each(function () {
-      const $this = $(this);
-      const top = $this.offset().top;
-      const height = $this.outerHeight(true);
+    items.forEach((el) => {
+      const top = el.getBoundingClientRect().top + document.documentElement.scrollTop;
+      const height = heightWithMargin(el);
 
       // If this item is above the top of the viewport, skip to the next
       // one. If it's below the bottom of the viewport, break out of the
@@ -252,7 +254,7 @@ export default class PostStream extends Component {
       // We take the index of the first item that passed the previous checks.
       // It is the item that is first visible in the viewport.
       if (indexFromViewPort === null) {
-        indexFromViewPort = parseFloat($this.data('index')) + visibleTop / height;
+        indexFromViewPort = parseFloat(el.getAttribute('data-index')) + visibleTop / height;
       }
 
       if (visiblePost > 0) {
@@ -261,7 +263,7 @@ export default class PostStream extends Component {
 
       // If this item has a time associated with it, then set the
       // scrollbar's current period to a formatted version of this time.
-      const time = $this.data('time');
+      const time = el.getAttribute('data-time');
       if (time) period = time;
     });
 
@@ -277,32 +279,30 @@ export default class PostStream extends Component {
    * Work out which posts (by number) are currently visible in the viewport, and
    * fire an event with the information.
    */
-  calculatePosition(top = window.pageYOffset) {
+  calculatePosition(top = window.scrollY) {
     const marginTop = this.getMarginTop();
-    const $window = $(window);
-    const viewportHeight = $window.height() - marginTop;
-    const scrollTop = $window.scrollTop() + marginTop;
+    const viewportHeight = window.innerHeight - marginTop;
+    const scrollTop = document.documentElement.scrollTop + marginTop;
     const viewportTop = top + marginTop;
 
     let startNumber;
     let endNumber;
 
-    this.$('.PostStream-item').each(function () {
-      const $item = $(this);
-      const top = $item.offset().top;
-      const height = $item.outerHeight(true);
+    this.element.querySelectorAll('.PostStream-item').forEach((el) => {
+      const top = el.getBoundingClientRect().top + document.documentElement.scrollTop;
+      const height = heightWithMargin(el);
       const visibleTop = Math.max(0, viewportTop - top);
 
       const threeQuartersVisible = visibleTop / height < 0.75;
       const coversQuarterOfViewport = (height - visibleTop) / viewportHeight > 0.25;
       if (startNumber === undefined && (threeQuartersVisible || coversQuarterOfViewport)) {
-        startNumber = $item.data('number');
+        startNumber = parseInt(el.getAttribute('data-number'));
       }
 
       if (top + height > scrollTop) {
         if (top + height < scrollTop + viewportHeight) {
-          if ($item.data('number')) {
-            endNumber = $item.data('number');
+          if (el.getAttribute('data-number')) {
+            endNumber = parseInt(el.getAttribute('data-number'));
           }
         } else return false;
       }
@@ -320,9 +320,9 @@ export default class PostStream extends Component {
    * @return {number}
    */
   getMarginTop() {
-    const headerId = app.screen() === 'phone' ? '#app-navigation' : '#header';
+    const headerId = app.screen() === 'phone' ? 'app-navigation' : 'header';
 
-    return this.$() && $(headerId).outerHeight() + parseInt(this.$().css('margin-top'), 10);
+    return this.element && document.getElementById(headerId).getBoundingClientRect().height + parseInt(getComputedStyle(this.element).marginTop, 10);
   }
 
   /**
@@ -330,12 +330,12 @@ export default class PostStream extends Component {
    *
    * @param {number} number
    * @param {boolean} animate
-   * @return {JQueryDeferred}
+   * @return {Promise}
    */
   scrollToNumber(number, animate) {
-    const $item = this.$(`.PostStream-item[data-number=${number}]`);
+    const item = this.element.querySelector(`.PostStream-item[data-number='${number}']`);
 
-    return this.scrollToItem($item, animate).then(this.flashItem.bind(this, $item));
+    return this.scrollToItem(item, animate).then(this.flashItem.bind(this, item));
   }
 
   /**
@@ -344,50 +344,47 @@ export default class PostStream extends Component {
    * @param {number} index
    * @param {boolean} animate
    * @param {boolean} reply Whether or not to scroll to the reply placeholder.
-   * @return {JQueryDeferred}
+   * @return {Promise}
    */
   scrollToIndex(index, animate, reply) {
-    const $item = reply ? $('.PostStream-item:last-child') : this.$(`.PostStream-item[data-index=${index}]`);
+    const item = reply
+      ? document.querySelector('.PostStream-item:last-child')
+      : this.element.querySelector(`.PostStream-item[data-index='${index}']`);
 
-    this.scrollToItem($item, animate, true, reply);
+    this.scrollToItem(item, animate, true, reply);
 
     if (reply) {
-      this.flashItem($item);
+      this.flashItem(item);
     }
   }
 
   /**
    * Scroll down to the given post.
    *
-   * @param {JQuery} $item
+   * @param {HTMLElement} item
    * @param {boolean} animate
    * @param {boolean} force Whether or not to force scrolling to the item, even
    *     if it is already in the viewport.
    * @param {boolean} reply Whether or not to scroll to the reply placeholder.
-   * @return {JQueryDeferred}
+   * @return {Promise}
    */
-  scrollToItem($item, animate, force, reply) {
-    const $container = $('html, body').stop(true);
-    const index = $item.data('index');
+  scrollToItem(item, animate, force, reply) {
+    if (!item) return;
+    const index = parseInt(item.getAttribute('data-index'));
 
-    if ($item.length) {
-      const itemTop = $item.offset().top - this.getMarginTop();
-      const itemBottom = $item.offset().top + $item.height();
-      const scrollTop = $(document).scrollTop();
-      const scrollBottom = scrollTop + $(window).height();
+    const itemTopOffset = item.getBoundingClientRect().top + document.documentElement.scrollTop;
+    const itemTop = itemTopOffset - this.getMarginTop();
+    const itemBottom = itemTopOffset + item.clientHeight;
+    const scrollTop = document.documentElement.scrollTop;
+    const scrollBottom = scrollTop + window.innerHeight;
 
-      // If the item is already in the viewport, we may not need to scroll.
-      // If we're scrolling to the reply placeholder, we'll make sure its
-      // bottom will line up with the top of the composer.
-      if (force || itemTop < scrollTop || itemBottom > scrollBottom) {
-        const top = reply ? itemBottom - $(window).height() + app.composer.computedHeight() : $item.is(':first-child') ? 0 : itemTop;
+    // If the item is already in the viewport, we may not need to scroll.
+    // If we're scrolling to the reply placeholder, we'll make sure its
+    // bottom will line up with the top of the composer.
+    if (force || itemTop < scrollTop || itemBottom > scrollBottom) {
+      const top = reply ? itemBottom - window.innerHeight + app.composer.computedHeight() : item.parentElement.children[0] == item ? 0 : itemTop;
 
-        if (!animate) {
-          $container.scrollTop(top);
-        } else if (top !== scrollTop) {
-          $container.animate({ scrollTop: top }, 'fast');
-        }
-      }
+      document.documentElement.scrollTo({ top, behavior: animate ? 'smooth' : 'instant' });
     }
 
     const updateScrubberHeight = () => {
@@ -402,7 +399,7 @@ export default class PostStream extends Component {
     updateScrubberHeight();
     this.stream.forceUpdateScrubber = true;
 
-    return Promise.all([$container.promise(), this.stream.loadPromise]).then(() => {
+    return Promise.all([scrollEnd(document.documentElement), this.stream.loadPromise]).then(() => {
       m.redraw.sync();
 
       // Rendering post contents will probably throw off our position.
@@ -413,14 +410,21 @@ export default class PostStream extends Component {
       // If the post does not currently exist, it's probably
       // outside of the range we loaded in, so we won't adjust anything,
       // as it will soon be rendered by the "load more" system.
-      let itemOffset;
+      let itemRect;
       if (reply) {
-        const $placeholder = $('.PostStream-item:last-child');
-        $(window).scrollTop($placeholder.offset().top + $placeholder.height() - $(window).height() + app.composer.computedHeight());
+        const placeholder = document.querySelector('.PostStream-item:last-child');
+        window.scrollTo({
+          top:
+            placeholder.getBoundingClientRect().top +
+            document.documentElement.scrollTop +
+            placeholder.clientHeight -
+            window.innerHeight +
+            app.composer.computedHeight(),
+        });
       } else if (index === 0) {
-        $(window).scrollTop(0);
-      } else if ((itemOffset = $(`.PostStream-item[data-index=${index}]`).offset())) {
-        $(window).scrollTop(itemOffset.top - this.getMarginTop());
+        window.scrollTo({ top: 0 });
+      } else if ((itemRect = document.querySelector(`.PostStream-item[data-index='${index}']`))) {
+        window.scrollTo({ top: itemRect.top + document.documentElement.scrollTop - this.getMarginTop() });
       }
 
       // We want to adjust this again after posts have been loaded in
@@ -437,14 +441,15 @@ export default class PostStream extends Component {
   /**
    * 'Flash' the given post, drawing the user's attention to it.
    *
-   * @param {JQuery} $item
+   * @param {HTMLElement} item
    */
-  flashItem($item) {
+  flashItem(item) {
     // This might execute before the fadeIn class has been removed in PostStreamItem's
     // oncreate, so we remove it just to be safe and avoid a double animation.
-    $item.removeClass('fadeIn');
-    $item.addClass('flash').on('animationend webkitAnimationEnd', (e) => {
-      $item.removeClass('flash');
+    item.classList.remove('fadeIn');
+    item.classList.add('flash');
+    item.addEventListener('animationend', (e) => {
+      item.classList.remove('flash');
     });
   }
 }

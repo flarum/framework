@@ -91,19 +91,23 @@ export default class NotificationGrid extends Component {
   oncreate(vnode) {
     super.oncreate(vnode);
 
-    this.$('thead .NotificationGrid-groupToggle').bind('mouseenter mouseleave', function (e) {
-      const i = parseInt($(this).index(), 10) + 1;
-      $(this)
-        .parents('table')
-        .find('td:nth-child(' + i + ')')
-        .toggleClass('highlighted', e.type === 'mouseenter');
+    this.element.querySelectorAll('thead .NotificationGrid-groupToggle').forEach((toggle) => {
+      ['mouseenter', 'mouseleave'].forEach((ev) =>
+        toggle.addEventListener(ev, function (e) {
+          const i = parseInt(Array.from(this.parentElement.children).indexOf(this), 10) + 1;
+          this.closest('table')
+            .querySelectorAll('td:nth-child(' + i + ')')
+            .forEach((td) => td.classList.toggle('highlighted', e.type === 'mouseenter'));
+        })
+      );
     });
 
-    this.$('tbody .NotificationGrid-groupToggle').bind('mouseenter mouseleave', function (e) {
-      $(this)
-        .parent()
-        .find('td')
-        .toggleClass('highlighted', e.type === 'mouseenter');
+    this.element.querySelectorAll('tbody .NotificationGrid-groupToggle').forEach((toggle) => {
+      ['mouseenter', 'mouseleave'].forEach((ev) =>
+        toggle.addEventListener(ev, function (e) {
+          this.parentElement.querySelectorAll('td').forEach((td) => td.classList.toggle('highlighted', e.type === 'mouseenter'));
+        })
+      );
     });
   }
 

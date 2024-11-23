@@ -84,35 +84,35 @@ export default abstract class AutocompleteDropdown<
     // Highlight the item that is currently selected.
     this.setIndex(this.getCurrentNumericIndex());
 
-    this.$('.Dropdown-suggestions')
-      .on('mousedown', (e) => e.preventDefault())
-      // Whenever the mouse is hovered over a search result, highlight it.
-      .on('mouseenter', '> li:not(.Dropdown-header)', function () {
-        component.setIndex(component.selectableItems().index(this));
-      });
+    const suggestions = this.element.querySelector('.Dropdown-suggestions')! as HTMLDivElement;
+    suggestions.addEventListener('mousedown', (e) => e.preventDefault());
+    // Whenever the mouse is hovered over a search result, highlight it.
+    suggestions.addEventListener('mouseenter', (e) => {
+      const el = e.target as HTMLElement;
+      if (el.parentElement != suggestions || el.tagName != 'LI' || el.classList.contains('Dropdown-header')) return;
+      component.setIndex(component.selectableItems().indexOf(el as HTMLLIElement));
+    });
 
-    const $input = this.inputElement();
+    const input = this.inputElement();
 
     this.navigator = new KeyboardNavigatable();
     this.navigator
       .onUp(() => this.setIndex(this.getCurrentNumericIndex() - 1, true))
       .onDown(() => this.setIndex(this.getCurrentNumericIndex() + 1, true))
       .onSelect(this.selectSuggestion.bind(this), true)
-      .bindTo($input);
+      .bindTo(input);
 
-    $input
-      .on('focus', function () {
-        component.hasFocus = true;
-        m.redraw();
+    input.addEventListener('focus', function () {
+      component.hasFocus = true;
+      m.redraw();
 
-        $(this)
-          .one('mouseup', (e) => e.preventDefault())
-          .trigger('select');
-      })
-      .on('blur', function () {
-        component.hasFocus = false;
-        m.redraw();
-      });
+      this.addEventListener('mouseup', (e) => e.preventDefault(), { once: true });
+      this.select();
+    });
+    input.addEventListener('blur', () => {
+      component.hasFocus = false;
+      m.redraw();
+    });
 
     this.updateMaxHeightHandler = this.updateMaxHeight.bind(this);
     window.addEventListener('resize', this.updateMaxHeightHandler);
@@ -126,16 +126,16 @@ export default abstract class AutocompleteDropdown<
     }
   }
 
-  selectableItems(): JQuery {
-    return this.$('.Dropdown-suggestions > li:not(.Dropdown-header)');
+  selectableItems(): HTMLLIElement[] {
+    return Array.from(this.element.querySelectorAll('.Dropdown-suggestions > li:not(.Dropdown-header)')) as HTMLLIElement[];
   }
 
-  inputElement(): JQuery<HTMLInputElement> {
-    return this.$('input') as JQuery<HTMLInputElement>;
+  inputElement(): HTMLInputElement {
+    return this.element.querySelector('input') as HTMLInputElement;
   }
 
   selectSuggestion() {
-    this.getItem(this.index).find('button')[0].click();
+    this.getItem(this.index).querySelector('button')!.click();
   }
 
   /**
@@ -143,21 +143,21 @@ export default abstract class AutocompleteDropdown<
    * Returns zero if not found.
    */
   getCurrentNumericIndex(): number {
-    return Math.max(0, this.selectableItems().index(this.getItem(this.index)));
+    return Math.max(0, this.selectableItems().indexOf(this.getItem(this.index)));
   }
 
   /**
    * Get the <li> in the search results with the given index (numeric or named).
    */
-  getItem(index: number): JQuery {
-    const $items = this.selectableItems();
-    let $item = $items.filter(`[data-index="${index}"]`);
+  getItem(index: number): HTMLLIElement {
+    const items = this.selectableItems();
+    const filtered = items.filter((v) => v.getAttribute('data-index') == index.toString());
 
-    if (!$item.length) {
-      $item = $items.eq(index);
+    if (!filtered.length) {
+      return items[index];
     }
 
-    return $item;
+    return filtered[0];
   }
 
   /**
@@ -165,36 +165,44 @@ export default abstract class AutocompleteDropdown<
    * index.
    */
   setIndex(index: number, scrollToItem: boolean = false) {
-    const $items = this.selectableItems();
-    const $dropdown = $items.parent();
+    const items = this.selectableItems();
 
     let fixedIndex = index;
     if (index < 0) {
-      fixedIndex = $items.length - 1;
-    } else if (index >= $items.length) {
+      fixedIndex = items.length - 1;
+    } else if (index >= items.length) {
       fixedIndex = 0;
     }
 
-    const $item = $items.removeClass('active').eq(fixedIndex).addClass('active');
+    items.forEach((el) => el.classList.remove('active'));
+    const item = items[fixedIndex];
+    const dropdown = item.parentElement!;
+    item.classList.add('active');
 
-    this.index = parseInt($item.attr('data-index') as string) || fixedIndex;
+    this.index = parseInt(item.getAttribute('data-index') as string) || fixedIndex;
 
     if (scrollToItem) {
-      const dropdownScroll = $dropdown.scrollTop()!;
-      const dropdownTop = $dropdown.offset()!.top;
-      const dropdownBottom = dropdownTop + $dropdown.outerHeight()!;
-      const itemTop = $item.offset()!.top;
-      const itemBottom = itemTop + $item.outerHeight()!;
+      const documentScrollTop = document.documentElement.scrollTop;
+      const dropdownScroll = dropdown.scrollTop!;
+      const dropdownRect = dropdown.getBoundingClientRect();
+      const dropdownTop = dropdownRect.top + documentScrollTop;
+      const dropdownBottom = dropdownTop + dropdownRect.height;
+      const itemRect = item.getBoundingClientRect();
+      const itemTop = itemRect.top + documentScrollTop;
+      const itemBottom = itemTop + itemRect.height;
 
       let scrollTop;
       if (itemTop < dropdownTop) {
-        scrollTop = dropdownScroll - dropdownTop + itemTop - parseInt($dropdown.css('padding-top'), 10);
+        scrollTop = dropdownScroll - dropdownTop + itemTop - parseInt(getComputedStyle(dropdown).paddingTop, 10);
       } else if (itemBottom > dropdownBottom) {
-        scrollTop = dropdownScroll - dropdownBottom + itemBottom + parseInt($dropdown.css('padding-bottom'), 10);
+        scrollTop = dropdownScroll - dropdownBottom + itemBottom + parseInt(getComputedStyle(dropdown).paddingBottom, 10);
       }
 
       if (typeof scrollTop !== 'undefined') {
-        $dropdown.stop(true).animate({ scrollTop }, 100);
+        dropdown.scrollTo({
+          top: scrollTop,
+          behavior: 'smooth',
+        });
       }
     }
   }
