@@ -13,7 +13,7 @@ export interface IHeaderListItemAttrs extends ComponentAttrs {
   content: string;
   excerpt: string;
   datetime?: Date;
-  href: string;
+  href?: string | null;
   onclick?: (e: Event) => void;
   actions?: Mithril.Children;
 }
@@ -22,8 +22,18 @@ export default class HeaderListItem<CustomAttrs extends IHeaderListItemAttrs = I
   view(vnode: Mithril.Vnode<CustomAttrs, this>) {
     const { avatar, icon: iconName, content, excerpt, datetime, href, className, onclick, actions, ...attrs } = vnode.attrs;
 
+    const Tag = href ? Link : 'button';
+
     return (
-      <Link className={classList('HeaderListItem', className)} href={href} external={href.includes('://')} onclick={onclick}>
+      <Tag
+        className={classList('HeaderListItem', className, {
+          'Button--ua-reset': Tag === 'button',
+        })}
+        href={href}
+        external={href?.includes('://')}
+        onclick={onclick}
+        {...attrs}
+      >
         {avatar}
         <Icon name={iconName} className="HeaderListItem-icon" />
         <span className="HeaderListItem-title">
@@ -33,7 +43,7 @@ export default class HeaderListItem<CustomAttrs extends IHeaderListItemAttrs = I
         </span>
         <div className="HeaderListItem-actions">{actions}</div>
         <div className="HeaderListItem-excerpt">{excerpt}</div>
-      </Link>
+      </Tag>
     );
   }
 }

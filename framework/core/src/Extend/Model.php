@@ -177,7 +177,7 @@ class Model implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         foreach ($this->customRelations as $name => $callback) {
             /** @var class-string<AbstractModel> $modelClass */

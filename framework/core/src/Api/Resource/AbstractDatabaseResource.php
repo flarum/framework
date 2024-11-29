@@ -98,7 +98,9 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
             EloquentBuffer::add($model, $relationName, $aggregate);
 
             return function () use ($model, $relationName, $relationship, $field, $context, $aggregate) {
-                EloquentBuffer::load($model, $relationName, $relationship, $context, $aggregate);
+                if (! $model->hasAttribute($this->property($field))) {
+                    EloquentBuffer::load($model, $relationName, $relationship, $context, $aggregate);
+                }
 
                 return $model->getAttribute($this->property($field));
             };
@@ -140,7 +142,9 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
             EloquentBuffer::add($model, $method);
 
             return function () use ($model, $method, $field, $context) {
-                EloquentBuffer::load($model, $method, $field, $context);
+                if (! $model->relationLoaded($method)) {
+                    EloquentBuffer::load($model, $method, $field, $context);
+                }
 
                 $data = $model->getRelation($method);
 

@@ -650,7 +650,7 @@ class User extends AbstractModel
      *
      * @internal
      */
-    public static function registerPreference(string $key, callable $transformer = null, mixed $default = null): void
+    public static function registerPreference(string $key, ?callable $transformer = null, mixed $default = null): void
     {
         static::$preferences[$key] = compact('transformer', 'default');
     }

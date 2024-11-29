@@ -101,7 +101,7 @@ class Frontend implements ExtenderInterface
      *
      * @return self
      */
-    public function route(string $path, string $name, callable|string $content = null): self
+    public function route(string $path, string $name, callable|string|null $content = null): self
     {
         $this->routes[] = compact('path', 'name', 'content');
 
@@ -217,7 +217,7 @@ class Frontend implements ExtenderInterface
         return $this->extraDocumentAttributes(['class' => $classes]);
     }
 
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         $this->registerAssets($container, $this->getModuleName($extension));
         $this->registerRoutes($container);

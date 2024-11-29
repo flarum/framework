@@ -2,7 +2,7 @@ import app from '../app';
 import LinkButton from '../../common/components/LinkButton';
 import type Mithril from 'mithril';
 import type Post from '../../common/models/Post';
-import type { SearchSource } from './Search';
+import type { GlobalSearchSource } from './GlobalSearch';
 import extractText from '../../common/utils/extractText';
 import MinimalDiscussionListItem from './MinimalDiscussionListItem';
 
@@ -10,7 +10,7 @@ import MinimalDiscussionListItem from './MinimalDiscussionListItem';
  * The `PostsSearchSource` finds and displays post search results in
  * the search dropdown.
  */
-export default class PostsSearchSource implements SearchSource {
+export default class GlobalPostsSearchSource implements GlobalSearchSource {
   protected results = new Map<string, Post[]>();
 
   public resource: string = 'posts';

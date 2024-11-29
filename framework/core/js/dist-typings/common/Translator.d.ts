@@ -56,5 +56,6 @@ export default class Translator {
      * @private
      */
     private preprocessTranslation;
+    autoProvidedTags(): string[];
 }
 export {};

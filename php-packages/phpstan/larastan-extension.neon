@@ -281,7 +281,7 @@ services:
             - phpstan.broker.dynamicFunctionReturnTypeExtension
 
     -
-        class: Larastan\Larastan\ReturnTypes\CollectionFilterDynamicReturnTypeExtension
+        class: Larastan\Larastan\ReturnTypes\CollectionFilterRejectDynamicReturnTypeExtension
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
     -

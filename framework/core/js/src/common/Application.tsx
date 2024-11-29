@@ -671,7 +671,7 @@ export default class Application {
    * @protected
    */
   protected requestWasCrossOrigin(error: RequestError): boolean {
-    return new URL(error.options.url, document.baseURI).origin !== window.location.origin;
+    return new URL(error.options?.url, document.baseURI).origin !== window.location.origin;
   }
 
   protected requestErrorDefaultHandler(e: unknown, isDebug: boolean, formattedErrors: string[]): void {

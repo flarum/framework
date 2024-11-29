@@ -59,7 +59,7 @@ export type KeyValueGambitSuggestion = {
     hint: string;
 };
 export type GroupedGambitSuggestion = {
-    group: 'is' | 'has' | string;
+    group: 'is' | 'has' | 'allows' | string;
     key: string | string[];
 };
 export declare abstract class BooleanGambit implements IGambit<GambitType.Grouped> {
@@ -67,6 +67,8 @@ export declare abstract class BooleanGambit implements IGambit<GambitType.Groupe
     predicates: boolean;
     abstract key(): string | string[];
     abstract filterKey(): string;
+    booleanKey(): 'is' | 'has' | 'allows';
+    groupKey(): string;
     pattern(): string;
     toFilter(_matches: string[], negate: boolean): Record<string, any>;
     fromFilter(value: string, negate: boolean): string;

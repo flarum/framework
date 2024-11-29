@@ -7,24 +7,32 @@
  * LICENSE file that was distributed with this source code.
  */
 
+use Illuminate\Database\MariaDbConnection;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        $preferences = $schema->getConnection()->getSchemaGrammar()->wrap('preferences');
+        $connection = $schema->getConnection();
+        $driver = $connection->getDriverName();
 
-        if ($schema->getConnection()->getDriverName() === 'pgsql') {
-            $users = $schema->getConnection()->getSchemaGrammar()->wrapTable('users');
-            $schema->getConnection()->statement("ALTER TABLE $users ALTER COLUMN $preferences TYPE JSON USING $preferences::TEXT::JSON");
+        $preferences = $connection->getSchemaGrammar()->wrap('preferences');
+
+        if ($driver === 'pgsql') {
+            $users = $connection->getSchemaGrammar()->wrapTable('users');
+            $connection->statement("ALTER TABLE $users ALTER COLUMN $preferences TYPE JSON USING $preferences::TEXT::JSON");
         } else {
             $schema->table('users', function (Blueprint $table) {
                 $table->json('preferences_json')->nullable();
             });
 
-            if ($schema->getConnection()->getDriverName() === 'mysql') {
-                $schema->getConnection()->table('users')->update([
-                    'preferences_json' => $schema->getConnection()->raw("CAST(CONVERT($preferences USING utf8mb4) AS JSON)"),
+            if ($connection instanceof MariaDbConnection) {
+                $connection->table('users')->update([
+                    'preferences_json' => $connection->raw("IF(JSON_VALID(CONVERT($preferences USING utf8mb4)), CONVERT($preferences USING utf8mb4), NULL)"),
+                ]);
+            } elseif ($driver === 'mysql') {
+                $connection->table('users')->update([
+                    'preferences_json' => $connection->raw("CAST(CONVERT($preferences USING utf8mb4) AS JSON)"),
                 ]);
             }
 
@@ -39,19 +47,22 @@ return [
     },
 
     'down' => function (Builder $schema) {
-        $preferences = $schema->getConnection()->getSchemaGrammar()->wrap('preferences');
+        $connection = $schema->getConnection();
+        $driver = $connection->getDriverName();
 
-        if ($schema->getConnection()->getDriverName() === 'pgsql') {
-            $users = $schema->getConnection()->getSchemaGrammar()->wrapTable('users');
-            $schema->getConnection()->statement("ALTER TABLE $users ALTER COLUMN $preferences TYPE BYTEA USING preferences::TEXT::BYTEA");
+        $preferences = $connection->getSchemaGrammar()->wrap('preferences');
+
+        if ($driver === 'pgsql') {
+            $users = $connection->getSchemaGrammar()->wrapTable('users');
+            $connection->statement("ALTER TABLE $users ALTER COLUMN $preferences TYPE BYTEA USING preferences::TEXT::BYTEA");
         } else {
             $schema->table('users', function (Blueprint $table) {
                 $table->binary('preferences_binary')->nullable();
             });
 
-            if ($schema->getConnection()->getDriverName() === 'mysql') {
-                $schema->getConnection()->table('users')->update([
-                    'preferences_binary' => $schema->getConnection()->raw($preferences),
+            if ($driver === 'mysql') {
+                $connection->table('users')->update([
+                    'preferences_binary' => $connection->raw($preferences),
                 ]);
             }
 

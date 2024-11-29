@@ -11,12 +11,14 @@ namespace Flarum\Tests\integration\extenders;
 
 use Carbon\Carbon;
 use Flarum\Api\Context;
+use Flarum\Api\Endpoint\Endpoint;
 use Flarum\Api\Endpoint\Index;
 use Flarum\Api\Endpoint\Show;
 use Flarum\Api\Resource\AbstractDatabaseResource;
 use Flarum\Api\Resource\DiscussionResource;
+use Flarum\Api\Resource\ForumResource;
 use Flarum\Api\Resource\UserResource;
-use Flarum\Api\Schema\Relationship\ToMany;
+use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn;
 use Flarum\Discussion\Discussion;
 use Flarum\Extend;
@@ -25,11 +27,12 @@ use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
+use Illuminate\Database\PostgresConnection;
 use Illuminate\Support\Arr;
 use PHPUnit\Framework\Attributes\Test;
 use Tobyz\JsonApiServer\Schema\Field\Field;
 
-class ApiControllerTest extends TestCase
+class ApiResourceTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
@@ -45,15 +48,21 @@ class ApiControllerTest extends TestCase
                 $this->normalUser()
             ],
             Discussion::class => [
-                ['id' => 1, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
-                ['id' => 2, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 3, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
-                ['id' => 3, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
+                ['id' => 1, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->addMinutes(1)->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
+                ['id' => 2, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->addMinutes(2)->toDateTimeString(), 'user_id' => 3, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
+                ['id' => 3, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->addMinutes(3)->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
+
+                ['id' => 4, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->addMinutes(4)->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
+                ['id' => 5, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->addMinutes(5)->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
+                ['id' => 6, 'title' => 'Custom Discussion Title', 'created_at' => Carbon::now()->addMinutes(6)->toDateTimeString(), 'user_id' => 2, 'first_post_id' => 0, 'comment_count' => 1, 'is_private' => 0],
             ],
             Post::class => [
                 ['id' => 1, 'discussion_id' => 3, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'discussionRenamed', 'content' => '<t><p>can i haz relationz?</p></t>'],
                 ['id' => 2, 'discussion_id' => 2, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'discussionRenamed', 'content' => '<t><p>can i haz relationz?</p></t>'],
                 ['id' => 3, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'discussionRenamed', 'content' => '<t><p>can i haz relationz?</p></t>'],
                 ['id' => 3, 'discussion_id' => 1, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'type' => 'discussionRenamed', 'content' => '<t><p>can i haz relationz?</p></t>'],
+
+                ['id' => 5, 'discussion_id' => 6, 'created_at' => Carbon::now()->toDateTimeString(), 'user_id' => 2, 'type' => 'discussionRenamed', 'content' => '<t><p>can i haz relationz?</p></t>'],
             ],
         ]);
     }
@@ -81,6 +90,66 @@ class ApiControllerTest extends TestCase
         $payload = json_decode($body = $response->getBody()->getContents(), true);
 
         $this->assertEquals('dataSerializationPrepCustomTitle', $payload['data']['attributes']['title'], $body);
+    }
+
+    #[Test]
+    public function custom_endpoint_works_if_added()
+    {
+        $this->extend(
+            (new Extend\ApiResource(DiscussionResource::class))
+                ->endpoints(fn () => [
+                    Endpoint::make('custom')
+                        ->route('GET', '/{id}/custom')
+                        ->action(function (Context $context) {
+                            $discussion = $context->model;
+
+                            return [
+                                'data' => [
+                                    'message' => 'custom endpoint '.$discussion->id,
+                                ],
+                            ];
+                        }),
+                ])
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/1/custom', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($body = $response->getBody()->getContents(), true);
+
+        $this->assertEquals('custom endpoint 1', $payload['data']['message'], $body);
+    }
+
+    #[Test]
+    public function custom_endpoint_works_if_added_before_all()
+    {
+        $this->extend(
+            (new Extend\ApiResource(DiscussionResource::class))
+                ->endpointsBeforeAll(fn () => [
+                    Endpoint::make('custom')
+                        ->route('GET', '/custom')
+                        ->action(function (Context $context) {
+                            return [
+                                'data' => [
+                                    'message' => 'custom endpoint',
+                                ],
+                            ];
+                        }),
+                ])
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/custom', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($body = $response->getBody()->getContents(), true);
+
+        $this->assertEquals('custom endpoint', $payload['data']['message'], $body);
     }
 
     #[Test]
@@ -243,7 +312,7 @@ class ApiControllerTest extends TestCase
                 ->hasMany('customApiControllerRelation', Discussion::class, 'user_id'),
             (new Extend\ApiResource(UserResource::class))
                 ->fields(fn () => [
-                    ToMany::make('customApiControllerRelation')
+                    Schema\Relationship\ToMany::make('customApiControllerRelation')
                         ->type('discussions')
                         ->includable(),
                 ])
@@ -271,7 +340,7 @@ class ApiControllerTest extends TestCase
                 ->hasMany('customApiControllerRelation2', Discussion::class, 'user_id'),
             (new Extend\ApiResource(UserResource::class))
                 ->fields(fn () => [
-                    ToMany::make('customApiControllerRelation2')
+                    Schema\Relationship\ToMany::make('customApiControllerRelation2')
                         ->type('discussions')
                         ->includable(),
                 ])
@@ -333,7 +402,7 @@ class ApiControllerTest extends TestCase
                 ->hasMany('customApiControllerRelation2', Discussion::class, 'user_id'),
             (new Extend\ApiResource(UserResource::class))
                 ->fields(fn () => [
-                    ToMany::make('customApiControllerRelation2')
+                    Schema\Relationship\ToMany::make('customApiControllerRelation2')
                         ->type('discussions')
                         ->includable(),
                 ])
@@ -362,7 +431,7 @@ class ApiControllerTest extends TestCase
 
         $payload = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertCount(3, $payload['data']);
+        $this->assertCount(6, $payload['data']);
     }
 
     #[Test]
@@ -444,7 +513,7 @@ class ApiControllerTest extends TestCase
         $payload = json_decode($body = $response->getBody()->getContents(), true);
 
         $this->assertEquals(200, $response->getStatusCode(), $body);
-        $this->assertEquals([3, 1, 2], Arr::pluck($payload['data'], 'id'));
+        $this->assertEquals([3, 1, 4, 5, 6, 2], Arr::pluck($payload['data'], 'id'));
     }
 
     #[Test]
@@ -502,7 +571,12 @@ class ApiControllerTest extends TestCase
         $payload = json_decode($response->getBody()->getContents(), true);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals([2, 1, 3], Arr::pluck($payload['data'], 'id'));
+
+        if ($this->database() instanceof PostgresConnection) {
+            $this->assertEquals([2, 1, 4, 5, 6, 3], Arr::pluck($payload['data'], 'id'));
+        } else {
+            $this->assertEquals([2, 6, 5, 4, 1, 3], Arr::pluck($payload['data'], 'id'));
+        }
     }
 
     #[Test]
@@ -709,6 +783,326 @@ class ApiControllerTest extends TestCase
 
         $this->assertFalse($users->pluck('firstLevelRelation')->filter->relationLoaded('secondLevelRelation')->isEmpty());
     }
+
+    #[Test]
+    public function custom_attributes_dont_exist_by_default()
+    {
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayNotHasKey('customAttribute', $payload['data']['attributes']);
+    }
+
+    #[Test]
+    public function custom_attributes_exist_if_added()
+    {
+        $this->extend(
+            (new Extend\ApiResource(ForumResource::class))
+                ->fields(fn () => [
+                    Schema\Boolean::make('customAttribute')
+                        ->get(fn () => true),
+                ])
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('customAttribute', $payload['data']['attributes']);
+    }
+
+    #[Test]
+    public function custom_attributes_exist_if_added_before_field()
+    {
+        $this->extend(
+            (new Extend\ApiResource(DiscussionResource::class))
+                ->fieldsBefore('title', fn () => [
+                    Schema\Boolean::make('customAttribute')
+                        ->writable()
+                        ->set(fn (Discussion $discussion) => $this->assertNull($discussion->title))
+                ])
+        );
+
+        $response = $this->send(
+            $this->request('POST', '/api/discussions', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'type' => 'discussions',
+                        'attributes' => [
+                            'title' => 'Custom Discussion Title',
+                            'customAttribute' => true,
+                            'content' => 'Custom Discussion Content',
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode(), $response->getBody()->getContents());
+    }
+
+    #[Test]
+    public function custom_attributes_exist_if_added_after_field()
+    {
+        $this->extend(
+            (new Extend\ApiResource(DiscussionResource::class))
+                ->fieldsAfter('title', fn () => [
+                    Schema\Boolean::make('customAttribute')
+                        ->writable()
+                        ->set(fn (Discussion $discussion) => $this->assertNotNull($discussion->title))
+                ])
+        );
+
+        $response = $this->send(
+            $this->request('POST', '/api/discussions', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'type' => 'discussions',
+                        'attributes' => [
+                            'title' => 'Custom Discussion Title',
+                            'customAttribute' => true,
+                            'content' => 'Custom Discussion Content',
+                        ],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode(), $response->getBody()->getContents());
+    }
+
+    #[Test]
+    public function custom_attributes_with_invokable_exist_if_added()
+    {
+        $this->extend(
+            (new Extend\ApiResource(ForumResource::class))
+                ->fields(CustomAttributesInvokableClass::class)
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('customAttributeFromInvokable', $payload['data']['attributes']);
+    }
+
+    #[Test]
+    public function custom_attributes_exist_if_added_to_parent_class()
+    {
+        $this->extend(
+            (new Extend\ApiResource(AbstractDatabaseResource::class))
+                ->fields(fn () => [
+                    Schema\Boolean::make('customAttribute')
+                        ->get(fn () => true),
+                ])
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('customAttribute', $payload['data']['attributes']);
+    }
+
+    #[Test]
+    public function custom_attributes_prioritize_child_classes()
+    {
+        $this->extend(
+            (new Extend\ApiResource(AbstractDatabaseResource::class))
+                ->fields(fn () => [
+                    Schema\Str::make('customAttribute')
+                        ->get(fn () => 'initialValue')
+                ]),
+            (new Extend\ApiResource(UserResource::class))
+                ->fields(fn () => [
+                    Schema\Str::make('customAttribute')
+                        ->get(fn () => 'newValue')
+                ]),
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('customAttribute', $payload['data']['attributes']);
+        $this->assertEquals('newValue', $payload['data']['attributes']['customAttribute']);
+    }
+
+    #[Test]
+    public function custom_attributes_can_be_overridden()
+    {
+        $this->extend(
+            (new Extend\ApiResource(UserResource::class))
+                ->fields(fn () => [
+                    Schema\Str::make('someCustomAttribute')
+                        ->get(fn () => 'newValue'),
+                ])
+                ->fields(fn () => [
+                    Schema\Str::make('someCustomAttribute')
+                        ->get(fn () => 'secondValue'),
+                    Schema\Str::make('someOtherCustomAttribute')
+                        ->get(fn () => 'secondValue'),
+                ])
+                ->fields(fn () => [
+                    Schema\Str::make('someOtherCustomAttribute')
+                        ->get(fn () => 'newValue'),
+                ])
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('someCustomAttribute', $payload['data']['attributes']);
+        $this->assertEquals('secondValue', $payload['data']['attributes']['someCustomAttribute']);
+        $this->assertArrayHasKey('someOtherCustomAttribute', $payload['data']['attributes']);
+        $this->assertEquals('newValue', $payload['data']['attributes']['someOtherCustomAttribute']);
+    }
+
+    #[Test]
+    public function custom_relations_dont_exist_by_default()
+    {
+        $this->extend(
+            (new Extend\ApiResource(UserResource::class))
+                ->endpoint(Show::class, function (Show $endpoint): Show {
+                    return $endpoint->addDefaultInclude(['customSerializerRelation', 'postCustomRelation', 'anotherCustomRelation']);
+                })
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $this->assertEquals(400, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function custom_hasMany_relationship_exists_if_added()
+    {
+        $this->extend(
+            (new Extend\Model(User::class))
+                ->hasMany('customSerializerRelation', Discussion::class, 'user_id'),
+            (new Extend\ApiResource(UserResource::class))
+                ->fields(fn () => [
+                    Schema\Relationship\ToMany::make('customSerializerRelation')
+                        ->type('discussions')
+                        ->includable()
+                ])
+                ->endpoint(Show::class, function (Show $endpoint) {
+                    return $endpoint->addDefaultInclude(['customSerializerRelation']);
+                })
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $responseJson = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('customSerializerRelation', $responseJson['data']['relationships']);
+        $this->assertCount(4, $responseJson['data']['relationships']['customSerializerRelation']['data']);
+    }
+
+    #[Test]
+    public function custom_hasOne_relationship_exists_if_added()
+    {
+        $this->extend(
+            (new Extend\Model(User::class))
+                ->hasOne('customSerializerRelation', Discussion::class, 'user_id'),
+            (new Extend\ApiResource(UserResource::class))
+                ->fields(fn () => [
+                    Schema\Relationship\ToOne::make('customSerializerRelation')
+                        ->type('discussions')
+                        ->includable()
+                ])
+                ->endpoint(Show::class, function (Show $endpoint) {
+                    return $endpoint->addDefaultInclude(['customSerializerRelation']);
+                })
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $responseJson = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('customSerializerRelation', $responseJson['data']['relationships']);
+        $this->assertEquals('discussions', $responseJson['data']['relationships']['customSerializerRelation']['data']['type']);
+    }
+
+    #[Test]
+    public function custom_relationship_is_inherited_to_child_classes()
+    {
+        $this->extend(
+            (new Extend\Model(User::class))
+                ->hasMany('anotherCustomRelation', Discussion::class, 'user_id'),
+            (new Extend\ApiResource(AbstractDatabaseResource::class))
+                ->fields(fn () => [
+                    Schema\Relationship\ToMany::make('anotherCustomRelation')
+                        ->type('discussions')
+                        ->includable()
+                ])
+                ->endpoint(Show::class, function (Show $endpoint) {
+                    return $endpoint->addDefaultInclude(['anotherCustomRelation']);
+                })
+        );
+
+        $response = $this->send(
+            $this->request('GET', '/api/users/2', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $responseJson = json_decode($response->getBody(), true);
+
+        $this->assertArrayHasKey('anotherCustomRelation', $responseJson['data']['relationships']);
+        $this->assertCount(4, $responseJson['data']['relationships']['anotherCustomRelation']['data']);
+    }
 }
 
 class CustomAfterEndpointInvokableClass
@@ -718,5 +1112,16 @@ class CustomAfterEndpointInvokableClass
         $discussion->title = __CLASS__;
 
         return $discussion;
+    }
+}
+
+class CustomAttributesInvokableClass
+{
+    public function __invoke(): array
+    {
+        return [
+            Schema\Boolean::make('customAttributeFromInvokable')
+                ->get(fn () => true),
+        ];
     }
 }

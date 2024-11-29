@@ -171,7 +171,15 @@ class ComposerState {
    * @param type The component class to check against. Subclasses are accepted as well.
    * @param data
    */
-  bodyMatches(type: object, data: any = {}): boolean {
+  bodyMatches(type: object | string, data: any = {}): boolean {
+    if (typeof type === 'string') {
+      const [namespace, id] = flarum.reg.namespaceAndIdFromPath(type);
+
+      type = flarum.reg.checkModule(namespace, id);
+
+      if (!type) return false;
+    }
+
     // Fail early when the body is of a different type
     if (!subclassOf(this.body.componentClass, type)) return false;
 
@@ -212,11 +220,7 @@ class ComposerState {
    * @return {boolean}
    */
   composingReplyTo(discussion: Discussion) {
-    const ReplyComposer = flarum.reg.checkModule('core', 'forum/components/ReplyComposer');
-
-    if (!ReplyComposer) return false;
-
-    return this.isVisible() && this.bodyMatches(ReplyComposer, { discussion });
+    return this.isVisible() && this.bodyMatches('flarum/forum/components/ReplyComposer', { discussion });
   }
 
   /**

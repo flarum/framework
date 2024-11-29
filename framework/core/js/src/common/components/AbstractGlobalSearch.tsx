@@ -14,16 +14,16 @@ export interface SearchAttrs extends ComponentAttrs {
 }
 
 /**
- * The `SearchSource` interface defines a section of search results in the
- * search dropdown.
+ * The `SearchSource` interface defines a tab of search results in the
+ * search modal.
  *
- * Search sources should be registered with the `Search` component class
+ * Search sources should be registered with the `GlobalSearch` component class
  * by extending the `sourceItems` method. When the user types a
  * query, each search source will be prompted to load search results via the
- * `search` method. When the dropdown is redrawn, it will be constructed by
+ * `search` method. When the search modal's dropdown is redrawn, it will be constructed by
  * putting together the output from the `view` method of each source.
  */
-export interface SearchSource {
+export interface GlobalSearchSource {
   /**
    * The resource type that this search source is responsible for.
    */
@@ -74,7 +74,7 @@ export interface SearchSource {
  *
  * Must be extended and the abstract methods implemented per-frontend.
  */
-export default abstract class AbstractSearch<T extends SearchAttrs = SearchAttrs> extends Component<T, SearchState> {
+export default abstract class AbstractGlobalSearch<T extends SearchAttrs = SearchAttrs> extends Component<T, SearchState> {
   /**
    * The instance of `SearchState` for this component.
    */
@@ -136,5 +136,5 @@ export default abstract class AbstractSearch<T extends SearchAttrs = SearchAttrs
   /**
    * A list of search sources that can be used to query for search results.
    */
-  abstract sourceItems(): ItemList<SearchSource>;
+  abstract sourceItems(): ItemList<GlobalSearchSource>;
 }

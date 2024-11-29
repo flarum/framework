@@ -15,6 +15,7 @@ use Flarum\Notification\Blueprint\BlueprintInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Contracts\Mail\Mailer;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Mail\Message;
 use Illuminate\Support\Arr;
 
@@ -24,7 +25,8 @@ class NotificationMailer
         protected Mailer $mailer,
         protected TranslatorInterface $translator,
         protected SettingsRepositoryInterface $settings,
-        protected UrlGenerator $url
+        protected UrlGenerator $url,
+        protected Factory $view,
     ) {
     }
 
@@ -44,9 +46,13 @@ class NotificationMailer
         $username = $user->display_name;
         $userEmail = $user->email;
 
+        $data = compact('blueprint', 'user', 'unsubscribeLink', 'settingsLink', 'type', 'forumTitle', 'username', 'userEmail');
+
+        $this->view->share($data);
+
         $this->mailer->send(
             $this->getEmailViews($blueprint),
-            compact('blueprint', 'user', 'unsubscribeLink', 'settingsLink', 'type', 'forumTitle', 'username', 'userEmail'),
+            $data,
             function (Message $message) use ($blueprint, $user) {
                 $message->to($user->email, $user->display_name)
                         ->subject($blueprint->getEmailSubject($this->translator));

@@ -18,7 +18,7 @@ class DiscussionStickiedPost extends AbstractEventPost implements MergeableInter
 {
     public static string $type = 'discussionStickied';
 
-    public function saveAfter(Post $previous = null): static
+    public function saveAfter(?Post $previous = null): static
     {
         // If the previous post is another 'discussion stickied' post, and it's
         // by the same user, then we can merge this post into it. If we find

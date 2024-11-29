@@ -131,7 +131,7 @@ class SearchDriver implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         $container->extend('flarum.search.drivers', function (array $oldDrivers) {
             $oldDrivers[$this->driverClass] = array_merge(

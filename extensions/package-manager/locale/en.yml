@@ -128,6 +128,7 @@ flarum-extension-manager:
         party_filter:
           all: All
           premium: Premium
+          toggle_dropdown_accessible_label: Toggle party filter
       queue:
         columns:
           details: Details
@@ -169,8 +170,8 @@ flarum-extension-manager:
       debug_mode_warning: You are running in debug mode, the extension manager cannot properly install and update local development packages. Please use the command line interface instead for such purposes.
       queue_jobs: Run operations in the background queue
       queue_jobs_help: >
-        You can read about a <a href='{basic_impl_link}'>basic queue</a> implementation or a <a href='{adv_impl_link}'>more advanced</a> one.
-        Make sure the PHP version used for the queue is {php_version}. Make sure <a href='{folder_perms_link}'>folder permissions</a> are correctly configured.
+        You can read about a <basic_impl_link>basic queue</basic_impl_link> implementation or a <adv_impl_link>more advanced</adv_impl_link> one.
+        Make sure the PHP version used for the queue is {php_version}. Make sure <folder_perms_link>folder permissions</folder_perms_link> are correctly configured.
       task_retention_days: Task retention days
       task_retention_days_help: >
           The number of days to keep completed tasks in the database. Tasks older than this will be deleted.

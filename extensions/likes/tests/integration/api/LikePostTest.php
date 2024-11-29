@@ -64,7 +64,7 @@ class LikePostTest extends TestCase
 
     #[Test]
     #[DataProvider('allowedUsersToLike')]
-    public function can_like_a_post_if_allowed(int $postId, ?int $authenticatedAs, string $message, bool $canLikeOwnPost = null)
+    public function can_like_a_post_if_allowed(int $postId, ?int $authenticatedAs, string $message, ?bool $canLikeOwnPost = null)
     {
         if (! is_null($canLikeOwnPost)) {
             $this->setting('flarum-likes.like_own_post', $canLikeOwnPost);
@@ -82,7 +82,7 @@ class LikePostTest extends TestCase
 
     #[Test]
     #[DataProvider('unallowedUsersToLike')]
-    public function cannot_like_a_post_if_not_allowed(int $postId, ?int $authenticatedAs, string $message, bool $canLikeOwnPost = null)
+    public function cannot_like_a_post_if_not_allowed(int $postId, ?int $authenticatedAs, string $message, ?bool $canLikeOwnPost = null)
     {
         if (! is_null($canLikeOwnPost)) {
             $this->setting('flarum-likes.like_own_post', $canLikeOwnPost);
@@ -100,7 +100,7 @@ class LikePostTest extends TestCase
 
     #[Test]
     #[DataProvider('allowedUsersToLike')]
-    public function can_dislike_a_post_if_liked_and_allowed(int $postId, ?int $authenticatedAs, string $message, bool $canLikeOwnPost = null)
+    public function can_dislike_a_post_if_liked_and_allowed(int $postId, ?int $authenticatedAs, string $message, ?bool $canLikeOwnPost = null)
     {
         if (! is_null($canLikeOwnPost)) {
             $this->setting('flarum-likes.like_own_post', $canLikeOwnPost);

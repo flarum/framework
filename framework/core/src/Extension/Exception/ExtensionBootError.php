@@ -18,7 +18,7 @@ class ExtensionBootError extends Exception
     public function __construct(
         public Extension $extension,
         public object $extender,
-        Throwable $previous = null
+        ?Throwable $previous = null
     ) {
         $extenderClass = $extender::class;
 

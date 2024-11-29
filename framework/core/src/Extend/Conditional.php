@@ -86,7 +86,7 @@ class Conditional implements ExtenderInterface
      * @param Extension|null $extension
      * @return void
      */
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         foreach ($this->conditions as $condition) {
             if (is_callable($condition['condition'])) {

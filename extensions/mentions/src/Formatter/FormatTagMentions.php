@@ -17,7 +17,7 @@ use s9e\TextFormatter\Utils;
 
 class FormatTagMentions
 {
-    public function __invoke(Renderer $renderer, mixed $context, string $xml, Request $request = null): string
+    public function __invoke(Renderer $renderer, mixed $context, string $xml, ?Request $request = null): string
     {
         return Utils::replaceAttributes($xml, 'TAGMENTION', function ($attributes) use ($context) {
             /** @var Tag|null $tag */

@@ -25,7 +25,7 @@ class Locales implements ExtenderInterface, LifecycleInterface
     ) {
     }
 
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         $container->resolving(
             LocaleManager::class,

@@ -6,12 +6,12 @@ import type Mithril from 'mithril';
 import type { GeneralIndexItem } from '../../admin/states/GeneralSearchIndex';
 export default class Admin implements IExtender<AdminApplication> {
     protected settings: {
-        setting?: () => SettingConfigInternal;
+        setting?: () => SettingConfigInternal | null;
         customSetting?: () => Mithril.Children;
         priority: number;
     }[];
     protected permissions: {
-        permission: () => PermissionConfig;
+        permission: () => PermissionConfig | null;
         type: PermissionType;
         priority: number;
     }[];
@@ -23,7 +23,7 @@ export default class Admin implements IExtender<AdminApplication> {
     /**
      * Register a setting to be shown on the extension's settings page.
      */
-    setting(setting: () => SettingConfigInternal, priority?: number): this;
+    setting(setting: () => SettingConfigInternal | null, priority?: number): this;
     /**
      * Register a custom setting to be shown on the extension's settings page.
      */
@@ -31,7 +31,7 @@ export default class Admin implements IExtender<AdminApplication> {
     /**
      * Register a permission to be shown on the extension's permissions page.
      */
-    permission(permission: () => PermissionConfig, type: PermissionType, priority?: number): this;
+    permission(permission: () => PermissionConfig | null, type: PermissionType, priority?: number): this;
     /**
      * Register a custom page to be shown in the admin interface.
      */

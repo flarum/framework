@@ -27,7 +27,7 @@ class Frontend
     ) {
     }
 
-    public function content(callable $callback, int $priority): void
+    public function content(callable $callback, int $priority = 0): void
     {
         $this->content[] = compact('callback', 'priority');
     }

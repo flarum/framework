@@ -6,7 +6,7 @@ on:
 
 env:
   VERSION: ${{ github.event.release.tag_name }}
-  PHP_VERSIONS: '8.2 8.3'
+  PHP_VERSIONS: '8.2 8.3 8.4'
   INSTALL_PACKAGES_INPUTS: '{ "flarum_version": "{0}", "php_versions": "{1}" }'
 
 jobs:

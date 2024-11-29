@@ -24,11 +24,7 @@ app.initializers.add('flarum-messages', () => {
   );
 
   app.composer.composingMessageTo = function (dialog: Dialog) {
-    const MessageComposer = flarum.reg.checkModule('flarum-messages', 'forum/components/MessageComposer');
-
-    if (!MessageComposer) return false;
-
-    return this.isVisible() && this.bodyMatches(MessageComposer, { dialog });
+    return this.isVisible() && this.bodyMatches('flarum/messages/forum/components/MessageComposer', { dialog });
   };
 
   extend(IndexSidebar.prototype, 'navItems', function (items) {

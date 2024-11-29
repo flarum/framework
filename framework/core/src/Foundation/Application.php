@@ -57,7 +57,7 @@ class Application extends IlluminateContainer implements LaravelApplication
         return $config[$key] ?? $default;
     }
 
-    public function url(string $path = null): string
+    public function url(?string $path = null): string
     {
         $config = $this->make('flarum.config');
         $url = (string) $config->url();

@@ -1,18 +1,12 @@
 import type Mithril from 'mithril';
-import type User from '../../common/models/User';
-import type { SearchSource } from './Search';
+import { SearchSource } from './Search';
+import User from '../../common/models/User';
 /**
  * The `UsersSearchSource` finds and displays user search results in the search
  * dropdown.
  */
-export default class UsersSearchSource implements SearchSource {
+export default class UsersSearchResults implements SearchSource {
     protected results: Map<string, User[]>;
-    resource: string;
-    title(): string;
-    isCached(query: string): boolean;
-    search(query: string, limit: number): Promise<void>;
+    search(query: string): Promise<void>;
     view(query: string): Array<Mithril.Vnode>;
-    customGrouping(): boolean;
-    fullPage(query: string): null;
-    gotoItem(id: string): string | null;
 }

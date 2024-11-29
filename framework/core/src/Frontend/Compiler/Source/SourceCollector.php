@@ -26,7 +26,7 @@ class SourceCollector
      */
     protected array $sources = [];
 
-    public function addFile(string $file, string $extensionId = null): static
+    public function addFile(string $file, ?string $extensionId = null): static
     {
         $this->sources[] = $this->validateSourceType(
             new FileSource($file, $extensionId)
@@ -44,7 +44,7 @@ class SourceCollector
         return $this;
     }
 
-    public function addDirectory(string $directory, string $extensionId = null): static
+    public function addDirectory(string $directory, ?string $extensionId = null): static
     {
         $this->sources[] = $this->validateSourceType(
             new DirectorySource($directory, $extensionId)

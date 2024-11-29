@@ -9,7 +9,7 @@
         "prettier": "^2.7.1",
         "webpack": "^5.76.0",
         "webpack-cli": "^4.10.0",
-        "flarum-tsconfig": "^1.0.2"
+        "flarum-tsconfig": "^2.0.0"
     },
     "scripts": {
         "dev": "webpack --mode development --watch",

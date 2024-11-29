@@ -84,15 +84,10 @@ export default class Translator {
     const elements = translation.match(/<(\w+)[^>]*>.*?<\/\1>/g);
     const tags = elements?.map((element) => element.match(/^<(\w+)/)![1]) || [];
 
-    for (const tag of tags) {
-      if (!parameters[tag]) {
-        fireDebugWarning(
-          `Any HTML tags used within translations must have corresponding mithril component parameters.\nCaught in translation: \n\n"""\n${translation}\n"""`,
-          '',
-          'v2.0',
-          'flarum/framework'
-        );
+    const autoProvidedTags = this.autoProvidedTags();
 
+    for (const tag of tags) {
+      if (!parameters[tag] && autoProvidedTags.includes(tag)) {
         parameters[tag] = ({ children }: any) => m(tag, children);
       }
     }
@@ -185,5 +180,9 @@ export default class Translator {
     }
 
     return translation;
+  }
+
+  autoProvidedTags(): string[] {
+    return ['strong', 'code', 'i', 's', 'em', 'sup', 'sub'];
   }
 }
