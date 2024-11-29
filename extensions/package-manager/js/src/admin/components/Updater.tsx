@@ -7,6 +7,7 @@ import MajorUpdater from './MajorUpdater';
 import ExtensionItem from './ExtensionItem';
 import { Extension } from 'flarum/admin/AdminApplication';
 import ItemList from 'flarum/common/utils/ItemList';
+import { isProductionReady } from '../utils/versions';
 
 export interface IUpdaterAttrs extends ComponentAttrs {}
 
@@ -24,7 +25,7 @@ export default class Updater extends Component<IUpdaterAttrs> {
         <div className="ExtensionManager-updaterControls">{this.controlItems().toArray()}</div>
         {this.availableUpdatesView()}
       </div>,
-      core && core.package['latest-major'] ? (
+      core && core.package['latest-major'] && isProductionReady(core.package['latest-major']) ? (
         <MajorUpdater coreUpdate={core.package} updateState={app.extensionManager.control.lastUpdateRun.major} />
       ) : null,
     ];
