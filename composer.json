@@ -200,8 +200,7 @@
             "extensions/subscriptions",
             "extensions/suspend",
             "extensions/tags",
-            "extensions/messages",
-            "php-packages/testing/tests"
+            "extensions/messages"
         ],
         "branch-alias": {
             "dev-main": "2.x-dev"

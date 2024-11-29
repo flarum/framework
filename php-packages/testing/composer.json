@@ -13,7 +13,8 @@
         "phpunit/phpunit": "^11.0"
     },
     "require-dev": {
-        "flarum/core": "*@dev"
+        "flarum/core": "*@dev",
+        "flarum/testing-tests": "*@dev"
     },
     "autoload": {
         "psr-4": {
@@ -30,10 +31,16 @@
             "dev-main": "2.x-dev"
         }
     },
-    "repositories": [{
+    "repositories": [
+        {
             "type": "path",
             "url": "../../*/*"
-        }],
+        },
+        {
+            "type": "path",
+            "url": "tests"
+        }
+    ],
     "minimum-stability": "dev",
     "prefer-stable": true
 }
