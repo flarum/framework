@@ -13,6 +13,17 @@
       "Flarum\\Testing\\Tests\\": "tests/"
     }
   },
+    "extra": {
+        "flarum-extension": {
+            "title": "Testing",
+            "category": "feature",
+            "icon": {
+                "name": "fas fa-vial",
+                "backgroundColor": "#ABDC88",
+                "color": "#3F8A32"
+            }
+        }
+    },
   "scripts": {
     "test": [
       "@test:unit",

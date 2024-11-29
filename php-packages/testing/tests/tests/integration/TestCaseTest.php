@@ -10,7 +10,9 @@
 namespace Flarum\Testing\Tests\integration;
 
 use Flarum\Extend;
+use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Config;
+use Flarum\Settings\DefaultSettingsRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -45,15 +47,14 @@ class TestCaseTest extends TestCase
         $this->assertEquals('something_other_than_username', $settings->get('display_name_driver'));
     }
 
-    /**
-     * Disabled failing test for now.
-     */
+   #[Test]
     public function settings_cleaned_up_from_previous_method()
     {
         $settings = $this->app()->getContainer()->make(SettingsRepositoryInterface::class);
+        $defaults = $this->app()->getContainer()->make(DefaultSettingsRepository::class);
 
         $this->assertEquals(null, $settings->get('hello'));
-        $this->assertEquals(null, $settings->get('display_name_driver'));
+        $this->assertEquals($defaults->get('display_name_driver'), $settings->get('display_name_driver'));
     }
 
     #[Test]
@@ -170,14 +171,13 @@ class TestCaseTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * Disabled failing test for now.
-     */
+    #[Test]
     public function extension_url_correct()
     {
         $this->extension('flarum-testing-tests');
         $expected = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets')->url('/flarum-testing-tests/');
         // We need to test this since we override it.
+        /** @var ExtensionManager $extensions */
         $extensions = $this->app()->getContainer()->make('flarum.extensions');
         $currExtension = $extensions->getExtension('flarum-testing-tests');
         $baseAssetsUrl = $extensions->getAsset($currExtension, '');

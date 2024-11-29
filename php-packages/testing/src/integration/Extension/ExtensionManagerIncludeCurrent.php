@@ -12,6 +12,7 @@ namespace Flarum\Testing\integration\Extension;
 use Flarum\Database\Migrator;
 use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
+use Flarum\Foundation\Config;
 use Flarum\Foundation\MaintenanceMode;
 use Flarum\Foundation\Paths;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -99,9 +100,13 @@ class ExtensionManagerIncludeCurrent extends ExtensionManager
      */
     protected function getAssetsFilesystem(): Cloud
     {
+        /** @var Config $config */
+        $config = $this->container->make(Config::class);
         $adapter = new LocalFilesystemAdapter($this->paths->public.'/assets');
 
-        return new FilesystemAdapter(new \League\Flysystem\Filesystem($adapter), $adapter);
+        return new FilesystemAdapter(new \League\Flysystem\Filesystem($adapter), $adapter, [
+            'url' => $config->url().'/assets',
+        ]);
     }
 
     protected function includeCurrentExtension(Collection $extensions, $package, string $packagePath): Collection
