@@ -8,6 +8,7 @@
  */
 
 use Illuminate\Database\MariaDbConnection;
+use Illuminate\Database\MySqlConnection;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
@@ -25,14 +26,16 @@ return [
                 $table->json('data_json')->nullable();
             });
 
-            if ($connection instanceof MariaDbConnection) {
-                $connection->table('notifications')->update([
-                    'data_json' => $connection->raw('IF(JSON_VALID(CONVERT(data USING utf8mb4)), CONVERT(data USING utf8mb4), NULL)'),
-                ]);
-            } elseif ($driver === 'mysql') {
-                $connection->table('notifications')->update([
-                    'data_json' => $connection->raw('CAST(CONVERT(data USING utf8mb4) AS JSON)'),
-                ]);
+            if ($connection instanceof MySqlConnection) {
+                if ($connection->isMaria()) {
+                    $connection->table('notifications')->update([
+                        'data_json' => $connection->raw('IF(JSON_VALID(CONVERT(data USING utf8mb4)), CONVERT(data USING utf8mb4), NULL)'),
+                    ]);
+                } else {
+                    $connection->table('notifications')->update([
+                        'data_json' => $connection->raw('CAST(CONVERT(data USING utf8mb4) AS JSON)'),
+                    ]);
+                }
             }
 
             $schema->table('notifications', function (Blueprint $table) {
@@ -58,7 +61,7 @@ return [
                 $table->binary('data_binary')->nullable();
             });
 
-            if ($driver === 'mysql') {
+            if ($connection instanceof MySqlConnection) {
                 $connection->table('notifications')->update([
                     'data_binary' => $connection->raw('data'),
                 ]);

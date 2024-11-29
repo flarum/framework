@@ -33,7 +33,7 @@ class FulltextFilter extends AbstractFulltextFilter
     public function search(SearchState $state, string $value): void
     {
         match ($state->getQuery()->getConnection()->getDriverName()) {
-            'mysql' => $this->mysql($state, $value),
+            'mysql', 'mariadb' => $this->mysql($state, $value),
             'pgsql' => $this->pgsql($state, $value),
             'sqlite' => $this->sqlite($state, $value),
             default => throw new RuntimeException('Unsupported database driver: '.$state->getQuery()->getConnection()->getDriverName()),

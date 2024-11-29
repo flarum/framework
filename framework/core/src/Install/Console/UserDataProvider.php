@@ -43,14 +43,14 @@ class UserDataProvider implements DataProviderInterface
 
     private function getDatabaseConfiguration(): DatabaseConfig
     {
-        $driver = $this->ask('Database driver (mysql, sqlite, pgsql) (Default: mysql):', 'mysql');
+        $driver = $this->ask('Database driver (mysql, mariadb, sqlite, pgsql) (Default: mysql):', 'mysql');
         $port = match ($driver) {
-            'mysql' => 3306,
+            'mysql', 'mariadb' => 3306,
             'pgsql' => 5432,
             default => 0,
         };
 
-        if (in_array($driver, ['mysql', 'pgsql'])) {
+        if (in_array($driver, ['mysql', 'mariadb', 'pgsql'])) {
             $host = $this->ask('Database host (required):', required: true);
 
             if (Str::contains($host, ':')) {

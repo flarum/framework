@@ -142,7 +142,7 @@ class ShowStatisticsData implements RequestHandlerInterface
         $dbFormattedDatetime = match ($query->getConnection()->getDriverName()) {
             'sqlite' => "strftime($format, $column)",
             'pgsql' => "TO_CHAR($column, $format)",
-            'mysql' => "DATE_FORMAT($column, $format)",
+            'mysql', 'mariadb' => "DATE_FORMAT($column, $format)",
             default => throw new Exception('Unsupported database driver'),
         };
 

@@ -25,6 +25,7 @@
       <label>Database Driver</label>
       <select class="FormControl" name="dbDriver">
         <option value="mysql">MySQL</option>
+        <option value="mariadb">MariaDB</option>
         <option value="pgsql">PostgreSQL</option>
         <option value="sqlite">SQLite</option>
       </select>
@@ -35,7 +36,7 @@
       <input class="FormControl" name="dbName" value="flarum">
     </div>
 
-    <div data-group="mysql,pgsql">
+    <div data-group="mysql,mariadb,pgsql">
       <div class="FormField">
         <label>Host</label>
         <input class="FormControl" name="dbHost" value="localhost">

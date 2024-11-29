@@ -94,7 +94,7 @@ jobs:
             driver: mysql
           - service: mariadb
             db: MariaDB
-            driver: mysql
+            driver: mariadb
           - service: 'mysql:8.1.0'
             db: MySQL 8.1
             driver: mysql

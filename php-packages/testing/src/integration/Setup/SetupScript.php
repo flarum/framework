@@ -41,7 +41,7 @@ class SetupScript
         $this->driver = getenv('DB_DRIVER') ?: 'mysql';
         $this->host = getenv('DB_HOST') ?: 'localhost';
         $this->port = intval(getenv('DB_PORT') ?: match ($this->driver) {
-            'mysql' => 3306,
+            'mysql', 'mariadb' => 3306,
             'pgsql' => 5432,
             default => 0,
         });

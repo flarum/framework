@@ -12,9 +12,11 @@ namespace Flarum\Install\Steps;
 use Closure;
 use Flarum\Install\DatabaseConfig;
 use Flarum\Install\Step;
+use Illuminate\Database\Connectors\MariaDbConnector;
 use Illuminate\Database\Connectors\MySqlConnector;
 use Illuminate\Database\Connectors\PostgresConnector;
 use Illuminate\Database\Connectors\SQLiteConnector;
+use Illuminate\Database\MariaDbConnection;
 use Illuminate\Database\MySqlConnection;
 use Illuminate\Database\PostgresConnection;
 use Illuminate\Database\SQLiteConnection;
@@ -42,6 +44,7 @@ class ConnectToDatabase implements Step
 
         match ($config['driver']) {
             'mysql' => $this->mysql($config),
+            'mariadb' => $this->mariadb($config),
             'pgsql' => $this->pgsql($config),
             'sqlite' => $this->sqlite($config),
             default => throw new InvalidArgumentException('Unsupported database driver: '.$config['driver']),
@@ -66,6 +69,26 @@ class ConnectToDatabase implements Step
 
         ($this->store)(
             new MySqlConnection(
+                $pdo,
+                $config['database'],
+                $config['prefix'],
+                $config
+            )
+        );
+    }
+
+    private function mariadb(array $config): void
+    {
+        $pdo = (new MariaDbConnector())->connect($config);
+
+        $version = $pdo->query('SELECT VERSION()')->fetchColumn();
+
+        if (version_compare($version, '10.3.0', '<')) {
+            throw new RangeException("MariaDB version ($version) too low. You need at least MariaDB 10.3");
+        }
+
+        ($this->store)(
+            new MariaDbConnection(
                 $pdo,
                 $config['database'],
                 $config['prefix'],
