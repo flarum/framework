@@ -141,13 +141,13 @@ export default class GambitsAutocomplete {
                 class="Button Button--icon"
                 onclick={() => suggest()}
                 icon="fas fa-plus"
-                aria-label={app.translator.trans('core.forum.search.gambit_plus_button_a11y_label')}
+                aria-label={app.translator.trans('core.lib.search.gambit_plus_button_a11y_label')}
               />
               <Button
                 class="Button Button--icon"
                 onclick={() => suggest(true)}
                 icon="fas fa-minus"
-                aria-label={app.translator.trans('core.forum.search.gambit_minus_button_a11y_label')}
+                aria-label={app.translator.trans('core.lib.search.gambit_minus_button_a11y_label')}
               />
             </span>
           )}

@@ -1,13 +1,13 @@
-@extends('flarum.forum::email.plain.base')
-
-@section('header')
+<x-mail::plain>
+<x-slot:header>
 {{ $title ?? $translator->trans('core.email.informational.default_title') }}
-@endsection
+</x-slot:header>
 
-@section('content')
-{{ $infoContent ?? '' }}
-@endsection
+<x-slot:content>
+{{ $slot ?? $body ?? '' }}
+</x-slot:content>
 
-@section('footer')
+<x-slot:footer>
 {!! $translator->trans('core.email.informational.footer_plain', ['userEmail' => $userEmail, 'forumTitle' => $forumTitle]) !!}
-@endsection
+</x-slot:footer>
+</x-mail::plain>

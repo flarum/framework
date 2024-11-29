@@ -135,6 +135,14 @@ export default class TagSelectionModal<
     return this.attrs.title;
   }
 
+  lengthWithCJK(text: string) {
+    let length = 0;
+    for (const char of text) {
+      length += /[\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF]/.test(char) ? 2 : 1;
+    }
+    return length;
+  }
+
   content() {
     if (this.loading || !this.tags) {
       return <LoadingIndicator />;
@@ -145,7 +153,12 @@ export default class TagSelectionModal<
     const secondaryCount = this.secondaryCount();
     const tags = this.getFilteredTags();
 
-    const inputWidth = Math.max(extractText(this.getInstruction(primaryCount, secondaryCount)).length, this.filter().length);
+    // 1 CJK character's width equals to 2ch,
+    // so we count 1 CJK character as 2 characters.
+    const inputWidth = Math.max(
+      this.lengthWithCJK(extractText(this.getInstruction(primaryCount, secondaryCount))),
+      this.lengthWithCJK(this.filter())
+    );
 
     return [
       <div className="Modal-body">

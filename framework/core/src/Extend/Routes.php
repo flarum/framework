@@ -169,7 +169,7 @@ class Routes implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         if (empty($this->routes) && empty($this->removedRoutes)) {
             return;

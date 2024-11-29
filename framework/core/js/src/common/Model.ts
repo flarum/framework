@@ -192,7 +192,8 @@ export default abstract class Model {
     // If a 'relationships' key exists, extract it from the attributes hash and
     // set it on the top-level data object instead. We will be sending this data
     // object to the API for persistence.
-    if (attributes.relationships) {
+    // But only if the model does not actually have a real relationships attribute.
+    if (attributes.relationships && !('relationships' in this)) {
       data.relationships = {};
 
       for (const key in attributes.relationships) {

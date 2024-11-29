@@ -107,7 +107,7 @@ class AccessToken extends AbstractModel
      * Update the time of last usage of a token.
      * If a request object is provided, the IP address and User Agent will also be logged.
      */
-    public function touch($attribute = null, ServerRequestInterface $request = null): bool
+    public function touch($attribute = null, ?ServerRequestInterface $request = null): bool
     {
         $now = Carbon::now();
 
@@ -192,7 +192,7 @@ class AccessToken extends AbstractModel
     /**
      * This query scope is intended to be used on the base AccessToken object to query for expired tokens of any type.
      */
-    public function scopeWhereExpired(Builder $query, Carbon $date = null): void
+    public function scopeWhereExpired(Builder $query, ?Carbon $date = null): void
     {
         if (is_null($date)) {
             $date = Carbon::now();

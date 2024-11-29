@@ -21,7 +21,15 @@ export default class PageState {
    * @param {Record<string, unknown>} data
    * @return {boolean}
    */
-  matches(type: Function, data: any = {}) {
+  matches(type: Function | string, data: any = {}) {
+    if (typeof type === 'string') {
+      const [namespace, id] = flarum.reg.namespaceAndIdFromPath(type);
+
+      type = flarum.reg.checkModule(namespace, id);
+
+      if (!type) return false;
+    }
+
     // Fail early when the page is of a different type
     if (!subclassOf(this.type, type)) return false;
 

@@ -33,7 +33,7 @@ class RunMigrations implements Step
     {
         $migrator = $this->getMigrator();
 
-        if (! $migrator->installFromSchema($this->path, $this->driver)) {
+        if (! $migrator->repositoryExists() && ! $migrator->installFromSchema($this->path, $this->driver)) {
             $migrator->getRepository()->createRepository();
         }
 

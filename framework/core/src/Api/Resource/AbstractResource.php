@@ -31,4 +31,9 @@ abstract class AbstractResource extends BaseResource
     {
         return $context->extractIdFromPath($context);
     }
+
+    public function routeNamePrefix(): ?string
+    {
+        return null;
+    }
 }

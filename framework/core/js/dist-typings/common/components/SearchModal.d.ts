@@ -6,11 +6,11 @@ import KeyboardNavigatable from '../utils/KeyboardNavigatable';
 import Stream from '../utils/Stream';
 import ItemList from '../utils/ItemList';
 import GambitsAutocomplete from '../utils/GambitsAutocomplete';
-import type { SearchSource } from './AbstractSearch';
+import type { GlobalSearchSource } from './AbstractGlobalSearch';
 export interface ISearchModalAttrs extends IFormModalAttrs {
     onchange: (value: string) => void;
     searchState: SearchState;
-    sources: SearchSource[];
+    sources: GlobalSearchSource[];
 }
 export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearchModalAttrs> extends FormModal<CustomAttrs> {
     static LIMIT: number;
@@ -19,11 +19,11 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     /**
      * An array of SearchSources.
      */
-    protected sources: SearchSource[];
+    protected sources: GlobalSearchSource[];
     /**
      * The key of the currently-active search source.
      */
-    protected activeSource: Stream<SearchSource>;
+    protected activeSource: Stream<GlobalSearchSource>;
     /**
      * The sources that are still loading results.
      */
@@ -46,7 +46,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     tabs(): JSX.Element;
     tabItems(): ItemList<Mithril.Children>;
     activeTabItems(): ItemList<Mithril.Children>;
-    switchSource(source: SearchSource): void;
+    switchSource(source: GlobalSearchSource): void;
     gambits(): JSX.Element[];
     /**
      * Transforms a simple search text to wrap valid gambits in a mark tag.

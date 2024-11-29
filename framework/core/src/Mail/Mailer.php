@@ -12,16 +12,16 @@ namespace Flarum\Mail;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Mail\Mailer as SymfonyMailer;
+use Illuminate\Mail\Mailer as IlluminateMailer;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 
-class Mailer extends SymfonyMailer
+class Mailer extends IlluminateMailer
 {
     public function __construct(
         string $name,
         Factory $views,
         TransportInterface $transport,
-        Dispatcher $events = null,
+        ?Dispatcher $events,
         protected SettingsRepositoryInterface $settings
     ) {
         parent::__construct($name, $views, $transport, $events);

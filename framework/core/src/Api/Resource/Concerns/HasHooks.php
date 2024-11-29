@@ -180,7 +180,7 @@ trait HasHooks
         //
     }
 
-    public function dispatchEventsFor(mixed $entity, User $actor = null): void
+    public function dispatchEventsFor(mixed $entity, ?User $actor = null): void
     {
         if (method_exists($entity, 'releaseEvents')) {
             $this->traitDispatchEventsFor($entity, $actor);

@@ -91,6 +91,10 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
   chunks = new Map<string, Chunk>();
   chunkModules = new Map<string, Module>();
   private _revisions: any = null;
+  private _webpack_runtimes: any = {
+    // @ts-ignore
+    core: window.testing ? null : __webpack_require__,
+  };
 
   add(namespace: string, id: string, object: any): void {
     this.moduleExports.set(namespace, this.moduleExports.get(namespace) || new Map());
@@ -205,20 +209,9 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     }
 
     // @ts-ignore
-    const wr = __webpack_require__;
+    const wr = this._webpack_runtimes[namespace] ?? __webpack_require__;
 
-    return await wr.e(module.chunkId).then(() => {
-      // Needed to make sure the module is loaded.
-      // Taken care of by webpack.
-      wr.bind(wr, module.moduleId)();
-
-      const moduleExport = this.get(namespace, id);
-
-      // For consistent access to async modules.
-      moduleExport.default = moduleExport.default || moduleExport;
-
-      return moduleExport;
-    });
+    return await wr.e(module.chunkId).then(wr.bind(wr, module.moduleId));
   }
 
   public clear(): void {

@@ -58,6 +58,7 @@ export default class TagSelectionModal<CustomAttrs extends ITagSelectionModalAtt
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     className(): string;
     title(): string | undefined;
+    lengthWithCJK(text: string): number;
     content(): JSX.Element | JSX.Element[];
     /**
      * Filters the available tags on every state change.

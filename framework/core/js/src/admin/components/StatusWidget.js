@@ -6,7 +6,7 @@ import Dropdown from '../../common/components/Dropdown';
 import Button from '../../common/components/Button';
 import LoadingModal from './LoadingModal';
 import LinkButton from '../../common/components/LinkButton';
-import saveSettings from '../utils/saveSettings.js';
+import saveSettings from '../utils/saveSettings';
 
 export default class StatusWidget extends DashboardWidget {
   className() {

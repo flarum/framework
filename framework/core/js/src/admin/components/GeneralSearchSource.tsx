@@ -2,7 +2,7 @@ import type Mithril from 'mithril';
 
 import app from '../app';
 import highlight from '../../common/helpers/highlight';
-import type { SearchSource } from './Search';
+import type { GlobalSearchSource } from './GlobalSearch';
 import extractText from '../../common/utils/extractText';
 import Link from '../../common/components/Link';
 import Icon from '../../common/components/Icon';
@@ -26,7 +26,7 @@ export class GeneralSearchResult {
 /**
  * Finds and displays settings, permissions and installed extensions (i.e. general search results) in the search dropdown.
  */
-export default class GeneralSearchSource implements SearchSource {
+export default class GeneralSearchSource implements GlobalSearchSource {
   protected results = new Map<string, GeneralSearchResult[]>();
 
   public resource: string = 'general';

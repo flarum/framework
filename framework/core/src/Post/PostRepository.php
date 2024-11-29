@@ -53,7 +53,7 @@ class PostRepository
      * Find posts that match certain conditions, optionally making sure they
      * are visible to a certain user, and/or using other criteria.
      */
-    public function findWhere(array $where = [], User $actor = null, array $sort = [], int $count = null, int $start = 0): Collection
+    public function findWhere(array $where = [], ?User $actor = null, array $sort = [], ?int $count = null, int $start = 0): Collection
     {
         $query = $this->queryVisibleTo($actor)
             ->where($where)
@@ -110,7 +110,7 @@ class PostRepository
      * @param int[] $ids
      * @return Builder<Post>
      */
-    protected function queryIds(array $ids, User $actor = null): Builder
+    protected function queryIds(array $ids, ?User $actor = null): Builder
     {
         return $this->queryVisibleTo($actor)->whereIn('posts.id', $ids);
     }

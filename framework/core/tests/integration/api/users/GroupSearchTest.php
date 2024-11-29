@@ -210,7 +210,7 @@ class GroupSearchTest extends TestCase
         $this->assertEqualsCanonicalizing([1, 99, 4, 5, 6], array_column($responseBodyContents['included'], 'id'));
     }
 
-    private function createRequest(array $group, int $userId = null)
+    private function createRequest(array $group, ?int $userId = null)
     {
         $auth = $userId ? ['authenticatedAs' => $userId] : [];
 

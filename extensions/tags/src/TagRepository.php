@@ -32,7 +32,7 @@ class TagRepository
      * Find a tag by ID, optionally making sure it is visible to a certain
      * user, or throw an exception.
      */
-    public function findOrFail(int $id, User $actor = null): Tag
+    public function findOrFail(int $id, ?User $actor = null): Tag
     {
         $query = Tag::where('id', $id);
 
@@ -45,7 +45,7 @@ class TagRepository
      *
      * @return Collection<int, Tag>
      */
-    public function all(User $user = null): Collection
+    public function all(?User $user = null): Collection
     {
         $query = Tag::query();
 
@@ -55,7 +55,7 @@ class TagRepository
     /**
      * Get the ID of a tag with the given slug.
      */
-    public function getIdForSlug(string $slug, User $user = null): ?int
+    public function getIdForSlug(string $slug, ?User $user = null): ?int
     {
         $query = Tag::where('slug', $slug);
 

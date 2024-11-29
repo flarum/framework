@@ -6,15 +6,15 @@ import type Mithril from 'mithril';
 import type { GeneralIndexItem } from '../../admin/states/GeneralSearchIndex';
 
 export default class Admin implements IExtender<AdminApplication> {
-  protected settings: { setting?: () => SettingConfigInternal; customSetting?: () => Mithril.Children; priority: number }[] = [];
-  protected permissions: { permission: () => PermissionConfig; type: PermissionType; priority: number }[] = [];
+  protected settings: { setting?: () => SettingConfigInternal | null; customSetting?: () => Mithril.Children; priority: number }[] = [];
+  protected permissions: { permission: () => PermissionConfig | null; type: PermissionType; priority: number }[] = [];
   protected customPage: CustomExtensionPage | null = null;
   protected generalIndexes: { settings?: () => GeneralIndexItem[]; permissions?: () => GeneralIndexItem[] } = {};
 
   /**
    * Register a setting to be shown on the extension's settings page.
    */
-  setting(setting: () => SettingConfigInternal, priority = 0) {
+  setting(setting: () => SettingConfigInternal | null, priority = 0) {
     this.settings.push({ setting, priority });
 
     return this;
@@ -32,7 +32,7 @@ export default class Admin implements IExtender<AdminApplication> {
   /**
    * Register a permission to be shown on the extension's permissions page.
    */
-  permission(permission: () => PermissionConfig, type: PermissionType, priority = 0) {
+  permission(permission: () => PermissionConfig | null, type: PermissionType, priority = 0) {
     this.permissions.push({ permission, type, priority });
 
     return this;
@@ -60,11 +60,19 @@ export default class Admin implements IExtender<AdminApplication> {
     app.registry.for(extension.name);
 
     this.settings.forEach(({ setting, customSetting, priority }) => {
-      app.registry.registerSetting(setting ? setting() : customSetting!, priority);
+      const settingConfig = setting ? setting() : customSetting!;
+
+      if (settingConfig) {
+        app.registry.registerSetting(settingConfig, priority);
+      }
     });
 
     this.permissions.forEach(({ permission, type, priority }) => {
-      app.registry.registerPermission(permission(), type, priority);
+      const permissionConfig = permission();
+
+      if (permissionConfig) {
+        app.registry.registerPermission(permissionConfig, type, priority);
+      }
     });
 
     if (this.customPage) {

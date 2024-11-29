@@ -14,16 +14,12 @@ export default [
     .setting(() => ({
       setting: 'flarum-extension-manager.queue_jobs',
       label: app.translator.trans('flarum-extension-manager.admin.settings.queue_jobs'),
-      help: m.trust(
-        extractText(
-          app.translator.trans('flarum-extension-manager.admin.settings.queue_jobs_help', {
-            basic_impl_link: 'https://discuss.flarum.org/d/28151-database-queue-the-simplest-queue-even-for-shared-hosting',
-            adv_impl_link: 'https://discuss.flarum.org/d/21873-redis-sessions-cache-queues',
-            php_version: `<strong>${app.data.phpVersion}</strong>`,
-            folder_perms_link: 'https://docs.flarum.org/install#folder-ownership',
-          })
-        )
-      ),
+      help: app.translator.trans('flarum-extension-manager.admin.settings.queue_jobs_help', {
+        basic_impl_link: <a href="https://discuss.flarum.org/d/28151-database-queue-the-simplest-queue-even-for-shared-hosting" />,
+        adv_impl_link: <a href="https://discuss.flarum.org/d/21873-redis-sessions-cache-queues" />,
+        php_version: <strong>{app.data.phpVersion}</strong>,
+        folder_perms_link: <a href="https://docs.flarum.org/install#folder-ownership" />,
+      }),
       type: 'boolean',
       disabled: app.data['flarum-extension-manager.using_sync_queue'],
     }))

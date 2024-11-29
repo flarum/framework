@@ -18,7 +18,7 @@ class DiscussionLockedPost extends AbstractEventPost implements MergeableInterfa
 {
     public static string $type = 'discussionLocked';
 
-    public function saveAfter(Post $previous = null): static
+    public function saveAfter(?Post $previous = null): static
     {
         // If the previous post is another 'discussion locked' post, and it's
         // by the same user, then we can merge this post into it. If we find

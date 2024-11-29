@@ -11,7 +11,7 @@ export default class PageState {
      * @param {Record<string, unknown>} data
      * @return {boolean}
      */
-    matches(type: Function, data?: any): boolean;
+    matches(type: Function | string, data?: any): boolean;
     get(key: string): any;
     set(key: string, value: any): void;
 }

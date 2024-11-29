@@ -9,7 +9,6 @@
 
 namespace Flarum\Api\Resource;
 
-use Carbon\Carbon;
 use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
 use Flarum\Api\JsonApi;
@@ -20,7 +19,6 @@ use Flarum\Discussion\Command\ReadDiscussion;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Deleting;
 use Flarum\Discussion\Event\Saving;
-use Flarum\Discussion\Event\Started;
 use Flarum\Http\SlugManager;
 use Flarum\Post\Post;
 use Flarum\Post\PostRepository;
@@ -242,16 +240,7 @@ class DiscussionResource extends AbstractDatabaseResource
     /** @param Discussion $model */
     public function creating(object $model, \Tobyz\JsonApiServer\Context $context): ?object
     {
-        $actor = $context->getActor();
-
-        $model->created_at = Carbon::now();
-        $model->user_id = $actor->id;
-
-        $model->setRelation('user', $actor);
-
-        $model->raise(new Started($model));
-
-        return $model;
+        return Discussion::start(null, $context->getActor(), $model);
     }
 
     /** @param Discussion $model */

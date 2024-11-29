@@ -57,7 +57,7 @@
             @endif
         </a>
     </div>
-    @yield('header')
+    {{ $header ?? '' }}
 </div>
 
 <div class="content">
@@ -67,7 +67,7 @@
         </div>
     @endif
     <div class="main-content">
-        @yield('content')
+        {{ $content ?? '' }}
     </div>
     @if(!isset($signoff) || $signoff !== false)
         <div class="signoff">
@@ -77,7 +77,7 @@
 </div>
 
 <div class="footer">
-    @yield('footer')
+    {{ $footer ?? '' }}
 </div>
 
 </body>

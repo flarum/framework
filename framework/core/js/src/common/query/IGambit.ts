@@ -71,7 +71,7 @@ export type KeyValueGambitSuggestion = {
 };
 
 export type GroupedGambitSuggestion = {
-  group: 'is' | 'has' | string;
+  group: 'is' | 'has' | 'allows' | string;
   key: string | string[];
 };
 
@@ -82,8 +82,16 @@ export abstract class BooleanGambit implements IGambit<GambitType.Grouped> {
   abstract key(): string | string[];
   abstract filterKey(): string;
 
+  booleanKey(): 'is' | 'has' | 'allows' {
+    return 'is';
+  }
+
+  groupKey(): string {
+    return app.translator.trans('core.lib.gambits.group_keys.' + this.booleanKey(), {}, true);
+  }
+
   pattern(): string {
-    const is = app.translator.trans('core.lib.gambits.boolean_key', {}, true);
+    const is = this.groupKey();
     let key = this.key();
 
     if (Array.isArray(key)) {
@@ -102,7 +110,7 @@ export abstract class BooleanGambit implements IGambit<GambitType.Grouped> {
   }
 
   fromFilter(value: string, negate: boolean): string {
-    const is = app.translator.trans('core.lib.gambits.boolean_key', {}, true);
+    const is = this.groupKey();
     const key = this.key();
 
     return `${negate ? '-' : ''}${is}:${key}`;
@@ -110,7 +118,7 @@ export abstract class BooleanGambit implements IGambit<GambitType.Grouped> {
 
   suggestion() {
     return {
-      group: app.translator.trans('core.lib.gambits.boolean_key', {}, true),
+      group: this.groupKey(),
       key: this.key(),
     };
   }

@@ -11,6 +11,7 @@ namespace Flarum\Mail\Job;
 
 use Flarum\Queue\AbstractJob;
 use Illuminate\Contracts\Mail\Mailer;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Mail\Message;
 
 class SendInformationalEmailJob extends AbstractJob
@@ -23,13 +24,13 @@ class SendInformationalEmailJob extends AbstractJob
         private readonly string $forumTitle,
         private readonly ?string $bodyTitle = null,
         protected array $views = [
-            'text' => 'flarum.forum::email.plain.information.base',
-            'html' => 'flarum.forum::email.html.information.base'
+            'text' => 'mail::plain.information.generic',
+            'html' => 'mail::html.information.generic'
         ]
     ) {
     }
 
-    public function handle(Mailer $mailer): void
+    public function handle(Mailer $mailer, Factory $view): void
     {
         $forumTitle = $this->forumTitle;
         $infoContent = $this->body;
@@ -37,9 +38,11 @@ class SendInformationalEmailJob extends AbstractJob
         $title = $this->bodyTitle;
         $username = $this->displayName;
 
+        $view->share(compact('forumTitle', 'userEmail', 'title', 'username'));
+
         $mailer->send(
             $this->views,
-            compact('forumTitle', 'infoContent', 'userEmail', 'title', 'username'),
+            compact('infoContent'),
             function (Message $message) {
                 $message->to($this->email);
                 $message->subject($this->subject);

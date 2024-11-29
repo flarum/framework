@@ -21,10 +21,7 @@ export default class PostMention extends MentionableModel<Post, AtMentionFormat>
    * match any username characters that have been typed.
    */
   initialResults(): Post[] {
-    const EditPostComposer = flarum.reg.checkModule('core', 'forum/components/EditPostComposer');
-    const ReplyComposer = flarum.reg.checkModule('core', 'forum/components/ReplyComposer');
-
-    if ((!ReplyComposer || !app.composer.bodyMatches(ReplyComposer)) && (!EditPostComposer || !app.composer.bodyMatches(EditPostComposer))) {
+    if (!app.composer.bodyMatches('flarum/forum/components/ReplyComposer') && !app.composer.bodyMatches('flarum/forum/components/EditPostComposer')) {
       return [];
     }
 

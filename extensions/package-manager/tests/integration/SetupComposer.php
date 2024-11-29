@@ -17,7 +17,7 @@ class SetupComposer
 
     private $config;
 
-    public function __construct(array $config = null)
+    public function __construct(?array $config = null)
     {
         $this->config = $config;
     }

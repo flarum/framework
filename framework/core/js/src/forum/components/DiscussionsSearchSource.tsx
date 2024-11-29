@@ -1,10 +1,9 @@
-import app from '../app';
+import app from '../../forum/app';
 import LinkButton from '../../common/components/LinkButton';
+import { SearchSource } from './Search';
 import type Mithril from 'mithril';
-import type Discussion from '../../common/models/Discussion';
-import type { SearchSource } from './Search';
-import extractText from '../../common/utils/extractText';
-import MinimalDiscussionListItem from './MinimalDiscussionListItem';
+import Discussion from '../../common/models/Discussion';
+import DiscussionsSearchItem from './DiscussionsSearchItem';
 
 /**
  * The `DiscussionsSearchSource` finds and displays discussion search results in
@@ -12,26 +11,19 @@ import MinimalDiscussionListItem from './MinimalDiscussionListItem';
  */
 export default class DiscussionsSearchSource implements SearchSource {
   protected results = new Map<string, Discussion[]>();
+  queryString: string | null = null;
 
-  public resource: string = 'discussions';
-
-  title(): string {
-    return extractText(app.translator.trans('core.lib.search_source.discussions.heading'));
-  }
-
-  isCached(query: string): boolean {
-    return this.results.has(query.toLowerCase());
-  }
-
-  async search(query: string, limit: number): Promise<void> {
+  async search(query: string): Promise<void> {
     query = query.toLowerCase();
 
     this.results.set(query, []);
 
+    this.setQueryString(query);
+
     const params = {
-      filter: { q: query },
-      page: { limit },
-      include: 'mostRelevantPost,user,firstPost,tags',
+      filter: { q: this.queryString || query },
+      page: { limit: this.limit() },
+      include: this.includes().join(','),
     };
 
     return app.store.find<Discussion[]>('discussions', params).then((results) => {
@@ -43,38 +35,38 @@ export default class DiscussionsSearchSource implements SearchSource {
   view(query: string): Array<Mithril.Vnode> {
     query = query.toLowerCase();
 
-    return (this.results.get(query) || []).map((discussion) => {
-      return (
-        <li className="DiscussionSearchResult" data-index={'discussions' + discussion.id()} data-id={discussion.id()}>
-          <MinimalDiscussionListItem discussion={discussion} params={{ q: query }} />
-        </li>
-      );
+    this.setQueryString(query);
+
+    const results = (this.results.get(query) || []).map((discussion) => {
+      const mostRelevantPost = discussion.mostRelevantPost();
+
+      return <DiscussionsSearchItem query={query} discussion={discussion} mostRelevantPost={mostRelevantPost} />;
     }) as Array<Mithril.Vnode>;
-  }
 
-  customGrouping(): boolean {
-    return false;
-  }
-
-  fullPage(query: string): Mithril.Vnode {
-    const filter = app.search.gambits.apply('discussions', { q: query });
-    const q = filter.q || null;
-    delete filter.q;
-
-    return (
+    return [
+      <li className="Dropdown-header">{app.translator.trans('core.lib.search_source.discussions.heading')}</li>,
       <li>
-        <LinkButton icon="fas fa-search" href={app.route('index', { q, filter })}>
+        <LinkButton icon="fas fa-search" href={app.route('index', { q: this.queryString })}>
           {app.translator.trans('core.lib.search_source.discussions.all_button', { query })}
         </LinkButton>
-      </li>
-    );
+      </li>,
+      ...results,
+    ];
   }
 
-  gotoItem(id: string): string | null {
-    const discussion = app.store.getById<Discussion>('discussions', id);
+  includes(): string[] {
+    return ['mostRelevantPost'];
+  }
 
-    if (!discussion) return null;
+  limit(): number {
+    return 3;
+  }
 
-    return app.route.discussion(discussion);
+  queryMutators(): string[] {
+    return [];
+  }
+
+  setQueryString(query: string): void {
+    this.queryString = query + ' ' + this.queryMutators().join(' ');
   }
 }

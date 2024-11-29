@@ -36,7 +36,7 @@ class Link implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         $siteUrl = $container->make(Config::class)->url();
 

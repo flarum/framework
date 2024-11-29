@@ -1,18 +1,21 @@
 import ItemList from '../../common/utils/ItemList';
-import AbstractSearch, { type SearchAttrs, type SearchSource as BaseSearchSource } from '../../common/components/AbstractSearch';
+import AbstractGlobalSearch, {
+  type SearchAttrs,
+  type GlobalSearchSource as BaseGlobalSearchSource,
+} from '../../common/components/AbstractGlobalSearch';
 import GeneralSearchSource from './GeneralSearchSource';
 import app from '../app';
 
-export interface SearchSource extends BaseSearchSource {}
+export interface GlobalSearchSource extends BaseGlobalSearchSource {}
 
-export default class Search extends AbstractSearch {
+export default class GlobalSearch extends AbstractGlobalSearch {
   static initAttrs(attrs: SearchAttrs) {
     attrs.label = app.translator.trans('core.admin.header.search_placeholder', {}, true);
     attrs.a11yRoleLabel = app.translator.trans('core.admin.header.search_role_label', {}, true);
   }
 
-  sourceItems(): ItemList<SearchSource> {
-    const items = new ItemList<SearchSource>();
+  sourceItems(): ItemList<GlobalSearchSource> {
+    const items = new ItemList<GlobalSearchSource>();
 
     items.add('general', new GeneralSearchSource());
 

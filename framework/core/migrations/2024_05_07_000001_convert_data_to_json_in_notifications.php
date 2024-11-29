@@ -7,23 +7,31 @@
  * LICENSE file that was distributed with this source code.
  */
 
+use Illuminate\Database\MariaDbConnection;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        if ($schema->getConnection()->getDriverName() === 'pgsql') {
-            $notifications = $schema->getConnection()->getSchemaGrammar()->wrapTable('notifications');
-            $data = $schema->getConnection()->getSchemaGrammar()->wrap('data');
-            $schema->getConnection()->statement("ALTER TABLE $notifications ALTER COLUMN $data TYPE JSON USING data::TEXT::JSON");
+        $connection = $schema->getConnection();
+        $driver = $connection->getDriverName();
+
+        if ($driver === 'pgsql') {
+            $notifications = $connection->getSchemaGrammar()->wrapTable('notifications');
+            $data = $connection->getSchemaGrammar()->wrap('data');
+            $connection->statement("ALTER TABLE $notifications ALTER COLUMN $data TYPE JSON USING data::TEXT::JSON");
         } else {
             $schema->table('notifications', function (Blueprint $table) {
                 $table->json('data_json')->nullable();
             });
 
-            if ($schema->getConnection()->getDriverName() === 'mysql') {
-                $schema->getConnection()->table('notifications')->update([
-                    'data_json' => $schema->getConnection()->raw('CAST(CONVERT(data USING utf8mb4) AS JSON)'),
+            if ($connection instanceof MariaDbConnection) {
+                $connection->table('notifications')->update([
+                    'data_json' => $connection->raw('IF(JSON_VALID(CONVERT(data USING utf8mb4)), CONVERT(data USING utf8mb4), NULL)'),
+                ]);
+            } elseif ($driver === 'mysql') {
+                $connection->table('notifications')->update([
+                    'data_json' => $connection->raw('CAST(CONVERT(data USING utf8mb4) AS JSON)'),
                 ]);
             }
 
@@ -38,18 +46,21 @@ return [
     },
 
     'down' => function (Builder $schema) {
-        if ($schema->getConnection()->getDriverName() === 'pgsql') {
-            $notifications = $schema->getConnection()->getSchemaGrammar()->wrapTable('notifications');
-            $data = $schema->getConnection()->getSchemaGrammar()->wrap('data');
-            $schema->getConnection()->statement("ALTER TABLE $notifications ALTER COLUMN $data TYPE BYTEA USING data::TEXT::BYTEA");
+        $connection = $schema->getConnection();
+        $driver = $connection->getDriverName();
+
+        if ($driver === 'pgsql') {
+            $notifications = $connection->getSchemaGrammar()->wrapTable('notifications');
+            $data = $connection->getSchemaGrammar()->wrap('data');
+            $connection->statement("ALTER TABLE $notifications ALTER COLUMN $data TYPE BYTEA USING data::TEXT::BYTEA");
         } else {
             $schema->table('notifications', function (Blueprint $table) {
                 $table->binary('data_binary')->nullable();
             });
 
-            if ($schema->getConnection()->getDriverName() === 'mysql') {
-                $schema->getConnection()->table('notifications')->update([
-                    'data_binary' => $schema->getConnection()->raw('data'),
+            if ($driver === 'mysql') {
+                $connection->table('notifications')->update([
+                    'data_binary' => $connection->raw('data'),
                 ]);
             }
 

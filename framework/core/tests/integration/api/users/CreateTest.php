@@ -139,6 +139,67 @@ class CreateTest extends TestCase
     }
 
     #[Test]
+    public function admin_can_create_user_with_longest_valid_email()
+    {
+        $localPart = str_repeat('a', 64);
+        $domain = str_repeat('a', 61).'.'.str_repeat('a', 60).'.'.str_repeat('a', 60).'.local';
+        $email = $localPart.'@'.$domain;
+
+        $response = $this->send(
+            $this->request(
+                'POST',
+                '/api/users',
+                [
+                    'authenticatedAs' => 1,
+                    'json' => [
+                        'data' => [
+                            'attributes' => [
+                                'username' => 'test',
+                                'password' => 'too-obscure',
+                                'email' => $email,
+                            ],
+                        ]
+                    ],
+                ]
+            )
+        );
+
+        $this->assertEquals(201, $response->getStatusCode());
+
+        /** @var User $user */
+        $user = User::where('username', 'test')->firstOrFail();
+
+        $this->assertEquals($email, $user->email);
+    }
+
+    #[Test]
+    public function admin_cannot_create_user_with_invalid_email_length()
+    {
+        $email = str_repeat('a', 65).'@'.str_repeat('a', 256).'.local';
+
+        $response = $this->send(
+            $this->request(
+                'POST',
+                '/api/users',
+                [
+                    'authenticatedAs' => 1,
+                    'json' => [
+                        'data' => [
+                            'attributes' => [
+                                'username' => 'test',
+                                'password' => 'too-obscure',
+                                'email' => $email,
+                            ],
+                        ]
+                    ],
+                ]
+            )
+        );
+
+        $this->assertEquals(422, $response->getStatusCode());
+    }
+
+    #[Test]
     public function disabling_sign_up_prevents_user_creation()
     {
         /** @var SettingsRepositoryInterface $settings */

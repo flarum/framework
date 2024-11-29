@@ -32,7 +32,7 @@ on:
         type: string
         required: false
         # Keep PHP versions synced with build-install-packages.yml
-        default: '["8.2", "8.3"]'
+        default: '["8.2", "8.3", "8.4"]'
 
       php_extensions:
         description: PHP extensions to install.

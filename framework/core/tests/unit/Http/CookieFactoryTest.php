@@ -17,7 +17,7 @@ use PHPUnit\Framework\Attributes\Test;
 
 class CookieFactoryTest extends TestCase
 {
-    protected function factory(array $config = null): CookieFactory
+    protected function factory(?array $config = null): CookieFactory
     {
         $config = new Config(array_merge([
             'url' => 'http://flarum.test'

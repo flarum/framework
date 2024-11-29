@@ -1,5 +1,5 @@
 import type Mithril from 'mithril';
-import type { SearchSource } from './Search';
+import type { GlobalSearchSource } from './GlobalSearch';
 import { GeneralIndexData } from '../states/GeneralSearchIndex';
 import { ExtensionConfig } from '../utils/AdminRegistry';
 export declare class GeneralSearchResult {
@@ -20,7 +20,7 @@ export declare class GeneralSearchResult {
 /**
  * Finds and displays settings, permissions and installed extensions (i.e. general search results) in the search dropdown.
  */
-export default class GeneralSearchSource implements SearchSource {
+export default class GeneralSearchSource implements GlobalSearchSource {
     protected results: Map<string, GeneralSearchResult[]>;
     resource: string;
     title(): string;

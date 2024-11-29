@@ -92,7 +92,7 @@ class ModelVisibility implements ExtenderInterface
         return $this;
     }
 
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         if (! class_exists($this->modelClass)) {
             return;

@@ -15,15 +15,24 @@
 .DiscussionListItem-content {
   position: relative;
   color: var(--muted-color);
-  display: grid;
-  grid-template-columns: auto minmax(50%, 1fr) auto;
+  display: flex;
   gap: 16px;
   padding: 12px 26px 12px 0;
+
+  > * {
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
 }
 .DiscussionListItem-main {
   color: inherit;
   text-decoration: none;
   display: block;
+  flex-grow: 1;
+  flex-shrink: 1;
+}
+.DiscussionListItem-author {
+  position: relative;
 }
 .DiscussionListItem-author-avatar {
   display: block;
@@ -35,7 +44,7 @@
   pointer-events: none;
 
   position: absolute;
-  top: 0;
+  top: -14px;
   left: -2px;
 }
 .DiscussionListItem-title {
@@ -167,9 +176,9 @@
     }
   }
   .DiscussionListItem-badges {
-    width: 38px;
-    left: 19px;
-    top: -4px;
+    width: 48px;
+    left: -4px;
+    top: -15px;
 
     .badge {
       .Badge--size(20px);

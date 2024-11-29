@@ -27,7 +27,7 @@ class OverrideExtensionManagerForTests implements ExtenderInterface
         $this->extensions = $extensions;
     }
 
-    public function extend(Container $container, Extension $extension = null): void
+    public function extend(Container $container, ?Extension $extension = null): void
     {
         $container->when(ExtensionManagerIncludeCurrent::class)->needs('$enabledIds')->give($this->extensions);
         if (count($this->extensions)) {

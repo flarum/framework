@@ -86,7 +86,7 @@ declare class ComposerState {
      * @param type The component class to check against. Subclasses are accepted as well.
      * @param data
      */
-    bodyMatches(type: object, data?: any): boolean;
+    bodyMatches(type: object | string, data?: any): boolean;
     /**
      * Determine whether or not the Composer is visible.
      *

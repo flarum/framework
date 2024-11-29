@@ -40,7 +40,7 @@ class PostTestCustomPost extends AbstractEventPost implements MergeableInterface
 {
     public static string $type = 'customPost';
 
-    public function saveAfter(Post $previous = null): static
+    public function saveAfter(?Post $previous = null): static
     {
         $this->save();
 

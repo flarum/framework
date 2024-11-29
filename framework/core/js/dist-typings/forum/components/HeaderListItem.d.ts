@@ -7,7 +7,7 @@ export interface IHeaderListItemAttrs extends ComponentAttrs {
     content: string;
     excerpt: string;
     datetime?: Date;
-    href: string;
+    href?: string | null;
     onclick?: (e: Event) => void;
     actions?: Mithril.Children;
 }

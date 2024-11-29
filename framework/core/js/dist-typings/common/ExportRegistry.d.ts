@@ -79,6 +79,7 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     chunks: Map<string, Chunk>;
     chunkModules: Map<string, Module>;
     private _revisions;
+    private _webpack_runtimes;
     add(namespace: string, id: string, object: any): void;
     onLoad(namespace: string, id: string, handler: (module: any) => void): void;
     get(namespace: string, id: string): any;

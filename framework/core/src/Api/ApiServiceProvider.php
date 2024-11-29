@@ -207,6 +207,10 @@ class ApiServiceProvider extends AbstractServiceProvider
                 $path = rtrim("/$type$endpoint->path", '/');
                 $name = "$type.$endpoint->name";
 
+                if ($prefix = $resource->routeNamePrefix()) {
+                    $name = "$prefix.$name";
+                }
+
                 $routes->addRoute($method, $path, $name, $factory->toApiResource($resource::class, $endpoint->name));
             }
         }
