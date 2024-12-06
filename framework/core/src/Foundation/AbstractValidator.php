@@ -11,6 +11,8 @@ namespace Flarum\Foundation;
 
 use Flarum\Locale\TranslatorInterface;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Validator;
@@ -84,9 +86,21 @@ abstract class AbstractValidator
     {
         $rules = $this->getRules();
 
-        return $this->validateMissingKeys
-            ? $rules
-            : Arr::only($rules, array_keys($attributes));
+        if ($this->validateMissingKeys) {
+            return $rules;
+        }
+
+        return Collection::make($rules)
+            ->filter(function (mixed $rule, string $key) use ($attributes) {
+                foreach ($attributes as $attributeKey => $attributeValue) {
+                    if ($attributeKey === $key || Str::startsWith($key, $attributeKey . '.')) {
+                        return true;
+                    }
+                }
+
+                return false;
+            })
+            ->all();
     }
 
     protected function getMessages(): array
