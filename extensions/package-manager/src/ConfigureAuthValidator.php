@@ -13,7 +13,7 @@ use Flarum\Foundation\AbstractValidator;
 
 class ConfigureAuthValidator extends AbstractValidator
 {
-    use AllValidatorRules;
+    protected bool $validateMissingKeys = true;
 
     protected array $rules = [
         'github-oauth' => ['sometimes', 'array'],

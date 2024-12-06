@@ -22,12 +22,11 @@ abstract class AbstractValidator
      */
     protected array $configuration = [];
 
-    /**
-     * @var array
-     */
     protected array $rules = [];
 
     protected ?Validator $laravelValidator = null;
+
+    protected bool $validateMissingKeys = false;
 
     public function __construct(
         protected Factory $validator,
@@ -54,6 +53,16 @@ abstract class AbstractValidator
         }
     }
 
+    /**
+     * Whether to validate missing keys or to only validate provided data keys.
+     */
+    public function validateMissingKeys(bool $validateMissingKeys = true): static
+    {
+        $this->validateMissingKeys = $validateMissingKeys;
+
+        return $this;
+    }
+
     public function prepare(array $attributes): static
     {
         $this->laravelValidator ??= $this->makeValidator($attributes);
@@ -71,6 +80,15 @@ abstract class AbstractValidator
         return $this->rules;
     }
 
+    protected function getActiveRules(array $attributes): array
+    {
+        $rules = $this->getRules();
+
+        return $this->validateMissingKeys
+            ? $rules
+            : Arr::only($rules, array_keys($attributes));
+    }
+
     protected function getMessages(): array
     {
         return [];
@@ -78,7 +96,7 @@ abstract class AbstractValidator
 
     protected function makeValidator(array $attributes): Validator
     {
-        $rules = Arr::only($this->getRules(), array_keys($attributes));
+        $rules = $this->getActiveRules($attributes);
 
         $validator = $this->validator->make($attributes, $rules, $this->getMessages());
 
