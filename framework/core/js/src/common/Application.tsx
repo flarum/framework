@@ -279,6 +279,13 @@ export default class Application {
 
   initialRoute!: string;
 
+  /**
+   * @internal
+   */
+  public currentInitializerExtension: string | null = null;
+
+  private handledErrors: { extension: null | string; errorId: string; error: any }[] = [];
+
   public load(payload: Application['data']) {
     this.data = payload;
     this.translator.setLocale(payload.locale);
@@ -288,17 +295,19 @@ export default class Application {
     const caughtInitializationErrors: CallableFunction[] = [];
 
     this.initializers.toArray().forEach((initializer) => {
+      this.currentInitializerExtension = initializer.itemName.includes('/')
+        ? initializer.itemName.replace(/(\/flarum-ext-)|(\/flarum-)/g, '-')
+        : initializer.itemName;
+
       try {
         initializer(this);
       } catch (e) {
-        const extension = initializer.itemName.includes('/')
-          ? initializer.itemName.replace(/(\/flarum-ext-)|(\/flarum-)/g, '-')
-          : initializer.itemName;
-
         caughtInitializationErrors.push(() =>
           fireApplicationError(
-            extractText(app.translator.trans('core.lib.error.extension_initialiation_failed_message', { extension })),
-            `${extension} failed to initialize`,
+            extractText(
+              app.translator.trans('core.lib.error.extension_initialiation_failed_message', { extension: this.currentInitializerExtension })
+            ),
+            `${this.currentInitializerExtension} failed to initialize`,
             e
           )
         );
@@ -726,5 +735,13 @@ export default class Application {
     const prefix = m.route.prefix === '' ? this.forum.attribute('basePath') : '';
 
     return prefix + url + (queryString ? '?' + queryString : '');
+  }
+
+  public handleErrorOnce(extension: null | string, errorId: string, userTitle: string, consoleTitle: string, error: any) {
+    if (this.handledErrors.some((e) => e.errorId === errorId)) return;
+
+    this.handledErrors.push({ extension, errorId, error });
+
+    fireApplicationError(userTitle, consoleTitle, error);
   }
 }
