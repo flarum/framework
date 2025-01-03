@@ -140,12 +140,12 @@ class RegisterAsyncChunksPlugin {
 
                     if (
                       !chunkModuleMemory[sourceChunkId].includes(urlPath) &&
-                      !RegisterAsyncChunksPlugin.registry[`${chunkId}:${moduleId}:${namespace}`]?.includes(urlPath)
+                      !RegisterAsyncChunksPlugin.registry[`${sourceChunkId}:${chunkId}:${moduleId}:${namespace}`]?.includes(urlPath)
                     ) {
                       reg.push(`flarum.reg.addChunkModule('${chunkId}', '${moduleId}', '${namespace}', '${urlPath}');`);
                       chunkModuleMemory[sourceChunkId].push(urlPath);
-                      RegisterAsyncChunksPlugin.registry[`${chunkId}:${moduleId}:${namespace}`] ||= [];
-                      RegisterAsyncChunksPlugin.registry[`${chunkId}:${moduleId}:${namespace}`].push(urlPath);
+                      RegisterAsyncChunksPlugin.registry[`${sourceChunkId}:${chunkId}:${moduleId}:${namespace}`] ||= [];
+                      RegisterAsyncChunksPlugin.registry[`${sourceChunkId}:${chunkId}:${moduleId}:${namespace}`].push(urlPath);
                     }
                   });
 
