@@ -211,7 +211,16 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     // @ts-ignore
     const wr = this._webpack_runtimes[namespace] ?? __webpack_require__;
 
-    return await wr.e(module.chunkId).then(wr.bind(wr, module.moduleId));
+    return await wr
+      .e(module.chunkId)
+      .then(wr.bind(wr, module.moduleId))
+      .then(() => {
+        const m = this.get(namespace, id);
+
+        m.default ??= m;
+
+        return m;
+      });
   }
 
   public clear(): void {
