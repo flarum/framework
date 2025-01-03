@@ -51,7 +51,7 @@ export default class SubscriptionMenu<CustomAttrs extends ISubscriptionMenuAttrs
     const discussion = this.attrs.discussion;
     const subscription = discussion.subscription();
 
-    const buttonAttrs = this.possibleButtonAttrs[subscription];
+    const buttonAttrs = this.possibleButtonAttrs[subscription ?? 'null'] ?? this.possibleButtonAttrs.null;
 
     const preferences = app.session.user!.preferences()!;
     const notifyEmail = preferences['notify_newPost_email'];
