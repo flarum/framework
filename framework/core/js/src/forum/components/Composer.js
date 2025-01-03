@@ -31,6 +31,8 @@ export default class Composer extends Component {
 
     // Store the initial position so that we can trigger animations correctly.
     this.prevPosition = this.state.position;
+
+    this.textEditorBuilt = false;
   }
 
   view() {
@@ -53,7 +55,9 @@ export default class Composer extends Component {
         <div className="Composer-handle" oncreate={this.configHandle.bind(this)} />
         <ul className="Composer-controls">{listItems(this.controlItems().toArray())}</ul>
         <div className="Composer-content" onclick={showIfMinimized}>
-          {ComposerBody && <ComposerBody {...body.attrs} composer={this.state} disabled={classes.minimized} />}
+          {ComposerBody && (
+            <ComposerBody {...body.attrs} composer={this.state} disabled={classes.minimized} onTextEditorBuilt={this.onTextEditorBuilt.bind(this)} />
+          )}
         </div>
       </div>
     );
@@ -62,6 +66,17 @@ export default class Composer extends Component {
   onupdate(vnode) {
     super.onupdate(vnode);
 
+    if (this.textEditorBuilt) {
+      this.updateContainer();
+    }
+  }
+
+  onTextEditorBuilt() {
+    this.updateContainer();
+    this.textEditorBuilt = true;
+  }
+
+  updateContainer() {
     if (this.state.position === this.prevPosition) {
       // Set the height of the Composer element and its contents on each redraw,
       // so that they do not lose it if their DOM elements are recreated.
