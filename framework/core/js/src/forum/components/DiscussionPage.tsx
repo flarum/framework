@@ -84,6 +84,10 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
   }
 
   view() {
+    if (this.loading || !this.discussion) {
+      return <LoadingIndicator />;
+    }
+
     return (
       <PageStructure
         className="DiscussionPage"
