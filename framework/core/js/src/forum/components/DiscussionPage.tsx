@@ -165,40 +165,13 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     app.setTitle(discussion.title());
     app.setTitleCount(0);
 
-    // When the API responds with a discussion, it will also include a number of
-    // posts. Some of these posts are included because they are on the first
-    // page of posts we want to display (determined by the `near` parameter) –
-    // others may be included because due to other relationships introduced by
-    // extensions. We need to distinguish the two so we don't end up displaying
-    // the wrong posts. We do so by filtering out the posts that don't have
-    // the 'discussion' relationship linked, then sorting and splicing.
-    let includedPosts: Post[] = [];
-    if (discussion.payload && discussion.payload.included) {
-      const discussionId = discussion.id();
-
-      includedPosts = discussion.payload.included
-        .filter(
-          (record) =>
-            record.type === 'posts' &&
-            record.relationships &&
-            record.relationships.discussion &&
-            !Array.isArray(record.relationships.discussion.data) &&
-            record.relationships.discussion.data.id === discussionId
-        )
-        // We can make this assertion because posts should be in the store,
-        // since they were in the discussion's payload.
-        .map((record) => app.store.getById<Post>('posts', record.id) as Post)
-        .sort((a: Post, b: Post) => a.number() - b.number())
-        .slice(0, 20);
-    }
-
     // Set up the post stream for this discussion, along with the first page of
     // posts we want to display. Tell the stream to scroll down and highlight
     // the specific post that was routed to.
-    this.stream = new PostStreamState(discussion, includedPosts);
+    this.stream = new PostStreamState(discussion);
     const rawNearParam = m.route.param('near');
     const nearParam = rawNearParam === 'reply' ? 'reply' : parseInt(rawNearParam);
-    this.stream.goToNumber(nearParam || (includedPosts[0]?.number() ?? 0), true).then(() => {
+    this.stream.goToNumber(nearParam || 0, true).then(() => {
       this.discussion = discussion;
 
       app.current.set('discussion', discussion);

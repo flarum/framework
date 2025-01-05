@@ -123,8 +123,9 @@ class PostResource extends AbstractDatabaseResource
             Endpoint\Index::make()
                 ->extractOffset(function (Context $context, array $defaultExtracts): int {
                     $queryParams = $context->request->getQueryParams();
+                    $near = intval(Arr::get($queryParams, 'page.near'));
 
-                    if (($near = Arr::get($queryParams, 'page.near')) > 1) {
+                    if ($near > 1) {
                         $sort = $defaultExtracts['sort'];
                         $filter = $defaultExtracts['filter'];
 
