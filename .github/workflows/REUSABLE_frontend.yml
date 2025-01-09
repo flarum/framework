@@ -162,7 +162,6 @@ jobs:
       - name: JS Checks & Production Build
         uses: glowingblue/action-build@di/custom-actor
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           build_script: ${{ inputs.build_script }}
           build_typings_script: ${{ inputs.build_typings_script }}
           format_script: ${{ inputs.enable_prettier == true && inputs.format_script || '' }}
