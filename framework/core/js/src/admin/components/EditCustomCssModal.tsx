@@ -6,8 +6,6 @@ export default class EditCustomCssModal extends SettingsModal {
   oninit(vnode: Mithril.Vnode<ISettingsModalAttrs, this>) {
     super.oninit(vnode);
 
-    console.log(this.settings);
-
     if (this.setting('custom_less_error')()) {
       this.alertAttrs = {
         type: 'error',
