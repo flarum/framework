@@ -195,8 +195,8 @@ class ForumServiceProvider extends AbstractServiceProvider
                     $container->make('flarum.assets.forum'),
                     $container->make('flarum.locales'),
                     $container,
-                    $container->make('flarum.less.config'),
                     $container->make(SettingsRepositoryInterface::class),
+                    $container->make('flarum.less.config'),
                 );
                 $validator->whenSettingsSaved($event);
             }
@@ -209,8 +209,8 @@ class ForumServiceProvider extends AbstractServiceProvider
                     $container->make('flarum.assets.forum'),
                     $container->make('flarum.locales'),
                     $container,
-                    $container->make('flarum.less.config'),
                     $container->make(SettingsRepositoryInterface::class),
+                    $container->make('flarum.less.config'),
                 );
                 $validator->whenSettingsSaving($event);
             }

@@ -32,8 +32,8 @@ class ValidateCustomLess
         protected Assets $assets,
         protected LocaleManager $locales,
         protected Container $container,
-        protected array $customLessSettings = [],
         protected SettingsRepositoryInterface $settings,
+        protected array $customLessSettings = [],
     ) {
     }
 
