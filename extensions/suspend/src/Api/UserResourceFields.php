@@ -26,7 +26,7 @@ class UserResourceFields
             Schema\Str::make('suspendMessage')
                 ->writable($canSuspend)
                 ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id || $canSuspend($user, $context)),
-            Schema\Date::make('suspendedUntil')
+            Schema\DateTime::make('suspendedUntil')
                 ->writable($canSuspend)
                 ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id || $canSuspend($user, $context))
                 ->nullable(),
