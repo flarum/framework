@@ -144,7 +144,7 @@ class IncludeFlagsVisibilityTest extends TestCase
             'user_with_general_permission_sees_where_unrestricted_tag' => [2, [6, 7, 8]],
             'user_with_tag1_permission_sees_tag1_flags' => [3, [1, 2, 3, 4, 5]],
             'normal_user_sees_none' => [4, []],
-            'normal_user_sees_own' => [5, [2, 7, 4, 8]],
+            'normal_user_does_not_see_own' => [5, []],
         ];
     }
 }

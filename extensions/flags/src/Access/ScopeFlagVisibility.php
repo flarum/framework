@@ -37,10 +37,8 @@ class ScopeFlagVisibility
                     if ($actor->hasPermission('discussion.viewFlags')) {
                         $query->orWhereDoesntHave('post.discussion.tags');
                     }
-                }
-
-                if (! $actor->hasPermission('discussion.viewFlags')) {
-                    $query->orWhere('flags.user_id', $actor->id);
+                } elseif (! $actor->hasPermission('discussion.viewFlags')) {
+                    $query->whereRaw('1 = 0');
                 }
             });
     }
