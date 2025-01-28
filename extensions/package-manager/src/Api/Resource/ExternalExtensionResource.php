@@ -9,6 +9,7 @@
 
 namespace Flarum\ExtensionManager\Api\Resource;
 
+use Composer\Semver\Semver;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\AbstractResource;
 use Flarum\Api\Resource\Contracts\Countable;
@@ -81,6 +82,11 @@ class ExternalExtensionResource extends AbstractResource implements Listable, Pa
             Schema\Boolean::make('compatibleWithLatestFlarum')
                 ->property('compatible_with_latest_flarum'),
             Schema\Integer::make('downloads'),
+
+            Schema\Boolean::make('isSupported')
+                ->get(function (Extension $extension) {
+                    return Semver::satisfies(Application::VERSION, $extension->latest_flarum_version_supported);
+                }),
         ];
     }
 

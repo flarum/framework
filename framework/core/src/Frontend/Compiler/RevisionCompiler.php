@@ -13,6 +13,7 @@ use Flarum\Frontend\Compiler\Concerns\HasSources;
 use Flarum\Frontend\Compiler\Source\FileSource;
 use Flarum\Frontend\Compiler\Source\SourceInterface;
 use Flarum\Frontend\Compiler\Source\StringSource;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Cloud;
 
 /**
@@ -29,6 +30,7 @@ class RevisionCompiler implements CompilerInterface
     public function __construct(
         protected Cloud $assetsDir,
         protected string $filename,
+        protected SettingsRepositoryInterface $settings
     ) {
         $this->versioner = new FileVersioner($assetsDir);
     }

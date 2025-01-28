@@ -69,11 +69,7 @@ export default class AdminApplication extends Application {
      * @internal
      */
     registry: AdminRegistry;
-    extensionCategories: {
-        feature: number;
-        theme: number;
-        language: number;
-    };
+    extensionCategories: Record<string, number>;
     history: IHistory;
     search: SearchManager<SearchState>;
     /**

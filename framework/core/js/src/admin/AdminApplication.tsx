@@ -83,7 +83,7 @@ export default class AdminApplication extends Application {
    */
   registry = new AdminRegistry();
 
-  extensionCategories = {
+  extensionCategories: Record<string, number> = {
     feature: 30,
     theme: 20,
     language: 10,

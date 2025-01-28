@@ -1,5 +1,29 @@
 # Changelog
 
+## [v2.0.0-beta.2](https://github.com/flarum/framework/compare/v2.0.0-beta.1...v2.0.0-beta.2)
+### Fixed
+- (em) incorrect extension compatibility check [#4155]
+- (webpack) produces incorrect ext namespace (a7d584f8e1ec650035dafd660a70586d1d0d6bb9)
+- bad modal alert text alignment [#4152]
+- beta.1 early bugs (a81d13e26c1c2191859493de2ad45a515ad07b90)
+- code split fails with common module [#4151]
+- composer no longer autofocusing [#4149]
+- conditional renders 0 (1cd644d27feb4eeea5cbaedd009a3af2643af396)
+- custom styles from 1.x can crash the app [#4159]
+- discussion page renders before loading is finished [#4158]
+- discussion posts not always properly loaded [#4156]
+- fixed side nav missing top spacing [#4147]
+- invisible dropdown text when header is colored (958dec594486cbc14cf8f922db324a8ffc0245e3)
+- lazy module import always returns default module [#4148]
+- mistakenly removed code (33121ed1cc260bf967f0b8c4d10ab5099410bac0)
+- select input cuts off [#4157]
+- tag selection icon alignment [#4153]
+- unexpected subscription breaks rendering [#4150]
+- use correct human time format key [#4154]
+### Changed
+- (mentions) only access related mentions if loaded (9fe17b3c24c5b9236e419a00c1230b2994b8c009)
+- extensibility improvements (00426c85e38efc91554af33644b088e72b3b3c1b)
+
 ## [v2.0.0-beta.1](https://github.com/flarum/framework/compare/v1.8.9...v2.0.0-beta.1)
 ### Changed
 - php 8.4 [#4103]

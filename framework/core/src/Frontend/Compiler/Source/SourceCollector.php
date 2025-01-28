@@ -35,11 +35,17 @@ class SourceCollector
         return $this;
     }
 
-    public function addString(Closure $callback): static
+    public function addString(Closure $callback, ?string $key = null): static
     {
-        $this->sources[] = $this->validateSourceType(
+        $source = $this->validateSourceType(
             new StringSource($callback)
         );
+
+        if (! empty($key)) {
+            $this->sources[$key] = $source;
+        } else {
+            $this->sources[] = $source;
+        }
 
         return $this;
     }

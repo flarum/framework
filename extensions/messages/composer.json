@@ -7,7 +7,7 @@
     "type": "flarum-extension",
     "license": "MIT",
     "require": {
-        "flarum/core": "^2.0.0-beta.1"
+        "flarum/core": "^2.0.0-beta.2"
     },
     "authors": [
         {

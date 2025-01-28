@@ -10,6 +10,7 @@
  * - `titlePlaceholder`
  */
 export default class DiscussionComposer extends ComposerBody<import("./ComposerBody").IComposerBodyAttrs> {
+    static focusOnSelector: () => string;
     static initAttrs(attrs: any): void;
     constructor();
     oninit(vnode: any): void;

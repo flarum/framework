@@ -10,6 +10,7 @@ export interface IComposerBodyAttrs extends ComponentAttrs {
     user: any;
     confirmExit: string;
     disabled: boolean;
+    onTextEditorBuilt?: Function | null;
 }
 /**
  * The `ComposerBody` component handles the body, or the content, of the

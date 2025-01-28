@@ -12,6 +12,7 @@ namespace Flarum\Frontend\Compiler;
 use Flarum\Frontend\Compiler\Source\FileSource;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Less_Exception_Compiler;
 use Less_FileManager;
 use Less_Parser;
 use Less_Tree_Import;
@@ -71,6 +72,10 @@ class LessCompiler extends RevisionCompiler
             return '';
         }
 
+        if (! empty($this->settings->get('custom_less_error'))) {
+            unset($sources['custom_less']);
+        }
+
         ini_set('xdebug.max_nesting_level', '200');
 
         $parser = new Less_Parser([
@@ -96,7 +101,27 @@ class LessCompiler extends RevisionCompiler
             $parser->registerFunction($name, $callback);
         }
 
-        return $this->finalize($parser->getCss());
+        try {
+            $compiled = $this->finalize($parser->getCss());
+
+            if (isset($sources['custom_less'])) {
+                $this->settings->delete('custom_less_error');
+            }
+
+            return $compiled;
+        } catch (Less_Exception_Compiler $e) {
+            if (isset($sources['custom_less'])) {
+                unset($sources['custom_less']);
+
+                $compiled = $this->compile($sources);
+
+                $this->settings->set('custom_less_error', $e->getMessage());
+
+                return $compiled;
+            }
+
+            throw $e;
+        }
     }
 
     protected function finalize(string $parsedCss): string

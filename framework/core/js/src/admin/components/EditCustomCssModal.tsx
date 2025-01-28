@@ -1,7 +1,19 @@
 import app from '../../admin/app';
-import SettingsModal from './SettingsModal';
+import SettingsModal, { type ISettingsModalAttrs } from './SettingsModal';
+import Mithril from 'mithril';
 
 export default class EditCustomCssModal extends SettingsModal {
+  oninit(vnode: Mithril.Vnode<ISettingsModalAttrs, this>) {
+    super.oninit(vnode);
+
+    if (this.setting('custom_less_error')()) {
+      this.alertAttrs = {
+        type: 'error',
+        content: this.setting('custom_less_error')(),
+      };
+    }
+  }
+
   className() {
     return 'EditCustomCssModal TextareaCodeModal Modal--large';
   }

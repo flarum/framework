@@ -24,7 +24,7 @@ export default function humanTime(time: dayjs.ConfigType): string {
     if (d.isSame(now, 'year')) {
       ago = app.translator.formatDateTime(d, 'core.lib.datetime_formats.humanTimeShort');
     } else {
-      ago = app.translator.formatDateTime(d, 'core.lib.datetime_formats.humanTimeFull');
+      ago = app.translator.formatDateTime(d, 'core.lib.datetime_formats.humanTimeLong');
     }
   } else {
     ago = d.fromNow();

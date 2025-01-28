@@ -15,6 +15,8 @@ import Stream from '../../common/utils/Stream';
  * - `titlePlaceholder`
  */
 export default class DiscussionComposer extends ComposerBody {
+  static focusOnSelector = () => '.DiscussionComposer-title';
+
   static initAttrs(attrs) {
     super.initAttrs(attrs);
 
@@ -47,7 +49,7 @@ export default class DiscussionComposer extends ComposerBody {
       'discussionTitle',
       <h3>
         <input
-          className="FormControl"
+          className="FormControl DiscussionComposer-title"
           bidi={this.title}
           placeholder={this.attrs.titlePlaceholder}
           disabled={!!this.attrs.disabled}
