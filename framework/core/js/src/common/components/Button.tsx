@@ -11,8 +11,10 @@ export interface IButtonAttrs extends ComponentAttrs {
    * Class(es) of an optional icon to be rendered within the button.
    *
    * If provided, the button will gain a `has-icon` class.
+   *
+   * You may also provide a rendered icon element directly.
    */
-  icon?: string;
+  icon?: string | Mithril.Children;
   /**
    * Disables button from user input.
    *
@@ -80,6 +82,7 @@ export default class Button<CustomAttrs extends IButtonAttrs = IButtonAttrs> ext
       hasIcon: iconName,
       disabled: disabled || loading,
       loading: loading,
+      hasSubContent: !!this.getButtonSubContent(),
     });
 
     const buttonAttrs = {
@@ -110,10 +113,10 @@ export default class Button<CustomAttrs extends IButtonAttrs = IButtonAttrs> ext
    * Get the template for the button's content.
    */
   protected getButtonContent(children: Mithril.Children): Mithril.ChildArray {
-    const iconName = this.attrs.icon;
+    const icon = this.attrs.icon;
 
     return [
-      iconName && <Icon name={iconName} className="Button-icon" />,
+      icon ? typeof icon === 'string' ? <Icon name={icon} className="Button-icon" /> : icon : null,
       children && (
         <span className="Button-label">
           <span className="Button-labelText">{children}</span>

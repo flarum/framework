@@ -78,14 +78,14 @@ export default function () {
         'tag',
         <Dropdown
           className="Dropdown--restrictByTag"
-          buttonClassName="Button Button--text"
+          buttonClassName="Button Button--link"
           label={app.translator.trans('flarum-tags.admin.permissions.restrict_by_tag_heading')}
           icon="fas fa-plus"
           caretIcon={null}
         >
           {tags.map((tag) => (
-            <Button icon={true} onclick={() => tag.save({ isRestricted: true })}>
-              {[tagIcon(tag, { className: 'Button-icon' }), ' ', tag.name()]}
+            <Button icon={tagIcon(tag, { className: 'Button-icon' })} onclick={() => tag.save({ isRestricted: true })}>
+              {tag.name()}
             </Button>
           ))}
         </Dropdown>
