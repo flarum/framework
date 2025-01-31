@@ -47,6 +47,7 @@ export interface IButtonAttrs extends ComponentAttrs {
    *
    * Default: `null`
    */
+  helperText?: Mithril.Children;
 }
 
 /**
