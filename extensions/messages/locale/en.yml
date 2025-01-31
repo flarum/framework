@@ -22,6 +22,7 @@ flarum-messages:
 
     dialog_section:
       back_label: Go back
+      cannot_reply_text: This user cannot reply
       controls:
         details_button: Details
       controls_toggle_label: Dialog control actions

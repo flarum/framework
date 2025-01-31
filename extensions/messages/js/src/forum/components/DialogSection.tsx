@@ -42,11 +42,14 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
         <div className="DialogSection-header">
           <Avatar user={recipient} />
           <div className="DialogSection-header-info">
-            {(recipient && (
-              <Link href={app.route.user(recipient!)}>
-                <h2>{username(recipient)}</h2>
-              </Link>
-            )) || <h2>{username(recipient)}</h2>}
+            <h2 className="DialogSection-header-info-title">
+              {(recipient && <Link href={app.route.user(recipient!)}>{username(recipient)}</Link>) || username(recipient)}
+              {recipient && recipient.canSendAnyMessage() ? null : (
+                <span className="DialogSection-header-info-helperText">
+                  {app.translator.trans('flarum-messages.forum.dialog_section.cannot_reply_text')}
+                </span>
+              )}
+            </h2>
             <div className="badges">{listItems(recipient?.badges().toArray() || [])}</div>
           </div>
           <div className="DialogSection-header-actions">{this.actionItems().toArray()}</div>
