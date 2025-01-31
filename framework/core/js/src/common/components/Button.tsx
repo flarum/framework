@@ -42,6 +42,11 @@ export interface IButtonAttrs extends ComponentAttrs {
    * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#attr-type
    */
   type?: string;
+  /**
+   * Helper text. Displayed under the button label.
+   *
+   * Default: `null`
+   */
 }
 
 /**
@@ -56,7 +61,7 @@ export interface IButtonAttrs extends ComponentAttrs {
  */
 export default class Button<CustomAttrs extends IButtonAttrs = IButtonAttrs> extends Component<CustomAttrs> {
   view(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
-    let { type, 'aria-label': ariaLabel, icon: iconName, disabled, loading, className, class: _class, ...attrs } = this.attrs;
+    let { type, 'aria-label': ariaLabel, icon: iconName, disabled, loading, className, class: _class, helperText, ...attrs } = this.attrs;
 
     // If no `type` attr provided, set to "button"
     type ||= 'button';
@@ -108,8 +113,17 @@ export default class Button<CustomAttrs extends IButtonAttrs = IButtonAttrs> ext
 
     return [
       iconName && <Icon name={iconName} className="Button-icon" />,
-      children && <span className="Button-label">{children}</span>,
+      children && (
+        <span className="Button-label">
+          <span className="Button-labelText">{children}</span>
+          {this.getButtonSubContent()}
+        </span>
+      ),
       this.attrs.loading && <LoadingIndicator size="small" display="inline" />,
     ];
+  }
+
+  protected getButtonSubContent(): Mithril.Children {
+    return this.attrs.helperText ? <span className="Button-helperText">{this.attrs.helperText}</span> : null;
   }
 }

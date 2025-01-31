@@ -42,14 +42,14 @@ flarum-messages:
       oldest_button: Oldest
 
     messages_page:
-      empty_text: You have no messages yet. When you send or receive messages, they
-        will appear here.
+      cannot_send_message_button: Can't Send a Message
+      empty_text: No new messages
       hero:
         title: Messages
         subtitle: Your private conversations with other users
       mark_all_as_read_tooltip: Mark all as read
-      new_message_button: Send a Message
       refresh_tooltip: Refresh
+      send_message_button: Send a Message
       stream:
         load_previous_button: Load previous messages
         start_of_the_conversation: Start of the conversation
@@ -64,6 +64,7 @@ flarum-messages:
 
     user_controls:
       send_message_button: Send a message
+      cannot_reply_text: This user cannot reply
 
     notifications:
       message_received_text: Message Received notification from {user}

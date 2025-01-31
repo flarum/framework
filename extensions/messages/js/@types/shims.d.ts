@@ -19,3 +19,9 @@ declare module 'flarum/forum/states/ComposerState' {
     composingMessageTo(dialog: Dialog): boolean;
   }
 }
+
+declare module 'flarum/common/models/User' {
+  export default interface User {
+    canSendAnyMessage(): boolean;
+  }
+}

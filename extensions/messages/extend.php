@@ -51,7 +51,7 @@ return [
     (new Extend\ApiResource(Resource\UserResource::class))
         ->fields(fn () => [
             Schema\Boolean::make('canSendAnyMessage')
-                ->get(fn (object $model, Context $context) => $context->getActor()->can('sendAnyMessage')),
+                ->get(fn (User $user, Context $context) => $user->can('sendAnyMessage')),
             Schema\Integer::make('messageCount')
                 ->get(function (object $model, Context $context) {
                     return Dialog::whereVisibleTo($context->getActor())

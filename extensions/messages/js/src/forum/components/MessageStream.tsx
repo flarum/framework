@@ -106,9 +106,9 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
 
     messages.forEach((message, index) => items.push(this.messageItem(message, index)));
 
-    if (ReplyPlaceholder) {
+    if (app.session.user!.canSendAnyMessage() && ReplyPlaceholder) {
       items.push(
-        <div className="MessageStream-item" key="reply" /*data-index={this.attrs.state.count()}*/>
+        <div className="MessageStream-item" key="reply">
           <ReplyPlaceholder
             discussion={this.attrs.dialog}
             onclick={() => {
