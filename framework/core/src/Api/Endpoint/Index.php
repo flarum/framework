@@ -74,6 +74,7 @@ class Index extends Endpoint
 
                 // This model has a searcher API, so we'll use that instead of the default.
                 // The searcher API allows swapping the default search engine for a custom one.
+                /** @var SearchManager $search */
                 $search = $context->api->getContainer()->make(SearchManager::class);
                 $modelClass = $collection instanceof AbstractDatabaseResource ? $collection->model() : null;
 

@@ -88,6 +88,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                     'mentionsGroups',
                     'mentionsTags',
                 ])
+                ->defaultSort('-number')
                 ->eagerLoad(function () {
                     if ($this->extensions->isEnabled('flarum-mentions')) {
                         return ['mentionsUsers', 'mentionsPosts', 'mentionsGroups', 'mentionsTags'];
@@ -100,10 +101,11 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                     $near = intval(Arr::get($queryParams, 'page.near'));
 
                     if ($near > 1) {
+                        $sort = $defaultExtracts['sort'];
                         $filter = $defaultExtracts['filter'];
                         $dialogId = $filter['dialog'] ?? null;
 
-                        if (count($filter) > 1 || ! $dialogId || ($context->queryParam('sort') && $context->queryParam('sort') !== '-number')) {
+                        if (count($filter) > 1 || ! $dialogId || ($sort && $sort !== ['number' => 'desc'])) {
                             throw new BadRequestException(
                                 'You can only use page[near] with filter[dialog] and the default sort order'
                             );
@@ -111,17 +113,12 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
 
                         $limit = $defaultExtracts['limit'];
 
-                        // Change the offset to the one nearest to the message number.
                         $index = DialogMessage::query()
-                            ->select('row_index')
-                            ->fromSub(function (QueryBuilder $query) use ($dialogId) {
-                                $query->select('number')
-                                    ->selectRaw('ROW_NUMBER() OVER (ORDER BY number DESC) AS row_index')
-                                    ->from('dialog_messages')
-                                    ->where('dialog_id', $dialogId);
-                            }, 'dialog_messages')
-                            ->where('number', '<=', $near)
-                            ->value('row_index');
+                            ->where('dialog_id', $dialogId)
+                            ->where('number', '>=', $near)
+                            ->orderBy('number', 'desc')
+                            ->whereVisibleTo($context->getActor())
+                            ->count();
 
                         return max(0, $index - $limit / 2);
                     }
