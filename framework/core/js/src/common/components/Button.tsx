@@ -14,7 +14,7 @@ export interface IButtonAttrs extends ComponentAttrs {
    *
    * You may also provide a rendered icon element directly.
    */
-  icon?: string | Mithril.Children;
+  icon?: string | boolean | Mithril.Children;
   /**
    * Disables button from user input.
    *
@@ -116,7 +116,7 @@ export default class Button<CustomAttrs extends IButtonAttrs = IButtonAttrs> ext
     const icon = this.attrs.icon;
 
     return [
-      icon ? typeof icon === 'string' ? <Icon name={icon} className="Button-icon" /> : icon : null,
+      icon && (typeof icon === 'string' || icon === true ? <Icon name={icon} className="Button-icon" /> : icon),
       children && (
         <span className="Button-label">
           <span className="Button-labelText">{children}</span>
