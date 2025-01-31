@@ -5,6 +5,9 @@ import type Dialog from './Dialog';
 import type User from 'flarum/common/models/User';
 
 export default class DialogMessage extends Model {
+  number() {
+    return Model.attribute<number>('number').call(this);
+  }
   content() {
     return Model.attribute<string | null | undefined>('content').call(this);
   }

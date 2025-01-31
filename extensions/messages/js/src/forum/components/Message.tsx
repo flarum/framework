@@ -105,7 +105,21 @@ export default abstract class Message<CustomAttrs extends IMessageAttrs = IMessa
     const message = this.attrs.message;
 
     items.add('user', <PostUser post={message} />, 100);
-    items.add('meta', <PostMeta post={message} />);
+    items.add(
+      'meta',
+      <PostMeta
+        post={message}
+        permalink={() => {
+          const dialog = message.dialog();
+
+          if (!dialog) {
+            return null;
+          }
+
+          return app.forum.attribute('baseOrigin') + app.route.dialog(dialog, message.number());
+        }}
+      />
+    );
 
     return items;
   }

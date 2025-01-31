@@ -3,7 +3,7 @@ import DialogListState from '../forum/states/DialogListState';
 
 declare module 'flarum/forum/routes' {
   export interface ForumRoutes {
-    dialog: (tag: Dialog) => string;
+    dialog: (dialog: Dialog, near?: number) => string;
   }
 }
 

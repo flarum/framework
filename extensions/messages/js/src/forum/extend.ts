@@ -9,5 +9,6 @@ export default [
   new Extend.Routes() //
     .add('messages', '/messages', () => import('./components/MessagesPage'))
     .add('dialog', '/messages/dialog/:id', () => import('./components/MessagesPage'))
-    .helper('dialog', (dialog: Dialog) => app.route('dialog', { id: dialog.id() })),
+    .add('dialog', '/messages/dialog/:id/:near', () => import('./components/MessagesPage'))
+    .helper('dialog', (dialog: Dialog, near?: number) => app.route('dialog', { id: dialog.id(), near: near })),
 ];

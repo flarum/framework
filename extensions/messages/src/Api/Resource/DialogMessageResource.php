@@ -24,9 +24,11 @@ use Flarum\Messages\Command\ReadDialog;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Tobyz\JsonApiServer\Context as OriginalContext;
+use Tobyz\JsonApiServer\Exception\BadRequestException;
 
 /**
  * @extends Resource\AbstractDatabaseResource<DialogMessage>
@@ -93,6 +95,39 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
 
                     return [];
                 })
+                ->extractOffset(function (Context $context, array $defaultExtracts): int {
+                    $queryParams = $context->request->getQueryParams();
+                    $near = intval(Arr::get($queryParams, 'page.near'));
+
+                    if ($near > 1) {
+                        $filter = $defaultExtracts['filter'];
+                        $dialogId = $filter['dialog'] ?? null;
+
+                        if (count($filter) > 1 || ! $dialogId || ($context->queryParam('sort') && $context->queryParam('sort') !== '-number')) {
+                            throw new BadRequestException(
+                                'You can only use page[near] with filter[dialog] and the default sort order'
+                            );
+                        }
+
+                        $limit = $defaultExtracts['limit'];
+
+                        // Change the offset to the one nearest to the message number.
+                        $index = DialogMessage::query()
+                            ->select('row_index')
+                            ->fromSub(function (QueryBuilder $query) use ($dialogId) {
+                                $query->select('number')
+                                    ->selectRaw('ROW_NUMBER() OVER (ORDER BY number DESC) AS row_index')
+                                    ->from('dialog_messages')
+                                    ->where('dialog_id', $dialogId);
+                            }, 'dialog_messages')
+                            ->where('number', '<=', $near)
+                            ->value('row_index');
+
+                        return max(0, $index - $limit / 2);
+                    }
+
+                    return $defaultExtracts['offset'];
+                })
                 ->paginate(),
         ];
     }
@@ -101,6 +136,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
     {
         return [
 
+            Schema\Number::make('number'),
             Schema\Str::make('content')
                 ->requiredOnCreate()
                 ->writableOnCreate()
@@ -161,7 +197,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
     public function sorts(): array
     {
         return [
-            SortColumn::make('createdAt'),
+            SortColumn::make('number'),
         ];
     }
 

@@ -135,7 +135,7 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
 
   messageItem(message: DialogMessage, index: number) {
     return (
-      <div className="MessageStream-item" key={index} data-id={message.id()}>
+      <div className="MessageStream-item" key={index} data-id={message.id()} data-number={message.number()}>
         {this.timeGap(message)}
         <Message message={message} />
       </div>
@@ -186,7 +186,22 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
   }
 
   scrollToBottom() {
-    this.element.scrollTop = this.element.scrollHeight;
+    const near = m.route.param('near');
+
+    if (near) {
+      const $message = this.element.querySelector(`.MessageStream-item[data-number="${near}"]`);
+
+      if ($message) {
+        this.element.scrollTop = $message.getBoundingClientRect().top - this.element.getBoundingClientRect().top;
+
+        // pulsate the message
+        $message.classList.add('flash');
+      } else {
+        this.element.scrollTop = this.element.scrollHeight;
+      }
+    } else {
+      this.element.scrollTop = this.element.scrollHeight;
+    }
   }
 
   whileMaintainingScroll(callback: () => null | Promise<void>) {
