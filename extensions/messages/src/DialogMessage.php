@@ -28,7 +28,7 @@ use Illuminate\Database\Query\Expression;
  * @property int $dialog_id
  * @property int|null $user_id
  * @property string $content
- * @property int $number
+ * @property int|Expression $number
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property-read Dialog $dialog
