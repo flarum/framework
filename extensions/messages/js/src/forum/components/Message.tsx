@@ -97,7 +97,7 @@ export default abstract class Message<CustomAttrs extends IMessageAttrs = IMessa
   }
 
   avatar(): Mithril.Children {
-    return this.attrs.message.user() ? <Avatar user={this.attrs.message.user()} /> : '';
+    return this.attrs.message.user() ? <Avatar user={this.attrs.message.user()} className="Post-avatar" /> : '';
   }
 
   headerItems() {

@@ -14,11 +14,13 @@ import listItems from 'flarum/common/helpers/listItems';
 import ItemList from 'flarum/common/utils/ItemList';
 import Dropdown from 'flarum/common/components/Dropdown';
 import Button from 'flarum/common/components/Button';
+import classList from 'flarum/common/utils/classList';
 
 export interface IMessagesPageAttrs extends IPageAttrs {}
 
 export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMessagesPageAttrs> extends Page<CustomAttrs> {
   protected selectedDialog = Stream<Dialog | null>(null);
+  protected currentDialogId: string | null = null;
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
@@ -49,6 +51,7 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
 
   protected async initDialog() {
     const dialogId = m.route.param('id');
+    this.currentDialogId = dialogId;
 
     const title = app.translator.trans('flarum-messages.forum.messages_page.title', {}, true);
 
@@ -94,7 +97,11 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
         ) : !app.dialogs.hasItems() ? (
           <InfoTile icon="far fa-envelope-open">{app.translator.trans('flarum-messages.forum.messages_page.empty_text')}</InfoTile>
         ) : (
-          <div className="MessagesPage-content">
+          <div
+            className={classList('MessagesPage-content', {
+              'MessagesPage-content--onDialog': this.currentDialogId,
+            })}
+          >
             <div className="MessagesPage-sidebar" key="sidebar">
               <div className="IndexPage-toolbar" key="toolbar">
                 <ul className="IndexPage-toolbar-view">{listItems(this.viewItems().toArray())}</ul>
@@ -103,7 +110,13 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
               <DialogList key="list" state={app.dialogs} activeDialog={this.selectedDialog()} />
             </div>
             {this.selectedDialog() ? (
-              <DialogSection key="dialog" dialog={this.selectedDialog()} />
+              <DialogSection
+                key="dialog"
+                dialog={this.selectedDialog()}
+                onback={() => {
+                  this.currentDialogId = null;
+                }}
+              />
             ) : (
               <LoadingIndicator key="loading" display="block" />
             )}

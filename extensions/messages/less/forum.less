@@ -1,14 +1,65 @@
-.MessagesPage-sidebar {
-  flex-shrink: 0;
-  width: 280px;
+.MessagesPage {
+  padding-bottom: 0;
 }
 
 .MessagesPage-content {
+  --messages-page-gap: 32px;
   display: flex;
-  gap: 32px;
+  gap: var(--messages-page-gap);
 
   .Avatar {
     --size: 40px;
+  }
+}
+
+.MessagesPage-sidebar {
+  flex-shrink: 0;
+  width: 100%;
+
+  .MessagesPage-content--onDialog & {
+    // margin-inline-start: calc(~"0px - 100% - var(--messages-page-gap)");
+    display: none;
+  }
+
+  @media @tablet-up {
+    width: 280px;
+
+    .MessagesPage-content--onDialog & {
+      // margin-inline-start: 0;
+      display: block;
+    }
+  }
+}
+
+.DialogSection {
+  flex-grow: 1;
+  min-width: 0;
+
+  @media @tablet-up {
+    padding-inline-start: 32px;
+  }
+
+  &-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--control-bg);
+
+    a {
+      color: var(--text-color);
+    }
+
+    &-actions {
+      margin-inline-start: auto;
+    }
+
+    &-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
   }
 }
 
@@ -145,34 +196,6 @@
   }
 }
 
-.DialogSection {
-  flex-grow: 1;
-  padding-inline-start: 32px;
-
-  &-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 16px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--control-bg);
-
-    a {
-      color: var(--text-color);
-    }
-
-    &-actions {
-      margin-inline-start: auto;
-    }
-
-    &-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-  }
-}
-
 .Message {
   padding-right: 0;
 
@@ -191,8 +214,30 @@
 }
 
 .MessageStream, .DialogList {
-  max-height: calc(100vh - var(--header-height) - 140px - 235px);
+  --additional-gap: 52px;
+  max-height: calc(100vh - var(--header-height) - 140px - var(--additional-gap));
   overflow: auto;
+
+  @media @tablet-up {
+    --additional-gap: 235px;
+  }
+}
+
+.MessageStream .ReplyPlaceholder {
+  margin-bottom: 24px;
+}
+
+.DialogSection-header-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.DialogSection-back {
+  display: flex;
+
+  @media @tablet-up {
+    display: none;
+  }
 }
 
 .DialogList-loadMore {

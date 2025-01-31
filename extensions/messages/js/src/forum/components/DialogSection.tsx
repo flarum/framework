@@ -60,6 +60,13 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
     const items = new ItemList<Mithril.Children>();
 
     items.add(
+      'back',
+      <Button className="Button Button--icon DialogSection-back" icon="fas fa-arrow-left" onclick={this.attrs.onback}>
+        {app.translator.trans('flarum-messages.forum.dialog_section.back_label')}
+      </Button>
+    );
+
+    items.add(
       'details',
       <Dropdown
         icon="fas fa-ellipsis-h"

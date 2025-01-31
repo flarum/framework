@@ -21,6 +21,7 @@ flarum-messages:
       view_all: View all messages
 
     dialog_section:
+      back_label: Go back
       controls:
         details_button: Details
       controls_toggle_label: Dialog control actions

@@ -1,7 +1,7 @@
 .App {
   position: relative !important;
   padding-top: var(--header-height);
-  padding-bottom: 50px;
+  padding-bottom: var(--app-bottom-padding);
   min-height: 100vh;
 
   @media @phone {
@@ -325,7 +325,6 @@
   .App-content {
     background: var(--body-bg);
     width: 100%;
-    min-height: 100vh;
-    padding-bottom: 50px;
+    min-height: calc(~"100vh - var(--header-height-phone)");
   }
 }
