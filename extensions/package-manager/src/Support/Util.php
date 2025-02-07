@@ -29,6 +29,9 @@ class Util
         if (str_starts_with($currentVersion, 'v')) {
             $currentVersion = substr($currentVersion, 1);
         }
+        if (str_starts_with($latestVersion, 'v')) {
+            $latestVersion = substr($latestVersion, 1);
+        }
 
         $currentVersion = explode('.', $currentVersion);
         $latestVersion = explode('.', $latestVersion);
