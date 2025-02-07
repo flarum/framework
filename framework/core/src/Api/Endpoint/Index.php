@@ -33,7 +33,6 @@ use Tobyz\JsonApiServer\Pagination\Pagination;
 use Tobyz\JsonApiServer\Schema\Concerns\HasMeta;
 
 use function Tobyz\JsonApiServer\json_api_response;
-use function Tobyz\JsonApiServer\parse_sort_string;
 
 class Index extends Endpoint
 {

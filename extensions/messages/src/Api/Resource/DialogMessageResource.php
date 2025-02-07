@@ -24,7 +24,6 @@ use Flarum\Messages\Command\ReadDialog;
 use Flarum\Messages\Dialog;
 use Flarum\Messages\DialogMessage;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Tobyz\JsonApiServer\Context as OriginalContext;
