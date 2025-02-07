@@ -92,7 +92,7 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
             type="button"
             className="Button Button--block MessageStream-loadNext"
           >
-            {app.translator.trans('flarum-messages.forum.messages_page.stream.load_next_button')}
+            {app.translator.trans('flarum-messages.forum.messages_page.stream.load_previous_button')}
           </Button>
         </div>
       );
@@ -124,7 +124,7 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
             type="button"
             className="Button Button--block MessageStream-loadPrev"
           >
-            {app.translator.trans('flarum-messages.forum.messages_page.stream.load_previous_button')}
+            {app.translator.trans('flarum-messages.forum.messages_page.stream.load_next_button')}
           </Button>
         </div>
       );
