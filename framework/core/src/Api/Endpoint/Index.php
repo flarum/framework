@@ -69,7 +69,7 @@ class Index extends Endpoint
     protected function setUp(): void
     {
         $this->route('GET', '/')
-            ->query(function ($query, ?Pagination $pagination, Context $context): Context {
+            ->query(function ($query, ?Pagination $pagination, Context $context, array $filters, ?array $sort, int $offset, ?int $limit): Context {
                 $collection = $context->collection;
 
                 // This model has a searcher API, so we'll use that instead of the default.
@@ -80,13 +80,6 @@ class Index extends Endpoint
 
                 if ($query instanceof Builder && $search->searchable($modelClass)) {
                     $actor = $context->getActor();
-
-                    $extracts = $this->defaultExtracts($context);
-
-                    $filters = $this->extractFilterValue($context, $extracts);
-                    $sort = $this->extractSortValue($context, $extracts);
-                    $limit = $this->extractLimitValue($context, $extracts);
-                    $offset = $this->extractOffsetValue($context, $extracts);
 
                     $sortIsDefault = ! $context->queryParam('sort');
 
@@ -101,8 +94,8 @@ class Index extends Endpoint
                 else {
                     $context = $context->withQuery($query);
 
-                    $this->applySorts($query, $context);
-                    $this->applyFilters($query, $context);
+                    $this->applySorts($query, $context, $sort);
+                    $this->applyFilters($query, $context, $filters);
 
                     if ($pagination && method_exists($pagination, 'apply')) {
                         $pagination->apply($query);
@@ -130,8 +123,20 @@ class Index extends Endpoint
 
                 $pagination = ($this->paginationResolver)($context);
 
+                $extracts = $this->defaultExtracts($context);
+
+                $filters = $this->extractFilterValue($context, $extracts);
+                $sort = $this->extractSortValue($context, $extracts);
+                $limit = $this->extractLimitValue($context, $extracts);
+                $offset = $this->extractOffsetValue($context, $extracts);
+
+                if ($pagination instanceof OffsetPagination) {
+                    $pagination->offset = $offset;
+                    $pagination->limit = $limit;
+                }
+
                 if ($this->query) {
-                    $context = ($this->query)($query, $pagination, $context);
+                    $context = ($this->query)($query, $pagination, $context, $filters, $sort, $offset, $limit);
 
                     if (! $context instanceof Context) {
                         throw new RuntimeException('The Index endpoint query closure must return a Context instance.');
@@ -140,8 +145,8 @@ class Index extends Endpoint
                     /** @var Context $context */
                     $context = $context->withQuery($query);
 
-                    $this->applySorts($query, $context);
-                    $this->applyFilters($query, $context);
+                    $this->applySorts($query, $context, $sort);
+                    $this->applyFilters($query, $context, $filters);
 
                     if ($pagination) {
                         $pagination->apply($query);
@@ -206,9 +211,9 @@ class Index extends Endpoint
         return $this;
     }
 
-    final protected function applySorts($query, Context $context): void
+    final protected function applySorts($query, Context $context, ?array $sort): void
     {
-        if (! ($sortString = $context->queryParam('sort', $this->defaultSort))) {
+        if (! $sort) {
             return;
         }
 
@@ -220,7 +225,7 @@ class Index extends Endpoint
 
         $sorts = $collection->resolveSorts();
 
-        foreach (parse_sort_string($sortString) as [$name, $direction]) {
+        foreach ($sort as $name => $direction) {
             foreach ($sorts as $field) {
                 if ($field->name === $name && $field->isVisible($context)) {
                     $field->apply($query, $direction, $context);
@@ -234,16 +239,10 @@ class Index extends Endpoint
         }
     }
 
-    final protected function applyFilters($query, Context $context): void
+    final protected function applyFilters($query, Context $context, array $filters): void
     {
-        if (! ($filters = $context->queryParam('filter'))) {
+        if (empty($filters)) {
             return;
-        }
-
-        if (! is_array($filters)) {
-            throw (new BadRequestException('filter must be an array'))->setSource([
-                'parameter' => 'filter',
-            ]);
         }
 
         $collection = $context->collection;

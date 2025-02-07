@@ -53,6 +53,7 @@ flarum-messages:
       send_message_button: Send a Message
       stream:
         load_previous_button: Load previous messages
+        load_next_button: Load next messages
         start_of_the_conversation: Start of the conversation
         time_lapsed_text: => core.forum.post_stream.time_lapsed_text
       title: Messages

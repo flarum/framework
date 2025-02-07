@@ -29,7 +29,7 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
     this.messages.refresh();
   }
 
-  requestParams(): any {
+  requestParams(forgetNear = false): any {
     const params: any = {
       filter: {
         dialog: this.attrs.dialog.id(),
@@ -39,7 +39,7 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
 
     const near = m.route.param('near');
 
-    if (near) {
+    if (near && !forgetNear) {
       params.page = params.page || {};
       params.page.near = parseInt(near);
     }
