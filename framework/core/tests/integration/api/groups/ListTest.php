@@ -40,8 +40,10 @@ class ListTest extends TestCase
             $this->request('GET', '/api/groups')
         );
 
-        $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody()->getContents(), true);
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+        $data = json_decode($body, true);
 
         // The four default groups created by the installer
         $this->assertEquals(['1', '2', '3', '4'], Arr::pluck($data['data'], 'id'));

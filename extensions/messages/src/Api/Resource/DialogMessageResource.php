@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Tobyz\JsonApiServer\Context as OriginalContext;
+use Tobyz\JsonApiServer\Exception\BadRequestException;
 
 /**
  * @extends Resource\AbstractDatabaseResource<DialogMessage>
@@ -91,12 +92,42 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                     'mentionsGroups',
                     'mentionsTags',
                 ])
+                ->defaultSort('-number')
                 ->eagerLoad(function () {
                     if ($this->extensions->isEnabled('flarum-mentions')) {
                         return ['mentionsUsers', 'mentionsPosts', 'mentionsGroups', 'mentionsTags'];
                     }
 
                     return [];
+                })
+                ->extractOffset(function (Context $context, array $defaultExtracts): int {
+                    $queryParams = $context->request->getQueryParams();
+                    $near = intval(Arr::get($queryParams, 'page.near'));
+
+                    if ($near > 1) {
+                        $sort = $defaultExtracts['sort'];
+                        $filter = $defaultExtracts['filter'];
+                        $dialogId = $filter['dialog'] ?? null;
+
+                        if (count($filter) > 1 || ! $dialogId || ($sort && $sort !== ['number' => 'desc'])) {
+                            throw new BadRequestException(
+                                'You can only use page[near] with filter[dialog] and the default sort order'
+                            );
+                        }
+
+                        $limit = $defaultExtracts['limit'];
+
+                        $index = DialogMessage::query()
+                            ->where('dialog_id', $dialogId)
+                            ->where('number', '>=', $near)
+                            ->orderBy('number', 'desc')
+                            ->whereVisibleTo($context->getActor())
+                            ->count();
+
+                        return max(0, $index - $limit / 2);
+                    }
+
+                    return $defaultExtracts['offset'];
                 })
                 ->paginate(),
         ];
@@ -106,6 +137,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
     {
         return [
 
+            Schema\Number::make('number'),
             Schema\Str::make('content')
                 ->requiredOnCreate()
                 ->writableOnCreate()
@@ -172,7 +204,7 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
     public function sorts(): array
     {
         return [
-            SortColumn::make('createdAt'),
+            SortColumn::make('number'),
         ];
     }
 

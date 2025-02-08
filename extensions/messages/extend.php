@@ -24,7 +24,7 @@ return [
         ->css(__DIR__.'/less/forum.less')
         ->jsDirectory(__DIR__.'/js/dist/forum')
         ->route('/messages', 'messages')
-        ->route('/messages/dialog/{id:\d+}', 'messages.dialog'),
+        ->route('/messages/dialog/{id:\d+}[/{near:\d+}]', 'messages.dialog'),
 
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js')

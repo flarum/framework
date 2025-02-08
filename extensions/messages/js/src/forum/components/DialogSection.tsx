@@ -24,14 +24,27 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
-    this.messages = new MessageStreamState({
+    this.messages = new MessageStreamState(this.requestParams());
+
+    this.messages.refresh();
+  }
+
+  requestParams(forgetNear = false): any {
+    const params: any = {
       filter: {
         dialog: this.attrs.dialog.id(),
       },
-      sort: '-createdAt',
-    });
+      sort: '-number',
+    };
 
-    this.messages.refresh();
+    const near = m.route.param('near');
+
+    if (near && !forgetNear) {
+      params.page = params.page || {};
+      params.page.near = parseInt(near);
+    }
+
+    return params;
   }
 
   view() {

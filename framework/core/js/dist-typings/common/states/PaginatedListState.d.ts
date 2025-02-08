@@ -1,5 +1,5 @@
-import Model from '../Model';
-import { ApiQueryParamsPlural, ApiResponsePlural } from '../Store';
+import type Model from '../Model';
+import type { ApiQueryParamsPlural, ApiResponsePlural } from '../Store';
 import type Mithril from 'mithril';
 export type SortMapItem = string | {
     sort: string;
@@ -8,9 +8,9 @@ export type SortMapItem = string | {
 export type SortMap = {
     [key: string]: SortMapItem;
 };
-export interface Page<TModel> {
+export interface Page<TModel extends Model> {
     number: number;
-    items: TModel[];
+    items: ApiResponsePlural<TModel> | TModel[];
     hasPrev?: boolean;
     hasNext?: boolean;
 }
@@ -51,6 +51,7 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
      * Load a new page of results.
      */
     protected loadPage(page?: number): Promise<ApiResponsePlural<T>>;
+    protected mutateRequestParams(params: ApiQueryParamsPlural, page: number): ApiQueryParamsPlural;
     /**
      * Get the parameters that should be passed in the API request.
      * Do not include page offset unless subclass overrides loadPage.

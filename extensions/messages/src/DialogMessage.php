@@ -21,12 +21,14 @@ use Flarum\Tags\Tag;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Query\Expression;
 
 /**
  * @property int $id
  * @property int $dialog_id
  * @property int|null $user_id
  * @property string $content
+ * @property int|Expression $number
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property-read Dialog $dialog
@@ -47,6 +49,28 @@ class DialogMessage extends AbstractModel implements Formattable
     public $timestamps = true;
 
     protected $guarded = [];
+
+    protected $casts = [
+        'dialog_id' => 'integer',
+        'user_id' => 'integer',
+        'number' => 'integer',
+    ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function (self $message) {
+            $db = static::getConnectionResolver()->connection();
+
+            $message->number = new Expression('('.
+                $db->table('dialog_messages', 'dm')
+                    ->whereRaw($db->getTablePrefix().'dm.dialog_id = '.intval($message->dialog_id))
+                    ->selectRaw('COALESCE(MAX('.$db->getTablePrefix().'dm.number), 0) + 1')
+                    ->toSql()
+                .')');
+        });
+    }
 
     public function dialog(): BelongsTo
     {

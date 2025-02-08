@@ -1,5 +1,6 @@
 import PaginatedListState, { PaginatedListParams } from 'flarum/common/states/PaginatedListState';
 import DialogMessage from '../../common/models/DialogMessage';
+import { ApiQueryParamsPlural } from 'flarum/common/Store';
 
 export interface MessageStreamParams extends PaginatedListParams {
   //

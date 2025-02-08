@@ -10,6 +10,7 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
     protected loading: boolean;
     protected messages: MessageStreamState;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
+    requestParams(forgetNear?: boolean): any;
     view(): JSX.Element;
     actionItems(): ItemList<Mithril.Children>;
     controlItems(): ItemList<Mithril.Children>;

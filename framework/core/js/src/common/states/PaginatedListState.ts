@@ -1,8 +1,7 @@
 import app from '../../common/app';
-import Model from '../Model';
-import { ApiQueryParamsPlural, ApiResponsePlural } from '../Store';
+import type Model from '../Model';
+import type { ApiQueryParamsPlural, ApiResponsePlural } from '../Store';
 import type Mithril from 'mithril';
-import setRouteWithForcedRefresh from '../utils/setRouteWithForcedRefresh';
 
 export type SortMapItem =
   | string
@@ -15,9 +14,9 @@ export type SortMap = {
   [key: string]: SortMapItem;
 };
 
-export interface Page<TModel> {
+export interface Page<TModel extends Model> {
   number: number;
-  items: TModel[];
+  items: ApiResponsePlural<TModel> | TModel[];
 
   hasPrev?: boolean;
   hasNext?: boolean;
@@ -73,7 +72,7 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
   }
 
   public loadPrev(): Promise<void> {
-    if (this.loadingPrev || this.getLocation().page === 1) return Promise.resolve();
+    if (this.loadingPrev || !this.hasPrev()) return Promise.resolve();
 
     this.loadingPrev = true;
 
@@ -140,7 +139,7 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
       delete params.include;
     }
 
-    return app.store.find<T[]>(this.type, params).then((results) => {
+    return app.store.find<T[]>(this.type, this.mutateRequestParams(params, page)).then((results) => {
       const usedPerPage = results.payload?.meta?.perPage;
       const usedTotal = results.payload?.meta?.page?.total;
 
@@ -158,6 +157,35 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
 
       return results;
     });
+  }
+
+  protected mutateRequestParams(params: ApiQueryParamsPlural, page: number): ApiQueryParamsPlural {
+    /*
+     * Support use of page[near]=
+     */
+    if (params.page?.near && this.hasItems()) {
+      delete params.page?.near;
+
+      const nextPage = this.location.page < page;
+
+      const offsets = this.getPages().map((page) => {
+        if ('payload' in page.items) {
+          return page.items.payload.meta?.page?.offset || 0;
+        }
+
+        return 0;
+      });
+
+      const minOffset = Math.min(...offsets);
+      const maxOffset = Math.max(...offsets);
+
+      const limit = this.pageSize || PaginatedListState.DEFAULT_PAGE_SIZE;
+
+      params.page ||= {};
+      params.page.offset = nextPage ? maxOffset + limit : Math.max(minOffset - limit, 0);
+    }
+
+    return params;
   }
 
   /**

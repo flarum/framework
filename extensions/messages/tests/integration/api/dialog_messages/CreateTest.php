@@ -36,7 +36,7 @@ class CreateTest extends TestCase
                 ['id' => 102, 'type' => 'direct'],
             ],
             DialogMessage::class => [
-                ['id' => 102, 'dialog_id' => 102, 'user_id' => 4, 'content' => 'Hello, Karlach!'],
+                ['id' => 102, 'dialog_id' => 102, 'user_id' => 4, 'content' => 'Hello, Karlach!', 'number' => 1],
             ],
             'dialog_user' => [
                 ['dialog_id' => 102, 'user_id' => 4, 'joined_at' => Carbon::now()],
