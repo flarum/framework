@@ -169,7 +169,7 @@ class CheckForUpdatesHandler
             $this->meta[$mainPackageUpdate['name']] = $json;
         }
 
-        $packages = Collection::make($json['packages'][$mainPackageUpdate['name']] ?? []);
+        $packages = new Collection($json['packages'][$mainPackageUpdate['name']] ?? []);
 
         if ($packages->isEmpty()) {
             return true;
