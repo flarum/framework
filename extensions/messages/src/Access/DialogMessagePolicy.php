@@ -27,7 +27,7 @@ class DialogMessagePolicy extends AbstractPolicy
         return null;
     }
 
-    public function delete(User $actor, DialogMessage $message): ?bool
+    public function delete(User $actor, DialogMessage $message): bool|null|string
     {
         if ($message->user_id === $actor->id) {
             $allowHiding = $this->settings->get('flarum-messages.allow_delete_own_messages');
