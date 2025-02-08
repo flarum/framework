@@ -85,8 +85,7 @@ class PostRepository
      */
     public function getIndexForNumber(int $discussionId, int $number, ?User $actor = null): int
     {
-        /** @var Discussion $discussion */
-        if (! ($discussion = Discussion::find($discussionId))) {
+        if (! ($discussion = Discussion::query()->find($discussionId))) {
             return 0;
         }
 
