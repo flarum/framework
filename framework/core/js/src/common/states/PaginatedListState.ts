@@ -363,4 +363,12 @@ export default abstract class PaginatedListState<T extends Model, P extends Pagi
       1
     );
   }
+
+  remove(model: T): void {
+    const page = this.pages.find((pg) => pg.items.includes(model));
+
+    if (page) {
+      page.items = page.items.filter((item) => item !== model);
+    }
+  }
 }

@@ -77,6 +77,11 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                         return $actor->can('sendAnyMessage');
                     }
                 }),
+            Endpoint\Delete::make()
+                ->authenticated()
+                ->visible(function (DialogMessage $message, Context $context): bool {
+                    return $context->getActor()->can('delete', $message);
+                }),
             Endpoint\Index::make()
                 ->authenticated()
                 ->defaultInclude([
@@ -133,6 +138,12 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
                 ->hidden()
                 ->items(1)
                 ->set(fn () => null),
+
+            // Read-only.
+            Schema\Boolean::make('canDelete')
+                ->get(function (DialogMessage $message, Context $context) {
+                    return $context->getActor()->can('delete', $message);
+                }),
 
             Schema\Relationship\ToOne::make('user')
                 ->type('users')

@@ -9,9 +9,12 @@ import Comment from 'flarum/forum/components/Comment';
 import PostUser from 'flarum/forum/components/PostUser';
 import PostMeta from 'flarum/forum/components/PostMeta';
 import classList from 'flarum/common/utils/classList';
+import MessageControls from '../utils/MessageControls';
+import type MessageStreamState from '../states/MessageStreamState';
 
 export interface IMessageAttrs extends IAbstractPostAttrs {
   message: DialogMessage;
+  state: MessageStreamState;
 }
 
 /**
@@ -29,7 +32,7 @@ export default abstract class Message<CustomAttrs extends IMessageAttrs = IMessa
   }
 
   controls(): Mithril.Children[] {
-    return [];
+    return MessageControls.controls(this.attrs.message, this).toArray();
   }
 
   freshness(): Date {

@@ -20,8 +20,9 @@ const PostControls = {
   controls(post, context) {
     const items = new ItemList();
 
-    ['user', 'moderation', 'destructive'].forEach((section) => {
-      const controls = this[section + 'Controls'](post, context).toArray();
+    Object.entries(this.sections()).forEach(([section, method]) => {
+      const controls = method.call(this, post, context).toArray();
+
       if (controls.length) {
         controls.forEach((item) => items.add(item.itemName, item));
         items.add(section + 'Separator', <Separator />);
@@ -29,6 +30,14 @@ const PostControls = {
     });
 
     return items;
+  },
+
+  sections() {
+    return {
+      user: this.userControls,
+      moderation: this.moderationControls,
+      destructive: this.destructiveControls,
+    };
   },
 
   /**

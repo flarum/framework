@@ -9,5 +9,6 @@ export default [
     .add('dialog-messages', DialogMessage), //
 
   new Extend.Model(User) //
-    .attribute<boolean>('canSendAnyMessage'),
+    .attribute<boolean>('canSendAnyMessage')
+    .attribute<boolean>('canDeleteOwnMessage'),
 ];

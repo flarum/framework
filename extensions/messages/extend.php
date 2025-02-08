@@ -52,6 +52,8 @@ return [
         ->fields(fn () => [
             Schema\Boolean::make('canSendAnyMessage')
                 ->get(fn (User $user, Context $context) => $user->can('sendAnyMessage')),
+            Schema\Boolean::make('canDeleteOwnMessages')
+                ->visible(fn (User $user, Context $context) => $context->getActor()->is($user)),
             Schema\Integer::make('messageCount')
                 ->get(function (object $model, Context $context) {
                     return Dialog::whereVisibleTo($context->getActor())

@@ -3,7 +3,8 @@ flarum-messages:
   # Translations in this namespace are used by the admin interface.
   admin:
     permissions:
-      send_messages: Send private messages
+      send_messages_label: Send private messages
+      delete_own_messages_label: Delete own messages
 
   # Translations in this namespace are used by the forum user interface.
   forum:
@@ -41,6 +42,10 @@ flarum-messages:
       latest_button: Latest
       newest_button: Newest
       oldest_button: Oldest
+
+    message_controls:
+      delete_button: Delete
+      delete_confirmation: Are you sure you want to delete this message? This action cannot be undone.
 
     messages_page:
       cannot_send_message_button: Can't Send a Message
