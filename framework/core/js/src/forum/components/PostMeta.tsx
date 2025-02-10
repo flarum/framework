@@ -2,6 +2,7 @@ import app from '../../forum/app';
 import Component, { type ComponentAttrs } from '../../common/Component';
 import humanTime from '../../common/helpers/humanTime';
 import fullTime from '../../common/helpers/fullTime';
+import IPAddress from '../../common/components/IPAddress';
 import Post from '../../common/models/Post';
 import type Model from '../../common/Model';
 import type User from '../../common/models/User';
@@ -51,7 +52,9 @@ export default class PostMeta<CustomAttrs extends IPostMetaAttrs = IPostMetaAttr
         {!!permalink && (
           <div className="Dropdown-menu dropdown-menu">
             <span className="PostMeta-number">{this.postIdentifier(post)}</span> <span className="PostMeta-time">{fullTime(time)}</span>{' '}
-            <span className="PostMeta-ip">{post.data.attributes!.ipAddress}</span>
+            <span className="PostMeta-ip">
+              <IPAddress ip={post.data.attributes?.ipAddress} />
+            </span>
             {touch ? (
               <a className="Button PostMeta-permalink" href={permalink}>
                 {permalink}
