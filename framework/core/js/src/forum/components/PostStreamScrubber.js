@@ -65,7 +65,7 @@ export default class PostStreamScrubber extends Component {
         <div className="Dropdown-menu dropdown-menu">
           <div className="Scrubber">
             <Button className="Scrubber-first Button Button--link" onclick={this.goToFirst.bind(this)} icon="fas fa-angle-double-up">
-              {app.translator.trans('core.forum.post_scrubber.original_post_link')}
+              {this.firstPostLabel()}
             </Button>
 
             <div className="Scrubber-scrollbar">
@@ -80,17 +80,29 @@ export default class PostStreamScrubber extends Component {
               <div className="Scrubber-after" />
 
               <div className="Scrubber-unread" oncreate={styleUnread} onupdate={styleUnread}>
-                {app.translator.trans('core.forum.post_scrubber.unread_text', { count: unreadCount })}
+                {this.unreadLabel(unreadCount)}
               </div>
             </div>
 
             <Button className="Scrubber-last Button Button--link" onclick={this.goToLast.bind(this)} icon="fas fa-angle-double-down">
-              {app.translator.trans('core.forum.post_scrubber.now_link')}
+              {this.lastPostLabel()}
             </Button>
           </div>
         </div>
       </div>
     );
+  }
+
+  firstPostLabel() {
+    return app.translator.trans('core.forum.post_scrubber.original_post_link');
+  }
+
+  unreadLabel(unreadCount) {
+    return app.translator.trans('core.forum.post_scrubber.unread_text', { count: unreadCount });
+  }
+
+  lastPostLabel() {
+    return app.translator.trans('core.forum.post_scrubber.now_link');
   }
 
   onupdate(vnode) {
