@@ -59,7 +59,12 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
               <th>
                 {scope.label}{' '}
                 {!!scope.onremove && (
-                  <Button icon="fas fa-times" className="Button Button--text PermissionGrid-removeScope" onclick={scope.onremove} />
+                  <Button
+                    icon="fas fa-times"
+                    className="Button Button--text PermissionGrid-removeScope"
+                    aria-label={app.translator.trans('core.admin.permissions.remove_scope_label', { scope: scope.label })}
+                    onclick={scope.onremove}
+                  />
                 )}
               </th>
             ))}

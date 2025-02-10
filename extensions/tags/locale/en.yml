@@ -56,6 +56,7 @@ flarum-tags:
       about_tags_text: "Tags are used to categorize discussions. Primary tags are like traditional forum categories: they can be arranged in a two-level hierarchy. Secondary tags do not have hierarchy or order, and are useful for micro-categorization."
       create_primary_tag_button: Create Primary Tag
       create_secondary_tag_button: Create Secondary Tag
+      edit_tag_label: Edit Tag {tag}
       primary_heading: Primary Tags
       secondary_heading: Secondary Tags
       settings_heading: Settings
