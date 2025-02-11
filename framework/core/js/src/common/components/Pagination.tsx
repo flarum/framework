@@ -23,6 +23,7 @@ export default class Pagination<CustomAttrs extends IPaginationInterface = IPagi
         <Button
           disabled={currentPage === 1}
           title={app.translator.trans('core.lib.pagination.first_button')}
+          aria-label={app.translator.trans('core.lib.pagination.first_button')}
           onclick={() => onChange(1)}
           icon="fas fa-step-backward"
           className="Button Button--icon Pagination-first"
@@ -30,6 +31,7 @@ export default class Pagination<CustomAttrs extends IPaginationInterface = IPagi
         <Button
           disabled={currentPage === 1}
           title={app.translator.trans('core.lib.pagination.back_button')}
+          aria-label={app.translator.trans('core.lib.pagination.back_button')}
           onclick={() => onChange(currentPage - 1)}
           icon="fas fa-chevron-left"
           className="Button Button--icon Pagination-back"
@@ -77,6 +79,7 @@ export default class Pagination<CustomAttrs extends IPaginationInterface = IPagi
         <Button
           disabled={!moreData}
           title={app.translator.trans('core.lib.pagination.next_button')}
+          aria-label={app.translator.trans('core.lib.pagination.next_button')}
           onclick={() => onChange(currentPage + 1)}
           icon="fas fa-chevron-right"
           className="Button Button--icon Pagination-next"
@@ -84,6 +87,7 @@ export default class Pagination<CustomAttrs extends IPaginationInterface = IPagi
         <Button
           disabled={!moreData}
           title={app.translator.trans('core.lib.pagination.last_button')}
+          aria-label={app.translator.trans('core.lib.pagination.last_button')}
           onclick={() => onChange(totalPageCount)}
           icon="fas fa-step-forward"
           className="Button Button--icon Pagination-last"
