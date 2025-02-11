@@ -391,7 +391,7 @@ export default class UserListPage extends AdminPage {
       'editUser',
       <Button
         icon="fas fa-pencil-alt"
-        title={app.translator.trans('core.admin.users.grid.columns.user_actions.edit_user.tooltip', { username: user.displayName() })}
+        title={app.translator.trans('core.admin.users.grid.columns.user_actions.edit_user.tooltip', { username: user.displayName() }, true)}
         onclick={() => app.modal.show(() => import('../../common/components/EditUserModal'), { user })}
       >
         {app.translator.trans('core.admin.users.grid.columns.user_actions.edit_user.button')}
