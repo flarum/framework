@@ -51,7 +51,7 @@ export default class DiscussionList extends Component {
         <ul role="feed" aria-busy={isLoading} className="DiscussionList-discussions">
           {state.getPages().map((pg, pageNum) => {
             return pg.items.map((discussion, itemNum) => (
-              <li key={discussion.id()} data-id={discussion.id()} role="article" aria-setsize="-1" aria-posinset={pageNum * pageSize + itemNum}>
+              <li key={discussion.id()} data-id={discussion.id()} role="article" aria-setsize="-1" aria-posinset={pageNum * pageSize + itemNum + 1}>
                 <DiscussionListItem discussion={discussion} params={params} />
               </li>
             ));
