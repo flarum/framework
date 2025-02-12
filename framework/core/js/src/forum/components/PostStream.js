@@ -84,7 +84,7 @@ export default class PostStream extends Component {
         </div>
       );
 
-      if (i === 0 && this.afterFirstPostItems().toArray().length > 0) {
+      if (post && post.number() === 1 && this.afterFirstPostItems().toArray().length > 0) {
         return m.fragment({ ...attrs }, [
           postStreamElement,
           <div className="PostStream-item PostStream-afterFirstPost" key="afterFirstPost">
