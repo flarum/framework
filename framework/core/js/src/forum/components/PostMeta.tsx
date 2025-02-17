@@ -30,14 +30,6 @@ export default class PostMeta<CustomAttrs extends IPostMetaAttrs = IPostMetaAttr
     const permalink = this.getPermalink(post);
     const touch = 'ontouchstart' in document.documentElement;
 
-    // When the dropdown menu is shown, select the contents of the permalink
-    // input so that the user can quickly copy the URL.
-    const selectPermalink = function (this: Element, e: MouseEvent) {
-      setTimeout(() => $(this).parent().find('.PostMeta-permalink').select());
-
-      e.redraw = false;
-    };
-
     return (
       <div className="Dropdown PostMeta">
         <button
@@ -45,7 +37,7 @@ export default class PostMeta<CustomAttrs extends IPostMetaAttrs = IPostMetaAttr
             'Button Button--text': true,
             'Dropdown-toggle Button--link': !!permalink,
           })}
-          onclick={permalink ? selectPermalink : undefined}
+          onclick={permalink ? this.selectPermalink.bind(this) : undefined}
           data-toggle="dropdown"
         >
           {humanTime(time)}
@@ -79,6 +71,15 @@ export default class PostMeta<CustomAttrs extends IPostMetaAttrs = IPostMetaAttr
     }
 
     return this.attrs.permalink?.() || null;
+  }
+
+  /**
+   * Selects the permalink input when the dropdown is shown.
+   */
+  selectPermalink(e: MouseEvent) {
+    const $button = $(e.currentTarget as HTMLElement);
+    setTimeout(() => $button.parent().find('.PostMeta-permalink').select());
+    e.redraw = false;
   }
 
   postIdentifier(post: ModelType): string | null {
