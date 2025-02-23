@@ -53,7 +53,7 @@ class SmtpDriver implements DriverInterface
     public function buildTransport(SettingsRepositoryInterface $settings): TransportInterface
     {
         return $this->factory->create(new Dsn(
-            $settings->get('mail_encryption') === 'tls' ? 'smtps' : '',
+            $settings->get('mail_encryption') === 'tls' ? 'smtps' : 'smtp',
             $settings->get('mail_host'),
             $settings->get('mail_username'),
             $settings->get('mail_password'),
