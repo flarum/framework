@@ -23,29 +23,44 @@ class GatherDebugInformation implements Middleware
 
     public function process(Request $request, Handler $handler): Response
     {
-        // Read current web user, so we can compare that against CLI executions,
-        // these often cause file permission issues.
+        $this->upsertWebUser();
+
+        $this->upsertOpCacheStatus();
+
+        return $handler->handle($request);
+    }
+
+    /**
+     * Read current web user, so we can compare that against CLI executions,
+     * these often cause file permission issues.
+     */
+    public function upsertWebUser(): void
+    {
         $user = $this->settings->get('core.debug.web_user');
         $currentUser = get_current_user();
+
         if ($user !== $currentUser) {
             $this->settings->set(
                 'core.debug.web_user',
                 $currentUser
             );
         }
+    }
 
-        // Read the opcache situation, this is only visible in web.
-        // Cli has opcache disabled by default.
+    /**
+     * Read the opcache situation, this is only visible in web.
+     * Cli has opcache disabled by default.
+     */
+    public function upsertOpCacheStatus(): void
+    {
         $opcache = $this->settings->get('core.debug.opcache');
-        $opcacheStatus = function_exists('opcache_get_configuration')
-            && opcache_get_configuration() !== false ? 'on' : 'off';
+        $opcacheStatus = function_exists('opcache_get_configuration') && opcache_get_configuration() !== false ? 'on' : 'off';
+
         if ($opcache !== $opcacheStatus) {
             $this->settings->set(
                 'core.debug.opcache',
                 $opcacheStatus
             );
         }
-
-        return $handler->handle($request);
     }
 }

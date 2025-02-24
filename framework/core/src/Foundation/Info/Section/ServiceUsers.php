@@ -13,7 +13,7 @@ use Flarum\Foundation\Info\RendererInterface;
 use Flarum\Foundation\Info\SectionInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 
-class Webserver implements SectionInterface
+class ServiceUsers implements SectionInterface
 {
     public function __construct(protected SettingsRepositoryInterface $settings)
     {
@@ -21,9 +21,20 @@ class Webserver implements SectionInterface
 
     public function __invoke(RendererInterface $renderer): void
     {
-        $renderer->keyValue(
-            'Web user',
-            $this->settings->get('core.debug.web_user') ?? 'visit admin to identify'
-        );
+        $rows = [
+            ['Web user', $this->settings->get('core.debug.web_user') ?? 'visit admin to identify']
+        ];
+
+        if (php_sapi_name() === 'cli') {
+            $rows[] = [
+                'Current user',
+                posix_getpwuid(posix_geteuid())['name']
+            ];
+        }
+
+        $renderer->table([
+            ['Service/process users'],
+            ['Type', 'User']
+        ], $rows);
     }
 }

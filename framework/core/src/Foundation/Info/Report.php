@@ -19,8 +19,8 @@ class Report
         Section\Database::class,
         Section\EnabledExtensions::class,
         Section\Features::class,
-        Section\Webserver::class,
         Section\Debug::class,
+        Section\ServiceUsers::class,
     ];
 
     public function __construct(

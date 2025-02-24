@@ -22,7 +22,7 @@ class CliRenderer implements RendererInterface
 
     public function heading(string $title): void
     {
-        $this->output->writeln("<bg=gray,options=bold>$title</>");
+        $this->output->writeln("<bg=gray>$title</>");
     }
 
     public function keyValue(string $key, mixed $value): void
