@@ -3,8 +3,10 @@ import Mithril from 'mithril';
 import AbstractPost, { type IAbstractPostAttrs } from 'flarum/forum/components/AbstractPost';
 import type User from 'flarum/common/models/User';
 import DialogMessage from '../../common/models/DialogMessage';
+import type MessageStreamState from '../states/MessageStreamState';
 export interface IMessageAttrs extends IAbstractPostAttrs {
     message: DialogMessage;
+    state: MessageStreamState;
 }
 /**
  * The `Post` component displays a single post. The basic post template just

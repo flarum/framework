@@ -8,6 +8,7 @@ import Button from 'flarum/common/components/Button';
 import type Dialog from '../common/models/Dialog';
 import DialogsDropdown from './components/DialogsDropdown';
 import DialogListState from './states/DialogListState';
+import type User from 'flarum/common/models/User';
 
 export { default as extend } from './extend';
 
@@ -44,14 +45,14 @@ app.initializers.add('flarum-messages', () => {
   });
 
   extend(HeaderSecondary.prototype, 'items', function (items) {
-    if (app.session.user?.attribute<boolean>('canSendAnyMessage')) {
+    if (app.session.user?.canSendAnyMessage()) {
       items.add('messages', <DialogsDropdown state={app.dropdownDialogs} />, 15);
     }
   });
 
   // @ts-ignore
-  extend(UserControls, 'userControls', (items, user) => {
-    if (app.session.user?.attribute<boolean>('canSendAnyMessage')) {
+  extend(UserControls, 'userControls', (items, user: User) => {
+    if (app.session.user?.canSendAnyMessage()) {
       items.add(
         'sendMessage',
         <Button
@@ -66,6 +67,7 @@ app.initializers.add('flarum-messages', () => {
                 .then(() => app.composer.show());
             });
           }}
+          helperText={user.canSendAnyMessage() ? null : app.translator.trans('flarum-messages.forum.user_controls.cannot_reply_text')}
         >
           {app.translator.trans('flarum-messages.forum.user_controls.send_message_button')}
         </Button>

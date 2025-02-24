@@ -26,18 +26,41 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
 
     return (
       <header className="Hero WelcomeHero">
-        <div className="container">
-          <Button
-            icon="fas fa-times"
-            onclick={slideUp}
-            className="Hero-close Button Button--icon Button--link"
-            aria-label={app.translator.trans('core.forum.welcome_hero.hide')}
-          />
-
-          <div className="containerNarrow">{this.welcomeItems().toArray()}</div>
-        </div>
+        <div className="container">{this.viewItems().toArray()}</div>
       </header>
     );
+  }
+
+  viewItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    const slideUp = () => {
+      this.$().slideUp(this.hide.bind(this));
+    };
+
+    items.add(
+      'dismiss-button',
+      <Button
+        icon="fas fa-times"
+        onclick={slideUp}
+        className="Hero-close Button Button--icon Button--link"
+        aria-label={app.translator.trans('core.forum.welcome_hero.hide')}
+      />,
+      100
+    );
+
+    items.add('content', <div className="containerNarrow">{this.contentItems().toArray()}</div>, 80);
+
+    return items;
+  }
+
+  contentItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add('title', <h1 className="Hero-title">{app.forum.attribute('welcomeTitle')}</h1>, 100);
+    items.add('subtitle', <div className="Hero-subtitle">{m.trust(app.forum.attribute('welcomeMessage'))}</div>);
+
+    return items;
   }
 
   /**
@@ -57,14 +80,5 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
     if (localStorage.getItem(LOCAL_STORAGE_KEY)) return true;
 
     return false;
-  }
-
-  welcomeItems(): ItemList<Mithril.Children> {
-    const items = new ItemList<Mithril.Children>();
-
-    items.add('hero-title', <h1 className="Hero-title">{app.forum.attribute('welcomeTitle')}</h1>, 20);
-    items.add('hero-subtitle', <div className="Hero-subtitle">{m.trust(app.forum.attribute('welcomeMessage'))}</div>, 10);
-
-    return items;
   }
 }

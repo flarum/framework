@@ -81,10 +81,13 @@ class RegisterAsyncChunksPlugin {
                   const chunkModules = (c) => Array.from(compilation.chunkGraph.getChunkModulesIterable(c));
 
                   const relevantChunk = chunks.find((chunk) =>
-                    chunkModules(chunk)?.find(
-                      (module) =>
-                        module.resource?.split('.')[0] === importPathResolved || module.rootModule?.resource?.split('.')[0] === importPathResolved
-                    )
+                    chunkModules(chunk)?.find((module) => {
+                      const resourceWithoutExt = module.resource ? module.resource.replace(path.extname(module.resource), '') : '';
+                      const rootResourceWithoutExt = module.rootModule?.resource
+                        ? module.rootModule.resource.replace(path.extname(module.rootModule.resource), '')
+                        : '';
+                      return resourceWithoutExt === importPathResolved || rootResourceWithoutExt === importPathResolved;
+                    })
                   );
 
                   if (!relevantChunk) {
@@ -94,7 +97,11 @@ class RegisterAsyncChunksPlugin {
 
                   const relevantChunkModules = chunkModules(relevantChunk);
                   const mainModule = relevantChunkModules.filter((m) => {
-                    return m.resource?.split('.')[0] === importPathResolved || m.rootModule?.resource?.split('.')[0] === importPathResolved;
+                    const resourceWithoutExt = m.resource ? m.resource.replace(path.extname(m.resource), '') : '';
+                    const rootResourceWithoutExt = m.rootModule?.resource
+                      ? m.rootModule.resource.replace(path.extname(m.rootModule.resource), '')
+                      : '';
+                    return resourceWithoutExt === importPathResolved || rootResourceWithoutExt === importPathResolved;
                   })[0];
                   const otherRelevantChunkModules = relevantChunkModules.filter((m) => m !== mainModule);
 

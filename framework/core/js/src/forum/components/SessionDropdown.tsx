@@ -33,7 +33,13 @@ export default class SessionDropdown<CustomAttrs extends ISessionDropdownAttrs =
   getButtonContent() {
     const user = app.session.user;
 
-    return [<Avatar user={user} />, ' ', <span className="Button-label">{username(user)}</span>];
+    return [
+      <Avatar user={user} />,
+      ' ',
+      <span className="Button-label">
+        <span className="Button-labelText">{username(user)}</span>
+      </span>,
+    ];
   }
 
   /**

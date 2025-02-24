@@ -35,6 +35,6 @@ class SendmailDriver implements DriverInterface
 
     public function buildTransport(SettingsRepositoryInterface $settings): TransportInterface
     {
-        return (new SendmailTransportFactory())->create(new Dsn('', 'sendmail'));
+        return (new SendmailTransportFactory())->create(new Dsn('sendmail', 'default'));
     }
 }

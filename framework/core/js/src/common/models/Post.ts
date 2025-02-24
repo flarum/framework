@@ -41,6 +41,10 @@ export default class Post extends Model {
     }).call(this);
   }
 
+  ipAddress() {
+    return Model.attribute<string | null | undefined>('ipAddress').call(this);
+  }
+
   editedAt() {
     return Model.attribute('editedAt', Model.transformDate).call(this);
   }

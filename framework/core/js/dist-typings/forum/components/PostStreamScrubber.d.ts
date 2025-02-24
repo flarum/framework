@@ -14,6 +14,9 @@ export default class PostStreamScrubber extends Component<import("../../common/C
     handlers: {} | undefined;
     scrollListener: ScrollListener | undefined;
     view(): JSX.Element;
+    firstPostLabel(): string | any[];
+    unreadLabel(unreadCount: any): any[];
+    lastPostLabel(): string | any[];
     onupdate(vnode: any): void;
     oncreate(vnode: any): void;
     dragging: boolean | undefined;

@@ -68,6 +68,7 @@ export default class UserListPage extends AdminPage {
      * See `UserListPage.tsx` for examples.
      */
     columns(): ItemList<ColumnData>;
+    userActionItems(user: User): ItemList<Mithril.Children>;
     headerInfo(): {
         className: string;
         icon: string;

@@ -122,7 +122,7 @@ class ListWithTagsTest extends TestCase
     }
 
     #[Test]
-    public function regular_user_sees_own_flags()
+    public function regular_user_does_not_see_own_flags()
     {
         $response = $this->send(
             $this->request('GET', '/api/flags', [
@@ -135,7 +135,7 @@ class ListWithTagsTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         $ids = Arr::pluck($data, 'id');
-        $this->assertEqualsCanonicalizing(['2', '4'], $ids);
+        $this->assertEqualsCanonicalizing([], $ids);
     }
 
     #[Test]

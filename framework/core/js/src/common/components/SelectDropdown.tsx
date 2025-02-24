@@ -50,7 +50,9 @@ export default class SelectDropdown<CustomAttrs extends ISelectDropdownAttrs = I
     let label = (activeChild && typeof activeChild === 'object' && 'children' in activeChild && activeChild.children) || this.attrs.defaultLabel;
 
     return [
-      <span className="Button-label">{label}</span>,
+      <span className="Button-label">
+        <span className="Button-labelText">{label}</span>
+      </span>,
       this.attrs.caretIcon ? <Icon name={this.attrs.caretIcon} className="Button-caret" /> : null,
     ];
   }

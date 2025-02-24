@@ -310,6 +310,7 @@ core:
       participate_heading: Participate
       post_without_throttle_label: Reply multiple times without waiting
       read_heading: Read
+      remove_scope_label: Remove scope of {scope}
       rename_discussions_label: Rename discussions
       reply_to_discussions_label: Reply to discussions
       search_users_label: => core.ref.search_users
@@ -359,11 +360,6 @@ core:
           display_name:
             title: Display name
 
-          edit_user:
-            button: => core.ref.edit
-            title: => core.ref.edit_user
-            tooltip: Edit {username}
-
           email:
             title: => core.ref.email
             visibility_hide: Hide email address
@@ -375,6 +371,12 @@ core:
 
           join_time:
             title: Joined
+
+          user_actions:
+            title: Actions
+            edit_user:
+              button: => core.ref.edit
+              tooltip: Edit {username}
 
           user_id:
             title: ID

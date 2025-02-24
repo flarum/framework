@@ -8,6 +8,11 @@ export default class SearchManager<State extends SearchState = SearchState> {
   public static MIN_SEARCH_LEN = 3;
 
   /**
+   * Time to wait (in milliseconds) after the user stops typing before triggering a search.
+   */
+  public static SEARCH_DEBOUNCE_TIME_MS = 250;
+
+  /**
    * An object which stores previously searched queries and provides convenient
    * tools for retrieving and managing search values.
    */

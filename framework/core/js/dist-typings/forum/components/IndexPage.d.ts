@@ -13,6 +13,8 @@ export default class IndexPage<CustomAttrs extends IIndexPageAttrs = IIndexPageA
     lastDiscussion?: Discussion;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     view(): JSX.Element;
+    contentItems(): ItemList<Mithril.Children>;
+    toolbarItems(): ItemList<Mithril.Children>;
     setTitle(): void;
     oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
     onbeforeremove(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;

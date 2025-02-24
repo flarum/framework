@@ -24,7 +24,7 @@ return [
         ->css(__DIR__.'/less/forum.less')
         ->jsDirectory(__DIR__.'/js/dist/forum')
         ->route('/messages', 'messages')
-        ->route('/messages/dialog/{id:\d+}', 'messages.dialog'),
+        ->route('/messages/dialog/{id:\d+}[/{near:\d+}]', 'messages.dialog'),
 
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js')
@@ -51,7 +51,9 @@ return [
     (new Extend\ApiResource(Resource\UserResource::class))
         ->fields(fn () => [
             Schema\Boolean::make('canSendAnyMessage')
-                ->get(fn (object $model, Context $context) => $context->getActor()->can('sendAnyMessage')),
+                ->get(fn (User $user, Context $context) => $user->can('sendAnyMessage')),
+            Schema\Boolean::make('canDeleteOwnMessages')
+                ->visible(fn (User $user, Context $context) => $context->getActor()->is($user)),
             Schema\Integer::make('messageCount')
                 ->get(function (object $model, Context $context) {
                     return Dialog::whereVisibleTo($context->getActor())

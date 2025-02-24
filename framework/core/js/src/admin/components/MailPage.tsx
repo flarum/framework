@@ -93,7 +93,7 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
   mailSettingItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
-    const fields = this.driverFields![this.setting('mail_driver')()];
+    const fields = this.driverFields![this.setting('mail_driver')()] || {};
     const fieldKeys = Object.keys(fields);
 
     if (this.status!.sending) {
