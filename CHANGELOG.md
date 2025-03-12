@@ -9,6 +9,7 @@
 * make search debounce time extensible (https://github.com/flarum/framework/pull/4171)
 * skip incompatible extension updates (https://github.com/flarum/framework/pull/4176)
 * increase email field length in `email_tokens` (https://github.com/flarum/framework/pull/4125)
+* update JS deps (https://github.com/flarum/framework/pull/4204)
 
 ## [v1.8.9](https://github.com/flarum/framework/compare/v1.8.8...v1.8.9)
 ### Fixed
