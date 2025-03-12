@@ -1,5 +1,15 @@
 # Changelog
 
+## [v1.8.10](https://github.com/flarum/framework/compare/v1.8.9...v1.8.10)
+### Fixed
+* Session Hijacking via Authoritative Subdomain Cookie Overwrite (https://github.com/flarum/framework/security/advisories/GHSA-hg9j-64wp-m9px)
+* change starting position of `aria-posinset` (https://github.com/flarum/framework/pull/4192)
+* sanitize page param in `Tag` (https://github.com/flarum/framework/pull/4170)
+### Changed
+* make search debounce time extensible (https://github.com/flarum/framework/pull/4171)
+* skip incompatible extension updates (https://github.com/flarum/framework/pull/4176)
+* increase email field length in `email_tokens` (https://github.com/flarum/framework/pull/4125)
+
 ## [v1.8.9](https://github.com/flarum/framework/compare/v1.8.8...v1.8.9)
 ### Fixed
 * change condition when unread label is shown in Scrubber (https://github.com/flarum/framework/pull/4116)
