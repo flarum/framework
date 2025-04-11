@@ -108,27 +108,27 @@ class Context extends BaseContext
         return $this->parameters[$key] ?? $default;
     }
 
-    public function creating(string|null $resource = null): bool
+    public function creating(?string $resource = null): bool
     {
         return $this->endpoint instanceof Endpoint\Create && (! $resource || is_a($this->collection, $resource));
     }
 
-    public function updating(string|null $resource = null): bool
+    public function updating(?string $resource = null): bool
     {
         return $this->endpoint instanceof Endpoint\Update && (! $resource || is_a($this->collection, $resource));
     }
 
-    public function deleting(string|null $resource = null): bool
+    public function deleting(?string $resource = null): bool
     {
         return $this->endpoint instanceof Endpoint\Delete && (! $resource || is_a($this->collection, $resource));
     }
 
-    public function showing(string|null $resource = null): bool
+    public function showing(?string $resource = null): bool
     {
         return $this->endpoint instanceof Endpoint\Show && (! $resource || is_a($this->collection, $resource));
     }
 
-    public function listing(string|null $resource = null): bool
+    public function listing(?string $resource = null): bool
     {
         return $this->endpoint instanceof Endpoint\Index && (! $resource || is_a($this->collection, $resource));
     }

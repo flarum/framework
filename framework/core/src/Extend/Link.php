@@ -19,8 +19,8 @@ use s9e\TextFormatter\Utils;
 
 class Link implements ExtenderInterface
 {
-    protected Closure|null $setRel = null;
-    protected Closure|null $setTarget = null;
+    protected ?Closure $setRel = null;
+    protected ?Closure $setTarget = null;
 
     public function setRel(Closure $callable): self
     {

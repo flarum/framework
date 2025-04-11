@@ -32,7 +32,7 @@ use Tobyz\JsonApiServer\Schema\CustomFilter;
 
 class ExternalExtensionResource extends AbstractResource implements Listable, Paginatable, Countable
 {
-    protected int|null $totalResults = null;
+    protected ?int $totalResults = null;
 
     public function __construct(
         protected Repository $cache,
