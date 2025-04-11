@@ -286,6 +286,8 @@ export default class Application {
 
   private handledErrors: { extension: null | string; errorId: string; error: any }[] = [];
 
+  private beforeMounts: (() => void)[] = [];
+
   public load(payload: Application['data']) {
     this.data = payload;
     this.translator.setLocale(payload.locale);
@@ -326,7 +328,7 @@ export default class Application {
 
     this.session = new Session(this.store.getById<User>('users', String(this.data.session.userId)) ?? null, this.data.session.csrfToken);
 
-    this.beforeMount();
+    this.runBeforeMount();
 
     this.mount();
 
@@ -335,8 +337,13 @@ export default class Application {
     caughtInitializationErrors.forEach((handler) => handler());
   }
 
-  protected beforeMount(): void {
-    // ...
+  public beforeMount(callback: () => void) {
+    this.beforeMounts.push(callback);
+  }
+
+  protected runBeforeMount(): void {
+    this.beforeMounts.forEach((callback) => callback());
+    this.beforeMounts = [];
   }
 
   public bootExtensions(extensions: Record<string, { extend?: IExtender[] }>) {

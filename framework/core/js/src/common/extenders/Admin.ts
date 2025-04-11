@@ -124,62 +124,64 @@ export default class Admin implements IExtender<AdminApplication> {
   }
 
   extend(app: AdminApplication, extension: IExtensionModule) {
-    app.registry.for(this.context || extension.name);
+    app.beforeMount(() => {
+      app.registry.for(this.context || extension.name);
 
-    this.settings.forEach(({ setting, customSetting, priority }) => {
-      const settingConfig = setting ? setting() : customSetting!;
+      this.settings.forEach(({ setting, customSetting, priority }) => {
+        const settingConfig = setting ? setting() : customSetting!;
 
-      if (settingConfig) {
-        app.registry.registerSetting(settingConfig, priority);
+        if (settingConfig) {
+          app.registry.registerSetting(settingConfig, priority);
+        }
+      });
+
+      this.settingReplacements.forEach(({ setting, replacement }) => {
+        app.registry.setSetting(setting, replacement);
+      });
+
+      this.settingPriorityChanges.forEach(({ setting, priority }) => {
+        app.registry.setSettingPriority(setting, priority);
+      });
+
+      this.settingRemovals.forEach((setting) => {
+        app.registry.removeSetting(setting);
+      });
+
+      this.permissions.forEach(({ permission, type, priority }) => {
+        const permissionConfig = permission();
+
+        if (permissionConfig) {
+          app.registry.registerPermission(permissionConfig, type, priority);
+        }
+      });
+
+      this.permissionsReplacements.forEach(({ permission, type, replacement }) => {
+        app.registry.setPermission(permission, replacement, type);
+      });
+
+      this.permissionsPriorityChanges.forEach(({ permission, type, priority }) => {
+        app.registry.setPermissionPriority(permission, type, priority);
+      });
+
+      this.permissionsRemovals.forEach(({ permission, type }) => {
+        app.registry.removePermission(permission, type);
+      });
+
+      if (this.customPage) {
+        app.registry.registerPage(this.customPage);
       }
-    });
 
-    this.settingReplacements.forEach(({ setting, replacement }) => {
-      app.registry.setSetting(setting, replacement);
-    });
+      app.generalIndex.for(extension.name);
 
-    this.settingPriorityChanges.forEach(({ setting, priority }) => {
-      app.registry.setSettingPriority(setting, priority);
-    });
+      Object.keys(this.generalIndexes).forEach((key) => {
+        if (key !== 'settings' && key !== 'permissions') return;
 
-    this.settingRemovals.forEach((setting) => {
-      app.registry.removeSetting(setting);
-    });
+        const callback = this.generalIndexes[key];
 
-    this.permissions.forEach(({ permission, type, priority }) => {
-      const permissionConfig = permission();
-
-      if (permissionConfig) {
-        app.registry.registerPermission(permissionConfig, type, priority);
-      }
-    });
-
-    this.permissionsReplacements.forEach(({ permission, type, replacement }) => {
-      app.registry.setPermission(permission, replacement, type);
-    });
-
-    this.permissionsPriorityChanges.forEach(({ permission, type, priority }) => {
-      app.registry.setPermissionPriority(permission, type, priority);
-    });
-
-    this.permissionsRemovals.forEach(({ permission, type }) => {
-      app.registry.removePermission(permission, type);
-    });
-
-    if (this.customPage) {
-      app.registry.registerPage(this.customPage);
-    }
-
-    app.generalIndex.for(extension.name);
-
-    Object.keys(this.generalIndexes).forEach((key) => {
-      if (key !== 'settings' && key !== 'permissions') return;
-
-      const callback = this.generalIndexes[key];
-
-      if (callback) {
-        app.generalIndex.add(key, callback());
-      }
+        if (callback) {
+          app.generalIndex.add(key, callback());
+        }
+      });
     });
   }
 }

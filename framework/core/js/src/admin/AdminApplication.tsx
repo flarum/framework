@@ -129,12 +129,14 @@ export default class AdminApplication extends Application {
     this.route = (Object.getPrototypeOf(Object.getPrototypeOf(this)) as Application).route.bind(this);
   }
 
-  protected beforeMount(): void {
+  protected runBeforeMount(): void {
     BasicsPage.register();
     AppearancePage.register();
     MailPage.register();
     AdvancedPage.register();
     PermissionsPage.register();
+
+    super.runBeforeMount();
   }
 
   /**
