@@ -312,7 +312,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
         className="DiscussionListItem-count"
         icon={showUnread ? [<Icon name={'fas fa-check _checkmark'} />, <Icon name={'fas fa-comment _comment'} />] : <Icon name={'far fa-comment'} />}
         label={showUnread ? abbreviateNumber(discussion.unreadCount()) : abbreviateNumber(discussion.replyCount())}
-        a11yLabel={app.translator.trans(a11yKey, { count: discussion.replyCount() })}
+        a11yLabel={app.translator.trans(a11yKey, { count: discussion.unreadCount() })}
         onclick={showUnread ? this.markAsRead.bind(this) : undefined}
       />
     );
