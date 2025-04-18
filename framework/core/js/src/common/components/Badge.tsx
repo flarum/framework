@@ -26,7 +26,6 @@ export interface IBadgeAttrs extends ComponentAttrs {
  */
 export default class Badge<CustomAttrs extends IBadgeAttrs = IBadgeAttrs> extends Component<CustomAttrs> {
   view() {
-    console.log(this.attrs);
     const { type, icon: iconName, label, color, style = {}, ...attrs } = this.attrs;
 
     const className = classList('Badge', [type && `Badge--${type}`], attrs.className, textContrastClass(color));
