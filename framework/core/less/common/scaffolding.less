@@ -199,3 +199,13 @@ blockquote ol:last-child {
 .text-colored {
   color: var(--color);
 }
+
+.sr-only-focusable-custom:focus {
+  clip: unset;
+  width: auto;
+  height: auto;
+  border-width: medium;
+  background: #000;
+  color: #fff;
+  z-index: 100;
+}

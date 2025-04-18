@@ -496,6 +496,7 @@ core:
       meta_title_text: => core.ref.all_discussions
       refresh_tooltip: => core.ref.refresh
       start_discussion_button: => core.ref.start_a_discussion
+      skip_to_main_content: Skip to main content
       toggle_sidenav_dropdown_accessible_label: Toggle navigation dropdown menu
 
     # These translations are used by the sorting control above the discussion list.
@@ -910,6 +911,10 @@ core:
       all_discussions_heading: => core.ref.all_discussions
       next_page_button: => core.ref.next_page
       previous_page_button: => core.ref.previous_page
+
+    # Translations in this namespace are displayed by the basic HTML forum layout.
+    layout:
+      skip_to_content: Skip to content
 
     # Translations in this namespace are displayed by the Log Out confirmation interface.
     log_out:

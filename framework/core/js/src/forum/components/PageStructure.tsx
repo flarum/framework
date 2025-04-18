@@ -1,3 +1,4 @@
+import app from '../app';
 import Component from '../../common/Component';
 import type { ComponentAttrs } from '../../common/Component';
 import type Mithril from 'mithril';
@@ -70,6 +71,14 @@ export default class PageStructure<CustomAttrs extends PageStructureAttrs = Page
   sidebarItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
+    items.add(
+      'skipToMainContent',
+      <a href="#main-content" className="sr-only sr-only-focusable-custom">
+        {app.translator.trans('core.forum.index.skip_to_main_content')}
+      </a>,
+      200
+    );
+
     items.add('sidebar', (this.attrs.sidebar && this.attrs.sidebar()) || null, 100);
 
     return items;
@@ -88,6 +97,10 @@ export default class PageStructure<CustomAttrs extends PageStructureAttrs = Page
   }
 
   providedContent(): Mithril.Children {
-    return <div className="Page-content">{this.content}</div>;
+    return (
+      <div className="Page-content" id="main-content">
+        {this.content}
+      </div>
+    );
   }
 }
