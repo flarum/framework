@@ -76,14 +76,14 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
   viewItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
+    items.add('slidableUnderneath', this.slidableUnderneathView(), 90);
+    items.add('content', this.contentView(), 80);
+
     const controls = DiscussionControls.controls(this.attrs.discussion, this).toArray();
 
     if (controls.length) {
-      items.add('controls', this.controlsView(controls), 100);
+      items.add('controls', this.controlsView(controls), 70);
     }
-
-    items.add('slidableUnderneath', this.slidableUnderneathView(), 90);
-    items.add('content', this.contentView(), 80);
 
     return items;
   }
