@@ -5,6 +5,7 @@ import type Mithril from 'mithril';
 import classList from '../../common/utils/classList';
 import ItemList from '../../common/utils/ItemList';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
+import { prepareSkipLinks } from '../../common/utils/a11y';
 
 export interface PageStructureAttrs extends ComponentAttrs {
   hero?: () => Mithril.Children;
@@ -52,7 +53,11 @@ export default class PageStructure<CustomAttrs extends PageStructureAttrs = Page
   }
 
   main(): Mithril.Children {
-    return <div className="Page-main">{this.attrs.loading ? this.loadingItems().toArray() : this.mainItems().toArray()}</div>;
+    return (
+      <div className="Page-main" id="page-main">
+        {this.attrs.loading ? this.loadingItems().toArray() : this.mainItems().toArray()}
+      </div>
+    );
   }
 
   containerItems(): ItemList<Mithril.Children> {
@@ -73,7 +78,7 @@ export default class PageStructure<CustomAttrs extends PageStructureAttrs = Page
 
     items.add(
       'skipToMainContent',
-      <a href="#main-content" className="sr-only sr-only-focusable-custom">
+      <a href="#main-content" className="sr-only sr-only-focusable-custom" oncreate={() => prepareSkipLinks()}>
         {app.translator.trans('core.forum.index.skip_to_main_content')}
       </a>,
       200

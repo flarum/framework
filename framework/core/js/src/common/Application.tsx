@@ -39,6 +39,7 @@ import IExtender from './extenders/IExtender';
 import AccessToken from './models/AccessToken';
 import SearchManager from './SearchManager';
 import { ColorScheme } from './components/ThemeMode';
+import { prepareSkipLinks } from './utils/a11y';
 
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 
@@ -394,6 +395,8 @@ export default class Application {
     this.initColorScheme();
 
     liveHumanTimes();
+
+    prepareSkipLinks();
   }
 
   private initColorScheme(forumDefault: string | null = null): void {

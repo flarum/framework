@@ -2,6 +2,7 @@ import app from '../../forum/app';
 import DiscussionList from './DiscussionList';
 import Component from '../../common/Component';
 import DiscussionPage from './DiscussionPage';
+import { prepareSkipLinks } from '../../common/utils/a11y';
 
 const hotEdge = (e) => {
   if (e.pageX < 10) app.pane.show();
@@ -22,7 +23,14 @@ export default class DiscussionListPane extends Component {
       return;
     }
 
-    return <aside className="DiscussionListPane">{this.enoughSpace() && <DiscussionList state={this.attrs.state} />}</aside>;
+    return (
+      <aside className="DiscussionListPane">
+        <a href="#page-main" class="sr-only sr-only-focusable-custom" oncreate={() => prepareSkipLinks()}>
+          {app.translator.trans('core.forum.discussion_list.skip_discussion_list_pane')}
+        </a>
+        {this.enoughSpace() && <DiscussionList state={this.attrs.state} />}
+      </aside>
+    );
   }
 
   oncreate(vnode) {
@@ -34,7 +42,12 @@ export default class DiscussionListPane extends Component {
     // and hide the pane respectively. We also create a 10px 'hot edge' on the
     // left of the screen to activate the pane.
     const pane = app.pane;
-    $list.hover(pane.show.bind(pane), pane.onmouseleave.bind(pane));
+    $list.on('mouseenter', pane.show.bind(pane));
+    $list.on('mouseleave', pane.onmouseleave.bind(pane));
+    // a11y: when tabbing into the pane (focus) we should also show the pane.
+    // and when tabbing out, we should hide the pane.
+    $list.on('focus', 'a, .Button', pane.show.bind(pane));
+    $list.on('blur', 'a, .Button', pane.onmouseleave.bind(pane));
 
     $(document).on('mousemove', hotEdge);
 

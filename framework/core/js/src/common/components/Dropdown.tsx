@@ -124,12 +124,13 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
       m.redraw();
     });
 
-    // Focusing out of the dropdown should close it.
-    this.$().on('focusout', (e) => {
-      if (e.relatedTarget && !this.$().has(e.relatedTarget).length) {
+    this.$().on('focusout', (e: JQuery.FocusOutEvent) => {
+      // Check if the new focused element is outside of this dropdown
+      if (!this.$().has(e.relatedTarget as Element).length) {
         this.$().trigger('hidden.bs.dropdown');
       }
     });
+    // Focusing out of the dropdown should close it.
   }
 
   /**
