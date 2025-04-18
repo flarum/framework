@@ -28,7 +28,7 @@ app.initializers.add('flarum-suspend', () => {
     if (new Date() < until) {
       items.add(
         'suspended',
-        <Badge icon="fas fa-ban" type="suspended" label={app.translator.trans('flarum-suspend.forum.user_badge.suspended_tooltip')} />,
+        <Badge icon="fas fa-ban" type="suspended" label={app.translator.trans('flarum-suspend.forum.user_badge.suspended_tooltip')} tabindex="0" />,
         100
       );
     }

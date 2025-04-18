@@ -18,7 +18,12 @@ app.initializers.add(
       if (!this.isApproved() && !items.has('hidden')) {
         items.add(
           'awaitingApproval',
-          <Badge type="awaitingApproval" icon="fas fa-gavel" label={app.translator.trans('flarum-approval.forum.badge.awaiting_approval_tooltip')} />
+          <Badge
+            type="awaitingApproval"
+            icon="fas fa-gavel"
+            label={app.translator.trans('flarum-approval.forum.badge.awaiting_approval_tooltip')}
+            tabindex="0"
+          />
         );
       }
     });
