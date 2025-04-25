@@ -6,7 +6,6 @@ export function prepareSkipLinks() {
   document.querySelectorAll('.sr-only-focusable-custom:not([data-prepared])').forEach((el) => {
     el.addEventListener('click', function (e) {
       e.preventDefault();
-      console.log('intercepted');
       const target = el.getAttribute('href')!;
       const $target = document.querySelector(target) as HTMLElement;
 
