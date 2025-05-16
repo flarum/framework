@@ -48,8 +48,6 @@ class DiscussionPolicy extends AbstractPolicy
                                     return $this->allow();
                                 }
                             }
-
-                            # return null;
                         }
 
                         return $this->deny();
