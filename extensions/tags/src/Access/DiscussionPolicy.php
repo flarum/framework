@@ -35,6 +35,23 @@ class DiscussionPolicy extends AbstractPolicy
             foreach ($tags as $tag) {
                 if ($tag->is_restricted) {
                     if (! $actor->hasPermission('tag'.$tag->id.'.discussion.'.$ability)) {
+                        // This is where the original problem happens, since the renaming
+                        // ability is not tag related. If there are any other permissions
+                        // alike, their original check method should also be added here.
+                        if ($ability == 'rename') {
+                            if ($discussion->user_id == $actor->id && $actor->can('reply', $discussion)) {
+                                $allowRenaming = $this->settings->get('allow_renaming');
+
+                                if ($allowRenaming === '-1'
+                                    || ($allowRenaming === 'reply' && $discussion->participant_count <= 1)
+                                    || (is_numeric($allowRenaming) && $discussion->created_at->diffInMinutes(null, true) < $allowRenaming)) {
+                                    return $this->allow();
+                                }
+                            }
+
+                            # return null;
+                        }
+
                         return $this->deny();
                     }
 
