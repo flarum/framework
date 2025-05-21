@@ -1,10 +1,10 @@
 import app from '../app';
-import Component from '../../common/Component';
+import Hero, { IHeroAttrs } from './Hero';
 import Button from '../../common/components/Button';
 import type Mithril from 'mithril';
 import ItemList from '../../common/utils/ItemList';
 
-export interface IWelcomeHeroAttrs {}
+export interface IWelcomeHeroAttrs extends IHeroAttrs {}
 
 const LOCAL_STORAGE_KEY = 'welcomeHidden';
 
@@ -12,26 +12,18 @@ const LOCAL_STORAGE_KEY = 'welcomeHidden';
  * The `WelcomeHero` component displays a hero that welcomes the user to the
  * forum.
  */
-export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
-  oninit(vnode: Mithril.Vnode<IWelcomeHeroAttrs, this>) {
-    super.oninit(vnode);
+export default class WelcomeHero<CustomAttrs extends IWelcomeHeroAttrs = IWelcomeHeroAttrs> extends Hero<CustomAttrs> {
+  className(): string {
+    return 'WelcomeHero';
   }
 
-  view(vnode: Mithril.Vnode<IWelcomeHeroAttrs, this>) {
+  view() {
     if (this.isHidden()) return null;
 
-    const slideUp = () => {
-      this.$().slideUp(this.hide.bind(this));
-    };
-
-    return (
-      <header className="Hero WelcomeHero">
-        <div className="container">{this.viewItems().toArray()}</div>
-      </header>
-    );
+    return super.view();
   }
 
-  viewItems(): ItemList<Mithril.Children> {
+  bodyItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
     const slideUp = () => {
