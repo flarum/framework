@@ -43,7 +43,7 @@ export default abstract class Hero<CustomAttrs extends IHeroAttrs = IHeroAttrs> 
    *   };
    * ```
    */
-  protected style(): Record<string, string> | undefined {
+  style(): Record<string, string> | undefined {
     return undefined;
   }
 
