@@ -8,6 +8,51 @@ import type Mithril from 'mithril';
 export interface IHeroAttrs {}
 
 export default abstract class Hero<CustomAttrs extends IHeroAttrs = IHeroAttrs> extends Component<CustomAttrs> {
+  /**
+   * Defines the primary CSS class name for the hero component's root element.
+   * Subclasses MUST implement this method to provide a specific class name.
+   *
+   * @example
+   * ```ts
+   * className(): string {
+   *  return 'FoobarHero';
+   * }
+   * ```
+   */
+  abstract className(): string;
+
+  /**
+   * Defines the child elements that will be rendered within the main container of the hero.
+   * Subclasses MUST implement this method to define the specific content of the hero.
+   *
+   * @example
+   * ```tsx
+   * bodyItems(): ItemList<Mithril.Children> {
+   *   const items = new ItemList<Mithril.Children>();
+   *   items.add('title', <h1>Welcome!</h1>);
+   *   return items;
+   * }
+   * ```
+   */
+  abstract bodyItems(): ItemList<Mithril.Children>;
+
+  /**
+   * Defines inline CSS styles for the hero component's root element.
+   * Subclasses can override this method to provide custom styles.
+   *
+   * @example
+   * ```ts
+   * style(): Record<string, string> {
+   *   return {
+   *     backgroundColor: '#e7672e',
+   *   };
+   * }
+   * ```
+   */
+  style(): Record<string, string> | undefined {
+    return undefined;
+  }
+
   view(): Mithril.Vnode | null {
     return (
       <header className={classList('Hero', this.className())} style={this.style() ?? undefined}>
@@ -23,29 +68,4 @@ export default abstract class Hero<CustomAttrs extends IHeroAttrs = IHeroAttrs> 
 
     return items;
   }
-
-  /**
-   * @example
-   * ```ts
-   * className(): string {
-   *  return 'WelcomeHero';
-   *  }
-   */
-  abstract className(): string;
-
-  /**
-   *
-   * @example
-   * ```ts
-   * style(): Record<string, string> {
-   *   return {
-   *     backgroundColor: '#e7672e',
-   *   };
-   * ```
-   */
-  style(): Record<string, string> | undefined {
-    return undefined;
-  }
-
-  abstract bodyItems(): ItemList<Mithril.Children>;
 }
