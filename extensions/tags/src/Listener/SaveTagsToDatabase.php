@@ -134,10 +134,15 @@ class SaveTagsToDatabase
         $max = $this->settings->get('flarum-tags.max_'.$type.'_tags');
         $key = 'tag_count_'.$type;
 
+        /** @var \Illuminate\Validation\Validator $validator */
         $validator = $this->validator->make(
             [$key => $count],
             [$key => ['numeric', $min === $max ? "size:$min" : "between:$min,$max"]]
         );
+
+        $validator->setAttributeNames([
+            $key => $this->translator->trans("flarum-tags.validation.attributes.$key"),
+        ]);
 
         if ($validator->fails()) {
             throw new ValidationException([], ['tags' => $validator->getMessageBag()->first($key)]);
