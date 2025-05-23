@@ -20,6 +20,8 @@ abstract class AbstractValidator
     use ExtensionIdTrait;
 
     /**
+     * @deprecated This constant is no longer used internally and will be removed in a future release.
+     *             Use dynamic cache keys based on class and locale instead.
      * @var string
      */
     public static $CORE_VALIDATION_CACHE_KEY = 'core.validation.extension_id_class_names';
