@@ -96,8 +96,14 @@ abstract class AbstractValidator
     {
         $cache = resolve(Cache::class);
 
-        if ($cache->get(self::$CORE_VALIDATION_CACHE_KEY) !== null) {
-            return $cache->get(self::$CORE_VALIDATION_CACHE_KEY);
+        $cacheKey = sprintf(
+            'core.validation.attributes.%s.%s',
+            $this->translator->getLocale(),
+            static::class
+        );
+
+        if ($cached = $cache->get($cacheKey)) {
+            return $cached;
         }
 
         $extId = $this->getClassExtensionId();
@@ -108,7 +114,7 @@ abstract class AbstractValidator
             $attributeNames[$attribute] = $this->translator->trans($key);
         }
 
-        $cache->forever(self::$CORE_VALIDATION_CACHE_KEY, $attributeNames);
+        $cache->forever($cacheKey, $attributeNames);
 
         return $attributeNames;
     }
