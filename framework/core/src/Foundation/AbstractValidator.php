@@ -107,7 +107,7 @@ abstract class AbstractValidator
         $extId = $this->getClassExtensionId();
         $attributeNames = [];
 
-        foreach (array_keys($this->rules) as $attribute) {
+        foreach (array_keys($this->getRules()) as $attribute) {
             $key = $extId ? "$extId.validation.attributes.$attribute" : "validation.attributes.$attribute";
             $attributeNames[$attribute] = $this->translator->trans($key);
         }
