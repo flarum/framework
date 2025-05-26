@@ -49,6 +49,15 @@ class DiscussionPolicy extends AbstractPolicy
                                 }
                             }
                         }
+                        else if ($ability === 'hide') {
+                            if ($discussion->user_id == $actor->id
+                                && $discussion->participant_count <= 1
+                                && (! $discussion->hidden_at || $discussion->hidden_user_id == $actor->id)
+                                && $actor->can('reply', $discussion)
+                            ) {
+                                return $this->allow();
+                            }
+                        }
 
                         return $this->deny();
                     }
