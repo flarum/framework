@@ -124,7 +124,6 @@ jobs:
     name: Checks & Build
     runs-on: ${{ inputs.runner_type }}
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GIT_ACTOR_TOKEN: ${{ secrets.git_actor_token }}
 
     if: >-
