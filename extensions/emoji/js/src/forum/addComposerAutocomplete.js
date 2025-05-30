@@ -70,6 +70,7 @@ export default function addComposerAutocomplete() {
           return (
             <Tooltip text={name}>
               <button
+                type="button"
                 key={emoji}
                 onclick={() => applySuggestion(emoji)}
                 onmouseenter={function () {

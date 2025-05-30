@@ -45,6 +45,7 @@ export default class SplitDropdown<CustomAttrs extends ISplitDropdownAttrs = ISp
       <>
         {button}
         <button
+          type="button"
           className={'Dropdown-toggle Button Button--icon ' + this.attrs.buttonClassName}
           aria-haspopup="menu"
           aria-label={this.attrs.accessibleToggleLabel}

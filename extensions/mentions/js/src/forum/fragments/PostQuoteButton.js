@@ -15,6 +15,7 @@ export default class PostQuoteButton extends Fragment {
     return (
       <button
         className="Button PostQuoteButton"
+        type="button"
         onclick={() => {
           reply(this.post, this.content);
         }}

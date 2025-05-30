@@ -17,7 +17,7 @@ export default class MentionsDropdownItem<CustomAttrs extends IMentionsDropdownI
     const className = classList('MentionsDropdownItem', 'PostPreview', `MentionsDropdown-${mentionable.type()}`);
 
     return (
-      <button className={className} {...attrs}>
+      <button className={className} type="button" {...attrs}>
         <span className="PostPreview-content">{vnode.children}</span>
       </button>
     );

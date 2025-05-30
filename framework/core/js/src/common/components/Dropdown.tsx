@@ -139,6 +139,7 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
   getButton(children: Mithril.ChildArray): Mithril.Vnode<any, any> {
     let button = (
       <button
+        type="button"
         className={'Dropdown-toggle ' + this.attrs.buttonClassName}
         aria-haspopup="menu"
         aria-label={this.attrs.accessibleToggleLabel}

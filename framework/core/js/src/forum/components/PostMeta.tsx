@@ -40,6 +40,7 @@ export default class PostMeta<CustomAttrs extends IPostMetaAttrs = IPostMetaAttr
     items.add(
       'time',
       <button
+        type="button"
         className={classList({
           'Button Button--text': true,
           'Dropdown-toggle Button--link': !!permalink,

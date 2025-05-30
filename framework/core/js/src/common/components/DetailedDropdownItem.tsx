@@ -21,7 +21,7 @@ export default class DetailedDropdownItem<
 > extends Component<CustomAttrs> {
   view() {
     return (
-      <button className="DetailedDropdownItem hasIcon" onclick={this.attrs.onclick}>
+      <button type="button" className="DetailedDropdownItem hasIcon" onclick={this.attrs.onclick}>
         <Icon name={this.attrs.active ? 'fas fa-check' : 'fas'} className="Button-icon" />
         <span className="DetailedDropdownItem-content">
           <Icon name={this.attrs.icon} className="Button-icon" />

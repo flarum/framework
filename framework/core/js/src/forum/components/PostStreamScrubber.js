@@ -58,7 +58,7 @@ export default class PostStreamScrubber extends Component {
 
     return (
       <div className={classNames.join(' ')}>
-        <button className="Button Dropdown-toggle" data-toggle="dropdown">
+        <button type="button" className="Button Dropdown-toggle" data-toggle="dropdown">
           {viewing} <Icon name={'fas fa-sort'} />
         </button>
 
