@@ -13,9 +13,7 @@ use Flarum\Frontend\Compiler\Source\FileSource;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Less_Exception_Compiler;
-use Less_FileManager;
 use Less_Parser;
-use Less_Tree_Import;
 
 /**
  * @internal
@@ -76,6 +74,11 @@ class LessCompiler extends RevisionCompiler
             unset($sources['custom_less']);
         }
 
+        $importDirs = $this->importDirs;
+        if ($this->lessImportOverrides) {
+            $importDirs[] = $this->overrideImports($sources);
+        }
+
         $maxNestingLevel = ini_get('xdebug.max_nesting_level');
 
         ini_set('xdebug.max_nesting_level', '200');
@@ -83,9 +86,9 @@ class LessCompiler extends RevisionCompiler
         try {
             $parser = new Less_Parser([
                 'compress' => true,
+                'strictMath' => false,
                 'cache_dir' => $this->cacheDir,
-                'import_dirs' => $this->importDirs,
-                'import_callback' => $this->lessImportOverrides ? $this->overrideImports($sources) : null,
+                'import_dirs' => $importDirs,
             ]);
 
             if ($this->fileSourceOverrides) {
@@ -155,7 +158,7 @@ class LessCompiler extends RevisionCompiler
         return $sources;
     }
 
-    protected function overrideImports(array $sources): callable
+    private function overrideImports(array $sources): callable
     {
         $baseSources = (new Collection($sources))->filter(function ($source) {
             return $source instanceof Source\FileSource;
@@ -169,10 +172,8 @@ class LessCompiler extends RevisionCompiler
             ];
         })->unique('path');
 
-        return function (Less_Tree_Import $evald) use ($baseSources): ?array {
-            $pathAndUri = Less_FileManager::getFilePath($evald->getPath(), $evald->currentFileInfo);
-
-            $relativeImportPath = Str::of($pathAndUri[0])->split('/\/less\//');
+        return function (string $path) use ($baseSources): ?array {
+            $relativeImportPath = Str::of($path)->split('/\/less\//');
             $extensionId = $baseSources->where('path', $relativeImportPath->first())->pluck('extensionId')->first();
 
             $overrideImport = $this->lessImportOverrides
@@ -183,7 +184,7 @@ class LessCompiler extends RevisionCompiler
                 return null;
             }
 
-            return [$overrideImport['newFilePath'], $pathAndUri[1]];
+            return [$overrideImport['newFilePath'], null];
         };
     }
 
