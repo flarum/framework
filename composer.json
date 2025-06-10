@@ -172,7 +172,7 @@
         "symfony/postmark-mailer": "^7.0",
         "symfony/translation": "^7.0",
         "symfony/yaml": "^7.0",
-        "wikimedia/less.php": "^4.1",
+        "wikimedia/less.php": "^5.3",
         "plesk/ratchetphp": "v1.0.4"
     },
     "require-dev": {

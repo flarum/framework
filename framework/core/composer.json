@@ -91,7 +91,7 @@
         "symfony/translation-contracts": "^2.5",
         "symfony/yaml": "^7.0",
         "flarum/json-api-server": "^0.1.0",
-        "wikimedia/less.php": "^4.1"
+        "wikimedia/less.php": "^5.3"
     },
     "require-dev": {
         "flarum/testing": "^2.0",
