@@ -59,7 +59,7 @@ class ConfigureMentions
 
     private function configureUserMentions(Configurator $config): void
     {
-        $config->rendering->parameters['PROFILE_URL'] = $this->url->to('forum')->route('user', ['username' => '']);
+        $config->rendering->parameters['PROFILE_URL_PATH'] = parse_url($this->url->to('forum')->route('user', ['username' => '']), PHP_URL_PATH);
 
         $tagName = 'USERMENTION';
 
@@ -70,7 +70,7 @@ class ConfigureMentions
         $tag->template = '
             <xsl:choose>
                 <xsl:when test="@deleted != 1">
-                    <a href="{$PROFILE_URL}{@slug}" class="UserMention">@<xsl:value-of select="@displayname"/></a>
+                    <a href="{$PROFILE_URL_PATH}{@slug}" class="UserMention">@<xsl:value-of select="@displayname"/></a>
                 </xsl:when>
                 <xsl:otherwise>
                     <span class="UserMention UserMention--deleted">@<xsl:value-of select="@displayname"/></span>
@@ -115,7 +115,7 @@ class ConfigureMentions
 
     private function configurePostMentions(Configurator $config): void
     {
-        $config->rendering->parameters['DISCUSSION_URL'] = $this->url->to('forum')->route('discussion', ['id' => '']);
+        $config->rendering->parameters['DISCUSSION_URL_PATH'] = parse_url($this->url->to('forum')->route('discussion', ['id' => '']), PHP_URL_PATH);
 
         $tagName = 'POSTMENTION';
 
@@ -129,7 +129,7 @@ class ConfigureMentions
         $tag->template = '
             <xsl:choose>
                 <xsl:when test="@deleted != 1">
-                    <a href="{$DISCUSSION_URL}{@discussionid}/{@number}" class="PostMention" data-id="{@id}"><xsl:value-of select="@displayname"/></a>
+                    <a href="{$DISCUSSION_URL_PATH}{@discussionid}/{@number}" class="PostMention" data-id="{@id}"><xsl:value-of select="@displayname"/></a>
                 </xsl:when>
                 <xsl:otherwise>
                     <span class="PostMention PostMention--deleted" data-id="{@id}"><xsl:value-of select="@displayname"/></span>
