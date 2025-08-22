@@ -70,6 +70,18 @@ class DialogMessage extends AbstractModel implements Formattable
                     ->toSql()
                 .')');
         });
+
+        static::deleted(function (self $message) {
+            if ($message->dialog) {
+                if ($message->dialog->messages()->count() === 0) {
+                    $message->dialog->delete();
+                } elseif ($message->dialog->first_message_id === $message->id) {
+                    $message->dialog->setFirstMessage(
+                        $message->dialog->messages()->oldest('id')->first()
+                    );
+                }
+            }
+        });
     }
 
     public function dialog(): BelongsTo

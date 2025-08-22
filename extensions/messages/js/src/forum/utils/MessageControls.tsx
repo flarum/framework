@@ -59,6 +59,22 @@ const MessageControls = {
 
     return message.delete().then(() => {
       context.attrs.state.remove(message);
+
+      const noMessagesLeft =
+        context.attrs.state.getAllItems().filter((m) => {
+          const mDialog = m.dialog();
+          const messageDialog = message.dialog();
+
+          if (!mDialog || !messageDialog) return false;
+
+          return mDialog?.id() === messageDialog!.id();
+        }).length === 0;
+
+      if (noMessagesLeft && message.dialog()) {
+        app.dialogs.remove(message.dialog()!);
+        m.route.set(app.route('messages'));
+      }
+
       m.redraw();
     });
   },
