@@ -79,6 +79,12 @@ class DialogMessage extends AbstractModel implements Formattable
                     $message->dialog->setFirstMessage(
                         $message->dialog->messages()->oldest('id')->first()
                     );
+                    $message->dialog->save();
+                } elseif ($message->dialog->last_message_id === $message->id) {
+                    $message->dialog->setLastMessage(
+                        $message->dialog->messages()->latest('id')->first()
+                    );
+                    $message->dialog->save();
                 }
             }
         });
