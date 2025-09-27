@@ -18,8 +18,8 @@ class DatabaseConfig implements Arrayable
         private readonly string $driver,
         private readonly ?string $host,
         private readonly int $port,
-        private string $schema,
         private string $database,
+        private readonly ?string $schema,
         private readonly ?string $username,
         #[\SensitiveParameter] private readonly ?string $password,
         private readonly ?string $prefix
@@ -55,12 +55,12 @@ class DatabaseConfig implements Arrayable
             throw new ValidationFailed('Please provide a valid port number between 1 and 65535.');
         }
 
-        if (empty($this->schema) && $this->driver == 'pgsql') {
-            throw new ValidationFailed('Please specify the schema name.');
-        }
-
         if (empty($this->database)) {
             throw new ValidationFailed('Please specify the database name.');
+        }
+
+        if (empty($this->schema) && $this->driver == 'pgsql') {
+            throw new ValidationFailed('Please specify the schema name.');
         }
 
         if (empty($this->username) && in_array($this->driver, ['mysql', 'mariadb', 'pgsql'])) {

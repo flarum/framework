@@ -31,16 +31,16 @@
       </select>
     </div>
 
+    <div class="FormField">
+      <label>Database</label>
+      <input class="FormControl" name="dbName" value="flarum">
+    </div>
+
     <div data-group="pgsql">
       <div class="FormField">
         <label>Schema</label>
         <input class="FormControl" name="dbSchema" value="public">
       </div>
-    </div>
-
-    <div class="FormField">
-      <label>Database</label>
-      <input class="FormControl" name="dbName" value="flarum">
     </div>
 
     <div data-group="mysql,mariadb,pgsql">
