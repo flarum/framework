@@ -138,7 +138,7 @@ class Installation
         });
 
         $pipeline->pipe(function () {
-            return new Steps\RunMigrations($this->db, $this->dbConfig->toArray()['driver'], $this->getMigrationPath());
+            return new Steps\RunMigrations($this->db, $this->dbConfig, $this->getMigrationPath());
         });
 
         $pipeline->pipe(function () {

@@ -11,6 +11,7 @@ namespace Flarum\Install\Steps;
 
 use Flarum\Database\DatabaseMigrationRepository;
 use Flarum\Database\Migrator;
+use Flarum\Install\DatabaseConfig;
 use Flarum\Install\Step;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Filesystem\Filesystem;
@@ -19,7 +20,7 @@ readonly class RunMigrations implements Step
 {
     public function __construct(
         private ConnectionInterface $database,
-        private string $driver,
+        private DatabaseConfig $dbConfig,
         private string $path
     ) {
     }
@@ -33,7 +34,7 @@ readonly class RunMigrations implements Step
     {
         $migrator = $this->getMigrator();
 
-        if (! $migrator->repositoryExists() && ! $migrator->installFromSchema($this->path, $this->driver)) {
+        if (! $migrator->repositoryExists() && ! $migrator->installFromSchema($this->path, $this->dbConfig)) {
             $migrator->getRepository()->createRepository();
         }
 
