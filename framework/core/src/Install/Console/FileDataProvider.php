@@ -73,6 +73,7 @@ class FileDataProvider implements DataProviderInterface
             $this->databaseConfiguration['host'] ?? 'localhost',
             $this->databaseConfiguration['port'] ?? 3306,
             $this->databaseConfiguration['database'] ?? 'flarum',
+            $this->databaseConfiguration['search_path'] ?? 'public',
             $this->databaseConfiguration['username'] ?? 'root',
             $this->databaseConfiguration['password'] ?? '',
             $this->databaseConfiguration['prefix'] ?? ''

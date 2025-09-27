@@ -56,19 +56,30 @@ class UserDataProvider implements DataProviderInterface
             if (Str::contains($host, ':')) {
                 [$host, $port] = explode(':', $host, 2);
             }
+        }
 
+        $database = $this->ask('Database name (required):', required: true);
+
+        if ($driver === 'pgsql') {
+            $schema = $this->ask('Schema (Default: public):', 'public');
+        }
+
+        if (in_array($driver, ['mysql', 'mariadb', 'pgsql'])) {
             $user = $this->ask('Database user (required):', required: true);
             $password = $this->secret('Database password:');
         }
+
+        $prefix = $this->ask('Prefix:');
 
         return new DatabaseConfig(
             $driver,
             $host ?? null,
             intval($port),
-            $this->ask('Database name (required):', required: true),
+            $database,
+            $schema ?? null,
             $user ?? null,
             $password ?? null,
-            $this->ask('Prefix:')
+            $prefix ?? null
         );
     }
 
