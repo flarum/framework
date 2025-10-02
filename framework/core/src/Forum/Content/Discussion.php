@@ -100,7 +100,12 @@ class Discussion
         $document->content = $this->view->make('flarum.forum::frontend.content.discussion', compact('apiDocument', 'page', 'hasPrevPage', 'hasNextPage', 'getResource', 'posts', 'url'));
         $document->payload['apiDocument'] = $apiDocument;
 
-        $document->canonicalUrl = $url([]);
+        // Only apply the canonical URL if it's empty. It could have been set by another extension already,
+        // if so, we'll leave it alone.
+        if (empty($document->canonicalUrl)) {
+            $document->canonicalUrl = $url([]);
+        }
+
         $document->page = $page;
         $document->hasNextPage = $hasNextPage;
 

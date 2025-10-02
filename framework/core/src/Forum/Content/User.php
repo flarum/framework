@@ -47,7 +47,13 @@ class User
         $user = $apiDocument->data->attributes;
 
         $document->title = $user->displayName;
-        $document->canonicalUrl = $this->url->to('forum')->route('user', ['username' => $user->slug]);
+
+        // Only apply the canonical URL if it's empty. It could have been set by another extension already,
+        // if so, we'll leave it alone.
+        if (empty($document->canonicalUrl)) {
+            $document->canonicalUrl = $this->url->to('forum')->route('user', ['username' => $user->slug]);
+        }
+
         $document->payload['apiDocument'] = $apiDocument;
 
         return $document;

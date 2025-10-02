@@ -89,7 +89,12 @@ class Index
         $document->content = $this->view->make('flarum.forum::frontend.content.index', compact('apiDocument', 'page'));
         $document->payload['apiDocument'] = $apiDocument;
 
-        $document->canonicalUrl = $this->url->to('forum')->base().($defaultRoute === '/all' ? '' : $request->getUri()->getPath());
+        // Only apply the canonical URL if it's empty. It could have been set by another extension already,
+        // if so, we'll leave it alone.
+        if (empty($document->canonicalUrl)) {
+            $document->canonicalUrl = $this->url->to('forum')->base().($defaultRoute === '/all' ? '' : $request->getUri()->getPath());
+        }
+
         $document->page = $page;
         $document->hasNextPage = isset($apiDocument->links->next);
 
