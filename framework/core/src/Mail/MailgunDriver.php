@@ -18,6 +18,8 @@ use Swift_Transport;
 
 class MailgunDriver implements DriverInterface
 {
+    use ValidatesMailSettings;
+    
     public function availableSettings(): array
     {
         return [
@@ -33,7 +35,7 @@ class MailgunDriver implements DriverInterface
     public function validate(SettingsRepositoryInterface $settings, Factory $validator): MessageBag
     {
         return $validator->make($settings->all(), [
-            'mail_mailgun_secret' => 'required',
+            'mail_mailgun_secret' => ['required', $this->noWhitespace()],
             'mail_mailgun_domain' => 'required|regex:/^(?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63}$/',
             'mail_mailgun_region' => 'required|in:api.mailgun.net,api.eu.mailgun.net',
         ])->errors();
