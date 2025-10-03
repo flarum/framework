@@ -6,6 +6,7 @@ import avatar from '../../common/helpers/avatar';
 import username from '../../common/helpers/username';
 import userOnline from '../../common/helpers/userOnline';
 import listItems from '../../common/helpers/listItems';
+import ItemList from '../../common/utils/ItemList';
 
 /**
  * The `PostUser` component shows the avatar and username of a post's author.
@@ -19,32 +20,59 @@ export default class PostUser extends Component {
     const post = this.attrs.post;
     const user = post.user();
 
-    if (!user) {
-      return (
-        <div className="PostUser">
-          <h3 className="PostUser-name">
-            {avatar(user, { className: 'PostUser-avatar' })} {username(user)}
-          </h3>
-        </div>
+    const items = user ? this.userViewItems(user, post) : this.noUserViewItems(user);
+
+    return <div className="PostUser">{items.toArray()}</div>;
+  }
+
+  noUserViewItems(user) {
+    const items = new ItemList();
+
+    items.add(
+      'postUser-name',
+      <h3 className="PostUser-name">
+        {avatar(user, { className: 'PostUser-avatar' })} {username(user)}
+      </h3>,
+      100
+    );
+
+    return items;
+  }
+
+  userViewItems(user, post) {
+    const items = new ItemList();
+
+    items.add(
+      'postUser-name',
+      <h3 className="PostUser-name">
+        <Link href={app.route.user(user)}>{this.linkChildren(user).toArray()}</Link>
+      </h3>,
+      100
+    );
+
+    items.add('postUser-badges', <ul className="PostUser-badges badges">{listItems(user.badges().toArray())}</ul>, 90);
+
+    if (!post.isHidden() && this.attrs.cardVisible) {
+      items.add(
+        'postUser-card',
+        <UserCard user={user} className="UserCard--popover" controlsButtonClassName="Button Button--icon Button--flat" />,
+        80
       );
     }
 
-    return (
-      <div className="PostUser">
-        <h3 className="PostUser-name">
-          <Link href={app.route.user(user)}>
-            {avatar(user, { className: 'PostUser-avatar' })}
-            {userOnline(user)}
-            {username(user)}
-          </Link>
-        </h3>
-        <ul className="PostUser-badges badges">{listItems(user.badges().toArray())}</ul>
+    return items;
+  }
 
-        {!post.isHidden() && this.attrs.cardVisible && (
-          <UserCard user={user} className="UserCard--popover" controlsButtonClassName="Button Button--icon Button--flat" />
-        )}
-      </div>
-    );
+  linkChildren(user) {
+    const items = new ItemList();
+
+    items.add('avatar', avatar(user, { className: 'PostUser-avatar' }), 100);
+
+    items.add('userOnline', userOnline(user), 90);
+
+    items.add('username', username(user), 80);
+
+    return items;
   }
 
   oncreate(vnode) {
