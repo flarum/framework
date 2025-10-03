@@ -49,6 +49,10 @@ export default function avatar(user: User | null, attrs: ComponentAttrs = {}): M
 
     content = username.charAt(0).toUpperCase();
     attrs.style = { '--avatar-bg': user.color() };
+
+    delete attrs.loading;
+    attrs.role = 'img';
+    attrs['aria-label'] = username;
   }
 
   // Note: We intentionally do NOT set `alt` when rendering the fallback <span>,
