@@ -19,7 +19,7 @@ use Symfony\Component\Mailer\Transport\TransportInterface;
 class MailgunDriver implements DriverInterface
 {
     use ValidatesMailSettings;
-    
+
     public function availableSettings(): array
     {
         return [

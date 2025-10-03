@@ -20,7 +20,7 @@ trait ValidatesMailSettings
     {
         return function ($attribute, $value, $fail) {
             if ($value !== trim($value)) {
-                $fail('The ' . str_replace('_', ' ', $attribute) . ' must not contain leading or trailing whitespace.');
+                $fail('The '.str_replace('_', ' ', $attribute).' must not contain leading or trailing whitespace.');
             }
         };
     }

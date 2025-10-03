@@ -19,7 +19,7 @@ use Symfony\Component\Mailer\Transport\TransportInterface;
 class SmtpDriver implements DriverInterface
 {
     use ValidatesMailSettings;
-    
+
     public function __construct(
         protected EsmtpTransportFactory $factory
     ) {
