@@ -1,4 +1,4 @@
-import * as PusherTypes from 'pusher-js';
+import Pusher, { Channel } from 'pusher-js';
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
 import DiscussionList from 'flarum/forum/components/DiscussionList';
@@ -11,19 +11,15 @@ import type Tag from 'ext:flarum/tags/common/models/Tag';
 
 export type PusherBinding = {
   channels: {
-    main: PusherTypes.Channel;
-    user: PusherTypes.Channel | null;
+    main: Channel;
+    user: Channel | null;
   };
-  pusher: PusherTypes.default;
+  pusher: Pusher;
 };
 
 app.initializers.add('flarum-pusher', () => {
   app.pusher = (async () => {
-    // @ts-expect-error
-    await import('//cdn.jsdelivr.net/npm/pusher-js@7.0.3/dist/web/pusher.min.js' /* webpackIgnore: true, webpackPrefetch: true */);
-
-    // @ts-expect-error Imported dynamically
-    const socket: PusherTypes.default = new Pusher(app.forum.attribute('pusherKey'), {
+    const socket: Pusher = new Pusher(app.forum.attribute('pusherKey'), {
       authEndpoint: `${app.forum.attribute('apiUrl')}/pusher/auth`,
       cluster: app.forum.attribute('pusherCluster'),
       auth: {
@@ -31,6 +27,8 @@ app.initializers.add('flarum-pusher', () => {
           'X-CSRF-Token': app.session.csrfToken,
         },
       },
+      httpHost: app.forum.attribute('pusherHostname'),
+      wsHost: app.forum.attribute('pusherHostname')
     });
 
     return {

@@ -1,13 +1,13 @@
-import * as PusherTypes from 'pusher-js';
+import Pusher, { Channel } from 'pusher-js';
 
 declare module 'flarum/forum/ForumApplication' {
   export default interface ForumApplication {
     pusher: Promise<{
       channels: {
-        main: PusherTypes.Channel;
-        user: PusherTypes.Channel | null;
+        main: Channel;
+        user: Channel | null;
       };
-      pusher: PusherTypes.default;
+      pusher: Pusher;
     }>;
 
     pushedUpdates: Array<any>;
