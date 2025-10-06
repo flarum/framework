@@ -112,7 +112,7 @@ export default class NotificationList extends Component {
                   <span>{group.discussion.title()}</span>
                 </Link>
               ) : (
-                <div className="NotificationGroup-header">{app.forum.attribute('title')}</div>
+                <div className="NotificationGroup-header">{this.groupTitle(group)}</div>
               )}
 
               <ul className="NotificationGroup-content">
@@ -134,6 +134,10 @@ export default class NotificationList extends Component {
     }
 
     return <div className="NotificationList-empty">{app.translator.trans('core.forum.notifications.empty_text')}</div>;
+  }
+
+  groupTitle(group) {
+    return app.forum.attribute('title');
   }
 
   oncreate(vnode) {
