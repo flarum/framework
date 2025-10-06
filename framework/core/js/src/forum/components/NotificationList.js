@@ -14,19 +14,27 @@ import Tooltip from '../../common/components/Tooltip';
  */
 export default class NotificationList extends Component {
   view() {
+    return <div className="NotificationList">{this.viewItems().toArray()}</div>;
+  }
+
+  viewItems() {
     const state = this.attrs.state;
+    const items = new ItemList();
 
-    return (
-      <div className="NotificationList">
-        <div className="NotificationList-header">
-          <h4 className="App-titleControl App-titleControl--text">{app.translator.trans('core.forum.notifications.title')}</h4>
+    items.add('header', <div className="NotificationList-header">{this.headerItems().toArray()}</div>, 100);
 
-          <div className="App-primaryControl">{this.controlItems().toArray()}</div>
-        </div>
+    items.add('content', <div className="NotificationList-content">{this.content(state)}</div>, 90);
 
-        <div className="NotificationList-content">{this.content(state)}</div>
-      </div>
-    );
+    return items;
+  }
+
+  headerItems() {
+    const items = new ItemList();
+
+    items.add('title', <h4 className="App-titleControl App-titleControl--text">{app.translator.trans('core.forum.notifications.title')}</h4>, 100);
+    items.add('controls', <div className="App-primaryControl">{this.controlItems().toArray()}</div>, 90);
+
+    return items;
   }
 
   controlItems() {
