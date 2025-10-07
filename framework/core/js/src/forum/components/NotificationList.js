@@ -81,67 +81,67 @@ export default class NotificationList extends Component {
       return <LoadingIndicator className="LoadingIndicator--block" />;
     }
 
-    if (state.hasItems()) {
-      return state.getPages().map((page) => {
-        const groups = [];
-        const discussions = {};
-
-        page.items.forEach((notification) => {
-          const subject = notification.subject();
-
-          if (typeof subject === 'undefined') return;
-
-          // Get the discussion that this notification is related to. If it's not
-          // directly related to a discussion, it may be related to a post or
-          // other entity which is related to a discussion.
-          let discussion = null;
-          if (subject instanceof Discussion) discussion = subject;
-          else if (subject && subject.discussion) discussion = subject.discussion();
-
-          // If the notification is not related to a discussion directly or
-          // indirectly, then we will assign it to a neutral group.
-          const key = discussion ? discussion.id() : 0;
-          discussions[key] = discussions[key] || { discussion: discussion, notifications: [] };
-          discussions[key].notifications.push(notification);
-
-          if (groups.indexOf(discussions[key]) === -1) {
-            groups.push(discussions[key]);
-          }
-        });
-
-        return groups.map((group) => {
-          const badges = group.discussion && group.discussion.badges().toArray();
-
-          return (
-            <div className="NotificationGroup">
-              {group.discussion ? (
-                <Link className="NotificationGroup-header" href={app.route.discussion(group.discussion)}>
-                  {badges && !!badges.length && <ul className="NotificationGroup-badges badges">{listItems(badges)}</ul>}
-                  <span>{group.discussion.title()}</span>
-                </Link>
-              ) : (
-                <div className="NotificationGroup-header">{this.groupTitle(group)}</div>
-              )}
-
-              <ul className="NotificationGroup-content">
-                {group.notifications.map((notification) => {
-                  const NotificationComponent = app.notificationComponents[notification.contentType()];
-                  return (
-                    !!NotificationComponent && (
-                      <li>
-                        <NotificationComponent notification={notification} />
-                      </li>
-                    )
-                  );
-                })}
-              </ul>
-            </div>
-          );
-        });
-      });
+    if (!state.hasItems()) {
+      return <div className="NotificationList-empty">{app.translator.trans('core.forum.notifications.empty_text')}</div>;
     }
 
-    return <div className="NotificationList-empty">{app.translator.trans('core.forum.notifications.empty_text')}</div>;
+    return state.getPages().map((page) => {
+      const groups = [];
+      const discussions = {};
+
+      page.items.forEach((notification) => {
+        const subject = notification.subject();
+
+        if (typeof subject === 'undefined') return;
+
+        // Get the discussion that this notification is related to. If it's not
+        // directly related to a discussion, it may be related to a post or
+        // other entity which is related to a discussion.
+        let discussion = null;
+        if (subject instanceof Discussion) discussion = subject;
+        else if (subject && subject.discussion) discussion = subject.discussion();
+
+        // If the notification is not related to a discussion directly or
+        // indirectly, then we will assign it to a neutral group.
+        const key = discussion ? discussion.id() : 0;
+        discussions[key] = discussions[key] || { discussion: discussion, notifications: [] };
+        discussions[key].notifications.push(notification);
+
+        if (groups.indexOf(discussions[key]) === -1) {
+          groups.push(discussions[key]);
+        }
+      });
+
+      return groups.map((group) => {
+        const badges = group.discussion && group.discussion.badges().toArray();
+
+        return (
+          <div className="NotificationGroup">
+            {group.discussion ? (
+              <Link className="NotificationGroup-header" href={app.route.discussion(group.discussion)}>
+                {badges && !!badges.length && <ul className="NotificationGroup-badges badges">{listItems(badges)}</ul>}
+                <span>{group.discussion.title()}</span>
+              </Link>
+            ) : (
+              <div className="NotificationGroup-header">{this.groupTitle(group)}</div>
+            )}
+
+            <ul className="NotificationGroup-content">
+              {group.notifications.map((notification) => {
+                const NotificationComponent = app.notificationComponents[notification.contentType()];
+                return (
+                  !!NotificationComponent && (
+                    <li>
+                      <NotificationComponent notification={notification} />
+                    </li>
+                  )
+                );
+              })}
+            </ul>
+          </div>
+        );
+      });
+    });
   }
 
   groupTitle(group) {
