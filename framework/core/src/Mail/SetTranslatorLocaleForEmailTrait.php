@@ -12,6 +12,7 @@ namespace Flarum\Mail;
 use Flarum\Locale\Translator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\UserRepository;
+use Symfony\Component\CssSelector\XPath\TranslatorInterface;
 
 trait SetTranslatorLocaleForEmailTrait
 {
@@ -20,7 +21,7 @@ trait SetTranslatorLocaleForEmailTrait
      * Falls back to forum default if user not found or has no preference.
      */
     protected function setTranslatorLocaleForEmail(
-        Translator $translator,
+        TranslatorInterface&Translator $translator,
         SettingsRepositoryInterface $settings,
         string $email
     ): void {

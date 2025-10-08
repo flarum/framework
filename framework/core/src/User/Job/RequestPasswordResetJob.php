@@ -39,11 +39,11 @@ class RequestPasswordResetJob extends AbstractJob
         SettingsRepositoryInterface $settings,
         UrlGenerator $url,
         TranslatorInterface $translator,
+        UserRepository $users,
         Queue $queue
     ) {
         $this->setTranslatorLocaleForEmail($translator, $settings, $this->email);
 
-        $users = resolve(UserRepository::class);
         $user = $users->findByEmail($this->email);
 
         if (! $user) {
