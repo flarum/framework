@@ -69,7 +69,7 @@ export default class PostUser extends Component {
     items.add('avatar', avatar(user, { className: 'PostUser-avatar' }), 100);
 
     const onlineIndicator = userOnline(user);
-    if (onlineIndicator) {
+    if (onlineIndicator !== null) {
       items.add('userOnline', onlineIndicator, 90);
     }
 
