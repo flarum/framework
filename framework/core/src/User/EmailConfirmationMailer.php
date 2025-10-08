@@ -11,6 +11,7 @@ namespace Flarum\User;
 
 use Flarum\Http\UrlGenerator;
 use Flarum\Mail\Job\SendRawEmailJob;
+use Flarum\Mail\SetTranslatorLocaleForEmailTrait;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\EmailChangeRequested;
 use Illuminate\Contracts\Queue\Queue;
@@ -18,6 +19,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class EmailConfirmationMailer
 {
+    use SetTranslatorLocaleForEmailTrait;
+
     /**
      * @var SettingsRepositoryInterface
      */
@@ -49,6 +52,9 @@ class EmailConfirmationMailer
     public function handle(EmailChangeRequested $event)
     {
         $email = $event->email;
+
+        $this->setTranslatorLocaleForEmail($this->translator, $this->settings, $email);
+
         $data = $this->getEmailData($event->user, $email);
 
         $body = $this->translator->trans('core.email.confirm_email.body', $data);

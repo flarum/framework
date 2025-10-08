@@ -11,6 +11,7 @@ namespace Flarum\User\Job;
 
 use Flarum\Http\UrlGenerator;
 use Flarum\Mail\Job\SendRawEmailJob;
+use Flarum\Mail\SetTranslatorLocaleForEmailTrait;
 use Flarum\Queue\AbstractJob;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\PasswordToken;
@@ -20,6 +21,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RequestPasswordResetJob extends AbstractJob
 {
+    use SetTranslatorLocaleForEmailTrait;
+
     /**
      * @var string
      */
@@ -36,9 +39,11 @@ class RequestPasswordResetJob extends AbstractJob
         SettingsRepositoryInterface $settings,
         UrlGenerator $url,
         TranslatorInterface $translator,
-        UserRepository $users,
         Queue $queue
     ) {
+        $this->setTranslatorLocaleForEmail($translator, $settings, $this->email);
+
+        $users = resolve(UserRepository::class);
         $user = $users->findByEmail($this->email);
 
         if (! $user) {

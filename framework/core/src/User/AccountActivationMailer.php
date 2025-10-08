@@ -10,6 +10,7 @@
 namespace Flarum\User;
 
 use Flarum\Http\UrlGenerator;
+use Flarum\Mail\SetTranslatorLocaleForEmailTrait;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Event\Registered;
 use Illuminate\Contracts\Queue\Queue;
@@ -18,6 +19,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AccountActivationMailer
 {
     use AccountActivationMailerTrait;
+    use SetTranslatorLocaleForEmailTrait;
 
     /**
      * @var SettingsRepositoryInterface
@@ -60,6 +62,8 @@ class AccountActivationMailer
         if ($user->is_email_confirmed) {
             return;
         }
+
+        $this->setTranslatorLocaleForEmail($this->translator, $this->settings, $user->email);
 
         $token = $this->generateToken($user, $user->email);
         $data = $this->getEmailData($user, $token);
