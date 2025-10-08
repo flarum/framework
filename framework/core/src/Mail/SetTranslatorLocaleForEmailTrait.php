@@ -21,7 +21,7 @@ trait SetTranslatorLocaleForEmailTrait
      * Falls back to forum default if user not found or has no preference.
      */
     protected function setTranslatorLocaleForEmail(
-        TranslatorInterface&Translator $translator,
+        TranslatorInterface $translator,
         SettingsRepositoryInterface $settings,
         string $email
     ): void {
@@ -31,7 +31,8 @@ trait SetTranslatorLocaleForEmailTrait
         $locale = $user 
             ? ($user->getPreference('locale') ?? $settings->get('default_locale'))
             : $settings->get('default_locale');
-            
+
+        /** @var TranslatorInterface&Translator $translator */
         $translator->setLocale($locale);
     }
 }
