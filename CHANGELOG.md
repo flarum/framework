@@ -1,5 +1,19 @@
 # Changelog
 
+## [v1.8.11](https://github.com/flarum/framework/compare/v1.8.10...v1.8.11)
+### Fixed
+* Dropdown inaccessible near bottom of the userlist (https://github.com/flarum/framework/pull/4208)
+* Missing default alt text for avatar when an uploaded avatar is in use (https://github.com/flarum/framework/pull/4242)
+* Validate mail settings for whitespace to avoid copy/paste issues, etc (https://github.com/flarum/framework/pull/4245)
+* Change caching logic for validation attributes (https://github.com/flarum/framework/pull/4216)
+* Reset password, email confirm, activation not locale aware (https://github.com/flarum/framework/pull/4255)
+### Changed
+* Improve `a11y` of avatar with no `avatarUrl` (https://github.com/flarum/framework/pull/4246)
+* Better support 3rd party extensions setting canonical urls (https://github.com/flarum/framework/pull/4244)
+* [Tags] Allow to translate tags validation attributes (https://github.com/flarum/framework/pull/4217)
+* Make `PostUser` component more extensible (https://github.com/flarum/framework/pull/4249)
+* Improve extensibility of `NotificationList` component (https://github.com/flarum/framework/pull/4254)
+
 ## [v1.8.10](https://github.com/flarum/framework/compare/v1.8.9...v1.8.10)
 ### Fixed
 * Session Hijacking via Authoritative Subdomain Cookie Overwrite (https://github.com/flarum/framework/security/advisories/GHSA-hg9j-64wp-m9px)
