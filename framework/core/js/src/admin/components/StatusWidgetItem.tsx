@@ -2,6 +2,7 @@ import Component, { ComponentAttrs } from '../../common/Component';
 import type Mithril from 'mithril';
 import ItemList from '../../common/utils/ItemList';
 import classList from '../../common/utils/classList';
+import Icon from '../../common/components/Icon';
 
 export interface StatusWidgetItemAttrs extends ComponentAttrs {
   /**
@@ -63,9 +64,9 @@ export default class StatusWidgetItem<CustomAttrs extends StatusWidgetItemAttrs 
   iconView(): Mithril.Children {
     const { icon } = this.attrs;
 
-    if (!icon) return null;
+    if (!icon) return <></>;
 
-    return <i className={icon} />;
+    return <Icon name={icon} />;
   }
 
   /**
