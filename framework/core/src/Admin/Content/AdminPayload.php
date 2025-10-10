@@ -63,10 +63,7 @@ class AdminPayload
         $document->payload['dbOptions'] = $this->appInfo->identifyDatabaseOptions();
         $document->payload['debugEnabled'] = Arr::get($this->config, 'debug');
 
-        if ($this->appInfo->scheduledTasksRegistered()) {
-            $document->payload['schedulerStatus'] = $this->appInfo->getSchedulerStatus();
-        }
-
+        $document->payload['schedulerStatus'] = $this->appInfo->getSchedulerStatus();
         $document->payload['queueDriver'] = $this->appInfo->identifyQueueDriver();
         $document->payload['sessionDriver'] = $this->appInfo->identifySessionDriver(true);
 
