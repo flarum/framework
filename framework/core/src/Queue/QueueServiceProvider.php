@@ -141,7 +141,7 @@ class QueueServiceProvider extends AbstractServiceProvider
                 'callback' => ContainerUtil::wrapCallback(function ($event) {
                     $event->everyMinute();
                 }, $container),
-                'args' => ($container->make(DatabaseWorkerArgs::class))->args(),
+                'args' => $container->make(DatabaseWorkerArgs::class)->args(),
             ];
         });
 

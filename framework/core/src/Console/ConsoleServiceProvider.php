@@ -19,8 +19,6 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Console\AssetsPublishCommand;
 use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\Console\InfoCommand;
-use Flarum\Foundation\ContainerUtil;
-use Flarum\Queue\Console\DatabaseWorkerArgs;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Console\Events\CommandFinished;
 use Illuminate\Console\Scheduling\CacheEventMutex;
