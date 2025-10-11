@@ -11,9 +11,11 @@ namespace Flarum\Queue;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Config;
+use Flarum\Foundation\ContainerUtil;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ErrorHandling\Reporter;
 use Flarum\Foundation\Paths;
+use Flarum\Queue\Console\DatabaseWorkerArgs;
 use Illuminate\Container\Container as ContainerImplementation;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;
 use Illuminate\Contracts\Cache\Repository;
@@ -24,8 +26,8 @@ use Illuminate\Contracts\Queue\Factory;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Queue\Connectors\ConnectorInterface;
 use Illuminate\Queue\Console as Commands;
+use Illuminate\Queue\DatabaseQueue;
 use Illuminate\Queue\Events\JobFailed;
-use Illuminate\Queue\Failed\NullFailedJobProvider;
 use Illuminate\Queue\Listener as QueueListener;
 use Illuminate\Queue\SyncQueue;
 use Illuminate\Queue\Worker;
@@ -39,7 +41,7 @@ class QueueServiceProvider extends AbstractServiceProvider
         Commands\ListFailedCommand::class,
         Commands\RestartCommand::class,
         Commands\RetryCommand::class,
-        Commands\WorkCommand::class,
+        Console\WorkCommand::class,
     ];
 
     public function register(): void
@@ -55,7 +57,10 @@ class QueueServiceProvider extends AbstractServiceProvider
         // Extensions can override this binding if they want to make Flarum use
         // a different queuing backend.
         $this->container->singleton('flarum.queue.connection', function (ContainerImplementation $container) {
-            $queue = new SyncQueue;
+            $queue = new DatabaseQueue(
+                $this->container->make('db.connection'),
+                'queue_jobs'
+            );
             $queue->setContainer($container);
 
             return $queue;
@@ -117,7 +122,27 @@ class QueueServiceProvider extends AbstractServiceProvider
         });
 
         $this->container->singleton('queue.failer', function () {
-            return new NullFailedJobProvider();
+            /** @var Config $config */
+            $config = $this->container->make(Config::class);
+
+            return new DatabaseUuidFailedJobProvider(
+                $this->container->make('db'),
+                $config->offsetGet('database.database'),
+                'queue_failed_jobs',
+                $this->container->make('flarum.db')
+            );
+        });
+
+        // By default, we use the DatabaseQueue, which requires a schedule to run. Other queue drivers
+        // may not need this, so we allow extensions to override this binding.
+        $this->container->singleton('flarum.queue.schedule', function (Container $container): array {
+            return [
+                'command' => 'queue:work',
+                'callback' => ContainerUtil::wrapCallback(function ($event) {
+                    $event->everyMinute();
+                }, $container),
+                'args' => ($container->make(DatabaseWorkerArgs::class))->args(),
+            ];
         });
 
         $this->container->alias('flarum.queue.connection', Queue::class);
