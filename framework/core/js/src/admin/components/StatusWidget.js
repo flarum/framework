@@ -7,6 +7,7 @@ import Button from '../../common/components/Button';
 import LoadingModal from './LoadingModal';
 import LinkButton from '../../common/components/LinkButton';
 import saveSettings from '../utils/saveSettings';
+import StatusWidgetItem from './StatusWidgetItem';
 
 export default class StatusWidget extends DashboardWidget {
   className() {
@@ -32,32 +33,44 @@ export default class StatusWidget extends DashboardWidget {
       </Dropdown>
     );
 
-    items.add('version-flarum', [<strong>Flarum</strong>, <br />, app.forum.attribute('version')], 100);
-    items.add('version-php', [<strong>PHP</strong>, <br />, app.data.phpVersion], 90);
-    items.add('version-db', [<strong>{app.data.dbDriver}</strong>, <br />, app.data.dbVersion], 80);
-    if (app.data.schedulerStatus) {
-      items.add(
-        'schedule-status',
-        [
+    items.add('version-flarum', <StatusWidgetItem label="Flarum" value={app.forum.attribute('version')} icon="fas fa-comments" />, 100);
+
+    items.add('version-php', <StatusWidgetItem label="PHP" value={app.data.phpVersion} icon="fab fa-php" />, 90);
+
+    items.add('version-db', <StatusWidgetItem label={app.data.dbDriver} value={app.data.dbVersion} icon="fas fa-database" />, 80);
+
+    items.add(
+      'schedule-status',
+      <StatusWidgetItem
+        icon="fas fa-clock"
+        label={app.translator.trans('core.admin.dashboard.status.headers.scheduler-status')}
+        value={
           <span>
-            <strong>{app.translator.trans('core.admin.dashboard.status.headers.scheduler-status')}</strong>{' '}
+            {app.data.schedulerStatus}{' '}
             <LinkButton href="https://docs.flarum.org/scheduler" external={true} target="_blank" icon="fas fa-info-circle" />
-          </span>,
-          <br />,
-          app.data.schedulerStatus,
-        ],
-        70
-      );
-    }
+          </span>
+        }
+      />,
+      70
+    );
 
     items.add(
       'queue-driver',
-      [<strong>{app.translator.trans('core.admin.dashboard.status.headers.queue-driver')}</strong>, <br />, app.data.queueDriver],
+      <StatusWidgetItem
+        icon="fas fa-list-check"
+        label={app.translator.trans('core.admin.dashboard.status.headers.queue-driver')}
+        value={app.data.queueDriver}
+      />,
       60
     );
+
     items.add(
       'session-driver',
-      [<strong>{app.translator.trans('core.admin.dashboard.status.headers.session-driver')}</strong>, <br />, app.data.sessionDriver],
+      <StatusWidgetItem
+        icon="fas fa-user-lock"
+        label={app.translator.trans('core.admin.dashboard.status.headers.session-driver')}
+        value={app.data.sessionDriver}
+      />,
       50
     );
 

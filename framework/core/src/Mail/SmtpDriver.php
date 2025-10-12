@@ -18,6 +18,8 @@ use Symfony\Component\Mailer\Transport\TransportInterface;
 
 class SmtpDriver implements DriverInterface
 {
+    use ValidatesMailSettings;
+
     public function __construct(
         protected EsmtpTransportFactory $factory
     ) {
@@ -37,11 +39,11 @@ class SmtpDriver implements DriverInterface
     public function validate(SettingsRepositoryInterface $settings, Factory $validator): MessageBag
     {
         return $validator->make($settings->all(), [
-            'mail_host' => 'required',
-            'mail_port' => 'nullable|integer',
+            'mail_host' => ['required', $this->noWhiteSpace()],
+            'mail_port' => ['nullable', 'integer', $this->noWhiteSpace()],
             'mail_encryption' => 'nullable|in:tls,ssl,TLS,SSL',
-            'mail_username' => 'nullable|string',
-            'mail_password' => 'nullable|string',
+            'mail_username' => ['nullable', 'string', $this->noWhiteSpace()],
+            'mail_password' => ['nullable', 'string', $this->noWhiteSpace()],
         ])->errors();
     }
 
