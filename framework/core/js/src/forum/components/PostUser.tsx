@@ -8,6 +8,8 @@ import Avatar from '../../common/components/Avatar';
 import type Model from '../../common/Model';
 import type Post from '../../common/models/Post';
 import type User from '../../common/models/User';
+import ItemList from '../../common/utils/ItemList';
+import type Mithril from 'mithril';
 
 export interface IPostUserAttrs extends ComponentAttrs {
   /** Can be a post or similar model like private message */
@@ -22,27 +24,53 @@ export default class PostUser<CustomAttrs extends IPostUserAttrs = IPostUserAttr
     const post = this.attrs.post;
     const user = post.user();
 
-    if (!user) {
-      return (
-        <div className="PostUser">
-          <h3 className="PostUser-name">
-            <Avatar user={user} className="Post-avatar" /> {username(user)}
-          </h3>
-        </div>
-      );
+    const items = user ? this.userViewItems(user, post) : this.noUserViewItems(user, post);
+
+    return <div className="PostUser">{items.toArray()}</div>;
+  }
+
+  noUserViewItems(user: false | User | null, post: Post | (Model & { user: () => false | User | null })): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add(
+      'postUser-name',
+      <h3 className="PostUser-name">
+        <Avatar user={user} className="Post-avatar" /> {username(user)}
+      </h3>,
+      100
+    );
+
+    return items;
+  }
+
+  userViewItems(user: User, post: Post | (Model & { user: () => false | User | null })): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add(
+      'postUser-name',
+      <h3 className="PostUser-name">
+        <Link href={app.route.user(user)}>{this.linkChildren(user).toArray()}</Link>
+      </h3>,
+      100
+    );
+
+    items.add('postUser-badges', <ul className="PostUser-badges badges badges--packed">{listItems(user.badges().toArray())}</ul>, 90);
+
+    return items;
+  }
+
+  linkChildren(user: User): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add('avatar', <Avatar user={user} className="Post-avatar" />, 100);
+
+    const onlineIndicator = userOnline(user);
+    if (onlineIndicator !== null) {
+      items.add('userOnline', onlineIndicator, 90);
     }
 
-    return (
-      <div className="PostUser">
-        <h3 className="PostUser-name">
-          <Link href={app.route.user(user)}>
-            <Avatar user={user} className="Post-avatar" />
-            {userOnline(user)}
-            {username(user)}
-          </Link>
-        </h3>
-        <ul className="PostUser-badges badges badges--packed">{listItems(user.badges().toArray())}</ul>
-      </div>
-    );
+    items.add('username', username(user), 80);
+
+    return items;
   }
 }
