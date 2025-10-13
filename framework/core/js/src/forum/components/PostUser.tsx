@@ -64,7 +64,10 @@ export default class PostUser<CustomAttrs extends IPostUserAttrs = IPostUserAttr
 
     items.add('avatar', <Avatar user={user} className="Post-avatar" />, 100);
 
-    items.add('userOnline', userOnline(user), 90);
+    const onlineIndicator = userOnline(user);
+    if (onlineIndicator !== null) {
+      items.add('userOnline', onlineIndicator, 90);
+    }
 
     items.add('username', username(user), 80);
 
