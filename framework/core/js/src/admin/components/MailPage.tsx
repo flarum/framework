@@ -96,7 +96,7 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
     const fields = this.driverFields![this.setting('mail_driver')()] || {};
     const fieldKeys = Object.keys(fields);
 
-    if (this.status!.sending) {
+    if (!this.status!.sending) {
       items.add('status', <Alert dismissible={false}>{app.translator.trans('core.admin.email.not_sending_message')}</Alert>);
     }
 
