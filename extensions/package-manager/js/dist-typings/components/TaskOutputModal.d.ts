@@ -6,7 +6,7 @@ interface TaskOutputModalAttrs extends IInternalModalAttrs {
 }
 export default class TaskOutputModal<CustomAttrs extends TaskOutputModalAttrs = TaskOutputModalAttrs> extends Modal<CustomAttrs> {
     className(): string;
-    title(): string | any[];
+    title(): any;
     content(): JSX.Element;
 }
 export {};

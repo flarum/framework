@@ -59,6 +59,7 @@ import './components/FieldSet';
 import './components/Select';
 import './components/Navigation';
 import './components/Alert';
+import './components/LabelValue';
 import './components/Link';
 import './components/LinkButton';
 import './components/Checkbox';

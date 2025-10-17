@@ -1,12 +1,9 @@
 import Page, { IPageAttrs } from 'flarum/common/components/Page';
 import Mithril from 'mithril';
-import Dialog from '../../common/models/Dialog';
-import Stream from 'flarum/common/utils/Stream';
-import ItemList from 'flarum/common/utils/ItemList';
 export interface IMessagesPageAttrs extends IPageAttrs {
 }
 export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMessagesPageAttrs> extends Page<CustomAttrs> {
-    protected selectedDialog: Stream<Dialog | null>;
+    protected selectedDialog: any;
     protected currentDialogId: string | null;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
     dialogRequestParams(): {
@@ -16,16 +13,16 @@ export default class MessagesPage<CustomAttrs extends IMessagesPageAttrs = IMess
     onupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
     view(): JSX.Element;
     hero(): Mithril.Children;
-    contentItems(): ItemList<Mithril.Children>;
+    contentItems(): any;
     /**
      * Build an item list for the part of the toolbar which is concerned with how
      * the results are displayed. By default this is just a select box to change
      * the way discussions are sorted.
      */
-    viewItems(): ItemList<Mithril.Children>;
+    viewItems(): any;
     /**
      * Build an item list for the part of the toolbar which is about taking action
      * on the results. By default, this is just a "mark all as read" button.
      */
-    actionItems(): ItemList<Mithril.Children>;
+    actionItems(): any;
 }

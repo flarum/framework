@@ -12,5 +12,5 @@ export default class DialogListState<P extends DialogListParams = DialogListPara
     requestParams(): PaginatedListRequestParams;
     sortMap(): SortMap;
     load(): Promise<void>;
-    markAllAsRead(): Promise<void>;
+    markAllAsRead(): any;
 }

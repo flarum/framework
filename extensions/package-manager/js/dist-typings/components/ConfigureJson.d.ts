@@ -19,7 +19,7 @@ export default abstract class ConfigureJson<CustomAttrs extends IConfigureJson =
     view(): Mithril.Children;
     submitButton(): Mithril.Children[];
     customSettingComponents(): ItemList<(attributes: CommonFieldOptions) => Mithril.Children>;
-    setting(key: string): Stream<any>;
+    setting(key: string): any;
     submit(readOnly: boolean): void;
     isDirty(): boolean;
 }

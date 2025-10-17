@@ -8,6 +8,6 @@ export default class DialogsDropdown<CustomAttrs extends IDialogsDropdownAttrs =
     static initAttrs(attrs: IDialogsDropdownAttrs): void;
     getContent(): JSX.Element;
     goToRoute(): void;
-    getUnreadCount(): number;
-    getNewCount(): number;
+    getUnreadCount(): any;
+    getNewCount(): any;
 }
