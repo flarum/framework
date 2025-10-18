@@ -1,8 +1,9 @@
-/// <reference types="mithril" />
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
 import { type Extension as ExtensionInfo } from 'flarum/admin/AdminApplication';
 import ExternalExtension from '../models/ExternalExtension';
 import { UpdatedPackage } from '../states/ControlSectionState';
+import ItemList from 'flarum/common/utils/ItemList';
+import type Mithril from 'mithril';
 export type CommonExtension = ExternalExtension | ExtensionInfo;
 export interface IExtensionAttrs extends ComponentAttrs {
     extension: CommonExtension;
@@ -17,11 +18,11 @@ export interface IExtensionAttrs extends ComponentAttrs {
     isDanger?: boolean;
 }
 export default class ExtensionCard<CustomAttrs extends IExtensionAttrs = IExtensionAttrs> extends Component<CustomAttrs> {
-    getExtension(): any;
+    getExtension(): ExtensionInfo;
     view(): JSX.Element;
     icon(): JSX.Element;
-    badges(): any;
-    metaItems(): any;
-    actionItems(): any;
+    badges(): ItemList<Mithril.Children>;
+    metaItems(): ItemList<Mithril.Children>;
+    actionItems(): ItemList<Mithril.Children>;
     version(v: string): string;
 }

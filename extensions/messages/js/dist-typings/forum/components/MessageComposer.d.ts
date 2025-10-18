@@ -19,7 +19,7 @@ export default class MessageComposer<CustomAttrs extends IMessageComposerAttrs =
     static focusOnSelector: () => string;
     static initAttrs(attrs: IMessageComposerAttrs): void;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
-    headerItems(): any;
+    headerItems(): import("flarum/common/utils/ItemList").default<Mithril.Children>;
     /**
      * Get the data to submit to the server when the discussion is saved.
      */
