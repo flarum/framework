@@ -118,12 +118,13 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
 
   get(namespace: string, id: string): any {
     const module = this.moduleExports.get(namespace)?.get(id);
+    const extensionEnabled = namespace in flarum.extensions || namespace === 'core';
     const error = `No module found for ${namespace}:${id}`;
 
     // @ts-ignore
-    if (!module && flarum.debug) {
+    if (!module && extensionEnabled && flarum.debug) {
       throw new Error(error);
-    } else if (!module) {
+    } else if (!module && extensionEnabled) {
       console.warn(error);
     }
 
