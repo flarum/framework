@@ -88,32 +88,40 @@ class LessCompiler extends RevisionCompiler
             return '';
         }
 
+        $maxNestingLevel = ini_get('xdebug.max_nesting_level');
+
         ini_set('xdebug.max_nesting_level', '200');
 
-        $parser = new Less_Parser([
-            'compress' => true,
-            'cache_dir' => $this->cacheDir,
-            'import_dirs' => $this->importDirs,
-            'import_callback' => $this->lessImportOverrides ? $this->overrideImports($sources) : null,
-        ]);
+        try {
+            $parser = new Less_Parser([
+                'compress' => true,
+                'cache_dir' => $this->cacheDir,
+                'import_dirs' => $this->importDirs,
+                'import_callback' => $this->lessImportOverrides ? $this->overrideImports($sources) : null,
+            ]);
 
-        if ($this->fileSourceOverrides) {
-            $sources = $this->overrideSources($sources);
-        }
+            if ($this->fileSourceOverrides) {
+                $sources = $this->overrideSources($sources);
+            }
 
-        foreach ($sources as $source) {
-            if ($source instanceof FileSource) {
-                $parser->parseFile($source->getPath());
-            } else {
-                $parser->parse($source->getContent());
+            foreach ($sources as $source) {
+                if ($source instanceof FileSource) {
+                    $parser->parseFile($source->getPath());
+                } else {
+                    $parser->parse($source->getContent());
+                }
+            }
+
+            foreach ($this->customFunctions as $name => $callback) {
+                $parser->registerFunction($name, $callback);
+            }
+
+            return $parser->getCss();
+        } finally {
+            if ($maxNestingLevel !== false) {
+                ini_set('xdebug.max_nesting_level', $maxNestingLevel);
             }
         }
-
-        foreach ($this->customFunctions as $name => $callback) {
-            $parser->registerFunction($name, $callback);
-        }
-
-        return $parser->getCss();
     }
 
     protected function overrideSources(array $sources): array
