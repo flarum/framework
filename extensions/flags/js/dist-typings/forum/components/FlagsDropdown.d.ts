@@ -7,6 +7,6 @@ export default class FlagsDropdown<CustomAttrs extends IFlagsDropdownAttrs = IFl
     static initAttrs(attrs: IFlagsDropdownAttrs): void;
     getContent(): JSX.Element;
     goToRoute(): void;
-    getUnreadCount(): number;
-    getNewCount(): number;
+    getUnreadCount(): any;
+    getNewCount(): any;
 }

@@ -2,7 +2,6 @@ import Component, { type ComponentAttrs } from 'flarum/common/Component';
 import Mithril from 'mithril';
 import MessageStreamState from '../states/MessageStreamState';
 import DialogMessage from '../../common/models/DialogMessage';
-import Stream from 'flarum/common/utils/Stream';
 import ScrollListener from 'flarum/common/utils/ScrollListener';
 import Dialog from '../../common/models/Dialog';
 export interface IDialogStreamAttrs extends ComponentAttrs {
@@ -10,8 +9,8 @@ export interface IDialogStreamAttrs extends ComponentAttrs {
     state: MessageStreamState;
 }
 export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDialogStreamAttrs> extends Component<CustomAttrs> {
-    protected replyPlaceholderComponent: Stream<any>;
-    protected loadingPostComponent: Stream<any>;
+    protected replyPlaceholderComponent: any;
+    protected loadingPostComponent: any;
     protected scrollListener: ScrollListener;
     protected initialToBottomScroll: boolean;
     protected lastTime: Date | null;
