@@ -194,14 +194,38 @@ export default class UserSecurityPage<CustomAttrs extends IUserPageAttrs = IUser
   }
 
   loadTokens() {
-    return app.store
+    const userId = this.user!.id()!;
+
+    // Load session tokens
+    const sessionsPromise = app.store
       .find<AccessToken[]>('access-tokens', {
-        filter: { user: this.user!.id()! },
+        filter: {
+          user: userId,
+          '-type': 'developer',
+        },
       })
       .then((tokens) => {
-        this.state.setTokens(tokens);
-        m.redraw();
+        return tokens;
       });
+
+    // Load developer tokens
+    const developerPromise = app.store
+      .find<AccessToken[]>('access-tokens', {
+        filter: {
+          user: userId,
+          type: 'developer',
+        },
+      })
+      .then((tokens) => {
+        return tokens;
+      });
+
+    return Promise.all([sessionsPromise, developerPromise]).then(([sessions, developerTokens]) => {
+      // Combine both arrays
+      const allTokens = [...sessions, ...developerTokens];
+      this.state.setTokens(allTokens);
+      m.redraw();
+    });
   }
 
   terminateAllOtherSessions() {

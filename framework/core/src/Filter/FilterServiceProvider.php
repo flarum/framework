@@ -37,6 +37,7 @@ class FilterServiceProvider extends AbstractServiceProvider
             return [
                 AccessTokenFilterer::class => [
                     HttpFilter\UserFilter::class,
+                    HttpFilter\AccessTokenTypeFilter::class,
                 ],
                 DiscussionFilterer::class => [
                     DiscussionQuery\AuthorFilterGambit::class,
