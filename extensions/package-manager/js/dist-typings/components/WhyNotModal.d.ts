@@ -7,7 +7,7 @@ export default class WhyNotModal<CustomAttrs extends WhyNotModalAttrs = WhyNotMo
     loading: boolean;
     whyNot: string | null;
     className(): string;
-    title(): any;
+    title(): string | any[];
     oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
     content(): JSX.Element;
     requestWhyNot(): void;

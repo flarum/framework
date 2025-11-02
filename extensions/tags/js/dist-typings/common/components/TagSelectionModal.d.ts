@@ -1,4 +1,6 @@
+import KeyboardNavigatable from 'flarum/common/utils/KeyboardNavigatable';
 import FormModal from 'flarum/common/components/FormModal';
+import Stream from 'flarum/common/utils/Stream';
 import type Tag from '../models/Tag';
 import type { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import type Mithril from 'mithril';
@@ -48,14 +50,14 @@ export default class TagSelectionModal<CustomAttrs extends ITagSelectionModalAtt
     protected tags: Tag[];
     protected selected: Tag[];
     protected bypassReqs: boolean;
-    protected filter: any;
+    protected filter: Stream<string>;
     protected focused: boolean;
-    protected navigator: any;
+    protected navigator: KeyboardNavigatable;
     protected indexTag?: Tag;
     static initAttrs(attrs: ITagSelectionModalAttrs): void;
     oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
-    className(): any;
-    title(): any;
+    className(): string;
+    title(): string | undefined;
     lengthWithCJK(text: string): number;
     content(): JSX.Element | JSX.Element[];
     /**
@@ -86,14 +88,14 @@ export default class TagSelectionModal<CustomAttrs extends ITagSelectionModalAtt
     /**
      * Gives human text instructions based on the current number of selected tags and set limits.
      */
-    protected getInstruction(primaryCount: number, secondaryCount: number): any;
+    protected getInstruction(primaryCount: number, secondaryCount: number): string;
     /**
      * Submit tag selection.
      */
     onsubmit(e: SubmitEvent): void;
     protected select(e: KeyboardEvent): void;
-    protected selectableItems(): any;
-    protected getCurrentNumericIndex(): any;
-    protected getItem(selectedTag: Tag): any;
+    protected selectableItems(): JQuery<HTMLElement>;
+    protected getCurrentNumericIndex(): number;
+    protected getItem(selectedTag: Tag): JQuery<HTMLElement>;
     protected setIndex(index: number, scrollToItem: boolean): void;
 }
