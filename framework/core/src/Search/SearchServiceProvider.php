@@ -73,6 +73,7 @@ class SearchServiceProvider extends AbstractServiceProvider
             return [
                 AccessTokenSearcher::class => [
                     HttpFilter\UserFilter::class,
+                    HttpFilter\AccessTokenTypeFilter::class
                 ],
                 DiscussionSearcher::class => [
                     DiscussionFilter\AuthorFilter::class,
