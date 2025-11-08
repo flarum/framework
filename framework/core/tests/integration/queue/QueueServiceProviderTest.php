@@ -10,7 +10,6 @@
 namespace Flarum\Tests\integration\queue;
 
 use Flarum\Extend;
-use Flarum\Foundation\Config;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Queue\DatabaseQueue;
@@ -52,6 +51,7 @@ class QueueServiceProviderTest extends TestCase
                             // Custom queue implementation for testing
                         };
                         $queue->setContainer($container);
+
                         return $queue;
                     });
                 })
