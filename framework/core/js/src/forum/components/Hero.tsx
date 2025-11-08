@@ -1,11 +1,10 @@
-import app from '../app';
-import Component from '../../common/Component';
+import Component, { ComponentAttrs } from '../../common/Component';
 import classList from '../../common/utils/classList';
 
 import ItemList from '../../common/utils/ItemList';
 import type Mithril from 'mithril';
 
-export interface IHeroAttrs {}
+export interface IHeroAttrs extends ComponentAttrs {}
 
 export default abstract class Hero<CustomAttrs extends IHeroAttrs = IHeroAttrs> extends Component<CustomAttrs> {
   /**
