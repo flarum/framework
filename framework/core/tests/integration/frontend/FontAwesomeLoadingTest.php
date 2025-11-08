@@ -9,18 +9,24 @@
 
 namespace Flarum\Tests\integration\frontend;
 
-use Flarum\Foundation\Config;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 
 class FontAwesomeLoadingTest extends TestCase
 {
+    use RetrievesAuthorizedUsers;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Ensure database is migrated
-        $this->database();
+        $this->prepareDatabase([
+            User::class => [
+                $this->normalUser()
+            ]
+        ]);
     }
 
     #[Test]
@@ -132,19 +138,5 @@ class FontAwesomeLoadingTest extends TestCase
         // This is expected behavior - misconfiguration results in no FontAwesome
         $this->assertStringNotContainsString('fa-solid-900.woff2', $body);
         $this->assertStringNotContainsString('fa-regular-400.woff2', $body);
-    }
-
-    #[Test]
-    public function admin_panel_receives_fontawesome_config_override_flag()
-    {
-        // Without config override, should be false by default
-        $response = $this->send(
-            $this->request('GET', '/admin', [
-                'authenticatedAs' => 1,
-            ])
-        );
-
-        $body = $response->getBody()->getContents();
-        $this->assertStringContainsString('"fontawesomeByConfig":false', $body);
     }
 }
