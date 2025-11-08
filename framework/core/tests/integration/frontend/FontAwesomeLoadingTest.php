@@ -93,7 +93,7 @@ class FontAwesomeLoadingTest extends TestCase
     // which is complex in the test environment
 
     #[Test]
-    public function empty_cdn_url_falls_back_to_local()
+    public function empty_cdn_url_does_not_load_anything()
     {
         $this->setting('fontawesome_source', 'cdn');
         $this->setting('fontawesome_cdn_url', '');
@@ -109,10 +109,12 @@ class FontAwesomeLoadingTest extends TestCase
 
         // Should not load local fonts either since source is CDN (just no URL provided)
         // This is expected behavior - misconfiguration results in no FontAwesome
+        $this->assertStringNotContainsString('fa-solid-900.woff2', $body);
+        $this->assertStringNotContainsString('fa-regular-400.woff2', $body);
     }
 
     #[Test]
-    public function empty_kit_url_falls_back_to_local()
+    public function empty_kit_url_does_not_load_anything()
     {
         $this->setting('fontawesome_source', 'kit');
         $this->setting('fontawesome_kit_url', '');
@@ -128,6 +130,8 @@ class FontAwesomeLoadingTest extends TestCase
 
         // Should not load local fonts either since source is kit (just no URL provided)
         // This is expected behavior - misconfiguration results in no FontAwesome
+        $this->assertStringNotContainsString('fa-solid-900.woff2', $body);
+        $this->assertStringNotContainsString('fa-regular-400.woff2', $body);
     }
 
     #[Test]
