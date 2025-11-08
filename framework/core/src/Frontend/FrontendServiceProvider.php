@@ -111,12 +111,12 @@ class FrontendServiceProvider extends AbstractServiceProvider
 
                     if ($fontAwesome->useCdn()) {
                         $cdnUrl = $fontAwesome->cdnUrl();
-                        if (!empty($cdnUrl)) {
+                        if (! empty($cdnUrl)) {
                             $document->css[] = $cdnUrl;
                         }
                     } elseif ($fontAwesome->useKit()) {
                         $kitUrl = $fontAwesome->kitUrl();
-                        if (!empty($kitUrl)) {
+                        if (! empty($kitUrl)) {
                             $document->js[] = $kitUrl;
                         }
                     }
