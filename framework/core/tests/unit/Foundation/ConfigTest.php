@@ -172,4 +172,38 @@ class ConfigTest extends TestCase
         // Ensure the value was not changed
         $this->assertEquals('b', $config['custom_a']);
     }
+
+    #[Test]
+    public function it_returns_queue_driver_from_config()
+    {
+        $config = new Config([
+            'url' => 'https://flarum.localhost',
+            'queue' => [
+                'driver' => 'database',
+            ],
+        ]);
+
+        $this->assertEquals('database', $config->queueDriver());
+    }
+
+    #[Test]
+    public function it_returns_null_for_missing_queue_driver()
+    {
+        $config = new Config([
+            'url' => 'https://flarum.localhost',
+        ]);
+
+        $this->assertNull($config->queueDriver());
+    }
+
+    #[Test]
+    public function it_returns_null_for_empty_queue_config()
+    {
+        $config = new Config([
+            'url' => 'https://flarum.localhost',
+            'queue' => [],
+        ]);
+
+        $this->assertNull($config->queueDriver());
+    }
 }
