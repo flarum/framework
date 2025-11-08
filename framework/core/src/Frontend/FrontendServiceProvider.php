@@ -13,6 +13,7 @@ use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Event\ClearingCache;
+use Flarum\Foundation\FontAwesome;
 use Flarum\Foundation\Paths;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Driver\BasicTitleDriver;
@@ -47,9 +48,15 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     $container->make('flarum.frontend.custom_less_functions')
                 );
 
-                $assets->setLessImportDirs([
-                    $paths->vendor.'/components/font-awesome/css' => ''
-                ]);
+                /** @var FontAwesome $fontAwesome */
+                $fontAwesome = $container->make(FontAwesome::class);
+
+                // Only add FontAwesome LESS imports if using local fonts
+                if ($fontAwesome->useLocalFonts()) {
+                    $assets->setLessImportDirs([
+                        $paths->vendor.'/components/font-awesome/css' => ''
+                    ]);
+                }
 
                 $assets->css($this->addBaseCss(...));
                 $assets->localeCss($this->addBaseCss(...));
@@ -98,6 +105,22 @@ class FrontendServiceProvider extends AbstractServiceProvider
                         $document->preloads,
                     );
 
+                    // Add FontAwesome CDN or Kit if configured
+                    /** @var FontAwesome $fontAwesome */
+                    $fontAwesome = $container->make(FontAwesome::class);
+
+                    if ($fontAwesome->useCdn()) {
+                        $cdnUrl = $fontAwesome->cdnUrl();
+                        if (!empty($cdnUrl)) {
+                            $document->css[] = $cdnUrl;
+                        }
+                    } elseif ($fontAwesome->useKit()) {
+                        $kitUrl = $fontAwesome->kitUrl();
+                        if (!empty($kitUrl)) {
+                            $document->js[] = $kitUrl;
+                        }
+                    }
+
                     /** @var SettingsRepositoryInterface $settings */
                     $settings = $container->make(SettingsRepositoryInterface::class);
 
@@ -120,21 +143,31 @@ class FrontendServiceProvider extends AbstractServiceProvider
         $this->container->singleton(
             'flarum.frontend.default_preloads',
             function (Container $container) {
-                $filesystem = $container->make('filesystem')->disk('flarum-assets');
+                /** @var FontAwesome $fontAwesome */
+                $fontAwesome = $container->make(FontAwesome::class);
 
-                return [
-                    [
-                        'href' => $filesystem->url('fonts/fa-solid-900.woff2'),
-                        'as' => 'font',
-                        'type' => 'font/woff2',
-                        'crossorigin' => ''
-                    ], [
-                        'href' => $filesystem->url('fonts/fa-regular-400.woff2'),
-                        'as' => 'font',
-                        'type' => 'font/woff2',
-                        'crossorigin' => ''
-                    ]
-                ];
+                $preloads = [];
+
+                // Only preload local fonts if using local source
+                if ($fontAwesome->useLocalFonts()) {
+                    $filesystem = $container->make('filesystem')->disk('flarum-assets');
+
+                    $preloads = [
+                        [
+                            'href' => $filesystem->url('fonts/fa-solid-900.woff2'),
+                            'as' => 'font',
+                            'type' => 'font/woff2',
+                            'crossorigin' => ''
+                        ], [
+                            'href' => $filesystem->url('fonts/fa-regular-400.woff2'),
+                            'as' => 'font',
+                            'type' => 'font/woff2',
+                            'crossorigin' => ''
+                        ]
+                    ];
+                }
+
+                return $preloads;
             }
         );
 

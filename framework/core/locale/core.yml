@@ -45,6 +45,20 @@ core:
         safe_mode_extensions: Extensions allowed to boot during safe mode
         safe_mode_extensions_override_help: "This setting is overridden by the <code>safe_mode_extensions</code> key in your <code>config.php</code> file. (<b>{extensions}</b>)"
         section_label: Maintenance
+      fontawesome:
+        section_label: FontAwesome Icons
+        source_label: Icon Source
+        source_help: Choose how FontAwesome icons are loaded. Local uses bundled fonts, CDN loads from a CDN, and Kit uses FontAwesome Kits with custom icons.
+        source_local: Local (Bundled)
+        source_cdn: CDN
+        source_kit: FontAwesome Kit
+        cdn_url_label: CDN URL
+        cdn_url_help: Full URL to the FontAwesome CSS file on a CDN
+        kit_url_label: Kit URL
+        kit_url_help: Your FontAwesome Kit script URL (from kit.fontawesome.com)
+        config_override:
+          label: Config Override
+          help: FontAwesome settings are currently set in your config.php file and cannot be changed here.
       pgsql:
         search_configuration: Search configuration to use
       queue:

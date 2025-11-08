@@ -70,11 +70,13 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
 
     items.add('maintenance', this.maintenance(), 90);
 
-    items.add('queue', this.queue(), 70);
+    items.add('fontawesome', this.fontAwesome(), 85);
 
     if (app.data.dbDriver === DatabaseDriver.PostgreSQL) {
       items.add(DatabaseDriver.PostgreSQL, this.pgsqlSettings(), 80);
     }
+
+    items.add('queue', this.queue(), 70);
 
     return items;
   }
@@ -320,6 +322,59 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
     );
   }
 
+  fontAwesome() {
+    const source = this.setting('fontawesome_source')() || 'local';
+
+    return (
+      <FormSection label={app.translator.trans('core.admin.advanced.fontawesome.section_label')}>
+        {app.data.fontawesomeByConfig ? (
+          <div className="Form-group">
+            <label>{app.translator.trans('core.admin.advanced.fontawesome.config_override.label')}</label>
+            <p className="helpText">{app.translator.trans('core.admin.advanced.fontawesome.config_override.help')}</p>
+            <strong className="helpText">
+              {app.translator.trans('core.admin.advanced.fontawesome.source_' + source)}
+              {source === 'cdn' && this.setting('fontawesome_cdn_url')() && <span>: {this.setting('fontawesome_cdn_url')()}</span>}
+              {source === 'kit' && this.setting('fontawesome_kit_url')() && <span>: {this.setting('fontawesome_kit_url')()}</span>}
+            </strong>
+          </div>
+        ) : (
+          <Form>
+            {this.buildSettingComponent({
+              type: 'select',
+              setting: 'fontawesome_source',
+              label: app.translator.trans('core.admin.advanced.fontawesome.source_label'),
+              help: app.translator.trans('core.admin.advanced.fontawesome.source_help'),
+              options: {
+                local: app.translator.trans('core.admin.advanced.fontawesome.source_local'),
+                cdn: app.translator.trans('core.admin.advanced.fontawesome.source_cdn'),
+                kit: app.translator.trans('core.admin.advanced.fontawesome.source_kit'),
+              },
+              default: 'local',
+            })}
+
+            {source === 'cdn' &&
+              this.buildSettingComponent({
+                type: 'text',
+                setting: 'fontawesome_cdn_url',
+                label: app.translator.trans('core.admin.advanced.fontawesome.cdn_url_label'),
+                help: app.translator.trans('core.admin.advanced.fontawesome.cdn_url_help'),
+                placeholder: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css',
+              })}
+
+            {source === 'kit' &&
+              this.buildSettingComponent({
+                type: 'text',
+                setting: 'fontawesome_kit_url',
+                label: app.translator.trans('core.admin.advanced.fontawesome.kit_url_label'),
+                help: app.translator.trans('core.admin.advanced.fontawesome.kit_url_help'),
+                placeholder: 'https://kit.fontawesome.com/YOUR_KIT_CODE.js',
+              })}
+          </Form>
+        )}
+      </FormSection>
+    );
+  }
+
   static register() {
     app.generalIndex.group('core-advanced', {
       label: app.translator.trans('core.admin.advanced.title', {}, true),
@@ -374,6 +429,21 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
         label: app.translator.trans('core.admin.advanced.queue.backoff_label', {}, true),
         help: app.translator.trans('core.admin.advanced.queue.backoff_help', {}, true),
         visible: () => (app.data.queueDriver || 'sync') === 'database',
+      },
+      {
+        id: 'fontawesome_source',
+        label: app.translator.trans('core.admin.advanced.fontawesome.source_label', {}, true),
+        help: app.translator.trans('core.admin.advanced.fontawesome.source_help', {}, true),
+      },
+      {
+        id: 'fontawesome_cdn_url',
+        label: app.translator.trans('core.admin.advanced.fontawesome.cdn_url_label', {}, true),
+        visible: () => app.data.settings.fontawesome_source === 'cdn' && !app.data.fontawesomeByConfig,
+      },
+      {
+        id: 'fontawesome_kit_url',
+        label: app.translator.trans('core.admin.advanced.fontawesome.kit_url_label', {}, true),
+        visible: () => app.data.settings.fontawesome_source === 'kit' && !app.data.fontawesomeByConfig,
       },
     ]);
   }
