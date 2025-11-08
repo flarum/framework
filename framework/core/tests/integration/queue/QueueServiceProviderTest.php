@@ -45,16 +45,7 @@ class QueueServiceProviderTest extends TestCase
     {
         $this->extend(
             (new Extend\ServiceProvider())
-                ->register(function ($container) {
-                    $container->extend('flarum.queue.connection', function () use ($container) {
-                        $queue = new class extends SyncQueue {
-                            // Custom queue implementation for testing
-                        };
-                        $queue->setContainer($container);
-
-                        return $queue;
-                    });
-                })
+                ->register(CustomQueueServiceProvider::class)
         );
 
         $this->app();
@@ -120,5 +111,19 @@ class QueueServiceProviderTest extends TestCase
         $failer = $this->app()->getContainer()->make('queue.failer');
 
         $this->assertInstanceOf(\Flarum\Queue\DatabaseUuidFailedJobProvider::class, $failer);
+    }
+}
+
+class CustomQueueServiceProvider extends \Flarum\Foundation\AbstractServiceProvider
+{
+    public function register(): void
+    {
+        $this->container->extend('flarum.queue.connection', function ($queue, $container) {
+            $customQueue = new class extends SyncQueue {
+                // Custom queue implementation for testing
+            };
+            $customQueue->setContainer($container);
+            return $customQueue;
+        });
     }
 }

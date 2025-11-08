@@ -34,7 +34,8 @@ class QueueScheduleTest extends ConsoleTestCase
         $output = $this->runCommand(['command' => 'schedule:list']);
 
         $this->assertStringContainsString('queue:work', $output);
-        $this->assertStringContainsString('Every minute', $output);
+        // The schedule output shows the cron expression instead of "Every minute"
+        $this->assertStringContainsString('* * * * *', $output);
     }
 
     #[Test]
