@@ -48,15 +48,12 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     $container->make('flarum.frontend.custom_less_functions')
                 );
 
-                /** @var FontAwesome $fontAwesome */
-                $fontAwesome = $container->make(FontAwesome::class);
-
-                // Only add FontAwesome LESS imports if using local fonts
-                if ($fontAwesome->useLocalFonts()) {
-                    $assets->setLessImportDirs([
-                        $paths->vendor.'/components/font-awesome/css' => ''
-                    ]);
-                }
+                // Always include FontAwesome LESS import paths
+                // Even when using CDN/Kit, we need the base CSS classes compiled into the bundle
+                // The CDN/Kit will override font-face declarations but class definitions remain the same
+                $assets->setLessImportDirs([
+                    $paths->vendor.'/components/font-awesome/css' => ''
+                ]);
 
                 $assets->css($this->addBaseCss(...));
                 $assets->localeCss($this->addBaseCss(...));
