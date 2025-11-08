@@ -135,7 +135,9 @@ class FontAwesomeLoadingTest extends TestCase
     {
         // Without config override, should be false by default
         $response = $this->send(
-            $this->request('GET', '/admin')->withHeader('Accept', 'text/html')
+            $this->request('GET', '/admin', [
+                'authenticatedAs' => 1,
+            ])
         );
 
         $body = $response->getBody()->getContents();
