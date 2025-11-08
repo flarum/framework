@@ -24,10 +24,10 @@ use Illuminate\Contracts\Queue\Factory;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Queue\Connectors\ConnectorInterface;
 use Illuminate\Queue\Console as Commands;
+use Illuminate\Queue\DatabaseQueue;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Failed\NullFailedJobProvider;
 use Illuminate\Queue\Listener as QueueListener;
-use Illuminate\Queue\DatabaseQueue;
 use Illuminate\Queue\SyncQueue;
 use Illuminate\Queue\Worker;
 
@@ -137,6 +137,7 @@ class QueueServiceProvider extends AbstractServiceProvider
             if ($queue instanceof DatabaseQueue) {
                 /** @var Config $config */
                 $config = $container->make(Config::class);
+
                 return new DatabaseUuidFailedJobProvider(
                     $container->make('db'),
                     $config['database']['database'],
