@@ -123,6 +123,7 @@ class CustomQueueServiceProvider extends \Flarum\Foundation\AbstractServiceProvi
                 // Custom queue implementation for testing
             };
             $customQueue->setContainer($container);
+
             return $customQueue;
         });
     }
