@@ -47,6 +47,21 @@ core:
         section_label: Maintenance
       pgsql:
         search_configuration: Search configuration to use
+      queue:
+        section_label: Queue
+        sync_info: Your forum is using the synchronous queue driver. Jobs are processed immediately in the main process thread.
+        sync_help: For better performance and user experience, consider using the database queue driver. Learn more in the documentation.
+        custom_driver: "Your forum is using the '{driver}' queue driver, which is provided by an extension."
+        retries_label: Job Retries
+        retries_help: Maximum number of times to attempt a job before marking it as failed. Default is 1.
+        memory_label: Memory Limit (MB)
+        memory_help: Maximum memory the queue worker can use before restarting. Default is 128 MB.
+        timeout_label: Job Timeout (seconds)
+        timeout_help: Maximum time a single job can run before timing out. Default is 60 seconds.
+        rest_label: Rest Time (seconds)
+        rest_help: Time to wait between processing jobs. Default is 0 seconds.
+        backoff_label: Backoff (seconds)
+        backoff_help: Time to wait before retrying a failed job. Default is 0 seconds.
       search:
         section_label: Search Drivers
         driver_heading: "Search Driver: {model}"

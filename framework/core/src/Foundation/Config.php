@@ -34,6 +34,11 @@ readonly class Config implements ArrayAccess
         return $this->data['debug'] ?? false;
     }
 
+    public function queueDriver(): ?string
+    {
+        return $this->data['queue']['driver'] ?? null;
+    }
+
     public function inMaintenanceMode(): bool
     {
         return $this->inHighMaintenanceMode() || $this->inLowMaintenanceMode() || $this->inSafeMode();
