@@ -340,6 +340,7 @@ core:
       post_without_throttle_label: Reply multiple times without waiting
       read_heading: Read
       remove_scope_label: Remove scope of {scope}
+      remove_scope_confirmation: Are you sure you want to remove the {scope} scope?
       rename_discussions_label: Rename discussions
       reply_to_discussions_label: Reply to discussions
       search_users_label: => core.ref.search_users

@@ -6,6 +6,7 @@ import Button from '../../common/components/Button';
 import ItemList from '../../common/utils/ItemList';
 import type Mithril from 'mithril';
 import Icon from '../../common/components/Icon';
+import extractText from '../../common/utils/extractText';
 
 export interface PermissionConfig {
   permission?: string;
@@ -63,7 +64,13 @@ export default class PermissionGrid<CustomAttrs extends IPermissionGridAttrs = I
                     icon="fas fa-times"
                     className="Button Button--text PermissionGrid-removeScope"
                     aria-label={app.translator.trans('core.admin.permissions.remove_scope_label', { scope: scope.label })}
-                    onclick={scope.onremove}
+                    onclick={() => {
+                      const message = extractText(app.translator.trans('core.admin.permissions.remove_scope_confirmation', { scope: scope.label }));
+
+                      if (confirm(message)) {
+                        scope.onremove?.();
+                      }
+                    }}
                   />
                 )}
               </th>
