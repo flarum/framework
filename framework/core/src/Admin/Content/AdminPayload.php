@@ -87,6 +87,15 @@ class AdminPayload
         $document->payload['safeModeExtensionsConfig'] = $this->config->safeModeExtensions();
 
         $document->payload['fontawesomeByConfig'] = $this->fontAwesome->configOverride();
+
+        // If FontAwesome is configured via config.php, pass the actual config values to frontend
+        if ($this->fontAwesome->configOverride()) {
+            $document->payload['fontawesomeConfig'] = [
+                'source' => $this->fontAwesome->source(),
+                'cdn_url' => $this->fontAwesome->cdnUrl(),
+                'kit_url' => $this->fontAwesome->kitUrl(),
+            ];
+        }
     }
 
     protected function getSearchDrivers(): array

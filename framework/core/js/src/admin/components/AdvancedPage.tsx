@@ -325,6 +325,11 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
   fontAwesome() {
     const source = this.setting('fontawesome_source')() || 'local';
 
+    // Use config values if config override is active, otherwise use database settings
+    const configSource = app.data.fontawesomeConfig?.source || source;
+    const configCdnUrl = app.data.fontawesomeConfig?.cdn_url || this.setting('fontawesome_cdn_url')();
+    const configKitUrl = app.data.fontawesomeConfig?.kit_url || this.setting('fontawesome_kit_url')();
+
     return (
       <FormSection label={app.translator.trans('core.admin.advanced.fontawesome.section_label')}>
         {app.data.fontawesomeByConfig ? (
@@ -332,9 +337,9 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
             <label>{app.translator.trans('core.admin.advanced.fontawesome.config_override.label')}</label>
             <p className="helpText">{app.translator.trans('core.admin.advanced.fontawesome.config_override.help')}</p>
             <strong className="helpText">
-              {app.translator.trans('core.admin.advanced.fontawesome.source_' + source)}
-              {source === 'cdn' && this.setting('fontawesome_cdn_url')() && <span>: {this.setting('fontawesome_cdn_url')()}</span>}
-              {source === 'kit' && this.setting('fontawesome_kit_url')() && <span>: {this.setting('fontawesome_kit_url')()}</span>}
+              {app.translator.trans('core.admin.advanced.fontawesome.source_' + configSource)}
+              {configSource === 'cdn' && configCdnUrl && <span>: {configCdnUrl}</span>}
+              {configSource === 'kit' && configKitUrl && <span>: {configKitUrl}</span>}
             </strong>
           </div>
         ) : (
