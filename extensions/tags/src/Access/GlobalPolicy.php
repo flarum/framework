@@ -42,6 +42,15 @@ class GlobalPolicy extends AbstractPolicy
             return $this->allow();
         }
 
+        if ($ability === 'startDiscussion') {
+            $minPrimaryTags = (int) $this->settings->get('flarum-tags.min_primary_tags');
+            $minSecondaryTags = (int) $this->settings->get('flarum-tags.min_secondary_tags');
+
+            if (($minPrimaryTags === 0 && $minSecondaryTags === 0)) {
+                return;
+            }
+        }
+
         if (in_array($ability, ['viewForum', 'startDiscussion'])) {
             if (! isset($enoughPrimary[$actor->id][$ability])) {
                 $primaryTagsWhereNeedsPermission = $this->settings->get('flarum-tags.min_primary_tags');
