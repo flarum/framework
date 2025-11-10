@@ -40,7 +40,7 @@ export default class StatusWidget extends DashboardWidget {
         [
           <span>
             <strong>{app.translator.trans('core.admin.dashboard.status.headers.scheduler-status')}</strong>{' '}
-            <LinkButton href="https://discuss.flarum.org/d/24118" external={true} target="_blank" icon="fas fa-info-circle" />
+            <LinkButton href="https://docs.flarum.org/scheduler" external={true} target="_blank" icon="fas fa-info-circle" />
           </span>,
           <br />,
           app.data.schedulerStatus,
