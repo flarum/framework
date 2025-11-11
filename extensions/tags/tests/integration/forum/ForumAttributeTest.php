@@ -74,8 +74,7 @@ class ForumAttributeTest extends TestCase
         int $minPrimary,
         int $minSecondary,
         bool $expected
-    )
-    {
+    ) {
         $this->setting('flarum-tags.min_primary_tags', $minPrimary);
         $this->setting('flarum-tags.min_secondary_tags', $minSecondary);
 

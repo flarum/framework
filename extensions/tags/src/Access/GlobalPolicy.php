@@ -36,7 +36,7 @@ class GlobalPolicy extends AbstractPolicy
             $minPrimaryTags = (int) $this->settings->get('flarum-tags.min_primary_tags');
             $minSecondaryTags = (int) $this->settings->get('flarum-tags.min_secondary_tags');
 
-            if (($minPrimaryTags === 0 && $minSecondaryTags === 0)) {
+            if ($minPrimaryTags === 0 && $minSecondaryTags === 0) {
                 return null;
             }
         }
