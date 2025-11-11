@@ -61,7 +61,7 @@ class ForumAttributeTest extends TestCase
             'suspended user, min 1/1' => ['authenticatedAs' => 3, 'minPrimary' => 1, 'minSecondary' => 1, 'expected' => false],
             'guest user, min 1/1' => ['authenticatedAs' => null, 'minPrimary' => 1, 'minSecondary' => 1, 'expected' => false],
         ];
-}
+    }
 
     /**
      * @test
