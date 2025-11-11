@@ -79,7 +79,8 @@
     },
     "require-dev": {
         "flarum/core": "*@dev",
-        "flarum/testing": "^2.0"
+        "flarum/testing": "^2.0",
+        "flarum/suspend": "*@dev"
     },
     "repositories": [
         {
