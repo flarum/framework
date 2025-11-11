@@ -9,8 +9,8 @@
 
 namespace Flarum\Tags\Tests\integration\api\forum;
 
-use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Tags\Tests\integration\RetrievesRepresentativeTags;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Support\Arr;
 
@@ -73,8 +73,7 @@ class ForumAttributeTest extends TestCase
         int $minPrimary,
         int $minSecondary,
         bool $expected
-    )
-    {
+    ) {
         $this->setting('flarum-tags.min_primary_tags', $minPrimary);
         $this->setting('flarum-tags.min_secondary_tags', $minSecondary);
 
