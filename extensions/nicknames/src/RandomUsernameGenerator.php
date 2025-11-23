@@ -47,7 +47,7 @@ class RandomUsernameGenerator
         } while ($attempts < self::MAX_ATTEMPTS);
 
         throw new \RuntimeException(
-            'Unable to generate a unique random username after ' . self::MAX_ATTEMPTS . ' attempts'
+            'Unable to generate a unique random username after '.self::MAX_ATTEMPTS.' attempts'
         );
     }
 
@@ -62,6 +62,6 @@ class RandomUsernameGenerator
         // This provides 4.3 billion possible combinations
         $randomHex = bin2hex(random_bytes(4));
 
-        return 'user_' . $randomHex;
+        return 'user_'.$randomHex;
     }
 }

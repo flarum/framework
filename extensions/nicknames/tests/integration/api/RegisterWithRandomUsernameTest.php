@@ -148,4 +148,3 @@ class RegisterWithRandomUsernameTest extends TestCase
         $this->assertEquals(422, $response->getStatusCode());
     }
 }
-

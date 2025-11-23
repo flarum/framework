@@ -72,6 +72,7 @@ class UserResourceFields
             // Only generate default for new users when randomization is enabled
             if ($context->creating() && $randomEnabled) {
                 $generator = resolve(RandomUsernameGenerator::class);
+
                 return $generator->generate();
             }
 
