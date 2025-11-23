@@ -59,9 +59,7 @@ class RegisterWithRandomUsernameTest extends TestCase
         );
 
         $body = $response->getBody()->getContents();
-        if ($response->getStatusCode() !== 201) {
-            var_dump($body);
-        }
+
         $this->assertEquals(201, $response->getStatusCode());
 
         $data = json_decode($body, true)['data'];
