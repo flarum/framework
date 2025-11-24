@@ -1,0 +1,12 @@
+includes:
+  - vendor/flarum/phpstan/extension.neon
+
+parameters:
+  # The level will be increased in Flarum 2.0
+  level: 5
+  paths:
+    - extend.php
+    - src
+  excludePaths:
+    - *.blade.php
+  databaseMigrationsPath: ['migrations']
