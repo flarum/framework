@@ -24,12 +24,12 @@ final class DataProcessor
      * @var array<string, null|string> Associative array with data type class as key and extension ID as value.
      */
     private static $types = [
-        Data\Forum::class       => null,
-        Data\Assets::class      => null,
-        Data\Posts::class       => null,
-        Data\Tokens::class      => null,
+        Data\Forum::class => null,
+        Data\Assets::class => null,
+        Data\Posts::class => null,
+        Data\Tokens::class => null,
         Data\Discussions::class => null,
-        Data\User::class        => null, // Ought to be last at all times.
+        Data\User::class => null, // Ought to be last at all times.
     ];
 
     /**
@@ -120,11 +120,11 @@ final class DataProcessor
 
         foreach ($columns as $column) {
             $columnDetails[$column['name']] = [
-                'type'     => $column['type_name'],
-                'length'   => str_contains($column['type'], '(')
+                'type' => $column['type_name'],
+                'length' => str_contains($column['type'], '(')
                     ? intval(Str::of($column['type'])->afterLast('(')->beforeLast(')')->toString())
                     : null,
-                'default'  => $column['default'],
+                'default' => $column['default'],
                 'nullable' => $column['nullable'],
             ];
         }

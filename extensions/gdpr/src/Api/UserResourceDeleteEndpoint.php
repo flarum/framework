@@ -58,7 +58,7 @@ class UserResourceDeleteEndpoint
         $actor = $context->getActor();
         $mode = Arr::get($context->body(), 'gdprMode', $this->settings->get('flarum-gdpr.default-erasure'));
 
-        if (!in_array($mode, [ErasureRequest::MODE_ANONYMIZATION, ErasureRequest::MODE_DELETION])) {
+        if (! in_array($mode, [ErasureRequest::MODE_ANONYMIZATION, ErasureRequest::MODE_DELETION])) {
             throw new ValidationException(['mode' => "Invalid erasure mode: $mode"]);
         }
 

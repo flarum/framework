@@ -26,7 +26,7 @@ class UserPolicy extends AbstractPolicy
         // if $user is anonymized, deny all abilities except those in $reservedAbilities
         if ($user instanceof User
             && $user->anonymized
-            && !in_array($ability, $this->reservedAbilities)) {
+            && ! in_array($ability, $this->reservedAbilities)) {
             return $this->deny();
         }
     }

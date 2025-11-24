@@ -21,10 +21,10 @@ class Forum extends Type
 
         $comment = $this->translator->trans('flarum-gdpr.forum.export_file', [
             '{forumTitle}' => $forumTitle,
-            '{url}'        => $url,
-            '{username}'   => $this->user->username,
-            '{email}'      => $this->user->email,
-            '{date}'       => Carbon::now()->toDateTimeString(),
+            '{url}' => $url,
+            '{username}' => $this->user->username,
+            '{email}' => $this->user->email,
+            '{date}' => Carbon::now()->toDateTimeString(),
         ]);
 
         resolve(ZipManager::class)->setComment($comment);

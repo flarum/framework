@@ -28,7 +28,7 @@ class Export extends AbstractModel
     protected $table = 'gdpr_exports';
 
     protected $casts = [
-        'created_at'  => 'datetime',
+        'created_at' => 'datetime',
         'destroys_at' => 'datetime',
     ];
 

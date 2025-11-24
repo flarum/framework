@@ -72,13 +72,13 @@ class RequestErasureTest extends TestCase
                 '/api/user-erasure-requests',
                 [
                     'authenticatedAs' => 2,
-                    'json'            => [
+                    'json' => [
                         'data' => [
                             'attributes' => [
                                 'reason' => 'I want to be forgotten',
 
                             ],
-                            'meta'   => [
+                            'meta' => [
                                 'password' => 'wrong-password',
                             ],
                         ],
@@ -104,14 +104,14 @@ class RequestErasureTest extends TestCase
                 '/api/user-erasure-requests',
                 [
                     'authenticatedAs' => 2,
-                    'json'            => [
+                    'json' => [
                         'data' => [
                             'attributes' => [
                                 'reason' => 'I want to be forgotten',
 
                             ],
                         ],
-                        'meta'   => [
+                        'meta' => [
                             'password' => 'too-obscure',
                         ],
                     ],
@@ -153,7 +153,7 @@ class RequestErasureTest extends TestCase
                 '/api/user-erasure-requests',
                 [
                     'authenticatedAs' => 2,
-                    'json'            => [
+                    'json' => [
                         'data' => [
                             'attributes' => [
 

@@ -90,11 +90,11 @@ class ProcessErasureTest extends TestCase
         $response = $this->send(
             $this->request('PATCH', '/api/user-erasure-requests/2', [
                 'authenticatedAs' => 2,
-                'json'            => [
+                'json' => [
                     'data' => [
                         'attributes' => [
                             'processor_comment' => 'I am trying to process this request',
-                            'meta'              => [
+                            'meta' => [
                                 'mode' => ErasureRequest::MODE_DELETION,
                             ],
                         ],
@@ -112,11 +112,11 @@ class ProcessErasureTest extends TestCase
         $response = $this->send(
             $this->request('PATCH', '/api/user-erasure-requests/1', [
                 'authenticatedAs' => 3,
-                'json'            => [
+                'json' => [
                     'data' => [
                         'attributes' => [
                             'processorComment' => 'I am trying to process this request',
-                            'processedMode'    => ErasureRequest::MODE_DELETION,
+                            'processedMode' => ErasureRequest::MODE_DELETION,
                         ],
                     ],
                 ],
@@ -134,11 +134,11 @@ class ProcessErasureTest extends TestCase
         $response = $this->send(
             $this->request('PATCH', '/api/user-erasure-requests/2', [
                 'authenticatedAs' => 3,
-                'json'            => [
+                'json' => [
                     'data' => [
                         'attributes' => [
                             'processorComment' => 'I have processed this request',
-                            'processedMode'    => ErasureRequest::MODE_DELETION,
+                            'processedMode' => ErasureRequest::MODE_DELETION,
                         ],
                     ],
                 ],
@@ -162,11 +162,11 @@ class ProcessErasureTest extends TestCase
         $response = $this->send(
             $this->request('PATCH', '/api/user-erasure-requests/2', [
                 'authenticatedAs' => 3,
-                'json'            => [
+                'json' => [
                     'data' => [
                         'attributes' => [
                             'processorComment' => 'I have processed this request',
-                            'processedMode'    => ErasureRequest::MODE_ANONYMIZATION,
+                            'processedMode' => ErasureRequest::MODE_ANONYMIZATION,
                         ],
                     ],
                 ],
@@ -199,11 +199,11 @@ class ProcessErasureTest extends TestCase
         $response = $this->send(
             $this->request('PATCH', '/api/user-erasure-requests/2', [
                 'authenticatedAs' => 3,
-                'json'            => [
+                'json' => [
                     'data' => [
                         'attributes' => [
                             'processorComment' => 'I have processed this request',
-                            'processedMode'    => ErasureRequest::MODE_ANONYMIZATION,
+                            'processedMode' => ErasureRequest::MODE_ANONYMIZATION,
                         ],
                     ],
                 ],
@@ -225,11 +225,11 @@ class ProcessErasureTest extends TestCase
         $response = $this->send(
             $this->request('PATCH', '/api/user-erasure-requests/2', [
                 'authenticatedAs' => 3,
-                'json'            => [
+                'json' => [
                     'data' => [
                         'attributes' => [
                             'processorComment' => 'I have processed this request',
-                            'processedMode'    => ErasureRequest::MODE_ANONYMIZATION,
+                            'processedMode' => ErasureRequest::MODE_ANONYMIZATION,
                         ],
                     ],
                 ],
@@ -247,11 +247,11 @@ class ProcessErasureTest extends TestCase
         $response = $this->send(
             $this->request('PATCH', '/api/user-erasure-requests/2', [
                 'authenticatedAs' => 3,
-                'json'            => [
+                'json' => [
                     'data' => [
                         'attributes' => [
                             'processorComment' => 'I have processed this request',
-                            'processedMode'    => ErasureRequest::MODE_DELETION,
+                            'processedMode' => ErasureRequest::MODE_DELETION,
                         ],
                     ],
                 ],
@@ -276,11 +276,11 @@ class ProcessErasureTest extends TestCase
         $response = $this->send(
             $this->request('PATCH', '/api/user-erasure-requests/2', [
                 'authenticatedAs' => 3,
-                'json'            => [
+                'json' => [
                     'data' => [
                         'attributes' => [
                             'processorComment' => 'I have processed this request',
-                            'processedMode'    => ErasureRequest::MODE_ANONYMIZATION,
+                            'processedMode' => ErasureRequest::MODE_ANONYMIZATION,
                         ],
                     ],
                 ],
@@ -303,11 +303,11 @@ class ProcessErasureTest extends TestCase
         $response = $this->send(
             $this->request('PATCH', '/api/user-erasure-requests/3', [
                 'authenticatedAs' => 3,
-                'json'            => [
+                'json' => [
                     'data' => [
                         'attributes' => [
                             'processorComment' => 'I have processed this request',
-                            'processedMode'    => ErasureRequest::MODE_DELETION,
+                            'processedMode' => ErasureRequest::MODE_DELETION,
                         ],
                     ],
                 ],

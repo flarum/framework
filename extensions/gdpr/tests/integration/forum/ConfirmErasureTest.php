@@ -53,7 +53,7 @@ class ConfirmErasureTest extends TestCase
             $this->request('POST', '/login', [
                 'json' => [
                     'identification' => $username,
-                    'password'       => $password,
+                    'password' => $password,
                 ],
             ])
         );

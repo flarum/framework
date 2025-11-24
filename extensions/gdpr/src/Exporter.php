@@ -99,7 +99,7 @@ class Exporter
     private function getTempDir(): string
     {
         $tmpDir = $this->storagePath.DIRECTORY_SEPARATOR.'tmp';
-        if (!is_dir($tmpDir)) {
+        if (! is_dir($tmpDir)) {
             mkdir($tmpDir, 0777, true);
         }
 

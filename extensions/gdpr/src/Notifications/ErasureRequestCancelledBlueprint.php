@@ -38,7 +38,7 @@ class ErasureRequestCancelledBlueprint implements BlueprintInterface, MailableIn
     {
         return [
             'erasure-request' => $this->request->id,
-            'timestamp'       => Carbon::now(),
+            'timestamp' => Carbon::now(),
         ];
     }
 

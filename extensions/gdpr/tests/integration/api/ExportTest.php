@@ -45,7 +45,7 @@ class ExportTest extends TestCase
             'group_permission' => [
                 ['permission' => 'moderateExport', 'group_id' => 4],
             ],
-            'gdpr_exports'  => [],
+            'gdpr_exports' => [],
             'notifications' => [],
         ]);
     }
@@ -65,7 +65,7 @@ class ExportTest extends TestCase
                 '/api/gdpr-exports',
                 [
                     'authenticatedAs' => $actorId,
-                    'json'            => [
+                    'json' => [
                         'data' => [
                             'attributes' => [
                                 'userId' => $userId,

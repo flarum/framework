@@ -12,7 +12,7 @@ use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        if (!$schema->hasTable('gdpr_erasure')) {
+        if (! $schema->hasTable('gdpr_erasure')) {
             $schema->create('gdpr_erasure', function (Blueprint $table) {
                 $table->increments('id');
                 $table->integer('user_id')->unsigned()->nullable()->unique();

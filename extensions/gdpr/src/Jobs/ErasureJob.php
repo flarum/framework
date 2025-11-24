@@ -59,7 +59,7 @@ class ErasureJob extends GdprJob
         /** @var User */
         $user = User::find($this->erasureRequest->user_id);
 
-        if (!$user->exists) {
+        if (! $user->exists) {
             return;
         }
 
@@ -69,7 +69,7 @@ class ErasureJob extends GdprJob
 
         $mode = $this->erasureRequest->processed_mode;
 
-        if (!$mode) {
+        if (! $mode) {
             throw new RuntimeException('Erasure request has no mode set.');
         }
 

@@ -91,7 +91,7 @@ class ErasureRequestResource extends Resource\AbstractDatabaseResource
 
                     // If they signed up using a third party oauth provider, they won't have a password
                     // so we can't check it. We'll just assume they're authenticated.
-                    if ($actor->loginProviders()->count() === 0 && !$actor->checkPassword(Arr::get($context->body(), 'meta.password', ''))) {
+                    if ($actor->loginProviders()->count() === 0 && ! $actor->checkPassword(Arr::get($context->body(), 'meta.password', ''))) {
                         throw new ValidationException(['password' => 'Incorrect password']);
                     }
                 }),
@@ -135,7 +135,7 @@ class ErasureRequestResource extends Resource\AbstractDatabaseResource
                 ->requiredOnUpdate()
                 ->in(array_keys(array_filter([
                     ErasureRequest::MODE_ANONYMIZATION => $this->settings->get('flarum-gdpr.allow-anonymization'),
-                    ErasureRequest::MODE_DELETION      => $this->settings->get('flarum-gdpr.allow-deletion'),
+                    ErasureRequest::MODE_DELETION => $this->settings->get('flarum-gdpr.allow-deletion'),
                 ]))),
             Schema\Str::make('processorComment')
                 ->writableOnUpdate()

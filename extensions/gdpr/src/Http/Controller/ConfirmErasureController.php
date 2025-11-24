@@ -41,7 +41,7 @@ class ConfirmErasureController implements RequestHandlerInterface
         /**
          * @TODO: the token is enough to confirm the erasure request. We should not require the user to be logged in.
          */
-        if ($erasureRequest->user->isNot($actor) && !$actor->isGuest()) {
+        if ($erasureRequest->user->isNot($actor) && ! $actor->isGuest()) {
             throw new ValidationException(['user' => 'Erase requests cannot be confirmed by different users.']);
         }
 

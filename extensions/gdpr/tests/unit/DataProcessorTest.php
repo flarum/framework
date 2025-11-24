@@ -22,12 +22,12 @@ class DataProcessorTest extends TestCase
 
         // Resetting the types and removeUserColumns properties before each test
         DataProcessor::setTypes([
-            Data\Forum::class       => null,
-            Data\Assets::class      => null,
-            Data\Posts::class       => null,
-            Data\Tokens::class      => null,
+            Data\Forum::class => null,
+            Data\Assets::class => null,
+            Data\Posts::class => null,
+            Data\Tokens::class => null,
             Data\Discussions::class => null,
-            Data\User::class        => null,
+            Data\User::class => null,
         ]);
         DataProcessor::removeUserColumns([]);
     }

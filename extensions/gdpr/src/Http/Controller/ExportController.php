@@ -35,8 +35,8 @@ class ExportController implements RequestHandlerInterface
                 $this->storageManager->getStoredExport($export),
                 200,
                 [
-                    'Content-Type'        => 'application/zip',
-                    'Content-Length'      => $this->storageManager->getStoredExportSize($export),
+                    'Content-Type' => 'application/zip',
+                    'Content-Length' => $this->storageManager->getStoredExportSize($export),
                     'Content-Disposition' => 'attachment; filename="data-export-'.$export->user->username.'-'.$export->created_at->toIso8601String().'.zip"',
                 ]
             );

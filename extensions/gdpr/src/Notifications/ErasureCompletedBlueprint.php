@@ -43,7 +43,7 @@ class ErasureCompletedBlueprint implements BlueprintInterface, MailableInterface
     {
         return [
             'username' => $this->username,
-            'mode'     => $this->mode,
+            'mode' => $this->mode,
         ];
     }
 

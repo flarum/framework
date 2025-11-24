@@ -12,7 +12,7 @@ use Illuminate\Database\Schema\Builder;
 
 return [
     'up' => function (Builder $schema) {
-        if (!$schema->hasColumn('users', 'anonymized')) {
+        if (! $schema->hasColumn('users', 'anonymized')) {
             $schema->table('users', function (Blueprint $table) {
                 $table->boolean('anonymized')->default(false)->nullable(false);
             });

@@ -37,7 +37,7 @@ class ConfirmErasureBlueprint implements BlueprintInterface, MailableInterface
     {
         return [
             'erasure-request' => $this->request->id,
-            'timestamp'       => Carbon::now(),
+            'timestamp' => Carbon::now(),
         ];
     }
 
