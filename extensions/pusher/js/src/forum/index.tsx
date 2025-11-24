@@ -28,7 +28,7 @@ app.initializers.add('flarum-pusher', () => {
         },
       },
       httpHost: app.forum.attribute('pusherHostname'),
-      wsHost: app.forum.attribute('pusherHostname')
+      wsHost: app.forum.attribute('pusherHostname'),
     });
 
     return {
