@@ -72,6 +72,7 @@ class Conditional implements ExtenderInterface
     {
         return $this->when(function (SettingsRepositoryInterface $settings) use ($key, $expected, $strict) {
             $value = $settings->get($key);
+
             return $strict ? $value === $expected : $value == $expected;
         }, $extenders);
     }
