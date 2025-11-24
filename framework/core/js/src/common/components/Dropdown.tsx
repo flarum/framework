@@ -124,13 +124,21 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
       m.redraw();
     });
 
+    // Safari fix: Only close on focusout if relatedTarget exists and is outside.
+    // In Safari, clicks on menu items trigger focusout with relatedTarget=null,
+    // which was causing premature dropdown closure. Bootstrap handles click-outside,
+    // so we only need to handle keyboard navigation (tab) away from the dropdown.
     this.$().on('focusout', (e: JQuery.FocusOutEvent) => {
+      // If relatedTarget is null, it's likely a click event - let Bootstrap handle it
+      if (!e.relatedTarget) {
+        return;
+      }
+
       // Check if the new focused element is outside of this dropdown
       if (!this.$().has(e.relatedTarget as Element).length) {
         this.$().trigger('hidden.bs.dropdown');
       }
     });
-    // Focusing out of the dropdown should close it.
   }
 
   /**
