@@ -1,5 +1,39 @@
 # Changelog
 
+## [v2.0.0-beta.4](https://github.com/flarum/framework/compare/v2.0.0-beta.3...v2.0.0-beta.4)
+
+### Changed
+
+- (a11y) improve a11y of avatar with no avatarUrl by @DavideIadeluca [#4248]
+- improve extensibility of `PostUser` by @imorland [#4252]
+- readme badges markdown format by @szepeviktor [#4239]
+- bump js-yaml from 4.1.0 to 4.1.1 by @dependabot [#4280]
+- bump js-yaml from 3.14.1 to 4.1.1 by @dependabot [#4285]
+
+### Fixed
+
+- action dropdown inaccessible near bottom of userlist by @imorland [#4250]
+- (a11y) missing default alt text for avatar by @imorland [#4243]
+- validate mail settings for whitespace by @imorland [#4251]
+- condition for displaying not sending message in MailPage by @notanothervibecoder [#4260]
+- error when importing from extension unless enabled by @imorland [#4261]
+- restore xdebug.max_nesting_level after less compilation by @DavideIadeluca [#4263]
+- randomized username fails validation by @imorland [#4283]
+- developer tokens not visible if not in first page by @imorland [#4266]
+- avatar editor overlay stretching prevention by @imorland [#4265]
+- (admin) IPAddress component unavailable in admin frontend by @imorland [#4275]
+- safari issues with dropdown menus by @imorland [#4286]
+
+### Added
+
+- conditional setting extender by @imorland [#4287]
+- confirmation dialog for permission scope deletion by @DavideIadeluca [#4272]
+- admin StatusWidgetItem by @imorland [#4258]
+- database queue support with queue settings by @imorland [#4270]
+- fontawesome cdn and kits support by @imorland [#4271]
+- server hostname configuration for Pusher integration by @notanothervibecoder [#4253]
+- php 8.5 testing support by @imorland [#4284]
+
 ## [v2.0.0-beta.3](https://github.com/flarum/framework/compare/v2.0.0-beta.2...v2.0.0-beta.3)
 ### Changed
 - (a11y) misc a11y improvements by @SychO9 [#4211]
