@@ -33,11 +33,19 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/flarum/gdpr/issues",
-        "source": "https://github.com/flarum/gdpr"
+        "issues": "https://github.com/flarum/framework/issues",
+        "source": "https://github.com/flarum/gdpr",
+        "forum": "https://discuss.flarum.org"
     },
+    "homepage": "https://flarum.org",
+    "funding": [
+        {
+            "type": "website",
+            "url": "https://flarum.org/donate/"
+        }
+    ],
     "require": {
-        "flarum/core": "^2.0.0-beta.2",
+        "flarum/core": "^2.0.0-beta.3",
         "nelexa/zip": "^4.0.2"
     },
     "autoload": {
@@ -49,6 +57,9 @@
         "blomstra/gdpr": "*"
     },
     "extra": {
+        "branch-alias": {
+            "dev-main": "2.x-dev"
+        },
         "flarum-extension": {
             "title": "GDPR Data Management",
             "category": "feature",
@@ -70,6 +81,14 @@
             }
         }
     },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../*/*"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "autoload-dev": {
         "psr-4": {
             "Flarum\\Gdpr\\Tests\\": "tests/"
@@ -94,9 +113,6 @@
         "analyse:phpstan": "Run static analysis"
     },
     "require-dev": {
-        "flarum/testing": "^2.0.0",
-        "flarum/nicknames": "^2.0.0",
-        "flarum/phpstan": "*"
-    },
-    "minimum-stability": "dev"
+        "flarum/testing": "^2.0"
+    }
 }

@@ -32,6 +32,11 @@
         "mainBranch": "2.x"
       },
       {
+        "name": "gdpr",
+        "gitRemote": "git@github.com:flarum/gdpr.git",
+        "mainBranch": "2.x"
+      },
+      {
         "name": "lang-english",
         "gitRemote": "git@github.com:flarum/lang-english.git",
         "mainBranch": "2.x"
