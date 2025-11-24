@@ -80,7 +80,7 @@
     "require-dev": {
         "flarum/core": "*@dev",
         "flarum/testing": "^2.0",
-        "flarum/suspend": "*@dev"
+        "flarum/suspend": "^2.0"
     },
     "repositories": [
         {
