@@ -8,7 +8,7 @@ import DialogList from './extend/DialogList';
 
 export { default as extend } from './extend';
 
-app.initializers.add('blomstra-realtime', () => {
+app.initializers.add('flarum-realtime', () => {
   Application();
   Discussion();
   DiscussionList();
