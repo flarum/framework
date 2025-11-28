@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
 
 namespace Flarum\Realtime\Websocket\Connection;
 
@@ -23,7 +29,7 @@ class Websocket implements MessageComponentInterface
     {
     }
 
-    function onOpen(ConnectionInterface $conn)
+    public function onOpen(ConnectionInterface $conn)
     {
         /** @phpstan-ignore-next-line */
         $conn->socketId = $conn->socketId ?? null;
@@ -42,12 +48,12 @@ class Websocket implements MessageComponentInterface
         $this->createFulfilledPromise(0);
     }
 
-    function onClose(ConnectionInterface $conn)
+    public function onClose(ConnectionInterface $conn)
     {
         $this->manager->unsubscribeFromAllChannels($conn);
     }
 
-    function onError(ConnectionInterface $conn, \Exception $e)
+    public function onError(ConnectionInterface $conn, \Exception $e)
     {
         if ($e instanceof WebsocketException) {
             $conn->send(json_encode($e->getPayload()));

@@ -1,10 +1,17 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Realtime\Extend;
 
-use Flarum\Realtime\Websocket\Settings;
 use Flarum\Extend\ExtenderInterface;
 use Flarum\Extension\Extension;
+use Flarum\Realtime\Websocket\Settings;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 
@@ -36,7 +43,7 @@ class Realtime implements ExtenderInterface
         $url = parse_url($url);
 
         if (! empty($url['path'])) {
-            throw new InvalidArgumentException("Paths are not possible in websocket connections.");
+            throw new InvalidArgumentException('Paths are not possible in websocket connections.');
         }
 
         $this->configuration['php-client-secure'] = $url['scheme'] === 'https';

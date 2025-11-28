@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 use Blomstra\Realtime\Websocket\Connection;
 use Blomstra\Realtime\Websocket\Logger\WebsocketLogger;
 use Ratchet\WebSocket\MessageComponentInterface;
@@ -7,7 +14,8 @@ use Ratchet\WebSocket\WsServer;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
-function addRoute(RouteCollection $routes, string $method, string $uri, string $handler) {
+function addRoute(RouteCollection $routes, string $method, string $uri, string $handler)
+{
     $action = resolve($handler);
 
     if (is_subclass_of($handler, MessageComponentInterface::class)) {

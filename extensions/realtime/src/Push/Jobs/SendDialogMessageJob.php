@@ -1,14 +1,21 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Realtime\Push\Jobs;
 
 use Flarum\Database\AbstractModel;
+use Flarum\Messages\Dialog;
+use Flarum\Messages\DialogMessage;
 use Flarum\User\User;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Collection;
-use Flarum\Messages\Dialog;
-use Flarum\Messages\DialogMessage;
 use Illuminate\Support\Str;
 
 class SendDialogMessageJob extends Job
@@ -47,7 +54,9 @@ class SendDialogMessageJob extends Job
         $users = Collection::make();
 
         /** @phpstan-ignore-next-line */
-        if (! $response) return $users;
+        if (! $response) {
+            return $users;
+        }
 
         foreach ($response->channels as $name => $channel) {
             $users->put($name, Str::after($name, 'private-user='));

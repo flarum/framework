@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Realtime\Push\Jobs;
 
 use Flarum\Discussion\Discussion;
@@ -16,7 +23,9 @@ abstract class Job extends AbstractJob
 
     public function __construct()
     {
-        if (static::$onQueue) $this->onQueue(static::$onQueue);
+        if (static::$onQueue) {
+            $this->onQueue(static::$onQueue);
+        }
     }
 
     protected function pusher(): Pusher
@@ -46,7 +55,9 @@ abstract class Job extends AbstractJob
         $users = Collection::make();
 
         /** @phpstan-ignore-next-line */
-        if (! $response) return $users;
+        if (! $response) {
+            return $users;
+        }
 
         foreach ($response->channels as $name => $channel) {
             $users->put($name, Str::after($name, 'private-user='));
@@ -54,7 +65,6 @@ abstract class Job extends AbstractJob
 
         /** @var \Illuminate\Database\Eloquent\Collection<int, User> $users */
         $users = User::query()->find($users->unique()->values());
-
 
         if ($visible) {
             /** @var Collection&iterable<User> */

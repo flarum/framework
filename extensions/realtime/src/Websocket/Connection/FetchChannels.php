@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
 
 namespace Flarum\Realtime\Websocket\Connection;
 
@@ -46,11 +52,11 @@ class FetchChannels extends Controller
                 }
 
                 if (! in_array('user_count', $attributes)) {
-
                     return [
                         'channels' => $channels->all() ?: new stdClass
                     ];
                 }
+
                 return $this->manager
                     ->getChannelsMembersCount($channels->keys()->toArray())
                     ->then(function ($counts) use ($channels, $attributes) {

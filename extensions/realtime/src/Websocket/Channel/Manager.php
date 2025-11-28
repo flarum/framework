@@ -1,11 +1,18 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Realtime\Websocket\Channel;
 
-use Flarum\Realtime\Websocket\Concerns\Promises;
-use Flarum\Realtime\Websocket\Settings;
 use Carbon\Carbon;
 use Flarum\Foundation\Config;
+use Flarum\Realtime\Websocket\Concerns\Promises;
+use Flarum\Realtime\Websocket\Settings;
 use Illuminate\Support\Str;
 use Ratchet\ConnectionInterface;
 use React\Promise\PromiseInterface;
@@ -83,7 +90,9 @@ class Manager
 
     public function unsubscribeFromChannel(ConnectionInterface $connection, string $channel, stdClass $payload): PromiseInterface
     {
-        if (! $this->has($channel)) return $this->createFulfilledPromise(false);
+        if (! $this->has($channel)) {
+            return $this->createFulfilledPromise(false);
+        }
 
         $channel = $this->find($channel);
 
@@ -97,7 +106,7 @@ class Manager
         // Remove connection from channels.
         $this->getChannels()->then(function (array $channels) use ($connection) {
             /** @var Channel $channel */
-            foreach($channels as $channel) {
+            foreach ($channels as $channel) {
                 $channel->unsubscribe($connection);
 
                 if (! $channel->hasConnections()) {

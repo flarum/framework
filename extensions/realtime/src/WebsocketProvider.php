@@ -1,12 +1,18 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
 
 namespace Flarum\Realtime;
 
-use Flarum\Realtime\Websocket\Channel\Manager;
-use Flarum\Realtime\Websocket\Settings;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Config;
+use Flarum\Realtime\Websocket\Channel\Manager;
+use Flarum\Realtime\Websocket\Settings;
 use Illuminate\Contracts\Container\Container;
 use Psr\Log\LoggerInterface;
 use Pusher\Pusher;

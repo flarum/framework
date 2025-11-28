@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Realtime\Push\Jobs;
 
 use Flarum\Database\AbstractModel;
@@ -14,16 +21,16 @@ class SendTriggerJob extends Job
         private string $event,
         private AbstractModel $model,
         private ?User $actor = null
-    )
-    {
+    ) {
         parent::__construct();
     }
 
     public function __invoke(Queue $queue)
     {
         // Resolve a discussion for use with `visibleTo` permission checks.
-        if ($this->model instanceof Discussion) $discussion = $this->model;
-        elseif (property_exists($this->model, 'discussion')) {
+        if ($this->model instanceof Discussion) {
+            $discussion = $this->model;
+        } elseif (property_exists($this->model, 'discussion')) {
             $discussion = $this->model->discussion ?? null;
         } else {
             $discussion = null;
@@ -41,7 +48,7 @@ class SendTriggerJob extends Job
                 $queue->push(
                     new SendGeneratedPayloadJob($this->event, $this->model, $recipient)
                 );
-        });
+            });
 
         // If public, push to everyone.
         if ($discussion && $this->visibleTo($discussion)) {

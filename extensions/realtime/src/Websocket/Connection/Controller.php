@@ -1,11 +1,18 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Realtime\Websocket\Connection;
 
+use Exception;
 use Flarum\Realtime\Websocket\Channel\Manager;
 use Flarum\Realtime\Websocket\Concerns\Settings;
 use Flarum\Realtime\Websocket\Settings as SocketSettings;
-use Exception;
 use GuzzleHttp\Psr7\Message;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -73,8 +80,10 @@ abstract class Controller implements HttpServerInterface
         parse_str($this->request->getUri()->getQuery(), $query);
 
         $request = (new ServerRequest(
-            [], [],
-            $this->request->getUri(), $this->request->getMethod(),
+            [],
+            [],
+            $this->request->getUri(),
+            $this->request->getMethod(),
             $this->request->getBody(),
             $this->request->getHeaders()
         ))
@@ -101,7 +110,6 @@ abstract class Controller implements HttpServerInterface
         });
     }
 
-
     abstract public function __invoke(ServerRequestInterface $request);
 
     protected function contentLength(array $headers): int
@@ -115,7 +123,6 @@ abstract class Controller implements HttpServerInterface
     {
         return strlen($this->buffer) === $this->contentLength;
     }
-
 
     protected function validateSignature(ServerRequest $request)
     {
@@ -140,11 +147,18 @@ abstract class Controller implements HttpServerInterface
             throw new Exception('Invalid auth signature provided.');
         }
     }
+
     protected function sendAndClose(ConnectionInterface $conn, $response)
     {
-        if ($response instanceof Collection) $response = new JsonResponse($response->toArray());
-        if (is_array($response)) $response = new JsonResponse($response);
-        if (!($response instanceof Response)) $response = new Response($response);
+        if ($response instanceof Collection) {
+            $response = new JsonResponse($response->toArray());
+        }
+        if (is_array($response)) {
+            $response = new JsonResponse($response);
+        }
+        if (! ($response instanceof Response)) {
+            $response = new Response($response);
+        }
 
         $conn->send(Message::toString($response));
         $conn->close();

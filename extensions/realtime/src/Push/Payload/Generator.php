@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Realtime\Push\Payload;
 
 use Flarum\Api\Client;
@@ -32,11 +39,14 @@ class Generator
     ];
 
     public function __construct(private Client $client)
-    {}
+    {
+    }
 
     public function __invoke(AbstractModel $subject, ?User $recipient = null, ?array $includes = null): ?array
     {
-        if ($subject instanceof Post) $subject = $subject->discussion;
+        if ($subject instanceof Post) {
+            $subject = $subject->discussion;
+        }
 
         $this->disableTracking();
 

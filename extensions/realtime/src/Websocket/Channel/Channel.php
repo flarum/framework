@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Realtime\Websocket\Channel;
 
 use Flarum\Realtime\Websocket\Exception\InvalidSignature;
@@ -34,7 +41,9 @@ class Channel
 
     public function unsubscribe(ConnectionInterface $connection): bool
     {
-        if (! $this->hasConnection($connection)) return false;
+        if (! $this->hasConnection($connection)) {
+            return false;
+        }
 
         /** @phpstan-ignore-next-line */
         unset($this->connections[$connection->socketId]);
@@ -74,7 +83,9 @@ class Channel
 
     public function broadcastToEveryoneExcept(stdClass $payload, ?string $socketId): bool
     {
-        if (! $socketId) return $this->broadcast($payload);
+        if (! $socketId) {
+            return $this->broadcast($payload);
+        }
 
         collect($this->connections)
             ->except($socketId)
@@ -96,7 +107,8 @@ class Channel
 
         if (! hash_equals(
             $hash,
-            Str::after($payload->auth, ':'))
+            Str::after($payload->auth, ':')
+        )
         ) {
             throw new InvalidSignature;
         }

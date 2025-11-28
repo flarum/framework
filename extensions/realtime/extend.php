@@ -1,16 +1,23 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Realtime;
 
-use Flarum\Discussion\Discussion;
-use Flarum\Extend as Flarum;
-use Flarum\Frontend\Document;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
 use Flarum\Api\Schema;
+use Flarum\Discussion\Discussion;
+use Flarum\Extend as Flarum;
+use Flarum\Frontend\Document;
 use Flarum\Messages\Api\Resource\DialogMessageResource;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 
 return [
@@ -23,9 +30,9 @@ return [
         ->command(Websocket\Console\InfoCommand::class),
 
     (new Flarum\Frontend('forum'))
-        ->js(__DIR__ . '/js/dist/forum.js')
-        ->jsDirectory(__DIR__ . '/js/dist/forum')
-        ->css(__DIR__ . '/resources/less/forum.less')
+        ->js(__DIR__.'/js/dist/forum.js')
+        ->jsDirectory(__DIR__.'/js/dist/forum')
+        ->css(__DIR__.'/resources/less/forum.less')
         ->content(function (Document $document) {
             /** @var SettingsRepositoryInterface $settings */
             $settings = resolve(SettingsRepositoryInterface::class);
@@ -34,9 +41,9 @@ return [
         }),
 
     (new Flarum\Frontend('admin'))
-        ->js(__DIR__ . '/js/dist/admin.js'),
+        ->js(__DIR__.'/js/dist/admin.js'),
 
-    (new Flarum\Locales(__DIR__ . '/resources/locale')),
+    new Flarum\Locales(__DIR__.'/resources/locale'),
 
     (new Flarum\Routes('api'))
         ->post('/websocket/auth', 'websocket.auth', Websocket\Api\AuthController::class),
@@ -44,9 +51,8 @@ return [
     (new Flarum\ApiResource(Resource\ForumResource::class))
         ->fields(Websocket\Api\ForumAttributes::class),
 
-
     (new Flarum\ApiResource(Resource\DiscussionResource::class))
-        ->fields(fn() => [
+        ->fields(fn () => [
             Schema\Boolean::make('canViewWhoTypes')
                 ->get(function (Discussion $model, Context $context) {
                     $settings = resolve(SettingsRepositoryInterface::class);
@@ -57,9 +63,9 @@ return [
         ]),
 
     (new Flarum\ApiResource(Resource\UserResource::class))
-        ->fields(fn() => [
+        ->fields(fn () => [
             Schema\Boolean::make('canViewWhoTypes')
-                ->visible(fn(User $user, Context $context) => $context->getActor()->id === $user->id)
+                ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
                 ->get(function (User $model, Context $context) {
                     $settings = resolve(SettingsRepositoryInterface::class);
 
@@ -77,7 +83,7 @@ return [
         ->driver('realtime', Push\NotificationDriver::class),
 
     (new Flarum\ApiResource(Resource\PostResource::class))
-        ->endpoint('show', fn(Endpoint\Show $endpoint) => $endpoint->addDefaultInclude(['discussion.tags'])),
+        ->endpoint('show', fn (Endpoint\Show $endpoint) => $endpoint->addDefaultInclude(['discussion.tags'])),
 
     (new Flarum\Settings())
         // In seconds. Defaults to 2 minutes.
@@ -94,13 +100,13 @@ return [
         ->registerPreference('flarum-realtime.typing-indicator-full', 'boolVal', true),
 
     (new Flarum\Conditional())
-        ->whenExtensionEnabled('flarum-messages', fn() => [
+        ->whenExtensionEnabled('flarum-messages', fn () => [
             // DialogMessage currently doesn't have a read
             (new Flarum\ApiResource(DialogMessageResource::class))
-                ->endpoints(fn() => [
+                ->endpoints(fn () => [
                     Endpoint\Show::make()
                         ->authenticated()
-                        ->addDefaultInclude(["dialog"]),
+                        ->addDefaultInclude(['dialog']),
                 ]),
         ]),
 ];

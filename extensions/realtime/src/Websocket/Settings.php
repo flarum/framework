@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Realtime\Websocket;
 
 use Flarum\Foundation\Config;
@@ -8,7 +15,6 @@ use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use InvalidArgumentException;
 
 /**
  * @property string $serverHost

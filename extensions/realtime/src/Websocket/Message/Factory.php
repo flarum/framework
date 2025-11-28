@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Realtime\Websocket\Message;
 
 use Flarum\Realtime\Websocket\Channel\Manager;
@@ -13,8 +20,7 @@ class Factory
         MessageInterface $message,
         ConnectionInterface $connection,
         Manager $manager
-    ): Message
-    {
+    ): Message {
         $payload = json_decode($message->getPayload());
 
         return Str::startsWith($payload->event, 'pusher:')

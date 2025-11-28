@@ -1,13 +1,20 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Realtime\Push\Discussion;
 
-use Flarum\Realtime\Push\Jobs\SendTriggerJob;
-use Flarum\Realtime\Push\Subscriber;
 use Flarum\Discussion\Event\Renamed;
 use Flarum\Discussion\Event\Started;
 use Flarum\Lock\Event as Lock;
 use Flarum\Post\Event\Posted;
+use Flarum\Realtime\Push\Jobs\SendTriggerJob;
+use Flarum\Realtime\Push\Subscriber;
 use FoF\BestAnswer\Events as BestAnswer;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -47,7 +54,9 @@ class NewActivity extends Subscriber
     {
         // Prevent sending for the OP, because the Created event
         // was also fired.
-        if ($event->post->number === 1) return;
+        if ($event->post->number === 1) {
+            return;
+        }
 
         $this->queue()->push(new SendTriggerJob(
             get_class($event),

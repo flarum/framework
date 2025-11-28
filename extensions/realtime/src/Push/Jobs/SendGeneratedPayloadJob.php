@@ -1,9 +1,16 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Realtime\Push\Jobs;
 
-use Flarum\Realtime\Push\Payload\Generator;
 use Flarum\Database\AbstractModel;
+use Flarum\Realtime\Push\Payload\Generator;
 use Flarum\User\User;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Pusher\Pusher;
@@ -24,7 +31,9 @@ class SendGeneratedPayloadJob extends Job
         $payload = $generator($this->model, $this->recipient, $this->includes);
 
         // Kill the job in case we cannot generate the payload.
-        if (! $payload) return;
+        if (! $payload) {
+            return;
+        }
 
         $pusher->trigger(
             $channel,

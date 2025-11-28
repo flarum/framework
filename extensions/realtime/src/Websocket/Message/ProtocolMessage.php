@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Realtime\Websocket\Message;
 
 use Illuminate\Support\Str;
@@ -22,7 +29,6 @@ class ProtocolMessage extends Message
         $this->manager
             ->connectionPonged($connection)
             ->then(function () use ($connection) {
-
                 $connection->send(json_encode(['event' => 'pusher:pong']));
             });
     }

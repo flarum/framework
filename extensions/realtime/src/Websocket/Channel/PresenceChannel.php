@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Realtime\Websocket\Channel;
 
 use Ratchet\ConnectionInterface;
@@ -47,13 +54,13 @@ class PresenceChannel extends Channel
                     ->then(function ($sockets) use ($payload, $connection) {
                         if (count($sockets) === 1) {
                             $memberAddedPayload = [
-                                'event'   => 'pusher_internal:member_added',
+                                'event' => 'pusher_internal:member_added',
                                 'channel' => $this->getName(),
-                                'data'    => $payload->channel_data,
+                                'data' => $payload->channel_data,
                             ];
 
                             $this->broadcastToEveryoneExcept(
-                                (object)$memberAddedPayload,
+                                (object) $memberAddedPayload,
                                 /** @phpstan-ignore-next-line */
                                 $connection->socketId
                             );
@@ -86,15 +93,15 @@ class PresenceChannel extends Channel
                             ->then(function ($sockets) use ($connection, $user) {
                                 if (count($sockets) === 0) {
                                     $memberRemovedPayload = [
-                                        'event'   => 'pusher_internal:member_removed',
+                                        'event' => 'pusher_internal:member_removed',
                                         'channel' => $this->getName(),
-                                        'data'    => json_encode([
+                                        'data' => json_encode([
                                             'user_id' => $user->user_id,
                                         ]),
                                     ];
 
                                     $this->broadcastToEveryoneExcept(
-                                        (object)$memberRemovedPayload,
+                                        (object) $memberRemovedPayload,
                                         /** @phpstan-ignore-next-line */
                                         $connection->socketId
                                     );

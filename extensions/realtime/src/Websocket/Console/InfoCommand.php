@@ -1,9 +1,15 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Realtime\Websocket\Console;
 
 use Flarum\Realtime\Push\Jobs\SendTriggerJob;
-use Flarum\Discussion\Discussion;
 use Flarum\User\User;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Queue\Queue;
@@ -23,7 +29,9 @@ class InfoCommand extends Command
 
         $this->table(['channel'], collect($pusher->getChannels()->channels)
             ->map(function ($_, $channel) use (&$userCount) {
-                if (Str::startsWith($channel, 'private-user=')) $userCount++;
+                if (Str::startsWith($channel, 'private-user=')) {
+                    $userCount++;
+                }
 
                 return [$channel];
             })

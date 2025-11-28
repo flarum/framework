@@ -1,10 +1,17 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Realtime\Websocket\Api;
 
-use Flarum\Realtime\Push\Payload\Generator;
 use Flarum\Discussion\Discussion;
 use Flarum\Http\RequestUtil;
+use Flarum\Realtime\Push\Payload\Generator;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\EmptyResponse;
@@ -66,7 +73,7 @@ class AuthController implements RequestHandlerInterface
 
     protected function user(int $id): bool
     {
-        return !$this->actor->isGuest() && $this->actor->id === $id;
+        return ! $this->actor->isGuest() && $this->actor->id === $id;
     }
 
     protected function typing(int $id): bool
@@ -83,6 +90,7 @@ class AuthController implements RequestHandlerInterface
     {
         // @todo It returns []
         $generate = $this->generator;
+
         return [
             'displayName' => $actor->display_name
         ];

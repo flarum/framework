@@ -1,11 +1,18 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Realtime\Websocket\Console;
 
-use Flarum\Realtime\Websocket\Server\HttpServer;
 use Flarum\Realtime\Websocket\Logger\ConnectionLogger;
 use Flarum\Realtime\Websocket\Logger\HttpLogger;
 use Flarum\Realtime\Websocket\Logger\WebsocketLogger;
+use Flarum\Realtime\Websocket\Server\HttpServer;
 use Flarum\Realtime\Websocket\Settings;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Cache\Repository;
@@ -42,13 +49,13 @@ class ServeCommand extends Command
         // with --debug.
         set_error_handler(
             [$this, 'errorHandler'],
-            $this->option('debug') ? E_ALL: E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED
+            $this->option('debug') ? E_ALL : E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED
         );
 
         $socket = new SocketServer(uri: $listensOn = "{$settings->serverHost}:{$settings->serverPort}", loop: $loop);
 
         $routes = tap(new RouteCollection, function ($router) {
-            $routes = include __DIR__ . '/../../../resources/routes/websocket.php';
+            $routes = include __DIR__.'/../../../resources/routes/websocket.php';
 
             $routes($router);
         });
@@ -61,7 +68,7 @@ class ServeCommand extends Command
 
         $http = new HttpServer(
             $app,
-                $maxRequestSize * 1024
+            $maxRequestSize * 1024
         );
 
         if (HttpLogger::isEnabled()) {
@@ -110,7 +117,7 @@ class ServeCommand extends Command
     {
         $loop->addPeriodicTimer(10, function (TimerInterface $timer) use ($loop, $cache) {
             if ($cache->has($key = HaltCommand::KEY)) {
-                $this->warn("Halt signal received, killing to restart.");
+                $this->warn('Halt signal received, killing to restart.');
 
                 $cache->forget($key);
 
@@ -140,12 +147,12 @@ class ServeCommand extends Command
             if ($this->option('ignore-extension-toggles')) {
                 $enabled = $newState;
 
-                $this->warn("One or more extensions have changed, but ignoring due to flag --ignore-extension-toggles.");
+                $this->warn('One or more extensions have changed, but ignoring due to flag --ignore-extension-toggles.');
 
                 return;
             }
 
-            $this->warn("One or more extensions have changed, killing to restart.");
+            $this->warn('One or more extensions have changed, killing to restart.');
 
             $loop->stop();
         });

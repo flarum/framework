@@ -1,18 +1,25 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Realtime\Push\Post;
 
+use Flarum\Flags\Event\Created as Flagged;
+use Flarum\Flags\Event\Deleting as FlagDismissed;
+use Flarum\Likes\Event\PostWasLiked;
+use Flarum\Likes\Event\PostWasUnliked;
+use Flarum\Post\Event\Revised;
 use Flarum\Realtime\Push\Jobs\SendFlaggedJob;
 use Flarum\Realtime\Push\Jobs\SendTriggerJob;
 use Flarum\Realtime\Push\Subscriber;
 use FoF\Gamification\Events\PostWasVoted;
 use FoF\Reactions\Event\PostWasReacted;
 use FoF\Reactions\Event\PostWasUnreacted;
-use Flarum\Flags\Event\Created as Flagged;
-use Flarum\Flags\Event\Deleting as FlagDismissed;
-use Flarum\Likes\Event\PostWasLiked;
-use Flarum\Likes\Event\PostWasUnliked;
-use Flarum\Post\Event\Revised;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class NewActivity extends Subscriber
