@@ -1,0 +1,26 @@
+flarum-realtime:
+    forum:
+        push:
+            discussion-list-new-activity: "{count, plural, one {Show # updated discussion} other {Show # updated discussions}}"
+            discussion-list-new-activity-with-auto-release: "{count, plural, one {# discussion has} other {# discussions have}} updated activity and will be released in {releaseTimeout} seconds. Click to show now."
+        typing-indicator:
+            anonymous-user: "[Anonymous]"
+            people-are-typing: "{number, plural, one {# person is typing} other {# people are typing}}"
+            users-are-typing: "{count, plural, one {{users} is typing} other {{users}{others, plural, =1 { & # other} =0 {} other { & # others}} are typing}}"
+            no-activity: No one is typing
+        user:
+            settings:
+                heading: Realtime
+                typing-indicator-type:
+                    help: When enabled, the typing indicator will display the users who are currently typing. Disable this to show just the number of users currently typing.
+                    label: Display who is typing
+    admin:
+        permission:
+            view-who-types: View who is typing
+        settings:
+            release-discussion-updates: DiscussionList updates
+            release-discussion-updates-help: When enabled, new discussions will be pushed into the <code>DiscussionList</code> at the defined interval below.
+            release-discussion-updates-interval: Interval to automatically push new discussion activity
+            release-discussion-updates-interval-help: In seconds. 0 means no automatic push.
+            typing-indicator: Typing indicator
+            typing-indicator-help: When enabled, subject to permission, users can view the number of other users currently typing in a discussion. When disabled, typing activitiy is removed both from the UI and from the websocket payload.

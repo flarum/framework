@@ -1,0 +1,49 @@
+:root {
+    .Button--color-vars(@alert-color, @alert-bg, 'button-warning');
+}
+
+.DiscussionList-update {
+    .Button--color-auto('button-warning');
+    margin-bottom: 5px;
+
+    @media @desktop-up {
+        position: sticky;
+        top: calc(~"var(--header-height) + 16px");
+        z-index: 10;
+    }
+
+    @media @phone {
+        height: auto;
+        max-width: 100%;
+        white-space: pre-wrap;
+    }
+
+    .DiscussionPage & {
+        border-radius: 0;
+        margin-bottom: 0;
+    }
+}
+
+.TypingUsersContainer {
+    padding: 12px;
+    background: var(--control-bg);
+    border-radius: var(--border-radius);
+
+    &-active {
+        background: var(--button-bg-active);
+    }
+  
+    @media @phone {
+      padding: 8px;
+    }
+
+    .TypingUsers {
+        color: var(--control-color);
+        .icon {
+            font-size: 0.9rem;
+            vertical-align: middle;
+            margin-right: 8px;
+            --fa-beat-scale: 1.5;
+        }
+    }
+}
