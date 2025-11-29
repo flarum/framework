@@ -29,13 +29,14 @@ class Websocket implements MessageComponentInterface
     {
     }
 
-    public function onOpen(ConnectionInterface $conn)
+    public function onOpen(ConnectionInterface $conn): void
     {
         /** @phpstan-ignore-next-line */
         $conn->socketId = $conn->socketId ?? null;
 
         if (! $this->manager->allowsNewConnection()) {
-            return $conn->close();
+            $conn->close();
+            return;
         }
 
         $this
@@ -48,19 +49,19 @@ class Websocket implements MessageComponentInterface
         $this->createFulfilledPromise(0);
     }
 
-    public function onClose(ConnectionInterface $conn)
+    public function onClose(ConnectionInterface $conn): void
     {
         $this->manager->unsubscribeFromAllChannels($conn);
     }
 
-    public function onError(ConnectionInterface $conn, \Exception $e)
+    public function onError(ConnectionInterface $conn, \Exception $e): void
     {
         if ($e instanceof WebsocketException) {
             $conn->send(json_encode($e->getPayload()));
         }
     }
 
-    public function onMessage(ConnectionInterface $conn, MessageInterface $msg)
+    public function onMessage(ConnectionInterface $conn, MessageInterface $msg): void
     {
         Factory::forMessage(
             $msg,
@@ -107,7 +108,7 @@ class Websocket implements MessageComponentInterface
         return $this;
     }
 
-    protected function verifyAppKey(ConnectionInterface $conn)
+    protected function verifyAppKey(ConnectionInterface $conn): Websocket
     {
         /** @phpstan-ignore-next-line */
         $query = QueryParams::create($conn->httpRequest);

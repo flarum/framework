@@ -15,7 +15,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class TriggerEvent extends Controller
 {
-    public function __invoke(ServerRequestInterface $request)
+    public function __invoke(ServerRequestInterface $request): mixed
     {
         $params = $request->getParsedBody();
 

@@ -198,6 +198,7 @@ class Manager
     {
         $members = $this->users[$channel] ?? [];
 
+        /** @phpstan-ignore-next-line */
         $members = collect($members)->map(function ($user) {
             return json_decode($user);
         })->unique('user_id')->toArray();
@@ -219,7 +220,7 @@ class Manager
         return $this->createFulfilledPromise($results);
     }
 
-    public function getMemberSockets($userId, string $channel): PromiseInterface
+    public function getMemberSockets(int|string $userId, string $channel): PromiseInterface
     {
         return $this->createFulfilledPromise($this->userSockets["$channel:$userId"] ?? []);
     }

@@ -21,12 +21,13 @@ class InfoCommand extends Command
     protected $signature = 'realtime:info';
     protected $description = 'Lists debugging information for your realtime server.';
 
-    public function handle(Pusher $pusher, Queue $queue)
+    public function handle(Pusher $pusher, Queue $queue): void
     {
         $this->info('Listing all active channels.');
 
         $userCount = 0;
 
+        /** @phpstan-ignore-next-line */
         $this->table(['channel'], collect($pusher->getChannels()->channels)
             ->map(function ($_, $channel) use (&$userCount) {
                 if (Str::startsWith($channel, 'private-user=')) {

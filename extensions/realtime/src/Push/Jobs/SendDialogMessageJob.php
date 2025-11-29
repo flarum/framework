@@ -27,7 +27,7 @@ class SendDialogMessageJob extends Job
         parent::__construct();
     }
 
-    public function __invoke(Queue $queue)
+    public function __invoke(Queue $queue): void
     {
         /** @var DialogMessage $message */
         $message = $this->model;
@@ -72,7 +72,7 @@ class SendDialogMessageJob extends Job
         })->values();
     }
 
-    public function middleware()
+    public function middleware(): array
     {
         $key = sprintf(
             '%s:%s.%s',

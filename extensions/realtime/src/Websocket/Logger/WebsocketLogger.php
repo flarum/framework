@@ -31,7 +31,7 @@ class WebsocketLogger extends Logger implements MessageComponentInterface
         return $logger->setApp($app);
     }
 
-    public function setApp(MessageComponentInterface $app)
+    public function setApp(MessageComponentInterface $app): self
     {
         /** @phpstan-ignore-next-line */
         $this->app = $app;

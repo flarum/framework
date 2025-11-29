@@ -13,7 +13,7 @@ use Psr\Http\Message\RequestInterface;
 
 class QueryParams
 {
-    public static function create(RequestInterface $request)
+    public static function create(RequestInterface $request): self
     {
         return new static($request);
     }

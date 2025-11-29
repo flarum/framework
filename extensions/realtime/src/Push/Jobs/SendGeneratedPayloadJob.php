@@ -22,7 +22,7 @@ class SendGeneratedPayloadJob extends Job
         parent::__construct();
     }
 
-    public function handle(Generator $generator, Pusher $pusher)
+    public function handle(Generator $generator, Pusher $pusher): void
     {
         $channel = $this->recipient
             ? "private-user={$this->recipient->id}"
@@ -42,7 +42,7 @@ class SendGeneratedPayloadJob extends Job
         );
     }
 
-    public function middleware()
+    public function middleware(): array
     {
         $key = sprintf(
             '%s:%s:%s-%s:%s',

@@ -13,7 +13,7 @@ use React\Promise\PromiseInterface;
 
 trait Promises
 {
-    protected function createFulfilledPromise($value): PromiseInterface
+    protected function createFulfilledPromise(mixed $value): PromiseInterface
     {
         return \React\Promise\resolve($value);
     }

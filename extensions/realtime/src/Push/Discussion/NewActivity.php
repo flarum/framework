@@ -20,7 +20,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class NewActivity extends Subscriber
 {
-    public function subscribe(Dispatcher $events)
+    public function subscribe(Dispatcher $events): void
     {
         // Created and Posted both are lined up for dispatching
         // after saving by Discussion::create and CommentPost::reply
@@ -29,7 +29,10 @@ class NewActivity extends Subscriber
         $this->listen(Posted::class, [$this, 'replied']);
 
         // Best answer setting or unsetting its best answer.
-        $this->listen([BestAnswer\BestAnswerSet::class, BestAnswer\BestAnswerUnset::class], [$this, 'bestAnswer']);
+        if (class_exists(BestAnswer\BestAnswerSet::class) && class_exists(BestAnswer\BestAnswerUnset::class)) {
+            /** @phpstan-ignore-next-line */
+            $this->listen([BestAnswer\BestAnswerSet::class, BestAnswer\BestAnswerUnset::class], [$this, 'bestAnswer']);
+        }
 
         // Locking or unlocking a discussion via `flarum/lock`.
         $this->listen([Lock\DiscussionWasLocked::class, Lock\DiscussionWasUnlocked::class], [$this, 'locked']);
@@ -50,7 +53,7 @@ class NewActivity extends Subscriber
         ));
     }
 
-    public function replied(Posted $event)
+    public function replied(Posted $event): void
     {
         // Prevent sending for the OP, because the Created event
         // was also fired.
@@ -65,7 +68,7 @@ class NewActivity extends Subscriber
         ));
     }
 
-    public function bestAnswer($event)
+    public function bestAnswer(object $event): void
     {
         $this->queue()->push(new SendTriggerJob(
             'bestAnswerMutation',
@@ -87,7 +90,7 @@ class NewActivity extends Subscriber
         ));
     }
 
-    public function renamed(Renamed $event)
+    public function renamed(Renamed $event): void
     {
         $this->queue()->push(new SendTriggerJob(
             'discussionRenamed',

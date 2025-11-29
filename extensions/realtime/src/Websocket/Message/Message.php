@@ -19,7 +19,7 @@ class Message
     {
     }
 
-    public function respond()
+    public function respond(): void
     {
         $channel = $this->manager->find($this->payload->channel);
 

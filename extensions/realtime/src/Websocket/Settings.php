@@ -93,7 +93,7 @@ class Settings implements Arrayable
         ];
     }
 
-    public function __get($name)
+    public function __get(string $name): mixed
     {
         $name = Str::snake($name, '-');
 
@@ -114,7 +114,7 @@ class Settings implements Arrayable
         return $config;
     }
 
-    protected function validate(array $settings)
+    protected function validate(array $settings): void
     {
         /** @var Factory $validator */
         $validator = resolve(Factory::class);

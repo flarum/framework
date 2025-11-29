@@ -38,6 +38,7 @@ class PresenceChannel extends Channel
                             'channel' => $this->getName(),
                             'data' => json_encode([
                                 'presence' => [
+                                    /** @phpstan-ignore-next-line */
                                     'ids' => collect($users)->map(function ($user) {
                                         return (string) $user->user_id;
                                     })->values(),

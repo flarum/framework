@@ -11,7 +11,7 @@ namespace Flarum\Realtime\Websocket\Exception;
 
 class AppKeyNotAllowed extends WebsocketException
 {
-    public function __construct($key)
+    public function __construct(string $key)
     {
         $this->trigger("App key not valid $key.", 4001);
     }

@@ -62,7 +62,7 @@ class Channel
         return isset($this->connections[$connection->socketId]);
     }
 
-    public function saveConnection(ConnectionInterface $connection)
+    public function saveConnection(ConnectionInterface $connection): void
     {
         /** @phpstan-ignore-next-line */
         $this->connections[$connection->socketId] = $connection;
@@ -94,7 +94,7 @@ class Channel
         return true;
     }
 
-    protected function verifySignature(ConnectionInterface $connection, stdClass $payload)
+    protected function verifySignature(ConnectionInterface $connection, stdClass $payload): void
     {
         /** @phpstan-ignore-next-line */
         $signature = "{$connection->socketId}:{$this->getName()}";

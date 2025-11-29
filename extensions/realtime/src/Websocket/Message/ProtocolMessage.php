@@ -15,7 +15,7 @@ use stdClass;
 
 class ProtocolMessage extends Message
 {
-    public function respond()
+    public function respond(): void
     {
         $eventName = Str::camel(Str::after($this->payload->event, ':'));
 
@@ -24,7 +24,7 @@ class ProtocolMessage extends Message
         }
     }
 
-    protected function ping(ConnectionInterface $connection)
+    protected function ping(ConnectionInterface $connection): void
     {
         $this->manager
             ->connectionPonged($connection)
@@ -33,12 +33,12 @@ class ProtocolMessage extends Message
             });
     }
 
-    protected function subscribe(ConnectionInterface $connection, stdClass $payload)
+    protected function subscribe(ConnectionInterface $connection, stdClass $payload): void
     {
         $this->manager->subscribeToChannel($connection, $payload->channel, $payload);
     }
 
-    protected function unsubscribe(ConnectionInterface $connection, stdClass $payload)
+    protected function unsubscribe(ConnectionInterface $connection, stdClass $payload): void
     {
         $this->manager->unsubscribeFromChannel($connection, $payload->channel, $payload);
     }

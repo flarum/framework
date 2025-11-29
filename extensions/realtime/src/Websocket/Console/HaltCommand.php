@@ -20,7 +20,7 @@ class HaltCommand extends Command
 
     public const KEY = 'blomstra-realtime-require-halt';
 
-    public function handle(Repository $cache)
+    public function handle(Repository $cache): void
     {
         $cache->put(static::KEY, Carbon::now());
 

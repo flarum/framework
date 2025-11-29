@@ -36,7 +36,7 @@ abstract class Controller implements HttpServerInterface
     {
     }
 
-    public function onOpen(ConnectionInterface $conn, ?RequestInterface $request = null)
+    public function onOpen(ConnectionInterface $conn, ?RequestInterface $request = null): void
     {
         $this->request = $request;
         $this->buffer = $request->getBody()->getContents();
@@ -49,7 +49,7 @@ abstract class Controller implements HttpServerInterface
         $this->handleRequest($conn);
     }
 
-    public function onMessage(ConnectionInterface $from, $msg)
+    public function onMessage(ConnectionInterface $from, $msg): void
     {
         $this->buffer .= $msg;
 
@@ -60,12 +60,12 @@ abstract class Controller implements HttpServerInterface
         $this->handleRequest($from);
     }
 
-    public function onClose(ConnectionInterface $connection)
+    public function onClose(ConnectionInterface $connection): void
     {
         //
     }
 
-    public function onError(ConnectionInterface $connection, Exception $exception)
+    public function onError(ConnectionInterface $connection, Exception $exception): void
     {
         $response = new JsonResponse([
             'error' => $exception->getMessage()
@@ -74,7 +74,7 @@ abstract class Controller implements HttpServerInterface
         tap($connection)->send(Message::toString($response))->close();
     }
 
-    protected function handleRequest(ConnectionInterface $conn)
+    protected function handleRequest(ConnectionInterface $conn): void
     {
         $query = [];
         parse_str($this->request->getUri()->getQuery(), $query);
@@ -110,7 +110,7 @@ abstract class Controller implements HttpServerInterface
         });
     }
 
-    abstract public function __invoke(ServerRequestInterface $request);
+    abstract public function __invoke(ServerRequestInterface $request): mixed;
 
     protected function contentLength(array $headers): int
     {
@@ -124,7 +124,7 @@ abstract class Controller implements HttpServerInterface
         return strlen($this->buffer) === $this->contentLength;
     }
 
-    protected function validateSignature(ServerRequest $request)
+    protected function validateSignature(ServerRequest $request): void
     {
         $params = Arr::except($request->getQueryParams(), [
             'auth_signature', 'body_md5', 'appId', 'appKey', 'channelName',
@@ -148,7 +148,7 @@ abstract class Controller implements HttpServerInterface
         }
     }
 
-    protected function sendAndClose(ConnectionInterface $conn, $response)
+    protected function sendAndClose(ConnectionInterface $conn, mixed $response): void
     {
         if ($response instanceof Collection) {
             $response = new JsonResponse($response->toArray());

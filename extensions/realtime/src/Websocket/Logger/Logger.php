@@ -107,7 +107,7 @@ class Logger
         $this->line($message, 'error');
     }
 
-    protected function line(string $message, string $style)
+    protected function line(string $message, string $style): void
     {
         $this->consoleOutput->writeln(
             $style ? "<{$style}>{$message}</{$style}>" : $message

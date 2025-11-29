@@ -24,7 +24,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 class NewActivity extends Subscriber
 {
-    public function subscribe(Dispatcher $events)
+    public function subscribe(Dispatcher $events): void
     {
         $this->listen(Flagged::class, [$this, 'flagged']);
         $this->listen(FlagDismissed::class, [$this, 'flagged']);
@@ -32,10 +32,17 @@ class NewActivity extends Subscriber
         $this->listen(PostWasLiked::class, [$this, 'likes']);
         $this->listen(PostWasUnliked::class, [$this, 'likes']);
 
-        $this->listen(PostWasVoted::class, [$this, 'voted']);
+        if (class_exists(PostWasVoted::class)) {
+            /** @phpstan-ignore-next-line */
+            $this->listen(PostWasVoted::class, [$this, 'voted']);
+        }
 
-        $this->listen(PostWasReacted::class, [$this, 'reactions']);
-        $this->listen(PostWasUnreacted::class, [$this, 'reactions']);
+        if (class_exists(PostWasReacted::class) && class_exists(PostWasUnreacted::class)) {
+            /** @phpstan-ignore-next-line */
+            $this->listen(PostWasReacted::class, [$this, 'reactions']);
+            /** @phpstan-ignore-next-line */
+            $this->listen(PostWasUnreacted::class, [$this, 'reactions']);
+        }
 
         $this->listen(Revised::class, [$this, 'revised']);
     }
@@ -43,7 +50,7 @@ class NewActivity extends Subscriber
     /**
      * @param Flagged|FlagDismissed $event
      */
-    public function flagged($event)
+    public function flagged(object $event): void
     {
         $discussion = $event->flag->post->discussion;
 
@@ -60,7 +67,7 @@ class NewActivity extends Subscriber
     /**
      * @param PostWasUnliked|PostWasLiked $event
      */
-    public function likes($event)
+    public function likes(object $event): void
     {
         $this->queue()->push(new SendTriggerJob(
             'likesMutation',
@@ -72,28 +79,38 @@ class NewActivity extends Subscriber
     /**
      * @param PostWasVoted $event
      * @return void
+     * @phpstan-ignore-next-line
      */
-    public function voted(PostWasVoted $event)
+    public function voted(object $event): void
     {
+        /** @phpstan-ignore-next-line */
+        $post = $event->vote->post;
+
         $this->queue()->push(new SendTriggerJob(
             'votedMutation',
-            $event->vote->post
+            $post
         ));
     }
 
     /**
      * @param PostWasReacted|PostWasUnreacted $event
+     * @phpstan-ignore-next-line
      */
-    public function reactions($event)
+    public function reactions(object $event): void
     {
+        /** @phpstan-ignore-next-line */
+        $post = $event->post;
+        /** @phpstan-ignore-next-line */
+        $user = $event->user;
+
         $this->queue()->push(new SendTriggerJob(
             'reactionsMutation',
-            $event->post,
-            $event->user
+            $post,
+            $user
         ));
     }
 
-    public function revised(Revised $event)
+    public function revised(Revised $event): void
     {
         $this->queue()->push(new SendTriggerJob(
             'revisedEvent',

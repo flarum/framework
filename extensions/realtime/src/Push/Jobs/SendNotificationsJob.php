@@ -21,7 +21,7 @@ class SendNotificationsJob extends Job
         parent::__construct();
     }
 
-    public function handle(Queue $queue)
+    public function handle(Queue $queue): void
     {
         // Only dispatch notification jobs for users on the socket.
         $intersect = $this->connectedUsers()->intersect($this->recipients);

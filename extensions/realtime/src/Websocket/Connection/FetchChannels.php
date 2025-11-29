@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 class FetchChannels extends Controller
 {
-    public function __invoke(ServerRequestInterface $request)
+    public function __invoke(ServerRequestInterface $request): mixed
     {
         $attributes = [];
         $filterByPrefix = Arr::get($request->getQueryParams(), 'filter_by_prefix');
@@ -34,6 +34,7 @@ class FetchChannels extends Controller
         return $this->manager
             ->getChannels()
             ->then(function ($channels) use ($filterByPrefix, $attributes) {
+                /** @phpstan-ignore-next-line */
                 $channels = collect($channels)
                     ->mapWithKeys(function ($channel) {
                         $key = $channel instanceof Channel

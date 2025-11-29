@@ -34,7 +34,7 @@ class ServeCommand extends Command
         {--debug : Allow debugging of all connections}';
     protected $description = 'Starts the realtime websocket server using the configured settings. (daemonize this)';
 
-    public function handle(Settings $settings, Repository $cache)
+    public function handle(Settings $settings, Repository $cache): void
     {
         $this->loggers();
 
@@ -85,7 +85,7 @@ class ServeCommand extends Command
         $io->run();
     }
 
-    protected function loggers()
+    protected function loggers(): void
     {
         $debug = $this->option('debug');
 
@@ -108,7 +108,7 @@ class ServeCommand extends Command
         });
     }
 
-    public function errorHandler($errno, $errstr, $errfile, $errline)
+    public function errorHandler(int $errno, string $errstr, string $errfile, int $errline): bool
     {
         throw new \Exception("$errno, $errstr, $errfile:$errline");
     }

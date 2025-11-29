@@ -39,14 +39,14 @@ class ConnectionLogger extends Logger implements ConnectionInterface
      * @param  \Ratchet\ConnectionInterface  $connection
      * @return $this
      */
-    public function setConnection(ConnectionInterface $connection)
+    public function setConnection(ConnectionInterface $connection): self
     {
         $this->connection = $connection;
 
         return $this;
     }
 
-    public function send($data)
+    public function send($data): self
     {
         /** @phpstan-ignore-next-line */
         $socketId = $this->connection->socketId ?? null;
@@ -74,7 +74,7 @@ class ConnectionLogger extends Logger implements ConnectionInterface
     /**
      * {@inheritdoc}
      */
-    public function __set($name, $value): void
+    public function __set(string $name, mixed $value): void
     {
         $this->connection->$name = $value;
     }
@@ -82,7 +82,7 @@ class ConnectionLogger extends Logger implements ConnectionInterface
     /**
      * {@inheritdoc}
      */
-    public function __get($name)
+    public function __get(string $name): mixed
     {
         return $this->connection->$name;
     }
@@ -90,7 +90,7 @@ class ConnectionLogger extends Logger implements ConnectionInterface
     /**
      * {@inheritdoc}
      */
-    public function __isset($name)
+    public function __isset(string $name): bool
     {
         return isset($this->connection->$name);
     }
@@ -98,7 +98,7 @@ class ConnectionLogger extends Logger implements ConnectionInterface
     /**
      * {@inheritdoc}
      */
-    public function __unset($name)
+    public function __unset(string $name): void
     {
         unset($this->connection->$name);
     }

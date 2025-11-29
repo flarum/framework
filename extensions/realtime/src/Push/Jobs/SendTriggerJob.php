@@ -25,7 +25,7 @@ class SendTriggerJob extends Job
         parent::__construct();
     }
 
-    public function __invoke(Queue $queue)
+    public function __invoke(Queue $queue): void
     {
         // Resolve a discussion for use with `visibleTo` permission checks.
         if ($this->model instanceof Discussion) {
@@ -58,7 +58,7 @@ class SendTriggerJob extends Job
         }
     }
 
-    public function middleware()
+    public function middleware(): array
     {
         $key = sprintf(
             '%s:%s.%s',

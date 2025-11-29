@@ -19,7 +19,7 @@ class SendFlaggedJob extends Job
         parent::__construct();
     }
 
-    public function handle(Queue $queue)
+    public function handle(Queue $queue): void
     {
         $users = $this->connectedUsers($this->discussion);
 
