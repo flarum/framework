@@ -1,6 +1,7 @@
 {
   "private": true,
   "name": "@flarum/gdpr",
+  "version": "0.0.0",
   "prettier": "@flarum/prettier-config",
   "dependencies": {
     "lodash-es": "^4.17.21",
