@@ -15,7 +15,7 @@ export default class DeleteUserModal extends Modal<DeleteUserModalAttrs> {
   loadingAnonymization: boolean = false;
   loadingDeletion: boolean = false;
 
-  oninit(vnode: Mithril.Vnode<DeleteUserModalAttrs>) {
+  oninit(vnode: Mithril.Vnode<DeleteUserModalAttrs, this>) {
     super.oninit(vnode);
 
     this.user = this.attrs.user;

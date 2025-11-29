@@ -10,11 +10,11 @@ import type User from 'flarum/common/models/User';
 import type ErasureRequest from '../../common/models/ErasureRequest';
 
 export default class RequestErasureModal extends FormModal {
-  reason: Stream<string>;
-  password: Stream<string>;
+  reason!: Stream<string>;
+  password!: Stream<string>;
   user!: User | null;
 
-  oninit(vnode: Mithril.Vnode) {
+  oninit(vnode: Mithril.Vnode<any, this>) {
     super.oninit(vnode);
 
     this.reason = Stream('');

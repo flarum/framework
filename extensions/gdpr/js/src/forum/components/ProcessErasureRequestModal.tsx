@@ -18,12 +18,12 @@ export interface IProcessErasureRequestModalAttrs extends IInternalModalAttrs {
 export default class ProcessErasureRequestModal<
   CustomAttrs extends IProcessErasureRequestModalAttrs = IProcessErasureRequestModalAttrs
 > extends FormModal<CustomAttrs> {
-  comments: Stream<string>;
+  comments!: Stream<string>;
   loadingAnonymization: boolean = false;
   loadingDeletion: boolean = false;
   request!: ErasureRequest;
 
-  oninit(vnode: Mithril.Vnode<IProcessErasureRequestModalAttrs>) {
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
     this.request = this.attrs.request;

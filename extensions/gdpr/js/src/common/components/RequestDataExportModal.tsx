@@ -14,7 +14,7 @@ interface RequestDataExportModalAttrs extends IInternalModalAttrs {
 export default class RequestDataExportModal extends Modal<RequestDataExportModalAttrs> {
   user!: User;
 
-  oninit(vnode: Mithril.Vnode<RequestDataExportModalAttrs>) {
+  oninit(vnode: Mithril.Vnode<RequestDataExportModalAttrs, this>) {
     super.oninit(vnode);
 
     this.user = this.attrs.user;

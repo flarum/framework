@@ -31,7 +31,7 @@ export default function extendUserSettingsPage() {
       'gdprErasure',
       <div className="Form-group gdprErasure-container">
         <p className="helpText">{app.translator.trans('flarum-gdpr.forum.settings.request_erasure_help')}</p>
-        <Button className="Button Button-gdprErasure" icon="fas fa-user-minus" onclick={() => app.modal.show(RequestErasureModal)}>
+        <Button className="Button Button-gdprErasure" icon="fas fa-user-minus" onclick={() => app.modal.show(RequestErasureModal as any)}>
           {app.translator.trans('flarum-gdpr.forum.settings.request_erasure_button')}
         </Button>
       </div>,
@@ -45,7 +45,7 @@ export default function extendUserSettingsPage() {
         <Button
           className="Button Button-gdprExport"
           icon="fas fa-file-export"
-          onclick={() => app.modal.show(RequestDataExportModal, { user: this.user })}
+          onclick={() => app.modal.show(RequestDataExportModal as any, { user: this.user })}
         >
           {app.translator.trans('flarum-gdpr.forum.settings.export_data_button')}
         </Button>

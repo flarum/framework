@@ -4,7 +4,6 @@ import app from 'flarum/admin/app';
 import GdprPage from './components/GdprPage';
 import DataType from './models/DataType';
 import LinkButton from 'flarum/common/components/LinkButton';
-import type Mithril from 'mithril';
 
 export default [
   ...extend,
@@ -16,20 +15,19 @@ export default [
     .add('gdpr-datatypes', DataType),
 
   new Extend.Admin()
-    .setting(
-      (): Mithril.Children =>
-        function () {
-          return (
-            <div className="Form-group">
-              <label>{app.translator.trans('flarum-gdpr.admin.settings.gdpr_page.title')}</label>
-              <p className="helpText">{app.translator.trans('flarum-gdpr.admin.settings.gdpr_page.help_text')}</p>
-              <LinkButton href={app.route('gdpr')} icon="fas fa-user-shield" className="Button">
-                {app.translator.trans('flarum-gdpr.admin.nav.gdpr_button')}
-              </LinkButton>
-            </div>
-          );
-        }
-    )
+    .setting(() => ({
+      setting: 'flarum-gdpr.gdpr_page_link',
+      type: 'custom',
+      component: () => (
+        <div className="Form-group">
+          <label>{app.translator.trans('flarum-gdpr.admin.settings.gdpr_page.title')}</label>
+          <p className="helpText">{app.translator.trans('flarum-gdpr.admin.settings.gdpr_page.help_text')}</p>
+          <LinkButton href={app.route('gdpr')} icon="fas fa-user-shield" className="Button">
+            {app.translator.trans('flarum-gdpr.admin.nav.gdpr_button')}
+          </LinkButton>
+        </div>
+      ),
+    }))
     .setting(() => ({
       setting: 'flarum-gdpr.allow-anonymization',
       label: app.translator.trans('flarum-gdpr.admin.settings.allow_anonymization'),

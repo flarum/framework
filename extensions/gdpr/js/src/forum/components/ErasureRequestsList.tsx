@@ -35,7 +35,7 @@ export default class ErasureRequestsList<CustomAttrs extends IErasureRequestsLis
   }
 
   showModal(request: ErasureRequest) {
-    app.modal.show(ProcessErasureRequestModal, { request });
+    app.modal.show(ProcessErasureRequestModal as any, { request });
   }
 
   controlItems() {

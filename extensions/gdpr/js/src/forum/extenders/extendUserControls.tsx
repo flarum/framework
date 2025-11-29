@@ -13,7 +13,7 @@ export default function extendUserControls() {
     if (user.canModerateExports()) {
       items.add(
         'gdpr-export',
-        <Button icon="fas fa-file-export" onclick={() => app.modal.show(RequestDataExportModal, { user })}>
+        <Button icon="fas fa-file-export" onclick={() => app.modal.show(RequestDataExportModal as any, { user })}>
           {app.translator.trans('flarum-gdpr.forum.settings.export_data_button')}
         </Button>
       );
@@ -26,7 +26,7 @@ export default function extendUserControls() {
     if (user.canDelete()) {
       items.add(
         'gdpr-erase',
-        <Button icon="fas fa-eraser" onclick={() => app.modal.show(DeleteUserModal, { user })}>
+        <Button icon="fas fa-eraser" onclick={() => app.modal.show(DeleteUserModal as any, { user })}>
           {app.translator.trans('flarum-gdpr.forum.delete_user.delete_button')}
         </Button>
       );
