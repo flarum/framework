@@ -14,44 +14,38 @@ use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Discussion\Discussion;
-use Flarum\Extend as Flarum;
-use Flarum\Frontend\Document;
+use Flarum\Extend;
 use Flarum\Messages\Api\Resource\DialogMessageResource;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 
 return [
-    (new Flarum\ServiceProvider)
+    (new Extend\ServiceProvider)
         ->register(WebsocketProvider::class),
 
-    (new Flarum\Console)
+    (new Extend\Console)
         ->command(Websocket\Console\HaltCommand::class)
         ->command(Websocket\Console\ServeCommand::class)
         ->command(Websocket\Console\InfoCommand::class),
 
-    (new Flarum\Frontend('forum'))
+    (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
         ->jsDirectory(__DIR__.'/js/dist/forum')
         ->css(__DIR__.'/resources/less/forum.less')
-        ->content(function (Document $document) {
-            /** @var SettingsRepositoryInterface $settings */
-            $settings = resolve(SettingsRepositoryInterface::class);
-            $document->payload['flarum-realtime.typing-indicator'] = (bool) $settings->get('flarum-realtime.typing-indicator');
-            $document->payload['flarum-realtime.release-discussion-updates'] = (bool) $settings->get('flarum-realtime.release-discussion-updates');
-        }),
+        ->content(Content\ForumContent::class),
 
-    (new Flarum\Frontend('admin'))
+    (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js'),
 
-    new Flarum\Locales(__DIR__.'/resources/locale'),
+    new Extend\Locales(__DIR__.'/resources/locale'),
 
-    (new Flarum\Routes('api'))
+    (new Extend\Routes('api'))
         ->post('/websocket/auth', 'websocket.auth', Websocket\Api\AuthController::class),
 
-    (new Flarum\ApiResource(Resource\ForumResource::class))
+    (new Extend\ApiResource(Resource\ForumResource::class))
         ->fields(Websocket\Api\ForumAttributes::class),
 
-    (new Flarum\ApiResource(Resource\DiscussionResource::class))
+    (new Extend\ApiResource(Resource\DiscussionResource::class))
         ->fields(fn () => [
             Schema\Boolean::make('canViewWhoTypes')
                 ->get(function (Discussion $model, Context $context) {
@@ -62,7 +56,7 @@ return [
                 })
         ]),
 
-    (new Flarum\ApiResource(Resource\UserResource::class))
+    (new Extend\ApiResource(Resource\UserResource::class))
         ->fields(fn () => [
             Schema\Boolean::make('canViewWhoTypes')
                 ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id)
@@ -74,18 +68,18 @@ return [
                 })
         ]),
 
-    (new Flarum\Event)
+    (new Extend\Event)
         ->subscribe(Push\Dialog\NewActivity::class)
         ->subscribe(Push\Discussion\NewActivity::class)
         ->subscribe(Push\Post\NewActivity::class),
 
-    (new Flarum\Notification)
+    (new Extend\Notification)
         ->driver('realtime', Push\NotificationDriver::class),
 
-    (new Flarum\ApiResource(Resource\PostResource::class))
+    (new Extend\ApiResource(Resource\PostResource::class))
         ->endpoint('show', fn (Endpoint\Show $endpoint) => $endpoint->addDefaultInclude(['discussion.tags'])),
 
-    (new Flarum\Settings())
+    (new Extend\Settings())
         // In seconds. Defaults to 2 minutes.
         ->default('flarum-realtime.release-discussion-updates-interval', 120)
         ->default('flarum-realtime.typing-indicator', true)
@@ -93,16 +87,16 @@ return [
         ->serializeToForum('flarum-realtime.release-discussion-updates-interval', 'flarum-realtime.release-discussion-updates-interval', 'intval'),
 
     // Disables csrf checks on auth, would time out after being inactive for 60 minutes.
-    (new Flarum\Csrf())
+    (new Extend\Csrf())
         ->exemptRoute('websocket.auth'),
 
-    (new Flarum\User())
+    (new Extend\User())
         ->registerPreference('flarum-realtime.typing-indicator-full', 'boolVal', true),
 
-    (new Flarum\Conditional())
+    (new Extend\Conditional())
         ->whenExtensionEnabled('flarum-messages', fn () => [
             // DialogMessage currently doesn't have a read
-            (new Flarum\ApiResource(DialogMessageResource::class))
+            (new Extend\ApiResource(DialogMessageResource::class))
                 ->endpoints(fn () => [
                     Endpoint\Show::make()
                         ->authenticated()
