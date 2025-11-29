@@ -28,6 +28,9 @@
         "pusher/pusher-php-server": "^7.2.0"
     },
     "extra": {
+        "branch-alias": {
+            "dev-main": "2.x-dev"
+        },
         "flarum-extension": {
             "title": "Realtime",
             "category": "feature",

@@ -3,3 +3,11 @@ vendor
 composer.lock
 .DS_Store
 .aider*
+Thumbs.db
+tests/.phpunit.cache
+tests/.phpunit.result.cache
+/tests/integration/tmp
+.vagrant
+.idea/*
+.vscode
+js/coverage-ts
