@@ -1,10 +1,10 @@
 import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
-import Pusher from 'pusher-js';
+import Pusher, { Channel } from 'pusher-js';
 import Application from 'flarum/common/Application';
 
 export default function () {
-  extend(Application.prototype, 'mount', function () {
+  extend(Application.prototype, 'mount' as any, function () {
     // Enable logging to console when debug is enabled.
     Pusher.logToConsole = this.forum.attribute<boolean>('debug');
 

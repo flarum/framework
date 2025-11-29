@@ -1,6 +1,5 @@
 import 'flarum/common/Application';
-import Pusher from 'pusher-js';
-import Channel from 'pusher-js';
+import Pusher, { Channel } from 'pusher-js';
 
 declare module 'flarum/common/Application' {
   export default interface Application {
