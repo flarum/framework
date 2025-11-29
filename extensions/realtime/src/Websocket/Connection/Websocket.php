@@ -36,6 +36,7 @@ class Websocket implements MessageComponentInterface
 
         if (! $this->manager->allowsNewConnection()) {
             $conn->close();
+
             return;
         }
 
