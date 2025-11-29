@@ -116,6 +116,7 @@ class ServeCommand extends Command
             if ($this->option('debug')) {
                 $this->warn("[$errno] $errstr in $errfile:$errline");
             }
+
             return true;
         }
 
