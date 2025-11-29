@@ -1,0 +1,30 @@
+{
+  "private": true,
+  "name": "@flarum/gdpr",
+  "prettier": "@flarum/prettier-config",
+  "dependencies": {
+    "lodash-es": "^4.17.21",
+    "pusher-js": "^7.0.6"
+  },
+  "scripts": {
+    "dev": "webpack --mode development --watch",
+    "build": "webpack --mode production",
+    "clean-typings": "npx rimraf dist-typings && mkdir dist-typings",
+    "build-typings": "npm run clean-typings && ([ -e src/@types ] && cp -r src/@types dist-typings/@types || true) && tsc && npm run post-build-typings",
+    "post-build-typings": "find dist-typings -type f -name '*.d.ts' -print0 | xargs -0 sed -i 's,../src/@types,@types,g'",
+    "check-typings": "tsc --noEmit --emitDeclarationOnly false",
+    "check-typings-coverage": "typescript-coverage-report",
+    "format": "prettier --write src",
+    "format-check": "prettier --check src"
+  },
+  "devDependencies": {
+    "flarum-webpack-config": "^3.0.0",
+    "@flarum/prettier-config": "^1.0.0",
+    "flarum-tsconfig": "^2.0.0",
+    "prettier": "^3.0.3",
+    "typescript": "^4.5.4",
+    "typescript-coverage-report": "^0.6.1",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  }
+}

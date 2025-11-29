@@ -1,0 +1,97 @@
+{
+    "name": "flarum/gdpr",
+    "description": "Features for GDPR, PII management",
+    "keywords": [
+        "extension",
+        "flarum",
+        "pii",
+        "gdpr",
+        "export"
+    ],
+    "type": "flarum-extension",
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/flarum/framework/issues",
+        "source": "https://github.com/flarum/gdpr",
+        "forum": "https://discuss.flarum.org"
+    },
+    "homepage": "https://flarum.org",
+    "funding": [
+        {
+            "type": "website",
+            "url": "https://flarum.org/donate/"
+        }
+    ],
+    "require": {
+        "flarum/core": "^2.0.0-beta.4",
+        "nelexa/zip": "^4.0.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Flarum\\Gdpr\\": "src/"
+        }
+    },
+    "replace": {
+        "blomstra/gdpr": "*"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "2.x-dev"
+        },
+        "flarum-extension": {
+            "title": "GDPR Data Management",
+            "category": "feature",
+            "icon": {
+                "image": "resources/logo.svg",
+                "backgroundColor": "#EBF1FD",
+                "color": "#3a98d0",
+                "backgroundSize": "90%",
+                "backgroundRepeat": "no-repeat",
+                "backgroundPosition": "center"
+            }
+        },
+        "flarum-cli": {
+            "modules": {
+                "githubActions": true,
+                "typescript": true,
+                "backendTesting": true,
+                "jsCommon": true
+            }
+        }
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../*/*"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload-dev": {
+        "psr-4": {
+            "Flarum\\Gdpr\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": [
+            "@test:unit",
+            "@test:integration"
+        ],
+        "test:unit": "phpunit -c tests/phpunit.unit.xml",
+        "test:integration": "phpunit -c tests/phpunit.integration.xml",
+        "test:setup": "@php tests/integration/setup.php",
+        "analyse:phpstan": "phpstan analyse",
+        "clear-cache:phpstan": "phpstan clear-result-cache"
+    },
+    "scripts-descriptions": {
+        "test": "Runs all tests.",
+        "test:unit": "Runs all unit tests.",
+        "test:integration": "Runs all integration tests.",
+        "test:setup": "Sets up a database for use with integration tests. Execute this only once.",
+        "analyse:phpstan": "Run static analysis"
+    },
+    "require-dev": {
+        "flarum/testing": "^2.0.0-beta",
+        "flarum/phpstan": "^2.0.0-beta"
+    }
+}

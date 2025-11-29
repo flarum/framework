@@ -1,0 +1,57 @@
+.GdprPage {
+    .GdprGrid {
+      display: grid;
+      grid-template-columns: 1fr;
+      border-radius: var(--border-radius);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      overflow: hidden;  // To ensure border-radius is applied to child elements
+  
+      .GdprGrid-row {
+        display: grid;
+        grid-template-columns: 1fr 2fr 2fr 2fr 1fr;
+        align-items: top;
+  
+        @media @phone {
+          grid-template-columns: 1fr; // Stack columns on mobile.
+        }
+  
+        &:hover {
+          background-color: var(--body-bg-darken-3);
+        }
+  
+        &:nth-child(odd) {
+          background-color: var(--body-bg-darken-2);
+        }
+  
+        > div {
+          padding: 10px 15px;
+        }
+
+        .ExtensionIcon--gdpr {
+          --size: 40px;
+        }
+      }
+  
+      .GdprGrid-header {
+        font-weight: bold;
+        padding: 10px 15px;
+        background-color: var(--control-bg);
+        color: var(--control-color);
+        border-bottom: 1px solid var(--muted-color);
+  
+        > div {
+          background-color: var(--control-bg);
+        }
+      }
+    }
+  }
+  
+
+[data-theme^=light] {
+  --body-bg-darken-3: darken(@body-bg-light, 3%);
+  --body-bg-darken-2: darken(@body-bg-light, 2%);
+}
+[data-theme^=dark] {
+  --body-bg-darken-3: darken(@body-bg-dark, 3%);
+  --body-bg-darken-2: darken(@body-bg-dark, 2%);
+}

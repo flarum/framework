@@ -1,0 +1,169 @@
+flarum-gdpr:
+    admin:
+        gdpr_page:
+            heading: GDPR Data Overview
+            description: Status of various GDPR actions and integrations
+            data_types:
+                title: Data Types
+                help_text: |
+                    These are the currently registered data types. Each type is listed along with it's associated export, anonymization, and deletion actions. If an extension handles any data which falls under GDPR regulations, it should register it's data types with <code>flarum/gdpr</code>.
+                    Data stored in the <code>user</code> table is handled seperately, see user table data below.
+                type: Type
+                export_description: Export Action
+                anonymize_description: Anonymize Action
+                delete_description: Delete Action
+                extension: Extension
+            settings:
+                heading: GDPR Settings
+                help_text: Looking for GDPR settings? They're found on the extension page.
+                extension_settings_button: GDPR Settings
+            user_table_data:
+                not_yet_implemented: Not yet implemented
+                title: User Table Data
+                help_text: |
+                    On the most part, any columns added to the <code>user</code> table will be handled automatically, both for exporting data and for erasure.
+                    However, there are some special cases, which are listed below.
+        nav:
+            gdpr_button: GDPR Integrations
+            gdpr_title: => flarum-gdpr.admin.gdpr_page.description
+
+        permissions:
+            process_erasure: Process erasure requests
+            process_export_for_others: Request and receive data exports for other users
+            see_anonymized_user_badges: See anonymized user badges
+        settings:
+            allow_anonymization: Allow anonymization for erasure requests
+            allow_anonymization_help: The default option, and recommended for most communities. Under this mode, posts/comments will be preserved as much as possible as allowed by GDPR, but any user identifiable information is removed.
+            allow_deletion: Allow deletion for erasure requests
+            allow_deletion_help: A much stricter option. Under this mode, all posts/comments will be deleted, and the user will be removed from the database. Use with caution.
+            default_anonymous_username: Default username for anonymized users
+            default_anonymous_username_help: When a user is anonymized, their username will be replaced with this value, plus the ID of the anonymization request, for example <code>Anonymous123</code>.
+            default_erasure: Default action for erasure requests
+            default_erasure_help: What should the default action be for erasure requests?
+            default_erasure_options:
+                anonymization: Anonymization
+                deletion: Deletion
+            gdpr_page:
+                title: Data Integration and actions
+                help_text: Before deciding on which actions to use on your forum, it is vital to understand which data is integrated, and how it is handled for both anonymization and deletion. Vist the GDPR overview to understand how data is handled, and which optional extensions have registered their data to be handled by this extension.
+        userlist:
+            columns:
+                user_actions:
+                    data_export:
+                        button: Export
+                        tooltip: Export data for {username}
+
+    lib:
+        data:
+            avatar:
+                delete_description: Deletes the user's avatar from the filesystem.
+                export_description: Retrieves the user's avatar from the filesystem and includes it in the export.
+            discussions:
+                export_description: Exports all discussions the user has started. Data restricted to title and creation date.
+            forum:
+                export_description: Exports the forum title, url, username, email and the current date.
+            no_action: No action taken.
+            posts:
+                anonymize_description: Removes the IP address from all posts the user has made.
+                delete_description: Deletes all posts the user has made.
+                export_description: Exports all posts the user has made. Data restricted to content, creation date, IP address and discussion ID.
+            tokens:
+                delete_description: Deletes all tokens the user has created.
+                export_description: Exports all tokens the user has created. Data restricted to creation date and token type.
+            user:
+                anonymize_description: Sets all columns on the user table to null. Non-nullable columns are set to their default values or special values. Password is changed, preferences set to default and all groups are removed.
+                delete_description: Deletes the user from the database.
+                export_description: Exports data from the user table. All columns except id, password.
+        request_data:
+            title: Request data for {username}
+            text: >
+                A zip archive will be prepared for you. Once it's ready, you'll receive a notification with a download link. The link will remain active for one day.
+            request_button: Request archive
+
+    email:
+        confirm_erasure:
+            subject: Confirm your account erasure request
+            body: |
+                Someone (hopefully you) just requested to erase the account `{display_name}`.
+
+                To confirm this action, please follow the following link, after which your request will be processed by our team.
+
+                {erasure_confirm_url}
+
+        erasure_completed:
+            deletion:
+                subject: Account deletion completed
+                body: |
+                    This is an automatic, final notification that your account has been deleted.
+            anonymization:
+                subject: Account anonymization completed
+                body: |
+                    This is an automatic, final notification that your account has been anonymized.
+
+        erasure_cancelled:
+            subject: Account erasure request cancelled
+            body: |
+                This is an automatic notification that your request to cancel account deletion has been processed.
+
+                Your account will no longer be deleted.
+
+        export_available:
+            subject: Data export available
+            body: |
+                You requested an export of the account data for {username}. This export has successfully been generated and is now available:
+
+                {url}
+
+                This export will remain available until {destroys_at}.
+
+    forum:
+        badges:
+            anonymized_user: Anonymized User
+        delete_user:
+            title: Erase {username}'s account
+            text: |
+                Are you sure you want to erase {username}'s account?
+
+                This action is irreversible.
+            modal_delete_button: Erase using default action
+            delete_button: Erase
+        erasure_requests:
+            empty_text: No pending account erasure requests
+            item_text: "{name} requested account erasure"
+            tooltip: Account Erasure Requests
+            title: Account Erasure Requests
+
+        erasure_request_confirmed: You have confirmed your account erasure request. Action will be taken within 30 days, as required by the GDPR.
+        settings:
+            data:
+                heading: Personal data
+            export_data_button: Export Data
+            export_data_help: "Requesting data export will provide you with a downloadable copy of all the information associated with your account. This includes posts, comments, and profile details."
+            request_erasure_button: Erase Account
+            request_erasure_help: "Requesting erasure will permanently delete your account and all associated data. This action is irreversible. Before proceeding, ensure you have saved any content you wish to keep."
+
+
+        process_erasure:
+            confirm: Are you sure you want to erase {name}'s account under {mode} mode?
+            title: Process erasure request
+            text: "{name} has requested account erasure."
+            comments_label: Comments (optional)
+            anonymization_button: Anonymize user
+            deletion_button: Delete user
+
+        request_erasure:
+            title: Request account erasure
+            reason: "You provided the following reason: {reason}"
+            status:
+                awaiting_user_confirmation: |
+                    You should have received an email to confirm your account erasure request.
+                user_confirmed: |
+                    You have confirmed your account erasure request. Action will be taken within 30 days, as required by the GDPR.
+            text: Once received and confirmed, an admin will review your request within 30 days, as required by the GDPR.
+            password_label: Confirm Password
+            reason_label: Reason (optional)
+            cancel_button: Cancel request
+            request_button: Request erasure
+        notification:
+            export-ready: "Your data export for {username} is now ready to download."
+        export_file: Export of user data for {username} ({email}) prepared at {date} from {forumTitle} ({url})
