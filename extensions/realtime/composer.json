@@ -67,6 +67,11 @@
         "flarum/pusher": "*",
         "kyrne/websocket": "*"
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Flarum\\Realtime\\Tests\\": "tests/"
+        }
+    },
     "scripts": {
         "test": [
             "@test:unit",
