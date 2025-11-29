@@ -16,7 +16,7 @@ export interface IProcessErasureRequestModalAttrs extends IInternalModalAttrs {
 }
 
 export default class ProcessErasureRequestModal<
-  CustomAttrs extends IProcessErasureRequestModalAttrs = IProcessErasureRequestModalAttrs
+  CustomAttrs extends IProcessErasureRequestModalAttrs = IProcessErasureRequestModalAttrs,
 > extends FormModal<CustomAttrs> {
   comments!: Stream<string>;
   loadingAnonymization: boolean = false;
