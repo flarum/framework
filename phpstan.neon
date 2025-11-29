@@ -23,6 +23,8 @@ parameters:
 	  - extensions/package-manager/extend.php
 	  - extensions/pusher/src
 	  - extensions/pusher/extend.php
+	  - extensions/realtime/extend.php
+	  - extensions/realtime/src
 	  - extensions/statistics/src
 	  - extensions/statistics/extend.php
 	  - extensions/sticky/src

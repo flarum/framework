@@ -72,6 +72,11 @@
         "mainBranch": "2.x"
       },
       {
+        "name": "realtime",
+        "gitRemote": "git@github.com:flarum/realtime.git",
+        "mainBranch": "2.x"
+      },
+      {
         "name": "statistics",
         "gitRemote": "git@github.com:flarum/statistics.git",
         "mainBranch": "2.x"

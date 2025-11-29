@@ -22,13 +22,6 @@
         }
     ],
     "type": "flarum-extension",
-    "authors": [
-        {
-            "name": "Daniël Klabbers",
-            "email": "daniel@klabbers.email",
-            "homepage": "https://luceos.com/"
-        }
-    ],
     "require": {
         "flarum/core": "^2.0.0-beta",
         "plesk/ratchetphp": "v1.0.4",
