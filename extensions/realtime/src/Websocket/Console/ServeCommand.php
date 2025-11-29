@@ -110,6 +110,16 @@ class ServeCommand extends Command
 
     public function errorHandler(int $errno, string $errstr, string $errfile, int $errline): bool
     {
+        // Don't throw exceptions for deprecation notices, warnings, or notices in debug mode
+        // Just log them to output instead
+        if (in_array($errno, [E_DEPRECATED, E_USER_DEPRECATED, E_NOTICE, E_USER_NOTICE])) {
+            if ($this->option('debug')) {
+                $this->warn("[$errno] $errstr in $errfile:$errline");
+            }
+            return true;
+        }
+
+        // Throw exceptions for actual errors
         throw new \Exception("$errno, $errstr, $errfile:$errline");
     }
 

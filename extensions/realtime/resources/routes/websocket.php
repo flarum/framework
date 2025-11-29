@@ -7,8 +7,8 @@
  * LICENSE file that was distributed with this source code.
  */
 
-use Blomstra\Realtime\Websocket\Connection;
-use Blomstra\Realtime\Websocket\Logger\WebsocketLogger;
+use Flarum\Realtime\Websocket\Connection;
+use Flarum\Realtime\Websocket\Logger\WebsocketLogger;
 use Ratchet\WebSocket\MessageComponentInterface;
 use Ratchet\WebSocket\WsServer;
 use Symfony\Component\Routing\Route;
