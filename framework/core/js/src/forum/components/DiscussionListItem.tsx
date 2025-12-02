@@ -24,6 +24,7 @@ import type { DiscussionListParams } from '../states/DiscussionListState';
 export interface IDiscussionListItemAttrs extends ComponentAttrs {
   discussion: Discussion;
   params: DiscussionListParams;
+  slidable?: boolean;
 }
 
 /**
@@ -57,7 +58,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
       className: classList('DiscussionListItem', {
         active: this.active(),
         'DiscussionListItem--hidden': this.attrs.discussion.isHidden(),
-        Slidable: 'ontouchstart' in window,
+        Slidable: this.isSlidableEnabled(),
       }),
     };
   }
@@ -198,13 +199,21 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     return jumpTo;
   }
 
+  protected isSlidableEnabled(): boolean {
+    if (this.attrs.slidable === false) {
+      return false;
+    }
+
+    return 'ontouchstart' in window;
+  }
+
   oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.oncreate(vnode);
 
     // If we're on a touch device, set up the discussion row to be slidable.
     // This allows the user to drag the row to either side of the screen to
     // reveal controls.
-    if ('ontouchstart' in window) {
+    if (this.isSlidableEnabled()) {
       const slidableInstance = slidable(this.element);
 
       this.$('.DiscussionListItem-controls').on('hidden.bs.dropdown', () => slidableInstance.reset());
