@@ -9,8 +9,14 @@
     font-size: 14px;
     text-align: center;
     position: absolute;
-    line-height: 1.5;
     pointer-events: none;
+
+    // FontAwesome Kit overrides display which breaks vertical centering
+    // Use flexbox with !important to maintain proper icon alignment
+    height: 100%;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center;
   }
 
   .FormControl {
@@ -55,14 +61,11 @@
     height: 100%;
   }
 
-  .Button, &-prefix-icon {
+  .Button {
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  .Button {
     position: absolute;
     right: 0;
     top: 0;
