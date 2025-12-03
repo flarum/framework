@@ -109,12 +109,26 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     if ($fontAwesome->useCdn()) {
                         $cdnUrl = $fontAwesome->cdnUrl();
                         if (! empty($cdnUrl)) {
-                            $document->css[] = $cdnUrl;
+                            // Preload CDN CSS for better performance
+                            $document->preloads[] = [
+                                'href' => $cdnUrl,
+                                'as' => 'style',
+                                'crossorigin' => 'anonymous'
+                            ];
+                            // Add CDN CSS with crossorigin for better caching
+                            $document->head[] = '<link rel="stylesheet" href="'.e($cdnUrl).'" crossorigin="anonymous">';
                         }
                     } elseif ($fontAwesome->useKit()) {
                         $kitUrl = $fontAwesome->kitUrl();
                         if (! empty($kitUrl)) {
-                            $document->js[] = $kitUrl;
+                            // Preload Kit JS for better performance
+                            $document->preloads[] = [
+                                'href' => $kitUrl,
+                                'as' => 'script',
+                                'crossorigin' => 'anonymous'
+                            ];
+                            // Add Kit JS with crossorigin for better caching
+                            $document->head[] = '<script src="'.e($kitUrl).'" crossorigin="anonymous"></script>';
                         }
                     }
 

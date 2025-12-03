@@ -268,6 +268,10 @@
 }
 .Button-icon {
   line-height: inherit;
+
+  // FontAwesome Kit overrides display to block, breaking button flex layout
+  // Force inline-block to work with button's inline-flex container
+  display: inline-block !important;
 }
 .Button-icon,
 .Button-caret {
