@@ -66,10 +66,13 @@ class FontAwesomeLoadingTest extends TestCase
 
         $body = $response->getBody()->getContents();
 
-        // Should contain CDN CSS
-        $this->assertStringContainsString('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">', $body);
+        // Should contain CDN CSS with crossorigin attribute
+        $this->assertStringContainsString('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous">', $body);
 
-        // Should not contain font preloads
+        // Should contain preload for CDN CSS
+        $this->assertStringContainsString('<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" as="style" crossorigin="anonymous">', $body);
+
+        // Should not contain local font preloads
         $this->assertStringNotContainsString('fa-solid-900.woff2', $body);
         $this->assertStringNotContainsString('fa-regular-400.woff2', $body);
     }
@@ -86,10 +89,13 @@ class FontAwesomeLoadingTest extends TestCase
 
         $body = $response->getBody()->getContents();
 
-        // Should contain Kit JS
-        $this->assertStringContainsString('<script src="https://kit.fontawesome.com/abc123xyz.js"></script>', $body);
+        // Should contain Kit JS with crossorigin attribute
+        $this->assertStringContainsString('<script src="https://kit.fontawesome.com/abc123xyz.js" crossorigin="anonymous"></script>', $body);
 
-        // Should not contain font preloads
+        // Should contain preload for Kit JS
+        $this->assertStringContainsString('<link rel="preload" href="https://kit.fontawesome.com/abc123xyz.js" as="script" crossorigin="anonymous">', $body);
+
+        // Should not contain local font preloads
         $this->assertStringNotContainsString('fa-solid-900.woff2', $body);
         $this->assertStringNotContainsString('fa-regular-400.woff2', $body);
     }
@@ -158,8 +164,11 @@ class FontAwesomeLoadingTest extends TestCase
 
         $body = $response->getBody()->getContents();
 
-        // Should use config CDN URL, not local fonts
-        $this->assertStringContainsString('<link rel="stylesheet" href="https://config.example.com/fontawesome.css">', $body);
+        // Should use config CDN URL with crossorigin attribute, not local fonts
+        $this->assertStringContainsString('<link rel="stylesheet" href="https://config.example.com/fontawesome.css" crossorigin="anonymous">', $body);
+
+        // Should contain preload for config CDN CSS
+        $this->assertStringContainsString('<link rel="preload" href="https://config.example.com/fontawesome.css" as="style" crossorigin="anonymous">', $body);
 
         // Should not contain local font preloads
         $this->assertStringNotContainsString('fa-solid-900.woff2', $body);
@@ -185,8 +194,11 @@ class FontAwesomeLoadingTest extends TestCase
 
         $body = $response->getBody()->getContents();
 
-        // Should use config Kit URL
-        $this->assertStringContainsString('<script src="https://kit.fontawesome.com/config123.js"></script>', $body);
+        // Should use config Kit URL with crossorigin attribute
+        $this->assertStringContainsString('<script src="https://kit.fontawesome.com/config123.js" crossorigin="anonymous"></script>', $body);
+
+        // Should contain preload for config Kit JS
+        $this->assertStringContainsString('<link rel="preload" href="https://kit.fontawesome.com/config123.js" as="script" crossorigin="anonymous">', $body);
 
         // Should not contain database CDN URL
         $this->assertStringNotContainsString('database.example.com', $body);
