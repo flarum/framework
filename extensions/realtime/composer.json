@@ -23,7 +23,7 @@
     ],
     "type": "flarum-extension",
     "require": {
-        "flarum/core": "^2.0.0-beta",
+        "flarum/core": "^2.0.0-beta.4",
         "plesk/ratchetphp": "v1.0.4",
         "pusher/pusher-php-server": "^7.2.0"
     },
@@ -65,7 +65,8 @@
     },
     "conflict": {
         "flarum/pusher": "*",
-        "kyrne/websocket": "*"
+        "kyrne/websocket": "*",
+        "flarum-com/realtime": "*"
     },
     "autoload-dev": {
         "psr-4": {
@@ -88,15 +89,16 @@
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
-        "fof/best-answer": "^2.0.0-beta",
-        "flarum/lock": "^2.0.0-beta",
-        "flarum/likes": "^2.0.0-beta",
-        "flarum/flags": "^2.0.0-beta",
-        "fof/reactions": "^2.0.0-beta",
-        "flarum/phpstan": "^2.0.0-beta",
-        "flarum/testing": "^2.0.0-beta",
-        "flarum/messages": "^2.0.0-beta",
-        "fof/discussion-views": "^2.0.0-beta"
+        "fof/best-answer": "^2.0.0",
+        "flarum/lock": "^2.0.0",
+        "flarum/likes": "^2.0.0",
+        "flarum/flags": "^2.0.0",
+        "fof/reactions": "^2.0.0",
+        "flarum/phpstan": "^2.0.0",
+        "flarum/testing": "^2.0.0",
+        "flarum/messages": "^2.0.0",
+        "fof/discussion-views": "^2.0.0"
     },
-    "minimum-stability": "beta"
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
