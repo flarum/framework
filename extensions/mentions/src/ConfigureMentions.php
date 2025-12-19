@@ -81,17 +81,26 @@ class ConfigureMentions
 
     /**
      * @param FormatterTag $tag
-     * @param array{users: Collection<int, User>} $mentions
+     * @param array{users: Collection<int, User>}|null $mentions
      * @return bool|null
      */
-    public static function addUserId(FormatterTag $tag, array $mentions): ?bool
+    public static function addUserId(FormatterTag $tag, ?array $mentions): ?bool
     {
         $allow_username_format = (bool) resolve(SettingsRepositoryInterface::class)->get('flarum-mentions.allow_username_format');
 
-        if ($tag->hasAttribute('username') && $allow_username_format) {
-            $user = $mentions['users']->where('username', $tag->getAttribute('username'))->first();
-        } elseif ($tag->hasAttribute('id')) {
-            $user = $mentions['users']->where('id', $tag->getAttribute('id'))->first();
+        // When mentions is null, load the user on-demand
+        if ($mentions === null) {
+            if ($tag->hasAttribute('username') && $allow_username_format) {
+                $user = User::query()->where('username', $tag->getAttribute('username'))->first();
+            } elseif ($tag->hasAttribute('id')) {
+                $user = User::query()->where('id', $tag->getAttribute('id'))->first();
+            }
+        } else {
+            if ($tag->hasAttribute('username') && $allow_username_format) {
+                $user = $mentions['users']->where('username', $tag->getAttribute('username'))->first();
+            } elseif ($tag->hasAttribute('id')) {
+                $user = $mentions['users']->where('id', $tag->getAttribute('id'))->first();
+            }
         }
 
         if (isset($user)) {
@@ -142,12 +151,17 @@ class ConfigureMentions
 
     /**
      * @param FormatterTag $tag
-     * @param array{posts: Collection<int, Post>} $mentions
+     * @param array{posts: Collection<int, Post>}|null $mentions
      * @return bool|null
      */
-    public static function addPostId(FormatterTag $tag, array $mentions): ?bool
+    public static function addPostId(FormatterTag $tag, ?array $mentions): ?bool
     {
-        $post = $mentions['posts']->where('id', $tag->getAttribute('id'))->first();
+        // When mentions is null, load the post on-demand
+        if ($mentions === null) {
+            $post = Post::query()->with('user')->find($tag->getAttribute('id'));
+        } else {
+            $post = $mentions['posts']->where('id', $tag->getAttribute('id'))->first();
+        }
 
         if ($post) {
             $tag->setAttribute('discussionid', (string) $post->discussion_id);
@@ -216,21 +230,27 @@ class ConfigureMentions
 
     /**
      * @param FormatterTag $tag
-     * @param User $actor
-     * @param array{groups: Collection<int, Group>} $mentions
+     * @param User|null $actor
+     * @param array{groups: Collection<int, Group>}|null $mentions
      * @return bool|null
      */
-    public static function addGroupId(FormatterTag $tag, User $actor, array $mentions): ?bool
+    public static function addGroupId(FormatterTag $tag, ?User $actor, ?array $mentions): ?bool
     {
         $id = $tag->getAttribute('id');
 
-        if ($actor->cannot('mentionGroups') || in_array($id, [Group::GUEST_ID, Group::MEMBER_ID])) {
+        // When actor is null, skip permission check (e.g., in email context)
+        if ($actor !== null && ($actor->cannot('mentionGroups') || in_array($id, [Group::GUEST_ID, Group::MEMBER_ID]))) {
             $tag->invalidate();
 
             return false;
         }
 
-        $group = $mentions['groups']->where('id', $id)->first();
+        // When mentions is null, load the group on-demand
+        if ($mentions === null) {
+            $group = Group::query()->find($id);
+        } else {
+            $group = $mentions['groups']->where('id', $id)->first();
+        }
 
         if ($group) {
             $tag->setAttribute('id', (string) $group->id);
@@ -308,13 +328,19 @@ class ConfigureMentions
 
     /**
      * @param FormatterTag $tag
-     * @param array{tags: Collection<int, Tag>} $mentions
+     * @param array{tags: Collection<int, Tag>}|null $mentions
      * @return bool|null
      */
-    public static function addTagId(FormatterTag $tag, array $mentions): ?bool
+    public static function addTagId(FormatterTag $tag, ?array $mentions): ?bool
     {
-        /** @var Tag|null $model */
-        $model = $mentions['tags']->where('slug', $tag->getAttribute('slug'))->first();
+        // When mentions is null, load the tag on-demand
+        if ($mentions === null) {
+            $slug = $tag->getAttribute('slug');
+            $model = Tag::query()->where('slug', $slug)->first();
+        } else {
+            /** @var Tag|null $model */
+            $model = $mentions['tags']->where('slug', $tag->getAttribute('slug'))->first();
+        }
 
         if ($model) {
             $tag->setAttribute('id', (string) $model->id);
