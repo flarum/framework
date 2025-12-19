@@ -79,16 +79,13 @@
         ],
         "test:unit": "phpunit -c tests/phpunit.unit.xml",
         "test:integration": "phpunit -c tests/phpunit.integration.xml",
-        "test:setup": "@php tests/integration/setup.php",
-        "analyse:phpstan": "phpstan analyse",
-        "clear-cache:phpstan": "phpstan clear-result-cache"
+        "test:setup": "@php tests/integration/setup.php"
     },
     "scripts-descriptions": {
         "test": "Runs all tests.",
         "test:unit": "Runs all unit tests.",
         "test:integration": "Runs all integration tests.",
-        "test:setup": "Sets up a database for use with integration tests. Execute this only once.",
-        "analyse:phpstan": "Run static analysis"
+        "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
         "flarum/testing": "^2.0.0-beta",

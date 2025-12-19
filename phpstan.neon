@@ -37,6 +37,8 @@ parameters:
 	  - extensions/tags/extend.php
 	  - extensions/messages/src
 	  - extensions/messages/extend.php
+	  - extensions/gdpr/extend.php
+	  - extensions/gdpr/src
 	excludePaths:
 		- *.blade.php
 	databaseMigrationsPath: ['framework/core/migrations']
