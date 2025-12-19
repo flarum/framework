@@ -61,7 +61,7 @@ class Export extends AbstractModel
         return $this->belongsTo(User::class);
     }
 
-    public static function destroyable()
+    public static function destroyable(): \Illuminate\Database\Eloquent\Builder
     {
         return self::query()
             ->where('destroys_at', '<=', Carbon::now());

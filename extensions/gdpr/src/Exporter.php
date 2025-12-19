@@ -84,7 +84,7 @@ class Exporter
         return $export;
     }
 
-    public function destroy(Export $export)
+    public function destroy(Export $export): void
     {
         $this->storageManager->deleteStoredExport($export);
 

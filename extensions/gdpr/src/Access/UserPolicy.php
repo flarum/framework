@@ -21,7 +21,7 @@ class UserPolicy extends AbstractPolicy
         $this->reservedAbilities = resolve('gdpr.user.reservedAbilities');
     }
 
-    public function can(User $actor, $ability, mixed $user)
+    public function can(User $actor, string $ability, mixed $user): ?string
     {
         // if $user is anonymized, deny all abilities except those in $reservedAbilities
         if ($user instanceof User
@@ -29,9 +29,11 @@ class UserPolicy extends AbstractPolicy
             && ! in_array($ability, $this->reservedAbilities)) {
             return $this->deny();
         }
+
+        return null;
     }
 
-    public function exportFor(User $actor, User $user)
+    public function exportFor(User $actor, User $user): string|bool
     {
         if ($actor->is($user)) {
             return $this->allow();

@@ -48,7 +48,7 @@ final class DataProcessor
      * @param string      $class       The class name of the data type.
      * @param string|null $extensionId The ID of the extension adding the data type.
      */
-    public static function addType(string $class, ?string $extensionId = null)
+    public static function addType(string $class, ?string $extensionId = null): void
     {
         // Separate the User entry and the rest of the array
         $withoutUser = Arr::except(self::$types, [Data\User::class]);
@@ -63,7 +63,7 @@ final class DataProcessor
      *
      * @param string $class The class name of the data type to remove.
      */
-    public static function removeType(string $class)
+    public static function removeType(string $class): void
     {
         unset(self::$types[$class]);
     }
@@ -73,7 +73,7 @@ final class DataProcessor
      *
      * @param array<string, null|string> $types Associative array with data type class as key and extension ID as value.
      */
-    public static function setTypes(array $types)
+    public static function setTypes(array $types): void
     {
         self::$types = $types;
     }
@@ -83,7 +83,7 @@ final class DataProcessor
      *
      * @param string[] $columns List of column names.
      */
-    public static function removeUserColumns(array $columns)
+    public static function removeUserColumns(array $columns): void
     {
         self::$removeUserColumns = array_merge(self::$removeUserColumns, $columns);
     }

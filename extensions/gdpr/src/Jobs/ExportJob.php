@@ -24,7 +24,7 @@ class ExportJob extends GdprJob
     {
     }
 
-    public function handle(Exporter $exporter, NotificationSyncer $notifications, Dispatcher $events)
+    public function handle(Exporter $exporter, NotificationSyncer $notifications, Dispatcher $events): void
     {
         $events->dispatch(new Exporting($this->user, $this->actor));
 
@@ -35,7 +35,7 @@ class ExportJob extends GdprJob
         $events->dispatch(new Exported($this->user, $this->actor));
     }
 
-    public function notify(Export $export, NotificationSyncer $notifications)
+    public function notify(Export $export, NotificationSyncer $notifications): void
     {
         $notifications->sync(
             new ExportAvailableBlueprint($export),
