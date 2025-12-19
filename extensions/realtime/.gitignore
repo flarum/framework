@@ -1,4 +1,3 @@
 js/node_modules
-js/dist
 vendor/
 composer.lock
