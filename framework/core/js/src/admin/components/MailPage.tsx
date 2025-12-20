@@ -147,9 +147,7 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
         <FieldSet
           label={app.translator.trans(`core.admin.email.${driver}_heading`)}
           className="MailPage-MailSettings FieldSet--form"
-          description={
-            descriptionText
-          }
+          description={descriptionText}
         >
           {fieldKeys.map((field) => {
             const fieldInfo = fields[field];
@@ -163,9 +161,15 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
 
               helpText = (
                 <>
-                  <div><strong>TLS:</strong> {tlsHelp}</div>
-                  <div><strong>SSL:</strong> {sslHelp}</div>
-                  <div><strong>None:</strong> {noneHelp}</div>
+                  <div>
+                    <strong>TLS:</strong> {tlsHelp}
+                  </div>
+                  <div>
+                    <strong>SSL:</strong> {sslHelp}
+                  </div>
+                  <div>
+                    <strong>None:</strong> {noneHelp}
+                  </div>
                 </>
               );
             } else {
@@ -185,9 +189,11 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
                 })}
                 {this.status!.errors[field] && (
                   <div className="ValidationError">
-                    {Array.isArray(this.status!.errors[field])
-                      ? this.status!.errors[field].map((error: string) => <p key={error}>{error}</p>)
-                      : <p>{this.status!.errors[field]}</p>}
+                    {Array.isArray(this.status!.errors[field]) ? (
+                      this.status!.errors[field].map((error: string) => <p key={error}>{error}</p>)
+                    ) : (
+                      <p>{this.status!.errors[field]}</p>
+                    )}
                   </div>
                 )}
               </>
