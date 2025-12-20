@@ -31,7 +31,7 @@ use Illuminate\Database\Query\Expression;
  * @property int|Expression $number
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
- * @property-read Dialog $dialog
+ * @property-read Dialog|null $dialog
  * @property-read User|null $user
  * @property-read Collection<int, User> $mentionsUsers
  * @property-read Collection<int, Post> $mentionsPosts
