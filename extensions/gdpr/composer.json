@@ -23,7 +23,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0-beta.4",
+        "flarum/core": "^2.0.0-beta.5",
         "nelexa/zip": "^4.0.2"
     },
     "autoload": {
