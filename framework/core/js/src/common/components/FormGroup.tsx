@@ -209,7 +209,7 @@ export default class FormGroup<CustomAttrs extends IFormGroupAttrs = IFormGroupA
       const Tag = multiple ? MultiSelect : Select;
 
       settingElement = (
-        <Tag id={inputId} aria-describedby={helpTextId} value={value || defaultValue} options={options} onchange={stream} {...otherAttrs} />
+        <Tag id={inputId} aria-describedby={helpTextId} value={value ?? defaultValue} options={options} onchange={stream} {...otherAttrs} />
       );
     } else if ((RadioSettingTypes as readonly string[]).includes(type)) {
       const { default: defaultValue, options, multiple, ...otherAttrs } = attrs;

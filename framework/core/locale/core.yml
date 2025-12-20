@@ -229,6 +229,9 @@ core:
       format_help: "Choose the format that outgoing emails will be sent in. The recommended option is <code>multipart</code>, as this will allow your user's email client to display the most appropriate format."
       from_label: Sender
       mail_encryption_label: Encryption
+      mail_encryption_tls_help: "Connection starts unencrypted and upgrades to TLS (STARTTLS). Typically used with port 587 or 25."
+      mail_encryption_ssl_help: "Connection is encrypted from the start (Implicit TLS). Typically used with port 465."
+      mail_encryption_none_help: "No encryption. Not recommended for production use."
       mail_host_label: Host
       mail_mailgun_domain_label: Domain
       mail_mailgun_region_label: Region
@@ -243,6 +246,7 @@ core:
       send_test_mail_success: "Test mail sent successfully!"
       send_test_mail_text: "This will send an email using the above configuration to your email, {email}."
       smtp_heading: SMTP Settings
+      smtp_description: "Configure SMTP connection settings. Common configurations: Port 587 with TLS, or Port 465 with SSL."
       title: => core.ref.email
 
     # These translations are used on default extension pages.
