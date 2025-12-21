@@ -2,7 +2,30 @@
 
 ## [v2.0.0-beta.5](https://github.com/flarum/framework/compare/v2.0.0-beta.4...v2.0.0-beta.5)
 
-TBC
+### Added
+
+- (realtime) donate Realtime extension to Flarum Foundation by @luceos [#4295]
+- (gdpr) move GDPR extension into monorepo by @imorland [#4290]
+- allow to disable slidable on `DiscussionListItem` by @DavideIadeluca [#4303]
+- null email driver availability by @imorland [#4311]
+
+### Fixed
+
+- (messages) delete conversation when no messages are left by @SychO9 [#4236]
+- (tags) tags page edit icon position, preload FA kit by @imorland [#4305]
+- (realtime) realtime dist being ignored by @imorland [#4307]
+- missing translation for legacy search component by @imorland [#4314]
+- mentions not always eager loaded in the notification email context by @imorland [#4308]
+- backwards TLS/SSL encryption mapping by @imorland [#4310]
+- sidebar width by @imorland [#4312]
+- minor styling fixes by @imorland [#4315]
+- FA icon shift when using Kit by @imorland [#4304]
+
+### Changed
+
+- (gdpr) enable PHPStan and address issues by @imorland [#4309]
+- bump brace-expansion from 1.1.11 to 1.1.12 by @dependabot [#4274]
+- bump form-data from 4.0.1 to 4.0.4 by @dependabot [#4273]
 
 ## [v2.0.0-beta.4](https://github.com/flarum/framework/compare/v2.0.0-beta.3...v2.0.0-beta.4)
 
