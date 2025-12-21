@@ -20,6 +20,7 @@
 - sidebar width by @imorland [#4312]
 - minor styling fixes by @imorland [#4315]
 - FA icon shift when using Kit by @imorland [#4304]
+- email notification and information templates not rendering named slot content by @imorland [#4317]
 
 ### Changed
 
