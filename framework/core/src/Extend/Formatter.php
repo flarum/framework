@@ -36,8 +36,6 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      * - \s9e\TextFormatter\Configurator $configurator
      *
      * The callable should return void.
-     *
-     * @return self
      */
     public function configure(callable|string $callback): self
     {
@@ -60,8 +58,6 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      *
      * The callback should return:
      * - string $text: The text to be parsed.
-     *
-     * @return self
      */
     public function parse(callable|string $callback): self
     {
@@ -82,8 +78,6 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      *
      * The callback should return:
      * - string $xml: The text to be unparsed.
-     *
-     * @return self
      */
     public function unparse(callable|string $callback): self
     {
@@ -106,8 +100,6 @@ class Formatter implements ExtenderInterface, LifecycleInterface
      *
      * The callback should return:
      * - string $xml: The xml to be rendered.
-     *
-     * @return self
      */
     public function render(callable|string $callback): self
     {

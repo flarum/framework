@@ -136,6 +136,9 @@
 
 @screen-phone-max:                 (@screen-tablet - 0.02);
 
+@screen-small-phone:               320px;
+@screen-small-phone-max:           (@screen-small-phone + 0.02);
+
 @screen-tablet:                    768px;
 @screen-tablet-max:                (@screen-desktop - 0.02);
 
@@ -148,6 +151,7 @@
 @screen-desktop-xxxl:              3000px;
 
 @phone:                            ~"(max-width: @{screen-phone-max})";
+@small-phone:                      ~"(max-width: @{screen-small-phone-max})";
 @tablet:                           ~"(min-width: @{screen-tablet}) and (max-width: @{screen-tablet-max})";
 @desktop:                          ~"(min-width: @{screen-desktop}) and (max-width: @{screen-desktop-max})";
 @desktop-hd:                       ~"(min-width: @{screen-desktop-hd})";

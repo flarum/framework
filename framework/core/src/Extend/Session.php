@@ -25,7 +25,6 @@ class Session implements ExtenderInterface
      * @param string $name: The name of the driver.
      * @param class-string<SessionDriverInterface> $driverClass: The ::class attribute of the driver.
      *                             Driver must implement `\Flarum\User\SessionDriverInterface`.
-     * @return self
      */
     public function driver(string $name, string $driverClass): self
     {

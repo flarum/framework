@@ -7,7 +7,7 @@ export enum VersionStability {
 }
 
 export function isProductionReady(version: string): boolean {
-  return [VersionStability.Stable, VersionStability.RC].includes(stability(version));
+  return [VersionStability.Stable].includes(stability(version));
 }
 
 export function stability(version: string): VersionStability {

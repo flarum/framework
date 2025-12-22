@@ -74,9 +74,9 @@ abstract class AbstractDatabaseResource extends AbstractResource implements
     {
         if ($field instanceof Relationship) {
             return $this->getRelationshipValue($model, $field, $context);
-        } else {
-            return $this->getAttributeValue($model, $field, $context);
         }
+
+        return $this->getAttributeValue($model, $field, $context);
     }
 
     /**

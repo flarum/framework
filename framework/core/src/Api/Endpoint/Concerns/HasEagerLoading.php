@@ -13,7 +13,6 @@ use Closure;
 use Flarum\Api\Resource\AbstractDatabaseResource;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Str;
 use Tobyz\JsonApiServer\Context;
 
@@ -147,13 +146,10 @@ trait HasEagerLoading
 
     protected function compileWhereEagerLoads(Context $context): array
     {
-        $relations = [];
-
-        foreach ($this->loadRelationWhere as $name => $callable) {
-            $relations[$name] = function ($query) use ($callable, $context) {
-                $callable($query, $context);
-            };
-        }
+        $relations = array_map(
+            callback: fn ($callable) => fn ($query) => $callable($query, $context),
+            array: $this->loadRelationWhere
+        );
 
         return $relations;
     }

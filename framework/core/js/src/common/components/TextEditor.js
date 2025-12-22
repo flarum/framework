@@ -21,6 +21,7 @@ import LoadingIndicator from './LoadingIndicator';
  * - `placeholder`
  * - `disabled`
  * - `preview`
+ * - `onTextEditorBuilt`
  */
 export default class TextEditor extends Component {
   oninit(vnode) {
@@ -78,6 +79,7 @@ export default class TextEditor extends Component {
 
   onbuild() {
     this.attrs.composer.editor = this.buildEditor(this.$('.TextEditor-editorContainer')[0]);
+    this.attrs.onTextEditorBuilt?.();
   }
 
   onupdate(vnode) {

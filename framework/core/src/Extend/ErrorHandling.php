@@ -32,7 +32,6 @@ class ErrorHandling implements ExtenderInterface
      *
      * @param string $errorType: Type of the error.
      * @param int $httpStatus: The status code for this error.
-     * @return self
      */
     public function status(string $errorType, int $httpStatus): self
     {
@@ -52,7 +51,6 @@ class ErrorHandling implements ExtenderInterface
      *
      * @param string $exceptionClass: The ::class attribute of the exception class.
      * @param string $errorType: Type of the error.
-     * @return self
      */
     public function type(string $exceptionClass, string $errorType): self
     {
@@ -77,7 +75,6 @@ class ErrorHandling implements ExtenderInterface
      *
      * @param string $exceptionClass: The ::class attribute of the exception class.
      * @param string $handlerClass: The ::class attribute of the handler class.
-     * @return self
      */
     public function handler(string $exceptionClass, string $handlerClass): self
     {
@@ -99,7 +96,6 @@ class ErrorHandling implements ExtenderInterface
      * {@see Reporter} interface.
      *
      * @param class-string<Reporter> $reporterClass: The ::class attribute of the reporter class.
-     * @return self
      */
     public function reporter(string $reporterClass): self
     {

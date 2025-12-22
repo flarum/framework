@@ -113,7 +113,7 @@ class InfoCommand extends AbstractCommand
 
             chdir($cwd);
 
-            if ($status == 0) {
+            if ($status === 0) {
                 return isset($fallback) ? "$fallback ($output[0])" : $output[0];
             }
         }

@@ -18,9 +18,6 @@ class Csrf implements ExtenderInterface
 
     /**
      * Exempt a named route from CSRF checks.
-     *
-     * @param string $routeName
-     * @return self
      */
     public function exemptRoute(string $routeName): self
     {

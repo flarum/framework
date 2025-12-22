@@ -33,7 +33,7 @@ class SettingsValidator extends AbstractValidator
 
         // Apply attribute specific rules.
         foreach ($rules as $key => $value) {
-            $rules[$key] = array_merge($rules[$key], $this->rules[$key] ?? []);
+            $rules[$key] = array_merge($value, $this->rules[$key] ?? []);
         }
 
         $validator = $this->validator->make($attributes, $rules, $this->getMessages());

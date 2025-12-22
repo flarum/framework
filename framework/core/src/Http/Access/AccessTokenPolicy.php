@@ -15,7 +15,7 @@ use Flarum\User\User;
 
 class AccessTokenPolicy extends AbstractPolicy
 {
-    public function revoke(User $actor, AccessToken $token): ?string
+    public function revoke(User $actor, #[\SensitiveParameter] AccessToken $token): ?string
     {
         if ($token->user_id === $actor->id || $actor->hasPermission('moderateAccessTokens')) {
             return $this->allow();

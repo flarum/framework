@@ -13,13 +13,13 @@ use Flarum\Install\BaseUrl;
 use Flarum\Install\DatabaseConfig;
 use Flarum\Install\ReversibleStep;
 
-class StoreConfig implements ReversibleStep
+readonly class StoreConfig implements ReversibleStep
 {
     public function __construct(
-        private readonly bool $debugMode,
-        private readonly DatabaseConfig $dbConfig,
-        private readonly BaseUrl $baseUrl,
-        private readonly string $configFile
+        private bool $debugMode,
+        private DatabaseConfig $dbConfig,
+        private BaseUrl $baseUrl,
+        private string $configFile
     ) {
     }
 
@@ -51,6 +51,9 @@ class StoreConfig implements ReversibleStep
             'headers' => [
                 'poweredByHeader' => true,
                 'referrerPolicy' => 'same-origin',
+            ],
+            'queue' => [
+                'driver' => 'sync'
             ]
         ];
     }

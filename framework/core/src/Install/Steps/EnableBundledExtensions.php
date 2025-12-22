@@ -94,7 +94,7 @@ class EnableBundledExtensions implements Step
 
         $installedExtensions = (new Collection($installed))
             ->filter(function ($package) {
-                return Arr::get($package, 'type') == 'flarum-extension';
+                return Arr::get($package, 'type') === 'flarum-extension';
             })->filter(function ($package) {
                 return ! empty(Arr::get($package, 'name'));
             })->map(function ($package) {

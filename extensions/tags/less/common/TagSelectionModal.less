@@ -57,6 +57,8 @@
   position: absolute;
   inset: 0;
   display: none;
+  align-items: center;
+  justify-content: center;
   background-color: transparent;
 }
 
@@ -76,6 +78,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: pointer;
+    display: flex;
+    align-items: center;
 
     &.pinned:not(.child) {
       padding-top: 10px;
@@ -99,16 +103,9 @@
       background: var(--control-bg);
     }
 
-    .icon::before {
-      display: inline-block;
-      width: 16px;
-      text-align: center;
-      vertical-align: middle;
-    }
-
     &.selected {
       .SelectTagListItem-checkIcon {
-        display: inline-block;
+        display: inline-flex;
         color: var(--muted-color);
         font-size: 14px;
       }
@@ -123,10 +120,12 @@
 }
 .SelectTagListItem-icon {
   position: relative;
-  display: inline-block;
-  vertical-align: top;
-  margin-top: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin-left: 0;
+  height: 16px;
+  width: 16px;
 }
 .SelectTagListItem-name {
   display: inline-block;

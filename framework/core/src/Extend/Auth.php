@@ -35,8 +35,6 @@ class Auth implements ExtenderInterface
      *           password checkers can run.
      * - `false` if the given password is invalid, and no other checkers should be considered.
      *            Evaluation will be immediately halted if any checkers return `false`.
-     *
-     * @return self
      */
     public function addPasswordChecker(string $identifier, callable|string $callback): self
     {
@@ -49,7 +47,6 @@ class Auth implements ExtenderInterface
      * Remove a password checker.
      *
      * @param string $identifier: The unique identifier of the password checker to remove.
-     * @return self
      */
     public function removePasswordChecker(string $identifier): self
     {

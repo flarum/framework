@@ -15,12 +15,12 @@ use Flarum\Install\AdminUser;
 use Flarum\Install\Step;
 use Illuminate\Database\ConnectionInterface;
 
-class CreateAdminUser implements Step
+readonly class CreateAdminUser implements Step
 {
     public function __construct(
-        private readonly ConnectionInterface $database,
-        private readonly AdminUser $admin,
-        private readonly ?string $accessToken = null
+        private ConnectionInterface $database,
+        private AdminUser $admin,
+        #[\SensitiveParameter] private ?string $accessToken = null
     ) {
     }
 

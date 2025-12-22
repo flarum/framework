@@ -10,17 +10,18 @@
 namespace Flarum\Testing\Tests\integration;
 
 use Flarum\Extend;
+use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\Config;
+use Flarum\Settings\DefaultSettingsRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
 use Illuminate\Database\Schema\Builder;
+use PHPUnit\Framework\Attributes\Test;
 
 class TestCaseTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_user_created_as_part_of_default_state()
     {
         $this->app();
@@ -34,9 +35,7 @@ class TestCaseTest extends TestCase
         $this->assertTrue($user->isAdmin());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_add_settings_via_method()
     {
         $this->setting('hello', 'world');
@@ -48,20 +47,17 @@ class TestCaseTest extends TestCase
         $this->assertEquals('something_other_than_username', $settings->get('display_name_driver'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function settings_cleaned_up_from_previous_method()
     {
         $settings = $this->app()->getContainer()->make(SettingsRepositoryInterface::class);
+        $defaults = $this->app()->getContainer()->make(DefaultSettingsRepository::class);
 
         $this->assertEquals(null, $settings->get('hello'));
-        $this->assertEquals(null, $settings->get('display_name_driver'));
+        $this->assertEquals($defaults->get('display_name_driver'), $settings->get('display_name_driver'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_add_config_via_method()
     {
         $this->config('hello', 'world');
@@ -75,9 +71,7 @@ class TestCaseTest extends TestCase
         $this->assertEquals('value', $config['level1']['level2']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function config_cleaned_up_from_previous_method()
     {
         $config = $this->app()->getContainer()->make(Config::class);
@@ -87,9 +81,7 @@ class TestCaseTest extends TestCase
         $this->assertFalse(isset($config['level1']['level2']));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function current_extension_not_applied_by_default()
     {
         $response = $this->send(
@@ -99,9 +91,7 @@ class TestCaseTest extends TestCase
         $this->assertStringNotContainsString('notARealSetting', $response->getBody()->getContents());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function current_extension_applied_if_specified()
     {
         $this->extension('flarum-testing-tests');
@@ -113,9 +103,7 @@ class TestCaseTest extends TestCase
         $this->assertStringContainsString('notARealSetting', $response->getBody()->getContents());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function current_extension_migrations_applied_if_specified()
     {
         $this->extension('flarum-testing-tests');
@@ -124,9 +112,7 @@ class TestCaseTest extends TestCase
         $this->assertTrue($tableExists);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function current_extension_considered_enabled_after_boot()
     {
         $this->extension('flarum-testing-tests');
@@ -135,9 +121,7 @@ class TestCaseTest extends TestCase
         $this->assertTrue($enabled);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_apply_extenders()
     {
         $this->extend(
@@ -151,9 +135,7 @@ class TestCaseTest extends TestCase
         $this->assertStringContainsString('notARealSetting', $response->getBody()->getContents());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function can_apply_route_extenders()
     {
         $this->extend(
@@ -167,9 +149,7 @@ class TestCaseTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function routes_added_by_current_extension_not_accessible_by_default()
     {
         $response = $this->send(
@@ -179,9 +159,7 @@ class TestCaseTest extends TestCase
         $this->assertEquals(404, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function routes_added_by_current_extension_accessible()
     {
         $this->extension('flarum-testing-tests');
@@ -193,14 +171,13 @@ class TestCaseTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function extension_url_correct()
     {
         $this->extension('flarum-testing-tests');
         $expected = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets')->url('/flarum-testing-tests/');
         // We need to test this since we override it.
+        /** @var ExtensionManager $extensions */
         $extensions = $this->app()->getContainer()->make('flarum.extensions');
         $currExtension = $extensions->getExtension('flarum-testing-tests');
         $baseAssetsUrl = $extensions->getAsset($currExtension, '');

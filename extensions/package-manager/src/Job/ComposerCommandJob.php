@@ -20,6 +20,11 @@ use Throwable;
 
 class ComposerCommandJob extends AbstractJob implements ShouldBeUnique
 {
+    /**
+     * The number of seconds the job can run before timing out.
+     */
+    public int $timeout = 60 * 3;
+
     public function __construct(
         protected AbstractActionCommand $command,
         protected string $phpVersion

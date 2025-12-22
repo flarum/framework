@@ -25,7 +25,7 @@ class Application extends IlluminateContainer implements LaravelApplication
      *
      * @var string
      */
-    const VERSION = '2.0-dev';
+    public const VERSION = '2.0.0-beta.5';
 
     protected bool $booted = false;
 
@@ -93,7 +93,7 @@ class Application extends IlluminateContainer implements LaravelApplication
 
     public function register($provider, $force = false): ServiceProvider
     {
-        if (($registered = $this->getProvider($provider)) && ! $force) {
+        if (! $force && ($registered = $this->getProvider($provider))) {
             return $registered;
         }
 
@@ -197,7 +197,7 @@ class Application extends IlluminateContainer implements LaravelApplication
     protected function fireAppCallbacks(array $callbacks): void
     {
         foreach ($callbacks as $callback) {
-            call_user_func($callback, $this);
+            $callback($this);
         }
     }
 

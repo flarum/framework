@@ -14,8 +14,6 @@ export default class MessagesSidebar<CustomAttrs extends IMessagesSidebarAttrs =
   items(): ItemList<Mithril.Children> {
     const items = super.items();
 
-    const canSendAnyMessage = app.session.user!.attribute<boolean>('canSendAnyMessage');
-
     items.remove('newDiscussion');
 
     items.add(
@@ -27,9 +25,11 @@ export default class MessagesSidebar<CustomAttrs extends IMessagesSidebarAttrs =
         onclick={() => {
           return this.newMessageAction();
         }}
-        disabled={!canSendAnyMessage}
+        disabled={!app.session.user!.canSendAnyMessage()}
       >
-        {app.translator.trans('flarum-messages.forum.messages_page.new_message_button')}
+        {app.session.user!.canSendAnyMessage()
+          ? app.translator.trans('flarum-messages.forum.messages_page.send_message_button')
+          : app.translator.trans('flarum-messages.forum.messages_page.cannot_send_message_button')}
       </Button>,
       10
     );

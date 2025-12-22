@@ -56,7 +56,7 @@ class Posts
             $params['filter']['q'] = $q;
         }
 
-        $apiDocument = $this->getApiDocument($request, $params, $q);
+        $apiDocument = $this->getApiDocument($request, $params);
 
         $document->title = $this->translator->trans('core.forum.index.meta_title_text');
 //        $document->content = $this->view->make('flarum.forum::frontend.content.index', compact('apiDocument', 'page'));
@@ -69,15 +69,16 @@ class Posts
         return $document;
     }
 
-    protected function getApiDocument(Request $request, array $params, ?string $q): ?object
+    protected function getApiDocument(Request $request, array $params): ?object
     {
         return json_decode(
-            $this->api
+            json: $this->api
                 ->withoutErrorHandling()
                 ->withParentRequest($request)
                 ->withQueryParams($params)
                 ->get('/posts')
-                ->getBody()
+                ->getBody(),
+            associative: false
         );
     }
 }

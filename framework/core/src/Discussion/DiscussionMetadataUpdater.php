@@ -30,7 +30,7 @@ class DiscussionMetadataUpdater
     {
         $discussion = $event->post->discussion;
 
-        if ($discussion && $discussion->exists) {
+        if ($discussion?->exists) {
             $discussion->refreshCommentCount();
             $discussion->refreshLastPost();
             $discussion->refreshParticipantCount();
@@ -58,7 +58,7 @@ class DiscussionMetadataUpdater
     {
         $discussion = $event->post->discussion;
 
-        if ($discussion && $discussion->exists) {
+        if ($discussion?->exists) {
             $discussion->refreshCommentCount();
             $discussion->refreshParticipantCount();
             $discussion->refreshLastPost();
@@ -70,7 +70,7 @@ class DiscussionMetadataUpdater
     {
         $discussion = $post->discussion;
 
-        if ($discussion && $discussion->exists) {
+        if ($discussion?->exists) {
             $discussion->refreshCommentCount();
             $discussion->refreshParticipantCount();
 

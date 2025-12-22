@@ -47,11 +47,12 @@ class User
     protected function getApiDocument(Request $request, string $username): object
     {
         return json_decode(
-            $this->api
+            json: $this->api
                 ->withoutErrorHandling()
                 ->withParentRequest($request)
                 ->withQueryParams(['bySlug' => true])
-                ->get("/users/$username")->getBody()
+                ->get("/users/$username")->getBody(),
+            associative: false
         );
     }
 }

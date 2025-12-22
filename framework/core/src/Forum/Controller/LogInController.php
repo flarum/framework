@@ -48,8 +48,6 @@ class LogInController implements RequestHandlerInterface
         $params = Arr::only($body, ['identification', 'password', 'remember']);
         $isHtmlRequest = RequestUtil::isHtmlRequest($request);
 
-        $errors = null;
-
         if ($isHtmlRequest) {
             $validator = $this->validator->basic()->prepare($body)->validator();
 
@@ -66,7 +64,7 @@ class LogInController implements RequestHandlerInterface
         $response = $this->apiClient->withParentRequest($request)->withBody($params)->post('/token');
 
         if ($response->getStatusCode() === 200) {
-            $data = json_decode($response->getBody());
+            $data = json_decode($response->getBody(), false);
 
             $token = AccessToken::findValid($data->token);
 

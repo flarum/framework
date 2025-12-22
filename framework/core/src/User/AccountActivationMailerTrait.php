@@ -25,7 +25,7 @@ trait AccountActivationMailerTrait
     /**
      * Get the data that should be made available to email templates.
      */
-    protected function getEmailData(User $user, EmailToken $token): array
+    protected function getEmailData(User $user, #[\SensitiveParameter] EmailToken $token): array
     {
         return [
             'username' => $user->display_name,
@@ -41,10 +41,10 @@ trait AccountActivationMailerTrait
 
         $this->queue->push(new SendInformationalEmailJob(
             email: $user->email,
+            displayName: Arr::get($data, 'username'),
             subject: $subject,
             body: $body,
-            forumTitle: Arr::get($data, 'forum'),
-            displayName: Arr::get($data, 'username')
+            forumTitle: Arr::get($data, 'forum')
         ));
     }
 }

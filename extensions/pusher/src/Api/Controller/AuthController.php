@@ -36,7 +36,10 @@ class AuthController implements RequestHandlerInterface
                 $this->settings->get('flarum-pusher.app_key'),
                 $this->settings->get('flarum-pusher.app_secret'),
                 $this->settings->get('flarum-pusher.app_id'),
-                ['cluster' => $this->settings->get('flarum-pusher.app_cluster')]
+                [
+                    'cluster' => $this->settings->get('flarum-pusher.app_cluster'),
+                    'host' => $this->settings->get('flarum-pusher.server_hostname'),
+                ]
             );
 
             $payload = json_decode($pusher->socket_auth($userChannel, Arr::get($body, 'socket_id')), true);

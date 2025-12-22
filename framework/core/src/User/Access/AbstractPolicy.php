@@ -45,7 +45,7 @@ abstract class AbstractPolicy
         // If a specific method for this ability is defined,
         // call that and return any non-null results
         if (method_exists($this, $ability)) {
-            $result = $this->sanitizeResult(call_user_func_array([$this, $ability], [$actor, $instance]));
+            $result = $this->sanitizeResult($this->{$ability}($actor, $instance));
 
             if (! is_null($result)) {
                 return $result;
@@ -54,7 +54,7 @@ abstract class AbstractPolicy
 
         // If a "total access" method is defined, try that.
         if (method_exists($this, 'can')) {
-            return $this->sanitizeResult(call_user_func_array([$this, 'can'], [$actor, $ability, $instance]));
+            return $this->sanitizeResult($this->can($actor, $ability, $instance));
         }
 
         return null;
@@ -74,7 +74,9 @@ abstract class AbstractPolicy
     {
         if ($result === true) {
             return $this->allow();
-        } elseif ($result === false) {
+        }
+
+        if ($result === false) {
             return $this->deny();
         }
 

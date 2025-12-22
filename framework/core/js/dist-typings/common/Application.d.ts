@@ -205,10 +205,17 @@ export default class Application {
      */
     private requestErrorAlert;
     initialRoute: string;
+    /**
+     * @internal
+     */
+    currentInitializerExtension: string | null;
+    private handledErrors;
+    private beforeMounts;
     load(payload: Application['data']): void;
     protected initialize(): CallableFunction[];
     boot(): void;
-    protected beforeMount(): void;
+    beforeMount(callback: () => void): void;
+    protected runBeforeMount(): void;
     bootExtensions(extensions: Record<string, {
         extend?: IExtender[];
     }>): void;
@@ -266,4 +273,5 @@ export default class Application {
      * Construct a URL to the route with the given name.
      */
     route(name: string, params?: Record<string, unknown>): string;
+    handleErrorOnce(extension: null | string, errorId: string, userTitle: string, consoleTitle: string, error: any): void;
 }

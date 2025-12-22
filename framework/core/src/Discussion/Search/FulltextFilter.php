@@ -33,7 +33,7 @@ class FulltextFilter extends AbstractFulltextFilter
     public function search(SearchState $state, string $value): void
     {
         match ($state->getQuery()->getConnection()->getDriverName()) {
-            'mysql' => $this->mysql($state, $value),
+            'mysql', 'mariadb' => $this->mysql($state, $value),
             'pgsql' => $this->pgsql($state, $value),
             'sqlite' => $this->sqlite($state, $value),
             default => throw new RuntimeException('Unsupported database driver: '.$state->getQuery()->getConnection()->getDriverName()),
@@ -42,7 +42,6 @@ class FulltextFilter extends AbstractFulltextFilter
 
     protected function sqlite(DatabaseSearchState $state, string $value): void
     {
-        /** @var Builder $query */
         $query = $state->getQuery();
 
         $query->where(function (Builder $query) use ($state, $value) {
@@ -63,7 +62,6 @@ class FulltextFilter extends AbstractFulltextFilter
 
     protected function mysql(DatabaseSearchState $state, string $value): void
     {
-        /** @var Builder $query */
         $query = $state->getQuery();
 
         // Replace all non-word characters with spaces.
@@ -119,7 +117,6 @@ class FulltextFilter extends AbstractFulltextFilter
     {
         $searchConfig = $this->settings->get('pgsql_search_configuration');
 
-        /** @var Builder $query */
         $query = $state->getQuery();
 
         $grammar = $query->getGrammar();

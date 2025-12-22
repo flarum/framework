@@ -25,6 +25,7 @@ use Illuminate\View\Engines\PhpEngine;
 use Illuminate\View\FileViewFinder;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
+use Monolog\Level;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 
@@ -54,7 +55,7 @@ class UninstalledSite implements SiteInterface
         $app->instance('flarum.config', new Config(['url' => $this->baseUrl]));
         $app->alias('flarum.config', Config::class);
         $app->instance('flarum.debug', true);
-        $app->instance('config', $config = $this->getIlluminateConfig());
+        $app->instance('config', $this->getIlluminateConfig());
 
         $this->registerLogger($app);
 
@@ -108,7 +109,7 @@ class UninstalledSite implements SiteInterface
     protected function registerLogger(Container $container): void
     {
         $logPath = $this->paths->storage.'/logs/flarum-installer.log';
-        $handler = new StreamHandler($logPath, Logger::DEBUG);
+        $handler = new StreamHandler($logPath, Level::Debug);
         $handler->setFormatter(new LineFormatter(null, null, true, true));
 
         $container->instance('log', new Logger('Flarum Installer', [$handler]));

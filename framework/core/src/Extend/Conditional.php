@@ -11,6 +11,7 @@ namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 
 /**
@@ -38,7 +39,6 @@ class Conditional implements ExtenderInterface
      *
      * @param string $extensionId The ID of the extension.
      * @param callable|string $extenders A callable returning an array of extenders, or an invokable class string.
-     * @return self
      */
     public function whenExtensionEnabled(string $extensionId, callable|string $extenders): self
     {
@@ -52,7 +52,6 @@ class Conditional implements ExtenderInterface
      *
      * @param string $extensionId The ID of the extension.
      * @param callable|string $extenders A callable returning an array of extenders, or an invokable class string.
-     * @return self
      */
     public function whenExtensionDisabled(string $extensionId, callable|string $extenders): self
     {
@@ -62,12 +61,28 @@ class Conditional implements ExtenderInterface
     }
 
     /**
+     * Apply extenders only if a setting matches an expected value.
+     *
+     * @param string $key The settings key.
+     * @param mixed $expected The expected value.
+     * @param callable|string $extenders A callable returning an array of extenders, or an invokable class string.
+     * @param bool $strict Whether to use strict comparison (===). Defaults to false (loose comparison ==).
+     */
+    public function whenSetting(string $key, mixed $expected, callable|string $extenders, bool $strict = false): self
+    {
+        return $this->when(function (SettingsRepositoryInterface $settings) use ($key, $expected, $strict) {
+            $value = $settings->get($key);
+
+            return $strict ? $value === $expected : $value == $expected;
+        }, $extenders);
+    }
+
+    /**
      * Apply extenders based on a condition.
      *
      * @param bool|callable $condition A boolean or callable that should return a boolean.
      *                                 If this evaluates to true, the extenders will be applied.
      * @param callable|string $extenders A callable returning an array of extenders, or an invokable class string.
-     * @return self
      */
     public function when(callable|bool $condition, callable|string $extenders): self
     {
@@ -81,10 +96,6 @@ class Conditional implements ExtenderInterface
 
     /**
      * Iterates over the conditions and applies the associated extenders if the conditions are met.
-     *
-     * @param Container $container
-     * @param Extension|null $extension
-     * @return void
      */
     public function extend(Container $container, ?Extension $extension = null): void
     {

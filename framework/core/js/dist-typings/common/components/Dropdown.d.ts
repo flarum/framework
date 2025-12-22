@@ -13,6 +13,8 @@ export interface IDropdownAttrs extends ComponentAttrs {
     caretIcon?: string;
     /** The label of the dropdown toggle button. Defaults to 'Controls'. */
     label: Mithril.Children;
+    /** The helper text to display under the button label. */
+    helperText: Mithril.Children;
     /** The label used to describe the dropdown toggle button to assistive readers. Defaults to 'Toggle dropdown menu'. */
     accessibleToggleLabel?: string;
     /** An optional tooltip to show when hovering over the dropdown toggle button. */
@@ -42,5 +44,6 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
      * Get the template for the button's content.
      */
     getButtonContent(children: Mithril.ChildArray): Mithril.ChildArray;
+    protected getButtonSubContent(): Mithril.Children;
     getMenu(items: Mithril.Vnode<any, any>[]): Mithril.Vnode<any, any>;
 }

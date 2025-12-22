@@ -23,10 +23,10 @@ use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-class Server
+readonly class Server
 {
     public function __construct(
-        private readonly SiteInterface $site
+        private SiteInterface $site
     ) {
     }
 

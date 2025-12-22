@@ -13,6 +13,7 @@ use Flarum\Database\AbstractModel;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\ApplicationInfoProvider;
 use Flarum\Foundation\Config;
+use Flarum\Foundation\FontAwesome;
 use Flarum\Foundation\MaintenanceMode;
 use Flarum\Frontend\Document;
 use Flarum\Group\Permission;
@@ -37,7 +38,8 @@ class AdminPayload
         protected Dispatcher $events,
         protected Config $config,
         protected ApplicationInfoProvider $appInfo,
-        protected MaintenanceMode $maintenance
+        protected MaintenanceMode $maintenance,
+        protected FontAwesome $fontAwesome
     ) {
     }
 
@@ -55,9 +57,7 @@ class AdminPayload
 
         $document->payload['displayNameDrivers'] = array_keys($this->container->make(abstract: 'flarum.user.display_name.supported_drivers'));
         $document->payload['avatarDrivers'] = array_keys($this->container->make('flarum.user.avatar.supported_drivers'));
-        $document->payload['slugDrivers'] = array_map(function ($resourceDrivers) {
-            return array_keys($resourceDrivers);
-        }, $this->container->make('flarum.http.slugDrivers'));
+        $document->payload['slugDrivers'] = array_map(array_keys(...), $this->container->make('flarum.http.slugDrivers'));
         $document->payload['searchDrivers'] = $this->getSearchDrivers();
 
         $document->payload['phpVersion'] = $this->appInfo->identifyPHPVersion();
@@ -66,10 +66,7 @@ class AdminPayload
         $document->payload['dbOptions'] = $this->appInfo->identifyDatabaseOptions();
         $document->payload['debugEnabled'] = Arr::get($this->config, 'debug');
 
-        if ($this->appInfo->scheduledTasksRegistered()) {
-            $document->payload['schedulerStatus'] = $this->appInfo->getSchedulerStatus();
-        }
-
+        $document->payload['schedulerStatus'] = $this->appInfo->getSchedulerStatus();
         $document->payload['queueDriver'] = $this->appInfo->identifyQueueDriver();
         $document->payload['sessionDriver'] = $this->appInfo->identifySessionDriver(true);
 
@@ -89,6 +86,17 @@ class AdminPayload
         $document->payload['maintenanceByConfig'] = $this->maintenance->configOverride();
         $document->payload['safeModeExtensions'] = $this->maintenance->safeModeExtensions();
         $document->payload['safeModeExtensionsConfig'] = $this->config->safeModeExtensions();
+
+        $document->payload['fontawesomeByConfig'] = $this->fontAwesome->configOverride();
+
+        // If FontAwesome is configured via config.php, pass the actual config values to frontend
+        if ($this->fontAwesome->configOverride()) {
+            $document->payload['fontawesomeConfig'] = [
+                'source' => $this->fontAwesome->source(),
+                'cdn_url' => $this->fontAwesome->cdnUrl(),
+                'kit_url' => $this->fontAwesome->kitUrl(),
+            ];
+        }
     }
 
     protected function getSearchDrivers(): array

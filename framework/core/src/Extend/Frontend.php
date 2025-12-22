@@ -50,7 +50,6 @@ class Frontend implements ExtenderInterface
      * Add a CSS file to load in the frontend.
      *
      * @param string $path: The path to the CSS file.
-     * @return self
      */
     public function css(string $path): self
     {
@@ -63,7 +62,6 @@ class Frontend implements ExtenderInterface
      * Add a JavaScript file to load in the frontend.
      *
      * @param string $path: The path to the JavaScript file.
-     * @return self
      */
     public function js(string $path): self
     {
@@ -98,8 +96,6 @@ class Frontend implements ExtenderInterface
      * - \Psr\Http\Message\ServerRequestInterface $request
      *
      * The callable should return void.
-     *
-     * @return self
      */
     public function route(string $path, string $name, callable|string|null $content = null): self
     {
@@ -113,7 +109,6 @@ class Frontend implements ExtenderInterface
      * This is necessary before overriding a route.
      *
      * @param string $name: The name of the route.
-     * @return self
      */
     public function removeRoute(string $name): self
     {
@@ -133,8 +128,6 @@ class Frontend implements ExtenderInterface
      *
      * The callable should return void.
      * @param int $priority: The priority of the content. Higher priorities are executed first.
-     *
-     * @return self
      */
     public function content(callable|string|null $callback, int $priority = 0): self
     {
@@ -165,9 +158,6 @@ class Frontend implements ExtenderInterface
      *   ]
      * ]);
      * ```
-     *
-     * @param callable|array $preloads
-     * @return self
      */
     public function preloads(callable|array $preloads): self
     {

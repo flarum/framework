@@ -1,9 +1,11 @@
+import app from '../app';
 import Component from '../../common/Component';
 import type { ComponentAttrs } from '../../common/Component';
 import type Mithril from 'mithril';
 import classList from '../../common/utils/classList';
 import ItemList from '../../common/utils/ItemList';
 import LoadingIndicator from '../../common/components/LoadingIndicator';
+import { prepareSkipLinks } from '../../common/utils/a11y';
 
 export interface PageStructureAttrs extends ComponentAttrs {
   hero?: () => Mithril.Children;
@@ -51,7 +53,11 @@ export default class PageStructure<CustomAttrs extends PageStructureAttrs = Page
   }
 
   main(): Mithril.Children {
-    return <div className="Page-main">{this.attrs.loading ? this.loadingItems().toArray() : this.mainItems().toArray()}</div>;
+    return (
+      <div className="Page-main" id="page-main">
+        {this.attrs.loading ? this.loadingItems().toArray() : this.mainItems().toArray()}
+      </div>
+    );
   }
 
   containerItems(): ItemList<Mithril.Children> {
@@ -69,6 +75,14 @@ export default class PageStructure<CustomAttrs extends PageStructureAttrs = Page
 
   sidebarItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
+
+    items.add(
+      'skipToMainContent',
+      <a href="#main-content" className="sr-only sr-only-focusable-custom" oncreate={() => prepareSkipLinks()}>
+        {app.translator.trans('core.forum.index.skip_to_main_content')}
+      </a>,
+      200
+    );
 
     items.add('sidebar', (this.attrs.sidebar && this.attrs.sidebar()) || null, 100);
 
@@ -88,6 +102,10 @@ export default class PageStructure<CustomAttrs extends PageStructureAttrs = Page
   }
 
   providedContent(): Mithril.Children {
-    return <div className="Page-content">{this.content}</div>;
+    return (
+      <div className="Page-content" id="main-content">
+        {this.content}
+      </div>
+    );
   }
 }

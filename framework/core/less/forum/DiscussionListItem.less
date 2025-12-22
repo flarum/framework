@@ -36,6 +36,10 @@
 }
 .DiscussionListItem-author-avatar {
   display: block;
+
+  + .tooltip {
+    width: max-content;
+  }
 }
 .DiscussionListItem-badges {
   margin-top: 10px;
@@ -164,6 +168,7 @@
     display: none;
   }
   .DiscussionListItem-content {
+    position: relative;
     padding-left: 15px;
 
     &:active {
@@ -186,19 +191,23 @@
     }
   }
   .DiscussionListItem-main {
-    //
+    padding-right: 48px;
   }
   .DiscussionListItem-title {
     font-size: 14px;
     text-decoration: none !important;
   }
   .DiscussionListItem-info {
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
   .DiscussionListItem-stats {
-    align-items: end;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   .DiscussionListItem-count {
     background: var(--control-bg);
@@ -302,7 +311,7 @@
         display: none;
       }
 
-      &:hover {
+      &:hover, &:focus {
         ._checkmark {
           display: block;
         }
@@ -311,5 +320,11 @@
         }
       }
     }
+  }
+}
+
+@media @small-phone {
+  .DiscussionListItem-info {
+    max-width: 160px;
   }
 }

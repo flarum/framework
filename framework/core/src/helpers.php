@@ -17,7 +17,6 @@ if (! function_exists('resolve')) {
      *
      * @template T
      * @param string|class-string<T> $name
-     * @param array $parameters
      * @return T|mixed
      */
     function resolve(string $name, array $parameters = [])

@@ -40,7 +40,7 @@ trait HasHooks
         return $callable;
     }
 
-    protected function callBeforeHook(Context $context): void
+    public function callBeforeHook(Context $context): void
     {
         foreach ($this->before as $before) {
             $before = $this->resolveCallable($before, $context);
@@ -48,7 +48,7 @@ trait HasHooks
         }
     }
 
-    protected function callAfterHook(Context $context, mixed $data): mixed
+    public function callAfterHook(Context $context, mixed $data): mixed
     {
         foreach ($this->after as $after) {
             $after = $this->resolveCallable($after, $context);

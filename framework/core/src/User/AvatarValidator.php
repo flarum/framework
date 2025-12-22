@@ -13,7 +13,6 @@ use Flarum\Foundation\AbstractValidator;
 use Flarum\Foundation\ValidationException;
 use Flarum\Locale\TranslatorInterface;
 use Illuminate\Validation\Factory;
-use Illuminate\Validation\Validator;
 use Intervention\Gif\Exceptions\DecoderException as GifDecoderException;
 use Intervention\Image\Exceptions\DecoderException;
 use Intervention\Image\ImageManager;
@@ -64,7 +63,7 @@ class AvatarValidator extends AbstractValidator
         $phpExtensions = ['php', 'php3', 'php4', 'php5', 'phtml'];
         $fileExtension = pathinfo($file->getClientFilename(), PATHINFO_EXTENSION);
 
-        if (in_array(trim(strtolower($fileExtension)), $phpExtensions)) {
+        if (in_array(strtolower(trim($fileExtension)), $phpExtensions)) {
             $this->raise('mimes', [':values' => implode(', ', $allowedTypes)]);
         }
 

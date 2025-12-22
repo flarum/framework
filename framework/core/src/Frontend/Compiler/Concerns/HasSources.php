@@ -20,7 +20,7 @@ trait HasSources
     /**
      * @var callable[]
      */
-    protected $sourcesCallbacks = [];
+    protected array $sourcesCallbacks = [];
 
     public function addSources(callable $callback): void
     {

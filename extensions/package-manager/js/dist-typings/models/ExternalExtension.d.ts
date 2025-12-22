@@ -19,8 +19,8 @@ export default class ExternalExtension extends Model {
     locale: () => string;
     latestFlarumVersionSupported: () => string;
     downloads: () => number;
+    isSupported: () => boolean;
     readonly installed = false;
-    isSupported(): boolean;
     isProductionReady(): boolean;
     toLocalExtension(): Extension;
 }

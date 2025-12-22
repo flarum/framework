@@ -429,7 +429,7 @@
   cursor: text;
   overflow: hidden;
   margin-top: 50px;
-  margin-left: calc(0px - var(--post-padding));
+  margin-left: 0;
   padding-left: var(--post-padding);
   border: 2px dashed var(--control-bg);
   color: var(--muted-color);
@@ -439,7 +439,7 @@
   appearance: none;
   -webkit-appearance: none;
   text-align: left;
-  width: calc(100% + var(--post-padding));
+  width: 100%;
 
   .Post-container {
     display: grid;
@@ -469,6 +469,8 @@
   .ReplyPlaceholder {
     border-color: transparent;
     transition: border-color 0.2s;
+    margin-left: calc(0px - var(--post-padding));
+    width: calc(100% + var(--post-padding));
 
     .Post-header {
       position: relative;

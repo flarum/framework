@@ -54,7 +54,19 @@ export default class AdminRegistry {
      *   label: app.translator.trans('flarum-flags.admin.settings.guidelines_url_label')
      * }, 15) // priority is optional (ItemList)
      */
-    registerSetting(content: SettingConfigInput, priority?: number): this;
+    registerSetting(content: SettingConfigInput, priority?: number, key?: string | null): this;
+    /**
+     * This function allows you to change the configuration of a setting.
+     */
+    setSetting(key: string, content: SettingConfigInput | ((original: SettingConfigInput) => SettingConfigInput)): this;
+    /**
+     * This function allows you to change the priority of a setting.
+     */
+    setSettingPriority(key: string, priority: number): this;
+    /**
+     * This function allows you to remove a setting.
+     */
+    removeSetting(key: string): this;
     /**
      * This function registers your permission with Flarum
      *
@@ -67,6 +79,18 @@ export default class AdminRegistry {
      * }, 'moderate', 65)
      */
     registerPermission(content: PermissionConfig, permissionType: PermissionType, priority?: number): this;
+    /**
+     * This function allows you to change the configuration of a permission.
+     */
+    setPermission(key: string, content: PermissionConfig | ((original: PermissionConfig) => PermissionConfig), permissionType: PermissionType): this;
+    /**
+     * This function allows you to change the priority of a permission.
+     */
+    setPermissionPriority(key: string, permissionType: PermissionType, priority: number): this;
+    /**
+     * This function allows you to remove a permission.
+     */
+    removePermission(key: string, permissionType: PermissionType): this;
     /**
      * Replace the default extension page with a custom component.
      * This component would typically extend ExtensionPage

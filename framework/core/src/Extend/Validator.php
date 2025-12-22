@@ -38,8 +38,6 @@ class Validator implements ExtenderInterface
      * - \Illuminate\Validation\Validator $validator: The Laravel validator instance
      *
      * The callback should return void.
-     *
-     * @return self
      */
     public function configure(callable|string $callback): self
     {

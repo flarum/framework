@@ -25,6 +25,9 @@ class PusherProvider extends AbstractServiceProvider
             if ($cluster = $settings->get('flarum-pusher.app_cluster')) {
                 $options['cluster'] = $cluster;
             }
+            if ($host = $settings->get('flarum-pusher.server_hostname')) {
+                $options['host'] = $host;
+            }
 
             return new Pusher(
                 $settings->get('flarum-pusher.app_key'),

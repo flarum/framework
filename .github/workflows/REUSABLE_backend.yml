@@ -32,7 +32,7 @@ on:
         type: string
         required: false
         # Keep PHP versions synced with build-install-packages.yml
-        default: '["8.2", "8.3", "8.4"]'
+        default: '["8.2", "8.3", "8.4", "8.5"]'
 
       php_extensions:
         description: PHP extensions to install.
@@ -69,8 +69,8 @@ env:
   FLARUM_TEST_TMP_DIR_LOCAL: tests/integration/tmp
   COMPOSER_AUTH: ${{ secrets.composer_auth }}
   DB_DATABASE: flarum_test
-  DB_USERNAME: root
-  DB_PASSWORD: root
+  DB_USERNAME: flarum
+  DB_PASSWORD: password
 
 jobs:
   test:
@@ -94,7 +94,7 @@ jobs:
             driver: mysql
           - service: mariadb
             db: MariaDB
-            driver: mysql
+            driver: mariadb
           - service: 'mysql:8.1.0'
             db: MySQL 8.1
             driver: mysql
@@ -115,7 +115,7 @@ jobs:
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
             service: mariadb
             db: MariaDB
-            driver: mysql
+            driver: mariadb
             prefix: flarum_
             prefixStr: (prefix)
           - php: ${{ fromJSON(inputs.php_versions)[0] }}
@@ -159,9 +159,20 @@ jobs:
           MYSQL_DATABASE: ${{ env.DB_DATABASE }}
           MYSQL_USER: ${{ env.DB_USERNAME }}
           MYSQL_PASSWORD: ${{ env.DB_PASSWORD }}
-          MYSQL_ROOT_PASSWORD: ${{ env.DB_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: root
         ports:
-          - 13306:3306
+          - 3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=10
+      mariadb:
+        image: ${{ matrix.driver == 'mariadb' && matrix.service || '' }}
+        env:
+          MARIADB_DATABASE: ${{ env.DB_DATABASE }}
+          MARIADB_USER: ${{ env.DB_USERNAME }}
+          MARIADB_PASSWORD: ${{ env.DB_PASSWORD }}
+          MARIADB_ROOT_PASSWORD: root
+        ports:
+          - 3306
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
       postgres:
         image: ${{ matrix.driver == 'pgsql' && matrix.service || '' }}
         env:
@@ -169,7 +180,7 @@ jobs:
           POSTGRES_USER: ${{ env.DB_USERNAME }}
           POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
         ports:
-          - 15432:5432
+          - 5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -183,7 +194,10 @@ jobs:
       ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) || github.event_name != 'pull_request')
 
     steps:
-      - uses: actions/checkout@master
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -193,12 +207,6 @@ jobs:
           extensions: ${{ inputs.php_extensions }}
           tools: phpunit, composer:v2
           ini-values: ${{ matrix.php_ini_values }}
-
-      - name: Create MySQL Database
-        if: ${{ matrix.driver == 'mysql' }}
-        run: |
-          sudo systemctl start mysql
-          mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 13306
 
       - name: Install Composer dependencies
         run: composer install
@@ -222,7 +230,8 @@ jobs:
           fi
         working-directory: ${{ inputs.backend_directory }}
         env:
-          DB_PORT: ${{ matrix.driver == 'mysql' && 13306 || 15432 }}
+          DB_HOST: 127.0.0.1
+          DB_PORT: ${{ (matrix.driver == 'mysql' && job.services.mysql.ports['3306']) || (matrix.driver == 'mariadb' && job.services.mariadb.ports['3306']) || (matrix.driver == 'pgsql' && job.services.postgres.ports['5432']) }}
           DB_PREFIX: ${{ matrix.prefix }}
           DB_DRIVER: ${{ matrix.driver }}
           COMPOSER_PROCESS_TIMEOUT: 600
@@ -232,13 +241,7 @@ jobs:
 
     strategy:
       matrix:
-        php: ${{ fromJSON(inputs.php_versions) }}
-
-    services:
-      mysql:
-        image: mysql:8.0.30
-        ports:
-          - 33306:3306
+        php: ${{ fromJson(inputs.php_versions) }}
 
     name: 'PHPStan PHP ${{ matrix.php }}'
 
@@ -265,12 +268,13 @@ jobs:
       - name: Create MySQL Database
         run: |
           sudo systemctl start mysql
-          mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 33306
+          mysql -uroot -proot -e 'CREATE DATABASE flarum_test;' --port 3306
 
       - name: Run PHPStan
         run: composer analyse:phpstan
         env:
-          DB_PORT: 33306
+          DB_USERNAME: root
+          DB_PORT: 3306
           DB_PASSWORD: root
           COMPOSER_PROCESS_TIMEOUT: 600
           FLARUM_TEST_TMP_DIR_LOCAL: ./tmp

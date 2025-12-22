@@ -22,7 +22,6 @@ class Mail implements ExtenderInterface
      *
      * @param string $identifier: Identifier for mail driver. E.g. 'smtp' for SmtpDriver.
      * @param class-string<DriverInterface> $driver: ::class attribute of driver class, which must implement \Flarum\Mail\DriverInterface.
-     * @return self
      */
     public function driver(string $identifier, string $driver): self
     {

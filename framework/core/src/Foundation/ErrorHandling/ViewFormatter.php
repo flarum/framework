@@ -29,7 +29,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
  */
 class ViewFormatter implements HttpFormatter
 {
-    const ERRORS_WITH_VIEWS = ['csrf_token_mismatch', 'not_found', 'maintenance'];
+    public const ERRORS_WITH_VIEWS = ['csrf_token_mismatch', 'not_found', 'maintenance'];
 
     public function __construct(
         protected ViewFactory $view,
@@ -54,9 +54,9 @@ class ViewFormatter implements HttpFormatter
 
         if (in_array($type, self::ERRORS_WITH_VIEWS)) {
             return "flarum.forum::error.$type";
-        } else {
-            return 'flarum.forum::error.default';
         }
+
+        return 'flarum.forum::error.default';
     }
 
     private function getMessage(HandledError $error): string

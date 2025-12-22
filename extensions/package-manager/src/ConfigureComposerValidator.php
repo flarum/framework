@@ -13,7 +13,7 @@ use Flarum\Foundation\AbstractValidator;
 
 class ConfigureComposerValidator extends AbstractValidator
 {
-    use AllValidatorRules;
+    protected bool $validateMissingKeys = true;
 
     protected array $rules = [
         'minimum-stability' => ['sometimes', 'in:stable,RC,beta,alpha,dev'],

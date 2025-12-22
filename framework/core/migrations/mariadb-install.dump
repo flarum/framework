@@ -1,0 +1,367 @@
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+DROP TABLE IF EXISTS `db_prefix_access_tokens`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_prefix_access_tokens` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `token` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `last_activity_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL,
+  `type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `last_ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `last_user_agent` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `db_prefix_access_tokens_token_unique` (`token`),
+  KEY `db_prefix_access_tokens_user_id_foreign` (`user_id`),
+  KEY `db_prefix_access_tokens_type_index` (`type`),
+  CONSTRAINT `db_prefix_access_tokens_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `db_prefix_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `db_prefix_api_keys`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_prefix_api_keys` (
+  `key` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `allowed_ips` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `scopes` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `last_activity_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `db_prefix_api_keys_key_unique` (`key`),
+  KEY `db_prefix_api_keys_user_id_foreign` (`user_id`),
+  CONSTRAINT `db_prefix_api_keys_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `db_prefix_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `db_prefix_discussion_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_prefix_discussion_user` (
+  `user_id` int(10) unsigned NOT NULL,
+  `discussion_id` int(10) unsigned NOT NULL,
+  `last_read_at` datetime DEFAULT NULL,
+  `last_read_post_number` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`user_id`,`discussion_id`),
+  KEY `db_prefix_discussion_user_discussion_id_foreign` (`discussion_id`),
+  CONSTRAINT `db_prefix_discussion_user_discussion_id_foreign` FOREIGN KEY (`discussion_id`) REFERENCES `db_prefix_discussions` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `db_prefix_discussion_user_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `db_prefix_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `db_prefix_discussions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_prefix_discussions` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `comment_count` int(11) NOT NULL DEFAULT 1,
+  `participant_count` int(10) unsigned NOT NULL DEFAULT 0,
+  `post_number_index` int(10) unsigned NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `first_post_id` int(10) unsigned DEFAULT NULL,
+  `last_posted_at` datetime DEFAULT NULL,
+  `last_posted_user_id` int(10) unsigned DEFAULT NULL,
+  `last_post_id` int(10) unsigned DEFAULT NULL,
+  `last_post_number` int(10) unsigned DEFAULT NULL,
+  `hidden_at` datetime DEFAULT NULL,
+  `hidden_user_id` int(10) unsigned DEFAULT NULL,
+  `slug` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `is_private` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `db_prefix_discussions_hidden_user_id_foreign` (`hidden_user_id`),
+  KEY `db_prefix_discussions_first_post_id_foreign` (`first_post_id`),
+  KEY `db_prefix_discussions_last_post_id_foreign` (`last_post_id`),
+  KEY `db_prefix_discussions_last_posted_at_index` (`last_posted_at`),
+  KEY `db_prefix_discussions_last_posted_user_id_index` (`last_posted_user_id`),
+  KEY `db_prefix_discussions_created_at_index` (`created_at`),
+  KEY `db_prefix_discussions_user_id_index` (`user_id`),
+  KEY `db_prefix_discussions_comment_count_index` (`comment_count`),
+  KEY `db_prefix_discussions_participant_count_index` (`participant_count`),
+  KEY `db_prefix_discussions_hidden_at_index` (`hidden_at`),
+  FULLTEXT KEY `title` (`title`),
+  CONSTRAINT `db_prefix_discussions_first_post_id_foreign` FOREIGN KEY (`first_post_id`) REFERENCES `db_prefix_posts` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `db_prefix_discussions_hidden_user_id_foreign` FOREIGN KEY (`hidden_user_id`) REFERENCES `db_prefix_users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `db_prefix_discussions_last_post_id_foreign` FOREIGN KEY (`last_post_id`) REFERENCES `db_prefix_posts` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `db_prefix_discussions_last_posted_user_id_foreign` FOREIGN KEY (`last_posted_user_id`) REFERENCES `db_prefix_users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `db_prefix_discussions_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `db_prefix_users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `db_prefix_email_tokens`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_prefix_email_tokens` (
+  `token` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`token`),
+  KEY `db_prefix_email_tokens_user_id_foreign` (`user_id`),
+  CONSTRAINT `db_prefix_email_tokens_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `db_prefix_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `db_prefix_group_permission`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_prefix_group_permission` (
+  `group_id` int(10) unsigned NOT NULL,
+  `permission` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`group_id`,`permission`),
+  CONSTRAINT `db_prefix_group_permission_group_id_foreign` FOREIGN KEY (`group_id`) REFERENCES `db_prefix_groups` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `db_prefix_group_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_prefix_group_user` (
+  `user_id` int(10) unsigned NOT NULL,
+  `group_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`user_id`,`group_id`),
+  KEY `db_prefix_group_user_group_id_foreign` (`group_id`),
+  CONSTRAINT `db_prefix_group_user_group_id_foreign` FOREIGN KEY (`group_id`) REFERENCES `db_prefix_groups` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `db_prefix_group_user_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `db_prefix_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `db_prefix_groups`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_prefix_groups` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name_singular` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name_plural` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `color` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `icon` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_hidden` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `db_prefix_login_providers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_prefix_login_providers` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `provider` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `identifier` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `last_login_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `db_prefix_login_providers_provider_identifier_unique` (`provider`,`identifier`),
+  KEY `db_prefix_login_providers_user_id_foreign` (`user_id`),
+  CONSTRAINT `db_prefix_login_providers_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `db_prefix_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `db_prefix_migrations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_prefix_migrations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `extension` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `db_prefix_notifications`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_prefix_notifications` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `from_user_id` int(10) unsigned DEFAULT NULL,
+  `type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `subject_id` int(10) unsigned DEFAULT NULL,
+  `data` blob DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
+  `read_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `db_prefix_notifications_from_user_id_foreign` (`from_user_id`),
+  KEY `db_prefix_notifications_user_id_index` (`user_id`),
+  CONSTRAINT `db_prefix_notifications_from_user_id_foreign` FOREIGN KEY (`from_user_id`) REFERENCES `db_prefix_users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `db_prefix_notifications_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `db_prefix_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `db_prefix_password_tokens`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_prefix_password_tokens` (
+  `token` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`token`),
+  KEY `db_prefix_password_tokens_user_id_foreign` (`user_id`),
+  CONSTRAINT `db_prefix_password_tokens_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `db_prefix_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `db_prefix_post_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_prefix_post_user` (
+  `post_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`post_id`,`user_id`),
+  KEY `db_prefix_post_user_user_id_foreign` (`user_id`),
+  CONSTRAINT `db_prefix_post_user_post_id_foreign` FOREIGN KEY (`post_id`) REFERENCES `db_prefix_posts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `db_prefix_post_user_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `db_prefix_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `db_prefix_posts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_prefix_posts` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `discussion_id` int(10) unsigned NOT NULL,
+  `number` int(10) unsigned DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `type` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `content` mediumtext COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT ' ',
+  `edited_at` datetime DEFAULT NULL,
+  `edited_user_id` int(10) unsigned DEFAULT NULL,
+  `hidden_at` datetime DEFAULT NULL,
+  `hidden_user_id` int(10) unsigned DEFAULT NULL,
+  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_private` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `db_prefix_posts_discussion_id_number_unique` (`discussion_id`,`number`),
+  KEY `db_prefix_posts_edited_user_id_foreign` (`edited_user_id`),
+  KEY `db_prefix_posts_hidden_user_id_foreign` (`hidden_user_id`),
+  KEY `db_prefix_posts_discussion_id_number_index` (`discussion_id`,`number`),
+  KEY `db_prefix_posts_discussion_id_created_at_index` (`discussion_id`,`created_at`),
+  KEY `db_prefix_posts_user_id_created_at_index` (`user_id`,`created_at`),
+  FULLTEXT KEY `content` (`content`),
+  CONSTRAINT `db_prefix_posts_discussion_id_foreign` FOREIGN KEY (`discussion_id`) REFERENCES `db_prefix_discussions` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `db_prefix_posts_edited_user_id_foreign` FOREIGN KEY (`edited_user_id`) REFERENCES `db_prefix_users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `db_prefix_posts_hidden_user_id_foreign` FOREIGN KEY (`hidden_user_id`) REFERENCES `db_prefix_users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `db_prefix_posts_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `db_prefix_users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `db_prefix_registration_tokens`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_prefix_registration_tokens` (
+  `token` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `provider` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `identifier` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_attributes` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`token`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `db_prefix_settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_prefix_settings` (
+  `key` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `value` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `db_prefix_users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_prefix_users` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `username` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `is_email_confirmed` tinyint(1) NOT NULL DEFAULT 0,
+  `password` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `avatar_url` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `preferences` blob DEFAULT NULL,
+  `joined_at` datetime DEFAULT NULL,
+  `last_seen_at` datetime DEFAULT NULL,
+  `marked_all_as_read_at` datetime DEFAULT NULL,
+  `read_notifications_at` datetime DEFAULT NULL,
+  `discussion_count` int(10) unsigned NOT NULL DEFAULT 0,
+  `comment_count` int(10) unsigned NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `db_prefix_users_username_unique` (`username`),
+  UNIQUE KEY `db_prefix_users_email_unique` (`email`),
+  KEY `db_prefix_users_joined_at_index` (`joined_at`),
+  KEY `db_prefix_users_last_seen_at_index` (`last_seen_at`),
+  KEY `db_prefix_users_discussion_count_index` (`discussion_count`),
+  KEY `db_prefix_users_comment_count_index` (`comment_count`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+INSERT INTO `db_prefix_migrations` VALUES (1,'2015_02_24_000000_create_access_tokens_table',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (2,'2015_02_24_000000_create_api_keys_table',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (3,'2015_02_24_000000_create_config_table',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (4,'2015_02_24_000000_create_discussions_table',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (5,'2015_02_24_000000_create_email_tokens_table',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (6,'2015_02_24_000000_create_groups_table',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (7,'2015_02_24_000000_create_notifications_table',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (8,'2015_02_24_000000_create_password_tokens_table',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (9,'2015_02_24_000000_create_permissions_table',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (10,'2015_02_24_000000_create_posts_table',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (11,'2015_02_24_000000_create_users_discussions_table',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (12,'2015_02_24_000000_create_users_groups_table',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (13,'2015_02_24_000000_create_users_table',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (14,'2015_09_15_000000_create_auth_tokens_table',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (15,'2015_09_20_224327_add_hide_to_discussions',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (16,'2015_09_22_030432_rename_notification_read_time',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (17,'2015_10_07_130531_rename_config_to_settings',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (18,'2015_10_24_194000_add_ip_address_to_posts',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (19,'2015_12_05_042721_change_access_tokens_columns',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (20,'2015_12_17_194247_change_settings_value_column_to_text',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (21,'2016_02_04_095452_add_slug_to_discussions',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (22,'2017_04_07_114138_add_is_private_to_discussions',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (23,'2017_04_07_114138_add_is_private_to_posts',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (24,'2018_01_11_093900_change_access_tokens_columns',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (25,'2018_01_11_094000_change_access_tokens_add_foreign_keys',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (26,'2018_01_11_095000_change_api_keys_columns',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (27,'2018_01_11_101800_rename_auth_tokens_to_registration_tokens',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (28,'2018_01_11_102000_change_registration_tokens_rename_id_to_token',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (29,'2018_01_11_102100_change_registration_tokens_created_at_to_datetime',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (30,'2018_01_11_120604_change_posts_table_to_innodb',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (31,'2018_01_11_155200_change_discussions_rename_columns',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (32,'2018_01_11_155300_change_discussions_add_foreign_keys',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (33,'2018_01_15_071700_rename_users_discussions_to_discussion_user',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (34,'2018_01_15_071800_change_discussion_user_rename_columns',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (35,'2018_01_15_071900_change_discussion_user_add_foreign_keys',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (36,'2018_01_15_072600_change_email_tokens_rename_id_to_token',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (37,'2018_01_15_072700_change_email_tokens_add_foreign_keys',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (38,'2018_01_15_072800_change_email_tokens_created_at_to_datetime',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (39,'2018_01_18_130400_rename_permissions_to_group_permission',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (40,'2018_01_18_130500_change_group_permission_add_foreign_keys',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (41,'2018_01_18_130600_rename_users_groups_to_group_user',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (42,'2018_01_18_130700_change_group_user_add_foreign_keys',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (43,'2018_01_18_133000_change_notifications_columns',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (44,'2018_01_18_133100_change_notifications_add_foreign_keys',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (45,'2018_01_18_134400_change_password_tokens_rename_id_to_token',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (46,'2018_01_18_134500_change_password_tokens_add_foreign_keys',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (47,'2018_01_18_134600_change_password_tokens_created_at_to_datetime',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (48,'2018_01_18_135000_change_posts_rename_columns',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (49,'2018_01_18_135100_change_posts_add_foreign_keys',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (50,'2018_01_30_112238_add_fulltext_index_to_discussions_title',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (51,'2018_01_30_220100_create_post_user_table',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (52,'2018_01_30_222900_change_users_rename_columns',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (55,'2018_09_15_041340_add_users_indicies',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (56,'2018_09_15_041828_add_discussions_indicies',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (57,'2018_09_15_043337_add_notifications_indices',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (58,'2018_09_15_043621_add_posts_indices',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (59,'2018_09_22_004100_change_registration_tokens_columns',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (60,'2018_09_22_004200_create_login_providers_table',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (61,'2018_10_08_144700_add_shim_prefix_to_group_icons',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (62,'2019_10_12_195349_change_posts_add_discussion_foreign_key',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (63,'2020_03_19_134512_change_discussions_default_comment_count',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (64,'2020_04_21_130500_change_permission_groups_add_is_hidden',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (65,'2021_03_02_040000_change_access_tokens_add_type',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (66,'2021_03_02_040500_change_access_tokens_add_id',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (67,'2021_03_02_041000_change_access_tokens_add_title_ip_agent',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (68,'2021_04_18_040500_change_migrations_add_id_primary_key',NULL);
+INSERT INTO `db_prefix_migrations` VALUES (69,'2021_04_18_145100_change_posts_content_column_to_mediumtext',NULL);

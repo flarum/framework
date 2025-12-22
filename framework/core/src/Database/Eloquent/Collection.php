@@ -54,4 +54,37 @@ class Collection extends BaseCollection
             return parent::loadAggregate($relations, $column, $function);
         });
     }
+
+    /**
+     * The original Laravel logic uses ->whereNotNull() which is an abstraction that unnecessarily causes
+     * attribute mutators to run, so if a mutator relies on an eager loaded relationship, the mutator
+     * will be executed before the call to ->loadMissing() is over.
+     *
+     * We replace it with a simple ->where(fn (mixed $relation) => $relation !== null) to avoid this issue.
+     */
+    protected function loadMissingRelation(BaseCollection $models, array $path): void
+    {
+        $relation = array_shift($path);
+
+        $name = explode(':', key($relation))[0];
+
+        if (is_string(reset($relation))) {
+            $relation = reset($relation);
+        }
+
+        // @phpstan-ignore-next-line
+        $models->filter(fn ($model) => ! is_null($model) && ! $model->relationLoaded($name))->load($relation);
+
+        if (empty($path)) {
+            return;
+        }
+
+        $models = $models->pluck($name)->filter();
+
+        if ($models->first() instanceof \Illuminate\Support\Collection) {
+            $models = $models->collapse();
+        }
+
+        $this->loadMissingRelation(new static($models), $path);
+    }
 }

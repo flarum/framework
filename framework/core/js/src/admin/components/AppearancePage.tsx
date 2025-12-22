@@ -22,57 +22,91 @@ export default class AppearancePage extends AdminPage {
   }
 
   content() {
-    return (
-      <>
-        <Form>
-          <FieldSet
-            className="AppearancePage-colors"
-            label={app.translator.trans('core.admin.appearance.colors_heading')}
-            description={app.translator.trans('core.admin.appearance.colors_text')}
-          >
-            {this.colorItems().toArray()}
-          </FieldSet>
-        </Form>
+    return this.contentItems().toArray();
+  }
 
-        <Form>
-          <div className="Form-group">
-            <label>{app.translator.trans('core.admin.appearance.logo_heading')}</label>
-            <div className="helpText">{app.translator.trans('core.admin.appearance.logo_text')}</div>
-            <UploadImageButton name="logo" routePath="logo" value={app.data.settings.logo_path} url={app.forum.attribute('logoUrl')} />
-          </div>
+  contentItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
 
-          <div className="Form-group">
-            <label>{app.translator.trans('core.admin.appearance.favicon_heading')}</label>
-            <div className="helpText">{app.translator.trans('core.admin.appearance.favicon_text')}</div>
-            <UploadImageButton name="favicon" routePath="favicon" value={app.data.settings.favicon_path} url={app.forum.attribute('faviconUrl')} />
-          </div>
-
-          <div className="Form-group">
-            <label>{app.translator.trans('core.admin.appearance.custom_header_heading')}</label>
-            <div className="helpText">{app.translator.trans('core.admin.appearance.custom_header_text')}</div>
-            <Button className="Button" onclick={() => app.modal.show(EditCustomHeaderModal)}>
-              {app.translator.trans('core.admin.appearance.edit_header_button')}
-            </Button>
-          </div>
-
-          <div className="Form-group">
-            <label>{app.translator.trans('core.admin.appearance.custom_footer_heading')}</label>
-            <div className="helpText">{app.translator.trans('core.admin.appearance.custom_footer_text')}</div>
-            <Button className="Button" onclick={() => app.modal.show(EditCustomFooterModal)}>
-              {app.translator.trans('core.admin.appearance.edit_footer_button')}
-            </Button>
-          </div>
-
-          <div className="Form-group">
-            <label>{app.translator.trans('core.admin.appearance.custom_styles_heading')}</label>
-            <div className="helpText">{app.translator.trans('core.admin.appearance.custom_styles_text')}</div>
-            <Button className="Button" onclick={() => app.modal.show(EditCustomCssModal)}>
-              {app.translator.trans('core.admin.appearance.edit_css_button')}
-            </Button>
-          </div>
-        </Form>
-      </>
+    items.add(
+      'colors',
+      <Form>
+        <FieldSet
+          className="AppearancePage-colors"
+          label={app.translator.trans('core.admin.appearance.colors_heading')}
+          description={app.translator.trans('core.admin.appearance.colors_text')}
+        >
+          {this.colorItems().toArray()}
+        </FieldSet>
+      </Form>,
+      100
     );
+
+    items.add('branding', <Form>{this.brandingItems().toArray()}</Form>, 90);
+
+    return items;
+  }
+
+  brandingItems(): ItemList<Mithril.Children> {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add(
+      'logo',
+      <div className="Form-group">
+        <label>{app.translator.trans('core.admin.appearance.logo_heading')}</label>
+        <div className="helpText">{app.translator.trans('core.admin.appearance.logo_text')}</div>
+        <UploadImageButton name="logo" routePath="logo" value={app.data.settings.logo_path} url={app.forum.attribute('logoUrl')} />
+      </div>,
+      100
+    );
+
+    items.add(
+      'favicon',
+      <div className="Form-group">
+        <label>{app.translator.trans('core.admin.appearance.favicon_heading')}</label>
+        <div className="helpText">{app.translator.trans('core.admin.appearance.favicon_text')}</div>
+        <UploadImageButton name="favicon" routePath="favicon" value={app.data.settings.favicon_path} url={app.forum.attribute('faviconUrl')} />
+      </div>,
+      90
+    );
+
+    items.add(
+      'custom-header',
+      <div className="Form-group">
+        <label>{app.translator.trans('core.admin.appearance.custom_header_heading')}</label>
+        <div className="helpText">{app.translator.trans('core.admin.appearance.custom_header_text')}</div>
+        <Button className="Button" onclick={() => app.modal.show(EditCustomHeaderModal)}>
+          {app.translator.trans('core.admin.appearance.edit_header_button')}
+        </Button>
+      </div>,
+      80
+    );
+
+    items.add(
+      'custom-footer',
+      <div className="Form-group">
+        <label>{app.translator.trans('core.admin.appearance.custom_footer_heading')}</label>
+        <div className="helpText">{app.translator.trans('core.admin.appearance.custom_footer_text')}</div>
+        <Button className="Button" onclick={() => app.modal.show(EditCustomFooterModal)}>
+          {app.translator.trans('core.admin.appearance.edit_footer_button')}
+        </Button>
+      </div>,
+      70
+    );
+
+    items.add(
+      'custom-css',
+      <div className="Form-group">
+        <label>{app.translator.trans('core.admin.appearance.custom_styles_heading')}</label>
+        <div className="helpText">{app.translator.trans('core.admin.appearance.custom_styles_text')}</div>
+        <Button className="Button" onclick={() => app.modal.show(EditCustomCssModal)}>
+          {app.translator.trans('core.admin.appearance.edit_css_button')}
+        </Button>
+      </div>,
+      60
+    );
+
+    return items;
   }
 
   colorItems() {

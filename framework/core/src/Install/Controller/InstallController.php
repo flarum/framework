@@ -79,13 +79,13 @@ class InstallController implements RequestHandlerInterface
         $driver = Arr::get($input, 'dbDriver');
         $host = Arr::get($input, 'dbHost');
         $port = match ($driver) {
-            'mysql' => 3306,
+            'mysql', 'mariadb' => 3306,
             'pgsql' => 5432,
             default => 0,
         };
 
         if (Str::contains($host, ':')) {
-            list($host, $port) = explode(':', $host, 2);
+            [$host, $port] = explode(':', $host, 2);
         }
 
         return new DatabaseConfig(

@@ -1,0 +1,104 @@
+{
+    "name": "flarum/realtime",
+    "description": "Step up to make your Flarum forum realtime.",
+    "keywords": [
+        "extension",
+        "flarum",
+        "realtime",
+        "typing indicator",
+        "websocket"
+    ],
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/flarum/framework/issues",
+        "source": "https://github.com/flarum/pusher",
+        "forum": "https://discuss.flarum.org"
+    },
+    "homepage": "https://flarum.org",
+    "funding": [
+        {
+            "type": "website",
+            "url": "https://flarum.org/donate/"
+        }
+    ],
+    "type": "flarum-extension",
+    "require": {
+        "flarum/core": "^2.0.0-beta.5",
+        "plesk/ratchetphp": "v1.0.4",
+        "pusher/pusher-php-server": "^7.2.0"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "2.x-dev"
+        },
+        "flarum-extension": {
+            "title": "Realtime",
+            "category": "feature",
+            "icon": {
+                "image": "resources/assets/logo.svg",
+                "backgroundColor": "#E3E7F1",
+                "backgroundSize": "100%",
+                "backgroundRepeat": "no-repeat",
+                "backgroundPosition": "center"
+            },
+            "optional-dependencies": [
+                "clarkwinkelmann/flarum-ext-first-post-approval",
+                "flarum/approval",
+                "flarum/flags",
+                "flarum/lock",
+                "flarum/subscriptions",
+                "fof/follow-tags",
+                "fof/gamification",
+                "fof/reactions"
+            ]
+        },
+        "flarum-cli": {
+            "modules": {
+                "githubActions": true
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Flarum\\Realtime\\": "src/"
+        }
+    },
+    "conflict": {
+        "flarum/pusher": "*",
+        "kyrne/websocket": "*",
+        "flarum-com/realtime": "*"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Flarum\\Realtime\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": [
+            "@test:unit",
+            "@test:integration"
+        ],
+        "test:unit": "phpunit -c tests/phpunit.unit.xml",
+        "test:integration": "phpunit -c tests/phpunit.integration.xml",
+        "test:setup": "@php tests/integration/setup.php"
+    },
+    "scripts-descriptions": {
+        "test": "Runs all tests.",
+        "test:unit": "Runs all unit tests.",
+        "test:integration": "Runs all integration tests.",
+        "test:setup": "Sets up a database for use with integration tests. Execute this only once."
+    },
+    "require-dev": {
+        "fof/best-answer": "^2.0.0",
+        "flarum/lock": "^2.0.0",
+        "flarum/likes": "^2.0.0",
+        "flarum/flags": "^2.0.0",
+        "fof/reactions": "^2.0.0",
+        "flarum/phpstan": "^2.0.0",
+        "flarum/testing": "^2.0.0",
+        "flarum/messages": "^2.0.0",
+        "fof/discussion-views": "^2.0.0"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

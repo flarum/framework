@@ -14,7 +14,7 @@ use Psr\Http\Message\ResponseInterface;
 
 class Rememberer
 {
-    const COOKIE_NAME = 'remember';
+    public const COOKIE_NAME = 'remember';
 
     public function __construct(
         protected CookieFactory $cookie
@@ -24,7 +24,7 @@ class Rememberer
     /**
      * Sets the remember cookie on a response.
      */
-    public function remember(ResponseInterface $response, RememberAccessToken $token): ResponseInterface
+    public function remember(ResponseInterface $response, #[\SensitiveParameter] RememberAccessToken $token): ResponseInterface
     {
         return FigResponseCookies::set(
             $response,

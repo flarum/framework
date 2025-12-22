@@ -51,8 +51,6 @@ class DatabaseMigrationRepository implements MigrationRepositoryInterface
 
     /**
      * Create the migration repository data store.
-     *
-     * @return void
      */
     public function createRepository(): void
     {

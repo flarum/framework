@@ -36,10 +36,10 @@ class Group extends AbstractModel
     use ScopeVisibilityTrait;
     use HasFactory;
 
-    const ADMINISTRATOR_ID = 1;
-    const GUEST_ID = 2;
-    const MEMBER_ID = 3;
-    const MODERATOR_ID = 4;
+    public const ADMINISTRATOR_ID = 1;
+    public const GUEST_ID = 2;
+    public const MEMBER_ID = 3;
+    public const MODERATOR_ID = 4;
 
     protected $casts = [
         'id' => 'integer',
@@ -86,9 +86,6 @@ class Group extends AbstractModel
         return $this->belongsToMany(User::class);
     }
 
-    /**
-     * @return HasMany
-     */
     public function permissions(): HasMany
     {
         return $this->hasMany(Permission::class);

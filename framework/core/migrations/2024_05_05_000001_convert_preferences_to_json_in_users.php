@@ -7,7 +7,7 @@
  * LICENSE file that was distributed with this source code.
  */
 
-use Illuminate\Database\MariaDbConnection;
+use Illuminate\Database\MySqlConnection;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 
@@ -26,14 +26,16 @@ return [
                 $table->json('preferences_json')->nullable();
             });
 
-            if ($connection instanceof MariaDbConnection) {
-                $connection->table('users')->update([
-                    'preferences_json' => $connection->raw("IF(JSON_VALID(CONVERT($preferences USING utf8mb4)), CONVERT($preferences USING utf8mb4), NULL)"),
-                ]);
-            } elseif ($driver === 'mysql') {
-                $connection->table('users')->update([
-                    'preferences_json' => $connection->raw("CAST(CONVERT($preferences USING utf8mb4) AS JSON)"),
-                ]);
+            if ($connection instanceof MySqlConnection) {
+                if ($connection->isMaria()) {
+                    $connection->table('users')->update([
+                        'preferences_json' => $connection->raw("IF(JSON_VALID(CONVERT($preferences USING utf8mb4)), CONVERT($preferences USING utf8mb4), NULL)"),
+                    ]);
+                } else {
+                    $connection->table('users')->update([
+                        'preferences_json' => $connection->raw("CAST(CONVERT($preferences USING utf8mb4) AS JSON)"),
+                    ]);
+                }
             }
 
             $schema->table('users', function (Blueprint $table) {
@@ -60,7 +62,7 @@ return [
                 $table->binary('preferences_binary')->nullable();
             });
 
-            if ($driver === 'mysql') {
+            if ($connection instanceof MySqlConnection) {
                 $connection->table('users')->update([
                     'preferences_binary' => $connection->raw($preferences),
                 ]);

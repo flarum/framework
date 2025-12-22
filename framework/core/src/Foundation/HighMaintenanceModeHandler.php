@@ -18,7 +18,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class HighMaintenanceModeHandler implements RequestHandlerInterface
 {
-    const MESSAGE = 'Currently down for maintenance. Please come back later.';
+    public const MESSAGE = 'Currently down for maintenance. Please come back later.';
 
     /**
      * Handle the request and return a response.

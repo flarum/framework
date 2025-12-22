@@ -61,8 +61,6 @@ class ModelVisibility implements ExtenderInterface
      * - \Illuminate\Database\Eloquent\Builder $query
      *
      * The callback should return void.
-     *
-     * @return self
      */
     public function scope(callable|string $callback, string $ability = 'view'): self
     {
@@ -82,8 +80,6 @@ class ModelVisibility implements ExtenderInterface
      * - string $ability
      *
      * The callback should return void.
-     *
-     * @return self
      */
     public function scopeAll(callable|string $callback): self
     {

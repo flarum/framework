@@ -324,7 +324,7 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
 
       this.searchState.cache(query);
       m.redraw();
-    }, 250);
+    }, SearchManager.SEARCH_DEBOUNCE_TIME_MS);
   }
 
   /**

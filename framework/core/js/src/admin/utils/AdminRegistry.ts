@@ -71,7 +71,7 @@ export default class AdminRegistry {
    *   label: app.translator.trans('flarum-flags.admin.settings.guidelines_url_label')
    * }, 15) // priority is optional (ItemList)
    */
-  registerSetting(content: SettingConfigInput, priority = 0): this {
+  registerSetting(content: SettingConfigInput, priority = 0, key: string | null = null): this {
     if (this.state.currentExtension === null) {
       throw new Error(noActiveExtensionErrorMessage);
     }
@@ -83,13 +83,69 @@ export default class AdminRegistry {
     // To support multiple such items for one extension, we assign a random ID.
     // 36 is arbitrary length, but makes collisions very unlikely.
     if (tmpContent instanceof Function) {
-      tmpContent.setting = Math.random().toString(36);
+      tmpContent.setting = key || Math.random().toString(36);
     }
 
     const settings = this.state.data[this.state.currentExtension].settings || new ItemList();
     settings.add(tmpContent.setting, tmpContent, priority);
 
     this.state.data[this.state.currentExtension].settings = settings;
+
+    return this;
+  }
+
+  /**
+   * This function allows you to change the configuration of a setting.
+   */
+  setSetting(key: string, content: SettingConfigInput | ((original: SettingConfigInput) => SettingConfigInput)): this {
+    if (this.state.currentExtension === null) {
+      throw new Error(noActiveExtensionErrorMessage);
+    }
+
+    const settings = this.state.data[this.state.currentExtension].settings || new ItemList();
+
+    if (settings.has(key)) {
+      if (content instanceof Function) {
+        const original = settings.get(key);
+        content = content(original) as SettingConfigInternal;
+      }
+
+      settings.setContent(key, content as SettingConfigInternal);
+    }
+
+    return this;
+  }
+
+  /**
+   * This function allows you to change the priority of a setting.
+   */
+  setSettingPriority(key: string, priority: number): this {
+    if (this.state.currentExtension === null) {
+      throw new Error(noActiveExtensionErrorMessage);
+    }
+
+    const settings = this.state.data[this.state.currentExtension].settings || new ItemList();
+
+    if (settings.has(key)) {
+      settings.setPriority(key, priority);
+    }
+
+    return this;
+  }
+
+  /**
+   * This function allows you to remove a setting.
+   */
+  removeSetting(key: string): this {
+    if (this.state.currentExtension === null) {
+      throw new Error(noActiveExtensionErrorMessage);
+    }
+
+    const settings = this.state.data[this.state.currentExtension].settings || new ItemList();
+
+    if (settings.has(key)) {
+      settings.remove(key);
+    }
 
     return this;
   }
@@ -121,6 +177,65 @@ export default class AdminRegistry {
     permissionsForType.add(content.permission || content.id!, content, priority);
 
     this.state.data[this.state.currentExtension].permissions = { ...permissions, [permissionType]: permissionsForType };
+
+    return this;
+  }
+
+  /**
+   * This function allows you to change the configuration of a permission.
+   */
+  setPermission(key: string, content: PermissionConfig | ((original: PermissionConfig) => PermissionConfig), permissionType: PermissionType): this {
+    if (this.state.currentExtension === null) {
+      throw new Error(noActiveExtensionErrorMessage);
+    }
+
+    const permissions = this.state.data[this.state.currentExtension].permissions || {};
+    const permissionsForType = permissions[permissionType] || new ItemList();
+
+    if (permissionsForType.has(key)) {
+      if (content instanceof Function) {
+        const original = permissionsForType.get(key);
+        content = content(original) as PermissionConfig;
+      }
+
+      permissionsForType.setContent(key, content);
+    }
+
+    return this;
+  }
+
+  /**
+   * This function allows you to change the priority of a permission.
+   */
+  setPermissionPriority(key: string, permissionType: PermissionType, priority: number): this {
+    if (this.state.currentExtension === null) {
+      throw new Error(noActiveExtensionErrorMessage);
+    }
+
+    const permissions = this.state.data[this.state.currentExtension].permissions;
+    const permissionsForType = permissions?.[permissionType] || new ItemList();
+
+    if (permissionsForType.has(key)) {
+      permissionsForType.setPriority(key, priority);
+    }
+
+    return this;
+  }
+
+  /**
+   * This function allows you to remove a permission.
+   */
+  removePermission(key: string, permissionType: PermissionType): this {
+    if (this.state.currentExtension === null) {
+      throw new Error(noActiveExtensionErrorMessage);
+    }
+
+    const permissions = this.state.data[this.state.currentExtension].permissions;
+    const permissionsForType = permissions?.[permissionType] || new ItemList();
+
+    if (permissionsForType.has(key)) {
+      permissionsForType.remove(key);
+    }
 
     return this;
   }

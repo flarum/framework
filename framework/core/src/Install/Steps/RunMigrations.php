@@ -15,12 +15,12 @@ use Flarum\Install\Step;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Filesystem\Filesystem;
 
-class RunMigrations implements Step
+readonly class RunMigrations implements Step
 {
     public function __construct(
-        private readonly ConnectionInterface $database,
-        private readonly string $driver,
-        private readonly string $path
+        private ConnectionInterface $database,
+        private string $driver,
+        private string $path
     ) {
     }
 

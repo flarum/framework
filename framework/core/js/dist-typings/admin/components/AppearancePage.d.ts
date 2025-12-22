@@ -8,7 +8,11 @@ export default class AppearancePage extends AdminPage {
         title: string | any[];
         description: string | any[];
     };
-    content(): JSX.Element;
+    content(): (Mithril.Children & {
+        itemName: string;
+    })[];
+    contentItems(): ItemList<Mithril.Children>;
+    brandingItems(): ItemList<Mithril.Children>;
     colorItems(): ItemList<Mithril.Children>;
     onsaved(): void;
     static register(): void;

@@ -67,7 +67,13 @@ export default abstract class AdminPage<CustomAttrs extends IPageAttrs = IPageAt
    */
   submitButton(): Mithril.Children {
     return (
-      <Button onclick={this.saveSettings.bind(this)} className="Button Button--primary" loading={this.loading} disabled={!this.isChanged()}>
+      <Button
+        type="submit"
+        onclick={this.saveSettings.bind(this)}
+        className="Button Button--primary"
+        loading={this.loading}
+        disabled={!this.isChanged()}
+      >
         {app.translator.trans('core.admin.settings.submit_button')}
       </Button>
     );

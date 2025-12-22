@@ -378,7 +378,7 @@ class UserResource extends AbstractDatabaseResource
         return $model;
     }
 
-    private function applyToken(User $user, RegistrationToken $token): void
+    private function applyToken(User $user, #[\SensitiveParameter] RegistrationToken $token): void
     {
         foreach ($token->user_attributes as $k => $v) {
             if ($k === 'avatar_url') {
@@ -436,7 +436,7 @@ class UserResource extends AbstractDatabaseResource
 
         try {
             $response = $client->get($url);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return null;
         }
 
@@ -447,7 +447,7 @@ class UserResource extends AbstractDatabaseResource
         return $response->getBody()->getContents();
     }
 
-    private function fulfillToken(User $user, RegistrationToken $token): void
+    private function fulfillToken(User $user, #[\SensitiveParameter] RegistrationToken $token): void
     {
         $token->delete();
 

@@ -40,8 +40,6 @@ class Settings implements ExtenderInterface
      *
      * The callable should return:
      * - mixed $value: The modified value.
-     *
-     * @return self
      */
     public function serializeToForum(string $attributeName, string $key, callable|string|null $callback = null): self
     {
@@ -56,7 +54,6 @@ class Settings implements ExtenderInterface
      *
      * @param string $key: The setting key, must be unique. Namespace it with the extension ID (example: 'my-extension-id.setting_key').
      * @param mixed $value: The setting value.
-     * @return self
      */
     public function default(string $key, mixed $value): self
     {
@@ -91,8 +88,6 @@ class Settings implements ExtenderInterface
      *
      * The callable should return:
      * - mixed $value: The modified value.
-     *
-     * @return self
      */
     public function registerLessConfigVar(string $configName, string $key, callable|string|null $callback = null): self
     {
@@ -105,7 +100,6 @@ class Settings implements ExtenderInterface
      * Register a setting that should trigger JS cache clear when saved.
      *
      * @param string $setting: The key of the setting.
-     * @return self
      */
     public function resetJsCacheFor(string $setting): self
     {

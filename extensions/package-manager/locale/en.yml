@@ -99,6 +99,10 @@ flarum-extension-manager:
     minor_update_confirmation:
       content: This will also update any other extensions/packages with available updates.
 
+    required_php_functions: >
+      The extension manager requires the following PHP functions to be enabled: <code>{functions}</code>.
+      If you do not have access to the PHP configuration, please contact your hosting provider.
+
     sections:
       discover:
         description: Add new features and integrations to your Flarum forum with extensions.

@@ -106,7 +106,7 @@ class ExtensionManager
                 $this->setEnabledExtensions($enabledExtensions);
             }
 
-            $this->extensions = $extensions->sortBy(function ($extension, $name) {
+            $this->extensions = $extensions->sortBy(function ($extension) {
                 return $extension->getTitle();
             });
         }
@@ -470,7 +470,7 @@ class ExtensionManager
         }, $validOutput)); // Reversed as required by Kahn's algorithm.
 
         foreach ($inDegreeCount as $id => $count) {
-            if ($count != 0) {
+            if ($count !== 0) {
                 $circularDependencies[] = $id;
             }
         }

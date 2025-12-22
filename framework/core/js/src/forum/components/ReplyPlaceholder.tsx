@@ -54,7 +54,7 @@ export default class ReplyPlaceholder<CustomAttrs extends IReplyPlaceholderAttrs
       });
 
     return (
-      <button className="Post ReplyPlaceholder" onclick={reply}>
+      <button type="button" className="Post ReplyPlaceholder" onclick={reply}>
         <div className="Post-container">
           <div className="Post-side">
             <Avatar user={app.session.user} className="Post-avatar" />

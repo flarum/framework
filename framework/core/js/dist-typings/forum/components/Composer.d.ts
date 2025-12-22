@@ -19,8 +19,11 @@ export default class Composer extends Component<import("../../common/Component")
      */
     active: boolean | undefined;
     prevPosition: any;
+    textEditorBuilt: boolean | undefined;
     view(): JSX.Element;
     onupdate(vnode: any): void;
+    onTextEditorBuilt(): void;
+    updateContainer(): void;
     oncreate(vnode: any): void;
     handlers: {} | undefined;
     onremove(vnode: any): void;

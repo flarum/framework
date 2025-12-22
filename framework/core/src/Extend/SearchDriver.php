@@ -44,7 +44,6 @@ class SearchDriver implements ExtenderInterface
      * @param class-string<AbstractSearcher> $searcherClass : The class of the Searcher for this model
      *                                This searcher must implement \Flarum\Search\SearcherInterface.
      *                                Or extend \Flarum\Search\Database\AbstractSearcher if using the default driver.
-     * @return self
      */
     public function addSearcher(string $modelClass, string $searcherClass): self
     {
@@ -61,7 +60,6 @@ class SearchDriver implements ExtenderInterface
      *                                Or extend \Flarum\Search\Database\AbstractSearcher if using the default driver.
      * @param class-string<FilterInterface> $filterClass: The ::class attribute of the filter you are adding.
      *                             This filter must implement \Flarum\Search\FilterInterface
-     * @return self
      */
     public function addFilter(string $searcherClass, string $filterClass): self
     {
@@ -79,7 +77,6 @@ class SearchDriver implements ExtenderInterface
      * @param class-string<FilterInterface> $replaceFilterClass : The ::class attribute of the filter you are replacing.
      * @param class-string<FilterInterface> $filterClass : The ::class attribute of the filter you are adding.
      *                               This filter must implement \Flarum\Search\FilterInterface
-     * @return self
      */
     public function replaceFilter(string $searcherClass, string $replaceFilterClass, string $filterClass): self
     {
@@ -99,7 +96,6 @@ class SearchDriver implements ExtenderInterface
      *                                Or extend \Flarum\Search\Database\AbstractSearcher if using the default driver.
      * @param class-string<AbstractFulltextFilter> $fulltextClass: The ::class attribute of the full test filter you are adding.
      *                             This filter must implement \Flarum\Search\FilterInterface
-     * @return self
      */
     public function setFulltext(string $searcherClass, string $fulltextClass): self
     {
@@ -121,8 +117,6 @@ class SearchDriver implements ExtenderInterface
      * - \Flarum\Query\QueryCriteria $criteria
      *
      * The callback should return void.
-     *
-     * @return self
      */
     public function addMutator(string $searcherClass, callable|string $callback): self
     {

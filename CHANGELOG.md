@@ -1,5 +1,252 @@
 # Changelog
 
+## [v2.0.0-beta.5](https://github.com/flarum/framework/compare/v2.0.0-beta.4...v2.0.0-beta.5)
+
+### Added
+
+- (realtime) donate Realtime extension to Flarum Foundation by @luceos [#4295]
+- (gdpr) move GDPR extension into monorepo by @imorland [#4290]
+- allow to disable slidable on `DiscussionListItem` by @DavideIadeluca [#4303]
+- null email driver availability by @imorland [#4311]
+
+### Fixed
+
+- (messages) delete conversation when no messages are left by @SychO9 [#4236]
+- (tags) tags page edit icon position, preload FA kit by @imorland [#4305]
+- (realtime) realtime dist being ignored by @imorland [#4307]
+- missing translation for legacy search component by @imorland [#4314]
+- mentions not always eager loaded in the notification email context by @imorland [#4308]
+- backwards TLS/SSL encryption mapping by @imorland [#4310]
+- sidebar width by @imorland [#4312]
+- minor styling fixes by @imorland [#4315]
+- FA icon shift when using Kit by @imorland [#4304]
+- email notification and information templates not rendering named slot content by @imorland [#4317]
+
+### Changed
+
+- (gdpr) enable PHPStan and address issues by @imorland [#4309]
+- bump brace-expansion from 1.1.11 to 1.1.12 by @dependabot [#4274]
+- bump form-data from 4.0.1 to 4.0.4 by @dependabot [#4273]
+
+## [v2.0.0-beta.4](https://github.com/flarum/framework/compare/v2.0.0-beta.3...v2.0.0-beta.4)
+
+### Changed
+
+- (a11y) improve a11y of avatar with no avatarUrl by @DavideIadeluca [#4248]
+- improve extensibility of `PostUser` by @imorland [#4252]
+- readme badges markdown format by @szepeviktor [#4239]
+- bump js-yaml from 4.1.0 to 4.1.1 by @dependabot [#4280]
+- bump js-yaml from 3.14.1 to 4.1.1 by @dependabot [#4285]
+
+### Fixed
+
+- action dropdown inaccessible near bottom of userlist by @imorland [#4250]
+- (a11y) missing default alt text for avatar by @imorland [#4243]
+- validate mail settings for whitespace by @imorland [#4251]
+- condition for displaying not sending message in MailPage by @notanothervibecoder [#4260]
+- error when importing from extension unless enabled by @imorland [#4261]
+- restore xdebug.max_nesting_level after less compilation by @DavideIadeluca [#4263]
+- randomized username fails validation by @imorland [#4283]
+- developer tokens not visible if not in first page by @imorland [#4266]
+- avatar editor overlay stretching prevention by @imorland [#4265]
+- (admin) IPAddress component unavailable in admin frontend by @imorland [#4275]
+- safari issues with dropdown menus by @imorland [#4286]
+
+### Added
+
+- conditional setting extender by @imorland [#4287]
+- confirmation dialog for permission scope deletion by @DavideIadeluca [#4272]
+- admin StatusWidgetItem by @imorland [#4258]
+- database queue support with queue settings by @imorland [#4270]
+- fontawesome cdn and kits support by @imorland [#4271]
+- server hostname configuration for Pusher integration by @notanothervibecoder [#4253]
+- php 8.5 testing support by @imorland [#4284]
+
+## [v2.0.0-beta.3](https://github.com/flarum/framework/compare/v2.0.0-beta.2...v2.0.0-beta.3)
+### Changed
+- (a11y) misc a11y improvements by @SychO9 [#4211]
+- allow labels of `PostStreamScrubber` to be customized by @DavideIadeluca [#4181]
+- improve extensibility of Admin Pages by @DavideIadeluca [#4200]
+- improve extensibility of `IndexPage` by @DavideIadeluca [#4182]
+- improve extensibility of `PostMeta` component by @DavideIadeluca [#4196]
+- make search debounce time extensible by @DavideIadeluca [#4172]
+- Sanitize page in `Tag` (#4170) by @rob006 (15112c2f40656db8c310945e6c7255b90570379f)
+- Codebase cleanup by @xHeaven [#4161]
+- `audit-fix` by @SychO9 (fbe7be69ef573d0d39f70454bfd02ab94857db8a)
+- increase composer job timeout by @SychO9 (fa88731fe1f4473831af6ba56b186c72924307d9)
+- optimize querying post index by @SychO9 [#4178]
+- render after first post items once by @SychO9 (973f4f6f6ba8574b9d56674df94a02f060464ca4)
+- (tags) improve extensibility of `TagHero` by @DavideIadeluca [#4198]
+- allow extending `PostPreview` content by @DavideIadeluca [#4197]
+- improve extensibility of `WelcomeHero` by @DavideIadeluca [#4199]
+- make it easier to add content after the first post by @DavideIadeluca [#4186]
+### Fixed
+- (security) Session Hijacking via Authoritative Subdomain Cookie Overwrite by @novacuum (f19007f42466ebf881307670a32d14516444ac24)
+- fixes issue with smtp non-tls connections by @luceos [#4203]
+- change condition when `unread` label is shown in Scrubber by @DavideIadeluca [#4185]
+- change starting position of `aria-posinset` by @DavideIadeluca [#4191]
+- return empty object if selected mail driver is unavailable by @DavideIadeluca [#4183]
+- (tags) resolve `a11y` warnings in Admin Frontend by @DavideIadeluca [#4184]
+- (em) skip incompatible extension updates by @SychO9 [#4177]
+- (phpstan) incompatibility with recent updates by @SychO9 (1b9ff2b6fa90a9c991b6e1d9ab5bd959802bd099)
+- (webpack) chunk module path checking fails with dotted directories by @DavideIadeluca [#4179]
+- `sendmail` driver fails by @SychO9 [#4168]
+- `suspended_until` serialized as date instead of datetime by @SychO9 [#4169]
+- messages UI/UX improvement by @SychO9 [#4173]
+- messages inconsistencies by @SychO9 [#4174]
+- prevent users from seeing their own flags by @SychO9 [#4167]
+- visual bugs by @SychO9 (97e56af2cd8e97e4ef10235d3e584d0def2afffc)
+### Added
+- (messages) messages page extensible content by @SychO9 (561e22784a547c8aa92120e0972a9cc97ac21645)
+- (pm) delete own messages by @SychO9 [#4180]
+- (pm) messages anchor link by @SychO9 [#4175]
+- actions dropdown in admin user list by @DavideIadeluca [#4188]
+- advanced admin registry extenders by @SychO9 [#4209]
+- reusable component for showing IP address by @DavideIadeluca [#4187]
+
+## [v2.0.0-beta.2](https://github.com/flarum/framework/compare/v2.0.0-beta.1...v2.0.0-beta.2)
+### Fixed
+- (em) incorrect extension compatibility check [#4155]
+- (webpack) produces incorrect ext namespace (a7d584f8e1ec650035dafd660a70586d1d0d6bb9)
+- bad modal alert text alignment [#4152]
+- beta.1 early bugs (a81d13e26c1c2191859493de2ad45a515ad07b90)
+- code split fails with common module [#4151]
+- composer no longer autofocusing [#4149]
+- conditional renders 0 (1cd644d27feb4eeea5cbaedd009a3af2643af396)
+- custom styles from 1.x can crash the app [#4159]
+- discussion page renders before loading is finished [#4158]
+- discussion posts not always properly loaded [#4156]
+- fixed side nav missing top spacing [#4147]
+- invisible dropdown text when header is colored (958dec594486cbc14cf8f922db324a8ffc0245e3)
+- lazy module import always returns default module [#4148]
+- mistakenly removed code (33121ed1cc260bf967f0b8c4d10ab5099410bac0)
+- select input cuts off [#4157]
+- tag selection icon alignment [#4153]
+- unexpected subscription breaks rendering [#4150]
+- use correct human time format key [#4154]
+### Changed
+- (mentions) only access related mentions if loaded (9fe17b3c24c5b9236e419a00c1230b2994b8c009)
+- extensibility improvements (00426c85e38efc91554af33644b088e72b3b3c1b)
+
+## [v2.0.0-beta.1](https://github.com/flarum/framework/compare/v1.8.9...v2.0.0-beta.1)
+### Changed
+- php 8.4 [#4103]
+- JSON:API refactor [#3971]
+- (mentions) allow renderer to be used without context [#3954]
+- (flags) add pagination to flags list [#3931]
+- (mentions) add integration test for reply approval notification [#3748]
+- (mentions,emoji) tie autocomplete to editor instance [#3913]
+- (phpstan) upgrade to be compatible with latest dependency updates [#3835]
+- (tags) prevent loading tag state if loaded previously [#4009]
+- (testing) run flarum/testing packages tests back again [#3844]
+- Do not catch exceptions when testing Console commands [#3813]
+- Patch vulnerability advisory [#3966]
+- Search box improvements on tablet devices [#4076]
+- Test using MySQL 8.1 [#3870]
+- Upgrade dependencies [#3830], [#4012]
+- Upgrade `intervention/image` to 3.2 [#3947]
+- Upgrade Wikimedia/less.php to 4.1 [#3837]
+- Upgrade Mithril to 2.2 [#3831]
+- (tags) Wrong tag input width if contains CJK characters [#4127]
+- allow custom actions runner to be defined [#3988]
+- avoid using `.fa()` mixins and `@fa-var` vars [#3912]
+- cleanup composer deps (40dcaf882cd017463ca792762d4aa11de8c5c7da)
+- corrected typos in routes comments [#3840]
+- extract `FormModal` from `Modal` [#3922]
+- extract `buildSettingComponent` method into a `FormGroup` component [#3927]
+- fix typos [#4021]
+- function names (d15438846895a5cf7b5a584479ef63a6e3119925)
+- handle deprecations from 1.x [#3909]
+- ignore deprecation errors in prod [#4072]
+- improve debugging experience [#3944]
+- improve test suite [#3814]
+- increase phpstan level to 6 [#3836]
+- `HeaderPrimary.js` converted to typescript [#4052]
+- merge the app with the container & implement the ApplicationContract [#3862]
+- recover bundlewatch [#3829]
+- remove ExtenderInterface[] as a conditional option, only support callable or ::class invoke [#3904]
+- remove listing of posts in the show discussion endpoint [#4067]
+- remove unused vars in catch [#3839]
+- simplify if else conditions [#3843]
+- simplify variable assignment using null coalescing operator [#4000]
+- support composer auth in workflows [#3961]
+- switch formatter to `format-message` [#4088]
+- transpile js to es6 [#3699]
+- unify frontend initializers naming [#4003]
+- update FontAwesome v6 icon search link [#4036]
+- use `::class` syntax to fetch class name instead of `get_class()` function [#3910]
+- use `hex_color` rule for color validation [#3936]
+- use `str_contains` instead of `strpos` [#3841]
+- graceful failure from extend/override errors [#4134]
+### Fixed
+- (a11y) convert empty links to buttons [#3926]
+- (approval) `PostWasApproved` event triggered incorrectly [#3930]
+- (em) prevent use if missing php functions (94b0d67a4020e1b7027e0df53dee1d681dc822e1)
+- (em) production ready check (f6e84a0dc576d1cfe8539b7438244edf156e3b1a)
+- (testing) use cookie for testing authentication [#3924]
+- 3 char hex color is incorrectly modified to 6 [#4013]
+- Add conditional rendering for email status in MailPage.tsx [#3997]
+- Logout controller allows open redirects [#3948], [#4091]
+- allow use of an attribute named `relationships` (1ead69e9b66ae9bc335be663498b7ea706adbf73)
+- cannot install without db prefix [#4001]
+- change length of email field [#4118]
+- color input changes while typing [#3919]
+- console extender does not accept `::class` attribute for schedule [#3903]
+- default labels with `SettingDropdown` and `SelectDropdown` [#3854]
+- duplicated `mentionsUsers` in extend.php (2b56129d70d18686a73d044ff65b418eef83f388)
+- handled API errors break preloaded content [#3920]
+- improve the flarum validator [#4133]
+- installation command config path can be null (07623afacde590c45a20537add3b72a919050819)
+- larastan changed namespace [#3955]
+- larastan changes frequently (af2a32a3a4f50874c63785f5168e1df60f947553)
+- load event mentioned tags on show discussion endpoint [#3915]
+- move `UserSearchResult` to common (35f76bce60361caac8001c41c421de30f567b221)
+- notify for all posts switch field loading state [#3938]
+- only set actor on events that have it [#3914]
+- overflowing forum stats [#3940]
+- paginated list limit hard to change [#3918]
+- prevent wiping out existing database on install [#4092]
+- reset save button state when an error occurs in admin page [#4010]
+- usage of `aria-hidden=false` might cause inconsistent behavior [#4074]
+- use dynamic viewport units for height of Modals [#3951]
+- user pages history not registered [#3916]
+- validate required cli install args [#4093]
+- make `WelcomeHero` extensible [#3848]
+- Update the scheduler info link in admin (#3826)
+### Added
+- Export Registry [#3842]
+- Code Splitting [#3860]
+- Fontawesome v6 [#4020]
+- extension bisect [#3980]
+- extension list UI [#4066]
+- admin search UI [#4022]
+- add support for `PgSQL` [#3985]
+- add support for `SQLite` [#3984]
+- separate `MariaDB` driver [#4132]
+- advanced maintenance modes [#3977]
+- notification unsubscribe links [#3872]
+- email overhaul with HTML multipart [#3872]
+- date time formats from locales [#4029]
+- messages extension [#4028]
+- search drivers (revamp search system) [#3893]
+- search UI/UX revamp [#3941]
+- post search adapted with global search [#4019]
+- vanilla CSS color scheme changes [#3996]
+- (emoji) allow the user to set the CDN address [#3908]
+- (nicknames) allow OAuth to provide a nickname [#4004]
+- (sticky) make excerpt optional in sticky [#4016]
+- JS `Notification` extender [#3974]
+- add `whenExtensionDisabled` to `Conditional` extender [#3847]
+- add option for filtering read stickied on all discussions page [#4073]
+- allow resetting settings to default [#3935]
+- define `FLARUM_START` constant [#4082]
+- dispatch event to `flarum/installation-packages` on release [#3625]
+- eloquent factories (primarily for tests) [#3982]
+- frontend content flexible order priorities [#3765]
+- improve emoji autocomplete [#3923]
+- recover support for ico favicon [#4126]
+- theming and extensibility improvements [#3876]
+
 ## [v1.8.1](https://github.com/flarum/framework/compare/v1.8.0...v1.8.1)
 ### Fixed
 * recover temporary solution for html entities in browser title (e72541e35de4f71f9d870bbd9bb46ddf586bdf1d)

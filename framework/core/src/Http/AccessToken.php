@@ -90,11 +90,10 @@ class AccessToken extends AbstractModel
     {
         if (static::class === self::class) {
             throw new \Exception('Use of AccessToken::generate() is not allowed: use the `generate` method on one of the subclasses.');
-        } else {
-            $token = new static;
-            $token->type = static::$type;
         }
 
+        $token = new static;
+        $token->type = static::$type;
         $token->token = Str::random(40);
         $token->user_id = $userId;
         $token->created_at = Carbon::now();
@@ -165,7 +164,7 @@ class AccessToken extends AbstractModel
      * Shortcut to find a valid token.
      * @param string $token Token as sent by the user. We allow non-string values like null so we can directly feed any value from a request.
      */
-    public static function findValid(string $token): ?AccessToken
+    public static function findValid(#[\SensitiveParameter] string $token): ?AccessToken
     {
         return static::query()->whereValid()->where('token', $token)->first();
     }

@@ -131,7 +131,7 @@ class RouteCollection
             // and the second element is a regex into which the parameter value is inserted, if the parameter matches.
             foreach ($this->reverse[$name] as $parts) {
                 foreach ($parts as $i => $part) {
-                    if (is_array($part) && Arr::exists($parameters, $part[0]) && $i > $maxMatches) {
+                    if ($i > $maxMatches && is_array($part) && Arr::exists($parameters, $part[0])) {
                         $maxMatches = $i;
                         $matchingParts = $parts;
                     }

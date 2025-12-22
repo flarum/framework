@@ -79,18 +79,18 @@ class AccessTokenResource extends AbstractDatabaseResource
     {
         return [
             Schema\Str::make('token')
-                ->visible(function (AccessToken $token, Context $context) {
+                ->visible(function (#[\SensitiveParameter] AccessToken $token, Context $context) {
                     return $context->getActor()->id === $token->user_id && ! in_array('token', $token->getHidden(), true);
                 }),
             Schema\Integer::make('userId'),
             Schema\DateTime::make('createdAt'),
             Schema\DateTime::make('lastActivityAt'),
             Schema\Boolean::make('isCurrent')
-                ->get(function (AccessToken $token, Context $context) {
+                ->get(function (#[\SensitiveParameter] AccessToken $token, Context $context) {
                     return $token->token === $context->request->getAttribute('session')->get('access_token');
                 }),
             Schema\Boolean::make('isSessionToken')
-                ->get(function (AccessToken $token) {
+                ->get(function (#[\SensitiveParameter] AccessToken $token) {
                     return in_array($token->type, [SessionAccessToken::$type, RememberAccessToken::$type], true);
                 }),
             Schema\Str::make('title')
@@ -99,7 +99,7 @@ class AccessTokenResource extends AbstractDatabaseResource
                 ->maxLength(255),
             Schema\Str::make('lastIpAddress'),
             Schema\Str::make('device')
-                ->get(function (AccessToken $token) {
+                ->get(function (#[\SensitiveParameter] AccessToken $token) {
                     $agent = new Agent();
                     $agent->setUserAgent($token->last_user_agent);
 

@@ -32,8 +32,6 @@ interface KnownError
      * Different exception classes are allowed to return the same status code,
      * e.g. when they have similar semantic meaning to the end user, but are
      * thrown by different subsystems.
-     *
-     * @return string
      */
     public function getType(): string;
 }

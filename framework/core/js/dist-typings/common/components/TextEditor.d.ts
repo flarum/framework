@@ -10,6 +10,7 @@
  * - `placeholder`
  * - `disabled`
  * - `preview`
+ * - `onTextEditorBuilt`
  */
 export default class TextEditor extends Component<import("../Component").ComponentAttrs, undefined> {
     constructor();

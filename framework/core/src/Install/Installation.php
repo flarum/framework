@@ -82,7 +82,7 @@ class Installation
         return $this;
     }
 
-    public function accessToken(string $token): self
+    public function accessToken(#[\SensitiveParameter] string $token): self
     {
         $this->accessToken = $token;
 

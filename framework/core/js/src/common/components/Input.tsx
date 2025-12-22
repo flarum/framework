@@ -48,8 +48,8 @@ export default class Input<CustomAttrs extends IInputAttrs = IInputAttrs> extend
       >
         {this.attrs.prefixIcon && <Icon name={classList(this.attrs.prefixIcon, 'Input-prefix-icon')} />}
         {this.input({ inputClassName, value, inputAttrs })}
-        {this.attrs.loading && <LoadingIndicator size="small" display="inline" containerClassName="Button Button--icon Button--link" />}
-        {this.attrs.clearable && value && !this.attrs.loading && (
+        {this.attrs.loading ? <LoadingIndicator size="small" display="inline" containerClassName="Button Button--icon Button--link" /> : null}
+        {this.attrs.clearable && value && !this.attrs.loading ? (
           <Button
             className="Input-clear Button Button--icon Button--link"
             onclick={this.clear.bind(this)}
@@ -57,7 +57,7 @@ export default class Input<CustomAttrs extends IInputAttrs = IInputAttrs> extend
             type="button"
             icon="fas fa-times-circle"
           />
-        )}
+        ) : null}
       </div>
     );
   }

@@ -37,7 +37,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
 
             $config = $container['flarum']->config('database');
 
-            if ($config['driver'] === 'mysql') {
+            if (in_array($config['driver'], ['mysql', 'mariadb'])) {
                 $config['engine'] = 'InnoDB';
             } elseif ($config['driver'] === 'sqlite' && ! file_exists($config['database'])) {
                 $config['database'] = $container->make(Paths::class)->base.'/'.$config['database'];
@@ -85,6 +85,7 @@ class DatabaseServiceProvider extends AbstractServiceProvider
     {
         $drivers = [
             'mysql' => 'MySql',
+            'mariadb' => 'MariaDb',
             'pgsql' => 'PgSql',
             'sqlite' => 'Sqlite',
         ];

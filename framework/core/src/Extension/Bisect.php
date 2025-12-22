@@ -107,19 +107,19 @@ class Bisect
             return $current;
         }
 
-        if (count($relevantEnabled) === 1 && $issue) {
+        if ($issue && count($relevantEnabled) === 1) {
             return $this->foundIssue($relevantEnabled[0]);
         }
 
-        if (count($relevantDisabled) === 1 && ! $issue) {
+        if (! $issue && count($relevantDisabled) === 1) {
             return $this->foundIssue($relevantDisabled[0]);
         }
 
         if ($issue) {
             return $this->bisect($this->state->advance($low, $mid));
-        } else {
-            return $this->bisect($this->state->advance($mid + 1, $high));
         }
+
+        return $this->bisect($this->state->advance($mid + 1, $high));
     }
 
     protected function foundIssue(string $id): array

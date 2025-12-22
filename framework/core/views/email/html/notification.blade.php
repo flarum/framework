@@ -1,13 +1,13 @@
-<x-mail::html>
+<x-mail::html :greeting="$greeting ?? null" :signoff="$signoff ?? null">
     <x-slot:header>
         <h2>{{ $title ?? $translator->trans('core.email.notification.default_title') }}</h2>
     </x-slot:header>
 
     <x-slot:content>
-        {{ $slot ?? $body ?? '' }}
+        {!! $body ?? $slot ?? '' !!}
         @if (isset($preview))
             <div class="content-preview">
-                {{ $preview }}
+                {!! $preview !!}
             </div>
         @endif
     </x-slot:content>

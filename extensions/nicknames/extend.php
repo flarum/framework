@@ -38,6 +38,7 @@ return [
 
     (new Extend\Settings())
         ->default('flarum-nicknames.set_on_registration', true)
+        ->default('flarum-nicknames.random_username', false)
         ->default('flarum-nicknames.min', 1)
         ->default('flarum-nicknames.max', 150)
         ->default('display_name_driver', 'username')

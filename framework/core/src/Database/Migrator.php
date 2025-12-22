@@ -50,7 +50,7 @@ class Migrator
         // First we will just make sure that there are any migrations to run. If there
         // aren't, we will just make a note of it to the developer so they're aware
         // that all the migrations have been run against this database system.
-        if (count($migrations) == 0) {
+        if (count($migrations) === 0) {
             $this->note('<info>Nothing to migrate.</info>');
 
             return;
@@ -115,7 +115,7 @@ class Migrator
     public function reset(string $path, ?Extension $extension = null): int
     {
         $migrations = array_reverse($this->repository->getRan(
-            $extension ? $extension->getId() : null
+            $extension?->getId()
         ));
 
         $count = count($migrations);
@@ -176,11 +176,8 @@ class Migrator
 
     /**
      * Get all of the migration files in a given path.
-     *
-     * @param  string $path
-     * @return array
      */
-    public function getMigrationFiles($path)
+    public function getMigrationFiles(string $path): array
     {
         $files = $this->files->glob($path.'/*_*.php');
 

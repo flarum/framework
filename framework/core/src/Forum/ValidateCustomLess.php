@@ -32,7 +32,8 @@ class ValidateCustomLess
         protected Assets $assets,
         protected LocaleManager $locales,
         protected Container $container,
-        protected array $customLessSettings = []
+        protected SettingsRepositoryInterface $settings,
+        protected array $customLessSettings = [],
     ) {
     }
 
@@ -72,6 +73,8 @@ class ValidateCustomLess
         $adapter = new InMemoryFilesystemAdapter();
         $this->assets->setAssetsDir(new FilesystemAdapter(new Filesystem($adapter), $adapter));
 
+        $this->settings->delete('custom_less_error');
+
         try {
             $this->assets->makeCss()->commit();
 
@@ -80,6 +83,10 @@ class ValidateCustomLess
             }
         } catch (Less_Exception_Parser $e) {
             throw new ValidationException(['custom_less' => $e->getMessage()]);
+        }
+
+        if (! empty($this->settings->get('custom_less_error'))) {
+            throw new ValidationException(['custom_less' => $this->settings->get('custom_less_error')]);
         }
 
         $this->assets->setAssetsDir($assetsDir);

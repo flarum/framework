@@ -12,6 +12,7 @@ export type SettingDropdownOption = {
 export interface ISettingDropdownAttrs extends ISelectDropdownAttrs {
   setting?: string;
   options: Array<SettingDropdownOption>;
+  default: any;
 }
 
 export default class SettingDropdown<CustomAttrs extends ISettingDropdownAttrs = ISettingDropdownAttrs> extends SelectDropdown<CustomAttrs> {
@@ -33,7 +34,7 @@ export default class SettingDropdown<CustomAttrs extends ISettingDropdownAttrs =
     return super.view({
       ...vnode,
       children: this.attrs.options.map(({ value, label }) => {
-        const active = app.data.settings[this.attrs.setting!] === value;
+        const active = (app.data.settings[this.attrs.setting!] ?? this.attrs.default) === value;
 
         return (
           <Button icon={active ? 'fas fa-check' : true} onclick={saveSettings.bind(this, { [this.attrs.setting!]: value })} active={active}>

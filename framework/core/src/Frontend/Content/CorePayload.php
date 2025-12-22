@@ -17,12 +17,12 @@ use Flarum\Locale\LocaleManager;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class CorePayload
+readonly class CorePayload
 {
     public function __construct(
-        private readonly LocaleManager $locales,
-        private readonly MaintenanceMode $maintenance,
-        private readonly SettingsRepositoryInterface $settings
+        private LocaleManager $locales,
+        private MaintenanceMode $maintenance,
+        private SettingsRepositoryInterface $settings
     ) {
     }
 

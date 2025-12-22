@@ -17,9 +17,7 @@ class ContainerUtil
      * Wraps a callback so that string-based invokable classes get resolved only when actually used.
      *
      * @param callable|class-string $callback : A callable, global function, or a ::class attribute of an invokable class
-     * @param Container $container
      *
-     * @return callable
      * @internal Backwards compatibility not guaranteed.
      */
     public static function wrapCallback(callable|string $callback, Container $container): callable

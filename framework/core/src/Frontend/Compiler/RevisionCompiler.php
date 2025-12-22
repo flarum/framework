@@ -13,6 +13,7 @@ use Flarum\Frontend\Compiler\Concerns\HasSources;
 use Flarum\Frontend\Compiler\Source\FileSource;
 use Flarum\Frontend\Compiler\Source\SourceInterface;
 use Flarum\Frontend\Compiler\Source\StringSource;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Cloud;
 
 /**
@@ -22,13 +23,14 @@ class RevisionCompiler implements CompilerInterface
 {
     use HasSources;
 
-    const EMPTY_REVISION = 'empty';
+    public const EMPTY_REVISION = 'empty';
 
     protected VersionerInterface $versioner;
 
     public function __construct(
         protected Cloud $assetsDir,
         protected string $filename,
+        protected SettingsRepositoryInterface $settings
     ) {
         $this->versioner = new FileVersioner($assetsDir);
     }
@@ -91,7 +93,6 @@ class RevisionCompiler implements CompilerInterface
     }
 
     /**
-     * @param string $file
      * @param SourceInterface[] $sources
      * @return bool true if the file was written, false if there was nothing to write
      */

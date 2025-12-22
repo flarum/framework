@@ -14,10 +14,10 @@ use Flarum\Locale\LocaleManager;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class Meta
+readonly class Meta
 {
     public function __construct(
-        private readonly LocaleManager $locales
+        private LocaleManager $locales
     ) {
     }
 

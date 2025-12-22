@@ -17,6 +17,7 @@ export interface IComposerBodyAttrs extends ComponentAttrs {
   user: any;
   confirmExit: string;
   disabled: boolean;
+  onTextEditorBuilt?: Function | null;
 }
 
 /**
@@ -63,6 +64,7 @@ export default abstract class ComposerBody<CustomAttrs extends IComposerBodyAttr
                 onchange={this.composer.fields!.content}
                 onsubmit={this.onsubmit.bind(this)}
                 value={this.composer.fields!.content()}
+                onTextEditorBuilt={this.attrs.onTextEditorBuilt}
               />
             </div>
           </div>

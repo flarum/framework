@@ -64,7 +64,7 @@ class RegistrationToken extends AbstractModel
      *
      * @throws InvalidConfirmationTokenException
      */
-    public function scopeValidOrFail(Builder $query, string $token): ?RegistrationToken
+    public function scopeValidOrFail(Builder $query, #[\SensitiveParameter] string $token): RegistrationToken
     {
         /** @var RegistrationToken|null $token */
         $token = $query->find($token);

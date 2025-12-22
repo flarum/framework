@@ -28,7 +28,6 @@ class Notification implements ExtenderInterface
      *                          This blueprint should implement \Flarum\Notification\Blueprint\BlueprintInterface.
      * @param string[] $driversEnabledByDefault: The names of the drivers enabled by default for this notification type.
      *                                       (example: alert, email).
-     * @return self
      */
     public function type(string $blueprint, array $driversEnabledByDefault = []): self
     {
@@ -42,7 +41,6 @@ class Notification implements ExtenderInterface
      * @param class-string<NotificationDriverInterface> $driver: The ::class attribute of the driver class.
      *                       This driver should implement \Flarum\Notification\Driver\NotificationDriverInterface.
      * @param string[] $typesEnabledByDefault: The names of blueprint classes of types enabled by default for this driver.
-     * @return self
      */
     public function driver(string $driverName, string $driver, array $typesEnabledByDefault = []): self
     {
@@ -61,8 +59,6 @@ class Notification implements ExtenderInterface
      *
      * The callable should return an array of recipients.
      * - \Flarum\User\User[] $newRecipients
-     *
-     * @return self
      */
     public function beforeSending(callable|string $callback): self
     {

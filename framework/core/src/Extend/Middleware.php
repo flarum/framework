@@ -34,7 +34,6 @@ class Middleware implements ExtenderInterface
      *
      * @param class-string<MiddlewareInterface> $middleware: ::class attribute of the middleware class.
      *                            Must implement \Psr\Http\Server\MiddlewareInterface.
-     * @return self
      */
     public function add(string $middleware): self
     {
@@ -50,7 +49,6 @@ class Middleware implements ExtenderInterface
      *                                    Or container binding name.
      * @param class-string<MiddlewareInterface> $newMiddleware: ::class attribute of the middleware class.
      *                            Must implement \Psr\Http\Server\MiddlewareInterface.
-     * @return self
      */
     public function replace(string $originalMiddleware, string $newMiddleware): self
     {
@@ -63,7 +61,6 @@ class Middleware implements ExtenderInterface
      * Removes a middleware from the frontend.
      *
      * @param class-string<MiddlewareInterface> $middleware: ::class attribute of the middleware class.
-     * @return self
      */
     public function remove(string $middleware): self
     {
@@ -79,7 +76,6 @@ class Middleware implements ExtenderInterface
      *                                    Or container binding name.
      * @param class-string<MiddlewareInterface> $newMiddleware: ::class attribute of the middleware class.
      *                            Must implement \Psr\Http\Server\MiddlewareInterface.
-     * @return self
      */
     public function insertBefore(string $originalMiddleware, string $newMiddleware): self
     {
@@ -95,7 +91,6 @@ class Middleware implements ExtenderInterface
      *                                    Or container binding name.
      * @param class-string<MiddlewareInterface> $newMiddleware: ::class attribute of the middleware class.
      *                            Must implement \Psr\Http\Server\MiddlewareInterface.
-     * @return self
      */
     public function insertAfter(string $originalMiddleware, string $newMiddleware): self
     {

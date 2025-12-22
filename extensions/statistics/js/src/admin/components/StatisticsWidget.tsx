@@ -279,6 +279,7 @@ export default class StatisticsWidget extends DashboardWidget {
             return (
               <button
                 className={classList('Button--ua-reset StatisticsWidget-entity', { active: this.selectedEntity === entity })}
+                type="button"
                 onclick={this.changeEntity.bind(this, entity)}
               >
                 <h3 className="StatisticsWidget-heading">{app.translator.trans('flarum-statistics.admin.statistics.' + entity + '_heading')}</h3>

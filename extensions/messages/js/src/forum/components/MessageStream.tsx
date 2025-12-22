@@ -77,18 +77,20 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
   content() {
     const items: Mithril.Children[] = [];
 
-    const messages = this.attrs.state.getAllItems().sort((a, b) => a.createdAt().getTime() - b.createdAt().getTime());
+    const messages = Array.from(new Map(this.attrs.state.getAllItems().map((msg) => [msg.id(), msg])).values()).sort(
+      (a, b) => a.number() - b.number()
+    );
 
     const ReplyPlaceholder = this.replyPlaceholderComponent();
     const LoadingPost = this.loadingPostComponent();
 
     if (messages[0].id() !== (this.attrs.dialog.data.relationships?.firstMessage.data as ModelIdentifier).id) {
       items.push(
-        <div className="MessageStream-item" key="loadPrevious">
+        <div className="MessageStream-item" key="loadNext">
           <Button
             onclick={() => this.whileMaintainingScroll(() => this.attrs.state.loadNext())}
             type="button"
-            className="Button Button--block MessageStream-loadPrev"
+            className="Button Button--block MessageStream-loadNext"
           >
             {app.translator.trans('flarum-messages.forum.messages_page.stream.load_previous_button')}
           </Button>
@@ -97,7 +99,7 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
 
       if (LoadingPost) {
         items.push(
-          <div className="MessageStream-item" key="loading-prev">
+          <div className="MessageStream-item" key="loading-next">
             <LoadingPost />
           </div>
         );
@@ -106,9 +108,31 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
 
     messages.forEach((message, index) => items.push(this.messageItem(message, index)));
 
-    if (ReplyPlaceholder) {
+    if (messages[messages.length - 1].id() !== (this.attrs.dialog.data.relationships?.lastMessage.data as ModelIdentifier).id) {
+      if (LoadingPost) {
+        items.push(
+          <div className="MessageStream-item" key="loading-prev">
+            <LoadingPost />
+          </div>
+        );
+      }
+
       items.push(
-        <div className="MessageStream-item" key="reply" /*data-index={this.attrs.state.count()}*/>
+        <div className="MessageStream-item" key="loadPrev">
+          <Button
+            onclick={() => this.whileMaintainingScroll(() => this.attrs.state.loadPrev())}
+            type="button"
+            className="Button Button--block MessageStream-loadPrev"
+          >
+            {app.translator.trans('flarum-messages.forum.messages_page.stream.load_next_button')}
+          </Button>
+        </div>
+      );
+    }
+
+    if (app.session.user!.canSendAnyMessage() && ReplyPlaceholder) {
+      items.push(
+        <div className="MessageStream-item" key="reply">
           <ReplyPlaceholder
             discussion={this.attrs.dialog}
             onclick={() => {
@@ -135,9 +159,9 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
 
   messageItem(message: DialogMessage, index: number) {
     return (
-      <div className="MessageStream-item" key={index} data-id={message.id()}>
+      <div className="MessageStream-item" key={index} data-id={message.id()} data-number={message.number()}>
         {this.timeGap(message)}
-        <Message message={message} />
+        <Message message={message} state={this.attrs.state} />
       </div>
     );
   }
@@ -177,7 +201,7 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
         return this.attrs.state.loadNext();
       }
 
-      if (this.element.scrollTop + this.element.clientHeight === this.element.scrollHeight && this.attrs.state.hasPrev()) {
+      if (this.element.scrollTop + this.element.clientHeight >= this.element.scrollHeight && this.attrs.state.hasPrev()) {
         return this.attrs.state.loadPrev();
       }
 
@@ -186,16 +210,34 @@ export default class MessageStream<CustomAttrs extends IDialogStreamAttrs = IDia
   }
 
   scrollToBottom() {
-    this.element.scrollTop = this.element.scrollHeight;
+    const near = m.route.param('near');
+
+    if (near) {
+      const $message = this.element.querySelector(`.MessageStream-item[data-number="${near}"]`);
+
+      if ($message) {
+        this.element.scrollTop = $message.getBoundingClientRect().top - this.element.getBoundingClientRect().top;
+        $message.classList.add('flash');
+
+        // forget near
+        window.history.replaceState(null, '', app.route.dialog(this.attrs.dialog));
+      } else {
+        this.element.scrollTop = this.element.scrollHeight;
+      }
+    } else {
+      this.element.scrollTop = this.element.scrollHeight;
+    }
   }
 
   whileMaintainingScroll(callback: () => null | Promise<void>) {
     const scrollTop = this.element.scrollTop;
     const scrollHeight = this.element.scrollHeight;
 
+    const closerToBottomThanTop = scrollTop > (scrollHeight - this.element.clientHeight) / 2;
+
     const result = callback();
 
-    if (result instanceof Promise) {
+    if (result instanceof Promise && !closerToBottomThanTop) {
       result.then(() => {
         requestAnimationFrame(() => {
           this.element.scrollTop = this.element.scrollHeight - scrollHeight + scrollTop;

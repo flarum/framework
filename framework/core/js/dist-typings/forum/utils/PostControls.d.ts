@@ -9,6 +9,11 @@ declare namespace PostControls {
      * @return {ItemList<import('mithril').Children>}')}
      */
     function controls(post: import("../../common/models/Post").default, context: import("../../common/Component").default<any, any>): ItemList<import("mithril").Children>;
+    function sections(): {
+        user: (post: import("../../common/models/Post").default, context: import("../../common/Component").default<any, any>) => ItemList<import("mithril").Children>;
+        moderation: (post: import("../../common/models/Post").default, context: import("../../common/Component").default<any, any>) => ItemList<import("mithril").Children>;
+        destructive: (post: import("../../common/models/Post").default, context: import("../../common/Component").default<any, any>) => ItemList<import("mithril").Children>;
+    };
     /**
      * Get controls for a post pertaining to the current user (e.g. report).
      *

@@ -123,21 +123,22 @@ class PostResource extends AbstractDatabaseResource
             Endpoint\Index::make()
                 ->extractOffset(function (Context $context, array $defaultExtracts): int {
                     $queryParams = $context->request->getQueryParams();
+                    $near = intval(Arr::get($queryParams, 'page.near'));
 
-                    if (($near = Arr::get($queryParams, 'page.near')) > 1) {
+                    if ($near > 1) {
                         $sort = $defaultExtracts['sort'];
                         $filter = $defaultExtracts['filter'];
 
-                        if (count($filter) > 1 || ! isset($filter['discussion']) || $sort) {
+                        if (count($filter) > 1 || ! isset($filter['discussion']) || ($sort && $sort !== ['number' => 'asc'])) {
                             throw new BadRequestException(
                                 'You can only use page[near] with filter[discussion] and the default sort order'
                             );
                         }
 
                         $limit = $defaultExtracts['limit'];
-                        $offset = $this->posts->getIndexForNumber((int) $filter['discussion'], $near, $context->getActor());
+                        $index = $this->posts->getIndexForNumber((int) $filter['discussion'], $near, $context->getActor());
 
-                        return max(0, $offset - $limit / 2);
+                        return max(0, $index - $limit / 2);
                     }
 
                     return $defaultExtracts['offset'];
@@ -149,6 +150,7 @@ class PostResource extends AbstractDatabaseResource
                     'hiddenUser',
                     'discussion'
                 ])
+                ->defaultSort('number')
                 ->paginate(static::$defaultLimit),
         ];
     }

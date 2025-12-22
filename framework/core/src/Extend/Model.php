@@ -13,7 +13,6 @@ use Flarum\Database\AbstractModel;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\ContainerUtil;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 
 /**
@@ -38,7 +37,6 @@ class Model implements ExtenderInterface
      *
      * @param string $attribute: The new attribute name.
      * @param string $cast: The cast type. See https://laravel.com/docs/11.x/eloquent-mutators#attribute-casting
-     * @return self
      */
     public function cast(string $attribute, string $cast): self
     {
@@ -51,10 +49,6 @@ class Model implements ExtenderInterface
      * Add a default value for a given attribute, which can be an explicit value, a closure,
      * or an instance of an invokable class. Unlike with some other extenders,
      * it CANNOT be the `::class` attribute of an invokable class.
-     *
-     * @param string $attribute
-     * @param mixed $value
-     * @return self
      */
     public function default(string $attribute, mixed $value): self
     {
@@ -74,7 +68,6 @@ class Model implements ExtenderInterface
      * @param string $related: The ::class attribute of the model, which should extend \Flarum\Database\AbstractModel.
      * @param string|null $foreignKey: The foreign key attribute of the parent model.
      * @param string|null $ownerKey: The primary key attribute of the parent model.
-     * @return self
      */
     public function belongsTo(string $name, string $related, ?string $foreignKey = null, ?string $ownerKey = null): self
     {
@@ -97,7 +90,6 @@ class Model implements ExtenderInterface
      * @param string|null $relatedPivotKey: The associated key attribute of the relation.
      * @param string|null $parentKey: The key name of the parent model.
      * @param string|null $relatedKey: The key name of the related model.
-     * @return self
      */
     public function belongsToMany(
         string $name,
@@ -124,7 +116,6 @@ class Model implements ExtenderInterface
      * @param string $related: The ::class attribute of the model, which should extend \Flarum\Database\AbstractModel.
      * @param string|null $foreignKey: The foreign key attribute of the parent model.
      * @param string|null $localKey: The primary key attribute of the parent model.
-     * @return self
      */
     public function hasOne(string $name, string $related, ?string $foreignKey = null, ?string $localKey = null): self
     {
@@ -144,7 +135,6 @@ class Model implements ExtenderInterface
      * @param string $related: The ::class attribute of the model, which should extend \Flarum\Database\AbstractModel.
      * @param string|null $foreignKey: The foreign key attribute of the parent model.
      * @param string|null $localKey: The primary key attribute of the parent model.
-     * @return self
      */
     public function hasMany(string $name, string $related, ?string $foreignKey = null, ?string $localKey = null): self
     {
@@ -167,8 +157,6 @@ class Model implements ExtenderInterface
      * The callable should return:
      * - $relationship: A Laravel Relationship object. See relevant methods of models
      *                  like \Flarum\User\User for examples of how relationships should be returned.
-     *
-     * @return self
      */
     public function relationship(string $name, callable|string $callback): self
     {

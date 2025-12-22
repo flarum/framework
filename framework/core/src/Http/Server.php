@@ -21,10 +21,10 @@ use Laminas\Stratigility\Middleware\ErrorResponseGenerator;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
-class Server
+readonly class Server
 {
     public function __construct(
-        private readonly SiteInterface $site
+        private SiteInterface $site
     ) {
     }
 
@@ -76,7 +76,6 @@ class Server
      * There is always a risk for this to fail,
      * for example if the container bindings aren't present
      * or if there is a filesystem error.
-     * @param Throwable $error
      * @throws Throwable
      */
     private function cleanBootExceptionLog(Throwable $error): void
@@ -99,7 +98,9 @@ class Server
 <pre>$error</pre>
 ERROR;
             exit(1);
-        } elseif ($container->has(LoggerInterface::class)) {
+        }
+
+        if ($container->has(LoggerInterface::class)) {
             // If the application booted far enough for the logger to be available, we will log the error there
             // Considering most boot errors are related to database or extensions, the logger should already be loaded
             // We check for LoggerInterface binding because it's a constructor dependency of LogReporter,

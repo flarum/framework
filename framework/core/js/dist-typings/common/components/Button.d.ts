@@ -5,8 +5,10 @@ export interface IButtonAttrs extends ComponentAttrs {
      * Class(es) of an optional icon to be rendered within the button.
      *
      * If provided, the button will gain a `has-icon` class.
+     *
+     * You may also provide a rendered icon element directly.
      */
-    icon?: string;
+    icon?: string | boolean | Mithril.Children;
     /**
      * Disables button from user input.
      *
@@ -36,6 +38,12 @@ export interface IButtonAttrs extends ComponentAttrs {
      * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#attr-type
      */
     type?: string;
+    /**
+     * Helper text. Displayed under the button label.
+     *
+     * Default: `null`
+     */
+    helperText?: Mithril.Children;
 }
 /**
  * The `Button` component defines an element which, when clicked, performs an
@@ -54,4 +62,5 @@ export default class Button<CustomAttrs extends IButtonAttrs = IButtonAttrs> ext
      * Get the template for the button's content.
      */
     protected getButtonContent(children: Mithril.Children): Mithril.ChildArray;
+    protected getButtonSubContent(): Mithril.Children;
 }

@@ -103,7 +103,7 @@ class NotificationSyncer
         // receiving this notification for the first time (we know because they
         // didn't have a record in the database). As both operations can be
         // intensive on resources (database and mail server), we queue them.
-        foreach (static::getNotificationDrivers() as $driverName => $driver) {
+        foreach (static::getNotificationDrivers() as $driver) {
             $driver->send($blueprint, $newRecipients);
         }
     }

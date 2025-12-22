@@ -7,6 +7,7 @@ export type SettingDropdownOption = {
 export interface ISettingDropdownAttrs extends ISelectDropdownAttrs {
     setting?: string;
     options: Array<SettingDropdownOption>;
+    default: any;
 }
 export default class SettingDropdown<CustomAttrs extends ISettingDropdownAttrs = ISettingDropdownAttrs> extends SelectDropdown<CustomAttrs> {
     static initAttrs(attrs: ISettingDropdownAttrs): void;

@@ -25,9 +25,13 @@ class FormatGroupMentions
     public function __invoke(Renderer $renderer, mixed $context, string $xml): string
     {
         return Utils::replaceAttributes($xml, 'GROUPMENTION', function ($attributes) use ($context) {
-            $group = ($context instanceof AbstractModel && $context->isRelation('mentionsGroups'))
-                ? $context->mentionsGroups->find($attributes['id']) // @phpstan-ignore-line
-                : Group::find($attributes['id']);
+            /** @var Group|null $group */
+            $group = match (true) {
+                $context instanceof AbstractModel && $context->isRelation('mentionsGroups') => $context->relationLoaded('mentionsGroups')
+                    ? $context->mentionsGroups->find($attributes['id']) // @phpstan-ignore-line
+                    : $context->mentionsGroups()->find($attributes['id']), // @phpstan-ignore-line
+                default => Group::query()->find($attributes['id']),
+            };
 
             if ($group) {
                 $attributes['groupname'] = $group->name_plural;

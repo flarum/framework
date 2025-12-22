@@ -37,10 +37,10 @@ class EmailConfirmationMailer
 
         $this->queue->push(new SendInformationalEmailJob(
             email: $email,
-            subject:$subject,
+            displayName: Arr::get($data, 'username'),
+            subject: $subject,
             body: $body,
-            forumTitle: Arr::get($data, 'forum'),
-            displayName: Arr::get($data, 'username')
+            forumTitle: Arr::get($data, 'forum')
         ));
     }
 

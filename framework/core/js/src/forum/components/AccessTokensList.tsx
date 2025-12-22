@@ -1,6 +1,7 @@
 import app from '../app';
 import Component, { ComponentAttrs } from '../../common/Component';
 import Button from '../../common/components/Button';
+import IPAddress from '../../common/components/IPAddress';
 import humanTime from '../../common/helpers/humanTime';
 import ItemList from '../../common/utils/ItemList';
 import LabelValue from '../../common/components/LabelValue';
@@ -105,7 +106,12 @@ export default class AccessTokensList<CustomAttrs extends IAccessTokensListAttrs
             token.lastActivityAt() ? (
               <>
                 {humanTime(token.lastActivityAt())}
-                {token.lastIpAddress() && ` — ${token.lastIpAddress()}`}
+                {token.lastIpAddress() && (
+                  <span>
+                    {' '}
+                    — <IPAddress ip={token.lastIpAddress()} />
+                  </span>
+                )}
                 {this.attrs.type === 'developer_token' && token.device() && (
                   <>
                     {' '}

@@ -17,6 +17,13 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
     sectionItems(): ItemList<Mithril.Children>;
     searchDrivers(): JSX.Element;
     maintenance(): JSX.Element;
+    queue(): JSX.Element;
+    queueItems(): ItemList<Mithril.Children>;
+    queueSyncContent(): JSX.Element;
+    queueDatabaseContent(): JSX.Element;
+    queueDatabaseSettings(): ItemList<Mithril.Children>;
+    queueCustomContent(): JSX.Element;
     pgsqlSettings(): JSX.Element;
+    fontAwesome(): JSX.Element;
     static register(): void;
 }

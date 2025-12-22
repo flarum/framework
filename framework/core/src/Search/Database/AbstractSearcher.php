@@ -52,7 +52,7 @@ abstract class AbstractSearcher implements SearcherInterface
         // results. If there are, we will get rid of that extra result.
         $results = $query->get();
 
-        if ($areMoreResults = $criteria->limit > 0 && $results->count() > $criteria->limit) {
+        if ($areMoreResults = ($criteria->limit > 0 && $results->count() > $criteria->limit)) {
             $results->pop();
         }
 

@@ -65,6 +65,12 @@ export interface AdminApplicationData extends ApplicationData {
   maintenanceByConfig: boolean;
   safeModeExtensions?: string[] | null;
   safeModeExtensionsConfig?: string[] | null;
+  fontawesomeByConfig: boolean;
+  fontawesomeConfig?: {
+    source: string;
+    cdn_url: string | null;
+    kit_url: string | null;
+  };
 
   dbDriver: DatabaseDriver;
   dbVersion: string;
@@ -84,7 +90,7 @@ export default class AdminApplication extends Application {
    */
   registry = new AdminRegistry();
 
-  extensionCategories = {
+  extensionCategories: Record<string, number> = {
     feature: 30,
     theme: 20,
     language: 10,
@@ -130,12 +136,14 @@ export default class AdminApplication extends Application {
     this.route = (Object.getPrototypeOf(Object.getPrototypeOf(this)) as Application).route.bind(this);
   }
 
-  protected beforeMount(): void {
+  protected runBeforeMount(): void {
     BasicsPage.register();
     AppearancePage.register();
     MailPage.register();
     AdvancedPage.register();
     PermissionsPage.register();
+
+    super.runBeforeMount();
   }
 
   /**

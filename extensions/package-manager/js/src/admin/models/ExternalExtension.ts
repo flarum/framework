@@ -22,20 +22,8 @@ export default class ExternalExtension extends Model {
   locale = Model.attribute<string>('locale');
   latestFlarumVersionSupported = Model.attribute<string>('latestFlarumVersionSupported');
   downloads = Model.attribute<number>('downloads');
+  isSupported = Model.attribute<boolean>('isSupported');
   readonly installed = false;
-
-  public isSupported(): boolean {
-    const currentVersion = app.data.settings.version;
-    const latestCompatibleVersion = this.latestFlarumVersionSupported();
-
-    // If stability is not the same, it's not compatible.
-    if (currentVersion.split('-')[1] !== latestCompatibleVersion.split('-')[1]) {
-      return false;
-    }
-
-    // Minor versions are compatible.
-    return currentVersion.split('.')[0] === latestCompatibleVersion.split('.')[0];
-  }
 
   public isProductionReady(): boolean {
     return isProductionReady(this.highestVersion());

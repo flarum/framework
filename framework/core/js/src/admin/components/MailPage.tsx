@@ -93,10 +93,10 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
   mailSettingItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
-    const fields = this.driverFields![this.setting('mail_driver')()];
+    const fields = this.driverFields![this.setting('mail_driver')()] || {};
     const fieldKeys = Object.keys(fields);
 
-    if (this.status!.sending) {
+    if (!this.status!.sending) {
       items.add('status', <Alert dismissible={false}>{app.translator.trans('core.admin.email.not_sending_message')}</Alert>);
     }
 
@@ -138,14 +138,45 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
     );
 
     if (!!fieldKeys.length) {
+      const driver = this.setting('mail_driver')();
+      const descriptionKey = `core.admin.email.${driver}_description`;
+      const descriptionText = app.translator.trans(descriptionKey);
+
       items.add(
         'mail_driver_settings',
         <FieldSet
-          label={app.translator.trans(`core.admin.email.${this.setting('mail_driver')()}_heading`)}
+          label={app.translator.trans(`core.admin.email.${driver}_heading`)}
           className="MailPage-MailSettings FieldSet--form"
+          description={descriptionText}
         >
           {fieldKeys.map((field) => {
             const fieldInfo = fields[field];
+
+            // For encryption field, show all help text options above the dropdown
+            let helpText;
+            if (field === 'mail_encryption') {
+              const tlsHelp = app.translator.trans('core.admin.email.mail_encryption_tls_help');
+              const sslHelp = app.translator.trans('core.admin.email.mail_encryption_ssl_help');
+              const noneHelp = app.translator.trans('core.admin.email.mail_encryption_none_help');
+
+              helpText = (
+                <>
+                  <div>
+                    <strong>TLS:</strong> {tlsHelp}
+                  </div>
+                  <div>
+                    <strong>SSL:</strong> {sslHelp}
+                  </div>
+                  <div>
+                    <strong>None:</strong> {noneHelp}
+                  </div>
+                </>
+              );
+            } else {
+              const helpKey = `core.admin.email.${field}_help`;
+              const translatedHelp = app.translator.trans(helpKey);
+              helpText = translatedHelp !== helpKey ? translatedHelp : undefined;
+            }
 
             return (
               <>
@@ -154,8 +185,17 @@ export default class MailPage<CustomAttrs extends IPageAttrs = IPageAttrs> exten
                   label: app.translator.trans(`core.admin.email.${field}_label`),
                   setting: field,
                   options: fieldInfo,
+                  help: helpText,
                 })}
-                {this.status!.errors[field] && <p className="ValidationError">{this.status!.errors[field]}</p>}
+                {this.status!.errors[field] && (
+                  <div className="ValidationError">
+                    {Array.isArray(this.status!.errors[field]) ? (
+                      this.status!.errors[field].map((error: string) => <p key={error}>{error}</p>)
+                    ) : (
+                      <p>{this.status!.errors[field]}</p>
+                    )}
+                  </div>
+                )}
               </>
             );
           })}

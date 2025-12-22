@@ -17,11 +17,11 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class CheckForMaintenanceMode implements MiddlewareInterface
+readonly class CheckForMaintenanceMode implements MiddlewareInterface
 {
     public function __construct(
-        private readonly MaintenanceMode $maintenance,
-        private readonly array $exemptRoutes,
+        private MaintenanceMode $maintenance,
+        private array $exemptRoutes,
     ) {
     }
 
@@ -30,7 +30,7 @@ class CheckForMaintenanceMode implements MiddlewareInterface
         $actor = RequestUtil::getActor($request);
         $isRouteExcluded = in_array($request->getAttribute('routeName'), $this->exemptRoutes, true);
 
-        if ($this->maintenance->inMaintenanceMode() && ! $actor->isAdmin() && ! $isRouteExcluded) {
+        if (! $isRouteExcluded && $this->maintenance->inMaintenanceMode() && ! $actor->isAdmin()) {
             throw new MaintenanceModeException('The forum is currently in maintenance mode.');
         }
 

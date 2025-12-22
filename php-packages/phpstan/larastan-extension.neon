@@ -281,16 +281,11 @@ services:
             - phpstan.broker.dynamicFunctionReturnTypeExtension
 
     -
-        class: Larastan\Larastan\ReturnTypes\CollectionFilterDynamicReturnTypeExtension
+        class: Larastan\Larastan\ReturnTypes\CollectionFilterRejectDynamicReturnTypeExtension
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
     -
         class: Larastan\Larastan\ReturnTypes\CollectionWhereNotNullDynamicReturnTypeExtension
-        tags:
-            - phpstan.broker.dynamicMethodReturnTypeExtension
-
-    -
-        class: Larastan\Larastan\ReturnTypes\EnumerableGenericStaticMethodDynamicMethodReturnTypeExtension
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
 
@@ -303,11 +298,6 @@ services:
         class: Larastan\Larastan\ReturnTypes\FactoryDynamicMethodReturnTypeExtension
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
-
-    -
-        class: Larastan\Larastan\ReturnTypes\EnumerableGenericStaticMethodDynamicStaticMethodReturnTypeExtension
-        tags:
-            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
 
     -
         class: Larastan\Larastan\Types\AbortIfFunctionTypeSpecifyingExtension

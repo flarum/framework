@@ -52,9 +52,7 @@ class CookieFactory
                 ->withExpires(time() + $maxAge);
         }
 
-        if ($this->domain != null) {
-            $cookie = $cookie->withDomain($this->domain);
-        }
+        $cookie = $cookie->withDomain($this->domain);
 
         // Explicitly set SameSite value, use sensible default if no value provided
         $cookie = $cookie->withSameSite(SameSite::{$this->samesite ?? 'lax'}());

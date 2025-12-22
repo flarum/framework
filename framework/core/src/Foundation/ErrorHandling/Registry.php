@@ -19,12 +19,12 @@ use Throwable;
  * of it, map them to error "types" and how to determine appropriate HTTP status
  * codes for them.
  */
-class Registry
+readonly class Registry
 {
     public function __construct(
-        private readonly array $statusMap,
-        private readonly array $classMap,
-        private readonly array $handlerMap
+        private array $statusMap,
+        private array $classMap,
+        private array $handlerMap
     ) {
     }
 
@@ -36,9 +36,6 @@ class Registry
      * of {@see HandledError}.
      *
      * Even for unknown exceptions, a generic fallback will always be returned.
-     *
-     * @param Throwable $error
-     * @return HandledError
      */
     public function handle(Throwable $error): HandledError
     {

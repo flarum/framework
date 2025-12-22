@@ -18,6 +18,8 @@ use Symfony\Component\Mailer\Transport\TransportInterface;
 
 class SmtpDriver implements DriverInterface
 {
+    use ValidatesMailSettings;
+
     public function __construct(
         protected EsmtpTransportFactory $factory
     ) {
@@ -28,7 +30,11 @@ class SmtpDriver implements DriverInterface
         return [
             'mail_host' => '', // a hostname, IPv4 address or IPv6 wrapped in []
             'mail_port' => '', // a number, defaults to 25
-            'mail_encryption' => '', // "tls" or "ssl"
+            'mail_encryption' => [ // Dropdown options for encryption
+                '' => 'None',
+                'tls' => 'TLS',
+                'ssl' => 'SSL',
+            ],
             'mail_username' => '',
             'mail_password' => '',
         ];
@@ -37,11 +43,11 @@ class SmtpDriver implements DriverInterface
     public function validate(SettingsRepositoryInterface $settings, Factory $validator): MessageBag
     {
         return $validator->make($settings->all(), [
-            'mail_host' => 'required',
-            'mail_port' => 'nullable|integer',
+            'mail_host' => ['required', $this->noWhiteSpace()],
+            'mail_port' => ['nullable', 'integer', $this->noWhiteSpace()],
             'mail_encryption' => 'nullable|in:tls,ssl,TLS,SSL',
-            'mail_username' => 'nullable|string',
-            'mail_password' => 'nullable|string',
+            'mail_username' => ['nullable', 'string', $this->noWhiteSpace()],
+            'mail_password' => ['nullable', 'string', $this->noWhiteSpace()],
         ])->errors();
     }
 
@@ -52,8 +58,14 @@ class SmtpDriver implements DriverInterface
 
     public function buildTransport(SettingsRepositoryInterface $settings): TransportInterface
     {
+        $encryption = strtolower((string) $settings->get('mail_encryption'));
+
+        // 'ssl' means implicit TLS/SSL (smtps://), typically used with port 465
+        // 'tls' or empty means STARTTLS (smtp://), typically used with port 587 or 25
+        $scheme = ($encryption === 'ssl') ? 'smtps' : 'smtp';
+
         return $this->factory->create(new Dsn(
-            $settings->get('mail_encryption') === 'tls' ? 'smtps' : '',
+            $scheme,
             $settings->get('mail_host'),
             $settings->get('mail_username'),
             $settings->get('mail_password'),

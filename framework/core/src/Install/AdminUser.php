@@ -12,12 +12,12 @@ namespace Flarum\Install;
 use Carbon\Carbon;
 use Illuminate\Hashing\BcryptHasher;
 
-class AdminUser
+readonly class AdminUser
 {
     public function __construct(
-        private readonly string $username,
-        private readonly string $password,
-        private readonly string $email
+        private string $username,
+        #[\SensitiveParameter] private string $password,
+        private string $email
     ) {
         $this->validate();
     }

@@ -10,6 +10,8 @@ export interface IWelcomeHeroAttrs {
 export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
     oninit(vnode: Mithril.Vnode<IWelcomeHeroAttrs, this>): void;
     view(vnode: Mithril.Vnode<IWelcomeHeroAttrs, this>): JSX.Element | null;
+    viewItems(): ItemList<Mithril.Children>;
+    contentItems(): ItemList<Mithril.Children>;
     /**
      * Hide the welcome hero.
      */
@@ -20,5 +22,4 @@ export default class WelcomeHero extends Component<IWelcomeHeroAttrs> {
      * @returns if the welcome hero is hidden.
      */
     isHidden(): boolean;
-    welcomeItems(): ItemList<Mithril.Children>;
 }

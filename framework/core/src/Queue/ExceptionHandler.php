@@ -13,17 +13,16 @@ use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandling;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
-class ExceptionHandler implements ExceptionHandling
+readonly class ExceptionHandler implements ExceptionHandling
 {
     public function __construct(
-        private readonly LoggerInterface $logger
+        private LoggerInterface $logger
     ) {
     }
 
     /**
      * Report or log an exception.
      *
-     * @param  Throwable $e
      * @return void
      */
     public function report(Throwable $e)
@@ -35,7 +34,6 @@ class ExceptionHandler implements ExceptionHandling
      * Render an exception into an HTTP response.
      *
      * @param  \Illuminate\Http\Request $request
-     * @param  Throwable               $e
      * @return void
      */
     public function render($request, Throwable $e) /** @phpstan-ignore-line */
@@ -47,7 +45,6 @@ class ExceptionHandler implements ExceptionHandling
      * Render an exception to the console.
      *
      * @param  \Symfony\Component\Console\Output\OutputInterface $output
-     * @param  Throwable                                        $e
      * @return void
      */
     public function renderForConsole($output, Throwable $e)
@@ -58,7 +55,6 @@ class ExceptionHandler implements ExceptionHandling
     /**
      * Determine if the exception should be reported.
      *
-     * @param  Throwable $e
      * @return bool
      */
     public function shouldReport(Throwable $e)

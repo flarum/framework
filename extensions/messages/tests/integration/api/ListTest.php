@@ -39,12 +39,12 @@ class ListTest extends TestCase
                 ['id' => 104, 'type' => 'direct'],
             ],
             DialogMessage::class => [
-                ['id' => 102, 'dialog_id' => 102, 'user_id' => 3, 'content' => 'Hello, Gale!'],
-                ['id' => 103, 'dialog_id' => 102, 'user_id' => 4, 'content' => 'Hello, Astarion!'],
-                ['id' => 104, 'dialog_id' => 103, 'user_id' => 3, 'content' => 'Hello, Karlach!'],
-                ['id' => 105, 'dialog_id' => 103, 'user_id' => 5, 'content' => 'Hello, Astarion!'],
-                ['id' => 106, 'dialog_id' => 104, 'user_id' => 4, 'content' => 'Hello, Karlach!'],
-                ['id' => 107, 'dialog_id' => 104, 'user_id' => 5, 'content' => 'Hello, Gale!'],
+                ['id' => 102, 'dialog_id' => 102, 'user_id' => 3, 'content' => 'Hello, Gale!', 'number' => 1],
+                ['id' => 103, 'dialog_id' => 102, 'user_id' => 4, 'content' => 'Hello, Astarion!', 'number' => 2],
+                ['id' => 104, 'dialog_id' => 103, 'user_id' => 3, 'content' => 'Hello, Karlach!', 'number' => 1],
+                ['id' => 105, 'dialog_id' => 103, 'user_id' => 5, 'content' => 'Hello, Astarion!', 'number' => 2],
+                ['id' => 106, 'dialog_id' => 104, 'user_id' => 4, 'content' => 'Hello, Karlach!', 'number' => 1],
+                ['id' => 107, 'dialog_id' => 104, 'user_id' => 5, 'content' => 'Hello, Gale!', 'number' => 2],
             ],
             'dialog_user' => [
                 ['dialog_id' => 102, 'user_id' => 3, 'joined_at' => Carbon::now()],
@@ -124,5 +124,50 @@ class ListTest extends TestCase
             'Gale can see messages in dialogs with Astarion and Karlach' => [4, [102, 103, 106, 107]],
             'Karlach can see messages in dialogs with Astarion and Gale' => [5, [104, 105, 106, 107]],
         ];
+    }
+
+    public function test_can_list_near_accessible_dialog_messages(): void
+    {
+        $messages = [];
+
+        for ($i = 1; $i <= 40; $i++) {
+            $messages[] = ['id' => 200 + $i, 'dialog_id' => 200, 'user_id' => $i % 2 === 0 ? 3 : 4, 'content' => '<t>Hello, Gale!</t>', 'number' => $i];
+        }
+
+        $this->prepareDatabase([
+            Dialog::class => [
+                ['id' => 200, 'type' => 'direct'],
+            ],
+            DialogMessage::class => $messages,
+            'dialog_user' => [
+                ['dialog_id' => 200, 'user_id' => 3, 'joined_at' => Carbon::now()],
+                ['dialog_id' => 200, 'user_id' => 4, 'joined_at' => Carbon::now()],
+            ],
+        ]);
+
+        $this->database()->table('dialogs')->where('id', '!=', 200)->delete();
+        $this->database()->table('dialog_messages')->where('dialog_id', '!=', 200)->delete();
+
+        $response = $this->send(
+            $this->request('GET', '/api/dialog-messages', [
+                'authenticatedAs' => 3,
+            ])->withQueryParams([
+                'include' => 'dialog',
+                'page' => ['near' => 10],
+                'filter' => ['dialog' => 200],
+            ]),
+        );
+
+        $json = $response->getBody()->getContents();
+        $prettyJson = json_encode($json, JSON_PRETTY_PRINT);
+
+        $this->assertEquals(200, $response->getStatusCode(), $prettyJson);
+        $this->assertJson($json);
+
+        $data = json_decode($json, true)['data'];
+        $prettyJson = json_encode(json_decode($json), JSON_PRETTY_PRINT);
+
+        $this->assertEquals(40, $this->database()->table('dialog_messages')->count());
+        $this->assertCount(19, $data, $prettyJson);
     }
 }

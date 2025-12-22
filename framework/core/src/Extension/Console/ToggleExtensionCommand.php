@@ -46,19 +46,19 @@ class ToggleExtensionCommand extends AbstractCommand
                 $this->info("The '$name' extension is already enabled.");
 
                 return Command::FAILURE;
-            } else {
-                $this->info("Enabling '$name' extension...");
-                $this->extensionManager->enable($name);
             }
+
+            $this->info("Enabling '$name' extension...");
+            $this->extensionManager->enable($name);
         } else {
             if (! $this->extensionManager->isEnabled($name)) {
                 $this->info("The '$name' extension is already disabled.");
 
                 return Command::FAILURE;
-            } else {
-                $this->info("Disabling '$name' extension...");
-                $this->extensionManager->disable($name);
             }
+
+            $this->info("Disabling '$name' extension...");
+            $this->extensionManager->disable($name);
         }
 
         return Command::SUCCESS;

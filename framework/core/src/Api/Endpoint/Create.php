@@ -89,7 +89,7 @@ class Create extends Endpoint
     final protected function fillDefaultValues(Context $context, array &$data): void
     {
         foreach ($context->fields($context->resource) as $field) {
-            if (! has_value($data, $field) && ($default = $field->default)) {
+            if (($default = $field->default) && ! has_value($data, $field)) {
                 set_value($data, $field, $default($context->withField($field)));
             }
         }

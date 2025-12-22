@@ -78,11 +78,24 @@ export default class PostStream extends Component {
         content = <LoadingPost />;
       }
 
-      return (
+      const postStreamElement = (
         <div className="PostStream-item" {...attrs}>
           {content}
         </div>
       );
+
+      const afterPostItems = post && post.id() === this.discussion.data.relationships.firstPost?.data.id ? this.afterFirstPostItems().toArray() : [];
+
+      if (afterPostItems.length > 0) {
+        return m.fragment({ ...attrs }, [
+          postStreamElement,
+          <div className="PostStream-item PostStream-afterFirstPost" key="afterFirstPost">
+            {afterPostItems}
+          </div>,
+        ]);
+      }
+
+      return postStreamElement;
     });
 
     if (!viewingEnd && posts[this.stream.visibleEnd - this.stream.visibleStart - 1]) {
@@ -115,6 +128,15 @@ export default class PostStream extends Component {
         {items}
       </div>
     );
+  }
+
+  /**
+   * @returns {ItemList<import('mithril').Children>}
+   */
+  afterFirstPostItems() {
+    const items = new ItemList();
+
+    return items;
   }
 
   /**

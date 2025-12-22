@@ -216,6 +216,6 @@ trait InteractsWithLaravel
 
     public function joinPaths(string $basePath, string $path = ''): string
     {
-        return $basePath.($path != '' ? DIRECTORY_SEPARATOR.ltrim($path, DIRECTORY_SEPARATOR) : '');
+        return $basePath.($path !== '' ? DIRECTORY_SEPARATOR.ltrim($path, DIRECTORY_SEPARATOR) : '');
     }
 }

@@ -60,7 +60,7 @@ trait HasAuthorization
             : ($this->authenticated)($context));
     }
 
-    public function getAuthorized(Context $context): string|null
+    public function getAuthorized(Context $context): ?string
     {
         if (! is_callable($this->ability)) {
             return $this->ability;

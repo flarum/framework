@@ -207,9 +207,6 @@ class Formatter
 
     /**
      * Converts a plain text string (with or without Markdown) to it's HTML equivalent.
-     *
-     * @param ?string $content
-     * @return string
      */
     public function convert(?string $content): string
     {

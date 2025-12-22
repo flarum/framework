@@ -42,7 +42,9 @@ class ThrottleApi implements Middleware
             // Anything else is ignored.
             if ($result === false) {
                 return false;
-            } elseif ($result === true) {
+            }
+
+            if ($result === true) {
                 $throttle = true;
             }
         }

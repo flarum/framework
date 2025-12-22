@@ -35,7 +35,7 @@ class Site
 
         ini_set('display_errors', 0);
 
-        if (! $config->inDebugMode() && function_exists('error_reporting')) {
+        if (function_exists('error_reporting') && ! $config->inDebugMode()) {
             error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
         }
 

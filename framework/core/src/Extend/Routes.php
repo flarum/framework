@@ -43,8 +43,6 @@ class Routes implements ExtenderInterface
      *
      * The handler should return:
      * - \Psr\Http\Message\ResponseInterface $response
-     *
-     * @return self
      */
     public function get(string $path, string $name, callable|string $handler): self
     {
@@ -66,8 +64,6 @@ class Routes implements ExtenderInterface
      *
      * The handler should return:
      * - \Psr\Http\Message\ResponseInterface $response
-     *
-     * @return self
      */
     public function post(string $path, string $name, callable|string $handler): self
     {
@@ -89,8 +85,6 @@ class Routes implements ExtenderInterface
      *
      * The handler should return:
      * - \Psr\Http\Message\ResponseInterface $response
-     *
-     * @return self
      */
     public function put(string $path, string $name, callable|string $handler): self
     {
@@ -112,8 +106,6 @@ class Routes implements ExtenderInterface
      *
      * The handler should return:
      * - \Psr\Http\Message\ResponseInterface $response
-     *
-     * @return self
      */
     public function patch(string $path, string $name, callable|string $handler): self
     {
@@ -135,8 +127,6 @@ class Routes implements ExtenderInterface
      *
      * The handler should return:
      * - \Psr\Http\Message\ResponseInterface $response
-     *
-     * @return self
      */
     public function delete(string $path, string $name, callable|string $handler): self
     {
@@ -160,7 +150,6 @@ class Routes implements ExtenderInterface
      * Necessary before overriding a route.
      *
      * @param string $name: The name of the route.
-     * @return self
      */
     public function remove(string $name): self
     {

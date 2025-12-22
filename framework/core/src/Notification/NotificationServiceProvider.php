@@ -64,7 +64,7 @@ class NotificationServiceProvider extends AbstractServiceProvider
             $blueprintClass::getSubjectModel()
         );
 
-        foreach (NotificationSyncer::getNotificationDrivers() as $driverName => $driver) {
+        foreach (NotificationSyncer::getNotificationDrivers() as $driver) {
             $driver->registerType(
                 $blueprintClass,
                 $driversEnabledByDefault

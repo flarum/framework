@@ -9,9 +9,12 @@ import Comment from 'flarum/forum/components/Comment';
 import PostUser from 'flarum/forum/components/PostUser';
 import PostMeta from 'flarum/forum/components/PostMeta';
 import classList from 'flarum/common/utils/classList';
+import MessageControls from '../utils/MessageControls';
+import type MessageStreamState from '../states/MessageStreamState';
 
 export interface IMessageAttrs extends IAbstractPostAttrs {
   message: DialogMessage;
+  state: MessageStreamState;
 }
 
 /**
@@ -29,7 +32,7 @@ export default abstract class Message<CustomAttrs extends IMessageAttrs = IMessa
   }
 
   controls(): Mithril.Children[] {
-    return [];
+    return MessageControls.controls(this.attrs.message, this).toArray();
   }
 
   freshness(): Date {
@@ -97,7 +100,7 @@ export default abstract class Message<CustomAttrs extends IMessageAttrs = IMessa
   }
 
   avatar(): Mithril.Children {
-    return this.attrs.message.user() ? <Avatar user={this.attrs.message.user()} /> : '';
+    return this.attrs.message.user() ? <Avatar user={this.attrs.message.user()} className="Post-avatar" /> : '';
   }
 
   headerItems() {
@@ -105,7 +108,21 @@ export default abstract class Message<CustomAttrs extends IMessageAttrs = IMessa
     const message = this.attrs.message;
 
     items.add('user', <PostUser post={message} />, 100);
-    items.add('meta', <PostMeta post={message} />);
+    items.add(
+      'meta',
+      <PostMeta
+        post={message}
+        permalink={() => {
+          const dialog = message.dialog();
+
+          if (!dialog) {
+            return null;
+          }
+
+          return app.forum.attribute('baseOrigin') + app.route.dialog(dialog, message.number());
+        }}
+      />
+    );
 
     return items;
   }

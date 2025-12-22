@@ -15,10 +15,10 @@ use Illuminate\Support\MessageBag;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 
-class LogDriver implements DriverInterface
+readonly class LogDriver implements DriverInterface
 {
     public function __construct(
-        private readonly LoggerInterface $logger
+        private LoggerInterface $logger
     ) {
     }
 

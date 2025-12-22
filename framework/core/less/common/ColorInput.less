@@ -30,7 +30,12 @@
   }
 
   &-icon {
-    text-align: center;
     color: var(--validation-error-color);
+
+    // FontAwesome Kit overrides display which breaks vertical centering
+    // Use flexbox with !important to maintain proper icon alignment
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center;
   }
 }

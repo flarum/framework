@@ -9,7 +9,7 @@ export default [
         label: app.translator.trans('flarum-pusher.admin.pusher_settings.app_id_label'),
         type: 'text',
       }),
-      30
+      40
     )
     .setting(
       () => ({
@@ -17,7 +17,7 @@ export default [
         label: app.translator.trans('flarum-pusher.admin.pusher_settings.app_key_label'),
         type: 'text',
       }),
-      20
+      30
     )
     .setting(
       () => ({
@@ -25,12 +25,20 @@ export default [
         label: app.translator.trans('flarum-pusher.admin.pusher_settings.app_secret_label'),
         type: 'text',
       }),
-      10
+      20
     )
     .setting(
       () => ({
         setting: 'flarum-pusher.app_cluster',
         label: app.translator.trans('flarum-pusher.admin.pusher_settings.app_cluster_label'),
+        type: 'text',
+      }),
+      10
+    )
+    .setting(
+      () => ({
+        setting: 'flarum-pusher.server_hostname',
+        label: app.translator.trans('flarum-pusher.admin.pusher_settings.server_hostname_label'),
         type: 'text',
       }),
       0

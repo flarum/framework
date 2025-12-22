@@ -18,10 +18,10 @@ use Psr\Http\Message\ServerRequestInterface as Request;
  *
  * See https://jsonapi.org/format/1.0/#errors.
  */
-class JsonApiFormatter implements HttpFormatter
+readonly class JsonApiFormatter implements HttpFormatter
 {
     public function __construct(
-        private readonly bool $includeTrace = false
+        private bool $includeTrace = false
     ) {
     }
 

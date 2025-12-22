@@ -36,8 +36,6 @@ class ThrottleApi implements ExtenderInterface
      *   - `false`: This marks the request as NOT to be throttled. It overrides all other throttlers
      *   - `true`: This marks the request as to be throttled.
      *  All other outputs will be ignored.
-     *
-     * @return self
      */
     public function set(string $name, callable|string $callback): self
     {
@@ -50,7 +48,6 @@ class ThrottleApi implements ExtenderInterface
      * Remove a throttler registered with this name.
      *
      * @param string $name: The name of the throttler to remove.
-     * @return self
      */
     public function remove(string $name): self
     {

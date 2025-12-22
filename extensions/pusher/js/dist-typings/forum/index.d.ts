@@ -1,8 +1,8 @@
-import * as PusherTypes from 'pusher-js';
+import Pusher, { Channel } from 'pusher-js';
 export type PusherBinding = {
     channels: {
-        main: PusherTypes.Channel;
-        user: PusherTypes.Channel | null;
+        main: Channel;
+        user: Channel | null;
     };
-    pusher: PusherTypes.default;
+    pusher: Pusher;
 };

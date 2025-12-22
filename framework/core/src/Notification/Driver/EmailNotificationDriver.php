@@ -16,10 +16,10 @@ use Flarum\User\User;
 use Illuminate\Contracts\Queue\Queue;
 use ReflectionClass;
 
-class EmailNotificationDriver implements NotificationDriverInterface
+readonly class EmailNotificationDriver implements NotificationDriverInterface
 {
     public function __construct(
-        private readonly Queue $queue
+        private Queue $queue
     ) {
     }
 

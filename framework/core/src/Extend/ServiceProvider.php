@@ -25,7 +25,6 @@ class ServiceProvider implements ExtenderInterface
      * @see https://docs.flarum.org/extend/service-provider/
      *
      * @param class-string<AbstractServiceProvider> $serviceProviderClass The ::class attribute of the service provider class.
-     * @return self
      */
     public function register(string $serviceProviderClass): self
     {

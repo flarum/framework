@@ -36,7 +36,7 @@ class UnsubscribeToken extends AbstractModel
 
     protected $fillable = ['user_id', 'email_type', 'token'];
 
-    const TOKEN_LENGTH = 60;
+    public const TOKEN_LENGTH = 60;
 
     public static function generate(int $userId, string $emailType): static
     {

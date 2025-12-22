@@ -16,7 +16,7 @@ class LoggedIn
 {
     public function __construct(
         public User $user,
-        public AccessToken $token
+        #[\SensitiveParameter] public AccessToken $token
     ) {
     }
 }

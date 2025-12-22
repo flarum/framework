@@ -34,9 +34,13 @@ class UnparsePostMentions
     protected function updatePostMentionTags(mixed $context, string $xml): string
     {
         return Utils::replaceAttributes($xml, 'POSTMENTION', function ($attributes) use ($context) {
-            $post = ($context instanceof AbstractModel && $context->isRelation('mentionsPosts'))
-                ? $context->mentionsPosts->find($attributes['id']) // @phpstan-ignore-line
-                : Post::find($attributes['id']);
+            /** @var Post|null $post */
+            $post = match (true) {
+                $context instanceof AbstractModel && $context->isRelation('mentionsPosts') => $context->relationLoaded('mentionsPosts')
+                    ? $context->mentionsPosts->find($attributes['id']) // @phpstan-ignore-line
+                    : $context->mentionsPosts()->find($attributes['id']), // @phpstan-ignore-line
+                default => Post::query()->find($attributes['id']),
+            };
 
             if ($post && $post->user) {
                 $attributes['displayname'] = $post->user->display_name;

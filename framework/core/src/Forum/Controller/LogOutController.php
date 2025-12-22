@@ -82,7 +82,7 @@ class LogOutController implements RequestHandlerInterface
 
         try {
             $parsedUrl = new Uri($url);
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException) {
             return new Uri($base);
         }
 

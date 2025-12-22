@@ -29,7 +29,6 @@ class Theme implements ExtenderInterface
      * @param string $file : Relative path of the file to override, for example: `forum/Hero.less`
      * @param string $newFilePath : Absolute path of the new file.
      * @param string|null $extensionId : If overriding an extension file, specify its ID, for example: `flarum-tags`.
-     * @return self
      */
     public function overrideLessImport(string $file, string $newFilePath, ?string $extensionId = null): self
     {
@@ -46,7 +45,6 @@ class Theme implements ExtenderInterface
      * @param string $file : Name of the file to override, for example: `admin.less`
      * @param string $newFilePath : Absolute path of the new file.
      * @param string|null $extensionId : If overriding an extension file, specify its ID, for example: `flarum-tags`.
-     * @return self
      */
     public function overrideFileSource(string $file, string $newFilePath, ?string $extensionId = null): self
     {
@@ -72,7 +70,6 @@ class Theme implements ExtenderInterface
      *
      * @param string $functionName Name of the function identifier.
      * @param callable $callable The PHP function to run when the Less function is called.
-     * @return self
      */
     public function addCustomLessFunction(string $functionName, callable $callable): self
     {
@@ -126,8 +123,6 @@ class Theme implements ExtenderInterface
      *
      * @param string $variableName Name of the variable identifier.
      * @param callable $value The PHP function to run, which returns the value for the variable.
-     *
-     * @return self
      */
     public function addCustomLessVariable(string $variableName, callable $value): self
     {

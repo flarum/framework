@@ -347,8 +347,8 @@ class Document implements Renderable
             }
 
             return $newUrl;
-        } else {
-            return $url;
         }
+
+        return $url;
     }
 }

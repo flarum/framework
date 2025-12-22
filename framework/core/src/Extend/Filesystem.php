@@ -52,8 +52,6 @@ class Filesystem implements ExtenderInterface
      * ```
      *
      * @see https://laravel.com/docs/11.x/filesystem#configuration
-     *
-     * @return self
      */
     public function disk(string $name, callable|string $callback): self
     {
@@ -68,7 +66,6 @@ class Filesystem implements ExtenderInterface
      * @param string $name: The name of the driver.
      * @param string $driverClass: The ::class attribute of the driver.
      *                             Driver must implement `\Flarum\Filesystem\DriverInterface`.
-     * @return self
      */
     public function driver(string $name, string $driverClass): self
     {

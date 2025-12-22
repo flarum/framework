@@ -118,12 +118,13 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
 
   get(namespace: string, id: string): any {
     const module = this.moduleExports.get(namespace)?.get(id);
+    const extensionEnabled = namespace in flarum.extensions || namespace === 'core';
     const error = `No module found for ${namespace}:${id}`;
 
     // @ts-ignore
-    if (!module && flarum.debug) {
+    if (!module && extensionEnabled && flarum.debug) {
       throw new Error(error);
-    } else if (!module) {
+    } else if (!module && extensionEnabled) {
       console.warn(error);
     }
 
@@ -211,7 +212,16 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     // @ts-ignore
     const wr = this._webpack_runtimes[namespace] ?? __webpack_require__;
 
-    return await wr.e(module.chunkId).then(wr.bind(wr, module.moduleId));
+    return await wr
+      .e(module.chunkId)
+      .then(wr.bind(wr, module.moduleId))
+      .then(() => {
+        const m = this.get(namespace, id);
+
+        m.default ??= m;
+
+        return m;
+      });
   }
 
   public clear(): void {

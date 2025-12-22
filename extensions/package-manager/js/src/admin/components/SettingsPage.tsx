@@ -8,6 +8,7 @@ import ControlSection from './ControlSection';
 import ConfigureComposer from './ConfigureComposer';
 import ConfigureAuth from './ConfigureAuth';
 import DiscoverSection from './DiscoverSection';
+import Alert from 'flarum/common/components/Alert';
 
 export default class SettingsPage extends ExtensionPage {
   content() {
@@ -43,9 +44,33 @@ export default class SettingsPage extends ExtensionPage {
   sections(vnode: Mithril.VnodeDOM<ExtensionPageAttrs, this>): ItemList<unknown> {
     const items = super.sections(vnode);
 
-    items.add('discover', <DiscoverSection />, 15);
+    const writableDirs = app.data['flarum-extension-manager.writable_dirs'];
+    const missingFunctions = app.data['flarum-extension-manager.missing_functions'] as string[] | undefined;
+    const usable = writableDirs && (!missingFunctions || missingFunctions.length === 0);
 
-    items.add('control', <ControlSection />, 10);
+    if (usable) {
+      items.add('discover', <DiscoverSection />, 15);
+
+      items.add('control', <ControlSection />, 10);
+    } else {
+      items.add(
+        'warning',
+        <div className="ExtensionPage-settings">
+          <div className="container">
+            <div className="Form-group">
+              <Alert type="error" dismissible={false}>
+                {!app.data['flarum-extension-manager.writable_dirs']
+                  ? app.translator.trans('flarum-extension-manager.admin.file_permissions')
+                  : app.translator.trans('flarum-extension-manager.admin.required_php_functions', {
+                      functions: (app.data['flarum-extension-manager.missing_functions'] as string[]).join(', '),
+                    })}
+              </Alert>
+            </div>
+          </div>
+        </div>,
+        10
+      );
+    }
 
     items.setPriority('content', 8);
 

@@ -20,10 +20,6 @@ interface HttpFormatter
      * This method receives the error that was caught by Flarum's error handling
      * stack, along with the current HTTP request instance. It should return an
      * HTTP response that explains or represents what went wrong.
-     *
-     * @param HandledError $error
-     * @param Request $request
-     * @return Response
      */
     public function format(HandledError $error, Request $request): Response;
 }

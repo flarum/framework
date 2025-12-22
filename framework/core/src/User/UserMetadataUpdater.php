@@ -49,7 +49,7 @@ class UserMetadataUpdater
 
     private function updateCommentsCount(?User $user): void
     {
-        if ($user && $user->exists) {
+        if ($user?->exists) {
             $user->refreshCommentCount()->save();
         }
     }
@@ -58,7 +58,7 @@ class UserMetadataUpdater
     {
         $user = $discussion->user;
 
-        if ($user && $user->exists) {
+        if ($user?->exists) {
             $user->refreshDiscussionCount()->save();
         }
     }

@@ -43,8 +43,7 @@ class Discussion
 
         $url = function ($newQueryParams) use ($queryParams, $apiDocument) {
             $newQueryParams = array_merge($queryParams, $newQueryParams);
-            unset($newQueryParams['id']);
-            unset($newQueryParams['near']);
+            unset($newQueryParams['id'], $newQueryParams['near']);
 
             if (Arr::get($newQueryParams, 'page') == 1) {
                 unset($newQueryParams['page']);
@@ -71,7 +70,7 @@ class Discussion
         $posts = [];
 
         foreach ($postsApiDocument->data as $resource) {
-            if ($resource->type === 'posts' && isset($resource->relationships->discussion) && isset($resource->attributes->contentHtml)) {
+            if ($resource->type === 'posts' && isset($resource->relationships->discussion, $resource->attributes->contentHtml)) {
                 $posts[] = $resource;
             }
         }
@@ -109,12 +108,13 @@ class Discussion
         $params['bySlug'] = true;
 
         return json_decode(
-            $this->api
+            json: $this->api
                 ->withoutErrorHandling()
                 ->withParentRequest($request)
                 ->withQueryParams($params)
                 ->get("/discussions/$id")
-                ->getBody()
+                ->getBody(),
+            associative: false
         );
     }
 
@@ -126,12 +126,13 @@ class Discussion
     protected function getPostsApiDocument(Request $request, array $params): object
     {
         return json_decode(
-            $this->api
+            json: $this->api
                 ->withoutErrorHandling()
                 ->withParentRequest($request)
                 ->withQueryParams($params)
                 ->get('/posts')
-                ->getBody()
+                ->getBody(),
+            associative: false
         );
     }
 }

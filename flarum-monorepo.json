@@ -4,142 +4,152 @@
       {
         "name": "akismet",
         "gitRemote": "git@github.com:flarum/akismet.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "approval",
         "gitRemote": "git@github.com:flarum/approval.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "bbcode",
         "gitRemote": "git@github.com:flarum/bbcode.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "embed",
         "gitRemote": "git@github.com:flarum/embed.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "emoji",
         "gitRemote": "git@github.com:flarum/emoji.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "flags",
         "gitRemote": "git@github.com:flarum/flags.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
+      },
+      {
+        "name": "gdpr",
+        "gitRemote": "git@github.com:flarum/gdpr.git",
+        "mainBranch": "2.x"
       },
       {
         "name": "lang-english",
         "gitRemote": "git@github.com:flarum/lang-english.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "likes",
         "gitRemote": "git@github.com:flarum/likes.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "lock",
         "gitRemote": "git@github.com:flarum/lock.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "markdown",
         "gitRemote": "git@github.com:flarum/markdown.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "mentions",
         "gitRemote": "git@github.com:flarum/mentions.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "nicknames",
         "gitRemote": "git@github.com:flarum/nicknames.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "package-manager",
         "gitRemote": "git@github.com:flarum/package-manager.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "pusher",
         "gitRemote": "git@github.com:flarum/pusher.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
+      },
+      {
+        "name": "realtime",
+        "gitRemote": "git@github.com:flarum/realtime.git",
+        "mainBranch": "2.x"
       },
       {
         "name": "statistics",
         "gitRemote": "git@github.com:flarum/statistics.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "sticky",
         "gitRemote": "git@github.com:flarum/sticky.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "subscriptions",
         "gitRemote": "git@github.com:flarum/subscriptions.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "suspend",
         "gitRemote": "git@github.com:flarum/suspend.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "tags",
         "gitRemote": "git@github.com:flarum/tags.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "messages",
         "gitRemote": "git@github.com:flarum/messages.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       }
     ],
     "composer": [
       {
         "name": "testing",
         "gitRemote": "git@github.com:flarum/testing.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "phpstan",
         "gitRemote": "git@github.com:flarum/phpstan.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       }
     ],
     "npm": [
         {
             "name": "jest-config",
             "gitRemote": "git@github.com:flarum/jest-config.git",
-            "mainBranch": "main"
+            "mainBranch": "2.x"
         },
         {
             "name": "prettier-config",
             "gitRemote": "git@github.com:flarum/prettier-config.git",
-            "mainBranch": "main"
+            "mainBranch": "2.x"
         },
       {
         "name": "webpack-config",
         "gitRemote": "git@github.com:flarum/flarum-webpack-config.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       },
       {
         "name": "tsconfig",
         "gitRemote": "git@github.com:flarum/flarum-tsconfig.git",
-        "mainBranch": "main"
+        "mainBranch": "2.x"
       }
     ],
     "core": {
       "name": "core",
       "gitRemote": "git@github.com:flarum/flarum-core.git",
-      "mainBranch": "main"
+      "mainBranch": "2.x"
     }
   }
 }

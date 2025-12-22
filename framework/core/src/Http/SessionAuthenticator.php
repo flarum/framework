@@ -13,7 +13,7 @@ use Illuminate\Contracts\Session\Session;
 
 class SessionAuthenticator
 {
-    public function logIn(Session $session, AccessToken $token): void
+    public function logIn(Session $session, #[\SensitiveParameter] AccessToken $token): void
     {
         $session->regenerate(true);
         $session->put('access_token', $token->token);

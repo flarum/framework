@@ -71,7 +71,7 @@ class ApplicationInfoProvider
     public function identifyDatabaseVersion(): string
     {
         return match ($this->config['database.driver']) {
-            'mysql', 'pgsql' => $this->db->selectOne('select version() as version')->version,
+            'mysql', 'mariadb', 'pgsql' => $this->db->selectOne('select version() as version')->version,
             'sqlite' => $this->db->selectOne('select sqlite_version() as version')->version,
             default => 'Unknown',
         };
@@ -81,6 +81,7 @@ class ApplicationInfoProvider
     {
         return match ($this->config['database.driver']) {
             'mysql' => 'MySQL',
+            'mariadb' => 'MariaDB',
             'pgsql' => 'PostgreSQL',
             'sqlite' => 'SQLite',
             default => $this->config['database.driver'],

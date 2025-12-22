@@ -61,17 +61,17 @@ class WritablePaths implements PrerequisiteInterface
         $absolutes = [];
 
         foreach ($parts as $part) {
-            if ('.' == $part) {
+            if ($part === '.') {
                 continue;
             }
-            if ('..' == $part) {
+            if ($part === '..') {
                 array_pop($absolutes);
             } else {
                 $absolutes[] = $part;
             }
         }
 
-        return (substr($path, 0, 1) == '/' ? '/' : '').implode(DIRECTORY_SEPARATOR, $absolutes);
+        return (str_starts_with($path, '/') ? '/' : '').implode(DIRECTORY_SEPARATOR, $absolutes);
     }
 
     private function normalize(array $paths): Collection

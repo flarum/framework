@@ -9,6 +9,7 @@
 
 namespace Flarum\ExtensionManager\Command;
 
+use Composer\Semver\Semver;
 use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
 use Flarum\ExtensionManager\Composer\ComposerAdapter;
@@ -16,16 +17,21 @@ use Flarum\ExtensionManager\Composer\ComposerJson;
 use Flarum\ExtensionManager\Exception\ComposerCommandFailedException;
 use Flarum\ExtensionManager\Settings\LastUpdateCheck;
 use Flarum\ExtensionManager\Support\Util;
+use Flarum\Foundation\Application;
+use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
 use Symfony\Component\Console\Input\ArrayInput;
 
 class CheckForUpdatesHandler
 {
+    protected array $meta = [];
+
     public function __construct(
         protected ComposerAdapter $composer,
         protected LastUpdateCheck $lastUpdateCheck,
         protected ExtensionManager $extensions,
-        protected ComposerJson $composerJson
+        protected ComposerJson $composerJson,
+        protected Client $http
     ) {
     }
 
@@ -97,6 +103,10 @@ class CheckForUpdatesHandler
 
             $mainPackageUpdate['required-as'] = $composerJson['require'][$mainPackageUpdate['name']] ?? null;
 
+            if (! $this->compatibleWithCurrentFlarumVersion($mainPackageUpdate)) {
+                continue;
+            }
+
             $updates->push($mainPackageUpdate);
         }
 
@@ -135,5 +145,50 @@ class CheckForUpdatesHandler
         }
 
         return $output->getContents();
+    }
+
+    private function compatibleWithCurrentFlarumVersion(array $mainPackageUpdate): bool
+    {
+        if (empty($mainPackageUpdate['latest-major']) || str_contains($mainPackageUpdate['latest-major'], 'dev-')) {
+            return true;
+        }
+
+        if (! empty($this->meta[$mainPackageUpdate['name']])) {
+            $json = $this->meta[$mainPackageUpdate['name']];
+        } else {
+            $response = $this->http->get("https://repo.packagist.org/p2/{$mainPackageUpdate['name']}.json");
+
+            $body = $response->getBody()->getContents();
+
+            if ($response->getStatusCode() > 299 || $response->getStatusCode() < 200) {
+                return true;
+            }
+
+            $json = json_decode($body, true);
+
+            $this->meta[$mainPackageUpdate['name']] = $json;
+        }
+
+        $packages = new Collection($json['packages'][$mainPackageUpdate['name']] ?? []);
+
+        if ($packages->isEmpty()) {
+            return true;
+        }
+
+        $package = $packages->firstWhere('version', $mainPackageUpdate['latest-major']);
+
+        if (! $package) {
+            return true;
+        }
+
+        $flarumVersion = Application::VERSION;
+
+        $require = $package['require']['flarum/core'] ?? null;
+
+        if (! $require || str_contains($require, 'dev-')) {
+            return true;
+        }
+
+        return Semver::satisfies($flarumVersion, $require);
     }
 }

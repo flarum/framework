@@ -44,7 +44,7 @@ use Throwable;
  */
 class Extension implements Arrayable
 {
-    const LOGO_MIMETYPES = [
+    public const LOGO_MIMETYPES = [
         'svg' => 'image/svg+xml',
         'png' => 'image/png',
         'jpeg' => 'image/jpeg',
@@ -144,9 +144,6 @@ class Extension implements Arrayable
         return $this;
     }
 
-    /**
-     * @return bool
-     */
     public function isInstalled(): bool
     {
         return $this->installed;
@@ -263,25 +260,17 @@ class Extension implements Arrayable
 
     /**
      * The raw path of the directory under extensions.
-     *
-     * @return string
      */
     public function getId(): string
     {
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return $this->composerJsonAttribute('extra.flarum-extension.title');
     }
 
-    /**
-     * @return string
-     */
     public function getPath(): string
     {
         return $this->path;
@@ -289,8 +278,6 @@ class Extension implements Arrayable
 
     /**
      * The IDs of all Flarum extensions that this extension depends on.
-     *
-     * @return array
      */
     public function getExtensionDependencyIds(): array
     {
@@ -300,8 +287,6 @@ class Extension implements Arrayable
     /**
      * The IDs of all Flarum extensions that this extension should be booted after
      * if enabled.
-     *
-     * @return array
      */
     public function getOptionalDependencyIds(): array
     {
@@ -436,7 +421,7 @@ class Extension implements Arrayable
             return null;
         }
 
-        if ($direction == 'up') {
+        if ($direction === 'up') {
             $migrator->run($this->getPath().'/migrations', $this);
         } else {
             return $migrator->reset($this->getPath().'/migrations', $this);
@@ -447,12 +432,10 @@ class Extension implements Arrayable
 
     /**
      * Generates an array result for the object.
-     *
-     * @return array
      */
     public function toArray(): array
     {
-        return (array) array_merge([
+        return array_merge([
             'id' => $this->getId(),
             'version' => $this->getVersion(),
             'path' => $this->getPath(),
@@ -467,8 +450,6 @@ class Extension implements Arrayable
 
     /**
      * Gets the rendered contents of the extension README file as a HTML string.
-     *
-     * @return string|null
      */
     public function getReadme(): ?string
     {

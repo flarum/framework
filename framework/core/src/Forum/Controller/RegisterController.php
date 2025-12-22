@@ -32,7 +32,7 @@ class RegisterController implements RequestHandlerInterface
 
         $response = $this->api->withParentRequest($request)->withBody($params)->post('/users');
 
-        $body = json_decode($response->getBody());
+        $body = json_decode($response->getBody(), associative: false);
 
         if (isset($body->data)) {
             $userId = $body->data->id;

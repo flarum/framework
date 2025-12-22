@@ -72,11 +72,7 @@ class Gate
         // If no policy covered this permission query, we will only grant
         // the permission if the actor's groups have it. Otherwise, we will
         // not allow the user to perform this action.
-        if ($actor->isAdmin() || $actor->hasPermission($ability)) {
-            return true;
-        }
-
-        return false;
+        return $actor->isAdmin() || $actor->hasPermission($ability);
     }
 
     /**

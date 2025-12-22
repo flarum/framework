@@ -121,6 +121,10 @@ class Discussion extends AbstractModel
     {
         $discussion = $model ?? new static;
 
+        if ($title) {
+            $discussion->title = $title;
+        }
+
         $discussion->created_at = Carbon::now();
         $discussion->user_id = $user->id;
 
@@ -279,8 +283,6 @@ class Discussion extends AbstractModel
     /**
      * Query the discussion's participants (a list of unique users who have
      * posted in the discussion).
-     *
-     * @return Builder
      */
     public function participants(): Builder
     {

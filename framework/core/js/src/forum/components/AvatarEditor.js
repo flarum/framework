@@ -42,9 +42,11 @@ export default class AvatarEditor extends Component {
     return (
       <div className={classList(['AvatarEditor', 'Dropdown', this.attrs.className, this.loading && 'loading', this.isDraggedOver && 'dragover'])}>
         <Avatar user={user} loading="eager" />
-        <a
+        <button
+          type="button"
           className={user.originalAvatarUrl() ? 'Dropdown-toggle' : 'Dropdown-toggle AvatarEditor--noAvatar'}
           title={app.translator.trans('core.forum.user.avatar_upload_tooltip')}
+          ariaLabel={app.translator.trans('core.forum.user.avatar_upload_tooltip')}
           data-toggle="dropdown"
           onclick={this.quickUpload.bind(this)}
           ondragover={this.enableDragover.bind(this)}
@@ -60,7 +62,7 @@ export default class AvatarEditor extends Component {
           ) : (
             <Icon name={'fas fa-plus-circle'} />
           )}
-        </a>
+        </button>
         <ul className="Dropdown-menu Menu">{listItems(this.controlItems().toArray())}</ul>
       </div>
     );

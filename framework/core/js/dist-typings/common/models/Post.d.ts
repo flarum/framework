@@ -11,6 +11,7 @@ export default class Post extends Model {
     contentHtml(): string | null | undefined;
     renderFailed(): boolean | undefined;
     contentPlain(): string | null | undefined;
+    ipAddress(): string | null | undefined;
     editedAt(): Date | null | undefined;
     editedUser(): false | User | null;
     isEdited(): boolean;

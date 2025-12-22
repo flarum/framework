@@ -30,10 +30,10 @@ class SessionManager extends IlluminateSessionManager
         $driverName = Arr::get($config, 'session.driver');
 
         try {
-            $driverInstance = parent::driver($driverName);
+            $driverInstance = $this->driver($driverName);
         } catch (InvalidArgumentException) {
             $defaultDriverName = $this->getDefaultDriver();
-            $driverInstance = parent::driver($defaultDriverName);
+            $driverInstance = $this->driver($defaultDriverName);
 
             // But we will log a critical error to the webmaster.
             $this->container->make(LoggerInterface::class)->critical(

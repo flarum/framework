@@ -18,7 +18,7 @@ use PHPUnit\Framework\Attributes\Test;
 
 class ValidatorTest extends TestCase
 {
-    private function extendToRequireLongPassword()
+    private function extendToRequireLongPassword(): void
     {
         $this->extend((new Extend\Validator(CustomUserValidator::class))->configure(function ($flarumValidator, $validator) {
             $validator->setRules([
@@ -30,7 +30,7 @@ class ValidatorTest extends TestCase
         }));
     }
 
-    private function extendToRequireLongPasswordViaInvokableClass()
+    private function extendToRequireLongPasswordViaInvokableClass(): void
     {
         $this->extend((new Extend\Validator(CustomUserValidator::class))->configure(CustomValidatorClass::class));
     }
@@ -73,6 +73,51 @@ class ValidatorTest extends TestCase
 
         // If we have gotten this far, no validation exception has been thrown, so the test is successful.
         $this->assertTrue(true);
+    }
+
+    #[Test]
+    public function validator_only_validates_provided_data_by_default()
+    {
+        /** @var SecondCustomValidator $validator */
+        $validator = $this->app()->getContainer()->make(SecondCustomValidator::class);
+
+        $validator->assertValid([
+            'my_key' => 'value',
+        ]);
+
+        // If we have gotten this far, no validation exception has been thrown, so the test is successful.
+        $this->assertTrue(true);
+    }
+
+    #[Test]
+    public function validator_includes_path_based_rules()
+    {
+        /** @var SecondCustomValidator $validator */
+        $validator = $this->app()->getContainer()->make(SecondCustomValidator::class);
+
+        $this->expectException(ValidationException::class);
+
+        $validator->assertValid([
+            'my_key' => 'value',
+            'my_third_key' => [null],
+        ]);
+    }
+
+    #[Test]
+    public function validator_can_validate_missing_keys()
+    {
+        /** @var SecondCustomValidator $validator */
+        $validator = $this->app()->getContainer()->make(SecondCustomValidator::class)->validateMissingKeys();
+
+        $this->expectException(ValidationException::class);
+
+        $validator->validateMissingKeys()->assertValid([
+            'my_key' => 'value',
+            'my_third_key' => [
+                '2021-01-01 00:00:00',
+                '2021-01-02 00:00:00'
+            ]
+        ]);
     }
 }
 
@@ -140,5 +185,15 @@ class CustomValidator extends AbstractValidator
     protected array $rules = [
         'name_singular' => ['required'],
         'name_plural' => ['required']
+    ];
+}
+
+class SecondCustomValidator extends AbstractValidator
+{
+    protected array $rules = [
+        'my_key' => ['required'],
+        'my_other_key' => ['required'],
+        'my_third_key' => ['required', 'array'],
+        'my_third_key.*' => ['required', 'date']
     ];
 }

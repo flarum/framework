@@ -27,9 +27,13 @@ class FormatUserMentions
     public function __invoke(Renderer $renderer, mixed $context, string $xml): string
     {
         return Utils::replaceAttributes($xml, 'USERMENTION', function ($attributes) use ($context) {
-            $user = ($context instanceof AbstractModel && $context->isRelation('mentionsUsers'))
-                ? $context->mentionsUsers->find($attributes['id']) // @phpstan-ignore-line
-                : User::find($attributes['id']);
+            /** @var User|null $user */
+            $user = match (true) {
+                $context instanceof AbstractModel && $context->isRelation('mentionsUsers') => $context->relationLoaded('mentionsUsers')
+                    ? $context->mentionsUsers->find($attributes['id']) // @phpstan-ignore-line
+                    : $context->mentionsUsers()->find($attributes['id']), // @phpstan-ignore-line
+                default => User::query()->find($attributes['id']),
+            };
 
             $attributes['deleted'] = false;
 

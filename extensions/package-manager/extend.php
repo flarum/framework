@@ -46,6 +46,11 @@ return [
                 && is_writable($paths->base.'/composer.lock');
 
             $document->payload['flarum-extension-manager.using_sync_queue'] = resolve(Queue::class) instanceof SyncQueue;
+
+            $document->payload['flarum-extension-manager.missing_functions'] = array_values(array_filter(
+                ['proc_open', 'escapeshellarg'],
+                fn (string $function): bool => ! function_exists($function)
+            ));
         }),
 
     new Extend\Locales(__DIR__.'/locale'),

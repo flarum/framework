@@ -45,7 +45,7 @@ export default class PostList<CustomAttrs extends IPostListAttrs = IPostListAttr
         <ul role="feed" aria-busy={isLoading} className="PostList-discussions">
           {state.getPages().map((pg, pageNum) => {
             return pg.items.map((post, itemNum) => (
-              <li key={post.id()} data-id={post.id()} role="article" aria-setsize="-1" aria-posinset={pageNum * pageSize + itemNum}>
+              <li key={post.id()} data-id={post.id()} role="article" aria-setsize="-1" aria-posinset={pageNum * pageSize + itemNum + 1}>
                 <PostListItem post={post} params={params} />
               </li>
             ));

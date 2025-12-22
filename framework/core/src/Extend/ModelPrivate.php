@@ -55,8 +55,6 @@ class ModelPrivate implements ExtenderInterface
      * - \Flarum\Database\AbstractModel $instance: An instance of the model.
      *
      * It should return `true` if the model instance should be made private.
-     *
-     * @return self
      */
     public function checker(callable|string $callback): self
     {

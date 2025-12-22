@@ -12,11 +12,11 @@ namespace Flarum\Install\Steps;
 use Flarum\Install\ReversibleStep;
 use Illuminate\Filesystem\Filesystem;
 
-class PublishAssets implements ReversibleStep
+readonly class PublishAssets implements ReversibleStep
 {
     public function __construct(
-        private readonly string $vendorPath,
-        private readonly string $assetPath
+        private string $vendorPath,
+        private string $assetPath
     ) {
     }
 

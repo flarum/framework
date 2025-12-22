@@ -23,9 +23,6 @@ use Illuminate\Contracts\Filesystem\Cloud;
  */
 class Assets
 {
-    /**
-     * @var array
-     */
     public array $sources = [
         'js' => [],
         'css' => [],

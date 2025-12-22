@@ -31,7 +31,7 @@ class HandledError
         private readonly Throwable $error,
         private readonly string $type,
         private readonly int $statusCode,
-        private bool $report = false
+        private readonly bool $report = false
     ) {
     }
 

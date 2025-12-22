@@ -27,8 +27,8 @@
     > a, > button, > span {
       padding: 8px 15px;
       display: flex;
-      align-items: center;
       gap: 9px;
+      align-items: center;
       width: 100%;
       color: var(--text-color);
       border-radius: 0;
@@ -49,6 +49,10 @@
         width: 16px;
         text-align: center;
         flex-shrink: 0;
+      }
+
+      &.hasSubContent {
+        align-items: flex-start;
       }
 
       &.disabled {

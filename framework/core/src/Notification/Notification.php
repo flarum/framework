@@ -93,9 +93,6 @@ class Notification extends AbstractModel
         return $this->belongsTo(User::class, 'from_user_id');
     }
 
-    /**
-     * @return MorphTo
-     */
     public function subject(): MorphTo
     {
         return $this->morphTo('subject', 'subjectModel');

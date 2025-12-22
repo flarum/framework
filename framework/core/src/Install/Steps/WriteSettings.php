@@ -14,11 +14,11 @@ use Flarum\Install\Step;
 use Flarum\Settings\DatabaseSettingsRepository;
 use Illuminate\Database\ConnectionInterface;
 
-class WriteSettings implements Step
+readonly class WriteSettings implements Step
 {
     public function __construct(
-        private readonly ConnectionInterface $database,
-        private readonly array $custom
+        private ConnectionInterface $database,
+        private array $custom
     ) {
     }
 
@@ -55,6 +55,9 @@ class WriteSettings implements Step
             'default_route' => '/all',
             'display_name_driver' => 'username',
             'extensions_enabled' => '[]',
+            'fontawesome_source' => 'local',
+            'fontawesome_cdn_url' => '',
+            'fontawesome_kit_url' => '',
             'forum_title' => 'A new Flarum forum',
             'forum_description' => '',
             'mail_driver' => 'mail',

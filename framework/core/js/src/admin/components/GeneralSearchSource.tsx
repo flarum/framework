@@ -9,7 +9,7 @@ import Icon from '../../common/components/Icon';
 import PermissionGrid from './PermissionGrid';
 import escapeRegExp from '../../common/utils/escapeRegExp';
 import { GeneralIndexData, GeneralIndexItem } from '../states/GeneralSearchIndex';
-import { ExtensionConfig, SettingConfigInternal } from '../utils/AdminRegistry';
+import { ExtensionConfig, SettingConfigInput } from '../utils/AdminRegistry';
 import ItemList from '../../common/utils/ItemList';
 
 export class GeneralSearchResult {
@@ -94,7 +94,7 @@ export default class GeneralSearchSource implements GlobalSearchSource {
     for (const extensionId in data) {
       // settings
       const settings = data[extensionId]!.settings;
-      let normalizedSettings: GeneralIndexItem[] | SettingConfigInternal[] = [];
+      let normalizedSettings: GeneralIndexItem[] | SettingConfigInput[] = [];
 
       if (settings instanceof ItemList) {
         normalizedSettings = settings?.toArray();
@@ -113,7 +113,7 @@ export default class GeneralSearchSource implements GlobalSearchSource {
         const group = app.generalIndex.getGroup(extensionId);
 
         if (this.itemHasQuery(label, query) || this.itemHasQuery(help, query)) {
-          const id = extensionId + '-' + ('setting' in setting ? setting : setting.id);
+          const id = extensionId + '-' + ('setting' in setting ? setting : 'id' in setting ? setting.id : '');
 
           results.push(
             new GeneralSearchResult(

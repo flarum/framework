@@ -24,14 +24,27 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
-    this.messages = new MessageStreamState({
+    this.messages = new MessageStreamState(this.requestParams());
+
+    this.messages.refresh();
+  }
+
+  requestParams(forgetNear = false): any {
+    const params: any = {
       filter: {
         dialog: this.attrs.dialog.id(),
       },
-      sort: '-createdAt',
-    });
+      sort: '-number',
+    };
 
-    this.messages.refresh();
+    const near = m.route.param('near');
+
+    if (near && !forgetNear) {
+      params.page = params.page || {};
+      params.page.near = parseInt(near);
+    }
+
+    return params;
   }
 
   view() {
@@ -42,11 +55,14 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
         <div className="DialogSection-header">
           <Avatar user={recipient} />
           <div className="DialogSection-header-info">
-            {(recipient && (
-              <Link href={app.route.user(recipient!)}>
-                <h2>{username(recipient)}</h2>
-              </Link>
-            )) || <h2>{username(recipient)}</h2>}
+            <h2 className="DialogSection-header-info-title">
+              {(recipient && <Link href={app.route.user(recipient!)}>{username(recipient)}</Link>) || username(recipient)}
+              {recipient && recipient.canSendAnyMessage() ? null : (
+                <span className="DialogSection-header-info-helperText">
+                  {app.translator.trans('flarum-messages.forum.dialog_section.cannot_reply_text')}
+                </span>
+              )}
+            </h2>
             <div className="badges">{listItems(recipient?.badges().toArray() || [])}</div>
           </div>
           <div className="DialogSection-header-actions">{this.actionItems().toArray()}</div>
@@ -58,6 +74,13 @@ export default class DialogSection<CustomAttrs extends IDialogStreamAttrs = IDia
 
   actionItems() {
     const items = new ItemList<Mithril.Children>();
+
+    items.add(
+      'back',
+      <Button className="Button Button--icon DialogSection-back" icon="fas fa-arrow-left" onclick={this.attrs.onback}>
+        {app.translator.trans('flarum-messages.forum.dialog_section.back_label')}
+      </Button>
+    );
 
     items.add(
       'details',

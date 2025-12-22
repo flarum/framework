@@ -16,10 +16,10 @@ use Laminas\Diactoros\Uri;
 use Psr\Http\Message\UriInterface;
 use RuntimeException;
 
-class Config implements ArrayAccess
+readonly class Config implements ArrayAccess
 {
     public function __construct(
-        private readonly array $data
+        private array $data
     ) {
         $this->requireKeys('url');
     }
@@ -32,6 +32,11 @@ class Config implements ArrayAccess
     public function inDebugMode(): bool
     {
         return $this->data['debug'] ?? false;
+    }
+
+    public function queueDriver(): ?string
+    {
+        return $this->data['queue']['driver'] ?? null;
     }
 
     public function inMaintenanceMode(): bool
@@ -66,6 +71,21 @@ class Config implements ArrayAccess
     public function safeModeExtensions(): ?array
     {
         return $this->data['safe_mode_extensions'] ?? null;
+    }
+
+    public function fontawesomeSource(): ?string
+    {
+        return $this->data['fontawesome']['source'] ?? null;
+    }
+
+    public function fontawesomeCdnUrl(): ?string
+    {
+        return $this->data['fontawesome']['cdn_url'] ?? null;
+    }
+
+    public function fontawesomeKitUrl(): ?string
+    {
+        return $this->data['fontawesome']['kit_url'] ?? null;
     }
 
     private function requireKeys(mixed ...$keys): void

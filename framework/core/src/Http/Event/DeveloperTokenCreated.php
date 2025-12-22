@@ -14,7 +14,7 @@ use Flarum\Http\AccessToken;
 class DeveloperTokenCreated
 {
     public function __construct(
-        public AccessToken $token
+        #[\SensitiveParameter] public AccessToken $token
     ) {
     }
 }

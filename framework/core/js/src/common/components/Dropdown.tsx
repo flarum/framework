@@ -19,6 +19,8 @@ export interface IDropdownAttrs extends ComponentAttrs {
   caretIcon?: string;
   /** The label of the dropdown toggle button. Defaults to 'Controls'. */
   label: Mithril.Children;
+  /** The helper text to display under the button label. */
+  helperText: Mithril.Children;
   /** The label used to describe the dropdown toggle button to assistive readers. Defaults to 'Toggle dropdown menu'. */
   accessibleToggleLabel?: string;
   /** An optional tooltip to show when hovering over the dropdown toggle button. */
@@ -93,12 +95,12 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
 
       const top = $menu.offset()?.top ?? 0;
       const height = $menu.height() ?? 0;
-      const windowSrollTop = $(window).scrollTop() ?? 0;
+      const windowScrollTop = $(window).scrollTop() ?? 0;
       const windowHeight = $(window).height() ?? 0;
 
       $menu.removeClass('Dropdown-menu--top Dropdown-menu--right');
 
-      $menu.toggleClass('Dropdown-menu--top', top + height > windowSrollTop + windowHeight);
+      $menu.toggleClass('Dropdown-menu--top', top + height > windowScrollTop + windowHeight);
 
       if (($menu.offset()?.top || 0) < 0) {
         $menu.removeClass('Dropdown-menu--top');
@@ -121,6 +123,22 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
 
       m.redraw();
     });
+
+    // Safari fix: Only close on focusout if relatedTarget exists and is outside.
+    // In Safari, clicks on menu items trigger focusout with relatedTarget=null,
+    // which was causing premature dropdown closure. Bootstrap handles click-outside,
+    // so we only need to handle keyboard navigation (tab) away from the dropdown.
+    this.$().on('focusout', (e: JQuery.FocusOutEvent) => {
+      // If relatedTarget is null, it's likely a click event - let Bootstrap handle it
+      if (!e.relatedTarget) {
+        return;
+      }
+
+      // Check if the new focused element is outside of this dropdown
+      if (!this.$().has(e.relatedTarget as Element).length) {
+        this.$().trigger('hidden.bs.dropdown');
+      }
+    });
   }
 
   /**
@@ -129,6 +147,7 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
   getButton(children: Mithril.ChildArray): Mithril.Vnode<any, any> {
     let button = (
       <button
+        type="button"
         className={'Dropdown-toggle ' + this.attrs.buttonClassName}
         aria-haspopup="menu"
         aria-label={this.attrs.accessibleToggleLabel}
@@ -157,9 +176,16 @@ export default class Dropdown<CustomAttrs extends IDropdownAttrs = IDropdownAttr
   getButtonContent(children: Mithril.ChildArray): Mithril.ChildArray {
     return [
       this.attrs.icon ? <Icon name={this.attrs.icon} className="Button-icon" /> : '',
-      <span className="Button-label">{this.attrs.label}</span>,
+      <span className="Button-label">
+        <span className="Button-labelText">{this.attrs.label}</span>
+        {this.getButtonSubContent()}
+      </span>,
       this.attrs.caretIcon ? <Icon name={this.attrs.caretIcon} className="Button-caret" /> : '',
     ];
+  }
+
+  protected getButtonSubContent(): Mithril.Children {
+    return this.attrs.helperText ? <span className="Button-helperText">{this.attrs.helperText}</span> : null;
   }
 
   getMenu(items: Mithril.Vnode<any, any>[]): Mithril.Vnode<any, any> {

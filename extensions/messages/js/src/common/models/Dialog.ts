@@ -30,6 +30,9 @@ export default class Dialog extends Model {
   unreadCount() {
     return Model.attribute<number>('unreadCount').call(this);
   }
+  lastMessageId() {
+    return Model.attribute<number>('lastMessageId').call(this);
+  }
   lastReadMessageId() {
     return Model.attribute<number>('lastReadMessageId').call(this);
   }

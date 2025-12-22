@@ -78,7 +78,6 @@ class InstalledSite implements SiteInterface
 
     /**
      * @param ExtenderInterface[] $extenders
-     * @return InstalledSite
      */
     public function extendWith(array $extenders): self
     {

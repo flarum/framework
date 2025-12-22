@@ -14,7 +14,7 @@ use Symfony\Component\Translation\Translator as BaseTranslator;
 
 class Translator extends BaseTranslator implements TranslatorInterface
 {
-    const REFERENCE_REGEX = '/^=>\s*([a-z0-9_\-\.]+)$/i';
+    public const REFERENCE_REGEX = '/^=>\s*([a-z0-9_\-\.]+)$/i';
 
     public function get($key, array $replace = [], $locale = null): string
     {
@@ -29,7 +29,7 @@ class Translator extends BaseTranslator implements TranslatorInterface
 
     public function getCatalogue(?string $locale = null): MessageCatalogueInterface
     {
-        if (null === $locale) {
+        if ($locale === null) {
             $locale = $this->getLocale();
         } else {
             $this->assertValidLocale($locale);
@@ -55,7 +55,7 @@ class Translator extends BaseTranslator implements TranslatorInterface
     {
         foreach ($catalogue->all() as $domain => $messages) {
             foreach ($messages as $id => $translation) {
-                if (! empty($translation) && preg_match(self::REFERENCE_REGEX, $translation, $matches)) {
+                if (! empty($translation) && preg_match(self::REFERENCE_REGEX, $translation)) {
                     $catalogue->set($id, $this->getTranslation($catalogue, $id, $domain), $domain);
                 }
             }

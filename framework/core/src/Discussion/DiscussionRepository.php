@@ -36,7 +36,6 @@ class DiscussionRepository
     /**
      * Get a query containing the IDs of discussions which a user has read completely.
      *
-     * @param User $user
      * @return Builder<Discussion>
      */
     public function getReadIdsQuery(User $user): Builder
@@ -52,7 +51,6 @@ class DiscussionRepository
      * Scope a query to only include records that are visible to a user.
      *
      * @param Builder<Discussion> $query
-     * @param User|null $user
      * @return Builder<Discussion>
      */
     protected function scopeVisibleTo(Builder $query, ?User $user = null): Builder

@@ -15,13 +15,13 @@ use Flarum\Locale\LocaleManager;
 use Illuminate\Contracts\Container\Container;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
-class Locales implements ExtenderInterface, LifecycleInterface
+readonly class Locales implements ExtenderInterface, LifecycleInterface
 {
     /**
      * @param string $directory: Directory of the locale files.
      */
     public function __construct(
-        private readonly string $directory
+        private string $directory
     ) {
     }
 

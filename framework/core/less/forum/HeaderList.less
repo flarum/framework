@@ -5,6 +5,12 @@
     margin-right: 12px;
   }
 
+  @media @tablet-up {
+    [data-colored-header=true] &, [data-colored-header=true] & a {
+      color: var(--text-color);
+    }
+  }
+
   &-header, &-footer {
     @media @tablet-up {
       padding: 12px 15px;

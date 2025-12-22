@@ -21,15 +21,11 @@ interface Listable
 {
     /**
      * Create a query object for the current request.
-     *
-     * @param Context $context
      */
     public function query(Context $context): object;
 
     /**
      * Get results from the given query.
-     *
-     * @param Context $context
      */
     public function results(object $query, Context $context): iterable;
 
