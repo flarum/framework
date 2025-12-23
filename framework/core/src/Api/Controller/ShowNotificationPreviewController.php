@@ -97,7 +97,7 @@ class ShowNotificationPreviewController implements RequestHandlerInterface
             $reflection = new \ReflectionClass($blueprintClass);
             $constructor = $reflection->getConstructor();
 
-            if (!$constructor) {
+            if (! $constructor) {
                 return new $blueprintClass();
             }
 
@@ -106,14 +106,14 @@ class ShowNotificationPreviewController implements RequestHandlerInterface
             foreach ($constructor->getParameters() as $param) {
                 $type = $param->getType();
 
-                if (!$type || $type->isBuiltin()) {
+                if (! $type || $type->isBuiltin()) {
                     $args[] = null;
                     continue;
                 }
 
                 $typeName = $type instanceof \ReflectionNamedType ? $type->getName() : null;
 
-                if (!$typeName) {
+                if (! $typeName) {
                     $args[] = null;
                     continue;
                 }
@@ -129,7 +129,7 @@ class ShowNotificationPreviewController implements RequestHandlerInterface
             return new $blueprintClass(...$args);
         } catch (\Exception $e) {
             throw new ValidationException([
-                'blueprint' => 'Unable to create preview for this notification type: ' . $e->getMessage()
+                'blueprint' => 'Unable to create preview for this notification type: '.$e->getMessage()
             ]);
         }
     }
@@ -256,6 +256,7 @@ class ShowNotificationPreviewController implements RequestHandlerInterface
                 };
 
                 $this->cache[$name] = $value;
+
                 return $value;
             }
 

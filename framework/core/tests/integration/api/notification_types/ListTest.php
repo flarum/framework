@@ -10,7 +10,6 @@
 namespace Flarum\Tests\integration\api\notification_types;
 
 use Flarum\Database\AbstractModel;
-use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Notification\AlertableInterface;
 use Flarum\Notification\Blueprint\BlueprintInterface;

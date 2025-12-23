@@ -9,11 +9,7 @@
 
 namespace Flarum\Tests\integration\api\notification_preview;
 
-use Carbon\Carbon;
-use Flarum\Discussion\Discussion;
 use Flarum\Notification\Blueprint\DiscussionRenamedBlueprint;
-use Flarum\Post\CommentPost;
-use Flarum\Post\DiscussionRenamedPost;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;

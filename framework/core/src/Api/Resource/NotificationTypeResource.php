@@ -17,7 +17,6 @@ use Flarum\Notification\AlertableInterface;
 use Flarum\Notification\MailableInterface;
 use Flarum\Notification\Notification;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Support\Arr;
 use ReflectionClass;
 use Tobyz\JsonApiServer\Context;
 
@@ -184,6 +183,7 @@ class NotificationTypeResource extends AbstractResource implements Listable
                 if (preg_match('/\/vendor\/([^\/]+)\/([^\/]+)\//', $classFile, $matches)) {
                     $vendor = $matches[1];
                     $package = $matches[2];
+
                     return "$vendor-$package";
                 }
             }
@@ -197,7 +197,8 @@ class NotificationTypeResource extends AbstractResource implements Listable
             $extensionName = $matches[1];
             // Convert PascalCase to kebab-case
             $extensionName = strtolower(preg_replace('/([a-z])([A-Z])/', '$1-$2', $extensionName));
-            return 'flarum-' . $extensionName;
+
+            return 'flarum-'.$extensionName;
         }
 
         // For third-party extensions: "FoF\Byobu\..." -> extract from namespace
@@ -207,6 +208,7 @@ class NotificationTypeResource extends AbstractResource implements Listable
             $package = $matches[2];
             // Convert PascalCase to kebab-case
             $package = strtolower(preg_replace('/([a-z])([A-Z])/', '$1-$2', $package));
+
             return "$vendor-$package";
         }
 
@@ -223,7 +225,7 @@ class NotificationTypeResource extends AbstractResource implements Listable
         $reflection = new ReflectionClass($blueprintClass);
         $constructor = $reflection->getConstructor();
 
-        if (!$constructor) {
+        if (! $constructor) {
             return new $blueprintClass();
         }
 
@@ -232,14 +234,14 @@ class NotificationTypeResource extends AbstractResource implements Listable
         foreach ($constructor->getParameters() as $param) {
             $type = $param->getType();
 
-            if ($type && !$type->isBuiltin()) {
+            if ($type && ! $type->isBuiltin()) {
                 $typeName = $type instanceof \ReflectionNamedType ? $type->getName() : null;
 
                 if ($typeName) {
                     // Create a mock instance of the required type
                     try {
                         $typeReflection = new ReflectionClass($typeName);
-                        if (!$typeReflection->isInstantiable()) {
+                        if (! $typeReflection->isInstantiable()) {
                             $args[] = null;
                         } else {
                             // Create a minimal instance using newInstanceWithoutConstructor
