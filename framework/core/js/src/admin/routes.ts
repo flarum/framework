@@ -8,6 +8,7 @@ import UserListPage from './components/UserListPage';
 import ExtensionPage from './components/ExtensionPage';
 import ExtensionPageResolver from './resolvers/ExtensionPageResolver';
 import AdvancedPage from './components/AdvancedPage';
+import NotificationTemplatesPage from './components/NotificationTemplatesPage';
 
 /**
  * Helper functions to generate URLs to admin pages.
@@ -24,6 +25,7 @@ export default function (app: AdminApplication) {
     permissions: { path: '/permissions', component: PermissionsPage },
     appearance: { path: '/appearance', component: AppearancePage },
     mail: { path: '/mail', component: MailPage },
+    notificationTemplates: { path: '/notifications', component: NotificationTemplatesPage },
     users: { path: '/users', component: UserListPage },
     advanced: { path: '/advanced', component: AdvancedPage },
     extension: { path: '/extension/:id', component: ExtensionPage, resolverClass: ExtensionPageResolver },

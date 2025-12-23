@@ -162,4 +162,11 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         'mailTest',
         $route->toController(Controller\SendTestMailController::class)
     );
+
+    // Get notification preview
+    $map->get(
+        '/notification-preview',
+        'notificationPreview.show',
+        $route->toController(Controller\ShowNotificationPreviewController::class)
+    );
 };

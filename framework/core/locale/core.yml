@@ -249,6 +249,32 @@ core:
       smtp_description: "Configure SMTP connection settings. Common configurations: Port 587 with TLS, or Port 465 with SSL."
       title: => core.ref.email
 
+    # These translations are used in the Notification Templates page.
+    notification_templates:
+      title: Notification Templates
+      description: "Review notification templates and see previews of how they appear to users."
+      table:
+        type: Notification Type
+        extension: Extension
+        drivers: Drivers
+        actions: Actions
+      drivers:
+        alert: Alert
+        alert_description: In-app notifications
+        email: Email
+        email_description: Email notifications
+        email_html: Email (HTML)
+        email_plain: Email (Plain Text)
+      preview_button: Preview
+      preview_title: "Preview: {type}"
+      preview_modal_title: "Notification Preview: {type}"
+      close_preview: Close preview
+      driver_label: "Driver"
+      select_driver: Select a driver to preview the notification
+      email_subject: "Subject"
+      preview_help: "This is a preview with sample data. Actual notifications will contain real user and content data."
+      preview_failed: Failed to load preview
+
     # These translations are used on default extension pages.
     extension:
       configure_scopes: Configure Scopes
@@ -314,6 +340,8 @@ core:
       dashboard_title: => core.admin.dashboard.description
       email_button: => core.ref.email
       email_title: => core.admin.email.description
+      notification_templates_button: => core.admin.notification_templates.title
+      notification_templates_title: => core.admin.notification_templates.description
       permissions_button: => core.admin.permissions.title
       permissions_title: => core.admin.permissions.description
       userlist_button: => core.admin.users.title

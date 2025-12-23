@@ -89,6 +89,18 @@ export default class AdminNav extends Component {
     );
 
     items.add(
+      'notificationTemplates',
+      <LinkButton
+        href={app.route('notificationTemplates')}
+        icon="fas fa-bell"
+        title={app.translator.trans('core.admin.nav.notification_templates_title')}
+      >
+        {app.translator.trans('core.admin.nav.notification_templates_button')}
+      </LinkButton>,
+      75
+    );
+
+    items.add(
       'permissions',
       <LinkButton href={app.route('permissions')} icon="fas fa-key" title={app.translator.trans('core.admin.nav.permissions_title')}>
         {app.translator.trans('core.admin.nav.permissions_button')}

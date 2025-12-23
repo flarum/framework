@@ -1,0 +1,297 @@
+.NotificationTemplatesPage {
+  .NotificationTemplatesPage-content {
+    margin-top: 20px;
+  }
+
+  .NotificationTable {
+    width: 100%;
+    margin: 20px 0;
+    border-collapse: collapse;
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid var(--control-bg);
+    }
+
+    th {
+      background: var(--body-bg);
+      font-weight: 600;
+      color: var(--heading-color);
+      border-bottom: 2px solid var(--control-bg);
+    }
+
+    tbody tr {
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: var(--body-bg);
+      }
+
+      &.active {
+        background-color: fade(@primary-color, 5%);
+      }
+    }
+
+    .NotificationTable-class {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted-color);
+      font-family: var(--font-family-mono, monospace);
+      font-size: 11px;
+      word-break: break-all;
+    }
+  }
+
+  .Badge {
+    display: inline-block;
+    padding: 4px 10px;
+    margin: 2px 4px 2px 0;
+    border-radius: var(--border-radius, 3px);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+
+    .icon {
+      margin-right: 4px;
+    }
+
+    &--core {
+      background: @primary-color;
+      color: #fff;
+    }
+
+    &--extension {
+      background: var(--control-bg);
+      color: var(--muted-color);
+    }
+
+    &--alert {
+      background: fade(@primary-color, 15%);
+      color: @primary-color;
+    }
+
+    &--email {
+      background: fade(@secondary-color, 15%);
+      color: @secondary-color;
+    }
+  }
+
+  .NotificationDrivers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .NotificationPreviewPanel {
+    margin-top: 30px;
+    border: 1px solid var(--control-bg);
+    border-radius: var(--border-radius, 4px);
+    overflow: hidden;
+
+    &-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background: var(--body-bg);
+      border-bottom: 1px solid var(--control-bg);
+
+      h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+      }
+    }
+
+    &-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+
+      .Select {
+        min-width: 160px;
+      }
+    }
+
+    &-content {
+      padding: 20px;
+      min-height: 400px;
+      background: #fff;
+      position: relative;
+
+      .EmailSubject {
+        padding: 12px 15px;
+        background: var(--control-bg);
+        border-radius: var(--border-radius, 4px);
+        margin-bottom: 15px;
+        font-size: 14px;
+
+        strong {
+          color: var(--heading-color);
+          margin-right: 8px;
+        }
+      }
+
+      .EmailPreview {
+        width: 100%;
+        height: 600px;
+        border: 1px solid var(--control-bg);
+        border-radius: var(--border-radius, 4px);
+        background: #fff;
+      }
+
+      .PlainTextPreview {
+        background: var(--control-bg);
+        padding: 15px;
+        border-radius: var(--border-radius, 4px);
+        white-space: pre-wrap;
+        font-family: var(--font-family-mono, monospace);
+        font-size: 12px;
+        line-height: 1.6;
+        overflow-x: auto;
+        max-height: 600px;
+      }
+
+      .AlertPreview {
+        pre {
+          background: var(--control-bg);
+          padding: 15px;
+          border-radius: var(--border-radius, 4px);
+          font-family: var(--font-family-mono, monospace);
+          font-size: 12px;
+          line-height: 1.6;
+          overflow-x: auto;
+          max-height: 600px;
+        }
+      }
+    }
+
+    &-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 400px;
+      color: var(--muted-color);
+      font-size: 14px;
+    }
+
+    &-footer {
+      padding: 15px 20px;
+      background: var(--body-bg);
+      border-top: 1px solid var(--control-bg);
+
+      .helpText {
+        margin: 0;
+        color: var(--muted-color);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+    }
+  }
+}
+
+.NotificationPreviewModal {
+  .Modal-body {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+  }
+
+  .NotificationPreviewModal-controls {
+    padding: 20px;
+    background: var(--body-bg);
+    border-bottom: 1px solid var(--control-bg);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+
+    label {
+      font-weight: 600;
+      margin: 0;
+      color: var(--heading-color);
+    }
+
+    .Select {
+      flex: 1;
+      max-width: 300px;
+    }
+  }
+
+  .NotificationPreviewModal-preview {
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+
+    .EmailSubject {
+      padding: 12px 15px;
+      background: var(--control-bg);
+      border-radius: var(--border-radius, 4px);
+      margin-bottom: 15px;
+      font-size: 14px;
+      flex-shrink: 0;
+
+      strong {
+        color: var(--heading-color);
+        margin-right: 8px;
+      }
+    }
+
+    .EmailPreview {
+      width: 100%;
+      flex: 1;
+      min-height: 500px;
+      border: 1px solid var(--control-bg);
+      border-radius: var(--border-radius, 4px);
+      background: #fff;
+    }
+
+    .PlainTextPreview {
+      background: var(--control-bg);
+      padding: 15px;
+      border-radius: var(--border-radius, 4px);
+      white-space: pre-wrap;
+      font-family: var(--font-family-mono, monospace);
+      font-size: 12px;
+      line-height: 1.6;
+      overflow-x: auto;
+      flex: 1;
+    }
+
+    .AlertPreview {
+      flex: 1;
+      display: flex;
+
+      pre {
+        flex: 1;
+        background: var(--control-bg);
+        padding: 15px;
+        border-radius: var(--border-radius, 4px);
+        font-family: var(--font-family-mono, monospace);
+        font-size: 12px;
+        line-height: 1.6;
+        overflow-x: auto;
+        margin: 0;
+      }
+    }
+  }
+
+  .NotificationPreviewModal-help {
+    padding: 15px 20px;
+    background: var(--body-bg);
+    border-top: 1px solid var(--control-bg);
+    flex-shrink: 0;
+
+    .helpText {
+      margin: 0;
+      color: var(--muted-color);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+  }
+}

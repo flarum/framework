@@ -21,6 +21,7 @@ import './components/ExtensionLinkButton';
 import './components/PermissionGrid';
 import './components/ExtensionPermissionGrid';
 import './components/MailPage';
+import './components/NotificationTemplatesPage';
 import './components/LoadingModal';
 import './components/DashboardPage';
 import './components/BasicsPage';
