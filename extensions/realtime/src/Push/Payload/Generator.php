@@ -80,7 +80,7 @@ class Generator
                 ->withQueryParams([
                     'include' => 'user,editedUser,likes'
                 ])
-                ->get('/posts/' . $post->id);
+                ->get('/posts/'.$post->id);
 
             $postContents = (string) $postResponse->getBody();
             $decodedPostContents = json_decode($postContents, true);
