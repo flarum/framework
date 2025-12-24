@@ -4,10 +4,10 @@
     </x-slot:header>
 
     <x-slot:content>
-        {{ $slot ?? $body ?? '' }}
+        {!! $body ?? $slot ?? '' !!}
         @if (isset($preview))
             <div class="content-preview">
-                {{ $preview }}
+                {!! $preview !!}
             </div>
         @endif
     </x-slot:content>

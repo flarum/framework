@@ -24,6 +24,7 @@ use Illuminate\Contracts\Queue\Factory;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Queue\Connectors\ConnectorInterface;
 use Illuminate\Queue\Console as Commands;
+use Illuminate\Queue\DatabaseQueue;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Failed\NullFailedJobProvider;
 use Illuminate\Queue\Listener as QueueListener;
@@ -39,7 +40,7 @@ class QueueServiceProvider extends AbstractServiceProvider
         Commands\ListFailedCommand::class,
         Commands\RestartCommand::class,
         Commands\RetryCommand::class,
-        Commands\WorkCommand::class,
+        Console\WorkCommand::class,
     ];
 
     public function register(): void
@@ -55,7 +56,21 @@ class QueueServiceProvider extends AbstractServiceProvider
         // Extensions can override this binding if they want to make Flarum use
         // a different queuing backend.
         $this->container->singleton('flarum.queue.connection', function (ContainerImplementation $container) {
-            $queue = new SyncQueue;
+            /** @var Config $config */
+            $config = $container->make(Config::class);
+            $driver = $config->queueDriver() ?? 'sync';
+
+            if ($driver === 'database') {
+                $queue = new DatabaseQueue(
+                    $container->make('db.connection'),
+                    'queue_jobs',
+                    'default',
+                    60
+                );
+            } else {
+                $queue = new SyncQueue;
+            }
+
             $queue->setContainer($container);
 
             return $queue;
@@ -116,7 +131,21 @@ class QueueServiceProvider extends AbstractServiceProvider
             };
         });
 
-        $this->container->singleton('queue.failer', function () {
+        $this->container->singleton('queue.failer', function (Container $container) {
+            $queue = $container->make('flarum.queue.connection');
+
+            if ($queue instanceof DatabaseQueue) {
+                /** @var Config $config */
+                $config = $container->make(Config::class);
+
+                return new DatabaseUuidFailedJobProvider(
+                    $container->make('db'),
+                    $config['database']['database'],
+                    'queue_failed_jobs',
+                    $container->make('db.connection')
+                );
+            }
+
             return new NullFailedJobProvider();
         });
 
@@ -128,6 +157,7 @@ class QueueServiceProvider extends AbstractServiceProvider
         $this->container->alias(Listener::class, 'queue.listener');
 
         $this->registerCommands();
+        $this->registerSchedule();
     }
 
     protected function registerCommands(): void
@@ -143,6 +173,27 @@ class QueueServiceProvider extends AbstractServiceProvider
             // Otherwise add our commands, while allowing them to be overridden by those
             // already added through the container.
             return array_merge($this->commands, $commands);
+        });
+    }
+
+    protected function registerSchedule(): void
+    {
+        $this->container->extend('flarum.console.scheduled', function ($scheduled, Container $container) {
+            $queue = $container->make(Queue::class);
+
+            // Only schedule the queue worker for the database driver specifically.
+            // Other queue drivers (like Redis/Horizon) should handle their own scheduling.
+            if ($queue instanceof DatabaseQueue) {
+                $scheduled[] = [
+                    'command' => Console\WorkCommand::class,
+                    'args' => $container->make(Console\DatabaseWorkerArgs::class)->args(),
+                    'callback' => function ($event) {
+                        $event->everyMinute();
+                    },
+                ];
+            }
+
+            return $scheduled;
         });
     }
 

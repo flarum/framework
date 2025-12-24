@@ -68,9 +68,6 @@ class DialogResource extends Resource\AbstractDatabaseResource
                     $connection = UserDialogState::query()->getConnection();
                     $grammar = UserDialogState::query()->getGrammar();
 
-                    $table = $grammar->wrapTable('dialogs');
-                    $column = $grammar->wrap('last_message_id');
-
                     UserDialogState::query()
                         ->where('dialog_user.user_id', $context->getActor()->id)
                         ->update([
@@ -121,6 +118,7 @@ class DialogResource extends Resource\AbstractDatabaseResource
                 ->get(function (Dialog $dialog) {
                     return $dialog->state->last_read_at;
                 }),
+            Schema\Integer::make('lastMessageId'),
             Schema\Integer::make('lastReadMessageId')
                 ->visible(fn (Dialog $dialog) => $dialog->state !== null)
                 ->get(function (Dialog $dialog) {

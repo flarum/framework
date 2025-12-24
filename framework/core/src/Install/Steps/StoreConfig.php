@@ -51,6 +51,9 @@ readonly class StoreConfig implements ReversibleStep
             'headers' => [
                 'poweredByHeader' => true,
                 'referrerPolicy' => 'same-origin',
+            ],
+            'queue' => [
+                'driver' => 'sync'
             ]
         ];
     }

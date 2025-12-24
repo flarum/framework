@@ -10,6 +10,7 @@ export default class Dialog extends Model {
     firstMessage(): false | DialogMessage;
     lastMessage(): false | DialogMessage;
     unreadCount(): number;
+    lastMessageId(): number;
     lastReadMessageId(): number;
     lastReadAt(): Date;
     recipient(): User | null | undefined;

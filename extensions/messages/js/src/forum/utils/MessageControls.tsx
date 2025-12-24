@@ -59,6 +59,56 @@ const MessageControls = {
 
     return message.delete().then(() => {
       context.attrs.state.remove(message);
+
+      const dialog = message.dialog();
+
+      if (dialog) {
+        const noMessagesLeft =
+          context.attrs.state.getAllItems().filter((m) => {
+            const mDialog = m.dialog();
+
+            if (!mDialog) return false;
+
+            return mDialog?.id() === dialog!.id();
+          }).length === 0;
+
+        if (noMessagesLeft) {
+          app.dialogs.remove(dialog!);
+          m.route.set(app.route('messages'));
+        }
+
+        if (parseInt(message.id()!) === dialog.lastMessageId()) {
+          const lastMessage = context.attrs.state
+            .getAllItems()
+            .filter((m) => {
+              const mDialog = m.dialog();
+
+              if (!mDialog) return false;
+
+              return mDialog.id() === dialog?.id();
+            })
+            .sort((a, b) => parseInt(a.id()!) - parseInt(b.id()!))
+            .pop();
+
+          if (lastMessage) {
+            dialog!.pushData({
+              relationships: {
+                ...dialog!.data.relationships,
+                lastMessage: {
+                  data: {
+                    type: 'dialog-messages',
+                    id: lastMessage.id()!,
+                  },
+                },
+              },
+            });
+            dialog.pushAttributes({
+              lastMessageId: parseInt(lastMessage.id()!),
+            });
+          }
+        }
+      }
+
       m.redraw();
     });
   },

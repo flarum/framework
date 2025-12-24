@@ -20,12 +20,12 @@
 .StatusWidget {
   color: var(--muted-color);
 
-  >ul {
+  > ul {
     margin: 0;
     padding: 0;
     list-style-type: none;
 
-    >li {
+    > li {
       display: inline-block;
       margin-right: 30px;
       vertical-align: middle;
@@ -40,6 +40,42 @@
       &.item-tools {
         float: right;
         margin-right: 0;
+      }
+    }
+  }
+}
+
+.StatusWidgetItem {
+  display: flex;
+  align-items: flex-start;
+  
+  > i {
+    margin-right: 8px;
+    margin-top: 2px;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+
+  &-content {
+    flex: 1;
+  }
+
+  &-label {
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  &-value {
+    display: block;
+    
+    .LinkButton {
+      margin-left: 4px;
+      opacity: 0.6;
+      text-decoration: none;
+      
+      &:hover {
+        opacity: 1;
+        text-decoration: none;
       }
     }
   }

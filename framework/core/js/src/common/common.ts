@@ -63,6 +63,7 @@ import './components/FieldSet';
 import './components/Select';
 import './components/Navigation';
 import './components/Alert';
+import './components/LabelValue';
 import './components/Link';
 import './components/LinkButton';
 import './components/Checkbox';
@@ -81,6 +82,7 @@ import './components/AutocompleteDropdown';
 import './components/GambitsAutocompleteDropdown';
 import './components/UploadImageButton';
 import './components/FormGroup';
+import './components/IPAddress';
 
 import './helpers/fullTime';
 import './components/Avatar';

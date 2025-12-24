@@ -34,6 +34,11 @@ readonly class Config implements ArrayAccess
         return $this->data['debug'] ?? false;
     }
 
+    public function queueDriver(): ?string
+    {
+        return $this->data['queue']['driver'] ?? null;
+    }
+
     public function inMaintenanceMode(): bool
     {
         return $this->inHighMaintenanceMode() || $this->inLowMaintenanceMode() || $this->inSafeMode();
@@ -66,6 +71,21 @@ readonly class Config implements ArrayAccess
     public function safeModeExtensions(): ?array
     {
         return $this->data['safe_mode_extensions'] ?? null;
+    }
+
+    public function fontawesomeSource(): ?string
+    {
+        return $this->data['fontawesome']['source'] ?? null;
+    }
+
+    public function fontawesomeCdnUrl(): ?string
+    {
+        return $this->data['fontawesome']['cdn_url'] ?? null;
+    }
+
+    public function fontawesomeKitUrl(): ?string
+    {
+        return $this->data['fontawesome']['kit_url'] ?? null;
     }
 
     private function requireKeys(mixed ...$keys): void

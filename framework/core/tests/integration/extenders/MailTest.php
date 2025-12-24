@@ -46,7 +46,11 @@ class MailTest extends TestCase
         $this->assertEquals([
             'mail_host' => '',
             'mail_port' => '',
-            'mail_encryption' => '',
+            'mail_encryption' => [
+                '' => 'None',
+                'tls' => 'TLS',
+                'ssl' => 'SSL',
+            ],
             'mail_username' => '',
             'mail_password' => '',
         ], $fields['smtp']);

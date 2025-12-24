@@ -4,7 +4,7 @@
 </x-slot:header>
 
 <x-slot:content>
-{{ $slot ?? $body ?? '' }}
+{!! $body ?? $slot ?? '' !!}
 </x-slot:content>
 
 <x-slot:footer>

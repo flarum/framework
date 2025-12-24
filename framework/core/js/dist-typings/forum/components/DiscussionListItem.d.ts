@@ -12,6 +12,7 @@ export interface IDiscussionListItemAttrs extends ComponentAttrs {
     params: DiscussionListParams;
     jumpTo?: number;
     author?: User;
+    slidable?: boolean;
 }
 /**
  * The `DiscussionListItem` component shows a single discussion in the
@@ -39,6 +40,7 @@ export default class DiscussionListItem<CustomAttrs extends IDiscussionListItemA
     badgesView(): Mithril.Children;
     mainView(): Mithril.Children;
     getJumpTo(): number;
+    protected isSlidableEnabled(): boolean;
     oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): void;
     onbeforeupdate(vnode: Mithril.VnodeDOM<CustomAttrs, this>): boolean;
     /**

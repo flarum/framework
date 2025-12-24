@@ -29,6 +29,7 @@ class MailServiceProvider extends AbstractServiceProvider
                 'mailgun' => MailgunDriver::class,
                 'log' => LogDriver::class,
                 'smtp' => SmtpDriver::class,
+                'null' => NullDriver::class,
             ];
         });
 

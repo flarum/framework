@@ -1,13 +1,17 @@
 <p align="center">
-<a href="https://flarum.org/"><img src="https://flarum.org/images/flarum.svg"></a>
+
+[![flarum logo](https://flarum.org/images/flarum.svg)](https://flarum.org/)
+
 </p>
 
 <p align="center">
-<a href="https://github.com/flarum/core/actions?query=workflow%3ATests"><img src="https://github.com/flarum/core/workflows/Tests/badge.svg" alt="PHP Tests"></a>
-<a href="https://packagist.org/packages/flarum/core"><img src="https://img.shields.io/packagist/dt/flarum/core" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/flarum/core"><img src="https://img.shields.io/github/v/release/flarum/core?sort=semver" alt="Latest Version"></a>
-<a href="https://packagist.org/packages/flarum/core"><img src="https://img.shields.io/packagist/l/flarum/core" alt="License"></a>
-<a href="https://github.styleci.io/repos/28257573"><img src="https://github.styleci.io/repos/28257573/shield?style=flat" alt="StyleCI"></a>
+
+[![Backend Tests](https://github.com/flarum/framework/actions/workflows/backend.yml/badge.svg)](https://github.com/flarum/framework/actions/workflows/backend.yml)
+[![Total Downloads](https://img.shields.io/packagist/dt/flarum/core)](https://packagist.org/packages/flarum/core)
+[![Latest Version](https://img.shields.io/github/v/release/flarum/core?sort=semver)](https://packagist.org/packages/flarum/core)
+[![License](https://img.shields.io/packagist/l/flarum/core)](https://packagist.org/packages/flarum/core)
+[![StyleCI](https://github.styleci.io/repos/28257573/shield?style=flat)](https://github.styleci.io/repos/28257573)
+
 </p>
 
 ## About Flarum

@@ -356,6 +356,230 @@ class ConditionalTest extends TestCase
 
         $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
     }
+
+    #[Test]
+    public function conditional_works_when_setting_matches_expected_value()
+    {
+        $this->setting('test_setting', 'expected_value');
+
+        $this->extend(
+            (new Extend\Conditional())
+                ->whenSetting('test_setting', 'expected_value', fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ])
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    #[Test]
+    public function conditional_does_not_work_when_setting_does_not_match_expected_value()
+    {
+        $this->setting('test_setting', 'different_value');
+
+        $this->extend(
+            (new Extend\Conditional())
+                ->whenSetting('test_setting', 'expected_value', fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ])
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    #[Test]
+    public function conditional_does_not_work_when_setting_does_not_exist()
+    {
+        $this->extend(
+            (new Extend\Conditional())
+                ->whenSetting('nonexistent_setting', 'expected_value', fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ])
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    #[Test]
+    public function conditional_works_when_setting_matches_with_invokable_class()
+    {
+        $this->setting('test_setting', 'expected_value');
+
+        $this->extend(
+            (new Extend\Conditional())
+                ->whenSetting('test_setting', 'expected_value', TestExtender::class)
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    #[Test]
+    public function conditional_works_when_setting_matches_boolean_true()
+    {
+        $this->setting('test_boolean', '1');
+
+        $this->extend(
+            (new Extend\Conditional())
+                ->whenSetting('test_boolean', true, fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ])
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    #[Test]
+    public function conditional_works_with_strict_comparison_when_types_match()
+    {
+        $this->setting('test_setting', 'exact_value');
+
+        $this->extend(
+            (new Extend\Conditional())
+                ->whenSetting('test_setting', 'exact_value', fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ], strict: true)
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    #[Test]
+    public function conditional_does_not_work_with_strict_comparison_when_types_differ()
+    {
+        $this->setting('test_number', '1');
+
+        $this->extend(
+            (new Extend\Conditional())
+                ->whenSetting('test_number', 1, fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ], strict: true)
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayNotHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
+
+    #[Test]
+    public function conditional_works_with_loose_comparison_when_types_differ()
+    {
+        $this->setting('test_number', '1');
+
+        $this->extend(
+            (new Extend\Conditional())
+                ->whenSetting('test_number', 1, fn () => [
+                    (new Extend\ApiResource(ForumResource::class))
+                        ->fields(fn () => [
+                            Boolean::make('customConditionalAttribute')
+                                ->get(fn () => true)
+                        ])
+                ])
+        );
+
+        $this->app();
+
+        $response = $this->send(
+            $this->request('GET', '/api', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+
+        $this->assertArrayHasKey('customConditionalAttribute', $payload['data']['attributes']);
+    }
 }
 
 class TestExtender

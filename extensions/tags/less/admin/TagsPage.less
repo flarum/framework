@@ -34,6 +34,14 @@
   .icon {
     margin-right: 10px;
   }
+
+  // FontAwesome Kit sets --fa-display variable which breaks layout
+  // Only target tag icons (not button icons), as Button-icon has its own fix
+  > li .icon {
+    --fa-display: inline-block;
+    display: inline-block !important;
+    line-height: inherit !important;
+  }
 }
 
 .TagListItem-info {

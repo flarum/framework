@@ -1,6 +1,10 @@
 .AvatarEditor {
   position: relative;
 
+  // prevent flex stretching and make the box the same size as the img
+  display: inline-block;
+  align-self: flex-start;
+
   .Dropdown-toggle {
     margin: 4px;
     font-size: 26px;

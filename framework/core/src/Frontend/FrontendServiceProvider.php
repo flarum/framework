@@ -13,6 +13,7 @@ use Flarum\Extension\Event\Disabled;
 use Flarum\Extension\Event\Enabled;
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Event\ClearingCache;
+use Flarum\Foundation\FontAwesome;
 use Flarum\Foundation\Paths;
 use Flarum\Frontend\Compiler\Source\SourceCollector;
 use Flarum\Frontend\Driver\BasicTitleDriver;
@@ -47,6 +48,9 @@ class FrontendServiceProvider extends AbstractServiceProvider
                     $container->make('flarum.frontend.custom_less_functions')
                 );
 
+                // Always include FontAwesome LESS import paths
+                // Even when using CDN/Kit, we need the base CSS classes compiled into the bundle
+                // The CDN/Kit will override font-face declarations but class definitions remain the same
                 $assets->setLessImportDirs([
                     $paths->vendor.'/components/font-awesome/css' => ''
                 ]);
@@ -98,6 +102,36 @@ class FrontendServiceProvider extends AbstractServiceProvider
                         $document->preloads,
                     );
 
+                    // Add FontAwesome CDN or Kit if configured
+                    /** @var FontAwesome $fontAwesome */
+                    $fontAwesome = $container->make(FontAwesome::class);
+
+                    if ($fontAwesome->useCdn()) {
+                        $cdnUrl = $fontAwesome->cdnUrl();
+                        if (! empty($cdnUrl)) {
+                            // Preload CDN CSS for better performance
+                            $document->preloads[] = [
+                                'href' => $cdnUrl,
+                                'as' => 'style',
+                                'crossorigin' => 'anonymous'
+                            ];
+                            // Add CDN CSS with crossorigin for better caching
+                            $document->head[] = '<link rel="stylesheet" href="'.e($cdnUrl).'" crossorigin="anonymous">';
+                        }
+                    } elseif ($fontAwesome->useKit()) {
+                        $kitUrl = $fontAwesome->kitUrl();
+                        if (! empty($kitUrl)) {
+                            // Preload Kit JS for better performance
+                            $document->preloads[] = [
+                                'href' => $kitUrl,
+                                'as' => 'script',
+                                'crossorigin' => 'anonymous'
+                            ];
+                            // Add Kit JS with crossorigin for better caching
+                            $document->head[] = '<script src="'.e($kitUrl).'" crossorigin="anonymous"></script>';
+                        }
+                    }
+
                     /** @var SettingsRepositoryInterface $settings */
                     $settings = $container->make(SettingsRepositoryInterface::class);
 
@@ -120,21 +154,31 @@ class FrontendServiceProvider extends AbstractServiceProvider
         $this->container->singleton(
             'flarum.frontend.default_preloads',
             function (Container $container) {
-                $filesystem = $container->make('filesystem')->disk('flarum-assets');
+                /** @var FontAwesome $fontAwesome */
+                $fontAwesome = $container->make(FontAwesome::class);
 
-                return [
-                    [
-                        'href' => $filesystem->url('fonts/fa-solid-900.woff2'),
-                        'as' => 'font',
-                        'type' => 'font/woff2',
-                        'crossorigin' => ''
-                    ], [
-                        'href' => $filesystem->url('fonts/fa-regular-400.woff2'),
-                        'as' => 'font',
-                        'type' => 'font/woff2',
-                        'crossorigin' => ''
-                    ]
-                ];
+                $preloads = [];
+
+                // Only preload local fonts if using local source
+                if ($fontAwesome->useLocalFonts()) {
+                    $filesystem = $container->make('filesystem')->disk('flarum-assets');
+
+                    $preloads = [
+                        [
+                            'href' => $filesystem->url('fonts/fa-solid-900.woff2'),
+                            'as' => 'font',
+                            'type' => 'font/woff2',
+                            'crossorigin' => ''
+                        ], [
+                            'href' => $filesystem->url('fonts/fa-regular-400.woff2'),
+                            'as' => 'font',
+                            'type' => 'font/woff2',
+                            'crossorigin' => ''
+                        ]
+                    ];
+                }
+
+                return $preloads;
             }
         );
 

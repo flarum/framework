@@ -172,4 +172,89 @@ class ConfigTest extends TestCase
         // Ensure the value was not changed
         $this->assertEquals('b', $config['custom_a']);
     }
+
+    #[Test]
+    public function it_returns_queue_driver_from_config()
+    {
+        $config = new Config([
+            'url' => 'https://flarum.localhost',
+            'queue' => [
+                'driver' => 'database',
+            ],
+        ]);
+
+        $this->assertEquals('database', $config->queueDriver());
+    }
+
+    #[Test]
+    public function it_returns_null_for_missing_queue_driver()
+    {
+        $config = new Config([
+            'url' => 'https://flarum.localhost',
+        ]);
+
+        $this->assertNull($config->queueDriver());
+    }
+
+    #[Test]
+    public function it_returns_null_for_empty_queue_config()
+    {
+        $config = new Config([
+            'url' => 'https://flarum.localhost',
+            'queue' => [],
+        ]);
+
+        $this->assertNull($config->queueDriver());
+    }
+
+    #[Test]
+    public function it_returns_null_for_missing_fontawesome_config()
+    {
+        $config = new Config([
+            'url' => 'https://flarum.localhost',
+        ]);
+
+        $this->assertNull($config->fontawesomeSource());
+        $this->assertNull($config->fontawesomeCdnUrl());
+        $this->assertNull($config->fontawesomeKitUrl());
+    }
+
+    #[Test]
+    public function it_returns_fontawesome_source_from_config()
+    {
+        $config = new Config([
+            'url' => 'https://flarum.localhost',
+            'fontawesome' => [
+                'source' => 'cdn',
+            ],
+        ]);
+
+        $this->assertEquals('cdn', $config->fontawesomeSource());
+    }
+
+    #[Test]
+    public function it_returns_fontawesome_cdn_url_from_config()
+    {
+        $config = new Config([
+            'url' => 'https://flarum.localhost',
+            'fontawesome' => [
+                'cdn_url' => 'https://cdn.example.com/fontawesome.css',
+            ],
+        ]);
+
+        $this->assertEquals('https://cdn.example.com/fontawesome.css', $config->fontawesomeCdnUrl());
+    }
+
+    #[Test]
+    public function it_returns_fontawesome_kit_url_from_config()
+    {
+        $config = new Config([
+            'url' => 'https://flarum.localhost',
+            'fontawesome' => [
+                'kit_url' => 'https://kit.fontawesome.com/abc123.js',
+            ],
+        ]);
+
+        $this->assertEquals('https://kit.fontawesome.com/abc123.js', $config->fontawesomeKitUrl());
+    }
 }

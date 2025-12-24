@@ -76,51 +76,59 @@ class LessCompiler extends RevisionCompiler
             unset($sources['custom_less']);
         }
 
+        $maxNestingLevel = ini_get('xdebug.max_nesting_level');
+
         ini_set('xdebug.max_nesting_level', '200');
 
-        $parser = new Less_Parser([
-            'compress' => true,
-            'cache_dir' => $this->cacheDir,
-            'import_dirs' => $this->importDirs,
-            'import_callback' => $this->lessImportOverrides ? $this->overrideImports($sources) : null,
-        ]);
-
-        if ($this->fileSourceOverrides) {
-            $sources = $this->overrideSources($sources);
-        }
-
-        foreach ($sources as $source) {
-            if ($source instanceof FileSource) {
-                $parser->parseFile($source->getPath());
-            } else {
-                $parser->parse($source->getContent());
-            }
-        }
-
-        foreach ($this->customFunctions as $name => $callback) {
-            $parser->registerFunction($name, $callback);
-        }
-
         try {
-            $compiled = $this->finalize($parser->getCss());
+            $parser = new Less_Parser([
+                'compress' => true,
+                'cache_dir' => $this->cacheDir,
+                'import_dirs' => $this->importDirs,
+                'import_callback' => $this->lessImportOverrides ? $this->overrideImports($sources) : null,
+            ]);
 
-            if (isset($sources['custom_less'])) {
-                $this->settings->delete('custom_less_error');
+            if ($this->fileSourceOverrides) {
+                $sources = $this->overrideSources($sources);
             }
 
-            return $compiled;
-        } catch (Less_Exception_Compiler $e) {
-            if (isset($sources['custom_less'])) {
-                unset($sources['custom_less']);
+            foreach ($sources as $source) {
+                if ($source instanceof FileSource) {
+                    $parser->parseFile($source->getPath());
+                } else {
+                    $parser->parse($source->getContent());
+                }
+            }
 
-                $compiled = $this->compile($sources);
+            foreach ($this->customFunctions as $name => $callback) {
+                $parser->registerFunction($name, $callback);
+            }
 
-                $this->settings->set('custom_less_error', $e->getMessage());
+            try {
+                $compiled = $this->finalize($parser->getCss());
+
+                if (isset($sources['custom_less'])) {
+                    $this->settings->delete('custom_less_error');
+                }
 
                 return $compiled;
-            }
+            } catch (Less_Exception_Compiler $e) {
+                if (isset($sources['custom_less'])) {
+                    unset($sources['custom_less']);
 
-            throw $e;
+                    $compiled = $this->compile($sources);
+
+                    $this->settings->set('custom_less_error', $e->getMessage());
+
+                    return $compiled;
+                }
+
+                throw $e;
+            }
+        } finally {
+            if ($maxNestingLevel !== false) {
+                ini_set('xdebug.max_nesting_level', $maxNestingLevel);
+            }
         }
     }
 

@@ -64,6 +64,12 @@ export interface AdminApplicationData extends ApplicationData {
   maintenanceByConfig: boolean;
   safeModeExtensions?: string[] | null;
   safeModeExtensionsConfig?: string[] | null;
+  fontawesomeByConfig: boolean;
+  fontawesomeConfig?: {
+    source: string;
+    cdn_url: string | null;
+    kit_url: string | null;
+  };
 
   dbDriver: DatabaseDriver;
   dbVersion: string;

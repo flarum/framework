@@ -45,8 +45,37 @@ core:
         safe_mode_extensions: Extensions allowed to boot during safe mode
         safe_mode_extensions_override_help: "This setting is overridden by the <code>safe_mode_extensions</code> key in your <code>config.php</code> file. (<b>{extensions}</b>)"
         section_label: Maintenance
+      fontawesome:
+        section_label: FontAwesome Icons
+        source_label: Icon Source
+        source_help: Choose how FontAwesome icons are loaded. Local uses bundled fonts, CDN loads from a CDN, and Kit uses FontAwesome Kits with custom icons.
+        source_local: Local (Bundled)
+        source_cdn: CDN
+        source_kit: FontAwesome Kit
+        cdn_url_label: CDN URL
+        cdn_url_help: Full URL to the FontAwesome CSS file on a CDN
+        kit_url_label: Kit URL
+        kit_url_help: Your FontAwesome Kit script URL (from kit.fontawesome.com)
+        config_override:
+          label: Config Override
+          help: FontAwesome settings are currently set in your config.php file and cannot be changed here.
       pgsql:
         search_configuration: Search configuration to use
+      queue:
+        section_label: Queue
+        sync_info: Your forum is using the synchronous queue driver. Jobs are processed immediately in the main process thread.
+        sync_help: For better performance and user experience, consider using the database queue driver. Learn more in the documentation.
+        custom_driver: "Your forum is using the '{driver}' queue driver, which is provided by an extension."
+        retries_label: Job Retries
+        retries_help: Maximum number of times to attempt a job before marking it as failed. Default is 1.
+        memory_label: Memory Limit (MB)
+        memory_help: Maximum memory the queue worker can use before restarting. Default is 128 MB.
+        timeout_label: Job Timeout (seconds)
+        timeout_help: Maximum time a single job can run before timing out. Default is 60 seconds.
+        rest_label: Rest Time (seconds)
+        rest_help: Time to wait between processing jobs. Default is 0 seconds.
+        backoff_label: Backoff (seconds)
+        backoff_help: Time to wait before retrying a failed job. Default is 0 seconds.
       search:
         section_label: Search Drivers
         driver_heading: "Search Driver: {model}"
@@ -200,6 +229,9 @@ core:
       format_help: "Choose the format that outgoing emails will be sent in. The recommended option is <code>multipart</code>, as this will allow your user's email client to display the most appropriate format."
       from_label: Sender
       mail_encryption_label: Encryption
+      mail_encryption_tls_help: "Connection starts unencrypted and upgrades to TLS (STARTTLS). Typically used with port 587 or 25."
+      mail_encryption_ssl_help: "Connection is encrypted from the start (Implicit TLS). Typically used with port 465."
+      mail_encryption_none_help: "No encryption. Not recommended for production use."
       mail_host_label: Host
       mail_mailgun_domain_label: Domain
       mail_mailgun_region_label: Region
@@ -214,6 +246,7 @@ core:
       send_test_mail_success: "Test mail sent successfully!"
       send_test_mail_text: "This will send an email using the above configuration to your email, {email}."
       smtp_heading: SMTP Settings
+      smtp_description: "Configure SMTP connection settings. Common configurations: Port 587 with TLS, or Port 465 with SSL."
       title: => core.ref.email
 
     # These translations are used on default extension pages.
@@ -311,6 +344,7 @@ core:
       post_without_throttle_label: Reply multiple times without waiting
       read_heading: Read
       remove_scope_label: Remove scope of {scope}
+      remove_scope_confirmation: Are you sure you want to remove the {scope} scope?
       rename_discussions_label: Rename discussions
       reply_to_discussions_label: Reply to discussions
       search_users_label: => core.ref.search_users

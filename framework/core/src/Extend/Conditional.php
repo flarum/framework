@@ -11,6 +11,7 @@ namespace Flarum\Extend;
 
 use Flarum\Extension\Extension;
 use Flarum\Extension\ExtensionManager;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Container\Container;
 
 /**
@@ -56,6 +57,23 @@ class Conditional implements ExtenderInterface
     {
         return $this->when(function (ExtensionManager $extensions) use ($extensionId) {
             return ! $extensions->isEnabled($extensionId);
+        }, $extenders);
+    }
+
+    /**
+     * Apply extenders only if a setting matches an expected value.
+     *
+     * @param string $key The settings key.
+     * @param mixed $expected The expected value.
+     * @param callable|string $extenders A callable returning an array of extenders, or an invokable class string.
+     * @param bool $strict Whether to use strict comparison (===). Defaults to false (loose comparison ==).
+     */
+    public function whenSetting(string $key, mixed $expected, callable|string $extenders, bool $strict = false): self
+    {
+        return $this->when(function (SettingsRepositoryInterface $settings) use ($key, $expected, $strict) {
+            $value = $settings->get($key);
+
+            return $strict ? $value === $expected : $value == $expected;
         }, $extenders);
     }
 

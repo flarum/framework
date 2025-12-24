@@ -31,7 +31,7 @@ use Illuminate\Database\Query\Expression;
  * @property int|Expression $number
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
- * @property-read Dialog $dialog
+ * @property-read Dialog|null $dialog
  * @property-read User|null $user
  * @property-read Collection<int, User> $mentionsUsers
  * @property-read Collection<int, Post> $mentionsPosts
@@ -69,6 +69,24 @@ class DialogMessage extends AbstractModel implements Formattable
                     ->selectRaw('COALESCE(MAX('.$db->getTablePrefix().'dm.number), 0) + 1')
                     ->toSql()
                 .')');
+        });
+
+        static::deleted(function (self $message) {
+            if ($message->dialog) {
+                if ($message->dialog->messages()->count() === 0) {
+                    $message->dialog->delete();
+                } elseif ($message->dialog->first_message_id === $message->id) {
+                    $message->dialog->setFirstMessage(
+                        $message->dialog->messages()->oldest('id')->first()
+                    );
+                    $message->dialog->save();
+                } elseif ($message->dialog->last_message_id === $message->id) {
+                    $message->dialog->setLastMessage(
+                        $message->dialog->messages()->latest('id')->first()
+                    );
+                    $message->dialog->save();
+                }
+            }
         });
     }
 

@@ -99,10 +99,10 @@ app.initializers.add('flarum-nicknames', () => {
 
     if (app.forum.attribute('setNicknameOnRegistration')) {
       data.nickname = this.nickname();
+
+      // Don't send username when randomization is enabled - backend will generate it
       if (app.forum.attribute('randomizeUsernameOnRegistration')) {
-        const arr = new Uint32Array(2);
-        crypto.getRandomValues(arr);
-        data.username = arr.join('');
+        delete data.username;
       }
     }
   });

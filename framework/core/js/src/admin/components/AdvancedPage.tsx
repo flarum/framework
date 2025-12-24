@@ -70,9 +70,13 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
 
     items.add('maintenance', this.maintenance(), 90);
 
+    items.add('fontawesome', this.fontAwesome(), 85);
+
     if (app.data.dbDriver === DatabaseDriver.PostgreSQL) {
       items.add(DatabaseDriver.PostgreSQL, this.pgsqlSettings(), 80);
     }
+
+    items.add('queue', this.queue(), 70);
 
     return items;
   }
@@ -194,6 +198,115 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
     );
   }
 
+  queue() {
+    return <FormSection label={app.translator.trans('core.admin.advanced.queue.section_label')}>{this.queueItems().toArray()}</FormSection>;
+  }
+
+  queueItems() {
+    const items = new ItemList<Mithril.Children>();
+    const driver = app.data.queueDriver || 'sync';
+
+    // Extensions can remove this and add their own by key
+    if (driver === 'sync') {
+      items.add('content', this.queueSyncContent(), 100);
+    } else if (driver === 'database') {
+      items.add('content', this.queueDatabaseContent(), 100);
+    } else {
+      items.add('content', this.queueCustomContent(), 100);
+    }
+
+    return items;
+  }
+
+  queueSyncContent() {
+    return (
+      <InfoTile icon="fas fa-bolt" className="InfoTile--muted">
+        <p>{app.translator.trans('core.admin.advanced.queue.sync_info')}</p>
+        <p className="helpText">{app.translator.trans('core.admin.advanced.queue.sync_help')}</p>
+      </InfoTile>
+    );
+  }
+
+  queueDatabaseContent() {
+    return <Form>{this.queueDatabaseSettings().toArray()}</Form>;
+  }
+
+  queueDatabaseSettings() {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add(
+      'retries',
+      this.buildSettingComponent({
+        type: 'number',
+        setting: 'database-queue.retries',
+        label: app.translator.trans('core.admin.advanced.queue.retries_label'),
+        help: app.translator.trans('core.admin.advanced.queue.retries_help'),
+        placeholder: '1',
+        min: 1,
+      }),
+      100
+    );
+
+    items.add(
+      'memory',
+      this.buildSettingComponent({
+        type: 'number',
+        setting: 'database-queue.memory',
+        label: app.translator.trans('core.admin.advanced.queue.memory_label'),
+        help: app.translator.trans('core.admin.advanced.queue.memory_help'),
+        placeholder: '128',
+        min: 32,
+      }),
+      90
+    );
+
+    items.add(
+      'timeout',
+      this.buildSettingComponent({
+        type: 'number',
+        setting: 'database-queue.timeout',
+        label: app.translator.trans('core.admin.advanced.queue.timeout_label'),
+        help: app.translator.trans('core.admin.advanced.queue.timeout_help'),
+        placeholder: '60',
+        min: 1,
+      }),
+      80
+    );
+
+    items.add(
+      'rest',
+      this.buildSettingComponent({
+        type: 'number',
+        setting: 'database-queue.rest',
+        label: app.translator.trans('core.admin.advanced.queue.rest_label'),
+        help: app.translator.trans('core.admin.advanced.queue.rest_help'),
+        placeholder: '0',
+        min: 0,
+      }),
+      70
+    );
+
+    items.add(
+      'backoff',
+      this.buildSettingComponent({
+        type: 'number',
+        setting: 'database-queue.backoff',
+        label: app.translator.trans('core.admin.advanced.queue.backoff_label'),
+        help: app.translator.trans('core.admin.advanced.queue.backoff_help'),
+        placeholder: '0',
+        min: 0,
+      }),
+      60
+    );
+
+    return items;
+  }
+
+  queueCustomContent() {
+    const driver = app.data.queueDriver;
+    return <InfoTile icon="fas fa-server">{app.translator.trans('core.admin.advanced.queue.custom_driver', { driver })}</InfoTile>;
+  }
+
   pgsqlSettings() {
     return (
       <FormSection label={DatabaseDriver.PostgreSQL}>
@@ -205,6 +318,64 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
             label: app.translator.trans('core.admin.advanced.pgsql.search_configuration'),
           })}
         </Form>
+      </FormSection>
+    );
+  }
+
+  fontAwesome() {
+    const source = this.setting('fontawesome_source')() || 'local';
+
+    // Use config values if config override is active, otherwise use database settings
+    const configSource = app.data.fontawesomeConfig?.source || source;
+    const configCdnUrl = app.data.fontawesomeConfig?.cdn_url || this.setting('fontawesome_cdn_url')();
+    const configKitUrl = app.data.fontawesomeConfig?.kit_url || this.setting('fontawesome_kit_url')();
+
+    return (
+      <FormSection label={app.translator.trans('core.admin.advanced.fontawesome.section_label')}>
+        {app.data.fontawesomeByConfig ? (
+          <div className="Form-group">
+            <label>{app.translator.trans('core.admin.advanced.fontawesome.config_override.label')}</label>
+            <p className="helpText">{app.translator.trans('core.admin.advanced.fontawesome.config_override.help')}</p>
+            <strong className="helpText">
+              {app.translator.trans('core.admin.advanced.fontawesome.source_' + configSource)}
+              {configSource === 'cdn' && configCdnUrl && <span>: {configCdnUrl}</span>}
+              {configSource === 'kit' && configKitUrl && <span>: {configKitUrl}</span>}
+            </strong>
+          </div>
+        ) : (
+          <Form>
+            {this.buildSettingComponent({
+              type: 'select',
+              setting: 'fontawesome_source',
+              label: app.translator.trans('core.admin.advanced.fontawesome.source_label'),
+              help: app.translator.trans('core.admin.advanced.fontawesome.source_help'),
+              options: {
+                local: app.translator.trans('core.admin.advanced.fontawesome.source_local'),
+                cdn: app.translator.trans('core.admin.advanced.fontawesome.source_cdn'),
+                kit: app.translator.trans('core.admin.advanced.fontawesome.source_kit'),
+              },
+              default: 'local',
+            })}
+
+            {source === 'cdn' &&
+              this.buildSettingComponent({
+                type: 'text',
+                setting: 'fontawesome_cdn_url',
+                label: app.translator.trans('core.admin.advanced.fontawesome.cdn_url_label'),
+                help: app.translator.trans('core.admin.advanced.fontawesome.cdn_url_help'),
+                placeholder: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css',
+              })}
+
+            {source === 'kit' &&
+              this.buildSettingComponent({
+                type: 'text',
+                setting: 'fontawesome_kit_url',
+                label: app.translator.trans('core.admin.advanced.fontawesome.kit_url_label'),
+                help: app.translator.trans('core.admin.advanced.fontawesome.kit_url_help'),
+                placeholder: 'https://kit.fontawesome.com/YOUR_KIT_CODE.js',
+              })}
+          </Form>
+        )}
       </FormSection>
     );
   }
@@ -233,6 +404,51 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
         id: 'extension_bisect',
         label: app.translator.trans('core.admin.advanced.maintenance.bisect.label', {}, true),
         help: app.translator.trans('core.admin.advanced.maintenance.bisect.help', {}, true),
+      },
+      {
+        id: 'database-queue.retries',
+        label: app.translator.trans('core.admin.advanced.queue.retries_label', {}, true),
+        help: app.translator.trans('core.admin.advanced.queue.retries_help', {}, true),
+        visible: () => (app.data.queueDriver || 'sync') === 'database',
+      },
+      {
+        id: 'database-queue.memory',
+        label: app.translator.trans('core.admin.advanced.queue.memory_label', {}, true),
+        help: app.translator.trans('core.admin.advanced.queue.memory_help', {}, true),
+        visible: () => (app.data.queueDriver || 'sync') === 'database',
+      },
+      {
+        id: 'database-queue.timeout',
+        label: app.translator.trans('core.admin.advanced.queue.timeout_label', {}, true),
+        help: app.translator.trans('core.admin.advanced.queue.timeout_help', {}, true),
+        visible: () => (app.data.queueDriver || 'sync') === 'database',
+      },
+      {
+        id: 'database-queue.rest',
+        label: app.translator.trans('core.admin.advanced.queue.rest_label', {}, true),
+        help: app.translator.trans('core.admin.advanced.queue.rest_help', {}, true),
+        visible: () => (app.data.queueDriver || 'sync') === 'database',
+      },
+      {
+        id: 'database-queue.backoff',
+        label: app.translator.trans('core.admin.advanced.queue.backoff_label', {}, true),
+        help: app.translator.trans('core.admin.advanced.queue.backoff_help', {}, true),
+        visible: () => (app.data.queueDriver || 'sync') === 'database',
+      },
+      {
+        id: 'fontawesome_source',
+        label: app.translator.trans('core.admin.advanced.fontawesome.source_label', {}, true),
+        help: app.translator.trans('core.admin.advanced.fontawesome.source_help', {}, true),
+      },
+      {
+        id: 'fontawesome_cdn_url',
+        label: app.translator.trans('core.admin.advanced.fontawesome.cdn_url_label', {}, true),
+        visible: () => app.data.settings.fontawesome_source === 'cdn' && !app.data.fontawesomeByConfig,
+      },
+      {
+        id: 'fontawesome_kit_url',
+        label: app.translator.trans('core.admin.advanced.fontawesome.kit_url_label', {}, true),
+        visible: () => app.data.settings.fontawesome_source === 'kit' && !app.data.fontawesomeByConfig,
       },
     ]);
   }

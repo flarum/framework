@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "flarum/core": "^2.0.0-beta.3"
+        "flarum/core": "^2.0.0-beta.5"
     },
     "autoload": {
         "psr-4": {
@@ -79,7 +79,8 @@
     },
     "require-dev": {
         "flarum/core": "*@dev",
-        "flarum/testing": "^2.0"
+        "flarum/testing": "^2.0",
+        "flarum/suspend": "^2.0"
     },
     "repositories": [
         {
