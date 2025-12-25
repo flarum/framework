@@ -67,7 +67,7 @@ export default function () {
         // When we're viewing a specific tag but the discussion has no such tags, ignore it.
         if (discussion && activeTag && discussion.tags?.()) {
           // Tag is not assigned to this discussion.
-          const tagIds = discussion.tags().map(tag => tag.id());
+          const tagIds = discussion.tags().map((tag) => tag.id());
           if (tagIds.indexOf(activeTag.id()) === -1) return;
         }
 
