@@ -115,7 +115,10 @@ class User extends AbstractModel
      */
     protected static DisplayNameDriver $displayNameDriver;
 
-    protected static AvatarDriver $avatarUrlDriver;
+    /**
+     * A driver for getting avatar URLs.
+     */
+    protected static AvatarDriver $avatarDriver;
 
     /**
      * The hasher with which to hash passwords.
@@ -174,9 +177,14 @@ class User extends AbstractModel
         static::$displayNameDriver = $driver;
     }
 
+    /**
+     * Set the avatar driver.
+     *
+     * @internal
+     */
     public static function setAvatarDriver(AvatarDriver $driver): void
     {
-        static::$avatarUrlDriver = $driver;
+        static::$avatarDriver = $driver;
     }
 
     public static function setPasswordCheckers(array $checkers): void
@@ -277,7 +285,7 @@ class User extends AbstractModel
             return $value;
         }
 
-        return static::$avatarUrlDriver->avatarUrl($this);
+        return static::$avatarDriver->avatarUrl($this);
     }
 
     public function getDisplayNameAttribute(): string
