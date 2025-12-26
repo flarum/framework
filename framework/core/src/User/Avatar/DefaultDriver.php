@@ -12,7 +12,7 @@ namespace Flarum\User\Avatar;
 use Flarum\User\User;
 
 /**
- * The default driver, which returns the user's avatar URL.
+ * The default driver, which returns null when no uploaded avatar exists.
  */
 class DefaultDriver implements DriverInterface
 {

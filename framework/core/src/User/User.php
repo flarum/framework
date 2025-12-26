@@ -273,6 +273,10 @@ class User extends AbstractModel
             return resolve(Factory::class)->disk('flarum-avatars')->url($value);
         }
 
+        if ($value) {
+            return $value;
+        }
+
         return static::$avatarUrlDriver->avatarUrl($this);
     }
 

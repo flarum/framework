@@ -12,14 +12,14 @@ namespace Flarum\User\Avatar;
 use Flarum\User\User;
 
 /**
- * An interface for a avatar driver.
+ * An interface for an avatar driver.
  *
  * @public
  */
 interface DriverInterface
 {
     /**
-     * Return a avatar for a user.
+     * Return an avatar URL for a user.
      */
     public function avatarUrl(User $user): ?string;
 }
