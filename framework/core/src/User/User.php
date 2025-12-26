@@ -269,6 +269,11 @@ class User extends AbstractModel
         return $this;
     }
 
+    /**
+     * Get the raw avatar_url attribute value before any driver processing.
+     *
+     * Useful for determining if a user has uploaded a custom avatar.
+     */
     public function getOriginalAvatarUrlAttribute(): ?string
     {
         return $this->attributes['avatar_url'];

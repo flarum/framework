@@ -12,6 +12,7 @@ namespace Flarum\Tests\integration\extenders;
 use Flarum\Extend;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\Avatar\DriverInterface as AvatarDriverInterface;
 use Flarum\User\DisplayName\DriverInterface;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
@@ -68,6 +69,56 @@ class UserTest extends TestCase
         $user = User::find(1);
 
         $this->assertEquals('admin@machine.local$$$suffix', $user->displayName);
+    }
+
+    #[Test]
+    public function default_avatar_driver_returns_null_when_no_avatar_uploaded()
+    {
+        $this->app();
+
+        $user = User::find(1);
+
+        $this->assertNull($user->avatar_url);
+    }
+
+    #[Test]
+    public function can_use_custom_avatar_driver()
+    {
+        $this->setting('avatar_driver', 'custom');
+
+        $this->extend(
+            (new Extend\User)
+                ->avatarDriver('custom', CustomAvatarDriver::class)
+        );
+
+        $this->app();
+
+        $user = User::find(1);
+
+        $this->assertEquals('https://example.com/avatar/1', $user->avatar_url);
+    }
+
+    #[Test]
+    public function custom_avatar_driver_not_used_when_user_has_uploaded_avatar()
+    {
+        $this->setting('avatar_driver', 'custom');
+
+        $this->extend(
+            (new Extend\User)
+                ->avatarDriver('custom', CustomAvatarDriver::class)
+        );
+
+        $this->prepareDatabase([
+            User::class => [
+                ['id' => 1, 'username' => 'admin', 'email' => 'admin@machine.local', 'is_email_confirmed' => 1, 'avatar_url' => 'https://uploaded.example.com/my-avatar.png'],
+            ]
+        ]);
+
+        $this->app();
+
+        $user = User::find(1);
+
+        $this->assertEquals('https://uploaded.example.com/my-avatar.png', $user->avatar_url);
     }
 
     #[Test]
@@ -166,5 +217,13 @@ class CustomGroupProcessorClass
         return array_filter($groupIds, function ($id) {
             return $id != 3;
         });
+    }
+}
+
+class CustomAvatarDriver implements AvatarDriverInterface
+{
+    public function avatarUrl(User $user): ?string
+    {
+        return 'https://example.com/avatar/'.$user->id;
     }
 }
