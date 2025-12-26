@@ -8,6 +8,7 @@ export default function bootstrapAdmin(payload = {}) {
     settings: {},
     permissions: {},
     displayNameDrivers: [],
+    avatarDrivers: [],
     slugDrivers: {},
     searchDrivers: {},
     modelStatistics: {
