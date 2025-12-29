@@ -113,17 +113,44 @@ class InfoCommand extends AbstractCommand
         $table = (new Table($this->output))
             ->setHeaders([
                 ['Flarum Extensions'],
-                ['ID', 'Version', 'Commit']
+                ['ID', 'Version', 'Commit', 'Notes']
             ])->setStyle(
                 (new TableStyle)->setCellHeaderFormat('<info>%s</info>')
             );
 
         foreach ($this->extensions->getEnabledExtensions() as $extension) {
-            $table->addRow([
-                $extension->getId(),
-                $extension->getVersion(),
-                $this->findPackageVersion($extension->getPath())
-            ]);
+            $abandoned = $extension->getAbandoned();
+            $notesText = '';
+
+            if ($abandoned) {
+                // Package is abandoned, show replacement info or deprecation notice
+                if (is_string($abandoned)) {
+                    // Replacement exists - highlight in red (more urgent)
+                    $notesText = "Replaced by {$abandoned}";
+                    $table->addRow([
+                        "<error>{$extension->getId()}</error>",
+                        "<error>{$extension->getVersion()}</error>",
+                        "<error>{$this->findPackageVersion($extension->getPath())}</error>",
+                        "<error>{$notesText}</error>"
+                    ]);
+                } else {
+                    // Just deprecated - highlight in yellow (warning)
+                    $notesText = 'Deprecated';
+                    $table->addRow([
+                        "<comment>{$extension->getId()}</comment>",
+                        "<comment>{$extension->getVersion()}</comment>",
+                        "<comment>{$this->findPackageVersion($extension->getPath())}</comment>",
+                        "<comment>{$notesText}</comment>"
+                    ]);
+                }
+            } else {
+                $table->addRow([
+                    $extension->getId(),
+                    $extension->getVersion(),
+                    $this->findPackageVersion($extension->getPath()),
+                    $notesText
+                ]);
+            }
         }
 
         return $table;

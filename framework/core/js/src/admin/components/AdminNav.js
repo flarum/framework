@@ -145,6 +145,8 @@ export default class AdminNav extends Component {
         const query = this.query().toUpperCase();
         const title = extension.extra['flarum-extension'].title || '';
         const description = extension.description || '';
+        const isAbandoned = extension.abandoned;
+        const hasReplacement = typeof isAbandoned === 'string';
 
         if (!query || title.toUpperCase().includes(query) || description.toUpperCase().includes(query)) {
           items.add(
@@ -156,6 +158,7 @@ export default class AdminNav extends Component {
               title={description}
             >
               {title}
+              {isAbandoned && <span className={`Badge Badge--${hasReplacement ? 'danger' : 'warning'}`}>!</span>}
             </ExtensionLinkButton>,
             categories[category]
           );

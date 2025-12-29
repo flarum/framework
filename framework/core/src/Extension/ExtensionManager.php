@@ -128,6 +128,24 @@ class ExtensionManager
                 $extension->setInstalled(true);
                 $extension->setVersion(Arr::get($package, 'version'));
 
+                // Set abandoned status if the package is marked as abandoned in composer
+                // The abandoned field can be either true (no replacement) or a string (replacement package name)
+                $abandoned = Arr::get($package, 'abandoned');
+                if (is_string($abandoned) && !empty($abandoned)) {
+                    // Always set abandoned status if a replacement package is specified
+                    $extension->setAbandoned($abandoned);
+                } elseif ($abandoned === true) {
+                    // If abandoned is just true (no replacement), check the package source
+                    // Packages from flarum.org/composer may have unreliable abandoned flags
+                    $distUrl = Arr::get($package, 'dist.url', '');
+                    $isFromFlarumComposer = str_contains($distUrl, 'flarum.org/composer');
+
+                    // Only set abandoned if NOT from flarum.org/composer
+                    if (!$isFromFlarumComposer) {
+                        $extension->setAbandoned($abandoned);
+                    }
+                }
+
                 $extensions->put($extension->getId(), $extension);
             }
 

@@ -356,6 +356,13 @@ return function (RouteCollection $map, RouteHandlerFactory $route) {
         $route->toController(Controller\ClearCacheController::class)
     );
 
+    // Get system info
+    $map->get(
+        '/info',
+        'info.show',
+        $route->toController(Controller\ShowInfoController::class)
+    );
+
     // List available mail drivers, available fields and validation status
     $map->get(
         '/mail/settings',

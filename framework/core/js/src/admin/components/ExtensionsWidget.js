@@ -37,13 +37,23 @@ export default class ExtensionsWidget extends DashboardWidget {
   }
 
   extensionWidget(extension) {
+    const isAbandoned = extension.abandoned;
+    const hasReplacement = typeof isAbandoned === 'string';
+
     return (
-      <li className={classList('ExtensionListItem', { disabled: !isExtensionEnabled(extension.id) })}>
+      <li className={classList('ExtensionListItem', { disabled: !isExtensionEnabled(extension.id), abandoned: isAbandoned })}>
         <Link href={app.route('extension', { id: extension.id })}>
           <div className="ExtensionListItem-content">
-            <span className="ExtensionListItem-icon ExtensionIcon" style={extension.icon}>
-              {!!extension.icon && icon(extension.icon.name)}
-            </span>
+            <div className="ExtensionListItem-icon-wrapper">
+              <span className="ExtensionListItem-icon ExtensionIcon" style={extension.icon}>
+                {!!extension.icon && icon(extension.icon.name)}
+              </span>
+              {isAbandoned && (
+                <span className={classList('ExtensionListItem-badge Badge', hasReplacement ? 'Badge--danger' : 'Badge--warning')}>
+                  {icon('fas fa-exclamation-triangle')}
+                </span>
+              )}
+            </div>
             <span className="ExtensionListItem-title">{extension.extra['flarum-extension'].title}</span>
           </div>
         </Link>
