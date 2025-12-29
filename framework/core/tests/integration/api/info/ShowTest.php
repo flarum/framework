@@ -11,7 +11,6 @@ namespace Flarum\Tests\integration\api\info;
 
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Flarum\User\User;
 use Illuminate\Support\Arr;
 use PHPUnit\Framework\Attributes\Test;
 
