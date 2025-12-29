@@ -77,6 +77,14 @@ class Extension implements Arrayable
     protected bool $installed = true;
     protected string $version;
 
+    /**
+     * Whether the composer package is marked as abandoned.
+     * If true, it may contain the name of a replacement package.
+     *
+     * @var bool|string
+     */
+    protected bool|string $abandoned = false;
+
     public function __construct(
         protected string $path,
         protected array $composerJson
@@ -160,6 +168,18 @@ class Extension implements Arrayable
     }
 
     /**
+     * @param bool|string $abandoned
+     *
+     * @internal
+     */
+    public function setAbandoned(bool|string $abandoned): static
+    {
+        $this->abandoned = $abandoned;
+
+        return $this;
+    }
+
+    /**
      * Get the list of flarum extensions that this extension depends on.
      *
      * @param array<string, mixed> $extensionSet: An associative array where keys are the composer package names
@@ -189,6 +209,27 @@ class Extension implements Arrayable
     public function getVersion(): ?string
     {
         return $this->version;
+    }
+
+    /**
+     * Check if the composer package is marked as abandoned.
+     *
+     * @return bool
+     */
+    public function isAbandoned(): bool
+    {
+        return (bool) $this->abandoned;
+    }
+
+    /**
+     * Get the abandoned status.
+     * Returns false if not abandoned, or a string with the replacement package name if abandoned.
+     *
+     * @return bool|string
+     */
+    public function getAbandoned(): bool|string
+    {
+        return $this->abandoned;
     }
 
     public function getIcon(): ?array
@@ -435,7 +476,7 @@ class Extension implements Arrayable
      */
     public function toArray(): array
     {
-        return array_merge([
+        return array_merge($this->composerJson, [
             'id' => $this->getId(),
             'version' => $this->getVersion(),
             'path' => $this->getPath(),
@@ -445,7 +486,8 @@ class Extension implements Arrayable
             'extensionDependencyIds' => $this->getExtensionDependencyIds(),
             'optionalDependencyIds' => $this->getOptionalDependencyIds(),
             'links' => $this->getLinks(),
-        ], $this->composerJson);
+            'abandoned' => $this->getAbandoned(),
+        ]);
     }
 
     /**

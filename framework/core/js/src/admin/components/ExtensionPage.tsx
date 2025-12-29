@@ -61,9 +61,23 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
   view(vnode: Mithril.VnodeDOM<Attrs, this>) {
     if (!this.extension) return null;
 
+    const isAbandoned = this.extension.abandoned;
+    const hasReplacement = typeof isAbandoned === 'string';
+
     return (
       <div className={'ExtensionPage ' + this.className()}>
         {this.header()}
+        {isAbandoned && (
+          <div className="container">
+            <div className={`Alert Alert--${hasReplacement ? 'danger' : 'warning'}`}>
+              <span className="Alert-body">
+                {hasReplacement
+                  ? app.translator.trans('core.admin.extension.abandoned_with_replacement', { replacement: isAbandoned })
+                  : app.translator.trans('core.admin.extension.abandoned_no_replacement')}
+              </span>
+            </div>
+          </div>
+        )}
         {app.data.maintenanceMode === MaintenanceMode.SAFE_MODE && !app.data.safeModeExtensions?.includes(this.extension.id) ? (
           <div className="container">
             <div className="ExtensionPage-body">

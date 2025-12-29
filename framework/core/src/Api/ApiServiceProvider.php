@@ -42,6 +42,7 @@ class ApiServiceProvider extends AbstractServiceProvider
                 Resource\AccessTokenResource::class,
                 Resource\MailSettingResource::class,
                 Resource\ExtensionReadmeResource::class,
+                Resource\SystemInfoResource::class,
             ];
         });
 

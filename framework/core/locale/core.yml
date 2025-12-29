@@ -161,6 +161,12 @@ core:
     dashboard:
       clear_cache_button: Clear Cache
       description: Your forum at a glance.
+      info_button: System Info
+      info_modal:
+        title: System Information
+        copy_button: Copy to Clipboard
+        copy_success: System information copied to clipboard
+        copy_error: Failed to copy to clipboard
       io_error_message: "Could not write to filesystem. Check your filesystem permissions and try again. Or try running from the command line."
       status:
         headers:
@@ -251,9 +257,12 @@ core:
 
     # These translations are used on default extension pages.
     extension:
+      abandoned_no_replacement: This extension is no longer maintained by its author and may not receive updates.
+      abandoned_with_replacement: "This extension has been replaced by {replacement}. Consider migrating to the replacement package."
       configure_scopes: Configure Scopes
       confirm_purge: Purging will remove all database entries and assets related to the extension. It will not uninstall the extension; that must be done via Composer. Are you sure you want to continue?
       database_driver_mismatch: This extension does not support your configured database driver.
+      deprecated: Deprecated
       disabled: Disabled
       enable_to_see: Enable the extension to view and change settings.
       enabled: Enabled
@@ -273,6 +282,7 @@ core:
         button_label: README
         no_readme: This extension does not appear to have a README file
         title: "{extName} documentation"
+      replaced: Replaced
       safe_mode_warning: Safe mode is currently enabled. Extensions are not booted and their settings are therefore inaccessible.
 
     # These translations are used in the secondary header.
