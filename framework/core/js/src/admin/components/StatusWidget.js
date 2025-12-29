@@ -73,11 +73,7 @@ export default class StatusWidget extends DashboardWidget {
       10
     );
 
-    items.add(
-      'info',
-      <Button onclick={this.handleShowInfo.bind(this)}>{app.translator.trans('core.admin.dashboard.info_button')}</Button>,
-      0
-    );
+    items.add('info', <Button onclick={this.handleShowInfo.bind(this)}>{app.translator.trans('core.admin.dashboard.info_button')}</Button>, 0);
 
     return items;
   }
