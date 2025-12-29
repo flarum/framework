@@ -40,7 +40,7 @@ class ShowTest extends TestCase
             $this->request('GET', '/api/info')
         );
 
-        $this->assertEquals(401, $response->getStatusCode());
+        $this->assertEquals(403, $response->getStatusCode());
     }
 
     /**
