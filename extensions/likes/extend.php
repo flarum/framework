@@ -50,6 +50,14 @@ return [
             }
         ),
 
+    (new Extend\ApiResource(Resource\DiscussionResource::class))
+        ->endpoint(
+            [Endpoint\Show::class, Endpoint\Index::class, Endpoint\Create::class],
+            function (Endpoint\Show|Endpoint\Index|Endpoint\Create $endpoint): Endpoint\Endpoint {
+                return $endpoint->addDefaultInclude(['firstPost.likes', 'lastPost.likes']);
+            }
+        ),
+
     (new Extend\Event())
         ->listen(PostWasLiked::class, Listener\SendNotificationWhenPostIsLiked::class)
         ->listen(PostWasUnliked::class, Listener\SendNotificationWhenPostIsUnliked::class)

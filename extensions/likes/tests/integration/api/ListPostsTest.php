@@ -211,4 +211,72 @@ class ListPostsTest extends TestCase
             [null],
         ];
     }
+
+    #[Test]
+    #[DataProvider('likesIncludeProvider')]
+    public function likes_relation_included_when_loading_posts_by_id(?string $include)
+    {
+        // This simulates the frontend's loadRange() behavior when scrolling
+        // Posts are loaded by ID using filter[id]=101
+        $response = $this->send(
+            $this->request('GET', '/api/posts', [
+                'authenticatedAs' => 2,
+            ])->withQueryParams(array_filter([
+                'filter' => ['id' => '101'],
+                'include' => $include,
+            ]))
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $data = json_decode($body, true)['data'];
+
+        $likes = $data[0]['relationships']['likes']['data'] ?? null;
+
+        // Only displays a limited amount of likes
+        $this->assertNotNull($likes, 'Likes relationship should be included. Body: '.$body);
+        $this->assertCount(PostResourceFields::$maxLikes, $likes);
+        // Displays the correct count of likes
+        $this->assertEquals(11, $data[0]['attributes']['likesCount'], $body);
+        // Of the limited amount of likes, the actor always appears
+        $this->assertEquals([2, 102, 104, 105], Arr::pluck($likes, 'id'), $body);
+    }
+
+    #[Test]
+    public function first_post_likes_included_when_loading_discussion()
+    {
+        // This simulates loading a discussion which includes firstPost
+        // The firstPost should have its likes relationship included
+        $response = $this->send(
+            $this->request('GET', '/api/discussions/100', [
+                'authenticatedAs' => 2,
+            ])
+        );
+
+        $body = $response->getBody()->getContents();
+
+        $this->assertEquals(200, $response->getStatusCode(), $body);
+
+        $included = json_decode($body, true)['included'] ?? [];
+
+        // Find the first post in the included resources
+        $firstPost = collect($included)
+            ->where('type', 'posts')
+            ->where('id', '101')
+            ->first();
+
+        $this->assertNotNull($firstPost, 'First post should be included. Body: '.$body);
+
+        $likes = $firstPost['relationships']['likes']['data'] ?? null;
+
+        // Only displays a limited amount of likes
+        $this->assertNotNull($likes, 'Likes relationship should be included on firstPost. Body: '.$body);
+        $this->assertCount(PostResourceFields::$maxLikes, $likes);
+        // Displays the correct count of likes
+        $this->assertEquals(11, $firstPost['attributes']['likesCount'], $body);
+        // Of the limited amount of likes, the actor always appears
+        $this->assertEquals([2, 102, 104, 105], Arr::pluck($likes, 'id'), $body);
+    }
 }
