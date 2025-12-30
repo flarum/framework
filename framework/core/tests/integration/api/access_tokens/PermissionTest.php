@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * This file is part of Flarum.
+ *
+ * For detailed copyright and license information, please view the
+ * LICENSE file that was distributed with this source code.
+ */
+
 namespace Flarum\Tests\integration\api\access_tokens;
 
 use Flarum\Group\Group;
@@ -41,7 +48,7 @@ class PermissionTest extends TestCase
     {
         $response = $this->send(
             $this->request('GET', '/api', compact('authenticatedAs'))
-            );
+        );
 
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -59,7 +66,7 @@ class PermissionTest extends TestCase
     {
         $response = $this->send(
             $this->request('GET', '/api', compact('authenticatedAs'))
-            );
+        );
 
         $this->assertEquals(200, $response->getStatusCode());
 
