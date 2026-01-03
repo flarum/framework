@@ -294,11 +294,13 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
         method: 'PATCH',
         body: { enabled: !enabled },
         errorHandler: this.onerror.bind(this),
+        fallbackToDefaultErrorHandler: true,
       })
       .then(() => {
         if (!enabled) localStorage.setItem('enabledExtension', this.extension.id);
         window.location.reload();
-      });
+      })
+      .catch(() => {});
 
     app.modal.show(LoadingModal);
   }
@@ -308,15 +310,11 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
   }
 
   onerror(e: RequestError) {
-    // We need to give the modal animation time to start; if we close the modal too early,
-    // it breaks the bootstrap modal library.
-    // TODO: This workaround should be removed when we move away from bootstrap JS for modals.
-    setTimeout(() => {
-      app.modal.close();
-    }, 300); // Bootstrap's Modal.TRANSITION_DURATION is 300 ms.
+    app.modal.close();
 
     this.changingState = false;
 
+    // If it's not a conflict error, rethrow it to be handled by the default handler.
     if (e.status !== 409) {
       throw e;
     }
@@ -328,7 +326,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
         { type: 'error' },
         app.translator.trans(`core.lib.error.${error.code}_message`, {
           extension: error.extension,
-          extensions: (error.extensions as string[]).join(', '),
+          extensions: (error.extensions as string[])?.join(', '),
         })
       );
     }

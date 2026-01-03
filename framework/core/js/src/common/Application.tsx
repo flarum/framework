@@ -47,6 +47,13 @@ export type FlarumGenericRoute = RouteItem<any, any, any>;
 
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
   errorHandler?: (error: RequestError) => void;
+  /**
+   * If a custom errorHandler is provided, this determines whether the default error handler
+   * should be called if the error is re-thrown inside the custom error handler.
+   *
+   * Defaults to false.
+   */
+  fallbackToDefaultErrorHandler?: boolean;
   url: string;
   /**
    * Manipulate the response text before it is parsed into JSON.
@@ -611,13 +618,17 @@ export default class Application {
 
     if (this.requestErrorAlert) this.alerts.dismiss(this.requestErrorAlert);
 
-    return m.request(options).catch((e) => this.requestErrorCatch(e, originalOptions.errorHandler));
+    return m.request(options).catch((e) => this.requestErrorCatch(e, originalOptions.errorHandler, !!originalOptions.fallbackToDefaultErrorHandler));
   }
 
   /**
    * By default, show an error alert, and log the error to the console.
    */
-  protected requestErrorCatch<ResponseType>(error: RequestError, customErrorHandler: FlarumRequestOptions<ResponseType>['errorHandler']) {
+  protected requestErrorCatch<ResponseType>(
+    error: RequestError,
+    customErrorHandler: FlarumRequestOptions<ResponseType>['errorHandler'],
+    fallbackToDefaultErrorHandler: boolean = false
+  ): Promise<never> {
     // the details property is decoded to transform escaped characters such as '\n'
     const formattedErrors = error.response?.errors?.map((e) => decodeURI(e.detail ?? '')) ?? [];
 
@@ -672,9 +683,20 @@ export default class Application {
       ],
     };
 
+    // Use the default error handler if no custom one was provided OR if we're handling a re-thrown error.
+    let useDefaultHandler = !customErrorHandler;
+
     if (customErrorHandler) {
-      customErrorHandler(error);
-    } else {
+      try {
+        customErrorHandler(error);
+      } catch {
+        if (fallbackToDefaultErrorHandler) {
+          useDefaultHandler = true;
+        }
+      }
+    }
+
+    if (useDefaultHandler) {
       this.requestErrorDefaultHandler(error, isDebug, formattedErrors);
     }
 
