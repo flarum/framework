@@ -121,10 +121,13 @@ export default class ExportRegistry implements IExportRegistry, IChunkRegistry {
     const extensionEnabled = namespace in flarum.extensions || namespace === 'core';
     const error = `No module found for ${namespace}:${id}`;
 
+    // Check if the module is registered in a chunk (will be loaded lazily)
+    const isInChunk = this.chunkModules.has(`${namespace}:${id}`);
+
     // @ts-ignore
-    if (!module && extensionEnabled && flarum.debug) {
+    if (!module && extensionEnabled && !isInChunk && flarum.debug) {
       throw new Error(error);
-    } else if (!module && extensionEnabled) {
+    } else if (!module && extensionEnabled && !isInChunk) {
       console.warn(error);
     }
 
