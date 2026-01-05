@@ -294,7 +294,6 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
         method: 'PATCH',
         body: { enabled: !enabled },
         errorHandler: this.onerror.bind(this),
-        fallbackToDefaultErrorHandler: true,
       })
       .then(() => {
         if (!enabled) localStorage.setItem('enabledExtension', this.extension.id);
@@ -309,14 +308,14 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     return isExtensionEnabled(this.extension.id);
   }
 
-  onerror(e: RequestError) {
+  onerror(e: RequestError): void | false {
     app.modal.close();
 
     this.changingState = false;
 
-    // If it's not a conflict error, rethrow it to be handled by the default handler.
+    // If it's not a conflict error, use the default request error handler.
     if (e.status !== 409) {
-      throw e;
+      return false;
     }
 
     const error = e.response?.errors?.[0];
