@@ -1,5 +1,16 @@
 # Changelog
 
+## [v1.8.12](https://github.com/flarum/framework/compare/v1.8.11...v1.8.12)
+### Fixed
+* [Tags] Defer policy if min primary & secondary tags 0 (https://github.com/flarum/framework/pull/4277)
+* Don't see developer tokens if not within the first 20 results (https://github.com/flarum/framework/pull/4264)
+* Restore `xdebug.max_nesting_level` after less compilation (https://github.com/flarum/framework/pull/4262)
+### Changed
+* Update scheduler link (https://github.com/flarum/framework/pull/4278)
+* Allow to disable slidable on `DiscussionListItem` (https://github.com/flarum/framework/pull/4302)
+### Added
+* Highlight abandoned packages, expose php flarum info to admin UI (https://github.com/flarum/framework/pull/4322)
+
 ## [v1.8.11](https://github.com/flarum/framework/compare/v1.8.10...v1.8.11)
 ### Fixed
 * Dropdown inaccessible near bottom of the userlist (https://github.com/flarum/framework/pull/4208)
