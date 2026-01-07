@@ -192,7 +192,7 @@ class InfoCommand extends AbstractCommand
         ];
 
         foreach ($possiblePhpBinaries as $phpBinary) {
-            if (file_exists($phpBinary) && is_executable($phpBinary)) {
+            if (@file_exists($phpBinary) && @is_executable($phpBinary)) {
                 $output = [];
                 $status = null;
                 exec("$phpBinary -v 2>&1 | head -n 1", $output, $status);
@@ -234,16 +234,16 @@ class InfoCommand extends AbstractCommand
         ];
 
         foreach ($possiblePaths as $path) {
-            if (file_exists($path) && is_readable($path)) {
-                $content = file_get_contents($path);
+            if (@file_exists($path) && @is_readable($path)) {
+                $content = @file_get_contents($path);
 
                 // Look for memory_limit setting
-                if (preg_match('/^\s*memory_limit\s*=\s*(.+?)\s*$/m', $content, $matches)) {
+                if ($content && preg_match('/^\s*memory_limit\s*=\s*(.+?)\s*$/m', $content, $matches)) {
                     return trim($matches[1]);
                 }
 
                 // For FPM pool configs, also check php_admin_value
-                if (preg_match('/^\s*php_admin_value\[memory_limit\]\s*=\s*(.+?)\s*$/m', $content, $matches)) {
+                if ($content && preg_match('/^\s*php_admin_value\[memory_limit\]\s*=\s*(.+?)\s*$/m', $content, $matches)) {
                     return trim($matches[1]);
                 }
             }
@@ -251,13 +251,13 @@ class InfoCommand extends AbstractCommand
 
         // Also scan /usr/local/etc/php/conf.d/ directory for any INI files with memory_limit
         $confDir = '/usr/local/etc/php/conf.d';
-        if (is_dir($confDir) && is_readable($confDir)) {
-            $iniFiles = glob($confDir . '/*.ini');
+        if (@is_dir($confDir) && @is_readable($confDir)) {
+            $iniFiles = @glob($confDir . '/*.ini');
             if ($iniFiles) {
                 foreach ($iniFiles as $iniFile) {
-                    if (is_readable($iniFile)) {
-                        $content = file_get_contents($iniFile);
-                        if (preg_match('/^\s*memory_limit\s*=\s*(.+?)\s*$/m', $content, $matches)) {
+                    if (@is_readable($iniFile)) {
+                        $content = @file_get_contents($iniFile);
+                        if ($content && preg_match('/^\s*memory_limit\s*=\s*(.+?)\s*$/m', $content, $matches)) {
                             return trim($matches[1]);
                         }
                     }
