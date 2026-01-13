@@ -12,7 +12,6 @@ namespace Flarum\Api\Endpoint\Concerns;
 use Closure;
 use Flarum\Api\Resource\AbstractDatabaseResource;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Tobyz\JsonApiServer\Context;
 
