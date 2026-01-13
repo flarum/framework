@@ -24,7 +24,7 @@ class DatabaseUuidFailedJobProvider extends \Illuminate\Queue\Failed\DatabaseUui
      *
      * @return \Illuminate\Database\Query\Builder
      */
-    protected function getTable()
+    public function getTable()
     {
         return $this->connection->table($this->table);
     }
