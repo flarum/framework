@@ -79,7 +79,7 @@ class Group extends AbstractModel
     }
 
     /**
-     * @return BelongsToMany<User>
+     * @return BelongsToMany<User, $this>
      */
     public function users(): BelongsToMany
     {

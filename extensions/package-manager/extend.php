@@ -45,12 +45,19 @@ return [
                 && is_writable($paths->base.'/composer.json')
                 && is_writable($paths->base.'/composer.lock');
 
-            $document->payload['flarum-extension-manager.using_sync_queue'] = resolve(Queue::class) instanceof SyncQueue;
+            // Extensions can override the default queue driver
+            $queue = resolve('flarum.queue.connection');
+            $document->payload['flarum-extension-manager.using_sync_queue'] = $queue instanceof SyncQueue;
 
-            $document->payload['flarum-extension-manager.missing_functions'] = array_values(array_filter(
-                ['proc_open', 'escapeshellarg'],
-                fn (string $function): bool => ! function_exists($function)
-            ));
+            // Check if required functions are available (may be disabled in restricted environments)
+            $requiredFunctions = ['proc_open', 'escapeshellarg'];
+            $missingFunctions = [];
+            foreach ($requiredFunctions as $function) {
+                if (! function_exists($function)) {
+                    $missingFunctions[] = $function;
+                }
+            }
+            $document->payload['flarum-extension-manager.missing_functions'] = $missingFunctions;
         }),
 
     new Extend\Locales(__DIR__.'/locale'),

@@ -86,19 +86,18 @@ class ExtensionManager
                 $extensions->put($extension->getId(), $extension);
             }
 
-            /** @var Extension $extension */
             foreach ($extensions as $extension) {
                 $extension->calculateDependencies($installedSet);
             }
 
             $needsReset = false;
+            /** @var Extension[] $enabledExtensions */
             $enabledExtensions = [];
             foreach ($this->getEnabled() as $enabledKey) {
-                $extension = $extensions->get($enabledKey);
-                if (is_null($extension)) {
+                if ($extensions->has($enabledKey)) {
+                    $enabledExtensions[] = $extensions->get($enabledKey);
+                } else {
                     $needsReset = true;
-                } else { // @phpstan-ignore-line
-                    $enabledExtensions[] = $extension;
                 }
             }
 

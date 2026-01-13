@@ -8,7 +8,7 @@
  */
 
 if (! defined('LARAVEL_VERSION')) {
-    define('LARAVEL_VERSION', '10.0');
+    define('LARAVEL_VERSION', '12.0');
 }
 
 if (! function_exists('database_path')) {

@@ -74,7 +74,7 @@ class UnparsePostMentions
         }
 
         return preg_replace(
-            '/<'.preg_quote($tagName).'\b[^>]*(?=\bdisplayname="(.*)")[^>]*(?=\bid="([0-9]+)")[^>]*>@[^<]+<\/'.preg_quote($tagName).'>/U',
+            '/<'.preg_quote($tagName, '/').'\b[^>]*(?=\bdisplayname="(.*)")[^>]*(?=\bid="([0-9]+)")[^>]*>@[^<]+<\/'.preg_quote($tagName, '/').'>/U',
             '@"$1"#p$2',
             $xml
         );

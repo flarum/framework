@@ -260,7 +260,7 @@ class Discussion extends AbstractModel
     }
 
     /**
-     * @return HasMany<Post>
+     * @return HasMany<Post, $this>
      */
     public function posts(): HasMany
     {
@@ -270,7 +270,7 @@ class Discussion extends AbstractModel
     /**
      * The discussion's publicly-visible comments.
      *
-     * @return HasMany<Post>
+     * @return HasMany<Post, $this>
      */
     public function comments(): HasMany
     {
@@ -320,7 +320,7 @@ class Discussion extends AbstractModel
     }
 
     /**
-     * @return BelongsToMany<User>
+     * @return BelongsToMany<User, $this>
      */
     public function readers(): BelongsToMany
     {

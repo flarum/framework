@@ -57,7 +57,7 @@ class UnparseTagMentions
         }
 
         return preg_replace(
-            '/<'.preg_quote($tagName).'\b[^>]*(?=\bid="([0-9]+)")[^>]*(?=\bslug="(.*)")[^>]*>@[^<]+<\/'.preg_quote($tagName).'>/U',
+            '/<'.preg_quote($tagName, '/').'\b[^>]*(?=\bid="([0-9]+)")[^>]*(?=\bslug="(.*)")[^>]*>@[^<]+<\/'.preg_quote($tagName, '/').'>/U',
             '#$2',
             $xml
         );

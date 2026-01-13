@@ -22,10 +22,6 @@ class UpdateMentionsMetadataWhenVisible
 
     public function handle(DialogMessage\Event\Created|DialogMessage\Event\Updated $event): void
     {
-        if (! $event->message instanceof DialogMessage) {
-            return;
-        }
-
         $content = $event->message->parsed_content;
 
         $this->syncUserMentions(

@@ -163,10 +163,11 @@ class QueueServiceProvider extends AbstractServiceProvider
     protected function registerCommands(): void
     {
         $this->container->extend('flarum.console.commands', function ($commands, Container $container) {
-            $queue = $container->make(Queue::class);
+            // Extensions can override the queue connection binding.
+            // If they don't, it will be SyncQueue and we don't need queue commands.
+            $connection = $container->make('flarum.queue.connection');
 
-            // There is no need to have the queue commands when using the sync driver.
-            if ($queue instanceof SyncQueue) {
+            if ($connection instanceof SyncQueue) {
                 return $commands;
             }
 

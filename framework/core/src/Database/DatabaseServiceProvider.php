@@ -93,8 +93,9 @@ class DatabaseServiceProvider extends AbstractServiceProvider
         foreach ([QueryBuilder::class, EloquentBuilder::class] as $builder) {
             foreach ($drivers as $driver => $macro) {
                 $builder::macro('when'.$macro, function ($callback, $else) use ($driver) {
-                    /** @var QueryBuilder|EloquentBuilder $this */
-                    if ($this->getConnection()->getDriverName() === $driver) {
+                    // Laravel macros bind $this to the builder at runtime via Closure::call()
+                    $connection = method_exists($this, 'getConnection') ? $this->getConnection() : null;
+                    if ($connection && $connection->getDriverName() === $driver) {
                         $callback($this);
                     } else {
                         $else($this);
@@ -104,8 +105,9 @@ class DatabaseServiceProvider extends AbstractServiceProvider
                 });
 
                 $builder::macro('unless'.$macro, function ($callback, $else) use ($driver) {
-                    /** @var QueryBuilder|EloquentBuilder $this */
-                    if ($this->getConnection()->getDriverName() !== $driver) {
+                    // Laravel macros bind $this to the builder at runtime via Closure::call()
+                    $connection = method_exists($this, 'getConnection') ? $this->getConnection() : null;
+                    if ($connection && $connection->getDriverName() !== $driver) {
                         $callback($this);
                     } else {
                         $else($this);

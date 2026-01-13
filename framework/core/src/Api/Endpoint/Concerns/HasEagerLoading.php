@@ -95,7 +95,6 @@ trait HasEagerLoading
         }
 
         $included = $this->stringInclude($included);
-        $models = $models->filter(fn ($model) => $model instanceof Model);
 
         $relations = $this->compileSimpleEagerLoads($context, $included);
         $addedRelationWhere = $this->compileWhereEagerLoads($context);

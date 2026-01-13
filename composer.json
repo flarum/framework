@@ -176,12 +176,12 @@
         "plesk/ratchetphp": "v1.0.4"
     },
     "require-dev": {
-        "mockery/mockery": "^1.5",
-        "phpunit/phpunit": "^11.0",
-        "phpstan/phpstan": "^2.1",
+        "flarum/testing-tests": "*@dev",
         "larastan/larastan": "^3.8",
-        "symfony/var-dumper": "^7.0",
-        "flarum/testing-tests": "*@dev"
+        "mockery/mockery": "^1.5",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^11.0",
+        "symfony/var-dumper": "^7.0"
     },
     "config": {
         "sort-packages": true
