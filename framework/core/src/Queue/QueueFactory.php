@@ -43,4 +43,20 @@ class QueueFactory implements Factory
 
         return $this->queue;
     }
+
+    /**
+     * Determine if a queue is paused.
+     *
+     * This is a no-op implementation since Flarum's simplified queue factory
+     * doesn't support queue pausing. Laravel 12's Worker expects this method
+     * to exist on the queue manager.
+     *
+     * @param string $connection
+     * @param string $queue
+     * @return bool
+     */
+    public function isPaused($connection, $queue)
+    {
+        return false;
+    }
 }

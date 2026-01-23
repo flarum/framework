@@ -114,5 +114,10 @@ class UninstalledSite implements SiteInterface
 
         $container->instance('log', new Logger('Flarum Installer', [$handler]));
         $container->alias('log', LoggerInterface::class);
+
+        // Register Laravel's Log Context Repository for Laravel 12 compatibility.
+        $container->singleton(\Illuminate\Log\Context\Repository::class, function () {
+            return new \Flarum\Log\Context\Repository();
+        });
     }
 }
