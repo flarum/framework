@@ -76,8 +76,8 @@ class SuspendUserTest extends TestCase
     #[Test]
     public function unsuspending_user_clears_reason_and_message()
     {
-        $this->app();    
-    
+        $this->app();
+
         // Verify user 4 is suspended with reason and message
         $user = User::find(4);
         $this->assertNotNull($user->suspended_until);
