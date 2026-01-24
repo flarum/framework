@@ -116,7 +116,8 @@ class UninstalledSite implements SiteInterface
         $container->alias('log', LoggerInterface::class);
 
         // Register Laravel's Log Context Repository for Laravel 12 compatibility.
-        $container->singleton(\Illuminate\Log\Context\Repository::class, function () {
+        // Note: Using string instead of ::class because this class only exists in laravel/framework.
+        $container->singleton('Illuminate\Log\Context\Repository', function () {
             return new \Flarum\Log\Context\Repository();
         });
     }

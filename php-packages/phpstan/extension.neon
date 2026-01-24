@@ -15,6 +15,10 @@ parameters:
     - stubs/Illuminate/Contracts/Filesystem/Cloud.stub
     - stubs/Illuminate/Contracts/Filesystem/Filesystem.stub
 
+    # Laravel 12 scheduler expects this class but it's only in laravel/framework.
+    # Flarum provides a stub implementation in Flarum\Log\Context\Repository.
+    - stubs/Illuminate/Log/Context/Repository.stub
+
     # We know for a fact the JsonApi object used internally is always the Flarum one.
     - stubs/Tobyz/JsonApiServer/JsonApi.stub
     - stubs/Tobyz/JsonApiServer/Context.stub

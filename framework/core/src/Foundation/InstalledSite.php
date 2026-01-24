@@ -173,7 +173,8 @@ class InstalledSite implements SiteInterface
 
         // Register Laravel's Log Context Repository for Laravel 12 compatibility.
         // This is used by the scheduler to pass context between processes.
-        $container->singleton(\Illuminate\Log\Context\Repository::class, function () {
+        // Note: Using string instead of ::class because this class only exists in laravel/framework.
+        $container->singleton('Illuminate\Log\Context\Repository', function () {
             return new \Flarum\Log\Context\Repository();
         });
     }
