@@ -1,5 +1,5 @@
 includes:
-    - ../../vendor/larastan/larastan/extension.neon
+    - %currentWorkingDirectory%/vendor/larastan/larastan/extension.neon
 
 parameters:
     # Flarum customizations
