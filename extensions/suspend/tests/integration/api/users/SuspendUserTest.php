@@ -33,6 +33,15 @@ class SuspendUserTest extends TestCase
                 ['id' => 1, 'username' => 'Muralf', 'email' => 'muralf@machine.local', 'is_email_confirmed' => 1],
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'acme', 'email' => 'acme@machine.local', 'is_email_confirmed' => 1],
+                [
+                    'id' => 4,
+                    'username' => 'suspended_user',
+                    'email' => 'suspended@machine.local',
+                    'is_email_confirmed' => 1,
+                    'suspended_until' => Carbon::now()->addWeek(),
+                    'suspend_reason' => 'Original suspension reason',
+                    'suspend_message' => 'Original suspension message'
+                ],
             ],
             Group::class => [
                 ['id' => 5, 'name_singular' => 'Acme', 'name_plural' => 'Acme', 'is_hidden' => 0]
@@ -62,6 +71,41 @@ class SuspendUserTest extends TestCase
         $response = $this->sendSuspensionRequest($authenticatedAs, $targetUserId, $reason, $message);
 
         $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function unsuspending_user_clears_reason_and_message()
+    {
+        $this->app();    
+    
+        // Verify user 4 is suspended with reason and message
+        $user = User::find(4);
+        $this->assertNotNull($user->suspended_until);
+        $this->assertEquals('Original suspension reason', $user->suspend_reason);
+        $this->assertEquals('Original suspension message', $user->suspend_message);
+
+        // Unsuspend the user
+        $response = $this->send(
+            $this->request('PATCH', '/api/users/4', [
+                'authenticatedAs' => 1,
+                'json' => [
+                    'data' => [
+                        'type' => 'users',
+                        'attributes' => [
+                            'suspendedUntil' => null,
+                        ]
+                    ]
+                ]
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        // Verify suspension fields are cleared
+        $user->refresh();
+        $this->assertNull($user->suspended_until);
+        $this->assertNull($user->suspend_reason);
+        $this->assertNull($user->suspend_message);
     }
 
     public static function allowedToSuspendUser(): array
