@@ -22,10 +22,12 @@ class UserResourceFields
                 ->get($canSuspend = fn (User $user, Context $context) => $context->getActor()->can('suspend', $user)),
             Schema\Str::make('suspendReason')
                 ->writable($canSuspend)
-                ->visible($canSuspend),
+                ->visible($canSuspend)
+                ->nullable(),
             Schema\Str::make('suspendMessage')
                 ->writable($canSuspend)
-                ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id || $canSuspend($user, $context)),
+                ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id || $canSuspend($user, $context))
+                ->nullable(),
             Schema\DateTime::make('suspendedUntil')
                 ->writable($canSuspend)
                 ->visible(fn (User $user, Context $context) => $context->getActor()->id === $user->id || $canSuspend($user, $context))
