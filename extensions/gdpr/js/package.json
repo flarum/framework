@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "prettier": "@flarum/prettier-config",
   "dependencies": {
-    "lodash-es": "^4.17.21",
+    "lodash-es": "^4.17.23",
     "pusher-js": "^7.0.6"
   },
   "scripts": {
