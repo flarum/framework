@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $color
  * @property string|null $icon
  * @property bool $is_hidden
+ * @property int $position
  * @property-read \Illuminate\Database\Eloquent\Collection $users
  * @property-read \Illuminate\Database\Eloquent\Collection $permissions
  */
