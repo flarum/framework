@@ -27,7 +27,7 @@ class OrderTest extends TestCase
         parent::setUp();
 
         $this->prepareDatabase([
-             User::class => [
+            User::class => [
                 $this->normalUser(),
             ],
             Group::class => [
@@ -58,7 +58,7 @@ class OrderTest extends TestCase
         $this->assertNull(Group::findOrFail(7)->position, 'Group 7 should have null position when not included');
     }
 
-     #[Test]
+    #[Test]
     public function non_admin_cannot_reorder_groups()
     {
         $response = $this->send(
