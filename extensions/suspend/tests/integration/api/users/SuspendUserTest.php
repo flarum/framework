@@ -48,18 +48,18 @@ class SuspendUserTest extends TestCase
 
     #[Test]
     #[DataProvider('allowedToSuspendUser')]
-    public function can_suspend_user_if_allowed(?int $authenticatedAs, int $targetUserId, string $message)
+    public function can_suspend_user_if_allowed(?int $authenticatedAs, int $targetUserId, ?string $reason, ?string $message)
     {
-        $response = $this->sendSuspensionRequest($authenticatedAs, $targetUserId);
+        $response = $this->sendSuspensionRequest($authenticatedAs, $targetUserId, $reason, $message);
 
         $this->assertEquals(200, $response->getStatusCode(), $response->getBody()->getContents());
     }
 
     #[Test]
     #[DataProvider('unallowedToSuspendUser')]
-    public function cannot_suspend_user_if_not_allowed(?int $authenticatedAs, int $targetUserId, string $message)
+    public function cannot_suspend_user_if_not_allowed(?int $authenticatedAs, int $targetUserId, ?string $reason, ?string $message)
     {
-        $response = $this->sendSuspensionRequest($authenticatedAs, $targetUserId);
+        $response = $this->sendSuspensionRequest($authenticatedAs, $targetUserId, $reason, $message);
 
         $this->assertEquals(403, $response->getStatusCode());
     }
@@ -67,24 +67,31 @@ class SuspendUserTest extends TestCase
     public static function allowedToSuspendUser(): array
     {
         return [
-            [1, 2, 'Admin can suspend any user'],
-            [1, 3, 'Admin can suspend any user'],
-            [3, 2, 'User with permission can suspend any user'],
+            // Admin can suspend - test all combinations of reason and message
+            [1, 2, 'Bad behavior', 'You have been suspended.'],
+            [1, 2, 'Bad behavior', null],
+            [1, 2, null, 'You have been suspended.'],
+            [1, 2, null, null],
+            // User with permission can suspend - test all combinations
+            [3, 2, 'Violation of rules', 'Suspended for breaking rules.'],
+            [3, 2, 'Violation of rules', null],
+            [3, 2, null, 'Suspended for breaking rules.'],
+            [3, 2, null, null],
         ];
     }
 
     public static function unallowedToSuspendUser(): array
     {
         return [
-            [1, 1, 'Admin cannot suspend self'],
-            [2, 2, 'User without permission cannot suspend self'],
-            [2, 3, 'User without permission cannot suspend other user'],
-            [3, 3, 'User with permission cannot suspend self'],
-            [3, 1, 'User with permission cannot suspend admin'],
+            [1, 1, null, null],
+            [2, 2, null, null],
+            [2, 3, null, null],
+            [3, 3, null, null],
+            [3, 1, null, null],
         ];
     }
 
-    protected function sendSuspensionRequest(?int $authenticatedAs, int $targetUserId): ResponseInterface
+    protected function sendSuspensionRequest(?int $authenticatedAs, int $targetUserId, ?string $reason = null, ?string $message = null): ResponseInterface
     {
         return $this->send(
             $this->request('PATCH', "/api/users/$targetUserId", [
@@ -94,8 +101,8 @@ class SuspendUserTest extends TestCase
                         'type' => 'users',
                         'attributes' => [
                             'suspendedUntil' => Carbon::now()->addDay(),
-                            'suspendReason' => 'Suspended for acme reasons.',
-                            'suspendMessage' => 'You have been suspended.',
+                            'suspendReason' => $reason,
+                            'suspendMessage' => $message,
                         ]
                     ]
                 ]
