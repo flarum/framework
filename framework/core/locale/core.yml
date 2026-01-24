@@ -65,7 +65,7 @@ core:
         section_label: Queue
         sync_info: Your forum is using the synchronous queue driver. Jobs are processed immediately in the main process thread.
         sync_help: For better performance and user experience, consider using the database queue driver. Learn more in the documentation.
-        custom_driver: "Your forum is using the '{driver}' queue driver, which is provided by an extension."
+        custom_driver: "Your forum is using the {driver} queue driver, which is provided by an extension."
         retries_label: Job Retries
         retries_help: Maximum number of times to attempt a job before marking it as failed. Default is 1.
         memory_label: Memory Limit (MB)
