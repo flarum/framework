@@ -20,6 +20,7 @@ import './utils/abbreviateNumber';
 import './utils/escapeRegExp';
 import './utils/string';
 import './utils/throttleDebounce';
+import './utils/sortGroups';
 import './utils/Stream';
 import './utils/SubtreeRetainer';
 import './utils/setRouteWithForcedRefresh';
