@@ -3,6 +3,7 @@ import FormModal, { IFormModalAttrs } from '../../common/components/FormModal';
 import Button from './Button';
 import GroupBadge from './GroupBadge';
 import Group from '../models/Group';
+import sortGroups from '../utils/sortGroups';
 import extractText from '../utils/extractText';
 import ItemList from '../utils/ItemList';
 import Stream from '../utils/Stream';
@@ -22,6 +23,7 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
   protected setPassword!: Stream<boolean>;
   protected password!: Stream<string>;
   protected groups: Record<string, Stream<boolean>> = {};
+  protected availableGroups: Group[] = [];
 
   oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
@@ -36,10 +38,11 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
 
     const userGroups = user.groups() || [];
 
-    app.store
-      .all<Group>('groups')
-      .filter((group) => ![Group.GUEST_ID, Group.MEMBER_ID].includes(group.id()!))
-      .forEach((group) => (this.groups[group.id()!] = Stream(userGroups.includes(group))));
+    this.availableGroups = sortGroups(app.store.all<Group>('groups').filter((group) => ![Group.GUEST_ID, Group.MEMBER_ID].includes(group.id()!)));
+
+    this.availableGroups.forEach((group) => {
+      this.groups[group.id()!] = Stream(userGroups.includes(group));
+    });
   }
 
   className() {
@@ -139,25 +142,16 @@ export default class EditUserModal<CustomAttrs extends IEditUserModalAttrs = IEd
         <div className="Form-group EditUserModal-groups">
           <label>{app.translator.trans('core.lib.edit_user.groups_heading')}</label>
           <div>
-            {Object.keys(this.groups)
-              .map((id) => app.store.getById<Group>('groups', id))
-              .filter(Boolean)
-              .map(
-                (group) =>
-                  // Necessary because filter(Boolean) doesn't narrow out falsy values.
-                  group && (
-                    <label className="checkbox">
-                      <input
-                        type="checkbox"
-                        bidi={this.groups[group.id()!]}
-                        disabled={
-                          group.id() === Group.ADMINISTRATOR_ID && (this.attrs.user === app.session.user || !this.userIsAdmin(app.session.user))
-                        }
-                      />
-                      <GroupBadge group={group} label={null} /> {group.nameSingular()}
-                    </label>
-                  )
-              )}
+            {this.availableGroups.map((group) => (
+              <label className="checkbox">
+                <input
+                  type="checkbox"
+                  bidi={this.groups[group.id()!]}
+                  disabled={group.id() === Group.ADMINISTRATOR_ID && (this.attrs.user === app.session.user || !this.userIsAdmin(app.session.user))}
+                />
+                <GroupBadge group={group} label={null} /> {group.nameSingular()}
+              </label>
+            ))}
           </div>
         </div>,
         10
