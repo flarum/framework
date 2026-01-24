@@ -22,4 +22,8 @@ export default class Group extends Model {
   isHidden() {
     return Model.attribute<boolean>('isHidden').call(this);
   }
+
+  position() {
+    return Model.attribute<number>('position').call(this);
+  }
 }
