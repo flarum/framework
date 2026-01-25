@@ -54,7 +54,7 @@ class FlagResource extends AbstractDatabaseResource
     {
         if ($context->listing(self::class)) {
             $query = Flag::query()->whenPgSql(
-                fn (Builder $query) => $query->distinct('post_id')->orderBy('post_id'),
+                fn (Builder $query) => $query->distinct('post_id')->orderBy('post_id')->orderBy('created_at', 'desc'),
                 else: fn (Builder $query) => $query->groupBy('post_id')
             );
 

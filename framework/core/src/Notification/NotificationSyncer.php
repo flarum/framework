@@ -66,10 +66,6 @@ class NotificationSyncer
         // it isn't marked as deleted. If they don't, we will want to create a
         // new record for them.
         foreach ($users as $user) {
-            if (! ($user instanceof User)) {
-                continue;
-            }
-
             /** @var Notification|null $existing */
             $existing = $toDelete->first(function (Notification $notification) use ($user) {
                 return $notification->user_id === $user->id;

@@ -71,7 +71,7 @@ readonly class Registry
     private function handleCustomTypes(Throwable $error): ?HandledError
     {
         foreach ($this->handlerMap as $class => $handler) {
-            if ($error instanceof $class) {
+            if (is_a($error, $class)) {
                 $handler = new $handler;
 
                 return $handler->handle($error);

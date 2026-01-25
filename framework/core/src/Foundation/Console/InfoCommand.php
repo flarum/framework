@@ -44,7 +44,28 @@ class InfoCommand extends AbstractCommand
         $coreVersion = $this->findPackageVersion(__DIR__.'/../../../', Application::VERSION);
         $this->output->writeln("<info>Flarum core:</info> $coreVersion");
 
-        $this->output->writeln('<info>PHP version:</info> '.$this->appInfo->identifyPHPVersion());
+        $cliPhpVersion = $this->appInfo->identifyPHPVersion();
+        $webPhpVersion = $this->detectWebServerPhpVersion();
+
+        if ($webPhpVersion) {
+            if ($webPhpVersion !== $cliPhpVersion) {
+                $this->output->writeln("<info>PHP version:</info> <error>CLI: {$cliPhpVersion}, Web: {$webPhpVersion} (MISMATCH - versions should match!)</error>");
+            } else {
+                $this->output->writeln("<info>PHP version:</info> CLI: {$cliPhpVersion}, Web: {$webPhpVersion}");
+            }
+        } else {
+            $this->output->writeln("<info>PHP version:</info> CLI: {$cliPhpVersion}, Web: unable to detect");
+        }
+
+        $cliMemoryLimit = ini_get('memory_limit');
+        $webMemoryLimit = $this->detectWebServerMemoryLimit();
+
+        if ($webMemoryLimit) {
+            $this->output->writeln("<info>PHP memory limit:</info> CLI: {$cliMemoryLimit}, Web: {$webMemoryLimit}");
+        } else {
+            $this->output->writeln("<info>PHP memory limit:</info> CLI: {$cliMemoryLimit}, Web: unable to detect");
+        }
+
         $this->output->writeln('<info>'.$this->appInfo->identifyDatabaseDriver().' version:</info> '.$this->appInfo->identifyDatabaseVersion());
 
         $phpExtensions = implode(', ', get_loaded_extensions());
@@ -79,17 +100,44 @@ class InfoCommand extends AbstractCommand
         $table = (new Table($this->output))
             ->setHeaders([
                 ['Flarum Extensions'],
-                ['ID', 'Version', 'Commit']
+                ['ID', 'Version', 'Commit', 'Notes']
             ])->setStyle(
                 (new TableStyle)->setCellHeaderFormat('<info>%s</info>')
             );
 
         foreach ($this->extensions->getEnabledExtensions() as $extension) {
-            $table->addRow([
-                $extension->getId(),
-                $extension->getVersion(),
-                $this->findPackageVersion($extension->getPath())
-            ]);
+            $abandoned = $extension->getAbandoned();
+            $notesText = '';
+
+            if ($abandoned) {
+                // Package is abandoned, show replacement info or deprecation notice
+                if (is_string($abandoned)) {
+                    // Replacement exists - highlight in red (more urgent)
+                    $notesText = "Replaced by {$abandoned}";
+                    $table->addRow([
+                        "<error>{$extension->getId()}</error>",
+                        "<error>{$extension->getVersion()}</error>",
+                        "<error>{$this->findPackageVersion($extension->getPath())}</error>",
+                        "<error>{$notesText}</error>"
+                    ]);
+                } else {
+                    // Just deprecated - highlight in yellow (warning)
+                    $notesText = 'Deprecated';
+                    $table->addRow([
+                        "<comment>{$extension->getId()}</comment>",
+                        "<comment>{$extension->getVersion()}</comment>",
+                        "<comment>{$this->findPackageVersion($extension->getPath())}</comment>",
+                        "<comment>{$notesText}</comment>"
+                    ]);
+                }
+            } else {
+                $table->addRow([
+                    $extension->getId(),
+                    $extension->getVersion(),
+                    $this->findPackageVersion($extension->getPath()),
+                    $notesText
+                ]);
+            }
         }
 
         return $table;
@@ -119,5 +167,96 @@ class InfoCommand extends AbstractCommand
         }
 
         return $fallback;
+    }
+
+    /**
+     * Try to detect the web server's PHP version.
+     * This is a best-effort attempt and may not work in all environments.
+     */
+    private function detectWebServerPhpVersion(): ?string
+    {
+        // Try common PHP binary paths for web servers
+        $possiblePhpBinaries = [
+            '/usr/bin/php-fpm'.PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION,
+            '/usr/sbin/php-fpm'.PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION,
+            '/usr/local/bin/php',
+            '/usr/bin/php',
+        ];
+
+        foreach ($possiblePhpBinaries as $phpBinary) {
+            if (file_exists($phpBinary) && is_executable($phpBinary)) {
+                $output = [];
+                $status = null;
+                exec("$phpBinary -v 2>&1 | head -n 1", $output, $status);
+
+                if ($status === 0 && ! empty($output[0])) {
+                    // Extract version from output like "PHP 8.3.1 (fpm-fcgi) ..."
+                    if (preg_match('/PHP\s+([\d.]+)/', $output[0], $matches)) {
+                        return $matches[1];
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Try to detect the web server's PHP memory limit.
+     * This is a best-effort attempt and may not work in all environments.
+     */
+    private function detectWebServerMemoryLimit(): ?string
+    {
+        // Try to detect PHP-FPM pool configuration
+        $phpVersion = PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;
+
+        $possiblePaths = [
+            // Docker PHP paths (most common for containerized setups)
+            '/usr/local/etc/php/php.ini',
+            '/usr/local/etc/php/conf.d/memory.ini',
+            // Common PHP-FPM pool paths
+            "/etc/php/{$phpVersion}/fpm/pool.d/www.conf",
+            "/etc/php{$phpVersion}/fpm/pool.d/www.conf",
+            '/etc/php-fpm.d/www.conf',
+            '/usr/local/etc/php-fpm.d/www.conf',
+            // Common php.ini paths for web
+            "/etc/php/{$phpVersion}/fpm/php.ini",
+            "/etc/php{$phpVersion}/fpm/php.ini",
+            '/etc/php.ini',
+        ];
+
+        foreach ($possiblePaths as $path) {
+            if (file_exists($path) && is_readable($path)) {
+                $content = file_get_contents($path);
+
+                // Look for memory_limit setting
+                if (preg_match('/^\s*memory_limit\s*=\s*(.+?)\s*$/m', $content, $matches)) {
+                    return trim($matches[1]);
+                }
+
+                // For FPM pool configs, also check php_admin_value
+                if (preg_match('/^\s*php_admin_value\[memory_limit\]\s*=\s*(.+?)\s*$/m', $content, $matches)) {
+                    return trim($matches[1]);
+                }
+            }
+        }
+
+        // Also scan /usr/local/etc/php/conf.d/ directory for any INI files with memory_limit
+        $confDir = '/usr/local/etc/php/conf.d';
+        if (is_dir($confDir) && is_readable($confDir)) {
+            $iniFiles = glob($confDir.'/*.ini');
+            if ($iniFiles) {
+                foreach ($iniFiles as $iniFile) {
+                    if (is_readable($iniFile)) {
+                        $content = file_get_contents($iniFile);
+                        if (preg_match('/^\s*memory_limit\s*=\s*(.+?)\s*$/m', $content, $matches)) {
+                            return trim($matches[1]);
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }

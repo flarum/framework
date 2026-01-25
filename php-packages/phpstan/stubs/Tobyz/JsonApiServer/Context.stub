@@ -1,11 +1,19 @@
 <?php
 
-namespace Tobyz\JsonApiServer;
+namespace Flarum\Api {
+    // Forward declaration for stub @mixin reference
+    // The actual class is defined in framework/core/src/Api/Context.php
+    if (false) {
+        class Context extends \Tobyz\JsonApiServer\Context {}
+    }
+}
 
-/**
- * @mixin \Flarum\Api\Context
- */
-class Context
-{
+namespace Tobyz\JsonApiServer {
+    /**
+     * @mixin \Flarum\Api\Context
+     */
+    class Context
+    {
 
+    }
 }

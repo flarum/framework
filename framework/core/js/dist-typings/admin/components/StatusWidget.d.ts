@@ -4,6 +4,7 @@ export default class StatusWidget extends DashboardWidget<import("./DashboardWid
     items(): ItemList<any>;
     toolsItems(): ItemList<any>;
     handleClearCache(e: any): void;
+    handleShowInfo(): void;
 }
 import DashboardWidget from "./DashboardWidget";
 import ItemList from "../../common/utils/ItemList";

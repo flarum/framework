@@ -26,7 +26,7 @@ class WorkCommand extends \Illuminate\Queue\Console\WorkCommand
         $this->settings->set('database_queue.working', Carbon::now()->toIso8601String());
 
         try {
-            parent::handle();
+            return parent::handle();
         } catch (\Exception $e) {
             $this->settings->delete('database_queue.working');
 

@@ -56,11 +56,17 @@ class Export extends AbstractModel
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function actor(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Builder<self>
+     */
     public static function destroyable(): \Illuminate\Database\Eloquent\Builder
     {
         return self::query()

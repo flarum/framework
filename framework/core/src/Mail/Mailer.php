@@ -41,6 +41,6 @@ class Mailer extends IlluminateMailer
                 // case 'multipart' is the default, where Flarum will send both HTML and text versions of emails, so that the recipient's email client can choose which one to display.
         }
 
-        parent::send($view, $data, $callback);
+        return parent::send($view, $data, $callback);
     }
 }

@@ -42,7 +42,7 @@ class UnparseUserMentions
                 default => User::query()->find($attributes['id']),
             };
 
-            $attributes['displayname'] = $user?->display_name ?? $this->translator->trans('core.lib.username.deleted_text');
+            $attributes['displayname'] = $user->display_name ?? $this->translator->trans('core.lib.username.deleted_text');
 
             if (str_contains($attributes['displayname'], '"#')) {
                 $attributes['displayname'] = preg_replace('/"#[a-z]{0,3}[0-9]+/', '_', $attributes['displayname']);
@@ -64,7 +64,7 @@ class UnparseUserMentions
         }
 
         return preg_replace(
-            '/<'.preg_quote($tagName).'\b[^>]*(?=\bdisplayname="(.*)")[^>]*(?=\bid="([0-9]+)")[^>]*>@[^<]+<\/'.preg_quote($tagName).'>/U',
+            '/<'.preg_quote($tagName, '/').'\b[^>]*(?=\bdisplayname="(.*)")[^>]*(?=\bid="([0-9]+)")[^>]*>@[^<]+<\/'.preg_quote($tagName, '/').'>/U',
             '@"$1"#$2',
             $xml
         );

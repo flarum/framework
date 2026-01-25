@@ -90,3 +90,25 @@
   justify-content: center;
   vertical-align: middle;
 }
+
+.ExtensionListItem-icon-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.ExtensionListItem-badge {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  .Badge--size(24px);
+
+  &.Badge--danger {
+    --badge-bg: @error-color;
+    --contrast-color: var(--text-on-dark);
+  }
+
+  &.Badge--warning {
+    --badge-bg: @alert-color;
+    --contrast-color: var(--text-on-dark);
+  }
+}

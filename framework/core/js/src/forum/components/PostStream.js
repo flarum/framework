@@ -84,7 +84,7 @@ export default class PostStream extends Component {
         </div>
       );
 
-      const afterPostItems = post && post.id() === this.discussion.data.relationships.firstPost?.data.id ? this.afterFirstPostItems().toArray() : [];
+      const afterPostItems = post && post.id() === this.discussion.data.relationships.firstPost?.data?.id ? this.afterFirstPostItems().toArray() : [];
 
       if (afterPostItems.length > 0) {
         return m.fragment({ ...attrs }, [

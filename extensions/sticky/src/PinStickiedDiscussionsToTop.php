@@ -56,7 +56,7 @@ class PinStickiedDiscussionsToTop
             // reorder the unread ones up to the top.
             $sticky = clone $query;
             $sticky->where('is_sticky', true);
-            unset($sticky->orders);
+            $sticky->orders = null;
 
             $epochTime = (new DateTime('@0'))->format('Y-m-d H:i:s');
 
@@ -84,7 +84,8 @@ class PinStickiedDiscussionsToTop
             $query->unionOffset = $query->offset;
 
             $query->limit = $sticky->limit = $query->offset + $query->limit;
-            unset($query->offset, $sticky->offset);
+            $query->offset = null;
+            $sticky->offset = null;
         }
     }
 

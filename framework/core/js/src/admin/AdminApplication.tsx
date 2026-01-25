@@ -45,6 +45,7 @@ export interface Extension {
     };
   };
   require?: Record<string, string>;
+  abandoned?: boolean | string;
 }
 
 export enum DatabaseDriver {

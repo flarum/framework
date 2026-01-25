@@ -54,6 +54,9 @@ class Dialog extends AbstractModel
 
     protected static ?User $stateUser = null;
 
+    /**
+     * @return HasMany<DialogMessage, $this>
+     */
     public function messages(): HasMany
     {
         return $this->hasMany(DialogMessage::class);

@@ -12,6 +12,7 @@ namespace Flarum\Extend;
 use Flarum\Extension\Extension;
 use Flarum\Foundation\AbstractServiceProvider;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Support\ServiceProvider as LaravelServiceProvider;
 
 class ServiceProvider implements ExtenderInterface
 {
@@ -24,7 +25,7 @@ class ServiceProvider implements ExtenderInterface
      * Please read our documentation about service providers for recommendations.
      * @see https://docs.flarum.org/extend/service-provider/
      *
-     * @param class-string<AbstractServiceProvider> $serviceProviderClass The ::class attribute of the service provider class.
+     * @param class-string<AbstractServiceProvider|LaravelServiceProvider> $serviceProviderClass The ::class attribute of the service provider class.
      */
     public function register(string $serviceProviderClass): self
     {

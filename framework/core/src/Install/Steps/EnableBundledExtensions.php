@@ -46,7 +46,7 @@ class EnableBundledExtensions implements Step
      */
     private array $enabledExtensions;
 
-    private ?Migrator $migrator;
+    private Migrator $migrator;
 
     public function __construct(
         private readonly ConnectionInterface $database,

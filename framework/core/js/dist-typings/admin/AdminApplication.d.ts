@@ -34,6 +34,7 @@ export interface Extension {
         };
     };
     require?: Record<string, string>;
+    abandoned?: boolean | string;
 }
 export declare enum DatabaseDriver {
     MySQL = "MySQL",

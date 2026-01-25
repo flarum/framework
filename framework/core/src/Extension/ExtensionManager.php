@@ -86,19 +86,18 @@ class ExtensionManager
                 $extensions->put($extension->getId(), $extension);
             }
 
-            /** @var Extension $extension */
             foreach ($extensions as $extension) {
                 $extension->calculateDependencies($installedSet);
             }
 
             $needsReset = false;
+            /** @var Extension[] $enabledExtensions */
             $enabledExtensions = [];
             foreach ($this->getEnabled() as $enabledKey) {
-                $extension = $extensions->get($enabledKey);
-                if (is_null($extension)) {
+                if ($extensions->has($enabledKey)) {
+                    $enabledExtensions[] = $extensions->get($enabledKey);
+                } else {
                     $needsReset = true;
-                } else { // @phpstan-ignore-line
-                    $enabledExtensions[] = $extension;
                 }
             }
 
@@ -490,6 +489,24 @@ class ExtensionManager
         // Per default all extensions are installed if they are registered in composer.
         $extension->setInstalled(true);
         $extension->setVersion(Arr::get($package, 'version', '0.0'));
+
+        // Set abandoned status if the package is marked as abandoned in composer
+        // The abandoned field can be either true (no replacement) or a string (replacement package name)
+        $abandoned = Arr::get($package, 'abandoned');
+        if (is_string($abandoned) && ! empty($abandoned)) {
+            // Always set abandoned status if a replacement package is specified
+            $extension->setAbandoned($abandoned);
+        } elseif ($abandoned === true) {
+            // If abandoned is just true (no replacement), check the package source
+            // Packages from flarum.org/composer may have unreliable abandoned flags
+            $distUrl = Arr::get($package, 'dist.url', '');
+            $isFromFlarumComposer = str_contains($distUrl, 'flarum.org/composer');
+
+            // Only set abandoned if NOT from flarum.org/composer
+            if (! $isFromFlarumComposer) {
+                $extension->setAbandoned($abandoned);
+            }
+        }
 
         return $extension;
     }

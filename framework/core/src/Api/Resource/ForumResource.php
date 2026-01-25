@@ -123,7 +123,7 @@ class ForumResource extends AbstractResource implements Findable
                 ->get(fn ($model, Context $context) => $context->getActor()->can('searchUsers')),
             Schema\Boolean::make('canCreateAccessToken')
                 ->get(fn ($model, Context $context) => $context->getActor()->can('createAccessToken')),
-            Schema\Boolean::make('moderateAccessTokens')
+            Schema\Boolean::make('canModerateAccessTokens')
                 ->get(fn ($model, Context $context) => $context->getActor()->can('moderateAccessTokens')),
             Schema\Boolean::make('canEditUserCredentials')
                 ->get(fn ($model, Context $context) => $context->getActor()->hasPermission('user.editCredentials')),

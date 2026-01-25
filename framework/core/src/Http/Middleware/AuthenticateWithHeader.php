@@ -29,7 +29,7 @@ class AuthenticateWithHeader implements Middleware
 
         $parts = explode(';', $headerLine);
 
-        if (isset($parts[0]) && Str::startsWith($parts[0], self::TOKEN_PREFIX)) {
+        if (Str::startsWith($parts[0], self::TOKEN_PREFIX)) {
             $id = substr($parts[0], strlen(self::TOKEN_PREFIX));
 
             if ($key = ApiKey::where('key', $id)->first()) {
@@ -62,7 +62,7 @@ class AuthenticateWithHeader implements Middleware
     {
         $parts = explode('=', trim($string));
 
-        if (isset($parts[0]) && $parts[0] === 'userId') {
+        if ($parts[0] === 'userId') {
             return User::find($parts[1]);
         }
 

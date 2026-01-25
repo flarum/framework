@@ -29,5 +29,5 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     infoItems(): ItemList<Mithril.Children>;
     toggle(): void;
     isEnabled(): any;
-    onerror(e: RequestError): void;
+    onerror(e: RequestError): void | false;
 }

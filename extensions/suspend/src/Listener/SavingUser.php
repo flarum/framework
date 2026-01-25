@@ -26,6 +26,12 @@ class SavingUser
         $user = $event->user;
         $actor = $event->actor;
 
+        // When unsuspending, clear reason and message
+        if ($user->isDirty('suspended_until') && $user->suspended_until === null) {
+            $user->suspend_reason = null;
+            $user->suspend_message = null;
+        }
+
         if ($user->isDirty(['suspended_until', 'suspend_reason', 'suspend_message'])) {
             $this->events->dispatch(
                 $user->suspended_until === null ?
