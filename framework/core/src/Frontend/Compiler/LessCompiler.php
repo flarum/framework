@@ -153,7 +153,7 @@ class LessCompiler extends RevisionCompiler
             $quotedFile = preg_quote($fileWithoutExt, '/');
 
             // Match @import "path" or @import 'path' (with or without .less extension)
-            $pattern = '/@import\s+["\']' . $quotedFile . '(\.less)?["\'];?/i';
+            $pattern = '/@import\s+["\']'.$quotedFile.'(\.less)?["\'];?/i';
 
             if (preg_match($pattern, $content)) {
                 // Read the override file content
@@ -162,7 +162,7 @@ class LessCompiler extends RevisionCompiler
                 // Replace the @import statement with the actual content
                 $content = preg_replace(
                     $pattern,
-                    '/* Flarum override: ' . $file . ' */'."\n".$overrideContent."\n".'/* End override */',
+                    '/* Flarum override: '.$file.' */'."\n".$overrideContent."\n".'/* End override */',
                     $content
                 );
             }
@@ -188,7 +188,6 @@ class LessCompiler extends RevisionCompiler
 
         return $sources;
     }
-
 
     protected function getCacheDifferentiator(): ?array
     {

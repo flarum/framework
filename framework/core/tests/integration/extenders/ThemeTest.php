@@ -37,7 +37,7 @@ class ThemeTest extends TestCase
         $response = $this->send($this->request('GET', '/'));
 
         if ($response->getStatusCode() !== 200) {
-            echo "\n\nResponse body:\n" . $response->getBody()->getContents() . "\n\n";
+            echo "\n\nResponse body:\n".$response->getBody()->getContents()."\n\n";
         }
 
         $this->assertEquals(200, $response->getStatusCode());
