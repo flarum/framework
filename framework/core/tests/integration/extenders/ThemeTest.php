@@ -36,6 +36,10 @@ class ThemeTest extends TestCase
 
         $response = $this->send($this->request('GET', '/'));
 
+        if ($response->getStatusCode() !== 200) {
+            echo "\n\nResponse body:\n" . $response->getBody()->getContents() . "\n\n";
+        }
+
         $this->assertEquals(200, $response->getStatusCode());
 
         $cssFilePath = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets')->path('forum.css');
