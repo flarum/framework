@@ -4,7 +4,7 @@
     "version": "0.0.0",
     "devDependencies": {
         "flarum-webpack-config": "^3.0.0",
-        "webpack": "^5.65.0",
+        "webpack": "^5.104.1",
         "webpack-cli": "^4.9.1",
         "prettier": "^2.5.1",
         "@flarum/prettier-config": "^1.0.0",
