@@ -197,7 +197,7 @@ class Formatter
      *
      * Injects XSLT polyfill inline before s9e code to support browsers
      * that have removed native XSLT support (Chrome 155+, Nov 2026).
-     * 
+     *
      * @TODO: Remove polyfill injection when s9e/textformatter has a solution for XSLT removal.
      * @see https://github.com/s9e/TextFormatter/issues/250
      */
@@ -207,14 +207,14 @@ class Formatter
 
         // Try to load XSLT polyfill
         // Path 1: Published package (core/js/node_modules)
-        $polyfillPath = __DIR__ . '/../../js/node_modules/xslt-polyfill/xslt-polyfill.min.js';
+        $polyfillPath = __DIR__.'/../../js/node_modules/xslt-polyfill/xslt-polyfill.min.js';
 
-        if (!file_exists($polyfillPath)) {
+        if (! file_exists($polyfillPath)) {
             // Path 2: Monorepo hoisted (framework/node_modules)
-            $polyfillPath = __DIR__ . '/../../../../node_modules/xslt-polyfill/xslt-polyfill.min.js';
+            $polyfillPath = __DIR__.'/../../../../node_modules/xslt-polyfill/xslt-polyfill.min.js';
         }
 
-        if (!file_exists($polyfillPath)) {
+        if (! file_exists($polyfillPath)) {
             // Polyfill not available, return s9e JS without it
             return $s9eJs;
         }
