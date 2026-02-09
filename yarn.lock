@@ -5708,6 +5708,11 @@ xmlchars@^2.2.0:
   resolved "https://registry.yarnpkg.com/xmlchars/-/xmlchars-2.2.0.tgz#060fe1bcb7f9c76fe2a17db86a9bc3ab894210cb"
   integrity sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==
 
+xslt-polyfill@^1.0.16:
+  version "1.0.16"
+  resolved "https://registry.yarnpkg.com/xslt-polyfill/-/xslt-polyfill-1.0.16.tgz#86edb1767bc005ce5c5465be309d266785d4a5d6"
+  integrity sha512-lz0pP+N5X552mZ3IL5qM/7pHwPYNLEF973fFdqnHchm638gw6zWlwroAChnNOzAYLDj0CBvshtupDjqCjZpmXw==
+
 y18n@^5.0.5:
   version "5.0.8"
   resolved "https://registry.yarnpkg.com/y18n/-/y18n-5.0.8.tgz#7f4934d0f7ca8c56f95314939ddcd2dd91ce1d55"

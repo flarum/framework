@@ -20,7 +20,8 @@
         "sortablejs": "^1.14.0",
         "textarea-caret": "^3.1.0",
         "throttle-debounce": "^3.0.1",
-        "web-haptics": "^0.0.6"
+        "web-haptics": "^0.0.6",
+        "xslt-polyfill": "^1.0.16"
     },
     "devDependencies": {
         "@flarum/jest-config": "^2.0.0",

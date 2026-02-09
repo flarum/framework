@@ -194,10 +194,61 @@ class Formatter
 
     /**
      * Get the formatter JavaScript.
+     *
+     * Injects XSLT polyfill inline before s9e code to support browsers
+     * that have removed native XSLT support (Chrome 155+, Nov 2026).
+     * 
+     * @TODO: Remove polyfill injection when s9e/textformatter has a solution for XSLT removal.
+     * @see https://github.com/s9e/TextFormatter/issues/250
      */
     public function getJs(): string
     {
-        return $this->getComponent('js');
+        $s9eJs = $this->getComponent('js');
+
+        // Try to load XSLT polyfill
+        // Path 1: Published package (core/js/node_modules)
+        $polyfillPath = __DIR__ . '/../../js/node_modules/xslt-polyfill/xslt-polyfill.min.js';
+
+        if (!file_exists($polyfillPath)) {
+            // Path 2: Monorepo hoisted (framework/node_modules)
+            $polyfillPath = __DIR__ . '/../../../../node_modules/xslt-polyfill/xslt-polyfill.min.js';
+        }
+
+        if (!file_exists($polyfillPath)) {
+            // Polyfill not available, return s9e JS without it
+            return $s9eJs;
+        }
+
+        $polyfillJs = file_get_contents($polyfillPath);
+
+        // Inject polyfill inline before s9e code
+        return <<<JS
+// XSLT Polyfill for Chrome 155+ (Nov 2026)
+// Chrome is removing native XSLT support. This polyfill ensures s9e TextFormatter
+// continues to work for live preview functionality.
+(function() {
+    var xsltWorks = false;
+
+    if (typeof window !== 'undefined' && window.XSLTProcessor) {
+        try {
+            // Test if XSLTProcessor can actually be instantiated
+            // (constructor exists but throws when XSLT is disabled)
+            new XSLTProcessor();
+            xsltWorks = true;
+        } catch (e) {
+            // XSLTProcessor exists but is disabled
+        }
+    }
+
+    if (!xsltWorks) {
+        // Load polyfill
+        $polyfillJs
+    }
+})();
+
+// s9e TextFormatter code
+$s9eJs
+JS;
     }
 
     protected function configureDefaultsOnLinks(string $xml): string
