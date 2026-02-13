@@ -152,12 +152,14 @@ export default class PostStream extends Component {
     super.onupdate(vnode);
 
     this.triggerScroll();
+    this.observeNewPostItems();
   }
 
   oncreate(vnode) {
     super.oncreate(vnode);
 
     this.triggerScroll();
+    this.setupScrollAnchoring();
 
     // This is wrapped in setTimeout due to the following Mithril issue:
     // https://github.com/lhorie/mithril.js/issues/637
@@ -168,6 +170,7 @@ export default class PostStream extends Component {
     super.onremove(vnode);
 
     this.scrollListener.stop();
+    this.cleanupScrollAnchoring();
     clearTimeout(this.calculatePositionTimeout);
   }
 
@@ -197,6 +200,11 @@ export default class PostStream extends Component {
     this.updateScrubber(top);
 
     this.loadPostsIfNeeded(top);
+
+    // While the page is settling after a programmatic scroll, layout shifts
+    // are still happening (images loading, etc). Skip position/URL updates
+    // until settling completes -- endSettling() will call calculatePosition().
+    if (this.settling) return;
 
     // Throttle calculation of our position (start/end numbers of posts in the
     // viewport) to 100ms.
@@ -445,15 +453,160 @@ export default class PostStream extends Component {
         $(window).scrollTop(itemOffset.top - this.getMarginTop());
       }
 
+      // Enter "settling" mode. After the initial scroll, asynchronous content
+      // (images, embeds, etc.) may cause post elements to resize, shifting the
+      // target post out of view. During settling, a ResizeObserver watches for
+      // these layout shifts and re-scrolls to the target post synchronously
+      // (before the browser paints) so the user never sees the shift.
+      //
+      // Settling ends when: the user interacts (wheel/touch/key), no resizes
+      // occur for 3 seconds (stability), or a 30-second hard timeout elapses.
+      // At that point endSettling() calls calculatePosition() to update the URL
+      // and scrubber to match the final viewport state.
+      this.settling = true;
+      this.settlingTarget = this.stream.targetPost;
+      this.startSettlingListeners();
+      this.resetStabilityTimer();
+      this.settlingHardTimer = setTimeout(() => this.endSettling(), 30000);
+
       // We want to adjust this again after posts have been loaded in
       // and position adjusted so that the scrubber's height is accurate.
       updateScrubberHeight();
 
-      this.calculatePosition();
       this.stream.paused = false;
       // Check if we need to load more posts after scrolling.
       this.loadPostsIfNeeded();
     });
+  }
+
+  /**
+   * Set up a ResizeObserver that watches `.PostStream-item` elements for size
+   * changes. During the "settling" phase (after a programmatic scroll), any
+   * observed resize triggers an immediate re-scroll to the target post so the
+   * viewport stays locked on it while asynchronous content loads.
+   */
+  setupScrollAnchoring() {
+    this.settling = false;
+    this.settlingTarget = null;
+    this.settlingStabilityTimer = null;
+    this.settlingHardTimer = null;
+    this.observedElements = new Set();
+
+    this.resizeObserver = new ResizeObserver(() => {
+      if (!this.settling) return;
+
+      // Re-scroll synchronously. ResizeObserver callbacks run after layout
+      // but before paint, so correcting scrollTop here prevents the user
+      // from ever seeing the shifted (wrong) position.
+      this.reScrollToTarget();
+      this.resetStabilityTimer();
+    });
+
+    this.observeNewPostItems();
+  }
+
+  /**
+   * Re-scroll to the locked target post. Uses the same offset logic as
+   * scrollToItem's post-load adjustment. Called synchronously from the
+   * ResizeObserver callback so the correction is applied before the browser
+   * paints, preventing visible flicker.
+   */
+  reScrollToTarget() {
+    const target = this.settlingTarget;
+    if (!target) return;
+
+    let $item;
+    if ('number' in target) {
+      $item = this.$(`.PostStream-item[data-number=${target.number}]`);
+    } else if ('index' in target) {
+      $item = target.reply ? this.$('.PostStream-item:last-child') : this.$(`.PostStream-item[data-index=${target.index}]`);
+    }
+
+    if (!$item || !$item.length) return;
+
+    const desiredTop = $item.is(':first-child') ? 0 : $item.offset().top - this.getMarginTop();
+    $(window).scrollTop(desiredTop);
+  }
+
+  /**
+   * Register global event listeners that end settling when the user takes
+   * control (scrolling, touching, or pressing a key).
+   */
+  startSettlingListeners() {
+    this._onUserInteraction = () => this.endSettling();
+    window.addEventListener('wheel', this._onUserInteraction, { passive: true });
+    window.addEventListener('touchstart', this._onUserInteraction, { passive: true });
+    window.addEventListener('keydown', this._onUserInteraction, { passive: true });
+  }
+
+  /**
+   * Remove the user-interaction listeners registered by startSettlingListeners.
+   */
+  stopSettlingListeners() {
+    if (!this._onUserInteraction) return;
+    window.removeEventListener('wheel', this._onUserInteraction);
+    window.removeEventListener('touchstart', this._onUserInteraction);
+    window.removeEventListener('keydown', this._onUserInteraction);
+    this._onUserInteraction = null;
+  }
+
+  /**
+   * Reset (or start) the stability timer. If no ResizeObserver callback fires
+   * within 3 seconds, we consider the layout stable and exit settling.
+   */
+  resetStabilityTimer() {
+    clearTimeout(this.settlingStabilityTimer);
+    this.settlingStabilityTimer = setTimeout(() => this.endSettling(), 3000);
+  }
+
+  /**
+   * Exit settling mode: stop watching for layout shifts, remove listeners,
+   * clear timers, and update the URL/scrubber to match the final viewport.
+   */
+  endSettling() {
+    if (!this.settling) return;
+    this.settling = false;
+    this.settlingTarget = null;
+    this.stopSettlingListeners();
+    clearTimeout(this.settlingStabilityTimer);
+    clearTimeout(this.settlingHardTimer);
+    this.settlingStabilityTimer = null;
+    this.settlingHardTimer = null;
+    this.calculatePosition();
+  }
+
+  /**
+   * Observe any newly-rendered `.PostStream-item` elements that are not yet
+   * tracked. Called on every `onupdate` to pick up items added by infinite
+   * scroll or lazy loading.
+   */
+  observeNewPostItems() {
+    if (!this.resizeObserver) return;
+
+    const items = this.element.querySelectorAll('.PostStream-item');
+
+    for (const item of items) {
+      if (!this.observedElements.has(item)) {
+        this.observedElements.add(item);
+        this.resizeObserver.observe(item);
+      }
+    }
+  }
+
+  /**
+   * Disconnect the ResizeObserver, end settling mode, and release tracked data.
+   * Called from `onremove` to prevent memory leaks.
+   */
+  cleanupScrollAnchoring() {
+    this.endSettling();
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
+    if (this.observedElements) {
+      this.observedElements.clear();
+      this.observedElements = null;
+    }
   }
 
   /**
