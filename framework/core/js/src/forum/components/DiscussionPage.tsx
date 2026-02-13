@@ -175,7 +175,9 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     this.stream = new PostStreamState(discussion);
     const rawNearParam = m.route.param('near');
     const nearParam = rawNearParam === 'reply' ? 'reply' : parseInt(rawNearParam);
-    this.stream.goToNumber(nearParam || 0, true).then(() => {
+    // Post numbers start at 1; use 1 when near is missing/invalid so the first post gets the pop-in
+    const targetPost = nearParam === 'reply' ? 'reply' : nearParam && !isNaN(nearParam) ? nearParam : 1;
+    this.stream.goToNumber(targetPost, true).then(() => {
       this.discussion = discussion;
 
       app.current.set('discussion', discussion);
