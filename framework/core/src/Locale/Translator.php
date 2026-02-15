@@ -73,6 +73,9 @@ class Translator extends BaseTranslator implements TranslatorInterface
         return $translation;
     }
 
+    /**
+     * @param string $locale
+     */
     public function setLocale($locale): void
     {
         parent::setLocale($locale);
