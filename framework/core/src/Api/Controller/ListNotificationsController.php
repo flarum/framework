@@ -64,6 +64,9 @@ class ListNotificationsController extends AbstractListController
 
         $actor->markNotificationsAsRead()->save();
 
+        // Invalidate new notification count cache since read_notifications_at changed
+        resolve('cache.store')->forget("user.{$actor->id}.new_notification_count");
+
         $limit = $this->extractLimit($request);
         $offset = $this->extractOffset($request);
         $include = $this->extractInclude($request);

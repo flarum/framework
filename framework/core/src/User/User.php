@@ -472,9 +472,15 @@ class User extends AbstractModel
      */
     public function getNewNotificationCount()
     {
-        return $this->unreadNotifications()
-            ->where('created_at', '>', $this->read_notifications_at ?? 0)
-            ->count();
+        // Cache notification count for 5 minutes to avoid expensive query on every page load
+        // Cache is actively invalidated when notifications change or user views notifications
+        $cacheKey = "user.{$this->id}.new_notification_count";
+
+        return resolve('cache.store')->remember($cacheKey, 300, function () {
+            return $this->unreadNotifications()
+                ->where('created_at', '>', $this->read_notifications_at ?? 0)
+                ->count();
+        });
     }
 
     /**
