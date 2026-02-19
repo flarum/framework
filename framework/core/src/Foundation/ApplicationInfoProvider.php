@@ -42,7 +42,7 @@ class ApplicationInfoProvider
 
     public function getSchedulerStatus(): string
     {
-        $status = $this->cache->get('schedule:last_run');
+        $status = $this->cache->get('flarum:schedule:last_run');
 
         if (! $status) {
             return $this->translator->trans('core.admin.dashboard.status.scheduler.never-run');
