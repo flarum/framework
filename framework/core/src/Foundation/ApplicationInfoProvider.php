@@ -158,7 +158,10 @@ class ApplicationInfoProvider
      */
     public function identifyDatabaseVersion(): string
     {
-        return $this->db->selectOne('select version() as version')->version;
+        // Cache for 24 hours since database version rarely changes
+        return $this->cache->remember('flarum:db_version', 86400, function () {
+            return $this->db->selectOne('select version() as version')->version;
+        });
     }
 
     /**
