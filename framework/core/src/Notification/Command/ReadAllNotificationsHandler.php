@@ -48,6 +48,9 @@ class ReadAllNotificationsHandler
 
         $this->notifications->markAllAsRead($actor);
 
+        // Invalidate notification count cache
+        resolve('cache.store')->forget("user.{$actor->id}.unread_notification_count");
+
         $this->events->dispatch(new ReadAll($actor, Carbon::now()));
     }
 }

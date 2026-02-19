@@ -431,7 +431,14 @@ class User extends AbstractModel
      */
     public function getUnreadNotificationCount()
     {
-        return $this->unreadNotifications()->count();
+        // Cache notification count for 5 minutes to avoid expensive query on every page load
+        // Cache is actively invalidated when notifications are marked as read or created,
+        // so the TTL is mainly a safety net for edge cases (e.g., direct DB updates)
+        $cacheKey = "user.{$this->id}.unread_notification_count";
+
+        return resolve('cache.store')->remember($cacheKey, 300, function () {
+            return $this->unreadNotifications()->count();
+        });
     }
 
     /**
