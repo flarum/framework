@@ -14,6 +14,7 @@ use Flarum\Locale\Translator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\SessionManager;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Arr;
@@ -64,6 +65,11 @@ class ApplicationInfoProvider
     protected $queue;
 
     /**
+     * @var CacheRepository
+     */
+    protected $cache;
+
+    /**
      * @param SettingsRepositoryInterface $settings
      * @param Translator $translator
      * @param Schedule $schedule
@@ -72,6 +78,7 @@ class ApplicationInfoProvider
      * @param SessionManager $session
      * @param SessionHandlerInterface $sessionHandler
      * @param Queue $queue
+     * @param CacheRepository $cache
      */
     public function __construct(
         SettingsRepositoryInterface $settings,
@@ -81,7 +88,8 @@ class ApplicationInfoProvider
         Config $config,
         SessionManager $session,
         SessionHandlerInterface $sessionHandler,
-        Queue $queue
+        Queue $queue,
+        CacheRepository $cache
     ) {
         $this->settings = $settings;
         $this->translator = $translator;
@@ -91,6 +99,7 @@ class ApplicationInfoProvider
         $this->session = $session;
         $this->sessionHandler = $sessionHandler;
         $this->queue = $queue;
+        $this->cache = $cache;
     }
 
     /**
@@ -110,7 +119,8 @@ class ApplicationInfoProvider
      */
     public function getSchedulerStatus(): string
     {
-        $status = $this->settings->get('schedule.last_run');
+        // Read from cache instead of persistent settings
+        $status = $this->cache->get('schedule:last_run');
 
         if (! $status) {
             return $this->translator->trans('core.admin.dashboard.status.scheduler.never-run');

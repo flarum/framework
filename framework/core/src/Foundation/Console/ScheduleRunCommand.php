@@ -9,26 +9,26 @@
 
 namespace Flarum\Foundation\Console;
 
-use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class ScheduleRunCommand extends \Illuminate\Console\Scheduling\ScheduleRunCommand
 {
     /**
-     * @var SettingsRepositoryInterface
+     * @var CacheRepository
      */
-    protected $settings;
+    protected $cache;
 
     /**
      * {@inheritdoc}
      */
-    public function __construct(SettingsRepositoryInterface $settings)
+    public function __construct(CacheRepository $cache)
     {
         parent::__construct();
 
-        $this->settings = $settings;
+        $this->cache = $cache;
     }
 
     /**
@@ -38,6 +38,7 @@ class ScheduleRunCommand extends \Illuminate\Console\Scheduling\ScheduleRunComma
     {
         parent::handle($schedule, $dispatcher, $handler);
 
-        $this->settings->set('schedule.last_run', $this->startedAt);
+        // Store in cache instead of persistent settings (1 hour TTL)
+        $this->cache->put('schedule:last_run', $this->startedAt, 3600);
     }
 }
