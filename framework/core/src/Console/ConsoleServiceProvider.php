@@ -91,7 +91,7 @@ class ConsoleServiceProvider extends AbstractServiceProvider
             $cache = $container->make(CacheRepository::class);
 
             if ($command === ScheduleRunCommand::getDefaultName()) {
-                $cache->set('schedule:last_run', Carbon::now(), 3600);
+                $cache->put('schedule:last_run', Carbon::now(), 3600);
             }
         });
     }
