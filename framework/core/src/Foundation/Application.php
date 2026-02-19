@@ -175,7 +175,7 @@ class Application extends IlluminateContainer implements LaravelApplication
         // Finally, we will fire an event to indicate that the application has booted.
         // We explicitly do this after firing the "booted" callbacks so that any listener that
         // needs to do work after booting can use this event to know when it is truly done.
-        $this->container->make(Dispatcher::class)->dispatch(new ApplicationBooted());
+        resolve(Dispatcher::class)->dispatch(new ApplicationBooted());
     }
 
     protected function bootProvider(ServiceProvider $provider): mixed
