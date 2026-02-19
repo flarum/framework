@@ -11,9 +11,9 @@ namespace Flarum\Foundation;
 
 use Carbon\Carbon;
 use Flarum\Locale\Translator;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\SessionManager;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Arr;
@@ -24,7 +24,7 @@ use SessionHandlerInterface;
 class ApplicationInfoProvider
 {
     public function __construct(
-        protected SettingsRepositoryInterface $settings,
+        protected CacheRepository $cache,
         protected Translator $translator,
         protected Schedule $schedule,
         protected ConnectionInterface $db,
@@ -42,7 +42,7 @@ class ApplicationInfoProvider
 
     public function getSchedulerStatus(): string
     {
-        $status = $this->settings->get('schedule.last_run');
+        $status = $this->cache->get('schedule:last_run');
 
         if (! $status) {
             return $this->translator->trans('core.admin.dashboard.status.scheduler.never-run');
