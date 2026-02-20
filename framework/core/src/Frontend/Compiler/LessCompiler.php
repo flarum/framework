@@ -112,7 +112,7 @@ class LessCompiler extends RevisionCompiler
             try {
                 $compiled = $this->finalize($parser->getCss());
 
-                if (isset($sources['custom_less'])) {
+                if (isset($sources['custom_less']) && $this->settings->get('custom_less_error')) {
                     $this->settings->delete('custom_less_error');
                 }
 
