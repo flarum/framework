@@ -8,6 +8,7 @@
 
 ### Fixed
 
+- (tooltip) destroy tooltip instance on component removal to prevent orphaned tooltips by @imorland [#4382]
 - (tags) authors unable to rename/hide own discussions in restricted tags by @imorland [#4379]
 - handle null `gotoItem` in `SearchModal` to prevent crash by @imorland [#4376]
 - (tooltip) add `container` prop to fix notification button tooltip positioning by @imorland [#4375]
