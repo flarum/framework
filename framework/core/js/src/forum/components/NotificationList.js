@@ -39,10 +39,9 @@ export default class NotificationList extends Component {
 
     items.add(
       'mark_all_as_read',
-      <Tooltip text={app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip')}>
+      <Tooltip text={app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip')} container="body">
         <Button
           className="Button Button--link"
-          data-container=".NotificationList"
           icon="fas fa-check"
           title={app.translator.trans('core.forum.notifications.mark_all_as_read_tooltip')}
           onclick={state.markAllAsRead.bind(state)}
@@ -53,10 +52,9 @@ export default class NotificationList extends Component {
 
     items.add(
       'delete_all',
-      <Tooltip text={app.translator.trans('core.forum.notifications.delete_all_tooltip')}>
+      <Tooltip text={app.translator.trans('core.forum.notifications.delete_all_tooltip')} container="body">
         <Button
           className="Button Button--link"
-          data-container=".NotificationList"
           icon="fas fa-trash-alt"
           title={app.translator.trans('core.forum.notifications.delete_all_tooltip')}
           onclick={() => {
