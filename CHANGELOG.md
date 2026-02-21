@@ -1,5 +1,31 @@
 # Changelog
 
+## [v2.0.0-beta.7](https://github.com/flarum/framework/compare/v2.0.0-beta.6...v2.0.0-beta.7)
+
+### Added
+
+- fire `ApplicationBooted` event after all service provider boot callbacks complete by @imorland [#4366]
+
+### Fixed
+
+- (tags) authors unable to rename/hide own discussions in restricted tags by @imorland [#4379]
+- handle null `gotoItem` in `SearchModal` to prevent crash by @imorland [#4376]
+- (tooltip) add `container` prop to fix notification button tooltip positioning by @imorland [#4375]
+- (admin) correct tree array construction in `GeneralSearchSource` by @imorland [#4373]
+- (forum) sync discussion URL immediately on programmatic scroll by @iPurpl3x [#4371]
+- (realtime) error when post not visible due to tag restrictions by @imorland [#4369]
+- (forum) show pop-in animation on first post when loading a discussion by @iPurpl3x [#4362]
+- (forum) prevent scroll jump when loading discussion to a specific post by @iPurpl3x [#4361]
+
+### Changed
+
+- eliminate redundant DB writes in auth middleware and cache notification counts by @imorland [#4380]
+- store scheduler last-run timestamp in cache instead of database by @imorland [#4364]
+- fix rogue settings delete query that ran on every request by @imorland [#4368]
+- (realtime) replace raw DB query with Eloquent for external settings cache by @imorland [#4367]
+- add `color-scheme` property to root.less for better dark-mode support by @zDaleZ [#4357]
+- prep for beta.7 by @imorland [#4377]
+
 ## [v2.0.0-beta.6](https://github.com/flarum/framework/compare/v2.0.0-beta.5...v2.0.0-beta.6)
 
 ### Added
