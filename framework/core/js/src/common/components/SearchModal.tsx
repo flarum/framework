@@ -342,15 +342,18 @@ export default class SearchModal<CustomAttrs extends ISearchModalAttrs = ISearch
     if (isResult) {
       const id = item.attr('data-id');
       selectedUrl = id && this.activeSource().gotoItem(id as string);
-    } else if (item.find('a').length) {
-      selectedUrl = item.find('a').attr('href');
+    }
+
+    // Fallback: if gotoItem returned null or item has no data-id, check for a link
+    if (!selectedUrl && item.find('a').length) {
+      selectedUrl = item.find('a').attr('href') || null;
     }
 
     const query = this.query();
 
     if (query && selectedUrl) {
       m.route.set(selectedUrl);
-    } else {
+    } else if (item.find('button').length) {
       item.find('button')[0].click();
     }
   }
