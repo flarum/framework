@@ -283,3 +283,213 @@ describe('PostStream scroll anchoring (settling guard)', () => {
     jest.useRealTimers();
   });
 });
+
+describe('PostStream position sync (immediate emit + settling lifecycle)', () => {
+  let originalResizeObserver: typeof globalThis.ResizeObserver;
+
+  beforeEach(() => {
+    originalResizeObserver = globalThis.ResizeObserver;
+    // @ts-ignore
+    globalThis.ResizeObserver = jest.fn(() => ({
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn(),
+    }));
+  });
+
+  afterEach(() => {
+    globalThis.ResizeObserver = originalResizeObserver;
+  });
+
+  it('emits position on programmatic jump without waiting for the stability timer', () => {
+    jest.useFakeTimers();
+
+    const instance = new (PostStream as any)();
+    instance.stream = { paused: false };
+    instance.element = document.createElement('div');
+    instance.getMarginTop = () => 0;
+
+    const onPositionChange = jest.fn();
+    instance.attrs = { onPositionChange };
+
+    instance.computeVisiblePosition = jest.fn(() => ({ startNumber: 3, endNumber: 3 }));
+    instance.setupScrollAnchoring();
+
+    instance.calculatePosition(0, { fallbackToTarget: true });
+
+    expect(onPositionChange).toHaveBeenCalledTimes(1);
+    expect(onPositionChange).toHaveBeenCalledWith(3, 3, 3);
+
+    // Stability timer also triggers calculatePosition (reconciliation).
+    instance.calculatePosition = jest.fn();
+    instance.settling = true;
+    instance.settlingTarget = { number: 3 };
+    instance.resetStabilityTimer();
+    jest.advanceTimersByTime(3000);
+
+    expect(instance.calculatePosition).toHaveBeenCalledTimes(1);
+
+    jest.useRealTimers();
+  });
+
+  it('does not emit via onscroll while settling', () => {
+    const instance = new (PostStream as any)();
+    instance.stream = { paused: false, pagesLoading: 0 };
+    instance.element = document.createElement('div');
+    instance.getMarginTop = () => 0;
+    instance.updateScrubber = jest.fn();
+    instance.loadPostsIfNeeded = jest.fn();
+    instance.calculatePosition = jest.fn();
+
+    instance.settling = true;
+
+    instance.onscroll(0);
+
+    expect(instance.calculatePosition).not.toHaveBeenCalled();
+  });
+
+  it('endSettling calls calculatePosition for reconciliation', () => {
+    const instance = new (PostStream as any)();
+    instance.stream = { paused: false };
+    instance.element = document.createElement('div');
+    instance.getMarginTop = () => 0;
+    instance.calculatePosition = jest.fn();
+
+    instance.setupScrollAnchoring();
+    instance.settling = true;
+    instance.settlingTarget = { number: 1 };
+    instance.startSettlingListeners();
+
+    instance.endSettling();
+
+    expect(instance.settling).toBe(false);
+    expect(instance.calculatePosition).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not emit position when cleanupScrollAnchoring is called while settling', () => {
+    const instance = new (PostStream as any)();
+    instance.stream = { paused: false };
+    instance.element = document.createElement('div');
+    instance.getMarginTop = () => 0;
+
+    const onPositionChange = jest.fn();
+    instance.attrs = { onPositionChange };
+
+    instance.setupScrollAnchoring();
+    instance.settling = true;
+    instance.settlingTarget = { number: 5 };
+    instance.startSettlingListeners();
+
+    instance.cleanupScrollAnchoring();
+
+    expect(onPositionChange).not.toHaveBeenCalled();
+    expect(instance.settling).toBe(false);
+  });
+
+  it('does not leak wheel listeners on consecutive beginSettling calls', () => {
+    jest.useFakeTimers();
+
+    const instance = new (PostStream as any)();
+    instance.stream = { paused: false };
+    instance.element = document.createElement('div');
+    instance.getMarginTop = () => 0;
+    instance.calculatePosition = jest.fn();
+
+    const addSpy = jest.spyOn(window, 'addEventListener');
+    const removeSpy = jest.spyOn(window, 'removeEventListener');
+
+    instance.setupScrollAnchoring();
+
+    instance.beginSettling({ number: 1 });
+    const wheelAddsAfterFirst = addSpy.mock.calls.filter((c) => c[0] === 'wheel').length;
+
+    instance.beginSettling({ number: 2 });
+    const wheelAddsAfterSecond = addSpy.mock.calls.filter((c) => c[0] === 'wheel').length;
+    const wheelRemovesAfterSecond = removeSpy.mock.calls.filter((c) => c[0] === 'wheel').length;
+
+    expect(wheelAddsAfterSecond - wheelAddsAfterFirst).toBe(1);
+    expect(wheelRemovesAfterSecond).toBeGreaterThanOrEqual(1);
+
+    const netListeners = wheelAddsAfterSecond - wheelRemovesAfterSecond;
+    expect(netListeners).toBe(1);
+
+    instance.stopSettlingListeners();
+    addSpy.mockRestore();
+    removeSpy.mockRestore();
+
+    jest.useRealTimers();
+  });
+
+  it('falls back to settlingTarget.number when all visible items are loading placeholders', () => {
+    const instance = new (PostStream as any)();
+    instance.stream = { paused: false };
+    instance.element = document.createElement('div');
+    instance.getMarginTop = () => 0;
+
+    const onPositionChange = jest.fn();
+    instance.attrs = { onPositionChange };
+
+    instance.computeVisiblePosition = jest.fn(() => ({ startNumber: undefined, endNumber: undefined }));
+    instance.settlingTarget = { number: 7 };
+
+    instance.calculatePosition(0, { fallbackToTarget: true });
+
+    expect(onPositionChange).toHaveBeenCalledWith(7, undefined, 7);
+  });
+
+  it('skips emit for reply targets when no loaded post is visible', () => {
+    const instance = new (PostStream as any)();
+    instance.stream = { paused: false };
+    instance.element = document.createElement('div');
+    instance.getMarginTop = () => 0;
+
+    const onPositionChange = jest.fn();
+    instance.attrs = { onPositionChange };
+
+    instance.computeVisiblePosition = jest.fn(() => ({ startNumber: undefined, endNumber: undefined }));
+    instance.settlingTarget = { index: 99, reply: true };
+
+    instance.calculatePosition(0, { fallbackToTarget: true });
+
+    expect(onPositionChange).not.toHaveBeenCalled();
+  });
+
+  it('resolveTargetStartNumber returns the post number for number targets', () => {
+    const instance = new (PostStream as any)();
+    instance.settlingTarget = { number: 42 };
+    instance.$ = jest.fn();
+
+    expect(instance.resolveTargetStartNumber()).toBe(42);
+  });
+
+  it('resolveTargetStartNumber reads data-number from DOM for index targets', () => {
+    const instance = new (PostStream as any)();
+    instance.settlingTarget = { index: 5 };
+    instance.$ = jest.fn(() => ({ data: () => 10 }));
+
+    expect(instance.resolveTargetStartNumber()).toBe(10);
+  });
+
+  it('resolveTargetStartNumber returns undefined for index targets pointing to unloaded posts', () => {
+    const instance = new (PostStream as any)();
+    instance.settlingTarget = { index: 5 };
+    instance.$ = jest.fn(() => ({ data: () => undefined }));
+
+    expect(instance.resolveTargetStartNumber()).toBeUndefined();
+  });
+
+  it('resolveTargetStartNumber returns undefined for reply targets', () => {
+    const instance = new (PostStream as any)();
+    instance.settlingTarget = { index: 99, reply: true };
+    instance.$ = jest.fn();
+
+    expect(instance.resolveTargetStartNumber()).toBeUndefined();
+  });
+
+  it('resolveTargetStartNumber returns undefined when settlingTarget is null', () => {
+    const instance = new (PostStream as any)();
+    instance.settlingTarget = null;
+
+    expect(instance.resolveTargetStartNumber()).toBeUndefined();
+  });
+});

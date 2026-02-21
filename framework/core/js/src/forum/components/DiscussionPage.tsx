@@ -214,18 +214,28 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
   /**
    * When the posts that are visible in the post stream change (i.e. the user
    * scrolls up or down), then we update the URL and mark the posts as read.
+   *
+   * URL and history writes are skipped when startNumber hasn't changed from the
+   * last known position — this prevents double history churn from the immediate
+   * post-scroll emit and the subsequent settle-end reconciliation both resolving
+   * to the same post. Read-state saves are intentionally independent of this
+   * guard and use their own endNumber condition.
    */
   positionChanged(startNumber: number, endNumber: number): void {
     const discussion = this.discussion;
 
     if (!discussion) return;
 
-    // Construct a URL to this discussion with the updated position, then
-    // replace it into the window's history and our own history stack.
-    const url = app.route.discussion(discussion, (this.near = startNumber));
+    // Only write history when the visible start post actually changed.
+    if (startNumber !== this.near) {
+      // Construct a URL to this discussion with the updated position, then
+      // replace it into the window's history and our own history stack.
+      const url = app.route.discussion(discussion, startNumber);
+      this.near = startNumber;
 
-    window.history.replaceState(null, document.title, url);
-    app.history.push('discussion', discussion.title());
+      window.history.replaceState(null, document.title, url);
+      app.history.push('discussion', discussion.title());
+    }
 
     // If the user hasn't read past here before, then we'll update their read
     // state and redraw.
