@@ -123,7 +123,17 @@ export default class Tooltip extends Component<TooltipAttrs> {
     const children = vnode.children as Mithril.ChildArray | undefined;
 
     // We remove these to get the remaining attrs to pass to the DOM element
-    const { text, tooltipVisible, showOnFocus = true, position = 'top', ignoreTitleWarning = false, html = false, delay = 0, container = false, ...attrs } = this.attrs;
+    const {
+      text,
+      tooltipVisible,
+      showOnFocus = true,
+      position = 'top',
+      ignoreTitleWarning = false,
+      html = false,
+      delay = 0,
+      container = false,
+      ...attrs
+    } = this.attrs;
 
     if ((this.attrs as any).title && !ignoreTitleWarning) {
       console.warn(
