@@ -46,7 +46,17 @@ export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 export type FlarumGenericRoute = RouteItem<any, any, any>;
 
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
-  errorHandler?: (error: RequestError) => void;
+  /**
+   * Custom error handler for failed requests. Overrides the default error handler.
+   *
+   * Return `false` (sync or promise) to fall back to the default error handler.
+   * Useful for handling specific errors without displaying error alerts to the user.
+   * To always show alerts, catch the error rejected by `app.request` instead.
+   *
+   * @param error
+   * @return  `false` (sync or promise) to fall back to the default error handler.
+   */
+  errorHandler?: (error: RequestError) => void | false | Promise<void | false>;
   url: string;
   /**
    * Manipulate the response text before it is parsed into JSON.
@@ -617,7 +627,10 @@ export default class Application {
   /**
    * By default, show an error alert, and log the error to the console.
    */
-  protected requestErrorCatch<ResponseType>(error: RequestError, customErrorHandler: FlarumRequestOptions<ResponseType>['errorHandler']) {
+  protected async requestErrorCatch<ResponseType>(
+    error: RequestError,
+    customErrorHandler: FlarumRequestOptions<ResponseType>['errorHandler']
+  ): Promise<never> {
     // the details property is decoded to transform escaped characters such as '\n'
     const formattedErrors = error.response?.errors?.map((e) => decodeURI(e.detail ?? '')) ?? [];
 
@@ -672,9 +685,17 @@ export default class Application {
       ],
     };
 
+    // Use the default error handler if no custom one was provided OR if we're handling falling back to the default.
+    let useDefaultHandler = !customErrorHandler;
+
     if (customErrorHandler) {
-      customErrorHandler(error);
-    } else {
+      const output = await customErrorHandler(error);
+
+      // If the custom handler returned false, we should fall back to the default handler.
+      useDefaultHandler = output === false;
+    }
+
+    if (useDefaultHandler) {
       this.requestErrorDefaultHandler(error, isDebug, formattedErrors);
     }
 

@@ -36,6 +36,10 @@ class ThemeTest extends TestCase
 
         $response = $this->send($this->request('GET', '/'));
 
+        if ($response->getStatusCode() !== 200) {
+            echo "\n\nResponse body:\n".$response->getBody()->getContents()."\n\n";
+        }
+
         $this->assertEquals(200, $response->getStatusCode());
 
         $cssFilePath = $this->app()->getContainer()->make('filesystem')->disk('flarum-assets')->path('forum.css');
@@ -119,7 +123,7 @@ class ThemeTest extends TestCase
         $contents = file_get_contents($cssFilePath);
 
         $this->assertStringContainsString('.dummy_func_test{color:green}', $contents);
-        $this->assertStringContainsString('.dummy_func_test2{--x:1000;--y:false}', $contents);
+        $this->assertStringContainsString('.dummy_func_test2{width:1000px;--y:false}', $contents);
     }
 
     #[Test]

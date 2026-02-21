@@ -20,7 +20,17 @@ import { ColorScheme } from './components/ThemeMode';
 export type FlarumScreens = 'phone' | 'tablet' | 'desktop' | 'desktop-hd';
 export type FlarumGenericRoute = RouteItem<any, any, any>;
 export interface FlarumRequestOptions<ResponseType> extends Omit<Mithril.RequestOptions<ResponseType>, 'extract'> {
-    errorHandler?: (error: RequestError) => void;
+    /**
+     * Custom error handler for failed requests. Overrides the default error handler.
+     *
+     * Return `false` (sync or promise) to fall back to the default error handler.
+     * Useful for handling specific errors without displaying error alerts to the user.
+     * To always show alerts, catch the error rejected by `app.request` instead.
+     *
+     * @param error
+     * @return  `false` (sync or promise) to fall back to the default error handler.
+     */
+    errorHandler?: (error: RequestError) => void | false | Promise<void | false>;
     url: string;
     /**
      * Manipulate the response text before it is parsed into JSON.

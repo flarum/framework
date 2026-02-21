@@ -107,8 +107,14 @@ class JsDirectoryCompiler implements CompilerInterface
         $filesystem = $source->getFilesystem();
 
         foreach ($filesystem->allFiles() as $relativeFilePath) {
-            // Skip non-JS files.
-            if ($filesystem->mimeType($relativeFilePath) !== 'application/javascript') {
+            // Check both file extension and MIME type to identify JS files.
+            // We require at least one of these checks to pass, as MIME type detection
+            // can be unreliable for minified/bundled JS files.
+            $hasJsExtension = str_ends_with($relativeFilePath, '.js');
+            $mimeType = $filesystem->mimeType($relativeFilePath);
+            $hasJsMimeType = $mimeType === 'application/javascript' || $mimeType === 'text/javascript';
+
+            if (! $hasJsExtension && ! $hasJsMimeType) {
                 continue;
             }
 

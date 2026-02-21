@@ -60,6 +60,12 @@ export default class DiscussionPage<CustomAttrs extends IDiscussionPageAttrs = I
     /**
      * When the posts that are visible in the post stream change (i.e. the user
      * scrolls up or down), then we update the URL and mark the posts as read.
+     *
+     * URL and history writes are skipped when startNumber hasn't changed from the
+     * last known position — this prevents double history churn from the immediate
+     * post-scroll emit and the subsequent settle-end reconciliation both resolving
+     * to the same post. Read-state saves are intentionally independent of this
+     * guard and use their own endNumber condition.
      */
     positionChanged(startNumber: number, endNumber: number): void;
 }

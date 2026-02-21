@@ -102,10 +102,10 @@ class User extends AbstractModel
      * An array of registered user preferences. Each preference is defined with
      * a key, and its value is an array containing the following keys:.
      *
-     * - transformer: a callback that confines the value of the preference
+     * - transformer: a callback that confines the value of the preference (nullable)
      * - default: a default value if the preference isn't set
      *
-     * @var array<string, array{transformer: callable(mixed): mixed, default: mixed}>
+     * @var array<string, array{transformer: (callable(mixed): mixed)|null, default: mixed}>
      */
     protected static array $preferences = [];
 
@@ -368,11 +368,15 @@ class User extends AbstractModel
 
     public function getUnreadNotificationCount(): int
     {
-        return $this->unreadNotifications()->count();
+        // Cache for 5 minutes; actively invalidated when notifications are marked read or created.
+        // The TTL is a safety net for edge cases such as direct DB updates.
+        return resolve('cache.store')->remember("user.{$this->id}.unread_notification_count", 300, function () {
+            return $this->unreadNotifications()->count();
+        });
     }
 
     /**
-     * @return HasMany<Notification>
+     * @return HasMany<Notification, $this>
      */
     protected function unreadNotifications(): HasMany
     {
@@ -393,11 +397,14 @@ class User extends AbstractModel
      */
     public function getNewNotificationCount(): int
     {
-        return $this->unreadNotifications()
-            ->when($this->read_notifications_at, function (Builder|HasMany $query) {
-                $query->where('created_at', '>', $this->read_notifications_at);
-            })
-            ->count();
+        // Cache for 5 minutes; actively invalidated when notifications change or user views notifications.
+        return resolve('cache.store')->remember("user.{$this->id}.new_notification_count", 300, function () {
+            return $this->unreadNotifications()
+                ->when($this->read_notifications_at, function (Builder|HasMany $query) {
+                    $query->where('created_at', '>', $this->read_notifications_at);
+                })
+                ->count();
+        });
     }
 
     /**
@@ -451,7 +458,8 @@ class User extends AbstractModel
         if (isset(static::$preferences[$key])) {
             $preferences = $this->preferences;
 
-            if (! is_null($transformer = static::$preferences[$key]['transformer'])) {
+            $transformer = static::$preferences[$key]['transformer'];
+            if ($transformer !== null) {
                 $preferences[$key] = $transformer($value);
             } else {
                 $preferences[$key] = $value;
@@ -539,7 +547,7 @@ class User extends AbstractModel
     }
 
     /**
-     * @return HasMany<Post>
+     * @return HasMany<Post, $this>
      */
     public function posts(): HasMany
     {
@@ -547,7 +555,7 @@ class User extends AbstractModel
     }
 
     /**
-     * @return HasMany<Discussion>
+     * @return HasMany<Discussion, $this>
      */
     public function discussions(): HasMany
     {
@@ -555,7 +563,7 @@ class User extends AbstractModel
     }
 
     /**
-     * @return BelongsToMany<Discussion>
+     * @return BelongsToMany<Discussion, $this>
      */
     public function read(): BelongsToMany
     {
@@ -563,7 +571,7 @@ class User extends AbstractModel
     }
 
     /**
-     * @return BelongsToMany<Group>
+     * @return BelongsToMany<Group, $this>
      */
     public function groups(): BelongsToMany
     {
@@ -576,7 +584,7 @@ class User extends AbstractModel
     }
 
     /**
-     * @return HasMany<Notification>
+     * @return HasMany<Notification, $this>
      */
     public function notifications(): HasMany
     {
@@ -584,7 +592,7 @@ class User extends AbstractModel
     }
 
     /**
-     * @return HasMany<EmailToken>
+     * @return HasMany<EmailToken, $this>
      */
     public function emailTokens(): HasMany
     {
@@ -592,7 +600,7 @@ class User extends AbstractModel
     }
 
     /**
-     * @return HasMany<PasswordToken>
+     * @return HasMany<PasswordToken, $this>
      */
     public function passwordTokens(): HasMany
     {
@@ -637,7 +645,7 @@ class User extends AbstractModel
     }
 
     /**
-     * @return HasMany<AccessToken>
+     * @return HasMany<AccessToken, $this>
      */
     public function accessTokens(): HasMany
     {
@@ -645,7 +653,7 @@ class User extends AbstractModel
     }
 
     /**
-     * @return HasMany<LoginProvider>
+     * @return HasMany<LoginProvider, $this>
      */
     public function loginProviders(): HasMany
     {

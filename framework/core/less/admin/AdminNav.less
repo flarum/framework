@@ -208,3 +208,22 @@
   border: 2px solid var(--disabled-color);
   box-sizing: border-box;
 }
+
+.ExtensionNavButton {
+  .Badge {
+    margin-left: 5px;
+    .Badge--size(16px);
+    font-size: 10px;
+    font-weight: bold;
+
+    &.Badge--danger {
+      --badge-bg: @error-color;
+      --contrast-color: var(--text-on-dark);
+    }
+
+    &.Badge--warning {
+      --badge-bg: @alert-color;
+      --contrast-color: var(--text-on-dark);
+    }
+  }
+}

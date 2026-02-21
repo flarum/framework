@@ -61,9 +61,23 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
   view(vnode: Mithril.VnodeDOM<Attrs, this>) {
     if (!this.extension) return null;
 
+    const isAbandoned = this.extension.abandoned;
+    const hasReplacement = typeof isAbandoned === 'string';
+
     return (
       <div className={'ExtensionPage ' + this.className()}>
         {this.header()}
+        {isAbandoned && (
+          <div className="container">
+            <div className={`Alert Alert--${hasReplacement ? 'danger' : 'warning'}`}>
+              <span className="Alert-body">
+                {hasReplacement
+                  ? app.translator.trans('core.admin.extension.abandoned_with_replacement', { replacement: isAbandoned })
+                  : app.translator.trans('core.admin.extension.abandoned_no_replacement')}
+              </span>
+            </div>
+          </div>
+        )}
         {app.data.maintenanceMode === MaintenanceMode.SAFE_MODE && !app.data.safeModeExtensions?.includes(this.extension.id) ? (
           <div className="container">
             <div className="ExtensionPage-body">
@@ -284,7 +298,8 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
       .then(() => {
         if (!enabled) localStorage.setItem('enabledExtension', this.extension.id);
         window.location.reload();
-      });
+      })
+      .catch(() => {});
 
     app.modal.show(LoadingModal);
   }
@@ -293,18 +308,14 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
     return isExtensionEnabled(this.extension.id);
   }
 
-  onerror(e: RequestError) {
-    // We need to give the modal animation time to start; if we close the modal too early,
-    // it breaks the bootstrap modal library.
-    // TODO: This workaround should be removed when we move away from bootstrap JS for modals.
-    setTimeout(() => {
-      app.modal.close();
-    }, 300); // Bootstrap's Modal.TRANSITION_DURATION is 300 ms.
+  onerror(e: RequestError): void | false {
+    app.modal.close();
 
     this.changingState = false;
 
+    // If it's not a conflict error, use the default request error handler.
     if (e.status !== 409) {
-      throw e;
+      return false;
     }
 
     const error = e.response?.errors?.[0];
@@ -314,7 +325,7 @@ export default class ExtensionPage<Attrs extends ExtensionPageAttrs = ExtensionP
         { type: 'error' },
         app.translator.trans(`core.lib.error.${error.code}_message`, {
           extension: error.extension,
-          extensions: (error.extensions as string[]).join(', '),
+          extensions: (error.extensions as string[])?.join(', '),
         })
       );
     }

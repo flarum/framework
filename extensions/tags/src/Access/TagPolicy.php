@@ -17,7 +17,7 @@ class TagPolicy extends AbstractPolicy
 {
     public function can(User $actor, string $ability, Tag $tag): string|bool|null
     {
-        if ($tag->parent_id !== null && ! $actor->can($ability, $tag->parent)) {
+        if ($tag->parent_id && ! $actor->can($ability, $tag->parent)) {
             return $this->deny();
         }
 

@@ -10,7 +10,9 @@
 namespace Flarum\Foundation;
 
 use Flarum\Foundation\Concerns\InteractsWithLaravel;
+use Flarum\Foundation\Event\ApplicationBooted;
 use Illuminate\Container\Container as IlluminateContainer;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Foundation\Application as LaravelApplication;
 use Illuminate\Events\EventServiceProvider;
 use Illuminate\Support\Arr;
@@ -25,7 +27,7 @@ class Application extends IlluminateContainer implements LaravelApplication
      *
      * @var string
      */
-    public const VERSION = '2.0.0-beta.5';
+    public const VERSION = '2.0.0-beta.7';
 
     protected bool $booted = false;
 
@@ -169,6 +171,11 @@ class Application extends IlluminateContainer implements LaravelApplication
         $this->booted = true;
 
         $this->fireAppCallbacks($this->bootedCallbacks);
+
+        // Finally, we will fire an event to indicate that the application has booted.
+        // We explicitly do this after firing the "booted" callbacks so that any listener that
+        // needs to do work after booting can use this event to know when it is truly done.
+        resolve(Dispatcher::class)->dispatch(new ApplicationBooted());
     }
 
     protected function bootProvider(ServiceProvider $provider): mixed

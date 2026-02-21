@@ -122,7 +122,7 @@ export default class GeneralSearchSource implements GlobalSearchSource {
                 extensions[extensionId]?.extra['flarum-extension'].title ||
                 app.translator.trans('core.admin.' + corePage + '.title', {}, true),
               group?.icon || extensions[extensionId]?.icon || { name: 'fas fa-cog' },
-              'tree' in setting && setting.tree ? setting.tree.map(extractText).push(label) : [label],
+              'tree' in setting && setting.tree ? [...setting.tree.map(extractText), label] : [label],
               group?.link || (corePage ? app.route(corePage) : app.route('extension', { id: extensionId })),
               help
             )

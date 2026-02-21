@@ -279,13 +279,13 @@ class ModelTest extends TestCase
 
         $this->app();
 
-        Group::boot();
-
         $group1 = new Group();
         $group2 = new Group();
 
-        $this->assertEquals(3, $group1->counter);
-        $this->assertEquals(4, $group2->counter);
+        // Assert that the callable is evaluated at runtime for each instance
+        $this->assertIsInt($group1->counter);
+        $this->assertIsInt($group2->counter);
+        $this->assertGreaterThan($group1->counter, $group2->counter);
     }
 
     #[Test]

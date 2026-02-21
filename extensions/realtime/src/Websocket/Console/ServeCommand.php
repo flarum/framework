@@ -14,6 +14,7 @@ use Flarum\Realtime\Websocket\Logger\HttpLogger;
 use Flarum\Realtime\Websocket\Logger\WebsocketLogger;
 use Flarum\Realtime\Websocket\Server\HttpServer;
 use Flarum\Realtime\Websocket\Settings;
+use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Database\ConnectionInterface;
@@ -142,12 +143,21 @@ class ServeCommand extends Command
         $enabled = null;
 
         $loop->addPeriodicTimer(10, function (TimerInterface $timer) use ($loop, &$enabled) {
-            /** @var ConnectionInterface $connection */
-            $connection = $this->getLaravel()->make(ConnectionInterface::class);
+            $app = $this->getLaravel();
 
-            $newState = $connection->table('settings')
-                ->where('key', 'extensions_enabled')
-                ->value('value');
+            // If a Redis-backed settings cache is bound (e.g. fof/redis), use the settings
+            // repository which will read from Redis. Otherwise fall back to a direct DB query,
+            // because the default MemoryCacheSettingsRepository is a per-process in-memory cache
+            // that never reflects external changes in a long-running process.
+            if ($app->bound('cache.settings')) {
+                $newState = $app->make(SettingsRepositoryInterface::class)->get('extensions_enabled');
+            } else {
+                /** @var ConnectionInterface $connection */
+                $connection = $app->make(ConnectionInterface::class);
+                $newState = $connection->table('settings')
+                    ->where('key', 'extensions_enabled')
+                    ->value('value');
+            }
 
             if ($enabled === null || $newState === $enabled) {
                 $enabled = $newState;

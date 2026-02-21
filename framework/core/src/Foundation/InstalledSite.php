@@ -170,6 +170,13 @@ class InstalledSite implements SiteInterface
 
         $container->instance('log', new Logger('flarum', [$handler]));
         $container->alias('log', LoggerInterface::class);
+
+        // Register Laravel's Log Context Repository for Laravel 12 compatibility.
+        // This is used by the scheduler to pass context between processes.
+        // Note: Using string instead of ::class because this class only exists in laravel/framework.
+        $container->singleton('Illuminate\Log\Context\Repository', function () {
+            return new \Flarum\Log\Context\Repository();
+        });
     }
 
     protected function registerCache(Container $container): void

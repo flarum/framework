@@ -51,6 +51,15 @@ export interface TooltipAttrs extends Mithril.CommonAttributes<TooltipAttrs, Too
      */
     delay?: number;
     /**
+     * Appends the tooltip to a specific element. Useful when the tooltip trigger
+     * is inside a container with `overflow: hidden` or `overflow: scroll` that
+     * would otherwise clip the tooltip. Accepts a CSS selector string or DOM
+     * element — `'body'` is the most common value.
+     *
+     * Default: `false` (appended adjacent to the trigger element).
+     */
+    container?: string | HTMLElement | false;
+    /**
      * Used to disable the warning for passing text to the `title` attribute.
      *
      * Tooltip text should be passed to the `text` attribute.

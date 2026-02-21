@@ -19,7 +19,6 @@ use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Foundation\Console\AssetsPublishCommand;
 use Flarum\Foundation\Console\CacheClearCommand;
 use Flarum\Foundation\Console\InfoCommand;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Console\Events\CommandFinished;
 use Illuminate\Console\Scheduling\CacheEventMutex;
 use Illuminate\Console\Scheduling\CacheSchedulingMutex;
@@ -28,6 +27,7 @@ use Illuminate\Console\Scheduling\Schedule as LaravelSchedule;
 use Illuminate\Console\Scheduling\ScheduleListCommand;
 use Illuminate\Console\Scheduling\ScheduleRunCommand;
 use Illuminate\Console\Scheduling\SchedulingMutex;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Events\Dispatcher;
 
@@ -88,10 +88,10 @@ class ConsoleServiceProvider extends AbstractServiceProvider
 
         $events->listen(CommandFinished::class, function (CommandFinished $event) use ($container) {
             $command = $event->command;
-            $settings = $container->make(SettingsRepositoryInterface::class);
+            $cache = $container->make(CacheRepository::class);
 
             if ($command === ScheduleRunCommand::getDefaultName()) {
-                $settings->set('schedule.last_run', Carbon::now());
+                $cache->forever('flarum:schedule:last_run', Carbon::now());
             }
         });
     }

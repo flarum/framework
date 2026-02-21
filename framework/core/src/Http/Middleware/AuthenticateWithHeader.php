@@ -29,7 +29,7 @@ class AuthenticateWithHeader implements Middleware
 
         $parts = explode(';', $headerLine);
 
-        if (isset($parts[0]) && Str::startsWith($parts[0], self::TOKEN_PREFIX)) {
+        if (Str::startsWith($parts[0], self::TOKEN_PREFIX)) {
             $id = substr($parts[0], strlen(self::TOKEN_PREFIX));
 
             if ($key = ApiKey::where('key', $id)->first()) {
@@ -47,7 +47,12 @@ class AuthenticateWithHeader implements Middleware
             }
 
             if (isset($actor)) {
-                $actor->updateLastSeen()->save();
+                $actor->updateLastSeen();
+
+                // Only save if last_seen_at was actually updated (throttled to 180 seconds)
+                if ($actor->isDirty()) {
+                    $actor->save();
+                }
 
                 $request = RequestUtil::withActor($request, $actor);
                 $request = $request->withAttribute('bypassCsrfToken', true);
@@ -62,7 +67,7 @@ class AuthenticateWithHeader implements Middleware
     {
         $parts = explode('=', trim($string));
 
-        if (isset($parts[0]) && $parts[0] === 'userId') {
+        if ($parts[0] === 'userId') {
             return User::find($parts[1]);
         }
 

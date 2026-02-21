@@ -1,5 +1,59 @@
 # Changelog
 
+## [v2.0.0-beta.7](https://github.com/flarum/framework/compare/v2.0.0-beta.6...v2.0.0-beta.7)
+
+### Added
+
+- fire `ApplicationBooted` event after all service provider boot callbacks complete by @imorland [#4366]
+
+### Fixed
+
+- (tags) authors unable to rename/hide own discussions in restricted tags by @imorland [#4379]
+- handle null `gotoItem` in `SearchModal` to prevent crash by @imorland [#4376]
+- (tooltip) add `container` prop to fix notification button tooltip positioning by @imorland [#4375]
+- (admin) correct tree array construction in `GeneralSearchSource` by @imorland [#4373]
+- (forum) sync discussion URL immediately on programmatic scroll by @iPurpl3x [#4371]
+- (realtime) error when post not visible due to tag restrictions by @imorland [#4369]
+- (forum) show pop-in animation on first post when loading a discussion by @iPurpl3x [#4362]
+- (forum) prevent scroll jump when loading discussion to a specific post by @iPurpl3x [#4361]
+
+### Changed
+
+- eliminate redundant DB writes in auth middleware and cache notification counts by @imorland [#4380]
+- store scheduler last-run timestamp in cache instead of database by @imorland [#4364]
+- fix rogue settings delete query that ran on every request by @imorland [#4368]
+- (realtime) replace raw DB query with Eloquent for external settings cache by @imorland [#4367]
+- add `color-scheme` property to root.less for better dark-mode support by @zDaleZ [#4357]
+- prep for beta.7 by @imorland [#4377]
+
+## [v2.0.0-beta.6](https://github.com/flarum/framework/compare/v2.0.0-beta.5...v2.0.0-beta.6)
+
+### Added
+
+- highlight abandoned packages, expose PHP info by @imorland [#4323]
+- request error handler for extension toggles by @dsevillamartin [#4333]
+
+### Fixed
+
+- (realtime) likes sync after 20 replies by @edgeinfinity1 [#4319]
+- (realtime) tag-specified discussion pushing by @edgeinfinity1 [#4320]
+- (suspend) suspend without reason/message by @imorland [#4345]
+- (likes) likes not loaded on firstPost via XHR by @imorland [#4327]
+- security page moderation access by @imorland [#4325]
+- firstPost callback console error by @imorland [#4326]
+- registry warnings for lazy-loaded chunks by @imorland [#4331]
+- minified JS identification by @imorland [#4329]
+- custom use translation value by @imorland [#4347]
+- larastan-extension path for packages by @imorland [#4348]
+
+### Changed
+
+- upgrade to Laravel 12, PHPStan 2.x, and LaraStan 3.x by @imorland [#4268]
+- update wikimedia/less.php from 4.x to 5.x by @Krinkle [#4225]
+- queue and log missed changes for Laravel 12 by @imorland [#4342]
+- allow LaravelServiceProvider or AbstractServiceProvider by @imorland [#4349]
+- prep for beta.6 by @imorland [#4343]
+
 ## [v2.0.0-beta.5](https://github.com/flarum/framework/compare/v2.0.0-beta.4...v2.0.0-beta.5)
 
 ### Added

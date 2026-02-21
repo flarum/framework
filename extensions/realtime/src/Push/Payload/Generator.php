@@ -83,7 +83,10 @@ class Generator
 
             $postContents = (string) $postResponse->getBody();
             $decodedPostContents = json_decode($postContents, true);
-            $decodedContents['included'][] = $decodedPostContents['data'];
+
+            if (isset($decodedPostContents['data'])) {
+                $decodedContents['included'][] = $decodedPostContents['data'];
+            }
         }
 
         if ($response->getStatusCode() === 200 && ! empty($contents)) {

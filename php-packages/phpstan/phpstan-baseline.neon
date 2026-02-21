@@ -52,3 +52,8 @@ parameters:
 		- message: '#^Method Flarum\\Api\\Endpoint\\[A-z0-9_]+\:\:[A-z0-9_]+\(\) has parameter \$[A-z0-9_]+ with no type specified\.$#'
 
 		- message: '#^Unable to resolve the template type TRelatedModel in call to method Illuminate\\Database\\Eloquent\\Model\:\:[A-z]+\(\)$#'
+
+		# function_exists() checks for functions that may be disabled in restricted PHP environments (disable_functions ini setting)
+		- message: '#^Call to function function_exists\(\) with .+ will always evaluate to true\.$#'
+		  path: ../../extensions/package-manager/extend.php
+		  reportUnmatched: false

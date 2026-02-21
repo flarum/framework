@@ -110,7 +110,7 @@ class Tag extends AbstractModel
     }
 
     /**
-     * @return HasMany<self>
+     * @return HasMany<self, $this>
      */
     public function children(): HasMany
     {
@@ -128,7 +128,7 @@ class Tag extends AbstractModel
     }
 
     /**
-     * @return BelongsToMany<Discussion>
+     * @return BelongsToMany<Discussion, $this>
      */
     public function discussions(): BelongsToMany
     {
@@ -155,6 +155,9 @@ class Tag extends AbstractModel
         return $this;
     }
 
+    /**
+     * @return HasOne<TagState, $this>
+     */
     public function state(): HasOne
     {
         return $this->hasOne(TagState::class);

@@ -54,6 +54,15 @@ export interface TooltipAttrs extends Mithril.CommonAttributes<TooltipAttrs, Too
    */
   delay?: number;
   /**
+   * Appends the tooltip to a specific element. Useful when the tooltip trigger
+   * is inside a container with `overflow: hidden` or `overflow: scroll` that
+   * would otherwise clip the tooltip. Accepts a CSS selector string or DOM
+   * element — `'body'` is the most common value.
+   *
+   * Default: `false` (appended adjacent to the trigger element).
+   */
+  container?: string | HTMLElement | false;
+  /**
    * Used to disable the warning for passing text to the `title` attribute.
    *
    * Tooltip text should be passed to the `text` attribute.
@@ -114,7 +123,17 @@ export default class Tooltip extends Component<TooltipAttrs> {
     const children = vnode.children as Mithril.ChildArray | undefined;
 
     // We remove these to get the remaining attrs to pass to the DOM element
-    const { text, tooltipVisible, showOnFocus = true, position = 'top', ignoreTitleWarning = false, html = false, delay = 0, ...attrs } = this.attrs;
+    const {
+      text,
+      tooltipVisible,
+      showOnFocus = true,
+      position = 'top',
+      ignoreTitleWarning = false,
+      html = false,
+      delay = 0,
+      container = false,
+      ...attrs
+    } = this.attrs;
 
     if ((this.attrs as any).title && !ignoreTitleWarning) {
       console.warn(
@@ -228,6 +247,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
       delay,
       // This will have no effect when switching to CSS tooltips
       html = false,
+      container = false,
       tooltipVisible,
       text,
     } = this.attrs;
@@ -246,6 +266,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
         delay,
         placement: position,
         trigger,
+        container,
       },
       // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
       'DANGEROUS_tooltip_jquery_fn_deprecation_exempt'

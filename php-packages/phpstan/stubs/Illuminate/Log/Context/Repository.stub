@@ -1,0 +1,99 @@
+<?php
+
+namespace Illuminate\Log\Context;
+
+/**
+ * PHPStan stub for Illuminate\Log\Context\Repository.
+ *
+ * This class is part of laravel/framework but Flarum uses individual
+ * illuminate packages. The actual implementation is provided by
+ * Flarum\Log\Context\Repository which is aliased in the container.
+ */
+class Repository
+{
+    public function has(string $key): bool {}
+    public function missing(string $key): bool {}
+    public function hasHidden(string $key): bool {}
+    public function missingHidden(string $key): bool {}
+
+    /** @return array<string, mixed> */
+    public function all(): array {}
+
+    /** @return array<string, mixed> */
+    public function allHidden(): array {}
+
+    public function get(string $key, mixed $default = null): mixed {}
+    public function getHidden(string $key, mixed $default = null): mixed {}
+    public function pull(string $key, mixed $default = null): mixed {}
+    public function pullHidden(string $key, mixed $default = null): mixed {}
+
+    /**
+     * @param array<int, string> $keys
+     * @return array<string, mixed>
+     */
+    public function only(array $keys): array {}
+
+    /**
+     * @param array<int, string> $keys
+     * @return array<string, mixed>
+     */
+    public function onlyHidden(array $keys): array {}
+
+    /**
+     * @param array<int, string> $keys
+     * @return array<string, mixed>
+     */
+    public function except(array $keys): array {}
+
+    /**
+     * @param array<int, string> $keys
+     * @return array<string, mixed>
+     */
+    public function exceptHidden(array $keys): array {}
+
+    /** @param string|array<string, mixed> $key */
+    public function add(string|array $key, mixed $value = null): self {}
+
+    /** @param string|array<string, mixed> $key */
+    public function addHidden(string|array $key, mixed $value = null): self {}
+
+    public function remember(string $key, mixed $value): mixed {}
+    public function rememberHidden(string $key, mixed $value): mixed {}
+
+    /** @param string|array<int, string> $key */
+    public function forget(string|array $key): self {}
+
+    /** @param string|array<int, string> $key */
+    public function forgetHidden(string|array $key): self {}
+
+    public function addIf(string $key, mixed $value): self {}
+    public function addHiddenIf(string $key, mixed $value): self {}
+    public function push(string $key, mixed ...$values): self {}
+    public function pop(string $key): mixed {}
+    public function pushHidden(string $key, mixed ...$values): self {}
+    public function popHidden(string $key): mixed {}
+    public function increment(string $key, int $amount = 1): self {}
+    public function decrement(string $key, int $amount = 1): self {}
+    public function stackContains(string $key, mixed $value, bool $strict = false): bool {}
+    public function hiddenStackContains(string $key, mixed $value, bool $strict = false): bool {}
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $hidden
+     */
+    public function scope(callable $callback, array $data = [], array $hidden = []): mixed {}
+
+    public function isEmpty(): bool {}
+    public function dehydrating(callable $callback): self {}
+    public function hydrated(callable $callback): self {}
+    public function handleUnserializeExceptionsUsing(?callable $callback): self {}
+    public function flush(): self {}
+    public function when(mixed $value = null, ?callable $callback = null, ?callable $default = null): mixed {}
+    public function unless(mixed $value = null, ?callable $callback = null, ?callable $default = null): mixed {}
+
+    /** @return array<string, mixed> */
+    public function dehydrate(): array {}
+
+    /** @param array<string, mixed> $context */
+    public function hydrate(array $context): self {}
+}

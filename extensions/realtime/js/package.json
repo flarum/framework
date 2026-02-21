@@ -4,7 +4,7 @@
     "version": "0.0.0",
     "prettier": "@flarum/prettier-config",
     "dependencies": {
-        "lodash-es": "^4.17.21",
+        "lodash-es": "^4.17.23",
         "pusher-js": "^7.6.0"
     },
     "scripts": {
@@ -23,7 +23,7 @@
         "prettier": "^3.2.2",
         "@types/mithril": "^2.0.8",
         "flarum-webpack-config": "^3.0.0",
-        "webpack": "^5.76.0",
+        "webpack": "^5.104.1",
         "webpack-cli": "^4.9.1",
         "@flarum/prettier-config": "^1.0.0",
         "flarum-tsconfig": "^2.0.0",
