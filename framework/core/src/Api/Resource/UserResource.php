@@ -243,7 +243,7 @@ class UserResource extends AbstractDatabaseResource
                 ->save(fn () => null),
             Schema\Str::make('displayName'),
             Schema\Str::make('avatarUrl'),
-            Schema\Str::make('originalAvatarUrl'),
+            Schema\Boolean::make('hasUploadedAvatar'),
             Schema\Str::make('slug')
                 ->get(function (User $user) {
                     return $this->slugManager->forResource(User::class)->toSlug($user);

@@ -101,13 +101,11 @@ class UserServiceProvider extends AbstractServiceProvider
         $this->container->singleton('flarum.user.avatar.driver', function (Container $container) {
             $drivers = $container->make('flarum.user.avatar.supported_drivers');
             $settings = $container->make(SettingsRepositoryInterface::class);
-            $driverName = $settings->get('avatar_driver', '');
+            $driverName = $settings->get('avatar_driver', 'default');
 
-            $driverClass = Arr::get($drivers, $driverName);
+            $driverClass = Arr::get($drivers, $driverName, AvatarDefaultDriver::class);
 
-            return $driverClass
-                ? $container->make($driverClass)
-                : $container->make(AvatarDefaultDriver::class);
+            return $container->make($driverClass);
         });
 
         $this->container->alias('flarum.user.avatar.driver', AvatarDriverInterface::class);

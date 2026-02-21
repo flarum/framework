@@ -30,8 +30,8 @@ export default class User extends Model {
     return Model.attribute<string | undefined>('password').call(this);
   }
 
-  originalAvatarUrl() {
-    return Model.attribute<string | null>('originalAvatarUrl').call(this);
+  hasUploadedAvatar() {
+    return Model.attribute<boolean>('hasUploadedAvatar').call(this);
   }
 
   avatarUrl() {

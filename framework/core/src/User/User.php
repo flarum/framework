@@ -270,13 +270,11 @@ class User extends AbstractModel
     }
 
     /**
-     * Get the raw avatar_url attribute value before any driver processing.
-     *
-     * Useful for determining if a user has uploaded a custom avatar.
+     * Determine whether the user has uploaded a custom avatar.
      */
-    public function getOriginalAvatarUrlAttribute(): ?string
+    public function getHasUploadedAvatarAttribute(): bool
     {
-        return $this->attributes['avatar_url'];
+        return isset($this->attributes['avatar_url']) && $this->attributes['avatar_url'] !== null;
     }
 
     public function getAvatarUrlAttribute(?string $value = null): ?string
@@ -285,11 +283,7 @@ class User extends AbstractModel
             return resolve(Factory::class)->disk('flarum-avatars')->url($value);
         }
 
-        if ($value) {
-            return $value;
-        }
-
-        return static::$avatarDriver->avatarUrl($this);
+        return $value ?? static::$avatarDriver->avatarUrl($this);
     }
 
     public function getDisplayNameAttribute(): string

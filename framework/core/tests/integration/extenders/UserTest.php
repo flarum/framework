@@ -79,6 +79,7 @@ class UserTest extends TestCase
         $user = User::find(1);
 
         $this->assertNull($user->avatar_url);
+        $this->assertFalse($user->has_uploaded_avatar);
     }
 
     #[Test]
@@ -119,6 +120,7 @@ class UserTest extends TestCase
         $user = User::find(1);
 
         $this->assertEquals('https://uploaded.example.com/my-avatar.png', $user->avatar_url);
+        $this->assertTrue($user->has_uploaded_avatar);
     }
 
     #[Test]
