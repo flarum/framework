@@ -115,12 +115,20 @@ class AccessToken extends AbstractModel
         }
 
         if ($request) {
-            $this->last_ip_address = $request->getAttribute('ipAddress');
+            $newIp = $request->getAttribute('ipAddress');
             // We truncate user agent so it fits in the database column
             // The length is hard-coded as the column length
             // It seems like MySQL or Laravel already truncates values, but we'll play safe and do it ourselves
             $agent = Arr::get($request->getServerParams(), 'HTTP_USER_AGENT');
-            $this->last_user_agent = substr($agent ?? '', 0, 255);
+            $newUserAgent = substr($agent ?? '', 0, 255);
+
+            // Only update if values have changed to avoid unnecessary dirty-marking
+            if ($this->last_ip_address !== $newIp) {
+                $this->last_ip_address = $newIp;
+            }
+            if ($this->last_user_agent !== $newUserAgent) {
+                $this->last_user_agent = $newUserAgent;
+            }
         } else {
             // If no request is provided, we set the values back to null
             // That way the values always match with the date logged in last_activity
@@ -128,7 +136,12 @@ class AccessToken extends AbstractModel
             $this->last_user_agent = null;
         }
 
-        return $this->save();
+        // Only save if model has changes (throttles unnecessary DB writes)
+        if ($this->isDirty()) {
+            return $this->save();
+        }
+
+        return true;
     }
 
     public function user(): BelongsTo

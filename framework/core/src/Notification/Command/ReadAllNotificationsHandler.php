@@ -11,6 +11,7 @@ namespace Flarum\Notification\Command;
 
 use Flarum\Notification\Event\ReadAll;
 use Flarum\Notification\NotificationRepository;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Carbon;
 
@@ -18,7 +19,8 @@ class ReadAllNotificationsHandler
 {
     public function __construct(
         protected NotificationRepository $notifications,
-        protected Dispatcher $events
+        protected Dispatcher $events,
+        protected CacheRepository $cache
     ) {
     }
 
@@ -32,6 +34,10 @@ class ReadAllNotificationsHandler
         $actor->assertRegistered();
 
         $this->notifications->markAllAsRead($actor);
+
+        // Invalidate notification count caches
+        $this->cache->forget("user.{$actor->id}.unread_notification_count");
+        $this->cache->forget("user.{$actor->id}.new_notification_count");
 
         $this->events->dispatch(new ReadAll($actor, Carbon::now()));
     }

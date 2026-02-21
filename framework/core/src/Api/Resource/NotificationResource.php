@@ -16,6 +16,7 @@ use Flarum\Bus\Dispatcher;
 use Flarum\Notification\Command\ReadNotification;
 use Flarum\Notification\Notification;
 use Flarum\Notification\NotificationRepository;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Tobyz\JsonApiServer\Pagination\OffsetPagination;
 
 /**
@@ -28,6 +29,7 @@ class NotificationResource extends AbstractDatabaseResource
     public function __construct(
         protected Dispatcher $bus,
         protected NotificationRepository $notifications,
+        protected CacheRepository $cache,
     ) {
         $this->initialized = true;
     }
@@ -64,7 +66,10 @@ class NotificationResource extends AbstractDatabaseResource
             Endpoint\Index::make()
                 ->authenticated()
                 ->before(function (Context $context) {
-                    $context->getActor()->markNotificationsAsRead()->save();
+                    $actor = $context->getActor();
+                    $actor->markNotificationsAsRead()->save();
+                    // Invalidate new notification count cache since read_notifications_at changed
+                    $this->cache->forget("user.{$actor->id}.new_notification_count");
                 })
                 ->defaultInclude(array_filter([
                     'fromUser',

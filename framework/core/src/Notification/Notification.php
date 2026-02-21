@@ -187,6 +187,13 @@ class Notification extends AbstractModel
                 ];
             }, $recipients)
         );
+
+        // Invalidate notification count caches for all recipients
+        $cache = resolve('cache.store');
+        foreach ($recipients as $user) {
+            $cache->forget("user.{$user->id}.unread_notification_count");
+            $cache->forget("user.{$user->id}.new_notification_count");
+        }
     }
 
     /**

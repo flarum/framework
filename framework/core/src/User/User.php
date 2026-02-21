@@ -338,7 +338,11 @@ class User extends AbstractModel
 
     public function getUnreadNotificationCount(): int
     {
-        return $this->unreadNotifications()->count();
+        // Cache for 5 minutes; actively invalidated when notifications are marked read or created.
+        // The TTL is a safety net for edge cases such as direct DB updates.
+        return resolve('cache.store')->remember("user.{$this->id}.unread_notification_count", 300, function () {
+            return $this->unreadNotifications()->count();
+        });
     }
 
     /**
@@ -363,11 +367,14 @@ class User extends AbstractModel
      */
     public function getNewNotificationCount(): int
     {
-        return $this->unreadNotifications()
-            ->when($this->read_notifications_at, function (Builder|HasMany $query) {
-                $query->where('created_at', '>', $this->read_notifications_at);
-            })
-            ->count();
+        // Cache for 5 minutes; actively invalidated when notifications change or user views notifications.
+        return resolve('cache.store')->remember("user.{$this->id}.new_notification_count", 300, function () {
+            return $this->unreadNotifications()
+                ->when($this->read_notifications_at, function (Builder|HasMany $query) {
+                    $query->where('created_at', '>', $this->read_notifications_at);
+                })
+                ->count();
+        });
     }
 
     /**
