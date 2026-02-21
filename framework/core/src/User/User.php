@@ -274,7 +274,7 @@ class User extends AbstractModel
      */
     public function getHasUploadedAvatarAttribute(): bool
     {
-        return isset($this->attributes['avatar_url']) && $this->attributes['avatar_url'] !== null;
+        return isset($this->attributes['avatar_url']);
     }
 
     public function getAvatarUrlAttribute(?string $value = null): ?string
