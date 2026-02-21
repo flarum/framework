@@ -146,7 +146,7 @@ class DiscussionPolicyTest extends TestCase
     {
         return [
             'just inside window' => [6],
-            'large window'       => [60],
+            'large window' => [60],
         ];
     }
 
