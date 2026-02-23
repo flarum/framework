@@ -111,6 +111,7 @@ export default class Tooltip extends Component<TooltipAttrs> {
     view(vnode: Mithril.Vnode<TooltipAttrs, this>): Mithril.ChildArray;
     oncreate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>): void;
     onupdate(vnode: Mithril.VnodeDOM<TooltipAttrs, this>): void;
+    onremove(vnode: Mithril.VnodeDOM<TooltipAttrs, this>): void;
     private recreateTooltip;
     private updateVisibility;
     private createTooltip;

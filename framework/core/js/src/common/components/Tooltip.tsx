@@ -203,6 +203,18 @@ export default class Tooltip extends Component<TooltipAttrs> {
     this.recreateTooltip();
   }
 
+  onremove(vnode: Mithril.VnodeDOM<TooltipAttrs, this>) {
+    super.onremove(vnode);
+
+    if (this.childDomNode !== null) {
+      $(this.childDomNode).tooltip(
+        'destroy',
+        // @ts-expect-error We don't want this arg to be part of the public API. It only exists to prevent deprecation warnings when using `$.tooltip` in this component.
+        'DANGEROUS_tooltip_jquery_fn_deprecation_exempt'
+      );
+    }
+  }
+
   private recreateTooltip() {
     if (this.shouldRecreateTooltip && this.childDomNode !== null) {
       $(this.childDomNode).tooltip(
