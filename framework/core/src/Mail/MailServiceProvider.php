@@ -11,6 +11,7 @@ namespace Flarum\Mail;
 
 use Flarum\Foundation\AbstractServiceProvider;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\UserRepository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
@@ -74,6 +75,7 @@ class MailServiceProvider extends AbstractServiceProvider
                 $container['events'],
                 $settings,
                 $container->make(LoggerInterface::class),
+                $container->make(UserRepository::class),
             );
 
             if ($container->bound('queue')) {

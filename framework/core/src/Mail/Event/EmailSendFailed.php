@@ -9,6 +9,7 @@
 
 namespace Flarum\Mail\Event;
 
+use Flarum\User\User;
 use Throwable;
 
 class EmailSendFailed
@@ -17,6 +18,7 @@ class EmailSendFailed
         public readonly ?string $recipientEmail,
         public readonly ?string $recipientName,
         public readonly Throwable $exception,
+        public readonly ?User $recipient = null,
     ) {
     }
 }

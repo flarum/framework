@@ -11,6 +11,7 @@ namespace Flarum\Mail;
 
 use Flarum\Mail\Event\EmailSendFailed;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Mail\Mailer as IlluminateMailer;
@@ -27,6 +28,7 @@ class Mailer extends IlluminateMailer
         ?Dispatcher $events,
         protected SettingsRepositoryInterface $settings,
         protected LoggerInterface $logger,
+        protected UserRepository $users,
     ) {
         parent::__construct($name, $views, $transport, $events);
     }
@@ -58,7 +60,9 @@ class Mailer extends IlluminateMailer
                 'exception_class' => get_class($e),
             ]);
 
-            $this->events?->dispatch(new EmailSendFailed($recipientEmail, $recipientName, $e));
+            $recipient = $recipientEmail ? $this->users->findByEmail($recipientEmail) : null;
+
+            $this->events?->dispatch(new EmailSendFailed($recipientEmail, $recipientName, $e, $recipient));
 
             throw $e;
         }

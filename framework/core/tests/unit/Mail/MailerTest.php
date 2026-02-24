@@ -9,9 +9,12 @@
 
 namespace Flarum\Tests\unit\Mail;
 
+use Flarum\Mail\Event\EmailSendFailed;
 use Flarum\Mail\Mailer;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\unit\TestCase;
+use Flarum\User\User;
+use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
 use Mockery as m;
@@ -24,7 +27,7 @@ class MailerTest extends TestCase
 {
     private SettingsRepositoryInterface $settings;
     private LoggerInterface $logger;
-    private Mailer $mailer;
+    private UserRepository $users;
 
     protected function setUp(): void
     {
@@ -32,21 +35,37 @@ class MailerTest extends TestCase
 
         $this->settings = m::mock(SettingsRepositoryInterface::class);
         $this->logger = m::mock(LoggerInterface::class);
+        $this->users = m::mock(UserRepository::class);
 
         $this->settings->shouldReceive('get')->with('mail_format')->andReturn('multipart');
+    }
 
-        $views = m::mock(Factory::class);
-        $views->shouldReceive('make')->andReturn(m::mock(\Illuminate\Contracts\View\View::class)->shouldIgnoreMissing());
-        $views->shouldReceive('exists')->andReturn(true);
-        $views->shouldReceive('share')->andReturnSelf();
+    /**
+     * Build a partial Mailer mock that stubs parent::send() internals so we
+     * control whether an exception is thrown without needing a real transport.
+     */
+    private function makeMailer(?RuntimeException $throwOnParseView = null): Mailer
+    {
+        $mailer = m::mock(Mailer::class, [
+            'flarum',
+            m::mock(Factory::class)->shouldIgnoreMissing(),
+            m::mock(TransportInterface::class),
+            m::mock(Dispatcher::class)->shouldIgnoreMissing(),
+            $this->settings,
+            $this->logger,
+            $this->users,
+        ])->makePartial()->shouldAllowMockingProtectedMethods();
 
-        $transport = m::mock(TransportInterface::class);
+        if ($throwOnParseView) {
+            $mailer->shouldReceive('parseView')->andThrow($throwOnParseView);
+        } else {
+            $mailer->shouldReceive('parseView')->andReturn(['html-content', 'text-content', null]);
+            $mailer->shouldReceive('addContent')->andReturn(null);
+            $mailer->shouldReceive('createMessage')->andReturn(m::mock(\Illuminate\Mail\Message::class)->shouldIgnoreMissing());
+            $mailer->shouldReceive('shouldSendMessage')->andReturn(false);
+        }
 
-        $dispatcher = m::mock(Dispatcher::class);
-        $dispatcher->shouldReceive('until')->andReturn(null);
-        $dispatcher->shouldReceive('dispatch')->andReturn(null);
-
-        $this->mailer = new Mailer('flarum', $views, $transport, $dispatcher, $this->settings, $this->logger);
+        return $mailer;
     }
 
     #[Test]
@@ -54,25 +73,7 @@ class MailerTest extends TestCase
     {
         $this->logger->shouldNotReceive('error');
 
-        // parent::send() will try to actually send — stub at the transport level isn't straightforward,
-        // so we verify the logger is never called when no exception is thrown by using a partial mock.
-        $mailer = m::mock(Mailer::class, [
-            'flarum',
-            m::mock(Factory::class)->shouldIgnoreMissing(),
-            m::mock(TransportInterface::class),
-            m::mock(Dispatcher::class)->shouldIgnoreMissing(),
-            $this->settings,
-            $this->logger,
-        ])->makePartial()->shouldAllowMockingProtectedMethods();
-
-        $mailer->shouldReceive('parseView')->andReturn(['html-content', 'text-content', null]);
-        $mailer->shouldReceive('addContent')->andReturn(null);
-        $mailer->shouldReceive('createMessage')->andReturn(m::mock(\Illuminate\Mail\Message::class)->shouldIgnoreMissing());
-        $mailer->shouldReceive('shouldSendMessage')->andReturn(false); // skip actual transport
-
-        $this->logger->shouldNotReceive('error');
-
-        $mailer->send(['html' => 'view.html', 'text' => 'view.text'], [], function () {});
+        $this->makeMailer()->send(['html' => 'view.html', 'text' => 'view.text'], [], function () {});
     }
 
     #[Test]
@@ -80,16 +81,7 @@ class MailerTest extends TestCase
     {
         $exception = new RuntimeException('SMTP connection refused');
 
-        $mailer = m::mock(Mailer::class, [
-            'flarum',
-            m::mock(Factory::class)->shouldIgnoreMissing(),
-            m::mock(TransportInterface::class),
-            m::mock(Dispatcher::class)->shouldIgnoreMissing(),
-            $this->settings,
-            $this->logger,
-        ])->makePartial()->shouldAllowMockingProtectedMethods();
-
-        $mailer->shouldReceive('parseView')->andThrow($exception);
+        $this->users->shouldReceive('findByEmail')->with('user@example.com')->andReturn(null);
 
         $this->logger->shouldReceive('error')
             ->once()
@@ -105,6 +97,45 @@ class MailerTest extends TestCase
 
         $this->expectException(RuntimeException::class);
 
+        $this->makeMailer($exception)->send(
+            ['html' => 'view.html', 'text' => 'view.text'],
+            ['userEmail' => 'user@example.com', 'username' => 'Jane Doe'],
+            function () {}
+        );
+    }
+
+    #[Test]
+    public function failed_send_includes_user_model_when_email_matches_account(): void
+    {
+        $exception = new RuntimeException('Mailbox not found');
+        $user = m::mock(User::class);
+
+        $this->users->shouldReceive('findByEmail')->with('user@example.com')->andReturn($user);
+
+        $dispatcher = m::mock(Dispatcher::class);
+        $dispatcher->shouldReceive('until')->andReturn(null);
+        $dispatcher->shouldReceive('dispatch')
+            ->once()
+            ->with(m::on(function (EmailSendFailed $event) use ($user) {
+                return $event->recipient === $user
+                    && $event->recipientEmail === 'user@example.com';
+            }));
+
+        $mailer = m::mock(Mailer::class, [
+            'flarum',
+            m::mock(Factory::class)->shouldIgnoreMissing(),
+            m::mock(TransportInterface::class),
+            $dispatcher,
+            $this->settings,
+            $this->logger,
+            $this->users,
+        ])->makePartial()->shouldAllowMockingProtectedMethods();
+
+        $mailer->shouldReceive('parseView')->andThrow($exception);
+        $this->logger->shouldReceive('error')->once();
+
+        $this->expectException(RuntimeException::class);
+
         $mailer->send(
             ['html' => 'view.html', 'text' => 'view.text'],
             ['userEmail' => 'user@example.com', 'username' => 'Jane Doe'],
@@ -117,16 +148,7 @@ class MailerTest extends TestCase
     {
         $exception = new RuntimeException('Transport error');
 
-        $mailer = m::mock(Mailer::class, [
-            'flarum',
-            m::mock(Factory::class)->shouldIgnoreMissing(),
-            m::mock(TransportInterface::class),
-            m::mock(Dispatcher::class)->shouldIgnoreMissing(),
-            $this->settings,
-            $this->logger,
-        ])->makePartial()->shouldAllowMockingProtectedMethods();
-
-        $mailer->shouldReceive('parseView')->andThrow($exception);
+        $this->users->shouldNotReceive('findByEmail');
 
         $this->logger->shouldReceive('error')
             ->once()
@@ -140,7 +162,7 @@ class MailerTest extends TestCase
 
         $this->expectException(RuntimeException::class);
 
-        $mailer->send(['html' => 'view.html', 'text' => 'view.text'], [], function () {});
+        $this->makeMailer($exception)->send(['html' => 'view.html', 'text' => 'view.text'], [], function () {});
     }
 
     #[Test]
@@ -148,20 +170,11 @@ class MailerTest extends TestCase
     {
         $exception = new RuntimeException('Mailbox full');
 
-        $mailer = m::mock(Mailer::class, [
-            'flarum',
-            m::mock(Factory::class)->shouldIgnoreMissing(),
-            m::mock(TransportInterface::class),
-            m::mock(Dispatcher::class)->shouldIgnoreMissing(),
-            $this->settings,
-            $this->logger,
-        ])->makePartial()->shouldAllowMockingProtectedMethods();
-
-        $mailer->shouldReceive('parseView')->andThrow($exception);
+        $this->users->shouldReceive('findByEmail')->andReturn(null);
         $this->logger->shouldReceive('error')->once();
 
         try {
-            $mailer->send(['html' => 'view.html', 'text' => 'view.text'], [], function () {});
+            $this->makeMailer($exception)->send(['html' => 'view.html', 'text' => 'view.text'], ['userEmail' => 'x@x.com'], function () {});
             $this->fail('Expected exception was not thrown');
         } catch (RuntimeException $caught) {
             $this->assertSame($exception, $caught, 'The exact original exception instance must be re-thrown');
