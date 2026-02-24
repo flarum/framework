@@ -9,6 +9,7 @@
 
 namespace Flarum\Mail;
 
+use Flarum\Mail\Event\EmailSendFailed;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\View\Factory;
@@ -47,12 +48,17 @@ class Mailer extends IlluminateMailer
         try {
             return parent::send($view, $data, $callback);
         } catch (\Throwable $e) {
+            $recipientEmail = Arr::get($data, 'userEmail');
+            $recipientName = Arr::get($data, 'username');
+
             $this->logger->error('Failed to send email.', [
-                'recipient_email' => Arr::get($data, 'userEmail'),
-                'recipient_name' => Arr::get($data, 'username'),
-                'reason' => $e->getMessage(),
+                'recipient_email' => $recipientEmail,
+                'recipient_name'  => $recipientName,
+                'reason'          => $e->getMessage(),
                 'exception_class' => get_class($e),
             ]);
+
+            $this->events?->dispatch(new EmailSendFailed($recipientEmail, $recipientName, $e));
 
             throw $e;
         }
