@@ -49,8 +49,8 @@ class Mailer extends IlluminateMailer
         } catch (\Throwable $e) {
             $this->logger->error('Failed to send email.', [
                 'recipient_email' => Arr::get($data, 'userEmail'),
-                'recipient_name'  => Arr::get($data, 'username'),
-                'reason'          => $e->getMessage(),
+                'recipient_name' => Arr::get($data, 'username'),
+                'reason' => $e->getMessage(),
                 'exception_class' => get_class($e),
             ]);
 
