@@ -23,7 +23,6 @@ use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Contracts\View\Factory;
 use Mockery as m;
 use PHPUnit\Framework\Attributes\Test;
-use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 class NotificationMailerTest extends TestCase
@@ -33,7 +32,6 @@ class NotificationMailerTest extends TestCase
     private SettingsRepositoryInterface $settings;
     private UrlGenerator $url;
     private Factory $view;
-    private LoggerInterface $logger;
     private NotificationMailer $notificationMailer;
 
     protected function setUp(): void
@@ -45,7 +43,6 @@ class NotificationMailerTest extends TestCase
         $this->settings = m::mock(SettingsRepositoryInterface::class);
         $this->url = m::mock(UrlGenerator::class);
         $this->view = m::mock(Factory::class);
-        $this->logger = m::mock(LoggerInterface::class);
 
         // Common stub setup
         $this->translator->shouldReceive('setLocale')->once();
@@ -59,7 +56,7 @@ class NotificationMailerTest extends TestCase
         $this->view->shouldReceive('share')->once();
 
         // Use a testable subclass that stubs out the DB-touching unsubscribe token
-        $this->notificationMailer = new class($this->mailer, $this->translator, $this->settings, $this->url, $this->view, $this->logger) extends NotificationMailer {
+        $this->notificationMailer = new class($this->mailer, $this->translator, $this->settings, $this->url, $this->view) extends NotificationMailer {
             protected function generateUnsubscribeToken(int $userId, string $emailType): UnsubscribeToken
             {
                 $token = m::mock(UnsubscribeToken::class)->shouldIgnoreMissing();
@@ -72,55 +69,24 @@ class NotificationMailerTest extends TestCase
     }
 
     #[Test]
-    public function successful_send_does_not_log_anything(): void
+    public function successful_send_delegates_to_mailer(): void
     {
         $this->mailer->shouldReceive('send')->once();
-        $this->logger->shouldNotReceive('error');
 
         $this->notificationMailer->send($this->makeBlueprint(), $this->makeUser());
     }
 
     #[Test]
-    public function failed_send_logs_structured_error_context(): void
+    public function mailer_exception_propagates_to_caller(): void
     {
         $exception = new RuntimeException('Connection refused by SMTP server');
 
         $this->mailer->shouldReceive('send')->once()->andThrow($exception);
 
-        $this->logger->shouldReceive('error')
-            ->once()
-            ->with(
-                'Email notification could not be sent.',
-                m::on(function (array $context) use ($exception) {
-                    return $context['notification_type'] === 'testNotification'
-                        && $context['recipient_id'] === 42
-                        && $context['recipient_email'] === 'user@example.com'
-                        && $context['recipient_name'] === 'Test User'
-                        && $context['reason'] === $exception->getMessage()
-                        && $context['exception_class'] === RuntimeException::class;
-                })
-            );
-
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Connection refused by SMTP server');
 
         $this->notificationMailer->send($this->makeBlueprint(), $this->makeUser());
-    }
-
-    #[Test]
-    public function failed_send_rethrows_original_exception(): void
-    {
-        $exception = new RuntimeException('Mailbox full');
-
-        $this->mailer->shouldReceive('send')->once()->andThrow($exception);
-        $this->logger->shouldReceive('error')->once();
-
-        try {
-            $this->notificationMailer->send($this->makeBlueprint(), $this->makeUser());
-            $this->fail('Expected exception was not thrown');
-        } catch (RuntimeException $caught) {
-            $this->assertSame($exception, $caught, 'The exact original exception instance must be re-thrown');
-        }
     }
 
     private function makeBlueprint(): MailableInterface&BlueprintInterface
