@@ -53,8 +53,8 @@ class Mailer extends IlluminateMailer
 
             $this->logger->error('Failed to send email.', [
                 'recipient_email' => $recipientEmail,
-                'recipient_name'  => $recipientName,
-                'reason'          => $e->getMessage(),
+                'recipient_name' => $recipientName,
+                'reason' => $e->getMessage(),
                 'exception_class' => get_class($e),
             ]);
 
