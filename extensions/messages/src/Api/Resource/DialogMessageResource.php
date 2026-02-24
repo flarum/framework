@@ -250,6 +250,12 @@ class DialogMessageResource extends Resource\AbstractDatabaseResource
      */
     public function created(object $model, OriginalContext $context): ?object
     {
+        // Refresh to replace the DB Expression used for atomic message numbering
+        // (set during the Eloquent creating event) with the actual integer value.
+        // Without this, serializing the response throws a type cast error:
+        // "Object of class Expression could not be converted to int".
+        $model->refresh();
+
         if ($model->dialog->last_message_id !== $model->id) {
             $model->dialog->setLastMessage($model);
         }
