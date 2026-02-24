@@ -18,6 +18,7 @@ use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Mail\Message;
 use Illuminate\Support\Arr;
+use Psr\Log\LoggerInterface;
 
 class NotificationMailer
 {
@@ -27,6 +28,7 @@ class NotificationMailer
         protected SettingsRepositoryInterface $settings,
         protected UrlGenerator $url,
         protected Factory $view,
+        protected LoggerInterface $logger,
     ) {
     }
 
@@ -36,7 +38,7 @@ class NotificationMailer
         $this->translator->setLocale($user->getPreference('locale') ?? $this->settings->get('default_locale'));
 
         // Generate and save the unsubscribe token:
-        $unsubscribeRecord = UnsubscribeToken::generate($user->id, $blueprint::getType());
+        $unsubscribeRecord = $this->generateUnsubscribeToken($user->id, $blueprint::getType());
         $unsubscribeRecord->save();
 
         $unsubscribeLink = $this->url->to('forum')->route('notifications.unsubscribe', ['userId' => $user->id, 'token' => $unsubscribeRecord->token]);
@@ -50,14 +52,27 @@ class NotificationMailer
 
         $this->view->share($data);
 
-        $this->mailer->send(
-            $this->getEmailViews($blueprint),
-            $data,
-            function (Message $message) use ($blueprint, $user) {
-                $message->to($user->email, $user->display_name)
-                        ->subject($blueprint->getEmailSubject($this->translator));
-            }
-        );
+        try {
+            $this->mailer->send(
+                $this->getEmailViews($blueprint),
+                $data,
+                function (Message $message) use ($blueprint, $user) {
+                    $message->to($user->email, $user->display_name)
+                            ->subject($blueprint->getEmailSubject($this->translator));
+                }
+            );
+        } catch (\Throwable $e) {
+            $this->logger->error('Email notification could not be sent.', [
+                'notification_type' => $blueprint::getType(),
+                'recipient_id'      => $user->id,
+                'recipient_email'   => $user->email,
+                'recipient_name'    => $user->display_name,
+                'reason'            => $e->getMessage(),
+                'exception_class'   => get_class($e),
+            ]);
+
+            throw $e;
+        }
     }
 
     /**
@@ -70,6 +85,11 @@ class NotificationMailer
      *     html: string
      * }
      */
+    protected function generateUnsubscribeToken(int $userId, string $emailType): UnsubscribeToken
+    {
+        return UnsubscribeToken::generate($userId, $emailType);
+    }
+
     protected function getEmailViews(MailableInterface&BlueprintInterface $blueprint): array
     {
         $views = $blueprint->getEmailViews();
