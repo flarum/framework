@@ -59,14 +59,7 @@ class NotificationMailerTest extends TestCase
         $this->view->shouldReceive('share')->once();
 
         // Use a testable subclass that stubs out the DB-touching unsubscribe token
-        $this->notificationMailer = new class(
-            $this->mailer,
-            $this->translator,
-            $this->settings,
-            $this->url,
-            $this->view,
-            $this->logger,
-        ) extends NotificationMailer {
+        $this->notificationMailer = new class($this->mailer, $this->translator, $this->settings, $this->url, $this->view, $this->logger) extends NotificationMailer {
             protected function generateUnsubscribeToken(int $userId, string $emailType): UnsubscribeToken
             {
                 $token = m::mock(UnsubscribeToken::class)->shouldIgnoreMissing();

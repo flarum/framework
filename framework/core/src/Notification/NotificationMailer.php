@@ -64,11 +64,11 @@ class NotificationMailer
         } catch (\Throwable $e) {
             $this->logger->error('Email notification could not be sent.', [
                 'notification_type' => $blueprint::getType(),
-                'recipient_id'      => $user->id,
-                'recipient_email'   => $user->email,
-                'recipient_name'    => $user->display_name,
-                'reason'            => $e->getMessage(),
-                'exception_class'   => get_class($e),
+                'recipient_id' => $user->id,
+                'recipient_email' => $user->email,
+                'recipient_name' => $user->display_name,
+                'reason' => $e->getMessage(),
+                'exception_class' => get_class($e),
             ]);
 
             throw $e;
