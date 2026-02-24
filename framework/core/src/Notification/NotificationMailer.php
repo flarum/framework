@@ -75,6 +75,11 @@ class NotificationMailer
         }
     }
 
+    protected function generateUnsubscribeToken(int $userId, string $emailType): UnsubscribeToken
+    {
+        return UnsubscribeToken::generate($userId, $emailType);
+    }
+
     /**
      * Retrieves the email views from the blueprint, and enforces that both a
      * plain text and HTML view are provided.
@@ -85,11 +90,6 @@ class NotificationMailer
      *     html: string
      * }
      */
-    protected function generateUnsubscribeToken(int $userId, string $emailType): UnsubscribeToken
-    {
-        return UnsubscribeToken::generate($userId, $emailType);
-    }
-
     protected function getEmailViews(MailableInterface&BlueprintInterface $blueprint): array
     {
         $views = $blueprint->getEmailViews();
