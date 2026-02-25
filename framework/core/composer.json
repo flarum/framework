@@ -37,7 +37,7 @@
     },
     "require": {
         "php": "^8.2",
-        "components/font-awesome": "^6.5.2",
+        "fortawesome/font-awesome": "^7.0",
         "dflydev/fig-cookies": "^3.0",
         "doctrine/dbal": "^3.6",
         "dragonmantank/cron-expression": "*",
