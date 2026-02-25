@@ -94,6 +94,7 @@ class GroupResource extends AbstractDatabaseResource
             Schema\Boolean::make('isHidden')
                 ->writable(),
             Schema\Integer::make('position')
+                ->nullable(),
         ];
     }
 
