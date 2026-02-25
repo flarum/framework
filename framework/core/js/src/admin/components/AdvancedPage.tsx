@@ -330,6 +330,36 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
     const configCdnUrl = app.data.fontawesomeConfig?.cdn_url || this.setting('fontawesome_cdn_url')();
     const configKitUrl = app.data.fontawesomeConfig?.kit_url || this.setting('fontawesome_kit_url')();
 
+    // Icon preview groups. Each group tests a different compatibility tier.
+    // A working icon renders correctly; a broken box means that tier is not available.
+    const previewGroups: Array<{ label: string; icons: Array<{ cls: string; title: string }> }> = [
+      {
+        label: app.translator.trans('core.admin.advanced.fontawesome.preview.fa5_fa6_label') as string,
+        icons: [
+          { cls: 'fas fa-house', title: 'fas fa-house' },
+          { cls: 'far fa-envelope', title: 'far fa-envelope' },
+          { cls: 'fab fa-github', title: 'fab fa-github' },
+        ],
+      },
+      {
+        label: app.translator.trans('core.admin.advanced.fontawesome.preview.fa7_label') as string,
+        icons: [
+          { cls: 'fa-solid fa-house', title: 'fa-solid fa-house' },
+          { cls: 'fa-regular fa-envelope', title: 'fa-regular fa-envelope' },
+          { cls: 'fa-brands fa-github', title: 'fa-brands fa-github' },
+          { cls: 'fas fa-bus-side', title: 'fas fa-bus-side (FA7 only)' },
+        ],
+      },
+      {
+        label: app.translator.trans('core.admin.advanced.fontawesome.preview.pro_label') as string,
+        icons: [
+          { cls: 'fal fa-house', title: 'fal fa-house (Pro Light)' },
+          { cls: 'fat fa-house', title: 'fat fa-house (Pro Thin)' },
+          { cls: 'fad fa-house', title: 'fad fa-house (Pro Duotone)' },
+        ],
+      },
+    ];
+
     return (
       <FormSection label={app.translator.trans('core.admin.advanced.fontawesome.section_label')}>
         {app.data.fontawesomeByConfig ? (
@@ -363,7 +393,7 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
                 setting: 'fontawesome_cdn_url',
                 label: app.translator.trans('core.admin.advanced.fontawesome.cdn_url_label'),
                 help: app.translator.trans('core.admin.advanced.fontawesome.cdn_url_help'),
-                placeholder: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css',
+                placeholder: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.2.0/css/all.min.css',
               })}
 
             {source === 'kit' &&
@@ -376,6 +406,25 @@ export default class AdvancedPage<CustomAttrs extends IPageAttrs = IPageAttrs> e
               })}
           </Form>
         )}
+
+        <div className="Form-group">
+          <label>{app.translator.trans('core.admin.advanced.fontawesome.preview.label')}</label>
+          <p className="helpText">{app.translator.trans('core.admin.advanced.fontawesome.preview.help')}</p>
+          <div className="FontAwesomePreview">
+            {previewGroups.map((group) => (
+              <div className="FontAwesomePreview-group">
+                <span className="FontAwesomePreview-groupLabel">{group.label}</span>
+                <span className="FontAwesomePreview-icons">
+                  {group.icons.map((icon) => (
+                    <span className="FontAwesomePreview-icon" title={icon.title}>
+                      <i className={icon.cls} aria-hidden="true" />
+                    </span>
+                  ))}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </FormSection>
     );
   }

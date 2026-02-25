@@ -59,6 +59,12 @@ core:
         config_override:
           label: Config Override
           help: FontAwesome settings are currently set in your config.php file and cannot be changed here.
+        preview:
+          label: Icon Preview
+          help: "Verify your FontAwesome setup. A rendered icon means that tier is available; a broken box means it is not loaded."
+          fa5_fa6_label: "FA5/FA6 aliases"
+          fa7_label: "FA7 classes"
+          pro_label: "Pro only"
       pgsql:
         search_configuration: Search configuration to use
       queue:

@@ -260,7 +260,7 @@ export default class Application {
   allowUserColorScheme!: boolean;
 
   refs: Record<string, string> = {
-    fontawesome: 'https://fontawesome.com/v6/icons?o=r&m=free',
+    fontawesome: 'https://fontawesome.com/icons?o=r&m=free',
   };
 
   private _title: string = '';
