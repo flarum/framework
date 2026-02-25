@@ -52,7 +52,7 @@ export default abstract class Hero<CustomAttrs extends IHeroAttrs = IHeroAttrs> 
     return undefined;
   }
 
-  view(): Mithril.Vnode | null {
+  view(): JSX.Element | null {
     return (
       <header className={classList('Hero', this.className())} style={this.style()}>
         {this.viewItems().toArray()}
