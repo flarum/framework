@@ -25,7 +25,7 @@ class OrderGroupsController implements RequestHandlerInterface
 
         $order = Arr::get($request->getParsedBody(), 'order');
 
-        if ($order === null || !is_array($order)) {
+        if ($order === null || ! is_array($order)) {
             return new EmptyResponse(422);
         }
 
